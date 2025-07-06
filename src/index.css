@@ -1,0 +1,459 @@
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Skandia CRM Design System */
+
+@layer base {
+  :root {
+    /* Skandia Brand Colors */
+    --skandia-blue: 145 100% 38%;
+    --skandia-light-blue: 145 100% 38%;
+    --skandia-dark-blue: 0 0% 25%;
+    --skandia-accent: 0 0% 25%;
+    --skandia-gray: 210 10% 50%;
+    --skandia-light-gray: 210 10% 95%;
+    
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
+
+    --primary: var(--skandia-blue);
+    --primary-foreground: 210 40% 98%;
+
+    --secondary: var(--skandia-light-gray);
+    --secondary-foreground: var(--skandia-dark-blue);
+
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+
+    --accent: var(--skandia-accent);
+    --accent-foreground: 210 40% 98%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: var(--skandia-blue);
+
+    --radius: 0.75rem;
+
+    --sidebar-background: var(--skandia-dark-blue);
+    --sidebar-foreground: 210 40% 98%;
+    --sidebar-primary: var(--skandia-light-blue);
+    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-accent: var(--skandia-blue);
+    --sidebar-accent-foreground: 210 40% 98%;
+    --sidebar-border: var(--skandia-blue);
+    --sidebar-ring: var(--skandia-light-blue);
+  }
+
+  .dark {
+    --background: var(--skandia-dark-blue);
+    --foreground: 210 40% 98%;
+    --card: var(--skandia-blue);
+    --card-foreground: 210 40% 98%;
+    --popover: var(--skandia-blue);
+    --popover-foreground: 210 40% 98%;
+    --primary: var(--skandia-light-blue);
+    --primary-foreground: var(--skandia-dark-blue);
+    --secondary: var(--skandia-blue);
+    --secondary-foreground: 210 40% 98%;
+    --muted: var(--skandia-blue);
+    --muted-foreground: 215 20.2% 65.1%;
+    --accent: var(--skandia-accent);
+    --accent-foreground: 210 40% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+    --border: var(--skandia-blue);
+    --input: var(--skandia-blue);
+    --ring: var(--skandia-light-blue);
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground font-montserrat antialiased;
+  }
+}
+
+@layer utilities {
+  .gradient-skandia {
+    background: linear-gradient(135deg, hsl(var(--skandia-blue)), hsl(var(--skandia-light-blue)));
+  }
+  
+  .text-gradient {
+    background: linear-gradient(135deg, hsl(var(--skandia-blue)), hsl(var(--skandia-light-blue)));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+}
+
+/* Skandia Typography Styles */
+@layer components {
+  .sk-h1 {
+    @apply text-4xl font-bold leading-tight;
+  }
+
+  .sk-h2 {
+    @apply text-3xl font-bold leading-tight;
+  }
+
+  .sk-h3 {
+    @apply text-2xl font-semibold leading-tight;
+  }
+
+  .sk-h4 {
+    @apply text-xl font-semibold leading-tight;
+  }
+
+  .sk-h5 {
+    @apply text-lg font-medium leading-tight;
+  }
+
+  .sk-h6 {
+    @apply text-base font-medium leading-tight;
+  }
+
+  .bold {
+    @apply font-bold;
+  }
+
+  /* Skandia Accordion V2 Styles */
+  .sk-accordion-v2 {
+    @apply w-full;
+  }
+
+  .sk-accordion-v2-item {
+    @apply border-b border-border;
+  }
+
+  .sk-accordion-v2-header {
+    @apply flex;
+  }
+
+  .sk-accordion-v2-button {
+    @apply flex flex-1 items-center justify-between py-4 text-left font-medium transition-all hover:underline;
+    @apply text-foreground bg-transparent border-0 outline-none cursor-pointer;
+  }
+
+  .sk-accordion-v2-button:focus {
+    @apply outline-none ring-2 ring-ring ring-offset-2;
+  }
+
+  .sk-accordion-v2-collapse {
+    @apply overflow-hidden transition-all duration-300;
+  }
+
+  .sk-accordion-v2-body {
+    @apply pb-4 pt-0 text-sm text-muted-foreground;
+  }
+
+  /* Skandia Pagination Styles */
+  .sk-pagination-main-container {
+    @apply flex justify-center w-full my-6;
+  }
+
+  .sk-pagination-container {
+    @apply flex items-center justify-between gap-4 bg-white border border-gray-200 rounded-lg px-4 py-3 shadow-sm;
+    min-width: 400px;
+  }
+
+  .sk-pagination-text {
+    @apply text-sm font-medium text-gray-700;
+  }
+
+  .sk-pagination-page {
+    @apply flex items-center gap-1 list-none m-0 p-0;
+  }
+
+  .sk-pagination-page-btn {
+    @apply flex items-center justify-center w-8 h-8 rounded bg-green-500 text-white cursor-pointer transition-colors;
+  }
+
+  .sk-pagination-page-btn:hover {
+    @apply bg-green-600;
+  }
+
+  .sk-pagination-page-btn.disabled {
+    @apply bg-gray-300 text-gray-500 cursor-not-allowed;
+  }
+
+  .sk-pagination-icon-container {
+    @apply flex items-center justify-center;
+  }
+
+  .sk-pagination-icon {
+    @apply w-4 h-4;
+  }
+
+  .sk-pagination-page-numbers {
+    @apply flex items-center justify-center w-8 h-8 rounded text-sm font-medium text-gray-700 cursor-pointer transition-colors;
+  }
+
+  .sk-pagination-page-numbers:hover {
+    @apply bg-gray-100;
+  }
+
+  .sk-pagination-page-numbers.pagination-active {
+    @apply bg-green-500 text-white font-semibold;
+  }
+
+  .sk-pagination-page-dots {
+    @apply flex items-center justify-center w-8 h-8 text-gray-500 text-sm;
+  }
+
+  /* Dark mode para la paginación */
+  .dark .sk-pagination-container {
+    @apply bg-gray-800 border-gray-700;
+  }
+
+  .dark .sk-pagination-text {
+    @apply text-gray-300;
+  }
+
+  .dark .sk-pagination-page-numbers {
+    @apply text-gray-300;
+  }
+
+  .dark .sk-pagination-page-numbers:hover {
+    @apply bg-gray-700;
+  }
+
+  .dark .sk-pagination-page-dots {
+    @apply text-gray-500;
+  }
+
+  /* Estilos de Tabla Estilo ChatGPT - MEJORADOS */
+  .data-table-container {
+    margin: 1rem 0;
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    /* CLAVE: Fijar ancho máximo y no permitir expansión */
+    width: 100%;
+    max-width: 600px;
+    box-sizing: border-box;
+  }
+
+  .data-table-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    background-color: #f8f9fa;
+    border-bottom: 1px solid #ddd;
+    flex-shrink: 0;
+  }
+
+  .data-table-title {
+    font-size: 14px;
+    font-weight: 500;
+    color: #374151;
+  }
+
+  .data-table-export-btn {
+    color: #6b7280;
+    padding: 4px 8px;
+    flex-shrink: 0;
+  }
+
+  .data-table-wrapper {
+    /* CLAVE: Forzar scroll horizontal estricto */
+    max-height: 400px;
+    width: 100%;
+    overflow-x: auto;
+    overflow-y: auto;
+    position: relative;
+    box-sizing: border-box;
+  }
+
+  .data-table {
+    /* CLAVE: Permitir que la tabla tenga su ancho natural pero con scroll */
+    width: max-content;
+    min-width: 100%;
+    border-collapse: collapse;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+    font-size: 14px;
+    line-height: 1.4;
+    white-space: nowrap;
+  }
+
+  .data-table-head {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background-color: #f0f0f0;
+  }
+
+  .data-table-header-cell {
+    background-color: #f0f0f0;
+    border: 1px solid #ccc;
+    padding: 8px 12px;
+    text-align: center;
+    font-weight: 600;
+    color: #374151;
+    white-space: nowrap;
+    position: sticky;
+    top: 0;
+    /* Permitir ancho natural del contenido */
+    width: auto;
+    min-width: 150px;
+  }
+
+  .data-table-cell {
+    border: 1px solid #ccc;
+    padding: 8px 12px;
+    text-align: center;
+    background-color: white;
+    color: #374151;
+    white-space: nowrap;
+    /* Permitir ancho natural del contenido */
+    width: auto;
+    min-width: 150px;
+  }
+
+  .data-table-pagination {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    background-color: #f8f9fa;
+    border-top: 1px solid #ddd;
+    flex-shrink: 0;
+  }
+
+  .data-table-pagination-info {
+    font-size: 13px;
+    color: #6b7280;
+  }
+
+  .data-table-pagination-controls {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .data-table-pagination-current {
+    font-size: 13px;
+    color: #6b7280;
+    margin: 0 8px;
+  }
+
+  /* Dark mode para las tablas */
+  .dark .data-table-container {
+    background: #1f2937;
+    border-color: #4b5563;
+  }
+
+  .dark .data-table-header {
+    background-color: #374151;
+    border-color: #4b5563;
+  }
+
+  .dark .data-table-title {
+    color: #f9fafb;
+  }
+
+  .dark .data-table-head {
+    background-color: #374151;
+  }
+
+  .dark .data-table-header-cell {
+    background-color: #374151;
+    color: #f9fafb;
+    border-color: #4b5563;
+  }
+
+  .dark .data-table-cell {
+    background-color: #1f2937;
+    color: #f9fafb;
+    border-color: #4b5563;
+  }
+
+  .dark .data-table-pagination {
+    background-color: #374151;
+    border-color: #4b5563;
+  }
+
+  .dark .data-table-pagination-info,
+  .dark .data-table-pagination-current {
+    color: #d1d5db;
+  }
+
+  /* Responsive: en móviles, ajustar el diseño */
+  @media (max-width: 768px) {
+    .data-table-container {
+      margin: 0.5rem 0;
+      max-width: 100%;
+    }
+    
+    .data-table-wrapper {
+      overflow-x: auto;
+      width: 100%;
+      padding-bottom: 8px;
+    }
+    
+    .data-table-header {
+      padding: 8px 12px;
+    }
+    
+    .data-table-title {
+      font-size: 13px;
+    }
+    
+    .data-table-pagination {
+      padding: 8px 12px;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    
+    .data-table-pagination-info {
+      font-size: 12px;
+    }
+
+    .data-table th,
+    .data-table td {
+      min-width: 140px; /* o el valor que estimes adecuado */
+      max-width: 768px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .data-table-header-cell,
+    .data-table-cell {
+      min-width: 100px;
+      padding: 6px 8px;
+    }
+
+    .sk-pagination-container {
+      min-width: auto;
+      flex-direction: column;
+      gap: 2;
+    }
+
+    .sk-pagination-text {
+      order: 2;
+      font-size: 12px;
+    }
+
+    .sk-pagination-page {
+      order: 1;
+    }
+  }
+}
