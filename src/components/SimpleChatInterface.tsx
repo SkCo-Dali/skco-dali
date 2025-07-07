@@ -304,7 +304,7 @@ export const SimpleChatInterface = forwardRef<any, {}>((props, ref) => {
   return (
     <>
       {/* Contenedor principal completamente responsivo */}
-      <div className={`flex flex-col w-full h-full max-w-4xl mx-auto ${
+      <div className={`flex flex-col w-full h-full max-w-4xl mx-auto pt-4 ${
         isMobile ? 'px-2' : 'px-4'
       }`}>
 
