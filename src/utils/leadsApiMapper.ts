@@ -1,4 +1,3 @@
-
 import { Lead } from '@/types/crm';
 import { ApiLead, CreateLeadRequest, UpdateLeadRequest, API_TO_FRONTEND_STAGE_MAP, FRONTEND_TO_API_STAGE_MAP, API_TO_FRONTEND_PRIORITY_MAP, FRONTEND_TO_API_PRIORITY_MAP } from '@/types/leadsApiTypes';
 
@@ -20,19 +19,29 @@ const parseArrayField = (field: string | string[] | null | undefined): string[] 
   
   // Si es un string, verificar si es JSON válido
   if (typeof field === 'string') {
+    console.log('🔍 parseArrayField - Processing field:', field);
+    console.log('🔍 parseArrayField - Field type:', typeof field);
+    console.log('🔍 parseArrayField - Field length:', field.length);
+    
     // Solo intentar parsear como JSON si parece ser JSON válido
     if ((field.trim().startsWith('[') && field.trim().endsWith(']')) || 
-        (field.trim().startsWith('{') && field.trim().endsWith('}') && isValidJSON(field))) {
+        (field.trim().startsWith('{') && field.trim().endsWith('}'))) {
+      
+      console.log('🔍 parseArrayField - Field looks like JSON, attempting to parse...');
+      
       try {
         const parsed = JSON.parse(field);
+        console.log('✅ parseArrayField - Successfully parsed JSON:', parsed);
         return Array.isArray(parsed) ? parsed : [parsed];
       } catch (error) {
-        console.warn('Failed to parse JSON field:', field, error);
+        console.warn('⚠️ parseArrayField - Failed to parse JSON field:', field);
+        console.warn('⚠️ parseArrayField - Parse error:', error);
         // Si falla el parsing, tratarlo como string simple
         return [field];
       }
     } else {
       // Si no parece JSON válido, tratarlo como string simple
+      console.log('🔍 parseArrayField - Field treated as simple string');
       return [field];
     }
   }
@@ -46,30 +55,48 @@ const parseTagsField = (field: string | string[] | null | undefined): string[] =
   if (Array.isArray(field)) return field;
   
   if (typeof field === 'string') {
+    console.log('🏷️ parseTagsField - Processing Tags field:', field);
+    console.log('🏷️ parseTagsField - Field type:', typeof field);
+    console.log('🏷️ parseTagsField - Field length:', field.length);
+    
     // Solo intentar parsear como JSON si parece ser JSON válido y completo
-    if ((field.trim().startsWith('{') && field.trim().endsWith('}') && isValidJSON(field))) {
+    if ((field.trim().startsWith('{') && field.trim().endsWith('}'))) {
+      console.log('🏷️ parseTagsField - Tags field looks like JSON object, attempting to parse...');
+      
       try {
         const parsed = JSON.parse(field);
+        console.log('✅ parseTagsField - Successfully parsed Tags JSON:', parsed);
+        
         if (typeof parsed === 'object' && parsed !== null) {
           // Convertir objeto a array de strings con formato "key: value"
-          return Object.entries(parsed).map(([key, value]) => `${key}: ${value}`);
+          const tagsArray = Object.entries(parsed).map(([key, value]) => `${key}: ${value}`);
+          console.log('✅ parseTagsField - Converted to tags array:', tagsArray);
+          return tagsArray;
         }
         return [field];
       } catch (error) {
-        console.warn('Failed to parse Tags JSON field:', field, error);
+        console.warn('⚠️ parseTagsField - Failed to parse Tags JSON field:', field);
+        console.warn('⚠️ parseTagsField - Parse error:', error);
+        console.warn('⚠️ parseTagsField - Error name:', error.name);
+        console.warn('⚠️ parseTagsField - Error message:', error.message);
         return [field];
       }
     } else if (field.trim().startsWith('[') && field.trim().endsWith(']')) {
+      console.log('🏷️ parseTagsField - Tags field looks like JSON array, attempting to parse...');
+      
       // Si es un array JSON
       try {
         const parsed = JSON.parse(field);
+        console.log('✅ parseTagsField - Successfully parsed Tags array:', parsed);
         return Array.isArray(parsed) ? parsed : [parsed];
       } catch (error) {
-        console.warn('Failed to parse Tags array field:', field, error);
+        console.warn('⚠️ parseTagsField - Failed to parse Tags array field:', field);
+        console.warn('⚠️ parseTagsField - Parse error:', error);
         return [field];
       }
     } else {
       // String simple
+      console.log('🏷️ parseTagsField - Tags field treated as simple string');
       return [field];
     }
   }
@@ -79,35 +106,49 @@ const parseTagsField = (field: string | string[] | null | undefined): string[] =
 
 // Mapear de ApiLead a Lead (formato frontend)
 export const mapApiLeadToLead = (apiLead: ApiLead): Lead => {
-  return {
-    id: apiLead.Id,
-    name: apiLead.Name,
-    email: apiLead.Email,
-    phone: apiLead.Phone,
-    documentNumber: apiLead.DocumentNumber,
-    documentType: (apiLead.DocumentType as any) || 'CC',
-    company: apiLead.Company || '',
-    source: mapApiSourceToFrontend(apiLead.Source),
-    campaign: apiLead.Campaign || '',
-    product: parseArrayField(apiLead.Product),
-    portfolios: parseArrayField(apiLead.SelectedPortfolios),
-    stage: (API_TO_FRONTEND_STAGE_MAP[apiLead.Stage] || 'new') as Lead['stage'],
-    priority: (API_TO_FRONTEND_PRIORITY_MAP[apiLead.Priority] || 'medium') as Lead['priority'],
-    value: apiLead.Value || 0,
-    assignedTo: apiLead.AssignedTo,
-    status: 'New', // Add required status property
-    portfolio: parseArrayField(apiLead.SelectedPortfolios)[0] || 'Portfolio A', // Add required portfolio property
-    createdAt: apiLead.CreatedAt,
-    updatedAt: apiLead.UpdatedAt,
-    nextFollowUp: apiLead.NextFollowUp || '',
-    notes: apiLead.Notes || '',
-    tags: parseTagsField(apiLead.Tags),
-    age: apiLead.Age || 0,
-    gender: (apiLead.Gender as any) || 'Prefiero no decir',
-    campaignOwnerName: apiLead.CampaignOwnerName || '',
-    preferredContactChannel: (apiLead.PreferredContactChannel as Lead['preferredContactChannel']) || 'Correo',
-    interactions: [] // Se cargarán por separado si es necesario
-  };
+  console.log('🔄 mapApiLeadToLead - Starting mapping for lead:', apiLead.Id);
+  console.log('🔄 mapApiLeadToLead - Lead name:', apiLead.Name);
+  
+  try {
+    const mappedLead = {
+      id: apiLead.Id,
+      name: apiLead.Name,
+      email: apiLead.Email,
+      phone: apiLead.Phone,
+      documentNumber: apiLead.DocumentNumber,
+      documentType: (apiLead.DocumentType as any) || 'CC',
+      company: apiLead.Company || '',
+      source: mapApiSourceToFrontend(apiLead.Source),
+      campaign: apiLead.Campaign || '',
+      product: parseArrayField(apiLead.Product),
+      portfolios: parseArrayField(apiLead.SelectedPortfolios),
+      stage: (API_TO_FRONTEND_STAGE_MAP[apiLead.Stage] || 'new') as Lead['stage'],
+      priority: (API_TO_FRONTEND_PRIORITY_MAP[apiLead.Priority] || 'medium') as Lead['priority'],
+      value: apiLead.Value || 0,
+      assignedTo: apiLead.AssignedTo,
+      status: 'New', // Add required status property
+      portfolio: parseArrayField(apiLead.SelectedPortfolios)[0] || 'Portfolio A', // Add required portfolio property
+      createdAt: apiLead.CreatedAt,
+      updatedAt: apiLead.UpdatedAt,
+      nextFollowUp: apiLead.NextFollowUp || '',
+      notes: apiLead.Notes || '',
+      tags: parseTagsField(apiLead.Tags),
+      age: apiLead.Age || 0,
+      gender: (apiLead.Gender as any) || 'Prefiero no decir',
+      campaignOwnerName: apiLead.CampaignOwnerName || '',
+      preferredContactChannel: (apiLead.PreferredContactChannel as Lead['preferredContactChannel']) || 'Correo',
+      interactions: [] // Se cargarán por separado si es necesario
+    };
+    
+    console.log('✅ mapApiLeadToLead - Successfully mapped lead:', mappedLead.id);
+    return mappedLead;
+    
+  } catch (error) {
+    console.error('❌ mapApiLeadToLead - Error mapping lead:', apiLead.Id);
+    console.error('❌ mapApiLeadToLead - Error details:', error);
+    console.error('❌ mapApiLeadToLead - Lead data that caused error:', JSON.stringify(apiLead, null, 2));
+    throw error; // Re-throw para que el error se propague
+  }
 };
 
 // Mapear de Lead a formato de creación de API
