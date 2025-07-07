@@ -4,7 +4,6 @@ import { ApiLead, CreateLeadRequest, UpdateLeadRequest, API_TO_FRONTEND_STAGE_MA
 // Función helper para detectar si un string es JSON válido
 const isValidJSON = (str: string): boolean => {
   if (!str || typeof str !== 'string') {
-    console.log('🔍 isValidJSON - Not a valid string:', str);
     return false;
   }
   
@@ -15,59 +14,41 @@ const isValidJSON = (str: string): boolean => {
                         (trimmed.startsWith('[') && trimmed.endsWith(']'));
   
   if (!looksLikeJSON) {
-    console.log('🔍 isValidJSON - String does not look like JSON:', trimmed);
     return false;
   }
   
   try {
     const parsed = JSON.parse(trimmed);
-    console.log('🔍 isValidJSON - Successfully parsed:', parsed);
-    console.log('🔍 isValidJSON - Parsed type:', typeof parsed);
-    console.log('🔍 isValidJSON - Is object:', typeof parsed === 'object');
-    console.log('🔍 isValidJSON - Is not null:', parsed !== null);
-    
-    // Solo considerar como JSON válido si el resultado es un objeto o array
-    const isValid = typeof parsed === 'object' && parsed !== null;
-    console.log('🔍 isValidJSON - Final result:', isValid);
-    return isValid;
+    return typeof parsed === 'object' && parsed !== null;
   } catch (error) {
-    console.log('🔍 isValidJSON - Parse failed:', error.message);
     return false;
   }
 };
 
 // Función para parsear arrays que pueden venir como string JSON o string simple
 const parseArrayField = (field: string | string[] | null | undefined): string[] => {
+  console.log('🔍 parseArrayField - Processing field:', field);
+  console.log('🔍 parseArrayField - Field type:', typeof field);
+  
   if (!field) return [];
   if (Array.isArray(field)) return field;
   
   // Si es un string, verificar si es JSON válido
   if (typeof field === 'string') {
-    console.log('🔍 parseArrayField - Processing field:', field);
-    console.log('🔍 parseArrayField - Field type:', typeof field);
-    console.log('🔍 parseArrayField - Field length:', field.length);
-    
-    // Primero verificar si parece ser JSON válido usando isValidJSON
+    // Primero verificar si parece ser JSON válido
     if (isValidJSON(field)) {
       console.log('🔍 parseArrayField - Field is valid JSON, attempting to parse...');
-      
       try {
         const parsed = JSON.parse(field);
         console.log('✅ parseArrayField - Successfully parsed JSON:', parsed);
         return Array.isArray(parsed) ? parsed : [parsed];
       } catch (error) {
-        console.warn('⚠️ parseArrayField - Failed to parse JSON field:', field);
-        console.warn('⚠️ parseArrayField - Parse error:', error);
-        console.warn('⚠️ parseArrayField - Error name:', error.name);
-        console.warn('⚠️ parseArrayField - Error message:', error.message);
-        
-        // Si falla el parsing, tratarlo como string simple
-        console.log('🔄 parseArrayField - Falling back to simple string treatment');
+        console.warn('⚠️ parseArrayField - Failed to parse JSON field, treating as simple string:', field);
         return [field];
       }
     } else {
       // Si no es JSON válido, tratarlo como string simple
-      console.log('🔍 parseArrayField - Field is not valid JSON, treating as simple string');
+      console.log('🔍 parseArrayField - Field is not valid JSON, treating as simple string:', field);
       return [field];
     }
   }
@@ -161,8 +142,8 @@ export const mapApiLeadToLead = (apiLead: ApiLead): Lead => {
       priority: (API_TO_FRONTEND_PRIORITY_MAP[apiLead.Priority] || 'medium') as Lead['priority'],
       value: apiLead.Value || 0,
       assignedTo: apiLead.AssignedTo,
-      status: 'New' as Lead['status'], // Fix: Explicitly cast to LeadStatus
-      portfolio: parseArrayField(apiLead.SelectedPortfolios)[0] || 'Portfolio A', // Add required portfolio property
+      status: 'New' as Lead['status'],
+      portfolio: parseArrayField(apiLead.SelectedPortfolios)[0] || 'Portfolio A',
       createdAt: apiLead.CreatedAt,
       updatedAt: apiLead.UpdatedAt,
       nextFollowUp: apiLead.NextFollowUp || '',
@@ -172,7 +153,7 @@ export const mapApiLeadToLead = (apiLead: ApiLead): Lead => {
       gender: (apiLead.Gender as any) || 'Prefiero no decir',
       campaignOwnerName: apiLead.CampaignOwnerName || '',
       preferredContactChannel: (apiLead.PreferredContactChannel as Lead['preferredContactChannel']) || 'Correo',
-      interactions: [] // Se cargarán por separado si es necesario
+      interactions: []
     };
     
     console.log('✅ mapApiLeadToLead - Successfully mapped lead:', mappedLead.id);
@@ -182,7 +163,7 @@ export const mapApiLeadToLead = (apiLead: ApiLead): Lead => {
     console.error('❌ mapApiLeadToLead - Error mapping lead:', apiLead.Id);
     console.error('❌ mapApiLeadToLead - Error details:', error);
     console.error('❌ mapApiLeadToLead - Lead data that caused error:', JSON.stringify(apiLead, null, 2));
-    throw error; // Re-throw para que el error se propague
+    throw error;
   }
 };
 
