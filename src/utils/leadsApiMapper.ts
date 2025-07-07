@@ -100,6 +100,30 @@ const parseTagsField = (field: string | string[] | null | undefined): string[] =
   return [];
 };
 
+// Función para parsear el campo Product como string simple
+const parseProductField = (field: string | string[] | null | undefined): string => {
+  console.log('📦 parseProductField - Processing Product field:', field);
+  console.log('📦 parseProductField - Field type:', typeof field);
+  
+  if (!field) return '';
+  
+  // Si es un array, convertirlo a string
+  if (Array.isArray(field)) {
+    console.log('📦 parseProductField - Field is array, converting to string:', field);
+    return JSON.stringify(field);
+  }
+  
+  // Si es un string, devolverlo tal como está
+  if (typeof field === 'string') {
+    console.log('📦 parseProductField - Field is string, returning as is:', field);
+    return field;
+  }
+  
+  // Para cualquier otro tipo, convertir a string
+  console.log('📦 parseProductField - Field is other type, converting to string:', field);
+  return String(field);
+};
+
 // Mapear de ApiLead a Lead (formato frontend)
 export const mapApiLeadToLead = (apiLead: ApiLead): Lead => {
   console.log('🔄 mapApiLeadToLead - Starting mapping for lead:', apiLead.Id);
@@ -116,7 +140,7 @@ export const mapApiLeadToLead = (apiLead: ApiLead): Lead => {
       company: apiLead.Company || '',
       source: mapApiSourceToFrontend(apiLead.Source),
       campaign: apiLead.Campaign || '',
-      product: apiLead.Product, // Usar la misma lógica que Tags
+      product: parseProductField(apiLead.Product),
       portfolios: parseArrayField(apiLead.SelectedPortfolios),
       stage: (API_TO_FRONTEND_STAGE_MAP[apiLead.Stage] || 'new') as Lead['stage'],
       priority: (API_TO_FRONTEND_PRIORITY_MAP[apiLead.Priority] || 'medium') as Lead['priority'],

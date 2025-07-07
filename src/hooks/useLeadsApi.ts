@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { Lead, LeadStatus } from '@/types/crm';
 import { getAllLeads, createLead, updateLead, deleteLead, getLeadsByUser } from '@/utils/leadsApiClient';
@@ -26,7 +27,7 @@ export const useLeadsApi = () => {
       campaign: reassignableLead.Campaign || reassignableLead.campaign,
       product: reassignableLead.Product ? 
         (typeof reassignableLead.Product === 'string' ? 
-          JSON.parse(reassignableLead.Product) : reassignableLead.Product) : [],
+          reassignableLead.Product : JSON.stringify(reassignableLead.Product)) : '',
       stage: reassignableLead.Stage || reassignableLead.stage,
       priority: reassignableLead.Priority || reassignableLead.priority,
       value: parseFloat(reassignableLead.Value) || reassignableLead.value || 0,

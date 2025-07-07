@@ -57,7 +57,7 @@ export function LeadCard({ lead, onClick }: LeadCardProps) {
       <CardContent className="pt-0 flex-1 flex flex-col justify-between">
         <div className="space-y-3">
           <div className="text-xs text-muted-foreground truncate overflow-hidden whitespace-nowrap">
-            <strong>Producto:</strong> {lead.product.join(', ')}
+            <strong>Producto:</strong> {lead.product}
           </div>
           <div className="text-xs text-muted-foreground truncate overflow-hidden whitespace-nowrap">
             <strong>Campaña:</strong> {lead.campaign || 'Sin campaña'}
