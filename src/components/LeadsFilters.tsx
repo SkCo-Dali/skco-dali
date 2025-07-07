@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useUsersApi } from "@/hooks/useUsersApi";
+import { FilterX } from "lucide-react";
 
 interface LeadsFiltersProps {
   searchTerm: string;
@@ -165,6 +166,20 @@ export function LeadsFilters({
       <Card>
         <CardContent className="pt-6">
           <div className="space-y-4">
+            {/* Header con botón de limpiar filtros */}
+            <div className="flex items-center justify-between">
+              <h3 className="text-lg font-semibold">Filtros</h3>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={onClearFilters}
+                className="flex items-center gap-2"
+              >
+                <FilterX className="h-4 w-4" />
+                Limpiar filtros
+              </Button>
+            </div>
+
             {/* Filtros principales con selección múltiple */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
               {filterConfig.map((filter) => (

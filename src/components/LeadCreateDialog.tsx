@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -125,6 +126,13 @@ export function LeadCreateDialog({ onLeadCreate }: LeadCreateDialogProps) {
     setOpen(false);
   };
 
+  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    // Solo permitir números, espacios, guiones y paréntesis
+    const numericValue = value.replace(/[^0-9\s\-\(\)]/g, '');
+    setFormData({...formData, phone: numericValue});
+  };
+
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
@@ -180,7 +188,10 @@ export function LeadCreateDialog({ onLeadCreate }: LeadCreateDialogProps) {
                   <Input
                     type="text"
                     value={formData.documentNumber?.toString() || ''}
-                    onChange={(e) => setFormData({...formData, documentNumber: e.target.value ? Number(e.target.value) : undefined})}
+                    onChange={(e) => {
+                      const value = e.target.value.replace(/[^0-9]/g, ''); // Solo números
+                      setFormData({...formData, documentNumber: value ? Number(value) : undefined});
+                    }}
                     className="border-gray-300 rounded-lg h-12 bg-gray-50"
                     placeholder="Número de identificación*"
                     required
@@ -212,7 +223,7 @@ export function LeadCreateDialog({ onLeadCreate }: LeadCreateDialogProps) {
               <div className="relative">
                 <Input
                   value={formData.phone}
-                  onChange={(e) => setFormData({...formData, phone: e.target.value})}
+                  onChange={handlePhoneChange}
                   className="border-gray-300 rounded-lg h-12 bg-gray-50"
                   placeholder="Celular*"
                   required
@@ -319,7 +330,10 @@ export function LeadCreateDialog({ onLeadCreate }: LeadCreateDialogProps) {
                       <Input
                         type="text"
                         value={formData.age?.toString() || ''}
-                        onChange={(e) => setFormData({...formData, age: e.target.value ? Number(e.target.value) : undefined})}
+                        onChange={(e) => {
+                          const value = e.target.value.replace(/[^0-9]/g, ''); // Solo números
+                          setFormData({...formData, age: value ? Number(value) : undefined});
+                        }}
                         className="border-gray-300 rounded-lg h-12 bg-gray-50"
                         placeholder="Edad"
                       />
