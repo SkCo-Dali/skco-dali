@@ -100,65 +100,6 @@ const parseTagsField = (field: string | string[] | null | undefined): string[] =
   return [];
 };
 
-// Función específica para parsear el campo Product usando la misma lógica que Tags
-const parseProductField = (field: string | string[] | null | undefined): string[] => {
-  if (!field) return [];
-  if (Array.isArray(field)) return field;
-  
-  if (typeof field === 'string') {
-    console.log('📦 parseProductField - Processing Product field:', field);
-    console.log('📦 parseProductField - Field type:', typeof field);
-    console.log('📦 parseProductField - Field length:', field.length);
-    
-    // Solo intentar parsear como JSON si parece ser JSON válido y completo
-    if ((field.trim().startsWith('{') && field.trim().endsWith('}'))) {
-      console.log('📦 parseProductField - Product field looks like JSON object, attempting to parse...');
-      
-      try {
-        const parsed = JSON.parse(field);
-        console.log('✅ parseProductField - Successfully parsed Product JSON:', parsed);
-        
-        if (typeof parsed === 'object' && parsed !== null) {
-          // Convertir objeto a array de strings con formato "key: value"
-          const productArray = Object.entries(parsed).map(([key, value]) => `${key}: ${value}`);
-          console.log('✅ parseProductField - Converted to product array:', productArray);
-          return productArray;
-        }
-        return [field];
-      } catch (error) {
-        console.warn('⚠️ parseProductField - Failed to parse Product JSON field:', field);
-        console.warn('⚠️ parseProductField - Parse error:', error);
-        
-        // Si falla el parsing, tratarlo como string simple
-        console.log('🔄 parseProductField - Falling back to simple string treatment');
-        return [field];
-      }
-    } else if (field.trim().startsWith('[') && field.trim().endsWith(']')) {
-      console.log('📦 parseProductField - Product field looks like JSON array, attempting to parse...');
-      
-      // Si es un array JSON
-      try {
-        const parsed = JSON.parse(field);
-        console.log('✅ parseProductField - Successfully parsed Product array:', parsed);
-        return Array.isArray(parsed) ? parsed : [parsed];
-      } catch (error) {
-        console.warn('⚠️ parseProductField - Failed to parse Product array field:', field);
-        console.warn('⚠️ parseProductField - Parse error:', error);
-        
-        // Si falla el parsing, tratarlo como string simple
-        console.log('🔄 parseProductField - Falling back to simple string treatment');
-        return [field];
-      }
-    } else {
-      // String simple - este es el caso más común para "FPOB 01"
-      console.log('📦 parseProductField - Product field treated as simple string');
-      return [field];
-    }
-  }
-  
-  return [];
-};
-
 // Mapear de ApiLead a Lead (formato frontend)
 export const mapApiLeadToLead = (apiLead: ApiLead): Lead => {
   console.log('🔄 mapApiLeadToLead - Starting mapping for lead:', apiLead.Id);
@@ -175,7 +116,7 @@ export const mapApiLeadToLead = (apiLead: ApiLead): Lead => {
       company: apiLead.Company || '',
       source: mapApiSourceToFrontend(apiLead.Source),
       campaign: apiLead.Campaign || '',
-      product: parseProductField(apiLead.Product), // Ahora garantiza que retorna string[]
+      product: apiLead.Product, // Usar la misma lógica que Tags
       portfolios: parseArrayField(apiLead.SelectedPortfolios),
       stage: (API_TO_FRONTEND_STAGE_MAP[apiLead.Stage] || 'new') as Lead['stage'],
       priority: (API_TO_FRONTEND_PRIORITY_MAP[apiLead.Priority] || 'medium') as Lead['priority'],
