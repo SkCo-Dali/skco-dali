@@ -403,8 +403,7 @@ function Leads() {
     <Tooltip>
       <TooltipTrigger asChild>
         <Button
-          variant={viewMode === 'grid' ? 'default' : 'outline'}
-          className= "h-12 w-12"
+          variant={viewMode === 'grid' ? 'icon' : 'outline'}
           size="icon"
           onClick={() => setViewMode('grid')}
         >
@@ -419,8 +418,7 @@ function Leads() {
     <Tooltip>
       <TooltipTrigger asChild>
         <Button
-          variant={viewMode === 'table' ? 'default' : 'outline'}
-          className= "h-12 w-12"
+          variant={viewMode === 'table' ? 'icon' : 'outline'}
           size="icon"
           onClick={() => setViewMode('table')}
         >
@@ -435,8 +433,7 @@ function Leads() {
     <Tooltip>
       <TooltipTrigger asChild>
         <Button
-          variant={viewMode === 'columns' ? 'default' : 'outline'}
-          className= "h-12 w-12"
+          variant={viewMode === 'columns' ? 'icon' : 'outline'}
           size="icon"
           onClick={() => setViewMode('columns')}
         >
