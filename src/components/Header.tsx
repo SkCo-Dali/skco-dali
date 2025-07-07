@@ -44,61 +44,57 @@ export function Header({ onBannerMessage, chatInterfaceRef }: HeaderProps = {}) 
   return (
     <>
       <header className="fixed top-0 left-0 right-0 z-50 w-full border-b bg-background">
-        <div className="flex h-20 items-center justify-between px-6">
-          <div className="flex items-center md:w-auto">
-            {isMobile ? (
-              // Versión móvil: solo botón hamburguesa
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={toggleSidebar}
-                className="text-foreground flex-shrink-0"
-              >
-                <img 
-                  src="https://skcoblobresources.blob.core.windows.net/digital-assets/icons/icon-skandia/sk_header_menu_resposive.svg"
-                  alt="Menu"
-                  className="h-5 w-5"
-                />
-              </Button>
-            ) : (
-              // Versión escritorio: Logo de la compañía
-              <div className="flex items-center space-x-3">
-                <img
-                  src="https://aistudiojarvis0534199251.blob.core.windows.net/skandia-icons/DALILM2.png"
-                  alt="Logo Skandia"
-                  className="h-10 w-auto object-contain"
-                />
-                <div>
-                  <h1 className="sk-h4 text-foreground">Tu copiloto en Skandia</h1>
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* Banner dinámico en el centro */}
-          {isMobile ? (
-            <div className="flex-1 mx-2 max-w-full min-w-0">
-              <DynamicBanner
-                onClose={() => {}}
-                onBannerAction={handleBannerAction}
-              />
-            </div>
-          ) : (
-            <div className="hidden lg:flex flex-1 justify-center items-center px-4">
-              <div className="w-full max-w-2xl mx-auto">
-                <DynamicBanner
-                  onClose={() => {}}
-                  onBannerAction={handleBannerAction}
-                />
-              </div>
-            </div>
-          )}
-
-          <div className="flex items-center space-x-4">
-            <NotificationCenter />
-            {!isMobile && <UserProfile />}
-          </div>
+        <div className="flex h-20 items-center justify-between px-2 sm:px-6">
+  {/* Botón hamburguesa o logo, pegado a la izquierda */}
+  <div className="flex items-center md:w-auto">
+    {isMobile ? (
+      <Button
+        variant="ghost"
+        size="icon"
+        onClick={toggleSidebar}
+        className="text-foreground flex-shrink-0 p-1"
+        style={{ marginLeft: 0 }} // Opcional para asegurar que no haya margen
+      >
+        <img
+          src="https://skcoblobresources.blob.core.windows.net/digital-assets/icons/icon-skandia/sk_header_menu_resposive.svg"
+          alt="Menu"
+          className="h-6 w-6" // un poco más grande para mejor clic
+        />
+      </Button>
+    ) : (
+      <div className="flex items-center space-x-3">
+        <img
+          src="https://aistudiojarvis0534199251.blob.core.windows.net/skandia-icons/DALILM2.png"
+          alt="Logo Skandia"
+          className="h-12 w-auto object-contain"
+        />
+        <div>
+          <h1 className="sk-h4 text-foreground">Tu copiloto en Skandia</h1>
         </div>
+      </div>
+    )}
+  </div>
+
+  {/* Banner dinámico en el centro, que crezca para ocupar más espacio */}
+  {isMobile ? (
+    <div className="flex-grow mx-3 max-w-full min-w-0">
+      <DynamicBanner onClose={() => {}} onBannerAction={handleBannerAction} />
+    </div>
+  ) : (
+    <div className="hidden lg:flex flex-grow justify-center items-center px-4">
+      <div className="w-full max-w-4xl mx-auto">
+        <DynamicBanner onClose={() => {}} onBannerAction={handleBannerAction} />
+      </div>
+    </div>
+  )}
+
+  {/* Campana de notificaciones a la derecha, sin margen lateral extra */}
+  <div className="flex items-center space-x-4 pr-2 sm:pr-6">
+    <NotificationCenter />
+    {!isMobile && <UserProfile />}
+  </div>
+</div>
+
       </header>
     </>
   );
