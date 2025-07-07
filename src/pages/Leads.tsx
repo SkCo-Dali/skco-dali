@@ -319,25 +319,6 @@ function Leads() {
             </div>
           </div>
 
-          <div className="flex items-center gap-2 mb-6">
-            
-            
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  variant="outline"
-                  size="icon"
-                  onClick={clearFilters}
-                >
-                  <FilterX className="h-4 w-4" />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>Limpiar filtros</p>
-              </TooltipContent>
-            </Tooltip>
-          </div>
-
           {showFilters && (
             <LeadsFilters 
               searchTerm={searchTerm}
@@ -398,7 +379,7 @@ function Leads() {
 
           <div className="flex items-center justify-between mb-2">
   {/* Botones de vista siempre a la izquierda */}
-  <div className="flex items-center space-x-4"> {/* Espacio aumentado a 3 */}
+  <div className="flex items-center space-x-2"> {/* Espacio aumentado a 3 */}
     {/* ... botones de vista */}
     <Tooltip>
       <TooltipTrigger asChild>
