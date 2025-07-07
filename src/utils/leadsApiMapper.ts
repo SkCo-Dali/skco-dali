@@ -1,16 +1,68 @@
+
 import { Lead } from '@/types/crm';
 import { ApiLead, CreateLeadRequest, UpdateLeadRequest, API_TO_FRONTEND_STAGE_MAP, FRONTEND_TO_API_STAGE_MAP, API_TO_FRONTEND_PRIORITY_MAP, FRONTEND_TO_API_PRIORITY_MAP } from '@/types/leadsApiTypes';
 
-// Función para parsear arrays que pueden venir como string JSON
+// Función para parsear arrays que pueden venir como string JSON o string simple
 const parseArrayField = (field: string | string[] | null | undefined): string[] => {
   if (!field) return [];
   if (Array.isArray(field)) return field;
-  try {
-    const parsed = JSON.parse(field);
-    return Array.isArray(parsed) ? parsed : [];
-  } catch {
-    return [];
+  
+  // Si es un string, verificar si es JSON válido
+  if (typeof field === 'string') {
+    // Si el string empieza con [ o {, intentar parsearlo como JSON
+    if (field.trim().startsWith('[') || field.trim().startsWith('{')) {
+      try {
+        const parsed = JSON.parse(field);
+        return Array.isArray(parsed) ? parsed : [parsed];
+      } catch (error) {
+        console.warn('Failed to parse JSON field:', field, error);
+        // Si falla el parsing, tratarlo como string simple
+        return [field];
+      }
+    } else {
+      // Si no parece JSON, tratarlo como string simple
+      return [field];
+    }
   }
+  
+  return [];
+};
+
+// Función específica para parsear el campo Tags que puede tener estructura compleja
+const parseTagsField = (field: string | string[] | null | undefined): string[] => {
+  if (!field) return [];
+  if (Array.isArray(field)) return field;
+  
+  if (typeof field === 'string') {
+    // Si el string empieza con {, es un objeto JSON - convertirlo a array de strings
+    if (field.trim().startsWith('{')) {
+      try {
+        const parsed = JSON.parse(field);
+        if (typeof parsed === 'object' && parsed !== null) {
+          // Convertir objeto a array de strings con formato "key: value"
+          return Object.entries(parsed).map(([key, value]) => `${key}: ${value}`);
+        }
+        return [field];
+      } catch (error) {
+        console.warn('Failed to parse Tags JSON field:', field, error);
+        return [field];
+      }
+    } else if (field.trim().startsWith('[')) {
+      // Si es un array JSON
+      try {
+        const parsed = JSON.parse(field);
+        return Array.isArray(parsed) ? parsed : [parsed];
+      } catch (error) {
+        console.warn('Failed to parse Tags array field:', field, error);
+        return [field];
+      }
+    } else {
+      // String simple
+      return [field];
+    }
+  }
+  
+  return [];
 };
 
 // Mapear de ApiLead a Lead (formato frontend)
@@ -37,7 +89,7 @@ export const mapApiLeadToLead = (apiLead: ApiLead): Lead => {
     updatedAt: apiLead.UpdatedAt,
     nextFollowUp: apiLead.NextFollowUp || '',
     notes: apiLead.Notes || '',
-    tags: parseArrayField(apiLead.Tags),
+    tags: parseTagsField(apiLead.Tags),
     age: apiLead.Age || 0,
     gender: (apiLead.Gender as any) || 'Prefiero no decir',
     campaignOwnerName: apiLead.CampaignOwnerName || '',
