@@ -115,7 +115,7 @@ export const DynamicBanner: React.FC<DynamicBannerProps> = ({ onClose, onBannerA
                   size="sm"
                   className="bg-white bg-opacity-20 hover:bg-opacity-30 border-white border-opacity-30 text-xs px-2 py-1 h-auto flex-shrink-0 mt-1 sm:mt-0 text-gray-800 hover:text-gray-900"
                 >
-                  {currentBanner.buttonText}
+                  Saber más
                 </Button>
               )}
             </div>
