@@ -3,8 +3,24 @@ import { ApiLead, CreateLeadRequest, UpdateLeadRequest, API_TO_FRONTEND_STAGE_MA
 
 // Función helper para detectar si un string es JSON válido
 const isValidJSON = (str: string): boolean => {
+  if (!str || typeof str !== 'string') {
+    console.log('🔍 isValidJSON - Not a valid string:', str);
+    return false;
+  }
+  
+  const trimmed = str.trim();
+  
+  // Verificar si el string parece ser JSON antes de intentar parsearlo
+  const looksLikeJSON = (trimmed.startsWith('{') && trimmed.endsWith('}')) || 
+                        (trimmed.startsWith('[') && trimmed.endsWith(']'));
+  
+  if (!looksLikeJSON) {
+    console.log('🔍 isValidJSON - String does not look like JSON:', trimmed);
+    return false;
+  }
+  
   try {
-    const parsed = JSON.parse(str);
+    const parsed = JSON.parse(trimmed);
     console.log('🔍 isValidJSON - Successfully parsed:', parsed);
     console.log('🔍 isValidJSON - Parsed type:', typeof parsed);
     console.log('🔍 isValidJSON - Is object:', typeof parsed === 'object');
