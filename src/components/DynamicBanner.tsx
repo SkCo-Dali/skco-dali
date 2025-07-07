@@ -72,7 +72,7 @@ export const DynamicBanner: React.FC<DynamicBannerProps> = ({ onClose, onBannerA
 
   return (
     <div 
-      className="rounded-lg px-3 py-2 sm:px-4 shadow-sm transition-all duration-500"
+      className="rounded-lg px-3 py-2 sm:px-4 shadow-sm transition-all duration-500 max-w-2xl mx-auto"
       style={{ 
         backgroundColor: currentBanner.backgroundColor,
         color: currentBanner.textColor
