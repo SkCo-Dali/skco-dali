@@ -11,6 +11,106 @@ interface AzureApiResponse {
   ipAddress?: string;
 }
 
+// Helper function to wait for a specified number of milliseconds
+const sleep = (ms: number): Promise<void> => {
+  return new Promise(resolve => setTimeout(resolve, ms));
+};
+
+// Helper function to make API call with retry logic
+const makeApiCallWithRetry = async (
+  requestBody: any,
+  maxRetries: number = 3,
+  baseDelay: number = 5000
+): Promise<Response> => {
+  let lastError: Error;
+  
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    try {
+      console.log(`🎯 MAESTRO API CALL ATTEMPT ${attempt}/${maxRetries}`);
+      console.log('🌐 Endpoint: https://skcoaimultiagentdev.azurewebsites.net/api/maestro');
+      console.log('🔧 Method: POST');
+      console.log('📤 Headers: Content-Type: application/json');
+      
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => {
+        console.log(`⏰ API call timeout - aborting attempt ${attempt}`);
+        controller.abort();
+      }, 240000); // 4 minutes timeout (240 seconds)
+      
+      const response = await fetch('https://skcoaimultiagentdev.azurewebsites.net/api/maestro', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(requestBody),
+        signal: controller.signal
+      });
+
+      clearTimeout(timeoutId);
+      
+      console.log(`📥 MAESTRO API RESPONSE ATTEMPT ${attempt} STATUS:`, response.status);
+      console.log(`📥 MAESTRO API RESPONSE ATTEMPT ${attempt} OK:`, response.ok);
+      console.log(`📥 MAESTRO API RESPONSE ATTEMPT ${attempt} HEADERS:`, Object.fromEntries(response.headers.entries()));
+
+      // If the response is successful, return it immediately
+      if (response.ok) {
+        console.log(`✅ MAESTRO API CALL SUCCESSFUL ON ATTEMPT ${attempt}`);
+        return response;
+      }
+
+      // If it's a 500 error and we have retries left, continue to retry
+      if (response.status === 500 && attempt < maxRetries) {
+        const errorText = await response.text();
+        console.error(`❌ MAESTRO API ERROR ATTEMPT ${attempt}:`, response.status, errorText.substring(0, 500));
+        console.log(`🔄 RETRYING IN ${baseDelay}ms... (${maxRetries - attempt} retries left)`);
+        
+        // Wait before the next retry
+        await sleep(baseDelay);
+        
+        // Store the error for potential final throw
+        lastError = new Error(`API Error: ${response.status} - ${errorText.substring(0, 200)}`);
+        continue;
+      }
+
+      // If it's not a 500 error or we're out of retries, throw immediately
+      const errorText = await response.text();
+      console.error(`❌ MAESTRO API FINAL ERROR ATTEMPT ${attempt}:`, response.status, errorText.substring(0, 500));
+      throw new Error(`API Error: ${response.status} - ${errorText.substring(0, 200)}`);
+      
+    } catch (error) {
+      console.error(`❌ MAESTRO API CALL FAILED ATTEMPT ${attempt}:`, error);
+      
+      // Check if it's a timeout or abort error
+      if (error.name === 'AbortError') {
+        console.error(`⏰ Request was aborted due to timeout on attempt ${attempt}`);
+        lastError = new Error('Timeout - El servidor no respondió a tiempo');
+      } else if (error.message?.includes('CORS')) {
+        console.error(`🚫 API call failed due to CORS policy on attempt ${attempt}`);
+        lastError = new Error('Error de política CORS');
+      } else if (error.message?.includes('Failed to fetch')) {
+        console.error(`🌐 API call failed - network issue or server unreachable on attempt ${attempt}`);
+        lastError = new Error('No se pudo conectar al servidor');
+      } else {
+        lastError = error as Error;
+      }
+      
+      // If we have retries left and it's a network/timeout error, retry
+      if (attempt < maxRetries && (error.name === 'AbortError' || error.message?.includes('Failed to fetch'))) {
+        console.log(`🔄 RETRYING IN ${baseDelay}ms DUE TO NETWORK ERROR... (${maxRetries - attempt} retries left)`);
+        await sleep(baseDelay);
+        continue;
+      }
+      
+      // If it's the last attempt or a non-retryable error, break
+      break;
+    }
+  }
+  
+  // If we get here, all retries failed
+  console.error(`❌ ALL ${maxRetries} RETRY ATTEMPTS FAILED`);
+  throw lastError;
+};
+
 export const callAzureAgentApi = async (
   message: string, 
   files: File[], 
@@ -52,84 +152,57 @@ export const callAzureAgentApi = async (
   console.log('  - IdConversacion:', requestBody.IdConversacion);
 
   try {
-    console.log('🎯 DIRECT API CALL: Calling Maestro API directly...');
-    console.log('🌐 Endpoint: https://skcoaimultiagentdev.azurewebsites.net/api/maestro');
-    console.log('🔧 Method: POST');
-    console.log('📤 Headers: Content-Type: application/json');
+    console.log('🎯 MAESTRO API CALL WITH RETRY MECHANISM STARTING...');
     
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => {
-      console.log('⏰ API call timeout - aborting');
-      controller.abort();
-    }, 240000); // 4 minutes timeout (240 seconds)
+    // Make the API call with retry logic
+    const response = await makeApiCallWithRetry(requestBody, 3, 5000);
     
-    const response = await fetch('https://skcoaimultiagentdev.azurewebsites.net/api/maestro', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(requestBody),
-      signal: controller.signal
-    });
-
-    clearTimeout(timeoutId);
-    
-    console.log('📥 DIRECT API RESPONSE STATUS:', response.status);
-    console.log('📥 DIRECT API RESPONSE OK:', response.ok);
-    console.log('📥 DIRECT API RESPONSE HEADERS:', Object.fromEntries(response.headers.entries()));
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error('❌ DIRECT API ERROR:', response.status, errorText.substring(0, 500));
-      throw new Error(`API Error: ${response.status} - ${errorText.substring(0, 200)}`);
-    }
-
     // Procesar respuesta
     const responseText = await response.text();
-    console.log('📊 DIRECT API RESPONSE SIZE:', responseText.length, 'characters');
-    console.log('📄 DIRECT API RESPONSE (first 500 chars):', responseText.substring(0, 500));
+    console.log('📊 MAESTRO API RESPONSE SIZE:', responseText.length, 'characters');
+    console.log('📄 MAESTRO API RESPONSE (first 500 chars):', responseText.substring(0, 500));
     
     let apiData;
     console.log('⚡ Processing normal response...');
     try {
       apiData = JSON.parse(responseText);
-      console.log('✅ DIRECT API JSON PARSED SUCCESSFULLY');
+      console.log('✅ MAESTRO API JSON PARSED SUCCESSFULLY');
       console.log('📊 Parsed data structure:', Object.keys(apiData || {}));
     } catch (parseError) {
-      console.log('❌ DIRECT API JSON PARSE FAILED:', parseError);
+      console.log('❌ MAESTRO API JSON PARSE FAILED:', parseError);
       console.log('📄 Treating as text response');
       apiData = { text: responseText.substring(0, 10000) };
     }
     
-    console.log('🔍 DIRECT API PROCESSED DATA TYPE:', typeof apiData);
-    console.log('🔍 DIRECT API DATA KEYS:', Object.keys(apiData || {}));
+    console.log('🔍 MAESTRO API PROCESSED DATA TYPE:', typeof apiData);
+    console.log('🔍 MAESTRO API DATA KEYS:', Object.keys(apiData || {}));
     
-    console.log('✅ DIRECT API CALL SUCCESSFUL - Processing response...');
+    console.log('✅ MAESTRO API CALL WITH RETRIES SUCCESSFUL - Processing response...');
     return processMaestroApiResponse(apiData, startTime);
     
   } catch (error) {
-    console.error('❌ DIRECT API CALL FAILED:', error);
+    console.error('❌ MAESTRO API CALL WITH RETRIES FAILED:', error);
     console.error('🔍 Error name:', error.name);
     console.error('🔍 Error type:', typeof error);
     
     let errorMessage = '❌ Error al conectar con el agente: ';
     
     if (error.name === 'AbortError') {
-      console.error('⏰ API call was aborted due to timeout');
-      errorMessage += 'Timeout - El servidor no respondió a tiempo. ';
+      console.error('⏰ API call was aborted due to timeout after all retries');
+      errorMessage += 'Timeout - El servidor no respondió a tiempo después de varios intentos. ';
     } else if (error.message?.includes('CORS')) {
-      console.error('🚫 API call failed due to CORS policy');
-      errorMessage += 'Error de política CORS. ';
+      console.error('🚫 API call failed due to CORS policy after all retries');
+      errorMessage += 'Error de política CORS después de varios intentos. ';
     } else if (error.message?.includes('Failed to fetch')) {
-      console.error('🌐 API call failed - network issue or server unreachable');
-      errorMessage += 'No se pudo conectar al servidor. ';
+      console.error('🌐 API call failed - network issue or server unreachable after all retries');
+      errorMessage += 'No se pudo conectar al servidor después de varios intentos. ';
     } else {
-      errorMessage += 'Error desconocido. ';
+      errorMessage += 'Error persistente después de varios intentos. ';
     }
     
     errorMessage += 'Por favor, inténtalo de nuevo en unos momentos.';
 
-    console.log('⚠️ RETURNING ERROR MESSAGE TO USER:', errorMessage);
+    console.log('⚠️ RETURNING ERROR MESSAGE TO USER AFTER ALL RETRIES:', errorMessage);
     return {
       text: errorMessage,
       processingTime: Date.now() - startTime
