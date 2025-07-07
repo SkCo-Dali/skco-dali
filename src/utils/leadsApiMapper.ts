@@ -1,30 +1,6 @@
 import { Lead } from '@/types/crm';
 import { ApiLead, CreateLeadRequest, UpdateLeadRequest, API_TO_FRONTEND_STAGE_MAP, FRONTEND_TO_API_STAGE_MAP, API_TO_FRONTEND_PRIORITY_MAP, FRONTEND_TO_API_PRIORITY_MAP } from '@/types/leadsApiTypes';
 
-// Función helper para detectar si un string es JSON válido
-const isValidJSON = (str: string): boolean => {
-  if (!str || typeof str !== 'string') {
-    return false;
-  }
-  
-  const trimmed = str.trim();
-  
-  // Verificar si el string parece ser JSON antes de intentar parsearlo
-  const looksLikeJSON = (trimmed.startsWith('{') && trimmed.endsWith('}')) || 
-                        (trimmed.startsWith('[') && trimmed.endsWith(']'));
-  
-  if (!looksLikeJSON) {
-    return false;
-  }
-  
-  try {
-    const parsed = JSON.parse(trimmed);
-    return typeof parsed === 'object' && parsed !== null;
-  } catch (error) {
-    return false;
-  }
-};
-
 // Función para parsear arrays que pueden venir como string JSON o string simple
 const parseArrayField = (field: string | string[] | null | undefined): string[] => {
   console.log('🔍 parseArrayField - Processing field:', field);
@@ -33,13 +9,16 @@ const parseArrayField = (field: string | string[] | null | undefined): string[] 
   if (!field) return [];
   if (Array.isArray(field)) return field;
   
-  // Si es un string, verificar si es JSON válido
+  // Si es un string
   if (typeof field === 'string') {
-    // Primero verificar si parece ser JSON válido
-    if (isValidJSON(field)) {
-      console.log('🔍 parseArrayField - Field is valid JSON, attempting to parse...');
+    const trimmed = field.trim();
+    
+    // Solo intentar parsear como JSON si parece ser JSON (empieza con { o [)
+    if ((trimmed.startsWith('{') && trimmed.endsWith('}')) || 
+        (trimmed.startsWith('[') && trimmed.endsWith(']'))) {
+      console.log('🔍 parseArrayField - Field looks like JSON, attempting to parse...');
       try {
-        const parsed = JSON.parse(field);
+        const parsed = JSON.parse(trimmed);
         console.log('✅ parseArrayField - Successfully parsed JSON:', parsed);
         return Array.isArray(parsed) ? parsed : [parsed];
       } catch (error) {
@@ -47,8 +26,8 @@ const parseArrayField = (field: string | string[] | null | undefined): string[] 
         return [field];
       }
     } else {
-      // Si no es JSON válido, tratarlo como string simple
-      console.log('🔍 parseArrayField - Field is not valid JSON, treating as simple string:', field);
+      // Si no parece JSON, tratarlo directamente como string simple
+      console.log('🔍 parseArrayField - Field is a simple string, treating as single element array:', field);
       return [field];
     }
   }
