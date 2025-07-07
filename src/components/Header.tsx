@@ -44,7 +44,7 @@ export function Header({ onBannerMessage, chatInterfaceRef }: HeaderProps = {}) 
   return (
     <>
       <header className="fixed top-0 left-0 right-0 z-50 w-full border-b bg-background">
-        <div className="flex h-16 items-center justify-between px-6">
+        <div className="flex h-20 items-center justify-between px-6">
           <div className="flex items-center md:w-auto">
             {isMobile ? (
               // Versión móvil: solo botón hamburguesa
