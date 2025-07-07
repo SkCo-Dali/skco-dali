@@ -170,7 +170,7 @@ export const mapLeadToCreateRequest = (lead: Partial<Lead>, userId: string): Cre
     company: lead.company || '',
     source: lead.source || 'web', // Usar el source seleccionado
     campaign: lead.campaign || '',
-    product: lead.product || [],
+    product: lead.product || '',
     stage: 'Nuevo', // Siempre Nuevo según especificación
     priority: FRONTEND_TO_API_PRIORITY_MAP[lead.priority || 'medium'] || 'Media',
     value: lead.value || 0,
@@ -264,7 +264,7 @@ export const mapLeadToApiFormat = (lead: Lead): any => {
     Company: lead.company,
     Source: lead.source,
     Campaign: lead.campaign,
-    Product: JSON.stringify(lead.product),
+    Product: lead.product,
     Stage: FRONTEND_TO_API_STAGE_MAP[lead.stage] || 'Nuevo',
     Priority: FRONTEND_TO_API_PRIORITY_MAP[lead.priority] || 'Media',
     Value: lead.value,
