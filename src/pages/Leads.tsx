@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Lead } from "@/types/crm";
 import { LeadDetail } from "@/components/LeadDetail";
@@ -21,15 +20,13 @@ import { useAuth } from "@/contexts/AuthContext";
 import { getRolePermissions } from "@/types/crm";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { Mail, MessageSquare, Plus, Upload, Users, Filter, Grid3X3, Table, Columns } from "lucide-react";
+import { Mail, MessageSquare, Plus, Upload, Users, FilterX, Filter, Grid3X3, Table, Columns } from "lucide-react";
 import { LeadCreateDialog } from "@/components/LeadCreateDialog";
 import { LeadsSearch } from "@/components/LeadsSearch";
 import { LeadsTableColumnSelector } from "@/components/LeadsTableColumnSelector";
-import { useToast } from "@/hooks/use-toast";
 
 function Leads() {
   const { user } = useAuth();
-  const { toast } = useToast();
   const permissions = user ? getRolePermissions(user.role) : null;
   
   const { 
@@ -149,11 +146,6 @@ function Leads() {
   const handleLeadCreate = async (newLeadData: Partial<Lead>) => {
     const result = await createNewLead(newLeadData);
     if (result) {
-      toast({
-        title: "Lead creado exitosamente",
-        description: "El nuevo lead ha sido agregado al sistema.",
-        duration: 3000,
-      });
       console.log('Lead created successfully');
     }
   };
@@ -327,6 +319,25 @@ function Leads() {
             </div>
           </div>
 
+          <div className="flex items-center gap-2 mb-6">
+            
+            
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={clearFilters}
+                >
+                  <FilterX className="h-4 w-4" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Limpiar filtros</p>
+              </TooltipContent>
+            </Tooltip>
+          </div>
+
           {showFilters && (
             <LeadsFilters 
               searchTerm={searchTerm}
@@ -393,6 +404,7 @@ function Leads() {
       <TooltipTrigger asChild>
         <Button
           variant={viewMode === 'grid' ? 'default' : 'outline'}
+          classname= "h-12 w-12"
           size="icon"
           onClick={() => setViewMode('grid')}
         >

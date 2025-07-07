@@ -9,6 +9,7 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
+        
         default: "sk-btn sk-btn-primary sk-btn-lg",
         destructive:
           "bg-destructive text-destructive-foreground hover:bg-destructive/90",
