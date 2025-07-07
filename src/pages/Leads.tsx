@@ -370,7 +370,7 @@ function Leads() {
               uniqueCampaigns={uniqueCampaigns}
               uniqueAssignedTo={uniqueAssignedTo}
               duplicateCount={duplicateCount}
-              showClearButton={false}
+              showClearButton={true}
             />
           )}
 
