@@ -1,3 +1,4 @@
+
 import { Lead } from '@/types/crm';
 import { ApiLead, CreateLeadRequest, UpdateLeadRequest, API_TO_FRONTEND_STAGE_MAP, FRONTEND_TO_API_STAGE_MAP, API_TO_FRONTEND_PRIORITY_MAP, FRONTEND_TO_API_PRIORITY_MAP } from '@/types/leadsApiTypes';
 
@@ -115,7 +116,7 @@ export const mapApiLeadToLead = (apiLead: ApiLead): Lead => {
       company: apiLead.Company || '',
       source: mapApiSourceToFrontend(apiLead.Source),
       campaign: apiLead.Campaign || '',
-      product: parseArrayField(apiLead.Product),
+      product: apiLead.Product ? [String(apiLead.Product)] : [], // Siempre convertir a string y envolver en array
       portfolios: parseArrayField(apiLead.SelectedPortfolios),
       stage: (API_TO_FRONTEND_STAGE_MAP[apiLead.Stage] || 'new') as Lead['stage'],
       priority: (API_TO_FRONTEND_PRIORITY_MAP[apiLead.Priority] || 'medium') as Lead['priority'],
