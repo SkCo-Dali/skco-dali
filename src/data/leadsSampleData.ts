@@ -1,3 +1,4 @@
+
 import { Lead } from "@/types/crm";
 import { campaigns } from "./campaigns";
 import { products } from "./products";
@@ -23,7 +24,7 @@ export function generateSampleLeads(): Lead[] {
       phone: generatePhoneNumber(i),
       company: companies[i - 1],
       source: sources[i % sources.length],
-      product: getProductsForLead(i),
+      product: getProductForLead(i),
       portfolios: getPortfoliosForLead(i),
       campaign: getCampaignForLead(i),
       stage: getStageForLead(i),
@@ -54,26 +55,26 @@ function generatePhoneNumber(index: number): string {
   return patterns[index - 1] || "000-000-0000";
 }
 
-function getProductsForLead(index: number): string[] {
+function getProductForLead(index: number): string {
   const productSelections = [
-    ["Fondo Voluntario de Pensión"],
-    ["Fondo Voluntario de Pensión", "Crea Ahorro"],
-    ["Fondo de Pensiones Obligatorias"],
-    ["Fondo de Pensiones Obligatorias", "Fondo de Cesantías"],
-    ["Fondo de Pensiones Obligatorias"],
-    ["Crea Retiro"],
-    ["Crea Patrimonio"],
-    ["Crea Patrimonio", "Inversiones Internacionales"],
-    ["Fondo Voluntario de Pensión"],
-    ["Fondo de Inversión Colectiva"],
-    ["Fondo de Inversión Colectiva"],
-    ["Fondo de Inversión Colectiva"],
-    ["Fondo Voluntario de Pensión"],
-    ["Fondo de Pensiones Obligatorias"],
-    ["Fondo de Pensiones Obligatorias"],
-    ["Fondo de Pensiones Obligatorias"]
+    "Fondo Voluntario de Pensión",
+    "Fondo Voluntario de Pensión, Crea Ahorro",
+    "Fondo de Pensiones Obligatorias",
+    "Fondo de Pensiones Obligatorias, Fondo de Cesantías",
+    "Fondo de Pensiones Obligatorias",
+    "Crea Retiro",
+    "Crea Patrimonio",
+    "Crea Patrimonio, Inversiones Internacionales",
+    "Fondo Voluntario de Pensión",
+    "Fondo de Inversión Colectiva",
+    "Fondo de Inversión Colectiva",
+    "Fondo de Inversión Colectiva",
+    "Fondo Voluntario de Pensión",
+    "Fondo de Pensiones Obligatorias",
+    "Fondo de Pensiones Obligatorias",
+    "Fondo de Pensiones Obligatorias"
   ];
-  return productSelections[index - 1] || ["Fondo Voluntario de Pensión"];
+  return productSelections[index - 1] || "Fondo Voluntario de Pensión";
 }
 
 function getCampaignForLead(index: number): string {

@@ -37,6 +37,7 @@ export function LeadCreateDialog({ onLeadCreate }: LeadCreateDialogProps) {
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [productSelectOpen, setProductSelectOpen] = useState(false);
+  const [selectedProducts, setSelectedProducts] = useState<string[]>([]);
   const [formData, setFormData] = useState<Partial<Lead>>({
     name: '',
     email: '',
@@ -49,14 +50,15 @@ export function LeadCreateDialog({ onLeadCreate }: LeadCreateDialogProps) {
     notes: '',
     documentType: '',
     documentNumber: undefined,
-    product: []
+    product: ''
   });
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     onLeadCreate({
       ...formData,
-      documentNumber: formData.documentNumber || 0
+      documentNumber: formData.documentNumber || 0,
+      product: selectedProducts.join(', ')
     });
     setOpen(false);
     setFormData({
@@ -71,24 +73,24 @@ export function LeadCreateDialog({ onLeadCreate }: LeadCreateDialogProps) {
       notes: '',
       documentType: '',
       documentNumber: undefined,
-      product: []
+      product: ''
     });
+    setSelectedProducts([]);
     setShowMoreFields(false);
   };
 
   const handleProductToggle = (product: string) => {
-    const currentProducts = formData.product || [];
-    const updatedProducts = currentProducts.includes(product)
-      ? currentProducts.filter(p => p !== product)
-      : [...currentProducts, product];
+    const updatedProducts = selectedProducts.includes(product)
+      ? selectedProducts.filter(p => p !== product)
+      : [...selectedProducts, product];
     
-    setFormData({...formData, product: updatedProducts});
+    setSelectedProducts(updatedProducts);
   };
 
   const getProductDisplayText = () => {
-    const selectedCount = formData.product?.length || 0;
+    const selectedCount = selectedProducts.length;
     if (selectedCount === 0) return "Producto de interés*";
-    if (selectedCount === 1) return formData.product?.[0];
+    if (selectedCount === 1) return selectedProducts[0];
     return `${selectedCount} productos seleccionados`;
   };
 
@@ -247,7 +249,7 @@ export function LeadCreateDialog({ onLeadCreate }: LeadCreateDialogProps) {
                       variant="outline"
                       className="w-full justify-between border-gray-300 rounded-lg h-12 bg-gray-50 text-left font-normal hover:bg-gray-50"
                     >
-                      <span className={formData.product?.length === 0 ? "text-muted-foreground" : ""}>
+                      <span className={selectedProducts.length === 0 ? "text-muted-foreground" : ""}>
                         {getProductDisplayText()}
                       </span>
                       <ChevronDown className="h-4 w-4 text-[#00c83c]" />
@@ -259,7 +261,7 @@ export function LeadCreateDialog({ onLeadCreate }: LeadCreateDialogProps) {
                         <div key={product} className="flex items-center space-x-2 p-3 hover:bg-gray-50">
                           <Checkbox
                             id={product}
-                            checked={formData.product?.includes(product) || false}
+                            checked={selectedProducts.includes(product)}
                             onCheckedChange={() => handleProductToggle(product)}
                           />
                           <label
@@ -273,7 +275,7 @@ export function LeadCreateDialog({ onLeadCreate }: LeadCreateDialogProps) {
                     </div>
                   </PopoverContent>
                 </Popover>
-                {formData.product && formData.product.length > 0 && (
+                {selectedProducts.length > 0 && (
                   <Label className="absolute -top-2 left-3 bg-gray-50 px-1 text-xs text-gray-600">
                     Producto de interés*
                   </Label>

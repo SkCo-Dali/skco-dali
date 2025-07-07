@@ -1,4 +1,3 @@
-
 import { useState, useCallback } from 'react';
 import { Lead } from '@/types/crm';
 import { WhatsAppTemplate, WhatsAppUserInfo, WhatsAppMessage, WhatsAppSendLog, WhatsAppValidationError } from '@/types/whatsapp';
@@ -59,7 +58,7 @@ export function useMassWhatsApp() {
       '{email}': lead.email || '',
       '{telefono}': lead.phone || '',
       '{empresa}': lead.company || '',
-      '{producto}': lead.product?.join(', ') || ''
+      '{producto}': lead.product || '' // Now it's a string, no need to join
     };
 
     // Reemplazar cada variable
