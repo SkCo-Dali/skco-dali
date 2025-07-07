@@ -1,3 +1,4 @@
+
 import { useState } from "react"; 
 import { Lead } from "@/types/crm";
 import { Badge } from "@/components/ui/badge";
@@ -82,8 +83,8 @@ export function LeadsTable({
           bValue = b.email.toLowerCase();
           break;
         case 'product':
-          aValue = (a.product || []).join(', ').toLowerCase();
-          bValue = (b.product || []).join(', ').toLowerCase();
+          aValue = (a.product || '').toLowerCase();
+          bValue = (b.product || '').toLowerCase();
           break;
         case 'campaign':
           aValue = (a.campaign || '').toLowerCase();
@@ -289,17 +290,9 @@ export function LeadsTable({
         );
       case 'product':
         return (
-          <div className="flex flex-wrap gap-1">
-            {lead.product && lead.product.length > 0 ? (
-              lead.product.map((prod, index) => (
-                <span key={index} className="inline-flex px-2 py-1 text-xs font-medium text-gray-700 rounded-full">
-                  {prod}
-                </span>
-              ))
-            ) : (
-              <span className="text-gray-500 text-sm">-</span>
-            )}
-          </div>
+          <span className="text-gray-700 text-sm">
+            {lead.product || '-'}
+          </span>
         );
       case 'campaign':
         return (
