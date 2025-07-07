@@ -420,6 +420,7 @@ function Leads() {
       <TooltipTrigger asChild>
         <Button
           variant={viewMode === 'table' ? 'default' : 'outline'}
+          classname= "h-12 w-12"
           size="icon"
           onClick={() => setViewMode('table')}
         >
@@ -435,6 +436,7 @@ function Leads() {
       <TooltipTrigger asChild>
         <Button
           variant={viewMode === 'columns' ? 'default' : 'outline'}
+          classname= "h-12 w-12"
           size="icon"
           onClick={() => setViewMode('columns')}
         >
