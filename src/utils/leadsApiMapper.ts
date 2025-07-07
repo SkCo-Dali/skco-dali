@@ -116,7 +116,7 @@ export const mapApiLeadToLead = (apiLead: ApiLead): Lead => {
       company: apiLead.Company || '',
       source: mapApiSourceToFrontend(apiLead.Source),
       campaign: apiLead.Campaign || '',
-      product: parseTagsField(apiLead.Product), // Usar la misma lógica que Tags
+      product: apiLead.Product, // Usar la misma lógica que Tags
       portfolios: parseArrayField(apiLead.SelectedPortfolios),
       stage: (API_TO_FRONTEND_STAGE_MAP[apiLead.Stage] || 'new') as Lead['stage'],
       priority: (API_TO_FRONTEND_PRIORITY_MAP[apiLead.Priority] || 'medium') as Lead['priority'],
