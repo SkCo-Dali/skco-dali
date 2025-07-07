@@ -103,16 +103,16 @@ const IndexContent = forwardRef<any, {}>((props, ref) => {
       
       {/* Main content con padding responsivo */}
       <div className={`flex flex-1 w-full h-full relative ${
-        isMobile ? 'pt-16' : 'pt-16'
+        isMobile ? 'pt-20' : 'pt-20'
       }`}>
         
         {/* Botón de acciones - Posicionamiento optimizado */}
         <div className={`fixed z-40 ${
           isMobile 
-            ? 'right-2 top-16' // Reducido el margen derecho en móvil
+            ? 'top-18 right-2' // Reducido el margen derecho en móvil
             : isMedium 
-              ? 'left-1/2 transform -translate-x-1/2 top-[74px] bg-white/80 backdrop-blur-sm rounded-lg shadow-sm px-2 py-1'
-              : 'top-16 right-4'
+              ? 'top-18 right-2'
+              : 'top-18 right-2'
         }`}>
           <ChatActionsButton
             onNewConversation={handleNewChat}
