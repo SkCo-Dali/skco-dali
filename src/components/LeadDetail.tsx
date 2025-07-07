@@ -68,6 +68,14 @@ const ensureArray = (value: any): any[] => {
   return [];
 };
 
+// Helper function to ensure product is always a string
+const ensureString = (value: any): string => {
+  if (typeof value === 'string') return value;
+  if (Array.isArray(value)) return value.join(', ');
+  if (value === null || value === undefined) return '';
+  return String(value);
+};
+
 // Función para formatear la fecha al formato ISO requerido por el API
 const formatDateForAPI = (dateTimeString: string): string => {
   if (!dateTimeString) return '';
@@ -113,11 +121,11 @@ export function LeadDetail({ lead, isOpen, onClose, onSave, onOpenMassEmail }: L
   // Add debugging to see what's happening
   console.log('LeadDetail rendered with:', { lead, isOpen });
   
-  // Ensure tags and other array fields are properly initialized
+  // Ensure tags and other array fields are properly initialized, but keep product as string
   const safeLeadData = {
     ...lead,
     tags: ensureArray(lead.tags),
-    product: ensureArray(lead.product),
+    product: ensureString(lead.product),
     portfolios: ensureArray(lead.portfolios)
   };
   
@@ -148,7 +156,7 @@ export function LeadDetail({ lead, isOpen, onClose, onSave, onOpenMassEmail }: L
     const safeLead = {
       ...lead,
       tags: ensureArray(lead.tags),
-      product: ensureArray(lead.product),
+      product: ensureString(lead.product),
       portfolios: ensureArray(lead.portfolios)
     };
     setEditedLead(safeLead);
@@ -230,19 +238,28 @@ export function LeadDetail({ lead, isOpen, onClose, onSave, onOpenMassEmail }: L
     handleGeneralChange('tags', updatedTags);
   };
 
-  // Función para agregar nuevo producto
+  // Function to add new product - now handles string concatenation
   const handleAddProduct = () => {
-    if (newProduct.trim() && !ensureArray(editedLead.product).includes(newProduct.trim())) {
-      const updatedProducts = [...ensureArray(editedLead.product), newProduct.trim()];
-      handleGeneralChange('product', updatedProducts);
-      setNewProduct('');
+    if (newProduct.trim()) {
+      const currentProducts = editedLead.product ? editedLead.product.split(', ').filter(p => p.trim()) : [];
+      if (!currentProducts.includes(newProduct.trim())) {
+        const updatedProducts = [...currentProducts, newProduct.trim()].join(', ');
+        handleGeneralChange('product', updatedProducts);
+        setNewProduct('');
+      }
     }
   };
 
-  // Función para remover producto
+  // Function to remove product - now handles string manipulation
   const handleRemoveProduct = (productToRemove: string) => {
-    const updatedProducts = ensureArray(editedLead.product).filter(product => product !== productToRemove);
+    const currentProducts = editedLead.product ? editedLead.product.split(', ').filter(p => p.trim()) : [];
+    const updatedProducts = currentProducts.filter(product => product !== productToRemove).join(', ');
     handleGeneralChange('product', updatedProducts);
+  };
+
+  // Function to get products as array for display
+  const getProductsArray = (): string[] => {
+    return editedLead.product ? editedLead.product.split(', ').filter(p => p.trim()) : [];
   };
 
   const handleSave = async () => {
@@ -556,7 +573,7 @@ export function LeadDetail({ lead, isOpen, onClose, onSave, onOpenMassEmail }: L
                       <Label>Productos de interés</Label>
                       <div className="space-y-2">
                         <div className="flex flex-wrap gap-1">
-                          {ensureArray(editedLead.product).map((prod, index) => (
+                          {getProductsArray().map((prod, index) => (
                             <Badge key={index} variant="outline" className="text-xs flex items-center gap-1">
                               {prod}
                               <Button
