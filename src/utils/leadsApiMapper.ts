@@ -1,4 +1,3 @@
-
 import { Lead } from '@/types/crm';
 import { ApiLead, CreateLeadRequest, UpdateLeadRequest, API_TO_FRONTEND_STAGE_MAP, FRONTEND_TO_API_STAGE_MAP, API_TO_FRONTEND_PRIORITY_MAP, FRONTEND_TO_API_PRIORITY_MAP } from '@/types/leadsApiTypes';
 
@@ -32,11 +31,9 @@ const parseArrayField = (field: string | string[] | null | undefined): string[] 
     console.log('🔍 parseArrayField - Field type:', typeof field);
     console.log('🔍 parseArrayField - Field length:', field.length);
     
-    // Solo intentar parsear como JSON si parece ser JSON válido
-    if ((field.trim().startsWith('[') && field.trim().endsWith(']')) || 
-        (field.trim().startsWith('{') && field.trim().endsWith('}'))) {
-      
-      console.log('🔍 parseArrayField - Field looks like JSON, attempting to parse...');
+    // Primero verificar si parece ser JSON válido usando isValidJSON
+    if (isValidJSON(field)) {
+      console.log('🔍 parseArrayField - Field is valid JSON, attempting to parse...');
       
       try {
         const parsed = JSON.parse(field);
@@ -53,8 +50,8 @@ const parseArrayField = (field: string | string[] | null | undefined): string[] 
         return [field];
       }
     } else {
-      // Si no parece JSON válido, tratarlo como string simple
-      console.log('🔍 parseArrayField - Field treated as simple string');
+      // Si no es JSON válido, tratarlo como string simple
+      console.log('🔍 parseArrayField - Field is not valid JSON, treating as simple string');
       return [field];
     }
   }
