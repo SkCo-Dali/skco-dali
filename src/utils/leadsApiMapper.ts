@@ -194,7 +194,7 @@ export const mapLeadToCreateRequest = (lead: Partial<Lead>, userId: string): Cre
     company: lead.company || '',
     source: lead.source || 'web', // Usar el source seleccionado
     campaign: lead.campaign || '',
-    product: lead.product || '',
+    product: lead.product ? [lead.product] : [], // Convert string to array for API
     stage: 'Nuevo', // Siempre Nuevo según especificación
     priority: FRONTEND_TO_API_PRIORITY_MAP[lead.priority || 'medium'] || 'Media',
     value: lead.value || 0,
@@ -238,7 +238,7 @@ export const mapLeadToUpdateRequest = (lead: Lead, userId: string): UpdateLeadRe
     company: lead.company,
     source: lead.source || 'web',
     campaign: lead.campaign,
-    product: lead.product,
+    product: lead.product ? [lead.product] : [], // Convert string to array for API
     stage: FRONTEND_TO_API_STAGE_MAP[lead.stage] || 'Nuevo',
     priority: FRONTEND_TO_API_PRIORITY_MAP[lead.priority] || 'Media',
     value: lead.value,

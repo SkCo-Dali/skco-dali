@@ -170,7 +170,7 @@ export interface Lead {
   priority: Priority;
   campaign: Campaign;
   portfolio: Portfolio;
-  product: Product[];
+  product: string; // Changed from Product[] to string
   createdAt: string; // Changed to string for consistency
   updatedAt: string; // Changed to string for consistency
   stage: string;
