@@ -278,18 +278,18 @@ export function LeadsTable({
         );
       case 'product':
         return (
-          <span className="text-gray-700 text-sm">
+          <span className="text-gray-700 text-[12px]">
             {lead.product || '-'}
           </span>
         );
       case 'campaign':
         return (
-          <span className="text-gray-700 text-sm">
+          <span className="text-gray-700 text-[12px]">
             {lead.campaign || '-'}
           </span>
         );
       case 'source':
-        return <span className="text-gray-700 text-sm capitalize">{lead.source}</span>;
+        return <span className="text-gray-700 text-[12px] capitalize">{lead.source}</span>;
       case 'stage':
         return (
           <EditableLeadCell
@@ -308,12 +308,12 @@ export function LeadsTable({
         );
       case 'lastInteraction':
         return (
-          <span className="text-gray-700 text-sm">
+          <span className="text-gray-700 text-[12px]">
             {format(new Date(lead.updatedAt), "dd/MM/yyyy", { locale: es })}
           </span>
         );
       case 'value':
-        return <span className="text-gray-800 font-medium text-sm">${lead.value.toLocaleString()}</span>;
+        return <span className="text-gray-800 font-medium text-[12px]">${lead.value.toLocaleString()}</span>;
       case 'priority':
         return (
           <EditableLeadCell
@@ -324,18 +324,18 @@ export function LeadsTable({
         );
       case 'createdAt':
         return (
-          <span className="text-gray-700 text-sm">
+          <span className="text-gray-700 text-[12px]">
             {format(new Date(lead.createdAt), "dd/MM/yyyy", { locale: es })}
           </span>
         );
       case 'age':
-        return <span className="text-gray-700 text-sm">{lead.age || '-'}</span>;
+        return <span className="text-gray-700 text-[12px]">{lead.age || '-'}</span>;
       case 'gender':
-        return <span className="text-gray-700 text-sm">{lead.gender || '-'}</span>;
+        return <span className="text-gray-700 text-[12px]">{lead.gender || '-'}</span>;
       case 'preferredContactChannel':
-        return <span className="text-gray-700 text-sm">{lead.preferredContactChannel || '-'}</span>;
+        return <span className="text-gray-700 text-[12px]">{lead.preferredContactChannel || '-'}</span>;
       case 'documentType':
-        return <span className="text-gray-700 text-sm">{lead.documentType || '-'}</span>;
+        return <span className="text-gray-700 text-[12px]">{lead.documentType || '-'}</span>;
       default:
         return null;
     }
@@ -413,7 +413,7 @@ export function LeadsTable({
                       {visibleColumns.map((column) => (
                         <TableCell 
                           key={column.key} 
-                          className={`px-4 py-3 text-sm ${
+                          className={`px-4 py-3 text-[12px] ${
                             column.key === 'name' ? 'name-column-sticky' : ''
                           }`}
                           style={{ 
