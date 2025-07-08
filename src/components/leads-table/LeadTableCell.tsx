@@ -1,4 +1,3 @@
-
 import { Lead } from "@/types/crm";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
