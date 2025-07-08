@@ -343,7 +343,7 @@ export function LeadsTable({
 
   return (
       
-      <div className="bg-gray-100 rounded-lg">
+      <div className="bg-gray-100 rounded-lg style={{ backgroundColor: '#fafafa' }}">
         <style>{`
         .leads-table-scroll::-webkit-scrollbar {
           width: 8px;
