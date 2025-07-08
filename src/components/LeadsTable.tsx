@@ -85,9 +85,10 @@ export function LeadsTable({
                 </TableRow>
               </TableHeader>
               
-              <TableBody "rounded-lg"
+              <TableBody className="rounded-lg"
   style={{ backgroundColor: '#fafafa', 
-           borderColor: '#fafafa' }}>
+           borderColor: '#fafafa' }}
+              >
                 {paginatedLeads.map((lead) => (
                   <TableRow 
                     key={lead.id}
