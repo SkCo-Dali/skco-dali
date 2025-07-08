@@ -381,8 +381,8 @@ export function LeadsTable({
     overflowY: 'auto'
             }}
           >
-            <div style={{ minWidth: `${300 + (visibleColumns.length - 1) * 150}px` }}>
-              <Table className="w-full">
+            <div className="w-max">
+              <Table className="w-full table-fixed">
                 <TableHeader className="top-0 z-10 bg-white">
                   <TableRow className="bg-gray-100 border-b border-gray-100">
                     {visibleColumns.map((column) => (
