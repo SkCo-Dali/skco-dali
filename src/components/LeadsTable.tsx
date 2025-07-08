@@ -376,7 +376,7 @@ export function LeadsTable({
     <div className="overflow-x-auto leads-table-scroll" style={{ maxHeight: '500px' }}>
       <div style={{ minWidth: `${250 + (visibleColumns.length - 1) * 150}px` }}>
         <Table className="w-full">
-          <TableHeader className="sticky top-0 z-20 bg-white">
+          <TableHeader className="top-0 z-20 bg-white">
             <TableRow className="bg-gray-100 border-b border-gray-100">
               {visibleColumns.map((column) => (
                 <TableHead 
