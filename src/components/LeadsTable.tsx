@@ -343,7 +343,7 @@ export function LeadsTable({
 
   return (
       
-      <div className="bg-gray-100 rounded-lg style={{ backgroundColor: '#fafafa' }}">
+      <div className="bg-gray-100 rounded-lg style={{ backgroundColor: '#fafafa'; borderColor: #fafafa }}">
         <style>{`
         .leads-table-scroll::-webkit-scrollbar {
           width: 8px;
@@ -371,7 +371,7 @@ export function LeadsTable({
           border-right: 0px solid #e5e7eb;
         }
       `}</style>
-        <div className="bg-transparent rounded-lg border border-transparent overflow-hidden">
+        <div className="bg-transparent rounded-lg border border-white overflow-hidden">
           <div 
             className="leads-table-scroll overflow-auto"
             style={{ 
