@@ -210,7 +210,7 @@ export function LeadsTable({
       case 'name':
         return (
           <div className="flex items-center justify-between w-full">
-            <div className="text-gray-900 font-medium truncate pr-2">
+            <div className="text-gray-900 font-medium text-[12px] truncate pr-2">
               {lead.name}
             </div>
             <DropdownMenu>
