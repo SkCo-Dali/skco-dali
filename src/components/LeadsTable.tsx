@@ -366,7 +366,7 @@ export function LeadsTable({
         .name-column-sticky {
           position: sticky;
           left: 0;
-          z-index: 20;
+          z-index: 0;
           background: transparent;
           border-right: 0px solid #e5e7eb;
         }
