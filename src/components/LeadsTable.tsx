@@ -210,7 +210,7 @@ export function LeadsTable({
       case 'name':
         return (
           <div className="flex items-center justify-between w-full">
-            <div className="text-gray-900 font-medium text-[12px] truncate pr-2">
+            <div className="text-gray-900 font-medium text-xs truncate pr-2">
               {lead.name}
             </div>
             <DropdownMenu>
@@ -379,7 +379,7 @@ export function LeadsTable({
               maxWidth: '100%'
             }}
           >
-            <div style={{ minWidth: `${200 + (visibleColumns.length - 1) * 150}px` }}>
+            <div style={{ minWidth: `${250 + (visibleColumns.length - 1) * 150}px` }}>
               <Table className="w-full">
                 <TableHeader className="sticky top-0 z-10 bg-white">
                   <TableRow className="bg-gray-100 border-b border-gray-100">
@@ -390,8 +390,8 @@ export function LeadsTable({
                           column.key === 'name' ? 'name-column-sticky' : ''
                         }`}
                         style={{ 
-                          minWidth: column.key === 'name' ? '200px' : '150px', 
-                          maxWidth: column.key === 'name' ? '200px' : '150px', 
+                          minWidth: column.key === 'name' ? '250px' : '150px', 
+                          maxWidth: column.key === 'name' ? '250px' : '150px', 
                           width: column.key === 'name' ? '200px' : '150px'
                         }}
                         onClick={() => handleSort(column.key)}
