@@ -229,18 +229,6 @@ export function LeadsTable({
                   <Edit className="mr-2 h-4 w-4" />
                   Edición rápida
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={(e) => handleLeadAction('profile', lead, e)}>
-                  <Calendar className="mr-2 h-4 w-4" />
-                  Ficha del lead
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={(e) => handleLeadAction('profile', lead, e)}>
-                  <UserIcon className="mr-2 h-4 w-4" />
-                  Perfilar lead
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={(e) => handleLeadAction('notes', lead, e)}>
-                  <MessageCircle className="mr-2 h-4 w-4" />
-                  Notas y adjuntos
-                </DropdownMenuItem>
                 <DropdownMenuItem onClick={(e) => handleLeadAction('whatsapp', lead, e)}>
                   <MessageSquare className="mr-2 h-4 w-4" />
                   Enviar WhatsApp
