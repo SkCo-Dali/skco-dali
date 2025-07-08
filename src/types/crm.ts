@@ -1,5 +1,3 @@
-
-
 export type UserRole = 'admin' | 'manager' | 'agent' | 'viewer' | 'supervisor' | 'analista' | 'gestor' | 'fp' | 'seguridad' | 'director' | 'promotor' | 'aliado' | 'socio';
 
 export interface User {
@@ -190,6 +188,7 @@ export interface Lead {
   nextFollowUp?: string; // Changed to string for consistency
   campaignOwnerName?: string;
   interactions?: Interaction[];
+  additionalInfo?: Record<string, any> | null;
 }
 
 export type LeadStatus = 'New' | 'Contacted' | 'Qualified' | 'Lost' | 'Won';

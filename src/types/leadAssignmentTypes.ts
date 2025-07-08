@@ -46,4 +46,5 @@ export interface ReassignableLead {
   assigned_to: string;
   created_at: string;
   updated_at: string;
+  additional_info?: Record<string, any> | null;
 }

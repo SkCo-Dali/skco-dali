@@ -16,6 +16,20 @@ export const useLeadsApi = () => {
   const mapReassignableLeadToLead = (reassignableLead: any): Lead => {
     console.log('🔄 Mapping individual reassignable lead:', JSON.stringify(reassignableLead, null, 2));
     
+    // Parse AdditionalInfo if it's a string
+    let additionalInfo = null;
+    if (reassignableLead.AdditionalInfo) {
+      try {
+        additionalInfo = typeof reassignableLead.AdditionalInfo === 'string' 
+          ? JSON.parse(reassignableLead.AdditionalInfo)
+          : reassignableLead.AdditionalInfo;
+        console.log('✅ Parsed AdditionalInfo:', additionalInfo);
+      } catch (error) {
+        console.warn('⚠️ Failed to parse AdditionalInfo:', reassignableLead.AdditionalInfo, error);
+        additionalInfo = null;
+      }
+    }
+    
     const mappedLead = {
       id: reassignableLead.Id || reassignableLead.id,
       name: reassignableLead.Name || reassignableLead.name,
@@ -50,10 +64,11 @@ export const useLeadsApi = () => {
       status: 'New' as LeadStatus,
       portfolio: reassignableLead.SelectedPortfolios ? 
         (typeof reassignableLead.SelectedPortfolios === 'string' ? 
-          JSON.parse(reassignableLead.SelectedPortfolios)[0] : reassignableLead.SelectedPortfolios[0]) || 'Portfolio A' : 'Portfolio A'
+          JSON.parse(reassignableLead.SelectedPortfolios)[0] : reassignableLead.SelectedPortfolios[0]) || 'Portfolio A' : 'Portfolio A',
+      additionalInfo: additionalInfo
     };
     
-    console.log('✅ Mapped lead result:', JSON.stringify(mappedLead, null, 2));
+    console.log('✅ Mapped lead result with AdditionalInfo:', JSON.stringify(mappedLead, null, 2));
     return mappedLead;
   };
 
