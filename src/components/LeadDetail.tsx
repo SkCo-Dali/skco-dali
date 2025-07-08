@@ -10,6 +10,7 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import { Calendar, MessageSquare, Phone, Mail, UserCheck, Clock, Tag, Building2, Globe, CreditCard, AlertCircle, History, UserPlus, Users, X } from 'lucide-react';
 import { useUsersApi } from '@/hooks/useUsersApi';
 import { useInteractionsApi } from '@/hooks/useInteractionsApi';
@@ -647,31 +648,33 @@ export function LeadDetail({ lead, isOpen, onClose, onSave, onOpenMassEmail }: L
                       </div>
                     </div>
 
-                    {/* Nueva sección para mostrar AdditionalInfo */}
+                    {/* Nueva sección para mostrar AdditionalInfo con scroll */}
                     {editedLead.additionalInfo && Object.keys(editedLead.additionalInfo).length > 0 && (
                       <div>
                         <Label>Información Adicional</Label>
                         <div className="mt-2 border rounded-lg overflow-hidden">
-                          <table className="w-full text-sm">
-                            <thead className="bg-gray-50 border-b">
-                              <tr>
-                                <th className="px-3 py-2 text-left font-medium text-gray-700">Campo</th>
-                                <th className="px-3 py-2 text-left font-medium text-gray-700">Valor</th>
-                              </tr>
-                            </thead>
-                            <tbody>
-                              {Object.entries(editedLead.additionalInfo).map(([key, value], index) => (
-                                <tr key={key} className={index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
-                                  <td className="px-3 py-2 font-medium text-gray-600 border-r">{key}</td>
-                                  <td className="px-3 py-2 text-gray-900">
-                                    {typeof value === 'object' && value !== null 
-                                      ? JSON.stringify(value) 
-                                      : String(value || '')}
-                                  </td>
+                          <ScrollArea className="h-48">
+                            <table className="w-full text-sm">
+                              <thead className="bg-gray-50 border-b sticky top-0">
+                                <tr>
+                                  <th className="px-3 py-2 text-left font-medium text-gray-700">Campo</th>
+                                  <th className="px-3 py-2 text-left font-medium text-gray-700">Valor</th>
                                 </tr>
-                              ))}
-                            </tbody>
-                          </table>
+                              </thead>
+                              <tbody>
+                                {Object.entries(editedLead.additionalInfo).map(([key, value], index) => (
+                                  <tr key={key} className={index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
+                                    <td className="px-3 py-2 font-medium text-gray-600 border-r">{key}</td>
+                                    <td className="px-3 py-2 text-gray-900">
+                                      {typeof value === 'object' && value !== null 
+                                        ? JSON.stringify(value) 
+                                        : String(value || '')}
+                                    </td>
+                                  </tr>
+                                ))}
+                              </tbody>
+                            </table>
+                          </ScrollArea>
                         </div>
                       </div>
                     )}
