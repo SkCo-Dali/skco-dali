@@ -366,7 +366,7 @@ export function LeadsTable({
         .name-column-sticky {
           position: sticky;
           left: 0;
-          z-index: 5;
+          z-index: 20;
           background: transparent;
           border-right: 0px solid #e5e7eb;
         }
@@ -379,7 +379,7 @@ export function LeadsTable({
               maxWidth: '100%'
             }}
           >
-            <div style={{ minWidth: `${250 + (visibleColumns.length - 1) * 150}px` }}>
+            <div style={{ minWidth: `${300 + (visibleColumns.length - 1) * 150}px` }}>
               <Table className="w-full">
                 <TableHeader className="top-0 z-10 bg-white">
                   <TableRow className="bg-gray-100 border-b border-gray-100">
@@ -390,9 +390,9 @@ export function LeadsTable({
                           column.key === 'name' ? 'name-column-sticky' : ''
                         }`}
                         style={{ 
-                          minWidth: column.key === 'name' ? '250px' : '150px', 
-                          maxWidth: column.key === 'name' ? '250px' : '150px', 
-                          width: column.key === 'name' ? '200px' : '150px'
+                          minWidth: column.key === 'name' ? '300px' : '150px', 
+                          maxWidth: column.key === 'name' ? '300px' : '150px', 
+                          width: column.key === 'name' ? '300px' : '150px'
                         }}
                         onClick={() => handleSort(column.key)}
                       >
