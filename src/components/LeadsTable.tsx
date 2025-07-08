@@ -1,3 +1,4 @@
+
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { ChevronUp, ChevronDown } from "lucide-react";
 import { LeadsTableProps, defaultColumns } from "./leads-table/types";
@@ -57,7 +58,7 @@ export function LeadsTable({
           
           <div className="table-scroll-container">
             <Table className="relative">
-              <TableHeader className="sticky top-0 z-10 bg-white border-b">
+              <TableHeader className="sticky top-0 z-[5] bg-white border-b">
                 <TableRow className="bg-gray-50">
                   {visibleColumns.map((column, index) => (
                     <TableHead 
@@ -65,7 +66,7 @@ export function LeadsTable({
                       className={`
                         cursor-pointer select-none px-4 py-3 text-center text-xs font-medium text-gray-600 uppercase tracking-wider whitespace-nowrap
                         ${column.key === 'name' 
-                          ? 'sticky left-0 z-20 bg-gray-50 shadow-[2px_0_4px_rgba(0,0,0,0.1)]' 
+                          ? 'sticky left-0 z-[6] bg-gray-50 shadow-[2px_0_4px_rgba(0,0,0,0.1)]' 
                           : ''
                         }
                       `}
@@ -96,7 +97,7 @@ export function LeadsTable({
                         className={`
                           px-4 py-3 text-xs whitespace-nowrap
                           ${column.key === 'name' 
-                            ? 'sticky left-0 z-10 bg-white shadow-[2px_0_4px_rgba(0,0,0,0.05)]' 
+                            ? 'sticky left-0 z-[5] bg-white shadow-[2px_0_4px_rgba(0,0,0,0.05)]' 
                             : ''
                           }
                         `}
