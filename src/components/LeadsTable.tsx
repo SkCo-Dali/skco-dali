@@ -278,18 +278,18 @@ export function LeadsTable({
         );
       case 'product':
         return (
-          <span className="text-gray-700 text-[12px]">
+          <span className="text-gray-700 text-xs">
             {lead.product || '-'}
           </span>
         );
       case 'campaign':
         return (
-          <span className="text-gray-700 text-[12px]">
+          <span className="text-gray-700 text-xs">
             {lead.campaign || '-'}
           </span>
         );
       case 'source':
-        return <span className="text-gray-700 text-[12px] capitalize">{lead.source}</span>;
+        return <span className="text-gray-700 text-xs capitalize">{lead.source}</span>;
       case 'stage':
         return (
           <EditableLeadCell
@@ -308,12 +308,12 @@ export function LeadsTable({
         );
       case 'lastInteraction':
         return (
-          <span className="text-gray-700 text-[12px]">
+          <span className="text-gray-700 text-xs">
             {format(new Date(lead.updatedAt), "dd/MM/yyyy", { locale: es })}
           </span>
         );
       case 'value':
-        return <span className="text-gray-800 font-medium text-[12px]">${lead.value.toLocaleString()}</span>;
+        return <span className="text-gray-800 font-medium text-xs">${lead.value.toLocaleString()}</span>;
       case 'priority':
         return (
           <EditableLeadCell
@@ -324,18 +324,18 @@ export function LeadsTable({
         );
       case 'createdAt':
         return (
-          <span className="text-gray-700 text-[12px]">
+          <span className="text-gray-700 text-xs">
             {format(new Date(lead.createdAt), "dd/MM/yyyy", { locale: es })}
           </span>
         );
       case 'age':
-        return <span className="text-gray-700 text-[12px]">{lead.age || '-'}</span>;
+        return <span className="text-gray-700 text-xs">{lead.age || '-'}</span>;
       case 'gender':
-        return <span className="text-gray-700 text-[12px]">{lead.gender || '-'}</span>;
+        return <span className="text-gray-700 text-xs">{lead.gender || '-'}</span>;
       case 'preferredContactChannel':
-        return <span className="text-gray-700 text-[12px]">{lead.preferredContactChannel || '-'}</span>;
+        return <span className="text-gray-700 text-xs">{lead.preferredContactChannel || '-'}</span>;
       case 'documentType':
-        return <span className="text-gray-700 text-[12px]">{lead.documentType || '-'}</span>;
+        return <span className="text-gray-700 text-xs">{lead.documentType || '-'}</span>;
       default:
         return null;
     }
