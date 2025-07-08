@@ -365,17 +365,17 @@ export function LeadsTable({
     }
     .name-column-sticky {
       position: sticky;
-      left: 0;
-      z-index: 10;
-      background: white;
+      left: 240px;
+      z-index: 20;
+      background: #fafafa;
       box-shadow: 2px 0 5px -2px rgba(0,0,0,0.1);
     }
   `}</style>
 
   <div className="bg-transparent rounded-lg border border-white overflow-hidden">
-    <div className="overflow-x-auto leads-table-scroll" style={{ maxHeight: '500px' }}>
-      <div style={{ minWidth: `${250 + (visibleColumns.length - 1) * 150}px` }}>
-        <Table className="w-full">
+    <div className="overflow-x-auto w-full pl-[240px]" style={{ maxHeight: '500px' }}>      
+       <div style={{ minWidth: '1200px' }}>
+        <Table className="w-full ">
           <TableHeader className="sticky top-0 z-10 bg-white">
             <TableRow className="bg-gray-100 border-b border-gray-100">
               {visibleColumns.map((column) => (
