@@ -365,10 +365,10 @@ export function LeadsTable({
         }
         .name-column-sticky {
           position: sticky;
-          left: 0;
-          z-index: 0;
-          background: transparent;
-          border-right: 0px solid #e5e7eb;
+  left: 0;
+  z-index: 0;
+  background: white; /* cambiar a blanco para que no se vea transparente */
+  border-right: 1px solid #e5e7eb;
         }
       `}</style>
         <div className="bg-transparent rounded-lg border border-white overflow-hidden">
@@ -376,7 +376,9 @@ export function LeadsTable({
             className="leads-table-scroll overflow-auto"
             style={{ 
               maxHeight: '500px',
-              maxWidth: '100%'
+    maxWidth: '100%',
+    overflowX: 'auto',  // asegúrate que overflow-x esté activo
+    overflowY: 'auto'
             }}
           >
             <div style={{ minWidth: `${300 + (visibleColumns.length - 1) * 150}px` }}>
@@ -385,17 +387,17 @@ export function LeadsTable({
                   <TableRow className="bg-gray-100 border-b border-gray-100">
                     {visibleColumns.map((column) => (
                       <TableHead 
-                        key={column.key}
-                        className={`cursor-pointer select-none px-4 py-3 text-center text-xs font-medium text-gray-600 capitalize tracking-wider ${
-                          column.key === 'name' ? 'name-column-sticky' : ''
-                        }`}
-                        style={{ 
-                          minWidth: column.key === 'name' ? '300px' : '150px', 
-                          maxWidth: column.key === 'name' ? '300px' : '150px', 
-                          width: column.key === 'name' ? '300px' : '150px'
-                        }}
-                        onClick={() => handleSort(column.key)}
-                      >
+  key={column.key}
+  className={`cursor-pointer select-none px-4 py-3 text-center text-xs font-medium text-gray-600 capitalize tracking-wider ${
+    column.key === 'name' ? 'name-column-sticky z-20' : ''
+  }`}
+  style={{ 
+    minWidth: column.key === 'name' ? '300px' : '150px', 
+    maxWidth: column.key === 'name' ? '300px' : '150px', 
+    width: column.key === 'name' ? '300px' : '150px'
+  }}
+  onClick={() => handleSort(column.key)}
+>
                         <div className="flex items-center">
                           {column.label}
                           {renderSortIcon(column.key)}
@@ -412,16 +414,16 @@ export function LeadsTable({
                     >
                       {visibleColumns.map((column) => (
                         <TableCell 
-                          key={column.key} 
-                          className={`px-4 py-3 text-xs ${
-                            column.key === 'name' ? 'name-column-sticky' : ''
-                          }`}
-                          style={{ 
-                            minWidth: column.key === 'name' ? '200px' : '150px', 
-                            maxWidth: column.key === 'name' ? '200px' : '150px', 
-                            width: column.key === 'name' ? '200px' : '150px'
-                          }}
-                        >
+  key={column.key} 
+  className={`px-4 py-3 text-xs ${
+    column.key === 'name' ? 'name-column-sticky z-10' : ''
+  }`}
+  style={{ 
+    minWidth: column.key === 'name' ? '200px' : '150px', 
+    maxWidth: column.key === 'name' ? '200px' : '150px', 
+    width: column.key === 'name' ? '200px' : '150px'
+  }}
+>
                           {renderCellContent(lead, column.key)}
                         </TableCell>
                       ))}
