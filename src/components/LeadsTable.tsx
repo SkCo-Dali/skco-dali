@@ -1,3 +1,4 @@
+
 import { useState } from "react"; 
 import { Lead } from "@/types/crm";
 import { Badge } from "@/components/ui/badge";
@@ -373,18 +374,18 @@ export function LeadsTable({
 
   <div className="bg-transparent rounded-lg border border-white overflow-hidden">
     <div className="overflow-x-auto leads-table-scroll" style={{ maxHeight: '500px' }}>
-      <div style={{ minWidth: `${250 + (visibleColumns.length - 1) * 150}px` }}>
+      <div style={{ minWidth: `${300 + (visibleColumns.length - 1) * 150}px` }}>
         <Table className="w-full">
-          <TableHeader className="sticky top-0 z-20 bg-white">
+          <TableHeader className="top-0 z-20 bg-white">
             <TableRow className="bg-gray-100 border-b border-gray-100">
               {visibleColumns.map((column) => (
                 <TableHead 
                   key={column.key}
                   className={`cursor-pointer select-none px-4 py-3 text-center text-xs font-medium text-gray-600 capitalize tracking-wider ${column.key === 'name' ? 'name-column-sticky' : ''}`}
                   style={{ 
-                    minWidth: column.key === 'name' ? '250px' : '150px', 
-                    maxWidth: column.key === 'name' ? '250px' : '150px', 
-                    width: column.key === 'name' ? '250px' : '150px'
+                    minWidth: column.key === 'name' ? '300px' : '150px', 
+                    maxWidth: column.key === 'name' ? '300px' : '150px', 
+                    width: column.key === 'name' ? '300px' : '150px'
                   }}
                   onClick={() => handleSort(column.key)}
                 >
@@ -407,9 +408,9 @@ export function LeadsTable({
                     key={column.key} 
                     className={`px-4 py-3 text-xs ${column.key === 'name' ? 'name-column-sticky' : ''}`}
                     style={{ 
-                      minWidth: column.key === 'name' ? '250px' : '150px', 
-                      maxWidth: column.key === 'name' ? '250px' : '150px', 
-                      width: column.key === 'name' ? '250px' : '150px'
+                      minWidth: column.key === 'name' ? '200px' : '150px', 
+                      maxWidth: column.key === 'name' ? '200px' : '150px', 
+                      width: column.key === 'name' ? '200px' : '150px'
                     }}
                   >
                     {renderCellContent(lead, column.key)}
