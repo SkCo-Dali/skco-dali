@@ -342,9 +342,11 @@ export function LeadsTable({
   };
 
   return (
-      
-      <div className="bg-gray-100 rounded-lg style={{ backgroundColor: '#fafafa'; borderColor: #fafafa }}">
-        <style>{`
+    <div
+      className="bg-gray-100 rounded-lg"
+      style={{ backgroundColor: '#fafafa', borderColor: '#fafafa' }}
+    >
+      <style>{`
         .leads-table-scroll::-webkit-scrollbar {
           width: 8px;
           height: 8px;
@@ -365,75 +367,77 @@ export function LeadsTable({
         }
         .name-column-sticky {
           position: sticky;
-  left: 0;
-  z-index: 0;
-  background: #fafafa; /* cambiar a blanco para que no se vea transparente */
-  border-right: 1px solid #e5e7eb;
+          left: 0;
+          z-index: 20;
+          background: #fafafa;
+          border-right: 1px solid #e5e7eb;
         }
       `}</style>
-        <div className="bg-transparent rounded-lg border border-white overflow-hidden">
-          <div 
-            className="leads-table-scroll overflow-auto"
-            style={{ 
-              maxHeight: '500px',
-    maxWidth: '100%',
-    overflowX: 'auto',  // asegúrate que overflow-x esté activo
-    overflowY: 'auto'
-            }}
-          >
-            <div style={{ minWidth: `${300 + (visibleColumns.length - 1) * 150}px` }}>
-              <Table className="w-full">
-                <TableHeader className="top-0 z-10 bg-white">
-                  <TableRow className="bg-gray-100 border-b border-gray-100">
+
+      <div className="bg-transparent rounded-lg border border-white overflow-hidden">
+        <div
+          className="leads-table-scroll overflow-auto"
+          style={{
+            maxHeight: '500px',
+            maxWidth: '100%',
+            overflowX: 'auto',
+            overflowY: 'auto',
+          }}
+        >
+          <div className="w-max">
+            <Table className="min-w-[900px] w-full table-fixed">
+              <TableHeader className="top-0 z-20 bg-white sticky">
+                <TableRow className="bg-gray-100 border-b border-gray-100">
+                  {visibleColumns.map((column) => (
+                    <TableHead
+                      key={column.key}
+                      className={`cursor-pointer select-none px-4 py-3 text-center text-xs font-medium text-gray-600 capitalize tracking-wider ${
+                        column.key === 'name' ? 'name-column-sticky' : ''
+                      }`}
+                      style={{
+                        width: column.key === 'name' ? '250px' : '150px',
+                        minWidth: column.key === 'name' ? '250px' : '150px',
+                        maxWidth: column.key === 'name' ? '250px' : '150px',
+                      }}
+                      onClick={() => handleSort(column.key)}
+                    >
+                      <div className="flex items-center justify-center">
+                        {column.label}
+                        {renderSortIcon(column.key)}
+                      </div>
+                    </TableHead>
+                  ))}
+                </TableRow>
+              </TableHeader>
+
+              <TableBody>
+                {paginatedLeads.map((lead) => (
+                  <TableRow
+                    key={lead.id}
+                    className="hover:bg-gray-50 transition-colors border-b border-gray-100"
+                  >
                     {visibleColumns.map((column) => (
-                      <TableHead 
-  key={column.key}
-  className={`cursor-pointer select-none px-4 py-3 text-center text-xs font-medium text-gray-600 capitalize tracking-wider ${
-    column.key === 'name' ? 'name-column-sticky z-20' : ''
-  }`}
-  style={{ 
-    minWidth: column.key === 'name' ? '300px' : '150px', 
-    maxWidth: column.key === 'name' ? '300px' : '150px', 
-    width: column.key === 'name' ? '300px' : '150px'
-  }}
-  onClick={() => handleSort(column.key)}
->
-                        <div className="flex items-center">
-                          {column.label}
-                          {renderSortIcon(column.key)}
-                        </div>
-                      </TableHead>
+                      <TableCell
+                        key={column.key}
+                        className={`px-4 py-3 text-xs ${
+                          column.key === 'name' ? 'name-column-sticky' : ''
+                        }`}
+                        style={{
+                          width: column.key === 'name' ? '250px' : '150px',
+                          minWidth: column.key === 'name' ? '250px' : '150px',
+                          maxWidth: column.key === 'name' ? '250px' : '150px',
+                        }}
+                      >
+                        {renderCellContent(lead, column.key)}
+                      </TableCell>
                     ))}
                   </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {paginatedLeads.map((lead, index) => (
-                    <TableRow 
-                      key={lead.id}
-                      className="hover:bg-gray-50 transition-colors border-b border-gray-100"
-                    >
-                      {visibleColumns.map((column) => (
-                        <TableCell 
-  key={column.key} 
-  className={`px-4 py-3 text-xs ${
-    column.key === 'name' ? 'name-column-sticky z-10' : ''
-  }`}
-  style={{ 
-    minWidth: column.key === 'name' ? '200px' : '150px', 
-    maxWidth: column.key === 'name' ? '200px' : '150px', 
-    width: column.key === 'name' ? '200px' : '150px'
-  }}
->
-                          {renderCellContent(lead, column.key)}
-                        </TableCell>
-                      ))}
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </div>
+                ))}
+              </TableBody>
+            </Table>
           </div>
         </div>
       </div>
+    </div>
   );
 }
