@@ -321,7 +321,7 @@ export function EditableLeadCell({ lead, field, onUpdate }: EditableLeadCellProp
 
   return (
     <div
-      className="cursor-pointer hover:bg-gray-100 p-1 rounded text-sm truncate min-h-[24px] flex items-center"
+      className="cursor-pointer hover:bg-gray-100 p-1 rounded text-xs truncate min-h-[24px] flex items-center"
       onClick={() => handleEditStart(displayValue)}
       title="Click para editar"
     >

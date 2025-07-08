@@ -413,7 +413,7 @@ export function LeadsTable({
                       {visibleColumns.map((column) => (
                         <TableCell 
                           key={column.key} 
-                          className={`px-4 py-3 text-[12px] ${
+                          className={`px-4 py-3 text-xs ${
                             column.key === 'name' ? 'name-column-sticky' : ''
                           }`}
                           style={{ 
