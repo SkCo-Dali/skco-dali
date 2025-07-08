@@ -1,4 +1,3 @@
-
 import { useState } from "react"; 
 import { Lead } from "@/types/crm";
 import { Badge } from "@/components/ui/badge";
@@ -59,6 +58,7 @@ export function LeadsTable({
   const [sortConfig, setSortConfig] = useState<SortConfig>(null);
 
   const visibleColumns = columns.filter(col => col.visible);
+  const nonNameColumns = visibleColumns.filter(col => col.key !== 'name');
 
   const handleSort = (columnKey: string) => {
     let direction: 'asc' | 'desc' = 'asc';
@@ -342,9 +342,8 @@ export function LeadsTable({
   };
 
   return (
-      
-      <div className="bg-gray-100 rounded-lg style={{ backgroundColor: '#fafafa'; borderColor: #fafafa }}">
-        <style>{`
+    <div className="bg-gray-100 rounded-lg" style={{ backgroundColor: '#fafafa', borderColor: '#fafafa' }}>
+      <style>{`
         .leads-table-scroll::-webkit-scrollbar {
           width: 8px;
           height: 8px;
@@ -366,72 +365,103 @@ export function LeadsTable({
         .name-column-sticky {
           position: sticky;
           left: 0;
-          z-index: 5;
-          background: transparent;
-          border-right: 0px solid #e5e7eb;
+          z-index: 10;
+          background: white;
+          border-right: 1px solid #e5e7eb;
+          box-shadow: 2px 0 4px rgba(0,0,0,0.1);
+        }
+        .table-container {
+          position: relative;
+          max-height: 500px;
+          overflow: auto;
+        }
+        .scrollable-content {
+          position: relative;
         }
       `}</style>
-        <div className="bg-transparent rounded-lg border border-white overflow-hidden">
-          <div 
-            className="leads-table-scroll overflow-auto"
-            style={{ 
-              maxHeight: '500px',
-              maxWidth: '100%'
-            }}
-          >
-            <div style={{ minWidth: `${250 + (visibleColumns.length - 1) * 150}px` }}>
-              <Table className="w-full">
-                <TableHeader className="sticky top-0 z-10 bg-white">
-                  <TableRow className="bg-gray-100 border-b border-gray-100">
-                    {visibleColumns.map((column) => (
-                      <TableHead 
-                        key={column.key}
-                        className={`cursor-pointer select-none px-4 py-3 text-center text-xs font-medium text-gray-600 capitalize tracking-wider ${
-                          column.key === 'name' ? 'name-column-sticky' : ''
-                        }`}
-                        style={{ 
-                          minWidth: column.key === 'name' ? '250px' : '150px', 
-                          maxWidth: column.key === 'name' ? '250px' : '150px', 
-                          width: column.key === 'name' ? '200px' : '150px'
-                        }}
-                        onClick={() => handleSort(column.key)}
-                      >
-                        <div className="flex items-center">
-                          {column.label}
-                          {renderSortIcon(column.key)}
-                        </div>
-                      </TableHead>
-                    ))}
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {paginatedLeads.map((lead, index) => (
-                    <TableRow 
-                      key={lead.id}
-                      className="hover:bg-gray-50 transition-colors border-b border-gray-100"
+      
+      <div className="bg-transparent rounded-lg border border-white overflow-hidden">
+        <div className="table-container leads-table-scroll">
+          <div className="scrollable-content" style={{ minWidth: `${280 + nonNameColumns.length * 150}px` }}>
+            <table className="w-full">
+              <thead className="sticky top-0 z-20 bg-white">
+                <tr className="bg-gray-100 border-b border-gray-100">
+                  {/* Columna de Nombre siempre fija */}
+                  <th 
+                    className="name-column-sticky cursor-pointer select-none px-4 py-3 text-center text-xs font-medium text-gray-600 capitalize tracking-wider"
+                    style={{ 
+                      minWidth: '280px', 
+                      maxWidth: '280px', 
+                      width: '280px'
+                    }}
+                    onClick={() => handleSort('name')}
+                  >
+                    <div className="flex items-center">
+                      Nombre
+                      {renderSortIcon('name')}
+                    </div>
+                  </th>
+                  
+                  {/* Resto de columnas scrolleables */}
+                  {nonNameColumns.map((column) => (
+                    <th 
+                      key={column.key}
+                      className="cursor-pointer select-none px-4 py-3 text-center text-xs font-medium text-gray-600 capitalize tracking-wider bg-white"
+                      style={{ 
+                        minWidth: '150px', 
+                        maxWidth: '150px', 
+                        width: '150px'
+                      }}
+                      onClick={() => handleSort(column.key)}
                     >
-                      {visibleColumns.map((column) => (
-                        <TableCell 
-                          key={column.key} 
-                          className={`px-4 py-3 text-xs ${
-                            column.key === 'name' ? 'name-column-sticky' : ''
-                          }`}
-                          style={{ 
-                            minWidth: column.key === 'name' ? '200px' : '150px', 
-                            maxWidth: column.key === 'name' ? '200px' : '150px', 
-                            width: column.key === 'name' ? '200px' : '150px'
-                          }}
-                        >
-                          {renderCellContent(lead, column.key)}
-                        </TableCell>
-                      ))}
-                    </TableRow>
+                      <div className="flex items-center">
+                        {column.label}
+                        {renderSortIcon(column.key)}
+                      </div>
+                    </th>
                   ))}
-                </TableBody>
-              </Table>
-            </div>
+                </tr>
+              </thead>
+              
+              <tbody>
+                {paginatedLeads.map((lead, index) => (
+                  <tr 
+                    key={lead.id}
+                    className="hover:bg-gray-50 transition-colors border-b border-gray-100"
+                  >
+                    {/* Columna de Nombre siempre fija */}
+                    <td 
+                      className="name-column-sticky px-4 py-3 text-xs"
+                      style={{ 
+                        minWidth: '280px', 
+                        maxWidth: '280px', 
+                        width: '280px'
+                      }}
+                    >
+                      {renderCellContent(lead, 'name')}
+                    </td>
+                    
+                    {/* Resto de columnas scrolleables */}
+                    {nonNameColumns.map((column) => (
+                      <td 
+                        key={column.key} 
+                        className="px-4 py-3 text-xs bg-white"
+                        style={{ 
+                          minWidth: '150px', 
+                          maxWidth: '150px', 
+                          width: '150px'
+                        }}
+                      >
+                        {renderCellContent(lead, column.key)}
+                      </td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         </div>
       </div>
+    </div>
   );
 }
