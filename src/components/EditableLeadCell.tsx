@@ -210,7 +210,7 @@ export function EditableLeadCell({ lead, field, onUpdate }: EditableLeadCellProp
         disabled={isUpdating}
       >
         <SelectTrigger className="w-full border-none shadow-none p-2 h-8">
-          <span className="text-sm text-center">
+          <span className="text-xs text-center">
             {priorityLabels[lead.priority as keyof typeof priorityLabels] || lead.priority}
           </span>
         </SelectTrigger>
@@ -235,7 +235,7 @@ export function EditableLeadCell({ lead, field, onUpdate }: EditableLeadCellProp
         disabled={isUpdating}
       >
         <SelectTrigger className="w-full border-none shadow-none p-2 h-8">
-          <span className="text-sm text-center">
+          <span className="text-xs text-center">
             {assignedUser?.name || ''}
           </span>
         </SelectTrigger>
@@ -290,7 +290,7 @@ export function EditableLeadCell({ lead, field, onUpdate }: EditableLeadCellProp
         <Input
           value={editValue}
           onChange={(e) => setEditValue(e.target.value)}
-          className="h-8 text-sm"
+          className="h-8 text-xs"
           onKeyDown={(e) => {
             if (e.key === 'Enter') {
               handleEditSave();
