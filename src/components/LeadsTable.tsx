@@ -1,9 +1,8 @@
-
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { ChevronUp, ChevronDown } from "lucide-react";
 import { LeadsTableProps, defaultColumns } from "./leads-table/types";
 import { useLeadsTableSort } from "./leads-table/useLeadsTableSort";
-import { LeadTableCell } from "./leads-table/LeudTableCell";
+import { LeadTableCell } from "./leads-table/LeadTableCell";
 
 export function LeadsTable({ 
   leads, 
