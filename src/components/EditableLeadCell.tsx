@@ -235,7 +235,7 @@ export function EditableLeadCell({ lead, field, onUpdate }: EditableLeadCellProp
         disabled={isUpdating}
       >
         <SelectTrigger className="w-full border-none shadow-none p-2 h-8">
-          <span className="text-xs text-center">
+          <span className="text-xs text-left">
             {assignedUser?.name || ''}
           </span>
         </SelectTrigger>
