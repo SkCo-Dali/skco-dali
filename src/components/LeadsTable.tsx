@@ -367,7 +367,7 @@ export function LeadsTable({
           position: sticky;
   left: 0;
   z-index: 0;
-  background: white; /* cambiar a blanco para que no se vea transparente */
+  background: #fafafa; /* cambiar a blanco para que no se vea transparente */
   border-right: 1px solid #e5e7eb;
         }
       `}</style>
