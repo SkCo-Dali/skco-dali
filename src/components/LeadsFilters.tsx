@@ -83,10 +83,31 @@ export function LeadsFilters({
     return selectedValues.length;
   };
 
-  const getDisplayText = (value: string | string[], placeholder: string) => {
-    const count = getSelectedCount(value);
-    if (count === 0) return placeholder;
-    return `${count} seleccionado${count > 1 ? 's' : ''}`;
+  const getDisplayText = (value: string | string[], placeholder: string, options?: any[]) => {
+    if (value === "all" || (Array.isArray(value) && value.length === 0)) {
+      return placeholder;
+    }
+    
+    if (Array.isArray(value)) {
+      if (value.length === 1) {
+        // Si solo hay un valor seleccionado, mostrar el nombre completo
+        if (options) {
+          const option = options.find(opt => opt.id === value[0] || opt.value === value[0] || opt === value[0]);
+          return option?.name || option?.label || value[0];
+        }
+        return value[0];
+      } else {
+        // Si hay múltiples valores, mostrar el conteo
+        return `${value.length} seleccionado${value.length > 1 ? 's' : ''}`;
+      }
+    } else {
+      // Valor único (no array)
+      if (options) {
+        const option = options.find(opt => opt.id === value || opt.value === value || opt === value);
+        return option?.name || option?.label || value;
+      }
+      return value;
+    }
   };
 
   const getSelectValue = (value: string | string[]) => {
@@ -140,7 +161,7 @@ export function LeadsFilters({
                   }}
                 >
                   <SelectTrigger className="w-full">
-                    <SelectValue placeholder={getDisplayText(filterStage, "Seleccionar etapas")} />
+                    <SelectValue placeholder={getDisplayText(filterStage, "Seleccionar etapas", uniqueStages.map(s => ({ value: s, label: s })))} />
                   </SelectTrigger>
                   <SelectContent className="bg-white z-50">
                     <SelectItem value="all">Todas las etapas</SelectItem>
@@ -175,7 +196,7 @@ export function LeadsFilters({
                   }}
                 >
                   <SelectTrigger className="w-full">
-                    <SelectValue placeholder={getDisplayText(filterAssignedTo, "Seleccionar usuarios")} />
+                    <SelectValue placeholder={getDisplayText(filterAssignedTo, "Seleccionar usuarios", users)} />
                   </SelectTrigger>
                   <SelectContent className="bg-white z-50">
                     <SelectItem value="all">Todos los usuarios</SelectItem>
@@ -210,7 +231,7 @@ export function LeadsFilters({
                   }}
                 >
                   <SelectTrigger className="w-full">
-                    <SelectValue placeholder={getDisplayText(filterSource, "Seleccionar fuentes")} />
+                    <SelectValue placeholder={getDisplayText(filterSource, "Seleccionar fuentes", uniqueSources.map(s => ({ value: s, label: s })))} />
                   </SelectTrigger>
                   <SelectContent className="bg-white z-50">
                     <SelectItem value="all">Todas las fuentes</SelectItem>
@@ -245,7 +266,7 @@ export function LeadsFilters({
                   }}
                 >
                   <SelectTrigger className="w-full">
-                    <SelectValue placeholder={getDisplayText(filterCampaign, "Seleccionar campañas")} />
+                    <SelectValue placeholder={getDisplayText(filterCampaign, "Seleccionar campañas", uniqueCampaigns.map(c => ({ value: c, label: c })))} />
                   </SelectTrigger>
                   <SelectContent className="bg-white z-50">
                     <SelectItem value="all">Todas las campañas</SelectItem>
@@ -280,7 +301,12 @@ export function LeadsFilters({
                   }}
                 >
                   <SelectTrigger className="w-full">
-                    <SelectValue placeholder={getDisplayText(filterPriority, "Seleccionar prioridades")} />
+                    <SelectValue placeholder={getDisplayText(filterPriority, "Seleccionar prioridades", [
+                      { value: 'low', label: 'Baja' },
+                      { value: 'medium', label: 'Media' },
+                      { value: 'high', label: 'Alta' },
+                      { value: 'urgent', label: 'Urgente' }
+                    ])} />
                   </SelectTrigger>
                   <SelectContent className="bg-white z-50">
                     <SelectItem value="all">Todas las prioridades</SelectItem>
