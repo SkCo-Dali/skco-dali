@@ -6,7 +6,6 @@ import { AppSidebar } from "@/components/AppSidebar";
 import { Header } from "@/components/Header";
 import Dashboard from "@/pages/Dashboard";
 import Leads from "@/pages/Leads";
-import Calendar from "@/pages/Calendar";
 import Tasks from "@/pages/Tasks";
 import Reports from "@/pages/Reports";
 import Informes from "@/pages/Informes";
@@ -63,7 +62,6 @@ export function AppContent() {
               <Route path="/" element={<Navigate to="/leads" replace />} />
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/leads" element={<Leads />} />
-              <Route path="/calendar" element={<Calendar />} />
               <Route path="/tasks" element={<Tasks />} />
               <Route path="/reports" element={<Reports />} />
               <Route path="/informes" element={<Informes />} />
