@@ -341,26 +341,26 @@ export function LeadsTable({
   };
 
   return (
-    <div className="leads-table-container-force bg-gray-100 rounded-lg">
-      <div className="leads-table-wrapper-force">
-        <div className="leads-table-inner-force">
+    <div className="leads-table-container-scroll">
+      <div className="leads-table-scroll-wrapper">
+        <div className="leads-table-inner-scroll">
           <Table className="w-full">
-            <TableHeader className="sticky top-0 z-10 bg-white">
+            <TableHeader className="leads-table-header-sticky">
               <TableRow className="bg-gray-100 border-b border-gray-100">
                 {visibleColumns.map((column) => (
                   <TableHead 
                     key={column.key}
                     className={`cursor-pointer select-none px-4 py-3 text-center text-xs font-medium text-gray-600 capitalize tracking-wider ${
-                      column.key === 'name' ? 'name-column-sticky-force' : ''
+                      column.key === 'name' ? 'leads-name-column-sticky' : ''
                     }`}
                     style={{ 
-                      minWidth: column.key === 'name' ? '250px' : '180px', 
-                      maxWidth: column.key === 'name' ? '250px' : '180px', 
-                      width: column.key === 'name' ? '250px' : '180px'
+                      minWidth: column.key === 'name' ? '250px' : '200px', 
+                      maxWidth: column.key === 'name' ? '250px' : '200px', 
+                      width: column.key === 'name' ? '250px' : '200px'
                     }}
                     onClick={() => handleSort(column.key)}
                   >
-                    <div className="flex items-center">
+                    <div className="flex items-center justify-center">
                       {column.label}
                       {renderSortIcon(column.key)}
                     </div>
@@ -378,12 +378,12 @@ export function LeadsTable({
                     <TableCell 
                       key={column.key} 
                       className={`px-4 py-3 text-xs ${
-                        column.key === 'name' ? 'name-column-sticky-force' : ''
+                        column.key === 'name' ? 'leads-name-column-sticky' : ''
                       }`}
                       style={{ 
-                        minWidth: column.key === 'name' ? '250px' : '180px', 
-                        maxWidth: column.key === 'name' ? '250px' : '180px', 
-                        width: column.key === 'name' ? '250px' : '180px'
+                        minWidth: column.key === 'name' ? '250px' : '200px', 
+                        maxWidth: column.key === 'name' ? '250px' : '200px', 
+                        width: column.key === 'name' ? '250px' : '200px'
                       }}
                     >
                       {renderCellContent(lead, column.key)}

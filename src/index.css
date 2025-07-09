@@ -85,6 +85,7 @@
 
   body {
     @apply bg-background text-foreground font-montserrat antialiased;
+    overflow-x: hidden; /* Evitar scroll horizontal en toda la página */
   }
 }
 
@@ -236,120 +237,129 @@
     @apply text-gray-500;
   }
 
-  /* SCROLL HORIZONTAL FUNCIONAL PARA TABLA DE LEADS */
-  .leads-table-container-force {
+  /* SCROLL HORIZONTAL PARA TABLA DE LEADS - VERSIÓN MEJORADA */
+  .leads-table-container-scroll {
+    position: relative;
     width: 100%;
     max-width: 100%;
-    position: relative;
-    /* IMPORTANTE: Evitar que el contenedor principal se expanda más allá del viewport */
-    overflow: hidden;
+    background: #f8f9fa;
+    border-radius: 8px;
+    /* Evitar que la tabla afecte el layout de la página */
+    contain: layout style;
   }
 
-  .leads-table-wrapper-force {
+  .leads-table-scroll-wrapper {
     position: relative;
     width: 100%;
-    /* CLAVE: Altura fija y scroll interno */
-    max-height: 500px;
-    overflow-x: auto !important;
-    overflow-y: auto !important;
+    height: 500px; /* Altura fija */
     border: 1px solid #e2e8f0;
     border-radius: 8px;
-    /* Asegurar que el contenedor no se expanda horizontalmente */
-    max-width: 100%;
-    box-sizing: border-box;
+    background: white;
+    /* CLAVE: Forzar scroll siempre visible */
+    overflow-x: scroll !important;
+    overflow-y: auto;
+    /* Asegurar que no afecte el resto de la página */
+    contain: layout style;
   }
 
-  /* Forzar el scroll horizontal visible SIEMPRE */
-  .leads-table-wrapper-force::-webkit-scrollbar {
-    height: 14px !important;
-    width: 14px !important;
-    background-color: #f1f5f9 !important;
-    border-radius: 6px !important;
-  }
-
-  .leads-table-wrapper-force::-webkit-scrollbar-track {
-    background: #f1f5f9 !important;
-    border-radius: 6px !important;
-    border: 1px solid #e2e8f0 !important;
-  }
-
-  .leads-table-wrapper-force::-webkit-scrollbar-thumb {
-    background: #00c83c !important;
-    border-radius: 6px !important;
-    border: 1px solid #f1f5f9 !important;
-    min-height: 20px !important;
-    min-width: 20px !important;
-  }
-
-  .leads-table-wrapper-force::-webkit-scrollbar-thumb:hover {
-    background: #00b835 !important;
-  }
-
-  .leads-table-wrapper-force::-webkit-scrollbar-thumb:active {
-    background: #009929 !important;
-  }
-
-  .leads-table-wrapper-force::-webkit-scrollbar-corner {
-    background: #f1f5f9 !important;
-  }
-
-  /* Para Firefox */
-  .leads-table-wrapper-force {
-    scrollbar-width: auto !important;
-    scrollbar-color: #00c83c #f1f5f9 !important;
-  }
-
-  /* Tabla interna con ancho fijo que fuerza el scroll */
-  .leads-table-inner-force {
-    /* CLAVE: Ancho mínimo más grande que el contenedor para forzar scroll horizontal */
-    min-width: 1400px;
-    width: max-content;
+  .leads-table-inner-scroll {
+    /* CLAVE: Ancho fijo mayor al contenedor para forzar scroll */
+    width: 1600px !important;
+    min-width: 1600px !important;
+    max-width: none !important;
+    height: auto;
     position: relative;
   }
 
-  /* Columna sticky mejorada */
-  .name-column-sticky-force {
+  /* Scrollbar personalizado - SIEMPRE VISIBLE */
+  .leads-table-scroll-wrapper::-webkit-scrollbar {
+    height: 16px !important;
+    width: 16px !important;
+    background-color: #f1f5f9;
+    border-radius: 8px;
+  }
+
+  .leads-table-scroll-wrapper::-webkit-scrollbar-track {
+    background: #f1f5f9;
+    border-radius: 8px;
+    border: 2px solid #e2e8f0;
+  }
+
+  .leads-table-scroll-wrapper::-webkit-scrollbar-thumb {
+    background: #00c83c;
+    border-radius: 8px;
+    border: 2px solid #f1f5f9;
+    min-height: 30px;
+    min-width: 30px;
+  }
+
+  .leads-table-scroll-wrapper::-webkit-scrollbar-thumb:hover {
+    background: #00b835;
+  }
+
+  .leads-table-scroll-wrapper::-webkit-scrollbar-thumb:active {
+    background: #009929;
+  }
+
+  .leads-table-scroll-wrapper::-webkit-scrollbar-corner {
+    background: #f1f5f9;
+  }
+
+  /* Firefox */
+  .leads-table-scroll-wrapper {
+    scrollbar-width: auto;
+    scrollbar-color: #00c83c #f1f5f9;
+  }
+
+  /* Columna sticky mejorada - z-index ajustado */
+  .leads-name-column-sticky {
     position: sticky !important;
     left: 0 !important;
-    z-index: 20 !important;
+    z-index: 5 !important; /* Menor que el menú pero mayor que el contenido */
     background: white !important;
     border-right: 2px solid #e5e7eb !important;
-    box-shadow: 3px 0 8px rgba(0,0,0,0.15) !important;
-    /* Asegurar que se mantenga en posición */
+    box-shadow: 2px 0 4px rgba(0,0,0,0.1) !important;
     min-width: 250px !important;
     max-width: 250px !important;
     width: 250px !important;
   }
 
-  /* Dark mode para el scroll */
-  .dark .leads-table-wrapper-force::-webkit-scrollbar-track {
-    background: #374151 !important;
-    border: 1px solid #4b5563 !important;
+  /* Header sticky con z-index adecuado */
+  .leads-table-header-sticky {
+    position: sticky !important;
+    top: 0 !important;
+    z-index: 6 !important; /* Un poco más alto que las columnas */
+    background: #f0f0f0 !important;
   }
 
-  .dark .leads-table-wrapper-force::-webkit-scrollbar-thumb {
-    background: #00c83c !important;
-    border: 1px solid #374151 !important;
+  /* Dark mode */
+  .dark .leads-table-scroll-wrapper {
+    background: #1f2937;
+    border-color: #4b5563;
   }
 
-  .dark .leads-table-wrapper-force::-webkit-scrollbar-thumb:hover {
-    background: #00b835 !important;
-    border: 1px solid #4b5563 !important;
+  .dark .leads-table-scroll-wrapper::-webkit-scrollbar-track {
+    background: #374151;
+    border-color: #4b5563;
   }
 
-  .dark .leads-table-wrapper-force::-webkit-scrollbar-corner {
-    background: #374151 !important;
+  .dark .leads-table-scroll-wrapper::-webkit-scrollbar-thumb {
+    background: #00c83c;
+    border-color: #374151;
   }
 
-  .dark .leads-table-wrapper-force {
-    border: 1px solid #4b5563;
-    scrollbar-color: #00c83c #374151 !important;
+  .dark .leads-table-scroll-wrapper::-webkit-scrollbar-corner {
+    background: #374151;
   }
 
-  .dark .name-column-sticky-force {
+  .dark .leads-name-column-sticky {
     background: #1f2937 !important;
-    border-right: 2px solid #4b5563 !important;
-    box-shadow: 3px 0 8px rgba(0,0,0,0.3) !important;
+    border-right-color: #4b5563 !important;
+    box-shadow: 2px 0 4px rgba(0,0,0,0.3) !important;
+  }
+
+  .dark .leads-table-header-sticky {
+    background: #374151 !important;
   }
 
   /* Estilos de Tabla Estilo ChatGPT - MEJORADOS */
@@ -573,13 +583,14 @@
     }
 
     /* Mejorar scroll en móviles para las tablas de leads */
-    .leads-table-wrapper-force::-webkit-scrollbar {
+    .leads-table-scroll-wrapper::-webkit-scrollbar {
       width: 12px;
       height: 12px;
     }
 
-    .leads-table-inner-force {
-      min-width: 1200px;
+    .leads-table-inner-scroll {
+      width: 1400px !important;
+      min-width: 1400px !important;
     }
   }
 }
