@@ -56,6 +56,7 @@ export default function Leads() {
   const [showUpload, setShowUpload] = useState(false);
   const [showMassEmail, setShowMassEmail] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
+  const [showCreateLead, setShowCreateLead] = useState(false);
   const [columns, setColumns] = useState<ColumnConfig[]>(DEFAULT_COLUMNS);
   const [sortedLeads, setSortedLeads] = useState<Lead[]>([]);
 
@@ -126,6 +127,7 @@ export default function Leads() {
   const handleLeadCreate = useCallback((leadData: Partial<Lead>) => {
     console.log('Creating lead:', leadData);
     handleLeadUpdate();
+    setShowCreateLead(false);
     toast.success("Lead creado exitosamente");
   }, [handleLeadUpdate]);
 
@@ -199,13 +201,9 @@ export default function Leads() {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-48">
-                <DropdownMenuItem onClick={(e) => e.preventDefault()}>
-                  <LeadCreateDialog onLeadCreate={handleLeadCreate}>
-                    <div className="flex items-center w-full">
-                      <Plus className="h-4 w-4 mr-2" />
-                        Crear Lead
-                    </div>
-                  </LeadCreateDialog>
+                <DropdownMenuItem onClick={() => setShowCreateLead(true)}>
+                  <Plus className="h-4 w-4 mr-2" />
+                  Crear Lead
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => setShowMassEmail(true)}>
                   <Mail className="h-4 w-4 mr-2" />
@@ -365,6 +363,12 @@ export default function Leads() {
           />
         </DialogContent>
       </Dialog>
+
+      <LeadCreateDialog 
+        open={showCreateLead}
+        onOpenChange={setShowCreateLead}
+        onLeadCreate={handleLeadCreate}
+      />
     </div>
   );
 }
