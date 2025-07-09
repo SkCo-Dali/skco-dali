@@ -1,3 +1,4 @@
+
 import React, { useState, useCallback, useMemo, useRef } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -42,11 +43,21 @@ const DEFAULT_COLUMNS: ColumnConfig[] = [
   { key: 'name', label: 'Nombre', visible: true, sortable: true },
   { key: 'email', label: 'Email', visible: true, sortable: true },
   { key: 'phone', label: 'Teléfono', visible: true, sortable: false },
-  { key: 'status', label: 'Estado', visible: true, sortable: true },
+  { key: 'documentType', label: 'Tipo de Documento', visible: true, sortable: true },
+  { key: 'documentNumber', label: 'Número de Documento', visible: true, sortable: true },
+  { key: 'company', label: 'Empresa', visible: false, sortable: true },
+  { key: 'product', label: 'Producto', visible: true, sortable: true },
+  { key: 'stage', label: 'Estado', visible: true, sortable: true },
+  { key: 'priority', label: 'Prioridad', visible: false, sortable: true },
   { key: 'source', label: 'Fuente', visible: true, sortable: true },
+  { key: 'campaign', label: 'Campaña', visible: false, sortable: true },
   { key: 'assignedTo', label: 'Asignado a', visible: true, sortable: true },
-  { key: 'createdAt', label: 'Fecha de creación', visible: true, sortable: true },
-  { key: 'lastContact', label: 'Último contacto', visible: false, sortable: true },
+  { key: 'value', label: 'Valor', visible: false, sortable: true },
+  { key: 'createdAt', label: 'Fecha de Creación', visible: false, sortable: true },
+  { key: 'lastInteraction', label: 'Fecha de Última Interacción', visible: false, sortable: true },
+  { key: 'age', label: 'Edad', visible: false, sortable: true },
+  { key: 'gender', label: 'Género', visible: false, sortable: true },
+  { key: 'preferredContactChannel', label: 'Medio de Contacto Preferido', visible: false, sortable: true },
 ];
 
 export default function Leads() {
