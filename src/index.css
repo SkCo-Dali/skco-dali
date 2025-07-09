@@ -318,9 +318,9 @@
     background: #fafafa !important;
     border-right: 2px solid #fafafa !important;
     box-shadow: 2px 0 4px rgba(0,0,0,0.1) !important;
-    min-width: 250px !important;
-    max-width: 250px !important;
-    width: 250px !important;
+    min-width: 350px !important;
+    max-width: 350px !important;
+    width: 350px !important;
   }
 
   /* Header sticky */
@@ -458,7 +458,7 @@
     white-space: nowrap;
     /* Permitir ancho natural del contenido */
     width: auto;
-    min-width: 150px;
+    min-width: 250px;
   }
 
   .data-table-pagination {
