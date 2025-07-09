@@ -20,7 +20,6 @@ export function LeadsStats({ filteredLeads, currentPage, totalPages }: LeadsStat
       <Badge variant="outline" className="text-sm">
         Página: {currentPage} de {totalPages}
       </Badge>
-     
     </div>
   );
 }

@@ -1,21 +1,20 @@
 
-import { useState } from "react";
+import React from 'react';
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
   DropdownMenu,
   DropdownMenuContent,
+  DropdownMenuItem,
   DropdownMenuTrigger,
-  DropdownMenuCheckboxItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
-import { Columns3Cog } from 'lucide-react';
+import { Settings } from "lucide-react";
 
 export interface ColumnConfig {
   key: string;
   label: string;
   visible: boolean;
+  sortable: boolean;
 }
 
 interface LeadsTableColumnSelectorProps {
@@ -24,9 +23,9 @@ interface LeadsTableColumnSelectorProps {
 }
 
 export function LeadsTableColumnSelector({ columns, onColumnsChange }: LeadsTableColumnSelectorProps) {
-  const handleColumnToggle = (columnKey: string, checked: boolean) => {
+  const handleColumnToggle = (columnKey: string) => {
     const updatedColumns = columns.map(col => 
-      col.key === columnKey ? { ...col, visible: checked } : col
+      col.key === columnKey ? { ...col, visible: !col.visible } : col
     );
     onColumnsChange(updatedColumns);
   };
@@ -34,29 +33,28 @@ export function LeadsTableColumnSelector({ columns, onColumnsChange }: LeadsTabl
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button className="text-gray-700 rounded-sm w-30 h-10 bg-white border border-gray-300 flex items-center justify-between px-3">
-  Personaliza
-  <Columns3Cog className="h-4 w-4 text-primary" />
-</Button>
-
+        <Button variant="outline" size="sm">
+          <Settings className="h-4 w-4 mr-2" />
+          Columnas
+        </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent 
-        className="w-56 bg-white border border-gray-300 shadow-lg z-[9999]" 
-        align="end"
-        side="bottom"
-        sideOffset={4}
-      >
-        <DropdownMenuLabel>Mostrar columnas</DropdownMenuLabel>
-        <DropdownMenuSeparator />
+      <DropdownMenuContent align="end" className="w-56">
         {columns.map((column) => (
-          <DropdownMenuCheckboxItem
-            key={column.key}
-            checked={column.visible}
-            onCheckedChange={(checked) => handleColumnToggle(column.key, checked)}
-            className="cursor-pointer"
-          >
-            {column.label}
-          </DropdownMenuCheckboxItem>
+          <DropdownMenuItem key={column.key} className="cursor-pointer">
+            <div className="flex items-center space-x-2 w-full">
+              <Checkbox
+                id={column.key}
+                checked={column.visible}
+                onCheckedChange={() => handleColumnToggle(column.key)}
+              />
+              <label
+                htmlFor={column.key}
+                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer flex-1"
+              >
+                {column.label}
+              </label>
+            </div>
+          </DropdownMenuItem>
         ))}
       </DropdownMenuContent>
     </DropdownMenu>

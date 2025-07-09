@@ -1,3 +1,4 @@
+
 import React, { useState, useCallback, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -42,31 +43,33 @@ export default function Leads() {
     refetch
   } = useQuery({
     queryKey: ['leads'],
-    queryFn: getAllLeads,
+    queryFn: () => getAllLeads(),
   });
 
   const {
     filteredLeads,
     searchTerm,
     setSearchTerm,
-    statusFilter,
-    setStatusFilter,
-    sourceFilter,
-    setSourceFilter,
-    assigneeFilter,
-    setAssigneeFilter,
-    dateRange,
-    setDateRange,
-    clearAllFilters
+    filterStage,
+    setFilterStage,
+    filterSource,
+    setFilterSource,
+    filterAssignedTo,
+    setFilterAssignedTo,
+    filterDateFrom,
+    setFilterDateFrom,
+    filterDateTo,
+    setFilterDateTo,
+    clearFilters
   } = useLeadsFilters(leadsData);
 
   const leadsToUse = sortedLeads.length > 0 ? sortedLeads : filteredLeads;
 
   const {
     currentPage,
-    itemsPerPage,
+    leadsPerPage,
     setCurrentPage,
-    setItemsPerPage,
+    setLeadsPerPage,
     paginatedLeads,
     totalPages
   } = useLeadsPagination(leadsToUse);
@@ -87,9 +90,9 @@ export default function Leads() {
 
   const stats = useMemo(() => {
     const total = leadsData.length;
-    const newLeads = leadsData.filter(lead => lead.status === "nuevo").length;
-    const contacted = leadsData.filter(lead => lead.status === "contactado").length;
-    const qualified = leadsData.filter(lead => lead.status === "calificado").length;
+    const newLeads = leadsData.filter(lead => lead.stage === "new").length;
+    const contacted = leadsData.filter(lead => lead.stage === "contacted").length;
+    const qualified = leadsData.filter(lead => lead.stage === "qualified").length;
 
     return { total, newLeads, contacted, qualified };
   }, [leadsData]);
@@ -126,7 +129,11 @@ export default function Leads() {
             </div>
           </div>
 
-          <LeadsStats stats={stats} />
+          <LeadsStats 
+            filteredLeads={filteredLeads}
+            currentPage={currentPage}
+            totalPages={totalPages}
+          />
 
           <div className="flex flex-col lg:flex-row gap-4">
             <div className="flex-1">
@@ -136,23 +143,23 @@ export default function Leads() {
               />
             </div>
             <LeadsFilters
-              statusFilter={statusFilter}
-              onStatusFilterChange={setStatusFilter}
-              sourceFilter={sourceFilter}
-              onSourceFilterChange={setSourceFilter}
-              assigneeFilter={assigneeFilter}
-              onAssigneeFilterChange={setAssigneeFilter}
-              dateRange={dateRange}
-              onDateRangeChange={setDateRange}
-              onClearFilters={clearAllFilters}
+              filterStage={filterStage}
+              onStageFilterChange={setFilterStage}
+              filterSource={filterSource}
+              onSourceFilterChange={setFilterSource}
+              filterAssignedTo={filterAssignedTo}
+              onAssignedToFilterChange={setFilterAssignedTo}
+              filterDateFrom={filterDateFrom}
+              onDateFromChange={setFilterDateFrom}
+              filterDateTo={filterDateTo}
+              onDateToChange={setFilterDateTo}
+              onClearFilters={clearFilters}
             />
           </div>
 
           <LeadsViewControls
             viewMode={viewMode}
-            onViewModeChange={setViewMode}
-            columns={columns}
-            onColumnsChange={setColumns}
+            setViewMode={setViewMode}
           />
 
           {isLoading ? (
@@ -174,10 +181,10 @@ export default function Leads() {
               <LeadsPagination
                 currentPage={currentPage}
                 totalPages={totalPages}
-                itemsPerPage={itemsPerPage}
+                itemsPerPage={leadsPerPage}
                 totalItems={leadsToUse.length}
                 onPageChange={setCurrentPage}
-                onItemsPerPageChange={setItemsPerPage}
+                onItemsPerPageChange={setLeadsPerPage}
               />
             </>
           )}
