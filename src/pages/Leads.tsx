@@ -355,7 +355,7 @@ function Leads() {
             />
           )}
 
-          {/*<div className="grid gap-6 mb-6">
+          <div className="grid gap-6 mb-6">
             <DashboardKPIs 
               leads={filteredLeads}
               searchTerm={searchTerm}
@@ -373,7 +373,7 @@ function Leads() {
               <DashboardCharts leads={filteredLeads} />
               <UpcomingActivities />
             </div>
-          </div>*/}
+          </div>
 
           
 
