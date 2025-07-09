@@ -243,7 +243,7 @@ export default function Leads() {
                 size="sm"
               >
                 <Filter className="h-4 w-4 mr-2" />
-                {showFilters ? 'Ocultar' : 'Mostrar'} Filtros
+                Filtros
               </Button>
               
               {viewMode === "table" && (
