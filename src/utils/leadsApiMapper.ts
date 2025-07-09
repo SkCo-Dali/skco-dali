@@ -1,4 +1,3 @@
-
 import { Lead } from '@/types/crm';
 import { ApiLead, CreateLeadRequest, UpdateLeadRequest, API_TO_FRONTEND_STAGE_MAP, FRONTEND_TO_API_STAGE_MAP, API_TO_FRONTEND_PRIORITY_MAP, FRONTEND_TO_API_PRIORITY_MAP } from '@/types/leadsApiTypes';
 
@@ -128,6 +127,7 @@ const parseProductField = (field: string | string[] | null | undefined): string 
 export const mapApiLeadToLead = (apiLead: ApiLead): Lead => {
   console.log('🔄 mapApiLeadToLead - Starting mapping for lead:', apiLead.Id);
   console.log('🔄 mapApiLeadToLead - Lead name:', apiLead.Name);
+  console.log('🔄 mapApiLeadToLead - Source from API:', apiLead.Source);
   
   try {
     const mappedLead = {
@@ -138,7 +138,7 @@ export const mapApiLeadToLead = (apiLead: ApiLead): Lead => {
       documentNumber: apiLead.DocumentNumber,
       documentType: (apiLead.DocumentType as any) || 'CC',
       company: apiLead.Company || '',
-      source: mapApiSourceToFrontend(apiLead.Source),
+      source: apiLead.Source || 'web', // Usar el valor real de la API
       campaign: apiLead.Campaign || '',
       product: parseProductField(apiLead.Product),
       portfolios: parseArrayField(apiLead.SelectedPortfolios),
@@ -161,6 +161,7 @@ export const mapApiLeadToLead = (apiLead: ApiLead): Lead => {
     };
     
     console.log('✅ mapApiLeadToLead - Successfully mapped lead:', mappedLead.id);
+    console.log('✅ mapApiLeadToLead - Mapped source:', mappedLead.source);
     return mappedLead;
     
   } catch (error) {
@@ -257,23 +258,6 @@ export const mapLeadToUpdateRequest = (lead: Lead, userId: string): UpdateLeadRe
   console.log('✅ Mapped update request:', JSON.stringify(updateRequest, null, 2));
   
   return updateRequest;
-};
-
-// Mapear source de API a frontend
-const mapApiSourceToFrontend = (apiSource: string): Lead['source'] => {
-  const sourceMap: Record<string, Lead['source']> = {
-    'Hubspot': 'web',
-    'DaliLM': 'web',
-    'DaliAI': 'web',
-    'web': 'web',
-    'social': 'social',
-    'referral': 'referral',
-    'cold-call': 'cold-call',
-    'event': 'event',
-    'campaign': 'campaign'
-  };
-  
-  return sourceMap[apiSource] || 'web';
 };
 
 // Función helper para preparar datos para exportación
