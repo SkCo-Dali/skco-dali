@@ -3,32 +3,25 @@ import { User } from '@/types/crm';
 import { ApiUser, CreateUserRequest, UpdateUserRequest, ToggleUserStatusRequest, CreateUserResponse, ApiResponse } from '@/types/apiTypes';
 import { mapApiUserToUser } from './userApiMapper';
 import { mapRoleToApi } from './roleMapper';
-import { logSecure } from './secureLogger';
 
 const API_BASE_URL = 'https://skcodalilmdev.azurewebsites.net/api/users';
 
 // API 1: Obtener todos los usuarios
 export const getAllUsers = async (): Promise<User[]> => {
   const endpoint = `${API_BASE_URL}/list`;
-  
-  logSecure.httpRequest('GET', endpoint);
 
   try {
     const response = await fetch(endpoint);
-    logSecure.httpResponse(response.status, endpoint);
     
     if (!response.ok) {
-      logSecure.error('API Error in getAllUsers', { status: response.status, statusText: response.statusText });
       throw new Error(`Error al obtener usuarios: ${response.statusText}`);
     }
     
     const apiUsers: ApiUser[] = await response.json();
     const mappedUsers = apiUsers.map(mapApiUserToUser);
     
-    logSecure.info('Users retrieved successfully', { count: mappedUsers.length });
     return mappedUsers;
   } catch (error) {
-    logSecure.error('getAllUsers failed', error);
     throw error;
   }
 };
@@ -36,29 +29,22 @@ export const getAllUsers = async (): Promise<User[]> => {
 // API 2: Obtener usuario por ID
 export const getUserById = async (id: string): Promise<User | null> => {
   const endpoint = `${API_BASE_URL}/${id}`;
-  
-  logSecure.httpRequest('GET', endpoint);
 
   try {
     const response = await fetch(endpoint);
-    logSecure.httpResponse(response.status, endpoint);
     
     if (!response.ok) {
       if (response.status === 404) {
-        logSecure.info('User not found', { id });
         return null;
       }
-      logSecure.error('API Error in getUserById', { status: response.status, statusText: response.statusText });
       throw new Error(`Error al obtener usuario: ${response.statusText}`);
     }
     
     const apiUser: ApiUser = await response.json();
     const mappedUser = mapApiUserToUser(apiUser);
     
-    logSecure.info('User retrieved successfully', { userId: id });
     return mappedUser;
   } catch (error) {
-    logSecure.error('getUserById failed', { id, error });
     throw error;
   }
 };
@@ -72,8 +58,6 @@ export const createUser = async (userData: CreateUserRequest): Promise<User> => 
     role: mapRoleToApi(userData.role as User['role']),
     isActive: userData.isActive ?? true,
   };
-  
-  logSecure.httpRequest('POST', endpoint, { 'Content-Type': 'application/json' }, requestBody);
 
   try {
     const response = await fetch(endpoint, {
@@ -84,10 +68,7 @@ export const createUser = async (userData: CreateUserRequest): Promise<User> => 
       body: JSON.stringify(requestBody),
     });
 
-    logSecure.httpResponse(response.status, endpoint);
-
     if (!response.ok) {
-      logSecure.error('API Error in createUser', { status: response.status, statusText: response.statusText });
       throw new Error(`Error al crear usuario: ${response.statusText}`);
     }
 
@@ -106,10 +87,8 @@ export const createUser = async (userData: CreateUserRequest): Promise<User> => 
       team: 'Equipo Skandia'
     };
     
-    logSecure.info('User created successfully', { userId: createdUser.id, email: createdUser.email });
     return createdUser;
   } catch (error) {
-    logSecure.error('createUser failed', error);
     throw error;
   }
 };
@@ -121,8 +100,6 @@ export const updateUser = async (id: string, userData: UpdateUserRequest): Promi
     ...userData,
     role: mapRoleToApi(userData.role as User['role'])
   };
-  
-  logSecure.httpRequest('PUT', endpoint, { 'Content-Type': 'application/json' }, requestBody);
 
   try {
     const response = await fetch(endpoint, {
@@ -132,8 +109,6 @@ export const updateUser = async (id: string, userData: UpdateUserRequest): Promi
       },
       body: JSON.stringify(requestBody),
     });
-
-    logSecure.httpResponse(response.status, endpoint);
 
     if (!response.ok) {
       let errorMessage = `Error al actualizar usuario: ${response.statusText}`;
@@ -144,21 +119,18 @@ export const updateUser = async (id: string, userData: UpdateUserRequest): Promi
           errorMessage += ` - ${errorBody}`;
         }
       } catch (parseError) {
-        logSecure.error('Could not parse error response', parseError);
+        // Ignored
       }
       
-      logSecure.error('API Error in updateUser', { status: response.status, errorMessage });
       throw new Error(errorMessage);
     }
     
     try {
       const result: ApiResponse = await response.json();
-      logSecure.info('User updated successfully', { userId: id });
     } catch (parseError) {
-      logSecure.debug('No JSON response body (might be normal)');
+      // No JSON response body (might be normal)
     }
   } catch (error) {
-    logSecure.error('updateUser failed', { id, error });
     throw error;
   }
 };
@@ -166,25 +138,18 @@ export const updateUser = async (id: string, userData: UpdateUserRequest): Promi
 // API 5: Eliminar usuario
 export const deleteUser = async (id: string): Promise<void> => {
   const endpoint = `${API_BASE_URL}/${id}`;
-  
-  logSecure.httpRequest('DELETE', endpoint);
 
   try {
     const response = await fetch(endpoint, {
       method: 'DELETE',
     });
 
-    logSecure.httpResponse(response.status, endpoint);
-
     if (!response.ok) {
-      logSecure.error('API Error in deleteUser', { status: response.status, statusText: response.statusText });
       throw new Error(`Error al eliminar usuario: ${response.statusText}`);
     }
     
     const result: ApiResponse = await response.json();
-    logSecure.info('User deleted successfully', { userId: id });
   } catch (error) {
-    logSecure.error('deleteUser failed', { id, error });
     throw error;
   }
 };
@@ -193,8 +158,6 @@ export const deleteUser = async (id: string): Promise<void> => {
 export const toggleUserStatus = async (id: string, isActive: boolean): Promise<void> => {
   const endpoint = `${API_BASE_URL}/${id}/activate`;
   const requestBody: ToggleUserStatusRequest = { isActive };
-  
-  logSecure.httpRequest('PUT', endpoint, { 'Content-Type': 'application/json' }, requestBody);
 
   try {
     const response = await fetch(endpoint, {
@@ -205,17 +168,12 @@ export const toggleUserStatus = async (id: string, isActive: boolean): Promise<v
       body: JSON.stringify(requestBody),
     });
 
-    logSecure.httpResponse(response.status, endpoint);
-
     if (!response.ok) {
-      logSecure.error('API Error in toggleUserStatus', { status: response.status, statusText: response.statusText });
       throw new Error(`Error al cambiar estado del usuario: ${response.statusText}`);
     }
     
     const result: ApiResponse = await response.json();
-    logSecure.info('User status toggled successfully', { userId: id, isActive });
   } catch (error) {
-    logSecure.error('toggleUserStatus failed', { id, isActive, error });
     throw error;
   }
 };
@@ -223,19 +181,14 @@ export const toggleUserStatus = async (id: string, isActive: boolean): Promise<v
 // API 7: Buscar usuario por email
 export const getUserByEmail = async (email: string): Promise<User | null> => {
   const endpoint = `${API_BASE_URL}/search?query=${encodeURIComponent(email)}`;
-  
-  logSecure.httpRequest('GET', endpoint);
 
   try {
     const response = await fetch(endpoint);
-    logSecure.httpResponse(response.status, endpoint);
     
     if (!response.ok) {
       if (response.status === 404) {
-        logSecure.info('User not found by email', { email: email.substring(0, 3) + '***' });
         return null;
       }
-      logSecure.error('API Error in getUserByEmail', { status: response.status, statusText: response.statusText });
       throw new Error(`Error al buscar usuario: ${response.statusText}`);
     }
     
@@ -243,14 +196,11 @@ export const getUserByEmail = async (email: string): Promise<User | null> => {
     
     if (apiUsers.length > 0) {
       const mappedUser = mapApiUserToUser(apiUsers[0]);
-      logSecure.info('User found by email', { email: email.substring(0, 3) + '***' });
       return mappedUser;
     } else {
-      logSecure.info('No users found in response', { email: email.substring(0, 3) + '***' });
       return null;
     }
   } catch (error) {
-    logSecure.error('getUserByEmail failed', { email: email.substring(0, 3) + '***', error });
     throw error;
   }
 };

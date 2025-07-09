@@ -6,7 +6,6 @@ import { loginRequest } from '@/authConfig';
 import { getUserByEmail, createUser } from '@/utils/userApiClient';
 import { TokenValidationService } from '@/services/tokenValidationService';
 import { getUserRoleByEmail } from '@/utils/userRoleService';
-import { logSecure } from '@/utils/secureLogger';
 
 export function MicrosoftAuth() {
   const { msalInstance, login } = useAuth();
@@ -27,25 +26,19 @@ export function MicrosoftAuth() {
       
       return null;
     } catch (error) {
-      logSecure.debug('Could not obtain profile photo', error);
       return null;
     }
   };
 
   const findOrCreateUser = async (email: string, name: string) => {
-    logSecure.info('Searching for user in database', { email: email.substring(0, 3) + '***' });
-    
     try {
       // Buscar usuario existente
       let existingUser = await getUserByEmail(email);
       
       if (existingUser) {
-        logSecure.info('User found in database', { userId: existingUser.id });
         sessionStorage.setItem('authenticated-user-uuid', existingUser.id);
         return existingUser;
       }
-      
-      logSecure.info('User not found, creating new user');
       
       // Crear nuevo usuario con rol basado en email
       const assignedRole = await getUserRoleByEmail(email);
@@ -56,13 +49,11 @@ export function MicrosoftAuth() {
         isActive: true
       });
       
-      logSecure.info('User created successfully', { userId: newUser.id });
       sessionStorage.setItem('authenticated-user-uuid', newUser.id);
       
       return newUser;
       
     } catch (error) {
-      logSecure.error('Error in findOrCreateUser', error);
       throw new Error('No se pudo crear o encontrar el usuario en la base de datos');
     }
   };
@@ -70,8 +61,6 @@ export function MicrosoftAuth() {
   const handleMicrosoftLogin = async () => {
     setIsLoading(true);
     try {
-      logSecure.info('Starting Microsoft login process');
-      
       // Paso 1: Obtener token de MSAL
       const response = await msalInstance.loginPopup({
         ...loginRequest,
@@ -81,8 +70,6 @@ export function MicrosoftAuth() {
       if (!response || !response.account || !response.accessToken) {
         throw new Error('Respuesta de autenticación incompleta');
       }
-
-      logSecure.info('MSAL login response received');
       
       // Paso 2: Validar token contra Microsoft Graph
       const tokenValidation = await TokenValidationService.validateAccessToken(response.accessToken);
@@ -97,8 +84,6 @@ export function MicrosoftAuth() {
       if (!TokenValidationService.validateEmailDomain(userInfo.email)) {
         throw new Error('El email no pertenece a un dominio autorizado de Skandia');
       }
-
-      logSecure.info('Token and domain validation successful');
       
       // Paso 4: Obtener foto del perfil (opcional, no crítico)
       const userPhoto = await getUserPhoto(response.accessToken);
@@ -120,14 +105,10 @@ export function MicrosoftAuth() {
         createdAt: dbUser.createdAt || new Date().toISOString()
       };
       
-      logSecure.userEvent('User authentication successful', user.email);
-      
       // Paso 7: Completar login
       login(user);
       
     } catch (error) {
-      logSecure.authError('Microsoft authentication failed', error);
-      
       // Manejo específico de errores sin fallbacks inseguros
       let errorMessage = 'Error durante la autenticación';
       

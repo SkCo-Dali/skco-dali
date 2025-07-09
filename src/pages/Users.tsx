@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Shield } from "lucide-react";
@@ -48,7 +49,6 @@ export default function UsersPage() {
       setUsers(allUsers);
       setFilteredUsers(allUsers);
     } catch (error) {
-      console.error('Error cargando usuarios:', error);
       toast({
         title: "Error",
         description: "No se pudieron cargar los usuarios",
@@ -99,7 +99,6 @@ export default function UsersPage() {
         description: `Usuario ${email} agregado con rol ${role}`,
       });
     } catch (error) {
-      console.error('Error agregando usuario:', error);
       toast({
         title: "Error",
         description: "No se pudo agregar el usuario",
@@ -110,21 +109,14 @@ export default function UsersPage() {
 
   const handleRoleUpdate = async (userId: string, newRole: User['role']) => {
     try {
-      console.log('🔄 Updating user role:', { userId, newRole });
-      
       const user = users.find(u => u.id === userId);
       if (!user) {
-        console.error('❌ User not found:', userId);
         return;
       }
-
-      console.log('👤 Current user data:', user);
-      console.log('🔄 New role to assign:', newRole);
 
       // Validar que el rol sea válido
       const validRoles = ['admin', 'seguridad', 'analista', 'supervisor', 'gestor', 'director', 'promotor', 'aliado', 'socio', 'fp'];
       if (!validRoles.includes(newRole)) {
-        console.error('❌ Invalid role:', newRole);
         toast({
           title: "Error",
           description: `Rol inválido: ${newRole}`,
@@ -140,8 +132,6 @@ export default function UsersPage() {
         isActive: user.isActive ?? true
       };
 
-      console.log('📤 Sending update request with data:', updateData);
-
       await updateUser(userId, updateData);
 
       await loadUsers();
@@ -151,14 +141,6 @@ export default function UsersPage() {
         description: `Rol actualizado a ${newRole} correctamente`,
       });
     } catch (error) {
-      console.error('❌ Error actualizando rol:', error);
-      
-      // Más detalles del error
-      if (error instanceof Error) {
-        console.error('Error message:', error.message);
-        console.error('Error stack:', error.stack);
-      }
-      
       toast({
         title: "Error",
         description: `No se pudo actualizar el rol: ${error instanceof Error ? error.message : 'Error desconocido'}`,
@@ -177,7 +159,6 @@ export default function UsersPage() {
         description: "Usuario eliminado correctamente",
       });
     } catch (error) {
-      console.error('Error eliminando usuario:', error);
       toast({
         title: "Error",
         description: "No se pudo eliminar el usuario",
@@ -196,7 +177,6 @@ export default function UsersPage() {
         description: `Usuario ${isActive ? 'activado' : 'desactivado'} correctamente`,
       });
     } catch (error) {
-      console.error('Error actualizando estado:', error);
       toast({
         title: "Error",
         description: "No se pudo actualizar el estado del usuario",
@@ -224,7 +204,6 @@ export default function UsersPage() {
         description: "Datos del usuario actualizados correctamente",
       });
     } catch (error) {
-      console.error('Error actualizando usuario:', error);
       toast({
         title: "Error",
         description: "No se pudieron actualizar los datos del usuario",

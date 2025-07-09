@@ -20,19 +20,7 @@ export const UserMenu: React.FC = () => {
   const { photoUrl, loading } = useUserPhoto();
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
-  // Log user data and photo state when component renders
-  console.log('🎨 UserMenu rendering with:', {
-    user: user ? {
-      email: user.email,
-      name: user.name,
-      id: user.id
-    } : null,
-    photoUrl: photoUrl ? 'Has photo URL' : 'No photo URL',
-    loading
-  });
-
   if (!user) {
-    console.log('❌ UserMenu: No user, not rendering menu');
     return null;
   }
 
@@ -49,7 +37,6 @@ export const UserMenu: React.FC = () => {
     .substring(0, 2);
 
   const handleSignOut = async () => {
-    console.log('🚪 UserMenu: Signing out...');
     await signOut();
   };
 
@@ -71,8 +58,6 @@ export const UserMenu: React.FC = () => {
                 <AvatarImage 
                   src={photoUrl} 
                   alt={displayName}
-                  onLoad={() => console.log('✅ UserMenu: Avatar image loaded successfully')}
-                  onError={() => console.log('❌ UserMenu: Avatar image failed to load')}
                 />
               )}
               <AvatarFallback className="bg-skandia-green text-white text-xs">

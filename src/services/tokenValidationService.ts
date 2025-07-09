@@ -22,7 +22,6 @@ export class TokenValidationService {
    */
   static async validateAccessToken(accessToken: string): Promise<TokenValidationResult> {
     if (!accessToken || typeof accessToken !== 'string') {
-      logSecure.authError('Token validation failed', 'Invalid access token provided');
       return {
         isValid: false,
         error: 'Token de acceso inválido'
@@ -30,8 +29,6 @@ export class TokenValidationService {
     }
 
     try {
-      logSecure.debug('Validating access token against Microsoft Graph');
-      
       const response = await fetch(this.GRAPH_USER_ENDPOINT, {
         method: 'GET',
         headers: {
@@ -41,13 +38,6 @@ export class TokenValidationService {
       });
 
       if (!response.ok) {
-        const errorText = await response.text();
-        logSecure.authError('Token validation failed', {
-          status: response.status,
-          statusText: response.statusText,
-          error: errorText
-        });
-
         return {
           isValid: false,
           error: `Token inválido: ${response.status} ${response.statusText}`
@@ -58,7 +48,6 @@ export class TokenValidationService {
       
       // Validar que tenemos los campos mínimos requeridos
       if (!userData.mail && !userData.userPrincipalName) {
-        logSecure.authError('Token validation failed', 'Missing required email field');
         return {
           isValid: false,
           error: 'El token no contiene información de email válida'
@@ -66,7 +55,6 @@ export class TokenValidationService {
       }
 
       if (!userData.displayName && !userData.givenName) {
-        logSecure.authError('Token validation failed', 'Missing required name field');
         return {
           isValid: false,
           error: 'El token no contiene información de nombre válida'
@@ -81,17 +69,12 @@ export class TokenValidationService {
         department: userData.department
       };
 
-      logSecure.info('Token validated successfully', {
-        email: userInfo.email.substring(0, 3) + '***'
-      });
-
       return {
         isValid: true,
         userInfo
       };
 
     } catch (error) {
-      logSecure.authError('Token validation exception', error);
       return {
         isValid: false,
         error: 'Error durante la validación del token'
@@ -104,7 +87,6 @@ export class TokenValidationService {
    */
   static async validateTokenScopes(tokenResponse: any): Promise<boolean> {
     if (!tokenResponse || !tokenResponse.scopes) {
-      logSecure.warn('Token response missing scopes information');
       return false;
     }
 
@@ -115,13 +97,6 @@ export class TokenValidationService {
     const hasRequiredScopes = this.REQUIRED_SCOPES.every(scope => 
       tokenScopes.includes(scope)
     );
-
-    if (!hasRequiredScopes) {
-      logSecure.authError('Token missing required scopes', {
-        required: this.REQUIRED_SCOPES,
-        provided: tokenScopes
-      });
-    }
 
     return hasRequiredScopes;
   }
@@ -138,13 +113,6 @@ export class TokenValidationService {
 
     const emailDomain = email.toLowerCase().split('@')[1];
     const isValid = validDomains.includes(emailDomain);
-
-    if (!isValid) {
-      logSecure.authError('Invalid email domain', {
-        domain: emailDomain,
-        validDomains
-      });
-    }
 
     return isValid;
   }
