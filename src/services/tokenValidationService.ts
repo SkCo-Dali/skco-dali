@@ -22,7 +22,7 @@ export class TokenValidationService {
    */
   static async validateAccessToken(accessToken: string): Promise<TokenValidationResult> {
     if (!accessToken || typeof accessToken !== 'string') {
-      logSecure.authError('Invalid access token provided');
+      logSecure.authError('Token validation failed', 'Invalid access token provided');
       return {
         isValid: false,
         error: 'Token de acceso inválido'
@@ -58,7 +58,7 @@ export class TokenValidationService {
       
       // Validar que tenemos los campos mínimos requeridos
       if (!userData.mail && !userData.userPrincipalName) {
-        logSecure.authError('Token validation: missing required email field');
+        logSecure.authError('Token validation failed', 'Missing required email field');
         return {
           isValid: false,
           error: 'El token no contiene información de email válida'
@@ -66,7 +66,7 @@ export class TokenValidationService {
       }
 
       if (!userData.displayName && !userData.givenName) {
-        logSecure.authError('Token validation: missing required name field');
+        logSecure.authError('Token validation failed', 'Missing required name field');
         return {
           isValid: false,
           error: 'El token no contiene información de nombre válida'
