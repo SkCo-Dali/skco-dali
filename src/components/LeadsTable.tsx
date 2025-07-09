@@ -369,7 +369,7 @@ export function LeadsTable({
             }}
           >
             <TableHeader className="leads-table-header-sticky">
-              <TableRow className="bg-gray-100 border-b border-gray-100">
+              <TableRow className="bg-[#fafafa] border-b border-[#fafafa]">
                 {visibleColumns.map((column) => (
                   <TableHead 
                     key={column.key}
