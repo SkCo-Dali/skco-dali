@@ -344,7 +344,13 @@ export function LeadsTable({
     <div className="leads-table-container-scroll">
       <div className="leads-table-scroll-wrapper">
         <div className="leads-table-inner-scroll">
-          <Table className="w-full">
+          <Table 
+            className="w-full"
+            style={{ 
+              width: `${Math.max(visibleColumns.length * 200, 1000)}px`,
+              minWidth: `${Math.max(visibleColumns.length * 200, 1000)}px`
+            }}
+          >
             <TableHeader className="leads-table-header-sticky">
               <TableRow className="bg-gray-100 border-b border-gray-100">
                 {visibleColumns.map((column) => (

@@ -237,16 +237,16 @@
     @apply text-gray-500;
   }
 
-  /* SCROLL HORIZONTAL FUNCIONAL PARA TABLA DE LEADS */
+  /* TABLA DE LEADS - SCROLL HORIZONTAL ÚNICO Y FUNCIONAL */
   .leads-table-container-scroll {
     position: relative;
     width: 100%;
     max-width: 100%;
     background: #f8f9fa;
     border-radius: 8px;
+    /* ELIMINAR cualquier overflow para evitar scroll duplicado */
+    overflow: visible;
     contain: layout style;
-    /* Evitar cualquier overflow hacia afuera */
-    overflow: hidden;
   }
 
   .leads-table-scroll-wrapper {
@@ -256,33 +256,31 @@
     border: 1px solid #e2e8f0;
     border-radius: 8px;
     background: white;
-    /* FORZAR scroll horizontal SIEMPRE visible y funcional */
+    /* ÚNICO scroll horizontal - siempre visible y funcional */
     overflow-x: scroll !important;
     overflow-y: auto !important;
-    /* Configuración específica para scrollbar */
+    /* Asegurar que el scrollbar sea siempre visible */
     scrollbar-width: auto !important;
     scrollbar-color: #00c83c #f1f5f9 !important;
     contain: strict;
   }
 
   .leads-table-inner-scroll {
-    /* Ancho fijo MAYOR al contenedor para garantizar scroll */
-    width: 2000px !important;
-    min-width: 2000px !important;
-    max-width: none !important;
+    /* Ancho DINÁMICO basado en número de columnas visibles */
+    width: max-content !important;
+    min-width: 100% !important;
     height: auto;
     position: relative;
-    /* Asegurar que el contenido force el scroll */
+    /* Permitir que el contenido determine el ancho total */
     overflow: visible;
   }
 
-  /* SCROLLBAR PERSONALIZADO - WEBKIT (Chrome, Safari, Edge) */
+  /* SCROLLBAR PERSONALIZADO - WEBKIT */
   .leads-table-scroll-wrapper::-webkit-scrollbar {
     width: 16px !important;
     height: 16px !important;
     background-color: #f1f5f9 !important;
     border-radius: 8px;
-    /* Forzar que siempre aparezca */
     display: block !important;
   }
 
@@ -290,7 +288,6 @@
     background: #f1f5f9 !important;
     border-radius: 8px;
     border: 2px solid #e2e8f0;
-    /* Asegurar que el track sea visible */
     box-shadow: inset 0 0 3px rgba(0,0,0,0.1);
   }
 
@@ -300,7 +297,6 @@
     border: 2px solid #f1f5f9;
     min-height: 30px !important;
     min-width: 30px !important;
-    /* Mejorar visibilidad */
     box-shadow: 0 2px 4px rgba(0,0,0,0.2);
   }
 
@@ -317,20 +313,11 @@
     background: #f1f5f9 !important;
   }
 
-  /* FORZAR que el scrollbar sea visible en todos los navegadores */
-  .leads-table-scroll-wrapper {
-    /* Firefox - forzar scrollbar visible */
-    scrollbar-width: auto !important;
-    scrollbar-color: #00c83c #f1f5f9 !important;
-    /* Para navegadores que soporten -webkit-scrollbar-width */
-    -webkit-scrollbar-width: auto !important;
-  }
-
   /* Columna sticky con z-index correcto */
   .leads-name-column-sticky {
     position: sticky !important;
     left: 0 !important;
-    z-index: 2 !important;
+    z-index: 10 !important;
     background: white !important;
     border-right: 2px solid #e5e7eb !important;
     box-shadow: 2px 0 4px rgba(0,0,0,0.1) !important;
@@ -343,8 +330,13 @@
   .leads-table-header-sticky {
     position: sticky !important;
     top: 0 !important;
-    z-index: 3 !important;
-    background: #f0f0f0 !important;
+    z-index: 15 !important;
+    background: #f9fafb !important;
+  }
+
+  .leads-table-header-sticky .leads-name-column-sticky {
+    z-index: 20 !important;
+    background: #f9fafb !important;
   }
 
   /* Dark mode */
@@ -374,6 +366,10 @@
   }
 
   .dark .leads-table-header-sticky {
+    background: #374151 !important;
+  }
+
+  .dark .leads-table-header-sticky .leads-name-column-sticky {
     background: #374151 !important;
   }
 
@@ -604,8 +600,8 @@
     }
 
     .leads-table-inner-scroll {
-      width: 1800px !important;
-      min-width: 1800px !important;
+      width: max-content !important;
+      min-width: 100% !important;
     }
   }
 }
