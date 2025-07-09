@@ -342,65 +342,96 @@ export function LeadsTable({
   };
 
   return (
-    <div className="ml-2"> {/* Ajusta este valor si el ancho del menú lateral cambia */}
-      <div
-        className="overflow-x-auto max-w-full border rounded"
-        style={{ maxHeight: '500px' }}
-      >
-        <Table className="min-w-[800px] w-full table-fixed">
-          <TableHeader className="top-0 z-20 bg-white sticky">
-            <TableRow className="bg-gray-100 border-b border-gray-100">
-              {visibleColumns.map((column) => (
-                <TableHead
-  key={column.key}
-  className={`cursor-pointer select-none px-4 py-3 text-center text-xs font-medium text-gray-600 capitalize tracking-wider ${
-    column.key === 'name' ? 'name-column-sticky' : ''
-  }`}
-  style={{
-    width: column.key === 'name' ? '180px' : '120px',
-    minWidth: column.key === 'name' ? '180px' : '120px',
-    maxWidth: column.key === 'name' ? '180px' : '120px',
-  }}
-  onClick={() => handleSort(column.key)}
->
-              ))}
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {paginatedLeads.map((lead) => (
-              <TableRow
-                key={lead.id}
-                className="hover:bg-gray-50 transition-colors border-b border-gray-100"
-              >
-                {visibleColumns.map((column) => (
-                  <TableCell
-  key={column.key}
-  className={`px-4 py-3 text-xs ${
-    column.key === 'name' ? 'name-column-sticky' : ''
-  }`}
-  style={{
-    width: column.key === 'name' ? '180px' : '120px',
-    minWidth: column.key === 'name' ? '180px' : '120px',
-    maxWidth: column.key === 'name' ? '180px' : '120px',
-  }}
->
-                ))}
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </div>
-
-      <style>{`
+      
+      <div className="bg-gray-100 rounded-lg style={{ backgroundColor: '#fafafa'; borderColor: #fafafa }}">
+        <style>{`
+        .leads-table-scroll::-webkit-scrollbar {
+          width: 8px;
+          height: 8px;
+        }
+        .leads-table-scroll::-webkit-scrollbar-track {
+          background: #f1f1f1;
+          border-radius: 4px;
+        }
+        .leads-table-scroll::-webkit-scrollbar-thumb {
+          background: #00c83c;
+          border-radius: 4px;
+        }
+        .leads-table-scroll::-webkit-scrollbar-thumb:hover {
+          background: #00b835;
+        }
+        .leads-table-scroll::-webkit-scrollbar-corner {
+          background: #f1f1f1;
+        }
         .name-column-sticky {
           position: sticky;
           left: 0;
-          z-index: 20;
-          background: #fafafa;
-          border-right: 1px solid #e5e7eb;
-          box-shadow: 2px 0 5px -2px rgba(0, 0, 0, 0.1);
+          z-index: 5;
+          background: transparent;
+          border-right: 0px solid #e5e7eb;
         }
       `}</style>
-    </div>
+        <div className="bg-transparent rounded-lg border border-white overflow-hidden">
+          <div 
+            className="leads-table-scroll overflow-auto"
+            style={{ 
+              maxHeight: '500px',
+              maxWidth: '100%'
+            }}
+          >
+            <div style={{ minWidth: `${250 + (visibleColumns.length - 1) * 150}px` }}>
+              <Table className="w-full">
+                <TableHeader className="sticky top-0 z-10 bg-white">
+                  <TableRow className="bg-gray-100 border-b border-gray-100">
+                    {visibleColumns.map((column) => (
+                      <TableHead 
+                        key={column.key}
+                        className={`cursor-pointer select-none px-4 py-3 text-center text-xs font-medium text-gray-600 capitalize tracking-wider ${
+                          column.key === 'name' ? 'name-column-sticky' : ''
+                        }`}
+                        style={{ 
+                          minWidth: column.key === 'name' ? '250px' : '150px', 
+                          maxWidth: column.key === 'name' ? '250px' : '150px', 
+                          width: column.key === 'name' ? '200px' : '150px'
+                        }}
+                        onClick={() => handleSort(column.key)}
+                      >
+                        <div className="flex items-center">
+                          {column.label}
+                          {renderSortIcon(column.key)}
+                        </div>
+                      </TableHead>
+                    ))}
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {paginatedLeads.map((lead, index) => (
+                    <TableRow 
+                      key={lead.id}
+                      className="hover:bg-gray-50 transition-colors border-b border-gray-100"
+                    >
+                      {visibleColumns.map((column) => (
+                        <TableCell 
+                          key={column.key} 
+                          className={`px-4 py-3 text-xs ${
+                            column.key === 'name' ? 'name-column-sticky' : ''
+                          }`}
+                          style={{ 
+                            minWidth: column.key === 'name' ? '200px' : '150px', 
+                            maxWidth: column.key === 'name' ? '200px' : '150px', 
+                            width: column.key === 'name' ? '200px' : '150px'
+                          }}
+                        >
+                          {renderCellContent(lead, column.key)}
+                        </TableCell>
+                      ))}
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          </div>
+        </div>
+      </div>
   );
 }
