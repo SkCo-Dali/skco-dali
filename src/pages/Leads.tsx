@@ -229,11 +229,7 @@ export default function Leads() {
             </DropdownMenu>
           </div>
 
-          <LeadsStats 
-            filteredLeads={filteredLeads}
-            currentPage={currentPage}
-            totalPages={totalPages}
-          />
+        
 
           {/* Search and Controls Row */}
           <div className="flex flex-col lg:flex-row gap-4 items-center">
