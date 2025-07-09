@@ -342,7 +342,7 @@ export function LeadsTable({
   };
 
   return (
-    <div className="ml-5"> {/* Ajusta este valor si el ancho del menú lateral cambia */}
+    <div className="ml-2"> {/* Ajusta este valor si el ancho del menú lateral cambia */}
       <div
         className="overflow-x-auto max-w-full border rounded"
         style={{ maxHeight: '500px' }}
@@ -352,22 +352,17 @@ export function LeadsTable({
             <TableRow className="bg-gray-100 border-b border-gray-100">
               {visibleColumns.map((column) => (
                 <TableHead
-                  key={column.key}
-                  className={`cursor-pointer select-none px-4 py-3 text-center text-xs font-medium text-gray-600 capitalize tracking-wider ${
-                    column.key === 'name' ? 'name-column-sticky' : ''
-                  }`}
-                  style={{
-                    width: column.key === 'name' ? '180px' : '120px',
-                    minWidth: column.key === 'name' ? '180px' : '120px',
-                    maxWidth: column.key === 'name' ? '180px' : '120px',
-                  }}
-                  onClick={() => handleSort(column.key)}
-                >
-                  <div className="flex items-center justify-center">
-                    {column.label}
-                    {renderSortIcon(column.key)}
-                  </div>
-                </TableHead>
+  key={column.key}
+  className={`cursor-pointer select-none px-4 py-3 text-center text-xs font-medium text-gray-600 capitalize tracking-wider ${
+    column.key === 'name' ? 'name-column-sticky' : ''
+  }`}
+  style={{
+    width: column.key === 'name' ? '180px' : '120px',
+    minWidth: column.key === 'name' ? '180px' : '120px',
+    maxWidth: column.key === 'name' ? '180px' : '120px',
+  }}
+  onClick={() => handleSort(column.key)}
+>
               ))}
             </TableRow>
           </TableHeader>
@@ -379,18 +374,16 @@ export function LeadsTable({
               >
                 {visibleColumns.map((column) => (
                   <TableCell
-                    key={column.key}
-                    className={`px-4 py-3 text-xs ${
-                      column.key === 'name' ? 'name-column-sticky' : ''
-                    }`}
-                    style={{
-                      width: column.key === 'name' ? '180px' : '120px',
-                      minWidth: column.key === 'name' ? '180px' : '120px',
-                      maxWidth: column.key === 'name' ? '180px' : '120px',
-                    }}
-                  >
-                    {renderCellContent(lead, column.key)}
-                  </TableCell>
+  key={column.key}
+  className={`px-4 py-3 text-xs ${
+    column.key === 'name' ? 'name-column-sticky' : ''
+  }`}
+  style={{
+    width: column.key === 'name' ? '180px' : '120px',
+    minWidth: column.key === 'name' ? '180px' : '120px',
+    maxWidth: column.key === 'name' ? '180px' : '120px',
+  }}
+>
                 ))}
               </TableRow>
             ))}
