@@ -12,10 +12,15 @@ import { LeadsPagination } from "@/components/LeadsPagination";
 import { LeadDetail } from "@/components/LeadDetail";
 import { LeadsBulkAssignment } from "@/components/LeadsBulkAssignment";
 import { LeadsUpload } from "@/components/LeadsUpload";
+import { LeadCreateDialog } from "@/components/LeadCreateDialog";
+import { MassEmailSender } from "@/components/MassEmailSender";
+import { LeadsTableColumnSelector } from "@/components/LeadsTableColumnSelector";
 import { useLeadsFilters } from "@/hooks/useLeadsFilters";
 import { useLeadsPagination } from "@/hooks/useLeadsPagination";
 import { getAllLeads } from "@/utils/leadsApiClient";
 import { ColumnConfig } from "@/components/LeadsTableColumnSelector";
+import { Button } from "@/components/ui/button";
+import { Upload, Plus, Mail, Filter, Settings } from "lucide-react";
 
 const DEFAULT_COLUMNS: ColumnConfig[] = [
   { key: 'name', label: 'Nombre', visible: true, sortable: true },
@@ -33,6 +38,9 @@ export default function Leads() {
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
   const [showBulkAssign, setShowBulkAssign] = useState(false);
   const [showUpload, setShowUpload] = useState(false);
+  const [showCreateDialog, setShowCreateDialog] = useState(false);
+  const [showMassEmail, setShowMassEmail] = useState(false);
+  const [showFilters, setShowFilters] = useState(false);
   const [columns, setColumns] = useState<ColumnConfig[]>(DEFAULT_COLUMNS);
   const [sortedLeads, setSortedLeads] = useState<Lead[]>([]);
 
@@ -130,19 +138,37 @@ export default function Leads() {
         <div className="flex-1 space-y-6">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
             <h1 className="text-3xl font-bold">Gestión de Leads</h1>
-            <div className="flex gap-2">
-              <button
+            <div className="flex flex-wrap gap-2">
+              <Button
                 onClick={() => setShowUpload(true)}
-                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                className="px-4 py-2"
+                variant="outline"
               >
+                <Upload className="h-4 w-4 mr-2" />
                 Importar Leads
-              </button>
-              <button
+              </Button>
+              <Button
+                onClick={() => setShowCreateDialog(true)}
+                className="px-4 py-2"
+                variant="outline"
+              >
+                <Plus className="h-4 w-4 mr-2" />
+                Crear Lead
+              </Button>
+              <Button
+                onClick={() => setShowMassEmail(true)}
+                className="px-4 py-2"
+                variant="outline"
+              >
+                <Mail className="h-4 w-4 mr-2" />
+                Enviar Correos
+              </Button>
+              <Button
                 onClick={() => setShowBulkAssign(true)}
-                className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+                className="px-4 py-2 bg-green-600 text-white hover:bg-green-700"
               >
                 Asignación Masiva
-              </button>
+              </Button>
             </div>
           </div>
 
@@ -159,6 +185,25 @@ export default function Leads() {
                 onSearchChange={setSearchTerm} 
               />
             </div>
+            <div className="flex gap-2">
+              <Button
+                onClick={() => setShowFilters(!showFilters)}
+                variant="outline"
+                size="sm"
+              >
+                <Filter className="h-4 w-4 mr-2" />
+                {showFilters ? 'Ocultar' : 'Mostrar'} Filtros
+              </Button>
+              {viewMode === "table" && (
+                <LeadsTableColumnSelector
+                  columns={columns}
+                  onColumnsChange={setColumns}
+                />
+              )}
+            </div>
+          </div>
+
+          {showFilters && (
             <LeadsFilters
               searchTerm={searchTerm}
               setSearchTerm={setSearchTerm}
@@ -191,7 +236,7 @@ export default function Leads() {
               uniqueAssignedTo={uniqueAssignedTo}
               duplicateCount={duplicateCount}
             />
-          </div>
+          )}
 
           <LeadsViewControls
             viewMode={viewMode}
@@ -252,6 +297,21 @@ export default function Leads() {
             handleLeadUpdate();
             setShowUpload(false);
           }}
+        />
+      )}
+
+      {showCreateDialog && (
+        <LeadCreateDialog
+          isOpen={showCreateDialog}
+          onClose={() => setShowCreateDialog(false)}
+          onLeadCreated={handleLeadUpdate}
+        />
+      )}
+
+      {showMassEmail && (
+        <MassEmailSender
+          filteredLeads={filteredLeads}
+          onClose={() => setShowMassEmail(false)}
         />
       )}
     </div>
