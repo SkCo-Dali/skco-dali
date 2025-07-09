@@ -1,4 +1,3 @@
-
 import React, { useState, useCallback, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -38,7 +37,6 @@ export default function Leads() {
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
   const [showBulkAssign, setShowBulkAssign] = useState(false);
   const [showUpload, setShowUpload] = useState(false);
-  const [showCreateDialog, setShowCreateDialog] = useState(false);
   const [showMassEmail, setShowMassEmail] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
   const [columns, setColumns] = useState<ColumnConfig[]>(DEFAULT_COLUMNS);
@@ -108,6 +106,13 @@ export default function Leads() {
     toast.success("Lead actualizado exitosamente");
   }, [refetch]);
 
+  const handleLeadCreate = useCallback((leadData: Partial<Lead>) => {
+    // Handle the lead creation logic here
+    console.log('Creating lead:', leadData);
+    handleLeadUpdate();
+    toast.success("Lead creado exitosamente");
+  }, [handleLeadUpdate]);
+
   const handleSortedLeadsChange = useCallback((sorted: Lead[]) => {
     setSortedLeads(sorted);
     setCurrentPage(1);
@@ -147,14 +152,7 @@ export default function Leads() {
                 <Upload className="h-4 w-4 mr-2" />
                 Importar Leads
               </Button>
-              <Button
-                onClick={() => setShowCreateDialog(true)}
-                className="px-4 py-2"
-                variant="outline"
-              >
-                <Plus className="h-4 w-4 mr-2" />
-                Crear Lead
-              </Button>
+              <LeadCreateDialog onLeadCreate={handleLeadCreate} />
               <Button
                 onClick={() => setShowMassEmail(true)}
                 className="px-4 py-2"
@@ -297,14 +295,6 @@ export default function Leads() {
             handleLeadUpdate();
             setShowUpload(false);
           }}
-        />
-      )}
-
-      {showCreateDialog && (
-        <LeadCreateDialog
-          isOpen={showCreateDialog}
-          onClose={() => setShowCreateDialog(false)}
-          onLeadCreated={handleLeadUpdate}
         />
       )}
 
