@@ -14,48 +14,14 @@ export const msalConfig: Configuration = {
   },
 };
 
-// Scopes para Microsoft Graph API
+// Scopes optimizados para Microsoft Graph API
 export const loginRequest: PopupRequest = {
   scopes: [
-    'Chat.Create',
-'Chat.Read',
-'Chat.ReadBasic',
-'Chat.ReadWrite',
-'ChatMessage.Read',
-'ChatMessage.Send',
-'Contacts.Read',
-'Contacts.Read.Shared',
-'Contacts.ReadWrite',
-'Contacts.ReadWrite.Shared',
-'Files.Read',
-'Files.Read.All',
-'Files.Read.Selected',
-'Files.ReadWrite',
-'Files.ReadWrite.All',
-'Files.ReadWrite.AppFolder',
-'Files.ReadWrite.Selected',
-'Mail.Read',
-'Mail.Read.Shared',
-'Mail.ReadBasic',
-'Mail.ReadBasic.Shared',
-'Mail.ReadWrite',
-'Mail.ReadWrite.Shared',
-'Mail.Send',
-'Mail.Send.Shared',
-'User.Read',
-'User.ReadBasic.All',
-'User.ReadWrite',
-'UserNotification.ReadWrite.CreatedByApp'
+    'User.Read',              // Datos básicos del perfil + foto
+    'Mail.Send',              // Enviar correos en nombre del usuario
+    'Mail.Read',              // Leer correos para validaciones
+    'offline_access'          // Para renovación automática de tokens
   ],
 };
 
-// Scopes específicos para el calendario
-export const calendarRequest: PopupRequest = {
-  scopes: [
-    'Calendars.Read',
-'Calendars.Read.Shared',
-'Calendars.ReadBasic',
-'Calendars.ReadWrite',
-'Calendars.ReadWrite.Shared'
-  ],
-};
+// Removido: calendarRequest ya no es necesario
