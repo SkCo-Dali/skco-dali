@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useMemo } from "react";
+import React, { useState, useCallback, useMemo, useRef } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { Lead } from "@/types/crm";
@@ -56,9 +56,9 @@ export default function Leads() {
   const [showUpload, setShowUpload] = useState(false);
   const [showMassEmail, setShowMassEmail] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
-  const [showCreateLead, setShowCreateLead] = useState(false);
   const [columns, setColumns] = useState<ColumnConfig[]>(DEFAULT_COLUMNS);
   const [sortedLeads, setSortedLeads] = useState<Lead[]>([]);
+  const leadCreateDialogRef = useRef<{ openDialog: () => void }>(null);
 
   const {
     data: leadsData = [],
@@ -127,7 +127,6 @@ export default function Leads() {
   const handleLeadCreate = useCallback((leadData: Partial<Lead>) => {
     console.log('Creating lead:', leadData);
     handleLeadUpdate();
-    setShowCreateLead(false);
     toast.success("Lead creado exitosamente");
   }, [handleLeadUpdate]);
 
@@ -201,10 +200,12 @@ export default function Leads() {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-48">
-                <DropdownMenuItem onClick={() => setShowCreateLead(true)}>
-                  <Plus className="h-4 w-4 mr-2" />
-                  Crear Lead
-                </DropdownMenuItem>
+                <LeadCreateDialog onLeadCreate={handleLeadCreate}>
+                  <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                    <Plus className="h-4 w-4 mr-2" />
+                    Crear Lead
+                  </DropdownMenuItem>
+                </LeadCreateDialog>
                 <DropdownMenuItem onClick={() => setShowMassEmail(true)}>
                   <Mail className="h-4 w-4 mr-2" />
                   Enviar Correos
@@ -363,12 +364,6 @@ export default function Leads() {
           />
         </DialogContent>
       </Dialog>
-
-      <LeadCreateDialog 
-        open={showCreateLead}
-        onOpenChange={setShowCreateLead}
-        onLeadCreate={handleLeadCreate}
-      />
     </div>
   );
 }
