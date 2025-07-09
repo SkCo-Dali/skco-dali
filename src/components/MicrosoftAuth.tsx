@@ -1,9 +1,12 @@
+
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
 import { loginRequest } from '@/authConfig';
-import { getUserRoleByEmail } from '@/utils/userRoleService';
 import { getUserByEmail, createUser } from '@/utils/userApiClient';
+import { TokenValidationService } from '@/services/tokenValidationService';
+import { getUserRoleByEmail } from '@/utils/userRoleService';
+import { logSecure } from '@/utils/secureLogger';
 
 export function MicrosoftAuth() {
   const { msalInstance, login } = useAuth();
@@ -24,201 +27,121 @@ export function MicrosoftAuth() {
       
       return null;
     } catch (error) {
-      console.log('No se pudo obtener la foto del perfil:', error);
+      logSecure.debug('Could not obtain profile photo', error);
       return null;
     }
   };
 
   const findOrCreateUser = async (email: string, name: string) => {
-    console.log('🔍 Buscando usuario en la base de datos:', email);
+    logSecure.info('Searching for user in database', { email: email.substring(0, 3) + '***' });
     
     try {
-      // Primero intentar buscar el usuario existente
+      // Buscar usuario existente
       let existingUser = await getUserByEmail(email);
       
       if (existingUser) {
-        console.log('✅ Usuario encontrado en la base de datos:', existingUser);
-        console.log('🆔 UUID del usuario almacenado:', existingUser.id);
-        console.log('📧 Email del usuario:', existingUser.email);
-        
-        // Almacenar el UUID en sessionStorage para uso posterior
+        logSecure.info('User found in database', { userId: existingUser.id });
         sessionStorage.setItem('authenticated-user-uuid', existingUser.id);
-        console.log('💾 UUID almacenado en sessionStorage:', sessionStorage.getItem('authenticated-user-uuid'));
-        
         return existingUser;
       }
       
-      console.log('👤 Usuario no encontrado, creando nuevo usuario con rol FP');
+      logSecure.info('User not found, creating new user');
       
-      // Si no existe, crear nuevo usuario con rol FP
+      // Crear nuevo usuario con rol basado en email
+      const assignedRole = await getUserRoleByEmail(email);
       const newUser = await createUser({
         name,
         email,
-        role: 'fp',
+        role: assignedRole,
         isActive: true
       });
       
-      console.log('✅ Usuario creado exitosamente:', newUser);
-      console.log('🆔 UUID del nuevo usuario almacenado:', newUser.id);
-      console.log('📧 Email del nuevo usuario:', newUser.email);
-      
-      // Almacenar el UUID en sessionStorage para uso posterior
+      logSecure.info('User created successfully', { userId: newUser.id });
       sessionStorage.setItem('authenticated-user-uuid', newUser.id);
-      console.log('💾 UUID del nuevo usuario almacenado en sessionStorage:', sessionStorage.getItem('authenticated-user-uuid'));
       
       return newUser;
       
     } catch (error) {
-      console.error('❌ Error en findOrCreateUser:', error);
-      
-      // En caso de error, usar la asignación de rol basada en email como fallback
-      console.log('🔄 Usando asignación de rol como fallback');
-      const assignedRole = await getUserRoleByEmail(email);
-      
-      const fallbackUser = {
-        id: Date.now().toString(), // ID temporal
-        name,
-        email,
-        role: assignedRole,
-        isActive: true,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-        avatar: null,
-        zone: 'Skandia',
-        team: 'Equipo Skandia'
-      };
-      
-      console.log('⚠️ Usuario fallback creado con ID temporal:', fallbackUser.id);
-      console.log('💾 ID temporal almacenado en sessionStorage:', fallbackUser.id);
-      sessionStorage.setItem('authenticated-user-uuid', fallbackUser.id);
-      
-      return fallbackUser;
+      logSecure.error('Error in findOrCreateUser', error);
+      throw new Error('No se pudo crear o encontrar el usuario en la base de datos');
     }
   };
 
   const handleMicrosoftLogin = async () => {
     setIsLoading(true);
     try {
-      console.log('Iniciando login con Microsoft...');
+      logSecure.info('Starting Microsoft login process');
       
+      // Paso 1: Obtener token de MSAL
       const response = await msalInstance.loginPopup({
         ...loginRequest,
         prompt: 'select_account'
       });
       
-      console.log('Respuesta de login:', response);
-      
-      if (response && response.account) {
-        try {
-          // Obtener token para Microsoft Graph
-          const tokenResponse = await msalInstance.acquireTokenSilent({
-            scopes: ['User.Read'],
-            account: response.account,
-          });
-          
-          // Obtener información del usuario desde Microsoft Graph
-          const userResponse = await fetch('https://graph.microsoft.com/v1.0/me', {
-            headers: {
-              Authorization: `Bearer ${tokenResponse.accessToken}`,
-            },
-          });
-          
-          if (!userResponse.ok) {
-            throw new Error(`Error al obtener datos del usuario: ${userResponse.statusText}`);
-          }
-          
-          const userData = await userResponse.json();
-          console.log('Datos del usuario desde Entra ID:', userData);
-          
-          // Obtener foto del perfil
-          const userPhoto = await getUserPhoto(tokenResponse.accessToken);
-          
-          const userEmail = userData.mail || userData.userPrincipalName;
-          
-          // Usar el nombre completo del directorio de Entra ID
-          const fullName = userData.displayName || userData.givenName + ' ' + userData.surname || response.account.name || 'Usuario Microsoft';
-          
-          // Buscar o crear usuario en la base de datos
-          const dbUser = await findOrCreateUser(userEmail, fullName);
-          
-          const user = {
-            id: dbUser.id,
-            name: dbUser.name, // Usar el nombre de la base de datos
-            email: dbUser.email,
-            role: dbUser.role,
-            avatar: userPhoto,
-            zone: dbUser.zone || 'Skandia',
-            team: dbUser.team || 'Equipo Skandia',
-            jobTitle: userData.jobTitle || userData.department || 'Usuario',
-            isActive: dbUser.isActive,
-            createdAt: dbUser.createdAt || new Date().toISOString()
-          };
-          
-          console.log('Usuario final creado para login:', user);
-          console.log('🔑 ID del usuario autenticado que se usará en las operaciones:', user.id);
-          
-          login(user);
-          console.log('Login exitoso con usuario de base de datos');
-        } catch (graphError) {
-          console.error('Error obteniendo datos del usuario:', graphError);
-          // Aún así crear usuario con datos básicos de MSAL
-          const userEmail = response.account.username;
-          const fullName = response.account.name || 'Usuario Microsoft';
-          
-          // Intentar buscar o crear usuario incluso con datos básicos
-          try {
-            const dbUser = await findOrCreateUser(userEmail, fullName);
-            
-            const user = {
-              id: dbUser.id,
-              name: dbUser.name,
-              email: dbUser.email,
-              role: dbUser.role,
-              avatar: null,
-              zone: dbUser.zone || 'Microsoft',
-              team: dbUser.team || 'Equipo Microsoft',
-              jobTitle: 'Usuario',
-              isActive: dbUser.isActive,
-              createdAt: dbUser.createdAt || new Date().toISOString()
-            };
-            
-            console.log('🔑 ID del usuario autenticado (fallback Graph):', user.id);
-            login(user);
-          } catch (fallbackError) {
-            console.error('Error en fallback de creación de usuario:', fallbackError);
-            // Como último recurso, usar datos de MSAL sin base de datos
-            const assignedRole = await getUserRoleByEmail(userEmail);
-            
-            const user = {
-              id: response.account.homeAccountId,
-              name: fullName,
-              email: userEmail,
-              role: assignedRole,
-              avatar: null,
-              zone: 'Microsoft',
-              team: 'Equipo Microsoft',
-              jobTitle: 'Usuario',
-              isActive: true,
-              createdAt: new Date().toISOString()
-            };
-            
-            console.log('🔑 ID del usuario autenticado (fallback final):', user.id);
-            sessionStorage.setItem('authenticated-user-uuid', user.id);
-            login(user);
-          }
-        }
+      if (!response || !response.account || !response.accessToken) {
+        throw new Error('Respuesta de autenticación incompleta');
       }
+
+      logSecure.info('MSAL login response received');
+      
+      // Paso 2: Validar token contra Microsoft Graph
+      const tokenValidation = await TokenValidationService.validateAccessToken(response.accessToken);
+      
+      if (!tokenValidation.isValid || !tokenValidation.userInfo) {
+        throw new Error(tokenValidation.error || 'Token de acceso inválido');
+      }
+
+      const { userInfo } = tokenValidation;
+      
+      // Paso 3: Validar dominio del email
+      if (!TokenValidationService.validateEmailDomain(userInfo.email)) {
+        throw new Error('El email no pertenece a un dominio autorizado de Skandia');
+      }
+
+      logSecure.info('Token and domain validation successful');
+      
+      // Paso 4: Obtener foto del perfil (opcional, no crítico)
+      const userPhoto = await getUserPhoto(response.accessToken);
+      
+      // Paso 5: Buscar o crear usuario en base de datos
+      const dbUser = await findOrCreateUser(userInfo.email, userInfo.name);
+      
+      // Paso 6: Crear objeto de usuario final
+      const user = {
+        id: dbUser.id,
+        name: dbUser.name,
+        email: dbUser.email,
+        role: dbUser.role,
+        avatar: userPhoto,
+        zone: dbUser.zone || 'Skandia',
+        team: dbUser.team || 'Equipo Skandia',
+        jobTitle: userInfo.jobTitle || 'Usuario',
+        isActive: dbUser.isActive,
+        createdAt: dbUser.createdAt || new Date().toISOString()
+      };
+      
+      logSecure.userEvent('User authentication successful', user.email);
+      
+      // Paso 7: Completar login
+      login(user);
+      
     } catch (error) {
-      console.error('Error durante la autenticación con Microsoft:', error);
+      logSecure.authError('Microsoft authentication failed', error);
       
-      // Mostrar error más específico al usuario
+      // Manejo específico de errores sin fallbacks inseguros
+      let errorMessage = 'Error durante la autenticación';
+      
       if (error.errorCode === 'user_cancelled') {
-        console.log('El usuario canceló el login');
+        errorMessage = 'Autenticación cancelada por el usuario';
       } else if (error.errorCode === 'popup_blocked') {
-        alert('El popup fue bloqueado. Por favor, permite popups para este sitio.');
-      } else {
-        alert('Error durante la autenticación. Por favor, inténtalo de nuevo.');
+        errorMessage = 'El popup fue bloqueado. Por favor, permite popups para este sitio.';
+      } else if (error.message) {
+        errorMessage = error.message;
       }
+      
+      // Mostrar error al usuario sin comprometer la seguridad
+      alert(errorMessage);
+      
     } finally {
       setIsLoading(false);
     }
