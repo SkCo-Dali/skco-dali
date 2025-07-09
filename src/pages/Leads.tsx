@@ -237,23 +237,26 @@ export default function Leads() {
               />
             </div>
             <div className="flex gap-2">
-              <Button
+              <Button 
+                className="w-20 h-8 bg-white border border-gray-300"
                 onClick={() => setShowFilters(!showFilters)}
                 variant="outline"
                 size="sm"
               >
                 <Filter className="h-4 w-4 mr-2" />
-                {showFilters ? 'Ocultar' : 'Mostrar'} Filtros
+                Filtros
               </Button>
               
               {viewMode === "table" && (
                 <LeadsTableColumnSelector
+                  className="w-20 h-8 bg-white border border-gray-300"
                   columns={columns}
                   onColumnsChange={setColumns}
                 />
               )}
               
               <Button
+                className="w-20 h-8 bg-white border border-gray-300"
                 onClick={handleViewModeToggle}
                 variant="outline"
                 size="sm"
