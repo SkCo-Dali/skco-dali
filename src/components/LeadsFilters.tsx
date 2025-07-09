@@ -89,6 +89,13 @@ export function LeadsFilters({
     return `${count} seleccionado${count > 1 ? 's' : ''}`;
   };
 
+  const getSelectValue = (value: string | string[]) => {
+    if (Array.isArray(value) && value.length > 0) {
+      return "multi";
+    }
+    return typeof value === 'string' ? value : "all";
+  };
+
   const handleMultiSelectValue = (currentValue: string | string[], newValue: string) => {
     const currentArray = Array.isArray(currentValue) ? currentValue : (currentValue === "all" ? [] : [currentValue]);
     
@@ -125,7 +132,7 @@ export function LeadsFilters({
               <div>
                 <Label htmlFor="stage-filter">Etapa</Label>
                 <Select 
-                  value={Array.isArray(filterStage) && filterStage.length > 0 ? "multi" : filterStage} 
+                  value={getSelectValue(filterStage)} 
                   onValueChange={(value) => {
                     if (value === "all") {
                       setFilterStage("all");
@@ -146,7 +153,6 @@ export function LeadsFilters({
                           id={`stage-${stage}`}
                           checked={Array.isArray(filterStage) ? filterStage.includes(stage) : filterStage === stage}
                           onCheckedChange={() => setFilterStage(handleMultiSelectValue(filterStage, stage))}
-                          className="rounded-none"
                         />
                         <label htmlFor={`stage-${stage}`} className="text-sm cursor-pointer flex-1">
                           {stage}
@@ -161,7 +167,7 @@ export function LeadsFilters({
               <div>
                 <Label htmlFor="assignedTo-filter">Asignado a</Label>
                 <Select 
-                  value={Array.isArray(filterAssignedTo) && filterAssignedTo.length > 0 ? "multi" : filterAssignedTo} 
+                  value={getSelectValue(filterAssignedTo)} 
                   onValueChange={(value) => {
                     if (value === "all") {
                       setFilterAssignedTo("all");
@@ -182,7 +188,6 @@ export function LeadsFilters({
                           id={`user-${user.id}`}
                           checked={Array.isArray(filterAssignedTo) ? filterAssignedTo.includes(user.id) : filterAssignedTo === user.id}
                           onCheckedChange={() => setFilterAssignedTo(handleMultiSelectValue(filterAssignedTo, user.id))}
-                          className="rounded-none"
                         />
                         <label htmlFor={`user-${user.id}`} className="text-sm cursor-pointer flex-1">
                           {user.name}
@@ -197,7 +202,7 @@ export function LeadsFilters({
               <div>
                 <Label htmlFor="source-filter">Fuente</Label>
                 <Select 
-                  value={Array.isArray(filterSource) && filterSource.length > 0 ? "multi" : filterSource} 
+                  value={getSelectValue(filterSource)} 
                   onValueChange={(value) => {
                     if (value === "all") {
                       setFilterSource("all");
@@ -218,7 +223,6 @@ export function LeadsFilters({
                           id={`source-${source}`}
                           checked={Array.isArray(filterSource) ? filterSource.includes(source) : filterSource === source}
                           onCheckedChange={() => setFilterSource(handleMultiSelectValue(filterSource, source))}
-                          className="rounded-none"
                         />
                         <label htmlFor={`source-${source}`} className="text-sm cursor-pointer flex-1">
                           {source}
@@ -233,7 +237,7 @@ export function LeadsFilters({
               <div>
                 <Label htmlFor="campaign-filter">Campaña</Label>
                 <Select 
-                  value={Array.isArray(filterCampaign) && filterCampaign.length > 0 ? "multi" : filterCampaign} 
+                  value={getSelectValue(filterCampaign)} 
                   onValueChange={(value) => {
                     if (value === "all") {
                       setFilterCampaign("all");
@@ -254,7 +258,6 @@ export function LeadsFilters({
                           id={`campaign-${campaign}`}
                           checked={Array.isArray(filterCampaign) ? filterCampaign.includes(campaign) : filterCampaign === campaign}
                           onCheckedChange={() => setFilterCampaign(handleMultiSelectValue(filterCampaign, campaign))}
-                          className="rounded-none"
                         />
                         <label htmlFor={`campaign-${campaign}`} className="text-sm cursor-pointer flex-1">
                           {campaign}
@@ -269,7 +272,7 @@ export function LeadsFilters({
               <div>
                 <Label htmlFor="priority-filter">Prioridad</Label>
                 <Select 
-                  value={Array.isArray(filterPriority) && filterPriority.length > 0 ? "multi" : filterPriority} 
+                  value={getSelectValue(filterPriority)} 
                   onValueChange={(value) => {
                     if (value === "all") {
                       setFilterPriority("all");
@@ -295,7 +298,6 @@ export function LeadsFilters({
                           id={`priority-${priority.value}`}
                           checked={Array.isArray(filterPriority) ? filterPriority.includes(priority.value) : filterPriority === priority.value}
                           onCheckedChange={() => setFilterPriority(handleMultiSelectValue(filterPriority, priority.value))}
-                          className="rounded-none"
                         />
                         <label htmlFor={`priority-${priority.value}`} className="text-sm cursor-pointer flex-1">
                           {priority.label}
