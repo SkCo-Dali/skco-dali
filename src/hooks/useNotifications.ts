@@ -1,6 +1,5 @@
 
 import { useState, useEffect } from 'react';
-import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 
 export interface Notification {
@@ -46,7 +45,7 @@ export const useNotifications = () => {
     }
   };
 
-  // Fetch notifications
+  // Fetch notifications (mock implementation)
   const fetchNotifications = async () => {
     if (!user) {
       console.log('No user found, skipping notifications fetch');
@@ -57,25 +56,23 @@ export const useNotifications = () => {
     
     setIsLoading(true);
     try {
-      const { data, error } = await supabase
-        .from('notifications')
-        .select('*')
-        .eq('user_id', user.id)
-        .order('created_at', { ascending: false });
+      // Mock notifications - in real implementation this would come from your backend
+      const mockNotifications: Notification[] = [
+        {
+          id: '1',
+          user_id: user.id,
+          title: 'Bienvenido',
+          message: 'Bienvenido al sistema CRM',
+          type: 'info',
+          read: false,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        }
+      ];
 
-      if (error) {
-        console.log('Supabase notifications error (silently handled):', error);
-        return;
-      }
-
-      const typedNotifications = (data || []).map(item => ({
-        ...item,
-        type: item.type as Notification['type']
-      }));
-
-      console.log('Notifications fetched successfully:', typedNotifications.length);
-      setNotifications(typedNotifications);
-      setUnreadCount(typedNotifications.filter(n => !n.read).length);
+      console.log('Notifications fetched successfully:', mockNotifications.length);
+      setNotifications(mockNotifications);
+      setUnreadCount(mockNotifications.filter(n => !n.read).length);
     } catch (error) {
       console.log('Error fetching notifications (silently handled):', error);
     } finally {
@@ -88,14 +85,7 @@ export const useNotifications = () => {
     if (!user) return;
 
     try {
-      const { error } = await supabase
-        .from('notifications')
-        .update({ read: true, updated_at: new Date().toISOString() })
-        .eq('id', notificationId)
-        .eq('user_id', user.id);
-
-      if (error) throw error;
-
+      // Mock implementation - in real app this would call your backend API
       setNotifications(prev => 
         prev.map(n => n.id === notificationId ? { ...n, read: true } : n)
       );
@@ -110,14 +100,7 @@ export const useNotifications = () => {
     if (!user) return;
 
     try {
-      const { error } = await supabase
-        .from('notifications')
-        .update({ read: true, updated_at: new Date().toISOString() })
-        .eq('user_id', user.id)
-        .eq('read', false);
-
-      if (error) throw error;
-
+      // Mock implementation - in real app this would call your backend API
       setNotifications(prev => prev.map(n => ({ ...n, read: true })));
       setUnreadCount(0);
     } catch (error) {
@@ -125,35 +108,36 @@ export const useNotifications = () => {
     }
   };
 
-  // Create a new notification (for testing or admin purposes)
+  // Create a new notification (mock implementation)
   const createNotification = async (title: string, message: string, type: Notification['type'] = 'info') => {
     if (!user) return;
 
     try {
-      const { data, error } = await supabase
-        .from('notifications')
-        .insert({
-          user_id: user.id,
-          title,
-          message,
-          type
-        })
-        .select()
-        .single();
+      const newNotification: Notification = {
+        id: crypto.randomUUID(),
+        user_id: user.id,
+        title,
+        message,
+        type,
+        read: false,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      };
 
-      if (error) throw error;
+      setNotifications(prev => [newNotification, ...prev]);
+      setUnreadCount(prev => prev + 1);
 
       // Only show browser notification, no toast popup
       showBrowserNotification(title, message);
       
-      return data;
+      return newNotification;
     } catch (error) {
       console.log('Error creating notification (silently handled):', error);
       throw error;
     }
   };
 
-  // Subscribe to real-time notifications
+  // Initialize notifications
   useEffect(() => {
     if (!user) return;
 
@@ -162,35 +146,6 @@ export const useNotifications = () => {
     }
 
     fetchNotifications();
-
-    const channel = supabase
-      .channel('notifications-changes')
-      .on(
-        'postgres_changes',
-        {
-          event: 'INSERT',
-          schema: 'public',
-          table: 'notifications',
-          filter: `user_id=eq.${user.id}`
-        },
-        (payload) => {
-          const newNotification = {
-            ...payload.new,
-            type: payload.new.type as Notification['type']
-          } as Notification;
-          
-          setNotifications(prev => [newNotification, ...prev]);
-          setUnreadCount(prev => prev + 1);
-          
-          // Only show browser notification, no toast popup
-          showBrowserNotification(newNotification.title, newNotification.message);
-        }
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
   }, [user]);
 
   return {

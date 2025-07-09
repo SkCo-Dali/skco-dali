@@ -1,6 +1,5 @@
 
 import { useState, useEffect } from 'react';
-import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from '@/hooks/use-toast';
 
@@ -25,23 +24,47 @@ export interface UserNotificationSetting {
   notification_type?: NotificationType;
 }
 
+// Mock data for notification types
+const mockNotificationTypes: NotificationType[] = [
+  {
+    id: 1,
+    code: 'client_withdrawal',
+    name: 'Retiros de dinero del cliente',
+    description: 'Notificación cuando el cliente realiza un retiro',
+    has_amount_threshold: true,
+    is_active: true,
+    created_at: new Date().toISOString()
+  },
+  {
+    id: 2,
+    code: 'client_deposit',
+    name: 'Depósitos del cliente',
+    description: 'Notificación cuando el cliente realiza un depósito',
+    has_amount_threshold: true,
+    is_active: true,
+    created_at: new Date().toISOString()
+  },
+  {
+    id: 3,
+    code: 'portfolio_update',
+    name: 'Actualizaciones de portafolio',
+    description: 'Cambios importantes en el portafolio del cliente',
+    has_amount_threshold: false,
+    is_active: true,
+    created_at: new Date().toISOString()
+  }
+];
+
 export const useNotificationSettings = () => {
   const { user } = useAuth();
   const [notificationTypes, setNotificationTypes] = useState<NotificationType[]>([]);
   const [userSettings, setUserSettings] = useState<UserNotificationSetting[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
-  // Fetch notification types
+  // Fetch notification types (mock implementation)
   const fetchNotificationTypes = async () => {
     try {
-      const { data, error } = await supabase
-        .from('notification_types')
-        .select('*')
-        .eq('is_active', true)
-        .order('name');
-
-      if (error) throw error;
-      setNotificationTypes(data || []);
+      setNotificationTypes(mockNotificationTypes);
     } catch (error) {
       console.error('Error fetching notification types:', error);
       toast({
@@ -52,22 +75,15 @@ export const useNotificationSettings = () => {
     }
   };
 
-  // Fetch user notification settings
+  // Fetch user notification settings (mock implementation)
   const fetchUserSettings = async () => {
     if (!user) return;
 
     try {
       setIsLoading(true);
-      const { data, error } = await supabase
-        .from('user_notification_settings')
-        .select(`
-          *,
-          notification_type:notification_types(*)
-        `)
-        .eq('user_id', user.id);
-
-      if (error) throw error;
-      setUserSettings(data || []);
+      // Mock user settings - in real implementation this would come from your backend
+      const mockSettings: UserNotificationSetting[] = [];
+      setUserSettings(mockSettings);
     } catch (error) {
       console.error('Error fetching user settings:', error);
       toast({
@@ -85,7 +101,7 @@ export const useNotificationSettings = () => {
     return userSettings.find(setting => setting.notification_type_id === typeId) || null;
   };
 
-  // Update or create notification setting
+  // Update or create notification setting (mock implementation)
   const updateNotificationSetting = async (
     typeId: number, 
     isEnabled: boolean, 
@@ -94,38 +110,32 @@ export const useNotificationSettings = () => {
     if (!user) return;
 
     try {
+      // Mock implementation - in real app this would call your backend API
       const existingSetting = getSettingForType(typeId);
-
+      
       const settingData = {
+        id: existingSetting?.id || crypto.randomUUID(),
         user_id: user.id,
         notification_type_id: typeId,
         is_enabled: isEnabled,
-        minimum_amount: minimumAmount || null
+        minimum_amount: minimumAmount || null,
+        created_at: existingSetting?.created_at || new Date().toISOString(),
+        updated_at: new Date().toISOString()
       };
 
       if (existingSetting) {
         // Update existing setting
-        const { error } = await supabase
-          .from('user_notification_settings')
-          .update({
-            is_enabled: isEnabled,
-            minimum_amount: minimumAmount || null,
-            updated_at: new Date().toISOString()
-          })
-          .eq('id', existingSetting.id);
-
-        if (error) throw error;
+        setUserSettings(prev => 
+          prev.map(setting => 
+            setting.id === existingSetting.id 
+              ? { ...setting, ...settingData }
+              : setting
+          )
+        );
       } else {
         // Create new setting
-        const { error } = await supabase
-          .from('user_notification_settings')
-          .insert(settingData);
-
-        if (error) throw error;
+        setUserSettings(prev => [...prev, settingData]);
       }
-
-      // Refresh settings
-      await fetchUserSettings();
       
       toast({
         title: "Configuración actualizada",

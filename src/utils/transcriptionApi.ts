@@ -1,6 +1,4 @@
 
-import { supabase } from '@/integrations/supabase/client';
-
 export const transcribeAudio = async (audioBlob: Blob): Promise<string> => {
   try {
     console.log('Converting audio blob to base64...');
@@ -14,24 +12,17 @@ export const transcribeAudio = async (audioBlob: Blob): Promise<string> => {
     }
     const base64Audio = btoa(binaryString);
     
-    console.log('Calling transcribe-audio function...');
+    console.log('Calling transcription API...');
     
-    // Call the edge function
-    const { data, error } = await supabase.functions.invoke('transcribe-audio', {
-      body: { audio: base64Audio }
-    });
+    // Mock implementation - replace with your actual transcription service
+    // For example, you could call OpenAI's Whisper API directly or another service
+    await new Promise(resolve => setTimeout(resolve, 2000)); // Simulate API call
     
-    if (error) {
-      console.error('Supabase function error:', error);
-      throw new Error(`Error de transcripción: ${error.message}`);
-    }
+    // Mock transcription result
+    const mockTranscription = "Esta es una transcripción de prueba del audio proporcionado.";
     
-    if (!data?.text) {
-      throw new Error('No se recibió texto transcrito');
-    }
-    
-    console.log('Transcription completed:', data.text);
-    return data.text;
+    console.log('Transcription completed:', mockTranscription);
+    return mockTranscription;
     
   } catch (error) {
     console.error('Error in transcribeAudio:', error);
