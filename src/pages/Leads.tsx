@@ -1,3 +1,4 @@
+
 import React, { useState, useCallback, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -229,20 +230,28 @@ export default function Leads() {
       {selectedLead && (
         <LeadDetail
           lead={selectedLead}
+          isOpen={!!selectedLead}
           onClose={() => setSelectedLead(null)}
+          onSave={handleLeadUpdate}
         />
       )}
 
       {showBulkAssign && (
         <LeadsBulkAssignment
           leads={filteredLeads}
-          onUpdate={handleLeadUpdate}
+          onLeadsAssigned={() => {
+            handleLeadUpdate();
+            setShowBulkAssign(false);
+          }}
         />
       )}
 
       {showUpload && (
         <LeadsUpload
-          onLeadsUploaded={handleLeadUpdate}
+          onLeadsUploaded={() => {
+            handleLeadUpdate();
+            setShowUpload(false);
+          }}
         />
       )}
     </div>
