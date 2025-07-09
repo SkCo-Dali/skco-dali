@@ -19,7 +19,8 @@ import { useLeadsPagination } from "@/hooks/useLeadsPagination";
 import { getAllLeads } from "@/utils/leadsApiClient";
 import { ColumnConfig } from "@/components/LeadsTableColumnSelector";
 import { Button } from "@/components/ui/button";
-import { Upload, Plus, Mail, Filter, Settings } from "lucide-react";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Upload, Plus, Mail, Filter, Users } from "lucide-react";
 
 const DEFAULT_COLUMNS: ColumnConfig[] = [
   { key: 'name', label: 'Nombre', visible: true, sortable: true },
@@ -165,6 +166,7 @@ export default function Leads() {
                 onClick={() => setShowBulkAssign(true)}
                 className="px-4 py-2 bg-green-600 text-white hover:bg-green-700"
               >
+                <Users className="h-4 w-4 mr-2" />
                 Asignación Masiva
               </Button>
             </div>
@@ -298,12 +300,14 @@ export default function Leads() {
         />
       )}
 
-      {showMassEmail && (
-        <MassEmailSender
-          filteredLeads={filteredLeads}
-          onClose={() => setShowMassEmail(false)}
-        />
-      )}
+      <Dialog open={showMassEmail} onOpenChange={setShowMassEmail}>
+        <DialogContent className="max-w-6xl max-h-[90vh] overflow-auto">
+          <MassEmailSender
+            filteredLeads={filteredLeads}
+            onClose={() => setShowMassEmail(false)}
+          />
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
