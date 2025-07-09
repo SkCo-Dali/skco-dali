@@ -339,13 +339,17 @@ export default function Leads() {
       )}
 
       {showBulkAssign && (
-        <LeadsBulkAssignment
-          leads={filteredLeads}
-          onLeadsAssigned={() => {
-            handleLeadUpdate();
-            setShowBulkAssign(false);
-          }}
-        />
+        <Dialog open={showBulkAssign} onOpenChange={setShowBulkAssign}>
+          <DialogContent className="max-w-2xl">
+            <LeadsBulkAssignment
+              leads={filteredLeads}
+              onLeadsAssigned={() => {
+                handleLeadUpdate();
+                setShowBulkAssign(false);
+              }}
+            />
+          </DialogContent>
+        </Dialog>
       )}
 
       {showUpload && (

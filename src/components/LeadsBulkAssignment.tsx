@@ -1,12 +1,11 @@
-
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
-import { Users, Plus, Trash2 } from "lucide-react";
+import { Plus, Trash2 } from "lucide-react";
 import { Lead } from "@/types/crm";
 import { useUsersApi } from "@/hooks/useUsersApi";
 import { useToast } from "@/hooks/use-toast";
@@ -24,7 +23,6 @@ interface UserAssignment {
 }
 
 export function LeadsBulkAssignment({ leads, onLeadsAssigned }: LeadsBulkAssignmentProps) {
-  const [open, setOpen] = useState(false);
   const [selectedCampaign, setSelectedCampaign] = useState<string>("all");
   const [assignmentType, setAssignmentType] = useState<"equitable" | "specific">("equitable");
   const [userAssignments, setUserAssignments] = useState<UserAssignment[]>([]);
@@ -219,7 +217,6 @@ export function LeadsBulkAssignment({ leads, onLeadsAssigned }: LeadsBulkAssignm
       });
       
       onLeadsAssigned();
-      setOpen(false);
       
       // Resetear estado
       setSelectedCampaign("all");
@@ -255,172 +252,158 @@ export function LeadsBulkAssignment({ leads, onLeadsAssigned }: LeadsBulkAssignm
   };
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button variant="outline" size="icon">
-          <Users className="h-4 w-4" />
-        </Button>
-      </DialogTrigger>
-      <DialogContent className="max-w-2xl">
-        <DialogHeader>
-          <DialogTitle>Asignación Masiva de Leads</DialogTitle>
-        </DialogHeader>
-        
-        <div className="space-y-6">
-          {/* Filtro de campaña */}
-          <div>
-            <Label>Filtrar por campaña</Label>
-            <Select value={selectedCampaign} onValueChange={setSelectedCampaign}>
-              <SelectTrigger>
-                <SelectValue placeholder="Todas las campañas" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Todas las campañas</SelectItem>
-                {uniqueCampaigns.map(campaign => (
-                  <SelectItem key={campaign} value={campaign || ''}>
-                    {campaign || 'Sin campaña'}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
+    <>
+      <DialogHeader>
+        <DialogTitle>Asignación Masiva de Leads</DialogTitle>
+      </DialogHeader>
+      
+      <div className="space-y-6">
+        {/* Filtro de campaña */}
+        <div>
+          <Label>Filtrar por campaña</Label>
+          <Select value={selectedCampaign} onValueChange={setSelectedCampaign}>
+            <SelectTrigger>
+              <SelectValue placeholder="Todas las campañas" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Todas las campañas</SelectItem>
+              {uniqueCampaigns.map(campaign => (
+                <SelectItem key={campaign} value={campaign || ''}>
+                  {campaign || 'Sin campaña'}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
 
-          {/* Información de leads disponibles */}
-          <div className="p-4 bg-blue-50 rounded-lg">
-            <p className="text-sm text-blue-800">
-              <strong>Leads nuevos disponibles:</strong> {filteredLeads.length}
+        {/* Información de leads disponibles */}
+        <div className="p-4 bg-blue-50 rounded-lg">
+          <p className="text-sm text-blue-800">
+            <strong>Leads nuevos disponibles:</strong> {filteredLeads.length}
+          </p>
+          {selectedCampaign !== "all" && (
+            <p className="text-sm text-blue-700">
+              Campaña: {selectedCampaign}
             </p>
-            {selectedCampaign !== "all" && (
-              <p className="text-sm text-blue-700">
-                Campaña: {selectedCampaign}
-              </p>
+          )}
+        </div>
+
+        {/* Tipo de asignación */}
+        <div>
+          <Label>Tipo de asignación</Label>
+          <Select value={assignmentType} onValueChange={handleTypeChange}>
+            <SelectTrigger>
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="equitable">Asignación equitativa</SelectItem>
+              <SelectItem value="specific">Cantidad específica por gestor</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
+        {/* Botón de asignación equitativa */}
+        {assignmentType === "equitable" && (
+          <div>
+            <Button 
+              onClick={handleEquitableAssignment}
+              variant="outline"
+              className="w-full"
+              disabled={filteredLeads.length === 0 || gestorUsers.length === 0}
+            >
+              Distribuir equitativamente entre gestores
+            </Button>
+          </div>
+        )}
+
+        <Separator />
+
+        {/* Lista de asignaciones */}
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <Label>Asignaciones por gestor</Label>
+            {assignmentType === "specific" && (
+              <Button
+                onClick={addUserAssignment}
+                size="sm"
+                variant="outline"
+                className="gap-1"
+                disabled={userAssignments.length >= gestorUsers.length}
+              >
+                <Plus className="h-3 w-3" />
+                Agregar gestor
+              </Button>
             )}
           </div>
 
-          {/* Tipo de asignación */}
-          <div>
-            <Label>Tipo de asignación</Label>
-            <Select value={assignmentType} onValueChange={handleTypeChange}>
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="equitable">Asignación equitativa</SelectItem>
-                <SelectItem value="specific">Cantidad específica por gestor</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          {/* Botón de asignación equitativa */}
-          {assignmentType === "equitable" && (
-            <div>
-              <Button 
-                onClick={handleEquitableAssignment}
-                variant="outline"
-                className="w-full"
-                disabled={filteredLeads.length === 0 || gestorUsers.length === 0}
-              >
-                Distribuir equitativamente entre gestores
-              </Button>
-            </div>
-          )}
-
-          <Separator />
-
-          {/* Lista de asignaciones */}
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <Label>Asignaciones por gestor</Label>
-              {assignmentType === "specific" && (
-                <Button
-                  onClick={addUserAssignment}
-                  size="sm"
-                  variant="outline"
-                  className="gap-1"
-                  disabled={userAssignments.length >= gestorUsers.length}
-                >
-                  <Plus className="h-3 w-3" />
-                  Agregar gestor
-                </Button>
-              )}
-            </div>
-
-            <div className="space-y-3 max-h-60 overflow-y-auto">
-              {userAssignments.map((assignment) => (
-                <div key={assignment.userId} className="flex items-center gap-3 p-3 border rounded-lg">
-                  <div className="flex-1">
-                    <p className="font-medium">{assignment.userName}</p>
-                  </div>
-                  
-                  <div className="flex items-center gap-2">
-                    <Label className="text-sm">Cantidad:</Label>
-                    <Input
-                      type="number"
-                      min="0"
-                      max={filteredLeads.length}
-                      value={assignment.quantity}
-                      onChange={(e) => {
-                        const newValue = parseInt(e.target.value);
-                        console.log('Input change for user', assignment.userId, ':', newValue);
-                        updateUserQuantity(assignment.userId, isNaN(newValue) ? 0 : newValue);
-                      }}
-                      className="w-20"
-                      disabled={assignmentType === "equitable"}
-                    />
-                  </div>
-
-                  {assignmentType === "specific" && userAssignments.length > 1 && (
-                    <Button
-                      onClick={() => removeUserAssignment(assignment.userId)}
-                      size="sm"
-                      variant="outline"
-                      className="p-1"
-                    >
-                      <Trash2 className="h-3 w-3" />
-                    </Button>
-                  )}
+          <div className="space-y-3 max-h-60 overflow-y-auto">
+            {userAssignments.map((assignment) => (
+              <div key={assignment.userId} className="flex items-center gap-3 p-3 border rounded-lg">
+                <div className="flex-1">
+                  <p className="font-medium">{assignment.userName}</p>
                 </div>
-              ))}
-            </div>
+                
+                <div className="flex items-center gap-2">
+                  <Label className="text-sm">Cantidad:</Label>
+                  <Input
+                    type="number"
+                    min="0"
+                    max={filteredLeads.length}
+                    value={assignment.quantity}
+                    onChange={(e) => {
+                      const newValue = parseInt(e.target.value);
+                      console.log('Input change for user', assignment.userId, ':', newValue);
+                      updateUserQuantity(assignment.userId, isNaN(newValue) ? 0 : newValue);
+                    }}
+                    className="w-20"
+                    disabled={assignmentType === "equitable"}
+                  />
+                </div>
 
-            {/* Resumen */}
-            <div className="p-3 bg-gray-50 rounded-lg">
-              <div className="flex justify-between text-sm">
-                <span>Total a asignar:</span>
-                <span className="font-medium">{getTotalAssigned()}</span>
+                {assignmentType === "specific" && userAssignments.length > 1 && (
+                  <Button
+                    onClick={() => removeUserAssignment(assignment.userId)}
+                    size="sm"
+                    variant="outline"
+                    className="p-1"
+                  >
+                    <Trash2 className="h-3 w-3" />
+                  </Button>
+                )}
               </div>
-              <div className="flex justify-between text-sm">
-                <span>Leads disponibles:</span>
-                <span className="font-medium">{filteredLeads.length}</span>
-              </div>
-              <div className="flex justify-between text-sm">
-                <span>Restantes:</span>
-                <span className={`font-medium ${filteredLeads.length - getTotalAssigned() < 0 ? 'text-red-600' : 'text-green-600'}`}>
-                  {filteredLeads.length - getTotalAssigned()}
-                </span>
-              </div>
-            </div>
+            ))}
           </div>
 
-          {/* Botones de acción */}
-          <div className="flex gap-2 pt-4">
-            <Button 
-              onClick={handleAssign}
-              disabled={getTotalAssigned() === 0 || getTotalAssigned() > filteredLeads.length || isAssigning}
-              className="flex-1"
-            >
-              {isAssigning ? 'Asignando...' : 'Asignar Leads'}
-            </Button>
-            <Button 
-              variant="outline" 
-              onClick={() => setOpen(false)}
-              disabled={isAssigning}
-            >
-              Cancelar
-            </Button>
+          {/* Resumen */}
+          <div className="p-3 bg-gray-50 rounded-lg">
+            <div className="flex justify-between text-sm">
+              <span>Total a asignar:</span>
+              <span className="font-medium">{getTotalAssigned()}</span>
+            </div>
+            <div className="flex justify-between text-sm">
+              <span>Leads disponibles:</span>
+              <span className="font-medium">{filteredLeads.length}</span>
+            </div>
+            <div className="flex justify-between text-sm">
+              <span>Restantes:</span>
+              <span className={`font-medium ${filteredLeads.length - getTotalAssigned() < 0 ? 'text-red-600' : 'text-green-600'}`}>
+                {filteredLeads.length - getTotalAssigned()}
+              </span>
+            </div>
           </div>
         </div>
-      </DialogContent>
-    </Dialog>
+
+        {/* Botones de acción */}
+        <div className="flex gap-2 pt-4">
+          <Button 
+            onClick={handleAssign}
+            disabled={getTotalAssigned() === 0 || getTotalAssigned() > filteredLeads.length || isAssigning}
+            className="flex-1"
+          >
+            {isAssigning ? 'Asignando...' : 'Asignar Leads'}
+          </Button>
+        </div>
+      </div>
+    </>
   );
 }
