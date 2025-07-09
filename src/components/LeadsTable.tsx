@@ -58,6 +58,20 @@ export function LeadsTable({
   const [sortConfig, setSortConfig] = useState<SortConfig>(null);
 
   const visibleColumns = columns.filter(col => col.visible);
+  
+  // Calcular si necesitamos scroll horizontal
+  // Máximo de columnas que caben sin scroll (ajustable según el diseño)
+  const MAX_COLUMNS_WITHOUT_SCROLL = 6;
+  const needsHorizontalScroll = visibleColumns.length > MAX_COLUMNS_WITHOUT_SCROLL;
+  
+  // Calcular ancho dinámico basado en número de columnas
+  const calculateTableWidth = () => {
+    const baseWidth = 250; // Ancho de la columna nombre (sticky)
+    const regularColumnWidth = 200; // Ancho de columnas regulares
+    const visibleRegularColumns = visibleColumns.length - 1; // Restar la columna nombre
+    
+    return baseWidth + (visibleRegularColumns * regularColumnWidth);
+  };
 
   const handleSort = (columnKey: string) => {
     let direction: 'asc' | 'desc' = 'asc';
@@ -346,9 +360,12 @@ export function LeadsTable({
         <div className="leads-table-inner-scroll">
           <Table 
             className="w-full"
-            style={{ 
-              width: `${Math.max(visibleColumns.length * 200, 1000)}px`,
-              minWidth: `${Math.max(visibleColumns.length * 200, 1000)}px`
+            style={needsHorizontalScroll ? { 
+              width: `${calculateTableWidth()}px`,
+              minWidth: `${calculateTableWidth()}px`
+            } : {
+              width: '100%',
+              minWidth: '100%'
             }}
           >
             <TableHeader className="leads-table-header-sticky">

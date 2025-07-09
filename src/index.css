@@ -237,14 +237,13 @@
     @apply text-gray-500;
   }
 
-  /* TABLA DE LEADS - SCROLL HORIZONTAL ÚNICO Y FUNCIONAL */
+  /* TABLA DE LEADS - SCROLL ADAPTATIVO Y FUNCIONAL */
   .leads-table-container-scroll {
     position: relative;
     width: 100%;
     max-width: 100%;
     background: #f8f9fa;
     border-radius: 8px;
-    /* ELIMINAR cualquier overflow para evitar scroll duplicado */
     overflow: visible;
     contain: layout style;
   }
@@ -256,53 +255,51 @@
     border: 1px solid #e2e8f0;
     border-radius: 8px;
     background: white;
-    /* ÚNICO scroll horizontal - siempre visible y funcional */
-    overflow-x: scroll !important;
+    /* Scroll adaptativo - aparece solo cuando es necesario */
+    overflow-x: auto !important;
     overflow-y: auto !important;
-    /* Asegurar que el scrollbar sea siempre visible */
-    scrollbar-width: auto !important;
+    /* Configuración de scrollbar */
+    scrollbar-width: thin !important;
     scrollbar-color: #00c83c #f1f5f9 !important;
     contain: strict;
   }
 
   .leads-table-inner-scroll {
-    /* Ancho DINÁMICO basado en número de columnas visibles */
+    /* Ancho adaptativo - se ajusta al contenido */
     width: max-content !important;
     min-width: 100% !important;
     height: auto;
     position: relative;
-    /* Permitir que el contenido determine el ancho total */
     overflow: visible;
   }
 
   /* SCROLLBAR PERSONALIZADO - WEBKIT */
   .leads-table-scroll-wrapper::-webkit-scrollbar {
-    width: 16px !important;
-    height: 16px !important;
+    width: 12px !important;
+    height: 12px !important;
     background-color: #f1f5f9 !important;
-    border-radius: 8px;
-    display: block !important;
+    border-radius: 6px;
   }
 
   .leads-table-scroll-wrapper::-webkit-scrollbar-track {
     background: #f1f5f9 !important;
-    border-radius: 8px;
-    border: 2px solid #e2e8f0;
-    box-shadow: inset 0 0 3px rgba(0,0,0,0.1);
+    border-radius: 6px;
+    border: 1px solid #e2e8f0;
+    box-shadow: inset 0 0 2px rgba(0,0,0,0.05);
   }
 
   .leads-table-scroll-wrapper::-webkit-scrollbar-thumb {
     background: #00c83c !important;
-    border-radius: 8px;
-    border: 2px solid #f1f5f9;
-    min-height: 30px !important;
-    min-width: 30px !important;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    border-radius: 6px;
+    border: 1px solid #f1f5f9;
+    min-height: 20px !important;
+    min-width: 20px !important;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
   }
 
   .leads-table-scroll-wrapper::-webkit-scrollbar-thumb:hover {
     background: #00b835 !important;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
   }
 
   .leads-table-scroll-wrapper::-webkit-scrollbar-thumb:active {
@@ -595,8 +592,8 @@
 
     /* Mejorar scroll en móviles para las tablas de leads */
     .leads-table-scroll-wrapper::-webkit-scrollbar {
-      width: 14px;
-      height: 14px;
+      width: 10px;
+      height: 10px;
     }
 
     .leads-table-inner-scroll {
