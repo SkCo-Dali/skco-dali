@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
@@ -42,9 +41,9 @@ export function MicrosoftAuth() {
         console.log('🆔 UUID del usuario almacenado:', existingUser.id);
         console.log('📧 Email del usuario:', existingUser.email);
         
-        // Almacenar el UUID en localStorage para uso posterior
-        localStorage.setItem('authenticated-user-uuid', existingUser.id);
-        console.log('💾 UUID almacenado en localStorage:', localStorage.getItem('authenticated-user-uuid'));
+        // Almacenar el UUID en sessionStorage para uso posterior
+        sessionStorage.setItem('authenticated-user-uuid', existingUser.id);
+        console.log('💾 UUID almacenado en sessionStorage:', sessionStorage.getItem('authenticated-user-uuid'));
         
         return existingUser;
       }
@@ -63,9 +62,9 @@ export function MicrosoftAuth() {
       console.log('🆔 UUID del nuevo usuario almacenado:', newUser.id);
       console.log('📧 Email del nuevo usuario:', newUser.email);
       
-      // Almacenar el UUID en localStorage para uso posterior
-      localStorage.setItem('authenticated-user-uuid', newUser.id);
-      console.log('💾 UUID del nuevo usuario almacenado en localStorage:', localStorage.getItem('authenticated-user-uuid'));
+      // Almacenar el UUID en sessionStorage para uso posterior
+      sessionStorage.setItem('authenticated-user-uuid', newUser.id);
+      console.log('💾 UUID del nuevo usuario almacenado en sessionStorage:', sessionStorage.getItem('authenticated-user-uuid'));
       
       return newUser;
       
@@ -90,8 +89,8 @@ export function MicrosoftAuth() {
       };
       
       console.log('⚠️ Usuario fallback creado con ID temporal:', fallbackUser.id);
-      console.log('💾 ID temporal almacenado en localStorage:', fallbackUser.id);
-      localStorage.setItem('authenticated-user-uuid', fallbackUser.id);
+      console.log('💾 ID temporal almacenado en sessionStorage:', fallbackUser.id);
+      sessionStorage.setItem('authenticated-user-uuid', fallbackUser.id);
       
       return fallbackUser;
     }
@@ -204,7 +203,7 @@ export function MicrosoftAuth() {
             };
             
             console.log('🔑 ID del usuario autenticado (fallback final):', user.id);
-            localStorage.setItem('authenticated-user-uuid', user.id);
+            sessionStorage.setItem('authenticated-user-uuid', user.id);
             login(user);
           }
         }

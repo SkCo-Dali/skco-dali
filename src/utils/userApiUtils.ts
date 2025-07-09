@@ -1,4 +1,3 @@
-
 import { User } from '@/types/crm';
 import { assignRoleBasedOnEmail } from './userRoleUtils';
 
@@ -6,7 +5,8 @@ const USERS_STORAGE_KEY = 'skandia-crm-managed-users';
 
 export const loadUsersFromStorage = (): User[] => {
   try {
-    const storedUsers = localStorage.getItem(USERS_STORAGE_KEY);
+    // Usar sessionStorage para datos sensibles de usuarios gestionados
+    const storedUsers = sessionStorage.getItem(USERS_STORAGE_KEY);
     return storedUsers ? JSON.parse(storedUsers) : [];
   } catch (error) {
     console.error('Error cargando usuarios del almacenamiento:', error);
@@ -16,7 +16,8 @@ export const loadUsersFromStorage = (): User[] => {
 
 export const saveUsersToStorage = (users: User[]): void => {
   try {
-    localStorage.setItem(USERS_STORAGE_KEY, JSON.stringify(users));
+    // Usar sessionStorage para datos sensibles de usuarios gestionados
+    sessionStorage.setItem(USERS_STORAGE_KEY, JSON.stringify(users));
   } catch (error) {
     console.error('Error guardando usuarios en el almacenamiento:', error);
   }

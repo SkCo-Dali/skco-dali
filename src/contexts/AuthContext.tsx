@@ -59,10 +59,10 @@ export function AuthProvider({ children }: AuthProviderProps) {
         console.log('Existing accounts:', accounts.length);
         
         if (accounts.length > 0) {
-          // If there's an account, check for saved user data
-          const savedUser = localStorage.getItem('skandia-crm-user');
+          // If there's an account, check for saved user data in sessionStorage
+          const savedUser = sessionStorage.getItem('skandia-crm-user');
           if (savedUser) {
-            console.log('Loading saved user data');
+            console.log('Loading saved user data from sessionStorage');
             setUser(JSON.parse(savedUser));
           }
         }
@@ -80,14 +80,14 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const login = (userData: User) => {
     console.log('Logging in user:', userData);
     setUser(userData);
-    localStorage.setItem('skandia-crm-user', JSON.stringify(userData));
+    sessionStorage.setItem('skandia-crm-user', JSON.stringify(userData));
   };
 
   const logout = async () => {
     console.log('Logging out user');
     setUser(null);
     setAccessToken(null);
-    localStorage.removeItem('skandia-crm-user');
+    sessionStorage.removeItem('skandia-crm-user');
     
     if (!isInitialized) {
       console.warn('MSAL not initialized for logout');
