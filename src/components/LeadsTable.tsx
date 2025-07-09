@@ -341,9 +341,10 @@ export function LeadsTable({
     }
   };
 
-   return (
-    <div className="bg-gray-100 rounded-lg" style={{ backgroundColor: '#fafafa', borderColor: '#fafafa' }}>
-      <style>{`
+  return (
+      
+      <div className="bg-gray-100 rounded-lg style={{ backgroundColor: '#fafafa'; borderColor: #fafafa }}">
+        <style>{`
         .leads-table-scroll::-webkit-scrollbar {
           width: 8px;
           height: 8px;
@@ -365,100 +366,72 @@ export function LeadsTable({
         .name-column-sticky {
           position: sticky;
           left: 0;
-          z-index: 30;
-          background: #fafafa;
-          border-right: 1px solid #e5e7eb;
-          box-shadow: 2px 0 5px -2px rgba(0,0,0,0.1);
-          min-width: 200px !important;
-          max-width: 200px !important;
-          width: 200px !important;
-        }
-        .assignedto-column-sticky {
-          position: sticky;
-          left: 200px;
-          z-index: 29;
-          background: #fafafa;
-          border-right: 1px solid #e5e7eb;
-          box-shadow: 2px 0 5px -2px rgba(0,0,0,0.05);
-          min-width: 150px !important;
-          max-width: 150px !important;
-          width: 150px !important;
+          z-index: 5;
+          background: transparent;
+          border-right: 0px solid #e5e7eb;
         }
       `}</style>
-      <div className="bg-transparent rounded-lg border border-white overflow-hidden">
-        <div
-          className="leads-table-scroll overflow-auto"
-          style={{ maxHeight: '500px', maxWidth: '100%' }}
-        >
-          <div style={{ minWidth: `${250 + (visibleColumns.length - 2) * 150}px` }}>
-            <Table className="w-full table-fixed">
-              <TableHeader className="top-0 z-20 bg-white sticky">
-                <TableRow className="bg-gray-100 border-b border-gray-100">
-                  {visibleColumns.map((column) => {
-                    let className = 'cursor-pointer select-none px-4 py-3 text-center text-xs font-medium text-gray-600 capitalize tracking-wider';
-                    let style = { 
-                      minWidth: '150px', maxWidth: '150px', width: '150px'
-                    };
-
-                    if (column.key === 'name') {
-                      className += ' name-column-sticky';
-                      style = { minWidth: '200px', maxWidth: '200px', width: '200px' };
-                    } else if (column.key === 'assignedTo') {
-                      className += ' assignedto-column-sticky';
-                      style = { minWidth: '150px', maxWidth: '150px', width: '150px' };
-                    }
-
-                    return (
-                      <TableHead
+        <div className="bg-transparent rounded-lg border border-white overflow-hidden">
+          <div 
+            className="leads-table-scroll overflow-auto"
+            style={{ 
+              maxHeight: '500px',
+              maxWidth: '100%'
+            }}
+          >
+            <div style={{ minWidth: `${250 + (visibleColumns.length - 1) * 150}px` }}>
+              <Table className="w-full">
+                <TableHeader className="sticky top-0 z-10 bg-white">
+                  <TableRow className="bg-gray-100 border-b border-gray-100">
+                    {visibleColumns.map((column) => (
+                      <TableHead 
                         key={column.key}
-                        className={className}
-                        style={style}
+                        className={`cursor-pointer select-none px-4 py-3 text-center text-xs font-medium text-gray-600 capitalize tracking-wider ${
+                          column.key === 'name' ? 'name-column-sticky' : ''
+                        }`}
+                        style={{ 
+                          minWidth: column.key === 'name' ? '250px' : '150px', 
+                          maxWidth: column.key === 'name' ? '250px' : '150px', 
+                          width: column.key === 'name' ? '200px' : '150px'
+                        }}
                         onClick={() => handleSort(column.key)}
                       >
-                        <div className="flex items-center justify-center">
+                        <div className="flex items-center">
                           {column.label}
                           {renderSortIcon(column.key)}
                         </div>
                       </TableHead>
-                    );
-                  })}
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {paginatedLeads.map((lead) => (
-                  <TableRow
-                    key={lead.id}
-                    className="hover:bg-gray-50 transition-colors border-b border-gray-100"
-                  >
-                    {visibleColumns.map((column) => {
-                      let className = 'px-4 py-3 text-xs';
-                      let style = { minWidth: '150px', maxWidth: '150px', width: '150px' };
-
-                      if (column.key === 'name') {
-                        className += ' name-column-sticky';
-                        style = { minWidth: '200px', maxWidth: '200px', width: '200px' };
-                      } else if (column.key === 'assignedTo') {
-                        className += ' assignedto-column-sticky';
-                        style = { minWidth: '150px', maxWidth: '150px', width: '150px' };
-                      }
-
-                      return (
-                        <TableCell
-                          key={column.key}
-                          className={className}
-                          style={style}
+                    ))}
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {paginatedLeads.map((lead, index) => (
+                    <TableRow 
+                      key={lead.id}
+                      className="hover:bg-gray-50 transition-colors border-b border-gray-100"
+                    >
+                      {visibleColumns.map((column) => (
+                        <TableCell 
+                          key={column.key} 
+                          className={`px-4 py-3 text-xs ${
+                            column.key === 'name' ? 'name-column-sticky' : ''
+                          }`}
+                          style={{ 
+                            minWidth: column.key === 'name' ? '200px' : '150px', 
+                            maxWidth: column.key === 'name' ? '200px' : '150px', 
+                            width: column.key === 'name' ? '200px' : '150px'
+                          }}
                         >
                           {renderCellContent(lead, column.key)}
                         </TableCell>
-                      );
-                    })}
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+                      ))}
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
           </div>
         </div>
       </div>
-    </div>
   );
 }
