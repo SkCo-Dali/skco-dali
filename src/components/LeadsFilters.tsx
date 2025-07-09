@@ -161,7 +161,9 @@ export function LeadsFilters({
                   }}
                 >
                   <SelectTrigger className="w-full">
-                    <SelectValue placeholder={getDisplayText(filterStage, "Seleccionar etapas", uniqueStages.map(s => ({ value: s, label: s })))} />
+                    <SelectValue>
+                      {getDisplayText(filterStage, "Seleccionar etapas", uniqueStages.map(s => ({ value: s, label: s })))}
+                    </SelectValue>
                   </SelectTrigger>
                   <SelectContent className="bg-white z-50">
                     <SelectItem value="all">Todas las etapas</SelectItem>
@@ -196,7 +198,9 @@ export function LeadsFilters({
                   }}
                 >
                   <SelectTrigger className="w-full">
-                    <SelectValue placeholder={getDisplayText(filterAssignedTo, "Seleccionar usuarios", users)} />
+                    <SelectValue>
+                      {getDisplayText(filterAssignedTo, "Seleccionar usuarios", users)}
+                    </SelectValue>
                   </SelectTrigger>
                   <SelectContent className="bg-white z-50">
                     <SelectItem value="all">Todos los usuarios</SelectItem>
@@ -231,7 +235,9 @@ export function LeadsFilters({
                   }}
                 >
                   <SelectTrigger className="w-full">
-                    <SelectValue placeholder={getDisplayText(filterSource, "Seleccionar fuentes", uniqueSources.map(s => ({ value: s, label: s })))} />
+                    <SelectValue>
+                      {getDisplayText(filterSource, "Seleccionar fuentes", uniqueSources.map(s => ({ value: s, label: s })))}
+                    </SelectValue>
                   </SelectTrigger>
                   <SelectContent className="bg-white z-50">
                     <SelectItem value="all">Todas las fuentes</SelectItem>
@@ -266,7 +272,9 @@ export function LeadsFilters({
                   }}
                 >
                   <SelectTrigger className="w-full">
-                    <SelectValue placeholder={getDisplayText(filterCampaign, "Seleccionar campañas", uniqueCampaigns.map(c => ({ value: c, label: c })))} />
+                    <SelectValue>
+                      {getDisplayText(filterCampaign, "Seleccionar campañas", uniqueCampaigns.map(c => ({ value: c, label: c })))}
+                    </SelectValue>
                   </SelectTrigger>
                   <SelectContent className="bg-white z-50">
                     <SelectItem value="all">Todas las campañas</SelectItem>
@@ -301,12 +309,14 @@ export function LeadsFilters({
                   }}
                 >
                   <SelectTrigger className="w-full">
-                    <SelectValue placeholder={getDisplayText(filterPriority, "Seleccionar prioridades", [
-                      { value: 'low', label: 'Baja' },
-                      { value: 'medium', label: 'Media' },
-                      { value: 'high', label: 'Alta' },
-                      { value: 'urgent', label: 'Urgente' }
-                    ])} />
+                    <SelectValue>
+                      {getDisplayText(filterPriority, "Seleccionar prioridades", [
+                        { value: 'low', label: 'Baja' },
+                        { value: 'medium', label: 'Media' },
+                        { value: 'high', label: 'Alta' },
+                        { value: 'urgent', label: 'Urgente' }
+                      ])}
+                    </SelectValue>
                   </SelectTrigger>
                   <SelectContent className="bg-white z-50">
                     <SelectItem value="all">Todas las prioridades</SelectItem>
