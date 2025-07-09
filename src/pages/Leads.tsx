@@ -1,4 +1,3 @@
-
 import React, { useState, useCallback, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -52,15 +51,32 @@ export default function Leads() {
     setSearchTerm,
     filterStage,
     setFilterStage,
-    filterSource,
-    setFilterSource,
+    filterPriority,
+    setFilterPriority,
     filterAssignedTo,
     setFilterAssignedTo,
+    filterSource,
+    setFilterSource,
+    filterCampaign,
+    setFilterCampaign,
     filterDateFrom,
     setFilterDateFrom,
     filterDateTo,
     setFilterDateTo,
-    clearFilters
+    filterValueMin,
+    setFilterValueMin,
+    filterValueMax,
+    setFilterValueMax,
+    filterDuplicates,
+    setFilterDuplicates,
+    sortBy,
+    setSortBy,
+    clearFilters,
+    uniqueStages,
+    uniqueSources,
+    uniqueCampaigns,
+    uniqueAssignedTo,
+    duplicateCount
   } = useLeadsFilters(leadsData);
 
   const leadsToUse = sortedLeads.length > 0 ? sortedLeads : filteredLeads;
@@ -143,17 +159,36 @@ export default function Leads() {
               />
             </div>
             <LeadsFilters
+              searchTerm={searchTerm}
+              setSearchTerm={setSearchTerm}
               filterStage={filterStage}
-              onStageFilterChange={setFilterStage}
-              filterSource={filterSource}
-              onSourceFilterChange={setFilterSource}
+              setFilterStage={setFilterStage}
+              filterPriority={filterPriority}
+              setFilterPriority={setFilterPriority}
               filterAssignedTo={filterAssignedTo}
-              onAssignedToFilterChange={setFilterAssignedTo}
+              setFilterAssignedTo={setFilterAssignedTo}
+              filterSource={filterSource}
+              setFilterSource={setFilterSource}
+              filterCampaign={filterCampaign}
+              setFilterCampaign={setFilterCampaign}
               filterDateFrom={filterDateFrom}
-              onDateFromChange={setFilterDateFrom}
+              setFilterDateFrom={setFilterDateFrom}
               filterDateTo={filterDateTo}
-              onDateToChange={setFilterDateTo}
+              setFilterDateTo={setFilterDateTo}
+              filterValueMin={filterValueMin}
+              setFilterValueMin={setFilterValueMin}
+              filterValueMax={filterValueMax}
+              setFilterValueMax={setFilterValueMax}
+              filterDuplicates={filterDuplicates}
+              setFilterDuplicates={setFilterDuplicates}
+              sortBy={sortBy}
+              setSortBy={setSortBy}
               onClearFilters={clearFilters}
+              uniqueStages={uniqueStages}
+              uniqueSources={uniqueSources}
+              uniqueCampaigns={uniqueCampaigns}
+              uniqueAssignedTo={uniqueAssignedTo}
+              duplicateCount={duplicateCount}
             />
           </div>
 
@@ -181,10 +216,10 @@ export default function Leads() {
               <LeadsPagination
                 currentPage={currentPage}
                 totalPages={totalPages}
-                itemsPerPage={leadsPerPage}
-                totalItems={leadsToUse.length}
+                totalLeads={leadsToUse.length}
+                leadsPerPage={leadsPerPage}
                 onPageChange={setCurrentPage}
-                onItemsPerPageChange={setLeadsPerPage}
+                onLeadsPerPageChange={setLeadsPerPage}
               />
             </>
           )}
@@ -195,22 +230,19 @@ export default function Leads() {
         <LeadDetail
           lead={selectedLead}
           onClose={() => setSelectedLead(null)}
-          onUpdate={handleLeadUpdate}
         />
       )}
 
       {showBulkAssign && (
         <LeadsBulkAssignment
           leads={filteredLeads}
-          onClose={() => setShowBulkAssign(false)}
           onUpdate={handleLeadUpdate}
         />
       )}
 
       {showUpload && (
         <LeadsUpload
-          onClose={() => setShowUpload(false)}
-          onUploadComplete={handleLeadUpdate}
+          onLeadsUploaded={handleLeadUpdate}
         />
       )}
     </div>
