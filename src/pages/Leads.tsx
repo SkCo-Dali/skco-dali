@@ -199,10 +199,6 @@ export default function Leads() {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-48">
-                <DropdownMenuItem onClick={() => setShowUpload(true)}>
-                  <Upload className="h-4 w-4 mr-2" />
-                  Importar Leads
-                </DropdownMenuItem>
                 <DropdownMenuItem onClick={(e) => e.preventDefault()}>
                   <LeadCreateDialog onLeadCreate={handleLeadCreate}>
                     <div className="flex items-center w-full">
