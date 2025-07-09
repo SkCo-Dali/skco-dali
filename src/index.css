@@ -236,98 +236,73 @@
     @apply text-gray-500;
   }
 
-  /* SCROLL HORIZONTAL PERMANENTE PARA TABLA DE LEADS */
-  .leads-table-scroll-force {
-    /* Forzar scroll horizontal SIEMPRE visible */
-    overflow-x: scroll !important;
-    overflow-y: auto !important;
-    /* Forzar que el scrollbar sea permanente */
-    scrollbar-width: thin !important;
-    scrollbar-color: #00c83c #f1f5f9 !important;
-    /* Asegurar que el contenido sea más ancho que el contenedor */
-    min-width: 100%;
-  }
-
-  /* Webkit scrollbar styling - FORZADO PARA SER SIEMPRE VISIBLE */
-  .leads-table-scroll-force::-webkit-scrollbar {
-    height: 16px !important;
-    width: 16px !important;
-    background-color: #f1f5f9 !important;
-    border-radius: 8px !important;
-    /* Forzar visibilidad permanente */
-    display: block !important;
-    visibility: visible !important;
-    opacity: 1 !important;
-  }
-
-  .leads-table-scroll-force::-webkit-scrollbar-track {
-    background: #f1f5f9 !important;
-    border-radius: 8px !important;
-    border: 2px solid #e2e8f0 !important;
-    /* Forzar visibilidad */
-    display: block !important;
-    visibility: visible !important;
-  }
-
-  .leads-table-scroll-force::-webkit-scrollbar-thumb {
-    background: #00c83c !important;
-    border-radius: 8px !important;
-    border: 2px solid #f1f5f9 !important;
-    min-height: 30px !important;
-    min-width: 30px !important;
-    /* Forzar visibilidad permanente */
-    display: block !important;
-    visibility: visible !important;
-    opacity: 1 !important;
-  }
-
-  .leads-table-scroll-force::-webkit-scrollbar-thumb:hover {
-    background: #00b835 !important;
-    border: 2px solid #e2e8f0 !important;
-  }
-
-  .leads-table-scroll-force::-webkit-scrollbar-thumb:active {
-    background: #009929 !important;
-  }
-
-  .leads-table-scroll-force::-webkit-scrollbar-corner {
-    background: #f1f5f9 !important;
-    border: 2px solid #e2e8f0 !important;
-    /* Forzar visibilidad */
-    display: block !important;
-    visibility: visible !important;
-  }
-
-  /* Contenedor principal de la tabla */
+  /* SCROLL HORIZONTAL FUNCIONAL PARA TABLA DE LEADS */
   .leads-table-container-force {
     width: 100%;
     max-width: 100%;
-    overflow: visible;
     position: relative;
+    /* IMPORTANTE: Evitar que el contenedor principal se expanda más allá del viewport */
+    overflow: hidden;
   }
 
   .leads-table-wrapper-force {
     position: relative;
     width: 100%;
-    max-width: 100%;
-    /* CLAVE: Altura fija para forzar scroll */
+    /* CLAVE: Altura fija y scroll interno */
     max-height: 500px;
-    overflow-x: scroll !important;
+    overflow-x: auto !important;
     overflow-y: auto !important;
     border: 1px solid #e2e8f0;
     border-radius: 8px;
-    /* Padding extra para asegurar visibilidad del scroll */
-    padding-bottom: 20px;
-    margin-bottom: 10px;
-    /* Forzar que siempre tenga scrollbar */
-    scrollbar-width: thin;
-    scrollbar-color: #00c83c #f1f5f9;
+    /* Asegurar que el contenedor no se expanda horizontalmente */
+    max-width: 100%;
+    box-sizing: border-box;
   }
 
-  /* Forzar ancho mínimo para provocar scroll horizontal */
+  /* Forzar el scroll horizontal visible SIEMPRE */
+  .leads-table-wrapper-force::-webkit-scrollbar {
+    height: 14px !important;
+    width: 14px !important;
+    background-color: #f1f5f9 !important;
+    border-radius: 6px !important;
+  }
+
+  .leads-table-wrapper-force::-webkit-scrollbar-track {
+    background: #f1f5f9 !important;
+    border-radius: 6px !important;
+    border: 1px solid #e2e8f0 !important;
+  }
+
+  .leads-table-wrapper-force::-webkit-scrollbar-thumb {
+    background: #00c83c !important;
+    border-radius: 6px !important;
+    border: 1px solid #f1f5f9 !important;
+    min-height: 20px !important;
+    min-width: 20px !important;
+  }
+
+  .leads-table-wrapper-force::-webkit-scrollbar-thumb:hover {
+    background: #00b835 !important;
+  }
+
+  .leads-table-wrapper-force::-webkit-scrollbar-thumb:active {
+    background: #009929 !important;
+  }
+
+  .leads-table-wrapper-force::-webkit-scrollbar-corner {
+    background: #f1f5f9 !important;
+  }
+
+  /* Para Firefox */
+  .leads-table-wrapper-force {
+    scrollbar-width: auto !important;
+    scrollbar-color: #00c83c #f1f5f9 !important;
+  }
+
+  /* Tabla interna con ancho fijo que fuerza el scroll */
   .leads-table-inner-force {
-    /* CLAVE: Ancho mínimo que fuerza el scroll horizontal */
-    min-width: 1200px;
+    /* CLAVE: Ancho mínimo más grande que el contenedor para forzar scroll horizontal */
+    min-width: 1400px;
     width: max-content;
     position: relative;
   }
@@ -336,7 +311,7 @@
   .name-column-sticky-force {
     position: sticky !important;
     left: 0 !important;
-    z-index: 10 !important;
+    z-index: 20 !important;
     background: white !important;
     border-right: 2px solid #e5e7eb !important;
     box-shadow: 3px 0 8px rgba(0,0,0,0.15) !important;
@@ -346,29 +321,29 @@
     width: 250px !important;
   }
 
-  /* Dark mode para el scroll forzado */
-  .dark .leads-table-scroll-force::-webkit-scrollbar-track {
+  /* Dark mode para el scroll */
+  .dark .leads-table-wrapper-force::-webkit-scrollbar-track {
     background: #374151 !important;
-    border: 2px solid #4b5563 !important;
+    border: 1px solid #4b5563 !important;
   }
 
-  .dark .leads-table-scroll-force::-webkit-scrollbar-thumb {
+  .dark .leads-table-wrapper-force::-webkit-scrollbar-thumb {
     background: #00c83c !important;
-    border: 2px solid #374151 !important;
+    border: 1px solid #374151 !important;
   }
 
-  .dark .leads-table-scroll-force::-webkit-scrollbar-thumb:hover {
+  .dark .leads-table-wrapper-force::-webkit-scrollbar-thumb:hover {
     background: #00b835 !important;
-    border: 2px solid #4b5563 !important;
+    border: 1px solid #4b5563 !important;
   }
 
-  .dark .leads-table-scroll-force::-webkit-scrollbar-corner {
+  .dark .leads-table-wrapper-force::-webkit-scrollbar-corner {
     background: #374151 !important;
-    border: 2px solid #4b5563 !important;
   }
 
   .dark .leads-table-wrapper-force {
     border: 1px solid #4b5563;
+    scrollbar-color: #00c83c #374151 !important;
   }
 
   .dark .name-column-sticky-force {
@@ -597,18 +572,14 @@
       order: 1;
     }
 
-    /* Mejorar scroll en móviles para las tablas forzadas */
-    .leads-table-scroll-force::-webkit-scrollbar {
+    /* Mejorar scroll en móviles para las tablas de leads */
+    .leads-table-wrapper-force::-webkit-scrollbar {
       width: 12px;
       height: 12px;
     }
 
-    .leads-table-wrapper-force {
-      padding-bottom: 15px;
-    }
-
     .leads-table-inner-force {
-      min-width: 1000px;
+      min-width: 1200px;
     }
   }
 }

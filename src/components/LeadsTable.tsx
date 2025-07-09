@@ -342,7 +342,7 @@ export function LeadsTable({
 
   return (
     <div className="leads-table-container-force bg-gray-100 rounded-lg">
-      <div className="leads-table-wrapper-force leads-table-scroll-force">
+      <div className="leads-table-wrapper-force">
         <div className="leads-table-inner-force">
           <Table className="w-full">
             <TableHeader className="sticky top-0 z-10 bg-white">
@@ -354,9 +354,9 @@ export function LeadsTable({
                       column.key === 'name' ? 'name-column-sticky-force' : ''
                     }`}
                     style={{ 
-                      minWidth: column.key === 'name' ? '250px' : '150px', 
-                      maxWidth: column.key === 'name' ? '250px' : '150px', 
-                      width: column.key === 'name' ? '250px' : '150px'
+                      minWidth: column.key === 'name' ? '250px' : '180px', 
+                      maxWidth: column.key === 'name' ? '250px' : '180px', 
+                      width: column.key === 'name' ? '250px' : '180px'
                     }}
                     onClick={() => handleSort(column.key)}
                   >
@@ -381,9 +381,9 @@ export function LeadsTable({
                         column.key === 'name' ? 'name-column-sticky-force' : ''
                       }`}
                       style={{ 
-                        minWidth: column.key === 'name' ? '250px' : '150px', 
-                        maxWidth: column.key === 'name' ? '250px' : '150px', 
-                        width: column.key === 'name' ? '250px' : '150px'
+                        minWidth: column.key === 'name' ? '250px' : '180px', 
+                        maxWidth: column.key === 'name' ? '250px' : '180px', 
+                        width: column.key === 'name' ? '250px' : '180px'
                       }}
                     >
                       {renderCellContent(lead, column.key)}
