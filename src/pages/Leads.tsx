@@ -236,14 +236,15 @@ export default function Leads() {
                 onSearchChange={setSearchTerm} 
               />
             </div>
-            <div className="flex gap-2">
+            <div className="flex gap-2 ">
               <Button
                 onClick={() => setShowFilters(!showFilters)}
                 variant="outline"
                 size="sm"
+                rounded="md"
               >
                 <Filter className="h-4 w-4 mr-2" />
-                Filtros
+                {showFilters ? 'Ocultar' : 'Mostrar'} Filtros
               </Button>
               
               {viewMode === "table" && (
