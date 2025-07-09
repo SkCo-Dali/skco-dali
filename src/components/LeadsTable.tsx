@@ -345,93 +345,101 @@ export function LeadsTable({
       
       <div className="bg-gray-100 rounded-lg style={{ backgroundColor: '#fafafa'; borderColor: #fafafa }}">
         <style>{`
-        .leads-table-scroll::-webkit-scrollbar {
-          width: 8px;
-          height: 8px;
-        }
-        .leads-table-scroll::-webkit-scrollbar-track {
-          background: #f1f1f1;
-          border-radius: 4px;
-        }
-        .leads-table-scroll::-webkit-scrollbar-thumb {
-          background: #00c83c;
-          border-radius: 4px;
-        }
-        .leads-table-scroll::-webkit-scrollbar-thumb:hover {
-          background: #00b835;
-        }
-        .leads-table-scroll::-webkit-scrollbar-corner {
-          background: #f1f1f1;
-        }
-        .name-column-sticky {
-          position: sticky;
-          left: 0;
-          z-index: 5;
-          background: transparent;
-          border-right: 0px solid #e5e7eb;
-        }
-      `}</style>
-        <div className="bg-transparent rounded-lg border border-white overflow-hidden">
-          <div 
-            className="leads-table-scroll overflow-auto"
-            style={{ 
-              maxHeight: '500px',
-              maxWidth: '100%'
-            }}
-          >
-            <div style={{ minWidth: `${250 + (visibleColumns.length - 1) * 150}px` }}>
-              <Table className="w-full">
-                <TableHeader className="top-0 z-10 bg-white">
-                  <TableRow className="bg-gray-100 border-b border-gray-100">
-                    {visibleColumns.map((column) => (
-                      <TableHead 
-                        key={column.key}
-                        className={`cursor-pointer select-none px-4 py-3 text-center text-xs font-medium text-gray-600 capitalize tracking-wider ${
-                          column.key === 'name' ? 'name-column-sticky' : ''
-                        }`}
-                        style={{ 
-                          minWidth: column.key === 'name' ? '250px' : '150px', 
-                          maxWidth: column.key === 'name' ? '250px' : '150px', 
-                          width: column.key === 'name' ? '200px' : '150px'
-                        }}
-                        onClick={() => handleSort(column.key)}
-                      >
-                        <div className="flex items-center">
-                          {column.label}
-                          {renderSortIcon(column.key)}
-                        </div>
-                      </TableHead>
-                    ))}
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {paginatedLeads.map((lead, index) => (
-                    <TableRow 
-                      key={lead.id}
-                      className="hover:bg-gray-50 transition-colors border-b border-gray-100"
-                    >
-                      {visibleColumns.map((column) => (
-                        <TableCell 
-                          key={column.key} 
-                          className={`px-4 py-3 text-xs ${
-                            column.key === 'name' ? 'name-column-sticky' : ''
-                          }`}
-                          style={{ 
-                            minWidth: column.key === 'name' ? '200px' : '150px', 
-                            maxWidth: column.key === 'name' ? '200px' : '150px', 
-                            width: column.key === 'name' ? '200px' : '150px'
-                          }}
-                        >
-                          {renderCellContent(lead, column.key)}
-                        </TableCell>
-                      ))}
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </div>
-          </div>
-        </div>
-      </div>
+  .wrapper {
+    overflow-x: auto;
+    border: 1px solid #e5e7eb;
+  }
+  .sticky-col {
+    position: sticky;
+    position: -webkit-sticky;
+    background-color: #fafafa;
+    z-index: 20;
+    box-shadow: 2px 0 5px -2px rgba(0,0,0,0.1);
+    border-right: 1px solid #e5e7eb;
+  }
+  .first-col {
+    left: 0;
+    width: 180px;
+    min-width: 180px;
+    max-width: 180px;
+  }
+  .second-col {
+    left: 180px;
+    width: 150px;
+    min-width: 150px;
+    max-width: 150px;
+  }
+`}</style>
+
+<div className="wrapper">
+  <Table className="min-w-[900px] w-full table-fixed">
+    <TableHeader className="bg-white sticky top-0 z-30">
+      <TableRow>
+        {visibleColumns.map((column, idx) => {
+          const classes = ['cursor-pointer', 'select-none', 'px-4', 'py-3', 'text-center', 'text-xs', 'font-medium', 'text-gray-600', 'capitalize', 'tracking-wider'];
+          let style = {};
+
+          if (column.key === 'name') {
+            classes.push('sticky-col', 'first-col');
+            style = { width: '180px', minWidth: '180px', maxWidth: '180px' };
+          } else if (column.key === 'assignedTo') {
+            classes.push('sticky-col', 'second-col');
+            style = { width: '150px', minWidth: '150px', maxWidth: '150px' };
+          } else {
+            style = { width: '150px', minWidth: '150px', maxWidth: '150px' };
+          }
+
+          return (
+            <TableHead
+              key={column.key}
+              className={classes.join(' ')}
+              style={style}
+              onClick={() => handleSort(column.key)}
+            >
+              <div className="flex items-center justify-center">
+                {column.label}
+                {renderSortIcon(column.key)}
+              </div>
+            </TableHead>
+          );
+        })}
+      </TableRow>
+    </TableHeader>
+
+    <TableBody>
+      {paginatedLeads.map((lead) => (
+        <TableRow
+          key={lead.id}
+          className="hover:bg-gray-50 transition-colors border-b border-gray-100"
+        >
+          {visibleColumns.map((column) => {
+            const classes = ['px-4', 'py-3', 'text-xs'];
+            let style = {};
+
+            if (column.key === 'name') {
+              classes.push('sticky-col', 'first-col');
+              style = { width: '180px', minWidth: '180px', maxWidth: '180px' };
+            } else if (column.key === 'assignedTo') {
+              classes.push('sticky-col', 'second-col');
+              style = { width: '150px', minWidth: '150px', maxWidth: '150px' };
+            } else {
+              style = { width: '150px', minWidth: '150px', maxWidth: '150px' };
+            }
+
+            return (
+              <TableCell
+                key={column.key}
+                className={classes.join(' ')}
+                style={style}
+              >
+                {renderCellContent(lead, column.key)}
+              </TableCell>
+            );
+          })}
+        </TableRow>
+      ))}
+    </TableBody>
+  </Table>
+</div>
   );
 }
