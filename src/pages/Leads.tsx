@@ -5,7 +5,6 @@ import { Lead } from "@/types/crm";
 import { LeadsSearch } from "@/components/LeadsSearch";
 import { LeadsFilters } from "@/components/LeadsFilters";
 import { LeadsStats } from "@/components/LeadsStats";
-import { LeadsViewControls } from "@/components/LeadsViewControls";
 import { LeadsContent } from "@/components/LeadsContent";
 import { LeadsPagination } from "@/components/LeadsPagination";
 import { LeadDetail } from "@/components/LeadDetail";
@@ -20,7 +19,24 @@ import { getAllLeads } from "@/utils/leadsApiClient";
 import { ColumnConfig } from "@/components/LeadsTableColumnSelector";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
-import { Upload, Plus, Mail, Filter, Users } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { 
+  Upload, 
+  Plus, 
+  Mail, 
+  Filter, 
+  Users, 
+  ChevronDown, 
+  Grid, 
+  Table, 
+  Columns,
+  MoreVertical 
+} from "lucide-react";
 
 const DEFAULT_COLUMNS: ColumnConfig[] = [
   { key: 'name', label: 'Nombre', visible: true, sortable: true },
@@ -119,6 +135,35 @@ export default function Leads() {
     setCurrentPage(1);
   }, [setCurrentPage]);
 
+  const handleViewModeToggle = () => {
+    const modes: ("grid" | "table" | "columns")[] = ["grid", "table", "columns"];
+    const currentIndex = modes.indexOf(viewMode);
+    const nextIndex = (currentIndex + 1) % modes.length;
+    setViewMode(modes[nextIndex]);
+  };
+
+  const getViewModeIcon = () => {
+    switch (viewMode) {
+      case "grid":
+        return <Grid className="h-4 w-4" />;
+      case "table":
+        return <Table className="h-4 w-4" />;
+      case "columns":
+        return <Columns className="h-4 w-4" />;
+    }
+  };
+
+  const getViewModeLabel = () => {
+    switch (viewMode) {
+      case "grid":
+        return "Grid";
+      case "table":
+        return "Tabla";
+      case "columns":
+        return "Columnas";
+    }
+  };
+
   const stats = useMemo(() => {
     const total = leadsData.length;
     const newLeads = leadsData.filter(lead => lead.stage === "new").length;
@@ -144,32 +189,36 @@ export default function Leads() {
         <div className="flex-1 space-y-6">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
             <h1 className="text-3xl font-bold">Gestión de Leads</h1>
-            <div className="flex flex-wrap gap-2">
-              <Button
-                onClick={() => setShowUpload(true)}
-                className="px-4 py-2"
-                variant="outline"
-              >
-                <Upload className="h-4 w-4 mr-2" />
-                Importar Leads
-              </Button>
-              <LeadCreateDialog onLeadCreate={handleLeadCreate} />
-              <Button
-                onClick={() => setShowMassEmail(true)}
-                className="px-4 py-2"
-                variant="outline"
-              >
-                <Mail className="h-4 w-4 mr-2" />
-                Enviar Correos
-              </Button>
-              <Button
-                onClick={() => setShowBulkAssign(true)}
-                className="px-4 py-2 bg-green-600 text-white hover:bg-green-700"
-              >
-                <Users className="h-4 w-4 mr-2" />
-                Asignación Masiva
-              </Button>
-            </div>
+            
+            {/* Actions Dropdown */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button className="px-4 py-2">
+                  <MoreVertical className="h-4 w-4 mr-2" />
+                  Acciones
+                  <ChevronDown className="h-4 w-4 ml-2" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-48">
+                <DropdownMenuItem onClick={() => setShowUpload(true)}>
+                  <Upload className="h-4 w-4 mr-2" />
+                  Importar Leads
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <div className="w-full">
+                    <LeadCreateDialog onLeadCreate={handleLeadCreate} />
+                  </div>
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setShowMassEmail(true)}>
+                  <Mail className="h-4 w-4 mr-2" />
+                  Enviar Correos
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setShowBulkAssign(true)}>
+                  <Users className="h-4 w-4 mr-2" />
+                  Asignación Masiva
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
 
           <LeadsStats 
@@ -178,7 +227,8 @@ export default function Leads() {
             totalPages={totalPages}
           />
 
-          <div className="flex flex-col lg:flex-row gap-4">
+          {/* Search and Controls Row */}
+          <div className="flex flex-col lg:flex-row gap-4 items-center">
             <div className="flex-1">
               <LeadsSearch 
                 searchTerm={searchTerm} 
@@ -194,12 +244,22 @@ export default function Leads() {
                 <Filter className="h-4 w-4 mr-2" />
                 {showFilters ? 'Ocultar' : 'Mostrar'} Filtros
               </Button>
+              
               {viewMode === "table" && (
                 <LeadsTableColumnSelector
                   columns={columns}
                   onColumnsChange={setColumns}
                 />
               )}
+              
+              <Button
+                onClick={handleViewModeToggle}
+                variant="outline"
+                size="sm"
+              >
+                {getViewModeIcon()}
+                <span className="ml-2">{getViewModeLabel()}</span>
+              </Button>
             </div>
           </div>
 
@@ -237,11 +297,6 @@ export default function Leads() {
               duplicateCount={duplicateCount}
             />
           )}
-
-          <LeadsViewControls
-            viewMode={viewMode}
-            setViewMode={setViewMode}
-          />
 
           {isLoading ? (
             <div className="flex justify-center items-center py-8">
