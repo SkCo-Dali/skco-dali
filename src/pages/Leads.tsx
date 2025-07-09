@@ -249,7 +249,6 @@ export default function Leads() {
               
               {viewMode === "table" && (
                 <LeadsTableColumnSelector
-                  className="w-20 h-8 bg-white border border-gray-300"
                   columns={columns}
                   onColumnsChange={setColumns}
                 />
