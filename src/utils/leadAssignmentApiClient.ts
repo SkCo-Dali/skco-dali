@@ -47,7 +47,7 @@ const makeRequest = async <T>(
 
 // 1. Reasignar Lead
 export const reassignLead = async (request: ReassignLeadRequest): Promise<ReassignLeadResponse> => {
-  logSecure.info('Reassigning lead', { leadId: request.LeadId, userId: request.UserId });
+  logSecure.info('Reassigning lead', { leadId: request.lead_id, toUserId: request.to_user_id });
   
   return makeRequest<ReassignLeadResponse>('/api/lead-assignments/reassign', {
     method: 'POST',
