@@ -377,9 +377,9 @@ export function LeadsTable({
                       column.key === 'name' ? 'leads-name-column-sticky' : ''
                     }`}
                     style={{ 
-                      minWidth: column.key === 'name' ? '250px' : '200px', 
-                      maxWidth: column.key === 'name' ? '250px' : '200px', 
-                      width: column.key === 'name' ? '250px' : '200px'
+                      minWidth: column.key === 'name' ? '350px' : '250px', 
+                      maxWidth: column.key === 'name' ? '350px' : '250px', 
+                      width: column.key === 'name' ? '350px' : '250px'
                     }}
                     onClick={() => handleSort(column.key)}
                   >
