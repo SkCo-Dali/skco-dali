@@ -255,7 +255,7 @@
     border: 1px solid #fafafa;
     border-radius: 8px;
     background: #fafafa;
-    /* Scroll adaptativo - aparece solo cuando es necesario */
+    /* Scroll condicional - solo aparece cuando hay más de 6 columnas */
     overflow-x: auto !important;
     overflow-y: auto !important;
     /* Configuración de scrollbar */
@@ -265,7 +265,7 @@
   }
 
   .leads-table-inner-scroll {
-    /* Ancho adaptativo - se ajusta al contenido */
+    /* Ancho fijo calculado según columnas visibles */
     width: max-content !important;
     min-width: 100% !important;
     height: auto;
@@ -310,7 +310,7 @@
     background: #f1f5f9 !important;
   }
 
-  /* Columna sticky con z-index correcto */
+  /* Columna sticky con ancho fijo */
   .leads-name-column-sticky {
     position: sticky !important;
     left: 0 !important;
@@ -318,9 +318,16 @@
     background: #fafafa !important;
     border-right: 2px solid #fafafa !important;
     box-shadow: 2px 0 4px rgba(0,0,0,0.1) !important;
+    width: 350px !important;
     min-width: 350px !important;
     max-width: 350px !important;
-    width: 350px !important;
+  }
+
+  /* Columnas regulares con ancho fijo */
+  .leads-regular-column {
+    width: 250px !important;
+    min-width: 250px !important;
+    max-width: 250px !important;
   }
 
   /* Header sticky */

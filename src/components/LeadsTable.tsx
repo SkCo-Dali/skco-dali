@@ -59,18 +59,13 @@ export function LeadsTable({
 
   const visibleColumns = columns.filter(col => col.visible);
   
-  // Calcular si necesitamos scroll horizontal
-  // Máximo de columnas que caben sin scroll (ajustable según el diseño)
-  const MAX_COLUMNS_WITHOUT_SCROLL = 6;
-  const needsHorizontalScroll = visibleColumns.length > MAX_COLUMNS_WITHOUT_SCROLL;
-  
-  // Calcular ancho dinámico basado en número de columnas
+  // Calcular ancho total fijo basado en columnas visibles
   const calculateTableWidth = () => {
-    const baseWidth = 250; // Ancho de la columna nombre (sticky)
-    const regularColumnWidth = 200; // Ancho de columnas regulares
+    const nameColumnWidth = 350; // Columna nombre siempre 350px
+    const regularColumnWidth = 250; // Todas las demás columnas 250px
     const visibleRegularColumns = visibleColumns.length - 1; // Restar la columna nombre
     
-    return baseWidth + (visibleRegularColumns * regularColumnWidth);
+    return nameColumnWidth + (visibleRegularColumns * regularColumnWidth);
   };
 
   const handleSort = (columnKey: string) => {
@@ -360,12 +355,9 @@ export function LeadsTable({
         <div className="leads-table-inner-scroll">
           <Table 
             className="w-full"
-            style={needsHorizontalScroll ? { 
+            style={{ 
               width: `${calculateTableWidth()}px`,
               minWidth: `${calculateTableWidth()}px`
-            } : {
-              width: '100%',
-              minWidth: '100%'
             }}
           >
             <TableHeader className="leads-table-header-sticky">
@@ -374,13 +366,8 @@ export function LeadsTable({
                   <TableHead 
                     key={column.key}
                     className={`cursor-pointer select-none px-4 py-3 text-center text-xs font-medium text-gray-600 capitalize tracking-wider ${
-                      column.key === 'name' ? 'leads-name-column-sticky' : ''
+                      column.key === 'name' ? 'leads-name-column-sticky' : 'leads-regular-column'
                     }`}
-                    style={{ 
-                      minWidth: column.key === 'name' ? '350px' : '250px', 
-                      maxWidth: column.key === 'name' ? '350px' : '250px', 
-                      width: column.key === 'name' ? '350px' : '250px'
-                    }}
                     onClick={() => handleSort(column.key)}
                   >
                     <div className="flex items-center justify-center">
@@ -401,13 +388,8 @@ export function LeadsTable({
                     <TableCell 
                       key={column.key} 
                       className={`px-4 py-3 text-xs ${
-                        column.key === 'name' ? 'leads-name-column-sticky' : ''
+                        column.key === 'name' ? 'leads-name-column-sticky' : 'leads-regular-column'
                       }`}
-                      style={{ 
-                        minWidth: column.key === 'name' ? '250px' : '200px', 
-                        maxWidth: column.key === 'name' ? '250px' : '200px', 
-                        width: column.key === 'name' ? '250px' : '200px'
-                      }}
                     >
                       {renderCellContent(lead, column.key)}
                     </TableCell>
