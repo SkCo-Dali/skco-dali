@@ -1,4 +1,3 @@
-
 import { useState, useMemo } from "react";
 import { Lead } from "@/types/crm";
 
@@ -63,11 +62,13 @@ export function useLeadsFilters(leads: Lead[]) {
 
   const filteredLeads = useMemo(() => {
     return leads.filter((lead) => {
-      // Búsqueda por texto en nombre, email o campaña
+      // Búsqueda por texto en nombre, email, teléfono, número de documento o campaña
       const searchRegex = new RegExp(searchTerm, "i");
       const matchesSearch = !searchTerm || 
         searchRegex.test(lead.name) || 
         searchRegex.test(lead.email) || 
+        searchRegex.test(lead.phone || "") ||
+        searchRegex.test(lead.documentNumber?.toString() || "") ||
         searchRegex.test(lead.campaign || "");
 
       // Función helper para verificar filtros múltiples

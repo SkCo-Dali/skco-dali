@@ -1,4 +1,3 @@
-
 import React, { useState, useCallback, useMemo, useRef } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -61,7 +60,7 @@ const DEFAULT_COLUMNS: ColumnConfig[] = [
 ];
 
 export default function Leads() {
-  const [viewMode, setViewMode] = useState<"grid" | "table" | "columns">("grid");
+  const [viewMode, setViewMode] = useState<"grid" | "table" | "columns">("table");
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
   const [showBulkAssign, setShowBulkAssign] = useState(false);
   const [showUpload, setShowUpload] = useState(false);
@@ -228,8 +227,6 @@ export default function Leads() {
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
-
-        
 
           {/* Search and Controls Row */}
           <div className="flex flex-col lg:flex-row gap-4 items-center">
