@@ -236,6 +236,97 @@
     @apply text-gray-500;
   }
 
+  /* Estilos mejorados para el scroll horizontal de la tabla de leads */
+  .leads-table-scroll {
+    /* Forzar scroll horizontal persistente */
+    overflow-x: auto !important;
+    overflow-y: auto !important;
+    /* Evitar que el scroll se oculte automáticamente */
+    scrollbar-width: auto;
+    -ms-overflow-style: auto;
+  }
+
+  .leads-table-scroll::-webkit-scrollbar {
+    width: 12px;
+    height: 12px;
+    /* Hacer el scrollbar siempre visible */
+    display: block !important;
+  }
+
+  .leads-table-scroll::-webkit-scrollbar-track {
+    background: #f1f5f9;
+    border-radius: 6px;
+    /* Añadir border para mejor visibilidad */
+    border: 1px solid #e2e8f0;
+  }
+
+  .leads-table-scroll::-webkit-scrollbar-thumb {
+    background: #00c83c;
+    border-radius: 6px;
+    /* Añadir hover effect más prominente */
+    border: 2px solid #f1f5f9;
+    min-height: 20px;
+    min-width: 20px;
+  }
+
+  .leads-table-scroll::-webkit-scrollbar-thumb:hover {
+    background: #00b835;
+    border: 2px solid #e2e8f0;
+  }
+
+  .leads-table-scroll::-webkit-scrollbar-thumb:active {
+    background: #009929;
+  }
+
+  .leads-table-scroll::-webkit-scrollbar-corner {
+    background: #f1f5f9;
+    border: 1px solid #e2e8f0;
+  }
+
+  /* Estilos específicos para el contenedor de la tabla */
+  .leads-table-container {
+    /* Asegurar que el contenedor tenga el ancho correcto */
+    width: 100%;
+    max-width: 100%;
+    overflow: visible;
+  }
+
+  .leads-table-wrapper {
+    /* Configuración específica para el wrapper de la tabla */
+    position: relative;
+    width: 100%;
+    max-width: 100%;
+    overflow-x: auto !important;
+    overflow-y: auto !important;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    /* Añadir padding bottom para que el scroll horizontal sea visible */
+    padding-bottom: 2px;
+  }
+
+  /* Asegurar que la tabla tenga el ancho mínimo necesario */
+  .leads-table-inner {
+    min-width: max-content;
+    width: 100%;
+  }
+
+  .name-column-sticky {
+    position: sticky;
+    left: 0;
+    z-index: 5;
+    background: white;
+    border-right: 1px solid #e5e7eb;
+    /* Añadir sombra para mejor separación visual */
+    box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+  }
+
+  /* Dark mode para sticky column */
+  .dark .name-column-sticky {
+    background: #1f2937;
+    border-right: 1px solid #4b5563;
+    box-shadow: 2px 0 5px rgba(0,0,0,0.3);
+  }
+
   /* Estilos de Tabla Estilo ChatGPT - MEJORADOS */
   .data-table-container {
     margin: 1rem 0;
@@ -395,6 +486,31 @@
     color: #d1d5db;
   }
 
+  /* Dark mode para el scroll de leads table */
+  .dark .leads-table-scroll::-webkit-scrollbar-track {
+    background: #374151;
+    border: 1px solid #4b5563;
+  }
+
+  .dark .leads-table-scroll::-webkit-scrollbar-thumb {
+    background: #00c83c;
+    border: 2px solid #374151;
+  }
+
+  .dark .leads-table-scroll::-webkit-scrollbar-thumb:hover {
+    background: #00b835;
+    border: 2px solid #4b5563;
+  }
+
+  .dark .leads-table-scroll::-webkit-scrollbar-corner {
+    background: #374151;
+    border: 1px solid #4b5563;
+  }
+
+  .dark .leads-table-wrapper {
+    border: 1px solid #4b5563;
+  }
+
   /* Responsive: en móviles, ajustar el diseño */
   @media (max-width: 768px) {
     .data-table-container {
@@ -454,6 +570,16 @@
 
     .sk-pagination-page {
       order: 1;
+    }
+
+    /* Mejorar scroll en móviles */
+    .leads-table-scroll::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+
+    .leads-table-wrapper {
+      padding-bottom: 4px;
     }
   }
 }
