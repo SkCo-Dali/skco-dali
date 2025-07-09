@@ -201,10 +201,8 @@ export default function Leads() {
               <DropdownMenuContent align="end" className="w-48">
                 <DropdownMenuItem onClick={(e) => e.preventDefault()}>
                   <LeadCreateDialog onLeadCreate={handleLeadCreate}>
-                    <div className="flex items-center w-full">
                       <Plus className="h-4 w-4 mr-2" />
                       Crear Lead
-                    </div>
                   </LeadCreateDialog>
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => setShowMassEmail(true)}>
