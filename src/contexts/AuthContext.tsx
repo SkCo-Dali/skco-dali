@@ -4,6 +4,7 @@ import { PublicClientApplication, InteractionRequiredAuthError, AccountInfo } fr
 import { msalConfig, loginRequest } from '@/authConfig';
 import { SessionTimeoutWarning } from '@/components/SessionTimeoutWarning';
 import { useToast } from '@/hooks/use-toast';
+import { logSecure } from '@/utils/secureLogger';
 
 interface AuthContextType {
   user: User | null;
@@ -66,7 +67,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
   };
 
   const handleSessionTimeout = async () => {
-    console.log('🕐 Sesión expirada por inactividad');
+    logSecure.userEvent('Session expired due to inactivity', user?.email);
     setShowTimeoutWarning(false);
     toast({
       title: "Sesión expirada",
@@ -77,7 +78,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
   };
 
   const showSessionWarning = () => {
-    console.log('⚠️ Mostrando advertencia de sesión');
+    logSecure.userEvent('Session timeout warning shown', user?.email);
     setShowTimeoutWarning(true);
   };
 
@@ -97,7 +98,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     const newTimeoutTimer = setTimeout(handleSessionTimeout, timeoutMs);
     setTimeoutTimer(newTimeoutTimer);
 
-    console.log(`⏰ Timer de sesión configurado: ${SESSION_TIMEOUT_MINUTES} minutos`);
+    logSecure.debug(`Session timer configured: ${SESSION_TIMEOUT_MINUTES} minutes`);
   };
 
   const handleUserActivity = () => {
@@ -111,7 +112,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
   };
 
   const extendSession = () => {
-    console.log('🔄 Extendiendo sesión');
+    logSecure.userEvent('Session extended by user', user?.email);
     setShowTimeoutWarning(false);
     resetSessionTimer();
     toast({
@@ -128,31 +129,33 @@ export function AuthProvider({ children }: AuthProviderProps) {
   useEffect(() => {
     const initializeMsal = async () => {
       try {
-        console.log('Initializing MSAL...');
+        logSecure.info('Initializing MSAL authentication');
         await msalInstance.initialize();
-        console.log('MSAL initialized successfully');
+        logSecure.info('MSAL initialized successfully');
         setIsInitialized(true);
 
         // Handle redirect promise after initialization
         const response = await msalInstance.handleRedirectPromise();
         if (response) {
-          console.log('Redirect response:', response);
+          logSecure.info('MSAL redirect handled successfully');
         }
 
         // Check for existing accounts
         const accounts = msalInstance.getAllAccounts();
-        console.log('Existing accounts:', accounts.length);
+        logSecure.info(`Found ${accounts.length} existing MSAL accounts`);
         
         if (accounts.length > 0) {
           // If there's an account, check for saved user data in sessionStorage
           const savedUser = sessionStorage.getItem('skandia-crm-user');
           if (savedUser) {
-            console.log('Loading saved user data from sessionStorage');
-            setUser(JSON.parse(savedUser));
+            logSecure.info('Loading saved user data from sessionStorage');
+            const userData = JSON.parse(savedUser);
+            setUser(userData);
+            logSecure.userEvent('User session restored', userData.email);
           }
         }
       } catch (error) {
-        console.error('Error initializing MSAL:', error);
+        logSecure.authError('MSAL initialization failed', error);
         setIsInitialized(true); // Set to true even on error to prevent infinite loading
       } finally {
         setLoading(false);
@@ -188,13 +191,15 @@ export function AuthProvider({ children }: AuthProviderProps) {
   }, [user]);
 
   const login = (userData: User) => {
-    console.log('Logging in user:', userData);
+    logSecure.userEvent('User login successful', userData.email);
     setUser(userData);
     sessionStorage.setItem('skandia-crm-user', JSON.stringify(userData));
   };
 
   const logout = async () => {
-    console.log('Logging out user');
+    const userEmail = user?.email;
+    logSecure.userEvent('User logout initiated', userEmail);
+    
     setUser(null);
     setAccessToken(null);
     setShowTimeoutWarning(false);
@@ -202,7 +207,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     sessionStorage.removeItem('skandia-crm-user');
     
     if (!isInitialized) {
-      console.warn('MSAL not initialized for logout');
+      logSecure.warn('MSAL not initialized for logout');
       return;
     }
 
@@ -213,19 +218,22 @@ export function AuthProvider({ children }: AuthProviderProps) {
           account: accounts[0],
           mainWindowRedirectUri: window.location.origin
         });
+        logSecure.userEvent('MSAL logout completed', userEmail);
       }
     } catch (error) {
-      console.error('Error during logout:', error);
+      logSecure.authError('MSAL logout failed', error, userEmail);
     }
   };
 
   const signInWithAzure = async (): Promise<{ error: any }> => {
     try {
+      logSecure.info('Azure sign-in initiated');
       const response = await msalInstance.loginPopup(loginRequest);
       setAccessToken(response.accessToken);
+      logSecure.info('Azure sign-in successful');
       return { error: null };
     } catch (error) {
-      console.error('Azure sign-in error:', error);
+      logSecure.authError('Azure sign-in failed', error);
       return { error };
     }
   };
@@ -236,7 +244,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   const getAccessToken = async (): Promise<string | undefined> => {
     if (!isInitialized) {
-      console.warn('MSAL not initialized for token acquisition');
+      logSecure.warn('MSAL not initialized for token acquisition');
       return undefined;
     }
 
@@ -244,38 +252,40 @@ export function AuthProvider({ children }: AuthProviderProps) {
       const accounts = msalInstance.getAllAccounts();
       
       if (accounts.length === 0) {
-        console.log('No accounts found, starting login flow');
+        logSecure.info('No accounts found, starting login flow');
         const response = await msalInstance.loginPopup(loginRequest);
         setAccessToken(response.accessToken);
+        logSecure.info('Token acquired via login popup');
         return response.accessToken;
       }
 
       const account = accounts[0];
-      console.log('Attempting to acquire token silently');
+      logSecure.debug('Attempting to acquire token silently');
       
       try {
         const response = await msalInstance.acquireTokenSilent({
           ...loginRequest,
           account,
         });
-        console.log('Token acquired silently');
+        logSecure.debug('Token acquired silently');
         setAccessToken(response.accessToken);
         return response.accessToken;
       } catch (error) {
         if (error instanceof InteractionRequiredAuthError) {
-          console.log('Interaction required, showing popup');
+          logSecure.info('Interaction required, showing popup');
           const response = await msalInstance.acquireTokenPopup({
             ...loginRequest,
             account,
           });
           setAccessToken(response.accessToken);
+          logSecure.info('Token acquired via popup');
           return response.accessToken;
         } else {
           throw error;
         }
       }
     } catch (error) {
-      console.error('Error obtaining token:', error);
+      logSecure.authError('Token acquisition failed', error);
       return undefined;
     }
   };
