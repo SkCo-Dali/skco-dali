@@ -77,29 +77,6 @@ export function LeadsFilters({
   showClearButton = true
 }: LeadsFiltersProps) {
   const { users } = useUsersApi();
-  const [openDropdowns, setOpenDropdowns] = useState<{[key: string]: boolean}>({});
-
-  const toggleDropdown = (key: string) => {
-    setOpenDropdowns(prev => ({
-      ...prev,
-      [key]: !prev[key]
-    }));
-  };
-
-  const handleMultiSelectChange = (
-    currentValue: string | string[],
-    newValue: string,
-    setter: (value: string | string[]) => void
-  ) => {
-    const currentArray = Array.isArray(currentValue) ? currentValue : (currentValue === "all" ? [] : [currentValue]);
-    
-    if (currentArray.includes(newValue)) {
-      const updated = currentArray.filter(v => v !== newValue);
-      setter(updated.length === 0 ? "all" : updated);
-    } else {
-      setter([...currentArray, newValue]);
-    }
-  };
 
   const getSelectedCount = (value: string | string[]) => {
     const selectedValues = Array.isArray(value) ? value : (value === "all" ? [] : [value]);
@@ -112,54 +89,16 @@ export function LeadsFilters({
     return `${count} seleccionado${count > 1 ? 's' : ''}`;
   };
 
-  // Configuración de filtros para facilitar edición
-  const filterConfig = [
-    {
-      key: 'stage',
-      label: 'Etapa',
-      value: filterStage,
-      setValue: setFilterStage,
-      options: uniqueStages.map(stage => ({ value: stage, label: stage })),
-      placeholder: 'Seleccionar etapas'
-    },
-    {
-      key: 'assignedTo',
-      label: 'Asignado a',
-      value: filterAssignedTo,
-      setValue: setFilterAssignedTo,
-      options: users.map(user => ({ value: user.id, label: user.name })),
-      placeholder: 'Seleccionar usuarios'
-    },
-    {
-      key: 'source',
-      label: 'Fuente',
-      value: filterSource,
-      setValue: setFilterSource,
-      options: uniqueSources.map(source => ({ value: source, label: source })),
-      placeholder: 'Seleccionar fuentes'
-    },
-    {
-      key: 'campaign',
-      label: 'Campaña',
-      value: filterCampaign,
-      setValue: setFilterCampaign,
-      options: uniqueCampaigns.map(campaign => ({ value: campaign, label: campaign })),
-      placeholder: 'Seleccionar campañas'
-    },
-    {
-      key: 'priority',
-      label: 'Prioridad',
-      value: filterPriority,
-      setValue: setFilterPriority,
-      options: [
-        { value: 'low', label: 'Baja' },
-        { value: 'medium', label: 'Media' },
-        { value: 'high', label: 'Alta' },
-        { value: 'urgent', label: 'Urgente' }
-      ],
-      placeholder: 'Seleccionar prioridades'
+  const handleMultiSelectValue = (currentValue: string | string[], newValue: string) => {
+    const currentArray = Array.isArray(currentValue) ? currentValue : (currentValue === "all" ? [] : [currentValue]);
+    
+    if (currentArray.includes(newValue)) {
+      const updated = currentArray.filter(v => v !== newValue);
+      return updated.length === 0 ? "all" : updated;
+    } else {
+      return [...currentArray, newValue];
     }
-  ];
+  };
 
   return (
     <div className="mb-6">
@@ -180,45 +119,194 @@ export function LeadsFilters({
               </Button>
             </div>
 
-            {/* Filtros principales con selección múltiple */}
+            {/* Filtros principales */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
-              {filterConfig.map((filter) => (
-                <div key={filter.key}>
-                  <Label htmlFor={`${filter.key}-filter`}>{filter.label}</Label>
-                  <div className="relative">
-                    <Button
-                      variant="outline"
-                      className="w-full justify-between"
-                      onClick={() => toggleDropdown(filter.key)}
-                    >
-                      {getDisplayText(filter.value, filter.placeholder)}
-                    </Button>
-                    {openDropdowns[filter.key] && (
-                      <div className="absolute z-50 mt-1 w-full bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-auto">
-                        <div className="p-2">
-                          {filter.options.map((option) => (
-                            <div key={option.value} className="flex items-center space-x-2 py-1">
-                              <Checkbox
-                                id={`${filter.key}-${option.value}`}
-                                checked={Array.isArray(filter.value) ? filter.value.includes(option.value) : filter.value === option.value}
-                                onCheckedChange={() => handleMultiSelectChange(filter.value, option.value, filter.setValue)}
-                              />
-                              <label 
-                                htmlFor={`${filter.key}-${option.value}`}
-                                className="text-sm cursor-pointer flex-1"
-                              >
-                                {option.label}
-                              </label>
-                            </div>
-                          ))}
-                        </div>
+              {/* Filtro de Etapa */}
+              <div>
+                <Label htmlFor="stage-filter">Etapa</Label>
+                <Select 
+                  value={Array.isArray(filterStage) && filterStage.length > 0 ? "multi" : filterStage} 
+                  onValueChange={(value) => {
+                    if (value === "all") {
+                      setFilterStage("all");
+                    }
+                  }}
+                >
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder={getDisplayText(filterStage, "Seleccionar etapas")} />
+                  </SelectTrigger>
+                  <SelectContent className="bg-white z-50">
+                    <SelectItem value="all">Todas las etapas</SelectItem>
+                    <div className="px-2 py-1 text-sm font-medium text-muted-foreground border-b">
+                      Selección múltiple:
+                    </div>
+                    {uniqueStages.map((stage) => (
+                      <div key={stage} className="flex items-center space-x-2 px-2 py-1">
+                        <Checkbox
+                          id={`stage-${stage}`}
+                          checked={Array.isArray(filterStage) ? filterStage.includes(stage) : filterStage === stage}
+                          onCheckedChange={() => setFilterStage(handleMultiSelectValue(filterStage, stage))}
+                          className="rounded-none"
+                        />
+                        <label htmlFor={`stage-${stage}`} className="text-sm cursor-pointer flex-1">
+                          {stage}
+                        </label>
                       </div>
-                    )}
-                  </div>
-                </div>
-              ))}
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
 
-              {/* Filtro de duplicados - usando Select en lugar de Button personalizado */}
+              {/* Filtro de Asignado a */}
+              <div>
+                <Label htmlFor="assignedTo-filter">Asignado a</Label>
+                <Select 
+                  value={Array.isArray(filterAssignedTo) && filterAssignedTo.length > 0 ? "multi" : filterAssignedTo} 
+                  onValueChange={(value) => {
+                    if (value === "all") {
+                      setFilterAssignedTo("all");
+                    }
+                  }}
+                >
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder={getDisplayText(filterAssignedTo, "Seleccionar usuarios")} />
+                  </SelectTrigger>
+                  <SelectContent className="bg-white z-50">
+                    <SelectItem value="all">Todos los usuarios</SelectItem>
+                    <div className="px-2 py-1 text-sm font-medium text-muted-foreground border-b">
+                      Selección múltiple:
+                    </div>
+                    {users.map((user) => (
+                      <div key={user.id} className="flex items-center space-x-2 px-2 py-1">
+                        <Checkbox
+                          id={`user-${user.id}`}
+                          checked={Array.isArray(filterAssignedTo) ? filterAssignedTo.includes(user.id) : filterAssignedTo === user.id}
+                          onCheckedChange={() => setFilterAssignedTo(handleMultiSelectValue(filterAssignedTo, user.id))}
+                          className="rounded-none"
+                        />
+                        <label htmlFor={`user-${user.id}`} className="text-sm cursor-pointer flex-1">
+                          {user.name}
+                        </label>
+                      </div>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Filtro de Fuente */}
+              <div>
+                <Label htmlFor="source-filter">Fuente</Label>
+                <Select 
+                  value={Array.isArray(filterSource) && filterSource.length > 0 ? "multi" : filterSource} 
+                  onValueChange={(value) => {
+                    if (value === "all") {
+                      setFilterSource("all");
+                    }
+                  }}
+                >
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder={getDisplayText(filterSource, "Seleccionar fuentes")} />
+                  </SelectTrigger>
+                  <SelectContent className="bg-white z-50">
+                    <SelectItem value="all">Todas las fuentes</SelectItem>
+                    <div className="px-2 py-1 text-sm font-medium text-muted-foreground border-b">
+                      Selección múltiple:
+                    </div>
+                    {uniqueSources.map((source) => (
+                      <div key={source} className="flex items-center space-x-2 px-2 py-1">
+                        <Checkbox
+                          id={`source-${source}`}
+                          checked={Array.isArray(filterSource) ? filterSource.includes(source) : filterSource === source}
+                          onCheckedChange={() => setFilterSource(handleMultiSelectValue(filterSource, source))}
+                          className="rounded-none"
+                        />
+                        <label htmlFor={`source-${source}`} className="text-sm cursor-pointer flex-1">
+                          {source}
+                        </label>
+                      </div>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Filtro de Campaña */}
+              <div>
+                <Label htmlFor="campaign-filter">Campaña</Label>
+                <Select 
+                  value={Array.isArray(filterCampaign) && filterCampaign.length > 0 ? "multi" : filterCampaign} 
+                  onValueChange={(value) => {
+                    if (value === "all") {
+                      setFilterCampaign("all");
+                    }
+                  }}
+                >
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder={getDisplayText(filterCampaign, "Seleccionar campañas")} />
+                  </SelectTrigger>
+                  <SelectContent className="bg-white z-50">
+                    <SelectItem value="all">Todas las campañas</SelectItem>
+                    <div className="px-2 py-1 text-sm font-medium text-muted-foreground border-b">
+                      Selección múltiple:
+                    </div>
+                    {uniqueCampaigns.map((campaign) => (
+                      <div key={campaign} className="flex items-center space-x-2 px-2 py-1">
+                        <Checkbox
+                          id={`campaign-${campaign}`}
+                          checked={Array.isArray(filterCampaign) ? filterCampaign.includes(campaign) : filterCampaign === campaign}
+                          onCheckedChange={() => setFilterCampaign(handleMultiSelectValue(filterCampaign, campaign))}
+                          className="rounded-none"
+                        />
+                        <label htmlFor={`campaign-${campaign}`} className="text-sm cursor-pointer flex-1">
+                          {campaign}
+                        </label>
+                      </div>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Filtro de Prioridad */}
+              <div>
+                <Label htmlFor="priority-filter">Prioridad</Label>
+                <Select 
+                  value={Array.isArray(filterPriority) && filterPriority.length > 0 ? "multi" : filterPriority} 
+                  onValueChange={(value) => {
+                    if (value === "all") {
+                      setFilterPriority("all");
+                    }
+                  }}
+                >
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder={getDisplayText(filterPriority, "Seleccionar prioridades")} />
+                  </SelectTrigger>
+                  <SelectContent className="bg-white z-50">
+                    <SelectItem value="all">Todas las prioridades</SelectItem>
+                    <div className="px-2 py-1 text-sm font-medium text-muted-foreground border-b">
+                      Selección múltiple:
+                    </div>
+                    {[
+                      { value: 'low', label: 'Baja' },
+                      { value: 'medium', label: 'Media' },
+                      { value: 'high', label: 'Alta' },
+                      { value: 'urgent', label: 'Urgente' }
+                    ].map((priority) => (
+                      <div key={priority.value} className="flex items-center space-x-2 px-2 py-1">
+                        <Checkbox
+                          id={`priority-${priority.value}`}
+                          checked={Array.isArray(filterPriority) ? filterPriority.includes(priority.value) : filterPriority === priority.value}
+                          onCheckedChange={() => setFilterPriority(handleMultiSelectValue(filterPriority, priority.value))}
+                          className="rounded-none"
+                        />
+                        <label htmlFor={`priority-${priority.value}`} className="text-sm cursor-pointer flex-1">
+                          {priority.label}
+                        </label>
+                      </div>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Filtro de duplicados */}
               <div>
                 <Label htmlFor="duplicates-filter">
                   Duplicados
