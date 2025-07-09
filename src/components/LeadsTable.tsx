@@ -395,7 +395,7 @@ export function LeadsTable({
               {paginatedLeads.map((lead, index) => (
                 <TableRow 
                   key={lead.id}
-                  className="hover:bg-gray-50 transition-colors border-b border-gray-100"
+                  className="hover:bg-[#fafafa] transition-colors border-[#fafafa] border-[#fafafa]"
                 >
                   {visibleColumns.map((column) => (
                     <TableCell 
