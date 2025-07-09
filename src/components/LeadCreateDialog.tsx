@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -15,6 +14,7 @@ import { Plus, ChevronDown, Upload, FileText, RefreshCcw } from "lucide-react";
 
 interface LeadCreateDialogProps {
   onLeadCreate: (leadData: Partial<Lead>) => void;
+  children?: React.ReactNode;
 }
 
 const productOptions = [
@@ -31,7 +31,7 @@ const productOptions = [
   "OMPEV"
 ];
 
-export function LeadCreateDialog({ onLeadCreate }: LeadCreateDialogProps) {
+export function LeadCreateDialog({ onLeadCreate, children }: LeadCreateDialogProps) {
   const [open, setOpen] = useState(false);
   const [showMoreFields, setShowMoreFields] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
@@ -136,9 +136,12 @@ export function LeadCreateDialog({ onLeadCreate }: LeadCreateDialogProps) {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline" size="icon">
-          <Plus className="h-4 w-4" />
-        </Button> 
+        {children || (
+          <Button className="gap-2">
+            <Plus className="h-4 w-4" />
+            Nueva Lead
+          </Button>
+        )}
       </DialogTrigger>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader className="pb-4">

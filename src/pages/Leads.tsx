@@ -124,7 +124,6 @@ export default function Leads() {
   }, [refetch]);
 
   const handleLeadCreate = useCallback((leadData: Partial<Lead>) => {
-    // Handle the lead creation logic here
     console.log('Creating lead:', leadData);
     handleLeadUpdate();
     toast.success("Lead creado exitosamente");
@@ -205,8 +204,13 @@ export default function Leads() {
                   Importar Leads
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
-                  <div className="w-full">
-                    <LeadCreateDialog onLeadCreate={handleLeadCreate} />
+                  <div className="w-full cursor-pointer">
+                    <LeadCreateDialog onLeadCreate={handleLeadCreate}>
+                      <div className="flex items-center w-full">
+                        <Plus className="h-4 w-4 mr-2" />
+                        Crear Lead
+                      </div>
+                    </LeadCreateDialog>
                   </div>
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => setShowMassEmail(true)}>
