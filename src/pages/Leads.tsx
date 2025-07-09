@@ -238,7 +238,7 @@ export default function Leads() {
             </div>
             <div className="flex gap-2">
               <Button 
-                className="w-24 h-8 bg-white border border-gray-300 rounded-md"
+                className="w-24 h-8 bg-white border border-gray-300 rounded-md hover:bg-white hover:border-gray-300"
                 onClick={() => setShowFilters(!showFilters)}
                 variant="outline"
                 size="sm"
@@ -255,7 +255,7 @@ export default function Leads() {
               )}
               
               <Button
-                className="w-24 h-8 bg-white border border-gray-300 rounded-md"
+                className="w-24 h-8 bg-white border border-gray-300 rounded-md hover:bg-white hover:border-gray-300"
                 onClick={handleViewModeToggle}
                 variant="outline"
                 size="sm"
