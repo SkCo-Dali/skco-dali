@@ -203,15 +203,13 @@ export default function Leads() {
                   <Upload className="h-4 w-4 mr-2" />
                   Importar Leads
                 </DropdownMenuItem>
-                <DropdownMenuItem asChild>
-                  <div className="w-full cursor-pointer">
-                    <LeadCreateDialog onLeadCreate={handleLeadCreate}>
-                      <div className="flex items-center w-full">
-                        <Plus className="h-4 w-4 mr-2" />
-                        Crear Lead
-                      </div>
-                    </LeadCreateDialog>
-                  </div>
+                <DropdownMenuItem onClick={(e) => e.preventDefault()}>
+                  <LeadCreateDialog onLeadCreate={handleLeadCreate}>
+                    <div className="flex items-center w-full">
+                      <Plus className="h-4 w-4 mr-2" />
+                      Crear Lead
+                    </div>
+                  </LeadCreateDialog>
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => setShowMassEmail(true)}>
                   <Mail className="h-4 w-4 mr-2" />
