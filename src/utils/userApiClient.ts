@@ -1,10 +1,10 @@
-
 import { User } from '@/types/crm';
 import { ApiUser, CreateUserRequest, UpdateUserRequest, ToggleUserStatusRequest, CreateUserResponse, ApiResponse } from '@/types/apiTypes';
 import { mapApiUserToUser } from './userApiMapper';
 import { mapRoleToApi } from './roleMapper';
+import { ENV } from '@/config/environment';
 
-const API_BASE_URL = 'https://skcodalilmdev.azurewebsites.net/api/users';
+const API_BASE_URL = `${ENV.CRM_API_BASE_URL}/api/users`;
 
 // API 1: Obtener todos los usuarios
 export const getAllUsers = async (): Promise<User[]> => {

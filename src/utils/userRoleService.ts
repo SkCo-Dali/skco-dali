@@ -1,10 +1,10 @@
-
 import { User } from '@/types/crm';
 import { RolesResponse } from '@/types/apiTypes';
 import { assignRoleBasedOnEmail, roles } from './userRoleUtils';
 import { getUserByEmail } from './userApiClient';
+import { ENV } from '@/config/environment';
 
-const API_BASE_URL = 'https://skcodalilmdev.azurewebsites.net/api/users';
+const API_BASE_URL = `${ENV.CRM_API_BASE_URL}/api/users`;
 
 // API 8: Obtener roles disponibles
 export const getAvailableRoles = async (): Promise<string[]> => {

@@ -1,5 +1,5 @@
 
-import { logSecure } from '@/utils/secureLogger';
+import { ENV } from '@/config/environment';
 
 interface TokenValidationResult {
   isValid: boolean;
@@ -14,8 +14,8 @@ interface TokenValidationResult {
 }
 
 export class TokenValidationService {
-  private static readonly GRAPH_USER_ENDPOINT = 'https://graph.microsoft.com/v1.0/me';
-  private static readonly REQUIRED_SCOPES = ['User.Read'];
+  private static readonly GRAPH_USER_ENDPOINT = `${ENV.GRAPH_API_BASE_URL}/me`;
+  private static readonly REQUIRED_SCOPES = ENV.REQUIRED_SCOPES;
 
   /**
    * Valida un token de acceso contra Microsoft Graph API
@@ -105,14 +105,8 @@ export class TokenValidationService {
    * Valida que el dominio del email sea válido para la organización
    */
   static validateEmailDomain(email: string): boolean {
-    const validDomains = [
-      'skandia.com',
-      'skandia.co', 
-      'skandia.com.co'
-    ];
-
     const emailDomain = email.toLowerCase().split('@')[1];
-    const isValid = validDomains.includes(emailDomain);
+    const isValid = ENV.ALLOWED_DOMAINS.includes(emailDomain);
 
     return isValid;
   }

@@ -1,7 +1,8 @@
 import { Conversation, ConversationSummary } from '../types/conversation';
 import { ChatMessage } from '../types/chat';
+import { ENV } from '@/config/environment';
 
-const API_BASE_URL = 'https://skcoDaliAIDev.azurewebsites.net/api';
+const API_BASE_URL = `${ENV.AI_API_BASE_URL}/api`;
 
 export interface AzureConversation {
   id: string;

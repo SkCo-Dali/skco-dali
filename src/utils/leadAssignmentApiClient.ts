@@ -1,7 +1,7 @@
-
 import { ReassignLeadRequest, ReassignLeadResponse, LeadAssignmentHistory, ReassignableLead } from '@/types/leadAssignmentTypes';
+import { ENV } from '@/config/environment';
 
-const API_BASE_URL = 'https://skcodalilmdev.azurewebsites.net';
+const API_BASE_URL = ENV.CRM_API_BASE_URL;
 
 // Función helper para hacer requests HTTP
 const makeRequest = async <T>(

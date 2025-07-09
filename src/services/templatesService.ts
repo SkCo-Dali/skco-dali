@@ -1,6 +1,7 @@
 import { PromptTemplate } from '../types/templates';
+import { ENV } from '@/config/environment';
 
-const BACKEND_URL = 'https://skcodaliaidev.azurewebsites.net';
+const BACKEND_URL = ENV.TEMPLATES_API_BASE_URL;
 
 export interface CreateTemplateRequest {
   name: string;
@@ -29,7 +30,7 @@ export interface CategoriesResponse {
 }
 
 class TemplatesService {
-  private baseUrl = 'https://skcoDaliAIDev.azurewebsites.net/api';
+  private baseUrl = ENV.AI_API_BASE_URL;
 
   private getHeaders(userEmail?: string) {
     const headers: Record<string, string> = {

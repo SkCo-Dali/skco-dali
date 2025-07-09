@@ -1,6 +1,8 @@
 
+import { ENV } from '@/config/environment';
+
 // Microsoft Graph API configuration
 export const graphConfig = {
-  graphMeEndpoint: "https://graph.microsoft.com/v1.0/me",
-  graphPhotoEndpoint: "https://graph.microsoft.com/v1.0/me/photo/$value"
+  graphMeEndpoint: `${ENV.GRAPH_API_BASE_URL}/me`,
+  graphPhotoEndpoint: `${ENV.GRAPH_API_BASE_URL}/me/photo/$value`
 };

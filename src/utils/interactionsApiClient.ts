@@ -1,4 +1,6 @@
-const BASE_URL = 'https://skcodalilmdev.azurewebsites.net';
+import { ENV } from '@/config/environment';
+
+const BASE_URL = ENV.CRM_API_BASE_URL;
 
 export interface CreateInteractionRequest {
   LeadId: string;

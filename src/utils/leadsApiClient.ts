@@ -1,8 +1,9 @@
 import { Lead, Interaction } from '@/types/crm';
 import { ApiLead, CreateLeadRequest, UpdateLeadRequest, CreateLeadResponse, ApiResponse, BulkAssignRequest, ChangeStageRequest, AssignLeadRequest, MergeLeadsRequest } from '@/types/leadsApiTypes';
 import { mapApiLeadToLead, mapLeadToApiFormat } from './leadsApiMapper';
+import { ENV } from '@/config/environment';
 
-const API_BASE_URL = 'https://skcodalilmdev.azurewebsites.net/api/leads';
+const API_BASE_URL = `${ENV.CRM_API_BASE_URL}/api/leads`;
 
 // Función para reintentar llamadas a la API
 const fetchWithRetry = async (url: string, options?: RequestInit, retries = 3): Promise<Response> => {
