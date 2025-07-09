@@ -342,7 +342,7 @@ export function LeadsTable({
   };
 
   return (
-    <div className="ml-64"> {/* Ajusta este valor si el ancho del menú lateral cambia */}
+    <div className="ml-5"> {/* Ajusta este valor si el ancho del menú lateral cambia */}
       <div
         className="overflow-x-auto max-w-full border rounded"
         style={{ maxHeight: '500px' }}
