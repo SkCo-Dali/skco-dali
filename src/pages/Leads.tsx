@@ -203,7 +203,7 @@ export default function Leads() {
                   <LeadCreateDialog onLeadCreate={handleLeadCreate}>
                     <div className="flex items-center w-full">
                       <Plus className="h-4 w-4 mr-2" />
-                      Crear Lead
+                        Crear Lead
                     </div>
                   </LeadCreateDialog>
                 </DropdownMenuItem>
