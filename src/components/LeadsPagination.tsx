@@ -103,7 +103,7 @@ export function LeadsPagination({
                 <span className="px-2 py-1 text-[#3f3f3f]">...</span>
               ) : (
                 <button
-                  className={`w-6 h-6 text-sm font-medium ${
+                  className={`w-6 h-6 text-xs font-medium ${
                     currentPage === page
                       ? 'text-[#00c83c]'
                       : 'text-[#3f3f3f] hover:text-[#00c83c]'
