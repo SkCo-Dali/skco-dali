@@ -111,8 +111,8 @@ export function MassEmailSender({ filteredLeads, onClose }: MassEmailSenderProps
 
         {/* Warning message */}
         {isOverLimit && (
-          <div className="flex items-center gap-2 p-3 bg-amber-50 border border-amber-200 rounded-md">
-            <AlertTriangle className="h-4 w-4 text-amber-600" />
+          <div className="flex items-center gap-2 p-3 bg-[#ECFDF3] rounded-md">
+            <AlertTriangle className="h-4 w-4 text-white" />
             <span className="text-amber-800 text-sm">
               Se mostrarán solo los primeros 20 leads. {validLeads.length - 20} leads adicionales serán omitidos.
             </span>
