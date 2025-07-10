@@ -90,7 +90,6 @@ export function LeadCard({
           <div className="flex items-start justify-between">
             <div className="min-w-0 flex-1">
               <h3 className="font-medium text-sm text-gray-900 mb-1">{lead.name}</h3>
-              <p className="text-xs text-gray-500 mb-2">{lead.email}</p>
               <div className="flex items-center text-xs text-gray-400 mb-1">
                 <CircleUserRound className="h-3 w-3 mr-1" />
                 <span>{lead.documentType || 'CC'}.{lead.documentNumber || '111111111'}</span>
