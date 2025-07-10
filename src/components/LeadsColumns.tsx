@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Lead } from "@/types/crm";
 import { LeadCard } from "@/components/LeadCard";
@@ -56,6 +57,10 @@ export function LeadsColumns({ leads, onLeadClick }: LeadsColumnsProps) {
           const user = users.find(u => u.id === lead.assignedTo);
           label = user?.name || (lead.assignedTo ? `Usuario ${lead.assignedTo}` : 'Sin asignar');
           break;
+        case 'campaign':
+          key = lead.campaign;
+          label = lead.campaign || 'Sin campaña';
+          break;
         default:
           key = 'all';
           label = 'Todos';
@@ -86,6 +91,7 @@ export function LeadsColumns({ leads, onLeadClick }: LeadsColumnsProps) {
             <SelectItem value="priority">Prioridad</SelectItem>
             <SelectItem value="source">Fuente</SelectItem>
             <SelectItem value="assignedTo">Asesor asignado</SelectItem>
+            <SelectItem value="campaign">Campaña</SelectItem>
           </SelectContent>
         </Select>
       </div>
