@@ -254,7 +254,7 @@ export default function Leads() {
               )}
               
               <Button
-                className="text-[#3f3f3f] w-24 h-8 bg-white border border-gray-300 rounded-md hover:bg-white hover:border-gray-300"
+                className="text-[#3f3f3f] h-8 bg-white border border-gray-300 rounded-md hover:bg-white hover:border-gray-300"
                 onClick={handleViewModeToggle}
                 size="icon"
               >
