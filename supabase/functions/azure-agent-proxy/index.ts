@@ -7,6 +7,9 @@ const corsHeaders = {
   'Access-Control-Allow-Methods': 'POST, OPTIONS',
 }
 
+// Environment configuration for Supabase edge function
+const MAESTRO_API_URL = Deno.env.get('MAESTRO_API_BASE_URL') || 'https://skcoaimultiagentdev.azurewebsites.net';
+
 serve(async (req) => {
   console.log('🚀 === AZURE AGENT PROXY: REQUEST RECEIVED ===');
   console.log('🔧 Method:', req.method);
@@ -64,7 +67,7 @@ serve(async (req) => {
     
     // Make request to new Maestro API with extended timeout
     console.log('🎯 === CALLING MAESTRO API FROM PROXY ===');
-    console.log('🌐 Target URL: https://skcoaimultiagentdev.azurewebsites.net/api/maestro');
+    console.log('🌐 Target URL:', `${MAESTRO_API_URL}/api/maestro`);
     console.log('🔧 Method: POST');
     console.log('📤 Request body prepared for Maestro API');
     console.log('⏰ Starting API call...');
@@ -75,7 +78,7 @@ serve(async (req) => {
       apiController.abort();
     }, 60000); // 60 second timeout for API call
     
-    const azureResponse = await fetch('https://skcoaimultiagentdev.azurewebsites.net/api/maestro', {
+    const azureResponse = await fetch(`${MAESTRO_API_URL}/api/maestro`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

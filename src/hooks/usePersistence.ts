@@ -5,6 +5,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { Conversation } from '../types/conversation';
 import { ChatMessage } from '../types/chat';
 import { AISettings, AppSettings } from '../types/settings';
+import { ENV } from '../config/environment';
 
 export const usePersistence = () => {
   const { user } = useAuth();
@@ -151,7 +152,7 @@ export const usePersistence = () => {
       const fileName = await azureConversationService.uploadFile(file, user.email, conversationId);
       const fileData = {
         fileName,
-        url: `https://skcoDaliAIDev.azurewebsites.net/api/files/${fileName}`,
+        url: `${ENV.AI_API_BASE_URL}/api/files/${fileName}`,
         size: file.size,
         type: file.type
       };

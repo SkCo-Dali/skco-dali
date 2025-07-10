@@ -8,6 +8,7 @@ import { DataTable } from './DataTable';
 import { ThumbsUp, ThumbsDown } from 'lucide-react';
 import { Button } from './ui/button';
 import { useSimpleConversation } from '../contexts/SimpleConversationContext';
+import { ENV } from '../config/environment';
 
 interface SimpleMessageProps {
   message: ChatMessage;
@@ -84,7 +85,7 @@ export const SimpleMessage: React.FC<SimpleMessageProps> = ({ message }) => {
         totalTokens: currentConversation.totalTokens
       };
 
-      const response = await fetch(`https://skcoDaliAIDev.azurewebsites.net/api/conversations/${currentConversation.id}?user_id=${encodeURIComponent(user.email)}`, {
+      const response = await fetch(`${ENV.AI_API_BASE_URL}/api/conversations/${currentConversation.id}?user_id=${encodeURIComponent(user.email)}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(conversationUpdate)
@@ -128,7 +129,7 @@ export const SimpleMessage: React.FC<SimpleMessageProps> = ({ message }) => {
           ) : (
             <div className="w-10 h-10 rounded-full bg-white border border-gray-200 overflow-hidden flex items-center justify-center">
               <img 
-                src="https://aistudiojarvis0534199251.blob.core.windows.net/skandia-icons/DaliLogo.gif" 
+                src={`${ENV.AI_STUDIO_BLOB_URL}/skandia-icons/DaliLogo.gif`}
                 alt="Dali AI Logo"
                 className="w-8 h-8 object-contain rounded-full"
               />

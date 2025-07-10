@@ -13,6 +13,19 @@ export const ENV = {
   CRM_API_BASE_URL: import.meta.env.VITE_CRM_API_BASE_URL || 'https://skcodalilmdev.azurewebsites.net',
   AI_API_BASE_URL: import.meta.env.VITE_AI_API_BASE_URL || 'https://skcoDaliAIDev.azurewebsites.net',
   TEMPLATES_API_BASE_URL: import.meta.env.VITE_TEMPLATES_API_BASE_URL || 'https://skcodaliaidev.azurewebsites.net',
+  MAESTRO_API_BASE_URL: import.meta.env.VITE_MAESTRO_API_BASE_URL || 'https://skcoaimultiagentdev.azurewebsites.net',
+  
+  // Static Resources
+  BLOB_RESOURCES_URL: import.meta.env.VITE_BLOB_RESOURCES_URL || 'https://skcoblobresources.blob.core.windows.net',
+  AI_STUDIO_BLOB_URL: import.meta.env.VITE_AI_STUDIO_BLOB_URL || 'https://aistudiojarvis0534199251.blob.core.windows.net',
+  
+  // CDN URLs
+  CDN_JSDELIVR_URL: import.meta.env.VITE_CDN_JSDELIVR_URL || 'https://cdn.jsdelivr.net',
+  FONTS_GOOGLEAPIS_URL: import.meta.env.VITE_FONTS_GOOGLEAPIS_URL || 'https://fonts.googleapis.com',
+  FONTS_GSTATIC_URL: import.meta.env.VITE_FONTS_GSTATIC_URL || 'https://fonts.gstatic.com',
+  
+  // Microsoft Login
+  MS_LOGIN_URL: import.meta.env.VITE_MS_LOGIN_URL || 'https://login.microsoftonline.com',
   
   // Redirect URLs
   REDIRECT_URI: import.meta.env.VITE_REDIRECT_URI || window.location.origin,

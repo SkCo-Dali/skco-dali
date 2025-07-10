@@ -1,5 +1,5 @@
-
 import { AISettings } from "../types/settings";
+import { ENV } from "../config/environment";
 
 interface AzureApiResponse {
   text?: string;
@@ -27,7 +27,7 @@ const makeApiCallWithRetry = async (
   for (let attempt = 1; attempt <= maxRetries; attempt++) {
     try {
       console.log(`🎯 MAESTRO API CALL ATTEMPT ${attempt}/${maxRetries}`);
-      console.log('🌐 Endpoint: https://skcoaimultiagentdev.azurewebsites.net/api/maestro');
+      console.log('🌐 Endpoint:', `${ENV.MAESTRO_API_BASE_URL}/api/maestro`);
       console.log('🔧 Method: POST');
       console.log('📤 Headers: Content-Type: application/json');
       
@@ -37,7 +37,7 @@ const makeApiCallWithRetry = async (
         controller.abort();
       }, 240000); // 4 minutes timeout (240 seconds)
       
-      const response = await fetch('https://skcoaimultiagentdev.azurewebsites.net/api/maestro', {
+      const response = await fetch(`${ENV.MAESTRO_API_BASE_URL}/api/maestro`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
