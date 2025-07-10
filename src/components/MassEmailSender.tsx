@@ -97,7 +97,7 @@ export function MassEmailSender({ filteredLeads, onClose }: MassEmailSenderProps
             <div className="flex items-center gap-2">
               <Badge variant="secondary">
                 <Filter className="h-4 w-4 mr-1 text-white" />
-                <span className="text-green-600">{validLeads.length} leads con email válido</span>
+                <span className="text-white">{validLeads.length} leads con email válido</span>
               </Badge>
               {isOverLimit && (
                 <Badge variant="destructive">
