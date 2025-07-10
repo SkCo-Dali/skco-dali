@@ -8,7 +8,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { User, Mail, Edit, Trash2, MoreVertical, CircleUserRound, Mail, Smartphone } from "lucide-react";
+import { User, Mail, Edit, Trash2, MoreVertical, CircleUserRound, Smartphone } from "lucide-react";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { useUsersApi } from "@/hooks/useUsersApi";
