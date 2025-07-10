@@ -333,18 +333,18 @@ export function LeadsTable({
         );
       case 'createdAt':
         return (
-          <span className="text-gray-700 text-xs">
+          <span className="text-center text-gray-700 text-xs">
             {format(new Date(lead.createdAt), "dd/MM/yyyy", { locale: es })}
           </span>
         );
       case 'age':
-        return <span className="text-gray-700 text-xs">{lead.age || '-'}</span>;
+        return <span className="text-center text-gray-700 text-xs">{lead.age || '-'}</span>;
       case 'gender':
-        return <span className="text-gray-700 text-xs">{lead.gender || '-'}</span>;
+        return <span className="text-center text-gray-700 text-xs">{lead.gender || '-'}</span>;
       case 'preferredContactChannel':
-        return <span className="text-gray-700 text-xs">{lead.preferredContactChannel || '-'}</span>;
+        return <span className="text-center text-gray-700 text-xs">{lead.preferredContactChannel || '-'}</span>;
       case 'documentType':
-        return <span className="text-gray-700 text-xs">{lead.documentType || '-'}</span>;
+        return <span className="text-center text-gray-700 text-xs ">{lead.documentType || '-'}</span>;
       default:
         return null;
     }
