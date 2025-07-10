@@ -72,8 +72,8 @@ export function LeadCard({
   return (
     <div className="relative">
       <Card 
-        className="cursor-pointer hover:shadow-md transition-all duration-200 w-full border border-[#fafafa] mt-0 rounded-lg"
-        style={{ backgroundColor: '#fafafa' }}
+        className="cursor-pointer hover:shadow-md transition-all duration-200 w-full border  mt-0 rounded-lg"
+        style={{ backgroundColor: '#fafafa', borderColor: '#fafafa' }}
         onClick={handleCardClick}
       >
         {/* Muesca con estado pegada al borde superior izquierdo */}
