@@ -1,3 +1,4 @@
+
 import { Lead } from "@/types/crm";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
@@ -53,7 +54,6 @@ export function LeadCard({
   };
 
   const handleCardClick = (e: React.MouseEvent) => {
-    // Solo ejecutar onClick si no se hizo clic en el dropdown
     const target = e.target as Element;
     if (!target.closest('[data-dropdown]')) {
       onClick();
@@ -72,24 +72,21 @@ export function LeadCard({
   return (
     <div className="relative">
       <Card 
-        className="cursor-pointer hover:shadow-md transition-all duration-200 w-full border border-gray-200 bg-white mt-4"
+        className="cursor-pointer hover:shadow-md transition-all duration-200 w-full border border-gray-200 mt-0"
+        style={{ backgroundColor: '#fafafa' }}
         onClick={handleCardClick}
       >
-        {/* Muesca con estado en la parte superior */}
-        <div className="absolute -top-3 left-4 z-20">
+        {/* Muesca con estado pegada al borde superior izquierdo */}
+        <div className="absolute top-0 left-0 z-20">
           <Badge 
-            className={`text-xs px-3 py-1 whitespace-nowrap rounded-full shadow-sm ${stageColors[lead.stage as keyof typeof stageColors] || 'bg-gray-100 text-gray-800'}`}
+            className={`text-xs px-3 py-1 whitespace-nowrap rounded-none rounded-br-lg shadow-sm ${stageColors[lead.stage as keyof typeof stageColors] || 'bg-gray-100 text-gray-800'}`}
             variant="secondary"
           >
             {lead.stage}
           </Badge>
-          {/* Pequeña muesca triangular */}
-          <div className="absolute -bottom-1 left-1/2 transform -translate-x-1/2">
-            <div className="w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-current opacity-20"></div>
-          </div>
         </div>
 
-        <CardHeader className="pb-2 px-4 pt-6">
+        <CardHeader className="pb-2 px-4 pt-8">
           <div className="flex items-start justify-between">
             <div className="min-w-0 flex-1">
               <h3 className="font-medium text-sm text-gray-900 mb-1">{lead.name}</h3>
@@ -104,7 +101,8 @@ export function LeadCard({
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <button 
-                    className="h-6 w-6 text-gray-400 flex-shrink-0 hover:text-gray-600 flex items-center justify-center"
+                    className="h-6 w-6 flex-shrink-0 hover:bg-gray-100 rounded flex items-center justify-center"
+                    style={{ color: '#00c83c' }}
                     onClick={(e) => e.stopPropagation()}
                   >
                     <MoreVertical className="h-4 w-4" />

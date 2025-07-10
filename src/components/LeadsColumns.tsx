@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Lead } from "@/types/crm";
 import { LeadCard } from "@/components/LeadCard";
@@ -36,15 +37,12 @@ export function LeadsColumns({ leads, onLeadClick, onLeadUpdate, onSendEmail }: 
   };
 
   const handleEdit = (lead: Lead) => {
-    // Usar onLeadClick para abrir el modal de detalle del lead
     onLeadClick(lead);
   };
 
   const handleDelete = (lead: Lead) => {
     console.log('Delete lead:', lead);
-    // Aquí se puede implementar la lógica de eliminación
     if (window.confirm(`¿Estás seguro de que quieres eliminar el lead ${lead.name}?`)) {
-      // Implementar lógica de eliminación
       if (onLeadUpdate) {
         onLeadUpdate();
       }
@@ -52,7 +50,6 @@ export function LeadsColumns({ leads, onLeadClick, onLeadUpdate, onSendEmail }: 
   };
 
   const handleSendEmail = (lead: Lead) => {
-    // Usar la función onSendEmail del padre para abrir el modal con el lead filtrado
     if (onSendEmail) {
       onSendEmail(lead);
     }
@@ -60,8 +57,12 @@ export function LeadsColumns({ leads, onLeadClick, onLeadUpdate, onSendEmail }: 
 
   const handleSendWhatsApp = (lead: Lead) => {
     console.log('Send WhatsApp to lead:', lead);
-    // Aquí se puede implementar la lógica de envío de WhatsApp
-    alert(`Enviando WhatsApp a ${lead.phone || 'número no disponible'}`);
+    if (lead.phone) {
+      const cleanPhone = lead.phone.replace(/\D/g, '');
+      window.open(`https://wa.me/${cleanPhone}`, '_blank');
+    } else {
+      alert('No hay número de teléfono disponible para este lead');
+    }
   };
 
   const groupLeads = () => {
@@ -72,7 +73,7 @@ export function LeadsColumns({ leads, onLeadClick, onLeadUpdate, onSendEmail }: 
       switch (groupBy) {
         case 'stage':
           key = lead.stage;
-          label = lead.stage; // Ya están en español
+          label = lead.stage;
           break;
         case 'priority':
           key = lead.priority;
@@ -129,12 +130,12 @@ export function LeadsColumns({ leads, onLeadClick, onLeadUpdate, onSendEmail }: 
       <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-6">
         {Object.entries(groupedLeads).map(([key, group]) => (
           <div key={key} className="space-y-3">
-            <div className="flex items-center justify-between">
-              <h3 className="font-semibold text-lg">{group.label}</h3>
-              <Badge variant="secondary" className="text-xs">
-                {group.leads.length}
-              </Badge>
+            {/* Header de la columna con fondo verde claro */}
+            <div className="bg-green-100 rounded-lg px-4 py-3 flex items-center justify-between">
+              <h3 className="font-semibold text-lg text-gray-800">{group.label}</h3>
+              <span className="text-sm font-medium text-gray-600">({group.leads.length})</span>
             </div>
+            
             <div className="space-y-3 max-h-[600px] overflow-y-auto">
               {group.leads.map((lead) => (
                 <LeadCard 
