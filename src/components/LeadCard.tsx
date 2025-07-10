@@ -104,11 +104,11 @@ export function LeadCard({
                 <span>{lead.email || 'xxx@xxx'}</span>
               </div> 
               <div className="flex items-center text-xs text-gray-900">
-                <strong>Asignado a:</strong>
+                <strong>Asignado a: </strong>
                 <span>{assignedUser?.name || 'Sin asignar'}</span>
               </div> 
               <div className="flex items-center text-xs text-gray-900">
-                <MdOutlineCampaign className="h-3 w-3 mr-1" />
+                <strong>Campaña: </strong>
                 <span>{lead.campaign || ''}</span>
               </div> 
             </div>
