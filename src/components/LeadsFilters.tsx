@@ -468,21 +468,7 @@ export function LeadsFilters({
               </div>
             </div>
 
-            {/* Ordenamiento */}
-            <div className="flex items-center gap-2 pt-4 border-t">
-              <Label htmlFor="sort-by">Ordenar por:</Label>
-              <Select value={sortBy} onValueChange={setSortBy}>
-                <SelectTrigger className="w-48">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent className="bg-white z-50">
-                  <SelectItem value="updated">Última actualización</SelectItem>
-                  <SelectItem value="created">Fecha de creación</SelectItem>
-                  <SelectItem value="name">Nombre</SelectItem>
-                  <SelectItem value="value">Valor</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+           
           </div>
         </CardContent>
       </Card>
