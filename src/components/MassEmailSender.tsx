@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
-import { Send, Eye, History, Filter, AlertTriangle, X } from 'lucide-react';
+import { Send, Eye, History, Filter, AlertTriangle, X, Mail } from 'lucide-react';
 import { Lead } from '@/types/crm';
 import { EmailTemplate } from '@/types/email';
 import { EmailComposer } from '@/components/EmailComposer';
@@ -97,7 +97,7 @@ export function MassEmailSender({ filteredLeads, onClose }: MassEmailSenderProps
             <div className="flex items-center gap-2">
               <Badge variant="secondary">
                 <Filter className="h-4 w-4 mr-1 text-white" />
-                <span className="text-white">{validLeads.length} leads con email válido</span>
+                <span className="text-green-600">{validLeads.length} leads con email válido</span>
               </Badge>
               {isOverLimit && (
                 <Badge variant="destructive">
@@ -112,7 +112,7 @@ export function MassEmailSender({ filteredLeads, onClose }: MassEmailSenderProps
         {/* Warning message */}
         {isOverLimit && (
           <div className="flex items-center gap-2 p-3 bg-[#ECFDF3] rounded-md">
-            <AlertTriangle className="h-4 w-4 text-[#87F491]" />
+            <AlertTriangle className="h-4 w-4 text-[#3f3f3f]" />
             <span className="text-[#3f3f3f] text-sm">
               Se mostrarán solo los primeros 20 leads. {validLeads.length - 20} leads adicionales serán omitidos.
             </span>
@@ -126,8 +126,8 @@ export function MassEmailSender({ filteredLeads, onClose }: MassEmailSenderProps
               value="compose" 
               className="w-full h-full data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#00c83c] data-[state=active]:to-[#A3E40B] data-[state=active]:text-white rounded-full px-4 py-2 mt-0 text-sm font-medium transition-all duration-200"
             >
-              <Send className="h-4 w-4" />
-              Componer
+              <Mail className="h-4 w-4" />
+              Nuevo Correo
             </TabsTrigger>
             <TabsTrigger 
               value="preview" 
