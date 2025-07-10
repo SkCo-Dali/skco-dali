@@ -94,10 +94,15 @@ export function LeadCard({
               <div className="flex items-center text-xs text-gray-400 mb-1">
                 <CircleUserRound className="h-3 w-3 mr-1" />
                 <span>{lead.documentType || 'CC'}.{lead.documentNumber || '111111111'}</span>
+               </div>
+              <div>
                 <Smartphone className="h-3 w-3 mr-1" />
                 <span>{lead.phone || '3333333333'}</span>
+               </div>
+              <div>
                 <Mail className="h-3 w-3 mr-1" />
                 <span>{lead.email || 'xxx@xxx'}</span>
+                </div>
               </div>
             </div>
             
