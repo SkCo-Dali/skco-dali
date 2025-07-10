@@ -87,7 +87,7 @@ export function LeadCard({
           </Badge>
         </div>
 
-        <CardHeader className="pb-2 px-4 pt-4">
+        <CardHeader className="pb-2 px-4 pt-2">
           <div className="flex items-start justify-between">
             <div className="min-w-0 flex-1 space-y-2">
               <h3 className="font-medium text-sm text-gray-900 mb-1">{lead.name}</h3>
@@ -105,11 +105,11 @@ export function LeadCard({
               </div> 
               <div className="flex items-center text-xs text-gray-900">
                 <strong>Asignado a: </strong>
-                <span> {assignedUser?.name || 'Sin asignar'}</span>
+                <span  className="ml-1"> {assignedUser?.name || 'Sin asignar'}</span>
               </div> 
               <div className="flex items-center text-xs text-gray-900">
                 <strong>Campaña: </strong>
-                <span> {lead.campaign || ''}</span>
+                <span className="ml-1"> {lead.campaign || ''}</span>
               </div> 
             </div>
             
