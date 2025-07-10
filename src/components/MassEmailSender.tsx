@@ -1,10 +1,9 @@
 
 import { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
-import { Send, Eye, History, Filter, AlertTriangle } from 'lucide-react';
+import { Send, Eye, History, Filter, AlertTriangle, X } from 'lucide-react';
 import { Lead } from '@/types/crm';
 import { EmailTemplate } from '@/types/email';
 import { EmailComposer } from '@/components/EmailComposer';
@@ -90,118 +89,128 @@ export function MassEmailSender({ filteredLeads, onClose }: MassEmailSenderProps
 
   return (
     <>
-      <div className="max-w-6xl mx-auto space-y-6">
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center justify-between">
-              Envío de Correos
-              <div className="flex items-center gap-2">
-                <Badge variant="secondary">
-                  <Filter className="h-4 w-4 mr-1" />
-                  {validLeads.length} leads con email válido
+      <div className="space-y-6">
+        {/* Header */}
+        <div className="flex items-center justify-between">
+          <div className="space-y-1">
+            <h2 className="text-xl font-semibold">Envío de Correos</h2>
+            <div className="flex items-center gap-2">
+              <Badge variant="secondary">
+                <Filter className="h-4 w-4 mr-1" />
+                {validLeads.length} leads con email válido
+              </Badge>
+              {isOverLimit && (
+                <Badge variant="destructive">
+                  <AlertTriangle className="h-4 w-4 mr-1" />
+                  Máximo 20 correos
                 </Badge>
-                {isOverLimit && (
-                  <Badge variant="destructive">
-                    <AlertTriangle className="h-4 w-4 mr-1" />
-                    Máximo 20 correos
-                  </Badge>
-                )}
-                <Button variant="outline" onClick={onClose}>
-                  Cerrar
+              )}
+            </div>
+          </div>
+          <Button variant="ghost" size="icon" onClick={onClose}>
+            <X className="h-4 w-4" />
+          </Button>
+        </div>
+
+        {/* Warning message */}
+        {isOverLimit && (
+          <div className="flex items-center gap-2 p-3 bg-amber-50 border border-amber-200 rounded-md">
+            <AlertTriangle className="h-4 w-4 text-amber-600" />
+            <span className="text-amber-800 text-sm">
+              Se mostrarán solo los primeros 20 leads. {validLeads.length - 20} leads adicionales serán omitidos.
+            </span>
+          </div>
+        )}
+
+        {/* Tabs */}
+        <Tabs value={activeTab} onValueChange={setActiveTab}>
+          <TabsList className="grid w-full grid-cols-3 bg-gray-100 p-1 rounded-lg">
+            <TabsTrigger 
+              value="compose" 
+              className="flex items-center gap-2 data-[state=active]:bg-white data-[state=active]:shadow-sm rounded-md"
+            >
+              <Send className="h-4 w-4" />
+              Componer
+            </TabsTrigger>
+            <TabsTrigger 
+              value="preview" 
+              className="flex items-center gap-2 data-[state=active]:bg-white data-[state=active]:shadow-sm rounded-md"
+            >
+              <Eye className="h-4 w-4" />
+              Previsualizar
+            </TabsTrigger>
+            <TabsTrigger 
+              value="logs" 
+              className="flex items-center gap-2 data-[state=active]:bg-white data-[state=active]:shadow-sm rounded-md"
+            >
+              <History className="h-4 w-4" />
+              Historial
+            </TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="compose" className="space-y-6 mt-6">
+            <EmailComposer
+              template={template}
+              onTemplateChange={setTemplate}
+              dynamicFields={dynamicFields}
+            />
+            
+            <div className="flex justify-between items-center pt-4 border-t">
+              <div className="text-sm text-muted-foreground">
+                {leadsToShow.length} correo(s) listos para enviar
+              </div>
+              <div className="flex gap-2">
+                <Button
+                  variant="outline"
+                  onClick={() => setActiveTab('preview')}
+                  disabled={!isReadyToSend}
+                >
+                  <Eye className="h-4 w-4 mr-2" />
+                  Previsualizar
+                </Button>
+                <Button
+                  onClick={handleSendEmails}
+                  disabled={!isReadyToSend || isLoading}
+                >
+                  <Send className="h-4 w-4 mr-2" />
+                  {isLoading ? 'Enviando...' : 'Enviar Correos'}
                 </Button>
               </div>
-            </CardTitle>
-            {isOverLimit && (
-              <div className="flex items-center gap-2 p-3 bg-amber-50 border border-amber-200 rounded-md">
-                <AlertTriangle className="h-4 w-4 text-amber-600" />
-                <span className="text-amber-800 text-sm">
-                  Se mostrarán solo los primeros 20 leads. {validLeads.length - 20} leads adicionales serán omitidos.
-                </span>
-              </div>
-            )}
-          </CardHeader>
-          <CardContent>
-            <Tabs value={activeTab} onValueChange={setActiveTab}>
-              <TabsList className="grid w-full grid-cols-3">
-                <TabsTrigger value="compose" className="flex items-center gap-2">
-                  <Send className="h-4 w-4" />
-                  Componer
-                </TabsTrigger>
-                <TabsTrigger value="preview" className="flex items-center gap-2">
-                  <Eye className="h-4 w-4" />
-                  Previsualizar
-                </TabsTrigger>
-                <TabsTrigger value="logs" className="flex items-center gap-2">
-                  <History className="h-4 w-4" />
-                  Historial
-                </TabsTrigger>
-              </TabsList>
+            </div>
+          </TabsContent>
 
-              <TabsContent value="compose" className="space-y-6">
-                <EmailComposer
-                  template={template}
-                  onTemplateChange={setTemplate}
-                  dynamicFields={dynamicFields}
-                />
-                
-                <div className="flex justify-between items-center pt-4 border-t">
-                  <div className="text-sm text-muted-foreground">
-                    {leadsToShow.length} correo(s) listos para enviar
-                  </div>
-                  <div className="flex gap-2">
-                    <Button
-                      variant="outline"
-                      onClick={() => setActiveTab('preview')}
-                      disabled={!isReadyToSend}
-                    >
-                      <Eye className="h-4 w-4 mr-2" />
-                      Previsualizar
-                    </Button>
-                    <Button
-                      onClick={handleSendEmails}
-                      disabled={!isReadyToSend || isLoading}
-                    >
-                      <Send className="h-4 w-4 mr-2" />
-                      {isLoading ? 'Enviando...' : 'Enviar Correos'}
-                    </Button>
-                  </div>
-                </div>
-              </TabsContent>
+          <TabsContent value="preview" className="space-y-6 mt-6">
+            <EmailPreview
+              leads={leadsToShow}
+              template={template}
+              replaceDynamicFields={replaceDynamicFields}
+            />
+            
+            <div className="flex justify-between items-center pt-4 border-t">
+              <Button
+                variant="outline"
+                onClick={() => setActiveTab('compose')}
+              >
+                Volver a Editar
+              </Button>
+              <Button
+                onClick={handleSendEmails}
+                disabled={!isReadyToSend || isLoading}
+              >
+                <Send className="h-4 w-4 mr-2" />
+                {isLoading ? 'Enviando...' : `Confirmar Envío (${leadsToShow.length} correos)`}
+              </Button>
+            </div>
+          </TabsContent>
 
-              <TabsContent value="preview" className="space-y-6">
-                <EmailPreview
-                  leads={leadsToShow}
-                  template={template}
-                  replaceDynamicFields={replaceDynamicFields}
-                />
-                
-                <div className="flex justify-between items-center pt-4 border-t">
-                  <Button
-                    variant="outline"
-                    onClick={() => setActiveTab('compose')}
-                  >
-                    Volver a Editar
-                  </Button>
-                  <Button
-                    onClick={handleSendEmails}
-                    disabled={!isReadyToSend || isLoading}
-                  >
-                    <Send className="h-4 w-4 mr-2" />
-                    {isLoading ? 'Enviando...' : `Confirmar Envío (${leadsToShow.length} correos)`}
-                  </Button>
-                </div>
-              </TabsContent>
-
-              <TabsContent value="logs" className="space-y-6">
-                <EmailStatusLogs
-                  logs={emailLogs}
-                  isLoading={isLoading}
-                  onRefresh={fetchEmailLogs}
-                />
-              </TabsContent>
-            </Tabs>
-          </CardContent>
-        </Card>
+          <TabsContent value="logs" className="space-y-6 mt-6">
+            <EmailStatusLogs
+              logs={emailLogs}
+              isLoading={isLoading}
+              onRefresh={fetchEmailLogs}
+            />
+          </TabsContent>
+        </Tabs>
       </div>
 
       <EmailSendConfirmation
