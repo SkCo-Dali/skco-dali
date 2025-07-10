@@ -51,7 +51,7 @@ export function LeadsTableColumnSelector({ columns, onColumnsChange, className }
           Personaliza
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-72 p-0 bg-white rounded-2xl shadow-lg border border-gray-200">
+      <DropdownMenuContent align="end" className="w-80 p-0 bg-white rounded-2xl shadow-lg border border-gray-200">
         <div className="p-4">
           {/* Header */}
           <h3 className="text-sm font-medium text-gray-900 mb-4">Personaliza las columnas</h3>
