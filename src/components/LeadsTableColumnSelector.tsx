@@ -2,11 +2,13 @@
 import React from 'react';
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
+  DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
 import { Settings, Columns3Cog, SquarePen} from "lucide-react";
 
@@ -31,6 +33,17 @@ export function LeadsTableColumnSelector({ columns, onColumnsChange, className }
     onColumnsChange(updatedColumns);
   };
 
+  const handleSelectAll = () => {
+    const allVisible = columns.every(col => col.visible);
+    const updatedColumns = columns.map(col => ({
+      ...col,
+      visible: !allVisible
+    }));
+    onColumnsChange(updatedColumns);
+  };
+
+  const allColumnsVisible = columns.every(col => col.visible);
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -40,23 +53,37 @@ export function LeadsTableColumnSelector({ columns, onColumnsChange, className }
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-56">
-        {columns.map((column) => (
-          <DropdownMenuItem key={column.key} className="cursor-pointer">
-            <div className="flex items-center space-x-2 w-full">
-              <Checkbox
-                id={column.key}
-                checked={column.visible}
-                onCheckedChange={() => handleColumnToggle(column.key)}
-              />
-              <label
-                htmlFor={column.key}
-                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer flex-1"
-              >
-                {column.label}
-              </label>
-            </div>
-          </DropdownMenuItem>
-        ))}
+        <DropdownMenuItem className="cursor-pointer" onClick={handleSelectAll}>
+          <div className="flex items-center space-x-2 w-full">
+            <Checkbox
+              checked={allColumnsVisible}
+              onCheckedChange={handleSelectAll}
+            />
+            <label className="text-sm font-medium leading-none cursor-pointer flex-1">
+              {allColumnsVisible ? 'Deseleccionar todas' : 'Seleccionar todas'}
+            </label>
+          </div>
+        </DropdownMenuItem>
+        <DropdownMenuSeparator />
+        <ScrollArea className="h-64">
+          {columns.map((column) => (
+            <DropdownMenuItem key={column.key} className="cursor-pointer">
+              <div className="flex items-center space-x-2 w-full">
+                <Checkbox
+                  id={column.key}
+                  checked={column.visible}
+                  onCheckedChange={() => handleColumnToggle(column.key)}
+                />
+                <label
+                  htmlFor={column.key}
+                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer flex-1"
+                >
+                  {column.label}
+                </label>
+              </div>
+            </DropdownMenuItem>
+          ))}
+        </ScrollArea>
       </DropdownMenuContent>
     </DropdownMenu>
   );

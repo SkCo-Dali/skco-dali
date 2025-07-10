@@ -60,7 +60,6 @@ export function LeadsTable({
 
   const visibleColumns = columns.filter(col => col.visible);
   
-  // Calcular ancho total fijo basado en columnas visibles
   const calculateTableWidth = () => {
     const nameColumnWidth = 350; // Columna nombre siempre 350px
     const regularColumnWidth = 250; // Todas las demás columnas 250px
@@ -287,18 +286,18 @@ export function LeadsTable({
         );
       case 'product':
         return (
-          <span className="text-gray-700 text-xs">
+          <span className="text-gray-700 text-xs text-center">
             {lead.product || '-'}
           </span>
         );
       case 'campaign':
         return (
-          <span className="text-gray-700 text-xs">
+          <span className="text-gray-700 text-xs text-center">
             {lead.campaign || '-'}
           </span>
         );
       case 'source':
-        return <span className="text-gray-700 text-xs capitalize">{lead.source}</span>;
+        return <span className="text-gray-700 text-xs capitalize text-center">{lead.source}</span>;
       case 'stage':
         return (
           <EditableLeadCell
@@ -317,12 +316,12 @@ export function LeadsTable({
         );
       case 'lastInteraction':
         return (
-          <span className="text-gray-700 text-xs">
+          <span className="text-gray-700 text-xs text-center">
             {format(new Date(lead.updatedAt), "dd/MM/yyyy", { locale: es })}
           </span>
         );
       case 'value':
-        return <span className="text-gray-800 font-medium text-xs">${lead.value.toLocaleString()}</span>;
+        return <span className="text-gray-800 font-medium text-xs text-center">${lead.value.toLocaleString()}</span>;
       case 'priority':
         return (
           <EditableLeadCell
@@ -344,7 +343,7 @@ export function LeadsTable({
       case 'preferredContactChannel':
         return <span className="text-center text-gray-700 text-xs">{lead.preferredContactChannel || '-'}</span>;
       case 'documentType':
-        return <span className="text-center text-gray-700 text-xs ">{lead.documentType || '-'}</span>;
+        return <span className="text-center text-gray-700 text-xs">{lead.documentType || '-'}</span>;
       default:
         return null;
     }
@@ -388,7 +387,7 @@ export function LeadsTable({
                   {visibleColumns.map((column) => (
                     <TableCell 
                       key={column.key} 
-                      className={`px-4 py-3 text-xs text-center${
+                      className={`px-4 py-3 text-xs text-center ${
                         column.key === 'name' ? 'leads-name-column-sticky' : 'leads-regular-column'
                       }`}
                     >
