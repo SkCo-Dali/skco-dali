@@ -109,16 +109,6 @@ export function MassEmailSender({ filteredLeads, onClose }: MassEmailSenderProps
           </div>
         </div>
 
-        {/* Warning message */}
-        {isOverLimit && (
-          <div className="flex items-center gap-2 p-3 bg-[#ECFDF3] rounded-md">
-            <AlertTriangle className="h-4 w-4 text-[#3f3f3f]" />
-            <span className="text-[#3f3f3f] text-sm">
-              Se mostrarán solo los primeros 20 leads. {validLeads.length - 20} leads adicionales serán omitidos.
-            </span>
-          </div>
-        )}
-
         {/* Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab}>
           <TabsList className="grid w-full grid-cols-3 mb-6 bg-gray-100 py-1 rounded-full">
@@ -177,6 +167,16 @@ export function MassEmailSender({ filteredLeads, onClose }: MassEmailSenderProps
           </TabsContent>
 
           <TabsContent value="preview" className="space-y-6 mt-6">
+            {/* Warning message - Solo se muestra en la pestaña de previsualización */}
+            {isOverLimit && (
+              <div className="flex items-center gap-2 p-3 bg-[#ECFDF3] rounded-md">
+                <AlertTriangle className="h-4 w-4 text-[#3f3f3f]" />
+                <span className="text-[#3f3f3f] text-sm">
+                  Se mostrarán solo los primeros 20 leads. {validLeads.length - 20} leads adicionales serán omitidos.
+                </span>
+              </div>
+            )}
+
             <EmailPreview
               leads={leadsToShow}
               template={template}
