@@ -20,9 +20,10 @@ export interface ColumnConfig {
 interface LeadsTableColumnSelectorProps {
   columns: ColumnConfig[];
   onColumnsChange: (columns: ColumnConfig[]) => void;
+  className?: string;
 }
 
-export function LeadsTableColumnSelector({ columns, onColumnsChange }: LeadsTableColumnSelectorProps) {
+export function LeadsTableColumnSelector({ columns, onColumnsChange, className }: LeadsTableColumnSelectorProps) {
   const handleColumnToggle = (columnKey: string) => {
     const updatedColumns = columns.map(col => 
       col.key === columnKey ? { ...col, visible: !col.visible } : col
@@ -33,7 +34,7 @@ export function LeadsTableColumnSelector({ columns, onColumnsChange }: LeadsTabl
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="outline" size="sm">
+        <Button variant="outline" size="sm" className={className}>
           <Settings className="h-4 w-4 mr-2" />
           Columnas
         </Button>
