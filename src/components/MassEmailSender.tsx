@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
-import { Send, Eye, History, Filter, AlertTriangle, X, Mail } from 'lucide-react';
+import { Send, Eye, History, Filter, AlertTriangle, X, Mail, Info } from 'lucide-react';
 import { Lead } from '@/types/crm';
 import { EmailTemplate } from '@/types/email';
 import { EmailComposer } from '@/components/EmailComposer';
@@ -170,9 +170,10 @@ export function MassEmailSender({ filteredLeads, onClose }: MassEmailSenderProps
             {/* Warning message - Solo se muestra en la pestaña de previsualización */}
             {isOverLimit && (
               <div className="flex items-center gap-2 p-3 bg-[#ECFDF3] rounded-md">
-                <AlertTriangle className="h-4 w-4 text-[#3f3f3f]" />
+                <Info className="h-4 w-4 text-[#3f3f3f]" />
+                <h3>Ejemplo de tu correo</h3>
                 <span className="text-[#3f3f3f] text-sm">
-                  Se mostrarán solo los primeros 20 leads. {validLeads.length - 20} leads adicionales serán omitidos.
+                  Los demás correos se enviarán con el mismo formato y con los datos que personalizaste.
                 </span>
               </div>
             )}
