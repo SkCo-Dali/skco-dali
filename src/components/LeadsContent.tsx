@@ -5,7 +5,7 @@ import { LeadsColumns } from "@/components/LeadsColumns";
 import { ColumnConfig } from "@/components/LeadsTableColumnSelector";
 
 interface LeadsContentProps {
-  viewMode: "grid" | "table" | "columns";
+  viewMode: "table" | "columns";
   leads: Lead[];
   onLeadClick: (lead: Lead) => void;
   onLeadUpdate?: () => void;
@@ -27,19 +27,6 @@ export function LeadsContent({
 }: LeadsContentProps) {
   switch (viewMode) {
     case "table":
-      return (
-        <LeadsTable
-          leads={leads}
-          paginatedLeads={paginatedLeads || leads}
-          onLeadClick={onLeadClick}
-          onLeadUpdate={onLeadUpdate}
-          columns={columns}
-          onSortedLeadsChange={onSortedLeadsChange}
-          onSendEmail={onSendEmail}
-        />
-      );
-    case "grid":
-      // Grid view temporarily shows table until LeadsGrid component is available
       return (
         <LeadsTable
           leads={leads}
