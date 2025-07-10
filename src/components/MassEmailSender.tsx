@@ -121,24 +121,24 @@ export function MassEmailSender({ filteredLeads, onClose }: MassEmailSenderProps
 
         {/* Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid w-full grid-cols-3 bg-gray-100 p-1 rounded-lg">
+          <TabsList className="grid w-full grid-cols-2 mb-6 bg-gray-100 p-1 rounded-full">
             <TabsTrigger 
               value="compose" 
-              className="flex items-center gap-2 data-[state=active]:bg-white data-[state=active]:shadow-sm rounded-md"
+              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#00c83c] data-[state=active]:to-[#A3E40B] data-[state=active]:text-white rounded-full px-8 py-2 text-sm font-medium transition-all duration-200"
             >
               <Send className="h-4 w-4" />
               Componer
             </TabsTrigger>
             <TabsTrigger 
               value="preview" 
-              className="flex items-center gap-2 data-[state=active]:bg-white data-[state=active]:shadow-sm rounded-md"
+              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#00c83c] data-[state=active]:to-[#A3E40B] data-[state=active]:text-white rounded-full px-8 py-2 text-sm font-medium transition-all duration-200"
             >
               <Eye className="h-4 w-4" />
               Previsualizar
             </TabsTrigger>
             <TabsTrigger 
               value="logs" 
-              className="flex items-center gap-2 data-[state=active]:bg-white data-[state=active]:shadow-sm rounded-md"
+              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#00c83c] data-[state=active]:to-[#A3E40B] data-[state=active]:text-white rounded-full px-8 py-2 text-sm font-medium transition-all duration-200"
             >
               <History className="h-4 w-4" />
               Historial
