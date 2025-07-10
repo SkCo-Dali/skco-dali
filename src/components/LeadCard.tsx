@@ -72,7 +72,7 @@ export function LeadCard({
   return (
     <div className="relative">
       <Card 
-        className="cursor-pointer transition-all duration-200 mt-0 mx-4 pt-6 rounded-lg max-w-md border-0 shadow-none"
+        className="cursor-pointer transition-all duration-200 mt-0 mx-4 pt-6 rounded-lg max-w-md shadow-none"
         style={{ backgroundColor: '#fafafa'}}
         onClick={handleCardClick}
       >
@@ -94,16 +94,15 @@ export function LeadCard({
               <div className="flex items-center text-xs text-gray-400 mb-1">
                 <CircleUserRound className="h-3 w-3 mr-1" />
                 <span>{lead.documentType || 'CC'}.{lead.documentNumber || '111111111'}</span>
-                </div>
-                <div className="flex items-center">
-    <Smartphone className="h-3 w-3 mr-1" />
-    <span>{lead.phone || '3333333333'}</span>
-  </div>
-  <div className="flex items-center">
-    <Mail className="h-3 w-3 mr-1" />
-    <span>{lead.email || 'xxx@xxx'}</span>
-  </div>            
               </div>
+              <div className="flex items-center text-xs text-gray-400 mb-1">
+                <Smartphone className="h-3 w-3 mr-1" />
+                <span>{lead.phone || '3333333333'}</span>
+              </div>
+              <div className="flex items-center text-xs text-gray-400">
+                <Mail className="h-3 w-3 mr-1" />
+                <span>{lead.email || 'xxx@xxx'}</span>
+              </div>            
             </div>
             
             <div data-dropdown>
