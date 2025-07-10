@@ -112,7 +112,7 @@ export function LeadCard({
                     style={{ color: '#00c83c' }}
                     onClick={(e) => e.stopPropagation()}
                   >
-                    <MoreVertical className="h-4 w-4" />
+                    <MoreVertical className="h-6 w-6" />
                   </button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-48 bg-white border border-gray-200 shadow-lg z-50">
