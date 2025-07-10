@@ -88,17 +88,7 @@ export function LeadsTableColumnSelector({ columns, onColumnsChange, className }
               onCheckedChange={handleSelectAll}
               className="data-[state=checked]:bg-[#00c83c]"
             />
-          </div>
-
-          {/* Apply button */}
-          <Button 
-            className="w-full bg-[#00c83c] hover:bg-[#00b835] text-white rounded-xl h-10 mt-4"
-            onClick={() => {
-              // Close the dropdown (this will be handled by the dropdown itself)
-            }}
-          >
-            Aplicar
-          </Button>
+          </div> 
         </div>
       </DropdownMenuContent>
     </DropdownMenu>
