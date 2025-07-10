@@ -250,7 +250,6 @@ export default function Leads() {
                 <LeadsTableColumnSelector
                   columns={columns}
                   onColumnsChange={setColumns}
-                  size="sm"
                 />
               )}
               
