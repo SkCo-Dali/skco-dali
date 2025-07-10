@@ -107,9 +107,6 @@ export function MassEmailSender({ filteredLeads, onClose }: MassEmailSenderProps
               )}
             </div>
           </div>
-          <Button variant="ghost" size="icon" onClick={onClose}>
-            <X className="h-4 w-4" />
-          </Button>
         </div>
 
         {/* Warning message */}
