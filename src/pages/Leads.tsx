@@ -242,7 +242,7 @@ export default function Leads() {
                 onClick={() => setShowFilters(!showFilters)}
                 size="sm"
               >
-                <Filter className="h-4 w-4 mr-0 text-[#00c83c]" />
+                <Filter className="h-4 w-4 mr-0 text-[#00c83c] justify-items-end" />
                 Filtros
               </Button>
               
