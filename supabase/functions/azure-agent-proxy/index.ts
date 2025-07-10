@@ -8,7 +8,7 @@ const corsHeaders = {
 }
 
 // Environment configuration for Supabase edge function
-const MAESTRO_API_URL = Deno.env.get('MAESTRO_API_BASE_URL') || 'https://skcoaimultiagentdev.azurewebsites.net';
+const MAESTRO_API_URL = Deno.env.get('MAESTRO_API_BASE_URL') || 'API de Agente Maestro';
 
 serve(async (req) => {
   console.log('🚀 === AZURE AGENT PROXY: REQUEST RECEIVED ===');
