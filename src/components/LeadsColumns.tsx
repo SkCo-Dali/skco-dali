@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Lead } from "@/types/crm";
 import { LeadCard } from "@/components/LeadCard";
@@ -38,21 +37,32 @@ export function LeadsColumns({ leads, onLeadClick, onLeadUpdate }: LeadsColumnsP
   const handleEdit = (lead: Lead) => {
     console.log('Edit lead:', lead);
     // Aquí se puede implementar la lógica de edición rápida
+    if (onLeadUpdate) {
+      onLeadUpdate();
+    }
   };
 
   const handleDelete = (lead: Lead) => {
     console.log('Delete lead:', lead);
     // Aquí se puede implementar la lógica de eliminación
+    if (window.confirm(`¿Estás seguro de que quieres eliminar el lead ${lead.name}?`)) {
+      // Implementar lógica de eliminación
+      if (onLeadUpdate) {
+        onLeadUpdate();
+      }
+    }
   };
 
   const handleSendEmail = (lead: Lead) => {
     console.log('Send email to lead:', lead);
     // Aquí se puede implementar la lógica de envío de email
+    alert(`Enviando email a ${lead.email}`);
   };
 
   const handleSendWhatsApp = (lead: Lead) => {
     console.log('Send WhatsApp to lead:', lead);
     // Aquí se puede implementar la lógica de envío de WhatsApp
+    alert(`Enviando WhatsApp a ${lead.phone || 'número no disponible'}`);
   };
 
   const groupLeads = () => {
