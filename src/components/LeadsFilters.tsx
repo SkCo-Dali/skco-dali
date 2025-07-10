@@ -244,7 +244,7 @@ export function LeadsFilters({
                     <SelectItem value="all">Todos los usuarios</SelectItem>
                     <div className="px-2 py-2 border-b">
                       <div className="relative">
-                        <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                        <Search className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
                         <Input
                           placeholder="Buscar usuario..."
                           value={userSearch}
@@ -291,7 +291,7 @@ export function LeadsFilters({
                     <SelectItem value="all">Todas las fuentes</SelectItem>
                     <div className="px-2 py-2 border-b">
                       <div className="relative">
-                        <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                        <Search className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
                         <Input
                           placeholder="Buscar fuente..."
                           value={sourceSearch}
@@ -384,15 +384,7 @@ export function LeadsFilters({
                   <SelectContent className="bg-white z-50">
                     <SelectItem value="all">Todas las prioridades</SelectItem>
                     <div className="px-2 py-2 border-b">
-                      <div className="relative">
-                        <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-                        <Input
-                          placeholder="Buscar prioridad..."
-                          value={prioritySearch}
-                          onChange={(e) => setPrioritySearch(e.target.value)}
-                          className="pl-8 h-8"
-                        />
-                      </div>
+                      
                     </div>
                     <ScrollArea className="h-48">
                       {filteredPriorities.map((priority) => (
