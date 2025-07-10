@@ -19,6 +19,7 @@ import { useToast } from '@/hooks/use-toast';
 import { formatDistanceToNow } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { LeadReassignDialog } from './LeadReassignDialog';
+import { FaWhatsapp } from "react-icons/fa";
 
 interface LeadDetailProps {
   lead: Lead;
@@ -816,7 +817,7 @@ export function LeadDetail({ lead, isOpen, onClose, onSave, onOpenMassEmail }: L
                       size="sm" 
                       className="gap-1 bg-[#25D366] text-white hover:bg-[#25D366]/90"
                     >
-                      <MessageSquare className="h-3 w-3" />
+                      <FaWhatsapp className="h-3 w-3" />
                       WhatsApp
                     </Button>
                     
