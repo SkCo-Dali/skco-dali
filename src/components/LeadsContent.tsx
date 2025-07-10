@@ -1,7 +1,6 @@
 
 import { Lead } from "@/types/crm";
 import { LeadsTable } from "@/components/LeadsTable";
-import { LeadsGrid } from "@/components/LeadsGrid";
 import { LeadsColumns } from "@/components/LeadsColumns";
 import { ColumnConfig } from "@/components/LeadsTableColumnSelector";
 
@@ -30,7 +29,8 @@ export function LeadsContent({
     case "table":
       return (
         <LeadsTable
-          leads={paginatedLeads || leads}
+          leads={leads}
+          paginatedLeads={paginatedLeads || leads}
           onLeadClick={onLeadClick}
           onLeadUpdate={onLeadUpdate}
           columns={columns}
@@ -38,11 +38,15 @@ export function LeadsContent({
         />
       );
     case "grid":
+      // Grid view temporarily shows table until LeadsGrid component is available
       return (
-        <LeadsGrid
-          leads={paginatedLeads || leads}
+        <LeadsTable
+          leads={leads}
+          paginatedLeads={paginatedLeads || leads}
           onLeadClick={onLeadClick}
           onLeadUpdate={onLeadUpdate}
+          columns={columns}
+          onSortedLeadsChange={onSortedLeadsChange}
         />
       );
     case "columns":
