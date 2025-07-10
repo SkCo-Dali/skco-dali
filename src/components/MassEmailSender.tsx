@@ -169,14 +169,13 @@ export function MassEmailSender({ filteredLeads, onClose }: MassEmailSenderProps
           <TabsContent value="preview" className="space-y-6 mt-6">
             {/* Warning message - Solo se muestra en la pestaña de previsualización */}
             {isOverLimit && (
-              <div className="flex items-center gap-2 p-3 bg-[#ECFDF3] rounded-md">
-                <Info className="h-4 w-4 text-[#3f3f3f]" />
-                <span className="text-md"> Ejemplo de tu correo </span>
-                <br></br>
-                <span className="text-[#3f3f3f] text-sm">
-                  Los demás correos se enviarán con el mismo formato y con los datos que personalizaste.
-                </span>
-              </div>
+              <div className="flex flex-col gap-2 p-3 bg-[#ECFDF3] rounded-md">
+  <Info className="h-4 w-4 text-[#3f3f3f]" />
+  <span className="text-md">Ejemplo de tu correo</span>
+  <span className="text-[#3f3f3f] text-sm">
+    Los demás correos se enviarán con el mismo formato y con los datos que personalizaste.
+  </span>
+</div>
             )}
 
             <EmailPreview
