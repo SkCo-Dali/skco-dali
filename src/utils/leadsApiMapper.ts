@@ -1,4 +1,3 @@
-
 import { Lead } from '@/types/crm';
 import { ApiLead, CreateLeadRequest, UpdateLeadRequest, API_TO_FRONTEND_STAGE_MAP, FRONTEND_TO_API_STAGE_MAP, API_TO_FRONTEND_PRIORITY_MAP, FRONTEND_TO_API_PRIORITY_MAP } from '@/types/leadsApiTypes';
 
@@ -261,10 +260,11 @@ export const mapLeadToUpdateRequest = (lead: Lead, userId: string): UpdateLeadRe
 
 // Mapear source de API a frontend
 const mapApiSourceToFrontend = (apiSource: string): Lead['source'] => {
+  // Mantener las fuentes tal como vienen de la API sin convertir todo a 'web'
   const sourceMap: Record<string, Lead['source']> = {
-    'Hubspot': 'web',
-    'DaliLM': 'web',
-    'DaliAI': 'web',
+    'Hubspot': 'Hubspot',
+    'DaliLM': 'DaliLM', 
+    'DaliAI': 'DaliAI',
     'web': 'web',
     'social': 'social',
     'referral': 'referral',
@@ -273,7 +273,8 @@ const mapApiSourceToFrontend = (apiSource: string): Lead['source'] => {
     'campaign': 'campaign'
   };
   
-  return sourceMap[apiSource] || 'web';
+  // Si la fuente existe en el mapa, usarla, sino mantener la original
+  return sourceMap[apiSource] || apiSource as Lead['source'];
 };
 
 // Función helper para preparar datos para exportación

@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Lead } from "@/types/crm";
 import { LeadCard } from "@/components/LeadCard";
@@ -24,14 +23,14 @@ export function LeadsColumns({ leads, onLeadClick }: LeadsColumnsProps) {
 
   const sourceLabels = {
     'Hubspot': 'Hubspot',
+    'DaliLM': 'DaliLM',
+    'DaliAI': 'DaliAI',
     'web': 'Sitio web',
     'social': 'Redes sociales',
     'referral': 'Referido',
     'cold-call': 'Llamada fría',
     'event': 'Evento',
-    'campaign': 'Campaña',
-    'DaliLM': 'DaliLM',
-    'DaliAI': 'DaliAI'
+    'campaign': 'Campaña'
   };
 
   const groupLeads = () => {
