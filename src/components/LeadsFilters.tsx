@@ -6,8 +6,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { useUsersApi } from "@/hooks/useUsersApi";
-import { FilterX } from "lucide-react";
+import { FilterX, Search } from "lucide-react";
 
 interface LeadsFiltersProps {
   searchTerm: string;
@@ -78,6 +79,13 @@ export function LeadsFilters({
 }: LeadsFiltersProps) {
   const { users } = useUsersApi();
 
+  // Search states for each dropdown
+  const [stageSearch, setStageSearch] = useState("");
+  const [userSearch, setUserSearch] = useState("");
+  const [sourceSearch, setSourceSearch] = useState("");
+  const [campaignSearch, setCampaignSearch] = useState("");
+  const [prioritySearch, setPrioritySearch] = useState("");
+
   const getSelectedCount = (value: string | string[]) => {
     const selectedValues = Array.isArray(value) ? value : (value === "all" ? [] : [value]);
     return selectedValues.length;
@@ -128,6 +136,34 @@ export function LeadsFilters({
     }
   };
 
+  // Filter functions for each dropdown
+  const filteredStages = uniqueStages.filter(stage => 
+    stage.toLowerCase().includes(stageSearch.toLowerCase())
+  );
+
+  const filteredUsers = users.filter(user => 
+    user.name.toLowerCase().includes(userSearch.toLowerCase())
+  );
+
+  const filteredSources = uniqueSources.filter(source => 
+    source.toLowerCase().includes(sourceSearch.toLowerCase())
+  );
+
+  const filteredCampaigns = uniqueCampaigns.filter(campaign => 
+    campaign.toLowerCase().includes(campaignSearch.toLowerCase())
+  );
+
+  const priorities = [
+    { value: 'low', label: 'Baja' },
+    { value: 'medium', label: 'Media' },
+    { value: 'high', label: 'Alta' },
+    { value: 'urgent', label: 'Urgente' }
+  ];
+
+  const filteredPriorities = priorities.filter(priority => 
+    priority.label.toLowerCase().includes(prioritySearch.toLowerCase())
+  );
+
   return (
     <div className="mb-6">
       <Card>
@@ -167,21 +203,31 @@ export function LeadsFilters({
                   </SelectTrigger>
                   <SelectContent className="bg-white z-50">
                     <SelectItem value="all">Todas las etapas</SelectItem>
-                    <div className="px-2 py-1 text-sm font-medium text-muted-foreground border-b">
-                      Selección múltiple:
-                    </div>
-                    {uniqueStages.map((stage) => (
-                      <div key={stage} className="flex items-center space-x-2 px-2 py-1">
-                        <Checkbox
-                          id={`stage-${stage}`}
-                          checked={Array.isArray(filterStage) ? filterStage.includes(stage) : filterStage === stage}
-                          onCheckedChange={() => setFilterStage(handleMultiSelectValue(filterStage, stage))}
+                    <div className="px-2 py-2 border-b">
+                      <div className="relative">
+                        <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                        <Input
+                          placeholder="Buscar etapa..."
+                          value={stageSearch}
+                          onChange={(e) => setStageSearch(e.target.value)}
+                          className="pl-8 h-8"
                         />
-                        <label htmlFor={`stage-${stage}`} className="text-sm cursor-pointer flex-1">
-                          {stage}
-                        </label>
                       </div>
-                    ))}
+                    </div>
+                    <ScrollArea className="h-48">
+                      {filteredStages.map((stage) => (
+                        <div key={stage} className="flex items-center space-x-2 px-2 py-1">
+                          <Checkbox
+                            id={`stage-${stage}`}
+                            checked={Array.isArray(filterStage) ? filterStage.includes(stage) : filterStage === stage}
+                            onCheckedChange={() => setFilterStage(handleMultiSelectValue(filterStage, stage))}
+                          />
+                          <label htmlFor={`stage-${stage}`} className="text-sm cursor-pointer flex-1">
+                            {stage}
+                          </label>
+                        </div>
+                      ))}
+                    </ScrollArea>
                   </SelectContent>
                 </Select>
               </div>
@@ -204,21 +250,31 @@ export function LeadsFilters({
                   </SelectTrigger>
                   <SelectContent className="bg-white z-50">
                     <SelectItem value="all">Todos los usuarios</SelectItem>
-                    <div className="px-2 py-1 text-sm font-medium text-muted-foreground border-b">
-                      Selección múltiple:
-                    </div>
-                    {users.map((user) => (
-                      <div key={user.id} className="flex items-center space-x-2 px-2 py-1">
-                        <Checkbox
-                          id={`user-${user.id}`}
-                          checked={Array.isArray(filterAssignedTo) ? filterAssignedTo.includes(user.id) : filterAssignedTo === user.id}
-                          onCheckedChange={() => setFilterAssignedTo(handleMultiSelectValue(filterAssignedTo, user.id))}
+                    <div className="px-2 py-2 border-b">
+                      <div className="relative">
+                        <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                        <Input
+                          placeholder="Buscar usuario..."
+                          value={userSearch}
+                          onChange={(e) => setUserSearch(e.target.value)}
+                          className="pl-8 h-8"
                         />
-                        <label htmlFor={`user-${user.id}`} className="text-sm cursor-pointer flex-1">
-                          {user.name}
-                        </label>
                       </div>
-                    ))}
+                    </div>
+                    <ScrollArea className="h-48">
+                      {filteredUsers.map((user) => (
+                        <div key={user.id} className="flex items-center space-x-2 px-2 py-1">
+                          <Checkbox
+                            id={`user-${user.id}`}
+                            checked={Array.isArray(filterAssignedTo) ? filterAssignedTo.includes(user.id) : filterAssignedTo === user.id}
+                            onCheckedChange={() => setFilterAssignedTo(handleMultiSelectValue(filterAssignedTo, user.id))}
+                          />
+                          <label htmlFor={`user-${user.id}`} className="text-sm cursor-pointer flex-1">
+                            {user.name}
+                          </label>
+                        </div>
+                      ))}
+                    </ScrollArea>
                   </SelectContent>
                 </Select>
               </div>
@@ -241,21 +297,31 @@ export function LeadsFilters({
                   </SelectTrigger>
                   <SelectContent className="bg-white z-50">
                     <SelectItem value="all">Todas las fuentes</SelectItem>
-                    <div className="px-2 py-1 text-sm font-medium text-muted-foreground border-b">
-                      Selección múltiple:
-                    </div>
-                    {uniqueSources.map((source) => (
-                      <div key={source} className="flex items-center space-x-2 px-2 py-1">
-                        <Checkbox
-                          id={`source-${source}`}
-                          checked={Array.isArray(filterSource) ? filterSource.includes(source) : filterSource === source}
-                          onCheckedChange={() => setFilterSource(handleMultiSelectValue(filterSource, source))}
+                    <div className="px-2 py-2 border-b">
+                      <div className="relative">
+                        <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                        <Input
+                          placeholder="Buscar fuente..."
+                          value={sourceSearch}
+                          onChange={(e) => setSourceSearch(e.target.value)}
+                          className="pl-8 h-8"
                         />
-                        <label htmlFor={`source-${source}`} className="text-sm cursor-pointer flex-1">
-                          {source}
-                        </label>
                       </div>
-                    ))}
+                    </div>
+                    <ScrollArea className="h-48">
+                      {filteredSources.map((source) => (
+                        <div key={source} className="flex items-center space-x-2 px-2 py-1">
+                          <Checkbox
+                            id={`source-${source}`}
+                            checked={Array.isArray(filterSource) ? filterSource.includes(source) : filterSource === source}
+                            onCheckedChange={() => setFilterSource(handleMultiSelectValue(filterSource, source))}
+                          />
+                          <label htmlFor={`source-${source}`} className="text-sm cursor-pointer flex-1">
+                            {source}
+                          </label>
+                        </div>
+                      ))}
+                    </ScrollArea>
                   </SelectContent>
                 </Select>
               </div>
@@ -278,21 +344,31 @@ export function LeadsFilters({
                   </SelectTrigger>
                   <SelectContent className="bg-white z-50">
                     <SelectItem value="all">Todas las campañas</SelectItem>
-                    <div className="px-2 py-1 text-sm font-medium text-muted-foreground border-b">
-                      Selección múltiple:
-                    </div>
-                    {uniqueCampaigns.map((campaign) => (
-                      <div key={campaign} className="flex items-center space-x-2 px-2 py-1">
-                        <Checkbox
-                          id={`campaign-${campaign}`}
-                          checked={Array.isArray(filterCampaign) ? filterCampaign.includes(campaign) : filterCampaign === campaign}
-                          onCheckedChange={() => setFilterCampaign(handleMultiSelectValue(filterCampaign, campaign))}
+                    <div className="px-2 py-2 border-b">
+                      <div className="relative">
+                        <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                        <Input
+                          placeholder="Buscar campaña..."
+                          value={campaignSearch}
+                          onChange={(e) => setCampaignSearch(e.target.value)}
+                          className="pl-8 h-8"
                         />
-                        <label htmlFor={`campaign-${campaign}`} className="text-sm cursor-pointer flex-1">
-                          {campaign}
-                        </label>
                       </div>
-                    ))}
+                    </div>
+                    <ScrollArea className="h-48">
+                      {filteredCampaigns.map((campaign) => (
+                        <div key={campaign} className="flex items-center space-x-2 px-2 py-1">
+                          <Checkbox
+                            id={`campaign-${campaign}`}
+                            checked={Array.isArray(filterCampaign) ? filterCampaign.includes(campaign) : filterCampaign === campaign}
+                            onCheckedChange={() => setFilterCampaign(handleMultiSelectValue(filterCampaign, campaign))}
+                          />
+                          <label htmlFor={`campaign-${campaign}`} className="text-sm cursor-pointer flex-1">
+                            {campaign}
+                          </label>
+                        </div>
+                      ))}
+                    </ScrollArea>
                   </SelectContent>
                 </Select>
               </div>
@@ -310,36 +386,36 @@ export function LeadsFilters({
                 >
                   <SelectTrigger className="w-full">
                     <SelectValue>
-                      {getDisplayText(filterPriority, "Seleccionar prioridades", [
-                        { value: 'low', label: 'Baja' },
-                        { value: 'medium', label: 'Media' },
-                        { value: 'high', label: 'Alta' },
-                        { value: 'urgent', label: 'Urgente' }
-                      ])}
+                      {getDisplayText(filterPriority, "Seleccionar prioridades", priorities)}
                     </SelectValue>
                   </SelectTrigger>
                   <SelectContent className="bg-white z-50">
                     <SelectItem value="all">Todas las prioridades</SelectItem>
-                    <div className="px-2 py-1 text-sm font-medium text-muted-foreground border-b">
-                      Selección múltiple:
-                    </div>
-                    {[
-                      { value: 'low', label: 'Baja' },
-                      { value: 'medium', label: 'Media' },
-                      { value: 'high', label: 'Alta' },
-                      { value: 'urgent', label: 'Urgente' }
-                    ].map((priority) => (
-                      <div key={priority.value} className="flex items-center space-x-2 px-2 py-1">
-                        <Checkbox
-                          id={`priority-${priority.value}`}
-                          checked={Array.isArray(filterPriority) ? filterPriority.includes(priority.value) : filterPriority === priority.value}
-                          onCheckedChange={() => setFilterPriority(handleMultiSelectValue(filterPriority, priority.value))}
+                    <div className="px-2 py-2 border-b">
+                      <div className="relative">
+                        <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                        <Input
+                          placeholder="Buscar prioridad..."
+                          value={prioritySearch}
+                          onChange={(e) => setPrioritySearch(e.target.value)}
+                          className="pl-8 h-8"
                         />
-                        <label htmlFor={`priority-${priority.value}`} className="text-sm cursor-pointer flex-1">
-                          {priority.label}
-                        </label>
                       </div>
-                    ))}
+                    </div>
+                    <ScrollArea className="h-48">
+                      {filteredPriorities.map((priority) => (
+                        <div key={priority.value} className="flex items-center space-x-2 px-2 py-1">
+                          <Checkbox
+                            id={`priority-${priority.value}`}
+                            checked={Array.isArray(filterPriority) ? filterPriority.includes(priority.value) : filterPriority === priority.value}
+                            onCheckedChange={() => setFilterPriority(handleMultiSelectValue(filterPriority, priority.value))}
+                          />
+                          <label htmlFor={`priority-${priority.value}`} className="text-sm cursor-pointer flex-1">
+                            {priority.label}
+                          </label>
+                        </div>
+                      ))}
+                    </ScrollArea>
                   </SelectContent>
                 </Select>
               </div>
