@@ -388,7 +388,7 @@ export function LeadsTable({
                   {visibleColumns.map((column) => (
                     <TableCell 
                       key={column.key} 
-                      className={`px-4 py-3 text-xs ${
+                      className={`px-4 py-3 text-xs text-center${
                         column.key === 'name' ? 'leads-name-column-sticky' : 'leads-regular-column'
                       }`}
                     >
