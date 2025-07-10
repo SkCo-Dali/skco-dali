@@ -338,7 +338,7 @@ export function LeadsFilters({
                     <SelectItem value="all">Todas las campañas</SelectItem>
                     <div className="px-2 py-2 border-b">
                       <div className="relative">
-                        <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                        <Search className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
                         <Input
                           placeholder="Buscar campaña..."
                           value={campaignSearch}
