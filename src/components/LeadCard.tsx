@@ -70,7 +70,7 @@ export function LeadCard({
   };
 
   return (
-    <div className="relative">
+    <div className="relative border-[#fafafa]">
       <Card 
         className="cursor-pointer hover:shadow-md transition-all duration-200 w-full border  mt-0 rounded-lg"
         style={{ backgroundColor: '#fafafa', borderColor: '#fafafa' }}
