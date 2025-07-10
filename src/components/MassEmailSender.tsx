@@ -121,7 +121,7 @@ export function MassEmailSender({ filteredLeads, onClose }: MassEmailSenderProps
 
         {/* Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid w-full grid-cols-3 mb-6 bg-gray-100 p-1 rounded-full">
+          <TabsList className="grid w-full grid-cols-3 mb-6 bg-gray-100 py-1 rounded-full">
             <TabsTrigger 
               value="compose" 
               className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#00c83c] data-[state=active]:to-[#A3E40B] data-[state=active]:text-white rounded-full px-10 py-2 mt-0 text-sm font-medium transition-all duration-200"
