@@ -12,6 +12,7 @@ import { User, Mail, Edit, Trash2, MoreVertical, CircleUserRound,  Smartphone } 
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { useUsersApi } from "@/hooks/useUsersApi";
+import { MdOutlineCampaign } from "react-icons/md";
 
 interface LeadCardProps {
   lead: Lead;
@@ -107,7 +108,7 @@ export function LeadCard({
                 <span>{assignedUser?.name || 'Sin asignar'}</span>
               </div> 
               <div className="flex items-center text-xs text-gray-900">
-                <User className="h-3 w-3 mr-1" />
+                <MdOutlineCampaign className="h-3 w-3 mr-1" />
                 <span>{lead.campaign || ''}</span>
               </div> 
             </div>
