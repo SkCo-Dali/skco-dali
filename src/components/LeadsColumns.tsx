@@ -131,7 +131,7 @@ export function LeadsColumns({ leads, onLeadClick, onLeadUpdate, onSendEmail }: 
         {Object.entries(groupedLeads).map(([key, group]) => (
           <div key={key} className="space-y-3">
             {/* Header de la columna con fondo verde claro */}
-            <div className="bg-green-100 rounded-t-lg px-4 py-0 flex items-center justify-between">
+            <div className="bg-green-100 rounded-t-lg px-4 py-3 flex items-center justify-between">
               <h3 className="font-semibold text-lg text-gray-800">{group.label}</h3>
               <span className="text-sm font-medium text-gray-600">({group.leads.length})</span>
             </div>
