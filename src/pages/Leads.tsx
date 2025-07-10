@@ -152,7 +152,7 @@ export default function Leads() {
   }, []);
 
   const handleViewModeToggle = () => {
-    const modes: ("table" | "columns")[] = ["table", "columns"];
+    const modes: ("grid" | "table" | "columns")[] = ["grid", "table", "columns"];
     const currentIndex = modes.indexOf(viewMode);
     const nextIndex = (currentIndex + 1) % modes.length;
     setViewMode(modes[nextIndex]);
@@ -160,6 +160,8 @@ export default function Leads() {
 
   const getViewModeIcon = () => {
     switch (viewMode) {
+      case "grid":
+        return <Grid className="h-4 w-4" />;
       case "table":
         return <Table className="h-4 w-4" />;
       case "columns":
@@ -169,6 +171,8 @@ export default function Leads() {
 
   const getViewModeLabel = () => {
     switch (viewMode) {
+      case "grid":
+        return "Grid";
       case "table":
         return "Tabla";
       case "columns":
