@@ -10,6 +10,7 @@ import { ColumnConfig } from "@/components/LeadsTableColumnSelector";
 import { EditableLeadCell } from "@/components/EditableLeadCell";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
+import { FaWhatsapp } from "react-icons/fa";
 
 interface LeadsTableProps {
   leads: Lead[];
@@ -238,7 +239,7 @@ export function LeadsTable({
                   Edición rápida
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={(e) => handleLeadAction('whatsapp', lead, e)}>
-                  <MessageCircle className="mr-2 h-4 w-4" />
+                  <FaWhatsapp className="mr-2 h-4 w-4" />
                   Enviar WhatsApp
                 </DropdownMenuItem>
                 <DropdownMenuItem 
