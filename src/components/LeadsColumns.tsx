@@ -132,12 +132,12 @@ export function LeadsColumns({ leads, onLeadClick, onLeadUpdate, onSendEmail }: 
           <div key={key} className="space-y-0">
             {/* Header de la columna con fondo verde claro */}
             <div className="bg-green-100 rounded-t-lg px-4 py-3 flex items-center justify-between">
-              <h3 className="font-semibold text-lg text-gray-800">{group.label}</h3>
-              <span className="text-sm font-medium text-gray-600">({group.leads.length})</span>
+              <h3 className="font-semibold text-lg text-gray-800 text-center">{group.label}</h3>
+              <span className="text-sm font-medium text-gray-600 text-center">({group.leads.length})</span>
             </div>
             
             {/* Contenedor de tarjetas con espaciado */}
-            <div className="space-y-4 pt-4 max-h-[600px] overflow-y-auto border border-[#fafafa]">
+            <div className="space-y-4 pt-4 max-h-[600px] overflow-y-auto border-l border-r border-b border-[#fafafa]">
               {group.leads.map((lead) => (
                 <LeadCard 
                   key={lead.id} 
