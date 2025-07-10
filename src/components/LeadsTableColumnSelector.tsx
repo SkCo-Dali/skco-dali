@@ -34,9 +34,9 @@ export function LeadsTableColumnSelector({ columns, onColumnsChange, className }
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="outline" size="sm" className={className}>
+        <Button size="sm" className="text-[#3f3f3f] w-24 h-8 bg-white border border-gray-300 rounded-md hover:bg-white hover:border-gray-300">
           <Settings className="h-4 w-4 mr-2" />
-          Columnas
+          Personaliza
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-56">
