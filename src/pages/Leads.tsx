@@ -238,7 +238,7 @@ export default function Leads() {
             </div>
             <div className="flex gap-2">
               <Button 
-                className="w-24 h-8 bg-white border border-gray-300 rounded-md hover:bg-white hover:border-gray-300"
+                className="text-[#3f3f3f] w-24 h-8 bg-white border border-gray-300 rounded-md hover:bg-white hover:border-gray-300"
                 onClick={() => setShowFilters(!showFilters)}
                 size="sm"
               >
