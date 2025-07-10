@@ -8,7 +8,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Settings } from "lucide-react";
+import { Settings, Columns3Cog } from "lucide-react";
 
 export interface ColumnConfig {
   key: string;
@@ -35,7 +35,7 @@ export function LeadsTableColumnSelector({ columns, onColumnsChange, className }
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button size="sm" className="text-[#3f3f3f] w-30 h-8 bg-white border border-gray-300 rounded-md hover:bg-white hover:border-gray-300">
-          <Settings className="h-4 w-4 mr-2" />
+          <Columns3Cog className="h-4 w-4 mr-2 text-[#00c83c]" />
           Personaliza
         </Button>
       </DropdownMenuTrigger>

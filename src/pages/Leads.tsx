@@ -35,7 +35,7 @@ import {
   Grid, 
   Table, 
   Columns,
-  MoreVertical 
+  MoreVertical
 } from "lucide-react";
 
 const DEFAULT_COLUMNS: ColumnConfig[] = [
