@@ -96,8 +96,8 @@ export function MassEmailSender({ filteredLeads, onClose }: MassEmailSenderProps
             <h2 className="text-xl font-semibold">Envío de Correos</h2>
             <div className="flex items-center gap-2">
               <Badge variant="secondary">
-                <Filter className="h-4 w-4 mr-1" />
-                {validLeads.length} leads con email válido
+                <Filter className="h-4 w-4 mr-1 text-white" />
+                <span className="text-white">{validLeads.length} leads con email válido</span>
               </Badge>
               {isOverLimit && (
                 <Badge variant="destructive">
@@ -113,7 +113,7 @@ export function MassEmailSender({ filteredLeads, onClose }: MassEmailSenderProps
         {isOverLimit && (
           <div className="flex items-center gap-2 p-3 bg-[#ECFDF3] rounded-md">
             <AlertTriangle className="h-4 w-4 text-[#87F491]" />
-            <span className="text-amber-800 text-sm">
+            <span className="text-[#3f3f3f] text-sm">
               Se mostrarán solo los primeros 20 leads. {validLeads.length - 20} leads adicionales serán omitidos.
             </span>
           </div>
