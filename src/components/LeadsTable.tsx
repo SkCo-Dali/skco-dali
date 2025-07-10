@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Lead } from "@/types/crm";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { User, ChevronUp, ChevronDown, MoreVertical, Edit, Calendar, User as UserIcon, MessageSquare, MessageCircle, Trash2 } from "lucide-react";
+import { User, ChevronUp, ChevronDown, MoreVertical, Edit, Calendar, User as UserIcon, MessageCircle, Trash2 } from "lucide-react";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { useUsersApi } from "@/hooks/useUsersApi";
@@ -238,7 +238,7 @@ export function LeadsTable({
                   Edición rápida
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={(e) => handleLeadAction('whatsapp', lead, e)}>
-                  <MessageSquare className="mr-2 h-4 w-4" />
+                  <MessageCircle className="mr-2 h-4 w-4" />
                   Enviar WhatsApp
                 </DropdownMenuItem>
                 <DropdownMenuItem 
