@@ -237,6 +237,15 @@ export function LeadsTable({
                   <Edit className="mr-2 h-4 w-4" />
                   Edición rápida
                 </DropdownMenuItem>
+                {onSendEmail && (
+<DropdownMenuItem 
+                      onClick={(e) => handleMenuClick(e, () => onSendEmail(lead))}
+                      className="flex items-center gap-2 px-3 py-2 hover:bg-gray-50 cursor-pointer text-sm"
+>
+<Mail className="h-4 w-4" />
+                      Enviar Email
+</DropdownMenuItem>
+                  )}
                 <DropdownMenuItem onClick={(e) => handleLeadAction('whatsapp', lead, e)}>
                   <FaWhatsapp className="mr-2 h-4 w-4" />
                   Enviar WhatsApp
