@@ -82,8 +82,7 @@ export function EmailComposer({ template, onTemplateChange, dynamicFields }: Ema
                 {dynamicFields.map((field) => (
                   <Badge
                     key={field.key}
-                    variant="secondary"
-                    className="cursor-pointer hover:bg-primary hover:text-primary-foreground"
+                    className="cursor-pointer hover:bg-[#EBF4FF] hover:text-primary-foreground"
                     onClick={() => {
                       // Por defecto insertar en el contenido HTML
                       insertDynamicField(field, 'htmlContent');
