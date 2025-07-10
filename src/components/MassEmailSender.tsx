@@ -171,7 +171,8 @@ export function MassEmailSender({ filteredLeads, onClose }: MassEmailSenderProps
             {isOverLimit && (
               <div className="flex items-center gap-2 p-3 bg-[#ECFDF3] rounded-md">
                 <Info className="h-4 w-4 text-[#3f3f3f]" />
-                <h3>Ejemplo de tu correo</h3>
+                <span className="text-md"> Ejemplo de tu correo </span>
+                <br></br>
                 <span className="text-[#3f3f3f] text-sm">
                   Los demás correos se enviarán con el mismo formato y con los datos que personalizaste.
                 </span>
