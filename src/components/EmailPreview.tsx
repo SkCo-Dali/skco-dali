@@ -15,7 +15,7 @@ export function EmailPreview({
   leads, 
   template, 
   replaceDynamicFields, 
-  maxPreviews = 10 
+  maxPreviews = 1 
 }: EmailPreviewProps) {
   const previewLeads = leads.slice(0, maxPreviews);
 
@@ -40,15 +40,15 @@ export function EmailPreview({
         <CardTitle className="flex items-center justify-between">
           Previsualización de Emails
           <Badge variant="secondary">
-            {previewLeads.length} de {leads.length} leads
+            {leads.length} de {leads.length} leads
           </Badge>
         </CardTitle>
         <p className="text-sm text-muted-foreground">
-          Mostrando los primeros {maxPreviews} correos que se enviarían
+          Mostrando una vista previa del correo que se enviaría
         </p>
       </CardHeader>
       <CardContent>
-        <div className="space-y-4 max-h-96 overflow-y-auto">
+        <div className="space-y-4">
           {previewLeads.map((lead, index) => {
             const processedSubject = replaceDynamicFields(template.subject, lead);
             const processedContent = replaceDynamicFields(template.htmlContent, lead);
