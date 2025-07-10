@@ -9,9 +9,10 @@ interface LeadsColumnsProps {
   leads: Lead[];
   onLeadClick: (lead: Lead) => void;
   onLeadUpdate?: () => void;
+  onSendEmail?: (lead: Lead) => void;
 }
 
-export function LeadsColumns({ leads, onLeadClick, onLeadUpdate }: LeadsColumnsProps) {
+export function LeadsColumns({ leads, onLeadClick, onLeadUpdate, onSendEmail }: LeadsColumnsProps) {
   const { users } = useUsersApi();
   const [groupBy, setGroupBy] = useState<string>("stage");
 
@@ -35,11 +36,8 @@ export function LeadsColumns({ leads, onLeadClick, onLeadUpdate }: LeadsColumnsP
   };
 
   const handleEdit = (lead: Lead) => {
-    console.log('Edit lead:', lead);
-    // Aquí se puede implementar la lógica de edición rápida
-    if (onLeadUpdate) {
-      onLeadUpdate();
-    }
+    // Usar onLeadClick para abrir el modal de detalle del lead
+    onLeadClick(lead);
   };
 
   const handleDelete = (lead: Lead) => {
@@ -54,9 +52,10 @@ export function LeadsColumns({ leads, onLeadClick, onLeadUpdate }: LeadsColumnsP
   };
 
   const handleSendEmail = (lead: Lead) => {
-    console.log('Send email to lead:', lead);
-    // Aquí se puede implementar la lógica de envío de email
-    alert(`Enviando email a ${lead.email}`);
+    // Usar la función onSendEmail del padre para abrir el modal con el lead filtrado
+    if (onSendEmail) {
+      onSendEmail(lead);
+    }
   };
 
   const handleSendWhatsApp = (lead: Lead) => {

@@ -68,6 +68,7 @@ export default function Leads() {
   const [showFilters, setShowFilters] = useState(false);
   const [columns, setColumns] = useState<ColumnConfig[]>(DEFAULT_COLUMNS);
   const [sortedLeads, setSortedLeads] = useState<Lead[]>([]);
+  const [selectedLeadForEmail, setSelectedLeadForEmail] = useState<Lead | null>(null);
   const leadCreateDialogRef = useRef<{ openDialog: () => void }>(null);
 
   const {
@@ -144,6 +145,11 @@ export default function Leads() {
     setSortedLeads(sorted);
     setCurrentPage(1);
   }, [setCurrentPage]);
+
+  const handleSendEmailToLead = useCallback((lead: Lead) => {
+    setSelectedLeadForEmail(lead);
+    setShowMassEmail(true);
+  }, []);
 
   const handleViewModeToggle = () => {
     const modes: ("grid" | "table" | "columns")[] = ["grid", "table", "columns"];
@@ -312,6 +318,7 @@ export default function Leads() {
                 columns={columns}
                 paginatedLeads={paginatedLeads}
                 onSortedLeadsChange={handleSortedLeadsChange}
+                onSendEmail={handleSendEmailToLead}
               />
 
               <LeadsPagination
@@ -359,11 +366,19 @@ export default function Leads() {
         />
       )}
 
-      <Dialog open={showMassEmail} onOpenChange={setShowMassEmail}>
+      <Dialog open={showMassEmail} onOpenChange={(open) => {
+        setShowMassEmail(open);
+        if (!open) {
+          setSelectedLeadForEmail(null);
+        }
+      }}>
         <DialogContent className="max-w-6xl max-h-[90vh] overflow-auto">
           <MassEmailSender
-            filteredLeads={filteredLeads}
-            onClose={() => setShowMassEmail(false)}
+            filteredLeads={selectedLeadForEmail ? [selectedLeadForEmail] : filteredLeads}
+            onClose={() => {
+              setShowMassEmail(false);
+              setSelectedLeadForEmail(null);
+            }}
           />
         </DialogContent>
       </Dialog>

@@ -1,9 +1,8 @@
 
-import { useState, useEffect } from "react";
 import { Lead } from "@/types/crm";
 import { LeadsTable } from "@/components/LeadsTable";
+import { LeadsGrid } from "@/components/LeadsGrid";
 import { LeadsColumns } from "@/components/LeadsColumns";
-import { LeadCard } from "@/components/LeadCard";
 import { ColumnConfig } from "@/components/LeadsTableColumnSelector";
 
 interface LeadsContentProps {
@@ -12,8 +11,9 @@ interface LeadsContentProps {
   onLeadClick: (lead: Lead) => void;
   onLeadUpdate?: () => void;
   columns?: ColumnConfig[];
-  paginatedLeads: Lead[];
-  onSortedLeadsChange?: (sortedLeads: Lead[]) => void;
+  paginatedLeads?: Lead[];
+  onSortedLeadsChange?: (sorted: Lead[]) => void;
+  onSendEmail?: (lead: Lead) => void;
 }
 
 export function LeadsContent({ 
@@ -23,40 +23,38 @@ export function LeadsContent({
   onLeadUpdate, 
   columns, 
   paginatedLeads,
-  onSortedLeadsChange 
+  onSortedLeadsChange,
+  onSendEmail
 }: LeadsContentProps) {
-  if (viewMode === "table") {
-    return (
-      <LeadsTable 
-        leads={leads}
-        paginatedLeads={paginatedLeads}
-        onLeadClick={onLeadClick}
-        onLeadUpdate={onLeadUpdate}
-        columns={columns}
-        onSortedLeadsChange={onSortedLeadsChange}
-      />
-    );
-  }
-  
-  if (viewMode === "columns") {
-    return (
-      <LeadsColumns 
-        leads={paginatedLeads} 
-        onLeadClick={onLeadClick} 
-      />
-    );
-  }
-
-  // Grid view
-  return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-      {paginatedLeads.map((lead) => (
-        <LeadCard
-          key={lead.id}
-          lead={lead}
-          onClick={() => onLeadClick(lead)}
+  switch (viewMode) {
+    case "table":
+      return (
+        <LeadsTable
+          leads={paginatedLeads || leads}
+          onLeadClick={onLeadClick}
+          onLeadUpdate={onLeadUpdate}
+          columns={columns}
+          onSortedLeadsChange={onSortedLeadsChange}
         />
-      ))}
-    </div>
-  );
+      );
+    case "grid":
+      return (
+        <LeadsGrid
+          leads={paginatedLeads || leads}
+          onLeadClick={onLeadClick}
+          onLeadUpdate={onLeadUpdate}
+        />
+      );
+    case "columns":
+      return (
+        <LeadsColumns
+          leads={leads}
+          onLeadClick={onLeadClick}
+          onLeadUpdate={onLeadUpdate}
+          onSendEmail={onSendEmail}
+        />
+      );
+    default:
+      return null;
+  }
 }
