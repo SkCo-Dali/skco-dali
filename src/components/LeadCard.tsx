@@ -70,9 +70,9 @@ export function LeadCard({
   };
 
   return (
-    <div className="relative border-[#fafafa]">
+    <div className="relative">
       <Card 
-        className="cursor-pointer hover:shadow-md transition-all duration-200 w-full border  mt-0 rounded-lg"
+        className="cursor-pointer hover:shadow-md transition-all duration-200 w-full border  mt-0 ml-2 mr-2 rounded-lg"
         style={{ backgroundColor: '#fafafa', borderColor: '#fafafa' }}
         onClick={handleCardClick}
       >
