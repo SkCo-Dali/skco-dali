@@ -66,7 +66,7 @@ export function LeadsTableColumnSelector({ columns, onColumnsChange, className }
                       id={column.key}
                       checked={column.visible}
                       onCheckedChange={() => handleColumnToggle(column.key)}
-                      className="h-4 w-4 border-gray-300 data-[state=checked]:bg-[#00c83c] data-[state=checked]:border-[#00c83c]"
+                      className="h-4 w-4 border-[#00c83c] data-[state=checked]:bg-[#00c83c] data-[state=checked]:border-[#00c83c]"
                     />
                     <label
                       htmlFor={column.key}
