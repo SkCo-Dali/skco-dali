@@ -8,7 +8,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { User, Mail, Edit, Trash2, MoreVertical } from "lucide-react";
+import { User, Mail, Edit, Trash2, MoreVertical, CircleUserRound, Mail, Smartphone } from "lucide-react";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { useUsersApi } from "@/hooks/useUsersApi";
@@ -92,8 +92,12 @@ export function LeadCard({
               <h3 className="font-medium text-sm text-gray-900 mb-1">{lead.name}</h3>
               <p className="text-xs text-gray-500 mb-2">{lead.email}</p>
               <div className="flex items-center text-xs text-gray-400 mb-1">
-                <User className="h-3 w-3 mr-1" />
+                <CircleUserRound className="h-3 w-3 mr-1" />
                 <span>{lead.documentType || 'CC'}.{lead.documentNumber || '111111111'}</span>
+                <Smartphone className="h-3 w-3 mr-1" />
+                <span>{lead.phone || '3333333333'}</span>
+                <Mail className="h-3 w-3 mr-1" />
+                <span>{lead.email || 'xxx@xxx'}</span>
               </div>
             </div>
             
