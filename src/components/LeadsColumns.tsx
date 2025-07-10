@@ -9,9 +9,10 @@ import { useUsersApi } from "@/hooks/useUsersApi";
 interface LeadsColumnsProps {
   leads: Lead[];
   onLeadClick: (lead: Lead) => void;
+  onLeadUpdate?: () => void;
 }
 
-export function LeadsColumns({ leads, onLeadClick }: LeadsColumnsProps) {
+export function LeadsColumns({ leads, onLeadClick, onLeadUpdate }: LeadsColumnsProps) {
   const { users } = useUsersApi();
   const [groupBy, setGroupBy] = useState<string>("stage");
 
@@ -32,6 +33,26 @@ export function LeadsColumns({ leads, onLeadClick }: LeadsColumnsProps) {
     'cold-call': 'Llamada fría',
     'event': 'Evento',
     'campaign': 'Campaña'
+  };
+
+  const handleEdit = (lead: Lead) => {
+    console.log('Edit lead:', lead);
+    // Aquí se puede implementar la lógica de edición rápida
+  };
+
+  const handleDelete = (lead: Lead) => {
+    console.log('Delete lead:', lead);
+    // Aquí se puede implementar la lógica de eliminación
+  };
+
+  const handleSendEmail = (lead: Lead) => {
+    console.log('Send email to lead:', lead);
+    // Aquí se puede implementar la lógica de envío de email
+  };
+
+  const handleSendWhatsApp = (lead: Lead) => {
+    console.log('Send WhatsApp to lead:', lead);
+    // Aquí se puede implementar la lógica de envío de WhatsApp
   };
 
   const groupLeads = () => {
@@ -111,6 +132,10 @@ export function LeadsColumns({ leads, onLeadClick }: LeadsColumnsProps) {
                   key={lead.id} 
                   lead={lead} 
                   onClick={() => onLeadClick(lead)}
+                  onEdit={handleEdit}
+                  onDelete={handleDelete}
+                  onSendEmail={handleSendEmail}
+                  onSendWhatsApp={handleSendWhatsApp}
                 />
               ))}
             </div>
