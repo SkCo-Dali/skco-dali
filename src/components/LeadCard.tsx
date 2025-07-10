@@ -101,7 +101,15 @@ export function LeadCard({
               <div className="flex items-center text-xs text-gray-900">
                 <Mail className="h-3 w-3 mr-1" />
                 <span>{lead.email || 'xxx@xxx'}</span>
-              </div>            
+              </div> 
+              <div className="flex items-center text-xs text-gray-900">
+                <User className="h-3 w-3 mr-1" />
+                <span>{assignedUser?.name || 'Sin asignar'}</span>
+              </div> 
+              <div className="flex items-center text-xs text-gray-900">
+                <User className="h-3 w-3 mr-1" />
+                <span>{lead.campaign || ''}</span>
+              </div> 
             </div>
             
             <div data-dropdown>
@@ -159,24 +167,7 @@ export function LeadCard({
         </CardHeader>
         
         <CardContent className="px-4 pb-3 pt-0">
-          <div className="space-y-2">
-            <div className="text-xs text-gray-500">
-              <div className="mb-1">
-                <strong>Producto:</strong> {lead.product}
-              </div>
-              {lead.campaign && (
-                <div className="mb-1">
-                  <strong>Campaña:</strong> {lead.campaign}
-                </div>
-              )}
-              <div className="mb-1 capitalize">
-                <strong>Fuente:</strong> {lead.source}
-              </div>
-              <div>
-                <strong>Asignado:</strong> {assignedUser?.name || 'Sin asignar'}
-              </div>
-            </div>
-          </div>
+          
         </CardContent>
       </Card>
     </div>
