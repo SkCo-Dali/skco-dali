@@ -35,6 +35,7 @@ export function LeadsContent({
           onLeadUpdate={onLeadUpdate}
           columns={columns}
           onSortedLeadsChange={onSortedLeadsChange}
+          onSendEmail={onSendEmail}
         />
       );
     case "grid":
@@ -47,6 +48,7 @@ export function LeadsContent({
           onLeadUpdate={onLeadUpdate}
           columns={columns}
           onSortedLeadsChange={onSortedLeadsChange}
+          onSendEmail={onSendEmail}
         />
       );
     case "columns":

@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Lead } from "@/types/crm";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { User, ChevronUp, ChevronDown, MoreVertical, Edit, Calendar, User as UserIcon, MessageCircle, Trash2 } from "lucide-react";
+import { User, ChevronUp, ChevronDown, MoreVertical, Edit, Calendar, User as UserIcon, MessageCircle, Trash2, Mail } from "lucide-react";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { useUsersApi } from "@/hooks/useUsersApi";
@@ -19,6 +19,7 @@ interface LeadsTableProps {
   onLeadUpdate?: () => void;
   columns?: ColumnConfig[];
   onSortedLeadsChange?: (sortedLeads: Lead[]) => void;
+  onSendEmail?: (lead: Lead) => void;
 }
 
 type SortConfig = {
@@ -53,7 +54,8 @@ export function LeadsTable({
   onLeadClick, 
   onLeadUpdate, 
   columns = defaultColumns, 
-  onSortedLeadsChange 
+  onSortedLeadsChange,
+  onSendEmail
 }: LeadsTableProps) {
   const { users } = useUsersApi();
   const [sortConfig, setSortConfig] = useState<SortConfig>(null);
@@ -192,6 +194,11 @@ export function LeadsTable({
       case 'edit':
         onLeadClick(lead);
         break;
+      case 'email':
+        if (onSendEmail) {
+          onSendEmail(lead);
+        }
+        break;
       case 'profile':
         console.log('Ver perfil del lead:', lead.name);
         break;
@@ -200,7 +207,10 @@ export function LeadsTable({
         break;
       case 'whatsapp':
         if (lead.phone) {
-          window.open(`https://wa.me/${lead.phone}`, '_blank');
+          const cleanPhone = lead.phone.replace(/\D/g, '');
+          window.open(`https://wa.me/${cleanPhone}`, '_blank');
+        } else {
+          console.log('No hay número de teléfono disponible para este lead');
         }
         break;
       case 'delete':
@@ -236,6 +246,10 @@ export function LeadsTable({
                 <DropdownMenuItem onClick={(e) => handleLeadAction('edit', lead, e)}>
                   <Edit className="mr-2 h-4 w-4" />
                   Edición rápida
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={(e) => handleLeadAction('email', lead, e)}>
+                  <Mail className="mr-2 h-4 w-4" />
+                  Enviar Email
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={(e) => handleLeadAction('whatsapp', lead, e)}>
                   <FaWhatsapp className="mr-2 h-4 w-4" />
