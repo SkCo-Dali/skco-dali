@@ -137,7 +137,7 @@ export function LeadsColumns({ leads, onLeadClick, onLeadUpdate, onSendEmail }: 
             </div>
             
             {/* Contenedor de tarjetas con espaciado */}
-            <div className="space-y-4 pt-4 max-h-[600px] overflow-y-auto">
+            <div className="space-y-4 pt-4 max-h-[600px] overflow-y-auto border border-[#fafafa]">
               {group.leads.map((lead) => (
                 <LeadCard 
                   key={lead.id} 
