@@ -250,7 +250,7 @@ export default function Leads() {
                 <LeadsTableColumnSelector
                   columns={columns}
                   onColumnsChange={setColumns}
-                  className="text-[#3f3f3f] w-24 h-8 bg-white border border-gray-300 rounded-md hover:bg-white hover:border-gray-300"
+                  size="sm"
                 />
               )}
               
