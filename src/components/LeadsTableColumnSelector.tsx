@@ -3,14 +3,13 @@ import React from 'react';
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Switch } from "@/components/ui/switch";
 import {
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuItem,
   DropdownMenuTrigger,
-  DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
-import { Settings, Columns3Cog, SquarePen} from "lucide-react";
+import { Columns3Cog } from "lucide-react";
 
 export interface ColumnConfig {
   key: string;
@@ -52,38 +51,55 @@ export function LeadsTableColumnSelector({ columns, onColumnsChange, className }
           Personaliza
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-56">
-        <DropdownMenuItem className="cursor-pointer" onClick={handleSelectAll}>
-          <div className="flex items-center space-x-2 w-full">
-            <Checkbox
+      <DropdownMenuContent align="end" className="w-72 p-0 bg-white rounded-2xl shadow-lg border border-gray-200">
+        <div className="p-4">
+          {/* Header */}
+          <h3 className="text-sm font-medium text-gray-900 mb-4">Personaliza las columnas</h3>
+          
+          {/* Column list with scroll */}
+          <ScrollArea className="h-48 mb-4">
+            <div className="space-y-3">
+              {columns.map((column) => (
+                <div key={column.key} className="flex items-center justify-between">
+                  <div className="flex items-center space-x-3">
+                    <Checkbox
+                      id={column.key}
+                      checked={column.visible}
+                      onCheckedChange={() => handleColumnToggle(column.key)}
+                      className="h-4 w-4 border-gray-300 data-[state=checked]:bg-[#00c83c] data-[state=checked]:border-[#00c83c]"
+                    />
+                    <label
+                      htmlFor={column.key}
+                      className="text-sm text-gray-700 cursor-pointer"
+                    >
+                      {column.label}
+                    </label>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </ScrollArea>
+
+          {/* Show all columns toggle */}
+          <div className="flex items-center justify-between py-3 border-t border-gray-200">
+            <span className="text-sm text-gray-700">Mostrar todas las columnas</span>
+            <Switch
               checked={allColumnsVisible}
               onCheckedChange={handleSelectAll}
+              className="data-[state=checked]:bg-[#00c83c]"
             />
-            <label className="text-sm font-medium leading-none cursor-pointer flex-1">
-              {allColumnsVisible ? 'Deseleccionar todas' : 'Seleccionar todas'}
-            </label>
           </div>
-        </DropdownMenuItem>
-        <DropdownMenuSeparator />
-        <ScrollArea className="h-64">
-          {columns.map((column) => (
-            <DropdownMenuItem key={column.key} className="cursor-pointer">
-              <div className="flex items-center space-x-2 w-full">
-                <Checkbox
-                  id={column.key}
-                  checked={column.visible}
-                  onCheckedChange={() => handleColumnToggle(column.key)}
-                />
-                <label
-                  htmlFor={column.key}
-                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer flex-1"
-                >
-                  {column.label}
-                </label>
-              </div>
-            </DropdownMenuItem>
-          ))}
-        </ScrollArea>
+
+          {/* Apply button */}
+          <Button 
+            className="w-full bg-[#00c83c] hover:bg-[#00b835] text-white rounded-xl h-10 mt-4"
+            onClick={() => {
+              // Close the dropdown (this will be handled by the dropdown itself)
+            }}
+          >
+            Aplicar
+          </Button>
+        </div>
       </DropdownMenuContent>
     </DropdownMenu>
   );
