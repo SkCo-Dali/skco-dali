@@ -86,10 +86,10 @@ export function LeadsPagination({
       {totalPages > 1 && (
         <div className="flex items-center gap-1">
           <button
-            className={`flex items-center justify-center w-6 h-6 rounded border ${
+            className={`flex items-center justify-center w-8 h-8 rounded-full ${
               currentPage === 1 
-                ? 'bg-gray-100 text-gray-400 cursor-not-allowed' 
-                : 'bg-white text-gray-600 hover:bg-gray-50 border-gray-300'
+                ? 'bg-gray-300 text-gray-500 cursor-not-allowed' 
+                : 'bg-[#00c83c] text-white hover:bg-[#00b835]'
             }`}
             onClick={() => currentPage > 1 && onPageChange(currentPage - 1)}
             disabled={currentPage === 1}
@@ -100,13 +100,13 @@ export function LeadsPagination({
           {generatePageNumbers().map((page, index) => (
             <div key={index}>
               {page === 'ellipsis' ? (
-                <span className="px-2 py-1 text-gray-500">...</span>
+                <span className="px-2 py-1 text-[#3f3f3f]">...</span>
               ) : (
                 <button
-                  className={`w-8 h-8 rounded border text-sm ${
+                  className={`w-8 h-8 text-sm font-medium ${
                     currentPage === page
-                      ? 'bg-[#00c83c] text-white border-[#00c83c]'
-                      : 'bg-white text-gray-600 hover:bg-gray-50 border-gray-300'
+                      ? 'text-[#00c83c]'
+                      : 'text-[#3f3f3f] hover:text-[#00c83c]'
                   }`}
                   onClick={() => onPageChange(page as number)}
                 >
@@ -117,10 +117,10 @@ export function LeadsPagination({
           ))}
           
           <button
-            className={`flex items-center justify-center w-8 h-8 rounded border ${
+            className={`flex items-center justify-center w-8 h-8 rounded-full ${
               currentPage === totalPages 
-                ? 'bg-gray-100 text-gray-400 cursor-not-allowed' 
-                : 'bg-white text-gray-600 hover:bg-gray-50 border-gray-300'
+                ? 'bg-gray-300 text-gray-500 cursor-not-allowed' 
+                : 'bg-[#00c83c] text-white hover:bg-[#00b835]'
             }`}
             onClick={() => currentPage < totalPages && onPageChange(currentPage + 1)}
             disabled={currentPage === totalPages}
