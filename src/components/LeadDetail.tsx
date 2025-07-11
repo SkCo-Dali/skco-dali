@@ -761,7 +761,7 @@ export function LeadDetail({ lead, isOpen, onClose, onSave, onOpenMassEmail }: L
                         rows={3}
                       />
                     </div>
-<div>
+<div className="gap-2">
                     <Button 
                       size="sm" 
                       onClick={() => onOpenMassEmail?.(editedLead)}
