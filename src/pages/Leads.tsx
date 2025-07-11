@@ -253,6 +253,21 @@ export default function Leads() {
 
           {/* Search and Controls Row */}
           <div className="flex flex-col lg:flex-row gap-4 items-center">
+            <Button
+                className="gap-1 w-8 h-8 bg-secondary"
+                onClick={handleViewModeToggle}
+                size="icon"
+              >
+              <Button
+                className="gap-1 w-8 h-8 bg-secondary"
+                onClick={handleViewModeToggle}
+                size="icon"
+              >
+                <Button
+                className="gap-1 w-8 h-8 bg-secondary"
+                onClick={handleViewModeToggle}
+                size="icon"
+              >
             <div className="flex-1">
               <LeadsSearch 
                 searchTerm={searchTerm} 
