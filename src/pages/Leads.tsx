@@ -359,7 +359,7 @@ export default function Leads() {
               )}
               
               <Button
-                className="gap-1 w-6 h-6 bg-secondary"
+                className="gap-1 w-8 h-8 bg-secondary"
                 onClick={handleViewModeToggle}
                 size="icon"
               >

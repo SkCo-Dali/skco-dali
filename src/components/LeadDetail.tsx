@@ -765,7 +765,7 @@ export function LeadDetail({ lead, isOpen, onClose, onSave, onOpenMassEmail }: L
                     <Button 
                       size="icon" 
                       onClick={() => onOpenMassEmail?.(lead)}
-                      className="gap-1 w-6 h-6"
+                      className="gap-1 w-8 h-8"
                     >
                       <Mail className="h-3 w-3" />
                     </Button>
@@ -783,7 +783,7 @@ export function LeadDetail({ lead, isOpen, onClose, onSave, onOpenMassEmail }: L
                           });
                         }
                       }}
-                      className="gap-1 w-6 h-6"
+                      className="gap-1 w-8 h-8"
                     >
                       <FaWhatsapp className="h-3 w-3" />
                     </Button>
