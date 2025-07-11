@@ -764,7 +764,7 @@ export function LeadDetail({ lead, isOpen, onClose, onSave, onOpenMassEmail }: L
 <div className="flex gap-2">
                     <Button 
                       size="sm" 
-                      onClick={() => onOpenMassEmail?.(editedLead)}
+                      onClick={(e) => handleLeadAction('edit', lead, e)}
                       className="gap-1"
                     >
                       <Mail className="h-3 w-3" />
