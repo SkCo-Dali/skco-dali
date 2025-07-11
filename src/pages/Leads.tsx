@@ -223,33 +223,6 @@ export default function Leads() {
         <div className="flex-1 space-y-6">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
             <h1 className="text-3xl font-bold">Gestión de Leads</h1>
-            
-            {/* Actions Dropdown */}
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button className="px-4 py-2">
-                  <MoreVertical className="h-4 w-4 mr-2" />
-                  Acciones
-                  <ChevronDown className="h-4 w-4 ml-2" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-48">
-                <LeadCreateDialog onLeadCreate={handleLeadCreate}>
-                  <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
-                    <Plus className="h-4 w-4 mr-2" />
-                    Crear Lead
-                  </DropdownMenuItem>
-                </LeadCreateDialog>
-                <DropdownMenuItem onClick={() => setShowMassEmail(true)}>
-                  <Mail className="h-4 w-4 mr-2" />
-                  Enviar Correos
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setShowBulkAssign(true)}>
-                  <Users className="h-4 w-4 mr-2" />
-                  Asignación Masiva
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
           </div>
 
           {/* Search and Controls Row */}
