@@ -1,5 +1,5 @@
+
 import React, { useState, useCallback, useMemo, useRef } from "react";
-import { useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { Lead } from "@/types/crm";
 import { LeadsSearch } from "@/components/LeadsSearch";
@@ -15,7 +15,7 @@ import { MassEmailSender } from "@/components/MassEmailSender";
 import { LeadsTableColumnSelector } from "@/components/LeadsTableColumnSelector";
 import { useLeadsFilters } from "@/hooks/useLeadsFilters";
 import { useLeadsPagination } from "@/hooks/useLeadsPagination";
-import { getAllLeads } from "@/utils/leadsApiClient";
+import { useLeadsApi } from "@/hooks/useLeadsApi";
 import { ColumnConfig } from "@/components/LeadsTableColumnSelector";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
@@ -70,15 +70,21 @@ export default function Leads() {
   const [selectedLeadForEmail, setSelectedLeadForEmail] = useState<Lead | null>(null);
   const leadCreateDialogRef = useRef<{ openDialog: () => void }>(null);
 
+  // Usar el hook useLeadsApi que ya tiene la lógica correcta para obtener leads reasignables
   const {
-    data: leadsData = [],
-    isLoading,
+    leads: leadsData,
+    loading: isLoading,
     error,
-    refetch
-  } = useQuery({
-    queryKey: ['leads'],
-    queryFn: () => getAllLeads(),
-  });
+    refreshLeads
+  } = useLeadsApi();
+
+  console.log('🏠 === LEADS PAGE DEBUG ===');
+  console.log('🏠 Total leads from useLeadsApi:', leadsData.length);
+  console.log('🏠 Loading state:', isLoading);
+  console.log('🏠 Error state:', error);
+  if (leadsData.length > 0) {
+    console.log('🏠 Sample lead from page:', JSON.stringify(leadsData[0], null, 2));
+  }
 
   const {
     filteredLeads,
@@ -130,9 +136,9 @@ export default function Leads() {
   }, []);
 
   const handleLeadUpdate = useCallback(() => {
-    refetch();
+    refreshLeads();
     toast.success("Lead actualizado exitosamente");
-  }, [refetch]);
+  }, [refreshLeads]);
 
   const handleLeadCreate = useCallback((leadData: Partial<Lead>) => {
     console.log('Creating lead:', leadData);
@@ -188,7 +194,7 @@ export default function Leads() {
     return (
       <div className="container mx-auto px-4 py-8">
         <div className="text-center text-red-600">
-          Error al cargar los leads: {error instanceof Error ? error.message : 'Error desconocido'}
+          Error al cargar los leads: {error}
         </div>
       </div>
     );
