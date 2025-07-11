@@ -761,21 +761,7 @@ export function LeadDetail({ lead, isOpen, onClose, onSave, onOpenMassEmail }: L
                         rows={3}
                       />
                     </div>
-                  </CardContent>
-                </Card>
-
-                {/* Historial de Interacciones mejorado */}
-                <div className="flex items-center justify-between">
-                  <h3 className="text-lg font-semibold flex items-center gap-2">
-                    Historial de Interacciones
-                    {showingClientHistory && (
-                      <Badge variant="outline" className="text-xs">
-                        <Users className="h-3 w-3 mr-1" />
-                        Historial completo
-                      </Badge>
-                    )}
-                  </h3>
-                  <div className="flex gap-2">
+<div>
                     <Button 
                       size="sm" 
                       onClick={() => onOpenMassEmail?.(editedLead)}
@@ -791,6 +777,23 @@ export function LeadDetail({ lead, isOpen, onClose, onSave, onOpenMassEmail }: L
                       <FaWhatsapp className="h-3 w-3" />
                       WhatsApp
                     </Button>
+</div>
+                  </CardContent>
+                </Card>
+
+                {/* Historial de Interacciones mejorado */}
+                <div className="flex items-center justify-between">
+                  <h3 className="text-lg font-semibold flex items-center gap-2">
+                    Historial de Interacciones
+                    {showingClientHistory && (
+                      <Badge variant="outline" className="text-xs">
+                        <Users className="h-3 w-3 mr-1" />
+                        Historial completo
+                      </Badge>
+                    )}
+                  </h3>
+                  <div className="flex gap-2">
+                    
                     
                     {/* Botones para cambiar vista de historial */}
                     {hasLikelyDuplicates() && (
