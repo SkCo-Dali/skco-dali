@@ -404,7 +404,7 @@ export function LeadDetail({ lead, isOpen, onClose, onSave, onOpenMassEmail }: L
                         />
                       </div>
                       
-                      <div>
+                      <div className="grid grid-cols-2 gap-4">
                         <Label htmlFor="email">Email</Label>
                         <Input
                           id="email"
