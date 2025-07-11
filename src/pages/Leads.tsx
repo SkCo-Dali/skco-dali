@@ -407,6 +407,7 @@ export default function Leads() {
           isOpen={!!selectedLead}
           onClose={() => setSelectedLead(null)}
           onSave={handleLeadUpdate}
+          onOpenMassEmail={handleSendEmailToLead}
         />
       )}
 
