@@ -253,19 +253,19 @@ export default function Leads() {
 
           {/* Search and Controls Row */}
           <div className="flex flex-col lg:flex-row gap-4 items-center">
-            <div className="flex flex-1 items-center gap-2>
-              <Button
-                className="gap-1 w-8 h-8 bg-secondary"
-                onClick={handleViewModeToggle}
-                size="icon"
-              >
-                {getViewModeIcon()}
-              </Button>
-              <LeadsSearch 
-                searchTerm={searchTerm} 
-                onSearchChange={setSearchTerm} 
-              />
-            </div>
+            <div className="flex flex-1 items-center gap-2">
+  <Button
+    className="gap-1 w-8 h-8 bg-secondary"
+    onClick={handleViewModeToggle}
+    size="icon"
+  >
+    {getViewModeIcon()}
+  </Button>
+  <LeadsSearch 
+    searchTerm={searchTerm} 
+    onSearchChange={setSearchTerm} 
+  />
+</div>
             <div className="flex gap-2">
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
