@@ -38,11 +38,8 @@ export const ENV = {
   CACHE_LOCATION: import.meta.env.VITE_CACHE_LOCATION || 'sessionStorage',
   STORE_AUTH_STATE_IN_COOKIE: import.meta.env.VITE_STORE_AUTH_STATE_IN_COOKIE === 'true' || false,
   
-  // Security Settings - Ahora más flexible para múltiples dominios
-  ALLOWED_DOMAINS: (import.meta.env.VITE_ALLOWED_DOMAINS || 'skandia.com,skandia.co,skandia.com.co,gmail.com,outlook.com,hotmail.com,yahoo.com').split(','),
-  
-  // Configuración de validación de dominio - permite deshabilitar la validación
-  ENABLE_DOMAIN_VALIDATION: import.meta.env.VITE_ENABLE_DOMAIN_VALIDATION !== 'false', // Por defecto habilitado, se puede deshabilitar
+  // Security Settings
+  ALLOWED_DOMAINS: (import.meta.env.VITE_ALLOWED_DOMAINS || 'skandia.com,skandia.co,skandia.com.co,fp.skandia.com.co').split(','),
   
   // Required Scopes
   REQUIRED_SCOPES: (import.meta.env.VITE_REQUIRED_SCOPES || 'User.Read,Mail.Send,Mail.Read,offline_access').split(','),
