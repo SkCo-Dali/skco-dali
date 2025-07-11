@@ -292,13 +292,13 @@ export default function Leads() {
   >
     <Trash className="h-4 w-4" />
   </Button>
-  <LeadsSearch 
+  
+</div>
+            <div className="flex gap-2">
+<LeadsSearch 
     searchTerm={searchTerm} 
     onSearchChange={setSearchTerm} 
   />
-</div>
-            <div className="flex gap-2">
-
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button 
