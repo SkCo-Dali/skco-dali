@@ -264,7 +264,7 @@ export function LeadsTable({
               <DropdownMenuTrigger asChild>
                 <Button
                   variant="ghost"
-                  size="md"
+                  size="sm"
                   className="h-8 w-8 p-0 hover:bg-gray-100 flex-shrink-0"
                   onClick={(e) => e.stopPropagation()}
                 >
