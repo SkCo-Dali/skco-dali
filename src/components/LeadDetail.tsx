@@ -680,40 +680,10 @@ export function LeadDetail({ lead, isOpen, onClose, onSave, onOpenMassEmail }: L
                     <CardTitle>Resultado de la Gestión</CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-4">
+
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
-                        <Label htmlFor="contactMethod">Medio de Contacto</Label>
-                        <Select value={contactMethod} onValueChange={setContactMethod}>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Seleccionar medio" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="phone">Teléfono</SelectItem>
-                            <SelectItem value="email">Email</SelectItem>
-                            <SelectItem value="whatsapp">WhatsApp</SelectItem>
-                            <SelectItem value="meeting">Reunión</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-                      
-                      <div>
-                        <Label htmlFor="result">Resultado</Label>
-                        <Select value={result} onValueChange={setResult}>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Seleccionar resultado" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="positive">Positivo</SelectItem>
-                            <SelectItem value="neutral">Neutral</SelectItem>
-                            <SelectItem value="negative">Negativo</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-                    </div>
-                    
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div>
-                        <Label htmlFor="stage">Etapa</Label>
+                        <Label htmlFor="stage">Estado Actual</Label>
                         <Select 
                           value={editedLead.stage} 
                           onValueChange={(value) => handleManagementChange('stage', value)}
@@ -736,15 +706,21 @@ export function LeadDetail({ lead, isOpen, onClose, onSave, onOpenMassEmail }: L
                           </SelectContent>
                         </Select>
                       </div>
-                      
-                      <div>
-                        <Label>Usuario Asignado</Label>
-                        <div className="mt-1 p-2 bg-gray-50 rounded border">
-                          <span className="text-sm font-medium">{assignedUserName}</span>
-                        </div>
+                       <div>
+                        <Label htmlFor="contactMethod">Medio de Contacto</Label>
+                        <Select value={contactMethod} onValueChange={setContactMethod}>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Seleccionar medio" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="phone">Teléfono</SelectItem>
+                            <SelectItem value="email">Email</SelectItem>
+                            <SelectItem value="whatsapp">WhatsApp</SelectItem>
+                            <SelectItem value="meeting">Reunión</SelectItem>
+                          </SelectContent>
+                        </Select>
                       </div>
                     </div>
-
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                         <Label htmlFor="priority">Prioridad</Label>
