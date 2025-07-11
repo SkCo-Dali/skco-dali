@@ -433,7 +433,7 @@ export function LeadDetail({ lead, isOpen, onClose, onSave, onOpenMassEmail }: L
                             onValueChange={(value) => handleGeneralChange('documentType', value)}
                           >
                             <SelectTrigger>
-                              <SelectValue />
+                              <SelectValue className="text-left"/>
                             </SelectTrigger>
                             <SelectContent>
                               <SelectItem value="CC">Cédula de Ciudadanía</SelectItem>
