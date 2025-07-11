@@ -262,10 +262,9 @@ export default function Leads() {
               
               {viewMode === "columns" && (
                 <div className="flex items-center gap-2">
-                  <span className="text-sm text-gray-600">Agrupar por:</span>
                   <Select value={groupBy} onValueChange={setGroupBy}>
                     <SelectTrigger className="w-[140px] h-8 bg-white border border-gray-300 rounded-md">
-                      <SelectValue />
+                      Agrupar por:
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="stage">Etapa</SelectItem>
