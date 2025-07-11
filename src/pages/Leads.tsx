@@ -1,4 +1,3 @@
-
 import React, { useState, useCallback, useMemo, useRef } from "react";
 import { toast } from "sonner";
 import { Lead } from "@/types/crm";
@@ -25,6 +24,13 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { 
   Upload, 
   Plus, 
@@ -68,6 +74,7 @@ export default function Leads() {
   const [columns, setColumns] = useState<ColumnConfig[]>(DEFAULT_COLUMNS);
   const [sortedLeads, setSortedLeads] = useState<Lead[]>([]);
   const [selectedLeadForEmail, setSelectedLeadForEmail] = useState<Lead | null>(null);
+  const [groupBy, setGroupBy] = useState<string>("stage");
   const leadCreateDialogRef = useRef<{ openDialog: () => void }>(null);
 
   // Usar el hook useLeadsApi que ya tiene la lógica correcta para obtener leads reasignables
@@ -253,6 +260,24 @@ export default function Leads() {
                 Filtros
               </Button>
               
+              {viewMode === "columns" && (
+                <div className="flex items-center gap-2">
+                  <span className="text-sm text-gray-600">Agrupar por:</span>
+                  <Select value={groupBy} onValueChange={setGroupBy}>
+                    <SelectTrigger className="w-[140px] h-8 bg-white border border-gray-300 rounded-md">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="stage">Etapa</SelectItem>
+                      <SelectItem value="priority">Prioridad</SelectItem>
+                      <SelectItem value="source">Fuente</SelectItem>
+                      <SelectItem value="assignedTo">Asesor asignado</SelectItem>
+                      <SelectItem value="campaign">Campaña</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
+              
               {viewMode === "table" && (
                 <LeadsTableColumnSelector
                   columns={columns}
@@ -320,6 +345,7 @@ export default function Leads() {
                 paginatedLeads={paginatedLeads}
                 onSortedLeadsChange={handleSortedLeadsChange}
                 onSendEmail={handleSendEmailToLead}
+                groupBy={groupBy}
               />
 
               <LeadsPagination

@@ -1,8 +1,7 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Lead } from "@/types/crm";
 import { LeadCard } from "@/components/LeadCard";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { useUsersApi } from "@/hooks/useUsersApi";
 
@@ -11,11 +10,11 @@ interface LeadsColumnsProps {
   onLeadClick: (lead: Lead) => void;
   onLeadUpdate?: () => void;
   onSendEmail?: (lead: Lead) => void;
+  groupBy?: string;
 }
 
-export function LeadsColumns({ leads, onLeadClick, onLeadUpdate, onSendEmail }: LeadsColumnsProps) {
+export function LeadsColumns({ leads, onLeadClick, onLeadUpdate, onSendEmail, groupBy = "stage" }: LeadsColumnsProps) {
   const { users } = useUsersApi();
-  const [groupBy, setGroupBy] = useState<string>("stage");
 
   const priorityLabels = {
     'low': 'Baja',
@@ -111,22 +110,6 @@ export function LeadsColumns({ leads, onLeadClick, onLeadUpdate, onSendEmail }: 
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center gap-4">
-        <label className="text-sm font-medium">Agrupar por:</label>
-        <Select value={groupBy} onValueChange={setGroupBy}>
-          <SelectTrigger className="w-[200px]">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="stage">Etapa</SelectItem>
-            <SelectItem value="priority">Prioridad</SelectItem>
-            <SelectItem value="source">Fuente</SelectItem>
-            <SelectItem value="assignedTo">Asesor asignado</SelectItem>
-            <SelectItem value="campaign">Campaña</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
-
       <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-6">
         {Object.entries(groupedLeads).map(([key, group]) => (
           <div key={key} className="space-y-0">
