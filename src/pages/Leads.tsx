@@ -264,14 +264,24 @@ export default function Leads() {
   </Button>
               <Button
     className="gap-1 w-8 h-8 bg-primary"
-    onClick={() => setShowMassEmail(true)}
+    onClick={() => {
+      if (selectedLeads.length === 0) {
+        toast.info("Se aplicará a todos los leads filtrados");
+      }
+      setShowMassEmail(true);
+    }}
     size="icon"
   >
     <Mail className="h-4 w-4" />
   </Button>
               <Button
     className="gap-1 w-8 h-8 bg-primary"
-    onClick={() => setShowBulkAssign(true)}
+    onClick={() => {
+      if (selectedLeads.length === 0) {
+        toast.info("Se aplicará a todos los leads filtrados");
+      }
+      setShowBulkAssign(true);
+    }}
     size="icon"
   >
     <Users className="h-4 w-4" />
@@ -445,10 +455,14 @@ export default function Leads() {
         <Dialog open={showBulkAssign} onOpenChange={setShowBulkAssign}>
           <DialogContent className="max-w-2xl">
             <LeadsBulkAssignment
-              leads={filteredLeads}
+              leads={selectedLeads.length > 0 
+                ? filteredLeads.filter(lead => selectedLeads.includes(lead.id))
+                : filteredLeads
+              }
               onLeadsAssigned={() => {
                 handleLeadUpdate();
                 setShowBulkAssign(false);
+                setSelectedLeads([]);
               }}
             />
           </DialogContent>
@@ -472,10 +486,16 @@ export default function Leads() {
       }}>
         <DialogContent className="max-w-6xl max-h-[90vh] overflow-auto">
           <MassEmailSender
-            filteredLeads={selectedLeadForEmail ? [selectedLeadForEmail] : filteredLeads}
+            filteredLeads={selectedLeadForEmail 
+              ? [selectedLeadForEmail] 
+              : selectedLeads.length > 0 
+                ? filteredLeads.filter(lead => selectedLeads.includes(lead.id))
+                : filteredLeads
+            }
             onClose={() => {
               setShowMassEmail(false);
               setSelectedLeadForEmail(null);
+              setSelectedLeads([]);
             }}
           />
         </DialogContent>
