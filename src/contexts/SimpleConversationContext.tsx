@@ -1,71 +1,103 @@
 
-import React, { createContext, useContext, useState, useCallback, useMemo } from 'react';
-import { Conversation, Message, ConversationSummary } from '@/types/conversation';
+import React, { createContext, useContext, useState } from 'react';
+import { Conversation, ConversationSummary } from '../types/conversation';
+import { ChatMessage } from '../types/chat';
+import { azureConversationService } from '../services/azureConversationService';
+import { useAuth } from './AuthContext';
 
 interface SimpleConversationContextType {
   conversations: ConversationSummary[];
-  currentConversation: Conversation | undefined;
+  currentConversation: Conversation | null;
   isLoading: boolean;
-  setConversations: (conversations: ConversationSummary[]) => void;
-  setCurrentConversation: (conversation: Conversation | undefined) => void;
-  addMessage: (message: Message) => void;
-  updateMessage: (messageId: string, updates: Partial<Message>) => void;
-  createNewConversation: () => void;
-  loadConversation: (id: string) => Promise<void>;
-  deleteConversation: (id: string) => Promise<void>;
   loadConversationsList: () => Promise<void>;
+  loadConversation: (id: string) => Promise<void>;
+  addMessage: (message: ChatMessage) => void;
+  createNewConversation: () => void;
+  deleteConversation: (id: string) => Promise<void>;
 }
 
 const SimpleConversationContext = createContext<SimpleConversationContextType | undefined>(undefined);
 
 export const SimpleConversationProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [conversations, setConversations] = useState<ConversationSummary[]>([]);
-  const [currentConversation, setCurrentConversation] = useState<Conversation | undefined>();
+  const [currentConversation, setCurrentConversation] = useState<Conversation | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const { user } = useAuth();
 
-  const addMessage = useCallback((message: Message) => {
-    if (!currentConversation) return;
+  const userEmail = user?.email || '';
 
+  const loadConversationsList = async () => {
+    if (!userEmail) return;
+    
+    try {
+      setIsLoading(true);
+      console.log('SimpleConversationContext: Loading conversations list for:', userEmail);
+      
+      const azureConversations = await azureConversationService.listUserConversations(userEmail);
+      const summaries = azureConversations.map(conv => 
+        azureConversationService.convertToSummary(conv)
+      );
+      
+      setConversations(summaries);
+      console.log('SimpleConversationContext: Loaded', summaries.length, 'conversations');
+    } catch (error) {
+      console.error('SimpleConversationContext: Error loading conversations:', error);
+      setConversations([]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const loadConversation = async (id: string) => {
+    if (!userEmail || !id) return;
+    
+    try {
+      setIsLoading(true);
+      console.log('SimpleConversationContext: Loading conversation:', id);
+      
+      const azureConversation = await azureConversationService.getConversation(id, userEmail);
+      if (!azureConversation) {
+        console.log('SimpleConversationContext: Conversation not found');
+        return;
+      }
+
+      const files = await azureConversationService.getConversationFiles(id, userEmail);
+      const conversation = azureConversationService.convertToInternalFormat(azureConversation, files);
+      
+      setCurrentConversation(conversation);
+      console.log('SimpleConversationContext: Loaded conversation with', conversation.messages.length, 'messages');
+    } catch (error) {
+      console.error('SimpleConversationContext: Error loading conversation:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const addMessage = (message: ChatMessage) => {
+    console.log('SimpleConversationContext: Adding message:', message.type, message.content.substring(0, 50));
     setCurrentConversation(prev => {
-      if (!prev) return prev;
-      return {
+      if (!prev) {
+        console.log('SimpleConversationContext: No current conversation, cannot add message');
+        return null;
+      }
+      
+      const updated = {
         ...prev,
         messages: [...prev.messages, message],
         updatedAt: new Date()
       };
+      
+      console.log('SimpleConversationContext: Conversation now has', updated.messages.length, 'messages');
+      return updated;
     });
+  };
 
-    setConversations(prev => 
-      prev.map(conv => 
-        conv.id === currentConversation.id 
-          ? { 
-              ...conv, 
-              messageCount: conv.messageCount + 1,
-              lastMessage: message.content,
-              updatedAt: new Date() 
-            }
-          : conv
-      )
-    );
-  }, [currentConversation]);
-
-  const updateMessage = useCallback((messageId: string, updates: Partial<Message>) => {
-    if (!currentConversation) return;
-
-    setCurrentConversation(prev => {
-      if (!prev) return prev;
-      return {
-        ...prev,
-        messages: prev.messages.map(msg => 
-          msg.id === messageId ? { ...msg, ...updates } : msg
-        )
-      };
-    });
-  }, [currentConversation]);
-
-  const createNewConversation = useCallback(() => {
+  const createNewConversation = () => {
+    const newId = Date.now().toString();
+    console.log('SimpleConversationContext: Creating new conversation with ID:', newId);
+    
     const newConversation: Conversation = {
-      id: Date.now().toString(),
+      id: newId,
       title: 'Nueva conversación',
       messages: [],
       createdAt: new Date(),
@@ -74,104 +106,42 @@ export const SimpleConversationProvider: React.FC<{ children: React.ReactNode }>
       isArchived: false,
       totalTokens: 0
     };
-
-    const newSummary: ConversationSummary = {
-      id: newConversation.id,
-      title: newConversation.title,
-      messageCount: 0,
-      lastMessage: '',
-      createdAt: newConversation.createdAt,
-      updatedAt: newConversation.updatedAt,
-      tags: []
-    };
-
-    setConversations(prev => [newSummary, ...prev]);
+    
     setCurrentConversation(newConversation);
-  }, []);
+    console.log('SimpleConversationContext: New conversation created');
+  };
 
-  const loadConversation = useCallback(async (id: string) => {
-    setIsLoading(true);
+  const deleteConversation = async (id: string) => {
+    if (!userEmail) return;
+    
     try {
-      // TODO: Implement actual loading logic from API
-      console.log('Loading conversation:', id);
+      console.log('SimpleConversationContext: Deleting conversation:', id);
+      await azureConversationService.deleteConversation(id, userEmail);
       
-      // Mock implementation for now
-      const mockConversation: Conversation = {
-        id,
-        title: 'Loaded Conversation',
-        messages: [],
-        createdAt: new Date(),
-        updatedAt: new Date(),
-        tags: [],
-        isArchived: false,
-        totalTokens: 0
-      };
-      
-      setCurrentConversation(mockConversation);
-    } catch (error) {
-      console.error('Error loading conversation:', error);
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
-
-  const deleteConversation = useCallback(async (id: string) => {
-    try {
-      // TODO: Implement actual deletion logic with API
-      console.log('Deleting conversation:', id);
-      
-      setConversations(prev => prev.filter(conv => conv.id !== id));
+      setConversations(prev => prev.filter(c => c.id !== id));
       
       if (currentConversation?.id === id) {
-        setCurrentConversation(undefined);
+        setCurrentConversation(null);
       }
-    } catch (error) {
-      console.error('Error deleting conversation:', error);
-    }
-  }, [currentConversation]);
-
-  const loadConversationsList = useCallback(async () => {
-    setIsLoading(true);
-    try {
-      // TODO: Implement actual loading logic from API
-      console.log('Loading conversations list');
       
-      // Mock implementation for now
-      const mockConversations: ConversationSummary[] = [];
-      setConversations(mockConversations);
+      console.log('SimpleConversationContext: Conversation deleted');
     } catch (error) {
-      console.error('Error loading conversations list:', error);
-    } finally {
-      setIsLoading(false);
+      console.error('SimpleConversationContext: Error deleting conversation:', error);
+      throw error;
     }
-  }, []);
-
-  const contextValue = useMemo(() => ({
-    conversations,
-    currentConversation,
-    isLoading,
-    setConversations,
-    setCurrentConversation,
-    addMessage,
-    updateMessage,
-    createNewConversation,
-    loadConversation,
-    deleteConversation,
-    loadConversationsList
-  }), [
-    conversations, 
-    currentConversation, 
-    isLoading,
-    addMessage, 
-    updateMessage, 
-    createNewConversation,
-    loadConversation,
-    deleteConversation,
-    loadConversationsList
-  ]);
+  };
 
   return (
-    <SimpleConversationContext.Provider value={contextValue}>
+    <SimpleConversationContext.Provider value={{
+      conversations,
+      currentConversation,
+      isLoading,
+      loadConversationsList,
+      loadConversation,
+      addMessage,
+      createNewConversation,
+      deleteConversation
+    }}>
       {children}
     </SimpleConversationContext.Provider>
   );

@@ -1,5 +1,5 @@
 
-import { useState, useMemo, useCallback } from "react";
+import { useState, useMemo } from "react";
 import { Lead } from "@/types/crm";
 
 export function useLeadsFilters(leads: Lead[]) {
@@ -16,7 +16,7 @@ export function useLeadsFilters(leads: Lead[]) {
   const [filterDuplicates, setFilterDuplicates] = useState<string>("all");
   const [sortBy, setSortBy] = useState("updated");
 
-  // Memoize duplicate identifiers calculation
+  // Identificar leads duplicados por email, teléfono o número de documento
   const duplicateIdentifiers = useMemo(() => {
     const emailCounts = leads.reduce((acc, lead) => {
       if (lead.email) {
@@ -40,17 +40,20 @@ export function useLeadsFilters(leads: Lead[]) {
       return acc;
     }, {} as Record<string, number>);
 
+    const duplicateEmails = Object.keys(emailCounts).filter(email => emailCounts[email] > 1);
+    const duplicatePhones = Object.keys(phoneCounts).filter(phone => phoneCounts[phone] > 1);
+    const duplicateDocuments = Object.keys(documentCounts).filter(doc => documentCounts[doc] > 1);
+
     return {
-      emails: Object.keys(emailCounts).filter(email => emailCounts[email] > 1),
-      phones: Object.keys(phoneCounts).filter(phone => phoneCounts[phone] > 1),
-      documents: Object.keys(documentCounts).filter(doc => documentCounts[doc] > 1)
+      emails: duplicateEmails,
+      phones: duplicatePhones,
+      documents: duplicateDocuments
     };
   }, [leads]);
 
-  // Memoize filtered leads calculation
   const filteredLeads = useMemo(() => {
     return leads.filter((lead) => {
-      // Search filter
+      // Búsqueda por texto en nombre, email, teléfono, número de documento o campaña
       const searchRegex = new RegExp(searchTerm, "i");
       const matchesSearch = !searchTerm || 
         searchRegex.test(lead.name) || 
@@ -59,7 +62,7 @@ export function useLeadsFilters(leads: Lead[]) {
         searchRegex.test(lead.documentNumber?.toString() || "") ||
         searchRegex.test(lead.campaign || "");
 
-      // Multi-filter helper
+      // Función helper para verificar filtros múltiples
       const matchesMultiFilter = (filterValue: string | string[], leadValue: string) => {
         if (filterValue === "all") return true;
         if (Array.isArray(filterValue)) {
@@ -68,15 +71,15 @@ export function useLeadsFilters(leads: Lead[]) {
         return filterValue === leadValue;
       };
 
-      // Date filters
+      // Filtros de fecha
       const dateFromFilter = !filterDateFrom || new Date(lead.createdAt) >= new Date(filterDateFrom);
       const dateToFilter = !filterDateTo || new Date(lead.createdAt) <= new Date(filterDateTo);
       
-      // Value filters
+      // Filtros de valor
       const valueMinFilter = !filterValueMin || lead.value >= parseInt(filterValueMin);
       const valueMaxFilter = !filterValueMax || lead.value <= parseInt(filterValueMax);
 
-      // Duplicates filter
+      // Filtro de duplicados - verificar email, teléfono o documento
       const duplicatesFilter = () => {
         if (filterDuplicates === "all") return true;
         
@@ -85,7 +88,13 @@ export function useLeadsFilters(leads: Lead[]) {
           (lead.phone && duplicateIdentifiers.phones.includes(lead.phone.replace(/[\s\-\(\)]/g, ''))) ||
           (lead.documentNumber && duplicateIdentifiers.documents.includes(lead.documentNumber.toString()));
 
-        return filterDuplicates === "duplicates" ? isDuplicate : !isDuplicate;
+        if (filterDuplicates === "duplicates") {
+          return isDuplicate;
+        }
+        if (filterDuplicates === "unique") {
+          return !isDuplicate;
+        }
+        return true;
       };
 
       return (
@@ -104,7 +113,6 @@ export function useLeadsFilters(leads: Lead[]) {
     });
   }, [leads, searchTerm, filterStage, filterPriority, filterAssignedTo, filterSource, filterCampaign, filterDateFrom, filterDateTo, filterValueMin, filterValueMax, filterDuplicates, duplicateIdentifiers]);
 
-  // Memoize sorted leads
   const sortedLeads = useMemo(() => {
     return [...filteredLeads].sort((a, b) => {
       switch (sortBy) {
@@ -121,7 +129,7 @@ export function useLeadsFilters(leads: Lead[]) {
     });
   }, [filteredLeads, sortBy]);
 
-  const clearFilters = useCallback(() => {
+  const clearFilters = () => {
     setSearchTerm("");
     setFilterStage("all");
     setFilterPriority("all");
@@ -133,9 +141,9 @@ export function useLeadsFilters(leads: Lead[]) {
     setFilterValueMin("");
     setFilterValueMax("");
     setFilterDuplicates("all");
-  }, []);
+  };
 
-  // Memoize unique values for filters
+  // Obtener opciones únicas para los filtros
   const uniqueStages = useMemo(() => 
     Array.from(new Set(leads.map(lead => lead.stage))).filter(Boolean),
     [leads]
@@ -156,9 +164,9 @@ export function useLeadsFilters(leads: Lead[]) {
     [leads]
   );
 
-  // Only calculate duplicate count when needed
+  // Contar leads duplicados - solo calculamos cuando se necesita
   const duplicateCount = useMemo(() => {
-    if (filterDuplicates === "all") return 0;
+    if (filterDuplicates === "all") return 0; // No necesario calcularlo si no se usa
     
     return leads.filter(lead => 
       (lead.email && duplicateIdentifiers.emails.includes(lead.email.toLowerCase())) ||
