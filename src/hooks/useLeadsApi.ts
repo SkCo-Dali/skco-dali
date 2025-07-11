@@ -19,13 +19,23 @@ export const useLeadsApi = () => {
     // Parse AdditionalInfo if it's a string
     let additionalInfo = null;
     if (reassignableLead.AdditionalInfo) {
+      console.log('🔍 Raw AdditionalInfo field:', reassignableLead.AdditionalInfo);
+      console.log('🔍 AdditionalInfo type:', typeof reassignableLead.AdditionalInfo);
+      
       try {
-        additionalInfo = typeof reassignableLead.AdditionalInfo === 'string' 
-          ? JSON.parse(reassignableLead.AdditionalInfo)
-          : reassignableLead.AdditionalInfo;
-        console.log('✅ Parsed AdditionalInfo:', additionalInfo);
+        // Si es un string, intentar parsear como JSON
+        if (typeof reassignableLead.AdditionalInfo === 'string') {
+          console.log('🔄 Attempting to parse AdditionalInfo string as JSON...');
+          additionalInfo = JSON.parse(reassignableLead.AdditionalInfo);
+          console.log('✅ Successfully parsed AdditionalInfo from string:', additionalInfo);
+        } else if (typeof reassignableLead.AdditionalInfo === 'object') {
+          // Si ya es un objeto, usarlo directamente
+          console.log('🔄 AdditionalInfo is already an object, using directly');
+          additionalInfo = reassignableLead.AdditionalInfo;
+        }
       } catch (error) {
-        console.warn('⚠️ Failed to parse AdditionalInfo:', reassignableLead.AdditionalInfo, error);
+        console.warn('⚠️ Failed to parse AdditionalInfo:', reassignableLead.AdditionalInfo);
+        console.warn('⚠️ Parse error details:', error);
         additionalInfo = null;
       }
     }
@@ -68,7 +78,9 @@ export const useLeadsApi = () => {
       additionalInfo: additionalInfo
     };
     
-    console.log('✅ Mapped lead result with AdditionalInfo:', JSON.stringify(mappedLead, null, 2));
+    console.log('✅ Final mapped lead with AdditionalInfo:', JSON.stringify(mappedLead, null, 2));
+    console.log('🔍 AdditionalInfo in mapped lead:', mappedLead.additionalInfo);
+    
     return mappedLead;
   };
 
