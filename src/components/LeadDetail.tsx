@@ -123,6 +123,12 @@ const formatDateForInput = (dateTimeString: string): string => {
 export function LeadDetail({ lead, isOpen, onClose, onSave, onOpenMassEmail }: LeadDetailProps) {
   // Add debugging to see what's happening
   console.log('LeadDetail rendered with:', { lead, isOpen });
+  console.log('🔍 Lead AdditionalInfo debug:', {
+    hasAdditionalInfo: !!lead.additionalInfo,
+    additionalInfoType: typeof lead.additionalInfo,
+    additionalInfoValue: lead.additionalInfo,
+    additionalInfoKeys: lead.additionalInfo ? Object.keys(lead.additionalInfo) : 'No keys'
+  });
   
   // Ensure tags and other array fields are properly initialized, but keep product as string
   const safeLeadData = {
@@ -650,36 +656,51 @@ export function LeadDetail({ lead, isOpen, onClose, onSave, onOpenMassEmail }: L
                       </div>
                     </div>
 
-                    {/* Nueva sección para mostrar AdditionalInfo con scroll */}
-                    {editedLead.additionalInfo && Object.keys(editedLead.additionalInfo).length > 0 && (
-                      <div>
-                        <Label>Información Adicional</Label>
-                        <div className="mt-2 border rounded-lg overflow-hidden">
-                          <ScrollArea className="h-48">
-                            <Table>
-                              <TableHeader className="sticky top-0 bg-gray-50">
-                                <TableRow>
-                                  <TableHead className="font-medium text-gray-700">Campo</TableHead>
-                                  <TableHead className="font-medium text-gray-700">Valor</TableHead>
-                                </TableRow>
-                              </TableHeader>
-                              <TableBody>
-                                {Object.entries(editedLead.additionalInfo).map(([key, value], index) => (
-                                  <TableRow key={key} className={index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
-                                    <TableCell className="font-medium text-gray-600">{key}</TableCell>
-                                    <TableCell className="text-gray-900">
-                                      {typeof value === 'object' && value !== null 
-                                        ? JSON.stringify(value) 
-                                        : String(value || '')}
-                                    </TableCell>
-                                  </TableRow>
-                                ))}
-                              </TableBody>
-                            </Table>
-                          </ScrollArea>
+                    {/* Sección de Información Adicional - Mejorada para debugging */}
+                    <div>
+                      <Label>Información Adicional</Label>
+                      <div className="mt-2">
+                        {/* Debug info - Remove this after fixing */}
+                        <div className="mb-2 p-2 bg-yellow-50 border border-yellow-200 rounded text-xs">
+                          <strong>Debug Info:</strong><br/>
+                          Has additionalInfo: {editedLead.additionalInfo ? 'Yes' : 'No'}<br/>
+                          Type: {typeof editedLead.additionalInfo}<br/>
+                          Keys: {editedLead.additionalInfo ? Object.keys(editedLead.additionalInfo).length : 0}<br/>
+                          Raw value: {JSON.stringify(editedLead.additionalInfo)}
                         </div>
+                        
+                        {editedLead.additionalInfo && typeof editedLead.additionalInfo === 'object' && Object.keys(editedLead.additionalInfo).length > 0 ? (
+                          <div className="border rounded-lg overflow-hidden">
+                            <ScrollArea className="h-48">
+                              <Table>
+                                <TableHeader className="sticky top-0 bg-gray-50">
+                                  <TableRow>
+                                    <TableHead className="font-medium text-gray-700">Campo</TableHead>
+                                    <TableHead className="font-medium text-gray-700">Valor</TableHead>
+                                  </TableRow>
+                                </TableHeader>
+                                <TableBody>
+                                  {Object.entries(editedLead.additionalInfo).map(([key, value], index) => (
+                                    <TableRow key={key} className={index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
+                                      <TableCell className="font-medium text-gray-600">{key}</TableCell>
+                                      <TableCell className="text-gray-900">
+                                        {typeof value === 'object' && value !== null 
+                                          ? JSON.stringify(value) 
+                                          : String(value || '')}
+                                      </TableCell>
+                                    </TableRow>
+                                  ))}
+                                </TableBody>
+                              </Table>
+                            </ScrollArea>
+                          </div>
+                        ) : (
+                          <div className="p-4 border border-gray-200 rounded-lg bg-gray-50 text-center text-gray-500">
+                            No hay información adicional disponible
+                          </div>
+                        )}
                       </div>
-                    )}
+                    </div>
                   </CardContent>
                 </Card>
 
