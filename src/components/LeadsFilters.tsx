@@ -194,7 +194,7 @@ export function LeadsFilters({
           >
             <SelectTrigger className="w-full h-8 text-sm">
               <SelectValue>
-                {getDisplayText(filterStage, "S...", uniqueStages.map(s => ({ value: s, label: s })))}
+                {getDisplayText(filterStage, "Selecciona etapa(s)", uniqueStages.map(s => ({ value: s, label: s })))}
               </SelectValue>
             </SelectTrigger>
             <SelectContent className="bg-white z-50">
@@ -230,7 +230,7 @@ export function LeadsFilters({
           >
             <SelectTrigger className="w-full h-8 text-sm">
               <SelectValue>
-                {getDisplayText(filterAssignedTo, "S...", users)}
+                {getDisplayText(filterAssignedTo, "Selecciona usuario(s)", users)}
               </SelectValue>
             </SelectTrigger>
             <SelectContent className="bg-white z-50">
@@ -277,7 +277,7 @@ export function LeadsFilters({
           >
             <SelectTrigger className="w-full h-8 text-sm">
               <SelectValue>
-                {getDisplayText(filterSource, "S...", uniqueSources.map(s => ({ value: s, label: s })))}
+                {getDisplayText(filterSource, "Selecciona fuente(s)", uniqueSources.map(s => ({ value: s, label: s })))}
               </SelectValue>
             </SelectTrigger>
             <SelectContent className="bg-white z-50">
@@ -324,7 +324,7 @@ export function LeadsFilters({
           >
             <SelectTrigger className="w-full h-8 text-sm">
               <SelectValue>
-                {getDisplayText(filterCampaign, "S...", uniqueCampaigns.map(c => ({ value: c, label: c })))}
+                {getDisplayText(filterCampaign, "Selecciona campaña(s)", uniqueCampaigns.map(c => ({ value: c, label: c })))}
               </SelectValue>
             </SelectTrigger>
             <SelectContent className="bg-white z-50">
@@ -371,7 +371,7 @@ export function LeadsFilters({
           >
             <SelectTrigger className="w-full h-8 text-sm">
               <SelectValue>
-                {getDisplayText(filterPriority, "S...", priorities)}
+                {getDisplayText(filterPriority, "Selecciona prioridad", priorities)}
               </SelectValue>
             </SelectTrigger>
             <SelectContent className="bg-white z-50">
