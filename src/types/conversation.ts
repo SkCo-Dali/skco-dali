@@ -21,3 +21,6 @@ export interface ConversationSummary {
   updatedAt: Date;
   tags: string[];
 }
+
+// Add Message type alias for backward compatibility
+export type Message = ChatMessage;
