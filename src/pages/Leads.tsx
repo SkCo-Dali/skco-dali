@@ -266,28 +266,24 @@ export default function Leads() {
               <Button
                 className="gap-1 w-8 h-8 bg-primary"
                 onClick={() => {
-                  if (selectedLeads.length > 0) {
-                    setShowMassEmail(true);
-                  } else {
-                    toast.error("Selecciona al menos un lead para enviar correos");
+                  setShowMassEmail(true);
+                  if (selectedLeads.length === 0) {
+                    toast.info("Enviando correos a todos los leads filtrados");
                   }
                 }}
                 size="icon"
-                disabled={selectedLeads.length === 0}
               >
                 <Mail className="h-4 w-4" />
               </Button>
               <Button
                 className="gap-1 w-8 h-8 bg-primary"
                 onClick={() => {
-                  if (selectedLeads.length > 0) {
-                    setShowBulkAssign(true);
-                  } else {
-                    toast.error("Selecciona al menos un lead para asignar");
+                  setShowBulkAssign(true);
+                  if (selectedLeads.length === 0) {
+                    toast.info("Asignando todos los leads filtrados");
                   }
                 }}
                 size="icon"
-                disabled={selectedLeads.length === 0}
               >
                 <Users className="h-4 w-4" />
               </Button>
@@ -297,11 +293,10 @@ export default function Leads() {
                   if (selectedLeads.length > 0) {
                     toast.success(`${selectedLeads.length} leads seleccionados para eliminar`);
                   } else {
-                    toast.error("Selecciona al menos un lead para eliminar");
+                    toast.info("Eliminando todos los leads filtrados");
                   }
                 }}
                 size="icon"
-                disabled={selectedLeads.length === 0}
               >
                 <Trash className="h-4 w-4" />
               </Button>
