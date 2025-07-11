@@ -359,7 +359,7 @@ export default function Leads() {
               )}
               
               <Button
-                className="text-white h-8 bg-secondary border border-secondary rounded-md hover:bg-white hover:border-gray-300"
+                className="gap-1 bg-secondary"
                 onClick={handleViewModeToggle}
                 size="icon"
               >

@@ -783,7 +783,7 @@ export function LeadDetail({ lead, isOpen, onClose, onSave, onOpenMassEmail }: L
                           });
                         }
                       }}
-                      className="gap-1 bg-[#25D366] text-white hover:bg-[#25D366]/90"
+                      className="gap-1"
                     >
                       <FaWhatsapp className="h-3 w-3" />
                     </Button>
