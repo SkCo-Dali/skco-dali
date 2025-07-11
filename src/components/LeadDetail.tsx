@@ -935,21 +935,21 @@ export function LeadDetail({ lead, isOpen, onClose, onSave, onOpenMassEmail }: L
 
               {/* Tab Historial */}
               <TabsContent value="history" className="space-y-4">
-                <div className="flex items-center justify-between">
-  <div className="flex items-center gap-2 my-2">
+                <div className="flex items-center justify-between my-2">
+  <div className="flex items-center gap-2">
     <Label>Usuario Actual Asignado:</Label>
     <span className="text-sm font-medium">{assignedUserName}</span>
-    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => setShowReassignDialog(true)}
-                      className="gap-1"
-                    >
-                      <UserPlus className="h-3 w-3" />
-                      Reasignar
-                    </Button>
   </div>
-                  </div>
+  <Button
+    size="sm"
+    variant="outline"
+    onClick={() => setShowReassignDialog(true)}
+    className="gap-1"
+  >
+    <UserPlus className="h-3 w-3" />
+    Reasignar
+  </Button>
+</div>
                 <div className="flex items-center gap-2 mb-4">
                   <History className="h-5 w-5" />
                   <h3 className="text-lg font-semibold">Historial de Asignaciones</h3>
