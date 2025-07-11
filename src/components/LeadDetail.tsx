@@ -772,6 +772,18 @@ export function LeadDetail({ lead, isOpen, onClose, onSave, onOpenMassEmail }: L
                     </Button>
                     <Button 
                       size="sm" 
+                      onClick={() => {
+                        if (lead.phone) {
+                          const cleanPhone = lead.phone.replace(/\D/g, '');
+                          window.open(`https://wa.me/${cleanPhone}`, '_blank');
+                        } else {
+                          toast({
+                            title: "Error",
+                            description: "No hay número de teléfono disponible para este lead",
+                            variant: "destructive",
+                          });
+                        }
+                      }}
                       className="gap-1 bg-[#25D366] text-white hover:bg-[#25D366]/90"
                     >
                       <FaWhatsapp className="h-3 w-3" />
