@@ -40,7 +40,8 @@ import {
   ChevronDown, 
   Table, 
   Columns,
-  MoreVertical
+  MoreVertical,
+  Group
 } from "lucide-react";
 
 const DEFAULT_COLUMNS: ColumnConfig[] = [
@@ -77,7 +78,6 @@ export default function Leads() {
   const [groupBy, setGroupBy] = useState<string>("stage");
   const leadCreateDialogRef = useRef<{ openDialog: () => void }>(null);
 
-  // Usar el hook useLeadsApi que ya tiene la lógica correcta para obtener leads reasignables
   const {
     leads: leadsData,
     loading: isLoading,
@@ -253,7 +253,7 @@ export default function Leads() {
             <div className="flex gap-2">
               <Button 
                 className="text-[#3f3f3f] w-24 h-8 bg-white border border-gray-300 rounded-md hover:bg-white hover:border-gray-300"
-                onClick={() => setShowFilters(!showFilters)}
+                onClick={() => setShowFilters(true)}
                 size="sm"
               >
                 <Filter className="h-4 w-4 mr-0 text-[#00c83c] justify-items-end" />
@@ -261,20 +261,48 @@ export default function Leads() {
               </Button>
               
               {viewMode === "columns" && (
-                <div className="flex items-center gap-2">
-                  <Select value={groupBy} onValueChange={setGroupBy}>
-                    <SelectTrigger className="w-[140px] h-8 bg-white border border-gray-300 rounded-md">
-                      Agrupar por:
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="stage">Etapa</SelectItem>
-                      <SelectItem value="priority">Prioridad</SelectItem>
-                      <SelectItem value="source">Fuente</SelectItem>
-                      <SelectItem value="assignedTo">Asesor asignado</SelectItem>
-                      <SelectItem value="campaign">Campaña</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button size="sm" className="text-[#3f3f3f] w-auto h-8 bg-white border border-gray-300 rounded-md hover:bg-white hover:border-gray-300">
+                      <Group className="h-4 w-4 mr-2 text-[#00c83c]" />
+                      Agrupar por
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-48 bg-white rounded-2xl shadow-lg border border-gray-200">
+                    <div className="p-2">
+                      <DropdownMenuItem 
+                        onClick={() => setGroupBy("stage")}
+                        className={groupBy === "stage" ? "bg-[#00c83c]/10 text-[#00c83c]" : ""}
+                      >
+                        Etapa
+                      </DropdownMenuItem>
+                      <DropdownMenuItem 
+                        onClick={() => setGroupBy("priority")}
+                        className={groupBy === "priority" ? "bg-[#00c83c]/10 text-[#00c83c]" : ""}
+                      >
+                        Prioridad
+                      </DropdownMenuItem>
+                      <DropdownMenuItem 
+                        onClick={() => setGroupBy("source")}
+                        className={groupBy === "source" ? "bg-[#00c83c]/10 text-[#00c83c]" : ""}
+                      >
+                        Fuente
+                      </DropdownMenuItem>
+                      <DropdownMenuItem 
+                        onClick={() => setGroupBy("assignedTo")}
+                        className={groupBy === "assignedTo" ? "bg-[#00c83c]/10 text-[#00c83c]" : ""}
+                      >
+                        Asesor asignado
+                      </DropdownMenuItem>
+                      <DropdownMenuItem 
+                        onClick={() => setGroupBy("campaign")}
+                        className={groupBy === "campaign" ? "bg-[#00c83c]/10 text-[#00c83c]" : ""}
+                      >
+                        Campaña
+                      </DropdownMenuItem>
+                    </div>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               )}
               
               {viewMode === "table" && (
@@ -293,41 +321,6 @@ export default function Leads() {
               </Button>
             </div>
           </div>
-
-          {showFilters && (
-            <LeadsFilters
-              searchTerm={searchTerm}
-              setSearchTerm={setSearchTerm}
-              filterStage={filterStage}
-              setFilterStage={setFilterStage}
-              filterPriority={filterPriority}
-              setFilterPriority={setFilterPriority}
-              filterAssignedTo={filterAssignedTo}
-              setFilterAssignedTo={setFilterAssignedTo}
-              filterSource={filterSource}
-              setFilterSource={setFilterSource}
-              filterCampaign={filterCampaign}
-              setFilterCampaign={setFilterCampaign}
-              filterDateFrom={filterDateFrom}
-              setFilterDateFrom={setFilterDateFrom}
-              filterDateTo={filterDateTo}
-              setFilterDateTo={setFilterDateTo}
-              filterValueMin={filterValueMin}
-              setFilterValueMin={setFilterValueMin}
-              filterValueMax={filterValueMax}
-              setFilterValueMax={setFilterValueMax}
-              filterDuplicates={filterDuplicates}
-              setFilterDuplicates={setFilterDuplicates}
-              sortBy={sortBy}
-              setSortBy={setSortBy}
-              onClearFilters={clearFilters}
-              uniqueStages={uniqueStages}
-              uniqueSources={uniqueSources}
-              uniqueCampaigns={uniqueCampaigns}
-              uniqueAssignedTo={uniqueAssignedTo}
-              duplicateCount={duplicateCount}
-            />
-          )}
 
           {isLoading ? (
             <div className="flex justify-center items-center py-8">
@@ -405,6 +398,44 @@ export default function Leads() {
               setShowMassEmail(false);
               setSelectedLeadForEmail(null);
             }}
+          />
+        </DialogContent>
+      </Dialog>
+
+      {/* Filters Dialog */}
+      <Dialog open={showFilters} onOpenChange={setShowFilters}>
+        <DialogContent className="max-w-6xl max-h-[90vh] overflow-auto">
+          <LeadsFilters
+            searchTerm={searchTerm}
+            setSearchTerm={setSearchTerm}
+            filterStage={filterStage}
+            setFilterStage={setFilterStage}
+            filterPriority={filterPriority}
+            setFilterPriority={setFilterPriority}
+            filterAssignedTo={filterAssignedTo}
+            setFilterAssignedTo={setFilterAssignedTo}
+            filterSource={filterSource}
+            setFilterSource={setFilterSource}
+            filterCampaign={filterCampaign}
+            setFilterCampaign={setFilterCampaign}
+            filterDateFrom={filterDateFrom}
+            setFilterDateFrom={setFilterDateFrom}
+            filterDateTo={filterDateTo}
+            setFilterDateTo={setFilterDateTo}
+            filterValueMin={filterValueMin}
+            setFilterValueMin={setFilterValueMin}
+            filterValueMax={filterValueMax}
+            setFilterValueMax={setFilterValueMax}
+            filterDuplicates={filterDuplicates}
+            setFilterDuplicates={setFilterDuplicates}
+            sortBy={sortBy}
+            setSortBy={setSortBy}
+            onClearFilters={clearFilters}
+            uniqueStages={uniqueStages}
+            uniqueSources={uniqueSources}
+            uniqueCampaigns={uniqueCampaigns}
+            uniqueAssignedTo={uniqueAssignedTo}
+            duplicateCount={duplicateCount}
           />
         </DialogContent>
       </Dialog>
