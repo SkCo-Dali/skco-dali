@@ -40,6 +40,7 @@ export const ENV = {
   
   // Security Settings
   ALLOWED_DOMAINS: (import.meta.env.VITE_ALLOWED_DOMAINS || 'skandia.com,skandia.co,skandia.com.co,fp.skandia.com.co').split(','),
+  ENABLE_DOMAIN_VALIDATION: import.meta.env.VITE_ENABLE_DOMAIN_VALIDATION !== 'false',
   
   // Required Scopes
   REQUIRED_SCOPES: (import.meta.env.VITE_REQUIRED_SCOPES || 'User.Read,Mail.Send,Mail.Read,offline_access').split(','),
