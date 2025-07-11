@@ -935,6 +935,10 @@ export function LeadDetail({ lead, isOpen, onClose, onSave, onOpenMassEmail }: L
 
               {/* Tab Historial */}
               <TabsContent value="history" className="space-y-4">
+                <div>
+                        <Label>Usuario Actual Asignado</Label>
+                          <span className="text-sm font-medium">{assignedUserName}</span>
+                      </div>
                 <div className="flex items-center gap-2 mb-4">
                   <History className="h-5 w-5" />
                   <h3 className="text-lg font-semibold">Historial de Asignaciones</h3>
