@@ -403,8 +403,9 @@ export function LeadDetail({ lead, isOpen, onClose, onSave, onOpenMassEmail }: L
                           onChange={(e) => handleGeneralChange('name', e.target.value)}
                         />
                       </div>
-                      
+
                       <div className="grid grid-cols-2 gap-4">
+                      <div>
                         <Label htmlFor="email">Email</Label>
                         <Input
                           id="email"
@@ -419,6 +420,7 @@ export function LeadDetail({ lead, isOpen, onClose, onSave, onOpenMassEmail }: L
                           onChange={(e) => handleGeneralChange('phone', e.target.value)}
                         />
                       </div>
+                        </div>
 
                       <div className="grid grid-cols-2 gap-4">
                         <div>
