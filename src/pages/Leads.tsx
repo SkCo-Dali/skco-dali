@@ -254,52 +254,34 @@ export default function Leads() {
 
           {/* Search and Controls Row */}
           <div className="flex flex-col lg:flex-row gap-4 items-center">
-          <div className="flex flex-1 items-center gap-2">
-              <LeadCreateDialog onLeadCreate={handleLeadCreate}>
-                <Button
-                  className="gap-1 w-8 h-8 bg-primary"
-                  size="icon"
-                >
-                  <Plus className="h-4 w-4" />
-                </Button>
-              </LeadCreateDialog>
+            <div className="flex flex-1 items-center gap-2">
+  <Button
+    className="gap-1 w-8 h-8 bg-primary"
+    onClick={(e) => e.preventDefault()}
+    size="icon"
+  >
+    <Plus className="h-4 w-4" />
+  </Button>
               <Button
-                className="gap-1 w-8 h-8 bg-primary"
-                onClick={() => {
-                  setShowMassEmail(true);
-                  if (selectedLeads.length === 0) {
-                    toast.info("Enviando correos a todos los leads filtrados");
-                  }
-                }}
-                size="icon"
-              >
-                <Mail className="h-4 w-4" />
-              </Button>
+    className="gap-1 w-8 h-8 bg-primary"
+    onClick={() => setShowMassEmail(true)}
+    size="icon"
+  >
+    <Mail className="h-4 w-4" />
+  </Button>
               <Button
-                className="gap-1 w-8 h-8 bg-primary"
-                onClick={() => {
-                  setShowBulkAssign(true);
-                  if (selectedLeads.length === 0) {
-                    toast.info("Asignando todos los leads filtrados");
-                  }
-                }}
-                size="icon"
-              >
-                <Users className="h-4 w-4" />
-              </Button>
+    className="gap-1 w-8 h-8 bg-primary"
+    onClick={() => setShowBulkAssign(true)}
+    size="icon"
+  >
+    <Users className="h-4 w-4" />
+  </Button>
               <Button
-                className="gap-1 w-8 h-8 bg-primary"
-                onClick={() => {
-                  if (selectedLeads.length > 0) {
-                    toast.success(`${selectedLeads.length} leads seleccionados para eliminar`);
-                  } else {
-                    toast.info("Eliminando todos los leads filtrados");
-                  }
-                }}
-                size="icon"
-              >
-                <Trash className="h-4 w-4" />
-              </Button>
+    className="gap-1 w-8 h-8 bg-primary"
+    size="icon"
+  >
+    <Trash className="h-4 w-4" />
+  </Button>
   <LeadsSearch 
     searchTerm={searchTerm} 
     onSearchChange={setSearchTerm} 
@@ -490,13 +472,7 @@ export default function Leads() {
       }}>
         <DialogContent className="max-w-6xl max-h-[90vh] overflow-auto">
           <MassEmailSender
-            filteredLeads={
-              selectedLeadForEmail 
-                ? [selectedLeadForEmail] 
-                : selectedLeads.length > 0 
-                  ? filteredLeads.filter(lead => selectedLeads.includes(lead.id))
-                  : filteredLeads
-            }
+            filteredLeads={selectedLeadForEmail ? [selectedLeadForEmail] : filteredLeads}
             onClose={() => {
               setShowMassEmail(false);
               setSelectedLeadForEmail(null);
