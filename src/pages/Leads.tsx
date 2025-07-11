@@ -36,6 +36,7 @@ import {
   Columns,
   MoreVertical
 } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
 
 const DEFAULT_COLUMNS: ColumnConfig[] = [
   { key: 'name', label: 'Nombre', visible: true, sortable: true },
@@ -59,6 +60,7 @@ const DEFAULT_COLUMNS: ColumnConfig[] = [
 ];
 
 export default function Leads() {
+  const { user } = useAuth();
   const [viewMode, setViewMode] = useState<"table" | "columns">("table");
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
   const [showBulkAssign, setShowBulkAssign] = useState(false);
@@ -70,6 +72,12 @@ export default function Leads() {
   const [selectedLeadForEmail, setSelectedLeadForEmail] = useState<Lead | null>(null);
   const leadCreateDialogRef = useRef<{ openDialog: () => void }>(null);
 
+  console.log('🚀 === LEADS PAGE: Starting component render ===');
+  console.log('👤 Current authenticated user:', user);
+  console.log('👤 User ID:', user?.id);
+  console.log('👤 User role:', user?.role);
+  console.log('📍 Component is calling getAllLeads() through useQuery...');
+
   const {
     data: leadsData = [],
     isLoading,
@@ -77,8 +85,42 @@ export default function Leads() {
     refetch
   } = useQuery({
     queryKey: ['leads'],
-    queryFn: () => getAllLeads(),
+    queryFn: () => {
+      console.log('🔄 === USEQUERY: Executing getAllLeads() ===');
+      console.log('👤 User context at query time:', user);
+      console.log('👤 User ID at query time:', user?.id);
+      console.log('👤 User role at query time:', user?.role);
+      
+      const result = getAllLeads();
+      console.log('📡 getAllLeads() call initiated');
+      return result;
+    },
   });
+
+  console.log('📊 === LEADS DATA RECEIVED ===');
+  console.log('📊 Raw leadsData received:', leadsData);
+  console.log('📊 Number of leads received:', leadsData?.length || 0);
+  console.log('📊 isLoading:', isLoading);
+  console.log('📊 error:', error);
+
+  if (leadsData && leadsData.length > 0) {
+    console.log('📋 Sample lead (first 3 leads):');
+    leadsData.slice(0, 3).forEach((lead, index) => {
+      console.log(`📋 Lead ${index + 1}:`, {
+        id: lead.id,
+        name: lead.name,
+        email: lead.email,
+        assignedTo: lead.assignedTo,
+        stage: lead.stage,
+        source: lead.source
+      });
+    });
+    
+    console.log('🔍 Checking assigned users in leads:');
+    const uniqueAssignedUsers = [...new Set(leadsData.map(lead => lead.assignedTo).filter(Boolean))];
+    console.log('👥 Unique assignedTo values:', uniqueAssignedUsers);
+    console.log('❓ Current user ID in assigned users?', uniqueAssignedUsers.includes(user?.id || ''));
+  }
 
   const {
     filteredLeads,
@@ -113,6 +155,23 @@ export default function Leads() {
     uniqueAssignedTo,
     duplicateCount
   } = useLeadsFilters(leadsData);
+
+  console.log('🎯 === FILTERED LEADS ===');
+  console.log('🎯 Original leads count:', leadsData?.length || 0);
+  console.log('🎯 Filtered leads count:', filteredLeads?.length || 0);
+  console.log('🎯 Current filters applied:', {
+    searchTerm,
+    filterStage,
+    filterPriority,
+    filterAssignedTo,
+    filterSource,
+    filterCampaign,
+    filterDateFrom,
+    filterDateTo,
+    filterValueMin,
+    filterValueMax,
+    filterDuplicates
+  });
 
   const leadsToUse = sortedLeads.length > 0 ? sortedLeads : filteredLeads;
 
@@ -181,10 +240,17 @@ export default function Leads() {
     const contacted = leadsData.filter(lead => lead.stage === "contacted").length;
     const qualified = leadsData.filter(lead => lead.stage === "qualified").length;
 
+    console.log('📈 Stats calculated:', { total, newLeads, contacted, qualified });
+
     return { total, newLeads, contacted, qualified };
   }, [leadsData]);
 
+  console.log('🏁 === LEADS PAGE: Final render data ===');
+  console.log('🏁 Final leadsToUse count:', leadsToUse?.length || 0);
+  console.log('🏁 Final paginatedLeads count:', paginatedLeads?.length || 0);
+
   if (error) {
+    console.error('❌ Error in Leads page:', error);
     return (
       <div className="container mx-auto px-4 py-8">
         <div className="text-center text-red-600">

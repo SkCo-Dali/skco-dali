@@ -1,4 +1,3 @@
-
 import { Lead, Interaction } from '@/types/crm';
 import { ApiLead, CreateLeadRequest, UpdateLeadRequest, CreateLeadResponse, ApiResponse, BulkAssignRequest, ChangeStageRequest, AssignLeadRequest, MergeLeadsRequest } from '@/types/leadsApiTypes';
 import { mapApiLeadToLead, mapLeadToApiFormat } from './leadsApiMapper';
@@ -67,6 +66,10 @@ export const getAllLeads = async (filters?: {
   priority?: string;
   createdBy?: string;
 }): Promise<Lead[]> => {
+  console.log('🚀 === GETALLLEADS: Starting API call ===');
+  console.log('📡 API endpoint:', API_BASE_URL);
+  console.log('🔍 Filters provided:', filters);
+  
   const allLeads: ApiLead[] = [];
   let skip = 0;
   const limit = 500;
@@ -84,28 +87,82 @@ export const getAllLeads = async (filters?: {
         endpoint = `${API_BASE_URL}?${params.toString()}`;
       }
 
+      console.log(`📡 Fetching leads from: ${endpoint}`);
+      console.log(`📄 Page info: skip=${skip}, limit=${limit}`);
+
       const response = await fetchWithRetry(endpoint);
       
       if (!response.ok) {
+        console.error(`❌ API error: ${response.status} - ${response.statusText}`);
         throw new Error(`Error al obtener leads: ${response.status} - ${response.statusText}`);
       }
       
       const pageLeads: ApiLead[] = await response.json();
+      console.log(`📊 Received ${pageLeads.length} leads in this page`);
+      
+      if (pageLeads.length > 0) {
+        console.log('📋 Sample lead from this page:', {
+          id: pageLeads[0].id || pageLeads[0].Id,
+          name: pageLeads[0].name || pageLeads[0].Name,
+          email: pageLeads[0].email || pageLeads[0].Email,
+          assignedTo: pageLeads[0].assignedTo || pageLeads[0].AssignedTo || pageLeads[0].assigned_to,
+          stage: pageLeads[0].stage || pageLeads[0].Stage,
+          source: pageLeads[0].source || pageLeads[0].Source
+        });
+      }
       
       allLeads.push(...pageLeads);
       
       if (pageLeads.length < limit) {
         hasMoreData = false;
+        console.log('✅ Reached end of data (last page)');
       } else {
         skip += limit;
+        console.log(`🔄 More data available, continuing with skip=${skip}`);
       }
     }
     
-    const mappedLeads = allLeads.map(mapApiLeadToLead);
+    console.log('📊 === GETALLLEADS: API Response Summary ===');
+    console.log(`📊 Total API leads received: ${allLeads.length}`);
+    
+    // Log unique assignedTo values from raw API data
+    const rawAssignedUsers = allLeads.map(lead => 
+      lead.assignedTo || lead.AssignedTo || lead.assigned_to
+    ).filter(Boolean);
+    const uniqueRawAssigned = [...new Set(rawAssignedUsers)];
+    console.log('👥 Unique assignedTo values from raw API:', uniqueRawAssigned);
+    
+    console.log('🔄 Starting mapping process...');
+    const mappedLeads = allLeads.map((apiLead, index) => {
+      const mapped = mapApiLeadToLead(apiLead);
+      if (index < 3) {
+        console.log(`🔄 Mapped lead ${index + 1}:`, {
+          id: mapped.id,
+          name: mapped.name,
+          email: mapped.email,
+          assignedTo: mapped.assignedTo,
+          stage: mapped.stage,
+          source: mapped.source
+        });
+      }
+      return mapped;
+    });
+    
+    console.log('✅ === GETALLLEADS: Final Results ===');
+    console.log(`✅ Total mapped leads: ${mappedLeads.length}`);
+    
+    // Log unique assignedTo values from mapped data
+    const mappedAssignedUsers = mappedLeads.map(lead => lead.assignedTo).filter(Boolean);
+    const uniqueMappedAssigned = [...new Set(mappedAssignedUsers)];
+    console.log('👥 Unique assignedTo values from mapped data:', uniqueMappedAssigned);
     
     return mappedLeads;
   } catch (error) {
+    console.error('❌ === GETALLLEADS: Error occurred ===');
+    console.error('❌ Error details:', error);
+    
     if (error instanceof Error && error.message.includes('Failed to fetch')) {
+      console.log('🔄 Network error detected, returning empty array');
       return [];
     }
     
