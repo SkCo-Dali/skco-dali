@@ -294,7 +294,7 @@ export default function Leads() {
   </Button>
   
 </div>
-            <div className="flex gap-2">
+            <div className="flex gap-4">
 <LeadsSearch 
     searchTerm={searchTerm} 
     onSearchChange={setSearchTerm} 
