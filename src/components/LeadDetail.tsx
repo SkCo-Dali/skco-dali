@@ -763,15 +763,14 @@ export function LeadDetail({ lead, isOpen, onClose, onSave, onOpenMassEmail }: L
                     </div>
 <div className="flex gap-2">
                     <Button 
-                      size="sm" 
+                      size="icon" 
                       onClick={() => onOpenMassEmail?.(lead)}
                       className="gap-1"
                     >
                       <Mail className="h-3 w-3" />
-                      Email
                     </Button>
                     <Button 
-                      size="sm" 
+                      size="icon" 
                       onClick={() => {
                         if (lead.phone) {
                           const cleanPhone = lead.phone.replace(/\D/g, '');
@@ -787,7 +786,6 @@ export function LeadDetail({ lead, isOpen, onClose, onSave, onOpenMassEmail }: L
                       className="gap-1 bg-[#25D366] text-white hover:bg-[#25D366]/90"
                     >
                       <FaWhatsapp className="h-3 w-3" />
-                      WhatsApp
                     </Button>
 </div>
                   </CardContent>
