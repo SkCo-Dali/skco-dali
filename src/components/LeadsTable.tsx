@@ -1,7 +1,9 @@
+
 import { useState } from "react"; 
 import { Lead } from "@/types/crm";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Checkbox } from "@/components/ui/checkbox";
 import { User, ChevronUp, ChevronDown, MoreVertical, Edit, Calendar, User as UserIcon, MessageCircle, Trash2, Mail } from "lucide-react";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
@@ -20,6 +22,8 @@ interface LeadsTableProps {
   columns?: ColumnConfig[];
   onSortedLeadsChange?: (sortedLeads: Lead[]) => void;
   onSendEmail?: (lead: Lead) => void;
+  selectedLeads?: string[];
+  onLeadSelectionChange?: (leadIds: string[], isSelected: boolean) => void;
 }
 
 type SortConfig = {
@@ -55,7 +59,9 @@ export function LeadsTable({
   onLeadUpdate, 
   columns = defaultColumns, 
   onSortedLeadsChange,
-  onSendEmail
+  onSendEmail,
+  selectedLeads = [],
+  onLeadSelectionChange
 }: LeadsTableProps) {
   const { users } = useUsersApi();
   const [sortConfig, setSortConfig] = useState<SortConfig>(null);
@@ -63,12 +69,29 @@ export function LeadsTable({
   const visibleColumns = columns.filter(col => col.visible);
   
   const calculateTableWidth = () => {
+    const checkboxColumnWidth = 50; // Nueva columna de checkbox
     const nameColumnWidth = 350; // Columna nombre siempre 350px
     const regularColumnWidth = 250; // Todas las demás columnas 250px
     const visibleRegularColumns = visibleColumns.length - 1; // Restar la columna nombre
     
-    return nameColumnWidth + (visibleRegularColumns * regularColumnWidth);
+    return checkboxColumnWidth + nameColumnWidth + (visibleRegularColumns * regularColumnWidth);
   };
+
+  const handleSelectAll = (checked: boolean) => {
+    const currentPageLeadIds = paginatedLeads.map(lead => lead.id);
+    if (onLeadSelectionChange) {
+      onLeadSelectionChange(currentPageLeadIds, checked);
+    }
+  };
+
+  const handleSelectLead = (leadId: string, checked: boolean) => {
+    if (onLeadSelectionChange) {
+      onLeadSelectionChange([leadId], checked);
+    }
+  };
+
+  const isAllSelected = paginatedLeads.length > 0 && paginatedLeads.every(lead => selectedLeads.includes(lead.id));
+  const isIndeterminate = paginatedLeads.some(lead => selectedLeads.includes(lead.id)) && !isAllSelected;
 
   const handleSort = (columnKey: string) => {
     let direction: 'asc' | 'desc' = 'asc';
@@ -89,8 +112,8 @@ export function LeadsTable({
           bValue = b.name.toLowerCase();
           break;
         case 'email':
-          aValue = a.email.toLowerCase();
-          bValue = b.email.toLowerCase();
+          aValue = (a.email || '').toLowerCase();
+          bValue = (b.email || '').toLowerCase();
           break;
         case 'product':
           aValue = (a.product || '').toLowerCase();
@@ -228,7 +251,13 @@ export function LeadsTable({
       case 'name':
         return (
           <div className="flex items-center justify-between w-full">
-            <div className="text-gray-900 font-medium text-xs truncate pr-2">
+            <div 
+              className="text-gray-900 font-medium text-xs truncate pr-2 cursor-pointer hover:text-[#00c83c]"
+              onClick={(e) => {
+                e.stopPropagation();
+                onLeadClick(lead);
+              }}
+            >
               {lead.name}
             </div>
             <DropdownMenu>
@@ -376,6 +405,17 @@ export function LeadsTable({
           >
             <TableHeader className="leads-table-header-sticky">
               <TableRow className="bg-[#fafafa] border-b border-[#fafafa]">
+                <TableHead className="w-[50px] px-4 py-3 text-center">
+                  <Checkbox
+                    checked={isAllSelected}
+                    onCheckedChange={handleSelectAll}
+                    ref={(ref) => {
+                      if (ref) {
+                        ref.indeterminate = isIndeterminate;
+                      }
+                    }}
+                  />
+                </TableHead>
                 {visibleColumns.map((column) => (
                   <TableHead 
                     key={column.key}
@@ -398,6 +438,12 @@ export function LeadsTable({
                   key={lead.id}
                   className="hover:bg-[#fafafa] transition-colors border-[#fafafa]"
                 >
+                  <TableCell className="w-[50px] px-4 py-3 text-center">
+                    <Checkbox
+                      checked={selectedLeads.includes(lead.id)}
+                      onCheckedChange={(checked) => handleSelectLead(lead.id, checked as boolean)}
+                    />
+                  </TableCell>
                   {visibleColumns.map((column) => (
                     <TableCell 
                       key={column.key} 

@@ -1,3 +1,4 @@
+
 import React, { useState, useCallback, useMemo, useRef } from "react";
 import { toast } from "sonner";
 import { Lead } from "@/types/crm";
@@ -76,6 +77,7 @@ export default function Leads() {
   const [sortedLeads, setSortedLeads] = useState<Lead[]>([]);
   const [selectedLeadForEmail, setSelectedLeadForEmail] = useState<Lead | null>(null);
   const [groupBy, setGroupBy] = useState<string>("stage");
+  const [selectedLeads, setSelectedLeads] = useState<string[]>([]);
   const leadCreateDialogRef = useRef<{ openDialog: () => void }>(null);
 
   const {
@@ -161,6 +163,14 @@ export default function Leads() {
   const handleSendEmailToLead = useCallback((lead: Lead) => {
     setSelectedLeadForEmail(lead);
     setShowMassEmail(true);
+  }, []);
+
+  const handleLeadSelectionChange = useCallback((leadIds: string[], isSelected: boolean) => {
+    if (isSelected) {
+      setSelectedLeads(prev => [...new Set([...prev, ...leadIds])]);
+    } else {
+      setSelectedLeads(prev => prev.filter(id => !leadIds.includes(id)));
+    }
   }, []);
 
   const handleViewModeToggle = () => {
@@ -251,14 +261,51 @@ export default function Leads() {
               />
             </div>
             <div className="flex gap-2">
-              <Button 
-                className="text-[#3f3f3f] w-24 h-8 bg-white border border-gray-300 rounded-md hover:bg-white hover:border-gray-300"
-                onClick={() => setShowFilters(true)}
-                size="sm"
-              >
-                <Filter className="h-4 w-4 mr-0 text-[#00c83c] justify-items-end" />
-                Filtros
-              </Button>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button 
+                    className="text-[#3f3f3f] w-24 h-8 bg-white border border-gray-300 rounded-md hover:bg-white hover:border-gray-300"
+                    size="sm"
+                  >
+                    <Filter className="h-4 w-4 mr-0 text-[#00c83c] justify-items-end" />
+                    Filtros
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="w-80 p-4 bg-white rounded-2xl shadow-lg border border-gray-200">
+                  <LeadsFilters
+                    searchTerm={searchTerm}
+                    setSearchTerm={setSearchTerm}
+                    filterStage={filterStage}
+                    setFilterStage={setFilterStage}
+                    filterPriority={filterPriority}
+                    setFilterPriority={setFilterPriority}
+                    filterAssignedTo={filterAssignedTo}
+                    setFilterAssignedTo={setFilterAssignedTo}
+                    filterSource={filterSource}
+                    setFilterSource={setFilterSource}
+                    filterCampaign={filterCampaign}
+                    setFilterCampaign={setFilterCampaign}
+                    filterDateFrom={filterDateFrom}
+                    setFilterDateFrom={setFilterDateFrom}
+                    filterDateTo={filterDateTo}
+                    setFilterDateTo={setFilterDateTo}
+                    filterValueMin={filterValueMin}
+                    setFilterValueMin={setFilterValueMin}
+                    filterValueMax={filterValueMax}
+                    setFilterValueMax={setFilterValueMax}
+                    filterDuplicates={filterDuplicates}
+                    setFilterDuplicates={setFilterDuplicates}
+                    sortBy={sortBy}
+                    setSortBy={setSortBy}
+                    onClearFilters={clearFilters}
+                    uniqueStages={uniqueStages}
+                    uniqueSources={uniqueSources}
+                    uniqueCampaigns={uniqueCampaigns}
+                    uniqueAssignedTo={uniqueAssignedTo}
+                    duplicateCount={duplicateCount}
+                  />
+                </DropdownMenuContent>
+              </DropdownMenu>
               
               {viewMode === "columns" && (
                 <DropdownMenu>
@@ -338,6 +385,8 @@ export default function Leads() {
                 onSortedLeadsChange={handleSortedLeadsChange}
                 onSendEmail={handleSendEmailToLead}
                 groupBy={groupBy}
+                selectedLeads={selectedLeads}
+                onLeadSelectionChange={handleLeadSelectionChange}
               />
 
               <LeadsPagination
@@ -398,44 +447,6 @@ export default function Leads() {
               setShowMassEmail(false);
               setSelectedLeadForEmail(null);
             }}
-          />
-        </DialogContent>
-      </Dialog>
-
-      {/* Filters Dialog */}
-      <Dialog open={showFilters} onOpenChange={setShowFilters}>
-        <DialogContent className="max-w-6xl max-h-[90vh] overflow-auto">
-          <LeadsFilters
-            searchTerm={searchTerm}
-            setSearchTerm={setSearchTerm}
-            filterStage={filterStage}
-            setFilterStage={setFilterStage}
-            filterPriority={filterPriority}
-            setFilterPriority={setFilterPriority}
-            filterAssignedTo={filterAssignedTo}
-            setFilterAssignedTo={setFilterAssignedTo}
-            filterSource={filterSource}
-            setFilterSource={setFilterSource}
-            filterCampaign={filterCampaign}
-            setFilterCampaign={setFilterCampaign}
-            filterDateFrom={filterDateFrom}
-            setFilterDateFrom={setFilterDateFrom}
-            filterDateTo={filterDateTo}
-            setFilterDateTo={setFilterDateTo}
-            filterValueMin={filterValueMin}
-            setFilterValueMin={setFilterValueMin}
-            filterValueMax={filterValueMax}
-            setFilterValueMax={setFilterValueMax}
-            filterDuplicates={filterDuplicates}
-            setFilterDuplicates={setFilterDuplicates}
-            sortBy={sortBy}
-            setSortBy={setSortBy}
-            onClearFilters={clearFilters}
-            uniqueStages={uniqueStages}
-            uniqueSources={uniqueSources}
-            uniqueCampaigns={uniqueCampaigns}
-            uniqueAssignedTo={uniqueAssignedTo}
-            duplicateCount={duplicateCount}
           />
         </DialogContent>
       </Dialog>

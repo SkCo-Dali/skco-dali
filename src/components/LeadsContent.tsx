@@ -14,6 +14,8 @@ interface LeadsContentProps {
   onSortedLeadsChange?: (sorted: Lead[]) => void;
   onSendEmail?: (lead: Lead) => void;
   groupBy?: string;
+  selectedLeads?: string[];
+  onLeadSelectionChange?: (leadIds: string[], isSelected: boolean) => void;
 }
 
 export function LeadsContent({ 
@@ -25,7 +27,9 @@ export function LeadsContent({
   paginatedLeads,
   onSortedLeadsChange,
   onSendEmail,
-  groupBy = "stage"
+  groupBy = "stage",
+  selectedLeads,
+  onLeadSelectionChange
 }: LeadsContentProps) {
   switch (viewMode) {
     case "table":
@@ -38,6 +42,8 @@ export function LeadsContent({
           columns={columns}
           onSortedLeadsChange={onSortedLeadsChange}
           onSendEmail={onSendEmail}
+          selectedLeads={selectedLeads}
+          onLeadSelectionChange={onLeadSelectionChange}
         />
       );
     case "columns":
