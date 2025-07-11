@@ -80,9 +80,9 @@ export function MicrosoftAuth() {
 
       const { userInfo } = tokenValidation;
       
-      // Paso 3: Validar dominio del email
+      // Paso 3: Validar dominio del email (ahora más flexible)
       if (!TokenValidationService.validateEmailDomain(userInfo.email)) {
-        throw new Error('El email no pertenece a un dominio autorizado de Skandia');
+        throw new Error('El email no pertenece a un dominio autorizado para acceder a la aplicación');
       }
       
       // Paso 4: Obtener foto del perfil (opcional, no crítico)

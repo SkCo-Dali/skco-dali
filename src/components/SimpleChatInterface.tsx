@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, forwardRef, useImperativeHandle } from 'react';
 import { SimpleMessage } from './SimpleMessage';
 import { SimpleInput } from './SimpleInput';
@@ -14,6 +13,7 @@ import { PromptTemplate } from '../types/templates';
 import { useIsMobile } from '../hooks/use-mobile';
 import { ConversationHistoryModal } from './ConversationHistoryModal';
 import { PromptTemplates } from './PromptTemplates';
+import { ENV } from '../config/environment';
 
 // Function to generate a smart title from user message
 const generateConversationTitle = (message: string): string => {
@@ -155,7 +155,7 @@ export const SimpleChatInterface = forwardRef<any, {}>((props, ref) => {
           totalTokens: 0,
           attachments: []
         };
-        const response = await fetch(`https://skcoDaliAIDev.azurewebsites.net/api/conversations`, {
+        const response = await fetch(`${ENV.AI_API_BASE_URL}/api/conversations`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(conversationData)
@@ -186,7 +186,7 @@ export const SimpleChatInterface = forwardRef<any, {}>((props, ref) => {
           isArchived: currentConversation.isArchived,
           totalTokens: currentConversation.totalTokens
         };
-        const updateResponse = await fetch(`https://skcoDaliAIDev.azurewebsites.net/api/conversations/${currentConversation.id}?user_id=${encodeURIComponent(userEmail)}`, {
+        const updateResponse = await fetch(`${ENV.AI_API_BASE_URL}/api/conversations/${currentConversation.id}?user_id=${encodeURIComponent(userEmail)}`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(conversationUpdate)
@@ -254,7 +254,7 @@ export const SimpleChatInterface = forwardRef<any, {}>((props, ref) => {
         totalTokens: currentConversation.totalTokens
       };
 
-      const finalUpdateResponse = await fetch(`https://skcoDaliAIDev.azurewebsites.net/api/conversations/${currentConversation.id}?user_id=${encodeURIComponent(userEmail)}`, {
+      const finalUpdateResponse = await fetch(`${ENV.AI_API_BASE_URL}/api/conversations/${currentConversation.id}?user_id=${encodeURIComponent(userEmail)}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(conversationFinalUpdate)

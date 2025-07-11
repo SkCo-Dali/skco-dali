@@ -11,6 +11,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Calendar, MessageSquare, Phone, Mail, UserCheck, Clock, Tag, Building2, Globe, CreditCard, AlertCircle, History, UserPlus, Users, X } from 'lucide-react';
 import { useUsersApi } from '@/hooks/useUsersApi';
 import { useInteractionsApi } from '@/hooks/useInteractionsApi';
@@ -19,6 +20,7 @@ import { useToast } from '@/hooks/use-toast';
 import { formatDistanceToNow } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { LeadReassignDialog } from './LeadReassignDialog';
+import { FaWhatsapp } from "react-icons/fa";
 
 interface LeadDetailProps {
   lead: Lead;
@@ -121,6 +123,12 @@ const formatDateForInput = (dateTimeString: string): string => {
 export function LeadDetail({ lead, isOpen, onClose, onSave, onOpenMassEmail }: LeadDetailProps) {
   // Add debugging to see what's happening
   console.log('LeadDetail rendered with:', { lead, isOpen });
+  console.log('🔍 Lead AdditionalInfo debug:', {
+    hasAdditionalInfo: !!lead.additionalInfo,
+    additionalInfoType: typeof lead.additionalInfo,
+    additionalInfoValue: lead.additionalInfo,
+    additionalInfoKeys: lead.additionalInfo ? Object.keys(lead.additionalInfo) : 'No keys'
+  });
   
   // Ensure tags and other array fields are properly initialized, but keep product as string
   const safeLeadData = {
@@ -369,15 +377,15 @@ export function LeadDetail({ lead, isOpen, onClose, onSave, onOpenMassEmail }: L
             </DialogHeader>
 
             <Tabs defaultValue="general" className="w-full">
-              <TabsList className="grid w-full grid-cols-3">
-                <TabsTrigger value="general">General</TabsTrigger>
-                <TabsTrigger value="management">Gestión</TabsTrigger>
-                <TabsTrigger value="history">Asignación</TabsTrigger>
+              <TabsList className="grid w-full grid-cols-3 bg-gray-100 rounded-full">
+                <TabsTrigger value="general" className="w-full h-full data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#00c83c] data-[state=active]:to-[#A3E40B] data-[state=active]:text-white rounded-full px-4 py-2 mt-0 text-sm font-medium transition-all duration-200">General</TabsTrigger>
+                <TabsTrigger value="management"className="w-full h-full data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#00c83c] data-[state=active]:to-[#A3E40B] data-[state=active]:text-white rounded-full px-4 py-2 mt-0 text-sm font-medium transition-all duration-200" >Gestión</TabsTrigger>
+                <TabsTrigger value="history"className="w-full h-full data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#00c83c] data-[state=active]:to-[#A3E40B] data-[state=active]:text-white rounded-full px-4 py-2 mt-0 text-sm font-medium transition-all duration-200" >Asignación</TabsTrigger>
               </TabsList>
 
               {/* Tab General */}
               <TabsContent value="general" className="space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-1 gap-6">
                   {/* Información básica */}
                   <Card>
                     <CardHeader>
@@ -395,7 +403,8 @@ export function LeadDetail({ lead, isOpen, onClose, onSave, onOpenMassEmail }: L
                           onChange={(e) => handleGeneralChange('name', e.target.value)}
                         />
                       </div>
-                      
+
+                      <div className="grid grid-cols-2 gap-4">
                       <div>
                         <Label htmlFor="email">Email</Label>
                         <Input
@@ -405,8 +414,7 @@ export function LeadDetail({ lead, isOpen, onClose, onSave, onOpenMassEmail }: L
                           onChange={(e) => handleGeneralChange('email', e.target.value)}
                         />
                       </div>
-                      
-                      <div>
+                        <div>
                         <Label htmlFor="phone">Teléfono</Label>
                         <Input
                           id="phone"
@@ -414,6 +422,7 @@ export function LeadDetail({ lead, isOpen, onClose, onSave, onOpenMassEmail }: L
                           onChange={(e) => handleGeneralChange('phone', e.target.value)}
                         />
                       </div>
+                        </div>
 
                       <div className="grid grid-cols-2 gap-4">
                         <div>
@@ -475,7 +484,8 @@ export function LeadDetail({ lead, isOpen, onClose, onSave, onOpenMassEmail }: L
                           </Select>
                         </div>
                       </div>
-                      
+
+                     <div className="grid grid-cols-2 gap-4"> 
                       <div>
                         <Label htmlFor="company">Empresa</Label>
                         <Input
@@ -484,50 +494,6 @@ export function LeadDetail({ lead, isOpen, onClose, onSave, onOpenMassEmail }: L
                           onChange={(e) => handleGeneralChange('company', e.target.value)}
                         />
                       </div>
-                    </CardContent>
-                  </Card>
-
-                  {/* Estado y clasificación */}
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="flex items-center gap-2">
-                        <Tag className="h-4 w-4" />
-                        Estado y Clasificación
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                      <div>
-                        <Label>Etapa actual</Label>
-                        <Badge className={`ml-2 ${stageColors[editedLead.stage] || 'bg-gray-100 text-gray-800'}`}>
-                          {editedLead.stage}
-                        </Badge>
-                      </div>
-                      
-                      <div>
-                        <Label htmlFor="priority">Prioridad</Label>
-                        <Select 
-                          value={editedLead.priority} 
-                          onValueChange={(value) => handleGeneralChange('priority', value)}
-                        >
-                          <SelectTrigger>
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="low">Baja</SelectItem>
-                            <SelectItem value="medium">Media</SelectItem>
-                            <SelectItem value="high">Alta</SelectItem>
-                            <SelectItem value="urgent">Urgente</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-                      
-                      <div>
-                        <Label>Usuario asignado</Label>
-                        <div className="mt-1 p-2 bg-gray-50 rounded border">
-                          <span className="text-sm font-medium">{assignedUserName}</span>
-                        </div>
-                      </div>
-                      
                       <div>
                         <Label htmlFor="value">Valor potencial</Label>
                         <Input
@@ -537,8 +503,12 @@ export function LeadDetail({ lead, isOpen, onClose, onSave, onOpenMassEmail }: L
                           onChange={(e) => handleGeneralChange('value', Number(e.target.value))}
                         />
                       </div>
+                     </div>
+                       
                     </CardContent>
                   </Card>
+
+                 
                 </div>
 
                 {/* Información de origen */}
@@ -648,36 +618,42 @@ export function LeadDetail({ lead, isOpen, onClose, onSave, onOpenMassEmail }: L
                       </div>
                     </div>
 
-                    {/* Nueva sección para mostrar AdditionalInfo con scroll */}
-                    {editedLead.additionalInfo && Object.keys(editedLead.additionalInfo).length > 0 && (
-                      <div>
-                        <Label>Información Adicional</Label>
-                        <div className="mt-2 border rounded-lg overflow-hidden">
-                          <ScrollArea className="h-48">
-                            <table className="w-full text-sm">
-                              <thead className="bg-gray-50 border-b sticky top-0">
-                                <tr>
-                                  <th className="px-3 py-2 text-left font-medium text-gray-700">Campo</th>
-                                  <th className="px-3 py-2 text-left font-medium text-gray-700">Valor</th>
-                                </tr>
-                              </thead>
-                              <tbody>
-                                {Object.entries(editedLead.additionalInfo).map(([key, value], index) => (
-                                  <tr key={key} className={index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
-                                    <td className="px-3 py-2 font-medium text-gray-600 border-r">{key}</td>
-                                    <td className="px-3 py-2 text-gray-900">
-                                      {typeof value === 'object' && value !== null 
-                                        ? JSON.stringify(value) 
-                                        : String(value || '')}
-                                    </td>
-                                  </tr>
-                                ))}
-                              </tbody>
-                            </table>
-                          </ScrollArea>
-                        </div>
+                    {/* Sección de Información Adicional - Sin debug info */}
+                    <div>
+                      <Label>Información Adicional</Label>
+                      <div className="mt-2">
+                        {editedLead.additionalInfo && typeof editedLead.additionalInfo === 'object' && Object.keys(editedLead.additionalInfo).length > 0 ? (
+                          <div className="border rounded-lg overflow-hidden">
+                            <ScrollArea className="h-48">
+                              <Table>
+                                <TableHeader className="sticky top-0 bg-gray-50">
+                                  <TableRow>
+                                    <TableHead className="font-medium text-gray-700">Campo</TableHead>
+                                    <TableHead className="font-medium text-gray-700">Valor</TableHead>
+                                  </TableRow>
+                                </TableHeader>
+                                <TableBody>
+                                  {Object.entries(editedLead.additionalInfo).map(([key, value], index) => (
+                                    <TableRow key={key} className={index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
+                                      <TableCell className="font-medium text-gray-600">{key}</TableCell>
+                                      <TableCell className="text-gray-900">
+                                        {typeof value === 'object' && value !== null 
+                                          ? JSON.stringify(value) 
+                                          : String(value || '')}
+                                      </TableCell>
+                                    </TableRow>
+                                  ))}
+                                </TableBody>
+                              </Table>
+                            </ScrollArea>
+                          </div>
+                        ) : (
+                          <div className="p-4 border border-gray-200 rounded-lg bg-gray-50 text-center text-gray-500">
+                            No hay información adicional disponible
+                          </div>
+                        )}
                       </div>
-                    )}
+                    </div>
                   </CardContent>
                 </Card>
 
@@ -704,40 +680,10 @@ export function LeadDetail({ lead, isOpen, onClose, onSave, onOpenMassEmail }: L
                     <CardTitle>Resultado de la Gestión</CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-4">
+
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
-                        <Label htmlFor="contactMethod">Medio de Contacto</Label>
-                        <Select value={contactMethod} onValueChange={setContactMethod}>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Seleccionar medio" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="phone">Teléfono</SelectItem>
-                            <SelectItem value="email">Email</SelectItem>
-                            <SelectItem value="whatsapp">WhatsApp</SelectItem>
-                            <SelectItem value="meeting">Reunión</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-                      
-                      <div>
-                        <Label htmlFor="result">Resultado</Label>
-                        <Select value={result} onValueChange={setResult}>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Seleccionar resultado" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="positive">Positivo</SelectItem>
-                            <SelectItem value="neutral">Neutral</SelectItem>
-                            <SelectItem value="negative">Negativo</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-                    </div>
-                    
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div>
-                        <Label htmlFor="stage">Etapa</Label>
+                        <Label htmlFor="stage">Estado Actual</Label>
                         <Select 
                           value={editedLead.stage} 
                           onValueChange={(value) => handleManagementChange('stage', value)}
@@ -760,15 +706,39 @@ export function LeadDetail({ lead, isOpen, onClose, onSave, onOpenMassEmail }: L
                           </SelectContent>
                         </Select>
                       </div>
-                      
-                      <div>
-                        <Label>Usuario Asignado</Label>
-                        <div className="mt-1 p-2 bg-gray-50 rounded border">
-                          <span className="text-sm font-medium">{assignedUserName}</span>
-                        </div>
+                       <div>
+                        <Label htmlFor="contactMethod">Medio de Contacto</Label>
+                        <Select value={contactMethod} onValueChange={setContactMethod}>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Seleccionar medio" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="phone">Teléfono</SelectItem>
+                            <SelectItem value="email">Email</SelectItem>
+                            <SelectItem value="whatsapp">WhatsApp</SelectItem>
+                            <SelectItem value="meeting">Reunión</SelectItem>
+                          </SelectContent>
+                        </Select>
                       </div>
                     </div>
-                    
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <Label htmlFor="priority">Prioridad</Label>
+                        <Select 
+                          value={editedLead.priority} 
+                          onValueChange={(value) => handleGeneralChange('priority', value)}
+                        >
+                          <SelectTrigger>
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="low">Baja</SelectItem>
+                            <SelectItem value="medium">Media</SelectItem>
+                            <SelectItem value="high">Alta</SelectItem>
+                            <SelectItem value="urgent">Urgente</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
                     <div>
                       <Label htmlFor="followUpDate">Próximo seguimiento</Label>
                       <Input
@@ -778,6 +748,8 @@ export function LeadDetail({ lead, isOpen, onClose, onSave, onOpenMassEmail }: L
                         onChange={(e) => handleManagementChange('nextFollowUp', e.target.value)}
                       />
                     </div>
+                    </div>
+                    
                     
                     <div>
                       <Label htmlFor="managementNotes">Notas de gestión</Label>
@@ -789,6 +761,33 @@ export function LeadDetail({ lead, isOpen, onClose, onSave, onOpenMassEmail }: L
                         rows={3}
                       />
                     </div>
+<div className="flex gap-2">
+                    <Button 
+                      size="icon" 
+                      onClick={() => onOpenMassEmail?.(lead)}
+                      className="gap-1 w-8 h-8"
+                    >
+                      <Mail className="h-3 w-3" />
+                    </Button>
+                    <Button 
+                      size="icon" 
+                      onClick={() => {
+                        if (lead.phone) {
+                          const cleanPhone = lead.phone.replace(/\D/g, '');
+                          window.open(`https://wa.me/${cleanPhone}`, '_blank');
+                        } else {
+                          toast({
+                            title: "Error",
+                            description: "No hay número de teléfono disponible para este lead",
+                            variant: "destructive",
+                          });
+                        }
+                      }}
+                      className="gap-1 w-8 h-8"
+                    >
+                      <FaWhatsapp className="h-3 w-3" />
+                    </Button>
+</div>
                   </CardContent>
                 </Card>
 
@@ -804,21 +803,7 @@ export function LeadDetail({ lead, isOpen, onClose, onSave, onOpenMassEmail }: L
                     )}
                   </h3>
                   <div className="flex gap-2">
-                    <Button 
-                      size="sm" 
-                      onClick={() => onOpenMassEmail?.(editedLead)}
-                      className="gap-1"
-                    >
-                      <Mail className="h-3 w-3" />
-                      Email
-                    </Button>
-                    <Button 
-                      size="sm" 
-                      className="gap-1 bg-[#25D366] text-white hover:bg-[#25D366]/90"
-                    >
-                      <MessageSquare className="h-3 w-3" />
-                      WhatsApp
-                    </Button>
+                    
                     
                     {/* Botones para cambiar vista de historial */}
                     {hasLikelyDuplicates() && (
@@ -963,19 +948,26 @@ export function LeadDetail({ lead, isOpen, onClose, onSave, onOpenMassEmail }: L
 
               {/* Tab Historial */}
               <TabsContent value="history" className="space-y-4">
+                <div className="flex items-center justify-between my-2">
+  <div className="flex items-center gap-2 my-4">
+    <Label>Usuario Actual Asignado:</Label>
+    <span className="text-sm font-medium">{assignedUserName}</span>
+  </div>
+  <Button
+    size="sm"
+    variant="outline"
+    onClick={() => setShowReassignDialog(true)}
+    className="gap-1"
+  >
+    <UserPlus className="h-3 w-3" />
+    Reasignar
+  </Button>
+</div>
                 <div className="flex items-center gap-2 mb-4">
                   <History className="h-5 w-5" />
                   <h3 className="text-lg font-semibold">Historial de Asignaciones</h3>
 
-                  <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => setShowReassignDialog(true)}
-                      className="gap-1"
-                    >
-                      <UserPlus className="h-3 w-3" />
-                      Reasignar
-                    </Button>
+                  
                 </div>
                 
                 {historyLoading ? (

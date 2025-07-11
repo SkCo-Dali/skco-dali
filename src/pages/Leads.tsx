@@ -1,5 +1,4 @@
 import React, { useState, useCallback, useMemo, useRef } from "react";
-import { useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { Lead } from "@/types/crm";
 import { LeadsSearch } from "@/components/LeadsSearch";
@@ -15,7 +14,7 @@ import { MassEmailSender } from "@/components/MassEmailSender";
 import { LeadsTableColumnSelector } from "@/components/LeadsTableColumnSelector";
 import { useLeadsFilters } from "@/hooks/useLeadsFilters";
 import { useLeadsPagination } from "@/hooks/useLeadsPagination";
-import { getAllLeads } from "@/utils/leadsApiClient";
+import { useLeadsApi } from "@/hooks/useLeadsApi";
 import { ColumnConfig } from "@/components/LeadsTableColumnSelector";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
@@ -25,6 +24,13 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { 
   Upload, 
   Plus, 
@@ -32,10 +38,10 @@ import {
   Filter, 
   Users, 
   ChevronDown, 
-  Grid, 
   Table, 
   Columns,
-  MoreVertical 
+  MoreVertical,
+  Group
 } from "lucide-react";
 
 const DEFAULT_COLUMNS: ColumnConfig[] = [
@@ -60,7 +66,7 @@ const DEFAULT_COLUMNS: ColumnConfig[] = [
 ];
 
 export default function Leads() {
-  const [viewMode, setViewMode] = useState<"grid" | "table" | "columns">("table");
+  const [viewMode, setViewMode] = useState<"table" | "columns">("table");
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
   const [showBulkAssign, setShowBulkAssign] = useState(false);
   const [showUpload, setShowUpload] = useState(false);
@@ -68,17 +74,25 @@ export default function Leads() {
   const [showFilters, setShowFilters] = useState(false);
   const [columns, setColumns] = useState<ColumnConfig[]>(DEFAULT_COLUMNS);
   const [sortedLeads, setSortedLeads] = useState<Lead[]>([]);
+  const [selectedLeadForEmail, setSelectedLeadForEmail] = useState<Lead | null>(null);
+  const [groupBy, setGroupBy] = useState<string>("stage");
+  const [selectedLeads, setSelectedLeads] = useState<string[]>([]);
   const leadCreateDialogRef = useRef<{ openDialog: () => void }>(null);
 
   const {
-    data: leadsData = [],
-    isLoading,
+    leads: leadsData,
+    loading: isLoading,
     error,
-    refetch
-  } = useQuery({
-    queryKey: ['leads'],
-    queryFn: () => getAllLeads(),
-  });
+    refreshLeads
+  } = useLeadsApi();
+
+  console.log('🏠 === LEADS PAGE DEBUG ===');
+  console.log('🏠 Total leads from useLeadsApi:', leadsData.length);
+  console.log('🏠 Loading state:', isLoading);
+  console.log('🏠 Error state:', error);
+  if (leadsData.length > 0) {
+    console.log('🏠 Sample lead from page:', JSON.stringify(leadsData[0], null, 2));
+  }
 
   const {
     filteredLeads,
@@ -130,9 +144,9 @@ export default function Leads() {
   }, []);
 
   const handleLeadUpdate = useCallback(() => {
-    refetch();
+    refreshLeads();
     toast.success("Lead actualizado exitosamente");
-  }, [refetch]);
+  }, [refreshLeads]);
 
   const handleLeadCreate = useCallback((leadData: Partial<Lead>) => {
     console.log('Creating lead:', leadData);
@@ -145,8 +159,21 @@ export default function Leads() {
     setCurrentPage(1);
   }, [setCurrentPage]);
 
+  const handleSendEmailToLead = useCallback((lead: Lead) => {
+    setSelectedLeadForEmail(lead);
+    setShowMassEmail(true);
+  }, []);
+
+  const handleLeadSelectionChange = useCallback((leadIds: string[], isSelected: boolean) => {
+    if (isSelected) {
+      setSelectedLeads(prev => [...new Set([...prev, ...leadIds])]);
+    } else {
+      setSelectedLeads(prev => prev.filter(id => !leadIds.includes(id)));
+    }
+  }, []);
+
   const handleViewModeToggle = () => {
-    const modes: ("grid" | "table" | "columns")[] = ["grid", "table", "columns"];
+    const modes: ("table" | "columns")[] = ["table", "columns"];
     const currentIndex = modes.indexOf(viewMode);
     const nextIndex = (currentIndex + 1) % modes.length;
     setViewMode(modes[nextIndex]);
@@ -154,8 +181,6 @@ export default function Leads() {
 
   const getViewModeIcon = () => {
     switch (viewMode) {
-      case "grid":
-        return <Grid className="h-4 w-4" />;
       case "table":
         return <Table className="h-4 w-4" />;
       case "columns":
@@ -165,8 +190,6 @@ export default function Leads() {
 
   const getViewModeLabel = () => {
     switch (viewMode) {
-      case "grid":
-        return "Grid";
       case "table":
         return "Tabla";
       case "columns":
@@ -187,7 +210,7 @@ export default function Leads() {
     return (
       <div className="container mx-auto px-4 py-8">
         <div className="text-center text-red-600">
-          Error al cargar los leads: {error instanceof Error ? error.message : 'Error desconocido'}
+          Error al cargar los leads: {error}
         </div>
       </div>
     );
@@ -230,21 +253,112 @@ export default function Leads() {
 
           {/* Search and Controls Row */}
           <div className="flex flex-col lg:flex-row gap-4 items-center">
-            <div className="flex-1">
-              <LeadsSearch 
-                searchTerm={searchTerm} 
-                onSearchChange={setSearchTerm} 
-              />
-            </div>
+            <div className="flex flex-1 items-center gap-2">
+  <Button
+    className="gap-1 w-8 h-8 bg-secondary"
+    onClick={handleViewModeToggle}
+    size="icon"
+  >
+    {getViewModeIcon()}
+  </Button>
+  <LeadsSearch 
+    searchTerm={searchTerm} 
+    onSearchChange={setSearchTerm} 
+  />
+</div>
             <div className="flex gap-2">
-              <Button
-                onClick={() => setShowFilters(!showFilters)}
-                variant="outline"
-                size="sm"
-              >
-                <Filter className="h-4 w-4 mr-2" />
-                Filtros
-              </Button>
+
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button 
+                    className="text-[#3f3f3f] w-24 h-8 bg-white border border-gray-300 rounded-md hover:bg-white hover:border-gray-300"
+                    size="sm"
+                  >
+                    <Filter className="h-4 w-4 mr-0 text-[#00c83c] justify-items-end" />
+                    Filtros
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="w-auto p-0 bg-white rounded-2xl shadow-lg border border-gray-200" align="end">
+                  <LeadsFilters
+                    searchTerm={searchTerm}
+                    setSearchTerm={setSearchTerm}
+                    filterStage={filterStage}
+                    setFilterStage={setFilterStage}
+                    filterPriority={filterPriority}
+                    setFilterPriority={setFilterPriority}
+                    filterAssignedTo={filterAssignedTo}
+                    setFilterAssignedTo={setFilterAssignedTo}
+                    filterSource={filterSource}
+                    setFilterSource={setFilterSource}
+                    filterCampaign={filterCampaign}
+                    setFilterCampaign={setFilterCampaign}
+                    filterDateFrom={filterDateFrom}
+                    setFilterDateFrom={setFilterDateFrom}
+                    filterDateTo={filterDateTo}
+                    setFilterDateTo={setFilterDateTo}
+                    filterValueMin={filterValueMin}
+                    setFilterValueMin={setFilterValueMin}
+                    filterValueMax={filterValueMax}
+                    setFilterValueMax={setFilterValueMax}
+                    filterDuplicates={filterDuplicates}
+                    setFilterDuplicates={setFilterDuplicates}
+                    sortBy={sortBy}
+                    setSortBy={setSortBy}
+                    onClearFilters={clearFilters}
+                    uniqueStages={uniqueStages}
+                    uniqueSources={uniqueSources}
+                    uniqueCampaigns={uniqueCampaigns}
+                    uniqueAssignedTo={uniqueAssignedTo}
+                    duplicateCount={duplicateCount}
+                  />
+                </DropdownMenuContent>
+              </DropdownMenu>
+              
+              {viewMode === "columns" && (
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button size="sm" className="text-[#3f3f3f] w-auto h-8 bg-white border border-gray-300 rounded-md hover:bg-white hover:border-gray-300">
+                      <Group className="h-4 w-4 mr-2 text-[#00c83c]" />
+                      Agrupar por
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-48 bg-white rounded-2xl shadow-lg border border-gray-200">
+                    <div className="p-2">
+                      <DropdownMenuItem 
+                        onClick={() => setGroupBy("stage")}
+                        className={groupBy === "stage" ? "bg-[#00c83c]/10 text-[#00c83c]" : ""}
+                      >
+                        Etapa
+                      </DropdownMenuItem>
+                      <DropdownMenuItem 
+                        onClick={() => setGroupBy("priority")}
+                        className={groupBy === "priority" ? "bg-[#00c83c]/10 text-[#00c83c]" : ""}
+                      >
+                        Prioridad
+                      </DropdownMenuItem>
+                      <DropdownMenuItem 
+                        onClick={() => setGroupBy("source")}
+                        className={groupBy === "source" ? "bg-[#00c83c]/10 text-[#00c83c]" : ""}
+                      >
+                        Fuente
+                      </DropdownMenuItem>
+                      <DropdownMenuItem 
+                        onClick={() => setGroupBy("assignedTo")}
+                        className={groupBy === "assignedTo" ? "bg-[#00c83c]/10 text-[#00c83c]" : ""}
+                      >
+                        Asesor asignado
+                      </DropdownMenuItem>
+                      <DropdownMenuItem 
+                        onClick={() => setGroupBy("campaign")}
+                        className={groupBy === "campaign" ? "bg-[#00c83c]/10 text-[#00c83c]" : ""}
+                      >
+                        Campaña
+                      </DropdownMenuItem>
+                    </div>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              )}
+
               
               {viewMode === "table" && (
                 <LeadsTableColumnSelector
@@ -254,50 +368,14 @@ export default function Leads() {
               )}
               
               <Button
+                className="gap-1 w-8 h-8 bg-secondary"
                 onClick={handleViewModeToggle}
-                variant="outline"
-                size="sm"
+                size="icon"
               >
                 {getViewModeIcon()}
-                <span className="ml-2">{getViewModeLabel()}</span>
               </Button>
             </div>
           </div>
-
-          {showFilters && (
-            <LeadsFilters
-              searchTerm={searchTerm}
-              setSearchTerm={setSearchTerm}
-              filterStage={filterStage}
-              setFilterStage={setFilterStage}
-              filterPriority={filterPriority}
-              setFilterPriority={setFilterPriority}
-              filterAssignedTo={filterAssignedTo}
-              setFilterAssignedTo={setFilterAssignedTo}
-              filterSource={filterSource}
-              setFilterSource={setFilterSource}
-              filterCampaign={filterCampaign}
-              setFilterCampaign={setFilterCampaign}
-              filterDateFrom={filterDateFrom}
-              setFilterDateFrom={setFilterDateFrom}
-              filterDateTo={filterDateTo}
-              setFilterDateTo={setFilterDateTo}
-              filterValueMin={filterValueMin}
-              setFilterValueMin={setFilterValueMin}
-              filterValueMax={filterValueMax}
-              setFilterValueMax={setFilterValueMax}
-              filterDuplicates={filterDuplicates}
-              setFilterDuplicates={setFilterDuplicates}
-              sortBy={sortBy}
-              setSortBy={setSortBy}
-              onClearFilters={clearFilters}
-              uniqueStages={uniqueStages}
-              uniqueSources={uniqueSources}
-              uniqueCampaigns={uniqueCampaigns}
-              uniqueAssignedTo={uniqueAssignedTo}
-              duplicateCount={duplicateCount}
-            />
-          )}
 
           {isLoading ? (
             <div className="flex justify-center items-center py-8">
@@ -313,6 +391,10 @@ export default function Leads() {
                 columns={columns}
                 paginatedLeads={paginatedLeads}
                 onSortedLeadsChange={handleSortedLeadsChange}
+                onSendEmail={handleSendEmailToLead}
+                groupBy={groupBy}
+                selectedLeads={selectedLeads}
+                onLeadSelectionChange={handleLeadSelectionChange}
               />
 
               <LeadsPagination
@@ -334,6 +416,7 @@ export default function Leads() {
           isOpen={!!selectedLead}
           onClose={() => setSelectedLead(null)}
           onSave={handleLeadUpdate}
+          onOpenMassEmail={handleSendEmailToLead}
         />
       )}
 
@@ -360,11 +443,19 @@ export default function Leads() {
         />
       )}
 
-      <Dialog open={showMassEmail} onOpenChange={setShowMassEmail}>
+      <Dialog open={showMassEmail} onOpenChange={(open) => {
+        setShowMassEmail(open);
+        if (!open) {
+          setSelectedLeadForEmail(null);
+        }
+      }}>
         <DialogContent className="max-w-6xl max-h-[90vh] overflow-auto">
           <MassEmailSender
-            filteredLeads={filteredLeads}
-            onClose={() => setShowMassEmail(false)}
+            filteredLeads={selectedLeadForEmail ? [selectedLeadForEmail] : filteredLeads}
+            onClose={() => {
+              setShowMassEmail(false);
+              setSelectedLeadForEmail(null);
+            }}
           />
         </DialogContent>
       </Dialog>

@@ -11,6 +11,7 @@ import {
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { createInteraction } from '@/utils/interactionsApiClient';
+import { ENV } from '@/config/environment';
 
 export function useMassEmail() {
   const { user, getAccessToken } = useAuth();
@@ -132,7 +133,7 @@ export function useMassEmail() {
         recipients
       };
 
-      const endpoint = 'https://skcodalilmdev.azurewebsites.net/api/emails/send';
+      const endpoint = `${ENV.CRM_API_BASE_URL}/api/emails/send`;
       
       // LOG: Endpoint y body que se envía
       console.log('📧 ENVÍO DE CORREOS MASIVOS - API CALL');
@@ -219,7 +220,7 @@ export function useMassEmail() {
         ...(createdAt && { createdAt })
       });
 
-      const endpoint = `https://skcodalilmdev.azurewebsites.net/api/emails/logs?${params}`;
+      const endpoint = `${ENV.CRM_API_BASE_URL}/api/emails/logs?${params}`;
       
       // LOG: Endpoint y parámetros para obtener logs
       console.log('📧 OBTENER LOGS DE CORREOS - API CALL');

@@ -66,13 +66,16 @@ export const SessionTimeoutWarning: React.FC<SessionTimeoutWarningProps> = ({
             ¿Deseas extender tu sesión?
           </AlertDialogDescription>
         </AlertDialogHeader>
-        <AlertDialogFooter className="flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2">
-          <AlertDialogCancel onClick={onLogout}>
+        <AlertDialogFooter className="flex flex-col sm:flex-row gap-3 sm:gap-2 justify-center items-center">
+          <AlertDialogCancel 
+            onClick={onLogout}
+            className="w-full sm:w-auto bg-[#00c83c] hover:bg-[#00a332] text-white order-2 sm:order-1"
+          >
             Cerrar sesión
           </AlertDialogCancel>
           <AlertDialogAction 
             onClick={onExtend}
-            className="bg-[#00c83c] hover:bg-[#00a332] text-white"
+            className="w-full sm:w-auto bg-[#00c83c] hover:bg-[#00a332] text-white order-1 sm:order-2"
           >
             <RefreshCw className="w-4 h-4 mr-2" />
             Extender sesión

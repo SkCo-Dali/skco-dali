@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { 
@@ -24,12 +25,6 @@ export const DynamicBanner: React.FC<DynamicBannerProps> = ({ onClose, onBannerA
     goToBanner 
   } = useBannerData();
 
-  console.log('🟪🟪🟪 DynamicBanner: Rendering with props:', {
-    onClose: !!onClose,
-    onBannerAction: !!onBannerAction,
-    onBannerActionType: typeof onBannerAction
-  });
-
   if (isLoading) {
     return (
       <div className="bg-gradient-to-r from-skandia-green to-green-600 text-white rounded-lg px-3 py-2 sm:px-4">
@@ -43,30 +38,22 @@ export const DynamicBanner: React.FC<DynamicBannerProps> = ({ onClose, onBannerA
   }
 
   if (!currentBanner || totalBanners === 0) {
-    console.log('🟡🟡🟡 DynamicBanner: No banner to show or totalBanners is 0');
     return null;
   }
 
   const handleButtonClick = () => {
-    console.log('🔵🔵🔵 DynamicBanner: Button clicked!');
-    console.log('🔵🔵🔵 DynamicBanner: currentBanner:', currentBanner);
-    console.log('🔵🔵🔵 DynamicBanner: automaticReply:', currentBanner.automaticReply);
-    console.log('🔵🔵🔵 DynamicBanner: onBannerAction function exists:', !!onBannerAction);
-    console.log('🔵🔵🔵 DynamicBanner: onBannerAction function reference:', onBannerAction);
-    console.log('🔵🔵🔵 DynamicBanner: onBannerAction function type:', typeof onBannerAction);
+    console.log('🔵 DynamicBanner: Button clicked for banner:', currentBanner.title);
     
     if (onBannerAction && currentBanner.automaticReply) {
-      console.log('🟢🟢🟢 DynamicBanner: CALLING onBannerAction with:', currentBanner.automaticReply);
+      console.log('🟢 DynamicBanner: Calling onBannerAction with:', currentBanner.automaticReply);
       try {
         onBannerAction(currentBanner.automaticReply);
-        console.log('🟢🟢🟢 DynamicBanner: onBannerAction call completed successfully');
+        console.log('🟢 DynamicBanner: onBannerAction call completed successfully');
       } catch (error) {
-        console.error('🔴🔴🔴 DynamicBanner: ERROR calling onBannerAction:', error);
+        console.error('🔴 DynamicBanner: ERROR calling onBannerAction:', error);
       }
     } else {
-      console.log('🔴🔴🔴 DynamicBanner: Cannot call onBannerAction - missing function or automaticReply');
-      console.log('🔴🔴🔴 DynamicBanner: onBannerAction:', onBannerAction);
-      console.log('🔴🔴🔴 DynamicBanner: automaticReply:', currentBanner.automaticReply);
+      console.log('🔴 DynamicBanner: Cannot call onBannerAction - missing function or automaticReply');
     }
   };
 
@@ -87,7 +74,6 @@ export const DynamicBanner: React.FC<DynamicBannerProps> = ({ onClose, onBannerA
                 alt={currentBanner.title}
                 className="w-4 h-4 sm:w-5 sm:h-5 object-contain"
                 onError={(e) => {
-                  // Fallback to a default icon if image fails to load
                   const target = e.target as HTMLImageElement;
                   target.style.display = 'none';
                   target.nextElementSibling?.classList.remove('hidden');
@@ -123,7 +109,6 @@ export const DynamicBanner: React.FC<DynamicBannerProps> = ({ onClose, onBannerA
         </div>
 
         <div className="flex items-center space-x-1 flex-shrink-0 ml-2">
-          {/* Navegación */}
           {totalBanners > 1 && (
             <>
               <Button

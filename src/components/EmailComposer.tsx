@@ -82,8 +82,7 @@ export function EmailComposer({ template, onTemplateChange, dynamicFields }: Ema
                 {dynamicFields.map((field) => (
                   <Badge
                     key={field.key}
-                    variant="secondary"
-                    className="cursor-pointer hover:bg-primary hover:text-primary-foreground"
+                    className="cursor-pointer bg-[#EBF4FF] text-[#3f3f3f]"
                     onClick={() => {
                       // Por defecto insertar en el contenido HTML
                       insertDynamicField(field, 'htmlContent');
@@ -125,21 +124,6 @@ export function EmailComposer({ template, onTemplateChange, dynamicFields }: Ema
             </div>
             <p className="text-sm text-muted-foreground mt-1">
               Usa la barra de herramientas para dar formato a tu texto, insertar imágenes y agregar archivos adjuntos
-            </p>
-          </div>
-
-          <div>
-            <Label htmlFor="plainContent">Versión de Texto Plano (Auto-generada)</Label>
-            <Textarea
-              id="plainContent"
-              value={template.plainContent}
-              onChange={(e) => onTemplateChange({ ...template, plainContent: e.target.value })}
-              placeholder="Versión en texto plano del email"
-              rows={6}
-              className="mt-2"
-            />
-            <p className="text-sm text-muted-foreground mt-1">
-              Se genera automáticamente desde el HTML, pero puedes editarla
             </p>
           </div>
         </CardContent>

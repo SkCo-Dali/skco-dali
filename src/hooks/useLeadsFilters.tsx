@@ -1,3 +1,4 @@
+
 import { useState, useMemo } from "react";
 import { Lead } from "@/types/crm";
 
@@ -26,7 +27,6 @@ export function useLeadsFilters(leads: Lead[]) {
 
     const phoneCounts = leads.reduce((acc, lead) => {
       if (lead.phone) {
-        // Normalizar teléfono removiendo espacios y caracteres especiales
         const normalizedPhone = lead.phone.replace(/[\s\-\(\)]/g, '');
         acc[normalizedPhone] = (acc[normalizedPhone] || 0) + 1;
       }
@@ -43,15 +43,6 @@ export function useLeadsFilters(leads: Lead[]) {
     const duplicateEmails = Object.keys(emailCounts).filter(email => emailCounts[email] > 1);
     const duplicatePhones = Object.keys(phoneCounts).filter(phone => phoneCounts[phone] > 1);
     const duplicateDocuments = Object.keys(documentCounts).filter(doc => documentCounts[doc] > 1);
-
-    console.log('Duplicate analysis:', {
-      duplicateEmails,
-      duplicatePhones,
-      duplicateDocuments,
-      totalDuplicateEmails: duplicateEmails.length,
-      totalDuplicatePhones: duplicatePhones.length,
-      totalDuplicateDocuments: duplicateDocuments.length
-    });
 
     return {
       emails: duplicateEmails,
@@ -173,16 +164,16 @@ export function useLeadsFilters(leads: Lead[]) {
     [leads]
   );
 
-  // Contar leads duplicados
+  // Contar leads duplicados - solo calculamos cuando se necesita
   const duplicateCount = useMemo(() => {
+    if (filterDuplicates === "all") return 0; // No necesario calcularlo si no se usa
+    
     return leads.filter(lead => 
       (lead.email && duplicateIdentifiers.emails.includes(lead.email.toLowerCase())) ||
       (lead.phone && duplicateIdentifiers.phones.includes(lead.phone.replace(/[\s\-\(\)]/g, ''))) ||
       (lead.documentNumber && duplicateIdentifiers.documents.includes(lead.documentNumber.toString()))
     ).length;
-  }, [leads, duplicateIdentifiers]);
-
-  console.log('Duplicate count:', duplicateCount);
+  }, [leads, duplicateIdentifiers, filterDuplicates]);
 
   return {
     searchTerm,

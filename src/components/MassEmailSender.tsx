@@ -1,10 +1,8 @@
-
 import { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
-import { Send, Eye, History, Filter, AlertTriangle } from 'lucide-react';
+import { Send, Eye, History, Filter, AlertTriangle, Info, X, Mail } from 'lucide-react';
 import { Lead } from '@/types/crm';
 import { EmailTemplate } from '@/types/email';
 import { EmailComposer } from '@/components/EmailComposer';
@@ -17,6 +15,32 @@ import { useToast } from '@/hooks/use-toast';
 interface MassEmailSenderProps {
   filteredLeads: Lead[];
   onClose: () => void;
+}
+
+function InfoMessage({ onClose }: { onClose: () => void }) {
+  return (
+    <div className="flex items-start gap-4 p-4 border border-blue-300 rounded-md bg-blue-50 text-gray-800 relative">
+      <div className="flex-shrink-0 text-blue-500">
+        <Info className="h-6 w-6" />
+      </div>
+
+      <div className="flex-1">
+        <p className="font-semibold text-gray-900 mb-1">Ejemplo de tu correo</p>
+        <p className="text-gray-700 text-sm">
+          Los demás correos se enviarán con el mismo formato y con los datos que personalizaste.
+        </p>
+      </div>
+
+      <button
+        type="button"
+        className="absolute top-2 right-2 text-gray-400 hover:text-gray-600"
+        aria-label="Cerrar"
+        onClick={onClose}
+      >
+        <X className="h-4 w-4" />
+      </button>
+    </div>
+  );
 }
 
 export function MassEmailSender({ filteredLeads, onClose }: MassEmailSenderProps) {
@@ -37,6 +61,9 @@ export function MassEmailSender({ filteredLeads, onClose }: MassEmailSenderProps
     htmlContent: '',
     plainContent: ''
   });
+
+  // Estado para mostrar/ocultar mensaje de info
+  const [showInfoMessage, setShowInfoMessage] = useState(true);
 
   // Filtrar leads que tengan email válido y limitar a 20
   const validLeads = filteredLeads.filter(lead => lead.email && lead.email.trim() !== '');
@@ -90,118 +117,118 @@ export function MassEmailSender({ filteredLeads, onClose }: MassEmailSenderProps
 
   return (
     <>
-      <div className="max-w-6xl mx-auto space-y-6">
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center justify-between">
-              Envío de Correos
-              <div className="flex items-center gap-2">
-                <Badge variant="secondary">
-                  <Filter className="h-4 w-4 mr-1" />
-                  {validLeads.length} leads con email válido
+      <div className="space-y-6">
+        {/* Header */}
+        <div className="flex items-center justify-between">
+          <div className="space-y-1">
+            <h2 className="text-xl font-semibold">Envío de Correos</h2>
+            <div className="flex items-center gap-2">
+              <Badge variant="secondary">
+                <Filter className="h-4 w-4 mr-1 text-white" />
+                <span className="text-white">{validLeads.length} leads con email válido</span>
+              </Badge>
+              {isOverLimit && (
+                <Badge variant="destructive">
+                  <AlertTriangle className="h-4 w-4 mr-1" />
+                  Máximo 20 correos
                 </Badge>
-                {isOverLimit && (
-                  <Badge variant="destructive">
-                    <AlertTriangle className="h-4 w-4 mr-1" />
-                    Máximo 20 correos
-                  </Badge>
-                )}
-                <Button variant="outline" onClick={onClose}>
-                  Cerrar
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Tabs */}
+        <Tabs value={activeTab} onValueChange={setActiveTab}>
+          <TabsList className="grid w-full grid-cols-3 mb-6 bg-gray-100 py-1 rounded-full">
+            <TabsTrigger 
+              value="compose" 
+              className="w-full h-full data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#00c83c] data-[state=active]:to-[#A3E40B] data-[state=active]:text-white rounded-full px-4 py-2 mt-0 text-sm font-medium transition-all duration-200"
+            >
+              <Mail className="h-4 w-4" />
+              Nuevo Correo
+            </TabsTrigger>
+            <TabsTrigger 
+              value="preview" 
+              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#00c83c] data-[state=active]:to-[#A3E40B] data-[state=active]:text-white rounded-full px-10 py-2 h-full text-sm font-medium transition-all duration-200"
+            >
+              <Eye className="h-4 w-4" />
+              Previsualizar
+            </TabsTrigger>
+            <TabsTrigger 
+              value="logs" 
+              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#00c83c] data-[state=active]:to-[#A3E40B] data-[state=active]:text-white rounded-full px-10 py-2 h-full text-sm font-medium transition-all duration-200"
+            >
+              <History className="h-4 w-4" />
+              Historial
+            </TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="compose" className="space-y-6 mt-6">
+            <EmailComposer
+              template={template}
+              onTemplateChange={setTemplate}
+              dynamicFields={dynamicFields}
+            />
+            
+            <div className="flex justify-between items-center pt-4 border-t">
+              <div className="text-sm text-muted-foreground">
+                {leadsToShow.length} correo(s) listos para enviar
+              </div>
+              <div className="flex gap-2">
+                <Button
+                  variant="outline"
+                  onClick={() => setActiveTab('preview')}
+                  disabled={!isReadyToSend}
+                >
+                  <Eye className="h-4 w-4 mr-2" />
+                  Previsualizar
+                </Button>
+                <Button
+                  onClick={handleSendEmails}
+                  disabled={!isReadyToSend || isLoading}
+                >
+                  <Send className="h-4 w-4 mr-2" />
+                  {isLoading ? 'Enviando...' : 'Enviar Correos'}
                 </Button>
               </div>
-            </CardTitle>
-            {isOverLimit && (
-              <div className="flex items-center gap-2 p-3 bg-amber-50 border border-amber-200 rounded-md">
-                <AlertTriangle className="h-4 w-4 text-amber-600" />
-                <span className="text-amber-800 text-sm">
-                  Se mostrarán solo los primeros 20 leads. {validLeads.length - 20} leads adicionales serán omitidos.
-                </span>
-              </div>
-            )}
-          </CardHeader>
-          <CardContent>
-            <Tabs value={activeTab} onValueChange={setActiveTab}>
-              <TabsList className="grid w-full grid-cols-3">
-                <TabsTrigger value="compose" className="flex items-center gap-2">
-                  <Send className="h-4 w-4" />
-                  Componer
-                </TabsTrigger>
-                <TabsTrigger value="preview" className="flex items-center gap-2">
-                  <Eye className="h-4 w-4" />
-                  Previsualizar
-                </TabsTrigger>
-                <TabsTrigger value="logs" className="flex items-center gap-2">
-                  <History className="h-4 w-4" />
-                  Historial
-                </TabsTrigger>
-              </TabsList>
+            </div>
+          </TabsContent>
 
-              <TabsContent value="compose" className="space-y-6">
-                <EmailComposer
-                  template={template}
-                  onTemplateChange={setTemplate}
-                  dynamicFields={dynamicFields}
-                />
-                
-                <div className="flex justify-between items-center pt-4 border-t">
-                  <div className="text-sm text-muted-foreground">
-                    {leadsToShow.length} correo(s) listos para enviar
-                  </div>
-                  <div className="flex gap-2">
-                    <Button
-                      variant="outline"
-                      onClick={() => setActiveTab('preview')}
-                      disabled={!isReadyToSend}
-                    >
-                      <Eye className="h-4 w-4 mr-2" />
-                      Previsualizar
-                    </Button>
-                    <Button
-                      onClick={handleSendEmails}
-                      disabled={!isReadyToSend || isLoading}
-                    >
-                      <Send className="h-4 w-4 mr-2" />
-                      {isLoading ? 'Enviando...' : 'Enviar Correos'}
-                    </Button>
-                  </div>
-                </div>
-              </TabsContent>
+          <TabsContent value="preview" className="space-y-6 mt-6">
+            {/* Mensaje info con control de visibilidad */}
+            {showInfoMessage && <InfoMessage onClose={() => setShowInfoMessage(false)} />}
 
-              <TabsContent value="preview" className="space-y-6">
-                <EmailPreview
-                  leads={leadsToShow}
-                  template={template}
-                  replaceDynamicFields={replaceDynamicFields}
-                />
-                
-                <div className="flex justify-between items-center pt-4 border-t">
-                  <Button
-                    variant="outline"
-                    onClick={() => setActiveTab('compose')}
-                  >
-                    Volver a Editar
-                  </Button>
-                  <Button
-                    onClick={handleSendEmails}
-                    disabled={!isReadyToSend || isLoading}
-                  >
-                    <Send className="h-4 w-4 mr-2" />
-                    {isLoading ? 'Enviando...' : `Confirmar Envío (${leadsToShow.length} correos)`}
-                  </Button>
-                </div>
-              </TabsContent>
+            <EmailPreview
+              leads={leadsToShow}
+              template={template}
+              replaceDynamicFields={replaceDynamicFields}
+            />
+            
+            <div className="flex justify-between items-center pt-4 border-t">
+              <Button
+                variant="outline"
+                onClick={() => setActiveTab('compose')}
+              >
+                Volver a Editar
+              </Button>
+              <Button
+                onClick={handleSendEmails}
+                disabled={!isReadyToSend || isLoading}
+              >
+                <Send className="h-4 w-4 mr-2" />
+                {isLoading ? 'Enviando...' : `Confirmar Envío (${leadsToShow.length} correos)`}
+              </Button>
+            </div>
+          </TabsContent>
 
-              <TabsContent value="logs" className="space-y-6">
-                <EmailStatusLogs
-                  logs={emailLogs}
-                  isLoading={isLoading}
-                  onRefresh={fetchEmailLogs}
-                />
-              </TabsContent>
-            </Tabs>
-          </CardContent>
-        </Card>
+          <TabsContent value="logs" className="space-y-6 mt-6">
+            <EmailStatusLogs
+              logs={emailLogs}
+              isLoading={isLoading}
+              onRefresh={fetchEmailLogs}
+            />
+          </TabsContent>
+        </Tabs>
       </div>
 
       <EmailSendConfirmation
@@ -214,3 +241,4 @@ export function MassEmailSender({ filteredLeads, onClose }: MassEmailSenderProps
     </>
   );
 }
+

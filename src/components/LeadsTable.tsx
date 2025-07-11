@@ -1,8 +1,10 @@
+
 import { useState } from "react"; 
 import { Lead } from "@/types/crm";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { User, ChevronUp, ChevronDown, MoreVertical, Edit, Calendar, User as UserIcon, MessageSquare, MessageCircle, Trash2 } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
+import { User, ChevronUp, ChevronDown, MoreVertical, Edit, Calendar, User as UserIcon, MessageCircle, Trash2, Mail } from "lucide-react";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { useUsersApi } from "@/hooks/useUsersApi";
@@ -10,6 +12,7 @@ import { ColumnConfig } from "@/components/LeadsTableColumnSelector";
 import { EditableLeadCell } from "@/components/EditableLeadCell";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
+import { FaWhatsapp } from "react-icons/fa";
 
 interface LeadsTableProps {
   leads: Lead[];
@@ -18,6 +21,9 @@ interface LeadsTableProps {
   onLeadUpdate?: () => void;
   columns?: ColumnConfig[];
   onSortedLeadsChange?: (sortedLeads: Lead[]) => void;
+  onSendEmail?: (lead: Lead) => void;
+  selectedLeads?: string[];
+  onLeadSelectionChange?: (leadIds: string[], isSelected: boolean) => void;
 }
 
 type SortConfig = {
@@ -52,21 +58,40 @@ export function LeadsTable({
   onLeadClick, 
   onLeadUpdate, 
   columns = defaultColumns, 
-  onSortedLeadsChange 
+  onSortedLeadsChange,
+  onSendEmail,
+  selectedLeads = [],
+  onLeadSelectionChange
 }: LeadsTableProps) {
   const { users } = useUsersApi();
   const [sortConfig, setSortConfig] = useState<SortConfig>(null);
 
   const visibleColumns = columns.filter(col => col.visible);
   
-  // Calcular ancho total fijo basado en columnas visibles
   const calculateTableWidth = () => {
+    const checkboxColumnWidth = 50; // Nueva columna de checkbox
     const nameColumnWidth = 350; // Columna nombre siempre 350px
     const regularColumnWidth = 250; // Todas las demás columnas 250px
     const visibleRegularColumns = visibleColumns.length - 1; // Restar la columna nombre
     
-    return nameColumnWidth + (visibleRegularColumns * regularColumnWidth);
+    return checkboxColumnWidth + nameColumnWidth + (visibleRegularColumns * regularColumnWidth);
   };
+
+  const handleSelectAll = (checked: boolean) => {
+    const currentPageLeadIds = paginatedLeads.map(lead => lead.id);
+    if (onLeadSelectionChange) {
+      onLeadSelectionChange(currentPageLeadIds, checked);
+    }
+  };
+
+  const handleSelectLead = (leadId: string, checked: boolean) => {
+    if (onLeadSelectionChange) {
+      onLeadSelectionChange([leadId], checked);
+    }
+  };
+
+  const isAllSelected = paginatedLeads.length > 0 && paginatedLeads.every(lead => selectedLeads.includes(lead.id));
+  const isIndeterminate = paginatedLeads.some(lead => selectedLeads.includes(lead.id)) && !isAllSelected;
 
   const handleSort = (columnKey: string) => {
     let direction: 'asc' | 'desc' = 'asc';
@@ -87,8 +112,8 @@ export function LeadsTable({
           bValue = b.name.toLowerCase();
           break;
         case 'email':
-          aValue = a.email.toLowerCase();
-          bValue = b.email.toLowerCase();
+          aValue = (a.email || '').toLowerCase();
+          bValue = (b.email || '').toLowerCase();
           break;
         case 'product':
           aValue = (a.product || '').toLowerCase();
@@ -192,6 +217,11 @@ export function LeadsTable({
       case 'edit':
         onLeadClick(lead);
         break;
+      case 'email':
+        if (onSendEmail) {
+          onSendEmail(lead);
+        }
+        break;
       case 'profile':
         console.log('Ver perfil del lead:', lead.name);
         break;
@@ -200,7 +230,10 @@ export function LeadsTable({
         break;
       case 'whatsapp':
         if (lead.phone) {
-          window.open(`https://wa.me/${lead.phone}`, '_blank');
+          const cleanPhone = lead.phone.replace(/\D/g, '');
+          window.open(`https://wa.me/${cleanPhone}`, '_blank');
+        } else {
+          console.log('No hay número de teléfono disponible para este lead');
         }
         break;
       case 'delete':
@@ -218,7 +251,13 @@ export function LeadsTable({
       case 'name':
         return (
           <div className="flex items-center justify-between w-full">
-            <div className="text-gray-900 font-medium text-xs truncate pr-2">
+            <div 
+              className="text-gray-900 font-medium text-xs truncate pr-2 cursor-pointer hover:text-[#00c83c]"
+              onClick={(e) => {
+                e.stopPropagation();
+                onLeadClick(lead);
+              }}
+            >
               {lead.name}
             </div>
             <DropdownMenu>
@@ -237,8 +276,12 @@ export function LeadsTable({
                   <Edit className="mr-2 h-4 w-4" />
                   Edición rápida
                 </DropdownMenuItem>
+                <DropdownMenuItem onClick={(e) => handleLeadAction('email', lead, e)}>
+                  <Mail className="mr-2 h-4 w-4" />
+                  Enviar Email
+                </DropdownMenuItem>
                 <DropdownMenuItem onClick={(e) => handleLeadAction('whatsapp', lead, e)}>
-                  <MessageSquare className="mr-2 h-4 w-4" />
+                  <FaWhatsapp className="mr-2 h-4 w-4" />
                   Enviar WhatsApp
                 </DropdownMenuItem>
                 <DropdownMenuItem 
@@ -286,18 +329,18 @@ export function LeadsTable({
         );
       case 'product':
         return (
-          <span className="text-gray-700 text-xs">
+          <span className="text-gray-700 text-xs text-center">
             {lead.product || '-'}
           </span>
         );
       case 'campaign':
         return (
-          <span className="text-gray-700 text-xs">
+          <span className="text-gray-700 text-xs text-center">
             {lead.campaign || '-'}
           </span>
         );
       case 'source':
-        return <span className="text-gray-700 text-xs capitalize">{lead.source}</span>;
+        return <span className="text-gray-700 text-xs capitalize text-center">{lead.source}</span>;
       case 'stage':
         return (
           <EditableLeadCell
@@ -316,12 +359,12 @@ export function LeadsTable({
         );
       case 'lastInteraction':
         return (
-          <span className="text-gray-700 text-xs">
+          <span className="text-gray-700 text-xs text-center">
             {format(new Date(lead.updatedAt), "dd/MM/yyyy", { locale: es })}
           </span>
         );
       case 'value':
-        return <span className="text-gray-800 font-medium text-xs">${lead.value.toLocaleString()}</span>;
+        return <span className="text-gray-800 font-medium text-xs text-center">${lead.value.toLocaleString()}</span>;
       case 'priority':
         return (
           <EditableLeadCell
@@ -332,18 +375,18 @@ export function LeadsTable({
         );
       case 'createdAt':
         return (
-          <span className="text-gray-700 text-xs">
+          <span className="text-center text-gray-700 text-xs">
             {format(new Date(lead.createdAt), "dd/MM/yyyy", { locale: es })}
           </span>
         );
       case 'age':
-        return <span className="text-gray-700 text-xs">{lead.age || '-'}</span>;
+        return <span className="text-center text-gray-700 text-xs">{lead.age || '-'}</span>;
       case 'gender':
-        return <span className="text-gray-700 text-xs">{lead.gender || '-'}</span>;
+        return <span className="text-center text-gray-700 text-xs">{lead.gender || '-'}</span>;
       case 'preferredContactChannel':
-        return <span className="text-gray-700 text-xs">{lead.preferredContactChannel || '-'}</span>;
+        return <span className="text-center text-gray-700 text-xs">{lead.preferredContactChannel || '-'}</span>;
       case 'documentType':
-        return <span className="text-gray-700 text-xs">{lead.documentType || '-'}</span>;
+        return <span className="text-center text-gray-700 text-xs">{lead.documentType || '-'}</span>;
       default:
         return null;
     }
@@ -362,6 +405,16 @@ export function LeadsTable({
           >
             <TableHeader className="leads-table-header-sticky">
               <TableRow className="bg-[#fafafa] border-b border-[#fafafa]">
+                <TableHead className="w-[50px] px-4 py-3 text-center">
+                  <div className="flex items-center justify-center">
+                    <Checkbox
+                      checked={isAllSelected}
+                      onCheckedChange={handleSelectAll}
+                      className={isIndeterminate ? "data-[state=indeterminate]:bg-primary data-[state=indeterminate]:text-primary-foreground" : ""}
+                      {...(isIndeterminate ? { "data-state": "indeterminate" } : {})}
+                    />
+                  </div>
+                </TableHead>
                 {visibleColumns.map((column) => (
                   <TableHead 
                     key={column.key}
@@ -384,10 +437,18 @@ export function LeadsTable({
                   key={lead.id}
                   className="hover:bg-[#fafafa] transition-colors border-[#fafafa]"
                 >
+                  <TableCell className="w-[50px] px-4 py-3 text-center">
+                    <div className="flex items-center justify-center">
+                      <Checkbox
+                        checked={selectedLeads.includes(lead.id)}
+                        onCheckedChange={(checked) => handleSelectLead(lead.id, checked as boolean)}
+                      />
+                    </div>
+                  </TableCell>
                   {visibleColumns.map((column) => (
                     <TableCell 
                       key={column.key} 
-                      className={`px-4 py-3 text-xs ${
+                      className={`px-4 py-3 text-xs text-center ${
                         column.key === 'name' ? 'leads-name-column-sticky' : 'leads-regular-column'
                       }`}
                     >
