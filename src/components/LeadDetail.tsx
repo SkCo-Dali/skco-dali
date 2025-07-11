@@ -413,6 +413,8 @@ export function LeadDetail({ lead, isOpen, onClose, onSave, onOpenMassEmail }: L
                           value={editedLead.email || ''}
                           onChange={(e) => handleGeneralChange('email', e.target.value)}
                         />
+                      </div>
+                        <div>
                         <Label htmlFor="phone">Teléfono</Label>
                         <Input
                           id="phone"
