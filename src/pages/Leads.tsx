@@ -41,7 +41,8 @@ import {
   Table, 
   Columns,
   MoreVertical,
-  Group
+  Group,
+  Trash
 } from "lucide-react";
 
 const DEFAULT_COLUMNS: ColumnConfig[] = [
@@ -255,19 +256,49 @@ export default function Leads() {
           <div className="flex flex-col lg:flex-row gap-4 items-center">
             <div className="flex flex-1 items-center gap-2">
   <Button
-    className="gap-1 w-8 h-8 bg-secondary"
-    onClick={handleViewModeToggle}
+    className="gap-1 w-8 h-8 bg-primary"
+    onClick={(e) => e.preventDefault()}
     size="icon"
   >
-    {getViewModeIcon()}
+    <Plus className="h-4 w-4" />
   </Button>
-  <LeadsSearch 
+              <Button
+    className="gap-1 w-8 h-8 bg-primary"
+    onClick={() => {
+      if (selectedLeads.length === 0) {
+        toast.info("Se aplicará a todos los leads filtrados");
+      }
+      setShowMassEmail(true);
+    }}
+    size="icon"
+  >
+    <Mail className="h-4 w-4" />
+  </Button>
+              <Button
+    className="gap-1 w-8 h-8 bg-primary"
+    onClick={() => {
+      if (selectedLeads.length === 0) {
+        toast.info("Se aplicará a todos los leads filtrados");
+      }
+      setShowBulkAssign(true);
+    }}
+    size="icon"
+  >
+    <Users className="h-4 w-4" />
+  </Button>
+              <Button
+    className="gap-1 w-8 h-8 bg-primary"
+    size="icon"
+  >
+    <Trash className="h-4 w-4" />
+  </Button>
+  
+</div>
+            <div className="flex flex-1 items-center gap-2">
+<LeadsSearch 
     searchTerm={searchTerm} 
     onSearchChange={setSearchTerm} 
   />
-</div>
-            <div className="flex gap-2">
-
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button 
@@ -424,10 +455,14 @@ export default function Leads() {
         <Dialog open={showBulkAssign} onOpenChange={setShowBulkAssign}>
           <DialogContent className="max-w-2xl">
             <LeadsBulkAssignment
-              leads={filteredLeads}
+              leads={selectedLeads.length > 0 
+                ? filteredLeads.filter(lead => selectedLeads.includes(lead.id))
+                : filteredLeads
+              }
               onLeadsAssigned={() => {
                 handleLeadUpdate();
                 setShowBulkAssign(false);
+                setSelectedLeads([]);
               }}
             />
           </DialogContent>
@@ -451,10 +486,16 @@ export default function Leads() {
       }}>
         <DialogContent className="max-w-6xl max-h-[90vh] overflow-auto">
           <MassEmailSender
-            filteredLeads={selectedLeadForEmail ? [selectedLeadForEmail] : filteredLeads}
+            filteredLeads={selectedLeadForEmail 
+              ? [selectedLeadForEmail] 
+              : selectedLeads.length > 0 
+                ? filteredLeads.filter(lead => selectedLeads.includes(lead.id))
+                : filteredLeads
+            }
             onClose={() => {
               setShowMassEmail(false);
               setSelectedLeadForEmail(null);
+              setSelectedLeads([]);
             }}
           />
         </DialogContent>
