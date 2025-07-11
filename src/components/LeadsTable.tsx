@@ -406,15 +406,14 @@ export function LeadsTable({
             <TableHeader className="leads-table-header-sticky">
               <TableRow className="bg-[#fafafa] border-b border-[#fafafa]">
                 <TableHead className="w-[50px] px-4 py-3 text-center">
-                  <Checkbox
-                    checked={isAllSelected}
-                    onCheckedChange={handleSelectAll}
-                    ref={(ref) => {
-                      if (ref) {
-                        ref.indeterminate = isIndeterminate;
-                      }
-                    }}
-                  />
+                  <div className="flex items-center justify-center">
+                    <Checkbox
+                      checked={isAllSelected}
+                      onCheckedChange={handleSelectAll}
+                      className={isIndeterminate ? "data-[state=indeterminate]:bg-primary data-[state=indeterminate]:text-primary-foreground" : ""}
+                      {...(isIndeterminate ? { "data-state": "indeterminate" } : {})}
+                    />
+                  </div>
                 </TableHead>
                 {visibleColumns.map((column) => (
                   <TableHead 
@@ -439,10 +438,12 @@ export function LeadsTable({
                   className="hover:bg-[#fafafa] transition-colors border-[#fafafa]"
                 >
                   <TableCell className="w-[50px] px-4 py-3 text-center">
-                    <Checkbox
-                      checked={selectedLeads.includes(lead.id)}
-                      onCheckedChange={(checked) => handleSelectLead(lead.id, checked as boolean)}
-                    />
+                    <div className="flex items-center justify-center">
+                      <Checkbox
+                        checked={selectedLeads.includes(lead.id)}
+                        onCheckedChange={(checked) => handleSelectLead(lead.id, checked as boolean)}
+                      />
+                    </div>
                   </TableCell>
                   {visibleColumns.map((column) => (
                     <TableCell 
