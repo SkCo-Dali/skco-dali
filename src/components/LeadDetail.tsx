@@ -484,8 +484,7 @@ export function LeadDetail({ lead, isOpen, onClose, onSave, onOpenMassEmail }: L
                           </Select>
                         </div>
                       </div>
-
-                      <div className="grid grid-cols-2 gap-4">
+                      
                       <div>
                         <Label htmlFor="company">Empresa</Label>
                         <Input
@@ -494,7 +493,51 @@ export function LeadDetail({ lead, isOpen, onClose, onSave, onOpenMassEmail }: L
                           onChange={(e) => handleGeneralChange('company', e.target.value)}
                         />
                       </div>
-                       <div>
+                    </CardContent>
+                  </Card>
+
+                  {/* Estado y clasificación */}
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2">
+                        <Tag className="h-4 w-4" />
+                        Estado y Clasificación
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <div>
+                        <Label>Etapa actual</Label>
+                        <Badge className={`ml-2 ${stageColors[editedLead.stage] || 'bg-gray-100 text-gray-800'}`}>
+                          {editedLead.stage}
+                        </Badge>
+                      </div>
+                      
+                      <div>
+                        <Label htmlFor="priority">Prioridad</Label>
+                        <Select 
+                          value={editedLead.priority} 
+                          onValueChange={(value) => handleGeneralChange('priority', value)}
+                        >
+                          <SelectTrigger>
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="low">Baja</SelectItem>
+                            <SelectItem value="medium">Media</SelectItem>
+                            <SelectItem value="high">Alta</SelectItem>
+                            <SelectItem value="urgent">Urgente</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      
+                      <div>
+                        <Label>Usuario asignado</Label>
+                        <div className="mt-1 p-2 bg-gray-50 rounded border">
+                          <span className="text-sm font-medium">{assignedUserName}</span>
+                        </div>
+                      </div>
+                      
+                      <div>
                         <Label htmlFor="value">Valor potencial</Label>
                         <Input
                           id="value"
@@ -503,11 +546,9 @@ export function LeadDetail({ lead, isOpen, onClose, onSave, onOpenMassEmail }: L
                           onChange={(e) => handleGeneralChange('value', Number(e.target.value))}
                         />
                       </div>
-                      </div>
-                      
                     </CardContent>
                   </Card>
-
+                </div>
 
                 {/* Información de origen */}
                 <Card>
@@ -742,8 +783,7 @@ export function LeadDetail({ lead, isOpen, onClose, onSave, onOpenMassEmail }: L
                         </div>
                       </div>
                     </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    
                     <div>
                       <Label htmlFor="followUpDate">Próximo seguimiento</Label>
                       <Input
@@ -753,24 +793,6 @@ export function LeadDetail({ lead, isOpen, onClose, onSave, onOpenMassEmail }: L
                         onChange={(e) => handleManagementChange('nextFollowUp', e.target.value)}
                       />
                     </div>
-                    <div>
-                        <Label htmlFor="priority">Prioridad</Label>
-                        <Select 
-                          value={editedLead.priority} 
-                          onValueChange={(value) => handleGeneralChange('priority', value)}
-                        >
-                          <SelectTrigger>
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="low">Baja</SelectItem>
-                            <SelectItem value="medium">Media</SelectItem>
-                            <SelectItem value="high">Alta</SelectItem>
-                            <SelectItem value="urgent">Urgente</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-                      </div>
                     
                     <div>
                       <Label htmlFor="managementNotes">Notas de gestión</Label>
