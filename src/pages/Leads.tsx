@@ -292,14 +292,13 @@ export default function Leads() {
   >
     <Trash className="h-4 w-4" />
   </Button>
-  
-</div>
-            <div className="flex flex-1 items-center gap-2 mr-0">
-<LeadsSearch 
+  <LeadsSearch 
     searchTerm={searchTerm} 
-    onSearchChange={setSearchTerm}
-    className="!h-8"
+    onSearchChange={setSearchTerm} 
   />
+</div>
+            <div className="flex gap-2">
+
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button 
@@ -400,7 +399,7 @@ export default function Leads() {
               )}
               
               <Button
-                className="gap-1 w-8 h-8 bg-secondary ml-auto"
+                className="gap-1 w-8 h-8 bg-secondary"
                 onClick={handleViewModeToggle}
                 size="icon"
               >

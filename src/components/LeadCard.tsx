@@ -118,7 +118,7 @@ export function LeadCard({
                 <DropdownMenuTrigger asChild>
                   <button 
                     className="h-6 w-6 flex-shrink-0 hover:bg-gray-100 rounded flex items-center justify-center"
-                    style={{ color: '#00c73d' }}
+                    style={{ color: '#00c83c' }}
                     onClick={(e) => e.stopPropagation()}
                   >
                     <MoreVertical className="h-6 w-6" />
