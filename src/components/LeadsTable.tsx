@@ -264,11 +264,11 @@ export function LeadsTable({
               <DropdownMenuTrigger asChild>
                 <Button
                   variant="ghost"
-                  size="sm"
+                  size="md"
                   className="h-8 w-8 p-0 hover:bg-gray-100 flex-shrink-0"
                   onClick={(e) => e.stopPropagation()}
                 >
-                  <MoreVertical className="h-4 w-4 text-green-600" />
+                  <MoreVertical className="h-6 w-6 text-[#00c73d]" />
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-48 bg-white border shadow-lg">
