@@ -131,8 +131,6 @@ export const SimpleConversationProvider: React.FC<{ children: React.ReactNode }>
     }
   };
 
-  console.log('SimpleConversationContext: Current state - conversations:', conversations.length, 'current:', currentConversation?.id);
-
   return (
     <SimpleConversationContext.Provider value={{
       conversations,
