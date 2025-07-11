@@ -267,6 +267,7 @@ export default function Leads() {
   />
 </div>
             <div className="flex gap-2">
+
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button 
@@ -357,6 +358,7 @@ export default function Leads() {
                   </DropdownMenuContent>
                 </DropdownMenu>
               )}
+
               
               {viewMode === "table" && (
                 <LeadsTableColumnSelector
