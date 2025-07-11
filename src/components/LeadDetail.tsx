@@ -385,7 +385,7 @@ export function LeadDetail({ lead, isOpen, onClose, onSave, onOpenMassEmail }: L
 
               {/* Tab General */}
               <TabsContent value="general" className="space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-1 gap-6">
                   {/* Información básica */}
                   <Card>
                     <CardHeader>
