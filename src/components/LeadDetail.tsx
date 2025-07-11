@@ -377,10 +377,12 @@ export function LeadDetail({ lead, isOpen, onClose, onSave, onOpenMassEmail }: L
             </DialogHeader>
 
             <Tabs defaultValue="general" className="w-full">
-              <TabsList className="grid w-full grid-cols-3">
-                <TabsTrigger value="general">General</TabsTrigger>
-                <TabsTrigger value="management">Gestión</TabsTrigger>
-                <TabsTrigger value="history">Asignación</TabsTrigger>
+              <TabsList className="grid w-full grid-cols-3 mb-6 bg-gray-100 py-1 rounded-full">
+                <TabsTrigger value="general"
+                  className="w-full h-full data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#00c83c] data-[state=active]:to-[#A3E40B] data-[state=active]:text-white rounded-full px-4 py-2 mt-0 text-sm font-medium transition-all duration-200">General
+                </TabsTrigger>
+                <TabsTrigger value="management" className="w-full h-full data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#00c83c] data-[state=active]:to-[#A3E40B] data-[state=active]:text-white rounded-full px-4 py-2 mt-0 text-sm font-medium transition-all duration-200">Gestión</TabsTrigger>
+                <TabsTrigger value="history" className="w-full h-full data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#00c83c] data-[state=active]:to-[#A3E40B] data-[state=active]:text-white rounded-full px-4 py-2 mt-0 text-sm font-medium transition-all duration-200">Asignación</TabsTrigger>
               </TabsList>
 
               {/* Tab General */}
