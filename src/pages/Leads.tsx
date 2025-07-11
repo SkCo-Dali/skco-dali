@@ -254,34 +254,57 @@ export default function Leads() {
 
           {/* Search and Controls Row */}
           <div className="flex flex-col lg:flex-row gap-4 items-center">
-            <div className="flex flex-1 items-center gap-2">
-  <Button
-    className="gap-1 w-8 h-8 bg-primary"
-    onClick={(e) => e.preventDefault()}
-    size="icon"
-  >
-    <Plus className="h-4 w-4" />
-  </Button>
+          <div className="flex flex-1 items-center gap-2">
+              <LeadCreateDialog onLeadCreate={handleLeadCreate}>
+                <Button
+                  className="gap-1 w-8 h-8 bg-primary"
+                  size="icon"
+                >
+                  <Plus className="h-4 w-4" />
+                </Button>
+              </LeadCreateDialog>
               <Button
-    className="gap-1 w-8 h-8 bg-primary"
-    onClick={() => setShowMassEmail(true)}
-    size="icon"
-  >
-    <Mail className="h-4 w-4" />
-  </Button>
+                className="gap-1 w-8 h-8 bg-primary"
+                onClick={() => {
+                  if (selectedLeads.length > 0) {
+                    setShowMassEmail(true);
+                  } else {
+                    toast.error("Selecciona al menos un lead para enviar correos");
+                  }
+                }}
+                size="icon"
+                disabled={selectedLeads.length === 0}
+              >
+                <Mail className="h-4 w-4" />
+              </Button>
               <Button
-    className="gap-1 w-8 h-8 bg-primary"
-    onClick={() => setShowBulkAssign(true)}
-    size="icon"
-  >
-    <Users className="h-4 w-4" />
-  </Button>
+                className="gap-1 w-8 h-8 bg-primary"
+                onClick={() => {
+                  if (selectedLeads.length > 0) {
+                    setShowBulkAssign(true);
+                  } else {
+                    toast.error("Selecciona al menos un lead para asignar");
+                  }
+                }}
+                size="icon"
+                disabled={selectedLeads.length === 0}
+              >
+                <Users className="h-4 w-4" />
+              </Button>
               <Button
-    className="gap-1 w-8 h-8 bg-primary"
-    size="icon"
-  >
-    <Trash className="h-4 w-4" />
-  </Button>
+                className="gap-1 w-8 h-8 bg-primary"
+                onClick={() => {
+                  if (selectedLeads.length > 0) {
+                    toast.success(`${selectedLeads.length} leads seleccionados para eliminar`);
+                  } else {
+                    toast.error("Selecciona al menos un lead para eliminar");
+                  }
+                }}
+                size="icon"
+                disabled={selectedLeads.length === 0}
+              >
+                <Trash className="h-4 w-4" />
+              </Button>
   <LeadsSearch 
     searchTerm={searchTerm} 
     onSearchChange={setSearchTerm} 
@@ -472,7 +495,13 @@ export default function Leads() {
       }}>
         <DialogContent className="max-w-6xl max-h-[90vh] overflow-auto">
           <MassEmailSender
-            filteredLeads={selectedLeadForEmail ? [selectedLeadForEmail] : filteredLeads}
+            filteredLeads={
+              selectedLeadForEmail 
+                ? [selectedLeadForEmail] 
+                : selectedLeads.length > 0 
+                  ? filteredLeads.filter(lead => selectedLeads.includes(lead.id))
+                  : filteredLeads
+            }
             onClose={() => {
               setShowMassEmail(false);
               setSelectedLeadForEmail(null);
