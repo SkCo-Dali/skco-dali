@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { Lead, LeadStatus } from '@/types/crm';
 import { getAllLeads, createLead, updateLead, deleteLead, getLeadsByUser } from '@/utils/leadsApiClient';
@@ -10,9 +11,6 @@ export const useLeadsApi = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const { user } = useAuth();
-
-  console.log('🎯 === USELEADSAPI: Hook initialized ===');
-  console.log('👤 User from useAuth:', user);
 
   // Función para mapear ReassignableLead a Lead
   const mapReassignableLeadToLead = (reassignableLead: any): Lead => {
@@ -88,37 +86,18 @@ export const useLeadsApi = () => {
 
   // Función para filtrar leads según el rol del usuario
   const filterLeadsByRole = (allLeads: Lead[]): Lead[] => {
-    if (!user) {
-      console.log('❌ No user available for filtering');
-      return [];
-    }
+    if (!user) return [];
 
-    console.log(`🎯 === FILTER BY ROLE: Starting filtering ===`);
-    console.log(`🎯 User role: ${user.role}`);
-    console.log(`🎯 User ID: ${user.id}`);
+    console.log(`🎯 Applying role-based filtering for role: ${user.role}`);
     console.log(`🎯 Input leads count: ${allLeads.length}`);
-
-    if (allLeads.length > 0) {
-      console.log('📋 Sample leads before filtering (first 3):');
-      allLeads.slice(0, 3).forEach((lead, index) => {
-        console.log(`📋 Lead ${index + 1}:`, {
-          id: lead.id,
-          name: lead.name,
-          assignedTo: lead.assignedTo,
-          stage: lead.stage
-        });
-      });
-    }
-
-    let filteredLeads: Lead[] = [];
+    console.log(`🎯 User ID: ${user.id}`);
 
     switch (user.role) {
       case 'admin':
       case 'analista':
         // Solo admin y analista pueden ver todos los leads
         console.log(`🎯 Role ${user.role} can see all leads`);
-        filteredLeads = allLeads;
-        break;
+        return allLeads;
       
       case 'gestor':
       case 'supervisor':
@@ -128,42 +107,19 @@ export const useLeadsApi = () => {
         // El API ya retorna solo los leads que pueden reasignar (asignados actualmente o anteriormente)
         // Por lo tanto, no necesitamos filtrar más - mostrar todos los que retorna el API
         console.log(`🎯 Role ${user.role} using reassignable leads API - showing all returned leads`);
-        filteredLeads = allLeads;
-        break;
+        console.log(`🎯 Showing ${allLeads.length} reassignable leads for ${user.role}`);
+        return allLeads;
       
       case 'fp':
         // Solo pueden ver leads que les asignen
-        filteredLeads = allLeads.filter(lead => {
-          const isAssigned = lead.assignedTo === user.id;
-          if (isAssigned) {
-            console.log(`🎯 FP can see lead: ${lead.name} (assigned to them)`);
-          }
-          return isAssigned;
-        });
-        console.log(`🎯 Role ${user.role} can see ${filteredLeads.length} of ${allLeads.length} leads (only assigned to them)`);
-        break;
+        const fpFilteredLeads = allLeads.filter(lead => lead.assignedTo === user.id);
+        console.log(`🎯 Role ${user.role} can see ${fpFilteredLeads.length} of ${allLeads.length} leads (only assigned to them)`);
+        return fpFilteredLeads;
       
       default:
         console.log(`🎯 Unknown role ${user.role} - returning empty array`);
-        filteredLeads = [];
+        return [];
     }
-
-    console.log(`🎯 === FILTER BY ROLE: Final results ===`);
-    console.log(`🎯 Filtered leads count: ${filteredLeads.length}`);
-    
-    if (filteredLeads.length > 0) {
-      console.log('📋 Sample filtered leads (first 3):');
-      filteredLeads.slice(0, 3).forEach((lead, index) => {
-        console.log(`📋 Filtered lead ${index + 1}:`, {
-          id: lead.id,
-          name: lead.name,
-          assignedTo: lead.assignedTo,
-          stage: lead.stage
-        });
-      });
-    }
-
-    return filteredLeads;
   };
 
   // Cargar leads reasignables para el usuario actual
@@ -177,7 +133,7 @@ export const useLeadsApi = () => {
     setError(null);
     
     try {
-      console.log('🚀 === LOADLEADS: Starting leads loading process ===');
+      console.log('🚀 === STARTING REASSIGNABLE LEADS API CALL ===');
       console.log('👤 Current user ID:', user.id);
       console.log('👤 Current user role:', user.role);
       console.log('📡 API endpoint will be: /api/lead-assignments/reassignable/' + user.id);
@@ -422,9 +378,6 @@ export const useLeadsApi = () => {
 
   // Cargar leads al montar el componente
   useEffect(() => {
-    console.log('🔄 useEffect triggered for loadLeads');
-    console.log('👤 User ID:', user?.id);
-    console.log('👤 User role:', user?.role);
     loadLeads();
   }, [user?.id, user?.role]);
 
