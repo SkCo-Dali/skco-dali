@@ -102,12 +102,12 @@ export const getAllLeads = async (filters?: {
       
       if (pageLeads.length > 0) {
         console.log('📋 Sample lead from this page:', {
-          id: pageLeads[0].id || pageLeads[0].Id,
-          name: pageLeads[0].name || pageLeads[0].Name,
-          email: pageLeads[0].email || pageLeads[0].Email,
-          assignedTo: pageLeads[0].assignedTo || pageLeads[0].AssignedTo || pageLeads[0].assigned_to,
-          stage: pageLeads[0].stage || pageLeads[0].Stage,
-          source: pageLeads[0].source || pageLeads[0].Source
+          id: pageLeads[0].Id,
+          name: pageLeads[0].Name,
+          email: pageLeads[0].Email,
+          assignedTo: pageLeads[0].AssignedTo,
+          stage: pageLeads[0].Stage,
+          source: pageLeads[0].Source
         });
       }
       
@@ -126,9 +126,7 @@ export const getAllLeads = async (filters?: {
     console.log(`📊 Total API leads received: ${allLeads.length}`);
     
     // Log unique assignedTo values from raw API data
-    const rawAssignedUsers = allLeads.map(lead => 
-      lead.assignedTo || lead.AssignedTo || lead.assigned_to
-    ).filter(Boolean);
+    const rawAssignedUsers = allLeads.map(lead => lead.AssignedTo).filter(Boolean);
     const uniqueRawAssigned = [...new Set(rawAssignedUsers)];
     console.log('👥 Unique assignedTo values from raw API:', uniqueRawAssigned);
     
