@@ -1,4 +1,3 @@
-
 import React, { useState, useCallback, useMemo, useRef } from "react";
 import { toast } from "sonner";
 import { Lead } from "@/types/crm";
@@ -271,7 +270,7 @@ export default function Leads() {
                     Filtros
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent className="w-80 p-4 bg-white rounded-2xl shadow-lg border border-gray-200">
+                <DropdownMenuContent className="w-auto p-0 bg-white rounded-2xl shadow-lg border border-gray-200" align="end">
                   <LeadsFilters
                     searchTerm={searchTerm}
                     setSearchTerm={setSearchTerm}

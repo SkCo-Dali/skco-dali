@@ -164,26 +164,26 @@ export function LeadsFilters({
   );
 
   return (
-    <div className="space-y-6 p-6">
+    <div className="space-y-4 p-4 w-80">
       {/* Header con botón de limpiar filtros */}
       <div className="flex items-center justify-between">
-        <h3 className="text-lg font-semibold">Filtros</h3>
+        <h3 className="text-base font-semibold">Filtros</h3>
         <Button
           variant="outline"
           size="sm"
           onClick={onClearFilters}
-          className="flex items-center gap-2"
+          className="flex items-center gap-1 text-xs px-2 py-1 h-7"
         >
-          <FilterX className="h-4 w-4" />
+          <FilterX className="h-3 w-3" />
           Limpiar filtros
         </Button>
       </div>
 
-      {/* Filtros principales en grid de 3 columnas para pantallas medianas y grandes */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      {/* Filtros principales en columna única */}
+      <div className="space-y-3">
         {/* Filtro de Etapa */}
-        <div className="space-y-2">
-          <Label htmlFor="stage-filter">Etapa</Label>
+        <div className="space-y-1">
+          <Label htmlFor="stage-filter" className="text-sm">Etapa</Label>
           <Select 
             value={getSelectValue(filterStage)} 
             onValueChange={(value) => {
@@ -192,17 +192,14 @@ export function LeadsFilters({
               }
             }}
           >
-            <SelectTrigger className="w-full">
+            <SelectTrigger className="w-full h-8 text-sm">
               <SelectValue>
-                {getDisplayText(filterStage, "Seleccionar etapas", uniqueStages.map(s => ({ value: s, label: s })))}
+                {getDisplayText(filterStage, "S...", uniqueStages.map(s => ({ value: s, label: s })))}
               </SelectValue>
             </SelectTrigger>
             <SelectContent className="bg-white z-50">
               <SelectItem value="all">Todas las etapas</SelectItem>
-              <div className="px-2 py-2 border-b">
-                
-              </div>
-              <ScrollArea className="h-48">
+              <ScrollArea className="h-32">
                 {filteredStages.map((stage) => (
                   <div key={stage} className="flex items-center space-x-2 px-2 py-1">
                     <Checkbox
@@ -221,8 +218,8 @@ export function LeadsFilters({
         </div>
 
         {/* Filtro de Asignado a */}
-        <div className="space-y-2">
-          <Label htmlFor="assignedTo-filter">Asignado a</Label>
+        <div className="space-y-1">
+          <Label htmlFor="assignedTo-filter" className="text-sm">Asignado a</Label>
           <Select 
             value={getSelectValue(filterAssignedTo)} 
             onValueChange={(value) => {
@@ -231,25 +228,25 @@ export function LeadsFilters({
               }
             }}
           >
-            <SelectTrigger className="w-full">
+            <SelectTrigger className="w-full h-8 text-sm">
               <SelectValue>
-                {getDisplayText(filterAssignedTo, "Seleccionar usuarios", users)}
+                {getDisplayText(filterAssignedTo, "S...", users)}
               </SelectValue>
             </SelectTrigger>
             <SelectContent className="bg-white z-50">
               <SelectItem value="all">Todos los usuarios</SelectItem>
               <div className="px-2 py-2 border-b">
                 <div className="relative">
-                  <Search className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                  <Search className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 h-3 w-3" />
                   <Input
                     placeholder="Buscar usuario..."
                     value={userSearch}
                     onChange={(e) => setUserSearch(e.target.value)}
-                    className="pl-8 h-8"
+                    className="pl-8 h-6 text-xs"
                   />
                 </div>
               </div>
-              <ScrollArea className="h-48">
+              <ScrollArea className="h-32">
                 {filteredUsers.map((user) => (
                   <div key={user.id} className="flex items-center space-x-2 px-2 py-1">
                     <Checkbox
@@ -268,8 +265,8 @@ export function LeadsFilters({
         </div>
 
         {/* Filtro de Fuente */}
-        <div className="space-y-2">
-          <Label htmlFor="source-filter">Fuente</Label>
+        <div className="space-y-1">
+          <Label htmlFor="source-filter" className="text-sm">Fuente</Label>
           <Select 
             value={getSelectValue(filterSource)} 
             onValueChange={(value) => {
@@ -278,25 +275,25 @@ export function LeadsFilters({
               }
             }}
           >
-            <SelectTrigger className="w-full">
+            <SelectTrigger className="w-full h-8 text-sm">
               <SelectValue>
-                {getDisplayText(filterSource, "Seleccionar fuentes", uniqueSources.map(s => ({ value: s, label: s })))}
+                {getDisplayText(filterSource, "S...", uniqueSources.map(s => ({ value: s, label: s })))}
               </SelectValue>
             </SelectTrigger>
             <SelectContent className="bg-white z-50">
               <SelectItem value="all">Todas las fuentes</SelectItem>
               <div className="px-2 py-2 border-b">
                 <div className="relative">
-                  <Search className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                  <Search className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 h-3 w-3" />
                   <Input
                     placeholder="Buscar fuente..."
                     value={sourceSearch}
                     onChange={(e) => setSourceSearch(e.target.value)}
-                    className="pl-8 h-8"
+                    className="pl-8 h-6 text-xs"
                   />
                 </div>
               </div>
-              <ScrollArea className="h-48">
+              <ScrollArea className="h-32">
                 {filteredSources.map((source) => (
                   <div key={source} className="flex items-center space-x-2 px-2 py-1">
                     <Checkbox
@@ -315,8 +312,8 @@ export function LeadsFilters({
         </div>
 
         {/* Filtro de Campaña */}
-        <div className="space-y-2">
-          <Label htmlFor="campaign-filter">Campaña</Label>
+        <div className="space-y-1">
+          <Label htmlFor="campaign-filter" className="text-sm">Campaña</Label>
           <Select 
             value={getSelectValue(filterCampaign)} 
             onValueChange={(value) => {
@@ -325,25 +322,25 @@ export function LeadsFilters({
               }
             }}
           >
-            <SelectTrigger className="w-full">
+            <SelectTrigger className="w-full h-8 text-sm">
               <SelectValue>
-                {getDisplayText(filterCampaign, "Seleccionar campañas", uniqueCampaigns.map(c => ({ value: c, label: c })))}
+                {getDisplayText(filterCampaign, "S...", uniqueCampaigns.map(c => ({ value: c, label: c })))}
               </SelectValue>
             </SelectTrigger>
             <SelectContent className="bg-white z-50">
               <SelectItem value="all">Todas las campañas</SelectItem>
               <div className="px-2 py-2 border-b">
                 <div className="relative">
-                  <Search className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                  <Search className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 h-3 w-3" />
                   <Input
                     placeholder="Buscar campaña..."
                     value={campaignSearch}
                     onChange={(e) => setCampaignSearch(e.target.value)}
-                    className="pl-8 h-8"
+                    className="pl-8 h-6 text-xs"
                   />
                 </div>
               </div>
-              <ScrollArea className="h-48">
+              <ScrollArea className="h-32">
                 {filteredCampaigns.map((campaign) => (
                   <div key={campaign} className="flex items-center space-x-2 px-2 py-1">
                     <Checkbox
@@ -362,8 +359,8 @@ export function LeadsFilters({
         </div>
 
         {/* Filtro de Prioridad */}
-        <div className="space-y-2">
-          <Label htmlFor="priority-filter">Prioridad</Label>
+        <div className="space-y-1">
+          <Label htmlFor="priority-filter" className="text-sm">Prioridad</Label>
           <Select 
             value={getSelectValue(filterPriority)} 
             onValueChange={(value) => {
@@ -372,17 +369,14 @@ export function LeadsFilters({
               }
             }}
           >
-            <SelectTrigger className="w-full">
+            <SelectTrigger className="w-full h-8 text-sm">
               <SelectValue>
-                {getDisplayText(filterPriority, "Seleccionar prioridades", priorities)}
+                {getDisplayText(filterPriority, "S...", priorities)}
               </SelectValue>
             </SelectTrigger>
             <SelectContent className="bg-white z-50">
               <SelectItem value="all">Todas las prioridades</SelectItem>
-              <div className="px-2 py-2 border-b">
-                
-              </div>
-              <ScrollArea className="h-48">
+              <ScrollArea className="h-32">
                 {filteredPriorities.map((priority) => (
                   <div key={priority.value} className="flex items-center space-x-2 px-2 py-1">
                     <Checkbox
@@ -401,8 +395,8 @@ export function LeadsFilters({
         </div>
 
         {/* Filtro de duplicados */}
-        <div className="space-y-2">
-          <Label htmlFor="duplicates-filter">
+        <div className="space-y-1">
+          <Label htmlFor="duplicates-filter" className="text-sm">
             Duplicados
             {duplicateCount > 0 && (
               <span className="ml-1 text-xs bg-orange-100 text-orange-800 px-1 py-0.5 rounded">
@@ -411,8 +405,8 @@ export function LeadsFilters({
             )}
           </Label>
           <Select value={filterDuplicates} onValueChange={setFilterDuplicates}>
-            <SelectTrigger className="w-full">
-              <SelectValue placeholder="Seleccionar duplicados" />
+            <SelectTrigger className="w-full h-8 text-sm">
+              <SelectValue placeholder="To..." />
             </SelectTrigger>
             <SelectContent className="bg-white z-50">
               <SelectItem value="all">Todos</SelectItem>
@@ -424,43 +418,53 @@ export function LeadsFilters({
       </div>
 
       {/* Filtros de fecha y valor */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 pt-6 border-t">
-        <div className="space-y-2">
-          <Label htmlFor="date-from">Fecha desde</Label>
-          <Input
-            type="date"
-            value={filterDateFrom}
-            onChange={(e) => setFilterDateFrom(e.target.value)}
-          />
+      <div className="space-y-3 pt-3 border-t">
+        <div className="grid grid-cols-2 gap-2">
+          <div className="space-y-1">
+            <Label htmlFor="date-from" className="text-sm">Fecha desde</Label>
+            <Input
+              type="date"
+              value={filterDateFrom}
+              onChange={(e) => setFilterDateFrom(e.target.value)}
+              className="h-8 text-sm"
+              placeholder="mm/dd/aaaa"
+            />
+          </div>
+
+          <div className="space-y-1">
+            <Label htmlFor="date-to" className="text-sm">Fecha hasta</Label>
+            <Input
+              type="date"
+              value={filterDateTo}
+              onChange={(e) => setFilterDateTo(e.target.value)}
+              className="h-8 text-sm"
+              placeholder="mm/dd/aaaa"
+            />
+          </div>
         </div>
 
-        <div className="space-y-2">
-          <Label htmlFor="date-to">Fecha hasta</Label>
-          <Input
-            type="date"
-            value={filterDateTo}
-            onChange={(e) => setFilterDateTo(e.target.value)}
-          />
-        </div>
+        <div className="grid grid-cols-2 gap-2">
+          <div className="space-y-1">
+            <Label htmlFor="value-min" className="text-sm">Valor mínimo</Label>
+            <Input
+              type="number"
+              placeholder="0"
+              value={filterValueMin}
+              onChange={(e) => setFilterValueMin(e.target.value)}
+              className="h-8 text-sm"
+            />
+          </div>
 
-        <div className="space-y-2">
-          <Label htmlFor="value-min">Valor mínimo</Label>
-          <Input
-            type="number"
-            placeholder="0"
-            value={filterValueMin}
-            onChange={(e) => setFilterValueMin(e.target.value)}
-          />
-        </div>
-
-        <div className="space-y-2">
-          <Label htmlFor="value-max">Valor máximo</Label>
-          <Input
-            type="number"
-            placeholder="∞"
-            value={filterValueMax}
-            onChange={(e) => setFilterValueMax(e.target.value)}
-          />
+          <div className="space-y-1">
+            <Label htmlFor="value-max" className="text-sm">Valor máximo</Label>
+            <Input
+              type="number"
+              placeholder="∞"
+              value={filterValueMax}
+              onChange={(e) => setFilterValueMax(e.target.value)}
+              className="h-8 text-sm"
+            />
+          </div>
         </div>
       </div>
     </div>
