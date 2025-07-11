@@ -656,19 +656,10 @@ export function LeadDetail({ lead, isOpen, onClose, onSave, onOpenMassEmail }: L
                       </div>
                     </div>
 
-                    {/* Sección de Información Adicional - Mejorada para debugging */}
+                    {/* Sección de Información Adicional - Sin debug info */}
                     <div>
                       <Label>Información Adicional</Label>
                       <div className="mt-2">
-                        {/* Debug info - Remove this after fixing */}
-                        <div className="mb-2 p-2 bg-yellow-50 border border-yellow-200 rounded text-xs">
-                          <strong>Debug Info:</strong><br/>
-                          Has additionalInfo: {editedLead.additionalInfo ? 'Yes' : 'No'}<br/>
-                          Type: {typeof editedLead.additionalInfo}<br/>
-                          Keys: {editedLead.additionalInfo ? Object.keys(editedLead.additionalInfo).length : 0}<br/>
-                          Raw value: {JSON.stringify(editedLead.additionalInfo)}
-                        </div>
-                        
                         {editedLead.additionalInfo && typeof editedLead.additionalInfo === 'object' && Object.keys(editedLead.additionalInfo).length > 0 ? (
                           <div className="border rounded-lg overflow-hidden">
                             <ScrollArea className="h-48">
