@@ -256,10 +256,10 @@ export default function Leads() {
             <div className="flex flex-1 items-center gap-2">
   <Button
     className="gap-1 w-8 h-8 bg-secondary"
-    onClick={handleViewModeToggle}
+    onClick={(e) => e.preventDefault()}
     size="icon"
   >
-    {getViewModeIcon()}
+    <Plus className="h-4 w-4 mr-2" />
   </Button>
   <LeadsSearch 
     searchTerm={searchTerm} 
