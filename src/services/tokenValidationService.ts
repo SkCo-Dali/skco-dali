@@ -103,10 +103,30 @@ export class TokenValidationService {
 
   /**
    * Valida que el dominio del email sea válido para la organización
+   * Ahora más flexible - permite deshabilitar la validación o usar múltiples dominios
    */
   static validateEmailDomain(email: string): boolean {
+    // Si la validación de dominio está deshabilitada, permitir cualquier email
+    if (!ENV.ENABLE_DOMAIN_VALIDATION) {
+      console.log('Domain validation disabled, allowing all domains');
+      return true;
+    }
+
     const emailDomain = email.toLowerCase().split('@')[1];
-    const isValid = ENV.ALLOWED_DOMAINS.includes(emailDomain);
+    
+    // Si no hay dominios configurados, permitir cualquier dominio
+    if (!ENV.ALLOWED_DOMAINS || ENV.ALLOWED_DOMAINS.length === 0) {
+      console.log('No domain restrictions configured, allowing all domains');
+      return true;
+    }
+
+    const isValid = ENV.ALLOWED_DOMAINS.some(domain => 
+      emailDomain === domain.toLowerCase().trim()
+    );
+
+    if (!isValid) {
+      console.log(`Domain ${emailDomain} not in allowed domains:`, ENV.ALLOWED_DOMAINS);
+    }
 
     return isValid;
   }
