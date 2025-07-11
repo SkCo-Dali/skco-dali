@@ -69,7 +69,7 @@ export const SessionTimeoutWarning: React.FC<SessionTimeoutWarningProps> = ({
         <AlertDialogFooter className="flex flex-col sm:flex-row gap-3 sm:gap-2 justify-center items-center">
           <AlertDialogCancel 
             onClick={onLogout}
-            className="w-full sm:w-auto order-2 sm:order-1"
+            className="w-full sm:w-auto bg-[#00c83c] hover:bg-[#00a332] text-white order-2 sm:order-1"
           >
             Cerrar sesión
           </AlertDialogCancel>
