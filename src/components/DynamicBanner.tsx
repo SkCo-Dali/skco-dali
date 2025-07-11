@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { memo, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { 
   ChevronLeft,
@@ -14,7 +14,7 @@ interface DynamicBannerProps {
   onBannerAction?: (automaticReply: string) => void;
 }
 
-export const DynamicBanner: React.FC<DynamicBannerProps> = ({ onClose, onBannerAction }) => {
+export const DynamicBanner: React.FC<DynamicBannerProps> = memo(({ onClose, onBannerAction }) => {
   const { 
     currentBanner, 
     currentBannerIndex, 
@@ -24,6 +24,12 @@ export const DynamicBanner: React.FC<DynamicBannerProps> = ({ onClose, onBannerA
     goToPrevious, 
     goToBanner 
   } = useBannerData();
+
+  const handleButtonClick = useCallback(() => {
+    if (onBannerAction && currentBanner?.automaticReply) {
+      onBannerAction(currentBanner.automaticReply);
+    }
+  }, [onBannerAction, currentBanner?.automaticReply]);
 
   if (isLoading) {
     return (
@@ -40,22 +46,6 @@ export const DynamicBanner: React.FC<DynamicBannerProps> = ({ onClose, onBannerA
   if (!currentBanner || totalBanners === 0) {
     return null;
   }
-
-  const handleButtonClick = () => {
-    console.log('🔵 DynamicBanner: Button clicked for banner:', currentBanner.title);
-    
-    if (onBannerAction && currentBanner.automaticReply) {
-      console.log('🟢 DynamicBanner: Calling onBannerAction with:', currentBanner.automaticReply);
-      try {
-        onBannerAction(currentBanner.automaticReply);
-        console.log('🟢 DynamicBanner: onBannerAction call completed successfully');
-      } catch (error) {
-        console.error('🔴 DynamicBanner: ERROR calling onBannerAction:', error);
-      }
-    } else {
-      console.log('🔴 DynamicBanner: Cannot call onBannerAction - missing function or automaticReply');
-    }
-  };
 
   return (
     <div 
@@ -151,4 +141,6 @@ export const DynamicBanner: React.FC<DynamicBannerProps> = ({ onClose, onBannerA
       </div>
     </div>
   );
-};
+});
+
+DynamicBanner.displayName = 'DynamicBanner';
