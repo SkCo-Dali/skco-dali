@@ -41,7 +41,8 @@ import {
   Table, 
   Columns,
   MoreVertical,
-  Group
+  Group,
+  Trash
 } from "lucide-react";
 
 const DEFAULT_COLUMNS: ColumnConfig[] = [
@@ -255,11 +256,31 @@ export default function Leads() {
           <div className="flex flex-col lg:flex-row gap-4 items-center">
             <div className="flex flex-1 items-center gap-2">
   <Button
-    className="gap-1 w-8 h-8 bg-secondary"
+    className="gap-1 w-8 h-8 bg-primary"
     onClick={(e) => e.preventDefault()}
     size="icon"
   >
-    <Plus className="h-4 w-4 mr-2" />
+    <Plus className="h-4 w-4" />
+  </Button>
+              <Button
+    className="gap-1 w-8 h-8 bg-primary"
+    onClick={() => setShowMassEmail(true)}
+    size="icon"
+  >
+    <Mail className="h-4 w-4" />
+  </Button>
+              <Button
+    className="gap-1 w-8 h-8 bg-primary"
+    onClick={() => setShowBulkAssign(true)}
+    size="icon"
+  >
+    <Users className="h-4 w-4" />
+  </Button>
+              <Button
+    className="gap-1 w-8 h-8 bg-primary"
+    size="icon"
+  >
+    <Trash className="h-4 w-4" />
   </Button>
   <LeadsSearch 
     searchTerm={searchTerm} 
