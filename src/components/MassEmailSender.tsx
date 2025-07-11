@@ -1,9 +1,8 @@
-
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
-import { Send, Eye, History, Filter, AlertTriangle, X, Mail, Info } from 'lucide-react';
+import { Send, Eye, History, Filter, AlertTriangle, Info, X, Mail } from 'lucide-react';
 import { Lead } from '@/types/crm';
 import { EmailTemplate } from '@/types/email';
 import { EmailComposer } from '@/components/EmailComposer';
@@ -16,6 +15,32 @@ import { useToast } from '@/hooks/use-toast';
 interface MassEmailSenderProps {
   filteredLeads: Lead[];
   onClose: () => void;
+}
+
+function InfoMessage({ onClose }: { onClose: () => void }) {
+  return (
+    <div className="flex items-start gap-4 p-4 border border-blue-300 rounded-md bg-blue-50 text-gray-800 relative">
+      <div className="flex-shrink-0 text-blue-500">
+        <Info className="h-6 w-6" />
+      </div>
+
+      <div className="flex-1">
+        <p className="font-semibold text-gray-900 mb-1">Ejemplo de tu correo</p>
+        <p className="text-gray-700 text-sm">
+          Los demás correos se enviarán con el mismo formato y con los datos que personalizaste.
+        </p>
+      </div>
+
+      <button
+        type="button"
+        className="absolute top-2 right-2 text-gray-400 hover:text-gray-600"
+        aria-label="Cerrar"
+        onClick={onClose}
+      >
+        <X className="h-4 w-4" />
+      </button>
+    </div>
+  );
 }
 
 export function MassEmailSender({ filteredLeads, onClose }: MassEmailSenderProps) {
@@ -36,6 +61,9 @@ export function MassEmailSender({ filteredLeads, onClose }: MassEmailSenderProps
     htmlContent: '',
     plainContent: ''
   });
+
+  // Estado para mostrar/ocultar mensaje de info
+  const [showInfoMessage, setShowInfoMessage] = useState(true);
 
   // Filtrar leads que tengan email válido y limitar a 20
   const validLeads = filteredLeads.filter(lead => lead.email && lead.email.trim() !== '');
@@ -167,16 +195,8 @@ export function MassEmailSender({ filteredLeads, onClose }: MassEmailSenderProps
           </TabsContent>
 
           <TabsContent value="preview" className="space-y-6 mt-6">
-            {/* Warning message - Solo se muestra en la pestaña de previsualización */}
-            {isOverLimit && (
-              <div className="flex flex-col gap-2 p-3 bg-[#ECFDF3] rounded-md">
-  <Info className="h-4 w-4 text-[#3f3f3f]" />
-  <span className="text-md">Ejemplo de tu correo</span>
-  <span className="text-[#3f3f3f] text-sm">
-    Los demás correos se enviarán con el mismo formato y con los datos que personalizaste.
-  </span>
-</div>
-            )}
+            {/* Mensaje info con control de visibilidad */}
+            {showInfoMessage && <InfoMessage onClose={() => setShowInfoMessage(false)} />}
 
             <EmailPreview
               leads={leadsToShow}
@@ -221,3 +241,4 @@ export function MassEmailSender({ filteredLeads, onClose }: MassEmailSenderProps
     </>
   );
 }
+
