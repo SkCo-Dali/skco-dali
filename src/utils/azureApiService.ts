@@ -19,7 +19,7 @@ const sleep = (ms: number): Promise<void> => {
 // Helper function to make API call with retry logic
 const makeApiCallWithRetry = async (
   requestBody: any,
-  maxRetries: number = 3,
+  maxRetries: number = 1,
   baseDelay: number = 5000
 ): Promise<Response> => {
   let lastError: Error;
