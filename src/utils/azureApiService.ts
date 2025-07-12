@@ -19,7 +19,7 @@ const sleep = (ms: number): Promise<void> => {
 // Helper function to make API call with retry logic
 const makeApiCallWithRetry = async (
   requestBody: any,
-  maxRetries: number = 1,
+  maxRetries: number = 3,
   baseDelay: number = 5000
 ): Promise<Response> => {
   let lastError: Error;
@@ -155,7 +155,7 @@ export const callAzureAgentApi = async (
     console.log('🎯 MAESTRO API CALL WITH RETRY MECHANISM STARTING...');
     
     // Make the API call with retry logic
-    const response = await makeApiCallWithRetry(requestBody, 3, 5000);
+    const response = await makeApiCallWithRetry(requestBody, 1, 5000);
     
     // Procesar respuesta
     const responseText = await response.text();
