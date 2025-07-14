@@ -45,7 +45,7 @@ export function LeadDeleteConfirmDialog({
             )}
           </AlertDialogDescription>
         </AlertDialogHeader>
-        <AlertDialogFooter className="items-center">
+        <AlertDialogFooter className="flex justify-center gap-x-4">
           <AlertDialogCancel disabled={isDeleting}>
             Cancelar
           </AlertDialogCancel>
