@@ -30,19 +30,8 @@ export function LeadDeleteConfirmDialog({
           <AlertDialogDescription>
             {isMultiple ? (
               <>
-                Esta acción eliminará permanentemente {leadCount} leads seleccionados:
-                <ul className="mt-2 mb-2 list-disc list-inside max-h-32 overflow-y-auto">
-                  {leads.slice(0, 5).map((lead) => (
-                    <li key={lead.id} className="text-sm">
-                      {lead.name} ({lead.email})
-                    </li>
-                  ))}
-                  {leads.length > 5 && (
-                    <li className="text-sm text-gray-500">
-                      ... y {leads.length - 5} más
-                    </li>
-                  )}
-                </ul>
+                Esta acción eliminará permanentemente {leadCount} leads seleccionados.
+      
                 Esta acción no se puede deshacer.
               </>
             ) : (
@@ -56,7 +45,7 @@ export function LeadDeleteConfirmDialog({
             )}
           </AlertDialogDescription>
         </AlertDialogHeader>
-        <AlertDialogFooter>
+        <AlertDialogFooter className="items-center">
           <AlertDialogCancel disabled={isDeleting}>
             Cancelar
           </AlertDialogCancel>
