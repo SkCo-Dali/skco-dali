@@ -1,4 +1,3 @@
-
 import { useState } from "react"; 
 import { Lead } from "@/types/crm";
 import { Badge } from "@/components/ui/badge";
@@ -13,6 +12,9 @@ import { EditableLeadCell } from "@/components/EditableLeadCell";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { FaWhatsapp } from "react-icons/fa";
+import { useLeadDeletion } from "@/hooks/useLeadDeletion";
+import { LeadDeleteConfirmDialog } from "@/components/LeadDeleteConfirmDialog";
+import { toast } from "sonner";
 
 interface LeadsTableProps {
   leads: Lead[];
@@ -65,6 +67,12 @@ export function LeadsTable({
 }: LeadsTableProps) {
   const { users } = useUsersApi();
   const [sortConfig, setSortConfig] = useState<SortConfig>(null);
+  const [leadsToDelete, setLeadsToDelete] = useState<Lead[]>([]);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  
+  const { isDeleting, canDeleteLead, deleteSingleLead } = useLeadDeletion({
+    onLeadDeleted: onLeadUpdate
+  });
 
   const visibleColumns = columns.filter(col => col.visible);
   
@@ -237,10 +245,29 @@ export function LeadsTable({
         }
         break;
       case 'delete':
-        console.log('Eliminar lead:', lead.name);
+        handleDeleteLead(lead);
         break;
       default:
         break;
+    }
+  };
+
+  const handleDeleteLead = (lead: Lead) => {
+    if (!canDeleteLead(lead)) {
+      toast.error('No tienes permisos para eliminar este lead');
+      return;
+    }
+    setLeadsToDelete([lead]);
+    setShowDeleteDialog(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (leadsToDelete.length === 1) {
+      const success = await deleteSingleLead(leadsToDelete[0].id);
+      if (success) {
+        setShowDeleteDialog(false);
+        setLeadsToDelete([]);
+      }
     }
   };
 
@@ -393,74 +420,87 @@ export function LeadsTable({
   };
 
   return (
-    <div className="leads-table-container-scroll">
-      <div className="leads-table-scroll-wrapper">
-        <div className="leads-table-inner-scroll">
-          <Table 
-            className="w-full"
-            style={{ 
-              width: `${calculateTableWidth()}px`,
-              minWidth: `${calculateTableWidth()}px`
-            }}
-          >
-            <TableHeader className="leads-table-header-sticky">
-              <TableRow className="bg-[#fafafa] border-b border-[#fafafa]">
-                <TableHead className="w-[50px] px-4 py-3 text-center">
-                  <div className="flex items-center justify-center">
-                    <Checkbox
-                      checked={isAllSelected}
-                      onCheckedChange={handleSelectAll}
-                      className={isIndeterminate ? "data-[state=indeterminate]:bg-primary data-[state=indeterminate]:text-primary-foreground" : ""}
-                      {...(isIndeterminate ? { "data-state": "indeterminate" } : {})}
-                    />
-                  </div>
-                </TableHead>
-                {visibleColumns.map((column) => (
-                  <TableHead 
-                    key={column.key}
-                    className={`cursor-pointer select-none px-4 py-3 text-center text-xs font-medium text-gray-600 capitalize tracking-wider ${
-                      column.key === 'name' ? 'leads-name-column-sticky' : 'leads-regular-column'
-                    }`}
-                    onClick={() => handleSort(column.key)}
-                  >
-                    <div className="flex items-center justify-center">
-                      {column.label}
-                      {renderSortIcon(column.key)}
-                    </div>
-                  </TableHead>
-                ))}
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {paginatedLeads.map((lead, index) => (
-                <TableRow 
-                  key={lead.id}
-                  className="hover:bg-[#fafafa] transition-colors border-[#fafafa]"
-                >
-                  <TableCell className="w-[50px] px-4 py-3 text-center">
+    <>
+      <div className="leads-table-container-scroll">
+        <div className="leads-table-scroll-wrapper">
+          <div className="leads-table-inner-scroll">
+            <Table 
+              className="w-full"
+              style={{ 
+                width: `${calculateTableWidth()}px`,
+                minWidth: `${calculateTableWidth()}px`
+              }}
+            >
+              <TableHeader className="leads-table-header-sticky">
+                <TableRow className="bg-[#fafafa] border-b border-[#fafafa]">
+                  <TableHead className="w-[50px] px-4 py-3 text-center">
                     <div className="flex items-center justify-center">
                       <Checkbox
-                        checked={selectedLeads.includes(lead.id)}
-                        onCheckedChange={(checked) => handleSelectLead(lead.id, checked as boolean)}
+                        checked={isAllSelected}
+                        onCheckedChange={handleSelectAll}
+                        className={isIndeterminate ? "data-[state=indeterminate]:bg-primary data-[state=indeterminate]:text-primary-foreground" : ""}
+                        {...(isIndeterminate ? { "data-state": "indeterminate" } : {})}
                       />
                     </div>
-                  </TableCell>
+                  </TableHead>
                   {visibleColumns.map((column) => (
-                    <TableCell 
-                      key={column.key} 
-                      className={`px-4 py-3 text-xs text-center ${
+                    <TableHead 
+                      key={column.key}
+                      className={`cursor-pointer select-none px-4 py-3 text-center text-xs font-medium text-gray-600 capitalize tracking-wider ${
                         column.key === 'name' ? 'leads-name-column-sticky' : 'leads-regular-column'
                       }`}
+                      onClick={() => handleSort(column.key)}
                     >
-                      {renderCellContent(lead, column.key)}
-                    </TableCell>
+                      <div className="flex items-center justify-center">
+                        {column.label}
+                        {renderSortIcon(column.key)}
+                      </div>
+                    </TableHead>
                   ))}
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+              </TableHeader>
+              <TableBody>
+                {paginatedLeads.map((lead, index) => (
+                  <TableRow 
+                    key={lead.id}
+                    className="hover:bg-[#fafafa] transition-colors border-[#fafafa]"
+                  >
+                    <TableCell className="w-[50px] px-4 py-3 text-center">
+                      <div className="flex items-center justify-center">
+                        <Checkbox
+                          checked={selectedLeads.includes(lead.id)}
+                          onCheckedChange={(checked) => handleSelectLead(lead.id, checked as boolean)}
+                        />
+                      </div>
+                    </TableCell>
+                    {visibleColumns.map((column) => (
+                      <TableCell 
+                        key={column.key} 
+                        className={`px-4 py-3 text-xs text-center ${
+                          column.key === 'name' ? 'leads-name-column-sticky' : 'leads-regular-column'
+                        }`}
+                      >
+                        {renderCellContent(lead, column.key)}
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
         </div>
       </div>
-    </div>
+
+      <LeadDeleteConfirmDialog
+        isOpen={showDeleteDialog}
+        onClose={() => {
+          setShowDeleteDialog(false);
+          setLeadsToDelete([]);
+        }}
+        onConfirm={handleConfirmDelete}
+        leads={leadsToDelete}
+        isDeleting={isDeleting}
+      />
+    </>
   );
 }

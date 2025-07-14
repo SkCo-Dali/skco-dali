@@ -1,4 +1,3 @@
-
 import { Lead, Interaction } from '@/types/crm';
 import { ApiLead, CreateLeadRequest, UpdateLeadRequest, CreateLeadResponse, ApiResponse, BulkAssignRequest, ChangeStageRequest, AssignLeadRequest, MergeLeadsRequest } from '@/types/leadsApiTypes';
 import { mapApiLeadToLead, mapLeadToApiFormat } from './leadsApiMapper';
@@ -213,11 +212,13 @@ export const deleteLead = async (leadId: string): Promise<void> => {
     });
 
     if (!response.ok) {
-      throw new Error(`Error al eliminar lead: ${response.statusText}`);
+      throw new Error(`Error al eliminar lead: ${response.status} - ${response.statusText}`);
     }
     
-    await response.json();
+    const result = await response.json();
+    console.log('Lead eliminado:', result.message);
   } catch (error) {
+    console.error('Error al eliminar lead:', error);
     throw error;
   }
 };

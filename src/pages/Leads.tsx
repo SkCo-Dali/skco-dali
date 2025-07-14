@@ -44,6 +44,8 @@ import {
   Group,
   Trash
 } from "lucide-react";
+import { useLeadDeletion } from "@/hooks/useLeadDeletion";
+import { LeadDeleteConfirmDialog } from "@/components/LeadDeleteConfirmDialog";
 
 const DEFAULT_COLUMNS: ColumnConfig[] = [
   { key: 'name', label: 'Nombre', visible: true, sortable: true },
@@ -79,6 +81,7 @@ export default function Leads() {
   const [groupBy, setGroupBy] = useState<string>("stage");
   const [selectedLeads, setSelectedLeads] = useState<string[]>([]);
   const leadCreateDialogRef = useRef<{ openDialog: () => void }>(null);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 
   const {
     leads: leadsData,
@@ -86,6 +89,14 @@ export default function Leads() {
     error,
     refreshLeads
   } = useLeadsApi();
+
+  const { 
+    isDeleting, 
+    canDeleteLeads, 
+    deleteMultipleLeads 
+  } = useLeadDeletion({
+    onLeadDeleted: handleLeadUpdate
+  });
 
   console.log('🏠 === LEADS PAGE DEBUG ===');
   console.log('🏠 Total leads from useLeadsApi:', leadsData.length);
@@ -217,263 +228,317 @@ export default function Leads() {
     );
   }
 
+  const handleDeleteSelectedLeads = () => {
+    const leadsToDelete = selectedLeads.length > 0 
+      ? filteredLeads.filter(lead => selectedLeads.includes(lead.id))
+      : filteredLeads;
+
+    if (leadsToDelete.length === 0) {
+      toast.info("No hay leads para eliminar");
+      return;
+    }
+
+    const { canDelete, restrictedCount } = canDeleteLeads(leadsToDelete);
+    
+    if (!canDelete) {
+      if (restrictedCount === leadsToDelete.length) {
+        toast.error("No tienes permisos para eliminar ninguno de los leads seleccionados");
+        return;
+      } else {
+        toast.warning(`No puedes eliminar ${restrictedCount} de los ${leadsToDelete.length} leads seleccionados por falta de permisos`);
+        return;
+      }
+    }
+
+    setShowDeleteDialog(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    const leadsToDelete = selectedLeads.length > 0 
+      ? filteredLeads.filter(lead => selectedLeads.includes(lead.id))
+      : filteredLeads;
+
+    const leadIds = leadsToDelete.map(lead => lead.id);
+    const result = await deleteMultipleLeads(leadIds);
+    
+    if (result.success) {
+      setShowDeleteDialog(false);
+      setSelectedLeads([]);
+    }
+  };
+
   return (
-    <div className="w-full max-w-full px-4 py-8 space-y-6">
-      <div className="flex flex-col lg:flex-row gap-6 pt-20">
-        <div className="flex-1 space-y-6">
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-            <h1 className="text-3xl font-bold">Gestión de Leads</h1>
-          </div>
+    <>
+      <div className="w-full max-w-full px-4 py-8 space-y-6">
+        <div className="flex flex-col lg:flex-row gap-6 pt-20">
+          <div className="flex-1 space-y-6">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+              <h1 className="text-3xl font-bold">Gestión de Leads</h1>
+            </div>
 
-          {/* Search and Controls Row */}
-          <div className="flex flex-col lg:flex-row gap-4 items-center">
-            <div className="flex flex-1 items-center gap-2">
-  <LeadCreateDialog onLeadCreate={handleLeadCreate}>
-    <Button
-      className="gap-1 w-8 h-8 bg-primary"
-      size="icon"
-    >
-      <Plus className="h-4 w-4" />
-    </Button>
-  </LeadCreateDialog>
-              <Button
-    className="gap-1 w-8 h-8 bg-primary"
-    onClick={() => {
-      if (selectedLeads.length === 0) {
-        toast.info("Se aplicará a todos los leads filtrados");
-      }
-      setShowMassEmail(true);
-    }}
-    size="icon"
-  >
-    <Mail className="h-4 w-4" />
-  </Button>
-              <Button
-    className="gap-1 w-8 h-8 bg-primary"
-    onClick={() => {
-      if (selectedLeads.length === 0) {
-        toast.info("Se aplicará a todos los leads filtrados");
-      }
-      setShowBulkAssign(true);
-    }}
-    size="icon"
-  >
-    <Users className="h-4 w-4" />
-  </Button>
-              <Button
-    className="gap-1 w-8 h-8 bg-primary"
-    size="icon"
-  >
-    <Trash className="h-4 w-4" />
-  </Button>
-  <LeadsSearch 
-    searchTerm={searchTerm} 
-    onSearchChange={setSearchTerm} 
-  />
-</div>
-            <div className="flex gap-2">
-
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button 
-                    className="text-[#3f3f3f] w-24 h-8 bg-white border border-gray-300 rounded-md hover:bg-white hover:border-gray-300"
-                    size="sm"
+            {/* Search and Controls Row */}
+            <div className="flex flex-col lg:flex-row gap-4 items-center">
+              <div className="flex flex-1 items-center gap-2">
+                <LeadCreateDialog onLeadCreate={handleLeadCreate}>
+                  <Button
+                    className="gap-1 w-8 h-8 bg-primary"
+                    size="icon"
                   >
-                    <Filter className="h-4 w-4 mr-0 text-[#00c83c] justify-items-end" />
-                    Filtros
+                    <Plus className="h-4 w-4" />
                   </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent className="w-auto p-0 bg-white rounded-2xl shadow-lg border border-gray-200" align="end">
-                  <LeadsFilters
-                    searchTerm={searchTerm}
-                    setSearchTerm={setSearchTerm}
-                    filterStage={filterStage}
-                    setFilterStage={setFilterStage}
-                    filterPriority={filterPriority}
-                    setFilterPriority={setFilterPriority}
-                    filterAssignedTo={filterAssignedTo}
-                    setFilterAssignedTo={setFilterAssignedTo}
-                    filterSource={filterSource}
-                    setFilterSource={setFilterSource}
-                    filterCampaign={filterCampaign}
-                    setFilterCampaign={setFilterCampaign}
-                    filterDateFrom={filterDateFrom}
-                    setFilterDateFrom={setFilterDateFrom}
-                    filterDateTo={filterDateTo}
-                    setFilterDateTo={setFilterDateTo}
-                    filterValueMin={filterValueMin}
-                    setFilterValueMin={setFilterValueMin}
-                    filterValueMax={filterValueMax}
-                    setFilterValueMax={setFilterValueMax}
-                    filterDuplicates={filterDuplicates}
-                    setFilterDuplicates={setFilterDuplicates}
-                    sortBy={sortBy}
-                    setSortBy={setSortBy}
-                    onClearFilters={clearFilters}
-                    uniqueStages={uniqueStages}
-                    uniqueSources={uniqueSources}
-                    uniqueCampaigns={uniqueCampaigns}
-                    uniqueAssignedTo={uniqueAssignedTo}
-                    duplicateCount={duplicateCount}
-                  />
-                </DropdownMenuContent>
-              </DropdownMenu>
-              
-              {viewMode === "columns" && (
+                </LeadCreateDialog>
+                <Button
+                  className="gap-1 w-8 h-8 bg-primary"
+                  onClick={() => {
+                    if (selectedLeads.length === 0) {
+                      toast.info("Se aplicará a todos los leads filtrados");
+                    }
+                    setShowMassEmail(true);
+                  }}
+                  size="icon"
+                >
+                  <Mail className="h-4 w-4" />
+                </Button>
+                <Button
+                  className="gap-1 w-8 h-8 bg-primary"
+                  onClick={() => {
+                    if (selectedLeads.length === 0) {
+                      toast.info("Se aplicará a todos los leads filtrados");
+                    }
+                    setShowBulkAssign(true);
+                  }}
+                  size="icon"
+                >
+                  <Users className="h-4 w-4" />
+                </Button>
+                <Button
+                  className="gap-1 w-8 h-8 bg-red-600 hover:bg-red-700"
+                  onClick={handleDeleteSelectedLeads}
+                  size="icon"
+                  disabled={isDeleting}
+                >
+                  <Trash className="h-4 w-4" />
+                </Button>
+                <LeadsSearch 
+                  searchTerm={searchTerm} 
+                  onSearchChange={setSearchTerm} 
+                />
+              </div>
+              <div className="flex gap-2">
+
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button size="sm" className="text-[#3f3f3f] w-auto h-8 bg-white border border-gray-300 rounded-md hover:bg-white hover:border-gray-300">
-                      <Group className="h-4 w-4 mr-2 text-[#00c83c]" />
-                      Agrupar por
+                    <Button 
+                      className="text-[#3f3f3f] w-24 h-8 bg-white border border-gray-300 rounded-md hover:bg-white hover:border-gray-300"
+                      size="sm"
+                    >
+                      <Filter className="h-4 w-4 mr-0 text-[#00c83c] justify-items-end" />
+                      Filtros
                     </Button>
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="w-48 bg-white rounded-2xl shadow-lg border border-gray-200">
-                    <div className="p-2">
-                      <DropdownMenuItem 
-                        onClick={() => setGroupBy("stage")}
-                        className={groupBy === "stage" ? "bg-[#00c83c]/10 text-[#00c83c]" : ""}
-                      >
-                        Etapa
-                      </DropdownMenuItem>
-                      <DropdownMenuItem 
-                        onClick={() => setGroupBy("priority")}
-                        className={groupBy === "priority" ? "bg-[#00c83c]/10 text-[#00c83c]" : ""}
-                      >
-                        Prioridad
-                      </DropdownMenuItem>
-                      <DropdownMenuItem 
-                        onClick={() => setGroupBy("source")}
-                        className={groupBy === "source" ? "bg-[#00c83c]/10 text-[#00c83c]" : ""}
-                      >
-                        Fuente
-                      </DropdownMenuItem>
-                      <DropdownMenuItem 
-                        onClick={() => setGroupBy("assignedTo")}
-                        className={groupBy === "assignedTo" ? "bg-[#00c83c]/10 text-[#00c83c]" : ""}
-                      >
-                        Asesor asignado
-                      </DropdownMenuItem>
-                      <DropdownMenuItem 
-                        onClick={() => setGroupBy("campaign")}
-                        className={groupBy === "campaign" ? "bg-[#00c83c]/10 text-[#00c83c]" : ""}
-                      >
-                        Campaña
-                      </DropdownMenuItem>
-                    </div>
+                  <DropdownMenuContent className="w-auto p-0 bg-white rounded-2xl shadow-lg border border-gray-200" align="end">
+                    <LeadsFilters
+                      searchTerm={searchTerm}
+                      setSearchTerm={setSearchTerm}
+                      filterStage={filterStage}
+                      setFilterStage={setFilterStage}
+                      filterPriority={filterPriority}
+                      setFilterPriority={setFilterPriority}
+                      filterAssignedTo={filterAssignedTo}
+                      setFilterAssignedTo={setFilterAssignedTo}
+                      filterSource={filterSource}
+                      setFilterSource={setFilterSource}
+                      filterCampaign={filterCampaign}
+                      setFilterCampaign={setFilterCampaign}
+                      filterDateFrom={filterDateFrom}
+                      setFilterDateFrom={setFilterDateFrom}
+                      filterDateTo={filterDateTo}
+                      setFilterDateTo={setFilterDateTo}
+                      filterValueMin={filterValueMin}
+                      setFilterValueMin={setFilterValueMin}
+                      filterValueMax={filterValueMax}
+                      setFilterValueMax={setFilterValueMax}
+                      filterDuplicates={filterDuplicates}
+                      setFilterDuplicates={setFilterDuplicates}
+                      sortBy={sortBy}
+                      setSortBy={setSortBy}
+                      onClearFilters={clearFilters}
+                      uniqueStages={uniqueStages}
+                      uniqueSources={uniqueSources}
+                      uniqueCampaigns={uniqueCampaigns}
+                      uniqueAssignedTo={uniqueAssignedTo}
+                      duplicateCount={duplicateCount}
+                    />
                   </DropdownMenuContent>
                 </DropdownMenu>
-              )}
+                
+                {viewMode === "columns" && (
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button size="sm" className="text-[#3f3f3f] w-auto h-8 bg-white border border-gray-300 rounded-md hover:bg-white hover:border-gray-300">
+                        <Group className="h-4 w-4 mr-2 text-[#00c83c]" />
+                        Agrupar por
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="w-48 bg-white rounded-2xl shadow-lg border border-gray-200">
+                      <div className="p-2">
+                        <DropdownMenuItem 
+                          onClick={() => setGroupBy("stage")}
+                          className={groupBy === "stage" ? "bg-[#00c83c]/10 text-[#00c83c]" : ""}
+                        >
+                          Etapa
+                        </DropdownMenuItem>
+                        <DropdownMenuItem 
+                          onClick={() => setGroupBy("priority")}
+                          className={groupBy === "priority" ? "bg-[#00c83c]/10 text-[#00c83c]" : ""}
+                        >
+                          Prioridad
+                        </DropdownMenuItem>
+                        <DropdownMenuItem 
+                          onClick={() => setGroupBy("source")}
+                          className={groupBy === "source" ? "bg-[#00c83c]/10 text-[#00c83c]" : ""}
+                        >
+                          Fuente
+                        </DropdownMenuItem>
+                        <DropdownMenuItem 
+                          onClick={() => setGroupBy("assignedTo")}
+                          className={groupBy === "assignedTo" ? "bg-[#00c83c]/10 text-[#00c83c]" : ""}
+                        >
+                          Asesor asignado
+                        </DropdownMenuItem>
+                        <DropdownMenuItem 
+                          onClick={() => setGroupBy("campaign")}
+                          className={groupBy === "campaign" ? "bg-[#00c83c]/10 text-[#00c83c]" : ""}
+                        >
+                          Campaña
+                        </DropdownMenuItem>
+                      </div>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                )}
 
-              
-              {viewMode === "table" && (
-                <LeadsTableColumnSelector
+                
+                {viewMode === "table" && (
+                  <LeadsTableColumnSelector
+                    columns={columns}
+                    onColumnsChange={setColumns}
+                  />
+                )}
+                
+                <Button
+                  className="gap-1 w-8 h-8 bg-secondary"
+                  onClick={handleViewModeToggle}
+                  size="icon"
+                >
+                  {getViewModeIcon()}
+                </Button>
+              </div>
+            </div>
+
+            {isLoading ? (
+              <div className="flex justify-center items-center py-8">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900" />
+              </div>
+            ) : (
+              <>
+                <LeadsContent
+                  viewMode={viewMode}
+                  leads={filteredLeads}
+                  onLeadClick={handleLeadClick}
+                  onLeadUpdate={handleLeadUpdate}
                   columns={columns}
-                  onColumnsChange={setColumns}
+                  paginatedLeads={paginatedLeads}
+                  onSortedLeadsChange={handleSortedLeadsChange}
+                  onSendEmail={handleSendEmailToLead}
+                  groupBy={groupBy}
+                  selectedLeads={selectedLeads}
+                  onLeadSelectionChange={handleLeadSelectionChange}
                 />
-              )}
-              
-              <Button
-                className="gap-1 w-8 h-8 bg-secondary"
-                onClick={handleViewModeToggle}
-                size="icon"
-              >
-                {getViewModeIcon()}
-              </Button>
-            </div>
+
+                <LeadsPagination
+                  currentPage={currentPage}
+                  totalPages={totalPages}
+                  totalLeads={leadsToUse.length}
+                  leadsPerPage={leadsPerPage}
+                  onPageChange={setCurrentPage}
+                  onLeadsPerPageChange={setLeadsPerPage}
+                />
+              </>
+            )}
           </div>
-
-          {isLoading ? (
-            <div className="flex justify-center items-center py-8">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900" />
-            </div>
-          ) : (
-            <>
-              <LeadsContent
-                viewMode={viewMode}
-                leads={filteredLeads}
-                onLeadClick={handleLeadClick}
-                onLeadUpdate={handleLeadUpdate}
-                columns={columns}
-                paginatedLeads={paginatedLeads}
-                onSortedLeadsChange={handleSortedLeadsChange}
-                onSendEmail={handleSendEmailToLead}
-                groupBy={groupBy}
-                selectedLeads={selectedLeads}
-                onLeadSelectionChange={handleLeadSelectionChange}
-              />
-
-              <LeadsPagination
-                currentPage={currentPage}
-                totalPages={totalPages}
-                totalLeads={leadsToUse.length}
-                leadsPerPage={leadsPerPage}
-                onPageChange={setCurrentPage}
-                onLeadsPerPageChange={setLeadsPerPage}
-              />
-            </>
-          )}
         </div>
-      </div>
 
-      {selectedLead && (
-        <LeadDetail
-          lead={selectedLead}
-          isOpen={!!selectedLead}
-          onClose={() => setSelectedLead(null)}
-          onSave={handleLeadUpdate}
-          onOpenMassEmail={handleSendEmailToLead}
-        />
-      )}
+        {selectedLead && (
+          <LeadDetail
+            lead={selectedLead}
+            isOpen={!!selectedLead}
+            onClose={() => setSelectedLead(null)}
+            onSave={handleLeadUpdate}
+            onOpenMassEmail={handleSendEmailToLead}
+          />
+        )}
 
-      {showBulkAssign && (
-        <Dialog open={showBulkAssign} onOpenChange={setShowBulkAssign}>
-          <DialogContent className="max-w-2xl">
-            <LeadsBulkAssignment
-              leads={selectedLeads.length > 0 
-                ? filteredLeads.filter(lead => selectedLeads.includes(lead.id))
-                : filteredLeads
+        {showBulkAssign && (
+          <Dialog open={showBulkAssign} onOpenChange={setShowBulkAssign}>
+            <DialogContent className="max-w-2xl">
+              <LeadsBulkAssignment
+                leads={selectedLeads.length > 0 
+                  ? filteredLeads.filter(lead => selectedLeads.includes(lead.id))
+                  : filteredLeads
+                }
+                onLeadsAssigned={() => {
+                  handleLeadUpdate();
+                  setShowBulkAssign(false);
+                  setSelectedLeads([]);
+                }}
+              />
+            </DialogContent>
+          </Dialog>
+        )}
+
+        {showUpload && (
+          <LeadsUpload
+            onLeadsUploaded={() => {
+              handleLeadUpdate();
+              setShowUpload(false);
+            }}
+          />
+        )}
+
+        <Dialog open={showMassEmail} onOpenChange={(open) => {
+          setShowMassEmail(open);
+          if (!open) {
+            setSelectedLeadForEmail(null);
+          }
+        }}>
+          <DialogContent className="max-w-6xl max-h-[90vh] overflow-auto">
+            <MassEmailSender
+              filteredLeads={selectedLeadForEmail 
+                ? [selectedLeadForEmail] 
+                : selectedLeads.length > 0 
+                  ? filteredLeads.filter(lead => selectedLeads.includes(lead.id))
+                  : filteredLeads
               }
-              onLeadsAssigned={() => {
-                handleLeadUpdate();
-                setShowBulkAssign(false);
+              onClose={() => {
+                setShowMassEmail(false);
+                setSelectedLeadForEmail(null);
                 setSelectedLeads([]);
               }}
             />
           </DialogContent>
         </Dialog>
-      )}
 
-      {showUpload && (
-        <LeadsUpload
-          onLeadsUploaded={() => {
-            handleLeadUpdate();
-            setShowUpload(false);
-          }}
+        <LeadDeleteConfirmDialog
+          isOpen={showDeleteDialog}
+          onClose={() => setShowDeleteDialog(false)}
+          onConfirm={handleConfirmDelete}
+          leads={selectedLeads.length > 0 
+            ? filteredLeads.filter(lead => selectedLeads.includes(lead.id))
+            : filteredLeads
+          }
+          isDeleting={isDeleting}
         />
-      )}
-
-      <Dialog open={showMassEmail} onOpenChange={(open) => {
-        setShowMassEmail(open);
-        if (!open) {
-          setSelectedLeadForEmail(null);
-        }
-      }}>
-        <DialogContent className="max-w-6xl max-h-[90vh] overflow-auto">
-          <MassEmailSender
-            filteredLeads={selectedLeadForEmail 
-              ? [selectedLeadForEmail] 
-              : selectedLeads.length > 0 
-                ? filteredLeads.filter(lead => selectedLeads.includes(lead.id))
-                : filteredLeads
-            }
-            onClose={() => {
-              setShowMassEmail(false);
-              setSelectedLeadForEmail(null);
-              setSelectedLeads([]);
-            }}
-          />
-        </DialogContent>
-      </Dialog>
-    </div>
+      </div>
+    </>
   );
 }
