@@ -46,11 +46,11 @@ export function LeadDeleteConfirmDialog({
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter className="!flex !justify-center items-center gap-x-4">
-          <AlertDialogCancel disabled={isDeleting}>
+          <AlertDialogCancel className="inline-flex items-center" disabled={isDeleting}>
             Cancelar
           </AlertDialogCancel>
           <AlertDialogAction 
-            className="bg-red-600 hover:bg-red-700"
+            className="inline-flex items-center bg-red-600 hover:bg-red-700"
             onClick={onConfirm}
             disabled={isDeleting}
           >
