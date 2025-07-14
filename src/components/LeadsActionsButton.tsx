@@ -32,6 +32,26 @@ export function LeadsActionsButton({
   selectedLeadsCount,
   isDeleting = false
 }: LeadsActionsButtonProps) {
+  const handleCreateLead = () => {
+    console.log('LeadsActionsButton: handleCreateLead called');
+    onCreateLead();
+  };
+
+  const handleBulkAssign = () => {
+    console.log('LeadsActionsButton: handleBulkAssign called');
+    onBulkAssign();
+  };
+
+  const handleMassEmail = () => {
+    console.log('LeadsActionsButton: handleMassEmail called');
+    onMassEmail();
+  };
+
+  const handleDeleteLeads = () => {
+    console.log('LeadsActionsButton: handleDeleteLeads called');
+    onDeleteLeads();
+  };
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -44,11 +64,11 @@ export function LeadsActionsButton({
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-56 bg-white rounded-2xl shadow-lg border border-gray-200 z-50" align="end">
-        <DropdownMenuItem onClick={onCreateLead} className="cursor-pointer">
+        <DropdownMenuItem onClick={handleCreateLead} className="cursor-pointer">
           <Plus className="h-4 w-4 mr-2" />
           Crear Lead
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={onBulkAssign} className="cursor-pointer">
+        <DropdownMenuItem onClick={handleBulkAssign} className="cursor-pointer">
           <Users className="h-4 w-4 mr-2" />
           Asignación masiva
           {selectedLeadsCount > 0 && (
@@ -57,7 +77,7 @@ export function LeadsActionsButton({
             </span>
           )}
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={onMassEmail} className="cursor-pointer">
+        <DropdownMenuItem onClick={handleMassEmail} className="cursor-pointer">
           <Mail className="h-4 w-4 mr-2" />
           Enviar email
           {selectedLeadsCount > 0 && (
@@ -67,7 +87,7 @@ export function LeadsActionsButton({
           )}
         </DropdownMenuItem>
         <DropdownMenuItem 
-          onClick={onDeleteLeads} 
+          onClick={handleDeleteLeads} 
           className="cursor-pointer text-red-600 focus:text-red-600 focus:bg-red-50"
           disabled={isDeleting}
         >
