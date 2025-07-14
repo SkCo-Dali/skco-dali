@@ -319,14 +319,13 @@ export default function Leads() {
               {/* Sección de búsqueda y botones para pantallas grandes */}
               {!isSmallScreen && (
                 <div className="flex flex-1 items-center gap-2">
-                  <LeadCreateDialog ref={leadCreateDialogRef} onLeadCreate={handleLeadCreate}>
-                    <Button
-                      className="gap-1 w-8 h-8 bg-primary"
-                      size="icon"
-                    >
-                      <Plus className="h-4 w-4" />
-                    </Button>
-                  </LeadCreateDialog>
+                  <Button
+                    className="gap-1 w-8 h-8 bg-primary"
+                    onClick={handleCreateLead}
+                    size="icon"
+                  >
+                    <Plus className="h-4 w-4" />
+                  </Button>
                   <Button
                     className="gap-1 w-8 h-8 bg-primary"
                     onClick={handleBulkAssign}
@@ -653,7 +652,7 @@ export default function Leads() {
           </div>
         </div>
 
-        {/* Dialog for creating leads */}
+        {/* Dialog for creating leads - Solo el diálogo, sin botón visible */}
         <LeadCreateDialog ref={leadCreateDialogRef} onLeadCreate={handleLeadCreate} />
 
         {selectedLead && (
