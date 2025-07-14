@@ -9,7 +9,7 @@ import { LeadsPagination } from "@/components/LeadsPagination";
 import { LeadDetail } from "@/components/LeadDetail";
 import { LeadsBulkAssignment } from "@/components/LeadsBulkAssignment";
 import { LeadsUpload } from "@/components/LeadsUpload";
-import { LeadCreateDialog, LeadCreateDialogRef } from "@/components/LeadCreateDialog";
+import { LeadCreateDialog } from "@/components/LeadCreateDialog";
 import { MassEmailSender } from "@/components/MassEmailSender";
 import { LeadsTableColumnSelector } from "@/components/LeadsTableColumnSelector";
 import { LeadsActionsButton } from "@/components/LeadsActionsButton";
@@ -264,7 +264,6 @@ export default function Leads() {
   };
 
   const handleCreateLead = () => {
-    console.log('Leads.tsx: handleCreateLead called, calling leadCreateDialogRef.current?.openDialog()');
     leadCreateDialogRef.current?.openDialog();
   };
 
@@ -653,8 +652,8 @@ export default function Leads() {
           </div>
         </div>
 
-        {/* Dialog for creating leads */}
-        <LeadCreateDialog ref={leadCreateDialogRef} onLeadCreate={handleLeadCreate} />
+        {/* Dialog for creating leads 
+        <LeadCreateDialog ref={leadCreateDialogRef} onLeadCreate={handleLeadCreate} />*/}
 
         {selectedLead && (
           <LeadDetail
