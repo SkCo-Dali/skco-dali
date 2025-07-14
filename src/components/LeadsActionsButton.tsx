@@ -43,7 +43,7 @@ export function LeadsActionsButton({
           <MoreVertical className="h-4 w-4" />
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent className="w-56 bg-white rounded-2xl shadow-lg border border-gray-200" align="end">
+      <DropdownMenuContent className="w-56 bg-white rounded-2xl shadow-lg border border-gray-200 z-50" align="end">
         <DropdownMenuItem onClick={onCreateLead} className="cursor-pointer">
           <Plus className="h-4 w-4 mr-2" />
           Crear Lead

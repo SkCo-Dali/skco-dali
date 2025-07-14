@@ -296,191 +296,327 @@ export default function Leads() {
       <div className="w-full max-w-full px-4 py-8 space-y-6">
         <div className="flex flex-col lg:flex-row gap-6 pt-20">
           <div className="flex-1 space-y-6">
+            {/* Header con título y botón de acciones */}
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
               <h1 className="text-3xl font-bold">Gestión de Leads</h1>
+              
+              {/* Botón de acciones para pantallas pequeñas y medianas */}
+              {isSmallScreen && (
+                <LeadsActionsButton
+                  onCreateLead={handleCreateLead}
+                  onBulkAssign={handleBulkAssign}
+                  onMassEmail={handleMassEmail}
+                  onDeleteLeads={handleDeleteSelectedLeads}
+                  selectedLeadsCount={selectedLeads.length}
+                  isDeleting={isDeleting}
+                />
+              )}
             </div>
 
-            {/* Search and Controls Row */}
+            {/* Barra de búsqueda y controles */}
             <div className="flex flex-col lg:flex-row gap-4 items-center">
-              <div className="flex flex-1 items-center gap-2">
-                {/* Botones para pantallas grandes */}
-                {!isSmallScreen && (
-                  <>
-                    <LeadCreateDialog ref={leadCreateDialogRef} onLeadCreate={handleLeadCreate}>
-                      <Button
-                        className="gap-1 w-8 h-8 bg-primary"
-                        size="icon"
-                      >
-                        <Plus className="h-4 w-4" />
-                      </Button>
-                    </LeadCreateDialog>
+              {/* Sección de búsqueda y botones para pantallas grandes */}
+              {!isSmallScreen && (
+                <div className="flex flex-1 items-center gap-2">
+                  <LeadCreateDialog ref={leadCreateDialogRef} onLeadCreate={handleLeadCreate}>
                     <Button
                       className="gap-1 w-8 h-8 bg-primary"
-                      onClick={handleBulkAssign}
                       size="icon"
                     >
-                      <Users className="h-4 w-4" />
+                      <Plus className="h-4 w-4" />
                     </Button>
-                    <Button
-                      className="gap-1 w-8 h-8 bg-primary"
-                      onClick={handleMassEmail}
-                      size="icon"
-                    >
-                      <Mail className="h-4 w-4" />
-                    </Button>
-                    <Button
-                      className="gap-1 w-8 h-8 bg-red-600 hover:bg-red-700"
-                      onClick={handleDeleteSelectedLeads}
-                      size="icon"
-                      disabled={isDeleting}
-                    >
-                      <Trash className="h-4 w-4" />
-                    </Button>
-                  </>
-                )}
-
-                {/* Botón de acciones para pantallas pequeñas */}
-                {isSmallScreen && (
-                  <LeadsActionsButton
-                    onCreateLead={handleCreateLead}
-                    onBulkAssign={handleBulkAssign}
-                    onMassEmail={handleMassEmail}
-                    onDeleteLeads={handleDeleteSelectedLeads}
-                    selectedLeadsCount={selectedLeads.length}
-                    isDeleting={isDeleting}
+                  </LeadCreateDialog>
+                  <Button
+                    className="gap-1 w-8 h-8 bg-primary"
+                    onClick={handleBulkAssign}
+                    size="icon"
+                  >
+                    <Users className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    className="gap-1 w-8 h-8 bg-primary"
+                    onClick={handleMassEmail}
+                    size="icon"
+                  >
+                    <Mail className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    className="gap-1 w-8 h-8 bg-red-600 hover:bg-red-700"
+                    onClick={handleDeleteSelectedLeads}
+                    size="icon"
+                    disabled={isDeleting}
+                  >
+                    <Trash className="h-4 w-4" />
+                  </Button>
+                  <LeadsSearch 
+                    searchTerm={searchTerm} 
+                    onSearchChange={setSearchTerm} 
                   />
-                )}
+                </div>
+              )}
 
-                <LeadsSearch 
-                  searchTerm={searchTerm} 
-                  onSearchChange={setSearchTerm} 
-                />
-              </div>
-              
-              <div className="flex gap-2">
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button 
-                      className="text-[#3f3f3f] bg-white border border-gray-300 rounded-md hover:bg-white hover:border-gray-300"
-                      size="sm"
-                      style={{ 
-                        width: isSmallScreen ? '32px' : 'auto',
-                        height: '32px'
-                      }}
-                    >
-                      <Filter className="h-4 w-4 text-[#00c83c]" />
-                      {!isSmallScreen && <span className="ml-1">Filtros</span>}
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent className="w-auto p-0 bg-white rounded-2xl shadow-lg border border-gray-200" align="end">
-                    <LeadsFilters
-                      searchTerm={searchTerm}
-                      setSearchTerm={setSearchTerm}
-                      filterStage={filterStage}
-                      setFilterStage={setFilterStage}
-                      filterPriority={filterPriority}
-                      setFilterPriority={setFilterPriority}
-                      filterAssignedTo={filterAssignedTo}
-                      setFilterAssignedTo={setFilterAssignedTo}
-                      filterSource={filterSource}
-                      setFilterSource={setFilterSource}
-                      filterCampaign={filterCampaign}
-                      setFilterCampaign={setFilterCampaign}
-                      filterDateFrom={filterDateFrom}
-                      setFilterDateFrom={setFilterDateFrom}
-                      filterDateTo={filterDateTo}
-                      setFilterDateTo={setFilterDateTo}
-                      filterValueMin={filterValueMin}
-                      setFilterValueMin={setFilterValueMin}
-                      filterValueMax={filterValueMax}
-                      setFilterValueMax={setFilterValueMax}
-                      filterDuplicates={filterDuplicates}
-                      setFilterDuplicates={setFilterDuplicates}
-                      sortBy={sortBy}
-                      setSortBy={setSortBy}
-                      onClearFilters={clearFilters}
-                      uniqueStages={uniqueStages}
-                      uniqueSources={uniqueSources}
-                      uniqueCampaigns={uniqueCampaigns}
-                      uniqueAssignedTo={uniqueAssignedTo}
-                      duplicateCount={duplicateCount}
+              {/* Barra de búsqueda y controles para pantallas pequeñas */}
+              {isSmallScreen && (
+                <div className="flex w-full items-center gap-2">
+                  <div className="flex-1">
+                    <LeadsSearch 
+                      searchTerm={searchTerm} 
+                      onSearchChange={setSearchTerm} 
                     />
-                  </DropdownMenuContent>
-                </DropdownMenu>
-                
-                {viewMode === "columns" && (
+                  </div>
+                  
+                  <div className="flex gap-2">
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button 
+                          className="text-[#3f3f3f] bg-white border border-gray-300 rounded-md hover:bg-white hover:border-gray-300"
+                          size="sm"
+                          style={{ 
+                            width: '32px',
+                            height: '32px'
+                          }}
+                        >
+                          <Filter className="h-4 w-4 text-[#00c83c]" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent className="w-auto p-0 bg-white rounded-2xl shadow-lg border border-gray-200" align="end">
+                        <LeadsFilters
+                          searchTerm={searchTerm}
+                          setSearchTerm={setSearchTerm}
+                          filterStage={filterStage}
+                          setFilterStage={setFilterStage}
+                          filterPriority={filterPriority}
+                          setFilterPriority={setFilterPriority}
+                          filterAssignedTo={filterAssignedTo}
+                          setFilterAssignedTo={setFilterAssignedTo}
+                          filterSource={filterSource}
+                          setFilterSource={setFilterSource}
+                          filterCampaign={filterCampaign}
+                          setFilterCampaign={setFilterCampaign}
+                          filterDateFrom={filterDateFrom}
+                          setFilterDateFrom={setFilterDateFrom}
+                          filterDateTo={filterDateTo}
+                          setFilterDateTo={setFilterDateTo}
+                          filterValueMin={filterValueMin}
+                          setFilterValueMin={setFilterValueMin}
+                          filterValueMax={filterValueMax}
+                          setFilterValueMax={setFilterValueMax}
+                          filterDuplicates={filterDuplicates}
+                          setFilterDuplicates={setFilterDuplicates}
+                          sortBy={sortBy}
+                          setSortBy={setSortBy}
+                          onClearFilters={clearFilters}
+                          uniqueStages={uniqueStages}
+                          uniqueSources={uniqueSources}
+                          uniqueCampaigns={uniqueCampaigns}
+                          uniqueAssignedTo={uniqueAssignedTo}
+                          duplicateCount={duplicateCount}
+                        />
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                    
+                    {viewMode === "columns" && (
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button 
+                            size="sm" 
+                            className="text-[#3f3f3f] bg-white border border-gray-300 rounded-md hover:bg-white hover:border-gray-300"
+                            style={{ 
+                              width: '32px',
+                              height: '32px'
+                            }}
+                          >
+                            <Group className="h-4 w-4 text-[#00c83c]" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end" className="w-48 bg-white rounded-2xl shadow-lg border border-gray-200">
+                          <div className="p-2">
+                            <DropdownMenuItem 
+                              onClick={() => setGroupBy("stage")}
+                              className={groupBy === "stage" ? "bg-[#00c83c]/10 text-[#00c83c]" : ""}
+                            >
+                              Etapa
+                            </DropdownMenuItem>
+                            <DropdownMenuItem 
+                              onClick={() => setGroupBy("priority")}
+                              className={groupBy === "priority" ? "bg-[#00c83c]/10 text-[#00c83c]" : ""}
+                            >
+                              Prioridad
+                            </DropdownMenuItem>
+                            <DropdownMenuItem 
+                              onClick={() => setGroupBy("source")}
+                              className={groupBy === "source" ? "bg-[#00c83c]/10 text-[#00c83c]" : ""}
+                            >
+                              Fuente
+                            </DropdownMenuItem>
+                            <DropdownMenuItem 
+                              onClick={() => setGroupBy("assignedTo")}
+                              className={groupBy === "assignedTo" ? "bg-[#00c83c]/10 text-[#00c83c]" : ""}
+                            >
+                              Asesor asignado
+                            </DropdownMenuItem>
+                            <DropdownMenuItem 
+                              onClick={() => setGroupBy("campaign")}
+                              className={groupBy === "campaign" ? "bg-[#00c83c]/10 text-[#00c83c]" : ""}
+                            >
+                              Campaña
+                            </DropdownMenuItem>
+                          </div>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    )}
+
+                    {viewMode === "table" && (
+                      <div style={{ 
+                        width: '32px',
+                        height: '32px'
+                      }}>
+                        <LeadsTableColumnSelector
+                          columns={columns}
+                          onColumnsChange={setColumns}
+                          showTextLabel={false}
+                        />
+                      </div>
+                    )}
+                    
+                    <Button
+                      className="gap-1 w-8 h-8 bg-secondary"
+                      onClick={handleViewModeToggle}
+                      size="icon"
+                    >
+                      {getViewModeIcon()}
+                    </Button>
+                  </div>
+                </div>
+              )}
+              
+              {/* Controles para pantallas grandes */}
+              {!isSmallScreen && (
+                <div className="flex gap-2">
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <Button 
-                        size="sm" 
                         className="text-[#3f3f3f] bg-white border border-gray-300 rounded-md hover:bg-white hover:border-gray-300"
+                        size="sm"
                         style={{ 
-                          width: isSmallScreen ? '32px' : 'auto',
+                          width: 'auto',
                           height: '32px'
                         }}
                       >
-                        <Group className="h-4 w-4 text-[#00c83c]" />
-                        {!isSmallScreen && <span className="ml-1">Agrupar por</span>}
+                        <Filter className="h-4 w-4 text-[#00c83c]" />
+                        <span className="ml-1">Filtros</span>
                       </Button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="w-48 bg-white rounded-2xl shadow-lg border border-gray-200">
-                      <div className="p-2">
-                        <DropdownMenuItem 
-                          onClick={() => setGroupBy("stage")}
-                          className={groupBy === "stage" ? "bg-[#00c83c]/10 text-[#00c83c]" : ""}
-                        >
-                          Etapa
-                        </DropdownMenuItem>
-                        <DropdownMenuItem 
-                          onClick={() => setGroupBy("priority")}
-                          className={groupBy === "priority" ? "bg-[#00c83c]/10 text-[#00c83c]" : ""}
-                        >
-                          Prioridad
-                        </DropdownMenuItem>
-                        <DropdownMenuItem 
-                          onClick={() => setGroupBy("source")}
-                          className={groupBy === "source" ? "bg-[#00c83c]/10 text-[#00c83c]" : ""}
-                        >
-                          Fuente
-                        </DropdownMenuItem>
-                        <DropdownMenuItem 
-                          onClick={() => setGroupBy("assignedTo")}
-                          className={groupBy === "assignedTo" ? "bg-[#00c83c]/10 text-[#00c83c]" : ""}
-                        >
-                          Asesor asignado
-                        </DropdownMenuItem>
-                        <DropdownMenuItem 
-                          onClick={() => setGroupBy("campaign")}
-                          className={groupBy === "campaign" ? "bg-[#00c83c]/10 text-[#00c83c]" : ""}
-                        >
-                          Campaña
-                        </DropdownMenuItem>
-                      </div>
+                    <DropdownMenuContent className="w-auto p-0 bg-white rounded-2xl shadow-lg border border-gray-200" align="end">
+                      <LeadsFilters
+                        searchTerm={searchTerm}
+                        setSearchTerm={setSearchTerm}
+                        filterStage={filterStage}
+                        setFilterStage={setFilterStage}
+                        filterPriority={filterPriority}
+                        setFilterPriority={setFilterPriority}
+                        filterAssignedTo={filterAssignedTo}
+                        setFilterAssignedTo={setFilterAssignedTo}
+                        filterSource={filterSource}
+                        setFilterSource={setFilterSource}
+                        filterCampaign={filterCampaign}
+                        setFilterCampaign={setFilterCampaign}
+                        filterDateFrom={filterDateFrom}
+                        setFilterDateFrom={setFilterDateFrom}
+                        filterDateTo={filterDateTo}
+                        setFilterDateTo={setFilterDateTo}
+                        filterValueMin={filterValueMin}
+                        setFilterValueMin={setFilterValueMin}
+                        filterValueMax={filterValueMax}
+                        setFilterValueMax={setFilterValueMax}
+                        filterDuplicates={filterDuplicates}
+                        setFilterDuplicates={setFilterDuplicates}
+                        sortBy={sortBy}
+                        setSortBy={setSortBy}
+                        onClearFilters={clearFilters}
+                        uniqueStages={uniqueStages}
+                        uniqueSources={uniqueSources}
+                        uniqueCampaigns={uniqueCampaigns}
+                        uniqueAssignedTo={uniqueAssignedTo}
+                        duplicateCount={duplicateCount}
+                      />
                     </DropdownMenuContent>
                   </DropdownMenu>
-                )}
+                  
+                  {viewMode === "columns" && (
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button 
+                          size="sm" 
+                          className="text-[#3f3f3f] bg-white border border-gray-300 rounded-md hover:bg-white hover:border-gray-300"
+                          style={{ 
+                            width: 'auto',
+                            height: '32px'
+                          }}
+                        >
+                          <Group className="h-4 w-4 text-[#00c83c]" />
+                          <span className="ml-1">Agrupar por</span>
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end" className="w-48 bg-white rounded-2xl shadow-lg border border-gray-200">
+                        <div className="p-2">
+                          <DropdownMenuItem 
+                            onClick={() => setGroupBy("stage")}
+                            className={groupBy === "stage" ? "bg-[#00c83c]/10 text-[#00c83c]" : ""}
+                          >
+                            Etapa
+                          </DropdownMenuItem>
+                          <DropdownMenuItem 
+                            onClick={() => setGroupBy("priority")}
+                            className={groupBy === "priority" ? "bg-[#00c83c]/10 text-[#00c83c]" : ""}
+                          >
+                            Prioridad
+                          </DropdownMenuItem>
+                          <DropdownMenuItem 
+                            onClick={() => setGroupBy("source")}
+                            className={groupBy === "source" ? "bg-[#00c83c]/10 text-[#00c83c]" : ""}
+                          >
+                            Fuente
+                          </DropdownMenuItem>
+                          <DropdownMenuItem 
+                            onClick={() => setGroupBy("assignedTo")}
+                            className={groupBy === "assignedTo" ? "bg-[#00c83c]/10 text-[#00c83c]" : ""}
+                          >
+                            Asesor asignado
+                          </DropdownMenuItem>
+                          <DropdownMenuItem 
+                            onClick={() => setGroupBy("campaign")}
+                            className={groupBy === "campaign" ? "bg-[#00c83c]/10 text-[#00c83c]" : ""}
+                          >
+                            Campaña
+                          </DropdownMenuItem>
+                        </div>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  )}
 
-                {viewMode === "table" && (
-                  <div style={{ 
-                    width: isSmallScreen ? '32px' : 'auto',
-                    height: '32px'
-                  }}>
-                    <LeadsTableColumnSelector
-                      columns={columns}
-                      onColumnsChange={setColumns}
-                      showTextLabel={!isSmallScreen}
-                    />
-                  </div>
-                )}
-                
-                <Button
-                  className="gap-1 w-8 h-8 bg-secondary"
-                  onClick={handleViewModeToggle}
-                  size="icon"
-                >
-                  {getViewModeIcon()}
-                </Button>
-              </div>
+                  {viewMode === "table" && (
+                    <div style={{ 
+                      width: 'auto',
+                      height: '32px'
+                    }}>
+                      <LeadsTableColumnSelector
+                        columns={columns}
+                        onColumnsChange={setColumns}
+                        showTextLabel={true}
+                      />
+                    </div>
+                  )}
+                  
+                  <Button
+                    className="gap-1 w-8 h-8 bg-secondary"
+                    onClick={handleViewModeToggle}
+                    size="icon"
+                  >
+                    {getViewModeIcon()}
+                  </Button>
+                </div>
+              )}
             </div>
 
             {isLoading ? (
@@ -515,6 +651,9 @@ export default function Leads() {
             )}
           </div>
         </div>
+
+        {/* Dialog for creating leads */}
+        <LeadCreateDialog ref={leadCreateDialogRef} onLeadCreate={handleLeadCreate} />
 
         {selectedLead && (
           <LeadDetail
