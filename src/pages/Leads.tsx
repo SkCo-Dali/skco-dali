@@ -293,11 +293,11 @@ export default function Leads() {
                     if (selectedLeads.length === 0) {
                       toast.info("Se aplicará a todos los leads filtrados");
                     }
-                    setShowMassEmail(true);
+                    setShowBulkAssign(true);
                   }}
                   size="icon"
                 >
-                  <Mail className="h-4 w-4" />
+                  <Users className="h-4 w-4" />
                 </Button>
                 <Button
                   className="gap-1 w-8 h-8 bg-primary"
@@ -305,12 +305,13 @@ export default function Leads() {
                     if (selectedLeads.length === 0) {
                       toast.info("Se aplicará a todos los leads filtrados");
                     }
-                    setShowBulkAssign(true);
+                    setShowMassEmail(true);
                   }}
                   size="icon"
                 >
-                  <Users className="h-4 w-4" />
+                  <Mail className="h-4 w-4" />
                 </Button>
+                
                 <Button
                   className="gap-1 w-8 h-8 bg-red-600 hover:bg-red-700"
                   onClick={handleDeleteSelectedLeads}
