@@ -90,6 +90,11 @@ export default function Leads() {
     refreshLeads
   } = useLeadsApi();
 
+  const handleLeadUpdate = useCallback(() => {
+    refreshLeads();
+    toast.success("Lead actualizado exitosamente");
+  }, [refreshLeads]);
+
   const { 
     isDeleting, 
     canDeleteLeads, 
@@ -154,11 +159,6 @@ export default function Leads() {
   const handleLeadClick = useCallback((lead: Lead) => {
     setSelectedLead(lead);
   }, []);
-
-  const handleLeadUpdate = useCallback(() => {
-    refreshLeads();
-    toast.success("Lead actualizado exitosamente");
-  }, [refreshLeads]);
 
   const handleLeadCreate = useCallback((leadData: Partial<Lead>) => {
     console.log('Creating lead:', leadData);
