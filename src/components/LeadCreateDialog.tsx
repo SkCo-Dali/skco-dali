@@ -145,11 +145,7 @@ export const LeadCreateDialog = forwardRef<LeadCreateDialogRef, LeadCreateDialog
     return (
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogTrigger asChild>
-          {children || (
-            <Button className="gap-2">
-              <Plus className="h-4 w-4" />
-              Nueva Lead
-            </Button>
+          {children
           )}
         </DialogTrigger>
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
