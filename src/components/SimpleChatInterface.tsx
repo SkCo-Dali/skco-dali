@@ -155,9 +155,17 @@ export const SimpleChatInterface = forwardRef<any, {}>((props, ref) => {
           totalTokens: 0,
           attachments: []
         };
+        // Get auth headers
+        const { SecureTokenManager } = await import('@/utils/secureTokenManager');
+        const tokenData = SecureTokenManager.getToken();
+        const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+        if (tokenData && tokenData.token) {
+          headers['Authorization'] = `Bearer ${tokenData.token}`;
+        }
+
         const response = await fetch(`${ENV.AI_API_BASE_URL}/api/conversations`, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers,
           body: JSON.stringify(conversationData)
         });
         if (!response.ok) {
@@ -186,9 +194,17 @@ export const SimpleChatInterface = forwardRef<any, {}>((props, ref) => {
           isArchived: currentConversation.isArchived,
           totalTokens: currentConversation.totalTokens
         };
+        // Get auth headers for update
+        const { SecureTokenManager: STMUpdate } = await import('@/utils/secureTokenManager');
+        const updateTokenData = STMUpdate.getToken();
+        const updateHeaders: Record<string, string> = { 'Content-Type': 'application/json' };
+        if (updateTokenData && updateTokenData.token) {
+          updateHeaders['Authorization'] = `Bearer ${updateTokenData.token}`;
+        }
+
         const updateResponse = await fetch(`${ENV.AI_API_BASE_URL}/api/conversations/${currentConversation.id}?user_id=${encodeURIComponent(userEmail)}`, {
           method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
+          headers: updateHeaders,
           body: JSON.stringify(conversationUpdate)
         });
         if (!updateResponse.ok) {
@@ -254,9 +270,17 @@ export const SimpleChatInterface = forwardRef<any, {}>((props, ref) => {
         totalTokens: currentConversation.totalTokens
       };
 
+      // Get auth headers for final update
+      const { SecureTokenManager: STM } = await import('@/utils/secureTokenManager');
+      const finalTokenData = STM.getToken();
+      const finalHeaders: Record<string, string> = { 'Content-Type': 'application/json' };
+      if (finalTokenData && finalTokenData.token) {
+        finalHeaders['Authorization'] = `Bearer ${finalTokenData.token}`;
+      }
+
       const finalUpdateResponse = await fetch(`${ENV.AI_API_BASE_URL}/api/conversations/${currentConversation.id}?user_id=${encodeURIComponent(userEmail)}`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+        headers: finalHeaders,
         body: JSON.stringify(conversationFinalUpdate)
       });
 

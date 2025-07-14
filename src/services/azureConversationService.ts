@@ -4,6 +4,27 @@ import { ENV } from '@/config/environment';
 
 const API_BASE_URL = `${ENV.AI_API_BASE_URL}/api`;
 
+// Helper function to get authorization headers
+const getAuthHeaders = async (): Promise<Record<string, string>> => {
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+  };
+
+  try {
+    // Try to get access token from SecureTokenManager
+    const { SecureTokenManager } = await import('@/utils/secureTokenManager');
+    const tokenData = SecureTokenManager.getToken();
+    
+    if (tokenData && tokenData.token) {
+      headers['Authorization'] = `Bearer ${tokenData.token}`;
+    }
+  } catch (error) {
+    console.warn('Could not get access token for API request:', error);
+  }
+
+  return headers;
+};
+
 export interface AzureConversation {
   id: string;
   userId: string;
@@ -114,11 +135,10 @@ export class AzureConversationService {
     console.log('⏰ Created/Updated At:', now);
 
     try {
+      const headers = await getAuthHeaders();
       const response = await fetch(endpoint, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers,
         body: JSON.stringify(requestBody)
       });
 
@@ -161,7 +181,8 @@ export class AzureConversationService {
     console.log('👤 User Email:', userEmail);
 
     try {
-      const response = await fetch(endpoint);
+      const headers = await getAuthHeaders();
+      const response = await fetch(endpoint, { headers });
       
       console.log('📈 Response Status:', response.status);
       console.log('📊 Response Headers:', Object.fromEntries(response.headers.entries()));
@@ -200,11 +221,10 @@ export class AzureConversationService {
     console.log('📦 Body: None (GET request)');
 
     try {
+      const headers = await getAuthHeaders();
       const response = await fetch(endpoint, {
         method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        }
+        headers
       });
       
       console.log('📈 Response Status:', response.status);
@@ -249,11 +269,10 @@ export class AzureConversationService {
   // Actualizar conversación
   async updateConversation(conversationId: string, userEmail: string, conversation: Partial<AzureConversation>): Promise<void> {
     try {
+      const headers = await getAuthHeaders();
       const response = await fetch(`${API_BASE_URL}/conversations/${conversationId}?user_id=${encodeURIComponent(userEmail)}`, {
         method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers,
         body: JSON.stringify(conversation)
       });
 
@@ -277,11 +296,10 @@ export class AzureConversationService {
     console.log('🔗 Method: DELETE');
 
     try {
+      const headers = await getAuthHeaders();
       const response = await fetch(endpoint, {
         method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
-        }
+        headers
       });
 
       console.log('📈 Response Status:', response.status);
@@ -320,8 +338,16 @@ export class AzureConversationService {
       formData.append('user_email', userEmail);
       formData.append('conversation_id', conversationId);
 
+      const authHeaders = await getAuthHeaders();
+      // Don't include Content-Type for FormData, let browser set it
+      const headers: Record<string, string> = {};
+      if (authHeaders['Authorization']) {
+        headers['Authorization'] = authHeaders['Authorization'];
+      }
+
       const response = await fetch(`${API_BASE_URL}/files/upload`, {
         method: 'POST',
+        headers,
         body: formData
       });
 
@@ -340,7 +366,8 @@ export class AzureConversationService {
   // Obtener archivos de una conversación
   async getConversationFiles(conversationId: string, userEmail: string): Promise<AzureFileInfo[]> {
     try {
-      const response = await fetch(`${API_BASE_URL}/files/conversation/${conversationId}?user_email=${encodeURIComponent(userEmail)}`);
+      const headers = await getAuthHeaders();
+      const response = await fetch(`${API_BASE_URL}/files/conversation/${conversationId}?user_email=${encodeURIComponent(userEmail)}`, { headers });
       
       if (!response.ok) {
         throw new Error(`Failed to get conversation files: ${response.statusText}`);
@@ -356,7 +383,8 @@ export class AzureConversationService {
   // Obtener URL de descarga de archivo
   async getFileDownloadUrl(blobId: string): Promise<string> {
     try {
-      const response = await fetch(`${API_BASE_URL}/files/${blobId}`);
+      const headers = await getAuthHeaders();
+      const response = await fetch(`${API_BASE_URL}/files/${blobId}`, { headers });
       
       if (!response.ok) {
         throw new Error(`Failed to get file download URL: ${response.statusText}`);
@@ -379,11 +407,10 @@ export class AzureConversationService {
     console.log('👤 User Email:', userEmail);
 
     try {
+      const headers = await getAuthHeaders();
       const response = await fetch(endpoint, {
         method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        }
+        headers
       });
 
       console.log('📈 Response Status:', response.status);

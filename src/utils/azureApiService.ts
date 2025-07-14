@@ -37,11 +37,18 @@ const makeApiCallWithRetry = async (
         controller.abort();
       }, 240000); // 4 minutes timeout (240 seconds)
       
+      const headers: Record<string, string> = {
+        'Content-Type': 'application/json',
+      };
+
+      // Add authorization header if access token is provided
+      if (requestBody.EntraToken) {
+        headers['Authorization'] = `Bearer ${requestBody.EntraToken}`;
+      }
+
       const response = await fetch(`${ENV.MAESTRO_API_BASE_URL}/api/maestro`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers,
         body: JSON.stringify(requestBody),
         signal: controller.signal
       });
