@@ -12,9 +12,11 @@ import { LeadsUpload } from "@/components/LeadsUpload";
 import { LeadCreateDialog } from "@/components/LeadCreateDialog";
 import { MassEmailSender } from "@/components/MassEmailSender";
 import { LeadsTableColumnSelector } from "@/components/LeadsTableColumnSelector";
+import { LeadsActionsButton } from "@/components/LeadsActionsButton";
 import { useLeadsFilters } from "@/hooks/useLeadsFilters";
 import { useLeadsPagination } from "@/hooks/useLeadsPagination";
 import { useLeadsApi } from "@/hooks/useLeadsApi";
+import { useIsMobile, useIsMedium } from "@/hooks/use-mobile";
 import { ColumnConfig } from "@/components/LeadsTableColumnSelector";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
@@ -82,6 +84,10 @@ export default function Leads() {
   const [selectedLeads, setSelectedLeads] = useState<string[]>([]);
   const leadCreateDialogRef = useRef<{ openDialog: () => void }>(null);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+
+  const isMobile = useIsMobile();
+  const isMedium = useIsMedium();
+  const isSmallScreen = isMobile || isMedium;
 
   const {
     leads: leadsData,
@@ -218,16 +224,6 @@ export default function Leads() {
     return { total, newLeads, contacted, qualified };
   }, [leadsData]);
 
-  if (error) {
-    return (
-      <div className="container mx-auto px-4 py-8">
-        <div className="text-center text-red-600">
-          Error al cargar los leads: {error}
-        </div>
-      </div>
-    );
-  }
-
   const handleDeleteSelectedLeads = () => {
     const leadsToDelete = selectedLeads.length > 0 
       ? filteredLeads.filter(lead => selectedLeads.includes(lead.id))
@@ -267,6 +263,34 @@ export default function Leads() {
     }
   };
 
+  const handleCreateLead = () => {
+    leadCreateDialogRef.current?.openDialog();
+  };
+
+  const handleBulkAssign = () => {
+    if (selectedLeads.length === 0) {
+      toast.info("Se aplicará a todos los leads filtrados");
+    }
+    setShowBulkAssign(true);
+  };
+
+  const handleMassEmail = () => {
+    if (selectedLeads.length === 0) {
+      toast.info("Se aplicará a todos los leads filtrados");
+    }
+    setShowMassEmail(true);
+  };
+
+  if (error) {
+    return (
+      <div className="container mx-auto px-4 py-8">
+        <div className="text-center text-red-600">
+          Error al cargar los leads: {error}
+        </div>
+      </div>
+    );
+  }
+
   return (
     <>
       <div className="w-full max-w-full px-4 py-8 space-y-6">
@@ -279,62 +303,73 @@ export default function Leads() {
             {/* Search and Controls Row */}
             <div className="flex flex-col lg:flex-row gap-4 items-center">
               <div className="flex flex-1 items-center gap-2">
-                <LeadCreateDialog onLeadCreate={handleLeadCreate}>
-                  <Button
-                    className="gap-1 w-8 h-8 bg-primary"
-                    size="icon"
-                  >
-                    <Plus className="h-4 w-4" />
-                  </Button>
-                </LeadCreateDialog>
-                <Button
-                  className="gap-1 w-8 h-8 bg-primary"
-                  onClick={() => {
-                    if (selectedLeads.length === 0) {
-                      toast.info("Se aplicará a todos los leads filtrados");
-                    }
-                    setShowBulkAssign(true);
-                  }}
-                  size="icon"
-                >
-                  <Users className="h-4 w-4" />
-                </Button>
-                <Button
-                  className="gap-1 w-8 h-8 bg-primary"
-                  onClick={() => {
-                    if (selectedLeads.length === 0) {
-                      toast.info("Se aplicará a todos los leads filtrados");
-                    }
-                    setShowMassEmail(true);
-                  }}
-                  size="icon"
-                >
-                  <Mail className="h-4 w-4" />
-                </Button>
-                
-                <Button
-                  className="gap-1 w-8 h-8 bg-red-600 hover:bg-red-700"
-                  onClick={handleDeleteSelectedLeads}
-                  size="icon"
-                  disabled={isDeleting}
-                >
-                  <Trash className="h-4 w-4" />
-                </Button>
+                {/* Botones para pantallas grandes */}
+                {!isSmallScreen && (
+                  <>
+                    <LeadCreateDialog ref={leadCreateDialogRef} onLeadCreate={handleLeadCreate}>
+                      <Button
+                        className="gap-1 w-8 h-8 bg-primary"
+                        size="icon"
+                      >
+                        <Plus className="h-4 w-4" />
+                      </Button>
+                    </LeadCreateDialog>
+                    <Button
+                      className="gap-1 w-8 h-8 bg-primary"
+                      onClick={handleBulkAssign}
+                      size="icon"
+                    >
+                      <Users className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      className="gap-1 w-8 h-8 bg-primary"
+                      onClick={handleMassEmail}
+                      size="icon"
+                    >
+                      <Mail className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      className="gap-1 w-8 h-8 bg-red-600 hover:bg-red-700"
+                      onClick={handleDeleteSelectedLeads}
+                      size="icon"
+                      disabled={isDeleting}
+                    >
+                      <Trash className="h-4 w-4" />
+                    </Button>
+                  </>
+                )}
+
+                {/* Botón de acciones para pantallas pequeñas */}
+                {isSmallScreen && (
+                  <LeadsActionsButton
+                    onCreateLead={handleCreateLead}
+                    onBulkAssign={handleBulkAssign}
+                    onMassEmail={handleMassEmail}
+                    onDeleteLeads={handleDeleteSelectedLeads}
+                    selectedLeadsCount={selectedLeads.length}
+                    isDeleting={isDeleting}
+                  />
+                )}
+
                 <LeadsSearch 
                   searchTerm={searchTerm} 
                   onSearchChange={setSearchTerm} 
                 />
               </div>
+              
               <div className="flex gap-2">
-
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button 
-                      className="text-[#3f3f3f] w-24 h-8 bg-white border border-gray-300 rounded-md hover:bg-white hover:border-gray-300"
+                      className="text-[#3f3f3f] bg-white border border-gray-300 rounded-md hover:bg-white hover:border-gray-300"
                       size="sm"
+                      style={{ 
+                        width: isSmallScreen ? '32px' : 'auto',
+                        height: '32px'
+                      }}
                     >
-                      <Filter className="h-4 w-4 mr-0 text-[#00c83c] justify-items-end" />
-                      Filtros
+                      <Filter className="h-4 w-4 text-[#00c83c]" />
+                      {!isSmallScreen && <span className="ml-1">Filtros</span>}
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent className="w-auto p-0 bg-white rounded-2xl shadow-lg border border-gray-200" align="end">
@@ -376,9 +411,16 @@ export default function Leads() {
                 {viewMode === "columns" && (
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <Button size="sm" className="text-[#3f3f3f] w-auto h-8 bg-white border border-gray-300 rounded-md hover:bg-white hover:border-gray-300">
-                        <Group className="h-4 w-4 mr-2 text-[#00c83c]" />
-                        Agrupar por
+                      <Button 
+                        size="sm" 
+                        className="text-[#3f3f3f] bg-white border border-gray-300 rounded-md hover:bg-white hover:border-gray-300"
+                        style={{ 
+                          width: isSmallScreen ? '32px' : 'auto',
+                          height: '32px'
+                        }}
+                      >
+                        <Group className="h-4 w-4 text-[#00c83c]" />
+                        {!isSmallScreen && <span className="ml-1">Agrupar por</span>}
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end" className="w-48 bg-white rounded-2xl shadow-lg border border-gray-200">
@@ -418,12 +460,17 @@ export default function Leads() {
                   </DropdownMenu>
                 )}
 
-                
                 {viewMode === "table" && (
-                  <LeadsTableColumnSelector
-                    columns={columns}
-                    onColumnsChange={setColumns}
-                  />
+                  <div style={{ 
+                    width: isSmallScreen ? '32px' : 'auto',
+                    height: '32px'
+                  }}>
+                    <LeadsTableColumnSelector
+                      columns={columns}
+                      onColumnsChange={setColumns}
+                      showTextLabel={!isSmallScreen}
+                    />
+                  </div>
                 )}
                 
                 <Button

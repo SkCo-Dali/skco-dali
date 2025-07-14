@@ -7,6 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Checkbox } from "@/components/ui/checkbox";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useUsersApi } from "@/hooks/useUsersApi";
+import { useIsMobile, useIsMedium } from "@/hooks/use-mobile";
 import { FilterX, Search } from "lucide-react";
 
 interface LeadsFiltersProps {
@@ -77,6 +78,9 @@ export function LeadsFilters({
   showClearButton = true
 }: LeadsFiltersProps) {
   const { users } = useUsersApi();
+  const isMobile = useIsMobile();
+  const isMedium = useIsMedium();
+  const isSmallScreen = isMobile || isMedium;
 
   // Search states for each dropdown
   const [stageSearch, setStageSearch] = useState("");
@@ -164,7 +168,7 @@ export function LeadsFilters({
   );
 
   return (
-    <div className="space-y-4 p-4 w-80">
+    <div className={`space-y-4 p-4 ${isSmallScreen ? 'w-72 max-h-[80vh] overflow-y-auto' : 'w-80'}`}>
       {/* Header con botón de limpiar filtros */}
       <div className="flex items-center justify-between">
         <h3 className="text-base font-semibold">Filtros</h3>
@@ -179,7 +183,7 @@ export function LeadsFilters({
         </Button>
       </div>
 
-      {/* Filtros principales en columna única */}
+      {/* Filtros principales */}
       <div className="space-y-3">
         {/* Filtro de Etapa */}
         <div className="space-y-1">
@@ -406,7 +410,7 @@ export function LeadsFilters({
           </Label>
           <Select value={filterDuplicates} onValueChange={setFilterDuplicates}>
             <SelectTrigger className="w-full h-8 text-sm">
-              <SelectValue placeholder="To..." />
+              <SelectValue placeholder="Todos" />
             </SelectTrigger>
             <SelectContent className="bg-white z-50">
               <SelectItem value="all">Todos</SelectItem>
