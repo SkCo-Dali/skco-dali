@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Lead, LeadStatus } from '@/types/crm';
 import { getAllLeads, createLead, updateLead, deleteLead, getLeadsByUser } from '@/utils/leadsApiClient';
@@ -56,6 +55,7 @@ export const useLeadsApi = () => {
       priority: reassignableLead.Priority || reassignableLead.priority,
       value: parseFloat(reassignableLead.Value) || reassignableLead.value || 0,
       assignedTo: reassignableLead.AssignedTo || reassignableLead.assigned_to,
+      createdBy: reassignableLead.CreatedBy || reassignableLead.created_by || '1', // Add createdBy with fallback
       createdAt: reassignableLead.CreatedAt || reassignableLead.created_at,
       updatedAt: reassignableLead.UpdatedAt || reassignableLead.updated_at,
       nextFollowUp: reassignableLead.NextFollowUp || reassignableLead.nextFollowUp,

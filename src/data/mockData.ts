@@ -79,6 +79,7 @@ export const mockLeads: Lead[] = [
     priority: 'high',
     value: 15000000,
     assignedTo: '3',
+    createdBy: '1', // Add createdBy property
     status: 'New',
     campaign: 'Campaign A',
     portfolio: 'Portfolio A',
@@ -102,6 +103,7 @@ export const mockLeads: Lead[] = [
     priority: 'medium',
     value: 8000000,
     assignedTo: '4',
+    createdBy: '2', // Add createdBy property
     status: 'Contacted',
     campaign: 'Campaign B',
     portfolio: 'Portfolio C',
@@ -125,6 +127,7 @@ export const mockLeads: Lead[] = [
     priority: 'urgent',
     value: 50000000,
     assignedTo: '3',
+    createdBy: '3', // Add createdBy property
     status: 'Qualified',
     campaign: 'Campaign A',
     portfolio: 'Portfolio A',
@@ -148,6 +151,7 @@ export const mockLeads: Lead[] = [
     priority: 'low',
     value: 2500000,
     assignedTo: '4',
+    createdBy: '4', // Add createdBy property
     status: 'New',
     campaign: 'Campaign C',
     portfolio: 'Portfolio B',
@@ -170,6 +174,7 @@ export const mockLeads: Lead[] = [
     priority: 'medium',
     value: 12000000,
     assignedTo: '3',
+    createdBy: '3', // Add createdBy property
     status: 'Won',
     campaign: 'Campaign A',
     portfolio: 'Portfolio A',

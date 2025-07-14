@@ -145,6 +145,7 @@ export const mapApiLeadToLead = (apiLead: ApiLead): Lead => {
       priority: (API_TO_FRONTEND_PRIORITY_MAP[apiLead.Priority] || 'medium') as Lead['priority'],
       value: apiLead.Value || 0,
       assignedTo: apiLead.AssignedTo,
+      createdBy: apiLead.CreatedBy || '1', // Add createdBy with fallback
       status: 'New' as Lead['status'],
       portfolio: parseArrayField(apiLead.SelectedPortfolios)[0] || 'Portfolio A',
       createdAt: apiLead.CreatedAt,
