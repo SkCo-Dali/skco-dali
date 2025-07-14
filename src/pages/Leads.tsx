@@ -652,8 +652,8 @@ export default function Leads() {
           </div>
         </div>
 
-        {/* Dialog for creating leads */}
-        <LeadCreateDialog ref={leadCreateDialogRef} onLeadCreate={handleLeadCreate} />
+        {/* Dialog for creating leads 
+        <LeadCreateDialog ref={leadCreateDialogRef} onLeadCreate={handleLeadCreate} />*/}
 
         {selectedLead && (
           <LeadDetail
