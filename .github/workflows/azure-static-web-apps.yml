@@ -1,0 +1,75 @@
+name: DALI Azure Static Web Apps CI/CD
+
+on:
+  push:
+    branches:
+      - staging
+      - develop
+      - main
+  pull_request:
+    types: [opened, synchronize, reopened, closed]
+    branches:
+      - staging
+      - develop
+      - main
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to deploy to'
+        required: true
+        default: 'Development'
+      commit_message:
+        description: 'Commit message for the deployment'
+        required: true
+        default: 'Deploying to Azure Static Web Apps'
+
+jobs:
+  build_and_deploy_job:
+    if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.action != 'closed')
+    runs-on: ubuntu-latest
+    name: Build and Deploy Job
+    environment: ${{ github.event.inputs.environment != '' && github.event.inputs.environment || github.ref_name == 'main' && 'Production' || github.ref_name == 'develop' && 'Development' || github.ref_name == 'staging' && 'Staging' || 'Development' }}
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          submodules: true
+          lfs: false
+      - name: Configuration Variable Substitution
+        uses: TomaszKandula/variable-substitution@v1.0.2
+        
+        with:
+          files: staticwebapp.config.json
+        env:
+          globalHeaders.Content-Security-Policy : "${{ vars.CONTENT_SECURITY_POLICY }}"
+      - name: Build And Deploy
+        id: builddeploy
+        uses: Azure/static-web-apps-deploy@v1
+        with:
+          azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN }}
+          repo_token: ${{ secrets.GITHUB_TOKEN }} # Used for Github integrations (i.e. PR comments)
+          action: "upload"
+          ###### Repository/Build Configurations - These values can be configured to match your app requirements. ######
+          # For more information regarding Static Web App workflow configurations, please visit: https://aka.ms/swaworkflowconfig
+          app_location: "/" # App source code path
+          api_location: "" # Api source code path - optional
+          output_location: "dist" # Built app content directory - optional
+          ###### End of Repository/Build Configurations ######
+        env:
+          VITE_CRM_API_BASE_URL: ${{ vars.CRM_API_BASE_URL }}
+          VITE_AI_API_BASE_URL: ${{ vars.AI_API_BASE_URL }}
+          VITE_TEMPLATES_API_BASE_URL: ${{ vars.TEMPLATES_API_BASE_URL }}
+          VITE_MAESTRO_API_BASE_URL: ${{ vars.MAESTRO_API_BASE_URL }}
+          VITE_AZURE_CLIENT_ID: ${{ vars.AZURE_CLIENT_ID }}
+
+  close_pull_request_job:
+    if: github.event_name == 'pull_request' && github.event.action == 'closed'
+    runs-on: ubuntu-latest
+    name: Close Pull Request Job
+    environment: ${{ github.ref_name == 'main' && 'Production' || github.ref_name == 'develop' && 'Development' || github.ref_name == 'staging' && 'Staging' || 'Development' }}
+    steps:
+      - name: Close Pull Request
+        id: closepullrequest
+        uses: Azure/static-web-apps-deploy@v1
+        with:
+          azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN }}
+          action: "close"

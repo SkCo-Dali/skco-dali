@@ -1,4 +1,3 @@
-
 import { Lead } from "@/types/crm";
 import { campaigns } from "./campaigns";
 import { products } from "./products";
@@ -31,6 +30,7 @@ export function generateSampleLeads(): Lead[] {
       priority: getPriorityForLead(i),
       value: getValueForLead(i),
       assignedTo: getAssignedToForLead(i),
+      createdBy: getCreatedByForLead(i), // Add createdBy property
       status: 'New', // Add required status property
       portfolio: getPortfoliosForLead(i)[0] || 'Portfolio A', // Add required portfolio property
       createdAt: new Date().toISOString(),
@@ -108,6 +108,14 @@ function getAssignedToForLead(index: number): string {
     "", "", "1", "", "2", "3", "", "", "3", "", "", "3", "", "", "3", ""
   ];
   return assignments[index - 1] || "";
+}
+
+function getCreatedByForLead(index: number): string {
+  // Assign creators for sample leads
+  const creators = [
+    "1", "1", "1", "2", "2", "3", "1", "2", "3", "1", "2", "3", "1", "2", "3", "1"
+  ];
+  return creators[index - 1] || "1";
 }
 
 function getPortfoliosForLead(index: number): string[] {
