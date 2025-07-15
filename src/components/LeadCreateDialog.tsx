@@ -211,7 +211,10 @@ export const LeadCreateDialog = forwardRef<LeadCreateDialogRef, LeadCreateDialog
                   </div>
                 </div>
                 
-                <div className="relative">
+                
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="relative">
                   <Input
                     value={formData.name}
                     onChange={(e) => setFormData({...formData, name: e.target.value})}
@@ -225,8 +228,6 @@ export const LeadCreateDialog = forwardRef<LeadCreateDialogRef, LeadCreateDialog
                     </Label>
                   )}
                 </div>
-
-                <div className="grid grid-cols-2 gap-4">
                 <div className="relative">
                   <Input
                     value={formData.phone}
@@ -241,7 +242,9 @@ export const LeadCreateDialog = forwardRef<LeadCreateDialogRef, LeadCreateDialog
                     </Label>
                   )}
                 </div>
-                
+              </div>    
+
+                <div className="grid grid-cols-2 gap-4">
                 <div className="relative">
                   <Input
                     type="email"
@@ -257,9 +260,6 @@ export const LeadCreateDialog = forwardRef<LeadCreateDialogRef, LeadCreateDialog
                     </Label>
                   )}
                 </div>
-              </div>    
-                  
-                
                 <div className="relative">
                   <Popover open={productSelectOpen} onOpenChange={setProductSelectOpen}>
                     <PopoverTrigger asChild>
@@ -299,6 +299,7 @@ export const LeadCreateDialog = forwardRef<LeadCreateDialogRef, LeadCreateDialog
                     </Label>
                   )}
                 </div>
+                  </div>
                 
                <div className="relative">
                   <Input
