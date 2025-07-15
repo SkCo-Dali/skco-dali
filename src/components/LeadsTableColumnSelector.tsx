@@ -77,14 +77,7 @@ export function LeadsTableColumnSelector({
             </span>
           </div>
           
-          {/* Toggle All Section */}
-          <div className="flex items-center justify-between mb-3 pb-3 border-b border-gray-100">
-            <span className="text-sm font-medium">Seleccionar todas</span>
-            <Switch
-              checked={allSelected}
-              onCheckedChange={handleToggleAll}
-            />
-          </div>
+         
 
           <ScrollArea className="h-64">
             <div className="space-y-2">
@@ -105,6 +98,15 @@ export function LeadsTableColumnSelector({
               ))}
             </div>
           </ScrollArea>
+
+           {/* Toggle All Section */}
+          <div className="flex items-center justify-between mb-3 pb-3 border-b border-gray-100">
+            <span className="text-sm font-medium">Seleccionar todas</span>
+            <Switch
+              checked={allSelected}
+              onCheckedChange={handleToggleAll}
+            />
+          </div>
         </div>
       </DropdownMenuContent>
     </DropdownMenu>
