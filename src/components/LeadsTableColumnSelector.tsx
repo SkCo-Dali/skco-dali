@@ -1,15 +1,16 @@
 
-import React from 'react';
+import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Switch } from "@/components/ui/switch";
 import {
   DropdownMenu,
   DropdownMenuContent,
+  DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Columns3Cog } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Switch } from "@/components/ui/switch";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Settings2 } from "lucide-react";
 
 export interface ColumnConfig {
   key: string;
@@ -21,74 +22,91 @@ export interface ColumnConfig {
 interface LeadsTableColumnSelectorProps {
   columns: ColumnConfig[];
   onColumnsChange: (columns: ColumnConfig[]) => void;
-  className?: string;
+  showTextLabel?: boolean;
 }
 
-export function LeadsTableColumnSelector({ columns, onColumnsChange, className }: LeadsTableColumnSelectorProps) {
-  const handleColumnToggle = (columnKey: string) => {
+export function LeadsTableColumnSelector({ 
+  columns, 
+  onColumnsChange,
+  showTextLabel = true
+}: LeadsTableColumnSelectorProps) {
+  const [open, setOpen] = useState(false);
+
+  const handleToggleColumn = (columnKey: string) => {
     const updatedColumns = columns.map(col => 
-      col.key === columnKey ? { ...col, visible: !col.visible } : col
+      col.key === columnKey 
+        ? { ...col, visible: !col.visible }
+        : col
     );
     onColumnsChange(updatedColumns);
   };
 
-  const handleSelectAll = () => {
-    const allVisible = columns.every(col => col.visible);
+  const handleToggleAll = (checked: boolean) => {
     const updatedColumns = columns.map(col => ({
       ...col,
-      visible: !allVisible
+      visible: checked
     }));
     onColumnsChange(updatedColumns);
   };
 
-  const allColumnsVisible = columns.every(col => col.visible);
+  const visibleCount = columns.filter(col => col.visible).length;
+  const allSelected = visibleCount === columns.length;
+  const noneSelected = visibleCount === 0;
 
   return (
-    <DropdownMenu>
+    <DropdownMenu open={open} onOpenChange={setOpen}>
       <DropdownMenuTrigger asChild>
-        <Button size="sm" className="text-[#3f3f3f] w-30 h-8 bg-white border border-gray-300 rounded-md hover:bg-white hover:border-gray-300">
-          <Columns3Cog className="h-4 w-4 mr-0 text-[#00c83c] justify-items-end" />
-          Personaliza
+        <Button 
+          size="sm" 
+          className="text-[#3f3f3f] bg-white border border-gray-300 rounded-md hover:bg-white hover:border-gray-300"
+          style={{ 
+            width: showTextLabel ? 'auto' : '32px',
+            height: '32px'
+          }}
+        >
+          <Settings2 className="h-4 w-4 text-[#00c83c]" />
+          {showTextLabel && <span className="ml-1">Personaliza</span>}
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-80 p-0 bg-white rounded-2xl shadow-lg border border-gray-200">
-        <div className="p-4">
-          {/* Header */}
-          <h3 className="text-sm font-medium text-gray-900 mb-4">Personaliza las columnas</h3>
+      <DropdownMenuContent align="end" className="w-80 bg-white rounded-2xl shadow-lg border border-gray-200">
+        <div className="p-3">
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="font-medium text-sm">Seleccionar columnas</h3>
+            <span className="text-xs text-gray-500">
+              {visibleCount} de {columns.length}
+            </span>
+          </div>
           
-          {/* Column list with scroll */}
-          <ScrollArea className="h-48 mb-4">
-            <div className="space-y-3">
+         
+
+          <ScrollArea className="h-64 border-2 border-[#dedede] rounded-md">
+            <div className="space-y-2 p-2">
               {columns.map((column) => (
-                <div key={column.key} className="flex items-center justify-between">
-                  <div className="flex items-center space-x-3">
-                    <Checkbox
-                      id={column.key}
-                      checked={column.visible}
-                      onCheckedChange={() => handleColumnToggle(column.key)}
-                      className="h-4 w-4 border-[#00c83c] data-[state=checked]:bg-[#00c83c] data-[state=checked]:border-[#00c83c]"
-                    />
-                    <label
-                      htmlFor={column.key}
-                      className="text-sm text-gray-700 cursor-pointer"
-                    >
-                      {column.label}
-                    </label>
-                  </div>
+                <div key={column.key} className="flex items-center space-x-2">
+                  <Checkbox
+                    id={`column-${column.key}`}
+                    checked={column.visible}
+                    onCheckedChange={() => handleToggleColumn(column.key)}
+                  />
+                  <label 
+                    htmlFor={`column-${column.key}`} 
+                    className="text-sm cursor-pointer flex-1"
+                  >
+                    {column.label}
+                  </label>
                 </div>
               ))}
             </div>
           </ScrollArea>
 
-          {/* Show all columns toggle */}
-          <div className="flex items-center justify-between py-3 border-t border-gray-200">
-            <span className="text-sm text-gray-700">Mostrar todas las columnas</span>
+           {/* Toggle All Section */}
+          <div className="flex items-center justify-between mt-4 pb-3 border-b border-gray-100">
+            <span className="text-sm font-medium">Seleccionar todas</span>
             <Switch
-              checked={allColumnsVisible}
-              onCheckedChange={handleSelectAll}
-              className="data-[state=checked]:bg-[#00c83c]"
+              checked={allSelected}
+              onCheckedChange={handleToggleAll}
             />
-          </div> 
+          </div>
         </div>
       </DropdownMenuContent>
     </DropdownMenu>

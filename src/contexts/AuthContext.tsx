@@ -1,4 +1,3 @@
-
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { User } from '@/types/crm';
 import { PublicClientApplication, InteractionRequiredAuthError, AccountInfo } from '@azure/msal-browser';
@@ -129,11 +128,11 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
         const response = await msalInstance.handleRedirectPromise();
         if (response) {
-          // Almacenar token de forma segura
-          if (response.accessToken) {
+          // Almacenar idToken de forma segura para el backend
+          if (response.idToken) {
             const tokenData = {
-              token: response.accessToken,
-              expiresAt: Date.now() + (3600 * 1000), // 1 hora por defecto
+              token: response.idToken,
+              expiresAt: response.expiresOn ? response.expiresOn.getTime() : Date.now() + (3600 * 1000),
               refreshToken: response.account?.homeAccountId
             };
             SecureTokenManager.storeToken(tokenData);
@@ -217,13 +216,18 @@ export function AuthProvider({ children }: AuthProviderProps) {
     try {
       const response = await msalInstance.loginPopup(loginRequest);
       
-      if (response.accessToken) {
+      // Almacenar idToken para el backend
+      if (response.idToken) {
         const tokenData = {
-          token: response.accessToken,
-          expiresAt: Date.now() + (3600 * 1000),
+          token: response.idToken,
+          expiresAt: response.expiresOn ? response.expiresOn.getTime() : Date.now() + (3600 * 1000),
           refreshToken: response.account?.homeAccountId
         };
         SecureTokenManager.storeToken(tokenData);
+      }
+      
+      // Mantener accessToken para uso interno
+      if (response.accessToken) {
         setAccessToken(response.accessToken);
       }
       
@@ -258,24 +262,35 @@ export function AuthProvider({ children }: AuthProviderProps) {
                 account: accounts[0],
               });
               
+              // Almacenar idToken renovado para el backend
               const newTokenData = {
-                token: response.accessToken,
-                expiresAt: Date.now() + (3600 * 1000),
+                token: response.idToken,
+                expiresAt: response.expiresOn ? response.expiresOn.getTime() : Date.now() + (3600 * 1000),
                 refreshToken: response.account?.homeAccountId
               };
               SecureTokenManager.storeToken(newTokenData);
+              
+              // Mantener accessToken para uso interno
               setAccessToken(response.accessToken);
               return response.accessToken;
             } catch (refreshError) {
-              // Si falla la renovación, usar token actual
-              setAccessToken(storedTokenData.token);
-              return storedTokenData.token;
+              // Si falla la renovación, intentar obtener nuevo token
+              const response = await msalInstance.loginPopup(loginRequest);
+              const tokenData = {
+                token: response.idToken,
+                expiresAt: response.expiresOn ? response.expiresOn.getTime() : Date.now() + (3600 * 1000),
+                refreshToken: response.account?.homeAccountId
+              };
+              SecureTokenManager.storeToken(tokenData);
+              setAccessToken(response.accessToken);
+              return response.accessToken;
             }
           }
         }
         
-        setAccessToken(storedTokenData.token);
-        return storedTokenData.token;
+        // Para getAccessToken seguimos devolviendo el accessToken para uso interno
+        // pero el idToken se mantiene almacenado para el backend
+        return accessToken;
       }
 
       // Si no hay token válido almacenado, obtener uno nuevo
@@ -284,8 +299,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
       if (accounts.length === 0) {
         const response = await msalInstance.loginPopup(loginRequest);
         const tokenData = {
-          token: response.accessToken,
-          expiresAt: Date.now() + (3600 * 1000),
+          token: response.idToken,
+          expiresAt: response.expiresOn ? response.expiresOn.getTime() : Date.now() + (3600 * 1000),
           refreshToken: response.account?.homeAccountId
         };
         SecureTokenManager.storeToken(tokenData);
@@ -301,8 +316,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
           account,
         });
         const tokenData = {
-          token: response.accessToken,
-          expiresAt: Date.now() + (3600 * 1000),
+          token: response.idToken,
+          expiresAt: response.expiresOn ? response.expiresOn.getTime() : Date.now() + (3600 * 1000),
           refreshToken: response.account?.homeAccountId
         };
         SecureTokenManager.storeToken(tokenData);
@@ -315,8 +330,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
             account,
           });
           const tokenData = {
-            token: response.accessToken,
-            expiresAt: Date.now() + (3600 * 1000),
+            token: response.idToken,
+            expiresAt: response.expiresOn ? response.expiresOn.getTime() : Date.now() + (3600 * 1000),
             refreshToken: response.account?.homeAccountId
           };
           SecureTokenManager.storeToken(tokenData);
