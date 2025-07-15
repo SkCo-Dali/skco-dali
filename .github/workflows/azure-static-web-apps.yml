@@ -34,6 +34,12 @@ jobs:
         with:
           submodules: true
           lfs: false
+      - name: Configuration Variable Substitution
+        uses: marigbede/variable-substitution@v1.0.1
+        with:
+          files: staticwebapp.config.json
+        env:
+          globalHeaders.Content-Security-Policy : "${{ vars.CONTENT_SECURITY_POLICY }}"
       - name: Build And Deploy
         id: builddeploy
         uses: Azure/static-web-apps-deploy@v1
