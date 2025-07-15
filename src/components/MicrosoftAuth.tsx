@@ -6,6 +6,7 @@ import { loginRequest } from '@/authConfig';
 import { getUserByEmail, createUser } from '@/utils/userApiClient';
 import { TokenValidationService } from '@/services/tokenValidationService';
 import { getUserRoleByEmail } from '@/utils/userRoleService';
+import SecureTokenManager from '@/utils/secureTokenManager';
 
 export function MicrosoftAuth() {
   const { msalInstance, login } = useAuth();
@@ -84,6 +85,12 @@ export function MicrosoftAuth() {
       if (!TokenValidationService.validateEmailDomain(userInfo.email)) {
         throw new Error('El email no pertenece a un dominio autorizado para acceder a la aplicación');
       }
+
+      SecureTokenManager.storeToken({
+        token: response.idToken,
+        expiresAt: response.expiresOn.getTime(),
+        refreshToken: response.account.homeAccountId || '',
+      });
       
       // Paso 4: Obtener foto del perfil (opcional, no crítico)
       const userPhoto = await getUserPhoto(response.accessToken);
