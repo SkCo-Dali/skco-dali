@@ -8,6 +8,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Switch } from "@/components/ui/switch";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Settings2 } from "lucide-react";
 
@@ -40,7 +41,17 @@ export function LeadsTableColumnSelector({
     onColumnsChange(updatedColumns);
   };
 
+  const handleToggleAll = (checked: boolean) => {
+    const updatedColumns = columns.map(col => ({
+      ...col,
+      visible: checked
+    }));
+    onColumnsChange(updatedColumns);
+  };
+
   const visibleCount = columns.filter(col => col.visible).length;
+  const allSelected = visibleCount === columns.length;
+  const noneSelected = visibleCount === 0;
 
   return (
     <DropdownMenu open={open} onOpenChange={setOpen}>
@@ -65,6 +76,16 @@ export function LeadsTableColumnSelector({
               {visibleCount} de {columns.length}
             </span>
           </div>
+          
+          {/* Toggle All Section */}
+          <div className="flex items-center justify-between mb-3 pb-3 border-b border-gray-100">
+            <span className="text-sm font-medium">Seleccionar todas</span>
+            <Switch
+              checked={allSelected}
+              onCheckedChange={handleToggleAll}
+            />
+          </div>
+
           <ScrollArea className="h-64">
             <div className="space-y-2">
               {columns.map((column) => (
