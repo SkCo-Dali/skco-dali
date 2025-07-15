@@ -79,8 +79,8 @@ export function LeadsTableColumnSelector({
           
          
 
-          <ScrollArea className="h-64 border-2 border-[#dedede]">
-            <div className="space-y-2 p-4">
+          <ScrollArea className="h-64 border-2 border-[#dedede] rounded-md">
+            <div className="space-y-2 p-2">
               {columns.map((column) => (
                 <div key={column.key} className="flex items-center space-x-2">
                   <Checkbox
