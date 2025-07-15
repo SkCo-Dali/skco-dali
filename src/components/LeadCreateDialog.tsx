@@ -271,7 +271,7 @@ export const LeadCreateDialog = forwardRef<LeadCreateDialogRef, LeadCreateDialog
                         <span className={selectedProducts.length === 0 ? "text-muted-foreground" : ""}>
                           {getProductDisplayText()}
                         </span>
-                        <ChevronDown className="h-4 w-4 text-[#00c83c] ml-1" />
+                        <ChevronDown className="h-4 w-4 text-[#00c83c]" />
                       </Button>
                     </PopoverTrigger>
                     <PopoverContent className="w-full p-0" align="start">
