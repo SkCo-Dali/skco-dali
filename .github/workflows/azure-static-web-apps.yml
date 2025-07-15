@@ -48,16 +48,17 @@ jobs:
           output_location: "dist" # Built app content directory - optional
           ###### End of Repository/Build Configurations ######
         env:
-          CRM_API_BASE_URL: ${{ vars.VITE_CRM_API_BASE_URL }}
-          AI_API_BASE_URL: ${{ vars.VITE_AI_API_BASE_URL }}
-          TEMPLATES_API_BASE_URL: ${{ vars.VITE_TEMPLATES_API_BASE_URL }}
-          MAESTRO_API_BASE_URL: ${{ vars.VITE_MAESTRO_API_BASE_URL }}
-          AZURE_CLIENT_ID: ${{ vars.VITE_AZURE_CLIENT_ID }}
+          VITE_CRM_API_BASE_URL: ${{ vars.CRM_API_BASE_URL }}
+          VITE_AI_API_BASE_URL: ${{ vars.AI_API_BASE_URL }}
+          VITE_TEMPLATES_API_BASE_URL: ${{ vars.TEMPLATES_API_BASE_URL }}
+          VITE_MAESTRO_API_BASE_URL: ${{ vars.MAESTRO_API_BASE_URL }}
+          VITE_AZURE_CLIENT_ID: ${{ vars.AZURE_CLIENT_ID }}
 
   close_pull_request_job:
     if: github.event_name == 'pull_request' && github.event.action == 'closed'
     runs-on: ubuntu-latest
     name: Close Pull Request Job
+    environment: ${{ github.ref_name == 'main' && 'Production' || github.ref_name == 'develop' && 'Development' || github.ref_name == 'staging' && 'Staging' || 'Development' }}
     steps:
       - name: Close Pull Request
         id: closepullrequest
