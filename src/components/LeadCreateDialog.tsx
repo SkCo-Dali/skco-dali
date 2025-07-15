@@ -268,7 +268,7 @@ export const LeadCreateDialog = forwardRef<LeadCreateDialogRef, LeadCreateDialog
   className="w-full flex justify-between items-center border-gray-300 rounded-lg h-12 bg-gray-50 text-left font-normal hover:bg-gray-50 px-4"
 >
   <span className="flex-grow">Producto de interés</span>
-  <ChevronDownIcon className="ml-2" />
+  <ChevronDown className="ml-2" />
 </Button>
                     </PopoverTrigger>
                     <PopoverContent className="w-full p-0" align="start">
