@@ -1,4 +1,4 @@
-name: Azure Static Web Apps CI/CD
+name: DALI Azure Static Web Apps CI/CD
 
 on:
   push:
@@ -18,6 +18,10 @@ on:
         description: 'Environment to deploy to'
         required: true
         default: 'Development'
+      commit_message:
+        description: 'Commit message for the deployment'
+        required: true
+        default: 'Deploying to Azure Static Web Apps'
 
 jobs:
   build_and_deploy_job:
