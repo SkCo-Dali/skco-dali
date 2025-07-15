@@ -266,12 +266,12 @@ export const LeadCreateDialog = forwardRef<LeadCreateDialogRef, LeadCreateDialog
                     <PopoverTrigger asChild>
                       <Button
                         variant="outline"
-                        className="w-full justify-between border border-gray-300 rounded-lg h-12 bg-gray-50 font-normal hover:bg-gray-50 px-2 pr-0"
+                        className="w-full justify-between border border-gray-300 rounded-lg h-12 bg-gray-50 font-normal hover:bg-gray-50 pl-3 pr-2"
                       >
                         <span className={selectedProducts.length === 0 ? "text-muted-foreground" : ""}>
                           {getProductDisplayText()}
                         </span>
-                        <ChevronDown className="h-4 w-4 text-[#00c83c]" />
+                        <ChevronDown className="h-4 w-4 text-[#00c83c] ml-1" />
                       </Button>
                     </PopoverTrigger>
                     <PopoverContent className="w-full p-0" align="start">
