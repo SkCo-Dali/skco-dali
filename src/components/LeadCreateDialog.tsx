@@ -265,7 +265,7 @@ export const LeadCreateDialog = forwardRef<LeadCreateDialogRef, LeadCreateDialog
                     <PopoverTrigger asChild>
                       <Button
   variant="outline"
-  className="w-full flex justify-between items-center border-1 border-gray-300 rounded-lg h-12 bg-gray-50 text-left font-normal hover:bg-gray-50 px-4"
+  className="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 [&>span]:line-clamp-1"
 >
   <span className="flex-grow mr-1">Producto de interés</span>
   <ChevronDown className="ml-1 text-[#00c83c]" />
