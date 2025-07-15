@@ -122,11 +122,11 @@ export function LeadCard({
                 </div>
                 <div className="flex items-center text-xs text-gray-900 mb-1">
                   <Smartphone className="h-3 w-3 mr-1" />
-                  <span>{lead.phone || '3333333333'}</span>
+                  <span>{lead.phone || 'No registra teléfono'}</span>
                 </div>
                 <div className="flex items-center text-xs text-gray-900">
                   <Mail className="h-3 w-3 mr-1" />
-                  <span>{lead.email || 'xxx@xxx'}</span>
+                  <span>{lead.email || 'No registra correo'}</span>
                 </div> 
                 <div className="flex items-center text-xs text-gray-900">
                   <strong>Asignado a: </strong>
