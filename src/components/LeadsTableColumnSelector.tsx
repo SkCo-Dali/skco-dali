@@ -68,7 +68,7 @@ export function LeadsTableColumnSelector({
           {showTextLabel && <span className="ml-1">Personaliza</span>}
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-64 bg-white rounded-2xl shadow-lg border border-gray-200">
+      <DropdownMenuContent align="end" className="w-80 bg-white rounded-2xl shadow-lg border border-gray-200">
         <div className="p-3">
           <div className="flex items-center justify-between mb-3">
             <h3 className="font-medium text-sm">Seleccionar columnas</h3>
@@ -79,7 +79,7 @@ export function LeadsTableColumnSelector({
           
          
 
-          <ScrollArea className="h-64">
+          <ScrollArea className="h-64 border-2 border-[#fafafa]">
             <div className="space-y-2">
               {columns.map((column) => (
                 <div key={column.key} className="flex items-center space-x-2">
@@ -100,7 +100,7 @@ export function LeadsTableColumnSelector({
           </ScrollArea>
 
            {/* Toggle All Section */}
-          <div className="flex items-center justify-between mt-3 pb-3 border-b border-gray-100">
+          <div className="flex items-center justify-between mt-4 pb-3 border-b border-gray-100">
             <span className="text-sm font-medium">Seleccionar todas</span>
             <Switch
               checked={allSelected}
