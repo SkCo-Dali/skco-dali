@@ -100,7 +100,7 @@ export function LeadsTableColumnSelector({
           </ScrollArea>
 
            {/* Toggle All Section */}
-          <div className="flex items-center justify-between mb-3 pb-3 border-b border-gray-100">
+          <div className="flex items-center justify-between mt-3 pb-3 border-b border-gray-100">
             <span className="text-sm font-medium">Seleccionar todas</span>
             <Switch
               checked={allSelected}
