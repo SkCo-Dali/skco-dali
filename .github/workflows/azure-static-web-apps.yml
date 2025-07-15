@@ -35,7 +35,8 @@ jobs:
           submodules: true
           lfs: false
       - name: Configuration Variable Substitution
-        uses: marigbede/variable-substitution@v1.0.1
+        uses: TomaszKandula/variable-substitution@v1.0.2
+        
         with:
           files: staticwebapp.config.json
         env:
