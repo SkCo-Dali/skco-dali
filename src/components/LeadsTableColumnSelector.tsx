@@ -54,7 +54,7 @@ export function LeadsTableColumnSelector({
           }}
         >
           <Settings2 className="h-4 w-4 text-[#00c83c]" />
-          {showTextLabel && <span className="ml-1">Columnas</span>}
+          {showTextLabel && <span className="ml-1">Personaliza</span>}
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-64 bg-white rounded-2xl shadow-lg border border-gray-200">
