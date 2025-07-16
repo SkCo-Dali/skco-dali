@@ -66,10 +66,10 @@ export function LeadsContent({
           <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle>
-                Perfilar Lead: {selectedLeadForProfiler?.name}
+                Sesión de Prospección: {selectedLeadForProfiler?.name}
               </DialogTitle>
             </DialogHeader>
-            <LeadProfiler />
+            <LeadProfiler selectedLead={selectedLeadForProfiler} />
           </DialogContent>
         </Dialog>
       </>
@@ -118,10 +118,10 @@ export function LeadsContent({
         <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>
-              Perfilar Lead: {selectedLeadForProfiler?.name}
+              Sesión de Prospección: {selectedLeadForProfiler?.name}
             </DialogTitle>
           </DialogHeader>
-          <LeadProfiler />
+          <LeadProfiler selectedLead={selectedLeadForProfiler} />
         </DialogContent>
       </Dialog>
     </>

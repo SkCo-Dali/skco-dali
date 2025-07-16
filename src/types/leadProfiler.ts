@@ -1,4 +1,6 @@
 
+import { Lead } from './crm';
+
 export interface LeadProfile {
   id: string;
   name: string;
@@ -21,6 +23,7 @@ export interface LeadProfilerProps {
   onProfileUpdate?: (profile: LeadProfile) => void;
   onProfileDelete?: (profileId: string) => void;
   existingProfiles?: LeadProfile[];
+  selectedLead?: Lead;
 }
 
 export interface ProfileFormData {
