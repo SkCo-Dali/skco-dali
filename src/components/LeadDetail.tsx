@@ -1,4 +1,3 @@
-
 import React, { useState, useCallback } from "react";
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
@@ -71,7 +70,7 @@ export function LeadDetail({
         documentType,
         documentNumber: typeof documentNumber === 'string' ? parseInt(documentNumber) || 0 : documentNumber,
         company,
-        product,
+        product: product ? [product] : [], // Convert string to array for API
         stage,
         priority,
         source,
