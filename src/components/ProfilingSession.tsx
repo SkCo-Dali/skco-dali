@@ -68,7 +68,7 @@ export const ProfilingSession: React.FC<ProfilingSessionProps> = ({
    const getConfirmationbutton = () => {
     switch (selectedAnswer) {
       case 'nightmare':
-        return '¡Sí, quiero lograrlo! →
+        return '¡Sí, quiero lograrlo! →';
       case 'multiply':
         return 'Optimizar mi portafolio →';
       case 'family':
