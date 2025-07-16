@@ -1,6 +1,7 @@
 
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { ArrowLeft, Luggage, FileText, Bed, ShoppingBag, Target, Calendar, DollarSign } from 'lucide-react';
 
 interface NightmareFlowProps {
@@ -46,13 +47,57 @@ const NIGHTMARE_QUESTIONS = [
   }
 ];
 
+// Configuración personalizable para la vista de creación de fondo
+const FUND_CREATION_CONFIG = {
+  travel: {
+    title: "¡Perfecto! Creemos tu fondo",
+    subtitle: "Solo tú decides cómo y cuándo. Nosotros te ayudamos a crecerlo.",
+    fundNamePlaceholder: "Mi fondo de viaje",
+    defaultAmount: "50000",
+    projectionText: "Proyección a 6 meses:",
+    projectionAmount: "$300,000",
+    buttonText: "Ver mi simulador personalizado 📱"
+  },
+  debt: {
+    title: "¡Perfecto! Creemos tu fondo",
+    subtitle: "Solo tú decides cómo y cuándo. Nosotros te ayudamos a crecerlo.",
+    fundNamePlaceholder: "Mi fondo para pagar deudas",
+    defaultAmount: "50000",
+    projectionText: "Proyección a 6 meses:",
+    projectionAmount: "$300,000",
+    buttonText: "Ver mi simulador personalizado 📱"
+  },
+  emergency: {
+    title: "¡Perfecto! Creemos tu fondo",
+    subtitle: "Solo tú decides cómo y cuándo. Nosotros te ayudamos a crecerlo.",
+    fundNamePlaceholder: "Mi fondo de emergencias",
+    defaultAmount: "50000",
+    projectionText: "Proyección a 6 meses:",
+    projectionAmount: "$300,000",
+    buttonText: "Ver mi simulador personalizado 📱"
+  },
+  shopping: {
+    title: "¡Perfecto! Creemos tu fondo",
+    subtitle: "Solo tú decides cómo y cuándo. Nosotros te ayudamos a crecerlo.",
+    fundNamePlaceholder: "Mi fondo de compras",
+    defaultAmount: "50000",
+    projectionText: "Proyección a 6 meses:",
+    projectionAmount: "$300,000",
+    buttonText: "Ver mi simulador personalizado 📱"
+  }
+};
+
 export const NightmareFlow: React.FC<NightmareFlowProps> = ({ onBack }) => {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [answers, setAnswers] = useState<Record<number, string>>({});
   const [selectedOption, setSelectedOption] = useState<string>('');
+  const [showFundCreation, setShowFundCreation] = useState(false);
+  const [fundName, setFundName] = useState('');
+  const [monthlyAmount, setMonthlyAmount] = useState('');
 
   const currentQuestion = NIGHTMARE_QUESTIONS[currentQuestionIndex];
   const isLastQuestion = currentQuestionIndex === NIGHTMARE_QUESTIONS.length - 1;
+  const fundConfig = selectedOption ? FUND_CREATION_CONFIG[selectedOption as keyof typeof FUND_CREATION_CONFIG] : null;
 
   const handleNext = () => {
     // Guardar la respuesta actual
@@ -62,8 +107,12 @@ export const NightmareFlow: React.FC<NightmareFlowProps> = ({ onBack }) => {
     }));
 
     if (isLastQuestion) {
-      console.log('Crear fondo para:', answers, { [currentQuestion.id]: selectedOption });
-      // Aquí iría la lógica final
+      // Configurar valores por defecto para la creación del fondo
+      if (fundConfig) {
+        setFundName(fundConfig.fundNamePlaceholder);
+        setMonthlyAmount(fundConfig.defaultAmount);
+      }
+      setShowFundCreation(true);
     } else {
       setCurrentQuestionIndex(prev => prev + 1);
       setSelectedOption('');
@@ -71,7 +120,9 @@ export const NightmareFlow: React.FC<NightmareFlowProps> = ({ onBack }) => {
   };
 
   const handleBack = () => {
-    if (currentQuestionIndex > 0) {
+    if (showFundCreation) {
+      setShowFundCreation(false);
+    } else if (currentQuestionIndex > 0) {
       setCurrentQuestionIndex(prev => prev - 1);
       setSelectedOption(answers[NIGHTMARE_QUESTIONS[currentQuestionIndex - 1].id] || '');
     } else {
@@ -79,6 +130,108 @@ export const NightmareFlow: React.FC<NightmareFlowProps> = ({ onBack }) => {
     }
   };
 
+  const handleCreateFund = () => {
+    console.log('Crear fondo:', {
+      type: selectedOption,
+      name: fundName,
+      monthlyAmount: monthlyAmount,
+      answers: { ...answers, [currentQuestion.id]: selectedOption }
+    });
+    // Aquí iría la lógica para crear el fondo
+  };
+
+  // Vista de creación de fondo
+  if (showFundCreation && fundConfig) {
+    return (
+      <div className="min-h-[600px] bg-gray-50 p-6 m-0">
+        {/* Header */}
+        <div className="flex items-center gap-4 mb-8">
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            onClick={handleBack}
+            className="p-2"
+          >
+            <ArrowLeft className="h-4 w-4" />
+          </Button>
+        </div>
+
+        {/* Success Icon */}
+        <div className="text-center mb-8">
+          <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
+            <Target className="h-10 w-10 text-green-600" />
+          </div>
+          
+          <h1 className="text-2xl font-bold text-gray-900 mb-2">
+            {fundConfig.title}
+          </h1>
+          <p className="text-gray-600">
+            {fundConfig.subtitle}
+          </p>
+        </div>
+
+        {/* Form */}
+        <div className="max-w-md mx-auto space-y-6">
+          {/* Fund Name */}
+          <div>
+            <label htmlFor="fundName" className="block text-sm font-medium text-gray-700 mb-2">
+              Nombre de tu fondo
+            </label>
+            <Input
+              id="fundName"
+              value={fundName}
+              onChange={(e) => setFundName(e.target.value)}
+              placeholder={fundConfig.fundNamePlaceholder}
+              className="w-full"
+            />
+          </div>
+
+          {/* Monthly Amount */}
+          <div>
+            <label htmlFor="monthlyAmount" className="block text-sm font-medium text-gray-700 mb-2">
+              ¿Cuánto quieres ahorrar mensualmente?
+            </label>
+            <div className="relative">
+              <DollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+              <Input
+                id="monthlyAmount"
+                type="number"
+                value={monthlyAmount}
+                onChange={(e) => setMonthlyAmount(e.target.value)}
+                placeholder="50000"
+                className="w-full pl-10"
+              />
+            </div>
+          </div>
+
+          {/* Projection Card */}
+          <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+            <div className="flex items-center gap-3">
+              <div className="text-2xl">💡</div>
+              <div>
+                <p className="text-sm font-medium text-green-800 mb-1">
+                  {fundConfig.projectionText}
+                </p>
+                <p className="text-2xl font-bold text-green-600">
+                  {fundConfig.projectionAmount}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Create Button */}
+          <Button 
+            className="w-full bg-green-500 hover:bg-green-600 text-white py-4 text-lg font-medium rounded-full"
+            onClick={handleCreateFund}
+          >
+            {fundConfig.buttonText}
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  // Vista de preguntas (código existente)
   return (
     <div className="min-h-[600px] bg-gray-50 p-6 m-0">
       {/* Header */}
