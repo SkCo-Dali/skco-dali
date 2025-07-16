@@ -53,7 +53,7 @@ const FUND_CREATION_CONFIG = {
     title: "¡Perfecto! Creemos tu fondo",
     subtitle: "Solo tú decides cómo y cuándo. Nosotros te ayudamos a crecerlo.",
     fundNamePlaceholder: "Mi fondo de viaje",
-    defaultAmount: "50000",
+    defaultAmount: 50000,
     projectionText: "Proyección a 6 meses:",
     projectionAmount: "$300,000",
     buttonText: "Ver mi simulador personalizado 📱"
@@ -62,7 +62,7 @@ const FUND_CREATION_CONFIG = {
     title: "¡Perfecto! Creemos tu fondo",
     subtitle: "Solo tú decides cómo y cuándo. Nosotros te ayudamos a crecerlo.",
     fundNamePlaceholder: "Mi fondo para pagar deudas",
-    defaultAmount: "50000",
+    defaultAmount: 50000,
     projectionText: "Proyección a 6 meses:",
     projectionAmount: "$300,000",
     buttonText: "Ver mi simulador personalizado 📱"
@@ -71,7 +71,7 @@ const FUND_CREATION_CONFIG = {
     title: "¡Perfecto! Creemos tu fondo",
     subtitle: "Solo tú decides cómo y cuándo. Nosotros te ayudamos a crecerlo.",
     fundNamePlaceholder: "Mi fondo de emergencias",
-    defaultAmount: "50000",
+    defaultAmount: 50000,
     projectionText: "Proyección a 6 meses:",
     projectionAmount: "$300,000",
     buttonText: "Ver mi simulador personalizado 📱"
@@ -80,7 +80,7 @@ const FUND_CREATION_CONFIG = {
     title: "¡Perfecto! Creemos tu fondo",
     subtitle: "Solo tú decides cómo y cuándo. Nosotros te ayudamos a crecerlo.",
     fundNamePlaceholder: "Mi fondo de compras",
-    defaultAmount: "50000",
+    defaultAmount: 50000,
     projectionText: "Proyección a 6 meses:",
     projectionAmount: "$300,000",
     buttonText: "Ver mi simulador personalizado 📱"
