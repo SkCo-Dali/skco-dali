@@ -266,7 +266,7 @@ export const LeadCreateDialog = forwardRef<LeadCreateDialogRef, LeadCreateDialog
                     <PopoverTrigger asChild>
                       <Button
                         variant="outline"
-                        className="w-full justify-between border border-gray-300 rounded-lg h-12 bg-gray-50 font-normal hover:bg-gray-50 pl-3 pr-2"
+                        className="w-full justify-between border border-gray-300 rounded-lg h-12 bg-gray-50 font-normal hover:bg-gray-50 pl-1 pr-1"
                       >
                         <span className={selectedProducts.length === 0 ? "text-left text-muted-foreground" : ""}>
                           {getProductDisplayText()}
