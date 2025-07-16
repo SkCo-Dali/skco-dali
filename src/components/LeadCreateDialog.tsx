@@ -390,7 +390,7 @@ export const LeadCreateDialog = forwardRef<LeadCreateDialogRef, LeadCreateDialog
                     <div className="relative">
                       <Select value={formData.preferredContactChannel} onValueChange={(value) => setFormData({...formData, preferredContactChannel: value})}>
                         <SelectTrigger className="border-gray-300 rounded-lg h-12 bg-gray-50">
-                          <SelectValue placeholder="Canal de contacto preferido" className="!text-muted-foreground"/>
+                          <SelectValue placeholder="Canal de contacto preferido" className="!text-[#94a3b8]"/>
                         </SelectTrigger>
                         <SelectContent>
                           <SelectItem value="Llamada">Llamada</SelectItem>
