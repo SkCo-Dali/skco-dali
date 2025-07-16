@@ -24,6 +24,7 @@ interface LeadsTableProps {
   columns?: ColumnConfig[];
   onSortedLeadsChange?: (sortedLeads: Lead[]) => void;
   onSendEmail?: (lead: Lead) => void;
+  onOpenProfiler?: (lead: Lead) => void;
   selectedLeads?: string[];
   onLeadSelectionChange?: (leadIds: string[], isSelected: boolean) => void;
 }
@@ -62,6 +63,7 @@ export function LeadsTable({
   columns = defaultColumns, 
   onSortedLeadsChange,
   onSendEmail,
+  onOpenProfiler,
   selectedLeads = [],
   onLeadSelectionChange
 }: LeadsTableProps) {
@@ -231,7 +233,9 @@ export function LeadsTable({
         }
         break;
       case 'profile':
-        console.log('Ver perfil del lead:', lead.name);
+        if (onOpenProfiler) {
+          onOpenProfiler(lead);
+        }
         break;
       case 'notes':
         console.log('Ver notas del lead:', lead.name);
@@ -311,6 +315,12 @@ export function LeadsTable({
                   <FaWhatsapp className="mr-2 h-4 w-4" />
                   Enviar WhatsApp
                 </DropdownMenuItem>
+                {onOpenProfiler && (
+                  <DropdownMenuItem onClick={(e) => handleLeadAction('profile', lead, e)}>
+                    <UserIcon className="mr-2 h-4 w-4" />
+                    Perfilar lead
+                  </DropdownMenuItem>
+                )}
                 <DropdownMenuItem 
                   onClick={(e) => handleLeadAction('delete', lead, e)}
                   className="text-red-600 focus:text-red-600"
