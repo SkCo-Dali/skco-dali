@@ -98,7 +98,7 @@ export const ProfilingSession: React.FC<ProfilingSessionProps> = ({
         {/* Contenedor inferior con fondo blanco */}
         <div className="bg-white flex items-center justify-center p-8">
           <Button 
-            className="bg-green-500 hover:bg-green-600 text-white px-8 py-4 text-lg font-medium rounded-full"
+            className="bg-green-500 hover:bg-green-600 text-white px-8 py-4 text-md font-medium rounded-full"
             onClick={() => {
               // Aquí puedes agregar la lógica para continuar al siguiente paso
               console.log('Continuar al siguiente paso');
