@@ -18,7 +18,7 @@ export const LeadProfiler: React.FC<LeadProfilerProps> = ({
           </div>
           <div>
             <h1 className="text-2xl text-lg font-bold text-gray-900">Sesión de prospección</h1>
-            <p className="text-gray-600 text-md">Preparación para cliente</p>
+            <p className="text-gray-600 text-sm">Preparación para cliente</p>
           </div>
         </div>
         
@@ -33,8 +33,8 @@ export const LeadProfiler: React.FC<LeadProfilerProps> = ({
             <CardContent className="p-6">
               <h3 className="text-md font-semibold text-gray-900 mb-4">Identificador del Cliente</h3>
               <div className="bg-white rounded-lg p-4 border">
-                <p className="text-md font-medium text-gray-900">
-                  {selectedLead?.name || 'Maria Lopez'}
+                <p className="text-sm font-medium text-gray-900">
+                  {selectedLead?.name || 'No registra nombre'}
                 </p>
               </div>
             </CardContent>
