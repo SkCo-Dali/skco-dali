@@ -72,35 +72,41 @@ export const ProfilingSession: React.FC<ProfilingSessionProps> = ({
 
   if (showConfirmation) {
     return (
-      <div className="min-h-[600px] bg-green-500 flex flex-col items-center justify-center p-6 m-0 text-white text-center relative">
-        <Button 
-          variant="ghost" 
-          size="sm" 
-          onClick={() => setShowConfirmation(false)}
-          className="absolute top-6 left-6 p-2 text-white hover:bg-green-600"
-        >
-          <ArrowLeft className="h-4 w-4" />
-        </Button>
+      <div className="min-h-[600px] flex flex-col m-0">
+        {/* Contenedor superior con fondo verde */}
+        <div className="flex-1 bg-green-500 flex flex-col items-center justify-center p-6 text-white text-center relative">
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            onClick={() => setShowConfirmation(false)}
+            className="absolute top-6 left-6 p-2 text-white hover:bg-green-600"
+          >
+            <ArrowLeft className="h-4 w-4" />
+          </Button>
+          
+          <div className="w-32 h-32 bg-green-400 rounded-full mb-8 opacity-50"></div>
+          
+          <h1 className="text-3xl font-bold mb-6">
+            Te entendemos perfectamente
+          </h1>
+          
+          <p className="text-lg max-w-2xl leading-relaxed">
+            {getConfirmationMessage()}
+          </p>
+        </div>
         
-        <div className="w-32 h-32 bg-green-400 rounded-full mb-8 opacity-50"></div>
-        
-        <h1 className="text-3xl font-bold mb-6">
-          Te entendemos perfectamente
-        </h1>
-        
-        <p className="text-lg mb-12 max-w-2xl leading-relaxed">
-          {getConfirmationMessage()}
-        </p>
-        
-        <Button 
-          className="bg-green-600 hover:bg-green-700 text-white px-8 py-3 text-lg font-medium rounded-full"
-          onClick={() => {
-            // Aquí puedes agregar la lógica para continuar al siguiente paso
-            console.log('Continuar al siguiente paso');
-          }}
-        >
-          ¡Sí, quiero lograrlo! →
-        </Button>
+        {/* Contenedor inferior con fondo blanco */}
+        <div className="bg-white flex items-center justify-center p-8">
+          <Button 
+            className="bg-green-500 hover:bg-green-600 text-white px-8 py-4 text-lg font-medium rounded-full"
+            onClick={() => {
+              // Aquí puedes agregar la lógica para continuar al siguiente paso
+              console.log('Continuar al siguiente paso');
+            }}
+          >
+            Optimizar mi portafolio →
+          </Button>
+        </div>
       </div>
     );
   }
