@@ -631,6 +631,7 @@ export default function Leads() {
                   onLeadClick={handleLeadClick}
                   onLeadUpdate={handleLeadUpdate}
                   columns={columns}
+                  paginatedLeads={paginatedLeads}
                   onSortedLeadsChange={handleSortedLeadsChange}
                   onSendEmail={handleSendEmailToLead}
                   groupBy={groupBy}
