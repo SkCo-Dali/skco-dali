@@ -63,7 +63,7 @@ export function LeadsContent({
         />
 
         <Dialog open={isProfilerOpen} onOpenChange={setIsProfilerOpen}>
-          <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto p-0">
             
             <LeadProfiler selectedLead={selectedLeadForProfiler} />
           </DialogContent>
