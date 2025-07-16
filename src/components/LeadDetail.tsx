@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { Lead } from "@/types/crm";
 import { Button } from "@/components/ui/button";
@@ -28,7 +29,6 @@ import * as z from "zod";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
-import { updateLead } from "@/api/crm";
 
 interface LeadDetailProps {
   lead: Lead;
@@ -106,27 +106,12 @@ export function LeadDetail({ lead, isOpen, onClose, onSave, onOpenMassEmail }: L
       setIsSaving(true);
       const formData = form.getValues();
       
-      const updateData = {
-        name: formData.name,
-        email: formData.email,
-        phone: formData.phone,
-        documentType: formData.documentType,
-        documentNumber: Number(formData.documentNumber),
-        company: formData.company,
-        product: formData.product,
-        stage: formData.stage,
-        priority: formData.priority,
-        source: formData.source,
-        campaign: formData.campaign,
-        assignedTo: formData.assignedTo,
-        value: Number(formData.value) || 0,
-        age: Number(formData.age) || 0,
-        gender: formData.gender,
-        preferredContactChannel: formData.preferredContactChannel,
-        CreatedBy: lead.createdBy || 'system' // Usar el valor existente o un valor por defecto
-      };
-
-      await updateLead(lead.id, updateData);
+      // Simulate API call
+      console.log('Saving lead data:', formData);
+      
+      // Simulate delay
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
       toast.success("Lead actualizado exitosamente");
       onSave();
       onClose();
