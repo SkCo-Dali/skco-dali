@@ -86,11 +86,11 @@ export const ProfilingSession: React.FC<ProfilingSessionProps> = ({
           
           <div className="w-32 h-32 bg-green-400 rounded-full mb-8 opacity-50"></div>
           
-          <h1 className="text-3xl font-bold mb-6">
+          <h2 className="text-3xl font-bold mb-6">
             Te entendemos perfectamente
-          </h1>
+          </h2>
           
-          <p className="text-lg max-w-2xl leading-relaxed">
+          <p className="text-md max-w-2xl leading-relaxed">
             {getConfirmationMessage()}
           </p>
         </div>
