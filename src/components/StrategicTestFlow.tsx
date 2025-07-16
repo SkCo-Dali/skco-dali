@@ -349,7 +349,6 @@ export const StrategicTestFlow: React.FC<StrategicTestFlowProps> = ({
       {/* Options */}
       <div className="max-w-2xl mx-auto space-y-4 mb-8">
         {currentQuestion.options.map((option) => {
-          const Icon = option.icon;
           return (
             <label
               key={option.id}
@@ -367,8 +366,8 @@ export const StrategicTestFlow: React.FC<StrategicTestFlowProps> = ({
                 onChange={(e) => setSelectedOption(e.target.value)}
                 className="w-4 h-4"
               />
-              <div className="w-12 h-12 rounded-lg flex items-center justify-center">
-                <Icon className="h-5 w-5" />
+              <div className="w-12 h-12 rounded-lg flex items-center justify-center text-2xl">
+                {option.icon}
               </div>
               <span className="text-md text-gray-900">{option.text}</span>
             </label>
