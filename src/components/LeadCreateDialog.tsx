@@ -175,7 +175,7 @@ export const LeadCreateDialog = forwardRef<LeadCreateDialogRef, LeadCreateDialog
                   <div className="relative">
                     <Select value={formData.documentType} onValueChange={(value) => setFormData({...formData, documentType: value})}>
                       <SelectTrigger className="border-gray-300 rounded-lg h-12 bg-gray-50">
-                        <SelectValue placeholder="Tipo de identificación*" />
+                        <SelectValue className="text-muted-foreground" placeholder="Tipo de identificación*" />
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="C">Cédula de ciudadanía</SelectItem>
