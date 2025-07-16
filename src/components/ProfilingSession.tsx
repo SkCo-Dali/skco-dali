@@ -17,6 +17,7 @@ export const ProfilingSession: React.FC<ProfilingSessionProps> = ({
 }) => {
   const [selectedAnswer, setSelectedAnswer] = useState<string>('');
   const [notes, setNotes] = useState<string>('');
+  const [showConfirmation, setShowConfirmation] = useState(false);
 
   const answers = [
     {
@@ -48,6 +49,53 @@ export const ProfilingSession: React.FC<ProfilingSessionProps> = ({
     { letter: 'D', type: 'Maduro' }
   ];
 
+  const getConfirmationMessage = () => {
+    switch (selectedAnswer) {
+      case 'nightmare':
+        return 'Buscas disfrutar tu vida sin culpas, pero sabes que necesitas orden sin sacrificar tu estilo.';
+      case 'multiply':
+        return 'Tienes experiencia invirtiendo pero buscas optimizar tu estrategia con decisiones basadas en datos.';
+      case 'family':
+        return 'Tu prioridad es proteger a tu familia y asegurar su futuro. No estás solo en esto.';
+      case 'preserve':
+        return 'Has trabajado toda tu vida para llegar hasta aquí. Mereces un retiro tranquilo y sin preocupaciones.';
+      default:
+        return '';
+    }
+  };
+
+  const handleFinalize = () => {
+    if (selectedAnswer) {
+      setShowConfirmation(true);
+    }
+  };
+
+  if (showConfirmation) {
+    return (
+      <div className="min-h-[600px] bg-green-500 flex flex-col items-center justify-center p-6 m-0 text-white text-center">
+        <div className="w-32 h-32 bg-green-400 rounded-full mb-8 opacity-50"></div>
+        
+        <h1 className="text-3xl font-bold mb-6">
+          Te entendemos perfectamente
+        </h1>
+        
+        <p className="text-lg mb-12 max-w-2xl leading-relaxed">
+          {getConfirmationMessage()}
+        </p>
+        
+        <Button 
+          className="bg-green-600 hover:bg-green-700 text-white px-8 py-3 text-lg font-medium rounded-full"
+          onClick={() => {
+            // Aquí puedes agregar la lógica para continuar al siguiente paso
+            console.log('Continuar al siguiente paso');
+          }}
+        >
+          ¡Sí, quiero lograrlo! →
+        </Button>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-[600px] bg-green-50 p-6 m-0">
       {/* Header */}
@@ -68,7 +116,6 @@ export const ProfilingSession: React.FC<ProfilingSessionProps> = ({
           </div>
         </div>
       </div>
-
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Left Column - Advisor Guide */}
@@ -142,6 +189,7 @@ export const ProfilingSession: React.FC<ProfilingSessionProps> = ({
           <Button 
             className="w-full bg-green-500 hover:bg-green-600 text-white py-4 text-md font-medium"
             disabled={!selectedAnswer}
+            onClick={handleFinalize}
           >
             Finalizar
           </Button>
