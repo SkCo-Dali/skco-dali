@@ -64,6 +64,22 @@ export const ProfilingSession: React.FC<ProfilingSessionProps> = ({
     }
   };
 
+
+   const getConfirmationbutton = () => {
+    switch (selectedAnswer) {
+      case 'nightmare':
+        return '¡Sí, quiero lograrlo! →
+      case 'multiply':
+        return 'Optimizar mi portafolio →';
+      case 'family':
+        return 'Proteger a mi familia →';
+      case 'preserve':
+        return 'Asegurar mi retiro →';
+      default:
+        return '';
+    }
+  };
+  
   const handleFinalize = () => {
     if (selectedAnswer) {
       setShowConfirmation(true);
@@ -104,7 +120,7 @@ export const ProfilingSession: React.FC<ProfilingSessionProps> = ({
               console.log('Continuar al siguiente paso');
             }}
           >
-            Optimizar mi portafolio →
+            {getConfirmationbutton()}
           </Button>
         </div>
       </div>
