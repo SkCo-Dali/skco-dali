@@ -62,7 +62,7 @@ export const ProfilingSession: React.FC<ProfilingSessionProps> = ({
             <ArrowLeft className="h-4 w-4" />
           </Button>
           <div>
-            <h1 className="text-lg font-bold text-gray-900">
+            <h1 className="text-md font-bold text-gray-900">
               Perfilando a: {selectedLead?.name || 'Cliente'}
             </h1>
           </div>
