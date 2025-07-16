@@ -73,7 +73,7 @@ export const StrategicTestFlow: React.FC<StrategicTestFlowProps> = ({
         >
           <ArrowLeft className="h-4 w-4" />
         </Button>
-        <h1 className="text-2xl font-bold text-gray-900 mb-2">
+        <h1 className="text-2xl text-center font-bold text-gray-900 mb-2">
           {config.title}
         </h1>
         
@@ -89,7 +89,7 @@ export const StrategicTestFlow: React.FC<StrategicTestFlowProps> = ({
           </div>
           <p className="text-right text-sm text-gray-600">{config.subtitle}</p>
         </div>
-        <h2 className="text-xl font-semibold text-gray-800 mb-8">
+        <h2 className="text-lg text-center font-semibold text-gray-800 mb-8">
           {config.question}
         </h2>
         
@@ -114,12 +114,12 @@ export const StrategicTestFlow: React.FC<StrategicTestFlowProps> = ({
                 value={option.id}
                 checked={selectedOption === option.id}
                 onChange={(e) => setSelectedOption(e.target.value)}
-                className="w-5 h-5"
+                className="w-4 h-4"
               />
               <div className={`w-12 h-12 ${option.color} rounded-lg flex items-center justify-center`}>
-                <Icon className="h-6 w-6" />
+                <Icon className="h-5 w-5" />
               </div>
-              <span className="text-lg text-gray-900">{option.text}</span>
+              <span className="text-md text-gray-900">{option.text}</span>
             </label>
           );
         })}
