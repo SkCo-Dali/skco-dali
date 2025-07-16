@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { Lead } from "@/types/crm";
 import { Badge } from "@/components/ui/badge";
@@ -8,7 +9,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { User, Mail, Edit, Trash2, MoreVertical, CircleUserRound, Smartphone } from "lucide-react";
+import { User, Mail, Edit, Trash2, MoreVertical, CircleUserRound, Smartphone, Users } from "lucide-react";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { useUsersApi } from "@/hooks/useUsersApi";
@@ -24,6 +25,7 @@ interface LeadCardProps {
   onDelete?: (lead: Lead) => void;
   onSendEmail?: (lead: Lead) => void;
   onSendWhatsApp?: (lead: Lead) => void;
+  onOpenProfiler?: (lead: Lead) => void;
   onLeadUpdate?: () => void;
 }
 
@@ -48,6 +50,7 @@ export function LeadCard({
   onDelete, 
   onSendEmail, 
   onSendWhatsApp,
+  onOpenProfiler,
   onLeadUpdate
 }: LeadCardProps) {
   const { users } = useUsersApi();
@@ -177,6 +180,15 @@ export function LeadCard({
                       </svg>
                       Enviar WhatsApp
                     </DropdownMenuItem>
+                    {onOpenProfiler && (
+                      <DropdownMenuItem 
+                        onClick={(e) => handleMenuClick(e, () => onOpenProfiler(lead))}
+                        className="flex items-center gap-2 px-3 py-2 hover:bg-gray-50 cursor-pointer text-sm"
+                      >
+                        <Users className="h-4 w-4" />
+                        Perfilar lead
+                      </DropdownMenuItem>
+                    )}
                     <DropdownMenuItem 
                       onClick={(e) => handleMenuClick(e, handleDeleteClick)}
                       className="flex items-center gap-2 px-3 py-2 hover:bg-red-50 cursor-pointer text-red-600 text-sm"
