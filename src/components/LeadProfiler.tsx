@@ -9,7 +9,7 @@ export const LeadProfiler: React.FC<LeadProfilerProps> = ({
   selectedLead
 }) => {
   return (
-    <div className="min-h-[600px] bg-gray-50 p-6 m-2">
+    <div className="min-h-[600px] bg-gray-50 p-6 m-0">
       {/* Header */}
       <div className="flex items-center justify-between mb-8">
         <div className="flex items-center gap-4">
