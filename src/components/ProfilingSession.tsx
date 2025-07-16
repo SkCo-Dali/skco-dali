@@ -89,12 +89,12 @@ export const ProfilingSession: React.FC<ProfilingSessionProps> = ({
           </Card>
 
           <div>
-            <h3 className="text-md font-semibold text-gray-900 mb-4">Predicción de perfiles:</h3>
+            <h3 className="text-sm font-semibold text-gray-900 mb-4">Predicción de perfiles:</h3>
             <div className="space-y-2">
               {profiles.map((profile) => (
                 <div key={profile.letter} className="flex justify-between items-center">
-                  <span className="font-medium">{profile.letter}</span>
-                  <span className="text-gray-600">{profile.type}</span>
+                  <span className="text-sm font-medium">{profile.letter}</span>
+                  <span className="text-sm text-gray-600">{profile.type}</span>
                 </div>
               ))}
             </div>
