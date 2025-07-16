@@ -199,7 +199,7 @@ export const NightmareFlow: React.FC<NightmareFlowProps> = ({ onBack }) => {
                 type="number"
                 value={monthlyAmount}
                 onChange={(e) => setMonthlyAmount(Number(e.target.value))}
-                className="w-full pl-10"
+                className="pl-10 text-sm py-3 border-2 border-gray-200 focus:border-green-500 rounded-lg"
               />
             </div>
           </div>
