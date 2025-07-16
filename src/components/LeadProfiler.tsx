@@ -22,10 +22,7 @@ export const LeadProfiler: React.FC<LeadProfilerProps> = ({
           </div>
         </div>
         
-        <Button variant="ghost" className="flex items-center gap-2 text-gray-600">
-          <Home className="h-4 w-4" />
-          Inicio
-        </Button>
+       
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
