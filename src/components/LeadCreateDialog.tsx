@@ -175,7 +175,7 @@ export const LeadCreateDialog = forwardRef<LeadCreateDialogRef, LeadCreateDialog
                   <div className="relative">
                     <Select value={formData.documentType} onValueChange={(value) => setFormData({...formData, documentType: value})}>
                       <SelectTrigger className="border-gray-300 rounded-lg h-12 bg-gray-50">
-                        <SelectValue placeholder="Tipo de identificación*" />
+                        <SelectValue className="!text-muted-foreground" placeholder="Tipo de identificación*" />
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="C">Cédula de ciudadanía</SelectItem>
@@ -266,12 +266,12 @@ export const LeadCreateDialog = forwardRef<LeadCreateDialogRef, LeadCreateDialog
                     <PopoverTrigger asChild>
                       <Button
                         variant="outline"
-                        className="w-full justify-between border border-gray-300 rounded-lg h-12 bg-gray-50 font-normal hover:bg-gray-50 pl-3 pr-2"
+                        className="w-full !px-4 justify-between border border-gray-300 rounded-lg h-12 bg-gray-50 font-normal hover:bg-gray-50"
                       >
                         <span className={selectedProducts.length === 0 ? "text-left text-muted-foreground" : ""}>
                           {getProductDisplayText()}
                         </span>
-                        <ChevronDown className="h-4 w-4 text-[#00c83c] text-right" />
+                        <ChevronDown className="h-4 w-4 text-[#00c83c]" />
                       </Button>
                     </PopoverTrigger>
                     <PopoverContent className="w-full p-0" align="start">
@@ -356,7 +356,7 @@ export const LeadCreateDialog = forwardRef<LeadCreateDialogRef, LeadCreateDialog
                       <div className="relative">
                         <Select value={formData.gender} onValueChange={(value) => setFormData({...formData, gender: value})}>
                           <SelectTrigger className="border-gray-300 rounded-lg h-12 bg-gray-50">
-                            <SelectValue placeholder="Género" className="!text-muted-foreground" />
+                            <SelectValue placeholder="Género" />
                           </SelectTrigger>
                           <SelectContent>
                             <SelectItem value="Masculino">Masculino</SelectItem>
@@ -390,7 +390,7 @@ export const LeadCreateDialog = forwardRef<LeadCreateDialogRef, LeadCreateDialog
                     <div className="relative">
                       <Select value={formData.preferredContactChannel} onValueChange={(value) => setFormData({...formData, preferredContactChannel: value})}>
                         <SelectTrigger className="border-gray-300 rounded-lg h-12 bg-gray-50">
-                          <SelectValue placeholder="Canal de contacto preferido" className="!text-muted-foreground"/>
+                          <SelectValue placeholder="Canal de contacto preferido" />
                         </SelectTrigger>
                         <SelectContent>
                           <SelectItem value="Llamada">Llamada</SelectItem>
