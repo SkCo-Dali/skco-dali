@@ -80,12 +80,12 @@ export const StrategicTestFlow: React.FC<StrategicTestFlowProps> = ({
         <h2 className="text-xl font-semibold text-gray-800 mb-8">
           {config.question}
         </h2>
-        <div cl
       </div>
 
       {/* Progress and Title */}
       <div className="max-w-4xl mx-auto mb-8">
-        assName="mb-6">
+        
+        <div className="mb-6">
           <div className="w-full bg-gray-200 rounded-full h-2 mb-4">
             <div className="bg-green-500 h-2 rounded-full" style={{ width: '50%' }}></div>
           </div>
