@@ -128,19 +128,6 @@ export const NightmareFlow: React.FC<NightmareFlowProps> = ({ onBack }) => {
         </Button>
       </div>
 
-      {/* Progress indicator */}
-      <div className="max-w-4xl mx-auto mb-6">
-        <div className="w-full bg-gray-200 rounded-full h-2 mb-4">
-          <div 
-            className="bg-green-500 h-2 rounded-full transition-all duration-300" 
-            style={{ width: `${((currentQuestionIndex + 1) / NIGHTMARE_QUESTIONS.length) * 100}%` }}
-          ></div>
-        </div>
-        <p className="text-right text-sm text-gray-600">
-          Pregunta {currentQuestionIndex + 1} de {NIGHTMARE_QUESTIONS.length}
-        </p>
-      </div>
-
       {/* Title */}
       <div className="text-center mb-8">
         <h1 className="text-2xl font-bold text-gray-900 mb-4">
