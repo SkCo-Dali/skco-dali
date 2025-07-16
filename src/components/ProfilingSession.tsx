@@ -72,7 +72,16 @@ export const ProfilingSession: React.FC<ProfilingSessionProps> = ({
 
   if (showConfirmation) {
     return (
-      <div className="min-h-[600px] bg-green-500 flex flex-col items-center justify-center p-6 m-0 text-white text-center">
+      <div className="min-h-[600px] bg-green-500 flex flex-col items-center justify-center p-6 m-0 text-white text-center relative">
+        <Button 
+          variant="ghost" 
+          size="sm" 
+          onClick={() => setShowConfirmation(false)}
+          className="absolute top-6 left-6 p-2 text-white hover:bg-green-600"
+        >
+          <ArrowLeft className="h-4 w-4" />
+        </Button>
+        
         <div className="w-32 h-32 bg-green-400 rounded-full mb-8 opacity-50"></div>
         
         <h1 className="text-3xl font-bold mb-6">
