@@ -2,12 +2,24 @@
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { User, Home, Target, ArrowRight } from 'lucide-react';
+import { User, Target, ArrowRight } from 'lucide-react';
 import { LeadProfilerProps } from '@/types/leadProfiler';
+import { ProfilingSession } from './ProfilingSession';
 
 export const LeadProfiler: React.FC<LeadProfilerProps> = ({
   selectedLead
 }) => {
+  const [showSession, setShowSession] = useState(false);
+
+  if (showSession) {
+    return (
+      <ProfilingSession 
+        selectedLead={selectedLead}
+        onBack={() => setShowSession(false)}
+      />
+    );
+  }
+
   return (
     <div className="min-h-[600px] bg-gray-50 p-6 m-0">
       {/* Header */}
@@ -21,8 +33,6 @@ export const LeadProfiler: React.FC<LeadProfilerProps> = ({
             <p className="text-gray-600 text-sm">Preparación para cliente</p>
           </div>
         </div>
-        
-       
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -98,7 +108,10 @@ export const LeadProfiler: React.FC<LeadProfilerProps> = ({
           </div>
 
           {/* Button */}
-          <Button className="w-full bg-green-500 hover:bg-green-600 text-white py-4 text-md font-medium flex items-center justify-center gap-2">
+          <Button 
+            className="w-full bg-green-500 hover:bg-green-600 text-white py-4 text-md font-medium flex items-center justify-center gap-2"
+            onClick={() => setShowSession(true)}
+          >
             Iniciar Sesión de Perfilado
             <ArrowRight className="h-5 w-5" />
           </Button>
