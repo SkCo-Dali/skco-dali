@@ -143,7 +143,7 @@ export const NightmareFlow: React.FC<NightmareFlowProps> = ({ onBack }) => {
   // Vista de creación de fondo
   if (showFundCreation && fundConfig) {
     return (
-      <div className="min-h-[600px] bg-gray-50 p-4 m-0">
+      <div className="min-h-[600px] bg-gray-50 p-2 m-0">
         {/* Header */}
         <div className="flex items-center gap-4 mb-0">
           <Button 
@@ -192,13 +192,12 @@ export const NightmareFlow: React.FC<NightmareFlowProps> = ({ onBack }) => {
               ¿Cuánto quieres ahorrar mensualmente?
             </label>
             <div className="relative">
-              <DollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+              <span className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-500 text-sm">$</span>
               <Input
                 id="monthlyAmount"
                 type="number"
                 value={monthlyAmount}
                 onChange={(e) => setMonthlyAmount(e.target.value)}
-                placeholder="50000"
                 className="w-full pl-10"
               />
             </div>
