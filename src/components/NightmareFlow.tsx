@@ -93,7 +93,7 @@ export const NightmareFlow: React.FC<NightmareFlowProps> = ({ onBack }) => {
   const [selectedOption, setSelectedOption] = useState<string>('');
   const [showFundCreation, setShowFundCreation] = useState(false);
   const [fundName, setFundName] = useState('');
-  const [monthlyAmount, setMonthlyAmount] = useState('');
+  const [monthlyAmount, setMonthlyAmount] = useState(50000);
   const projectedAmount = monthlyAmount * 6
 
   const currentQuestion = NIGHTMARE_QUESTIONS[currentQuestionIndex];
