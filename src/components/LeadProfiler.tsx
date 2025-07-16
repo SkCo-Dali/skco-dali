@@ -1,230 +1,128 @@
 
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { Badge } from '@/components/ui/badge';
-import { User, Clock, Lightbulb, FileText, CheckCircle, AlertCircle, TrendingUp } from 'lucide-react';
+import { Card, CardContent } from '@/components/ui/card';
+import { User, Home, Target, ArrowRight } from 'lucide-react';
 import { LeadProfilerProps } from '@/types/leadProfiler';
 
 export const LeadProfiler: React.FC<LeadProfilerProps> = ({
   selectedLead
 }) => {
-  const [sessionNotes, setSessionNotes] = useState('');
-  const [financialGoals, setFinancialGoals] = useState('');
-  const [riskTolerance, setRiskTolerance] = useState('');
-  
-  const profileTips = [
-    "Escucha activamente las necesidades del cliente",
-    "Identifica su situación financiera actual",
-    "Evalúa su tolerancia al riesgo",
-    "Determina sus objetivos a corto y largo plazo",
-    "Recomienda productos acordes a su perfil"
-  ];
-
-  const financialQuestions = [
-    {
-      id: 1,
-      question: "¿Cuál es su objetivo principal de inversión?",
-      options: ["Ahorro", "Crecimiento", "Ingresos", "Preservación"]
-    },
-    {
-      id: 2,
-      question: "¿Cuál es su horizonte de inversión?",
-      options: ["Corto plazo (1-3 años)", "Mediano plazo (3-7 años)", "Largo plazo (7+ años)"]
-    },
-    {
-      id: 3,
-      question: "¿Cómo reaccionaría ante una pérdida del 20% en su inversión?",
-      options: ["Muy preocupado", "Preocupado", "Neutral", "Tranquilo", "Oportunidad de compra"]
-    }
-  ];
-
   return (
-    <div className="space-y-6 max-h-[80vh] overflow-y-auto">
-      {/* Identificador del Cliente */}
-      <Card>
-        <CardHeader className="pb-3">
-          <CardTitle className="flex items-center gap-2 text-lg">
-            <User className="h-5 w-5 text-skandia-blue" />
-            Identificador del Cliente
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <Label className="text-sm font-medium">Nombre completo</Label>
-              <div className="p-2 bg-muted rounded-md text-sm">
-                {selectedLead?.name || 'No especificado'}
-              </div>
-            </div>
-            <div>
-              <Label className="text-sm font-medium">Email</Label>
-              <div className="p-2 bg-muted rounded-md text-sm">
-                {selectedLead?.email || 'No especificado'}
-              </div>
-            </div>
-            <div>
-              <Label className="text-sm font-medium">Teléfono</Label>
-              <div className="p-2 bg-muted rounded-md text-sm">
-                {selectedLead?.phone || 'No especificado'}
-              </div>
-            </div>
-            <div>
-              <Label className="text-sm font-medium">Estado</Label>
-              <Badge variant="secondary" className="text-xs">
-                {selectedLead?.status || 'Nuevo'}
-              </Badge>
-            </div>
+    <div className="min-h-[600px] bg-gray-50 p-6">
+      {/* Header */}
+      <div className="flex items-center justify-between mb-8">
+        <div className="flex items-center gap-4">
+          <div className="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center">
+            <User className="h-6 w-6 text-white" />
           </div>
-        </CardContent>
-      </Card>
-
-      {/* Preparación de Sesión */}
-      <Card>
-        <CardHeader className="pb-3">
-          <CardTitle className="flex items-center gap-2 text-lg">
-            <Clock className="h-5 w-5 text-skandia-blue" />
-            Preparación de Sesión
-          </CardTitle>
-          <CardDescription>
-            Información previa y notas para la sesión de prospección
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
           <div>
-            <Label htmlFor="session-notes" className="text-sm font-medium">
-              Notas de la sesión
-            </Label>
-            <Textarea
-              id="session-notes"
-              placeholder="Escriba aquí las notas importantes de la sesión..."
-              value={sessionNotes}
-              onChange={(e) => setSessionNotes(e.target.value)}
-              className="min-h-[100px]"
-            />
+            <h1 className="text-2xl font-bold text-gray-900">Sesión de prospección</h1>
+            <p className="text-gray-600">Preparación para cliente</p>
           </div>
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <Label htmlFor="financial-goals" className="text-sm font-medium">
-                Objetivos financieros
-              </Label>
-              <Input
-                id="financial-goals"
-                placeholder="Ej: Jubilación, compra de vivienda..."
-                value={financialGoals}
-                onChange={(e) => setFinancialGoals(e.target.value)}
-              />
-            </div>
-            <div>
-              <Label htmlFor="risk-tolerance" className="text-sm font-medium">
-                Tolerancia al riesgo inicial
-              </Label>
-              <Input
-                id="risk-tolerance"
-                placeholder="Conservador, Moderado, Agresivo"
-                value={riskTolerance}
-                onChange={(e) => setRiskTolerance(e.target.value)}
-              />
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+        </div>
+        
+        <Button variant="ghost" className="flex items-center gap-2 text-gray-600">
+          <Home className="h-4 w-4" />
+          Inicio
+        </Button>
+      </div>
 
-      {/* Tips para el Asesor */}
-      <Card>
-        <CardHeader className="pb-3">
-          <CardTitle className="flex items-center gap-2 text-lg">
-            <Lightbulb className="h-5 w-5 text-yellow-500" />
-            Tips para el Asesor
-          </CardTitle>
-          <CardDescription>
-            Recomendaciones para una sesión exitosa
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <ul className="space-y-2">
-            {profileTips.map((tip, index) => (
-              <li key={index} className="flex items-start gap-2 text-sm">
-                <CheckCircle className="h-4 w-4 text-green-500 mt-0.5 flex-shrink-0" />
-                {tip}
-              </li>
-            ))}
-          </ul>
-        </CardContent>
-      </Card>
-
-      {/* Test de Perfil Financiero */}
-      <Card>
-        <CardHeader className="pb-3">
-          <CardTitle className="flex items-center gap-2 text-lg">
-            <TrendingUp className="h-5 w-5 text-skandia-blue" />
-            Test de Perfil Financiero
-          </CardTitle>
-          <CardDescription>
-            Cuestionario para determinar el perfil de inversión del cliente
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-6">
-          {financialQuestions.map((question) => (
-            <div key={question.id} className="space-y-3">
-              <div className="flex items-start gap-2">
-                <Badge variant="outline" className="text-xs">
-                  {question.id}
-                </Badge>
-                <Label className="text-sm font-medium leading-relaxed">
-                  {question.question}
-                </Label>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        {/* Left Column */}
+        <div className="space-y-6">
+          {/* Identificador del Cliente */}
+          <Card className="bg-blue-50 border-blue-200">
+            <CardContent className="p-6">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">Identificador del Cliente</h3>
+              <div className="bg-white rounded-lg p-4 border">
+                <p className="text-lg font-medium text-gray-900">
+                  {selectedLead?.name || 'Maria Lopez'}
+                </p>
               </div>
-              <div className="ml-8 space-y-2">
-                {question.options.map((option, index) => (
-                  <label key={index} className="flex items-center gap-2 cursor-pointer">
-                    <input
-                      type="radio"
-                      name={`question-${question.id}`}
-                      value={option}
-                      className="text-skandia-blue focus:ring-skandia-blue"
-                    />
-                    <span className="text-sm">{option}</span>
-                  </label>
-                ))}
+              <p className="text-sm text-gray-600 mt-3">
+                Se ha generado automáticamente un identificador único para esta sesión.
+              </p>
+            </CardContent>
+          </Card>
+
+          {/* Preparación de la sesión */}
+          <Card className="bg-green-50 border-green-200">
+            <CardContent className="p-6">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">Preparación de la sesión:</h3>
+              <div className="space-y-3">
+                <div className="flex items-start gap-3">
+                  <div className="w-2 h-2 bg-green-500 rounded-full mt-2"></div>
+                  <div>
+                    <span className="font-medium text-gray-900">Duración estimada:</span>
+                    <span className="text-gray-700 ml-1">5-7 minutos</span>
+                  </div>
+                </div>
+                <div className="flex items-start gap-3">
+                  <div className="w-2 h-2 bg-green-500 rounded-full mt-2"></div>
+                  <div>
+                    <span className="font-medium text-gray-900">Objetivo:</span>
+                    <span className="text-gray-700 ml-1">Identificar perfil financiero del cliente</span>
+                  </div>
+                </div>
+                <div className="flex items-start gap-3">
+                  <div className="w-2 h-2 bg-green-500 rounded-full mt-2"></div>
+                  <div>
+                    <span className="font-medium text-gray-900">Modalidad:</span>
+                    <span className="text-gray-700 ml-1">Conversacional con apoyo visual</span>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Tips para la sesión */}
+          <div>
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">Tips para la sesión:</h3>
+            <div className="space-y-3">
+              <div className="flex items-start gap-3">
+                <span className="text-lg">😊</span>
+                <span className="text-gray-700">Observa reacciones no verbales</span>
+              </div>
+              <div className="flex items-start gap-3">
+                <span className="text-lg">⏰</span>
+                <span className="text-gray-700">Permite que se tome su tiempo para responder</span>
+              </div>
+              <div className="flex items-start gap-3">
+                <span className="text-lg">💬</span>
+                <span className="text-gray-700">Aclara dudas sin influir en las respuestas</span>
+              </div>
+              <div className="flex items-start gap-3">
+                <span className="text-lg">📝</span>
+                <span className="text-gray-700">Toma notas de comentarios adicionales</span>
+              </div>
+              <div className="flex items-start gap-3">
+                <span className="text-lg">⏸️</span>
+                <span className="text-gray-700">Puedes pausar para profundizar en respuestas</span>
               </div>
             </div>
-          ))}
-        </CardContent>
-      </Card>
+          </div>
 
-      {/* Resultado del Perfil */}
-      <Card>
-        <CardHeader className="pb-3">
-          <CardTitle className="flex items-center gap-2 text-lg">
-            <FileText className="h-5 w-5 text-skandia-blue" />
-            Resultado del Perfil
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="p-4 bg-muted rounded-lg">
-            <div className="flex items-center gap-2 mb-2">
-              <AlertCircle className="h-4 w-4 text-blue-500" />
-              <span className="text-sm font-medium">Perfil recomendado</span>
+          {/* Button */}
+          <Button className="w-full bg-green-500 hover:bg-green-600 text-white py-4 text-lg font-medium flex items-center justify-center gap-2">
+            Iniciar Sesión de Perfilado
+            <ArrowRight className="h-5 w-5" />
+          </Button>
+        </div>
+
+        {/* Right Column */}
+        <div className="space-y-6">
+          {/* Test de Perfil Financiero */}
+          <div className="text-center">
+            <div className="w-20 h-20 bg-pink-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <Target className="h-10 w-10 text-pink-500" />
             </div>
-            <p className="text-sm text-muted-foreground">
-              Complete el cuestionario para obtener la recomendación de perfil financiero
-            </p>
+            <h3 className="text-xl font-bold text-gray-900 mb-2">Test de Perfil Financiero</h3>
+            <p className="text-gray-600 mb-4">Vista previa de lo que verá el cliente</p>
+            <p className="text-lg font-medium text-gray-900">1 pregunta para personalizar la experiencia</p>
           </div>
-          
-          <div className="flex gap-2">
-            <Button variant="outline" className="flex-1">
-              Guardar sesión
-            </Button>
-            <Button className="flex-1">
-              Generar reporte
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     </div>
   );
 };
