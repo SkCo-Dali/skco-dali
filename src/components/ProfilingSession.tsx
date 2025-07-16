@@ -67,17 +67,8 @@ export const ProfilingSession: React.FC<ProfilingSessionProps> = ({
             </h1>
           </div>
         </div>
-        
-        <div className="flex items-center gap-4">
-          <span className="text-red-500 font-medium">0 respondidas</span>
-          <span className="text-gray-600">Pregunta 1 de 1</span>
-        </div>
       </div>
 
-      {/* Progress Bar */}
-      <div className="w-full bg-gray-200 rounded-full h-2 mb-8">
-        <div className="bg-green-500 h-2 rounded-full w-full"></div>
-      </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Left Column - Advisor Guide */}
