@@ -94,6 +94,7 @@ export const NightmareFlow: React.FC<NightmareFlowProps> = ({ onBack }) => {
   const [showFundCreation, setShowFundCreation] = useState(false);
   const [fundName, setFundName] = useState('');
   const [monthlyAmount, setMonthlyAmount] = useState('');
+  const projectedAmount = monthlyAmount * 6
 
   const currentQuestion = NIGHTMARE_QUESTIONS[currentQuestionIndex];
   const isLastQuestion = currentQuestionIndex === NIGHTMARE_QUESTIONS.length - 1;
@@ -197,7 +198,7 @@ export const NightmareFlow: React.FC<NightmareFlowProps> = ({ onBack }) => {
                 id="monthlyAmount"
                 type="number"
                 value={monthlyAmount}
-                onChange={(e) => setMonthlyAmount(e.target.value)}
+                onChange={(e) => setMonthlyAmount(Number(e.target.value))}
                 className="w-full pl-10"
               />
             </div>
@@ -212,7 +213,7 @@ export const NightmareFlow: React.FC<NightmareFlowProps> = ({ onBack }) => {
                   {fundConfig.projectionText}
                 </p>
                 <p className="text-2xl font-bold text-green-600">
-                  {fundConfig.projectionAmount}
+                  ${projectedAmount.toLocaleString()}
                 </p>
               </div>
             </div>
