@@ -17,8 +17,8 @@ export const LeadProfiler: React.FC<LeadProfilerProps> = ({
             <User className="h-6 w-6 text-white" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">Sesión de prospección</h1>
-            <p className="text-gray-600">Preparación para cliente</p>
+            <h1 className="text-2xl text-lg font-bold text-gray-900">Sesión de prospección</h1>
+            <p className="text-gray-600 text-md">Preparación para cliente</p>
           </div>
         </div>
         
@@ -31,42 +31,39 @@ export const LeadProfiler: React.FC<LeadProfilerProps> = ({
           {/* Identificador del Cliente */}
           <Card className="bg-blue-50 border-blue-200">
             <CardContent className="p-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Identificador del Cliente</h3>
+              <h3 className="text-md font-semibold text-gray-900 mb-4">Identificador del Cliente</h3>
               <div className="bg-white rounded-lg p-4 border">
-                <p className="text-lg font-medium text-gray-900">
+                <p className="text-md font-medium text-gray-900">
                   {selectedLead?.name || 'Maria Lopez'}
                 </p>
               </div>
-              <p className="text-sm text-gray-600 mt-3">
-                Se ha generado automáticamente un identificador único para esta sesión.
-              </p>
             </CardContent>
           </Card>
 
           {/* Preparación de la sesión */}
           <Card className="bg-green-50 border-green-200">
             <CardContent className="p-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Preparación de la sesión:</h3>
+              <h3 className="text-md font-semibold text-gray-900 mb-4">Preparación de la sesión:</h3>
               <div className="space-y-3">
                 <div className="flex items-start gap-3">
                   <div className="w-2 h-2 bg-green-500 rounded-full mt-2"></div>
                   <div>
-                    <span className="font-medium text-gray-900">Duración estimada:</span>
-                    <span className="text-gray-700 ml-1">5-7 minutos</span>
+                    <span className="text-sm font-medium text-gray-900">Duración estimada:</span>
+                    <span className="text-sm text-gray-700 ml-1">5-7 minutos</span>
                   </div>
                 </div>
                 <div className="flex items-start gap-3">
                   <div className="w-2 h-2 bg-green-500 rounded-full mt-2"></div>
                   <div>
-                    <span className="font-medium text-gray-900">Objetivo:</span>
-                    <span className="text-gray-700 ml-1">Identificar perfil financiero del cliente</span>
+                    <span className="text-sm font-medium text-gray-900">Objetivo:</span>
+                    <span className="text-sm text-gray-700 ml-1">Identificar perfil financiero del cliente</span>
                   </div>
                 </div>
                 <div className="flex items-start gap-3">
                   <div className="w-2 h-2 bg-green-500 rounded-full mt-2"></div>
                   <div>
-                    <span className="font-medium text-gray-900">Modalidad:</span>
-                    <span className="text-gray-700 ml-1">Conversacional con apoyo visual</span>
+                    <span className="text-sm font-medium text-gray-900">Modalidad:</span>
+                    <span className="text-sm text-gray-700 ml-1">Conversacional con apoyo visual</span>
                   </div>
                 </div>
               </div>
@@ -75,33 +72,33 @@ export const LeadProfiler: React.FC<LeadProfilerProps> = ({
 
           {/* Tips para la sesión */}
           <div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Tips para la sesión:</h3>
+            <h3 className="text-md font-semibold text-gray-900 mb-4">Tips para la sesión:</h3>
             <div className="space-y-3">
               <div className="flex items-start gap-3">
-                <span className="text-lg">😊</span>
-                <span className="text-gray-700">Observa reacciones no verbales</span>
+                <span className="text-sm">😊</span>
+                <span className="text-sm text-gray-700">Observa reacciones no verbales</span>
               </div>
               <div className="flex items-start gap-3">
-                <span className="text-lg">⏰</span>
-                <span className="text-gray-700">Permite que se tome su tiempo para responder</span>
+                <span className="text-sm">⏰</span>
+                <span className="text-sm text-gray-700">Permite que se tome su tiempo para responder</span>
               </div>
               <div className="flex items-start gap-3">
-                <span className="text-lg">💬</span>
-                <span className="text-gray-700">Aclara dudas sin influir en las respuestas</span>
+                <span className="text-sm">💬</span>
+                <span className="text-sm text-gray-700">Aclara dudas sin influir en las respuestas</span>
               </div>
               <div className="flex items-start gap-3">
-                <span className="text-lg">📝</span>
-                <span className="text-gray-700">Toma notas de comentarios adicionales</span>
+                <span className="text-sm">📝</span>
+                <span className="text-sm text-gray-700">Toma notas de comentarios adicionales</span>
               </div>
               <div className="flex items-start gap-3">
-                <span className="text-lg">⏸️</span>
-                <span className="text-gray-700">Puedes pausar para profundizar en respuestas</span>
+                <span className="text-sm">⏸️</span>
+                <span className="text-sm text-gray-700">Puedes pausar para profundizar en respuestas</span>
               </div>
             </div>
           </div>
 
           {/* Button */}
-          <Button className="w-full bg-green-500 hover:bg-green-600 text-white py-4 text-lg font-medium flex items-center justify-center gap-2">
+          <Button className="w-full bg-green-500 hover:bg-green-600 text-white py-4 text-md font-medium flex items-center justify-center gap-2">
             Iniciar Sesión de Perfilado
             <ArrowRight className="h-5 w-5" />
           </Button>
