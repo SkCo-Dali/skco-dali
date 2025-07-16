@@ -42,41 +42,6 @@ const NIGHTMARE_QUESTIONS = [
         color: "bg-purple-100 text-purple-600"
       }
     ],
-    buttonText: "Siguiente"
-  },
-  {
-    id: 2,
-    title: "¿Cuánto dinero necesitas para lograr esto?",
-    options: [
-      {
-        id: '1000',
-        icon: DollarSign,
-        title: "$1,000 - $5,000",
-        description: "Para metas pequeñas y alcanzables",
-        color: "bg-green-100 text-green-600"
-      },
-      {
-        id: '5000',
-        icon: DollarSign,
-        title: "$5,000 - $15,000",
-        description: "Para proyectos medianos",
-        color: "bg-blue-100 text-blue-600"
-      },
-      {
-        id: '15000',
-        icon: DollarSign,
-        title: "$15,000 - $50,000",
-        description: "Para metas más ambiciosas",
-        color: "bg-purple-100 text-purple-600"
-      },
-      {
-        id: '50000',
-        icon: DollarSign,
-        title: "Más de $50,000",
-        description: "Para grandes proyectos",
-        color: "bg-orange-100 text-orange-600"
-      }
-    ],
     buttonText: "Crear mi fondo para esto →"
   }
 ];
