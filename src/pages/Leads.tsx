@@ -13,6 +13,7 @@ import { LeadCreateDialog, LeadCreateDialogRef } from "@/components/LeadCreateDi
 import { MassEmailSender } from "@/components/MassEmailSender";
 import { LeadsTableColumnSelector } from "@/components/LeadsTableColumnSelector";
 import { LeadsActionsButton } from "@/components/LeadsActionsButton";
+import { LeadProfiler } from "@/components/LeadProfiler";
 import { useLeadsFilters } from "@/hooks/useLeadsFilters";
 import { useLeadsPagination } from "@/hooks/useLeadsPagination";
 import { useLeadsApi } from "@/hooks/useLeadsApi";
@@ -84,6 +85,8 @@ export default function Leads() {
   const [selectedLeads, setSelectedLeads] = useState<string[]>([]);
   const leadCreateDialogRef = useRef<{ openDialog: () => void }>(null);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [showProfiler, setShowProfiler] = useState(false);
+  const [selectedLeadForProfiling, setSelectedLeadForProfiling] = useState<Lead | null>(null);
 
   const isMobile = useIsMobile();
   const isMedium = useIsMedium();
@@ -282,6 +285,21 @@ export default function Leads() {
     setShowMassEmail(true);
   };
 
+  const handleStartProfiling = (lead?: Lead) => {
+    if (lead) {
+      setSelectedLeadForProfiling(lead);
+      setShowProfiler(true);
+    } else if (selectedLeads.length === 1) {
+      const leadToProfil = filteredLeads.find(l => l.id === selectedLeads[0]);
+      if (leadToProfil) {
+        setSelectedLeadForProfiling(leadToProfil);
+        setShowProfiler(true);
+      }
+    } else {
+      toast.info("Selecciona un lead específico para iniciar la asesoría");
+    }
+  };
+
   if (error) {
     return (
       <div className="container mx-auto px-4 py-8">
@@ -308,6 +326,7 @@ export default function Leads() {
                   onBulkAssign={handleBulkAssign}
                   onMassEmail={handleMassEmail}
                   onDeleteLeads={handleDeleteSelectedLeads}
+                  onStartProfiling={() => handleStartProfiling()}
                   selectedLeadsCount={selectedLeads.length}
                   isDeleting={isDeleting}
                 />
@@ -637,6 +656,7 @@ export default function Leads() {
                   groupBy={groupBy}
                   selectedLeads={selectedLeads}
                   onLeadSelectionChange={handleLeadSelectionChange}
+                  onStartProfiling={handleStartProfiling}
                 />
 
                 <LeadsPagination
@@ -725,6 +745,18 @@ export default function Leads() {
           }
           isDeleting={isDeleting}
         />
+
+        {/* Lead Profiler Dialog */}
+        {showProfiler && selectedLeadForProfiling && (
+          <LeadProfiler
+            lead={selectedLeadForProfiling}
+            isOpen={showProfiler}
+            onClose={() => {
+              setShowProfiler(false);
+              setSelectedLeadForProfiling(null);
+            }}
+          />
+        )}
       </div>
     </>
   );

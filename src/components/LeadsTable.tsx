@@ -1,506 +1,403 @@
-import { useState } from "react"; 
-import { Lead } from "@/types/crm";
-import { Badge } from "@/components/ui/badge";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Checkbox } from "@/components/ui/checkbox";
-import { User, ChevronUp, ChevronDown, MoreVertical, Edit, Calendar, User as UserIcon, MessageCircle, Trash2, Mail } from "lucide-react";
-import { format } from "date-fns";
-import { es } from "date-fns/locale";
-import { useUsersApi } from "@/hooks/useUsersApi";
-import { ColumnConfig } from "@/components/LeadsTableColumnSelector";
-import { EditableLeadCell } from "@/components/EditableLeadCell";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import React, { useState, useCallback } from "react";
+import {
+  ColumnDef,
+  flexRender,
+  getCoreRowModel,
+  useReactTable,
+  getSortedRowModel,
+  SortingState,
+  getPaginationRowModel,
+  useFilters,
+  getFilteredRowModel,
+} from "@tanstack/react-table";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { FaWhatsapp } from "react-icons/fa";
-import { useLeadDeletion } from "@/hooks/useLeadDeletion";
-import { LeadDeleteConfirmDialog } from "@/components/LeadDeleteConfirmDialog";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { 
+  MoreVertical, 
+  Copy, 
+  Mail, 
+  Edit, 
+  Brain 
+} from "lucide-react";
 import { toast } from "sonner";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { Lead } from "@/types/crm";
+import { ColumnConfig } from "@/components/LeadsTableColumnSelector";
 
 interface LeadsTableProps {
   leads: Lead[];
-  paginatedLeads: Lead[];
   onLeadClick: (lead: Lead) => void;
-  onLeadUpdate?: () => void;
-  columns?: ColumnConfig[];
-  onSortedLeadsChange?: (sortedLeads: Lead[]) => void;
-  onSendEmail?: (lead: Lead) => void;
-  selectedLeads?: string[];
-  onLeadSelectionChange?: (leadIds: string[], isSelected: boolean) => void;
+  onLeadUpdate: () => void;
+  columns: ColumnConfig[];
+  onSortedLeadsChange: (sorted: Lead[]) => void;
+  onSendEmail: (lead: Lead) => void;
+  selectedLeads: string[];
+  onLeadSelectionChange: (leadIds: string[], isSelected: boolean) => void;
+  onStartProfiling?: (lead: Lead) => void;
 }
 
-type SortConfig = {
-  key: string;
-  direction: 'asc' | 'desc';
-} | null;
-
-const defaultColumns: ColumnConfig[] = [
-  { key: 'name', label: 'Nombre', visible: true, sortable: true },
-  { key: 'email', label: 'Email', visible: true, sortable: true },
-  { key: 'phone', label: 'Teléfono', visible: false, sortable: false },
-  { key: 'product', label: 'Producto', visible: true, sortable: true },
-  { key: 'stage', label: 'Etapa', visible: true, sortable: true },
-  { key: 'assignedTo', label: 'Asignado a', visible: true, sortable: true },
-  { key: 'campaign', label: 'Campaña', visible: true, sortable: true },
-  { key: 'source', label: 'Fuente', visible: false, sortable: true },
-  { key: 'lastInteraction', label: 'Últ. interacción', visible: false, sortable: true },
-  { key: 'company', label: 'Empresa', visible: false, sortable: true },
-  { key: 'value', label: 'Valor', visible: false, sortable: true },
-  { key: 'priority', label: 'Prioridad', visible: false, sortable: true },
-  { key: 'createdAt', label: 'Fecha creación', visible: false, sortable: true },
-  { key: 'age', label: 'Edad', visible: false, sortable: true },
-  { key: 'gender', label: 'Género', visible: false, sortable: true },
-  { key: 'preferredContactChannel', label: 'Medio de contacto preferido', visible: false, sortable: true },
-  { key: 'documentType', label: 'Tipo documento', visible: true, sortable: true },
-  { key: 'documentNumber', label: 'Número documento', visible: true, sortable: true },
-];
-
-export function LeadsTable({ 
-  leads, 
-  paginatedLeads, 
-  onLeadClick, 
-  onLeadUpdate, 
-  columns = defaultColumns, 
+export function LeadsTable({
+  leads,
+  onLeadClick,
+  onLeadUpdate,
+  columns,
   onSortedLeadsChange,
   onSendEmail,
-  selectedLeads = [],
-  onLeadSelectionChange
+  selectedLeads,
+  onLeadSelectionChange,
+  onStartProfiling,
 }: LeadsTableProps) {
-  const { users } = useUsersApi();
-  const [sortConfig, setSortConfig] = useState<SortConfig>(null);
-  const [leadsToDelete, setLeadsToDelete] = useState<Lead[]>([]);
-  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
-  
-  const { isDeleting, canDeleteLead, deleteSingleLead } = useLeadDeletion({
-    onLeadDeleted: onLeadUpdate
+  const [sorting, setSorting] = useState<SortingState>([]);
+
+  const columnVisibility = React.useMemo(
+    () =>
+      columns.reduce((acc, column) => {
+        acc[column.key] = column.visible;
+        return acc;
+      }, {} as Record<string, boolean>),
+    [columns]
+  );
+
+  const [columnFilters, setColumnFilters] = useState<any[]>([]);
+
+  const columnsDef = React.useMemo<ColumnDef<Lead>[]>(
+    () => [
+      {
+        id: "select",
+        header: ({ table }) => (
+          <Checkbox
+            checked={
+              table.getIsAllPageRowsSelected() || (table.getIsSomePageRowsSelected() && !table.getIsAllRowsSelected())
+            }
+            indeterminate={table.getIsSomePageRowsSelected() && !table.getIsAllRowsSelected()}
+            onCheckedChange={(value) => {
+              if (value) {
+                table.toggleAllPageRowsSelected(true);
+                const leadIds = table.getRowModel().rows.map(row => row.original.id);
+                onLeadSelectionChange(leadIds, true);
+              } else {
+                table.toggleAllPageRowsSelected(false);
+                const leadIds = table.getRowModel().rows.map(row => row.original.id);
+                onLeadSelectionChange(leadIds, false);
+              }
+            }}
+            aria-label="Select all"
+            className="ml-2"
+          />
+        ),
+        cell: ({ row }) => (
+          <Checkbox
+            checked={row.getIsSelected()}
+            onCheckedChange={(value) => {
+              row.toggleSelected(!!value)
+              onLeadSelectionChange([row.original.id], !!value);
+            }}
+            aria-label="Select row"
+          />
+        ),
+        enableSorting: false,
+        enableHiding: false,
+      },
+      {
+        accessorKey: "name",
+        header: "Nombre",
+        enableSorting: columns.find(col => col.key === 'name')?.sortable,
+        cell: ({ row }) => (
+          <div className="font-medium">{row.original.name}</div>
+        ),
+      },
+      {
+        accessorKey: "email",
+        header: "Email",
+        enableSorting: columns.find(col => col.key === 'email')?.sortable,
+      },
+      {
+        accessorKey: "phone",
+        header: "Teléfono",
+        enableSorting: false,
+      },
+      {
+        accessorKey: "documentType",
+        header: "Tipo de Documento",
+        enableSorting: columns.find(col => col.key === 'documentType')?.sortable,
+      },
+      {
+        accessorKey: "documentNumber",
+        header: "Número de Documento",
+        enableSorting: columns.find(col => col.key === 'documentNumber')?.sortable,
+      },
+      {
+        accessorKey: "company",
+        header: "Empresa",
+        enableSorting: columns.find(col => col.key === 'company')?.sortable,
+      },
+      {
+        accessorKey: "product",
+        header: "Producto",
+        enableSorting: columns.find(col => col.key === 'product')?.sortable,
+      },
+      {
+        accessorKey: "stage",
+        header: "Estado",
+        enableSorting: columns.find(col => col.key === 'stage')?.sortable,
+      },
+      {
+        accessorKey: "priority",
+        header: "Prioridad",
+        enableSorting: columns.find(col => col.key === 'priority')?.sortable,
+      },
+      {
+        accessorKey: "source",
+        header: "Fuente",
+        enableSorting: columns.find(col => col.key === 'source')?.sortable,
+      },
+      {
+        accessorKey: "campaign",
+        header: "Campaña",
+        enableSorting: columns.find(col => col.key === 'campaign')?.sortable,
+      },
+      {
+        accessorKey: "assignedTo",
+        header: "Asignado a",
+        enableSorting: columns.find(col => col.key === 'assignedTo')?.sortable,
+      },
+      {
+        accessorKey: "value",
+        header: "Valor",
+        enableSorting: columns.find(col => col.key === 'value')?.sortable,
+      },
+      {
+        accessorKey: "createdAt",
+        header: "Fecha de Creación",
+        enableSorting: columns.find(col => col.key === 'createdAt')?.sortable,
+      },
+      {
+        accessorKey: "lastInteraction",
+        header: "Fecha de Última Interacción",
+        enableSorting: columns.find(col => col.key === 'lastInteraction')?.sortable,
+      },
+       {
+        accessorKey: "age",
+        header: "Edad",
+        enableSorting: columns.find(col => col.key === 'age')?.sortable,
+      },
+      {
+        accessorKey: "gender",
+        header: "Género",
+        enableSorting: columns.find(col => col.key === 'gender')?.sortable,
+      },
+      {
+        accessorKey: "preferredContactChannel",
+        header: "Medio de Contacto Preferido",
+        enableSorting: columns.find(col => col.key === 'preferredContactChannel')?.sortable,
+      },
+      {
+        id: "actions",
+        header: "Acciones",
+        cell: ({ row }) => renderActionsCell(row.original),
+        enableSorting: false,
+        enableHiding: false,
+      },
+    ],
+    [columns, onLeadSelectionChange, onStartProfiling]
+  );
+
+  const table = useReactTable({
+    data: leads,
+    columns: columnsDef,
+    state: {
+      sorting: sorting,
+      columnVisibility,
+      columnFilters,
+    },
+    enableRowSelection: true,
+    onSortingChange: setSorting,
+    getCoreRowModel: getCoreRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
+    onColumnFiltersChange: setColumnFilters,
+    getFilteredRowModel: getFilteredRowModel(),
   });
 
-  const visibleColumns = columns.filter(col => col.visible);
-  
-  const calculateTableWidth = () => {
-    const checkboxColumnWidth = 50; // Nueva columna de checkbox
-    const nameColumnWidth = 350; // Columna nombre siempre 350px
-    const regularColumnWidth = 250; // Todas las demás columnas 250px
-    const visibleRegularColumns = visibleColumns.length - 1; // Restar la columna nombre
-    
-    return checkboxColumnWidth + nameColumnWidth + (visibleRegularColumns * regularColumnWidth);
+  React.useEffect(() => {
+    const sortedRows = table.getSortedRowModel().rows.map(row => row.original);
+    onSortedLeadsChange(sortedRows);
+  }, [table.getState().sorting, onSortedLeadsChange, table]);
+
+  React.useEffect(() => {
+    const selectedLeadIds = table.getSelectedRowModel().rows.map(row => row.original.id);
+    const isAllSelected = selectedLeadIds.length === leads.length;
+    onLeadSelectionChange(selectedLeadIds, isAllSelected);
+  }, [table.getState().rowSelection, leads, onLeadSelectionChange]);
+
+  const copyToClipboard = (text: string) => {
+    navigator.clipboard.writeText(text);
+    toast.success("Texto copiado al portapapeles");
   };
 
-  const handleSelectAll = (checked: boolean) => {
-    const currentPageLeadIds = paginatedLeads.map(lead => lead.id);
-    if (onLeadSelectionChange) {
-      onLeadSelectionChange(currentPageLeadIds, checked);
-    }
-  };
-
-  const handleSelectLead = (leadId: string, checked: boolean) => {
-    if (onLeadSelectionChange) {
-      onLeadSelectionChange([leadId], checked);
-    }
-  };
-
-  const isAllSelected = paginatedLeads.length > 0 && paginatedLeads.every(lead => selectedLeads.includes(lead.id));
-  const isIndeterminate = paginatedLeads.some(lead => selectedLeads.includes(lead.id)) && !isAllSelected;
-
-  const handleSort = (columnKey: string) => {
-    let direction: 'asc' | 'desc' = 'asc';
-    
-    if (sortConfig && sortConfig.key === columnKey && sortConfig.direction === 'asc') {
-      direction = 'desc';
-    }
-    
-    setSortConfig({ key: columnKey, direction });
-    
-    const sortedLeads = [...leads].sort((a, b) => {
-      let aValue: any;
-      let bValue: any;
-
-      switch (columnKey) {
-        case 'name':
-          aValue = a.name.toLowerCase();
-          bValue = b.name.toLowerCase();
-          break;
-        case 'email':
-          aValue = (a.email || '').toLowerCase();
-          bValue = (b.email || '').toLowerCase();
-          break;
-        case 'product':
-          aValue = (a.product || '').toLowerCase();
-          bValue = (b.product || '').toLowerCase();
-          break;
-        case 'campaign':
-          aValue = (a.campaign || '').toLowerCase();
-          bValue = (b.campaign || '').toLowerCase();
-          break;
-        case 'source':
-          aValue = a.source.toLowerCase();
-          bValue = b.source.toLowerCase();
-          break;
-        case 'stage':
-          aValue = a.stage;
-          bValue = b.stage;
-          break;
-        case 'assignedTo':
-          const assignedUserA = users.find(u => u.id === a.assignedTo);
-          const assignedUserB = users.find(u => u.id === b.assignedTo);
-          aValue = (assignedUserA?.name || a.assignedTo || 'Sin asignar').toLowerCase();
-          bValue = (assignedUserB?.name || b.assignedTo || 'Sin asignar').toLowerCase();
-          break;
-        case 'lastInteraction':
-          aValue = new Date(a.updatedAt).getTime();
-          bValue = new Date(b.updatedAt).getTime();
-          break;
-        case 'phone':
-          aValue = (a.phone || '').toLowerCase();
-          bValue = (b.phone || '').toLowerCase();
-          break;
-        case 'company':
-          aValue = (a.company || '').toLowerCase();
-          bValue = (b.company || '').toLowerCase();
-          break;
-        case 'value':
-          aValue = a.value;
-          bValue = b.value;
-          break;
-        case 'priority':
-          const priorityOrder = { 'low': 1, 'medium': 2, 'high': 3, 'urgent': 4 };
-          aValue = priorityOrder[a.priority as keyof typeof priorityOrder];
-          bValue = priorityOrder[b.priority as keyof typeof priorityOrder];
-          break;
-        case 'createdAt':
-          aValue = new Date(a.createdAt).getTime();
-          bValue = new Date(b.createdAt).getTime();
-          break;
-        case 'age':
-          aValue = a.age || 0;
-          bValue = b.age || 0;
-          break;
-        case 'gender':
-          aValue = (a.gender || '').toLowerCase();
-          bValue = (b.gender || '').toLowerCase();
-          break;
-        case 'preferredContactChannel':
-          aValue = (a.preferredContactChannel || '').toLowerCase();
-          bValue = (b.preferredContactChannel || '').toLowerCase();
-          break;
-        case 'documentType':
-          aValue = (a.documentType || '').toLowerCase();
-          bValue = (b.documentType || '').toLowerCase();
-          break;
-        case 'documentNumber':
-          aValue = a.documentNumber || 0;
-          bValue = b.documentNumber || 0;
-          break;
-        default:
-          return 0;
-      }
-
-      if (aValue < bValue) {
-        return direction === 'asc' ? -1 : 1;
-      }
-      if (aValue > bValue) {
-        return direction === 'asc' ? 1 : -1;
-      }
-      return 0;
-    });
-
-    onSortedLeadsChange?.(sortedLeads);
-  };
-
-  const renderSortIcon = (columnKey: string) => {
-    if (!sortConfig || sortConfig.key !== columnKey) {
-      return null;
-    }
-    
-    return sortConfig.direction === 'asc' ? (
-      <ChevronUp className="h-4 w-4 ml-1" />
-    ) : (
-      <ChevronDown className="h-4 w-4 ml-1" />
-    );
-  };
-
-  const handleLeadAction = (action: string, lead: Lead, e: React.MouseEvent) => {
-    e.stopPropagation();
-    
-    switch (action) {
-      case 'edit':
-        onLeadClick(lead);
-        break;
-      case 'email':
-        if (onSendEmail) {
-          onSendEmail(lead);
-        }
-        break;
-      case 'profile':
-        console.log('Ver perfil del lead:', lead.name);
-        break;
-      case 'notes':
-        console.log('Ver notas del lead:', lead.name);
-        break;
-      case 'whatsapp':
-        if (lead.phone) {
-          const cleanPhone = lead.phone.replace(/\D/g, '');
-          window.open(`https://wa.me/${cleanPhone}`, '_blank');
-        } else {
-          console.log('No hay número de teléfono disponible para este lead');
-        }
-        break;
-      case 'delete':
-        handleDeleteLead(lead);
-        break;
-      default:
-        break;
-    }
-  };
-
-  const handleDeleteLead = (lead: Lead) => {
-    if (!canDeleteLead(lead)) {
-      toast.error('No tienes permisos para eliminar este lead');
-      return;
-    }
-    setLeadsToDelete([lead]);
-    setShowDeleteDialog(true);
-  };
-
-  const handleConfirmDelete = async () => {
-    if (leadsToDelete.length === 1) {
-      const success = await deleteSingleLead(leadsToDelete[0].id);
-      if (success) {
-        setShowDeleteDialog(false);
-        setLeadsToDelete([]);
-      }
-    }
-  };
-
-  const renderCellContent = (lead: Lead, columnKey: string) => {
-    const assignedUser = users.find(u => u.id === lead.assignedTo);
-
-    switch (columnKey) {
-      case 'name':
-        return (
-          <div className="flex items-center justify-between w-full">
-            <div 
-              className="text-gray-900 font-medium text-xs truncate pr-2 cursor-pointer hover:text-[#00c83c]"
+  const renderActionsCell = (lead: Lead) => (
+    <div className="flex gap-1">
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button variant="ghost" className="h-8 w-8 p-0">
+            <span className="sr-only">Open menu</span>
+            <MoreVertical className="h-4 w-4" />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end">
+          <DropdownMenuItem onClick={() => copyToClipboard(lead.email)}>
+            <Mail className="h-4 w-4 mr-2" />
+            Copiar correo
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => onSendEmail(lead)}>
+            <Mail className="h-4 w-4 mr-2" />
+            Enviar correo
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => onLeadClick(lead)}>
+            <Edit className="h-4 w-4 mr-2" />
+            Editar
+          </DropdownMenuItem>
+          {onStartProfiling && (
+            <DropdownMenuItem
               onClick={(e) => {
                 e.stopPropagation();
-                onLeadClick(lead);
+                onStartProfiling(lead);
               }}
             >
-              {lead.name}
-            </div>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="h-8 w-8 p-0 hover:bg-gray-100 flex-shrink-0"
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  <MoreVertical className="h-4 w-4 text-green-600" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-48 bg-white border shadow-lg">
-                <DropdownMenuItem onClick={(e) => handleLeadAction('edit', lead, e)}>
-                  <Edit className="mr-2 h-4 w-4" />
-                  Edición rápida
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={(e) => handleLeadAction('email', lead, e)}>
-                  <Mail className="mr-2 h-4 w-4" />
-                  Enviar Email
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={(e) => handleLeadAction('whatsapp', lead, e)}>
-                  <FaWhatsapp className="mr-2 h-4 w-4" />
-                  Enviar WhatsApp
-                </DropdownMenuItem>
-                <DropdownMenuItem 
-                  onClick={(e) => handleLeadAction('delete', lead, e)}
-                  className="text-red-600 focus:text-red-600"
-                >
-                  <Trash2 className="mr-2 h-4 w-4" />
-                  Eliminar lead
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
-        );
-      case 'email':
-        return (
-          <EditableLeadCell
-            lead={lead}
-            field="email"
-            onUpdate={() => onLeadUpdate?.()}
-          />
-        );
-      case 'phone':
-        return (
-          <EditableLeadCell
-            lead={lead}
-            field="phone"
-            onUpdate={() => onLeadUpdate?.()}
-          />
-        );
-      case 'company':
-        return (
-          <EditableLeadCell
-            lead={lead}
-            field="company"
-            onUpdate={() => onLeadUpdate?.()}
-          />
-        );
-      case 'documentNumber':
-        return (
-          <EditableLeadCell
-            lead={lead}
-            field="documentNumber"
-            onUpdate={() => onLeadUpdate?.()}
-          />
-        );
-      case 'product':
-        return (
-          <span className="text-gray-700 text-xs text-center">
-            {lead.product || '-'}
-          </span>
-        );
-      case 'campaign':
-        return (
-          <span className="text-gray-700 text-xs text-center">
-            {lead.campaign || '-'}
-          </span>
-        );
-      case 'source':
-        return <span className="text-gray-700 text-xs capitalize text-center">{lead.source}</span>;
-      case 'stage':
-        return (
-          <EditableLeadCell
-            lead={lead}
-            field="stage"
-            onUpdate={() => onLeadUpdate?.()}
-          />
-        );
-      case 'assignedTo':
-        return (
-          <EditableLeadCell
-            lead={lead}
-            field="assignedTo"
-            onUpdate={() => onLeadUpdate?.()}
-          />
-        );
-      case 'lastInteraction':
-        return (
-          <span className="text-gray-700 text-xs text-center">
-            {format(new Date(lead.updatedAt), "dd/MM/yyyy", { locale: es })}
-          </span>
-        );
-      case 'value':
-        return <span className="text-gray-800 font-medium text-xs text-center">${lead.value.toLocaleString()}</span>;
-      case 'priority':
-        return (
-          <EditableLeadCell
-            lead={lead}
-            field="priority"
-            onUpdate={() => onLeadUpdate?.()}
-          />
-        );
-      case 'createdAt':
-        return (
-          <span className="text-center text-gray-700 text-xs">
-            {format(new Date(lead.createdAt), "dd/MM/yyyy", { locale: es })}
-          </span>
-        );
-      case 'age':
-        return <span className="text-center text-gray-700 text-xs">{lead.age || '-'}</span>;
-      case 'gender':
-        return <span className="text-center text-gray-700 text-xs">{lead.gender || '-'}</span>;
-      case 'preferredContactChannel':
-        return <span className="text-center text-gray-700 text-xs">{lead.preferredContactChannel || '-'}</span>;
-      case 'documentType':
-        return <span className="text-center text-gray-700 text-xs">{lead.documentType || '-'}</span>;
-      default:
-        return null;
-    }
-  };
+              <Brain className="h-4 w-4 mr-2" />
+              Iniciar Asesoría
+            </DropdownMenuItem>
+          )}
+        </DropdownMenuContent>
+      </DropdownMenu>
+    </div>
+  );
 
   return (
-    <>
-      <div className="leads-table-container-scroll">
-        <div className="leads-table-scroll-wrapper">
-          <div className="leads-table-inner-scroll">
-            <Table 
-              className="w-full"
-              style={{ 
-                width: `${calculateTableWidth()}px`,
-                minWidth: `${calculateTableWidth()}px`
-              }}
-            >
-              <TableHeader className="leads-table-header-sticky">
-                <TableRow className="bg-[#fafafa] border-b border-[#fafafa]">
-                  <TableHead className="w-[50px] px-4 py-3 text-center">
-                    <div className="flex items-center justify-center">
-                      <Checkbox
-                        checked={isAllSelected}
-                        onCheckedChange={handleSelectAll}
-                        className={isIndeterminate ? "data-[state=indeterminate]:bg-primary data-[state=indeterminate]:text-primary-foreground" : ""}
-                        {...(isIndeterminate ? { "data-state": "indeterminate" } : {})}
-                      />
-                    </div>
+    <div className="rounded-md border">
+      <Table>
+        <TableHeader>
+          {table.getHeaderGroups().map((headerGroup) => (
+            <TableRow key={headerGroup.id}>
+              {headerGroup.headers.map((header) => {
+                return (
+                  <TableHead key={header.id} className="text-left [&:not([data-state=open])]:opacity-50">
+                    {header.isPlaceholder
+                      ? null
+                      : (
+                        {header.column.columnDef.header && (
+                          <div
+                            {...{
+                              className: "cursor-pointer group flex items-center justify-between",
+                              onClick: header.column.getToggleSortingHandler(),
+                            }}
+                          >
+                            {flexRender(
+                              header.column.columnDef.header,
+                              header.getContext()
+                            )}
+                            {{
+                              ascending: <ChevronDown className="h-4 w-4" />,
+                              descending: <ChevronUp className="h-4 w-4" />,
+                            }[header.column.getIsSorted() as string] ?? null}
+                          </div>
+                        )}
                   </TableHead>
-                  {visibleColumns.map((column) => (
-                    <TableHead 
-                      key={column.key}
-                      className={`cursor-pointer select-none px-4 py-3 text-center text-xs font-medium text-gray-600 capitalize tracking-wider ${
-                        column.key === 'name' ? 'leads-name-column-sticky' : 'leads-regular-column'
-                      }`}
-                      onClick={() => handleSort(column.key)}
-                    >
-                      <div className="flex items-center justify-center">
-                        {column.label}
-                        {renderSortIcon(column.key)}
-                      </div>
-                    </TableHead>
-                  ))}
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {paginatedLeads.map((lead, index) => (
-                  <TableRow 
-                    key={lead.id}
-                    className="hover:bg-[#fafafa] transition-colors border-[#fafafa]"
-                  >
-                    <TableCell className="w-[50px] px-4 py-3 text-center">
-                      <div className="flex items-center justify-center">
-                        <Checkbox
-                          checked={selectedLeads.includes(lead.id)}
-                          onCheckedChange={(checked) => handleSelectLead(lead.id, checked as boolean)}
-                        />
-                      </div>
-                    </TableCell>
-                    {visibleColumns.map((column) => (
-                      <TableCell 
-                        key={column.key} 
-                        className={`px-4 py-3 text-xs text-center ${
-                          column.key === 'name' ? 'leads-name-column-sticky' : 'leads-regular-column'
-                        }`}
-                      >
-                        {renderCellContent(lead, column.key)}
-                      </TableCell>
-                    ))}
-                  </TableRow>
+                );
+              })}
+            </TableRow>
+          ))}
+        </TableHeader>
+        <TableBody>
+          {table.getRowModel().rows?.length ? (
+            table.getRowModel().rows.map((row) => (
+              <TableRow
+                key={row.id}
+                data-state={row.getIsSelected() ? "selected" : "unchecked"}
+                onClick={() => onLeadClick(row.original)}
+                className="cursor-pointer"
+              >
+                {row.getVisibleCells().map((cell) => (
+                  <TableCell key={cell.id}>
+                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                  </TableCell>
                 ))}
-              </TableBody>
-            </Table>
-          </div>
-        </div>
-      </div>
-
-      <LeadDeleteConfirmDialog
-        isOpen={showDeleteDialog}
-        onClose={() => {
-          setShowDeleteDialog(false);
-          setLeadsToDelete([]);
-        }}
-        onConfirm={handleConfirmDelete}
-        leads={leadsToDelete}
-        isDeleting={isDeleting}
-      />
-    </>
+              </TableRow>
+            ))
+          ) : (
+            <TableRow>
+              <TableCell colSpan={columns.length} className="h-24 text-center">
+                Sin resultados.
+              </TableCell>
+            </TableRow>
+          )}
+        </TableBody>
+      </Table>
+    </div>
   );
 }
+
+import * as React from "react"
+import { cn } from "@/lib/utils"
+
+const Checkbox = React.forwardRef<
+  React.ElementRef<"button">,
+  React.ButtonHTMLAttributes<HTMLButtonElement>
+>(({ className, children, checked, indeterminate, ...props }, ref) => {
+  return (
+    <button
+      {...props}
+      ref={ref}
+      className={cn(
+        "peer h-4 w-4 shrink-0 rounded-[2px] border border-primary ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground",
+        className
+      )}
+      data-state={checked ? "checked" : indeterminate ? "indeterminate" : "unchecked"}
+    >
+      <CheckboxPrimitive.Indicator
+        className={cn("flex items-center justify-center text-current")}
+      >
+        {checked ? (
+          <Check className="h-4 w-4" />
+        ) : indeterminate ? (
+          <Minus className="h-4 w-4" />
+        ) : null}
+      </CheckboxPrimitive.Indicator>
+    </button>
+  )
+})
+Checkbox.displayName = "Checkbox"
+
+import * as CheckboxPrimitive from "@radix-ui/react-checkbox"
+import { Check, Minus, ChevronDown, ChevronUp } from "lucide-react"

@@ -1,4 +1,3 @@
-
 import { Lead } from "@/types/crm";
 import { LeadsTable } from "@/components/LeadsTable";
 import { LeadsColumns } from "@/components/LeadsColumns";
@@ -16,6 +15,7 @@ interface LeadsContentProps {
   groupBy?: string;
   selectedLeads?: string[];
   onLeadSelectionChange?: (leadIds: string[], isSelected: boolean) => void;
+  onStartProfiling?: (lead: Lead) => void;
 }
 
 export function LeadsContent({ 
@@ -29,34 +29,32 @@ export function LeadsContent({
   onSendEmail,
   groupBy = "stage",
   selectedLeads,
-  onLeadSelectionChange
+  onLeadSelectionChange,
+  onStartProfiling
 }: LeadsContentProps) {
-  switch (viewMode) {
-    case "table":
-      return (
-        <LeadsTable
-          leads={leads}
-          paginatedLeads={paginatedLeads || leads}
-          onLeadClick={onLeadClick}
-          onLeadUpdate={onLeadUpdate}
-          columns={columns}
-          onSortedLeadsChange={onSortedLeadsChange}
-          onSendEmail={onSendEmail}
-          selectedLeads={selectedLeads}
-          onLeadSelectionChange={onLeadSelectionChange}
-        />
-      );
-    case "columns":
-      return (
-        <LeadsColumns
-          leads={leads}
-          onLeadClick={onLeadClick}
-          onLeadUpdate={onLeadUpdate}
-          onSendEmail={onSendEmail}
-          groupBy={groupBy}
-        />
-      );
-    default:
-      return null;
+  if (viewMode === "table") {
+    return (
+      <LeadsTable
+        leads={paginatedLeads}
+        onLeadClick={onLeadClick}
+        onLeadUpdate={onLeadUpdate}
+        columns={columns}
+        onSortedLeadsChange={onSortedLeadsChange}
+        onSendEmail={onSendEmail}
+        selectedLeads={selectedLeads}
+        onLeadSelectionChange={onLeadSelectionChange}
+        onStartProfiling={onStartProfiling}
+      />
+    );
   }
+
+  return (
+    <LeadsColumns
+      leads={leads}
+      onLeadClick={onLeadClick}
+      onLeadUpdate={onLeadUpdate}
+      onSendEmail={onSendEmail}
+      groupBy={groupBy}
+    />
+  );
 }
