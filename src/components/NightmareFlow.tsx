@@ -31,7 +31,6 @@ const NIGHTMARE_CONFIG = {
       title: "Tener un colchón para emergencias",
       description: "Dormir tranquilo sabiendo que tienes respaldo",
       color: "bg-blue-100 text-blue-600",
-      highlighted: true
     },
     {
       id: 'shopping',
