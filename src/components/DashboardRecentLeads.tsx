@@ -36,6 +36,13 @@ export function DashboardRecentLeads({ leads }: DashboardRecentLeadsProps) {
     // TODO: Implement lead detail view or modal
   };
 
+  const mockColumns = [
+    { key: 'name', label: 'Nombre', visible: true, sortable: true },
+    { key: 'email', label: 'Email', visible: true, sortable: true },
+    { key: 'phone', label: 'Teléfono', visible: true, sortable: false },
+    { key: 'stage', label: 'Estado', visible: true, sortable: true },
+  ];
+
   return (
     <Card>
       <CardHeader>
@@ -58,8 +65,13 @@ export function DashboardRecentLeads({ leads }: DashboardRecentLeadsProps) {
       <CardContent>
         <LeadsTable 
           leads={recentLeads} 
-          paginatedLeads={recentLeads}
-          onLeadClick={handleLeadClick} 
+          onLeadClick={handleLeadClick}
+          onLeadUpdate={() => {}}
+          columns={mockColumns}
+          onSortedLeadsChange={() => {}}
+          onSendEmail={() => {}}
+          selectedLeads={[]}
+          onLeadSelectionChange={() => {}}
         />
       </CardContent>
     </Card>

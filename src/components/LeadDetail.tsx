@@ -57,7 +57,6 @@ export function LeadDetail({
   const [assignedTo, setAssignedTo] = useState(lead.assignedTo || "");
   const [value, setValue] = useState<number>(lead.value || 0);
   const [createdAt, setCreatedAt] = useState<Date | null>(lead.createdAt ? new Date(lead.createdAt) : null);
-  const [lastInteraction, setLastInteraction] = useState<Date | null>(lead.lastInteraction ? new Date(lead.lastInteraction) : null);
   const [age, setAge] = useState<number>(lead.age || 0);
   const [gender, setGender] = useState(lead.gender || "");
   const [preferredContactChannel, setPreferredContactChannel] = useState(lead.preferredContactChannel || "");
@@ -79,10 +78,20 @@ export function LeadDetail({
         assignedTo,
         value,
         createdAt: createdAt ? createdAt.toISOString() : null,
-        lastInteraction: lastInteraction ? lastInteraction.toISOString() : null,
         age,
         gender,
         preferredContactChannel,
+        // Add CreatedBy field required by the API
+        CreatedBy: lead.createdBy || '1',
+        // Add other required fields
+        notes: lead.notes || '',
+        tags: lead.tags || [],
+        DocumentType: documentType,
+        SelectedPortfolios: lead.portfolios || [],
+        CampaignOwnerName: lead.campaignOwnerName || '',
+        Age: age,
+        Gender: gender,
+        PreferredContactChannel: preferredContactChannel
       };
       
       await updateLead(lead.id, leadData);
@@ -94,6 +103,11 @@ export function LeadDetail({
     }
   }, [
     lead.id,
+    lead.createdBy,
+    lead.notes,
+    lead.tags,
+    lead.portfolios,
+    lead.campaignOwnerName,
     name,
     email,
     phone,
@@ -108,7 +122,6 @@ export function LeadDetail({
     assignedTo,
     value,
     createdAt,
-    lastInteraction,
     age,
     gender,
     preferredContactChannel,
