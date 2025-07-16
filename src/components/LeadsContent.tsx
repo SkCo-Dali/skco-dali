@@ -64,11 +64,7 @@ export function LeadsContent({
 
         <Dialog open={isProfilerOpen} onOpenChange={setIsProfilerOpen}>
           <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-            <DialogHeader>
-              <DialogTitle>
-                Sesión de Prospección: {selectedLeadForProfiler?.name}
-              </DialogTitle>
-            </DialogHeader>
+            
             <LeadProfiler selectedLead={selectedLeadForProfiler} />
           </DialogContent>
         </Dialog>
