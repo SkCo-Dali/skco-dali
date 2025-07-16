@@ -12,8 +12,7 @@ import {
   Plus, 
   Users, 
   Mail, 
-  Trash,
-  Brain
+  Trash 
 } from "lucide-react";
 
 interface LeadsActionsButtonProps {
@@ -21,7 +20,6 @@ interface LeadsActionsButtonProps {
   onBulkAssign: () => void;
   onMassEmail: () => void;
   onDeleteLeads: () => void;
-  onStartProfiling?: () => void;
   selectedLeadsCount: number;
   isDeleting?: boolean;
 }
@@ -31,7 +29,6 @@ export function LeadsActionsButton({
   onBulkAssign,
   onMassEmail,
   onDeleteLeads,
-  onStartProfiling,
   selectedLeadsCount,
   isDeleting = false
 }: LeadsActionsButtonProps) {
@@ -55,11 +52,6 @@ export function LeadsActionsButton({
     onDeleteLeads();
   };
 
-  const handleStartProfiling = () => {
-    console.log('LeadsActionsButton: handleStartProfiling called');
-    onStartProfiling?.();
-  };
-
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -76,12 +68,6 @@ export function LeadsActionsButton({
           <Plus className="h-4 w-4 mr-2" />
           Crear Lead
         </DropdownMenuItem>
-        {onStartProfiling && (
-          <DropdownMenuItem onClick={handleStartProfiling} className="cursor-pointer">
-            <Brain className="h-4 w-4 mr-2" />
-            Iniciar Asesoría
-          </DropdownMenuItem>
-        )}
         <DropdownMenuItem onClick={handleBulkAssign} className="cursor-pointer">
           <Users className="h-4 w-4 mr-2" />
           Asignación masiva
