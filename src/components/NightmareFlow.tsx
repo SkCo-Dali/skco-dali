@@ -145,7 +145,7 @@ export const NightmareFlow: React.FC<NightmareFlowProps> = ({ onBack }) => {
     return (
       <div className="min-h-[600px] bg-gray-50 p-6 m-0">
         {/* Header */}
-        <div className="flex items-center gap-4 mb-8">
+        <div className="flex items-center gap-4 mb-4">
           <Button 
             variant="ghost" 
             size="sm" 
@@ -157,7 +157,7 @@ export const NightmareFlow: React.FC<NightmareFlowProps> = ({ onBack }) => {
         </div>
 
         {/* Success Icon */}
-        <div className="text-center mb-8">
+        <div className="text-center mb-8 mt-2">
           <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
             <Target className="h-10 w-10 text-green-600" />
           </div>
