@@ -1,10 +1,11 @@
-
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
 import { ArrowLeft } from 'lucide-react';
 import { Lead } from '@/types/crm';
+import { NightmareFlow } from './NightmareFlow';
+import { StrategicTestFlow } from './StrategicTestFlow';
 
 interface ProfilingSessionProps {
   selectedLead?: Lead;
@@ -18,6 +19,7 @@ export const ProfilingSession: React.FC<ProfilingSessionProps> = ({
   const [selectedAnswer, setSelectedAnswer] = useState<string>('');
   const [notes, setNotes] = useState<string>('');
   const [showConfirmation, setShowConfirmation] = useState(false);
+  const [currentFlow, setCurrentFlow] = useState<string | null>(null);
 
   const answers = [
     {
@@ -64,8 +66,7 @@ export const ProfilingSession: React.FC<ProfilingSessionProps> = ({
     }
   };
 
-
-   const getConfirmationbutton = () => {
+  const getConfirmationbutton = () => {
     switch (selectedAnswer) {
       case 'nightmare':
         return '¡Sí, quiero lograrlo! →';
@@ -79,12 +80,35 @@ export const ProfilingSession: React.FC<ProfilingSessionProps> = ({
         return '';
     }
   };
-  
+
   const handleFinalize = () => {
     if (selectedAnswer) {
       setShowConfirmation(true);
     }
   };
+
+  const handleContinueFromConfirmation = () => {
+    setCurrentFlow(selectedAnswer);
+  };
+
+  if (currentFlow === 'nightmare') {
+    return (
+      <NightmareFlow 
+        onBack={() => setCurrentFlow(null)}
+        selectedLead={selectedLead}
+      />
+    );
+  }
+
+  if (currentFlow === 'multiply' || currentFlow === 'family' || currentFlow === 'preserve') {
+    return (
+      <StrategicTestFlow 
+        onBack={() => setCurrentFlow(null)}
+        selectedLead={selectedLead}
+        flowType={currentFlow as 'multiply' | 'family' | 'preserve'}
+      />
+    );
+  }
 
   if (showConfirmation) {
     return (
@@ -115,10 +139,7 @@ export const ProfilingSession: React.FC<ProfilingSessionProps> = ({
         <div className="bg-white flex items-center justify-center p-8">
           <Button 
             className="bg-green-500 hover:bg-green-600 text-white px-8 py-4 text-md font-medium rounded-full"
-            onClick={() => {
-              // Aquí puedes agregar la lógica para continuar al siguiente paso
-              console.log('Continuar al siguiente paso');
-            }}
+            onClick={handleContinueFromConfirmation}
           >
             {getConfirmationbutton()}
           </Button>
