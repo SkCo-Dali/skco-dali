@@ -77,9 +77,7 @@ export const StrategicTestFlow: React.FC<StrategicTestFlowProps> = ({
           {config.title}
         </h1>
         
-        <h2 className="text-xl font-semibold text-gray-800 mb-8">
-          {config.question}
-        </h2>
+        
       </div>
 
       {/* Progress and Title */}
@@ -91,7 +89,9 @@ export const StrategicTestFlow: React.FC<StrategicTestFlowProps> = ({
           </div>
           <p className="text-right text-sm text-gray-600">{config.subtitle}</p>
         </div>
-        
+        <h2 className="text-xl font-semibold text-gray-800 mb-8">
+          {config.question}
+        </h2>
         
       </div>
 
