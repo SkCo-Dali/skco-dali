@@ -12,65 +12,65 @@ interface StrategicTestFlowProps {
 const STRATEGIC_QUESTIONS = {
   multiply: [
     {
-      id: 1,
+      id: "expectations_5_years",
       title: "Test Estratégico - Inversor con Propósito",
       question: "¿Qué esperas de tu dinero en los próximos 5 años?",
       options: [
         {
-          id: 'multiply',
-          icon: TrendingUp,
-          text: "Multiplicarlo significativamente",
-          color: "bg-blue-100 text-blue-600"
+          id: 'multiplicar',
+          icon: "📈",
+          text: "Multiplicarlo significativamente"
+         
         },
         {
-          id: 'stable',
-          icon: TreePine,
-          text: "Crecimiento estable y seguro",
-          color: "bg-green-100 text-green-600"
+          id: 'crecer_estable',
+          icon: "🌱",
+          text: "Crecimiento estable y seguro"
+         
         },
         {
-          id: 'diversify',
-          icon: BarChart3,
-          text: "Diversificar en diferentes activos",
-          color: "bg-purple-100 text-purple-600"
+          id: 'diversificar',
+          icon: "📊",
+          text: "Diversificar en diferentes activos"
+          
         },
         {
-          id: 'freedom',
-          icon: DollarSign,
-          text: "Lograr libertad financiera",
-          color: "bg-yellow-100 text-yellow-600"
+          id: 'libertad_financiera',
+          icon: "🗽",
+          text: "Lograr libertad financiera"
+          
         }
       ],
       buttonText: "Siguiente"
     },
     {
-      id: 2,
+      id: "investment_experience",
       title: "Test Estratégico - Inversor con Propósito",
-      question: "¿Cuál es tu horizonte de inversión ideal?",
+      question: "¿Tienes experiencia invirtiendo?",
       options: [
         {
-          id: 'short',
-          icon: Clock,
-          text: "1-3 años (corto plazo)",
-          color: "bg-red-100 text-red-600"
+          id: 'experto',
+          icon: "🎯",
+          text: "Sí, manejo varios instrumentos"
+          
         },
         {
-          id: 'medium',
-          icon: Clock,
-          text: "3-7 años (mediano plazo)",
-          color: "bg-blue-100 text-blue-600"
+          id: 'intermedio',
+          icon: "📚",
+          text: "Algo, pero quiero aprender más"
+         
         },
         {
-          id: 'long',
-          icon: Clock,
-          text: "7-15 años (largo plazo)",
-          color: "bg-green-100 text-green-600"
+          id: 'principiante',
+          icon: "🌱",
+          text: "Muy poca, necesito orientación"
+          
         },
         {
-          id: 'lifetime',
-          icon: Clock,
-          text: "Más de 15 años (toda la vida)",
-          color: "bg-purple-100 text-purple-600"
+          id: 'ninguna',
+          icon: "🚀",
+          text: "No, pero estoy listo para empezar"
+          
         }
       ],
       buttonText: "Finalizar Test →"
@@ -78,65 +78,65 @@ const STRATEGIC_QUESTIONS = {
   ],
   family: [
     {
-      id: 1,
-      title: "Test Estratégico - Protector Familiar",
-      question: "¿Qué esperas de tu dinero en los próximos 5 años?",
+      id: "who_to_protect",
+      title: "Análisis Familiar - Cuidador Visionario",
+      question: "¿A quién quieres proteger?",
       options: [
         {
-          id: 'security',
-          icon: Shield,
-          text: "Seguridad para mi familia",
-          color: "bg-blue-100 text-blue-600"
+          id: 'pareja_hijos',
+          icon: "👨‍👩‍👧‍👦",
+          text: "Mi pareja e hijos"
+          
         },
         {
-          id: 'education',
-          icon: Target,
-          text: "Educación de mis hijos",
-          color: "bg-green-100 text-green-600"
+          id: 'hijos',
+          icon: "👶",
+          text: "Mis hijos"
+         
         },
         {
-          id: 'house',
-          icon: DollarSign,
-          text: "Comprar o mejorar vivienda",
-          color: "bg-purple-100 text-purple-600"
+          id: 'padres',
+          icon: "👴👵",
+          text: "Mis padres"
+         
         },
         {
-          id: 'emergency',
-          icon: Shield,
-          text: "Fondo de emergencia familiar",
-          color: "bg-yellow-100 text-yellow-600"
+          id: 'familia_extendida',
+          icon: "🏠",
+          text: "Toda mi familia"
+         
         }
       ],
       buttonText: "Siguiente"
     },
     {
-      id: 2,
-      title: "Test Estratégico - Protector Familiar",
-      question: "¿Cuál es tu prioridad principal para proteger a tu familia?",
+      id: "protection_priority",
+      title: "Análisis Familiar - Cuidador Visionario",
+      question: "¿Cuál es tu mayor preocupación familiar?",
       options: [
         {
-          id: 'immediate',
-          icon: Shield,
-          text: "Protección inmediata ante emergencias",
-          color: "bg-red-100 text-red-600"
+          id: 'educacion',
+          icon: "🎓",
+          text: "Educación de los hijos"
+          
         },
         {
-          id: 'future',
-          icon: Target,
-          text: "Asegurar el futuro a largo plazo",
-          color: "bg-blue-100 text-blue-600"
+          id: 'salud',
+          icon: "🏥",
+          text: "Gastos médicos inesperados"
+         
         },
         {
-          id: 'legacy',
-          icon: DollarSign,
-          text: "Crear un legado familiar",
-          color: "bg-green-100 text-green-600"
+          id: 'vivienda',
+          icon: "🏡",
+          text: "Asegurar la vivienda familiar"
+          
         },
         {
-          id: 'balance',
-          icon: BarChart3,
-          text: "Balance entre presente y futuro",
-          color: "bg-purple-100 text-purple-600"
+          id: 'futuro',
+          icon: "🔮",
+          text: "El futuro en general"
+        
         }
       ],
       buttonText: "Finalizar Test →"
@@ -144,65 +144,129 @@ const STRATEGIC_QUESTIONS = {
   ],
   preserve: [
     {
-      id: 1,
-      title: "Test Estratégico - Preservador de Patrimonio",
-      question: "¿Qué esperas de tu dinero en los próximos 5 años?",
+      id: "monthly_need",
+      title: "Análisis de Situación - Constructor de Legado",
+      question: "¿Cuánto necesitas para vivir tranquilo al mes?",
       options: [
         {
-          id: 'preserve',
-          icon: Shield,
-          text: "Preservar lo que ya tengo",
-          color: "bg-blue-100 text-blue-600"
+          id: '2_3_millones',
+          icon: "💰",
+          text: "Entre $2-3 millones"
+        
         },
         {
-          id: 'grow',
-          icon: TrendingUp,
-          text: "Crecimiento conservador",
-          color: "bg-green-100 text-green-600"
+          id: '3_5_millones',
+          icon: "💎",
+          text: "Entre $3-5 millones"
+          
         },
         {
-          id: 'income',
-          icon: DollarSign,
-          text: "Generar ingresos pasivos",
-          color: "bg-purple-100 text-purple-600"
+          id: '5_7_millones',
+          icon: "🏆",
+          text: "Entre $5-7 millones"
+        
         },
         {
-          id: 'retire',
-          icon: TreePine,
-          text: "Preparar mi retiro",
-          color: "bg-yellow-100 text-yellow-600"
+          id: 'mas_7_millones',
+          icon: "👑",
+          text: "Más de $7 millones"
+      
         }
       ],
       buttonText: "Siguiente"
     },
     {
-      id: 2,
+      id: "pension_status",
       title: "Test Estratégico - Preservador de Patrimonio",
-      question: "¿Qué es más importante para ti en esta etapa?",
+      question: "¿Tienes pensión?",
       options: [
         {
-          id: 'stability',
-          icon: Shield,
-          text: "Estabilidad y seguridad total",
-          color: "bg-blue-100 text-blue-600"
+          id: 'si_completa',
+          icon: "✅",
+          text: "Sí, pensión completa"
+        
         },
         {
-          id: 'inflation',
-          icon: TrendingUp,
-          text: "Protección contra la inflación",
-          color: "bg-orange-100 text-orange-600"
+          id: 'si_parcial',
+          icon: "⚠️",
+          text: "Sí, pero insuficiente"
+         
         },
         {
-          id: 'liquidity',
-          icon: DollarSign,
-          text: "Tener liquidez disponible",
-          color: "bg-green-100 text-green-600"
+          id: 'no_pero_cotizo',
+          icon: "🔄",
+          text: "No, pero sigo cotizando"
+        
         },
         {
-          id: 'legacy',
-          icon: Target,
-          text: "Dejar herencia a mis hijos",
-          color: "bg-purple-100 text-purple-600"
+          id: 'no_nada',
+          icon: "❌",
+          text: "No tengo ni cotizo"
+         
+        }
+        ],
+      buttonText: "Siguiente"
+    },
+        {
+      id: "properties",
+      title: "Análisis de Situación - Constructor de Legado",
+      question: "¿Tienes propiedades?",
+      options: [
+        {
+          id: 'casa_propia',
+          icon: "🏠",
+          text: "Mi casa propia (paga)"
+         
+        },
+        {
+          id: 'casa_hipoteca',
+          icon: "🏚️",
+          text: "Mi casa (con hipoteca)"
+        
+        },
+        {
+          id: 'varias_propiedades',
+          icon: "🏢",
+          text: "Varias propiedades"
+   
+        },
+        {
+          id: 'no_propiedades',
+          icon: "📄",
+          text: "No tengo propiedades"
+
+        }
+      ],
+      buttonText: "Siguiente"
+    },
+    {
+      id: "family_support",
+      title: "Análisis de Situación - Constructor de Legado",
+      question: "¿Tienes apoyo familiar?",
+      options: [
+        {
+          id: 'si_total',
+          icon: "❤️",
+          text: "Sí, familia unida y estable"
+   
+        },
+        {
+          id: 'si_parcial',
+          icon: "🤝",
+          text: "Parcialmente"
+       
+        },
+        {
+          id: 'no_mucho',
+          icon: "😔",
+          text: "Muy poco"
+   
+        },
+        {
+          id: 'independiente',
+          icon: "💪",
+          text: "Prefiero ser independiente"
+ 
         }
       ],
       buttonText: "Finalizar Test →"
@@ -303,7 +367,7 @@ export const StrategicTestFlow: React.FC<StrategicTestFlowProps> = ({
                 onChange={(e) => setSelectedOption(e.target.value)}
                 className="w-4 h-4"
               />
-              <div className={`w-12 h-12 ${option.color} rounded-lg flex items-center justify-center`}>
+              <div className={`w-12 h-12 rounded-lg flex items-center justify-center`}>
                 <Icon className="h-5 w-5" />
               </div>
               <span className="text-md text-gray-900">{option.text}</span>
