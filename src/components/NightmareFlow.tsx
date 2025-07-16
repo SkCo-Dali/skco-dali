@@ -143,7 +143,7 @@ export const NightmareFlow: React.FC<NightmareFlowProps> = ({ onBack }) => {
   // Vista de creación de fondo
   if (showFundCreation && fundConfig) {
     return (
-      <div className="min-h-[600px] bg-gray-50 p-6 m-0">
+      <div className="min-h-[600px] bg-gray-50 p-4 m-0">
         {/* Header */}
         <div className="flex items-center gap-4 mb-0">
           <Button 
