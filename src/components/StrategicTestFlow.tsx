@@ -367,7 +367,7 @@ export const StrategicTestFlow: React.FC<StrategicTestFlowProps> = ({
                 onChange={(e) => setSelectedOption(e.target.value)}
                 className="w-4 h-4"
               />
-              <div className= "w-12 h-12 rounded-lg flex items-center justify-center"
+              <div className="w-12 h-12 rounded-lg flex items-center justify-center">
                 <Icon className="h-5 w-5" />
               </div>
               <span className="text-md text-gray-900">{option.text}</span>
