@@ -128,7 +128,7 @@ export const StrategicTestFlow: React.FC<StrategicTestFlowProps> = ({
       {/* Button */}
       <div className="text-center">
         <Button 
-          className="bg-green-400 hover:bg-green-500 text-white px-8 py-4 text-lg font-medium rounded-full"
+          className="bg-green-400 h-10 hover:bg-green-500 text-white px-8 py-4 text-md font-medium rounded-full"
           disabled={!selectedOption}
           onClick={() => {
             console.log('Siguiente pregunta para:', flowType, selectedOption);
