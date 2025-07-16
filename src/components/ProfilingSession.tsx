@@ -123,7 +123,7 @@ export const ProfilingSession: React.FC<ProfilingSessionProps> = ({
         {/* Right Column - Question */}
         <div className="space-y-6">
           <div>
-            <h2 className="text-xl font-bold text-gray-900 mb-8">
+            <h2 className="text-lg font-bold text-gray-900 mb-8">
               Cuando piensas en tu dinero, lo primero que te viene a la mente es...
             </h2>
 
@@ -142,7 +142,7 @@ export const ProfilingSession: React.FC<ProfilingSessionProps> = ({
                     className="w-5 h-5"
                   />
                   <span className="text-2xl">{answer.emoji}</span>
-                  <span className="text-gray-900">{answer.text}</span>
+                  <span className="text-sm text-gray-900">{answer.text}</span>
                 </label>
               ))}
             </div>
