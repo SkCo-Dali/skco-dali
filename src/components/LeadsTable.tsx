@@ -1,3 +1,4 @@
+
 import React, { useState, useMemo } from "react";
 import { Lead } from "@/types/crm";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -68,16 +69,18 @@ export function LeadsTable({
           id: "select",
           header: () => (
             <Checkbox
-              checked={table.getIsAllPageRowsSelected()}
-              onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+              checked={false}
+              onCheckedChange={() => {}}
               aria-label="Select all"
               className="translate-y-[2px]"
             />
           ),
           cell: (info) => (
             <Checkbox
-              checked={info.row.getIsSelected()}
-              onCheckedChange={(value) => info.row.toggleSelected(!!value)}
+              checked={selectedLeads.includes(info.row.original.id)}
+              onCheckedChange={(value) => {
+                onLeadSelectionChange?.([info.row.original.id], !!value);
+              }}
               aria-label="Select row"
               className="translate-y-[2px]"
             />
@@ -89,7 +92,7 @@ export function LeadsTable({
           .sort((a, b) => visibleColumns.indexOf(a.key) - visibleColumns.indexOf(b.key))
           .map(column => {
             if (column.key === 'name') {
-              return columnHelper.accessor(column.key, {
+              return columnHelper.accessor('name', {
                 id: column.key,
                 header: () => column.label,
                 cell: info => (
@@ -97,30 +100,27 @@ export function LeadsTable({
                     {info.getValue()}
                   </div>
                 ),
-                sortingFn: column.sortable ? undefined : undefined,
                 enableSorting: column.sortable,
               });
             } else if (column.key === 'assignedTo') {
-              return columnHelper.accessor(column.key, {
+              return columnHelper.accessor('assignedTo', {
                 id: column.key,
                 header: () => column.label,
                 cell: info => {
                   const assignedUser = users.find(user => user.id === info.getValue());
                   return assignedUser ? assignedUser.name : 'Sin asignar';
                 },
-                sortingFn: column.sortable ? undefined : undefined,
                 enableSorting: column.sortable,
               });
             } else if (column.key === 'createdAt') {
-              return columnHelper.accessor(column.key, {
+              return columnHelper.accessor('createdAt', {
                 id: column.key,
                 header: () => column.label,
                 cell: info => formatDate(info.getValue() as string),
-                sortingFn: column.sortable ? undefined : undefined,
                 enableSorting: column.sortable,
               });
             } else if (column.key === 'stage') {
-              return columnHelper.accessor(column.key, {
+              return columnHelper.accessor('stage', {
                 id: column.key,
                 header: () => column.label,
                 cell: info => (
@@ -128,15 +128,13 @@ export function LeadsTable({
                     {info.getValue()}
                   </Badge>
                 ),
-                sortingFn: column.sortable ? undefined : undefined,
                 enableSorting: column.sortable,
               });
             } else {
-              return columnHelper.accessor(column.key, {
+              return columnHelper.accessor(column.key as keyof Lead, {
                 id: column.key,
                 header: () => column.label,
                 cell: info => info.getValue()?.toString() || null,
-                sortingFn: column.sortable ? undefined : undefined,
                 enableSorting: column.sortable,
               });
             }
@@ -166,36 +164,8 @@ export function LeadsTable({
         }),
       ];
     },
-    [columns, users, onSendEmail]
+    [columns, users, onSendEmail, selectedLeads, onLeadSelectionChange]
   );
-
-  const handleSortingChange = (newSorting: SortingState) => {
-    setSorting(newSorting);
-  };
-
-  const handleSelectAll = (isSelected: boolean) => {
-    const allLeadIds = leads.map(lead => lead.id);
-    onLeadSelectionChange?.(allLeadIds, isSelected);
-  };
-
-  const handleRowSelection = (leadId: string, isSelected: boolean) => {
-    onLeadSelectionChange?.([leadId], isSelected);
-  };
-
-  React.useEffect(() => {
-    table.getAllRows().forEach(row => {
-      const leadId = row.original.id;
-      const isSelected = selectedLeads.includes(leadId);
-      row.setSelected(isSelected);
-    });
-  }, [selectedLeads, table]);
-
-  React.useEffect(() => {
-    if (table.getState().sorting && onSortedLeadsChange) {
-      const sortedData = table.getSortedRowModel().rows.map(row => row.original);
-      onSortedLeadsChange(sortedData);
-    }
-  }, [table.getState().sorting, onSortedLeadsChange, leads]);
 
   const table = useReactTable({
     data: leads,
@@ -208,6 +178,22 @@ export function LeadsTable({
     onSortingChange: setSorting,
   });
 
+  const handleSelectAll = (isSelected: boolean) => {
+    const allLeadIds = leads.map(lead => lead.id);
+    onLeadSelectionChange?.(allLeadIds, isSelected);
+  };
+
+  const handleRowSelection = (leadId: string, isSelected: boolean) => {
+    onLeadSelectionChange?.([leadId], isSelected);
+  };
+
+  React.useEffect(() => {
+    if (table.getState().sorting && onSortedLeadsChange) {
+      const sortedData = table.getSortedRowModel().rows.map(row => row.original);
+      onSortedLeadsChange(sortedData);
+    }
+  }, [table.getState().sorting, onSortedLeadsChange, leads, table]);
+
   return (
     <div className="rounded-md border">
       <Table>
@@ -216,9 +202,8 @@ export function LeadsTable({
             <TableRow key={headerGroup.id}>
               <TableHead className="w-12">
                 <Checkbox
-                  checked={table.getIsAllPageRowsSelected()}
+                  checked={selectedLeads.length === leads.length && leads.length > 0}
                   onCheckedChange={(value) => {
-                    table.toggleAllPageRowsSelected(!!value);
                     handleSelectAll(!!value);
                   }}
                   aria-label="Select all"
@@ -244,7 +229,7 @@ export function LeadsTable({
             table.getRowModel().rows.map((row) => (
               <TableRow 
                 key={row.id}
-                data-state={row.getIsSelected() && "selected"}
+                data-state={selectedLeads.includes(row.original.id) && "selected"}
                 className="cursor-pointer hover:bg-gray-50"
                 onClick={(e) => {
                   if (e.target instanceof Element && !e.target.closest('input, button, [role="button"]')) {
@@ -254,9 +239,8 @@ export function LeadsTable({
               >
                 <TableCell>
                   <Checkbox
-                    checked={row.getIsSelected()}
+                    checked={selectedLeads.includes(row.original.id)}
                     onCheckedChange={(value) => {
-                      row.toggleSelected(!!value);
                       handleRowSelection(row.original.id, !!value);
                     }}
                     aria-label="Select row"

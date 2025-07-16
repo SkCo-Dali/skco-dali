@@ -10,7 +10,6 @@ interface LeadsContentProps {
   onLeadClick: (lead: Lead) => void;
   onLeadUpdate?: () => void;
   columns?: ColumnConfig[];
-  paginatedLeads?: Lead[];
   onSortedLeadsChange?: (sorted: Lead[]) => void;
   onSendEmail?: (lead: Lead) => void;
   groupBy?: string;
@@ -24,7 +23,6 @@ export function LeadsContent({
   onLeadClick, 
   onLeadUpdate, 
   columns, 
-  paginatedLeads,
   onSortedLeadsChange,
   onSendEmail,
   groupBy = "stage",
@@ -36,7 +34,6 @@ export function LeadsContent({
       return (
         <LeadsTable
           leads={leads}
-          paginatedLeads={paginatedLeads || leads}
           onLeadClick={onLeadClick}
           onLeadUpdate={onLeadUpdate}
           columns={columns}
