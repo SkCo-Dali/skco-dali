@@ -1,51 +1,118 @@
 
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Luggage, FileText, Bed, ShoppingBag } from 'lucide-react';
+import { ArrowLeft, Luggage, FileText, Bed, ShoppingBag, Target, Calendar, DollarSign } from 'lucide-react';
 
 interface NightmareFlowProps {
   onBack: () => void;
   selectedLead?: any;
 }
 
-const NIGHTMARE_CONFIG = {
-  title: "¿Qué te haría feliz lograr en 6 meses?",
-  options: [
-    {
-      id: 'travel',
-      icon: Luggage,
-      title: "Irme de viaje",
-      description: "Juntar para esas vacaciones que tanto mereces",
-      color: "bg-pink-100 text-pink-600"
-    },
-    {
-      id: 'debt',
-      icon: FileText,
-      title: "Pagar una deuda",
-      description: "Liberarte de esa carga financiera",
-      color: "bg-orange-100 text-orange-600"
-    },
-    {
-      id: 'emergency',
-      icon: Bed,
-      title: "Tener un colchón para emergencias",
-      description: "Dormir tranquilo sabiendo que tienes respaldo",
-      color: "bg-blue-100 text-blue-600",
-      highlighted: false
-    },
-    {
-      id: 'shopping',
-      icon: ShoppingBag,
-      title: "Comprar eso que siempre pospongo",
-      description: "Darte esos gustos sin afectar tus finanzas",
-      color: "bg-purple-100 text-purple-600"
-    }
-  ],
-  buttonText: "Crear mi fondo para esto →"
-};
+const NIGHTMARE_QUESTIONS = [
+  {
+    id: 1,
+    title: "¿Qué te haría feliz lograr en 6 meses?",
+    options: [
+      {
+        id: 'travel',
+        icon: Luggage,
+        title: "Irme de viaje",
+        description: "Juntar para esas vacaciones que tanto mereces",
+        color: "bg-pink-100 text-pink-600"
+      },
+      {
+        id: 'debt',
+        icon: FileText,
+        title: "Pagar una deuda",
+        description: "Liberarte de esa carga financiera",
+        color: "bg-orange-100 text-orange-600"
+      },
+      {
+        id: 'emergency',
+        icon: Bed,
+        title: "Tener un colchón para emergencias",
+        description: "Dormir tranquilo sabiendo que tienes respaldo",
+        color: "bg-blue-100 text-blue-600"
+      },
+      {
+        id: 'shopping',
+        icon: ShoppingBag,
+        title: "Comprar eso que siempre pospongo",
+        description: "Darte esos gustos sin afectar tus finanzas",
+        color: "bg-purple-100 text-purple-600"
+      }
+    ],
+    buttonText: "Siguiente"
+  },
+  {
+    id: 2,
+    title: "¿Cuánto dinero necesitas para lograr esto?",
+    options: [
+      {
+        id: '1000',
+        icon: DollarSign,
+        title: "$1,000 - $5,000",
+        description: "Para metas pequeñas y alcanzables",
+        color: "bg-green-100 text-green-600"
+      },
+      {
+        id: '5000',
+        icon: DollarSign,
+        title: "$5,000 - $15,000",
+        description: "Para proyectos medianos",
+        color: "bg-blue-100 text-blue-600"
+      },
+      {
+        id: '15000',
+        icon: DollarSign,
+        title: "$15,000 - $50,000",
+        description: "Para metas más ambiciosas",
+        color: "bg-purple-100 text-purple-600"
+      },
+      {
+        id: '50000',
+        icon: DollarSign,
+        title: "Más de $50,000",
+        description: "Para grandes proyectos",
+        color: "bg-orange-100 text-orange-600"
+      }
+    ],
+    buttonText: "Crear mi fondo para esto →"
+  }
+];
 
 export const NightmareFlow: React.FC<NightmareFlowProps> = ({ onBack }) => {
+  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
+  const [answers, setAnswers] = useState<Record<number, string>>({});
   const [selectedOption, setSelectedOption] = useState<string>('');
+
+  const currentQuestion = NIGHTMARE_QUESTIONS[currentQuestionIndex];
+  const isLastQuestion = currentQuestionIndex === NIGHTMARE_QUESTIONS.length - 1;
+
+  const handleNext = () => {
+    // Guardar la respuesta actual
+    setAnswers(prev => ({
+      ...prev,
+      [currentQuestion.id]: selectedOption
+    }));
+
+    if (isLastQuestion) {
+      console.log('Crear fondo para:', answers, { [currentQuestion.id]: selectedOption });
+      // Aquí iría la lógica final
+    } else {
+      setCurrentQuestionIndex(prev => prev + 1);
+      setSelectedOption('');
+    }
+  };
+
+  const handleBack = () => {
+    if (currentQuestionIndex > 0) {
+      setCurrentQuestionIndex(prev => prev - 1);
+      setSelectedOption(answers[NIGHTMARE_QUESTIONS[currentQuestionIndex - 1].id] || '');
+    } else {
+      onBack();
+    }
+  };
 
   return (
     <div className="min-h-[600px] bg-gray-50 p-6 m-0">
@@ -54,23 +121,36 @@ export const NightmareFlow: React.FC<NightmareFlowProps> = ({ onBack }) => {
         <Button 
           variant="ghost" 
           size="sm" 
-          onClick={onBack}
+          onClick={handleBack}
           className="p-2"
         >
           <ArrowLeft className="h-4 w-4" />
         </Button>
       </div>
 
+      {/* Progress indicator */}
+      <div className="max-w-4xl mx-auto mb-6">
+        <div className="w-full bg-gray-200 rounded-full h-2 mb-4">
+          <div 
+            className="bg-green-500 h-2 rounded-full transition-all duration-300" 
+            style={{ width: `${((currentQuestionIndex + 1) / NIGHTMARE_QUESTIONS.length) * 100}%` }}
+          ></div>
+        </div>
+        <p className="text-right text-sm text-gray-600">
+          Pregunta {currentQuestionIndex + 1} de {NIGHTMARE_QUESTIONS.length}
+        </p>
+      </div>
+
       {/* Title */}
       <div className="text-center mb-8">
         <h1 className="text-2xl font-bold text-gray-900 mb-4">
-          {NIGHTMARE_CONFIG.title}
+          {currentQuestion.title}
         </h1>
       </div>
 
       {/* Options Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto mb-8">
-        {NIGHTMARE_CONFIG.options.map((option) => {
+        {currentQuestion.options.map((option) => {
           const Icon = option.icon;
           return (
             <label
@@ -78,14 +158,12 @@ export const NightmareFlow: React.FC<NightmareFlowProps> = ({ onBack }) => {
               className={`relative p-6 rounded-lg border-2 cursor-pointer transition-colors ${
                 selectedOption === option.id 
                   ? 'border-green-500 bg-green-50' 
-                  : option.highlighted 
-                    ? 'border-green-300 bg-green-50' 
-                    : 'border-gray-200 bg-white hover:border-gray-300'
+                  : 'border-gray-200 bg-white hover:border-gray-300'
               }`}
             >
               <input
                 type="radio"
-                name="goal"
+                name={`question-${currentQuestion.id}`}
                 value={option.id}
                 checked={selectedOption === option.id}
                 onChange={(e) => setSelectedOption(e.target.value)}
@@ -112,11 +190,9 @@ export const NightmareFlow: React.FC<NightmareFlowProps> = ({ onBack }) => {
         <Button 
           className="bg-green-500 hover:bg-green-600 text-white px-8 py-4 text-lg font-medium rounded-full"
           disabled={!selectedOption}
-          onClick={() => {
-            console.log('Crear fondo para:', selectedOption);
-          }}
+          onClick={handleNext}
         >
-          {NIGHTMARE_CONFIG.buttonText}
+          {currentQuestion.buttonText}
         </Button>
       </div>
     </div>
