@@ -1,46 +1,44 @@
 
 #!/bin/bash
 
-echo "🚀 Preparando despliegue para Azure Static Web Apps..."
+# Script para deployar web components a Azure Static Web Apps
 
-# Verificar que estemos en la branch main
-current_branch=$(git branch --show-current)
-if [ "$current_branch" != "main" ]; then
-    echo "⚠️  Advertencia: No estás en la branch main"
-    echo "Branch actual: $current_branch"
-    read -p "¿Deseas continuar? (y/n): " -n 1 -r
-    echo
-    if [[ ! $REPLY =~ ^[Yy]$ ]]; then
-        exit 1
-    fi
+echo "🚀 Iniciando deploy de SK Dali Web Components..."
+
+# Verificar que estamos en el directorio correcto
+if [ ! -f "package.json" ]; then
+  echo "❌ Error: No se encontró package.json. Ejecuta este script desde la raíz del proyecto."
+  exit 1
 fi
 
-echo "📦 Instalando dependencias..."
-npm ci
-
-echo "🔨 Construyendo la aplicación..."
-npm run build
-
-echo "🧪 Ejecutando tests (si existen)..."
-npm run test --if-present
-
-echo "📋 Verificando archivos de configuración..."
-if [ ! -f "staticwebapp.config.json" ]; then
-    echo "❌ Error: staticwebapp.config.json no encontrado"
-    exit 1
+# Instalar dependencias si es necesario
+if [ ! -d "node_modules" ]; then
+  echo "📦 Instalando dependencias..."
+  npm install
 fi
 
-if [ ! -f ".github/workflows/azure-static-web-apps.yml" ]; then
-    echo "❌ Error: Workflow de GitHub Actions no encontrado"
-    exit 1
+# Construir web components
+echo "🔨 Construyendo web components..."
+node scripts/build-web-components.js
+
+# Verificar que la construcción fue exitosa
+if [ ! -d "dist/web-components" ]; then
+  echo "❌ Error: No se pudo construir los web components."
+  exit 1
 fi
 
-echo "✅ Build completado exitosamente"
-echo "📁 Archivos generados en: ./dist"
-echo ""
-echo "📋 Próximos pasos:"
-echo "1. Commit y push de los cambios a GitHub"
-echo "2. Crear Azure Static Web App en el portal"
-echo "3. Conectar con el repositorio de GitHub"
-echo ""
-echo "🔗 Documentación: Ver AZURE_DEPLOYMENT.md"
+echo "✅ Web components construidos exitosamente"
+
+# Crear estructura para Azure Static Web Apps
+echo "📁 Preparando estructura para Azure..."
+
+# Copiar archivos necesarios
+cp -r dist/web-components/* dist/
+cp staticwebapp.config.json dist/ 2>/dev/null || echo "⚠️  staticwebapp.config.json no encontrado"
+
+echo "🌐 Archivos listos para deploy en Azure Static Web Apps"
+echo "📋 Archivos generados:"
+ls -la dist/SK.Dali.*.React.*
+
+echo "✅ Deploy preparado. Los archivos están listos en la carpeta 'dist/'"
+echo "🔗 Puedes usar estos archivos en cualquier aplicación web que soporte custom elements"
