@@ -169,43 +169,41 @@ export const NightmareFlow: React.FC<NightmareFlowProps> = ({ onBack }) => {
           </p>
         </div>
 
-        {/* Plan Cards */}
-        <div className="bg-green-50 rounded-lg p-6 mb-8 max-w-4xl mx-auto">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {/* Ahorro Automático */}
-            <div className="text-center">
-              <div className="w-16 h-16 bg-blue-100 rounded-lg flex items-center justify-center mx-auto mb-4">
-                <RefreshCw className="h-8 w-8 text-blue-600" />
-              </div>
-              <div className="text-2xl font-bold text-green-600 mb-2">60%</div>
-              <h3 className="font-semibold text-gray-900 mb-2">Ahorro Automático</h3>
-              <p className="text-sm text-gray-600">Inversión mensual automática</p>
+        {/* Plan Cards - Dividido en 3 columnas */}
+        <div className="grid grid-cols-3 gap-0 mb-8 max-w-4xl mx-auto">
+          {/* Ahorro Automático */}
+          <div className="bg-green-50 p-6 text-center border-r border-green-200">
+            <div className="w-16 h-16 bg-blue-100 rounded-lg flex items-center justify-center mx-auto mb-4">
+              <RefreshCw className="h-8 w-8 text-blue-600" />
             </div>
+            <div className="text-2xl font-bold text-green-600 mb-2">60%</div>
+            <h3 className="font-semibold text-gray-900 mb-2">Ahorro Automático</h3>
+            <p className="text-sm text-gray-600">Inversión mensual automática</p>
+          </div>
 
-            {/* Fondo de Emergencias */}
-            <div className="text-center">
-              <div className="w-16 h-16 bg-blue-100 rounded-lg flex items-center justify-center mx-auto mb-4">
-                <CreditCard className="h-8 w-8 text-blue-600" />
-              </div>
-              <div className="text-2xl font-bold text-green-600 mb-2">25%</div>
-              <h3 className="font-semibold text-gray-900 mb-2">Fondo de Emergencias</h3>
-              <p className="text-sm text-gray-600">3 meses de gastos cubiertos</p>
+          {/* Fondo de Emergencias */}
+          <div className="bg-green-50 p-6 text-center border-r border-green-200">
+            <div className="w-16 h-16 bg-blue-100 rounded-lg flex items-center justify-center mx-auto mb-4">
+              <CreditCard className="h-8 w-8 text-blue-600" />
             </div>
+            <div className="text-2xl font-bold text-green-600 mb-2">25%</div>
+            <h3 className="font-semibold text-gray-900 mb-2">Fondo de Emergencias</h3>
+            <p className="text-sm text-gray-600">3 meses de gastos cubiertos</p>
+          </div>
 
-            {/* Fondo para Gustos */}
-            <div className="text-center">
-              <div className="w-16 h-16 bg-red-100 rounded-lg flex items-center justify-center mx-auto mb-4">
-                <Gift className="h-8 w-8 text-red-600" />
-              </div>
-              <div className="text-2xl font-bold text-green-600 mb-2">15%</div>
-              <h3 className="font-semibold text-gray-900 mb-2">Fondo para Gustos</h3>
-              <p className="text-sm text-gray-600">Para tus placeres sin culpa</p>
+          {/* Fondo para Gustos */}
+          <div className="bg-green-50 p-6 text-center">
+            <div className="w-16 h-16 bg-red-100 rounded-lg flex items-center justify-center mx-auto mb-4">
+              <Gift className="h-8 w-8 text-red-600" />
             </div>
+            <div className="text-2xl font-bold text-green-600 mb-2">15%</div>
+            <h3 className="font-semibold text-gray-900 mb-2">Fondo para Gustos</h3>
+            <p className="text-sm text-gray-600">Para tus placeres sin culpa</p>
           </div>
         </div>
 
-        {/* Benefits Section */}
-        <div className="max-w-4xl mx-auto mb-8">
+        {/* Benefits Section - Contenedor gris */}
+        <div className="bg-gray-100 rounded-lg p-6 mb-8 max-w-4xl mx-auto">
           <h3 className="text-md font-semibold text-gray-900 mb-6">Beneficios de tu plan:</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="flex items-center gap-3">
