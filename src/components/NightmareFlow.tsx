@@ -205,14 +205,14 @@ export const NightmareFlow: React.FC<NightmareFlowProps> = ({ onBack }) => {
           </div>
 
           {/* Projection Card */}
-          <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+          <div className="bg-green-50 border border-green-200 rounded-lg p-2">
             <div className="flex items-center gap-3">
               <div className="text-2xl">💡</div>
               <div>
                 <p className="text-sm font-medium text-green-800 mb-1">
                   {fundConfig.projectionText}
                 </p>
-                <p className="text-2xl font-bold text-green-600">
+                <p className="text-md font-bold text-green-600">
                   ${projectedAmount.toLocaleString()}
                 </p>
               </div>
