@@ -148,7 +148,7 @@ export const NightmareFlow: React.FC<NightmareFlowProps> = ({ onBack }) => {
     return (
       <div className="min-h-[600px] bg-white p-6 m-0">
         {/* Header */}
-        <div className="flex items-center gap-4 mb-8">
+        <div className="flex items-center gap-4 mb-0">
           <Button 
             variant="ghost" 
             size="sm" 
@@ -161,7 +161,7 @@ export const NightmareFlow: React.FC<NightmareFlowProps> = ({ onBack }) => {
 
         {/* Title Section */}
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">
+          <h1 className="text-lg font-bold text-gray-900 mb-2">
             Tu Plan Sin Complicaciones
           </h1>
           <p className="text-gray-600">
