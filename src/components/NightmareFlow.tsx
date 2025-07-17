@@ -86,7 +86,7 @@ const FUND_CREATION_CONFIG = {
   }
 };
 
-// Default configuration for nightmare flow plan
+// Configuración para el plan de nightmare
 const NIGHTMARE_PLAN_CONFIG = {
   title: "Tu Plan Sin Complicaciones",
   subtitle: "Automatizado y eficiente",
@@ -95,19 +95,19 @@ const NIGHTMARE_PLAN_CONFIG = {
       name: "Ahorro Automático",
       percentage: "60%",
       description: "Inversión mensual automática",
-      icon: RefreshCw
+      icon: "🔄"
     },
     {
       name: "Fondo de Emergencias",
       percentage: "25%",
       description: "3 meses de gastos cubiertos",
-      icon: CreditCard
+      icon: "🛏️"
     },
     {
       name: "Fondo para Gustos",
       percentage: "15%",
       description: "Para tus placeres sin culpa",
-      icon: Gift
+      icon: "🎁"
     }
   ],
   benefits: [
