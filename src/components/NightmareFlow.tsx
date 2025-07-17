@@ -203,24 +203,21 @@ export const NightmareFlow: React.FC<NightmareFlowProps> = ({ onBack }) => {
 
         {/* Plan Cards - Dividido en 3 columnas */}
         <div className="grid grid-cols-3 gap-0 mb-8 max-w-4xl mx-auto">
-          {NIGHTMARE_PLAN_CONFIG.components.map((component, index) => {
-            const IconComponent = component.icon;
-            return (
-              <div 
-                key={component.name}
-                className={`bg-green-50 p-6 text-center ${
-                  index < NIGHTMARE_PLAN_CONFIG.components.length - 1 ? 'border-r border-green-200' : ''
-                }`}
-              >
-                <div className="w-16 h-16 bg-blue-100 rounded-lg flex items-center justify-center mx-auto mb-4">
-                  <IconComponent className="h-8 w-8 text-blue-600" />
-                </div>
-                <div className="text-2xl font-bold text-green-600 mb-2">{component.percentage}</div>
-                <h3 className="text-md font-semibold text-gray-900 mb-2">{component.name}</h3>
-                <p className="text-sm text-gray-600">{component.description}</p>
+          {NIGHTMARE_PLAN_CONFIG.components.map((component, index) => (
+            <div 
+              key={component.name}
+              className={`bg-green-50 p-6 text-center ${
+                index < NIGHTMARE_PLAN_CONFIG.components.length - 1 ? 'border-r border-green-200' : ''
+              }`}
+            >
+              <div className="w-16 h-16 bg-blue-100 rounded-lg flex items-center justify-center mx-auto mb-4">
+                <span className="text-2xl">{component.icon}</span>
               </div>
-            );
-          })}
+              <div className="text-2xl font-bold text-green-600 mb-2">{component.percentage}</div>
+              <h3 className="text-md font-semibold text-gray-900 mb-2">{component.name}</h3>
+              <p className="text-sm text-gray-600">{component.description}</p>
+            </div>
+          ))}
         </div>
 
         {/* Benefits Section - Contenedor gris */}
