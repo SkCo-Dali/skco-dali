@@ -210,9 +210,7 @@ export const NightmareFlow: React.FC<NightmareFlowProps> = ({ onBack }) => {
                 index < NIGHTMARE_PLAN_CONFIG.components.length - 1 ? 'border-r border-green-200' : ''
               }`}
             >
-              <div className="w-16 h-16 bg-blue-100 rounded-lg flex items-center justify-center mx-auto mb-4">
-                <span className="text-2xl">{component.icon}</span>
-              </div>
+              <div className="text-3xl mb-4">{component.icon}</div>
               <div className="text-2xl font-bold text-green-600 mb-2">{component.percentage}</div>
               <h3 className="text-md font-semibold text-gray-900 mb-2">{component.name}</h3>
               <p className="text-sm text-gray-600">{component.description}</p>
