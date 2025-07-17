@@ -1,7 +1,6 @@
-
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, TrendingUp, TreePine, BarChart3, DollarSign, Clock, Shield, Target } from 'lucide-react';
+import { ArrowLeft, TrendingUp, TreePine, BarChart3, DollarSign, Clock, Shield, Target, RefreshCw, CreditCard, Gift, Check } from 'lucide-react';
 
 interface StrategicTestFlowProps {
   onBack: () => void;
@@ -281,6 +280,7 @@ export const StrategicTestFlow: React.FC<StrategicTestFlowProps> = ({
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [answers, setAnswers] = useState<Record<number, string>>({});
   const [selectedOption, setSelectedOption] = useState<string>('');
+  const [showPlan, setShowPlan] = useState(false);
 
   const questions = STRATEGIC_QUESTIONS[flowType];
   const currentQuestion = questions[currentQuestionIndex];
@@ -295,7 +295,7 @@ export const StrategicTestFlow: React.FC<StrategicTestFlowProps> = ({
 
     if (isLastQuestion) {
       console.log('Test completado para:', flowType, answers, { [currentQuestion.id]: selectedOption });
-      // Aquí iría la lógica final
+      setShowPlan(true);
     } else {
       setCurrentQuestionIndex(prev => prev + 1);
       setSelectedOption('');
@@ -303,13 +303,112 @@ export const StrategicTestFlow: React.FC<StrategicTestFlowProps> = ({
   };
 
   const handleBack = () => {
-    if (currentQuestionIndex > 0) {
+    if (showPlan) {
+      setShowPlan(false);
+    } else if (currentQuestionIndex > 0) {
       setCurrentQuestionIndex(prev => prev - 1);
       setSelectedOption(answers[questions[currentQuestionIndex - 1].id] || '');
     } else {
       onBack();
     }
   };
+
+  // Vista del plan personalizado
+  if (showPlan) {
+    return (
+      <div className="min-h-[600px] bg-white p-6 m-0">
+        {/* Header */}
+        <div className="flex items-center gap-4 mb-8">
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            onClick={handleBack}
+            className="p-2"
+          >
+            <ArrowLeft className="h-4 w-4" />
+          </Button>
+        </div>
+
+        {/* Title Section */}
+        <div className="text-center mb-8">
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">
+            Tu Plan Sin Complicaciones
+          </h1>
+          <p className="text-gray-600">
+            Automatizado y eficiente
+          </p>
+        </div>
+
+        {/* Plan Cards */}
+        <div className="bg-green-50 rounded-lg p-6 mb-8 max-w-4xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {/* Ahorro Automático */}
+            <div className="text-center">
+              <div className="w-16 h-16 bg-blue-100 rounded-lg flex items-center justify-center mx-auto mb-4">
+                <RefreshCw className="h-8 w-8 text-blue-600" />
+              </div>
+              <div className="text-3xl font-bold text-green-600 mb-2">60%</div>
+              <h3 className="font-semibold text-gray-900 mb-2">Ahorro Automático</h3>
+              <p className="text-sm text-gray-600">Inversión mensual automática</p>
+            </div>
+
+            {/* Fondo de Emergencias */}
+            <div className="text-center">
+              <div className="w-16 h-16 bg-blue-100 rounded-lg flex items-center justify-center mx-auto mb-4">
+                <CreditCard className="h-8 w-8 text-blue-600" />
+              </div>
+              <div className="text-3xl font-bold text-green-600 mb-2">25%</div>
+              <h3 className="font-semibold text-gray-900 mb-2">Fondo de Emergencias</h3>
+              <p className="text-sm text-gray-600">3 meses de gastos cubiertos</p>
+            </div>
+
+            {/* Fondo para Gustos */}
+            <div className="text-center">
+              <div className="w-16 h-16 bg-red-100 rounded-lg flex items-center justify-center mx-auto mb-4">
+                <Gift className="h-8 w-8 text-red-600" />
+              </div>
+              <div className="text-3xl font-bold text-green-600 mb-2">15%</div>
+              <h3 className="font-semibold text-gray-900 mb-2">Fondo para Gustos</h3>
+              <p className="text-sm text-gray-600">Para tus placeres sin culpa</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Benefits Section */}
+        <div className="max-w-4xl mx-auto mb-8">
+          <h3 className="text-lg font-semibold text-gray-900 mb-6">Beneficios de tu plan:</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="flex items-center gap-3">
+              <Check className="h-5 w-5 text-green-600" />
+              <span className="text-gray-700">Todo automático, sin esfuerzo</span>
+            </div>
+            <div className="flex items-center gap-3">
+              <Check className="h-5 w-5 text-green-600" />
+              <span className="text-gray-700">Metas alcanzables mes a mes</span>
+            </div>
+            <div className="flex items-center gap-3">
+              <Check className="h-5 w-5 text-green-600" />
+              <span className="text-gray-700">Disfruta sin culpa</span>
+            </div>
+            <div className="flex items-center gap-3">
+              <Check className="h-5 w-5 text-green-600" />
+              <span className="text-gray-700">Asesoría cuando la necesites</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Action Button */}
+        <div className="text-center">
+          <Button 
+            className="bg-green-500 hover:bg-green-600 text-white px-8 py-4 text-lg font-medium rounded-full"
+            onClick={() => console.log('Plan aceptado')}
+          >
+            Comenzar mi plan 🚀
+          </Button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-[600px] bg-gray-50 p-6 m-0">
