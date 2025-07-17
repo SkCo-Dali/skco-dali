@@ -278,7 +278,7 @@ export const NightmareFlow: React.FC<NightmareFlowProps> = ({ onBack }) => {
                 <div className={`w-16 h-16 ${option.color} rounded-full flex items-center justify-center mx-auto mb-4`}>
                   <Icon className="h-8 w-8" />
                 </div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                <h3 className="text-md font-semibold text-gray-900 mb-2">
                   {option.title}
                 </h3>
                 <p className="text-sm text-gray-600">
@@ -293,7 +293,7 @@ export const NightmareFlow: React.FC<NightmareFlowProps> = ({ onBack }) => {
       {/* Button */}
       <div className="text-center">
         <Button 
-          className="bg-green-500 hover:bg-green-600 text-white px-8 py-4 text-lg font-medium rounded-full"
+          className="bg-green-500 hover:bg-green-600 text-white px-8 py-4 text-md font-medium rounded-full"
           disabled={!selectedOption}
           onClick={handleNext}
         >
