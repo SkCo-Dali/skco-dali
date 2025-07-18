@@ -108,7 +108,7 @@ export function LeadCard({
         >
           <div className="absolute top-0 left-2 z-20 rounded-lg">
             <Badge 
-              className={`text-xs px-3 py-1 whitespace-nowrap rounded-tl rounded-br shadow-none ${stageColors[lead.stage as keyof typeof stageColors] || 'bg-gray-100 text-gray-800'}`}
+              className={`text-xs px-3 py-1 whitespace-nowrap rounded-tr-md rounded-bl-md shadow-none ${stageColors[lead.stage as keyof typeof stageColors] || 'bg-gray-100 text-gray-800'}`}
               variant="secondary"
             >
               {lead.stage}
