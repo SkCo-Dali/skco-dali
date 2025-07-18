@@ -106,13 +106,16 @@ export function LeadCard({
           style={{ backgroundColor: '#fafafa'}}
           onClick={handleCardClick}
         >
-          <div className="absolute top-0 left-2 z-20 rounded-sm">
-            <Badge 
-              className={`text-xs px-3 py-1 whitespace-nowrap rounded-tr-sm rounded-bl-sm shadow-none ${stageColors[lead.stage as keyof typeof stageColors] || 'bg-gray-100 text-gray-800'}`}
-              variant="secondary"
+          <div className="absolute top-0 left-2 z-20">
+            <div 
+              className={`text-xs px-3 py-1 whitespace-nowrap shadow-none ${stageColors[lead.stage as keyof typeof stageColors] || 'bg-gray-100 text-gray-800'}`}
+              style={{
+                clipPath: 'polygon(0 0, calc(100% - 8px) 0, 100% 100%, 0 100%)',
+                borderRadius: '0'
+              }}
             >
               {lead.stage}
-            </Badge>
+            </div>
           </div>
 
           <CardHeader className="pb-2 px-2 pt-2">
