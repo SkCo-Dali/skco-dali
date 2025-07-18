@@ -202,11 +202,11 @@ export const NightmareFlow: React.FC<NightmareFlowProps> = ({ onBack }) => {
         </div>
 
         {/* Plan Cards - Dividido en 3 columnas */}
-        <div className="grid grid-cols-3 gap-0 mb-8 max-w-4xl mx-auto">
+        <div className="grid grid-cols-3 gap-2 mb-8 max-w-4xl mx-auto">
           {NIGHTMARE_PLAN_CONFIG.components.map((component, index) => (
             <div 
               key={component.name}
-              className={`bg-green-50 p-6 text-center ${
+              className={`bg-green-50 p-6 text-center rounded-md ${
                 index < NIGHTMARE_PLAN_CONFIG.components.length - 1 ? 'border-r border-green-200' : ''
               }`}
             >
