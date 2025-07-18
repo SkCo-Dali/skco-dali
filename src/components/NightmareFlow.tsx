@@ -237,7 +237,7 @@ export const NightmareFlow: React.FC<NightmareFlowProps> = ({ onBack }) => {
             className="bg-green-500 hover:bg-green-600 text-white px-8 py-4 text-lg font-medium rounded-full"
             onClick={() => console.log('Plan aceptado')}
           >
-            Comenzar mi plan 🚀
+            Guardar plan 🚀
           </Button>
         </div>
       </div>

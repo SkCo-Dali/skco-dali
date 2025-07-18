@@ -377,7 +377,7 @@ export const StrategicTestFlow: React.FC<StrategicTestFlowProps> = ({
             className="bg-green-500 hover:bg-green-600 text-white px-8 py-4 text-md font-medium rounded-full"
             onClick={() => console.log('Plan aceptado')}
           >
-            Comenzar mi plan 🚀
+            Guardar plan 🚀
           </Button>
         </div>
       </div>
