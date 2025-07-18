@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Lead } from "@/types/crm";
 import { Badge } from "@/components/ui/badge";
@@ -110,8 +109,7 @@ export function LeadCard({
             <div 
               className={`text-xs px-3 py-1 whitespace-nowrap shadow-none ${stageColors[lead.stage as keyof typeof stageColors] || 'bg-gray-100 text-gray-800'}`}
               style={{
-                clipPath: 'polygon(0 0, calc(100% - 8px) 0, 100% 100%, 0 100%)',
-                borderRadius: '0'
+                borderRadius: '5px 0px 8px 0px'
               }}
             >
               {lead.stage}
