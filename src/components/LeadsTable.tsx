@@ -36,23 +36,23 @@ type SortConfig = {
 
 const defaultColumns: ColumnConfig[] = [
   { key: 'name', label: 'Nombre', visible: true, sortable: true },
+  { key: 'campaign', label: 'Campaña', visible: true, sortable: true },
   { key: 'email', label: 'Email', visible: true, sortable: true },
   { key: 'phone', label: 'Teléfono', visible: false, sortable: false },
+  { key: 'documentType', label: 'Tipo documento', visible: true, sortable: true },
+  { key: 'documentNumber', label: 'Número documento', visible: true, sortable: true },
   { key: 'product', label: 'Producto', visible: true, sortable: true },
   { key: 'stage', label: 'Etapa', visible: true, sortable: true },
   { key: 'assignedTo', label: 'Asignado a', visible: true, sortable: true },
-  { key: 'campaign', label: 'Campaña', visible: true, sortable: true },
   { key: 'source', label: 'Fuente', visible: false, sortable: true },
-  { key: 'lastInteraction', label: 'Últ. interacción', visible: false, sortable: true },
-  { key: 'company', label: 'Empresa', visible: false, sortable: true },
-  { key: 'value', label: 'Valor', visible: false, sortable: true },
-  { key: 'priority', label: 'Prioridad', visible: false, sortable: true },
   { key: 'createdAt', label: 'Fecha creación', visible: false, sortable: true },
+  { key: 'lastInteraction', label: 'Últ. interacción', visible: false, sortable: true },
+  { key: 'priority', label: 'Prioridad', visible: false, sortable: true },
   { key: 'age', label: 'Edad', visible: false, sortable: true },
   { key: 'gender', label: 'Género', visible: false, sortable: true },
   { key: 'preferredContactChannel', label: 'Medio de contacto preferido', visible: false, sortable: true },
-  { key: 'documentType', label: 'Tipo documento', visible: true, sortable: true },
-  { key: 'documentNumber', label: 'Número documento', visible: true, sortable: true },
+  { key: 'company', label: 'Empresa', visible: false, sortable: true },
+  { key: 'value', label: 'Valor', visible: false, sortable: true },
 ];
 
 const capitalizeWords = (text: string) => {
