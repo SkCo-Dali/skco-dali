@@ -5,7 +5,6 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import * as SelectPrimitive from "@radix-ui/react-select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -13,7 +12,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Calendar, MessageSquare, Phone, Mail, UserCheck, Clock, Tag, Building2, Globe, CreditCard, AlertCircle, History, UserPlus, Users, X, ChevronDown } from 'lucide-react';
+import { Calendar, MessageSquare, Phone, Mail, UserCheck, Clock, Tag, Building2, Globe, CreditCard, AlertCircle, History, UserPlus, Users, X } from 'lucide-react';
 import { useUsersApi } from '@/hooks/useUsersApi';
 import { useInteractionsApi } from '@/hooks/useInteractionsApi';
 import { useLeadAssignments } from '@/hooks/useLeadAssignments';
@@ -430,39 +429,33 @@ export function LeadDetail({ lead, isOpen, onClose, onSave, onOpenMassEmail }: L
                       </div>
 
                       <div className="grid grid-cols-2 gap-6">
-                        <div className="space-y-0 border-2 border-[#3d4b5c26] shadow-md rounded-md p-2.5">
-  <Label className="p-0 text-sm text-gray-500 font-normal">Tipo de Documento</Label>
- <Select value={editedLead.documentType || 'CC'} onValueChange={(value) => handleGeneralChange('documentType', value)}>
-  <SelectTrigger
-    className="flex flex-col items-start border-2 border-[#3d4b5c26] rounded-md p-2.5 w-full max-w-xs"
-  >
-    {/* Label arriba */}
-    <span className="text-sm text-gray-500 font-normal mb-1 select-none">
-      Tipo de Documento
-    </span>
+                        <div className="space-y-0 border-2 border-[#3d4b5c26] shadow-md rounded-md p-2.5 w-full max-w-xs">
+  {/* Label arriba */}
+  <Label className="p-0 text-sm text-gray-500 font-normal mb-1">Tipo de Documento</Label>
 
-    {/* Contenedor valor + icono */}
-    <div className="flex items-center w-full justify-between">
-      <SelectValue
-        placeholder="Selecciona un tipo"
-        className="text-sm font-semibold text-gray-800 truncate"
-      />
-      <SelectPrimitive.Icon asChild>
-        <ChevronDown className="h-5 w-5 text-gray-400" />
-      </SelectPrimitive.Icon>
+  {/* Contenedor con el valor y el chevron */}
+  <div className="flex items-center justify-between bg-white border-b border-gray-300 rounded-none px-3 py-2 cursor-pointer">
+    {/* Valor seleccionado a la izquierda */}
+    <div className="text-sm font-semibold text-gray-800 truncate">
+      Tarjeta de Identidad
     </div>
-  </SelectTrigger>
 
-  <SelectContent>
-    <SelectItem value="CC">Cédula de Ciudadanía</SelectItem>
-    <SelectItem value="CE">Cédula de Extranjería</SelectItem>
-    <SelectItem value="TI">Tarjeta de Identidad</SelectItem>
-    <SelectItem value="PA">Pasaporte</SelectItem>
-    <SelectItem value="NIT">NIT</SelectItem>
-  </SelectContent>
-</Select>
-
+    {/* Chevron centrado verticalmente */}
+    <div className="flex items-center justify-center text-gray-400 ml-2">
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        className="h-5 w-5"
+        fill="none"
+        viewBox="0 0 24 24"
+        stroke="currentColor"
+        strokeWidth={2}
+      >
+        <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+      </svg>
+    </div>
+  </div>
 </div>
+
                         
                         <div className="space-y-0 border-2 border-[#3d4b5c26] shadow-md rounded-md p-2.5">
                           <Label className="p-0 text-sm text-gray-500 font-normal">Número de Documento</Label>
