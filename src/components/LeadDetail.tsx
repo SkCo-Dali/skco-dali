@@ -431,35 +431,36 @@ export function LeadDetail({ lead, isOpen, onClose, onSave, onOpenMassEmail }: L
                       <div className="grid grid-cols-2 gap-6">
                         <div className="space-y-0 border-2 border-[#3d4b5c26] shadow-md rounded-md p-2.5">
   <Label className="p-0 text-sm text-gray-500 font-normal">Tipo de Documento</Label>
-  <Select 
-    value={editedLead.documentType || 'CC'} 
-    onValueChange={(value) => handleGeneralChange('documentType', value)}
+ <Select value={editedLead.documentType || 'CC'} onValueChange={(value) => handleGeneralChange('documentType', value)}>
+  <SelectTrigger
+    className="flex flex-col items-start border-2 border-[#3d4b5c26] rounded-md p-2.5 w-full max-w-xs"
   >
-    <SelectTrigger
-      className="border-0 border-b border-gray-300 rounded-none px-0 py-1 m-0 text-sm font-medium bg-transparent leading-none h-auto min-h-0 focus:border-green-400 focus:ring-0 flex items-center justify-between"
-    >
-      <SelectValue />
-      <div className="flex-shrink-0 h-full flex items-center justify-center text-green-500">
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          className="h-4 w-4"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-          strokeWidth={2}
-        >
-          <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
-        </svg>
-      </div>
-    </SelectTrigger>
-    <SelectContent>
-      <SelectItem value="CC">Cédula de Ciudadanía</SelectItem>
-      <SelectItem value="CE">Cédula de Extranjería</SelectItem>
-      <SelectItem value="TI">Tarjeta de Identidad</SelectItem>
-      <SelectItem value="PA">Pasaporte</SelectItem>
-      <SelectItem value="NIT">NIT</SelectItem>
-    </SelectContent>
-  </Select>
+    {/* Label arriba */}
+    <span className="text-sm text-gray-500 font-normal mb-1 select-none">
+      Tipo de Documento
+    </span>
+
+    {/* Contenedor valor + icono */}
+    <div className="flex items-center w-full justify-between">
+      <SelectValue
+        placeholder="Selecciona un tipo"
+        className="text-sm font-semibold text-gray-800 truncate"
+      />
+      <SelectPrimitive.Icon asChild>
+        <ChevronDown className="h-5 w-5 text-gray-400" />
+      </SelectPrimitive.Icon>
+    </div>
+  </SelectTrigger>
+
+  <SelectContent>
+    <SelectItem value="CC">Cédula de Ciudadanía</SelectItem>
+    <SelectItem value="CE">Cédula de Extranjería</SelectItem>
+    <SelectItem value="TI">Tarjeta de Identidad</SelectItem>
+    <SelectItem value="PA">Pasaporte</SelectItem>
+    <SelectItem value="NIT">NIT</SelectItem>
+  </SelectContent>
+</Select>
+
 </div>
                         
                         <div className="space-y-0 border-2 border-[#3d4b5c26] shadow-md rounded-md p-2.5">
