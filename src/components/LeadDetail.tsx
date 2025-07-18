@@ -410,8 +410,8 @@ export function LeadDetail({ lead, isOpen, onClose, onSave, onOpenMassEmail }: L
                         <Input
                           id="email"
                           type="email"
-                          value={editedLead.email || ''}
-                          onChange={(e) => handleGeneralChange('email', e.target.value)}
+                          value={(editedLead.email || '').toLowerCase()}
+                          onChange={(e) => handleGeneralChange('email', e.target.value.toLowerCase())}
                         />
                       </div>
                         <div>

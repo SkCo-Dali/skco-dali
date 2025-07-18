@@ -338,11 +338,9 @@ export function LeadsTable({
         );
       case 'email':
         return (
-          <EditableLeadCell
-            lead={lead}
-            field="email"
-            onUpdate={() => onLeadUpdate?.()}
-          />
+          <div className="text-gray-700 text-xs text-center">
+            {(lead.email || '').toLowerCase()}
+          </div>
         );
       case 'phone':
         return (
