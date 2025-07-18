@@ -287,7 +287,7 @@ export function LeadsTable({
         return (
           <div className="flex items-center justify-between w-full">
             <div 
-              className="text-gray-900 font-medium text-xs truncate pr-2 cursor-pointer hover:text-[#00c83c]"
+              className="text-gray-900 font-bold text-xs truncate pr-2 cursor-pointer hover:text-[#00c83c]"
               onClick={(e) => {
                 e.stopPropagation();
                 onLeadClick(lead);
