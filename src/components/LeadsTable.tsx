@@ -36,23 +36,23 @@ type SortConfig = {
 
 const defaultColumns: ColumnConfig[] = [
   { key: 'name', label: 'Nombre', visible: true, sortable: true },
-  { key: 'campaign', label: 'Campaña', visible: true, sortable: true },
   { key: 'email', label: 'Email', visible: true, sortable: true },
-  { key: 'phone', label: 'Teléfono', visible: true, sortable: false },
-  { key: 'documentType', label: 'Tipo documento', visible: true, sortable: true },
-  { key: 'documentNumber', label: 'Número documento', visible: true, sortable: true },
+  { key: 'phone', label: 'Teléfono', visible: false, sortable: false },
   { key: 'product', label: 'Producto', visible: true, sortable: true },
   { key: 'stage', label: 'Etapa', visible: true, sortable: true },
   { key: 'assignedTo', label: 'Asignado a', visible: true, sortable: true },
-  { key: 'source', label: 'Fuente', visible: true, sortable: true },
-  { key: 'createdAt', label: 'Fecha creación', visible: true, sortable: true },
-  { key: 'lastInteraction', label: 'Últ. interacción', visible: true, sortable: true },
-  { key: 'priority', label: 'Prioridad', visible: true, sortable: true },
-  { key: 'age', label: 'Edad', visible: true, sortable: true },
-  { key: 'gender', label: 'Género', visible: true, sortable: true },
-  { key: 'preferredContactChannel', label: 'Medio de contacto preferido', visible: true, sortable: true },
-  { key: 'company', label: 'Empresa', visible: true, sortable: true },
-  { key: 'value', label: 'Valor', visible: true, sortable: true },
+  { key: 'campaign', label: 'Campaña', visible: true, sortable: true },
+  { key: 'source', label: 'Fuente', visible: false, sortable: true },
+  { key: 'lastInteraction', label: 'Últ. interacción', visible: false, sortable: true },
+  { key: 'company', label: 'Empresa', visible: false, sortable: true },
+  { key: 'value', label: 'Valor', visible: false, sortable: true },
+  { key: 'priority', label: 'Prioridad', visible: false, sortable: true },
+  { key: 'createdAt', label: 'Fecha creación', visible: false, sortable: true },
+  { key: 'age', label: 'Edad', visible: false, sortable: true },
+  { key: 'gender', label: 'Género', visible: false, sortable: true },
+  { key: 'preferredContactChannel', label: 'Medio de contacto preferido', visible: false, sortable: true },
+  { key: 'documentType', label: 'Tipo documento', visible: true, sortable: true },
+  { key: 'documentNumber', label: 'Número documento', visible: true, sortable: true },
 ];
 
 const capitalizeWords = (text: string) => {
@@ -81,14 +81,41 @@ export function LeadsTable({
   });
 
   const visibleColumns = columns.filter(col => col.visible);
-  
-  console.log('🔍 Columnas visibles en orden:', visibleColumns.map(c => c.label));
-  
+
+  // Define el orden deseado para las columnas
+  const customOrder = [
+    'name',
+    'email',
+    'phone',
+    'product',
+    'stage',
+    'assignedTo',
+    'campaign',
+    'source',
+    'lastInteraction',
+    'company',
+    'value',
+    'priority',
+    'createdAt',
+    'age',
+    'gender',
+    'preferredContactChannel',
+    'documentType',
+    'documentNumber',
+  ];
+
+  // Ordena las columnas visibles según customOrder
+  const orderedColumns = visibleColumns.slice().sort((a, b) => {
+    return customOrder.indexOf(a.key) - customOrder.indexOf(b.key);
+  });
+
+  // ... (Aquí sigue todo tu código para sorting, selección y renderizado)
+
   const calculateTableWidth = () => {
     const checkboxColumnWidth = 50; // Nueva columna de checkbox
     const nameColumnWidth = 350; // Columna nombre siempre 350px
     const regularColumnWidth = 250; // Todas las demás columnas 250px
-    const visibleRegularColumns = visibleColumns.length - 1; // Restar la columna nombre
+    const visibleRegularColumns = orderedColumns.length - 1; // Restar la columna nombre
     
     return checkboxColumnWidth + nameColumnWidth + (visibleRegularColumns * regularColumnWidth);
   };
@@ -127,39 +154,39 @@ export function LeadsTable({
           aValue = a.name.toLowerCase();
           bValue = b.name.toLowerCase();
           break;
-          case 'campaign':
-          aValue = (a.campaign || '').toLowerCase();
-          bValue = (b.campaign || '').toLowerCase();
-          break;
         case 'email':
           aValue = (a.email || '').toLowerCase();
           bValue = (b.email || '').toLowerCase();
-          break;
-          case 'phone':
-          aValue = (a.phone || '').toLowerCase();
-          bValue = (b.phone || '').toLowerCase();
           break;
         case 'product':
           aValue = (a.product || '').toLowerCase();
           bValue = (b.product || '').toLowerCase();
           break;
-          case 'stage':
-          aValue = a.stage;
-          bValue = b.stage;
-          break;
-          case 'assignedTo':
-          const assignedUserA = users.find(u => u.id === a.assignedTo);
-          const assignedUserB = users.find(u => u.id === b.assignedTo);
-          aValue = (assignedUserA?.name || a.assignedTo || 'Sin asignar').toLowerCase();
-          bValue = (assignedUserB?.name || b.assignedTo || 'Sin asignar').toLowerCase();
+        case 'campaign':
+          aValue = (a.campaign || '').toLowerCase();
+          bValue = (b.campaign || '').toLowerCase();
           break;
         case 'source':
           aValue = a.source.toLowerCase();
           bValue = b.source.toLowerCase();
           break;
+        case 'stage':
+          aValue = a.stage;
+          bValue = b.stage;
+          break;
+        case 'assignedTo':
+          const assignedUserA = users.find(u => u.id === a.assignedTo);
+          const assignedUserB = users.find(u => u.id === b.assignedTo);
+          aValue = (assignedUserA?.name || a.assignedTo || 'Sin asignar').toLowerCase();
+          bValue = (assignedUserB?.name || b.assignedTo || 'Sin asignar').toLowerCase();
+          break;
         case 'lastInteraction':
           aValue = new Date(a.updatedAt).getTime();
           bValue = new Date(b.updatedAt).getTime();
+          break;
+        case 'phone':
+          aValue = (a.phone || '').toLowerCase();
+          bValue = (b.phone || '').toLowerCase();
           break;
         case 'company':
           aValue = (a.company || '').toLowerCase();
@@ -457,7 +484,7 @@ export function LeadsTable({
                       />
                     </div>
                   </TableHead>
-                  {visibleColumns.map((column) => (
+                  {orderedColumns.map((column) => (
                     <TableHead 
                       key={column.key}
                       className={`cursor-pointer select-none px-4 py-3 text-center text-xs font-medium text-gray-600 capitalize tracking-wider ${
@@ -487,7 +514,7 @@ export function LeadsTable({
                         />
                       </div>
                     </TableCell>
-                    {visibleColumns.map((column) => (
+                    {orderedColumns.map((column) => (
                       <TableCell 
                         key={column.key} 
                         className={`px-4 py-3 text-xs text-center ${
