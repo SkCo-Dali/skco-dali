@@ -399,8 +399,8 @@ export function LeadDetail({ lead, isOpen, onClose, onSave, onOpenMassEmail }: L
                         <Label htmlFor="name">Nombre completo</Label>
                         <Input
                           id="name"
-                          value={editedLead.name || ''}
-                          onChange={(e) => handleGeneralChange('name', e.target.value)}
+                          value={(editedLead.name || '').capitalizeWords()}
+                          onChange={(e) => handleGeneralChange('name', e.target.value.capitalizeWords())}
                         />
                       </div>
 
