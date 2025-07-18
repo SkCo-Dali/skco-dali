@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { Lead } from "@/types/crm";
 import { LeadCard } from "./LeadCard";
@@ -81,33 +82,78 @@ export function LeadsContent({
     return acc;
   }, {});
 
+  // Definir el orden de las columnas según la etapa
+  const stageOrder = ['new', 'contacted', 'qualified', 'proposal', 'negotiation', 'won', 'lost'];
+  const sortedGroups = Object.entries(groupedLeads).sort(([a], [b]) => {
+    if (groupBy === 'stage') {
+      const aIndex = stageOrder.indexOf(a);
+      const bIndex = stageOrder.indexOf(b);
+      return (aIndex === -1 ? 999 : aIndex) - (bIndex === -1 ? 999 : bIndex);
+    }
+    return a.localeCompare(b);
+  });
+
+  const getStageLabel = (stage: string) => {
+    const stageLabels: { [key: string]: string } = {
+      'new': 'En gestión',
+      'contacted': 'En asesoría', 
+      'qualified': 'Vinculando',
+      'proposal': 'Propuesta',
+      'negotiation': 'Negociación',
+      'won': 'Ganado',
+      'lost': 'Perdido'
+    };
+    return stageLabels[stage] || stage;
+  };
+
+  const getStageCount = (groupLeads: Lead[]) => {
+    return groupLeads.length;
+  };
+
   if (viewMode === 'columns')
   return (
     <>
       <div className="space-y-6">
-        {Object.entries(groupedLeads).map(([group, groupLeads]) => (
-          <div key={group}>
-            <h3 className="text-lg font-semibold mb-3 text-gray-800 capitalize">
-              {group === 'undefined' ? 'Sin grupo' : group}
-              <span className="text-sm font-normal text-gray-500 ml-2">
-                ({groupLeads.length})
-              </span>
-            </h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-              {groupLeads.map((lead) => (
-                <LeadCard
-                  key={lead.id}
-                  lead={lead}
-                  onClick={() => onLeadClick(lead)}
-                  onEdit={onLeadClick}
-                  onSendEmail={onSendEmail}
-                  onOpenProfiler={handleOpenProfiler}
-                  onLeadUpdate={onLeadUpdate}
-                />
-              ))}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {sortedGroups.map(([group, groupLeads]) => (
+            <div key={group} className="space-y-0">
+              {/* Header de la columna estilo Kanban */}
+              <div className="bg-[#CAF9CB] rounded-t-lg px-4 py-3 flex items-center justify-between border-b border-gray-200">
+                <div className="flex items-center gap-2">
+                  <div className="w-3 h-3 rounded-full bg-green-500"></div>
+                  <h3 className="font-semibold text-sm text-gray-800">
+                    {groupBy === 'stage' ? getStageLabel(group) : group === 'undefined' ? 'Sin grupo' : group}
+                  </h3>
+                  <span className="text-xs bg-white px-2 py-1 rounded-full text-gray-600 font-medium">
+                    ({getStageCount(groupLeads)})
+                  </span>
+                </div>
+              </div>
+              
+              {/* Contenedor de tarjetas con scroll */}
+              <div className="bg-gray-50 border-l border-r border-b border-gray-200 rounded-b-lg min-h-[500px] max-h-[600px] overflow-y-auto p-3">
+                <div className="space-y-3">
+                  {groupLeads.map((lead) => (
+                    <LeadCard
+                      key={lead.id}
+                      lead={lead}
+                      onClick={() => onLeadClick(lead)}
+                      onEdit={onLeadClick}
+                      onSendEmail={onSendEmail}
+                      onOpenProfiler={handleOpenProfiler}
+                      onLeadUpdate={onLeadUpdate}
+                    />
+                  ))}
+                  {groupLeads.length === 0 && (
+                    <div className="text-center text-gray-500 py-8">
+                      <p className="text-sm">No hay leads en esta etapa</p>
+                    </div>
+                  )}
+                </div>
+              </div>
             </div>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
 
       <Dialog open={isProfilerOpen} onOpenChange={setIsProfilerOpen}>
