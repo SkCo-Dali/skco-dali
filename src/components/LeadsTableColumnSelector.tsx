@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
@@ -33,6 +32,11 @@ export function LeadsTableColumnSelector({
   const [open, setOpen] = useState(false);
 
   const handleToggleColumn = (columnKey: string) => {
+    // Prevent deselecting the name column as it's mandatory
+    if (columnKey === 'name') {
+      return;
+    }
+    
     const updatedColumns = columns.map(col => 
       col.key === columnKey 
         ? { ...col, visible: !col.visible }
@@ -44,14 +48,16 @@ export function LeadsTableColumnSelector({
   const handleToggleAll = (checked: boolean) => {
     const updatedColumns = columns.map(col => ({
       ...col,
-      visible: checked
+      // Always keep name column visible even when unchecking all
+      visible: col.key === 'name' ? true : checked
     }));
     onColumnsChange(updatedColumns);
   };
 
   const visibleCount = columns.filter(col => col.visible).length;
-  const allSelected = visibleCount === columns.length;
-  const noneSelected = visibleCount === 0;
+  const selectableColumns = columns.filter(col => col.key !== 'name');
+  const allSelectableSelected = selectableColumns.every(col => col.visible);
+  const noneSelectableSelected = selectableColumns.every(col => !col.visible);
 
   return (
     <DropdownMenu open={open} onOpenChange={setOpen}>
@@ -77,8 +83,6 @@ export function LeadsTableColumnSelector({
             </span>
           </div>
           
-         
-
           <ScrollArea className="h-64 border-2 border-[#dedede] rounded-md">
             <div className="space-y-2 p-2">
               {columns.map((column) => (
@@ -87,23 +91,31 @@ export function LeadsTableColumnSelector({
                     id={`column-${column.key}`}
                     checked={column.visible}
                     onCheckedChange={() => handleToggleColumn(column.key)}
+                    disabled={column.key === 'name'}
                   />
                   <label 
                     htmlFor={`column-${column.key}`} 
-                    className="text-sm cursor-pointer flex-1"
+                    className={`text-sm flex-1 ${
+                      column.key === 'name' 
+                        ? 'cursor-default text-gray-500' 
+                        : 'cursor-pointer'
+                    }`}
                   >
                     {column.label}
+                    {column.key === 'name' && (
+                      <span className="ml-1 text-xs text-gray-400">(obligatorio)</span>
+                    )}
                   </label>
                 </div>
               ))}
             </div>
           </ScrollArea>
 
-           {/* Toggle All Section */}
+          {/* Toggle All Section */}
           <div className="flex items-center justify-between mt-4 pb-3 border-b border-gray-100">
             <span className="text-sm font-medium">Seleccionar todas</span>
             <Switch
-              checked={allSelected}
+              checked={allSelectableSelected}
               onCheckedChange={handleToggleAll}
             />
           </div>
