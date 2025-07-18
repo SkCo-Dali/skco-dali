@@ -289,7 +289,7 @@ export function LeadsTable({
                 onLeadClick(lead);
               }}
             >
-              {lead.name}
+              {capitalizeWords(lead.name)}
             </div>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>

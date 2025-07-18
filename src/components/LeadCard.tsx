@@ -97,6 +97,10 @@ export function LeadCard({
     }
   };
 
+  const capitalizeWords = (text: string) => {
+    return text.toLowerCase().replace(/\b\w/g, l => l.toUpperCase());
+  };
+
   return (
     <>
       <div className="relative">
@@ -120,7 +124,7 @@ export function LeadCard({
           <CardHeader className="pb-2 px-2 pt-2">
             <div className="flex items-start justify-between">
               <div className="min-w-0 flex-1 space-y-2">
-                <span className="font-medium text-md text-gray-900 mb-1 capitalize">{lead.name}</span>
+                <span className="font-medium text-md text-gray-900 mb-1">{capitalizeWords(lead.name)}</span>
                 <div className="flex items-center text-xs text-gray-900 lowercase">
                   <Mail className="h-3 w-3 mr-1" />
                   <span>{lead.email || 'No registra correo'}</span>
