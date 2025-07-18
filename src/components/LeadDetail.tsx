@@ -377,7 +377,7 @@ export function LeadDetail({ lead, isOpen, onClose, onSave, onOpenMassEmail }: L
             <DialogHeader>
               <DialogTitle className="flex items-center gap-2">
                 <UserCheck className="h-5 w-5" />
-                Detalle del Lead: {editedLead.name || 'Sin nombre'}
+                {capitalizeWords(editedLead.name || 'No registra nombre')}
               </DialogTitle>
             </DialogHeader>
 
