@@ -125,39 +125,39 @@ export function LeadsTable({
           aValue = a.name.toLowerCase();
           bValue = b.name.toLowerCase();
           break;
+          case 'campaign':
+          aValue = (a.campaign || '').toLowerCase();
+          bValue = (b.campaign || '').toLowerCase();
+          break;
         case 'email':
           aValue = (a.email || '').toLowerCase();
           bValue = (b.email || '').toLowerCase();
+          break;
+          case 'phone':
+          aValue = (a.phone || '').toLowerCase();
+          bValue = (b.phone || '').toLowerCase();
           break;
         case 'product':
           aValue = (a.product || '').toLowerCase();
           bValue = (b.product || '').toLowerCase();
           break;
-        case 'campaign':
-          aValue = (a.campaign || '').toLowerCase();
-          bValue = (b.campaign || '').toLowerCase();
-          break;
-        case 'source':
-          aValue = a.source.toLowerCase();
-          bValue = b.source.toLowerCase();
-          break;
-        case 'stage':
+          case 'stage':
           aValue = a.stage;
           bValue = b.stage;
           break;
-        case 'assignedTo':
+          case 'assignedTo':
           const assignedUserA = users.find(u => u.id === a.assignedTo);
           const assignedUserB = users.find(u => u.id === b.assignedTo);
           aValue = (assignedUserA?.name || a.assignedTo || 'Sin asignar').toLowerCase();
           bValue = (assignedUserB?.name || b.assignedTo || 'Sin asignar').toLowerCase();
           break;
+        case 'source':
+          aValue = a.source.toLowerCase();
+          bValue = b.source.toLowerCase();
+          break;
         case 'lastInteraction':
           aValue = new Date(a.updatedAt).getTime();
           bValue = new Date(b.updatedAt).getTime();
-          break;
-        case 'phone':
-          aValue = (a.phone || '').toLowerCase();
-          bValue = (b.phone || '').toLowerCase();
           break;
         case 'company':
           aValue = (a.company || '').toLowerCase();
