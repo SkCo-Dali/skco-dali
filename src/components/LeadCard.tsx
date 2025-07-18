@@ -102,7 +102,7 @@ export function LeadCard({
     <>
       <div className="relative">
         <Card 
-          className="cursor-pointer transition-all duration-200 mt-0 mx-4 pt-6 rounded-lg max-w-md shadow-none"
+          className="cursor-pointer transition-all duration-200 mt-0 mx-2 pt-6 rounded-lg max-w-md shadow-none"
           style={{ backgroundColor: '#fafafa'}}
           onClick={handleCardClick}
         >
