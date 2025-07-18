@@ -12,7 +12,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Calendar, MessageSquare, Phone, Mail, UserCheck, Clock, Tag, Building2, Globe, CreditCard, AlertCircle, History, UserPlus, Users, X, ChevronDown } from 'lucide-react';
+import { Calendar, MessageSquare, Phone, Mail, UserCheck, Clock, Tag, Building2, Globe, CreditCard, AlertCircle, History, UserPlus, Users, X } from 'lucide-react';
 import { useUsersApi } from '@/hooks/useUsersApi';
 import { useInteractionsApi } from '@/hooks/useInteractionsApi';
 import { useLeadAssignments } from '@/hooks/useLeadAssignments';
@@ -437,9 +437,7 @@ export function LeadDetail({ lead, isOpen, onClose, onSave, onOpenMassEmail }: L
                           >
                             <SelectTrigger className="border-0 border-b border-gray-200 rounded-none px-0 py-0 m-0 text-base font-medium bg-transparent leading-none h-auto min-h-0 focus:border-gray-400 focus:shadow-none focus:ring-0">
                               <SelectValue />
-                              <div className="h-full flex items-center justify-center ml-2">
-        <ChevronDown className="h-4 w-4 text-[#00c83c]" />
-      </div>
+                             
                             </SelectTrigger>
                             <SelectContent>
                               <SelectItem value="CC">Cédula de Ciudadanía</SelectItem>
@@ -449,6 +447,9 @@ export function LeadDetail({ lead, isOpen, onClose, onSave, onOpenMassEmail }: L
                               <SelectItem value="NIT">NIT</SelectItem>
                             </SelectContent>
                           </Select>
+                           <div className="h-full flex items-center justify-center ml-2">
+        <ChevronDown className="h-4 w-4 text-[#00c83c]" />
+      </div>
                         </div>
                         
                         <div className="space-y-0 border-2 border-[#3d4b5c26] shadow-md rounded-md p-2.5">
