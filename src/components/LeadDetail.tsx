@@ -58,7 +58,7 @@ const stageColors = {
 
 // Helper function to capitalize words
 const capitalizeWords = (str: string): string => {
-  return str.replace(/\b\w/g, letter => letter.toUpperCase());
+  return str.toLowerCase().replace(/\b\w/g, letter => letter.toUpperCase());
 };
 
 // Helper function to ensure tags is always an array
