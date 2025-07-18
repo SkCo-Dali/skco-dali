@@ -400,7 +400,7 @@ export function LeadDetail({ lead, isOpen, onClose, onSave, onOpenMassEmail }: L
                       </CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-6">
-                      <div className="space-y-2">
+                      <div className="space-y-2 border-[#fafafa] shadow-md rounded-md">
                         <Label className="text-sm text-gray-500 font-normal">Nombre completo</Label>
                         <Input
                           value={capitalizeWords(editedLead.name || '')}
