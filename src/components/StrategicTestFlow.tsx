@@ -342,12 +342,12 @@ export const StrategicTestFlow: React.FC<StrategicTestFlowProps> = ({
         </div>
 
         {/* Plan Cards - Dividido en 3 columnas */}
-        <div className="grid grid-cols-3 gap-0 mb-8 max-w-4xl mx-auto">
+        <div className="grid grid-cols-3 gap-2 mb-8 max-w-4xl mx-auto">
           {planConfig.components.map((component, index) => (
             <div 
               key={component.name}
               className={`bg-green-50 p-6 text-center ${
-                index < planConfig.components.length - 1 ? 'border-r border-green-200' : ''
+                index < planConfig.components.length - 1 ? 'border-green-50 rounded-md' : ''
               }`}
             >
               <div className="text-3xl mb-4">{component.icon}</div>
