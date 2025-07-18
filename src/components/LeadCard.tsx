@@ -115,7 +115,7 @@ export function LeadCard({
             </Badge>
           </div>
 
-          <CardHeader className="pb-2 px-4 pt-2">
+          <CardHeader className="pb-2 px-2 pt-2">
             <div className="flex items-start justify-between">
               <div className="min-w-0 flex-1 space-y-2">
                 <h3 className="font-medium text-sm text-gray-900 mb-1">{lead.name}</h3>
