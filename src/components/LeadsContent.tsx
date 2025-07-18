@@ -132,7 +132,7 @@ export function LeadsContent({
               
               {/* Contenedor de tarjetas con scroll */}
               <div className="bg-gray-50 border-l border-r border-b border-gray-200 rounded-b-lg min-h-[500px] max-h-[600px] overflow-y-auto p-3">
-                <div className="space-y-3">
+                <div className="space-y-4">
                   {groupLeads.map((lead) => (
                     <LeadCard
                       key={lead.id}
