@@ -404,7 +404,7 @@ export function LeadDetail({ lead, isOpen, onClose, onSave, onOpenMassEmail }: L
                         <Input
                           value={capitalizeWords(editedLead.name || '')}
                           onChange={(e) => handleGeneralChange('name', capitalizeWords(e.target.value))}
-                          className="border-0 border-b border-gray-200 rounded-none px-0 py-0 text-base font-medium bg-transparent focus:border-gray-400 focus:shadow-none focus:ring-0 p-0"
+                          className="border-0 border-b border-gray-200 rounded-none px-0 py-0 m-0 text-base font-medium bg-transparent leading-none h-auto min-h-0 focus:border-gray-400 focus:shadow-none focus:ring-0"
                         />
                       </div>
 
