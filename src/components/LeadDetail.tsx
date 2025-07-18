@@ -399,7 +399,7 @@ export function LeadDetail({ lead, isOpen, onClose, onSave, onOpenMassEmail }: L
                       </CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-6">
-                      <div className="space-y-0 border-2 border-[#3d4b5c26] shadow-md rounded-md p-3">
+                      <div className="space-y-0 border-2 border-[#3d4b5c26] shadow-md rounded-md p-2.5">
                         <Label className="p-0 text-sm text-gray-500 font-normal">Nombre completo</Label>
                         <Input
                           value={capitalizeWords(editedLead.name || '')}
@@ -409,33 +409,33 @@ export function LeadDetail({ lead, isOpen, onClose, onSave, onOpenMassEmail }: L
                       </div>
 
                       <div className="grid grid-cols-2 gap-6">
-                        <div className="space-y-2">
-                          <Label className="text-sm text-gray-500 font-normal">Email</Label>
+                        <div className="space-y-0 border-2 border-[#3d4b5c26] shadow-md rounded-md p-2.5">
+                          <Label className="p-0 text-sm text-gray-500 font-normal">Email</Label>
                           <Input
                             type="email"
                             value={(editedLead.email || '').toLowerCase()}
                             onChange={(e) => handleGeneralChange('email', e.target.value.toLowerCase())}
-                            className="border-0 border-b border-gray-200 rounded-none px-0 py-2 text-base font-medium bg-transparent focus:border-gray-400 focus:shadow-none focus:ring-0"
+                            className="border-0 border-b border-gray-200 rounded-none px-0 py-0 m-0 text-base font-medium bg-transparent leading-none h-auto min-h-0 focus:border-gray-400 focus:shadow-none focus:ring-0"
                           />
                         </div>
-                        <div className="space-y-2">
-                          <Label className="text-sm text-gray-500 font-normal">Teléfono</Label>
+                        <div className="space-y-0 border-2 border-[#3d4b5c26] shadow-md rounded-md p-2.5">
+                          <Label className="p-0 text-sm text-gray-500 font-normal">Teléfono</Label>
                           <Input
                             value={editedLead.phone || ''}
                             onChange={(e) => handleGeneralChange('phone', e.target.value)}
-                            className="border-0 border-b border-gray-200 rounded-none px-0 py-2 text-base font-medium bg-transparent focus:border-gray-400 focus:shadow-none focus:ring-0"
+                            className="border-0 border-b border-gray-200 rounded-none px-0 py-0 m-0 text-base font-medium bg-transparent leading-none h-auto min-h-0 focus:border-gray-400 focus:shadow-none focus:ring-0"
                           />
                         </div>
                       </div>
 
                       <div className="grid grid-cols-2 gap-6">
-                        <div className="space-y-2">
-                          <Label className="text-sm text-gray-500 font-normal">Tipo de Documento</Label>
+                        <div className="space-y-0 border-2 border-[#3d4b5c26] shadow-md rounded-md p-2.5">
+                          <Label className="p-0 text-sm text-gray-500 font-normal">Tipo de Documento</Label>
                           <Select 
                             value={editedLead.documentType || 'CC'} 
                             onValueChange={(value) => handleGeneralChange('documentType', value)}
                           >
-                            <SelectTrigger className="border-0 border-b border-gray-200 rounded-none px-0 py-2 h-auto bg-transparent focus:border-gray-400 focus:ring-0">
+                            <SelectTrigger className="border-0 border-b border-gray-200 rounded-none px-0 py-0 m-0 text-base font-medium bg-transparent leading-none h-auto min-h-0 focus:border-gray-400 focus:shadow-none focus:ring-0">
                               <SelectValue />
                             </SelectTrigger>
                             <SelectContent>
@@ -448,35 +448,35 @@ export function LeadDetail({ lead, isOpen, onClose, onSave, onOpenMassEmail }: L
                           </Select>
                         </div>
                         
-                        <div className="space-y-2">
-                          <Label className="text-sm text-gray-500 font-normal">Número de Documento</Label>
+                        <div className="space-y-0 border-2 border-[#3d4b5c26] shadow-md rounded-md p-2.5">
+                          <Label className="p-0 text-sm text-gray-500 font-normal">Número de Documento</Label>
                           <Input
                             type="number"
                             value={editedLead.documentNumber || ''}
                             onChange={(e) => handleGeneralChange('documentNumber', Number(e.target.value))}
-                            className="border-0 border-b border-gray-200 rounded-none px-0 py-2 text-base font-medium bg-transparent focus:border-gray-400 focus:shadow-none focus:ring-0"
+                            className="border-0 border-b border-gray-200 rounded-none px-0 py-0 m-0 text-base font-medium bg-transparent leading-none h-auto min-h-0 focus:border-gray-400 focus:shadow-none focus:ring-0"
                           />
                         </div>
                       </div>
 
                       <div className="grid grid-cols-2 gap-6">
-                        <div className="space-y-2">
-                          <Label className="text-sm text-gray-500 font-normal">Edad</Label>
+                        <div className="space-y-0 border-2 border-[#3d4b5c26] shadow-md rounded-md p-2.5">
+                          <Label className="p-0 text-sm text-gray-500 font-normal">Edad</Label>
                           <Input
                             type="number"
                             value={editedLead.age || ''}
                             onChange={(e) => handleGeneralChange('age', Number(e.target.value))}
-                            className="border-0 border-b border-gray-200 rounded-none px-0 py-2 text-base font-medium bg-transparent focus:border-gray-400 focus:shadow-none focus:ring-0"
+                            className="border-0 border-b border-gray-200 rounded-none px-0 py-0 m-0 text-base font-medium bg-transparent leading-none h-auto min-h-0 focus:border-gray-400 focus:shadow-none focus:ring-0"
                           />
                         </div>
                         
-                        <div className="space-y-2">
-                          <Label className="text-sm text-gray-500 font-normal">Género</Label>
+                        <div className="space-y-0 border-2 border-[#3d4b5c26] shadow-md rounded-md p-2.5">
+                          <Label className="p-0 text-sm text-gray-500 font-normal">Género</Label>
                           <Select 
                             value={editedLead.gender || 'Prefiero no decir'} 
                             onValueChange={(value) => handleGeneralChange('gender', value)}
                           >
-                            <SelectTrigger className="border-0 border-b border-gray-200 rounded-none px-0 py-2 h-auto bg-transparent focus:border-gray-400 focus:ring-0">
+                            <SelectTrigger className="border-0 border-b border-gray-200 rounded-none px-0 py-0 m-0 text-base font-medium bg-transparent leading-none h-auto min-h-0 focus:border-gray-400 focus:shadow-none focus:ring-0">
                               <SelectValue />
                             </SelectTrigger>
                             <SelectContent>
@@ -490,21 +490,21 @@ export function LeadDetail({ lead, isOpen, onClose, onSave, onOpenMassEmail }: L
                       </div>
 
                       <div className="grid grid-cols-2 gap-6"> 
-                        <div className="space-y-2">
-                          <Label className="text-sm text-gray-500 font-normal">Empresa</Label>
+                        <div className="space-y-0 border-2 border-[#3d4b5c26] shadow-md rounded-md p-2.5">
+                          <Label className="p-0 text-sm text-gray-500 font-normal">Empresa</Label>
                           <Input
                             value={editedLead.company || ''}
                             onChange={(e) => handleGeneralChange('company', e.target.value)}
-                            className="border-0 border-b border-gray-200 rounded-none px-0 py-2 text-base font-medium bg-transparent focus:border-gray-400 focus:shadow-none focus:ring-0"
+                            className="border-0 border-b border-gray-200 rounded-none px-0 py-0 m-0 text-base font-medium bg-transparent leading-none h-auto min-h-0 focus:border-gray-400 focus:shadow-none focus:ring-0"
                           />
                         </div>
-                        <div className="space-y-2">
-                          <Label className="text-sm text-gray-500 font-normal">Valor potencial</Label>
+                        <div className="space-y-0 border-2 border-[#3d4b5c26] shadow-md rounded-md p-2.5">
+                          <Label className="p-0 text-sm text-gray-500 font-normal">Valor potencial</Label>
                           <Input
                             type="number"
                             value={editedLead.value || 0}
                             onChange={(e) => handleGeneralChange('value', Number(e.target.value))}
-                            className="border-0 border-b border-gray-200 rounded-none px-0 py-2 text-base font-medium bg-transparent focus:border-gray-400 focus:shadow-none focus:ring-0"
+                            className="border-0 border-b border-gray-200 rounded-none px-0 py-0 m-0 text-base font-medium bg-transparent leading-none h-auto min-h-0 focus:border-gray-400 focus:shadow-none focus:ring-0"
                           />
                         </div>
                       </div>
@@ -522,28 +522,28 @@ export function LeadDetail({ lead, isOpen, onClose, onSave, onOpenMassEmail }: L
                   </CardHeader>
                   <CardContent className="space-y-6">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      <div className="space-y-2">
-                        <Label className="text-sm text-gray-500 font-normal">Fuente</Label>
+                      <div className="space-y-0 border-2 border-[#3d4b5c26] shadow-md rounded-md p-2.5">
+                        <Label className="p-0 text-sm text-gray-500 font-normal">Fuente</Label>
                         <Input
                           value={editedLead.source}
                           onChange={(e) => handleGeneralChange('source', e.target.value as any)}
-                          className="border-0 border-b border-gray-200 rounded-none px-0 py-2 text-base font-medium bg-transparent focus:border-gray-400 focus:shadow-none focus:ring-0"
+                          className="border-0 border-b border-gray-200 rounded-none px-0 py-0 m-0 text-base font-medium bg-transparent leading-none h-auto min-h-0 focus:border-gray-400 focus:shadow-none focus:ring-0"
                         />
                       </div>
                       
-                      <div className="space-y-2">
-                        <Label className="text-sm text-gray-500 font-normal">Campaña</Label>
+                      <div className="space-y-0 border-2 border-[#3d4b5c26] shadow-md rounded-md p-2.5">
+                        <Label className="p-0 text-sm text-gray-500 font-normal">Campaña</Label>
                         <Input
                           value={editedLead.campaign || ''}
                           onChange={(e) => handleGeneralChange('campaign', e.target.value)}
-                          className="border-0 border-b border-gray-200 rounded-none px-0 py-2 text-base font-medium bg-transparent focus:border-gray-400 focus:shadow-none focus:ring-0"
+                          className="border-0 border-b border-gray-200 rounded-none px-0 py-0 m-0 text-base font-medium bg-transparent leading-none h-auto min-h-0 focus:border-gray-400 focus:shadow-none focus:ring-0"
                         />
                       </div>
                     </div>
                     
                     <div>
                       <Label>Productos de interés</Label>
-                      <div className="space-y-2">
+                      <div className="space-y-0 border-2 border-[#3d4b5c26] shadow-md rounded-md p-2.5">
                         <div className="flex flex-wrap gap-1">
                           {getProductsArray().map((prod, index) => (
                             <Badge key={index} variant="outline" className="text-xs flex items-center gap-1">
