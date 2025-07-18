@@ -29,8 +29,19 @@ interface LeadsTableColumnSelectorProps {
 const saveColumnConfig = (columns: ColumnConfig[]) => {
   try {
     sessionStorage.setItem('leads-table-columns', JSON.stringify(columns));
+    console.log('✅ Column configuration saved:', columns.map(c => `${c.key}: ${c.visible}`));
   } catch (error) {
     console.warn('Error saving column configuration:', error);
+  }
+};
+
+// Función para limpiar la configuración guardada (útil para resetear)
+const clearColumnConfig = () => {
+  try {
+    sessionStorage.removeItem('leads-table-columns');
+    console.log('🗑️ Column configuration cleared');
+  } catch (error) {
+    console.warn('Error clearing column configuration:', error);
   }
 };
 
@@ -68,6 +79,13 @@ export function LeadsTableColumnSelector({
     // Guardar configuración en sessionStorage
     saveColumnConfig(updatedColumns);
     onColumnsChange(updatedColumns);
+  };
+
+  // Función para resetear a la configuración por defecto
+  const handleReset = () => {
+    clearColumnConfig();
+    // Recargar la página para aplicar la configuración por defecto
+    window.location.reload();
   };
 
   const visibleCount = columns.filter(col => col.visible).length;
@@ -135,8 +153,23 @@ export function LeadsTableColumnSelector({
               onCheckedChange={handleToggleAll}
             />
           </div>
+
+          {/* Reset Button */}
+          <div className="mt-3">
+            <Button
+              onClick={handleReset}
+              variant="outline"
+              size="sm"
+              className="w-full text-xs"
+            >
+              Restablecer por defecto
+            </Button>
+          </div>
         </div>
       </DropdownMenuContent>
     </DropdownMenu>
   );
 }
+
+// Exportar funciones utilitarias
+export { saveColumnConfig, clearColumnConfig };

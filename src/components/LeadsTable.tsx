@@ -34,6 +34,7 @@ type SortConfig = {
   direction: 'asc' | 'desc';
 } | null;
 
+// Nueva configuración por defecto con solo 6 columnas visibles
 const defaultColumns: ColumnConfig[] = [
   { key: 'name', label: 'Nombre', visible: true, sortable: true },
   { key: 'campaign', label: 'Campaña', visible: true, sortable: true },
@@ -74,6 +75,7 @@ const loadColumnConfig = (): ColumnConfig[] => {
   } catch (error) {
     console.warn('Error loading column configuration:', error);
   }
+  // Si no hay configuración guardada, usar la configuración por defecto
   return defaultColumns;
 };
 
@@ -112,26 +114,26 @@ export function LeadsTable({
 
   const visibleColumns = activeColumns.filter(col => col.visible);
 
-  // Aquí defines el orden personalizado que quieres
+  // Orden personalizado de las columnas
   const customOrder = [
-    'name',                 // 1. Nombre
-    'campaign',             // 2. Campaña
-    'email',                // 3. Email
-    'phone',                // 4. Teléfono
-    'documentType',         // 5. Tipo documento
-    'documentNumber',       // 6. Número documento
-    'product',              // 7. Producto
-    'stage',                // 8. Estado
-    'assignedTo',           // 9. Asignado a
-    'source',               // 10. Fuente
-    'createdAt',            // 11. Fecha de creación
-    'lastInteraction',      // 12. Fecha de última interacción
-    'priority',             // 13. Prioridad
-    'age',                  // 14. Edad
-    'gender',               // 15. Género
-    'preferredContactChannel', // 16. Medio de contacto preferido
-    'company',              // 17. Empresa
-    'value',                // 18. Valor
+    'name',                 
+    'campaign',             
+    'email',                
+    'phone',                
+    'documentType',         
+    'documentNumber',       
+    'product',              
+    'stage',                
+    'assignedTo',           
+    'source',               
+    'createdAt',            
+    'lastInteraction',      
+    'priority',             
+    'age',                  
+    'gender',               
+    'preferredContactChannel', 
+    'company',              
+    'value',                
   ];
 
   // Ordenar las columnas visibles según customOrder
