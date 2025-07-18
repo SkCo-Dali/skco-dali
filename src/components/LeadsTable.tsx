@@ -55,6 +55,10 @@ const defaultColumns: ColumnConfig[] = [
   { key: 'documentNumber', label: 'Número documento', visible: true, sortable: true },
 ];
 
+const capitalizeWords = (text: string) => {
+  return text.toLowerCase().replace(/\b\w/g, l => l.toUpperCase());
+};
+
 export function LeadsTable({ 
   leads, 
   paginatedLeads, 
