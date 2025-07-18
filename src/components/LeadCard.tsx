@@ -106,7 +106,7 @@ export function LeadCard({
           style={{ backgroundColor: '#fafafa'}}
           onClick={handleCardClick}
         >
-          <div className="absolute top-0 left-0 z-20">
+          <div className="absolute top-0 left-6 z-20 rounded-md">
             <Badge 
               className={`text-xs px-3 py-1 whitespace-nowrap rounded-none rounded-br-lg shadow-sm ${stageColors[lead.stage as keyof typeof stageColors] || 'bg-gray-100 text-gray-800'}`}
               variant="secondary"
