@@ -394,9 +394,8 @@ export function LeadDetail({ lead, isOpen, onClose, onSave, onOpenMassEmail }: L
                   {/* Información básica */}
                   <Card>
                     <CardHeader>
-                      <CardTitle className="flex items-center gap-2">
-                        <UserCheck className="h-4 w-4" />
-                        Información Básica
+                      <CardTitle className="flex items-center gap-2 text-md">
+                        Datos Personales
                       </CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-6">
