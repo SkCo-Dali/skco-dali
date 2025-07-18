@@ -56,6 +56,11 @@ const stageColors = {
   'lost': 'bg-red-100 text-red-800'
 };
 
+// Helper function to capitalize words
+const capitalizeWords = (str: string): string => {
+  return str.replace(/\b\w/g, letter => letter.toUpperCase());
+};
+
 // Helper function to ensure tags is always an array
 const ensureArray = (value: any): any[] => {
   if (Array.isArray(value)) return value;
@@ -399,8 +404,8 @@ export function LeadDetail({ lead, isOpen, onClose, onSave, onOpenMassEmail }: L
                         <Label htmlFor="name">Nombre completo</Label>
                         <Input
                           id="name"
-                          value={(editedLead.name || '').capitalizeWords()}
-                          onChange={(e) => handleGeneralChange('name', e.target.value.capitalizeWords())}
+                          value={capitalizeWords(editedLead.name || '')}
+                          onChange={(e) => handleGeneralChange('name', capitalizeWords(e.target.value))}
                         />
                       </div>
 
