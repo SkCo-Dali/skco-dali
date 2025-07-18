@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
@@ -24,6 +25,15 @@ interface LeadsTableColumnSelectorProps {
   showTextLabel?: boolean;
 }
 
+// Función para guardar configuración en sessionStorage
+const saveColumnConfig = (columns: ColumnConfig[]) => {
+  try {
+    sessionStorage.setItem('leads-table-columns', JSON.stringify(columns));
+  } catch (error) {
+    console.warn('Error saving column configuration:', error);
+  }
+};
+
 export function LeadsTableColumnSelector({ 
   columns, 
   onColumnsChange,
@@ -42,6 +52,9 @@ export function LeadsTableColumnSelector({
         ? { ...col, visible: !col.visible }
         : col
     );
+    
+    // Guardar configuración en sessionStorage
+    saveColumnConfig(updatedColumns);
     onColumnsChange(updatedColumns);
   };
 
@@ -51,6 +64,9 @@ export function LeadsTableColumnSelector({
       // Always keep name column visible even when unchecking all
       visible: col.key === 'name' ? true : checked
     }));
+    
+    // Guardar configuración en sessionStorage
+    saveColumnConfig(updatedColumns);
     onColumnsChange(updatedColumns);
   };
 

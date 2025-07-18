@@ -36,27 +36,54 @@ type SortConfig = {
 
 const defaultColumns: ColumnConfig[] = [
   { key: 'name', label: 'Nombre', visible: true, sortable: true },
+  { key: 'campaign', label: 'Campaña', visible: true, sortable: true },
   { key: 'email', label: 'Email', visible: true, sortable: true },
-  { key: 'phone', label: 'Teléfono', visible: false, sortable: false },
-  { key: 'product', label: 'Producto', visible: true, sortable: true },
+  { key: 'phone', label: 'Teléfono', visible: true, sortable: false },
   { key: 'stage', label: 'Etapa', visible: true, sortable: true },
   { key: 'assignedTo', label: 'Asignado a', visible: true, sortable: true },
-  { key: 'campaign', label: 'Campaña', visible: true, sortable: true },
+  { key: 'documentType', label: 'Tipo documento', visible: false, sortable: true },
+  { key: 'documentNumber', label: 'Número documento', visible: false, sortable: true },
+  { key: 'product', label: 'Producto', visible: false, sortable: true },
   { key: 'source', label: 'Fuente', visible: false, sortable: true },
-  { key: 'lastInteraction', label: 'Últ. interacción', visible: false, sortable: true },
-  { key: 'company', label: 'Empresa', visible: false, sortable: true },
-  { key: 'value', label: 'Valor', visible: false, sortable: true },
-  { key: 'priority', label: 'Prioridad', visible: false, sortable: true },
   { key: 'createdAt', label: 'Fecha creación', visible: false, sortable: true },
+  { key: 'lastInteraction', label: 'Últ. interacción', visible: false, sortable: true },
+  { key: 'priority', label: 'Prioridad', visible: false, sortable: true },
   { key: 'age', label: 'Edad', visible: false, sortable: true },
   { key: 'gender', label: 'Género', visible: false, sortable: true },
   { key: 'preferredContactChannel', label: 'Medio de contacto preferido', visible: false, sortable: true },
-  { key: 'documentType', label: 'Tipo documento', visible: true, sortable: true },
-  { key: 'documentNumber', label: 'Número documento', visible: true, sortable: true },
+  { key: 'company', label: 'Empresa', visible: false, sortable: true },
+  { key: 'value', label: 'Valor', visible: false, sortable: true },
 ];
 
 const capitalizeWords = (text: string) => {
   return text.toLowerCase().replace(/\b\w/g, l => l.toUpperCase());
+};
+
+// Función para cargar configuración de columnas desde sessionStorage
+const loadColumnConfig = (): ColumnConfig[] => {
+  try {
+    const saved = sessionStorage.getItem('leads-table-columns');
+    if (saved) {
+      const savedColumns = JSON.parse(saved);
+      // Merge saved config with default columns to handle new columns
+      return defaultColumns.map(defaultCol => {
+        const savedCol = savedColumns.find((col: ColumnConfig) => col.key === defaultCol.key);
+        return savedCol ? { ...defaultCol, visible: savedCol.visible } : defaultCol;
+      });
+    }
+  } catch (error) {
+    console.warn('Error loading column configuration:', error);
+  }
+  return defaultColumns;
+};
+
+// Función para guardar configuración de columnas en sessionStorage
+const saveColumnConfig = (columns: ColumnConfig[]) => {
+  try {
+    sessionStorage.setItem('leads-table-columns', JSON.stringify(columns));
+  } catch (error) {
+    console.warn('Error saving column configuration:', error);
+  }
 };
 
 export function LeadsTable({ 
@@ -64,7 +91,7 @@ export function LeadsTable({
   paginatedLeads, 
   onLeadClick, 
   onLeadUpdate, 
-  columns = defaultColumns, 
+  columns, 
   onSortedLeadsChange,
   onSendEmail,
   onOpenProfiler,
@@ -76,11 +103,14 @@ export function LeadsTable({
   const [leadsToDelete, setLeadsToDelete] = useState<Lead[]>([]);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   
+  // Usar configuración persistente si no se pasan columnas desde el padre
+  const activeColumns = columns || loadColumnConfig();
+  
   const { isDeleting, canDeleteLead, deleteSingleLead } = useLeadDeletion({
     onLeadDeleted: onLeadUpdate
   });
 
-  const visibleColumns = columns.filter(col => col.visible);
+  const visibleColumns = activeColumns.filter(col => col.visible);
 
   // Aquí defines el orden personalizado que quieres
   const customOrder = [
@@ -109,8 +139,6 @@ export function LeadsTable({
     return customOrder.indexOf(a.key) - customOrder.indexOf(b.key);
   });
 
-  // --- Aquí sigue el resto de tu código sin cambios ---
-  
   const calculateTableWidth = () => {
     const checkboxColumnWidth = 50; // Nueva columna de checkbox
     const nameColumnWidth = 350; // Columna nombre siempre 350px
@@ -545,3 +573,6 @@ export function LeadsTable({
     </>
   );
 }
+
+// Función utilitaria para usar desde el componente padre
+export { loadColumnConfig, saveColumnConfig };
