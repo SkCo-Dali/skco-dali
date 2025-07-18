@@ -82,35 +82,35 @@ export function LeadsTable({
 
   const visibleColumns = columns.filter(col => col.visible);
 
-  // Define el orden deseado para las columnas
+  // Aquí defines el orden personalizado que quieres
   const customOrder = [
-    'name',
-    'email',
-    'phone',
-    'product',
-    'stage',
-    'assignedTo',
-    'campaign',
-    'source',
-    'lastInteraction',
-    'company',
-    'value',
-    'priority',
-    'createdAt',
-    'age',
-    'gender',
-    'preferredContactChannel',
-    'documentType',
-    'documentNumber',
+    'name',                 // 1. Nombre
+    'campaign',             // 2. Campaña
+    'email',                // 3. Email
+    'phone',                // 4. Teléfono
+    'documentType',         // 5. Tipo documento
+    'documentNumber',       // 6. Número documento
+    'product',              // 7. Producto
+    'stage',                // 8. Estado
+    'assignedTo',           // 9. Asignado a
+    'source',               // 10. Fuente
+    'createdAt',            // 11. Fecha de creación
+    'lastInteraction',      // 12. Fecha de última interacción
+    'priority',             // 13. Prioridad
+    'age',                  // 14. Edad
+    'gender',               // 15. Género
+    'preferredContactChannel', // 16. Medio de contacto preferido
+    'company',              // 17. Empresa
+    'value',                // 18. Valor
   ];
 
-  // Ordena las columnas visibles según customOrder
+  // Ordenar las columnas visibles según customOrder
   const orderedColumns = visibleColumns.slice().sort((a, b) => {
     return customOrder.indexOf(a.key) - customOrder.indexOf(b.key);
   });
 
-  // ... (Aquí sigue todo tu código para sorting, selección y renderizado)
-
+  // --- Aquí sigue el resto de tu código sin cambios ---
+  
   const calculateTableWidth = () => {
     const checkboxColumnWidth = 50; // Nueva columna de checkbox
     const nameColumnWidth = 350; // Columna nombre siempre 350px
