@@ -342,7 +342,7 @@ export const StrategicTestFlow: React.FC<StrategicTestFlowProps> = ({
         </div>
 
         {/* Plan Cards - Dividido en 3 columnas */}
-        <div className="grid grid-cols-3 gap-2 mb-8 max-w-4xl mx-auto">
+        <div className="grid grid-cols-3 gap-4 mb-8 max-w-4xl mx-auto">
           {planConfig.components.map((component, index) => (
             <div 
               key={component.name}
@@ -374,7 +374,7 @@ export const StrategicTestFlow: React.FC<StrategicTestFlowProps> = ({
         {/* Action Button */}
         <div className="text-center">
           <Button 
-            className="bg-green-500 hover:bg-green-600 text-white px-8 py-4 text-lg font-medium rounded-full"
+            className="bg-green-500 hover:bg-green-600 text-white px-8 py-4 text-md font-medium rounded-full"
             onClick={() => console.log('Plan aceptado')}
           >
             Comenzar mi plan 🚀
