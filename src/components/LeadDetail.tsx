@@ -399,12 +399,12 @@ export function LeadDetail({ lead, isOpen, onClose, onSave, onOpenMassEmail }: L
                       </CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-6">
-                      <div className="space-y-0 border-2 border-[#3d4b5c26] shadow-md rounded-md p-2">
+                      <div className="space-y-0 border-2 border-[#3d4b5c26] shadow-md rounded-md p-4">
                         <Label className="text-sm text-gray-500 font-normal">Nombre completo</Label>
                         <Input
                           value={capitalizeWords(editedLead.name || '')}
                           onChange={(e) => handleGeneralChange('name', capitalizeWords(e.target.value))}
-                          className="border-0 border-b border-gray-200 rounded-none px-0 py-2 text-base font-medium bg-transparent focus:border-gray-400 focus:shadow-none focus:ring-0"
+                          className="border-0 border-b border-gray-200 rounded-none px-0 py-0 text-base font-medium bg-transparent focus:border-gray-400 focus:shadow-none focus:ring-0"
                         />
                       </div>
 
