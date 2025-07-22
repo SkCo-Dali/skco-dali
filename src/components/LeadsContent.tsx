@@ -7,6 +7,7 @@ import { LeadsStats } from "./LeadsStats";
 import { LeadsViewControls } from "./LeadsViewControls";
 import { LeadsPagination } from "./LeadsPagination";
 import { EnhancedLeadsTable } from "./EnhancedLeadsTable";
+import { LeadsColumns } from "./LeadsColumns";
 import { LeadsActionsButton } from "./LeadsActionsButton";
 import { LeadsBulkAssignment } from "./LeadsBulkAssignment";
 
@@ -106,11 +107,11 @@ export function LeadsContent({
     setViewMode(newMode);
   };
 
-  // Get unique values for filters
+  // Get unique values for filters - Fix: use assignedTo instead of assigned_to
   const uniqueStages = Array.from(new Set(leads.map(lead => lead.stage).filter(Boolean)));
   const uniqueSources = Array.from(new Set(leads.map(lead => lead.source).filter(Boolean)));
   const uniqueCampaigns = Array.from(new Set(leads.map(lead => lead.campaign).filter(Boolean)));
-  const uniqueAssignedTo = Array.from(new Set(leads.map(lead => lead.assigned_to).filter(Boolean)));
+  const uniqueAssignedTo = Array.from(new Set(leads.map(lead => lead.assignedTo).filter(Boolean)));
 
   return (
     <div className="space-y-6">
@@ -191,15 +192,24 @@ export function LeadsContent({
         />
       </div>
 
-      {/* Enhanced Table with Advanced Filters */}
-      <EnhancedLeadsTable
-        leads={leads}
-        paginatedLeads={paginatedLeads}
-        onLeadClick={onLeadClick}
-        onLeadUpdate={onLeadUpdate}
-        selectedLeads={selectedLeads}
-        onLeadSelectionChange={handleLeadSelectionChange}
-      />
+      {/* Table/Grid View */}
+      {viewMode === 'table' ? (
+        <EnhancedLeadsTable
+          leads={leads}
+          paginatedLeads={paginatedLeads}
+          onLeadClick={onLeadClick}
+          onLeadUpdate={onLeadUpdate}
+          selectedLeads={selectedLeads}
+          onLeadSelectionChange={handleLeadSelectionChange}
+        />
+      ) : (
+        <LeadsColumns
+          leads={paginatedLeads}
+          onLeadClick={onLeadClick}
+          onLeadUpdate={onLeadUpdate}
+          onSendEmail={onSendEmail}
+        />
+      )}
 
       {/* Pagination */}
       <LeadsPagination
