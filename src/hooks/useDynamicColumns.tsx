@@ -17,7 +17,8 @@ export const useDynamicColumns = (leads: Lead[]) => {
       key: `additional_${field.key}`,
       label: field.label,
       visible: false, // Start hidden, user can enable them
-      width: 200
+      width: 200,
+      sortable: true // Add the missing sortable property
     }));
   }, [dynamicFields]);
 
