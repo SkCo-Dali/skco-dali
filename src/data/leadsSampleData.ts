@@ -75,3 +75,8 @@ export const sampleLeads: Lead[] = [
     }
   }
 ];
+
+// Function to generate sample leads (required by leadsData.ts)
+export const generateSampleLeads = (): Lead[] => {
+  return sampleLeads;
+};

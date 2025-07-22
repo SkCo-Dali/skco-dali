@@ -81,10 +81,6 @@ export interface Lead {
   preferredContactChannel: 'Correo' | 'Teléfono' | 'WhatsApp' | 'SMS';
   interactions: Interaction[];
   additionalInfo?: Record<string, any> | null;
-  // Dynamic fields for interaction - these should be separate from the core Lead interface
-  // but kept for backward compatibility
-  type?: 'call' | 'email' | 'meeting' | 'note' | 'whatsapp' | 'sms';
-  outcome?: 'positive' | 'negative' | 'neutral';
 }
 
 // Role display names
