@@ -11,6 +11,7 @@ import { useDragDropColumns } from "@/hooks/useDragDropColumns";
 import { FilterButton } from "@/components/table-filters/FilterButton";
 import { MultiSortIndicator } from "@/components/MultiSortIndicator";
 import { ColumnResizeHandle } from "@/components/ColumnResizeHandle";
+import { ColumnConfig } from "@/components/LeadsTableColumnSelector";
 import { cn } from "@/lib/utils";
 
 interface EnhancedLeadsTableProps {
@@ -20,6 +21,7 @@ interface EnhancedLeadsTableProps {
   onLeadUpdate?: () => void;
   selectedLeads?: string[];
   onLeadSelectionChange?: (leadIds: string[], isSelected: boolean) => void;
+  columns: ColumnConfig[]; // Recibir columnas como prop
 }
 
 // Define column types for advanced filtering
@@ -40,33 +42,42 @@ const COLUMN_TYPES = {
   age: 'number' as const,
 };
 
-const initialColumns = [
-  { key: 'name', label: 'Nombre', visible: true, sortable: true },
-  { key: 'campaign', label: 'Campaña', visible: true, sortable: true },
-  { key: 'email', label: 'Email', visible: true, sortable: true },
-  { key: 'phone', label: 'Teléfono', visible: true, sortable: false },
-  { key: 'stage', label: 'Etapa', visible: true, sortable: true },
-  { key: 'assignedTo', label: 'Asignado a', visible: true, sortable: true },
-];
-
 export function EnhancedLeadsTable({ 
   leads, 
   paginatedLeads, 
   onLeadClick, 
   onLeadUpdate,
   selectedLeads = [],
-  onLeadSelectionChange
+  onLeadSelectionChange,
+  columns
 }: EnhancedLeadsTableProps) {
   const { users } = useUsersApi();
   
-  // Use advanced filters hook
-  const { filteredData, filters, setColumnFilter, clearAllFilters, hasActiveFilters } = useAdvancedFilters(leads, COLUMN_TYPES);
+  // Preparar datos con nombres de usuarios para los filtros
+  const processedLeads = useMemo(() => {
+    return leads.map(lead => ({
+      ...lead,
+      assignedToName: users.find(u => u.id === lead.assignedTo)?.name || 'Sin asignar'
+    }));
+  }, [leads, users]);
+
+  // Actualizar tipos de columna para incluir assignedToName
+  const updatedColumnTypes = {
+    ...COLUMN_TYPES,
+    assignedToName: 'select' as const
+  };
+  
+  // Use advanced filters hook con datos procesados
+  const { filteredData, filters, setColumnFilter, clearAllFilters, hasActiveFilters } = useAdvancedFilters(processedLeads, updatedColumnTypes);
   
   // Use multi-sort hook
   const { sortedData, sortConfigs, handleSort, clearSort, getSortConfig } = useMultiSort(filteredData);
   
-  // Use resizable columns hook
-  const { columns, handleResizeStart, isResizing, resizingColumn } = useResizableColumns(initialColumns);
+  // Use resizable columns hook con las columnas recibidas
+  const { columns: resizableColumns, handleResizeStart, isResizing, resizingColumn } = useResizableColumns(columns);
+  
+  // Filtrar solo columnas visibles
+  const visibleColumns = resizableColumns.filter(col => col.visible);
   
   // Use drag and drop columns hook
   const { 
@@ -78,7 +89,7 @@ export function EnhancedLeadsTable({
     handleDragLeave,
     handleDrop,
     handleDragEnd 
-  } = useDragDropColumns(columns.filter(col => col.visible));
+  } = useDragDropColumns(visibleColumns);
 
   const handleSelectAll = (checked: boolean) => {
     const currentPageLeadIds = paginatedLeads.map(lead => lead.id);
@@ -96,6 +107,16 @@ export function EnhancedLeadsTable({
   const handleColumnSort = (columnKey: string, e: React.MouseEvent) => {
     const isMultiSort = e.ctrlKey || e.metaKey;
     handleSort(columnKey, isMultiSort);
+  };
+
+  // Manejar ordenamiento desde filtros
+  const handleFilterSort = (columnKey: string, direction: 'asc' | 'desc') => {
+    // Limpiar ordenamientos existentes y aplicar el nuevo
+    handleSort(columnKey, false);
+    if (direction === 'desc') {
+      // Si necesitamos desc, hacer clic dos veces
+      setTimeout(() => handleSort(columnKey, false), 10);
+    }
   };
 
   const isAllSelected = paginatedLeads.length > 0 && paginatedLeads.every(lead => selectedLeads.includes(lead.id));
@@ -127,9 +148,33 @@ export function EnhancedLeadsTable({
         return <div className="text-gray-700 text-xs">{lead.stage}</div>;
       case 'assignedTo':
         return <div className="text-gray-700 text-xs">{assignedUser?.name || 'Sin asignar'}</div>;
+      case 'source':
+        return <div className="text-gray-700 text-xs">{lead.source}</div>;
+      case 'priority':
+        return <div className="text-gray-700 text-xs">{lead.priority}</div>;
+      case 'value':
+        return <div className="text-gray-700 text-xs">${lead.value.toLocaleString()}</div>;
+      case 'company':
+        return <div className="text-gray-700 text-xs">{lead.company || '-'}</div>;
+      case 'documentNumber':
+        return <div className="text-gray-700 text-xs">{lead.documentNumber || '-'}</div>;
+      case 'age':
+        return <div className="text-gray-700 text-xs">{lead.age || '-'}</div>;
       default:
         return <div className="text-gray-700 text-xs">-</div>;
     }
+  };
+
+  // Preparar datos para filtros - usar el campo correcto para assignedTo
+  const getFilterData = (columnKey: string) => {
+    if (columnKey === 'assignedTo') {
+      // Para el filtro de assignedTo, usar los datos con nombres
+      return processedLeads.map(lead => ({
+        ...lead,
+        assignedTo: lead.assignedToName // Mostrar nombres en lugar de IDs
+      }));
+    }
+    return processedLeads;
   };
 
   return (
@@ -218,9 +263,10 @@ export function EnhancedLeadsTable({
                     </button>
                     <FilterButton
                       column={{ ...column, type: COLUMN_TYPES[column.key as keyof typeof COLUMN_TYPES] }}
-                      data={leads}
+                      data={getFilterData(column.key)}
                       currentFilter={filters[column.key]}
                       onFilterChange={(filter) => setColumnFilter(column.key, filter)}
+                      onSort={handleFilterSort}
                     />
                   </div>
                   <ColumnResizeHandle

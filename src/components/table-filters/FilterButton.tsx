@@ -21,9 +21,10 @@ interface FilterButtonProps {
   data: any[];
   currentFilter?: FilterValue;
   onFilterChange: (filter: FilterValue | null) => void;
+  onSort?: (columnKey: string, direction: 'asc' | 'desc') => void;
 }
 
-export function FilterButton({ column, data, currentFilter, onFilterChange }: FilterButtonProps) {
+export function FilterButton({ column, data, currentFilter, onFilterChange, onSort }: FilterButtonProps) {
   const [open, setOpen] = useState(false);
   const hasFilter = currentFilter !== null && currentFilter !== undefined;
 
@@ -47,6 +48,7 @@ export function FilterButton({ column, data, currentFilter, onFilterChange }: Fi
             onFilterChange(filter);
             setOpen(false);
           }}
+          onSort={onSort}
           onClose={() => setOpen(false)}
         />
       </PopoverContent>

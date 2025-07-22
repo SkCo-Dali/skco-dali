@@ -1,5 +1,5 @@
 
-import { useState, useCallback, useRef } from 'react';
+import { useState, useCallback, useRef, useEffect } from 'react';
 import { ColumnConfig } from '@/components/LeadsTableColumnSelector';
 
 export interface ResizableColumnConfig extends ColumnConfig {
@@ -21,6 +21,22 @@ export function useResizableColumns(initialColumns: ColumnConfig[]) {
   const [isResizing, setIsResizing] = useState(false);
   const [resizingColumn, setResizingColumn] = useState<string | null>(null);
   const resizeStartRef = useRef<{ x: number; width: number } | null>(null);
+
+  // Actualizar columnas cuando cambien las iniciales
+  useEffect(() => {
+    setColumns(prev => {
+      const newColumns = initialColumns.map(col => {
+        const existingCol = prev.find(c => c.key === col.key);
+        return {
+          ...col,
+          width: existingCol?.width || (col.key === 'name' ? 350 : 250),
+          minWidth: col.key === 'name' ? 200 : 150,
+          maxWidth: 500
+        };
+      });
+      return newColumns;
+    });
+  }, [initialColumns]);
 
   const handleResizeStart = useCallback((columnKey: string, startX: number) => {
     const column = columns.find(col => col.key === columnKey);
@@ -54,6 +70,9 @@ export function useResizableColumns(initialColumns: ColumnConfig[]) {
 
     document.addEventListener('mousemove', handleMouseMove);
     document.addEventListener('mouseup', handleMouseUp);
+    
+    // Prevenir selección de texto durante el redimensionamiento
+    e.preventDefault();
   }, [columns]);
 
   const updateColumnWidth = useCallback((columnKey: string, width: number) => {

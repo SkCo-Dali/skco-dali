@@ -19,9 +19,14 @@ export function ColumnResizeHandle({ onResizeStart, isResizing }: ColumnResizeHa
       className={cn(
         "absolute right-0 top-0 h-full w-1 cursor-col-resize hover:bg-blue-500 transition-colors",
         "after:absolute after:right-0 after:top-0 after:h-full after:w-3 after:transform after:-translate-x-1",
+        "after:content-[''] after:cursor-col-resize",
         isResizing && "bg-blue-500"
       )}
       onMouseDown={handleMouseDown}
+      style={{ 
+        zIndex: 10,
+        right: '-2px' // Ajustar posición para mejor accesibilidad
+      }}
     />
   );
 }
