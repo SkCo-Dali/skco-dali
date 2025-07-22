@@ -10,12 +10,15 @@
   background: white;
 }
 
-/* Wrapper del scroll */
+/* Wrapper del scroll - FIXED: Enable trackpad horizontal scrolling */
 .leads-table-scroll-wrapper {
   width: 100%;
   height: 100%;
   overflow: auto;
   position: relative;
+  /* Enable smooth scrolling for trackpad */
+  overscroll-behavior: contain;
+  scroll-behavior: smooth;
 }
 
 /* Contenedor interno del scroll */

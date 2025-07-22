@@ -53,19 +53,22 @@ export function EnhancedLeadsTable({
 }: EnhancedLeadsTableProps) {
   const { users } = useUsersApi();
   
-  // IMMEDIATELY update visible columns when columns prop changes
+  // FIXED: Force immediate column visibility updates
   const visibleColumns = useMemo(() => {
-    console.log('🔄 Columns changed:', columns);
+    console.log('🔄 Columns prop changed:', columns.length, 'total columns');
     const visible = columns.filter(col => col.visible);
-    console.log('🔄 Visible columns:', visible);
+    console.log('🔄 Visible columns:', visible.length, 'visible columns');
+    console.log('🔄 Visible column keys:', visible.map(c => c.key));
     return visible;
   }, [columns]);
 
-  // Log for debugging
+  // Force re-render when columns change
+  const [forceUpdate, setForceUpdate] = useState(0);
+  
   useEffect(() => {
-    console.log('👀 EnhancedLeadsTable received columns:', columns);
-    console.log('👀 Visible columns count:', visibleColumns.length);
-  }, [columns, visibleColumns]);
+    console.log('👀 Columns changed, forcing update...');
+    setForceUpdate(prev => prev + 1);
+  }, [columns]);
   
   // Preparar datos con nombres de usuarios para los filtros
   const processedLeads = useMemo(() => {
@@ -130,12 +133,11 @@ export function EnhancedLeadsTable({
     handleSort(columnKey, isMultiSort);
   };
 
-  // Manejar ordenamiento desde filtros
+  // FIXED: Remove duplicate sort handler for filters
   const handleFilterSort = (columnKey: string, direction: 'asc' | 'desc') => {
-    // Limpiar ordenamientos existentes y aplicar el nuevo
+    // Simply apply the sort directly without duplicating functionality
     handleSort(columnKey, false);
     if (direction === 'desc') {
-      // Si necesitamos desc, hacer clic dos veces
       setTimeout(() => handleSort(columnKey, false), 10);
     }
   };
@@ -211,7 +213,7 @@ export function EnhancedLeadsTable({
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4" key={forceUpdate}>
       {/* Filter and Sort status */}
       {(hasActiveFilters || sortConfigs.length > 0) && (
         <div className="flex items-center justify-between p-2 bg-blue-50 rounded">
@@ -307,7 +309,6 @@ export function EnhancedLeadsTable({
                           data={getFilterData(column.key)}
                           currentFilter={filters[column.key]}
                           onFilterChange={(filter) => setColumnFilter(column.key, filter)}
-                          onSort={handleFilterSort}
                         />
                       </div>
                       <ColumnResizeHandle

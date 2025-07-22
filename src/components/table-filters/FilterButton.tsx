@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { ChevronDown, Filter } from 'lucide-react';
+import { Filter } from 'lucide-react';
 import { ColumnFilter } from './ColumnFilter';
 
 export interface FilterValue {
@@ -21,10 +21,9 @@ interface FilterButtonProps {
   data: any[];
   currentFilter?: FilterValue;
   onFilterChange: (filter: FilterValue | null) => void;
-  onSort?: (columnKey: string, direction: 'asc' | 'desc') => void;
 }
 
-export function FilterButton({ column, data, currentFilter, onFilterChange, onSort }: FilterButtonProps) {
+export function FilterButton({ column, data, currentFilter, onFilterChange }: FilterButtonProps) {
   const [open, setOpen] = useState(false);
   const hasFilter = currentFilter !== null && currentFilter !== undefined;
 
@@ -48,7 +47,6 @@ export function FilterButton({ column, data, currentFilter, onFilterChange, onSo
             onFilterChange(filter);
             setOpen(false);
           }}
-          onSort={onSort}
           onClose={() => setOpen(false)}
         />
       </PopoverContent>
