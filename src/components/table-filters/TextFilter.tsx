@@ -85,16 +85,6 @@ export function TextFilter({ values, currentFilter, onFilterChange, onClose }: T
 
   return (
     <div className="w-full">
-      {/* Sort options */}
-      <div className="p-3 border-b space-y-1">
-        <Button variant="ghost" size="sm" className="w-full justify-start text-xs">
-          Sort A to Z
-        </Button>
-        <Button variant="ghost" size="sm" className="w-full justify-start text-xs">
-          Sort Z to A
-        </Button>
-      </div>
-
       {/* Filter mode tabs */}
       <div className="p-3 border-b">
         <div className="flex space-x-2 text-xs">
