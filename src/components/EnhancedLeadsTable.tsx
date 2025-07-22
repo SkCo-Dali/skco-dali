@@ -53,6 +53,20 @@ export function EnhancedLeadsTable({
 }: EnhancedLeadsTableProps) {
   const { users } = useUsersApi();
   
+  // IMMEDIATELY update visible columns when columns prop changes
+  const visibleColumns = useMemo(() => {
+    console.log('🔄 Columns changed:', columns);
+    const visible = columns.filter(col => col.visible);
+    console.log('🔄 Visible columns:', visible);
+    return visible;
+  }, [columns]);
+
+  // Log for debugging
+  useEffect(() => {
+    console.log('👀 EnhancedLeadsTable received columns:', columns);
+    console.log('👀 Visible columns count:', visibleColumns.length);
+  }, [columns, visibleColumns]);
+  
   // Preparar datos con nombres de usuarios para los filtros
   const processedLeads = useMemo(() => {
     return leads.map(lead => ({
@@ -73,14 +87,6 @@ export function EnhancedLeadsTable({
   // Use multi-sort hook
   const { sortedData, sortConfigs, handleSort, clearSort, getSortConfig } = useMultiSort(filteredData);
   
-  // Filtrar solo columnas visibles y usar efecto para sincronizar
-  const [visibleColumns, setVisibleColumns] = useState<ColumnConfig[]>([]);
-  
-  useEffect(() => {
-    const newVisibleColumns = columns.filter(col => col.visible);
-    setVisibleColumns(newVisibleColumns);
-  }, [columns]);
-  
   // Use resizable columns hook con las columnas visibles
   const { columns: resizableColumns, handleResizeStart, isResizing, resizingColumn } = useResizableColumns(visibleColumns);
   
@@ -96,14 +102,14 @@ export function EnhancedLeadsTable({
     handleDragEnd 
   } = useDragDropColumns(resizableColumns);
 
-  // Calcular ancho total de la tabla
+  // Calcular ancho total en base a columnas visibles
   const calculateTableWidth = () => {
     const checkboxColumnWidth = 50;
-    const nameColumnWidth = 350;
-    const regularColumnWidth = 250;
-    const visibleRegularColumns = orderedColumns.length - 1;
+    const totalColumnsWidth = orderedColumns.reduce((total, col) => {
+      return total + (col.width || (col.key === 'name' ? 350 : 250));
+    }, 0);
     
-    return checkboxColumnWidth + nameColumnWidth + (visibleRegularColumns * regularColumnWidth);
+    return checkboxColumnWidth + totalColumnsWidth;
   };
 
   const handleSelectAll = (checked: boolean) => {
