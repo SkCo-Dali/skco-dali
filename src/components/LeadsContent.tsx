@@ -1,171 +1,178 @@
 
-import { useState } from 'react';
+import React, { useState } from "react";
 import { Lead } from "@/types/crm";
-import { LeadCard } from "./LeadCard";
-import { LeadsTable } from "./LeadsTable";
-import { ColumnConfig } from "./LeadsTableColumnSelector";
-import { LeadProfiler } from "./LeadProfiler";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { LeadsSearch } from "./LeadsSearch";
+import { LeadsFilters } from "./LeadsFilters";
+import { LeadsStats } from "./LeadsStats";
+import { LeadsViewControls } from "./LeadsViewControls";
+import { LeadsPagination } from "./LeadsPagination";
+import { EnhancedLeadsTable } from "./EnhancedLeadsTable";
+import { LeadsActionsButton } from "./LeadsActionsButton";
+import { LeadsBulkAssignment } from "./LeadsBulkAssignment";
 
 interface LeadsContentProps {
-  viewMode: 'table' | 'columns';
   leads: Lead[];
+  filteredLeads: Lead[];
+  paginatedLeads: Lead[];
+  selectedLeads: string[];
+  setSelectedLeads: (leads: string[]) => void;
   onLeadClick: (lead: Lead) => void;
   onLeadUpdate: () => void;
-  columns: ColumnConfig[];
-  paginatedLeads: Lead[];
-  onSortedLeadsChange: (sorted: Lead[]) => void;
   onSendEmail: (lead: Lead) => void;
-  groupBy: string;
-  selectedLeads: string[];
-  onLeadSelectionChange: (leadIds: string[], isSelected: boolean) => void;
+  onOpenProfiler: (lead: Lead) => void;
+  currentPage: number;
+  totalPages: number;
+  itemsPerPage: number;
+  setCurrentPage: (page: number) => void;
+  setItemsPerPage: (items: number) => void;
+  searchTerm: string;
+  setSearchTerm: (term: string) => void;
+  sortBy: string;
+  setSortBy: (sort: string) => void;
+  statusFilter: string;
+  setStatusFilter: (status: string) => void;
+  campaignFilter: string;
+  setCampaignFilter: (campaign: string) => void;
+  assignedToFilter: string;
+  setAssignedToFilter: (assigned: string) => void;
+  sourceFilter: string;
+  setSourceFilter: (source: string) => void;
+  dateRangeFilter: { from?: Date; to?: Date };
+  setDateRangeFilter: (range: { from?: Date; to?: Date }) => void;
+  viewMode: 'table' | 'grid';
+  setViewMode: (mode: 'table' | 'grid') => void;
 }
 
 export function LeadsContent({
-  viewMode,
   leads,
+  filteredLeads,
+  paginatedLeads,
+  selectedLeads,
+  setSelectedLeads,
   onLeadClick,
   onLeadUpdate,
-  columns,
-  paginatedLeads,
-  onSortedLeadsChange,
   onSendEmail,
-  groupBy,
-  selectedLeads,
-  onLeadSelectionChange
+  onOpenProfiler,
+  currentPage,
+  totalPages,
+  itemsPerPage,
+  setCurrentPage,
+  setItemsPerPage,
+  searchTerm,
+  setSearchTerm,
+  sortBy,
+  setSortBy,
+  statusFilter,
+  setStatusFilter,
+  campaignFilter,
+  setCampaignFilter,
+  assignedToFilter,
+  setAssignedToFilter,
+  sourceFilter,
+  setSourceFilter,
+  dateRangeFilter,
+  setDateRangeFilter,
+  viewMode,
+  setViewMode
 }: LeadsContentProps) {
-  const [selectedLeadForProfiler, setSelectedLeadForProfiler] = useState<Lead | null>(null);
-  const [isProfilerOpen, setIsProfilerOpen] = useState(false);
+  const [showBulkAssignment, setShowBulkAssignment] = useState(false);
 
-  const handleOpenProfiler = (lead: Lead) => {
-    setSelectedLeadForProfiler(lead);
-    setIsProfilerOpen(true);
-  };
-
-  const handleCloseProfiler = () => {
-    setIsProfilerOpen(false);
-    setSelectedLeadForProfiler(null);
-  };
-
-  if (viewMode === 'table') {
-    return (
-      <>
-        <LeadsTable
-          leads={leads}
-          paginatedLeads={paginatedLeads}
-          onLeadClick={onLeadClick}
-          onLeadUpdate={onLeadUpdate}
-          columns={columns}
-          onSortedLeadsChange={onSortedLeadsChange}
-          onSendEmail={onSendEmail}
-          onOpenProfiler={handleOpenProfiler}
-          selectedLeads={selectedLeads}
-          onLeadSelectionChange={onLeadSelectionChange}
-        />
-
-        <Dialog open={isProfilerOpen} onOpenChange={setIsProfilerOpen}>
-          <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto p-0">
-            
-            <LeadProfiler selectedLead={selectedLeadForProfiler} />
-          </DialogContent>
-        </Dialog>
-      </>
-    );
-  }
-
-  const groupedLeads = leads.reduce((acc: { [key: string]: Lead[] }, lead) => {
-    const key = lead[groupBy as keyof Lead] as string || 'undefined';
-    if (!acc[key]) {
-      acc[key] = [];
+  const handleLeadSelectionChange = (leadIds: string[], isSelected: boolean) => {
+    if (isSelected) {
+      const newSelectedLeads = [...new Set([...selectedLeads, ...leadIds])];
+      setSelectedLeads(newSelectedLeads);
+    } else {
+      const newSelectedLeads = selectedLeads.filter(id => !leadIds.includes(id));
+      setSelectedLeads(newSelectedLeads);
     }
-    acc[key].push(lead);
-    return acc;
-  }, {});
-
-  // Definir el orden de las columnas según la etapa
-  const stageOrder = ['new', 'contacted', 'qualified', 'proposal', 'negotiation', 'won', 'lost'];
-  const sortedGroups = Object.entries(groupedLeads).sort(([a], [b]) => {
-    if (groupBy === 'stage') {
-      const aIndex = stageOrder.indexOf(a);
-      const bIndex = stageOrder.indexOf(b);
-      return (aIndex === -1 ? 999 : aIndex) - (bIndex === -1 ? 999 : bIndex);
-    }
-    return a.localeCompare(b);
-  });
-
-  const getStageLabel = (stage: string) => {
-    const stageLabels: { [key: string]: string } = {
-      'new': 'En gestión',
-      'contacted': 'En asesoría', 
-      'qualified': 'Vinculando',
-      'proposal': 'Propuesta',
-      'negotiation': 'Negociación',
-      'won': 'Ganado',
-      'lost': 'Perdido'
-    };
-    return stageLabels[stage] || stage;
   };
 
-  const getStageCount = (groupLeads: Lead[]) => {
-    return groupLeads.length;
+  const handleBulkAssignment = () => {
+    setShowBulkAssignment(true);
   };
 
-  if (viewMode === 'columns')
   return (
-    <>
-      <div className="space-y-6">
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
-          {sortedGroups.map(([group, groupLeads]) => (
-            <div key={group} className="space-y-0">
-              {/* Header de la columna estilo Kanban */}
-              <div className="bg-[#CAF9CB] rounded-t-lg px-4 py-3 flex items-center justify-between border-b border-gray-200">
-                <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 rounded-full bg-green-500"></div>
-                  <h3 className="font-semibold text-sm text-gray-800">
-                    {groupBy === 'stage' ? getStageLabel(group) : group === 'undefined' ? 'Sin grupo' : group}
-                  </h3>
-                  <span className="text-xs bg-white px-2 py-1 rounded-full text-gray-600 font-medium">
-                    ({getStageCount(groupLeads)})
-                  </span>
-                </div>
-              </div>
-              
-              {/* Contenedor de tarjetas con scroll */}
-              <div className="bg-gray-50 border-l border-r border-b border-gray-200 rounded-b-lg min-h-[500px] max-h-[600px] overflow-y-auto p-3">
-                <div className="space-y-4">
-                  {groupLeads.map((lead) => (
-                    <LeadCard
-                      key={lead.id}
-                      lead={lead}
-                      onClick={() => onLeadClick(lead)}
-                      onEdit={onLeadClick}
-                      onSendEmail={onSendEmail}
-                      onOpenProfiler={handleOpenProfiler}
-                      onLeadUpdate={onLeadUpdate}
-                    />
-                  ))}
-                  {groupLeads.length === 0 && (
-                    <div className="text-center text-gray-500 py-8">
-                      <p className="text-sm">No hay leads en esta etapa</p>
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
+    <div className="space-y-6">
+      {/* Stats Section */}
+      <LeadsStats leads={filteredLeads} />
+
+      {/* Search and Filters */}
+      <div className="space-y-4">
+        <LeadsSearch 
+          searchTerm={searchTerm}
+          setSearchTerm={setSearchTerm}
+        />
+        
+        <LeadsFilters
+          statusFilter={statusFilter}
+          setStatusFilter={setStatusFilter}
+          campaignFilter={campaignFilter}
+          setCampaignFilter={setCampaignFilter}
+          assignedToFilter={assignedToFilter}
+          setAssignedToFilter={setAssignedToFilter}
+          sourceFilter={sourceFilter}
+          setSourceFilter={setSourceFilter}
+          dateRangeFilter={dateRangeFilter}
+          setDateRangeFilter={setDateRangeFilter}
+        />
       </div>
 
-      <Dialog open={isProfilerOpen} onOpenChange={setIsProfilerOpen}>
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>
-              Sesión de Prospección: {selectedLeadForProfiler?.name}
-            </DialogTitle>
-          </DialogHeader>
-          <LeadProfiler selectedLead={selectedLeadForProfiler} />
-        </DialogContent>
-      </Dialog>
-    </>
+      {/* Actions and View Controls */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div className="flex items-center gap-2">
+          <LeadsActionsButton 
+            selectedLeads={selectedLeads}
+            onBulkAssignment={handleBulkAssignment}
+          />
+          {selectedLeads.length > 0 && (
+            <span className="text-sm text-gray-600">
+              {selectedLeads.length} lead(s) seleccionado(s)
+            </span>
+          )}
+        </div>
+        
+        <LeadsViewControls
+          viewMode={viewMode}
+          setViewMode={setViewMode}
+          sortBy={sortBy}
+          setSortBy={setSortBy}
+          itemsPerPage={itemsPerPage}
+          setItemsPerPage={setItemsPerPage}
+        />
+      </div>
+
+      {/* Enhanced Table with Advanced Filters */}
+      <EnhancedLeadsTable
+        leads={leads}
+        paginatedLeads={paginatedLeads}
+        onLeadClick={onLeadClick}
+        onLeadUpdate={onLeadUpdate}
+        selectedLeads={selectedLeads}
+        onLeadSelectionChange={handleLeadSelectionChange}
+      />
+
+      {/* Pagination */}
+      <LeadsPagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        onPageChange={setCurrentPage}
+        totalLeads={filteredLeads.length}
+        startIndex={(currentPage - 1) * itemsPerPage + 1}
+        endIndex={Math.min(currentPage * itemsPerPage, filteredLeads.length)}
+      />
+
+      {/* Bulk Assignment Dialog */}
+      {showBulkAssignment && (
+        <LeadsBulkAssignment
+          selectedLeadIds={selectedLeads}
+          onClose={() => setShowBulkAssignment(false)}
+          onSuccess={() => {
+            setShowBulkAssignment(false);
+            setSelectedLeads([]);
+            onLeadUpdate();
+          }}
+        />
+      )}
+    </div>
   );
 }
