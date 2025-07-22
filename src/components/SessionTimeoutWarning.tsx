@@ -26,6 +26,36 @@ export const SessionTimeoutWarning: React.FC<SessionTimeoutWarningProps> = ({
   remainingMinutes = 5
 }) => {
   const [countdown, setCountdown] = useState(remainingMinutes * 60);
+  const [lastActivity, setLastActivity] = useState<number>(Date.now());
+
+  // Detectar actividad mientras el modal está abierto
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const handleActivity = () => {
+      const now = Date.now();
+      setLastActivity(now);
+      
+      // Si hay actividad reciente (últimos 5 segundos), cerrar el modal automáticamente
+      const timeSinceActivity = now - lastActivity;
+      if (timeSinceActivity < 5000) {
+        console.log('✅ Actividad detectada en modal de timeout, exteniendo sesión automáticamente');
+        onExtend();
+      }
+    };
+
+    const events = ['mousedown', 'keypress', 'scroll', 'touchstart', 'click'];
+    
+    events.forEach(event => {
+      document.addEventListener(event, handleActivity, { passive: true });
+    });
+
+    return () => {
+      events.forEach(event => {
+        document.removeEventListener(event, handleActivity);
+      });
+    };
+  }, [isOpen, onExtend, lastActivity]);
 
   useEffect(() => {
     if (!isOpen) {
@@ -36,6 +66,7 @@ export const SessionTimeoutWarning: React.FC<SessionTimeoutWarningProps> = ({
     const interval = setInterval(() => {
       setCountdown(prev => {
         if (prev <= 1) {
+          console.log('⏰ Countdown terminado, cerrando sesión');
           onLogout();
           return 0;
         }
@@ -52,6 +83,16 @@ export const SessionTimeoutWarning: React.FC<SessionTimeoutWarningProps> = ({
     return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
 
+  const handleExtend = () => {
+    console.log('🔄 Usuario extendió sesión manualmente');
+    onExtend();
+  };
+
+  const handleLogout = () => {
+    console.log('🚪 Usuario decidió cerrar sesión');
+    onLogout();
+  };
+
   return (
     <AlertDialog open={isOpen}>
       <AlertDialogContent className="sm:max-w-md">
@@ -64,17 +105,21 @@ export const SessionTimeoutWarning: React.FC<SessionTimeoutWarningProps> = ({
             Tu sesión expirará en <strong className="text-amber-600">{formatTime(countdown)}</strong> por inactividad.
             <br />
             ¿Deseas extender tu sesión?
+            <br />
+            <small className="text-gray-500 mt-2 block">
+              Nota: Si continúas usando la aplicación, la sesión se extenderá automáticamente.
+            </small>
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter className="flex flex-col sm:flex-row gap-3 sm:gap-2 justify-center items-center">
           <AlertDialogCancel 
-            onClick={onLogout}
-            className="w-full sm:w-auto bg-[#00c83c] hover:bg-[#00a332] text-white order-2 sm:order-1"
+            onClick={handleLogout}
+            className="w-full sm:w-auto bg-gray-500 hover:bg-gray-600 text-white order-2 sm:order-1"
           >
             Cerrar sesión
           </AlertDialogCancel>
           <AlertDialogAction 
-            onClick={onExtend}
+            onClick={handleExtend}
             className="w-full sm:w-auto bg-[#00c83c] hover:bg-[#00a332] text-white order-1 sm:order-2"
           >
             <RefreshCw className="w-4 h-4 mr-2" />

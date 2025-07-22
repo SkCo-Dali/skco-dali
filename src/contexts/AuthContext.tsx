@@ -1,9 +1,11 @@
+
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { User } from '@/types/crm';
 import { PublicClientApplication, InteractionRequiredAuthError, AccountInfo } from '@azure/msal-browser';
 import { msalConfig, loginRequest } from '@/authConfig';
 import { SessionTimeoutWarning } from '@/components/SessionTimeoutWarning';
 import { useToast } from '@/hooks/use-toast';
+import { useSessionTimeout } from '@/hooks/useSessionTimeout';
 import SecureTokenManager from '@/utils/secureTokenManager';
 
 interface AuthContextType {
@@ -44,9 +46,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
   
   // Estados para el timeout de sesión
   const [showTimeoutWarning, setShowTimeoutWarning] = useState(false);
-  const [timeoutTimer, setTimeoutTimer] = useState<NodeJS.Timeout | null>(null);
-  const [warningTimer, setWarningTimer] = useState<NodeJS.Timeout | null>(null);
-  const [lastActivity, setLastActivity] = useState<number>(Date.now());
   
   const { toast } = useToast();
 
@@ -54,18 +53,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const SESSION_TIMEOUT_MINUTES = 30;
   const WARNING_MINUTES = 5;
 
-  const clearSessionTimers = () => {
-    if (timeoutTimer) {
-      clearTimeout(timeoutTimer);
-      setTimeoutTimer(null);
-    }
-    if (warningTimer) {
-      clearTimeout(warningTimer);
-      setWarningTimer(null);
-    }
-  };
-
   const handleSessionTimeout = async () => {
+    console.log('🕐 Sesión expirada por inactividad');
     setShowTimeoutWarning(false);
     toast({
       title: "Sesión expirada",
@@ -76,36 +65,22 @@ export function AuthProvider({ children }: AuthProviderProps) {
   };
 
   const showSessionWarning = () => {
+    console.log('⚠️ Mostrando advertencia de sesión');
     setShowTimeoutWarning(true);
   };
 
-  const resetSessionTimer = () => {
-    if (!user) return;
-
-    clearSessionTimers();
-    setLastActivity(Date.now());
-
-    const warningMs = (SESSION_TIMEOUT_MINUTES - WARNING_MINUTES) * 60 * 1000;
-    const newWarningTimer = setTimeout(showSessionWarning, warningMs);
-    setWarningTimer(newWarningTimer);
-
-    const timeoutMs = SESSION_TIMEOUT_MINUTES * 60 * 1000;
-    const newTimeoutTimer = setTimeout(handleSessionTimeout, timeoutMs);
-    setTimeoutTimer(newTimeoutTimer);
-  };
-
-  const handleUserActivity = () => {
-    const now = Date.now();
-    const timeSinceLastActivity = now - lastActivity;
-    
-    if (timeSinceLastActivity > 60000) {
-      resetSessionTimer();
-    }
-  };
+  // Usar el hook useSessionTimeout en lugar de la lógica duplicada
+  const { resetTimer } = useSessionTimeout({
+    timeoutMinutes: SESSION_TIMEOUT_MINUTES,
+    warningMinutes: WARNING_MINUTES,
+    onTimeout: handleSessionTimeout,
+    onWarning: showSessionWarning
+  });
 
   const extendSession = () => {
+    console.log('🔄 Extendiendo sesión');
     setShowTimeoutWarning(false);
-    resetSessionTimer();
+    resetTimer();
     toast({
       title: "Sesión extendida",
       description: `Tu sesión se ha extendido por ${SESSION_TIMEOUT_MINUTES} minutos más`,
@@ -113,6 +88,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
   };
 
   const handleTimeoutLogout = async () => {
+    console.log('🚪 Cerrando sesión desde timeout warning');
     setShowTimeoutWarning(false);
     await logout();
   };
@@ -158,28 +134,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
     initializeMsal();
   }, []);
 
-  useEffect(() => {
-    if (!user) {
-      clearSessionTimers();
-      return;
-    }
-
-    resetSessionTimer();
-
-    const events = ['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart', 'click'];
-    
-    events.forEach(event => {
-      document.addEventListener(event, handleUserActivity, { passive: true });
-    });
-
-    return () => {
-      clearSessionTimers();
-      events.forEach(event => {
-        document.removeEventListener(event, handleUserActivity);
-      });
-    };
-  }, [user]);
-
   const login = (userData: User) => {
     setUser(userData);
     sessionStorage.setItem('skandia-crm-user', JSON.stringify(userData));
@@ -189,7 +143,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
     setUser(null);
     setAccessToken(null);
     setShowTimeoutWarning(false);
-    clearSessionTimers();
     
     // Limpiar tokens de forma segura
     SecureTokenManager.clearToken();
