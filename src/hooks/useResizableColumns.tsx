@@ -70,9 +70,6 @@ export function useResizableColumns(initialColumns: ColumnConfig[]) {
 
     document.addEventListener('mousemove', handleMouseMove);
     document.addEventListener('mouseup', handleMouseUp);
-    
-    // Prevenir selección de texto durante el redimensionamiento
-    e.preventDefault();
   }, [columns]);
 
   const updateColumnWidth = useCallback((columnKey: string, width: number) => {

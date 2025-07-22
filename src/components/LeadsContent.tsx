@@ -62,6 +62,7 @@ export function LeadsContent({
           onLeadUpdate={onLeadUpdate}
           selectedLeads={selectedLeads}
           onLeadSelectionChange={handleLeadSelectionChange}
+          columns={columns}
         />
       ) : (
         <LeadsColumns
