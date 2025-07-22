@@ -24,6 +24,7 @@ interface LeadsContentProps {
   groupBy: string;
   selectedLeads: string[];
   onLeadSelectionChange: (leadIds: string[], isSelected: boolean) => void;
+  onColumnsChange?: (columns: ColumnConfig[]) => void;
 }
 
 export function LeadsContent({
@@ -37,7 +38,8 @@ export function LeadsContent({
   onSendEmail,
   groupBy,
   selectedLeads,
-  onLeadSelectionChange
+  onLeadSelectionChange,
+  onColumnsChange
 }: LeadsContentProps) {
   const [showBulkAssignment, setShowBulkAssignment] = useState(false);
 
@@ -63,6 +65,7 @@ export function LeadsContent({
           selectedLeads={selectedLeads}
           onLeadSelectionChange={handleLeadSelectionChange}
           columns={columns}
+          onColumnsChange={onColumnsChange}
         />
       ) : (
         <LeadsColumns
