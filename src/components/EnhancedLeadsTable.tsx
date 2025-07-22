@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from "react"; 
+import React, { useState, useMemo, useEffect, useCallback } from "react"; 
 import { Lead } from "@/types/crm";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -57,38 +57,38 @@ export function EnhancedLeadsTable({
 }: EnhancedLeadsTableProps) {
   const { users } = useUsersApi();
   
-  // Extract dynamic columns and flatten leads - pass onColumnsChange for immediate updates
-  const { dynamicColumns, flattenedLeads, dynamicColumnTypes, mergeColumns } = useDynamicColumns(
+  // Extract dynamic columns and flatten leads - STABLE callback
+  const stableOnColumnsChange = useCallback((newColumns: ColumnConfig[]) => {
+    if (onColumnsChange) {
+      onColumnsChange(newColumns);
+    }
+  }, [onColumnsChange]);
+  
+  const { dynamicColumns, flattenedLeads, dynamicColumnTypes } = useDynamicColumns(
     leads, 
-    onColumnsChange
+    stableOnColumnsChange
   );
   
-  // Debug log current columns state
-  useEffect(() => {
-    console.log('🔍 EnhancedLeadsTable - Current columns prop:', columns.length);
-    console.log('🔍 EnhancedLeadsTable - Dynamic columns available:', dynamicColumns.length);
-    console.log('🔍 EnhancedLeadsTable - Dynamic column keys:', dynamicColumns.map(c => c.key));
-    console.log('🔍 EnhancedLeadsTable - Columns with additional_:', columns.filter(c => c.key.startsWith('additional_')).map(c => c.key));
-  }, [columns, dynamicColumns]);
-  
-  // Use the columns prop directly - they should already include dynamic columns
+  // Use the columns prop directly - STABLE reference
   const visibleColumns = useMemo(() => {
-    console.log('🔄 Calculating visible columns from:', columns.length, 'total columns');
-    const visible = columns.filter(col => col.visible);
-    console.log('🔄 Visible columns:', visible.length, 'visible columns');
-    console.log('🔄 Visible column keys:', visible.map(c => c.key));
-    return visible;
+    return columns.filter(col => col.visible);
   }, [columns]);
 
-  // Force re-render when columns change
-  const [forceUpdate, setForceUpdate] = useState(0);
+  // Force re-render only when columns actually change
+  const [, forceUpdate] = useState(0);
   
   useEffect(() => {
-    console.log('👀 Columns changed, forcing update...');
-    setForceUpdate(prev => prev + 1);
+    // Only force update if columns structure actually changed
+    const columnsSignature = columns.map(c => `${c.key}:${c.visible}`).join(',');
+    const prevSignature = sessionStorage.getItem('columnsSignature');
+    
+    if (prevSignature !== columnsSignature) {
+      sessionStorage.setItem('columnsSignature', columnsSignature);
+      forceUpdate(prev => prev + 1);
+    }
   }, [columns]);
   
-  // Preparar datos con nombres de usuarios para los filtros
+  // Process leads with user names - STABLE reference
   const processedLeads = useMemo(() => {
     return flattenedLeads.map(lead => ({
       ...lead,
@@ -96,7 +96,7 @@ export function EnhancedLeadsTable({
     }));
   }, [flattenedLeads, users]);
 
-  // Combine static and dynamic column types
+  // Combine static and dynamic column types - STABLE reference
   const allColumnTypes = useMemo(() => {
     return {
       ...STATIC_COLUMN_TYPES,
@@ -105,13 +105,13 @@ export function EnhancedLeadsTable({
     };
   }, [dynamicColumnTypes]);
   
-  // Use advanced filters hook con datos procesados
+  // Use advanced filters hook with STABLE data
   const { filteredData, filters, setColumnFilter, clearAllFilters, hasActiveFilters } = useAdvancedFilters(processedLeads, allColumnTypes);
   
   // Use multi-sort hook
   const { sortedData, sortConfigs, handleSort, clearSort, getSortConfig } = useMultiSort(filteredData);
   
-  // Use resizable columns hook con las columnas visibles
+  // Use resizable columns hook with STABLE columns
   const { columns: resizableColumns, handleResizeStart, isResizing, resizingColumn } = useResizableColumns(visibleColumns);
   
   // Use drag and drop columns hook
@@ -126,47 +126,38 @@ export function EnhancedLeadsTable({
     handleDragEnd 
   } = useDragDropColumns(resizableColumns);
 
-  // Calcular ancho total en base a columnas visibles
-  const calculateTableWidth = () => {
-    const checkboxColumnWidth = 50;
-    const totalColumnsWidth = orderedColumns.reduce((total, col) => {
-      return total + (col.width || (col.key === 'name' ? 350 : 250));
-    }, 0);
-    
-    return checkboxColumnWidth + totalColumnsWidth;
-  };
-
-  const handleSelectAll = (checked: boolean) => {
+  // STABLE handlers to prevent re-creation on every render
+  const handleSelectAll = useCallback((checked: boolean) => {
     const currentPageLeadIds = paginatedLeads.map(lead => lead.id);
     if (onLeadSelectionChange) {
       onLeadSelectionChange(currentPageLeadIds, checked);
     }
-  };
+  }, [paginatedLeads, onLeadSelectionChange]);
 
-  const handleSelectLead = (leadId: string, checked: boolean) => {
+  const handleSelectLead = useCallback((leadId: string, checked: boolean) => {
     if (onLeadSelectionChange) {
       onLeadSelectionChange([leadId], checked);
     }
-  };
+  }, [onLeadSelectionChange]);
 
-  const handleColumnSort = (columnKey: string, e: React.MouseEvent) => {
+  const handleColumnSort = useCallback((columnKey: string, e: React.MouseEvent) => {
     const isMultiSort = e.ctrlKey || e.metaKey;
     handleSort(columnKey, isMultiSort);
-  };
+  }, [handleSort]);
 
-  // FIXED: Remove duplicate sort handler for filters
-  const handleFilterSort = (columnKey: string, direction: 'asc' | 'desc') => {
-    // Simply apply the sort directly without duplicating functionality
-    handleSort(columnKey, false);
-    if (direction === 'desc') {
-      setTimeout(() => handleSort(columnKey, false), 10);
+  // STABLE filter data getter
+  const getFilterData = useCallback((columnKey: string) => {
+    if (columnKey === 'assignedTo') {
+      return processedLeads.map(lead => ({
+        ...lead,
+        assignedTo: lead.assignedToName
+      }));
     }
-  };
+    return processedLeads;
+  }, [processedLeads]);
 
-  const isAllSelected = paginatedLeads.length > 0 && paginatedLeads.every(lead => selectedLeads.includes(lead.id));
-  const isIndeterminate = paginatedLeads.some(lead => selectedLeads.includes(lead.id)) && !isAllSelected;
-
-  const renderCellContent = (lead: Lead, columnKey: string) => {
+  // STABLE cell renderer
+  const renderCellContent = useCallback((lead: Lead, columnKey: string) => {
     const assignedUser = users.find(u => u.id === lead.assignedTo);
 
     // Handle dynamic columns
@@ -227,23 +218,23 @@ export function EnhancedLeadsTable({
       default:
         return <div className="text-gray-700 text-xs">-</div>;
     }
-  };
+  }, [users, onLeadClick]);
 
-  // Preparar datos para filtros - usar el campo correcto para assignedTo
-  const getFilterData = (columnKey: string) => {
-    if (columnKey === 'assignedTo') {
-      // Para el filtro de assignedTo, usar los datos con nombres
-      return processedLeads.map(lead => ({
-        ...lead,
-        assignedTo: lead.assignedToName // Mostrar nombres en lugar de IDs
-      }));
-    }
-    return processedLeads;
-  };
+  // STABLE table width calculation
+  const tableWidth = useMemo(() => {
+    const checkboxColumnWidth = 50;
+    const totalColumnsWidth = orderedColumns.reduce((total, col) => {
+      return total + (col.width || (col.key === 'name' ? 350 : 250));
+    }, 0);
+    
+    return checkboxColumnWidth + totalColumnsWidth;
+  }, [orderedColumns]);
+
+  const isAllSelected = paginatedLeads.length > 0 && paginatedLeads.every(lead => selectedLeads.includes(lead.id));
+  const isIndeterminate = paginatedLeads.some(lead => selectedLeads.includes(lead.id)) && !isAllSelected;
 
   return (
-    <div className="space-y-4" key={forceUpdate}>
-      {/* Filter and Sort status */}
+    <div className="space-y-4">
       {(hasActiveFilters || sortConfigs.length > 0) && (
         <div className="flex items-center justify-between p-2 bg-blue-50 rounded">
           <div className="flex items-center space-x-4">
@@ -291,8 +282,8 @@ export function EnhancedLeadsTable({
             <Table 
               className="w-full"
               style={{ 
-                width: `${calculateTableWidth()}px`,
-                minWidth: `${calculateTableWidth()}px`
+                width: `${tableWidth}px`,
+                minWidth: `${tableWidth}px`
               }}
             >
               <TableHeader className="leads-table-header-sticky">

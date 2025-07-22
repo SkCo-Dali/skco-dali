@@ -1,24 +1,46 @@
 
-import { useMemo, useCallback, useEffect } from 'react';
+import { useMemo, useCallback, useEffect, useRef } from 'react';
 import { Lead } from '@/types/crm';
 import { extractDynamicFields, flattenAdditionalInfo, DynamicField } from '@/utils/dynamicFieldsUtils';
 import { ColumnConfig } from '@/components/LeadsTableColumnSelector';
 
 export const useDynamicColumns = (leads: Lead[], onColumnsChange?: (columns: ColumnConfig[]) => void) => {
-  // Extract dynamic fields from leads
+  // Use ref to track if we've already processed these leads
+  const processedLeadsRef = useRef<Lead[]>([]);
+  const lastNotificationRef = useRef<number>(0);
+
+  // Extract dynamic fields from leads - only when leads actually change
   const dynamicFields = useMemo(() => {
+    // Only process if leads have actually changed (not just re-rendered)
+    if (leads === processedLeadsRef.current || leads.length === 0) {
+      return [];
+    }
+    
+    // Check if leads content has actually changed by comparing first few items
+    const hasChanged = !processedLeadsRef.current || 
+      processedLeadsRef.current.length !== leads.length ||
+      (leads.length > 0 && processedLeadsRef.current.length > 0 && 
+       leads[0].id !== processedLeadsRef.current[0].id);
+
+    if (!hasChanged) {
+      return [];
+    }
+
+    processedLeadsRef.current = leads;
     console.log('🔄 Processing leads for dynamic fields...', leads.length, 'leads');
     const fields = extractDynamicFields(leads);
     console.log('✅ Found dynamic fields:', fields.map(f => f.key));
     return fields;
   }, [leads]);
 
-  // Create column configs for dynamic fields
+  // Create column configs for dynamic fields - stable reference
   const dynamicColumns = useMemo((): ColumnConfig[] => {
+    if (dynamicFields.length === 0) return [];
+    
     const columns = dynamicFields.map(field => ({
       key: `additional_${field.key}`,
       label: field.label,
-      visible: false, // Start hidden, user can enable them
+      visible: false,
       width: 200,
       sortable: true
     }));
@@ -27,14 +49,16 @@ export const useDynamicColumns = (leads: Lead[], onColumnsChange?: (columns: Col
     return columns;
   }, [dynamicFields]);
 
-  // Flatten leads with additional info
+  // Flatten leads with additional info - only when needed
   const flattenedLeads = useMemo(() => {
-    console.log('🔄 Flattening leads with additional info...');
+    if (leads.length === 0) return [];
     return leads.map(flattenAdditionalInfo);
   }, [leads]);
 
-  // Create column types map for dynamic fields
+  // Create column types map for dynamic fields - stable reference
   const dynamicColumnTypes = useMemo(() => {
+    if (dynamicFields.length === 0) return {};
+    
     const types: Record<string, 'text' | 'number' | 'date' | 'select'> = {};
     
     dynamicFields.forEach(field => {
@@ -44,13 +68,14 @@ export const useDynamicColumns = (leads: Lead[], onColumnsChange?: (columns: Col
     return types;
   }, [dynamicFields]);
 
-  // Function to merge static and dynamic columns
+  // Function to merge static and dynamic columns - stable reference
   const mergeColumns = useCallback((staticColumns: ColumnConfig[]) => {
+    if (dynamicColumns.length === 0) return staticColumns;
+    
     console.log('🔄 Merging static and dynamic columns...');
     console.log('📊 Static columns count:', staticColumns.length);
     console.log('📊 Dynamic columns count:', dynamicColumns.length);
     
-    // Check if we need to add new dynamic columns
     const existingDynamicKeys = staticColumns
       .filter(col => col.key.startsWith('additional_'))
       .map(col => col.key);
@@ -62,16 +87,22 @@ export const useDynamicColumns = (leads: Lead[], onColumnsChange?: (columns: Col
     const merged = [...staticColumns, ...newDynamicColumns];
     console.log('📊 Total merged columns:', merged.length);
     console.log('📊 New dynamic columns added:', newDynamicColumns.length);
-    console.log('📊 All dynamic column keys:', merged.filter(c => c.key.startsWith('additional_')).map(c => c.key));
     
     return merged;
   }, [dynamicColumns]);
 
-  // Notify parent when dynamic columns change
+  // Notify parent when dynamic columns change - throttled
   useEffect(() => {
     if (dynamicColumns.length > 0 && onColumnsChange) {
+      const now = Date.now();
+      // Throttle notifications to avoid excessive calls
+      if (now - lastNotificationRef.current < 1000) {
+        return;
+      }
+      
+      lastNotificationRef.current = now;
       console.log('🔔 Dynamic columns detected, notifying parent...');
-      // Create a basic set of static columns for merging
+      
       const basicStaticColumns: ColumnConfig[] = [
         { key: 'name', label: 'Nombre', visible: true, sortable: true, width: 250 },
         { key: 'email', label: 'Email', visible: true, sortable: true, width: 200 },
@@ -83,7 +114,7 @@ export const useDynamicColumns = (leads: Lead[], onColumnsChange?: (columns: Col
       const mergedColumns = mergeColumns(basicStaticColumns);
       onColumnsChange(mergedColumns);
     }
-  }, [dynamicColumns, onColumnsChange, mergeColumns]);
+  }, [dynamicColumns.length, onColumnsChange, mergeColumns]); // Only depend on length, not the array itself
 
   return {
     dynamicFields,
