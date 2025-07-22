@@ -40,8 +40,8 @@ interface LeadsContentProps {
   setSourceFilter: (source: string) => void;
   dateRangeFilter: { from?: Date; to?: Date };
   setDateRangeFilter: (range: { from?: Date; to?: Date }) => void;
-  viewMode: 'table' | 'grid';
-  setViewMode: (mode: 'table' | 'grid') => void;
+  viewMode: 'table' | 'columns';
+  setViewMode: (mode: 'table' | 'columns') => void;
   onCreateLead: () => void;
   onMassEmail: () => void;
   onDeleteLeads: () => void;
@@ -98,13 +98,6 @@ export function LeadsContent({
 
   const handleBulkAssignment = () => {
     setShowBulkAssignment(true);
-  };
-
-  // Convert viewMode from 'grid' to 'columns' for LeadsViewControls component
-  const viewControlsMode: 'table' | 'columns' = viewMode === 'grid' ? 'columns' : 'table';
-  const handleViewModeChange = (mode: 'table' | 'columns') => {
-    const newMode: 'table' | 'grid' = mode === 'columns' ? 'grid' : 'table';
-    setViewMode(newMode);
   };
 
   // Get unique values for filters - Fix: use assignedTo instead of assigned_to
@@ -187,8 +180,8 @@ export function LeadsContent({
         </div>
         
         <LeadsViewControls
-          viewMode={viewControlsMode}
-          setViewMode={handleViewModeChange}
+          viewMode={viewMode}
+          setViewMode={setViewMode}
         />
       </div>
 
