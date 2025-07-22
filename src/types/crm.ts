@@ -13,9 +13,15 @@ export interface User {
   avatar: string | null;
   zone?: string;
   team?: string;
+  jobTitle?: string;
   isActive: boolean;
   createdAt: string;
   updatedAt?: string;
+  // Properties for authentication context compatibility
+  user_metadata?: {
+    full_name?: string;
+    name?: string;
+  };
 }
 
 export interface UserPermissions {
@@ -29,6 +35,9 @@ export interface UserPermissions {
   canCreateUsers: boolean;
   canViewReports: boolean;
   canManageSettings: boolean;
+  canAssignRoles: boolean;
+  canAccessUserManagement: boolean;
+  accessiblePages: string[];
 }
 
 export interface Interaction {
@@ -72,7 +81,8 @@ export interface Lead {
   preferredContactChannel: 'Correo' | 'Teléfono' | 'WhatsApp' | 'SMS';
   interactions: Interaction[];
   additionalInfo?: Record<string, any> | null;
-  // Dynamic fields for interaction
+  // Dynamic fields for interaction - these should be separate from the core Lead interface
+  // but kept for backward compatibility
   type?: 'call' | 'email' | 'meeting' | 'note' | 'whatsapp' | 'sms';
   outcome?: 'positive' | 'negative' | 'neutral';
 }
@@ -111,6 +121,9 @@ export const getRolePermissions = (role: UserRole): UserPermissions => {
       canCreateUsers: true,
       canViewReports: true,
       canManageSettings: true,
+      canAssignRoles: true,
+      canAccessUserManagement: true,
+      accessiblePages: ['dashboard', 'leads', 'users', 'reports', 'tasks', 'chat']
     },
     'manager': {
       canViewLeads: true,
@@ -123,6 +136,9 @@ export const getRolePermissions = (role: UserRole): UserPermissions => {
       canCreateUsers: true,
       canViewReports: true,
       canManageSettings: false,
+      canAssignRoles: true,
+      canAccessUserManagement: true,
+      accessiblePages: ['dashboard', 'leads', 'users', 'reports', 'tasks', 'chat']
     },
     'supervisor': {
       canViewLeads: true,
@@ -135,6 +151,9 @@ export const getRolePermissions = (role: UserRole): UserPermissions => {
       canCreateUsers: false,
       canViewReports: true,
       canManageSettings: false,
+      canAssignRoles: false,
+      canAccessUserManagement: false,
+      accessiblePages: ['dashboard', 'leads', 'reports', 'tasks', 'chat']
     },
     'agent': {
       canViewLeads: true,
@@ -147,6 +166,9 @@ export const getRolePermissions = (role: UserRole): UserPermissions => {
       canCreateUsers: false,
       canViewReports: false,
       canManageSettings: false,
+      canAssignRoles: false,
+      canAccessUserManagement: false,
+      accessiblePages: ['dashboard', 'leads', 'tasks', 'chat']
     },
     'viewer': {
       canViewLeads: true,
@@ -159,6 +181,9 @@ export const getRolePermissions = (role: UserRole): UserPermissions => {
       canCreateUsers: false,
       canViewReports: true,
       canManageSettings: false,
+      canAssignRoles: false,
+      canAccessUserManagement: false,
+      accessiblePages: ['dashboard', 'leads', 'reports', 'chat']
     },
     'analista': {
       canViewLeads: true,
@@ -171,6 +196,9 @@ export const getRolePermissions = (role: UserRole): UserPermissions => {
       canCreateUsers: false,
       canViewReports: true,
       canManageSettings: false,
+      canAssignRoles: false,
+      canAccessUserManagement: false,
+      accessiblePages: ['dashboard', 'leads', 'reports', 'tasks', 'chat']
     },
     'gestor': {
       canViewLeads: true,
@@ -183,6 +211,9 @@ export const getRolePermissions = (role: UserRole): UserPermissions => {
       canCreateUsers: false,
       canViewReports: false,
       canManageSettings: false,
+      canAssignRoles: false,
+      canAccessUserManagement: false,
+      accessiblePages: ['dashboard', 'leads', 'tasks', 'chat']
     },
     'fp': {
       canViewLeads: true,
@@ -195,6 +226,9 @@ export const getRolePermissions = (role: UserRole): UserPermissions => {
       canCreateUsers: false,
       canViewReports: false,
       canManageSettings: false,
+      canAssignRoles: false,
+      canAccessUserManagement: false,
+      accessiblePages: ['dashboard', 'leads', 'tasks', 'chat']
     },
     'seguridad': {
       canViewLeads: true,
@@ -207,6 +241,9 @@ export const getRolePermissions = (role: UserRole): UserPermissions => {
       canCreateUsers: false,
       canViewReports: true,
       canManageSettings: false,
+      canAssignRoles: false,
+      canAccessUserManagement: false,
+      accessiblePages: ['dashboard', 'users', 'reports']
     },
     'director': {
       canViewLeads: true,
@@ -219,6 +256,9 @@ export const getRolePermissions = (role: UserRole): UserPermissions => {
       canCreateUsers: true,
       canViewReports: true,
       canManageSettings: true,
+      canAssignRoles: true,
+      canAccessUserManagement: true,
+      accessiblePages: ['dashboard', 'leads', 'users', 'reports', 'tasks', 'chat']
     },
     'promotor': {
       canViewLeads: true,
@@ -231,6 +271,9 @@ export const getRolePermissions = (role: UserRole): UserPermissions => {
       canCreateUsers: false,
       canViewReports: false,
       canManageSettings: false,
+      canAssignRoles: false,
+      canAccessUserManagement: false,
+      accessiblePages: ['dashboard', 'leads', 'tasks', 'chat']
     },
     'aliado': {
       canViewLeads: true,
@@ -243,6 +286,9 @@ export const getRolePermissions = (role: UserRole): UserPermissions => {
       canCreateUsers: false,
       canViewReports: false,
       canManageSettings: false,
+      canAssignRoles: false,
+      canAccessUserManagement: false,
+      accessiblePages: ['dashboard', 'leads', 'tasks', 'chat']
     },
     'socio': {
       canViewLeads: true,
@@ -255,6 +301,9 @@ export const getRolePermissions = (role: UserRole): UserPermissions => {
       canCreateUsers: false,
       canViewReports: true,
       canManageSettings: false,
+      canAssignRoles: false,
+      canAccessUserManagement: false,
+      accessiblePages: ['dashboard', 'leads', 'reports', 'tasks', 'chat']
     }
   };
   
