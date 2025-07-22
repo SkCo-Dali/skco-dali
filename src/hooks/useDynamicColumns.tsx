@@ -1,5 +1,5 @@
 
-import { useMemo } from 'react';
+import { useMemo, useCallback } from 'react';
 import { Lead } from '@/types/crm';
 import { extractDynamicFields, flattenAdditionalInfo, DynamicField } from '@/utils/dynamicFieldsUtils';
 import { ColumnConfig } from '@/components/LeadsTableColumnSelector';
@@ -18,7 +18,7 @@ export const useDynamicColumns = (leads: Lead[]) => {
       label: field.label,
       visible: false, // Start hidden, user can enable them
       width: 200,
-      sortable: true // Add the missing sortable property
+      sortable: true
     }));
   }, [dynamicFields]);
 
@@ -39,10 +39,24 @@ export const useDynamicColumns = (leads: Lead[]) => {
     return types;
   }, [dynamicFields]);
 
+  // Function to merge static and dynamic columns
+  const mergeColumns = useCallback((staticColumns: ColumnConfig[]) => {
+    console.log('🔄 Merging static and dynamic columns...');
+    console.log('📊 Static columns count:', staticColumns.length);
+    console.log('📊 Dynamic columns count:', dynamicColumns.length);
+    
+    const merged = [...staticColumns, ...dynamicColumns];
+    console.log('📊 Total merged columns:', merged.length);
+    console.log('📊 Dynamic column keys:', dynamicColumns.map(c => c.key));
+    
+    return merged;
+  }, [dynamicColumns]);
+
   return {
     dynamicFields,
     dynamicColumns,
     flattenedLeads,
-    dynamicColumnTypes
+    dynamicColumnTypes,
+    mergeColumns
   };
 };

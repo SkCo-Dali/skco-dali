@@ -24,6 +24,7 @@ interface EnhancedLeadsTableProps {
   selectedLeads?: string[];
   onLeadSelectionChange?: (leadIds: string[], isSelected: boolean) => void;
   columns: ColumnConfig[];
+  onColumnsChange?: (columns: ColumnConfig[]) => void;
 }
 
 // Define column types for static fields
@@ -51,17 +52,32 @@ export function EnhancedLeadsTable({
   onLeadUpdate,
   selectedLeads = [],
   onLeadSelectionChange,
-  columns
+  columns,
+  onColumnsChange
 }: EnhancedLeadsTableProps) {
   const { users } = useUsersApi();
   
   // Extract dynamic columns and flatten leads
-  const { dynamicColumns, flattenedLeads, dynamicColumnTypes } = useDynamicColumns(leads);
+  const { dynamicColumns, flattenedLeads, dynamicColumnTypes, mergeColumns } = useDynamicColumns(leads);
   
-  // Combine static and dynamic columns
+  // Combine static and dynamic columns and notify parent when dynamic columns are available
   const allAvailableColumns = useMemo(() => {
-    return [...columns, ...dynamicColumns];
-  }, [columns, dynamicColumns]);
+    const merged = mergeColumns(columns);
+    
+    // Notify parent component about the merged columns if there are new dynamic columns
+    if (onColumnsChange && dynamicColumns.length > 0) {
+      const hasNewDynamicColumns = dynamicColumns.some(dynCol => 
+        !columns.find(col => col.key === dynCol.key)
+      );
+      
+      if (hasNewDynamicColumns) {
+        console.log('🔄 Notifying parent about new dynamic columns...');
+        onColumnsChange(merged);
+      }
+    }
+    
+    return merged;
+  }, [columns, dynamicColumns, mergeColumns, onColumnsChange]);
   
   // FIXED: Force immediate column visibility updates
   const visibleColumns = useMemo(() => {
