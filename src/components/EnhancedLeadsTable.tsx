@@ -57,36 +57,28 @@ export function EnhancedLeadsTable({
 }: EnhancedLeadsTableProps) {
   const { users } = useUsersApi();
   
-  // Extract dynamic columns and flatten leads
-  const { dynamicColumns, flattenedLeads, dynamicColumnTypes, mergeColumns } = useDynamicColumns(leads);
+  // Extract dynamic columns and flatten leads - pass onColumnsChange for immediate updates
+  const { dynamicColumns, flattenedLeads, dynamicColumnTypes, mergeColumns } = useDynamicColumns(
+    leads, 
+    onColumnsChange
+  );
   
-  // Combine static and dynamic columns and notify parent when dynamic columns are available
-  const allAvailableColumns = useMemo(() => {
-    const merged = mergeColumns(columns);
-    
-    // Notify parent component about the merged columns if there are new dynamic columns
-    if (onColumnsChange && dynamicColumns.length > 0) {
-      const hasNewDynamicColumns = dynamicColumns.some(dynCol => 
-        !columns.find(col => col.key === dynCol.key)
-      );
-      
-      if (hasNewDynamicColumns) {
-        console.log('🔄 Notifying parent about new dynamic columns...');
-        onColumnsChange(merged);
-      }
-    }
-    
-    return merged;
-  }, [columns, dynamicColumns, mergeColumns, onColumnsChange]);
+  // Debug log current columns state
+  useEffect(() => {
+    console.log('🔍 EnhancedLeadsTable - Current columns prop:', columns.length);
+    console.log('🔍 EnhancedLeadsTable - Dynamic columns available:', dynamicColumns.length);
+    console.log('🔍 EnhancedLeadsTable - Dynamic column keys:', dynamicColumns.map(c => c.key));
+    console.log('🔍 EnhancedLeadsTable - Columns with additional_:', columns.filter(c => c.key.startsWith('additional_')).map(c => c.key));
+  }, [columns, dynamicColumns]);
   
-  // FIXED: Force immediate column visibility updates
+  // Use the columns prop directly - they should already include dynamic columns
   const visibleColumns = useMemo(() => {
-    console.log('🔄 Columns prop changed:', allAvailableColumns.length, 'total columns');
-    const visible = allAvailableColumns.filter(col => col.visible);
+    console.log('🔄 Calculating visible columns from:', columns.length, 'total columns');
+    const visible = columns.filter(col => col.visible);
     console.log('🔄 Visible columns:', visible.length, 'visible columns');
     console.log('🔄 Visible column keys:', visible.map(c => c.key));
     return visible;
-  }, [allAvailableColumns]);
+  }, [columns]);
 
   // Force re-render when columns change
   const [forceUpdate, setForceUpdate] = useState(0);
@@ -94,7 +86,7 @@ export function EnhancedLeadsTable({
   useEffect(() => {
     console.log('👀 Columns changed, forcing update...');
     setForceUpdate(prev => prev + 1);
-  }, [allAvailableColumns]);
+  }, [columns]);
   
   // Preparar datos con nombres de usuarios para los filtros
   const processedLeads = useMemo(() => {
