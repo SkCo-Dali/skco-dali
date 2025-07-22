@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -10,7 +10,8 @@ import {
 import { Checkbox } from "@/components/ui/checkbox";
 import { Switch } from "@/components/ui/switch";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Settings2, GripVertical } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Settings2, GripVertical, Search } from "lucide-react";
 
 export interface ColumnConfig {
   key: string;
@@ -55,6 +56,26 @@ export function LeadsTableColumnSelector({
 }: LeadsTableColumnSelectorProps) {
   const [open, setOpen] = useState(false);
   const [draggedColumn, setDraggedColumn] = useState<string | null>(null);
+  const [searchTerm, setSearchTerm] = useState("");
+
+  // Debug: Log columns cuando cambien
+  React.useEffect(() => {
+    console.log('🔍 LeadsTableColumnSelector received columns:', columns.length);
+    console.log('🔍 Column keys:', columns.map(c => c.key));
+    console.log('🔍 Dynamic columns:', columns.filter(c => c.key.startsWith('additional_')));
+  }, [columns]);
+
+  // Filtrar columnas basado en el término de búsqueda
+  const filteredColumns = useMemo(() => {
+    if (!searchTerm.trim()) {
+      return columns;
+    }
+    
+    return columns.filter(column => 
+      column.label.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      column.key.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  }, [columns, searchTerm]);
 
   const handleToggleColumn = (columnKey: string) => {
     // Prevent deselecting the name column as it's mandatory
@@ -152,47 +173,74 @@ export function LeadsTableColumnSelector({
             </span>
           </div>
           
+          {/* Search Bar */}
+          <div className="relative mb-3">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+            <Input
+              placeholder="Buscar columnas..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-10 h-8 text-sm"
+            />
+          </div>
+          
           <div className="text-xs text-gray-500 mb-2">
             💡 Arrastra para reordenar las columnas
           </div>
           
           <ScrollArea className="h-64 border-2 border-[#dedede] rounded-md">
             <div className="space-y-2 p-2">
-              {columns.map((column) => (
-                <div 
-                  key={column.key} 
-                  className={`flex items-center space-x-2 p-2 rounded cursor-move hover:bg-gray-50 ${
-                    draggedColumn === column.key ? 'opacity-50' : ''
-                  }`}
-                  draggable
-                  onDragStart={(e) => handleDragStart(e, column.key)}
-                  onDragOver={handleDragOver}
-                  onDrop={(e) => handleDrop(e, column.key)}
-                >
-                  <GripVertical className="h-4 w-4 text-gray-400" />
-                  <Checkbox
-                    id={`column-${column.key}`}
-                    checked={column.visible}
-                    onCheckedChange={() => handleToggleColumn(column.key)}
-                    disabled={column.key === 'name'}
-                  />
-                  <label 
-                    htmlFor={`column-${column.key}`} 
-                    className={`text-sm flex-1 ${
-                      column.key === 'name' 
-                        ? 'cursor-default text-gray-500' 
-                        : 'cursor-pointer'
-                    }`}
-                  >
-                    {column.label}
-                    {column.key === 'name' && (
-                      <span className="ml-1 text-xs text-gray-400">(obligatorio)</span>
-                    )}
-                  </label>
+              {filteredColumns.length === 0 ? (
+                <div className="text-center text-gray-500 text-sm py-4">
+                  No se encontraron columnas
                 </div>
-              ))}
+              ) : (
+                filteredColumns.map((column) => (
+                  <div 
+                    key={column.key} 
+                    className={`flex items-center space-x-2 p-2 rounded cursor-move hover:bg-gray-50 ${
+                      draggedColumn === column.key ? 'opacity-50' : ''
+                    }`}
+                    draggable
+                    onDragStart={(e) => handleDragStart(e, column.key)}
+                    onDragOver={handleDragOver}
+                    onDrop={(e) => handleDrop(e, column.key)}
+                  >
+                    <GripVertical className="h-4 w-4 text-gray-400" />
+                    <Checkbox
+                      id={`column-${column.key}`}
+                      checked={column.visible}
+                      onCheckedChange={() => handleToggleColumn(column.key)}
+                      disabled={column.key === 'name'}
+                    />
+                    <label 
+                      htmlFor={`column-${column.key}`} 
+                      className={`text-sm flex-1 ${
+                        column.key === 'name' 
+                          ? 'cursor-default text-gray-500' 
+                          : 'cursor-pointer'
+                      }`}
+                    >
+                      {column.label}
+                      {column.key === 'name' && (
+                        <span className="ml-1 text-xs text-gray-400">(obligatorio)</span>
+                      )}
+                      {column.key.startsWith('additional_') && (
+                        <span className="ml-1 text-xs text-blue-500">(dinámico)</span>
+                      )}
+                    </label>
+                  </div>
+                ))
+              )}
             </div>
           </ScrollArea>
+
+          {/* Show search results count */}
+          {searchTerm && (
+            <div className="text-xs text-gray-500 mt-2">
+              Mostrando {filteredColumns.length} de {columns.length} columnas
+            </div>
+          )}
 
           {/* Toggle All Section */}
           <div className="flex items-center justify-between mt-4 pb-3 border-b border-gray-100">
