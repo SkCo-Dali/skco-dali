@@ -106,6 +106,12 @@ export function LeadsContent({
     setViewMode(newMode);
   };
 
+  // Get unique values for filters
+  const uniqueStages = Array.from(new Set(leads.map(lead => lead.stage).filter(Boolean)));
+  const uniqueSources = Array.from(new Set(leads.map(lead => lead.source).filter(Boolean)));
+  const uniqueCampaigns = Array.from(new Set(leads.map(lead => lead.campaign).filter(Boolean)));
+  const uniqueAssignedTo = Array.from(new Set(leads.map(lead => lead.assigned_to).filter(Boolean)));
+
   return (
     <div className="space-y-6">
       {/* Stats Section */}
@@ -123,16 +129,41 @@ export function LeadsContent({
         />
         
         <LeadsFilters
-          statusFilter={statusFilter}
-          setStatusFilter={setStatusFilter}
-          campaignFilter={campaignFilter}
-          setCampaignFilter={setCampaignFilter}
-          assignedToFilter={assignedToFilter}
-          setAssignedToFilter={setAssignedToFilter}
-          sourceFilter={sourceFilter}
-          setSourceFilter={setSourceFilter}
-          dateRangeFilter={dateRangeFilter}
-          setDateRangeFilter={setDateRangeFilter}
+          searchTerm={searchTerm}
+          setSearchTerm={setSearchTerm}
+          filterStage={statusFilter}
+          setFilterStage={setStatusFilter}
+          filterPriority="all"
+          setFilterPriority={() => {}}
+          filterAssignedTo={assignedToFilter}
+          setFilterAssignedTo={setAssignedToFilter}
+          filterSource={sourceFilter}
+          setFilterSource={setSourceFilter}
+          filterCampaign={campaignFilter}
+          setFilterCampaign={setCampaignFilter}
+          filterDateFrom=""
+          setFilterDateFrom={() => {}}
+          filterDateTo=""
+          setFilterDateTo={() => {}}
+          filterValueMin=""
+          setFilterValueMin={() => {}}
+          filterValueMax=""
+          setFilterValueMax={() => {}}
+          filterDuplicates="all"
+          setFilterDuplicates={() => {}}
+          sortBy={sortBy}
+          setSortBy={setSortBy}
+          onClearFilters={() => {
+            setStatusFilter("");
+            setCampaignFilter("");
+            setAssignedToFilter("");
+            setSourceFilter("");
+            setDateRangeFilter({});
+          }}
+          uniqueStages={uniqueStages}
+          uniqueSources={uniqueSources}
+          uniqueCampaigns={uniqueCampaigns}
+          uniqueAssignedTo={uniqueAssignedTo}
         />
       </div>
 
@@ -183,9 +214,8 @@ export function LeadsContent({
       {/* Bulk Assignment Dialog */}
       {showBulkAssignment && (
         <LeadsBulkAssignment
-          selectedLeadIds={selectedLeads}
-          onClose={() => setShowBulkAssignment(false)}
-          onSuccess={() => {
+          leads={leads.filter(lead => selectedLeads.includes(lead.id))}
+          onLeadsAssigned={() => {
             setShowBulkAssignment(false);
             setSelectedLeads([]);
             onLeadUpdate();
