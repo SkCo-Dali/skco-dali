@@ -1,5 +1,4 @@
-
-import React, { useState, useMemo } from "react"; 
+import React, { useState, useMemo, useEffect } from "react"; 
 import { Lead } from "@/types/crm";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -13,6 +12,7 @@ import { MultiSortIndicator } from "@/components/MultiSortIndicator";
 import { ColumnResizeHandle } from "@/components/ColumnResizeHandle";
 import { ColumnConfig } from "@/components/LeadsTableColumnSelector";
 import { cn } from "@/lib/utils";
+import "./enhanced-leads-table.css";
 
 interface EnhancedLeadsTableProps {
   leads: Lead[];
@@ -21,7 +21,7 @@ interface EnhancedLeadsTableProps {
   onLeadUpdate?: () => void;
   selectedLeads?: string[];
   onLeadSelectionChange?: (leadIds: string[], isSelected: boolean) => void;
-  columns: ColumnConfig[]; // Recibir columnas como prop
+  columns: ColumnConfig[];
 }
 
 // Define column types for advanced filtering
@@ -73,11 +73,16 @@ export function EnhancedLeadsTable({
   // Use multi-sort hook
   const { sortedData, sortConfigs, handleSort, clearSort, getSortConfig } = useMultiSort(filteredData);
   
-  // Use resizable columns hook con las columnas recibidas
-  const { columns: resizableColumns, handleResizeStart, isResizing, resizingColumn } = useResizableColumns(columns);
+  // Filtrar solo columnas visibles y usar efecto para sincronizar
+  const [visibleColumns, setVisibleColumns] = useState<ColumnConfig[]>([]);
   
-  // Filtrar solo columnas visibles
-  const visibleColumns = resizableColumns.filter(col => col.visible);
+  useEffect(() => {
+    const newVisibleColumns = columns.filter(col => col.visible);
+    setVisibleColumns(newVisibleColumns);
+  }, [columns]);
+  
+  // Use resizable columns hook con las columnas visibles
+  const { columns: resizableColumns, handleResizeStart, isResizing, resizingColumn } = useResizableColumns(visibleColumns);
   
   // Use drag and drop columns hook
   const { 
@@ -89,7 +94,17 @@ export function EnhancedLeadsTable({
     handleDragLeave,
     handleDrop,
     handleDragEnd 
-  } = useDragDropColumns(visibleColumns);
+  } = useDragDropColumns(resizableColumns);
+
+  // Calcular ancho total de la tabla
+  const calculateTableWidth = () => {
+    const checkboxColumnWidth = 50;
+    const nameColumnWidth = 350;
+    const regularColumnWidth = 250;
+    const visibleRegularColumns = orderedColumns.length - 1;
+    
+    return checkboxColumnWidth + nameColumnWidth + (visibleRegularColumns * regularColumnWidth);
+  };
 
   const handleSelectAll = (checked: boolean) => {
     const currentPageLeadIds = paginatedLeads.map(lead => lead.id);
@@ -158,8 +173,20 @@ export function EnhancedLeadsTable({
         return <div className="text-gray-700 text-xs">{lead.company || '-'}</div>;
       case 'documentNumber':
         return <div className="text-gray-700 text-xs">{lead.documentNumber || '-'}</div>;
+      case 'documentType':
+        return <div className="text-gray-700 text-xs">{lead.documentType || '-'}</div>;
       case 'age':
         return <div className="text-gray-700 text-xs">{lead.age || '-'}</div>;
+      case 'gender':
+        return <div className="text-gray-700 text-xs">{lead.gender || '-'}</div>;
+      case 'preferredContactChannel':
+        return <div className="text-gray-700 text-xs">{lead.preferredContactChannel || '-'}</div>;
+      case 'product':
+        return <div className="text-gray-700 text-xs">{lead.product || '-'}</div>;
+      case 'createdAt':
+        return <div className="text-gray-700 text-xs">{new Date(lead.createdAt).toLocaleDateString()}</div>;
+      case 'updatedAt':
+        return <div className="text-gray-700 text-xs">{new Date(lead.updatedAt).toLocaleDateString()}</div>;
       default:
         return <div className="text-gray-700 text-xs">-</div>;
     }
@@ -220,88 +247,98 @@ export function EnhancedLeadsTable({
         💡 Mantén Ctrl/Cmd + clic para ordenamiento múltiple. Arrastra las columnas para reordenar. Arrastra el borde derecho para redimensionar.
       </div>
 
-      {/* Table */}
-      <div className="rounded-md border overflow-auto">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead className="w-[50px] sticky left-0 bg-white z-10">
-                <Checkbox
-                  checked={isAllSelected}
-                  onCheckedChange={handleSelectAll}
-                  className={isIndeterminate ? "data-[state=indeterminate]:bg-primary" : ""}
-                  {...(isIndeterminate ? { "data-state": "indeterminate" } : {})}
-                />
-              </TableHead>
-              {orderedColumns.map((column) => (
-                <TableHead 
-                  key={column.key}
-                  className={cn(
-                    "relative select-none",
-                    column.key === 'name' && "sticky left-[50px] bg-white z-10",
-                    draggedColumn === column.key && "opacity-50",
-                    dragOverColumn === column.key && "bg-blue-100"
-                  )}
-                  style={{ width: column.width }}
-                  draggable
-                  onDragStart={() => handleDragStart(column.key)}
-                  onDragOver={(e) => handleDragOver(e, column.key)}
-                  onDragLeave={handleDragLeave}
-                  onDrop={(e) => handleDrop(e, column.key)}
-                  onDragEnd={handleDragEnd}
-                >
-                  <div className="flex items-center space-x-2">
-                    <button
-                      onClick={(e) => handleColumnSort(column.key, e)}
-                      className="flex items-center hover:text-foreground cursor-pointer"
-                    >
-                      {column.label}
-                      <MultiSortIndicator 
-                        sortConfig={getSortConfig(column.key)}
-                        totalSorts={sortConfigs.length}
-                      />
-                    </button>
-                    <FilterButton
-                      column={{ ...column, type: COLUMN_TYPES[column.key as keyof typeof COLUMN_TYPES] }}
-                      data={getFilterData(column.key)}
-                      currentFilter={filters[column.key]}
-                      onFilterChange={(filter) => setColumnFilter(column.key, filter)}
-                      onSort={handleFilterSort}
+      {/* Table Container with Custom Scroll */}
+      <div className="leads-table-container-scroll">
+        <div className="leads-table-scroll-wrapper">
+          <div className="leads-table-inner-scroll">
+            <Table 
+              className="w-full"
+              style={{ 
+                width: `${calculateTableWidth()}px`,
+                minWidth: `${calculateTableWidth()}px`
+              }}
+            >
+              <TableHeader className="leads-table-header-sticky">
+                <TableRow className="bg-[#fafafa] border-b border-[#fafafa]">
+                  <TableHead className="w-[50px] px-4 py-3 text-center">
+                    <Checkbox
+                      checked={isAllSelected}
+                      onCheckedChange={handleSelectAll}
+                      className={isIndeterminate ? "data-[state=indeterminate]:bg-primary" : ""}
+                      {...(isIndeterminate ? { "data-state": "indeterminate" } : {})}
                     />
-                  </div>
-                  <ColumnResizeHandle
-                    onResizeStart={(startX) => handleResizeStart(column.key, startX)}
-                    isResizing={isResizing && resizingColumn === column.key}
-                  />
-                </TableHead>
-              ))}
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {sortedData.slice(0, 50).map((lead) => (
-              <TableRow key={lead.id} className="hover:bg-muted/50">
-                <TableCell className="sticky left-0 bg-white">
-                  <Checkbox
-                    checked={selectedLeads.includes(lead.id)}
-                    onCheckedChange={(checked) => handleSelectLead(lead.id, checked as boolean)}
-                  />
-                </TableCell>
-                {orderedColumns.map((column) => (
-                  <TableCell 
-                    key={column.key}
-                    className={cn(
-                      "p-4",
-                      column.key === 'name' && "sticky left-[50px] bg-white"
-                    )}
-                    style={{ width: column.width }}
-                  >
-                    {renderCellContent(lead, column.key)}
-                  </TableCell>
+                  </TableHead>
+                  {orderedColumns.map((column) => (
+                    <TableHead 
+                      key={column.key}
+                      className={cn(
+                        "relative select-none cursor-pointer px-4 py-3 text-center text-xs font-medium text-gray-600 capitalize tracking-wider",
+                        column.key === 'name' ? "leads-name-column-sticky" : "leads-regular-column",
+                        draggedColumn === column.key && "opacity-50",
+                        dragOverColumn === column.key && "bg-blue-100"
+                      )}
+                      style={{ width: column.width }}
+                      draggable
+                      onDragStart={() => handleDragStart(column.key)}
+                      onDragOver={(e) => handleDragOver(e, column.key)}
+                      onDragLeave={handleDragLeave}
+                      onDrop={(e) => handleDrop(e, column.key)}
+                      onDragEnd={handleDragEnd}
+                    >
+                      <div className="flex items-center justify-center space-x-2">
+                        <button
+                          onClick={(e) => handleColumnSort(column.key, e)}
+                          className="flex items-center hover:text-foreground cursor-pointer"
+                        >
+                          {column.label}
+                          <MultiSortIndicator 
+                            sortConfig={getSortConfig(column.key)}
+                            totalSorts={sortConfigs.length}
+                          />
+                        </button>
+                        <FilterButton
+                          column={{ ...column, type: COLUMN_TYPES[column.key as keyof typeof COLUMN_TYPES] }}
+                          data={getFilterData(column.key)}
+                          currentFilter={filters[column.key]}
+                          onFilterChange={(filter) => setColumnFilter(column.key, filter)}
+                          onSort={handleFilterSort}
+                        />
+                      </div>
+                      <ColumnResizeHandle
+                        onResizeStart={(startX) => handleResizeStart(column.key, startX)}
+                        isResizing={isResizing && resizingColumn === column.key}
+                      />
+                    </TableHead>
+                  ))}
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {sortedData.slice(0, 50).map((lead) => (
+                  <TableRow key={lead.id} className="hover:bg-muted/50">
+                    <TableCell className="w-[50px] px-4 py-3 text-center">
+                      <Checkbox
+                        checked={selectedLeads.includes(lead.id)}
+                        onCheckedChange={(checked) => handleSelectLead(lead.id, checked as boolean)}
+                      />
+                    </TableCell>
+                    {orderedColumns.map((column) => (
+                      <TableCell 
+                        key={column.key}
+                        className={cn(
+                          "px-4 py-3 text-xs text-center",
+                          column.key === 'name' ? "leads-name-column-sticky" : "leads-regular-column"
+                        )}
+                        style={{ width: column.width }}
+                      >
+                        {renderCellContent(lead, column.key)}
+                      </TableCell>
+                    ))}
+                  </TableRow>
                 ))}
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+              </TableBody>
+            </Table>
+          </div>
+        </div>
       </div>
     </div>
   );

@@ -1,0 +1,90 @@
+
+/* Contenedor principal de la tabla con scroll */
+.leads-table-container-scroll {
+  position: relative;
+  width: 100%;
+  height: 600px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  overflow: hidden;
+  background: white;
+}
+
+/* Wrapper del scroll */
+.leads-table-scroll-wrapper {
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  position: relative;
+}
+
+/* Contenedor interno del scroll */
+.leads-table-inner-scroll {
+  position: relative;
+  min-width: 100%;
+}
+
+/* Header pegajoso */
+.leads-table-header-sticky {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: #fafafa;
+}
+
+/* Columna nombre pegajosa */
+.leads-name-column-sticky {
+  position: sticky;
+  left: 50px;
+  z-index: 5;
+  background: white;
+  border-right: 1px solid #e5e7eb;
+}
+
+/* Columnas regulares */
+.leads-regular-column {
+  width: 250px;
+  min-width: 250px;
+}
+
+/* Estilos para el scroll personalizado */
+.leads-table-scroll-wrapper::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.leads-table-scroll-wrapper::-webkit-scrollbar-track {
+  background: #f1f5f9;
+  border-radius: 4px;
+}
+
+.leads-table-scroll-wrapper::-webkit-scrollbar-thumb {
+  background: #00c83c;
+  border-radius: 4px;
+}
+
+.leads-table-scroll-wrapper::-webkit-scrollbar-thumb:hover {
+  background: #00a832;
+}
+
+.leads-table-scroll-wrapper::-webkit-scrollbar-corner {
+  background: #f1f5f9;
+}
+
+/* Sombra para indicar scroll horizontal */
+.leads-table-container-scroll::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 20px;
+  background: linear-gradient(to left, rgba(0,0,0,0.1), transparent);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.leads-table-container-scroll:hover::after {
+  opacity: 1;
+}
