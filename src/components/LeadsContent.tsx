@@ -41,6 +41,10 @@ interface LeadsContentProps {
   setDateRangeFilter: (range: { from?: Date; to?: Date }) => void;
   viewMode: 'table' | 'grid';
   setViewMode: (mode: 'table' | 'grid') => void;
+  onCreateLead: () => void;
+  onMassEmail: () => void;
+  onDeleteLeads: () => void;
+  isDeleting: boolean;
 }
 
 export function LeadsContent({
@@ -73,7 +77,11 @@ export function LeadsContent({
   dateRangeFilter,
   setDateRangeFilter,
   viewMode,
-  setViewMode
+  setViewMode,
+  onCreateLead,
+  onMassEmail,
+  onDeleteLeads,
+  isDeleting
 }: LeadsContentProps) {
   const [showBulkAssignment, setShowBulkAssignment] = useState(false);
 
@@ -91,16 +99,27 @@ export function LeadsContent({
     setShowBulkAssignment(true);
   };
 
+  // Convert viewMode from 'grid' to 'columns' for LeadsViewControls component
+  const viewControlsMode: 'table' | 'columns' = viewMode === 'grid' ? 'columns' : 'table';
+  const handleViewModeChange = (mode: 'table' | 'columns') => {
+    const newMode: 'table' | 'grid' = mode === 'columns' ? 'grid' : 'table';
+    setViewMode(newMode);
+  };
+
   return (
     <div className="space-y-6">
       {/* Stats Section */}
-      <LeadsStats leads={filteredLeads} />
+      <LeadsStats 
+        filteredLeads={filteredLeads}
+        currentPage={currentPage}
+        totalPages={totalPages}
+      />
 
       {/* Search and Filters */}
       <div className="space-y-4">
         <LeadsSearch 
           searchTerm={searchTerm}
-          setSearchTerm={setSearchTerm}
+          onSearchChange={setSearchTerm}
         />
         
         <LeadsFilters
@@ -121,8 +140,12 @@ export function LeadsContent({
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div className="flex items-center gap-2">
           <LeadsActionsButton 
-            selectedLeads={selectedLeads}
-            onBulkAssignment={handleBulkAssignment}
+            onCreateLead={onCreateLead}
+            onBulkAssign={handleBulkAssignment}
+            onMassEmail={onMassEmail}
+            onDeleteLeads={onDeleteLeads}
+            selectedLeadsCount={selectedLeads.length}
+            isDeleting={isDeleting}
           />
           {selectedLeads.length > 0 && (
             <span className="text-sm text-gray-600">
@@ -132,12 +155,8 @@ export function LeadsContent({
         </div>
         
         <LeadsViewControls
-          viewMode={viewMode}
-          setViewMode={setViewMode}
-          sortBy={sortBy}
-          setSortBy={setSortBy}
-          itemsPerPage={itemsPerPage}
-          setItemsPerPage={setItemsPerPage}
+          viewMode={viewControlsMode}
+          setViewMode={handleViewModeChange}
         />
       </div>
 
@@ -155,10 +174,10 @@ export function LeadsContent({
       <LeadsPagination
         currentPage={currentPage}
         totalPages={totalPages}
-        onPageChange={setCurrentPage}
         totalLeads={filteredLeads.length}
-        startIndex={(currentPage - 1) * itemsPerPage + 1}
-        endIndex={Math.min(currentPage * itemsPerPage, filteredLeads.length)}
+        leadsPerPage={itemsPerPage}
+        onPageChange={setCurrentPage}
+        onLeadsPerPageChange={setItemsPerPage}
       />
 
       {/* Bulk Assignment Dialog */}
