@@ -10,13 +10,16 @@ import {
 import { Checkbox } from "@/components/ui/checkbox";
 import { Switch } from "@/components/ui/switch";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Settings2 } from "lucide-react";
+import { Settings2, GripVertical } from "lucide-react";
 
 export interface ColumnConfig {
   key: string;
   label: string;
   visible: boolean;
   sortable: boolean;
+  width?: number;
+  minWidth?: number;
+  maxWidth?: number;
 }
 
 interface LeadsTableColumnSelectorProps {
@@ -51,6 +54,7 @@ export function LeadsTableColumnSelector({
   showTextLabel = true
 }: LeadsTableColumnSelectorProps) {
   const [open, setOpen] = useState(false);
+  const [draggedColumn, setDraggedColumn] = useState<string | null>(null);
 
   const handleToggleColumn = (columnKey: string) => {
     // Prevent deselecting the name column as it's mandatory
@@ -81,6 +85,38 @@ export function LeadsTableColumnSelector({
     onColumnsChange(updatedColumns);
   };
 
+  const handleReorderColumns = (draggedKey: string, targetKey: string) => {
+    const draggedIndex = columns.findIndex(col => col.key === draggedKey);
+    const targetIndex = columns.findIndex(col => col.key === targetKey);
+
+    if (draggedIndex === -1 || targetIndex === -1) return;
+
+    const newColumns = [...columns];
+    const [draggedCol] = newColumns.splice(draggedIndex, 1);
+    newColumns.splice(targetIndex, 0, draggedCol);
+
+    saveColumnConfig(newColumns);
+    onColumnsChange(newColumns);
+  };
+
+  const handleDragStart = (e: React.DragEvent, columnKey: string) => {
+    setDraggedColumn(columnKey);
+    e.dataTransfer.effectAllowed = 'move';
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+  };
+
+  const handleDrop = (e: React.DragEvent, targetKey: string) => {
+    e.preventDefault();
+    if (draggedColumn && draggedColumn !== targetKey) {
+      handleReorderColumns(draggedColumn, targetKey);
+    }
+    setDraggedColumn(null);
+  };
+
   // Función para resetear a la configuración por defecto
   const handleReset = () => {
     clearColumnConfig();
@@ -91,7 +127,6 @@ export function LeadsTableColumnSelector({
   const visibleCount = columns.filter(col => col.visible).length;
   const selectableColumns = columns.filter(col => col.key !== 'name');
   const allSelectableSelected = selectableColumns.every(col => col.visible);
-  const noneSelectableSelected = selectableColumns.every(col => !col.visible);
 
   return (
     <DropdownMenu open={open} onOpenChange={setOpen}>
@@ -111,16 +146,30 @@ export function LeadsTableColumnSelector({
       <DropdownMenuContent align="end" className="w-80 bg-white rounded-2xl shadow-lg border border-gray-200">
         <div className="p-3">
           <div className="flex items-center justify-between mb-3">
-            <h3 className="font-medium text-sm">Seleccionar columnas</h3>
+            <h3 className="font-medium text-sm">Seleccionar y reordenar columnas</h3>
             <span className="text-xs text-gray-500">
               {visibleCount} de {columns.length}
             </span>
           </div>
           
+          <div className="text-xs text-gray-500 mb-2">
+            💡 Arrastra para reordenar las columnas
+          </div>
+          
           <ScrollArea className="h-64 border-2 border-[#dedede] rounded-md">
             <div className="space-y-2 p-2">
               {columns.map((column) => (
-                <div key={column.key} className="flex items-center space-x-2">
+                <div 
+                  key={column.key} 
+                  className={`flex items-center space-x-2 p-2 rounded cursor-move hover:bg-gray-50 ${
+                    draggedColumn === column.key ? 'opacity-50' : ''
+                  }`}
+                  draggable
+                  onDragStart={(e) => handleDragStart(e, column.key)}
+                  onDragOver={handleDragOver}
+                  onDrop={(e) => handleDrop(e, column.key)}
+                >
+                  <GripVertical className="h-4 w-4 text-gray-400" />
                   <Checkbox
                     id={`column-${column.key}`}
                     checked={column.visible}
