@@ -7,10 +7,12 @@ import { useAdvancedFilters } from "@/hooks/useAdvancedFilters";
 import { useMultiSort } from "@/hooks/useMultiSort";
 import { useResizableColumns } from "@/hooks/useResizableColumns";
 import { useDragDropColumns } from "@/hooks/useDragDropColumns";
+import { useDynamicColumns } from "@/hooks/useDynamicColumns";
 import { FilterButton } from "@/components/table-filters/FilterButton";
 import { MultiSortIndicator } from "@/components/MultiSortIndicator";
 import { ColumnResizeHandle } from "@/components/ColumnResizeHandle";
 import { ColumnConfig } from "@/components/LeadsTableColumnSelector";
+import { getDynamicFieldValue } from "@/utils/dynamicFieldsUtils";
 import { cn } from "@/lib/utils";
 import "./enhanced-leads-table.css";
 
@@ -24,8 +26,8 @@ interface EnhancedLeadsTableProps {
   columns: ColumnConfig[];
 }
 
-// Define column types for advanced filtering
-const COLUMN_TYPES = {
+// Define column types for static fields
+const STATIC_COLUMN_TYPES = {
   name: 'text' as const,
   email: 'text' as const,
   phone: 'text' as const,
@@ -53,14 +55,22 @@ export function EnhancedLeadsTable({
 }: EnhancedLeadsTableProps) {
   const { users } = useUsersApi();
   
+  // Extract dynamic columns and flatten leads
+  const { dynamicColumns, flattenedLeads, dynamicColumnTypes } = useDynamicColumns(leads);
+  
+  // Combine static and dynamic columns
+  const allAvailableColumns = useMemo(() => {
+    return [...columns, ...dynamicColumns];
+  }, [columns, dynamicColumns]);
+  
   // FIXED: Force immediate column visibility updates
   const visibleColumns = useMemo(() => {
-    console.log('🔄 Columns prop changed:', columns.length, 'total columns');
-    const visible = columns.filter(col => col.visible);
+    console.log('🔄 Columns prop changed:', allAvailableColumns.length, 'total columns');
+    const visible = allAvailableColumns.filter(col => col.visible);
     console.log('🔄 Visible columns:', visible.length, 'visible columns');
     console.log('🔄 Visible column keys:', visible.map(c => c.key));
     return visible;
-  }, [columns]);
+  }, [allAvailableColumns]);
 
   // Force re-render when columns change
   const [forceUpdate, setForceUpdate] = useState(0);
@@ -68,24 +78,27 @@ export function EnhancedLeadsTable({
   useEffect(() => {
     console.log('👀 Columns changed, forcing update...');
     setForceUpdate(prev => prev + 1);
-  }, [columns]);
+  }, [allAvailableColumns]);
   
   // Preparar datos con nombres de usuarios para los filtros
   const processedLeads = useMemo(() => {
-    return leads.map(lead => ({
+    return flattenedLeads.map(lead => ({
       ...lead,
       assignedToName: users.find(u => u.id === lead.assignedTo)?.name || 'Sin asignar'
     }));
-  }, [leads, users]);
+  }, [flattenedLeads, users]);
 
-  // Actualizar tipos de columna para incluir assignedToName
-  const updatedColumnTypes = {
-    ...COLUMN_TYPES,
-    assignedToName: 'select' as const
-  };
+  // Combine static and dynamic column types
+  const allColumnTypes = useMemo(() => {
+    return {
+      ...STATIC_COLUMN_TYPES,
+      assignedToName: 'select' as const,
+      ...dynamicColumnTypes
+    };
+  }, [dynamicColumnTypes]);
   
   // Use advanced filters hook con datos procesados
-  const { filteredData, filters, setColumnFilter, clearAllFilters, hasActiveFilters } = useAdvancedFilters(processedLeads, updatedColumnTypes);
+  const { filteredData, filters, setColumnFilter, clearAllFilters, hasActiveFilters } = useAdvancedFilters(processedLeads, allColumnTypes);
   
   // Use multi-sort hook
   const { sortedData, sortConfigs, handleSort, clearSort, getSortConfig } = useMultiSort(filteredData);
@@ -148,6 +161,14 @@ export function EnhancedLeadsTable({
   const renderCellContent = (lead: Lead, columnKey: string) => {
     const assignedUser = users.find(u => u.id === lead.assignedTo);
 
+    // Handle dynamic columns
+    if (columnKey.startsWith('additional_')) {
+      const fieldKey = columnKey.replace('additional_', '');
+      const value = getDynamicFieldValue(lead, fieldKey);
+      return <div className="text-gray-700 text-xs">{value?.toString() || '-'}</div>;
+    }
+
+    // Handle static columns
     switch (columnKey) {
       case 'name':
         return (
@@ -305,7 +326,7 @@ export function EnhancedLeadsTable({
                           />
                         </button>
                         <FilterButton
-                          column={{ ...column, type: COLUMN_TYPES[column.key as keyof typeof COLUMN_TYPES] }}
+                          column={{ ...column, type: allColumnTypes[column.key as keyof typeof allColumnTypes] }}
                           data={getFilterData(column.key)}
                           currentFilter={filters[column.key]}
                           onFilterChange={(filter) => setColumnFilter(column.key, filter)}
