@@ -13,24 +13,9 @@ import Users from "@/pages/Users";
 import ChatDali from "@/pages/ChatDali";
 import Index from "@/pages/Index";
 import NotFound from "@/pages/NotFound";
-import { useAuth } from "@/contexts/AuthContext";
-import { Login } from "@/components/Login";
 
 export function AppContent() {
-  const { user, loading } = useAuth();
   const chatDaliRef = useRef<any>(null);
-
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-gray-900" />
-      </div>
-    );
-  }
-
-  if (!user) {
-    return <Login onLogin={() => {}} />;
-  }
 
   const handleBannerMessage = (automaticReply: string) => {
     console.log('🟣🟣🟣 AppContent: Banner message received:', automaticReply);
