@@ -1,21 +1,23 @@
 
 import { useEffect, useRef, useCallback } from 'react';
-import { useAuth } from '@/contexts/AuthContext';
 
 interface UseSessionTimeoutOptions {
   timeoutMinutes?: number;
   warningMinutes?: number;
   onTimeout?: () => void;
   onWarning?: () => void;
+  user?: any; // User object passed from AuthProvider
+  logout?: () => Promise<void>; // Logout function passed from AuthProvider
 }
 
 export const useSessionTimeout = ({
   timeoutMinutes = 30,
   warningMinutes = 5,
   onTimeout,
-  onWarning
+  onWarning,
+  user,
+  logout
 }: UseSessionTimeoutOptions = {}) => {
-  const { user, logout } = useAuth();
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
   const warningRef = useRef<NodeJS.Timeout | null>(null);
   const lastActivityRef = useRef<number>(Date.now());
@@ -36,7 +38,7 @@ export const useSessionTimeout = ({
     console.log('🕐 Sesión expirada por inactividad');
     if (onTimeout) {
       onTimeout();
-    } else {
+    } else if (logout) {
       await logout();
     }
   }, [logout, onTimeout]);

@@ -53,6 +53,32 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const SESSION_TIMEOUT_MINUTES = 30;
   const WARNING_MINUTES = 5;
 
+  const logout = async () => {
+    setUser(null);
+    setAccessToken(null);
+    setShowTimeoutWarning(false);
+    
+    // Limpiar tokens de forma segura
+    SecureTokenManager.clearToken();
+    sessionStorage.removeItem('skandia-crm-user');
+    
+    if (!isInitialized) {
+      return;
+    }
+
+    try {
+      const accounts = msalInstance.getAllAccounts();
+      if (accounts.length > 0) {
+        await msalInstance.logoutPopup({
+          account: accounts[0],
+          mainWindowRedirectUri: window.location.origin
+        });
+      }
+    } catch (error) {
+      // Error silenciado para logout
+    }
+  };
+
   const handleSessionTimeout = async () => {
     console.log('🕐 Sesión expirada por inactividad');
     setShowTimeoutWarning(false);
@@ -69,12 +95,14 @@ export function AuthProvider({ children }: AuthProviderProps) {
     setShowTimeoutWarning(true);
   };
 
-  // Usar el hook useSessionTimeout en lugar de la lógica duplicada
+  // Usar el hook useSessionTimeout pasando user y logout
   const { resetTimer } = useSessionTimeout({
     timeoutMinutes: SESSION_TIMEOUT_MINUTES,
     warningMinutes: WARNING_MINUTES,
     onTimeout: handleSessionTimeout,
-    onWarning: showSessionWarning
+    onWarning: showSessionWarning,
+    user,
+    logout
   });
 
   const extendSession = () => {
@@ -137,32 +165,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const login = (userData: User) => {
     setUser(userData);
     sessionStorage.setItem('skandia-crm-user', JSON.stringify(userData));
-  };
-
-  const logout = async () => {
-    setUser(null);
-    setAccessToken(null);
-    setShowTimeoutWarning(false);
-    
-    // Limpiar tokens de forma segura
-    SecureTokenManager.clearToken();
-    sessionStorage.removeItem('skandia-crm-user');
-    
-    if (!isInitialized) {
-      return;
-    }
-
-    try {
-      const accounts = msalInstance.getAllAccounts();
-      if (accounts.length > 0) {
-        await msalInstance.logoutPopup({
-          account: accounts[0],
-          mainWindowRedirectUri: window.location.origin
-        });
-      }
-    } catch (error) {
-      // Error silenciado para logout
-    }
   };
 
   const signInWithAzure = async (): Promise<{ error: any }> => {
