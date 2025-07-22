@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Lead } from "@/types/crm";
 import { LeadsSearch } from "./LeadsSearch";
@@ -10,6 +9,7 @@ import { EnhancedLeadsTable } from "./EnhancedLeadsTable";
 import { LeadsColumns } from "./LeadsColumns";
 import { LeadsActionsButton } from "./LeadsActionsButton";
 import { LeadsBulkAssignment } from "./LeadsBulkAssignment";
+import { ColumnConfig } from "./LeadsTableColumnSelector";
 
 interface LeadsContentProps {
   leads: Lead[];
@@ -46,6 +46,10 @@ interface LeadsContentProps {
   onMassEmail: () => void;
   onDeleteLeads: () => void;
   isDeleting: boolean;
+  columns: ColumnConfig[];
+  onSortedLeadsChange: (sorted: Lead[]) => void;
+  groupBy: string;
+  onLeadSelectionChange: (leadIds: string[], isSelected: boolean) => void;
 }
 
 export function LeadsContent({
@@ -82,7 +86,11 @@ export function LeadsContent({
   onCreateLead,
   onMassEmail,
   onDeleteLeads,
-  isDeleting
+  isDeleting,
+  columns,
+  onSortedLeadsChange,
+  groupBy,
+  onLeadSelectionChange
 }: LeadsContentProps) {
   const [showBulkAssignment, setShowBulkAssignment] = useState(false);
 
