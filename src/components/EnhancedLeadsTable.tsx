@@ -57,38 +57,26 @@ export function EnhancedLeadsTable({
 }: EnhancedLeadsTableProps) {
   const { users } = useUsersApi();
   
-  // Extract dynamic columns and flatten leads - STABLE callback
-  const stableOnColumnsChange = useCallback((newColumns: ColumnConfig[]) => {
-    if (onColumnsChange) {
-      onColumnsChange(newColumns);
-    }
-  }, [onColumnsChange]);
-  
-  const { dynamicColumns, flattenedLeads, dynamicColumnTypes } = useDynamicColumns(
-    leads, 
-    stableOnColumnsChange
-  );
-  
-  // Use the columns prop directly - STABLE reference
-  const visibleColumns = useMemo(() => {
-    return columns.filter(col => col.visible);
+  // Debug: Log when component receives new columns
+  useEffect(() => {
+    console.log('📊 EnhancedLeadsTable received columns:', columns.length);
+    console.log('📊 Dynamic columns in received:', columns.filter(c => c.key.startsWith('additional_')).length);
   }, [columns]);
 
-  // Force re-render only when columns actually change
-  const [, forceUpdate] = useState(0);
+  // Extract dynamic columns and flatten leads
+  const { dynamicColumns, flattenedLeads, dynamicColumnTypes } = useDynamicColumns(
+    leads, 
+    onColumnsChange
+  );
   
-  useEffect(() => {
-    // Only force update if columns structure actually changed
-    const columnsSignature = columns.map(c => `${c.key}:${c.visible}`).join(',');
-    const prevSignature = sessionStorage.getItem('columnsSignature');
-    
-    if (prevSignature !== columnsSignature) {
-      sessionStorage.setItem('columnsSignature', columnsSignature);
-      forceUpdate(prev => prev + 1);
-    }
+  // Use the columns prop directly
+  const visibleColumns = useMemo(() => {
+    const visible = columns.filter(col => col.visible);
+    console.log('📊 Visible columns:', visible.length, visible.map(c => c.key));
+    return visible;
   }, [columns]);
   
-  // Process leads with user names - STABLE reference
+  // Process leads with user names
   const processedLeads = useMemo(() => {
     return flattenedLeads.map(lead => ({
       ...lead,
@@ -96,7 +84,7 @@ export function EnhancedLeadsTable({
     }));
   }, [flattenedLeads, users]);
 
-  // Combine static and dynamic column types - STABLE reference
+  // Combine static and dynamic column types
   const allColumnTypes = useMemo(() => {
     return {
       ...STATIC_COLUMN_TYPES,
@@ -105,13 +93,13 @@ export function EnhancedLeadsTable({
     };
   }, [dynamicColumnTypes]);
   
-  // Use advanced filters hook with STABLE data
+  // Use advanced filters hook
   const { filteredData, filters, setColumnFilter, clearAllFilters, hasActiveFilters } = useAdvancedFilters(processedLeads, allColumnTypes);
   
   // Use multi-sort hook
   const { sortedData, sortConfigs, handleSort, clearSort, getSortConfig } = useMultiSort(filteredData);
   
-  // Use resizable columns hook with STABLE columns
+  // Use resizable columns hook
   const { columns: resizableColumns, handleResizeStart, isResizing, resizingColumn } = useResizableColumns(visibleColumns);
   
   // Use drag and drop columns hook
@@ -156,7 +144,7 @@ export function EnhancedLeadsTable({
     return processedLeads;
   }, [processedLeads]);
 
-  // STABLE cell renderer
+  // Cell renderer
   const renderCellContent = useCallback((lead: Lead, columnKey: string) => {
     const assignedUser = users.find(u => u.id === lead.assignedTo);
 
@@ -164,10 +152,12 @@ export function EnhancedLeadsTable({
     if (columnKey.startsWith('additional_')) {
       const fieldKey = columnKey.replace('additional_', '');
       const value = getDynamicFieldValue(lead, fieldKey);
+      console.log(`🔍 Rendering dynamic field ${fieldKey}:`, value);
       return <div className="text-gray-700 text-xs">{value?.toString() || '-'}</div>;
     }
 
     // Handle static columns
+    
     switch (columnKey) {
       case 'name':
         return (
@@ -201,16 +191,8 @@ export function EnhancedLeadsTable({
         return <div className="text-gray-700 text-xs">{lead.company || '-'}</div>;
       case 'documentNumber':
         return <div className="text-gray-700 text-xs">{lead.documentNumber || '-'}</div>;
-      case 'documentType':
-        return <div className="text-gray-700 text-xs">{lead.documentType || '-'}</div>;
       case 'age':
         return <div className="text-gray-700 text-xs">{lead.age || '-'}</div>;
-      case 'gender':
-        return <div className="text-gray-700 text-xs">{lead.gender || '-'}</div>;
-      case 'preferredContactChannel':
-        return <div className="text-gray-700 text-xs">{lead.preferredContactChannel || '-'}</div>;
-      case 'product':
-        return <div className="text-gray-700 text-xs">{lead.product || '-'}</div>;
       case 'createdAt':
         return <div className="text-gray-700 text-xs">{new Date(lead.createdAt).toLocaleDateString()}</div>;
       case 'updatedAt':
@@ -235,6 +217,8 @@ export function EnhancedLeadsTable({
 
   return (
     <div className="space-y-4">
+      
+      
       {(hasActiveFilters || sortConfigs.length > 0) && (
         <div className="flex items-center justify-between p-2 bg-blue-50 rounded">
           <div className="flex items-center space-x-4">
@@ -270,12 +254,11 @@ export function EnhancedLeadsTable({
         </div>
       )}
 
-      {/* Instructions */}
       <div className="text-xs text-gray-500 p-2 bg-gray-50 rounded">
         💡 Mantén Ctrl/Cmd + clic para ordenamiento múltiple. Arrastra las columnas para reordenar. Arrastra el borde derecho para redimensionar.
       </div>
 
-      {/* Table Container with Custom Scroll */}
+      {/* Table Container */}
       <div className="leads-table-container-scroll">
         <div className="leads-table-scroll-wrapper">
           <div className="leads-table-inner-scroll">
