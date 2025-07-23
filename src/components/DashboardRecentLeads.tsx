@@ -36,6 +36,16 @@ export function DashboardRecentLeads({ leads }: DashboardRecentLeadsProps) {
     // TODO: Implement lead detail view or modal
   };
 
+  const handleLeadUpdate = () => {
+    console.log('Lead updated');
+    // TODO: Implement lead update handling
+  };
+
+  const handleLeadSelectionChange = (leadIds: string[], isSelected: boolean) => {
+    console.log('Lead selection changed:', leadIds, isSelected);
+    // TODO: Implement selection handling for dashboard
+  };
+
   // Basic columns for dashboard view
   const basicColumns = [
     { key: 'name', label: 'Nombre', visible: true, width: 200, sortable: true },
@@ -68,6 +78,9 @@ export function DashboardRecentLeads({ leads }: DashboardRecentLeadsProps) {
           leads={recentLeads} 
           paginatedLeads={recentLeads}
           onLeadClick={handleLeadClick}
+          onLeadUpdate={handleLeadUpdate}
+          onLeadSelectionChange={handleLeadSelectionChange}
+          selectedLeads={[]}
           columns={basicColumns}
         />
       </CardContent>

@@ -1,3 +1,4 @@
+
 import React, { useState, useCallback, useMemo, useRef, useEffect } from "react";
 import { Lead } from "@/types/crm";
 import { LeadCard } from "./LeadCard";
@@ -97,8 +98,15 @@ export function EnhancedLeadsTable({
   const [isColumnSelectorOpen, setIsColumnSelectorOpen] = useState(false);
   const tableRef = useRef<HTMLTableElement>(null);
 
-  const { handleResizeStart, isResizing, resizingColumn, updateColumnWidth } = useResizableColumns(columns);
-  const { handleDragStart, handleDragOver, handleDrop } = useDragDropColumns(columns, setColumns);
+  const { columns: resizableColumns, handleResizeStart, isResizing, resizingColumn, updateColumnWidth } = useResizableColumns(columns);
+  const { 
+    columns: dragDropColumns, 
+    handleDragStart, 
+    handleDragOver, 
+    handleDragLeave, 
+    handleDrop, 
+    handleDragEnd 
+  } = useDragDropColumns(resizableColumns);
   const { dynamicFields, dynamicColumns, flattenedLeads, dynamicColumnTypes, mergeColumns } = useDynamicColumns(leads, onColumnsChange);
 
   const sortedLeads = useMultiSort({
@@ -164,7 +172,7 @@ export function EnhancedLeadsTable({
                     onCheckedChange={handleSelectAllChange}
                   />
                 </TableHead>
-                {columns.filter(column => column.visible).map((column, index) => (
+                {dragDropColumns.filter(column => column.visible).map((column, index) => (
                   <TableHead
                     key={column.key}
                     className={cn(
@@ -179,9 +187,11 @@ export function EnhancedLeadsTable({
                     }}
                     onClick={() => column.sortable ? handleColumnHeaderClick(column.key) : null}
                     draggable="true"
-                    onDragStart={(e) => handleDragStart(e, column.key)}
-                    onDragOver={handleDragOver}
+                    onDragStart={(e) => handleDragStart(column.key)}
+                    onDragOver={(e) => handleDragOver(e, column.key)}
+                    onDragLeave={handleDragLeave}
                     onDrop={(e) => handleDrop(e, column.key)}
+                    onDragEnd={handleDragEnd}
                   >
                     <div className="group relative flex items-center">
                       {column.label}
@@ -209,10 +219,10 @@ export function EnhancedLeadsTable({
                     <TableCell className="w-10">
                       <Checkbox
                         checked={isSelected}
-                        onCheckedChange={(checked) => onLeadSelectionChange([lead.id], checked)}
+                        onCheckedChange={(checked) => onLeadSelectionChange([lead.id], !!checked)}
                       />
                     </TableCell>
-                    {columns.filter(column => column.visible).map(column => (
+                    {dragDropColumns.filter(column => column.visible).map(column => (
                       <TableCell
                         key={`${lead.id}-${column.key}`}
                         className={cn(

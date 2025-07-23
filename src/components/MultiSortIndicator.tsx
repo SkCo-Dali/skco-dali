@@ -1,26 +1,34 @@
 
 import React from 'react';
 import { ChevronUp, ChevronDown } from 'lucide-react';
-import { SortConfig } from '@/hooks/useMultiSort';
 
-interface MultiSortIndicatorProps {
-  sortConfig: SortConfig | undefined;
-  totalSorts: number;
+interface SortDescriptor {
+  columnKey: string;
+  direction: 'asc' | 'desc';
 }
 
-export function MultiSortIndicator({ sortConfig, totalSorts }: MultiSortIndicatorProps) {
-  if (!sortConfig) return null;
+interface MultiSortIndicatorProps {
+  sortDescriptors: SortDescriptor[];
+  columnKey: string;
+}
+
+export function MultiSortIndicator({ sortDescriptors, columnKey }: MultiSortIndicatorProps) {
+  const sortDescriptor = sortDescriptors.find(d => d.columnKey === columnKey);
+  
+  if (!sortDescriptor) return null;
+
+  const sortIndex = sortDescriptors.findIndex(d => d.columnKey === columnKey);
 
   return (
     <div className="flex items-center ml-1">
-      {sortConfig.direction === 'asc' ? (
+      {sortDescriptor.direction === 'asc' ? (
         <ChevronUp className="h-4 w-4" />
       ) : (
         <ChevronDown className="h-4 w-4" />
       )}
-      {totalSorts > 1 && (
+      {sortDescriptors.length > 1 && (
         <span className="text-xs bg-blue-500 text-white rounded-full w-4 h-4 flex items-center justify-center ml-1">
-          {sortConfig.priority}
+          {sortIndex + 1}
         </span>
       )}
     </div>
