@@ -1,353 +1,267 @@
-import React, { useState, useMemo, useEffect, useCallback } from "react"; 
+import React, { useState, useCallback, useMemo, useRef, useEffect } from "react";
 import { Lead } from "@/types/crm";
+import { LeadCard } from "./LeadCard";
+import { ColumnConfig } from "./LeadsTableColumnSelector";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Checkbox } from "@/components/ui/checkbox";
-import { useUsersApi } from "@/hooks/useUsersApi";
-import { useAdvancedFilters } from "@/hooks/useAdvancedFilters";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
+import { 
+  ChevronUp, 
+  ChevronDown, 
+  Mail, 
+  Phone, 
+  User,
+  Calendar,
+  Building,
+  Tag,
+  DollarSign,
+  ArrowUpDown,
+  MoreHorizontal,
+  Trash2,
+  Edit,
+  Eye
+} from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { format } from "date-fns";
+import { es } from "date-fns/locale";
 import { useMultiSort } from "@/hooks/useMultiSort";
+import { MultiSortIndicator } from "./MultiSortIndicator";
 import { useResizableColumns } from "@/hooks/useResizableColumns";
+import { ColumnResizeHandle } from "./ColumnResizeHandle";
 import { useDragDropColumns } from "@/hooks/useDragDropColumns";
 import { useDynamicColumns } from "@/hooks/useDynamicColumns";
-import { FilterButton } from "@/components/table-filters/FilterButton";
-import { MultiSortIndicator } from "@/components/MultiSortIndicator";
-import { ColumnResizeHandle } from "@/components/ColumnResizeHandle";
-import { ColumnConfig } from "@/components/LeadsTableColumnSelector";
-import { getDynamicFieldValue } from "@/utils/dynamicFieldsUtils";
-import { cn } from "@/lib/utils";
 import "./enhanced-leads-table.css";
 
 interface EnhancedLeadsTableProps {
   leads: Lead[];
   paginatedLeads: Lead[];
   onLeadClick: (lead: Lead) => void;
-  onLeadUpdate?: () => void;
+  onLeadUpdate: () => void;
   selectedLeads?: string[];
-  onLeadSelectionChange?: (leadIds: string[], isSelected: boolean) => void;
+  onLeadSelectionChange: (leadIds: string[], isSelected: boolean) => void;
   columns: ColumnConfig[];
   onColumnsChange?: (columns: ColumnConfig[]) => void;
 }
 
-// Define column types for static fields
-const STATIC_COLUMN_TYPES = {
-  name: 'text' as const,
-  email: 'text' as const,
-  phone: 'text' as const,
-  campaign: 'select' as const,
-  source: 'select' as const,
-  stage: 'select' as const,
-  assignedTo: 'select' as const,
-  priority: 'select' as const,
-  value: 'number' as const,
-  createdAt: 'date' as const,
-  updatedAt: 'date' as const,
-  company: 'text' as const,
-  documentNumber: 'number' as const,
-  age: 'number' as const,
-};
+interface SortDescriptor {
+  columnKey: string;
+  direction: 'asc' | 'desc';
+}
 
-export function EnhancedLeadsTable({ 
-  leads, 
-  paginatedLeads, 
-  onLeadClick, 
+function getCellValue(lead: Lead, columnKey: string): string | number | undefined {
+  if (columnKey === 'name') return lead.name;
+  if (columnKey === 'email') return lead.email;
+  if (columnKey === 'phone') return lead.phone;
+  if (columnKey === 'campaign') return lead.campaign;
+  if (columnKey === 'stage') return lead.stage;
+  if (columnKey === 'source') return lead.source;
+  if (columnKey === 'assignedTo') return lead.assignedTo;
+  if (columnKey === 'priority') return lead.priority;
+  if (columnKey === 'value') return lead.value;
+  if (columnKey === 'createdAt') return lead.createdAt;
+  if (columnKey === 'updatedAt') return lead.updatedAt;
+  if (columnKey === 'company') return lead.company;
+  if (columnKey === 'documentNumber') return lead.documentNumber;
+  if (columnKey === 'age') return lead.age;
+  
+  // Handle dynamic fields
+  if (columnKey.startsWith('additional_')) {
+    const dynamicKey = columnKey.replace('additional_', '');
+    return (lead.additionalInfo && lead.additionalInfo[dynamicKey]) as string | number | undefined;
+  }
+
+  return undefined;
+}
+
+export function EnhancedLeadsTable({
+  leads,
+  paginatedLeads,
+  onLeadClick,
   onLeadUpdate,
   selectedLeads = [],
   onLeadSelectionChange,
-  columns,
+  columns: propColumns,
   onColumnsChange
 }: EnhancedLeadsTableProps) {
-  const { users } = useUsersApi();
-  
-  // Debug: Log when component receives new columns
-  useEffect(() => {
-    console.log('📊 EnhancedLeadsTable received columns:', columns.length);
-    console.log('📊 Dynamic columns in received:', columns.filter(c => c.key.startsWith('additional_')).length);
-  }, [columns]);
+  const [columns, setColumns] = useState<ColumnConfig[]>(propColumns);
+  const [sortDescriptors, setSortDescriptors] = useState<SortDescriptor[]>([]);
+  const [isColumnSelectorOpen, setIsColumnSelectorOpen] = useState(false);
+  const tableRef = useRef<HTMLTableElement>(null);
 
-  // Extract dynamic columns and flatten leads
-  const { dynamicColumns, flattenedLeads, dynamicColumnTypes } = useDynamicColumns(
-    leads, 
-    onColumnsChange
+  const { handleResizeStart, isResizing, resizingColumn, updateColumnWidth } = useResizableColumns(columns);
+  const { handleDragStart, handleDragOver, handleDrop } = useDragDropColumns(columns, setColumns);
+  const { dynamicFields, dynamicColumns, flattenedLeads, dynamicColumnTypes, mergeColumns } = useDynamicColumns(leads, onColumnsChange);
+
+  const sortedLeads = useMultiSort({
+    items: paginatedLeads,
+    sortDescriptors,
+    getCellValue
+  });
+
+  const handleColumnVisibilityChange = (key: string, visible: boolean) => {
+    setColumns(prevColumns =>
+      prevColumns.map(column =>
+        column.key === key ? { ...column, visible } : column
+      )
+    );
+  };
+
+  const handleSelectAllChange = useCallback(
+    (checked: boolean) => {
+      const leadIds = paginatedLeads.map((lead) => lead.id);
+      onLeadSelectionChange(leadIds, checked);
+    },
+    [paginatedLeads, onLeadSelectionChange]
   );
+
+  const isAllSelected = useMemo(() => {
+    if (paginatedLeads.length === 0) return false;
+    return paginatedLeads.every(lead => selectedLeads.includes(lead.id));
+  }, [selectedLeads, paginatedLeads]);
+
+  const handleColumnHeaderClick = (columnKey: string) => {
+    setSortDescriptors(
+      (prevSortDescriptors) => {
+        const existingDescriptor = prevSortDescriptors.find(d => d.columnKey === columnKey);
   
-  // Use the columns prop directly
-  const visibleColumns = useMemo(() => {
-    const visible = columns.filter(col => col.visible);
-    console.log('📊 Visible columns:', visible.length, visible.map(c => c.key));
-    return visible;
-  }, [columns]);
-  
-  // Process leads with user names
-  const processedLeads = useMemo(() => {
-    return flattenedLeads.map(lead => ({
-      ...lead,
-      assignedToName: users.find(u => u.id === lead.assignedTo)?.name || 'Sin asignar'
-    }));
-  }, [flattenedLeads, users]);
-
-  // Combine static and dynamic column types
-  const allColumnTypes = useMemo(() => {
-    return {
-      ...STATIC_COLUMN_TYPES,
-      assignedToName: 'select' as const,
-      ...dynamicColumnTypes
-    };
-  }, [dynamicColumnTypes]);
-  
-  // Use advanced filters hook
-  const { filteredData, filters, setColumnFilter, clearAllFilters, hasActiveFilters } = useAdvancedFilters(processedLeads, allColumnTypes);
-  
-  // Use multi-sort hook
-  const { sortedData, sortConfigs, handleSort, clearSort, getSortConfig } = useMultiSort(filteredData);
-  
-  // Use resizable columns hook
-  const { columns: resizableColumns, handleResizeStart, isResizing, resizingColumn } = useResizableColumns(visibleColumns);
-  
-  // Use drag and drop columns hook
-  const { 
-    columns: orderedColumns, 
-    draggedColumn, 
-    dragOverColumn,
-    handleDragStart,
-    handleDragOver,
-    handleDragLeave,
-    handleDrop,
-    handleDragEnd 
-  } = useDragDropColumns(resizableColumns);
-
-  // STABLE handlers to prevent re-creation on every render
-  const handleSelectAll = useCallback((checked: boolean) => {
-    const currentPageLeadIds = paginatedLeads.map(lead => lead.id);
-    if (onLeadSelectionChange) {
-      onLeadSelectionChange(currentPageLeadIds, checked);
-    }
-  }, [paginatedLeads, onLeadSelectionChange]);
-
-  const handleSelectLead = useCallback((leadId: string, checked: boolean) => {
-    if (onLeadSelectionChange) {
-      onLeadSelectionChange([leadId], checked);
-    }
-  }, [onLeadSelectionChange]);
-
-  const handleColumnSort = useCallback((columnKey: string, e: React.MouseEvent) => {
-    const isMultiSort = e.ctrlKey || e.metaKey;
-    handleSort(columnKey, isMultiSort);
-  }, [handleSort]);
-
-  // STABLE filter data getter
-  const getFilterData = useCallback((columnKey: string) => {
-    if (columnKey === 'assignedTo') {
-      return processedLeads.map(lead => ({
-        ...lead,
-        assignedTo: lead.assignedToName
-      }));
-    }
-    return processedLeads;
-  }, [processedLeads]);
-
-  // Cell renderer
-  const renderCellContent = useCallback((lead: Lead, columnKey: string) => {
-    const assignedUser = users.find(u => u.id === lead.assignedTo);
-
-    // Handle dynamic columns
-    if (columnKey.startsWith('additional_')) {
-      const fieldKey = columnKey.replace('additional_', '');
-      const value = getDynamicFieldValue(lead, fieldKey);
-      console.log(`🔍 Rendering dynamic field ${fieldKey}:`, value);
-      return <div className="text-gray-700 text-xs">{value?.toString() || '-'}</div>;
-    }
-
-    // Handle static columns
-    
-    switch (columnKey) {
-      case 'name':
-        return (
-          <div 
-            className="text-gray-900 font-bold text-xs truncate cursor-pointer hover:text-[#00c83c]"
-            onClick={(e) => {
-              e.stopPropagation();
-              onLeadClick(lead);
-            }}
-          >
-            {lead.name}
-          </div>
-        );
-      case 'email':
-        return <div className="text-gray-700 text-xs">{lead.email || '-'}</div>;
-      case 'phone':
-        return <div className="text-gray-700 text-xs">{lead.phone || '-'}</div>;
-      case 'campaign':
-        return <div className="text-gray-700 text-xs">{lead.campaign || '-'}</div>;
-      case 'stage':
-        return <div className="text-gray-700 text-xs">{lead.stage}</div>;
-      case 'assignedTo':
-        return <div className="text-gray-700 text-xs">{assignedUser?.name || 'Sin asignar'}</div>;
-      case 'source':
-        return <div className="text-gray-700 text-xs">{lead.source}</div>;
-      case 'priority':
-        return <div className="text-gray-700 text-xs">{lead.priority}</div>;
-      case 'value':
-        return <div className="text-gray-700 text-xs">${lead.value.toLocaleString()}</div>;
-      case 'company':
-        return <div className="text-gray-700 text-xs">{lead.company || '-'}</div>;
-      case 'documentNumber':
-        return <div className="text-gray-700 text-xs">{lead.documentNumber || '-'}</div>;
-      case 'age':
-        return <div className="text-gray-700 text-xs">{lead.age || '-'}</div>;
-      case 'createdAt':
-        return <div className="text-gray-700 text-xs">{new Date(lead.createdAt).toLocaleDateString()}</div>;
-      case 'updatedAt':
-        return <div className="text-gray-700 text-xs">{new Date(lead.updatedAt).toLocaleDateString()}</div>;
-      default:
-        return <div className="text-gray-700 text-xs">-</div>;
-    }
-  }, [users, onLeadClick]);
-
-  // STABLE table width calculation
-  const tableWidth = useMemo(() => {
-    const checkboxColumnWidth = 50;
-    const totalColumnsWidth = orderedColumns.reduce((total, col) => {
-      return total + (col.width || (col.key === 'name' ? 350 : 250));
-    }, 0);
-    
-    return checkboxColumnWidth + totalColumnsWidth;
-  }, [orderedColumns]);
-
-  const isAllSelected = paginatedLeads.length > 0 && paginatedLeads.every(lead => selectedLeads.includes(lead.id));
-  const isIndeterminate = paginatedLeads.some(lead => selectedLeads.includes(lead.id)) && !isAllSelected;
+        if (existingDescriptor) {
+          if (existingDescriptor.direction === 'asc') {
+            // Change to descending
+            return prevSortDescriptors.map(d =>
+              d.columnKey === columnKey ? { ...d, direction: 'desc' as const } : d
+            );
+          } else {
+            // Remove the sort descriptor
+            return prevSortDescriptors.filter(d => d.columnKey !== columnKey);
+          }
+        } else {
+          // Add new sort descriptor with ascending direction
+          return [...prevSortDescriptors, { columnKey, direction: 'asc' as const }];
+        }
+      }
+    );
+  };
 
   return (
-    <div className="space-y-4">
-      
-      
-      {(hasActiveFilters || sortConfigs.length > 0) && (
-        <div className="flex items-center justify-between p-2 bg-blue-50 rounded">
-          <div className="flex items-center space-x-4">
-            {hasActiveFilters && (
-              <span className="text-sm text-blue-700">
-                {Object.keys(filters).length} filtro(s) activo(s) - Mostrando {filteredData.length} de {leads.length} leads
-              </span>
-            )}
-            {sortConfigs.length > 0 && (
-              <span className="text-sm text-green-700">
-                Ordenado por {sortConfigs.length} columna(s)
-              </span>
-            )}
-          </div>
-          <div className="flex space-x-2">
-            {hasActiveFilters && (
-              <button 
-                onClick={clearAllFilters}
-                className="text-sm text-blue-600 hover:text-blue-800 underline"
-              >
-                Limpiar filtros
-              </button>
-            )}
-            {sortConfigs.length > 0 && (
-              <button 
-                onClick={clearSort}
-                className="text-sm text-green-600 hover:text-green-800 underline"
-              >
-                Limpiar ordenamiento
-              </button>
-            )}
-          </div>
-        </div>
-      )}
-
-      <div className="text-xs text-gray-500 p-2 bg-gray-50 rounded">
-        💡 Mantén Ctrl/Cmd + clic para ordenamiento múltiple. Arrastra las columnas para reordenar. Arrastra el borde derecho para redimensionar.
-      </div>
-
-      {/* Table Container */}
-      <div className="leads-table-container-scroll">
-        <div className="leads-table-scroll-wrapper">
-          <div className="leads-table-inner-scroll">
-            <Table 
-              className="w-full"
-              style={{ 
-                width: `${tableWidth}px`,
-                minWidth: `${tableWidth}px`
-              }}
-            >
-              <TableHeader className="leads-table-header-sticky">
-                <TableRow className="bg-[#fafafa] border-b border-[#fafafa]">
-                  <TableHead className="w-[50px] px-4 py-3 text-center">
-                    <Checkbox
-                      checked={isAllSelected}
-                      onCheckedChange={handleSelectAll}
-                      className={isIndeterminate ? "data-[state=indeterminate]:bg-primary" : ""}
-                      {...(isIndeterminate ? { "data-state": "indeterminate" } : {})}
-                    />
-                  </TableHead>
-                  {orderedColumns.map((column) => (
-                    <TableHead 
-                      key={column.key}
-                      className={cn(
-                        "relative select-none cursor-pointer px-4 py-3 text-center text-xs font-medium text-gray-600 capitalize tracking-wider",
-                        column.key === 'name' ? "leads-name-column-sticky" : "leads-regular-column",
-                        draggedColumn === column.key && "opacity-50",
-                        dragOverColumn === column.key && "bg-blue-100"
-                      )}
-                      style={{ width: column.width }}
-                      draggable
-                      onDragStart={() => handleDragStart(column.key)}
-                      onDragOver={(e) => handleDragOver(e, column.key)}
-                      onDragLeave={handleDragLeave}
-                      onDrop={(e) => handleDrop(e, column.key)}
-                      onDragEnd={handleDragEnd}
-                    >
-                      <div className="flex items-center justify-center space-x-2">
-                        <button
-                          onClick={(e) => handleColumnSort(column.key, e)}
-                          className="flex items-center hover:text-foreground cursor-pointer"
-                        >
-                          {column.label}
-                          <MultiSortIndicator 
-                            sortConfig={getSortConfig(column.key)}
-                            totalSorts={sortConfigs.length}
-                          />
-                        </button>
-                        <FilterButton
-                          column={{ ...column, type: allColumnTypes[column.key as keyof typeof allColumnTypes] }}
-                          data={getFilterData(column.key)}
-                          currentFilter={filters[column.key]}
-                          onFilterChange={(filter) => setColumnFilter(column.key, filter)}
+    <div className="leads-table-container-scroll">
+      <div className="leads-table-scroll-wrapper">
+        <div className="leads-table-inner-scroll">
+          <Table disableWrapper={true} className="min-w-full">
+            <TableHeader className="leads-table-header-sticky">
+              <TableRow>
+                <TableHead className="w-10">
+                  <Checkbox
+                    checked={isAllSelected}
+                    onCheckedChange={handleSelectAllChange}
+                  />
+                </TableHead>
+                {columns.filter(column => column.visible).map((column, index) => (
+                  <TableHead
+                    key={column.key}
+                    className={cn(
+                      "cursor-pointer",
+                      column.key === 'name' ? "leads-name-column-sticky" : "leads-regular-column",
+                      sortDescriptors.some(d => d.columnKey === column.key) ? "text-primary" : "text-muted-foreground",
+                    )}
+                    style={{
+                      width: `${column.width}px`,
+                      minWidth: `${column.width}px`,
+                      maxWidth: `${column.width}px`,
+                    }}
+                    onClick={() => column.sortable ? handleColumnHeaderClick(column.key) : null}
+                    draggable="true"
+                    onDragStart={(e) => handleDragStart(e, column.key)}
+                    onDragOver={handleDragOver}
+                    onDrop={(e) => handleDrop(e, column.key)}
+                  >
+                    <div className="group relative flex items-center">
+                      {column.label}
+                      {column.sortable && (
+                        <MultiSortIndicator 
+                          sortDescriptors={sortDescriptors}
+                          columnKey={column.key}
                         />
-                      </div>
+                      )}
                       <ColumnResizeHandle
-                        onResizeStart={(startX) => handleResizeStart(column.key, startX)}
+                        columnKey={column.key}
+                        onResizeStart={handleResizeStart}
                         isResizing={isResizing && resizingColumn === column.key}
                       />
-                    </TableHead>
-                  ))}
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {sortedData.slice(0, 50).map((lead) => (
-                  <TableRow key={lead.id} className="hover:bg-muted/50">
-                    <TableCell className="w-[50px] px-4 py-3 text-center">
+                    </div>
+                  </TableHead>
+                ))}
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {sortedLeads.map((lead) => {
+                const isSelected = selectedLeads.includes(lead.id);
+                return (
+                  <TableRow key={lead.id} data-state={isSelected ? "selected" : "unselected"}>
+                    <TableCell className="w-10">
                       <Checkbox
-                        checked={selectedLeads.includes(lead.id)}
-                        onCheckedChange={(checked) => handleSelectLead(lead.id, checked as boolean)}
+                        checked={isSelected}
+                        onCheckedChange={(checked) => onLeadSelectionChange([lead.id], checked)}
                       />
                     </TableCell>
-                    {orderedColumns.map((column) => (
-                      <TableCell 
-                        key={column.key}
+                    {columns.filter(column => column.visible).map(column => (
+                      <TableCell
+                        key={`${lead.id}-${column.key}`}
                         className={cn(
-                          "px-4 py-3 text-xs text-center",
-                          column.key === 'name' ? "leads-name-column-sticky" : "leads-regular-column"
+                          column.key === 'name' ? "leads-name-column-sticky" : "leads-regular-column",
                         )}
-                        style={{ width: column.width }}
+                        style={{
+                          width: `${column.width}px`,
+                          minWidth: `${column.width}px`,
+                          maxWidth: `${column.width}px`,
+                        }}
                       >
-                        {renderCellContent(lead, column.key)}
+                        {column.key === 'name' && (
+                          <div className="flex items-center gap-2">
+                            <Button variant="ghost" size="sm" onClick={() => onLeadClick(lead)}>
+                              {lead.name}
+                            </Button>
+                          </div>
+                        )}
+                        {column.key === 'email' && (
+                          <a href={`mailto:${lead.email}`} className="text-blue-500 hover:underline">
+                            {lead.email}
+                          </a>
+                        )}
+                        {column.key === 'phone' && (
+                          <a href={`tel:${lead.phone}`} className="text-blue-500 hover:underline">
+                            {lead.phone}
+                          </a>
+                        )}
+                        {column.key === 'campaign' && lead.campaign}
+                        {column.key === 'stage' && lead.stage}
+                        {column.key === 'source' && lead.source}
+                        {column.key === 'assignedTo' && lead.assignedTo}
+                        {column.key === 'priority' && lead.priority}
+                        {column.key === 'value' && lead.value}
+                        {column.key === 'createdAt' && lead.createdAt}
+                        {column.key === 'updatedAt' && lead.updatedAt}
+                        {column.key === 'company' && lead.company}
+                        {column.key === 'documentNumber' && lead.documentNumber}
+                        {column.key === 'age' && lead.age}
+                        {column.key.startsWith('additional_') && (
+                          <span>{getCellValue(lead, column.key)}</span>
+                        )}
                       </TableCell>
                     ))}
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
+                );
+              })}
+            </TableBody>
+          </Table>
         </div>
       </div>
     </div>
