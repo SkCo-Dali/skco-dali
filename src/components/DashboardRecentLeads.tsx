@@ -38,10 +38,10 @@ export function DashboardRecentLeads({ leads }: DashboardRecentLeadsProps) {
 
   // Basic columns for dashboard view
   const basicColumns = [
-    { key: 'name', label: 'Nombre', visible: true, width: 200 },
-    { key: 'email', label: 'Email', visible: true, width: 200 },
-    { key: 'stage', label: 'Etapa', visible: true, width: 150 },
-    { key: 'updatedAt', label: 'Actualizado', visible: true, width: 150 }
+    { key: 'name', label: 'Nombre', visible: true, width: 200, sortable: true },
+    { key: 'email', label: 'Email', visible: true, width: 200, sortable: true },
+    { key: 'stage', label: 'Etapa', visible: true, width: 150, sortable: true },
+    { key: 'updatedAt', label: 'Actualizado', visible: true, width: 150, sortable: true }
   ];
 
   return (
