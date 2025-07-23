@@ -21,8 +21,15 @@ export function useResizableColumns(initialColumns: ColumnConfig[]) {
   const [isResizing, setIsResizing] = useState(false);
   const [resizingColumn, setResizingColumn] = useState<string | null>(null);
   const resizeStartRef = useRef<{ x: number; width: number } | null>(null);
+  const isResizingRef = useRef(false); // Add ref to track resize state
+  const columnsRef = useRef(columns); // Add ref to avoid stale closures
 
-  // Actualizar columnas cuando cambien las iniciales
+  // Update columns ref when columns change
+  useEffect(() => {
+    columnsRef.current = columns;
+  }, [columns]);
+
+  // Actualizar columnas cuando cambien las iniciales - OPTIMIZED
   useEffect(() => {
     setColumns(prev => {
       const newColumns = initialColumns.map(col => {
@@ -39,38 +46,65 @@ export function useResizableColumns(initialColumns: ColumnConfig[]) {
   }, [initialColumns]);
 
   const handleResizeStart = useCallback((columnKey: string, startX: number) => {
-    const column = columns.find(col => col.key === columnKey);
-    if (!column) return;
+    const column = columnsRef.current.find(col => col.key === columnKey);
+    if (!column || isResizingRef.current) return;
 
+    console.log('🔧 Starting column resize for:', columnKey);
+    
     setIsResizing(true);
     setResizingColumn(columnKey);
+    isResizingRef.current = true;
     resizeStartRef.current = { x: startX, width: column.width };
 
+    // Use requestAnimationFrame to throttle updates
+    let animationFrameId: number;
+
     const handleMouseMove = (e: MouseEvent) => {
-      if (!resizeStartRef.current) return;
+      if (!resizeStartRef.current || !isResizingRef.current) return;
 
-      const deltaX = e.clientX - resizeStartRef.current.x;
-      const newWidth = Math.max(
-        column.minWidth,
-        Math.min(column.maxWidth, resizeStartRef.current.width + deltaX)
-      );
+      // Cancel previous frame
+      if (animationFrameId) {
+        cancelAnimationFrame(animationFrameId);
+      }
 
-      setColumns(prev => prev.map(col =>
-        col.key === columnKey ? { ...col, width: newWidth } : col
-      ));
+      // Schedule update for next frame
+      animationFrameId = requestAnimationFrame(() => {
+        if (!resizeStartRef.current) return;
+
+        const deltaX = e.clientX - resizeStartRef.current.x;
+        const currentColumn = columnsRef.current.find(col => col.key === columnKey);
+        if (!currentColumn) return;
+
+        const newWidth = Math.max(
+          currentColumn.minWidth,
+          Math.min(currentColumn.maxWidth, resizeStartRef.current.width + deltaX)
+        );
+
+        setColumns(prev => prev.map(col =>
+          col.key === columnKey ? { ...col, width: newWidth } : col
+        ));
+      });
     };
 
     const handleMouseUp = () => {
+      console.log('🔧 Ending column resize for:', columnKey);
+      
+      if (animationFrameId) {
+        cancelAnimationFrame(animationFrameId);
+      }
+      
       setIsResizing(false);
       setResizingColumn(null);
+      isResizingRef.current = false;
       resizeStartRef.current = null;
+      
       document.removeEventListener('mousemove', handleMouseMove);
       document.removeEventListener('mouseup', handleMouseUp);
     };
 
     document.addEventListener('mousemove', handleMouseMove);
     document.addEventListener('mouseup', handleMouseUp);
-  }, [columns]);
+  }, []); // Remove columns dependency to prevent recreation
 
   const updateColumnWidth = useCallback((columnKey: string, width: number) => {
     setColumns(prev => prev.map(col =>
