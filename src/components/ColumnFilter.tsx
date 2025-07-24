@@ -91,7 +91,7 @@ export function ColumnFilter({
     e.preventDefault();
     e.stopPropagation();
     onSortChange(column, direction);
-    setIsOpen(false); // Cerrar el popover después de ordenar
+    setIsOpen(false);
   };
 
   const isAllSelected = filteredValues.length > 0 && 
@@ -114,13 +114,20 @@ export function ColumnFilter({
           <Filter className="h-3 w-3" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-80 p-0 bg-white border shadow-lg z-50" align="start">
-        <div className="p-4">
+      <PopoverContent 
+        className="w-80 p-0 bg-white border shadow-lg z-50" 
+        align="start"
+        onPointerDownOutside={(e) => e.preventDefault()}
+      >
+        <div className="p-4" onClick={(e) => e.stopPropagation()}>
           {/* Header con tabs */}
           <div className="flex mb-4">
             <div className="flex bg-gray-100 rounded-lg p-1">
               <button 
-                onClick={() => setActiveTab('values')}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setActiveTab('values');
+                }}
                 className={`px-4 py-2 text-sm font-medium rounded-md ${
                   activeTab === 'values' 
                     ? 'text-white bg-green-500' 
@@ -130,7 +137,10 @@ export function ColumnFilter({
                 Values
               </button>
               <button 
-                onClick={() => setActiveTab('text')}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setActiveTab('text');
+                }}
                 className={`px-4 py-2 text-sm font-medium rounded-md ${
                   activeTab === 'text' 
                     ? 'text-white bg-green-500' 
@@ -175,8 +185,12 @@ export function ColumnFilter({
                 <Input
                   placeholder="Search"
                   value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
+                  onChange={(e) => {
+                    e.stopPropagation();
+                    setSearchTerm(e.target.value);
+                  }}
                   className="pl-10"
+                  onClick={(e) => e.stopPropagation()}
                 />
               </div>
 
@@ -186,11 +200,20 @@ export function ColumnFilter({
                 <div className="flex items-center space-x-2 p-2 hover:bg-gray-50">
                   <Checkbox
                     checked={isAllSelected}
-                    onCheckedChange={handleSelectAll}
+                    onCheckedChange={(checked) => {
+                      handleSelectAll(checked as boolean);
+                    }}
                     className={isIndeterminate ? "data-[state=indeterminate]:bg-primary" : ""}
                     {...(isIndeterminate ? { "data-state": "indeterminate" } : {})}
+                    onClick={(e) => e.stopPropagation()}
                   />
-                  <label className="text-sm font-medium text-gray-700">
+                  <label 
+                    className="text-sm font-medium text-gray-700 cursor-pointer"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleSelectAll(!isAllSelected);
+                    }}
+                  >
                     (Select All)
                   </label>
                 </div>
@@ -201,8 +224,15 @@ export function ColumnFilter({
                     <Checkbox
                       checked={selectedValues.includes(value)}
                       onCheckedChange={(checked) => handleValueChange(value, checked as boolean)}
+                      onClick={(e) => e.stopPropagation()}
                     />
-                    <label className="text-sm text-gray-700 cursor-pointer flex-1">
+                    <label 
+                      className="text-sm text-gray-700 cursor-pointer flex-1"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleValueChange(value, !selectedValues.includes(value));
+                      }}
+                    >
                       {value}
                     </label>
                   </div>
@@ -214,7 +244,10 @@ export function ColumnFilter({
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={handleClear}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleClear();
+                  }}
                   className="text-gray-600"
                 >
                   Clear
@@ -223,14 +256,20 @@ export function ColumnFilter({
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={handleCancel}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleCancel();
+                    }}
                     className="text-gray-600"
                   >
                     Cancel
                   </Button>
                   <Button
                     size="sm"
-                    onClick={handleApply}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleApply();
+                    }}
                     className="bg-green-500 hover:bg-green-600 text-white"
                   >
                     OK
@@ -239,12 +278,14 @@ export function ColumnFilter({
               </div>
             </>
           ) : (
-            <TextFilter
-              column={column}
-              data={data}
-              onFilterChange={onTextFilterChange}
-              currentConditions={currentTextFilters}
-            />
+            <div onClick={(e) => e.stopPropagation()}>
+              <TextFilter
+                column={column}
+                data={data}
+                onFilterChange={onTextFilterChange}
+                currentConditions={currentTextFilters}
+              />
+            </div>
           )}
         </div>
       </PopoverContent>
