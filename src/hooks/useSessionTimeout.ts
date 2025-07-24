@@ -65,13 +65,14 @@ export const useSessionTimeout = ({
     console.log(`⏰ Timer de sesión reiniciado: ${timeoutMinutes} minutos`);
   }, [user, timeoutMinutes, warningMinutes, handleTimeout, handleWarning, clearTimeouts]);
 
+  // Optimized activity handler with throttling
   const handleActivity = useCallback(() => {
     const now = Date.now();
     const timeSinceLastActivity = now - lastActivityRef.current;
     
-    // Solo reiniciar el timer si ha pasado más de 1 minuto desde la última actividad
-    // para evitar demasiadas reinicios
-    if (timeSinceLastActivity > 60000) {
+    // Solo reiniciar el timer si ha pasado más de 5 minutos desde la última actividad
+    // para evitar demasiadas reinicios que causen re-renders
+    if (timeSinceLastActivity > 300000) { // 5 minutos en lugar de 1 minuto
       resetTimer();
     }
   }, [resetTimer]);
@@ -85,17 +86,35 @@ export const useSessionTimeout = ({
     // Inicializar timer
     resetTimer();
 
-    // Eventos de actividad del usuario
-    const events = ['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart', 'click'];
+    // Usar un throttled event handler para evitar demasiadas llamadas
+    let throttleTimer: NodeJS.Timeout | null = null;
+    
+    const throttledHandler = () => {
+      if (throttleTimer) return;
+      
+      throttleTimer = setTimeout(() => {
+        handleActivity();
+        throttleTimer = null;
+      }, 1000); // Throttle de 1 segundo
+    };
+
+    // Eventos de actividad del usuario con throttling
+    const events = ['mousedown', 'keypress', 'scroll', 'touchstart', 'click'];
     
     events.forEach(event => {
-      document.addEventListener(event, handleActivity, { passive: true });
+      document.addEventListener(event, throttledHandler, { passive: true });
     });
+
+    // Remover mousemove del array de eventos para evitar re-renders excesivos
+    // Solo usar eventos más significativos de actividad del usuario
 
     return () => {
       clearTimeouts();
+      if (throttleTimer) {
+        clearTimeout(throttleTimer);
+      }
       events.forEach(event => {
-        document.removeEventListener(event, handleActivity);
+        document.removeEventListener(event, throttledHandler);
       });
     };
   }, [user, resetTimer, handleActivity, clearTimeouts]);
