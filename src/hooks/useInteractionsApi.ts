@@ -20,7 +20,11 @@ export const useInteractionsApi = () => {
   const { toast } = useToast();
 
   // Crear nueva interacción desde un lead
-  const createInteractionFromLead = async (lead: Lead): Promise<boolean> => {
+  const createInteractionFromLead = async (
+    lead: Lead, 
+    interactionType: 'call' | 'email' | 'meeting' | 'note' | 'whatsapp' | 'sms' = 'note',
+    outcome: 'positive' | 'negative' | 'neutral' = 'neutral'
+  ): Promise<boolean> => {
     if (!user?.id) {
       toast({
         title: "Error",
@@ -31,7 +35,7 @@ export const useInteractionsApi = () => {
     }
 
     // Validar que los campos necesarios estén presentes
-    if (!lead.type || !lead.outcome || !lead.stage || !lead.notes) {
+    if (!interactionType || !outcome || !lead.stage || !lead.notes) {
       toast({
         title: "Campos incompletos",
         description: "Debe completar Medio de Contacto, Resultado, Etapa y Notas para crear la interacción",
@@ -45,10 +49,10 @@ export const useInteractionsApi = () => {
       const interactionData: CreateInteractionRequest = {
         LeadId: lead.id,
         UserId: user.id,
-        Type: lead.type,
+        Type: interactionType,
         Description: lead.notes,
         Stage: lead.stage,
-        Outcome: lead.outcome
+        Outcome: outcome
       };
 
       await createInteraction(interactionData);

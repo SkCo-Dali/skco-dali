@@ -55,7 +55,7 @@ export const useLeadsApi = () => {
       priority: reassignableLead.Priority || reassignableLead.priority,
       value: parseFloat(reassignableLead.Value) || reassignableLead.value || 0,
       assignedTo: reassignableLead.AssignedTo || reassignableLead.assigned_to,
-      createdBy: reassignableLead.CreatedBy || reassignableLead.created_by || '1', // Add createdBy with fallback
+      createdBy: reassignableLead.CreatedBy || reassignableLead.created_by || '1',
       createdAt: reassignableLead.CreatedAt || reassignableLead.created_at,
       updatedAt: reassignableLead.UpdatedAt || reassignableLead.updated_at,
       nextFollowUp: reassignableLead.NextFollowUp || reassignableLead.nextFollowUp,
@@ -75,7 +75,8 @@ export const useLeadsApi = () => {
       portfolio: reassignableLead.SelectedPortfolios ? 
         (typeof reassignableLead.SelectedPortfolios === 'string' ? 
           JSON.parse(reassignableLead.SelectedPortfolios)[0] : reassignableLead.SelectedPortfolios[0]) || 'Portfolio A' : 'Portfolio A',
-      additionalInfo: additionalInfo
+      additionalInfo: additionalInfo,
+      interactions: []
     };
     
     console.log('✅ Final mapped lead with AdditionalInfo:', JSON.stringify(mappedLead, null, 2));
