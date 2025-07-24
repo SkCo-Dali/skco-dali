@@ -1,5 +1,4 @@
 
-
 import { PromptTemplate } from '../types/templates';
 import { ENV } from '@/config/environment';
 
@@ -46,10 +45,16 @@ class TemplatesService {
       
       if (tokenData && tokenData.token) {
         headers['Authorization'] = `Bearer ${tokenData.token}`;
-        // Also add X-User-Id header as required by the API
-        if (tokenData.email) {
-          headers['X-User-Id'] = tokenData.email;
+        
+        // Get user email from session storage for X-User-Id header
+        const userDataString = sessionStorage.getItem('skandia-crm-user');
+        if (userDataString) {
+          const userData = JSON.parse(userDataString);
+          if (userData.email) {
+            headers['X-User-Id'] = userData.email;
+          }
         }
+        
         console.log('TemplatesService: Added Authorization header with ID Token and X-User-Id');
       } else {
         console.warn('TemplatesService: No valid token found in SecureTokenManager');
@@ -102,7 +107,7 @@ class TemplatesService {
   ): Promise<PromptTemplate[]> {
     try {
       const params = new URLSearchParams({
-        is_default: isDefault.toString(), // Revertido a is_default
+        is_default: isDefault.toString(),
         ...(options?.category && { category: options.category }),
         ...(options?.search && { search: options.search }),
         ...(options?.limit && { limit: options.limit.toString() }),
