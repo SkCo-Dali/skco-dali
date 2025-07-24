@@ -1,21 +1,34 @@
 
 import { useState, useEffect, useMemo } from "react";
-import { Search, Filter } from "lucide-react";
+import { Search, Filter, ArrowUp, ArrowDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Lead } from "@/types/crm";
+import { TextFilter, TextFilterCondition } from "@/components/TextFilter";
 
 interface ColumnFilterProps {
   column: string;
   data: Lead[];
   onFilterChange: (column: string, selectedValues: string[]) => void;
+  onTextFilterChange: (column: string, conditions: TextFilterCondition[]) => void;
+  onSortChange: (column: string, direction: 'asc' | 'desc') => void;
   currentFilters: string[];
+  currentTextFilters: TextFilterCondition[];
 }
 
-export function ColumnFilter({ column, data, onFilterChange, currentFilters }: ColumnFilterProps) {
+export function ColumnFilter({ 
+  column, 
+  data, 
+  onFilterChange, 
+  onTextFilterChange,
+  onSortChange,
+  currentFilters,
+  currentTextFilters 
+}: ColumnFilterProps) {
   const [isOpen, setIsOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState<'values' | 'text'>('values');
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedValues, setSelectedValues] = useState<string[]>(currentFilters);
 
@@ -75,10 +88,17 @@ export function ColumnFilter({ column, data, onFilterChange, currentFilters }: C
     setIsOpen(false);
   };
 
+  const handleSort = (direction: 'asc' | 'desc') => {
+    onSortChange(column, direction);
+    setIsOpen(false);
+  };
+
   const isAllSelected = filteredValues.length > 0 && 
     filteredValues.every(value => selectedValues.includes(value));
   const isIndeterminate = filteredValues.some(value => selectedValues.includes(value)) && 
     !isAllSelected;
+
+  const hasActiveFilters = currentFilters.length > 0 || currentTextFilters.length > 0;
 
   return (
     <Popover open={isOpen} onOpenChange={setIsOpen}>
@@ -87,94 +107,144 @@ export function ColumnFilter({ column, data, onFilterChange, currentFilters }: C
           variant="ghost"
           size="sm"
           className={`h-6 w-6 p-0 hover:bg-gray-100 ${
-            currentFilters.length > 0 ? 'text-green-600' : 'text-gray-400'
+            hasActiveFilters ? 'text-green-600' : 'text-gray-400'
           }`}
         >
           <Filter className="h-3 w-3" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-80 p-0 bg-white border shadow-lg" align="start">
+      <PopoverContent className="w-80 p-0 bg-white border shadow-lg z-50" align="start">
         <div className="p-4">
           {/* Header con tabs */}
           <div className="flex mb-4">
             <div className="flex bg-gray-100 rounded-lg p-1">
-              <button className="px-4 py-2 text-sm font-medium text-white bg-green-500 rounded-md">
+              <button 
+                onClick={() => setActiveTab('values')}
+                className={`px-4 py-2 text-sm font-medium rounded-md ${
+                  activeTab === 'values' 
+                    ? 'text-white bg-green-500' 
+                    : 'text-gray-600 hover:bg-gray-200'
+                }`}
+              >
                 Values
               </button>
-              <button className="px-4 py-2 text-sm font-medium text-gray-600">
+              <button 
+                onClick={() => setActiveTab('text')}
+                className={`px-4 py-2 text-sm font-medium rounded-md ${
+                  activeTab === 'text' 
+                    ? 'text-white bg-green-500' 
+                    : 'text-gray-600 hover:bg-gray-200'
+                }`}
+              >
                 Text Filters
               </button>
             </div>
           </div>
 
-          {/* Campo de búsqueda */}
-          <div className="relative mb-4">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-            <Input
-              placeholder="Search"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10"
-            />
-          </div>
-
-          {/* Lista de valores */}
-          <div className="max-h-60 overflow-y-auto">
-            {/* Select All */}
-            <div className="flex items-center space-x-2 p-2 hover:bg-gray-50">
-              <Checkbox
-                checked={isAllSelected}
-                onCheckedChange={handleSelectAll}
-                className={isIndeterminate ? "data-[state=indeterminate]:bg-primary" : ""}
-                {...(isIndeterminate ? { "data-state": "indeterminate" } : {})}
-              />
-              <label className="text-sm font-medium text-gray-700">
-                (Select All)
-              </label>
-            </div>
-
-            {/* Valores filtrados */}
-            {filteredValues.map((value) => (
-              <div key={value} className="flex items-center space-x-2 p-2 hover:bg-gray-50">
-                <Checkbox
-                  checked={selectedValues.includes(value)}
-                  onCheckedChange={(checked) => handleValueChange(value, checked as boolean)}
-                />
-                <label className="text-sm text-gray-700 cursor-pointer flex-1">
-                  {value}
-                </label>
-              </div>
-            ))}
-          </div>
-
-          {/* Botones de acción */}
-          <div className="flex justify-between mt-4 pt-4 border-t">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handleClear}
-              className="text-gray-600"
-            >
-              Clear
-            </Button>
+          {/* Opciones de ordenamiento */}
+          <div className="mb-4 pb-4 border-b">
             <div className="flex space-x-2">
               <Button
                 variant="outline"
                 size="sm"
-                onClick={handleCancel}
-                className="text-gray-600"
+                onClick={() => handleSort('asc')}
+                className="flex items-center space-x-1"
               >
-                Cancel
+                <ArrowUp className="h-3 w-3" />
+                <span>Ascendente</span>
               </Button>
               <Button
+                variant="outline"
                 size="sm"
-                onClick={handleApply}
-                className="bg-green-500 hover:bg-green-600 text-white"
+                onClick={() => handleSort('desc')}
+                className="flex items-center space-x-1"
               >
-                OK
+                <ArrowDown className="h-3 w-3" />
+                <span>Descendente</span>
               </Button>
             </div>
           </div>
+
+          {/* Contenido del tab activo */}
+          {activeTab === 'values' ? (
+            <>
+              {/* Campo de búsqueda */}
+              <div className="relative mb-4">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                <Input
+                  placeholder="Search"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-10"
+                />
+              </div>
+
+              {/* Lista de valores */}
+              <div className="max-h-60 overflow-y-auto">
+                {/* Select All */}
+                <div className="flex items-center space-x-2 p-2 hover:bg-gray-50">
+                  <Checkbox
+                    checked={isAllSelected}
+                    onCheckedChange={handleSelectAll}
+                    className={isIndeterminate ? "data-[state=indeterminate]:bg-primary" : ""}
+                    {...(isIndeterminate ? { "data-state": "indeterminate" } : {})}
+                  />
+                  <label className="text-sm font-medium text-gray-700">
+                    (Select All)
+                  </label>
+                </div>
+
+                {/* Valores filtrados */}
+                {filteredValues.map((value) => (
+                  <div key={value} className="flex items-center space-x-2 p-2 hover:bg-gray-50">
+                    <Checkbox
+                      checked={selectedValues.includes(value)}
+                      onCheckedChange={(checked) => handleValueChange(value, checked as boolean)}
+                    />
+                    <label className="text-sm text-gray-700 cursor-pointer flex-1">
+                      {value}
+                    </label>
+                  </div>
+                ))}
+              </div>
+
+              {/* Botones de acción */}
+              <div className="flex justify-between mt-4 pt-4 border-t">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleClear}
+                  className="text-gray-600"
+                >
+                  Clear
+                </Button>
+                <div className="flex space-x-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleCancel}
+                    className="text-gray-600"
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    size="sm"
+                    onClick={handleApply}
+                    className="bg-green-500 hover:bg-green-600 text-white"
+                  >
+                    OK
+                  </Button>
+                </div>
+              </div>
+            </>
+          ) : (
+            <TextFilter
+              column={column}
+              data={data}
+              onFilterChange={onTextFilterChange}
+              currentConditions={currentTextFilters}
+            />
+          )}
         </div>
       </PopoverContent>
     </Popover>

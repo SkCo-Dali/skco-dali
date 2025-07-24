@@ -1,14 +1,21 @@
 
 import { useState, useMemo } from "react";
 import { Lead } from "@/types/crm";
+import { useTextFilters } from "@/hooks/useTextFilters";
+import { TextFilterCondition } from "@/components/TextFilter";
 
 export function useColumnFilters(leads: Lead[]) {
   const [columnFilters, setColumnFilters] = useState<Record<string, string[]>>({});
+  const { textFilters, filteredLeads: textFilteredLeads, handleTextFilterChange } = useTextFilters(leads);
 
   const filteredLeads = useMemo(() => {
-    if (Object.keys(columnFilters).length === 0) return leads;
+    // Primero aplicar filtros de texto
+    let result = textFilteredLeads;
     
-    return leads.filter(lead => {
+    // Luego aplicar filtros de columna (valores específicos)
+    if (Object.keys(columnFilters).length === 0) return result;
+    
+    return result.filter(lead => {
       return Object.entries(columnFilters).every(([column, selectedValues]) => {
         if (selectedValues.length === 0) return true;
         
@@ -18,7 +25,7 @@ export function useColumnFilters(leads: Lead[]) {
         return selectedValues.includes(stringValue);
       });
     });
-  }, [leads, columnFilters]);
+  }, [textFilteredLeads, columnFilters]);
 
   const handleColumnFilterChange = (column: string, selectedValues: string[]) => {
     setColumnFilters(prev => {
@@ -48,8 +55,10 @@ export function useColumnFilters(leads: Lead[]) {
 
   return {
     columnFilters,
+    textFilters,
     filteredLeads,
     handleColumnFilterChange,
+    handleTextFilterChange,
     clearColumnFilter,
     clearAllColumnFilters
   };

@@ -109,8 +109,8 @@ export function LeadsTable({
   const [leadsToDelete, setLeadsToDelete] = useState<Lead[]>([]);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   
-  // Usar filtros por columna
-  const { columnFilters, filteredLeads, handleColumnFilterChange } = useColumnFilters(leads);
+  // Usar filtros por columna con filtros de texto integrados
+  const { columnFilters, textFilters, filteredLeads, handleColumnFilterChange, handleTextFilterChange } = useColumnFilters(leads);
   
   // Notificar cambios en leads filtrados al componente padre
   useEffect(() => {
@@ -183,13 +183,7 @@ export function LeadsTable({
   const isAllSelected = currentPageFilteredLeads.length > 0 && currentPageFilteredLeads.every(lead => selectedLeads.includes(lead.id));
   const isIndeterminate = currentPageFilteredLeads.some(lead => selectedLeads.includes(lead.id)) && !isAllSelected;
 
-  const handleSort = (columnKey: string) => {
-    let direction: 'asc' | 'desc' = 'asc';
-    
-    if (sortConfig && sortConfig.key === columnKey && sortConfig.direction === 'asc') {
-      direction = 'desc';
-    }
-    
+  const handleSort = (columnKey: string, direction: 'asc' | 'desc') => {
     setSortConfig({ key: columnKey, direction });
     
     const sortedLeads = [...filteredLeads].sort((a, b) => {
@@ -537,7 +531,7 @@ export function LeadsTable({
                   {orderedColumns.map((column) => (
                     <TableHead 
                       key={column.key}
-                      className={`cursor-pointer select-none px-4 py-3 text-center text-xs font-medium text-gray-600 capitalize tracking-wider ${
+                      className={`px-4 py-3 text-center text-xs font-medium text-gray-600 capitalize tracking-wider ${
                         column.key === 'name' ? 'leads-name-column-sticky' : 'leads-regular-column'
                       }`}
                     >
@@ -546,12 +540,12 @@ export function LeadsTable({
                           column={column.key}
                           data={leads}
                           onFilterChange={handleColumnFilterChange}
+                          onTextFilterChange={handleTextFilterChange}
+                          onSortChange={handleSort}
                           currentFilters={columnFilters[column.key] || []}
+                          currentTextFilters={textFilters[column.key] || []}
                         />
-                        <span onClick={() => handleSort(column.key)}>
-                          {column.label}
-                        </span>
-                        {renderSortIcon(column.key)}
+                        <span>{column.label}</span>
                       </div>
                     </TableHead>
                   ))}
