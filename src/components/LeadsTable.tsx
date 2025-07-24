@@ -1,4 +1,4 @@
-import { useState, React } from "react"; 
+import { useState, useEffect } from "react"; 
 import { Lead } from "@/types/crm";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -113,7 +113,7 @@ export function LeadsTable({
   const { columnFilters, filteredLeads, handleColumnFilterChange } = useColumnFilters(leads);
   
   // Notificar cambios en leads filtrados al componente padre
-  React.useEffect(() => {
+  useEffect(() => {
     if (onFilteredLeadsChange) {
       onFilteredLeadsChange(filteredLeads);
     }
