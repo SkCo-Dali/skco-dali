@@ -1,4 +1,3 @@
-
 import { useState, useMemo } from "react";
 import { Lead } from "@/types/crm";
 
@@ -15,6 +14,7 @@ export function useLeadsFilters(leads: Lead[]) {
   const [filterValueMax, setFilterValueMax] = useState("");
   const [filterDuplicates, setFilterDuplicates] = useState<string>("all");
   const [sortBy, setSortBy] = useState("updated");
+  const [columnFilters, setColumnFilters] = useState<Record<string, string[]>>({});
 
   // Identificar leads duplicados por email, teléfono o número de documento
   const duplicateIdentifiers = useMemo(() => {
@@ -97,6 +97,16 @@ export function useLeadsFilters(leads: Lead[]) {
         return true;
       };
 
+      // Aplicar filtros por columna
+      const columnFiltersMatch = Object.entries(columnFilters).every(([column, selectedValues]) => {
+        if (selectedValues.length === 0) return true;
+        
+        const leadValue = lead[column as keyof Lead];
+        const stringValue = leadValue === null || leadValue === undefined ? "" : String(leadValue);
+        
+        return selectedValues.includes(stringValue);
+      });
+
       return (
         matchesSearch &&
         matchesMultiFilter(filterStage, lead.stage) &&
@@ -108,10 +118,11 @@ export function useLeadsFilters(leads: Lead[]) {
         dateToFilter &&
         valueMinFilter &&
         valueMaxFilter &&
-        duplicatesFilter()
+        duplicatesFilter() &&
+        columnFiltersMatch
       );
     });
-  }, [leads, searchTerm, filterStage, filterPriority, filterAssignedTo, filterSource, filterCampaign, filterDateFrom, filterDateTo, filterValueMin, filterValueMax, filterDuplicates, duplicateIdentifiers]);
+  }, [leads, searchTerm, filterStage, filterPriority, filterAssignedTo, filterSource, filterCampaign, filterDateFrom, filterDateTo, filterValueMin, filterValueMax, filterDuplicates, duplicateIdentifiers, columnFilters]);
 
   const sortedLeads = useMemo(() => {
     return [...filteredLeads].sort((a, b) => {
@@ -129,6 +140,25 @@ export function useLeadsFilters(leads: Lead[]) {
     });
   }, [filteredLeads, sortBy]);
 
+  const handleColumnFilterChange = (column: string, selectedValues: string[]) => {
+    setColumnFilters(prev => ({
+      ...prev,
+      [column]: selectedValues
+    }));
+  };
+
+  const clearColumnFilter = (column: string) => {
+    setColumnFilters(prev => {
+      const newFilters = { ...prev };
+      delete newFilters[column];
+      return newFilters;
+    });
+  };
+
+  const clearAllColumnFilters = () => {
+    setColumnFilters({});
+  };
+
   const clearFilters = () => {
     setSearchTerm("");
     setFilterStage("all");
@@ -141,6 +171,7 @@ export function useLeadsFilters(leads: Lead[]) {
     setFilterValueMin("");
     setFilterValueMax("");
     setFilterDuplicates("all");
+    setColumnFilters({});
   };
 
   // Obtener opciones únicas para los filtros
@@ -206,6 +237,10 @@ export function useLeadsFilters(leads: Lead[]) {
     uniqueSources,
     uniqueCampaigns,
     uniqueAssignedTo,
-    duplicateCount
+    duplicateCount,
+    columnFilters,
+    handleColumnFilterChange,
+    clearColumnFilter,
+    clearAllColumnFilters
   };
 }

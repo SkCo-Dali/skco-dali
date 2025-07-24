@@ -15,6 +15,8 @@ import { FaWhatsapp } from "react-icons/fa";
 import { useLeadDeletion } from "@/hooks/useLeadDeletion";
 import { LeadDeleteConfirmDialog } from "@/components/LeadDeleteConfirmDialog";
 import { toast } from "sonner";
+import { ColumnFilter } from "@/components/ColumnFilter";
+import { useColumnFilters } from "@/hooks/useColumnFilters";
 
 interface LeadsTableProps {
   leads: Lead[];
@@ -105,6 +107,9 @@ export function LeadsTable({
   const [leadsToDelete, setLeadsToDelete] = useState<Lead[]>([]);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   
+  // Usar filtros por columna
+  const { columnFilters, filteredLeads, handleColumnFilterChange } = useColumnFilters(leads);
+  
   // Usar configuración persistente si no se pasan columnas desde el padre
   const activeColumns = columns || loadColumnConfig();
   
@@ -175,7 +180,7 @@ export function LeadsTable({
     
     setSortConfig({ key: columnKey, direction });
     
-    const sortedLeads = [...leads].sort((a, b) => {
+    const sortedLeads = [...filteredLeads].sort((a, b) => {
       let aValue: any;
       let bValue: any;
 
@@ -520,10 +525,17 @@ export function LeadsTable({
                       className={`cursor-pointer select-none px-4 py-3 text-center text-xs font-medium text-gray-600 capitalize tracking-wider ${
                         column.key === 'name' ? 'leads-name-column-sticky' : 'leads-regular-column'
                       }`}
-                      onClick={() => handleSort(column.key)}
                     >
-                      <div className="flex items-center justify-center">
-                        {column.label}
+                      <div className="flex items-center justify-center space-x-1">
+                        <ColumnFilter
+                          column={column.key}
+                          data={leads}
+                          onFilterChange={handleColumnFilterChange}
+                          currentFilters={columnFilters[column.key] || []}
+                        />
+                        <span onClick={() => handleSort(column.key)}>
+                          {column.label}
+                        </span>
                         {renderSortIcon(column.key)}
                       </div>
                     </TableHead>
