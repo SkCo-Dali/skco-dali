@@ -183,9 +183,10 @@ export function LeadsTable({
   const isAllSelected = currentPageFilteredLeads.length > 0 && currentPageFilteredLeads.every(lead => selectedLeads.includes(lead.id));
   const isIndeterminate = currentPageFilteredLeads.some(lead => selectedLeads.includes(lead.id)) && !isAllSelected;
 
-  const handleSort = (columnKey: string, direction: 'asc' | 'desc') => {
-    console.log(`Sorting by ${columnKey} in ${direction} direction`);
-    setSortConfig({ key: columnKey, direction });
+  const handleSort = (columnKey: string, direction?: 'asc' | 'desc') => {
+    const newDirection = direction || (sortConfig?.key === columnKey && sortConfig?.direction === 'asc' ? 'desc' : 'asc');
+    console.log(`Sorting by ${columnKey} in ${newDirection} direction`);
+    setSortConfig({ key: columnKey, direction: newDirection });
     
     const sortedLeads = [...filteredLeads].sort((a, b) => {
       let aValue: any;
@@ -272,10 +273,10 @@ export function LeadsTable({
       }
 
       if (aValue < bValue) {
-        return direction === 'asc' ? -1 : 1;
+        return newDirection === 'asc' ? -1 : 1;
       }
       if (aValue > bValue) {
-        return direction === 'asc' ? 1 : -1;
+        return newDirection === 'asc' ? 1 : -1;
       }
       return 0;
     });
@@ -284,6 +285,12 @@ export function LeadsTable({
     
     if (onSortedLeadsChange) {
       onSortedLeadsChange(sortedLeads);
+    }
+  };
+
+  const handleColumnHeaderClick = (columnKey: string, sortable: boolean) => {
+    if (sortable) {
+      handleSort(columnKey);
     }
   };
 
@@ -538,7 +545,8 @@ export function LeadsTable({
                       key={column.key}
                       className={`px-4 py-3 text-center text-xs font-medium text-gray-600 capitalize tracking-wider ${
                         column.key === 'name' ? 'leads-name-column-sticky' : 'leads-regular-column'
-                      }`}
+                      } ${column.sortable ? 'cursor-pointer hover:bg-gray-100' : ''}`}
+                      onClick={() => handleColumnHeaderClick(column.key, column.sortable)}
                     >
                       <div className="flex items-center justify-center space-x-1">
                         <ColumnFilter
@@ -551,6 +559,7 @@ export function LeadsTable({
                           currentTextFilters={textFilters[column.key] || []}
                         />
                         <span>{column.label}</span>
+                        {column.sortable && renderSortIcon(column.key)}
                       </div>
                     </TableHead>
                   ))}
