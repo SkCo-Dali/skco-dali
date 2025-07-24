@@ -18,67 +18,52 @@ export function ColumnFilter({ columnKey, allLeads, onFilterChange, activeFilter
   const [searchTerm, setSearchTerm] = useState('');
   const [isOpen, setIsOpen] = useState(false);
 
-  // Obtener valores únicos para la columna usando TODOS los leads
+  // Extraer valores únicos de la columna
   const uniqueValues = useMemo(() => {
     const values = allLeads.map(lead => {
-      let value = '';
       switch (columnKey) {
         case 'name':
-          value = lead.name;
-          break;
+          return lead.name;
         case 'email':
-          value = lead.email || '';
-          break;
+          return lead.email || '';
         case 'phone':
-          value = lead.phone || '';
-          break;
+          return lead.phone || '';
         case 'campaign':
-          value = lead.campaign || '';
-          break;
+          return lead.campaign || '';
         case 'stage':
-          value = lead.stage;
-          break;
+          return lead.stage;
         case 'assignedTo':
-          value = lead.assignedTo || '';
-          break;
+          return lead.assignedTo || '';
         case 'source':
-          value = lead.source;
-          break;
+          return lead.source;
         case 'priority':
-          value = lead.priority;
-          break;
+          return lead.priority;
         case 'product':
-          value = lead.product || '';
-          break;
+          return lead.product || '';
         case 'company':
-          value = lead.company || '';
-          break;
+          return lead.company || '';
         case 'documentType':
-          value = lead.documentType || '';
-          break;
+          return lead.documentType || '';
         case 'documentNumber':
-          value = lead.documentNumber?.toString() || '';
-          break;
+          return lead.documentNumber?.toString() || '';
         case 'age':
-          value = lead.age?.toString() || '';
-          break;
+          return lead.age?.toString() || '';
         case 'gender':
-          value = lead.gender || '';
-          break;
+          return lead.gender || '';
         case 'preferredContactChannel':
-          value = lead.preferredContactChannel || '';
-          break;
+          return lead.preferredContactChannel || '';
         default:
-          value = '';
+          return '';
       }
-      return value.toString().trim();
-    }).filter(Boolean);
+    })
+    .filter(value => value.toString().trim() !== '')
+    .map(value => value.toString().trim());
 
     return Array.from(new Set(values)).sort();
   }, [allLeads, columnKey]);
 
-  // Valores mostrados - solo filtrar cuando hay término de búsqueda
-  const displayedValues = useMemo(() => {
+  // Filtrar valores por término de búsqueda
+  const filteredValues = useMemo(() => {
     if (!searchTerm.trim()) {
       return uniqueValues;
     }
@@ -87,43 +72,39 @@ export function ColumnFilter({ columnKey, allLeads, onFilterChange, activeFilter
     );
   }, [uniqueValues, searchTerm]);
 
+  // Manejar selección individual
   const handleValueToggle = (value: string, checked: boolean) => {
-    let newFilters;
-    if (checked) {
-      newFilters = [...activeFilters, value];
-    } else {
-      newFilters = activeFilters.filter(f => f !== value);
-    }
+    const newFilters = checked
+      ? [...activeFilters, value]
+      : activeFilters.filter(f => f !== value);
+    
     onFilterChange(columnKey, newFilters);
   };
 
+  // Manejar selección masiva
   const handleSelectAll = (checked: boolean) => {
     if (checked) {
-      // Seleccionar TODOS los valores únicos, no solo los mostrados
-      const newFilters = [...new Set([...activeFilters, ...displayedValues])];
+      // Agregar todos los valores filtrados a los filtros activos
+      const newFilters = [...new Set([...activeFilters, ...filteredValues])];
       onFilterChange(columnKey, newFilters);
     } else {
-      // Deseleccionar solo los valores mostrados
-      const valuesToRemove = new Set(displayedValues);
+      // Remover todos los valores filtrados de los filtros activos
+      const valuesToRemove = new Set(filteredValues);
       const newFilters = activeFilters.filter(filter => !valuesToRemove.has(filter));
       onFilterChange(columnKey, newFilters);
     }
   };
 
+  // Limpiar todos los filtros y búsqueda
   const handleClear = () => {
-    // Limpiar COMPLETAMENTE los filtros y la búsqueda
-    onFilterChange(columnKey, []);
     setSearchTerm('');
+    onFilterChange(columnKey, []);
   };
 
-  const handleSearchChange = (value: string) => {
-    setSearchTerm(value);
-  };
-
-  // Verificar estado de "Select All" basado en valores mostrados
-  const displayedActiveFilters = displayedValues.filter(value => activeFilters.includes(value));
-  const isAllDisplayedSelected = displayedValues.length > 0 && displayedActiveFilters.length === displayedValues.length;
-  const isIndeterminate = displayedActiveFilters.length > 0 && displayedActiveFilters.length < displayedValues.length;
+  // Estado del checkbox "Select All"
+  const selectedFilteredValues = filteredValues.filter(value => activeFilters.includes(value));
+  const isAllSelected = filteredValues.length > 0 && selectedFilteredValues.length === filteredValues.length;
+  const isIndeterminate = selectedFilteredValues.length > 0 && selectedFilteredValues.length < filteredValues.length;
 
   return (
     <Popover open={isOpen} onOpenChange={setIsOpen}>
@@ -131,17 +112,17 @@ export function ColumnFilter({ columnKey, allLeads, onFilterChange, activeFilter
         <Button 
           variant="ghost" 
           size="sm" 
-          className={`h-4 w-4 p-0 ml-1 hover:bg-gray-100 ${activeFilters.length > 0 ? 'text-[#00c83c]' : 'text-gray-400'}`}
-          onClick={(e) => {
-            e.stopPropagation();
-          }}
+          className={`h-4 w-4 p-0 ml-1 hover:bg-gray-100 ${
+            activeFilters.length > 0 ? 'text-[#00c83c]' : 'text-gray-400'
+          }`}
+          onClick={(e) => e.stopPropagation()}
         >
           <Filter className="h-3 w-3" />
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-80 bg-white border shadow-lg z-50" align="start">
         <div className="space-y-4">
-          {/* Header con tabs */}
+          {/* Header */}
           <div className="flex items-center space-x-2">
             <Button
               variant="default"
@@ -162,7 +143,7 @@ export function ColumnFilter({ columnKey, allLeads, onFilterChange, activeFilter
               value={searchTerm}
               onChange={(e) => {
                 e.stopPropagation();
-                handleSearchChange(e.target.value);
+                setSearchTerm(e.target.value);
               }}
               className="pl-10 text-sm"
               onClick={(e) => e.stopPropagation()}
@@ -174,10 +155,8 @@ export function ColumnFilter({ columnKey, allLeads, onFilterChange, activeFilter
             {/* Select All */}
             <div className="flex items-center space-x-2">
               <Checkbox
-                checked={isAllDisplayedSelected}
-                onCheckedChange={(checked) => {
-                  handleSelectAll(checked as boolean);
-                }}
+                checked={isAllSelected}
+                onCheckedChange={handleSelectAll}
                 className={isIndeterminate ? "data-[state=indeterminate]:bg-primary data-[state=indeterminate]:text-primary-foreground" : ""}
                 {...(isIndeterminate ? { "data-state": "indeterminate" } : {})}
                 onClick={(e) => e.stopPropagation()}
@@ -186,7 +165,7 @@ export function ColumnFilter({ columnKey, allLeads, onFilterChange, activeFilter
                 className="text-sm font-medium cursor-pointer" 
                 onClick={(e) => {
                   e.stopPropagation();
-                  handleSelectAll(!isAllDisplayedSelected);
+                  handleSelectAll(!isAllSelected);
                 }}
               >
                 (Select All)
@@ -194,7 +173,7 @@ export function ColumnFilter({ columnKey, allLeads, onFilterChange, activeFilter
             </div>
 
             {/* Valores individuales */}
-            {displayedValues.map((value) => (
+            {filteredValues.map((value) => (
               <div key={value} className="flex items-center space-x-2">
                 <Checkbox
                   checked={activeFilters.includes(value)}
@@ -214,7 +193,8 @@ export function ColumnFilter({ columnKey, allLeads, onFilterChange, activeFilter
               </div>
             ))}
 
-            {displayedValues.length === 0 && searchTerm.trim() && (
+            {/* Mensaje cuando no hay resultados */}
+            {filteredValues.length === 0 && searchTerm.trim() && (
               <div className="text-center text-gray-500 py-4">
                 <p className="text-sm">No se encontraron resultados</p>
               </div>
