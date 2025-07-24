@@ -1,16 +1,11 @@
 
-import React, { useState } from "react";
+import { useState } from 'react';
 import { Lead } from "@/types/crm";
-import { LeadsSearch } from "./LeadsSearch";
-import { LeadsFilters } from "./LeadsFilters";
-import { LeadsStats } from "./LeadsStats";
-import { LeadsViewControls } from "./LeadsViewControls";
-import { LeadsPagination } from "./LeadsPagination";
-import { EnhancedLeadsTable } from "./EnhancedLeadsTable";
-import { LeadsColumns } from "./LeadsColumns";
-import { LeadsActionsButton } from "./LeadsActionsButton";
-import { LeadsBulkAssignment } from "./LeadsBulkAssignment";
+import { LeadCard } from "./LeadCard";
+import { LeadsTable } from "./LeadsTable";
 import { ColumnConfig } from "./LeadsTableColumnSelector";
+import { LeadProfiler } from "./LeadProfiler";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 interface LeadsContentProps {
   viewMode: 'table' | 'columns';
@@ -24,7 +19,6 @@ interface LeadsContentProps {
   groupBy: string;
   selectedLeads: string[];
   onLeadSelectionChange: (leadIds: string[], isSelected: boolean) => void;
-  onColumnsChange?: (columns: ColumnConfig[]) => void;
 }
 
 export function LeadsContent({
@@ -38,55 +32,140 @@ export function LeadsContent({
   onSendEmail,
   groupBy,
   selectedLeads,
-  onLeadSelectionChange,
-  onColumnsChange
+  onLeadSelectionChange
 }: LeadsContentProps) {
-  const [showBulkAssignment, setShowBulkAssignment] = useState(false);
+  const [selectedLeadForProfiler, setSelectedLeadForProfiler] = useState<Lead | null>(null);
+  const [isProfilerOpen, setIsProfilerOpen] = useState(false);
 
-  const handleLeadSelectionChange = (leadIds: string[], isSelected: boolean) => {
-    if (isSelected) {
-      const newSelectedLeads = [...new Set([...selectedLeads, ...leadIds])];
-      onLeadSelectionChange(newSelectedLeads, true);
-    } else {
-      const newSelectedLeads = selectedLeads.filter(id => !leadIds.includes(id));
-      onLeadSelectionChange(newSelectedLeads, false);
-    }
+  const handleOpenProfiler = (lead: Lead) => {
+    setSelectedLeadForProfiler(lead);
+    setIsProfilerOpen(true);
   };
 
-  return (
-    <div className="space-y-6">
-      {/* Table/Grid View */}
-      {viewMode === 'table' ? (
-        <EnhancedLeadsTable
+  const handleCloseProfiler = () => {
+    setIsProfilerOpen(false);
+    setSelectedLeadForProfiler(null);
+  };
+
+  if (viewMode === 'table') {
+    return (
+      <>
+        <LeadsTable
           leads={leads}
           paginatedLeads={paginatedLeads}
           onLeadClick={onLeadClick}
           onLeadUpdate={onLeadUpdate}
-          selectedLeads={selectedLeads}
-          onLeadSelectionChange={handleLeadSelectionChange}
           columns={columns}
-          onColumnsChange={onColumnsChange}
-        />
-      ) : (
-        <LeadsColumns
-          leads={paginatedLeads}
-          onLeadClick={onLeadClick}
-          onLeadUpdate={onLeadUpdate}
+          onSortedLeadsChange={onSortedLeadsChange}
           onSendEmail={onSendEmail}
+          onOpenProfiler={handleOpenProfiler}
+          selectedLeads={selectedLeads}
+          onLeadSelectionChange={onLeadSelectionChange}
         />
-      )}
 
-      {/* Bulk Assignment Dialog */}
-      {showBulkAssignment && (
-        <LeadsBulkAssignment
-          leads={leads.filter(lead => selectedLeads.includes(lead.id))}
-          onLeadsAssigned={() => {
-            setShowBulkAssignment(false);
-            onLeadSelectionChange([], false);
-            onLeadUpdate();
-          }}
-        />
-      )}
-    </div>
+        <Dialog open={isProfilerOpen} onOpenChange={setIsProfilerOpen}>
+          <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto p-0">
+            
+            <LeadProfiler selectedLead={selectedLeadForProfiler} />
+          </DialogContent>
+        </Dialog>
+      </>
+    );
+  }
+
+  const groupedLeads = leads.reduce((acc: { [key: string]: Lead[] }, lead) => {
+    const key = lead[groupBy as keyof Lead] as string || 'undefined';
+    if (!acc[key]) {
+      acc[key] = [];
+    }
+    acc[key].push(lead);
+    return acc;
+  }, {});
+
+  // Definir el orden de las columnas según la etapa
+  const stageOrder = ['new', 'contacted', 'qualified', 'proposal', 'negotiation', 'won', 'lost'];
+  const sortedGroups = Object.entries(groupedLeads).sort(([a], [b]) => {
+    if (groupBy === 'stage') {
+      const aIndex = stageOrder.indexOf(a);
+      const bIndex = stageOrder.indexOf(b);
+      return (aIndex === -1 ? 999 : aIndex) - (bIndex === -1 ? 999 : bIndex);
+    }
+    return a.localeCompare(b);
+  });
+
+  const getStageLabel = (stage: string) => {
+    const stageLabels: { [key: string]: string } = {
+      'new': 'En gestión',
+      'contacted': 'En asesoría', 
+      'qualified': 'Vinculando',
+      'proposal': 'Propuesta',
+      'negotiation': 'Negociación',
+      'won': 'Ganado',
+      'lost': 'Perdido'
+    };
+    return stageLabels[stage] || stage;
+  };
+
+  const getStageCount = (groupLeads: Lead[]) => {
+    return groupLeads.length;
+  };
+
+  if (viewMode === 'columns')
+  return (
+    <>
+      <div className="space-y-6">
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
+          {sortedGroups.map(([group, groupLeads]) => (
+            <div key={group} className="space-y-0">
+              {/* Header de la columna estilo Kanban */}
+              <div className="bg-[#CAF9CB] rounded-t-lg px-4 py-3 flex items-center justify-between border-b border-gray-200">
+                <div className="flex items-center gap-2">
+                  <div className="w-3 h-3 rounded-full bg-green-500"></div>
+                  <h3 className="font-semibold text-sm text-gray-800">
+                    {groupBy === 'stage' ? getStageLabel(group) : group === 'undefined' ? 'Sin grupo' : group}
+                  </h3>
+                  <span className="text-xs bg-white px-2 py-1 rounded-full text-gray-600 font-medium">
+                    ({getStageCount(groupLeads)})
+                  </span>
+                </div>
+              </div>
+              
+              {/* Contenedor de tarjetas con scroll */}
+              <div className="bg-gray-50 border-l border-r border-b border-gray-200 rounded-b-lg min-h-[500px] max-h-[600px] overflow-y-auto p-3">
+                <div className="space-y-4">
+                  {groupLeads.map((lead) => (
+                    <LeadCard
+                      key={lead.id}
+                      lead={lead}
+                      onClick={() => onLeadClick(lead)}
+                      onEdit={onLeadClick}
+                      onSendEmail={onSendEmail}
+                      onOpenProfiler={handleOpenProfiler}
+                      onLeadUpdate={onLeadUpdate}
+                    />
+                  ))}
+                  {groupLeads.length === 0 && (
+                    <div className="text-center text-gray-500 py-8">
+                      <p className="text-sm">No hay leads en esta etapa</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <Dialog open={isProfilerOpen} onOpenChange={setIsProfilerOpen}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>
+              Sesión de Prospección: {selectedLeadForProfiler?.name}
+            </DialogTitle>
+          </DialogHeader>
+          <LeadProfiler selectedLead={selectedLeadForProfiler} />
+        </DialogContent>
+      </Dialog>
+    </>
   );
 }

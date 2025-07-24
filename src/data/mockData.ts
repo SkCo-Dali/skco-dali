@@ -71,8 +71,6 @@ export const mockLeads: Lead[] = [
     name: 'Roberto Silva',
     email: 'roberto.silva@empresa.com',
     phone: '+57 310 123 4567',
-    documentNumber: 12345678,
-    documentType: 'CC',
     company: 'TechCorp S.A.S',
     source: 'web',
     product: 'Fondo Voluntario de Pensión',
@@ -81,7 +79,7 @@ export const mockLeads: Lead[] = [
     priority: 'high',
     value: 15000000,
     assignedTo: '3',
-    createdBy: '1',
+    createdBy: '1', // Add createdBy property
     status: 'New',
     campaign: 'Campaign A',
     portfolio: 'Portfolio A',
@@ -90,10 +88,6 @@ export const mockLeads: Lead[] = [
     nextFollowUp: '2024-01-18T09:00:00Z',
     notes: 'Cliente con alto potencial, CEO de empresa tecnológica.',
     tags: ['CEO', 'Tech', 'Alto Valor'],
-    age: 35,
-    gender: 'Masculino',
-    campaignOwnerName: 'Juan Pérez',
-    preferredContactChannel: 'Correo',
     interactions: mockInteractions.filter(i => i.leadId === '1')
   },
   {
@@ -101,8 +95,6 @@ export const mockLeads: Lead[] = [
     name: 'Patricia Moreno',
     email: 'patricia.moreno@gmail.com',
     phone: '+57 320 654 3210',
-    documentNumber: 87654321,
-    documentType: 'CC',
     company: 'Independiente',
     source: 'social',
     product: 'Fondo de Pensiones Obligatorias',
@@ -111,7 +103,7 @@ export const mockLeads: Lead[] = [
     priority: 'medium',
     value: 8000000,
     assignedTo: '4',
-    createdBy: '2',
+    createdBy: '2', // Add createdBy property
     status: 'Contacted',
     campaign: 'Campaign B',
     portfolio: 'Portfolio C',
@@ -120,10 +112,6 @@ export const mockLeads: Lead[] = [
     nextFollowUp: '2024-01-20T11:00:00Z',
     notes: 'Profesional independiente buscando plan de pensiones.',
     tags: ['Profesional', 'Pensiones'],
-    age: 42,
-    gender: 'Femenino',
-    campaignOwnerName: 'María González',
-    preferredContactChannel: 'WhatsApp',
     interactions: []
   },
   {
@@ -131,8 +119,6 @@ export const mockLeads: Lead[] = [
     name: 'Eduardo Ramírez',
     email: 'eduardo.ramirez@constructora.com',
     phone: '+57 315 987 6543',
-    documentNumber: 11223344,
-    documentType: 'CC',
     company: 'Constructora del Valle',
     source: 'referral',
     product: 'Fondo de Inversión Colectiva',
@@ -141,7 +127,7 @@ export const mockLeads: Lead[] = [
     priority: 'urgent',
     value: 50000000,
     assignedTo: '3',
-    createdBy: '3',
+    createdBy: '3', // Add createdBy property
     status: 'Qualified',
     campaign: 'Campaign A',
     portfolio: 'Portfolio A',
@@ -150,10 +136,6 @@ export const mockLeads: Lead[] = [
     nextFollowUp: '2024-01-19T15:00:00Z',
     notes: 'Requiere cotización urgente para renovación de póliza empresarial.',
     tags: ['Empresa', 'Renovación', 'Urgente'],
-    age: 38,
-    gender: 'Masculino',
-    campaignOwnerName: 'Juan Pérez',
-    preferredContactChannel: 'Teléfono',
     interactions: []
   },
   {
@@ -161,8 +143,6 @@ export const mockLeads: Lead[] = [
     name: 'Lucía Herrera',
     email: 'lucia.herrera@hotmail.com',
     phone: '+57 301 456 7890',
-    documentNumber: 55667788,
-    documentType: 'CC',
     company: '',
     source: 'campaign',
     product: 'Fondo Voluntario de Pensión',
@@ -171,19 +151,14 @@ export const mockLeads: Lead[] = [
     priority: 'low',
     value: 2500000,
     assignedTo: '4',
-    createdBy: '4',
+    createdBy: '4', // Add createdBy property
     status: 'New',
     campaign: 'Campaign C',
     portfolio: 'Portfolio B',
     createdAt: '2024-01-18T07:15:00Z',
     updatedAt: '2024-01-18T07:15:00Z',
-    nextFollowUp: '2024-01-25T10:00:00Z',
     notes: 'Lead generado por campaña digital.',
     tags: ['Digital', 'Vehículo'],
-    age: 29,
-    gender: 'Femenino',
-    campaignOwnerName: 'Ana López',
-    preferredContactChannel: 'Correo',
     interactions: []
   },
   {
@@ -191,8 +166,6 @@ export const mockLeads: Lead[] = [
     name: 'Miguel Torres',
     email: 'miguel.torres@universidad.edu.co',
     phone: '+57 312 111 2222',
-    documentNumber: 99887766,
-    documentType: 'CC',
     company: 'Universidad Nacional',
     source: 'event',
     product: 'Fondo Voluntario de Pensión',
@@ -201,19 +174,14 @@ export const mockLeads: Lead[] = [
     priority: 'medium',
     value: 12000000,
     assignedTo: '3',
-    createdBy: '3',
-    status: 'Closed-Won',
+    createdBy: '3', // Add createdBy property
+    status: 'Won',
     campaign: 'Campaign A',
     portfolio: 'Portfolio A',
     createdAt: '2024-01-01T10:00:00Z',
     updatedAt: '2024-01-12T14:30:00Z',
-    nextFollowUp: '',
     notes: 'Exitoso cierre de plan educativo para hijos.',
     tags: ['Educación', 'Familia', 'Cerrado'],
-    age: 45,
-    gender: 'Masculino',
-    campaignOwnerName: 'Juan Pérez',
-    preferredContactChannel: 'Correo',
     interactions: []
   }
 ];

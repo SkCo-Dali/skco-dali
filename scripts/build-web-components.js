@@ -5,30 +5,62 @@ import { resolve } from 'path';
 import fs from 'fs';
 import path from 'path';
 
-// Mapeo de páginas a componentes
-const PAGE_COMPONENTS = {
-  'Index': 'LogIn',
-  'Dashboard': 'Dashboard',
-  'Leads': 'Leads',
-  'ChatDali': 'ChatDali',
-  'Informes': 'Informes',
-  'Tasks': 'Tasks',
-  'Reports': 'Reports',
-  'Users': 'Users'
-};
+// Configuración base para web components
+const createWebComponentConfig = (entry, name, outDir) => defineConfig({
+  plugins: [react()],
+  define: {
+    'process.env.NODE_ENV': JSON.stringify('production')
+  },
+  build: {
+    lib: {
+      entry: resolve(__dirname, entry),
+      name: `SK_Dali_${name}_React`,
+      fileName: () => `SK.Dali.${name}.React.js`,
+      formats: ['umd']
+    },
+    rollupOptions: {
+      external: [], // No externalizar dependencias para web components standalone
+      output: {
+        globals: {},
+        // Generar CSS separado
+        assetFileNames: (assetInfo) => {
+          if (assetInfo.name && assetInfo.name.endsWith('.css')) {
+            return `SK.Dali.${name}.React.css`;
+          }
+          return assetInfo.name;
+        }
+      }
+    },
+    outDir,
+    emptyOutDir: false,
+    cssCodeSplit: false,
+    minify: 'terser',
+    terserOptions: {
+      compress: {
+        drop_console: false, // Mantener console.log para debugging
+        drop_debugger: true
+      }
+    }
+  },
+  resolve: {
+    alias: {
+      '@': resolve(__dirname, '../src')
+    }
+  }
+});
 
-// Función para generar el archivo de entrada para cada componente
-function generateComponentEntry(pageName, componentName) {
-  const importName = pageName === 'Index' ? 'Index' : pageName;
-  
-  return `
+// Generar archivo individual para cada componente
+async function generateIndividualComponent(componentName) {
+  const componentFile = `generate-${componentName.toLowerCase()}-component.js`;
+  const componentContent = `
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { BrowserRouter } from 'react-router-dom';
+import { PublicClientApplication } from '@azure/msal-browser';
 
 // Importar la página específica
-import ${importName} from '../src/pages/${importName}';
+import ${componentName} from '../src/pages/${componentName}';
 
 // Importar contextos necesarios
 import { AuthProvider } from '../src/contexts/AuthContext';
@@ -36,6 +68,9 @@ import { NotificationProvider } from '../src/contexts/NotificationContext';
 import { SimpleConversationProvider } from '../src/contexts/SimpleConversationContext';
 import { ThemeProvider } from '../src/contexts/ThemeContext';
 import { SettingsProvider } from '../src/contexts/SettingsContext';
+
+// Importar configuración de autenticación
+import { msalConfig } from '../src/authConfig';
 
 // Importar CSS
 import '../src/index.css';
@@ -52,9 +87,12 @@ class SK_Dali_${componentName}_React extends HTMLElement {
         },
       },
     });
+    
+    // Instancia de MSAL para autenticación
+    this.msalInstance = new PublicClientApplication(msalConfig);
   }
 
-  connectedCallback() {
+  async connectedCallback() {
     // Crear shadow DOM para encapsulación
     const shadow = this.attachShadow({ mode: 'open' });
     
@@ -69,7 +107,10 @@ class SK_Dali_${componentName}_React extends HTMLElement {
     shadow.appendChild(container);
 
     // Copiar estilos globales al shadow DOM
-    this.copyGlobalStyles(shadow);
+    await this.copyGlobalStyles(shadow);
+
+    // Inicializar MSAL
+    await this.initializeMsal();
 
     // Renderizar el componente React
     this.root = ReactDOM.createRoot(container);
@@ -82,21 +123,44 @@ class SK_Dali_${componentName}_React extends HTMLElement {
     }
   }
 
-  copyGlobalStyles(shadow) {
+  async initializeMsal() {
+    try {
+      await this.msalInstance.initialize();
+    } catch (error) {
+      console.error('Error initializing MSAL:', error);
+    }
+  }
+
+  async copyGlobalStyles(shadow) {
     // Copiar estilos de Tailwind y otros estilos globales
     const globalStyles = document.querySelectorAll('style, link[rel="stylesheet"]');
     
-    globalStyles.forEach(style => {
+    for (const style of globalStyles) {
       if (style.tagName === 'LINK') {
+        // Para links externos, crear una nueva referencia
         const newLink = document.createElement('link');
         newLink.rel = 'stylesheet';
         newLink.href = style.href;
         shadow.appendChild(newLink);
       } else {
+        // Para estilos inline, clonar directamente
         const clonedStyle = style.cloneNode(true);
         shadow.appendChild(clonedStyle);
       }
-    });
+    }
+
+    // Cargar el CSS específico del componente si existe
+    try {
+      const cssResponse = await fetch('./SK.Dali.${componentName}.React.css');
+      if (cssResponse.ok) {
+        const cssText = await cssResponse.text();
+        const componentStyles = document.createElement('style');
+        componentStyles.textContent = cssText;
+        shadow.appendChild(componentStyles);
+      }
+    } catch (error) {
+      // CSS específico no encontrado, continuar sin él
+    }
 
     // Agregar estilos específicos para el web component
     const hostStyles = document.createElement('style');
@@ -161,7 +225,7 @@ class SK_Dali_${componentName}_React extends HTMLElement {
                     React.createElement(
                       SettingsProvider,
                       null,
-                      React.createElement(${importName})
+                      React.createElement(${componentName})
                     )
                   )
                 )
@@ -178,8 +242,21 @@ class SK_Dali_${componentName}_React extends HTMLElement {
     return {
       name: 'SK.Dali.${componentName}.React',
       version: '1.0.0',
+      authenticated: !!this.msalInstance?.getAllAccounts()?.length,
       isConnected: this.isConnected
     };
+  }
+
+  // API pública para forzar re-autenticación
+  async forceReauth() {
+    if (this.msalInstance) {
+      try {
+        await this.msalInstance.loginPopup();
+        this.renderComponent(); // Re-renderizar después de autenticación
+      } catch (error) {
+        console.error('Error during re-authentication:', error);
+      }
+    }
   }
 }
 
@@ -196,57 +273,19 @@ if (typeof window !== 'undefined') {
   console.log('SK.Dali.${componentName}.React web component registered');
 }
 `;
-}
 
-// Configuración base para web components
-const createWebComponentConfig = (entry, componentName, outDir) => defineConfig({
-  plugins: [react()],
-  define: {
-    'process.env.NODE_ENV': JSON.stringify('production')
-  },
-  build: {
-    lib: {
-      entry: resolve(__dirname, entry),
-      name: `SK_Dali_${componentName}_React`,
-      fileName: () => `SK.Dali.${componentName}.React.js`,
-      formats: ['umd']
-    },
-    rollupOptions: {
-      external: [],
-      output: {
-        globals: {},
-        assetFileNames: (assetInfo) => {
-          if (assetInfo.name && assetInfo.name.endsWith('.css')) {
-            return `SK.Dali.${componentName}.React.css`;
-          }
-          return assetInfo.name;
-        }
-      }
-    },
-    outDir,
-    emptyOutDir: false,
-    cssCodeSplit: false,
-    minify: 'terser',
-    terserOptions: {
-      compress: {
-        drop_console: false,
-        drop_debugger: true
-      }
-    }
-  },
-  resolve: {
-    alias: {
-      '@': resolve(__dirname, '../src')
-    }
-  }
-});
+  // Escribir el archivo del componente individual
+  fs.writeFileSync(path.join(__dirname, componentFile), componentContent);
+  return componentFile;
+}
 
 // Función principal para construir todos los web components
 async function buildWebComponents() {
   try {
-    console.log('🚀 Iniciando build de web components...');
+    console.log('🚀 Iniciando build de web components individuales...');
     
-    const outDir = 'dist/elements';
+    const components = ['Leads', 'ChatDali', 'Dashboard', 'Informes'];
+    const outDir = 'dist/web-components';
     
     // Crear directorio de salida
     if (!fs.existsSync(outDir)) {
@@ -259,16 +298,14 @@ async function buildWebComponents() {
     }
 
     // Construir cada componente individualmente
-    for (const [pageName, componentName] of Object.entries(PAGE_COMPONENTS)) {
-      console.log(`🔨 Construyendo ${componentName}...`);
+    for (const component of components) {
+      console.log(\`🔨 Construyendo \${component}...\`);
       
       // Generar archivo de entrada individual
-      const entryContent = generateComponentEntry(pageName, componentName);
-      const entryFile = `generate-${componentName.toLowerCase()}-component.js`;
-      fs.writeFileSync(path.join(__dirname, entryFile), entryContent);
+      const entryFile = await generateIndividualComponent(component);
       
       // Configurar build específico
-      const config = createWebComponentConfig(entryFile, componentName, outDir);
+      const config = createWebComponentConfig(entryFile, component, outDir);
       
       // Ejecutar build
       await build(config);
@@ -276,11 +313,11 @@ async function buildWebComponents() {
       // Limpiar archivo temporal
       fs.unlinkSync(path.join(__dirname, entryFile));
       
-      console.log(`✅ ${componentName} construido exitosamente`);
+      console.log(\`✅ \${component} construido exitosamente\`);
     }
     
     // Generar archivo index.html de ejemplo
-    const indexHtml = `<!DOCTYPE html>
+    const indexHtml = \`<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
@@ -292,34 +329,35 @@ async function buildWebComponents() {
     <div style="margin: 20px 0;">
         <h2>Componentes disponibles:</h2>
         <ul>
-${Object.values(PAGE_COMPONENTS).map(name => 
-  `            <li>SK.Dali.${name}.React.js / SK.Dali.${name}.React.css</li>`
-).join('\n')}
+            <li>SK.Dali.Leads.React.js / SK.Dali.Leads.React.css</li>
+            <li>SK.Dali.ChatDali.React.js / SK.Dali.ChatDali.React.css</li>
+            <li>SK.Dali.Dashboard.React.js / SK.Dali.Dashboard.React.css</li>
+            <li>SK.Dali.Informes.React.js / SK.Dali.Informes.React.css</li>
         </ul>
     </div>
     
     <div style="margin: 20px 0;">
         <h3>Ejemplo de uso:</h3>
         <pre><code>&lt;!-- Cargar CSS --&gt;
-&lt;link rel="stylesheet" href="./SK.Dali.LogIn.React.css"&gt;
+&lt;link rel="stylesheet" href="./SK.Dali.Leads.React.css"&gt;
 
 &lt;!-- Cargar JS --&gt;
-&lt;script src="./SK.Dali.LogIn.React.js"&gt;&lt;/script&gt;
+&lt;script src="./SK.Dali.Leads.React.js"&gt;&lt;/script&gt;
 
 &lt;!-- Usar el componente --&gt;
-&lt;sk-dali-login-react&gt;&lt;/sk-dali-login-react&gt;</code></pre>
+&lt;sk-dali-leads-react&gt;&lt;/sk-dali-leads-react&gt;</code></pre>
     </div>
 </body>
-</html>`;
+</html>\`;
     
     fs.writeFileSync(path.join(outDir, 'index.html'), indexHtml);
     
-    console.log('✅ Todos los web components generados exitosamente en dist/elements/');
+    console.log('✅ Todos los web components generados exitosamente en dist/web-components/');
     console.log('📦 Archivos generados:');
     
-    Object.values(PAGE_COMPONENTS).forEach(componentName => {
-      console.log(`  - SK.Dali.${componentName}.React.js`);
-      console.log(`  - SK.Dali.${componentName}.React.css`);
+    components.forEach(component => {
+      console.log(\`  - SK.Dali.\${component}.React.js\`);
+      console.log(\`  - SK.Dali.\${component}.React.css\`);
     });
     
     console.log('  - index.html (ejemplo de uso)');
@@ -331,7 +369,7 @@ ${Object.values(PAGE_COMPONENTS).map(name =>
 }
 
 // Ejecutar si se llama directamente
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (import.meta.url === \`file://\${process.argv[1]}\`) {
   buildWebComponents();
 }
 

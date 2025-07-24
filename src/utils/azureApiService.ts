@@ -75,14 +75,14 @@ const makeApiCallWithRetry = async (
         await sleep(baseDelay);
         
         // Store the error for potential final throw
-        lastError = new Error(errorText || `API Error: ${response.status} - ${response.statusText}`);
+        lastError = new Error(`API Error: ${response.status} - ${errorText.substring(0, 200)}`);
         continue;
       }
 
       // If it's not a 500 error or we're out of retries, throw immediately
       const errorText = await response.text();
       console.error(`❌ MAESTRO API FINAL ERROR ATTEMPT ${attempt}:`, response.status, errorText.substring(0, 500));
-      throw new Error(errorText || `API Error: ${response.status} - ${response.statusText}`);
+      throw new Error(`API Error: ${response.status} - ${errorText.substring(0, 200)}`);
       
     } catch (error) {
       console.error(`❌ MAESTRO API CALL FAILED ATTEMPT ${attempt}:`, error);
@@ -192,10 +192,24 @@ export const callAzureAgentApi = async (
     console.error('🔍 Error name:', error.name);
     console.error('🔍 Error type:', typeof error);
     
-    // Return the original error message directly
-    const errorMessage = error.message || 'Error desconocido del servidor';
+    let errorMessage = '❌ Error al conectar con el agente: ';
+    
+    if (error.name === 'AbortError') {
+      console.error('⏰ API call was aborted due to timeout after all retries');
+      errorMessage += 'Timeout - El servidor no respondió a tiempo después de varios intentos. ';
+    } else if (error.message?.includes('CORS')) {
+      console.error('🚫 API call failed due to CORS policy after all retries');
+      errorMessage += 'Error de política CORS después de varios intentos. ';
+    } else if (error.message?.includes('Failed to fetch')) {
+      console.error('🌐 API call failed - network issue or server unreachable after all retries');
+      errorMessage += 'No se pudo conectar al servidor después de varios intentos. ';
+    } else {
+      errorMessage += 'Error persistente después de varios intentos. ';
+    }
+    
+    errorMessage += 'Por favor, inténtalo de nuevo en unos momentos.';
 
-    console.log('⚠️ RETURNING ORIGINAL ERROR MESSAGE TO USER:', errorMessage);
+    console.log('⚠️ RETURNING ERROR MESSAGE TO USER AFTER ALL RETRIES:', errorMessage);
     return {
       text: errorMessage,
       processingTime: Date.now() - startTime

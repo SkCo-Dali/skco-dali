@@ -123,44 +123,6 @@ const parseProductField = (field: string | string[] | null | undefined): string 
   return String(field);
 };
 
-// Función específica para parsear AdditionalInfo
-const parseAdditionalInfoField = (field: string | object | null | undefined): object | null => {
-  console.log('📋 parseAdditionalInfoField - Processing AdditionalInfo field:', field);
-  console.log('📋 parseAdditionalInfoField - Field type:', typeof field);
-  
-  if (!field) return null;
-  
-  // Si ya es un objeto, devolverlo directamente
-  if (typeof field === 'object' && field !== null) {
-    console.log('📋 parseAdditionalInfoField - Field is already an object:', field);
-    return field;
-  }
-  
-  // Si es un string, intentar parsearlo como JSON
-  if (typeof field === 'string') {
-    const trimmed = field.trim();
-    
-    if (trimmed.startsWith('{') && trimmed.endsWith('}')) {
-      console.log('📋 parseAdditionalInfoField - Field looks like JSON object, attempting to parse...');
-      try {
-        const parsed = JSON.parse(trimmed);
-        console.log('✅ parseAdditionalInfoField - Successfully parsed AdditionalInfo JSON:', parsed);
-        return parsed;
-      } catch (error) {
-        console.warn('⚠️ parseAdditionalInfoField - Failed to parse AdditionalInfo JSON field:', field);
-        console.warn('⚠️ parseAdditionalInfoField - Parse error:', error);
-        return null;
-      }
-    } else {
-      // Si no parece JSON, tratarlo como null
-      console.log('📋 parseAdditionalInfoField - Field does not look like JSON, returning null');
-      return null;
-    }
-  }
-  
-  return null;
-};
-
 // Mapear de ApiLead a Lead (formato frontend)
 export const mapApiLeadToLead = (apiLead: ApiLead): Lead => {
   console.log('🔄 mapApiLeadToLead - Starting mapping for lead:', apiLead.Id);
@@ -183,7 +145,7 @@ export const mapApiLeadToLead = (apiLead: ApiLead): Lead => {
       priority: (API_TO_FRONTEND_PRIORITY_MAP[apiLead.Priority] || 'medium') as Lead['priority'],
       value: apiLead.Value || 0,
       assignedTo: apiLead.AssignedTo,
-      createdBy: apiLead.CreatedBy || '1',
+      createdBy: apiLead.CreatedBy || '1', // Add createdBy with fallback
       status: 'New' as Lead['status'],
       portfolio: parseArrayField(apiLead.SelectedPortfolios)[0] || 'Portfolio A',
       createdAt: apiLead.CreatedAt,
@@ -195,12 +157,10 @@ export const mapApiLeadToLead = (apiLead: ApiLead): Lead => {
       gender: (apiLead.Gender as any) || 'Prefiero no decir',
       campaignOwnerName: apiLead.CampaignOwnerName || '',
       preferredContactChannel: (apiLead.PreferredContactChannel as Lead['preferredContactChannel']) || 'Correo',
-      interactions: [],
-      additionalInfo: parseAdditionalInfoField((apiLead as any).AdditionalInfo)
+      interactions: []
     };
     
     console.log('✅ mapApiLeadToLead - Successfully mapped lead:', mappedLead.id);
-    console.log('📋 mapApiLeadToLead - AdditionalInfo processed:', mappedLead.additionalInfo);
     return mappedLead;
     
   } catch (error) {
