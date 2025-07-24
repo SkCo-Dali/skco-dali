@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useMemo } from "react";
 import { Search, Filter, ArrowUp, ArrowDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -88,9 +87,10 @@ export function ColumnFilter({
     setIsOpen(false);
   };
 
-  const handleSort = (direction: 'asc' | 'desc') => {
+  const handleSort = (direction: 'asc' | 'desc', e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
     onSortChange(column, direction);
-    setIsOpen(false);
   };
 
   const isAllSelected = filteredValues.length > 0 && 
@@ -143,12 +143,12 @@ export function ColumnFilter({
 
           {/* Opciones de ordenamiento */}
           <div className="mb-4 pb-4 border-b">
-            <div className="flex space-x-2">
+            <div className="flex gap-2">
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => handleSort('asc')}
-                className="flex items-center space-x-1"
+                onClick={(e) => handleSort('asc', e)}
+                className="flex items-center gap-2 text-sm px-3 py-1.5 h-auto"
               >
                 <ArrowUp className="h-3 w-3" />
                 <span>Ascendente</span>
@@ -156,8 +156,8 @@ export function ColumnFilter({
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => handleSort('desc')}
-                className="flex items-center space-x-1"
+                onClick={(e) => handleSort('desc', e)}
+                className="flex items-center gap-2 text-sm px-3 py-1.5 h-auto"
               >
                 <ArrowDown className="h-3 w-3" />
                 <span>Descendente</span>
