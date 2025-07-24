@@ -184,6 +184,7 @@ export function LeadsTable({
   const isIndeterminate = currentPageFilteredLeads.some(lead => selectedLeads.includes(lead.id)) && !isAllSelected;
 
   const handleSort = (columnKey: string, direction: 'asc' | 'desc') => {
+    console.log(`Sorting by ${columnKey} in ${direction} direction`);
     setSortConfig({ key: columnKey, direction });
     
     const sortedLeads = [...filteredLeads].sort((a, b) => {
@@ -279,7 +280,11 @@ export function LeadsTable({
       return 0;
     });
 
-    onSortedLeadsChange?.(sortedLeads);
+    console.log(`Sorted leads:`, sortedLeads.slice(0, 3).map(lead => ({ name: lead.name, [columnKey]: lead[columnKey as keyof Lead] })));
+    
+    if (onSortedLeadsChange) {
+      onSortedLeadsChange(sortedLeads);
+    }
   };
 
   const renderSortIcon = (columnKey: string) => {
