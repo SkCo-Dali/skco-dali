@@ -214,15 +214,16 @@ export class AzureConversationService {
     }
   }
 
-  // Listar conversaciones de un usuario - FIXED ENDPOINT URL AND RESPONSE HANDLING
+  // Listar conversaciones de un usuario - UPDATED to not send userEmail in URL
   async listUserConversations(userEmail: string): Promise<AzureConversation[]> {
-    const endpoint = `${API_BASE_URL}/listconversations/${encodeURIComponent(userEmail)}`;
+    const endpoint = `${API_BASE_URL}/listconversations`;
     
     console.log('🚀 AZURE API REQUEST - LIST CONVERSATIONS');
     console.log('📍 Endpoint:', endpoint);
-    console.log('👤 User Email:', userEmail);
+    console.log('👤 User Email (from token):', userEmail);
     console.log('🔗 Method: GET');
     console.log('📦 Body: None (GET request)');
+    console.log('🔑 User email will be obtained from Authorization header token');
 
     try {
       const headers = await getAuthHeaders();
