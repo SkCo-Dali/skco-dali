@@ -179,36 +179,8 @@ export function ColumnFilter({ columnKey, allLeads, onFilterChange, activeFilter
               </label>
             </div>
 
-            {/* Solo mostrar valores que no están seleccionados si hay filtros activos */}
-            {filteredValues.map((value) => {
-              // Si hay filtros activos, solo mostrar los valores seleccionados
-              if (activeFilters.length > 0 && !activeFilters.includes(value)) {
-                return null;
-              }
-              
-              return (
-                <div key={value} className="flex items-center space-x-2">
-                  <Checkbox
-                    checked={activeFilters.includes(value)}
-                    onCheckedChange={(checked) => handleValueToggle(value, checked as boolean)}
-                    onClick={(e) => e.stopPropagation()}
-                  />
-                  <label 
-                    className="text-sm cursor-pointer flex-1 truncate" 
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleValueToggle(value, !activeFilters.includes(value));
-                    }}
-                    title={value}
-                  >
-                    {value}
-                  </label>
-                </div>
-              );
-            })}
-
-            {/* Si no hay filtros activos, mostrar todos los valores */}
-            {activeFilters.length === 0 && filteredValues.map((value) => (
+            {/* Valores individuales - mostrar todos los valores filtrados */}
+            {filteredValues.map((value) => (
               <div key={value} className="flex items-center space-x-2">
                 <Checkbox
                   checked={activeFilters.includes(value)}
