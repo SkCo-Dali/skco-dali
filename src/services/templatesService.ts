@@ -1,3 +1,4 @@
+
 import { PromptTemplate } from '../types/templates';
 import { ENV } from '@/config/environment';
 
@@ -32,13 +33,24 @@ export interface CategoriesResponse {
 class TemplatesService {
   private baseUrl = ENV.AI_API_BASE_URL;
 
-  private getHeaders(userEmail?: string) {
+  private async getHeaders(): Promise<Record<string, string>> {
     const headers: Record<string, string> = {
       'Content-Type': 'application/json',
     };
     
-    if (userEmail) {
-      headers['X-User-Id'] = userEmail;
+    try {
+      // Get ID Token from SecureTokenManager for authentication
+      const { SecureTokenManager } = await import('@/utils/secureTokenManager');
+      const tokenData = SecureTokenManager.getToken();
+      
+      if (tokenData && tokenData.token) {
+        headers['Authorization'] = `Bearer ${tokenData.token}`;
+        console.log('TemplatesService: Added Authorization header with ID Token');
+      } else {
+        console.warn('TemplatesService: No valid token found in SecureTokenManager');
+      }
+    } catch (error) {
+      console.error('TemplatesService: Error getting authentication token:', error);
     }
     
     return headers;
@@ -84,12 +96,7 @@ class TemplatesService {
     }
   ): Promise<PromptTemplate[]> {
     try {
-      // For system templates, use "system" as user_id and also in header
-      const userId = isDefault ? 'system' : userEmail;
-      const headerUserId = isDefault ? 'system' : userEmail;
-      
       const params = new URLSearchParams({
-        user_id: userId,
         is_default: isDefault.toString(),
         ...(options?.category && { category: options.category }),
         ...(options?.search && { search: options.search }),
@@ -99,13 +106,13 @@ class TemplatesService {
 
       console.log('TemplatesService: Fetching templates:', {
         type: isDefault ? 'system' : 'user',
-        url: `${BACKEND_URL}/api/templates?${params}`,
-        headerUserId: headerUserId
+        url: `${BACKEND_URL}/api/templates?${params}`
       });
 
+      const headers = await this.getHeaders();
       const response = await fetch(`${BACKEND_URL}/api/templates?${params}`, {
         method: 'GET',
-        headers: this.getHeaders(headerUserId)
+        headers
       });
 
       if (!response.ok) {
@@ -147,9 +154,10 @@ class TemplatesService {
     try {
       console.log('TemplatesService: Creating template for:', userEmail);
       
+      const headers = await this.getHeaders();
       const response = await fetch(`${BACKEND_URL}/api/templates`, {
         method: 'POST',
-        headers: this.getHeaders(userEmail),
+        headers,
         body: JSON.stringify(templateData)
       });
 
@@ -189,9 +197,10 @@ class TemplatesService {
     try {
       console.log('TemplatesService: Updating template:', templateId);
       
+      const headers = await this.getHeaders();
       const response = await fetch(`${BACKEND_URL}/api/templates/${templateId}`, {
         method: 'PUT',
-        headers: this.getHeaders(userEmail),
+        headers,
         body: JSON.stringify(templateData)
       });
 
@@ -223,13 +232,10 @@ class TemplatesService {
     try {
       console.log('TemplatesService: Deleting template:', templateId);
       
-      const params = new URLSearchParams({
-        user_id: userEmail
-      });
-      
-      const response = await fetch(`${BACKEND_URL}/api/templates/${templateId}?${params}`, {
+      const headers = await this.getHeaders();
+      const response = await fetch(`${BACKEND_URL}/api/templates/${templateId}`, {
         method: 'DELETE',
-        headers: this.getHeaders(userEmail)
+        headers
       });
 
       if (!response.ok) {
@@ -247,13 +253,10 @@ class TemplatesService {
     try {
       console.log('TemplatesService: Recording template usage:', templateId);
       
-      const params = new URLSearchParams({
-        user_id: userEmail
-      });
-      
-      const response = await fetch(`${BACKEND_URL}/api/templates/${templateId}/usage?${params}`, {
+      const headers = await this.getHeaders();
+      const response = await fetch(`${BACKEND_URL}/api/templates/${templateId}/usage`, {
         method: 'POST',
-        headers: this.getHeaders(userEmail)
+        headers
       });
 
       if (!response.ok) {
@@ -295,13 +298,10 @@ class TemplatesService {
     try {
       console.log('TemplatesService: Getting template categories for:', userEmail);
       
-      const params = new URLSearchParams({
-        user_id: userEmail
-      });
-
-      const response = await fetch(`${BACKEND_URL}/api/templates/categories?${params}`, {
+      const headers = await this.getHeaders();
+      const response = await fetch(`${BACKEND_URL}/api/templates/categories`, {
         method: 'GET',
-        headers: this.getHeaders(userEmail)
+        headers
       });
 
       if (!response.ok) {
