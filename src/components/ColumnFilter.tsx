@@ -77,9 +77,11 @@ export function ColumnFilter({ columnKey, allLeads, onFilterChange, activeFilter
     return Array.from(new Set(values)).sort();
   }, [allLeads, columnKey]);
 
-  // Filtrar valores por búsqueda - solo aplicar filtro de búsqueda si hay texto
+  // Solo filtrar por búsqueda cuando hay texto de búsqueda
   const filteredValues = useMemo(() => {
-    if (!searchTerm.trim()) return uniqueValues;
+    if (!searchTerm.trim()) {
+      return uniqueValues;
+    }
     return uniqueValues.filter(value => 
       value.toLowerCase().includes(searchTerm.toLowerCase())
     );
@@ -97,18 +99,22 @@ export function ColumnFilter({ columnKey, allLeads, onFilterChange, activeFilter
 
   const handleSelectAll = (checked: boolean) => {
     if (checked) {
+      // Seleccionar todos los valores filtrados (por búsqueda si hay)
       onFilterChange(columnKey, [...filteredValues]);
     } else {
+      // Deseleccionar todos
       onFilterChange(columnKey, []);
     }
   };
 
   const handleClear = () => {
-    // Limpiar tanto los filtros como el término de búsqueda
+    // Primero limpiar los filtros
     onFilterChange(columnKey, []);
+    // Luego limpiar el término de búsqueda
     setSearchTerm('');
   };
 
+  // Para "Select All", verificar si todos los valores filtrados están seleccionados
   const isAllSelected = filteredValues.length > 0 && filteredValues.every(value => activeFilters.includes(value));
   const isIndeterminate = filteredValues.some(value => activeFilters.includes(value)) && !isAllSelected;
 
@@ -180,7 +186,7 @@ export function ColumnFilter({ columnKey, allLeads, onFilterChange, activeFilter
               </label>
             </div>
 
-            {/* Valores individuales - mostrar todos los valores filtrados */}
+            {/* Valores individuales */}
             {filteredValues.map((value) => (
               <div key={value} className="flex items-center space-x-2">
                 <Checkbox
