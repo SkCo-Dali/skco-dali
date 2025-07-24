@@ -77,9 +77,9 @@ export function ColumnFilter({ columnKey, allLeads, onFilterChange, activeFilter
     return Array.from(new Set(values)).sort();
   }, [allLeads, columnKey]);
 
-  // Filtrar valores por búsqueda
+  // Filtrar valores por búsqueda - solo aplicar filtro de búsqueda si hay texto
   const filteredValues = useMemo(() => {
-    if (!searchTerm) return uniqueValues;
+    if (!searchTerm.trim()) return uniqueValues;
     return uniqueValues.filter(value => 
       value.toLowerCase().includes(searchTerm.toLowerCase())
     );
@@ -104,6 +104,7 @@ export function ColumnFilter({ columnKey, allLeads, onFilterChange, activeFilter
   };
 
   const handleClear = () => {
+    // Limpiar tanto los filtros como el término de búsqueda
     onFilterChange(columnKey, []);
     setSearchTerm('');
   };
