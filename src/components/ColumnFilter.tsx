@@ -9,18 +9,18 @@ import { Lead } from '@/types/crm';
 
 interface ColumnFilterProps {
   columnKey: string;
-  leads: Lead[];
+  allLeads: Lead[]; // Cambiar a allLeads para usar todos los leads disponibles
   onFilterChange: (columnKey: string, selectedValues: string[]) => void;
   activeFilters: string[];
 }
 
-export function ColumnFilter({ columnKey, leads, onFilterChange, activeFilters }: ColumnFilterProps) {
+export function ColumnFilter({ columnKey, allLeads, onFilterChange, activeFilters }: ColumnFilterProps) {
   const [searchTerm, setSearchTerm] = useState('');
   const [isOpen, setIsOpen] = useState(false);
 
-  // Obtener valores únicos para la columna
+  // Obtener valores únicos para la columna usando TODOS los leads
   const uniqueValues = useMemo(() => {
-    const values = leads.map(lead => {
+    const values = allLeads.map(lead => {
       let value = '';
       switch (columnKey) {
         case 'name':
@@ -75,7 +75,7 @@ export function ColumnFilter({ columnKey, leads, onFilterChange, activeFilters }
     }).filter(Boolean);
 
     return Array.from(new Set(values)).sort();
-  }, [leads, columnKey]);
+  }, [allLeads, columnKey]);
 
   // Filtrar valores por búsqueda
   const filteredValues = useMemo(() => {
@@ -117,11 +117,14 @@ export function ColumnFilter({ columnKey, leads, onFilterChange, activeFilters }
           variant="ghost" 
           size="sm" 
           className={`h-4 w-4 p-0 ml-1 hover:bg-gray-100 ${activeFilters.length > 0 ? 'text-[#00c83c]' : 'text-gray-400'}`}
+          onClick={(e) => {
+            e.stopPropagation(); // Evitar propagación del evento
+          }}
         >
           <Filter className="h-3 w-3" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-80 bg-white border shadow-lg" align="start">
+      <PopoverContent className="w-80 bg-white border shadow-lg z-50" align="start">
         <div className="space-y-4">
           {/* Header con tabs */}
           <div className="flex items-center space-x-2">
@@ -129,6 +132,7 @@ export function ColumnFilter({ columnKey, leads, onFilterChange, activeFilters }
               variant="default"
               size="sm"
               className="bg-[#00c83c] text-white text-xs px-3 py-1 rounded-full"
+              onClick={(e) => e.stopPropagation()}
             >
               Values
             </Button>
@@ -141,8 +145,12 @@ export function ColumnFilter({ columnKey, leads, onFilterChange, activeFilters }
             <Input
               placeholder="Search"
               value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
+              onChange={(e) => {
+                e.stopPropagation();
+                setSearchTerm(e.target.value);
+              }}
               className="pl-10 text-sm"
+              onClick={(e) => e.stopPropagation()}
             />
           </div>
 
@@ -152,11 +160,20 @@ export function ColumnFilter({ columnKey, leads, onFilterChange, activeFilters }
             <div className="flex items-center space-x-2">
               <Checkbox
                 checked={isAllSelected}
-                onCheckedChange={handleSelectAll}
+                onCheckedChange={(checked) => {
+                  handleSelectAll(checked as boolean);
+                }}
                 className={isIndeterminate ? "data-[state=indeterminate]:bg-primary data-[state=indeterminate]:text-primary-foreground" : ""}
                 {...(isIndeterminate ? { "data-state": "indeterminate" } : {})}
+                onClick={(e) => e.stopPropagation()}
               />
-              <label className="text-sm font-medium cursor-pointer" onClick={() => handleSelectAll(!isAllSelected)}>
+              <label 
+                className="text-sm font-medium cursor-pointer" 
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleSelectAll(!isAllSelected);
+                }}
+              >
                 (Select All)
               </label>
             </div>
@@ -167,10 +184,14 @@ export function ColumnFilter({ columnKey, leads, onFilterChange, activeFilters }
                 <Checkbox
                   checked={activeFilters.includes(value)}
                   onCheckedChange={(checked) => handleValueToggle(value, checked as boolean)}
+                  onClick={(e) => e.stopPropagation()}
                 />
                 <label 
                   className="text-sm cursor-pointer flex-1 truncate" 
-                  onClick={() => handleValueToggle(value, !activeFilters.includes(value))}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleValueToggle(value, !activeFilters.includes(value));
+                  }}
                   title={value}
                 >
                   {value}
@@ -184,7 +205,10 @@ export function ColumnFilter({ columnKey, leads, onFilterChange, activeFilters }
             <Button
               variant="ghost"
               size="sm"
-              onClick={handleClear}
+              onClick={(e) => {
+                e.stopPropagation();
+                handleClear();
+              }}
               className="text-gray-600"
             >
               Clear
@@ -193,14 +217,20 @@ export function ColumnFilter({ columnKey, leads, onFilterChange, activeFilters }
               <Button
                 variant="ghost"
                 size="sm"
-                onClick={() => setIsOpen(false)}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setIsOpen(false);
+                }}
                 className="text-gray-600"
               >
                 Cancel
               </Button>
               <Button
                 size="sm"
-                onClick={() => setIsOpen(false)}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setIsOpen(false);
+                }}
                 className="bg-[#00c83c] text-white hover:bg-[#00b835]"
               >
                 OK

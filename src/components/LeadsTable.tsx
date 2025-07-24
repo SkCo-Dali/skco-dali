@@ -549,7 +549,7 @@ export function LeadsTable({
                         {renderSortIcon(column.key)}
                         <ColumnFilter
                           columnKey={column.key}
-                          leads={hasActiveFilters ? columnFilteredLeads : leads}
+                          allLeads={leads}
                           onFilterChange={handleColumnFilterChange}
                           activeFilters={columnFilters[column.key] || []}
                         />
