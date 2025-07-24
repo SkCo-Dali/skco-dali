@@ -6,6 +6,8 @@ export function useColumnFilters(leads: Lead[]) {
   const [columnFilters, setColumnFilters] = useState<Record<string, string[]>>({});
 
   const filteredLeads = useMemo(() => {
+    if (Object.keys(columnFilters).length === 0) return leads;
+    
     return leads.filter(lead => {
       return Object.entries(columnFilters).every(([column, selectedValues]) => {
         if (selectedValues.length === 0) return true;
@@ -19,10 +21,17 @@ export function useColumnFilters(leads: Lead[]) {
   }, [leads, columnFilters]);
 
   const handleColumnFilterChange = (column: string, selectedValues: string[]) => {
-    setColumnFilters(prev => ({
-      ...prev,
-      [column]: selectedValues
-    }));
+    setColumnFilters(prev => {
+      const newFilters = { ...prev };
+      
+      if (selectedValues.length === 0) {
+        delete newFilters[column];
+      } else {
+        newFilters[column] = selectedValues;
+      }
+      
+      return newFilters;
+    });
   };
 
   const clearColumnFilter = (column: string) => {

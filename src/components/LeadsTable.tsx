@@ -1,4 +1,4 @@
-import { useState } from "react"; 
+import { useState, React } from "react"; 
 import { Lead } from "@/types/crm";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -29,6 +29,7 @@ interface LeadsTableProps {
   onOpenProfiler?: (lead: Lead) => void;
   selectedLeads?: string[];
   onLeadSelectionChange?: (leadIds: string[], isSelected: boolean) => void;
+  onFilteredLeadsChange?: (filteredLeads: Lead[]) => void;
 }
 
 type SortConfig = {
@@ -100,7 +101,8 @@ export function LeadsTable({
   onSendEmail,
   onOpenProfiler,
   selectedLeads = [],
-  onLeadSelectionChange
+  onLeadSelectionChange,
+  onFilteredLeadsChange
 }: LeadsTableProps) {
   const { users } = useUsersApi();
   const [sortConfig, setSortConfig] = useState<SortConfig>(null);
@@ -109,6 +111,13 @@ export function LeadsTable({
   
   // Usar filtros por columna
   const { columnFilters, filteredLeads, handleColumnFilterChange } = useColumnFilters(leads);
+  
+  // Notificar cambios en leads filtrados al componente padre
+  React.useEffect(() => {
+    if (onFilteredLeadsChange) {
+      onFilteredLeadsChange(filteredLeads);
+    }
+  }, [filteredLeads, onFilteredLeadsChange]);
   
   // Usar configuración persistente si no se pasan columnas desde el padre
   const activeColumns = columns || loadColumnConfig();
