@@ -112,87 +112,13 @@ export function LeadsTable({
   // Usar filtros por columna con filtros de texto integrados
   const { columnFilters, textFilters, filteredLeads, handleColumnFilterChange, handleTextFilterChange } = useColumnFilters(leads);
   
-  // Notificar cambios en leads filtrados al componente padre
-  useEffect(() => {
-    if (onFilteredLeadsChange) {
-      onFilteredLeadsChange(filteredLeads);
-    }
-  }, [filteredLeads, onFilteredLeadsChange]);
-  
-  // Usar configuración persistente si no se pasan columnas desde el padre
-  const activeColumns = columns || loadColumnConfig();
-  
-  const { isDeleting, canDeleteLead, deleteSingleLead } = useLeadDeletion({
-    onLeadDeleted: onLeadUpdate
-  });
-
-  const visibleColumns = activeColumns.filter(col => col.visible);
-
-  // Orden personalizado de las columnas
-  const customOrder = [
-    'name',                 
-    'campaign',             
-    'email',                
-    'phone',                
-    'documentType',         
-    'documentNumber',       
-    'product',              
-    'stage',                
-    'assignedTo',           
-    'source',               
-    'createdAt',            
-    'lastInteraction',      
-    'priority',             
-    'age',                  
-    'gender',               
-    'preferredContactChannel', 
-    'company',              
-    'value',                
-  ];
-
-  // Ordenar las columnas visibles según customOrder
-  const orderedColumns = visibleColumns.slice().sort((a, b) => {
-    return customOrder.indexOf(a.key) - customOrder.indexOf(b.key);
-  });
-
-  const calculateTableWidth = () => {
-    const checkboxColumnWidth = 50; // Nueva columna de checkbox
-    const nameColumnWidth = 350; // Columna nombre siempre 350px
-    const regularColumnWidth = 250; // Todas las demás columnas 250px
-    const visibleRegularColumns = orderedColumns.length - 1; // Restar la columna nombre
-    
-    return checkboxColumnWidth + nameColumnWidth + (visibleRegularColumns * regularColumnWidth);
-  };
-
-  const handleSelectAll = (checked: boolean) => {
-    // Usar filteredLeads en lugar de paginatedLeads para la selección
-    const currentPageLeadIds = filteredLeads.slice(0, paginatedLeads.length).map(lead => lead.id);
-    if (onLeadSelectionChange) {
-      onLeadSelectionChange(currentPageLeadIds, checked);
-    }
-  };
-
-  const handleSelectLead = (leadId: string, checked: boolean) => {
-    if (onLeadSelectionChange) {
-      onLeadSelectionChange([leadId], checked);
-    }
-  };
-
-  // Usar filteredLeads para determinar si todos están seleccionados
-  const currentPageFilteredLeads = filteredLeads.slice(0, paginatedLeads.length);
-  const isAllSelected = currentPageFilteredLeads.length > 0 && currentPageFilteredLeads.every(lead => selectedLeads.includes(lead.id));
-  const isIndeterminate = currentPageFilteredLeads.some(lead => selectedLeads.includes(lead.id)) && !isAllSelected;
-
-  const handleSort = (columnKey: string, direction?: 'asc' | 'desc') => {
-    const newDirection = direction || (sortConfig?.key === columnKey && sortConfig?.direction === 'asc' ? 'desc' : 'asc');
-    console.log(`Sorting by ${columnKey} in ${newDirection} direction`);
-    setSortConfig({ key: columnKey, direction: newDirection });
-    
-    const sortedLeads = [...filteredLeads].sort((a, b) => {
+  // Aplicar ordenamiento a los leads filtrados
+  const sortedFilteredLeads = sortConfig ? 
+    [...filteredLeads].sort((a, b) => {
       let aValue: any;
       let bValue: any;
 
-      switch (columnKey) {
+      switch (sortConfig.key) {
         case 'name':
           aValue = a.name.toLowerCase();
           bValue = b.name.toLowerCase();
@@ -273,19 +199,96 @@ export function LeadsTable({
       }
 
       if (aValue < bValue) {
-        return newDirection === 'asc' ? -1 : 1;
+        return sortConfig.direction === 'asc' ? -1 : 1;
       }
       if (aValue > bValue) {
-        return newDirection === 'asc' ? 1 : -1;
+        return sortConfig.direction === 'asc' ? 1 : -1;
       }
       return 0;
-    });
-
-    console.log(`Sorted leads:`, sortedLeads.slice(0, 3).map(lead => ({ name: lead.name, [columnKey]: lead[columnKey as keyof Lead] })));
-    
-    if (onSortedLeadsChange) {
-      onSortedLeadsChange(sortedLeads);
+    }) : filteredLeads;
+  
+  // Notificar cambios en leads filtrados al componente padre
+  useEffect(() => {
+    if (onFilteredLeadsChange) {
+      onFilteredLeadsChange(sortedFilteredLeads);
     }
+  }, [sortedFilteredLeads, onFilteredLeadsChange]);
+  
+  // Notificar cambios en leads ordenados al componente padre
+  useEffect(() => {
+    if (onSortedLeadsChange) {
+      onSortedLeadsChange(sortedFilteredLeads);
+    }
+  }, [sortedFilteredLeads, onSortedLeadsChange]);
+  
+  // Usar configuración persistente si no se pasan columnas desde el padre
+  const activeColumns = columns || loadColumnConfig();
+  
+  const { isDeleting, canDeleteLead, deleteSingleLead } = useLeadDeletion({
+    onLeadDeleted: onLeadUpdate
+  });
+
+  const visibleColumns = activeColumns.filter(col => col.visible);
+
+  // Orden personalizado de las columnas
+  const customOrder = [
+    'name',                 
+    'campaign',             
+    'email',                
+    'phone',                
+    'documentType',         
+    'documentNumber',       
+    'product',              
+    'stage',                
+    'assignedTo',           
+    'source',               
+    'createdAt',            
+    'lastInteraction',      
+    'priority',             
+    'age',                  
+    'gender',               
+    'preferredContactChannel', 
+    'company',              
+    'value',                
+  ];
+
+  // Ordenar las columnas visibles según customOrder
+  const orderedColumns = visibleColumns.slice().sort((a, b) => {
+    return customOrder.indexOf(a.key) - customOrder.indexOf(b.key);
+  });
+
+  const calculateTableWidth = () => {
+    const checkboxColumnWidth = 50; // Nueva columna de checkbox
+    const nameColumnWidth = 350; // Columna nombre siempre 350px
+    const regularColumnWidth = 250; // Todas las demás columnas 250px
+    const visibleRegularColumns = orderedColumns.length - 1; // Restar la columna nombre
+    
+    return checkboxColumnWidth + nameColumnWidth + (visibleRegularColumns * regularColumnWidth);
+  };
+
+  const handleSelectAll = (checked: boolean) => {
+    // Usar sortedFilteredLeads en lugar de filteredLeads para la selección
+    const currentPageLeadIds = sortedFilteredLeads.slice(0, paginatedLeads.length).map(lead => lead.id);
+    if (onLeadSelectionChange) {
+      onLeadSelectionChange(currentPageLeadIds, checked);
+    }
+  };
+
+  const handleSelectLead = (leadId: string, checked: boolean) => {
+    if (onLeadSelectionChange) {
+      onLeadSelectionChange([leadId], checked);
+    }
+  };
+
+  // Usar sortedFilteredLeads para determinar si todos están seleccionados
+  const currentPageSortedLeads = sortedFilteredLeads.slice(0, paginatedLeads.length);
+  const isAllSelected = currentPageSortedLeads.length > 0 && currentPageSortedLeads.every(lead => selectedLeads.includes(lead.id));
+  const isIndeterminate = currentPageSortedLeads.some(lead => selectedLeads.includes(lead.id)) && !isAllSelected;
+
+  const handleSort = (columnKey: string, direction?: 'asc' | 'desc') => {
+    const newDirection = direction || (sortConfig?.key === columnKey && sortConfig?.direction === 'asc' ? 'desc' : 'asc');
+    console.log(`Sorting by ${columnKey} in ${newDirection} direction`);
+    setSortConfig({ key: columnKey, direction: newDirection });
   };
 
   const handleColumnHeaderClick = (columnKey: string, sortable: boolean) => {
@@ -513,8 +516,8 @@ export function LeadsTable({
     }
   };
 
-  // Usar filteredLeads en lugar de paginatedLeads para el render
-  const leadsToRender = filteredLeads.slice(0, paginatedLeads.length);
+  // Usar sortedFilteredLeads para el render
+  const leadsToRender = sortedFilteredLeads.slice(0, paginatedLeads.length);
 
   return (
     <>
