@@ -77,8 +77,8 @@ export function ColumnFilter({ columnKey, allLeads, onFilterChange, activeFilter
     return Array.from(new Set(values)).sort();
   }, [allLeads, columnKey]);
 
-  // Solo filtrar por búsqueda cuando hay texto de búsqueda
-  const filteredValues = useMemo(() => {
+  // Valores mostrados - solo filtrar cuando hay término de búsqueda
+  const displayedValues = useMemo(() => {
     if (!searchTerm.trim()) {
       return uniqueValues;
     }
@@ -99,24 +99,31 @@ export function ColumnFilter({ columnKey, allLeads, onFilterChange, activeFilter
 
   const handleSelectAll = (checked: boolean) => {
     if (checked) {
-      // Seleccionar todos los valores filtrados (por búsqueda si hay)
-      onFilterChange(columnKey, [...filteredValues]);
+      // Seleccionar TODOS los valores únicos, no solo los mostrados
+      const newFilters = [...new Set([...activeFilters, ...displayedValues])];
+      onFilterChange(columnKey, newFilters);
     } else {
-      // Deseleccionar todos
-      onFilterChange(columnKey, []);
+      // Deseleccionar solo los valores mostrados
+      const valuesToRemove = new Set(displayedValues);
+      const newFilters = activeFilters.filter(filter => !valuesToRemove.has(filter));
+      onFilterChange(columnKey, newFilters);
     }
   };
 
   const handleClear = () => {
-    // Primero limpiar los filtros
+    // Limpiar COMPLETAMENTE los filtros y la búsqueda
     onFilterChange(columnKey, []);
-    // Luego limpiar el término de búsqueda
     setSearchTerm('');
   };
 
-  // Para "Select All", verificar si todos los valores filtrados están seleccionados
-  const isAllSelected = filteredValues.length > 0 && filteredValues.every(value => activeFilters.includes(value));
-  const isIndeterminate = filteredValues.some(value => activeFilters.includes(value)) && !isAllSelected;
+  const handleSearchChange = (value: string) => {
+    setSearchTerm(value);
+  };
+
+  // Verificar estado de "Select All" basado en valores mostrados
+  const displayedActiveFilters = displayedValues.filter(value => activeFilters.includes(value));
+  const isAllDisplayedSelected = displayedValues.length > 0 && displayedActiveFilters.length === displayedValues.length;
+  const isIndeterminate = displayedActiveFilters.length > 0 && displayedActiveFilters.length < displayedValues.length;
 
   return (
     <Popover open={isOpen} onOpenChange={setIsOpen}>
@@ -155,7 +162,7 @@ export function ColumnFilter({ columnKey, allLeads, onFilterChange, activeFilter
               value={searchTerm}
               onChange={(e) => {
                 e.stopPropagation();
-                setSearchTerm(e.target.value);
+                handleSearchChange(e.target.value);
               }}
               className="pl-10 text-sm"
               onClick={(e) => e.stopPropagation()}
@@ -167,7 +174,7 @@ export function ColumnFilter({ columnKey, allLeads, onFilterChange, activeFilter
             {/* Select All */}
             <div className="flex items-center space-x-2">
               <Checkbox
-                checked={isAllSelected}
+                checked={isAllDisplayedSelected}
                 onCheckedChange={(checked) => {
                   handleSelectAll(checked as boolean);
                 }}
@@ -179,7 +186,7 @@ export function ColumnFilter({ columnKey, allLeads, onFilterChange, activeFilter
                 className="text-sm font-medium cursor-pointer" 
                 onClick={(e) => {
                   e.stopPropagation();
-                  handleSelectAll(!isAllSelected);
+                  handleSelectAll(!isAllDisplayedSelected);
                 }}
               >
                 (Select All)
@@ -187,7 +194,7 @@ export function ColumnFilter({ columnKey, allLeads, onFilterChange, activeFilter
             </div>
 
             {/* Valores individuales */}
-            {filteredValues.map((value) => (
+            {displayedValues.map((value) => (
               <div key={value} className="flex items-center space-x-2">
                 <Checkbox
                   checked={activeFilters.includes(value)}
@@ -206,6 +213,12 @@ export function ColumnFilter({ columnKey, allLeads, onFilterChange, activeFilter
                 </label>
               </div>
             ))}
+
+            {displayedValues.length === 0 && searchTerm.trim() && (
+              <div className="text-center text-gray-500 py-4">
+                <p className="text-sm">No se encontraron resultados</p>
+              </div>
+            )}
           </div>
 
           {/* Botones de acción */}
