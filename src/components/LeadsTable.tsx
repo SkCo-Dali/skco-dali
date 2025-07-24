@@ -15,6 +15,8 @@ import { FaWhatsapp } from "react-icons/fa";
 import { useLeadDeletion } from "@/hooks/useLeadDeletion";
 import { LeadDeleteConfirmDialog } from "@/components/LeadDeleteConfirmDialog";
 import { toast } from "sonner";
+import { ColumnFilter } from "@/components/ColumnFilter";
+import { useColumnFilters } from "@/hooks/useColumnFilters";
 
 interface LeadsTableProps {
   leads: Lead[];
@@ -27,6 +29,7 @@ interface LeadsTableProps {
   onOpenProfiler?: (lead: Lead) => void;
   selectedLeads?: string[];
   onLeadSelectionChange?: (leadIds: string[], isSelected: boolean) => void;
+  onFilteredLeadsChange?: (filteredLeads: Lead[]) => void;
 }
 
 type SortConfig = {
@@ -98,7 +101,8 @@ export function LeadsTable({
   onSendEmail,
   onOpenProfiler,
   selectedLeads = [],
-  onLeadSelectionChange
+  onLeadSelectionChange,
+  onFilteredLeadsChange
 }: LeadsTableProps) {
   const { users } = useUsersApi();
   const [sortConfig, setSortConfig] = useState<SortConfig>(null);
@@ -111,6 +115,22 @@ export function LeadsTable({
   const { isDeleting, canDeleteLead, deleteSingleLead } = useLeadDeletion({
     onLeadDeleted: onLeadUpdate
   });
+
+  // Integrar filtros por columna
+  const {
+    columnFilters,
+    handleColumnFilterChange,
+    clearColumnFilters,
+    filteredLeads: columnFilteredLeads,
+    hasActiveFilters
+  } = useColumnFilters(leads);
+
+  // Notificar cambios en los leads filtrados al componente padre
+  React.useEffect(() => {
+    if (onFilteredLeadsChange) {
+      onFilteredLeadsChange(columnFilteredLeads);
+    }
+  }, [columnFilteredLeads, onFilteredLeadsChange]);
 
   const visibleColumns = activeColumns.filter(col => col.visible);
 
@@ -175,7 +195,9 @@ export function LeadsTable({
     
     setSortConfig({ key: columnKey, direction });
     
-    const sortedLeads = [...leads].sort((a, b) => {
+    // Aplicar ordenamiento a los leads filtrados por columna
+    const leadsToSort = hasActiveFilters ? columnFilteredLeads : leads;
+    const sortedLeads = [...leadsToSort].sort((a, b) => {
       let aValue: any;
       let bValue: any;
 
@@ -525,6 +547,12 @@ export function LeadsTable({
                       <div className="flex items-center justify-center">
                         {column.label}
                         {renderSortIcon(column.key)}
+                        <ColumnFilter
+                          columnKey={column.key}
+                          leads={hasActiveFilters ? columnFilteredLeads : leads}
+                          onFilterChange={handleColumnFilterChange}
+                          activeFilters={columnFilters[column.key] || []}
+                        />
                       </div>
                     </TableHead>
                   ))}

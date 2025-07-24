@@ -151,7 +151,15 @@ export default function Leads() {
     duplicateCount
   } = useLeadsFilters(leadsData);
 
-  const leadsToUse = sortedLeads.length > 0 ? sortedLeads : filteredLeads;
+  // Estado adicional para los filtros por columna
+  const [columnFilteredLeads, setColumnFilteredLeads] = useState<Lead[]>([]);
+
+  // Combinar filtros de useLeadsFilters con filtros por columna
+  const finalFilteredLeads = columnFilteredLeads.length > 0 ? 
+    filteredLeads.filter(lead => columnFilteredLeads.includes(lead)) : 
+    filteredLeads;
+
+  const leadsToUse = sortedLeads.length > 0 ? sortedLeads : finalFilteredLeads;
 
   const {
     currentPage,
@@ -281,6 +289,11 @@ export default function Leads() {
     }
     setShowMassEmail(true);
   };
+
+  const handleColumnFilteredLeadsChange = useCallback((filtered: Lead[]) => {
+    setColumnFilteredLeads(filtered);
+    setCurrentPage(1); // Resetear a la primera página cuando cambien los filtros
+  }, [setCurrentPage]);
 
   if (error) {
     return (
@@ -627,7 +640,7 @@ export default function Leads() {
               <>
                 <LeadsContent
                   viewMode={viewMode}
-                  leads={filteredLeads}
+                  leads={finalFilteredLeads}
                   onLeadClick={handleLeadClick}
                   onLeadUpdate={handleLeadUpdate}
                   columns={columns}
@@ -637,6 +650,7 @@ export default function Leads() {
                   groupBy={groupBy}
                   selectedLeads={selectedLeads}
                   onLeadSelectionChange={handleLeadSelectionChange}
+                  onFilteredLeadsChange={handleColumnFilteredLeadsChange}
                 />
 
                 <LeadsPagination

@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Lead } from "@/types/crm";
 import { LeadCard } from "./LeadCard";
@@ -8,17 +7,19 @@ import { LeadProfiler } from "./LeadProfiler";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 interface LeadsContentProps {
-  viewMode: 'table' | 'columns';
+  viewMode: "table" | "columns";
   leads: Lead[];
   onLeadClick: (lead: Lead) => void;
-  onLeadUpdate: () => void;
-  columns: ColumnConfig[];
+  onLeadUpdate?: () => void;
+  columns?: ColumnConfig[];
   paginatedLeads: Lead[];
-  onSortedLeadsChange: (sorted: Lead[]) => void;
-  onSendEmail: (lead: Lead) => void;
-  groupBy: string;
-  selectedLeads: string[];
-  onLeadSelectionChange: (leadIds: string[], isSelected: boolean) => void;
+  onSortedLeadsChange?: (sortedLeads: Lead[]) => void;
+  onSendEmail?: (lead: Lead) => void;
+  groupBy?: string;
+  selectedLeads?: string[];
+  onLeadSelectionChange?: (leadIds: string[], isSelected: boolean) => void;
+  onOpenProfiler?: (lead: Lead) => void;
+  onFilteredLeadsChange?: (filteredLeads: Lead[]) => void;
 }
 
 export function LeadsContent({
@@ -30,10 +31,30 @@ export function LeadsContent({
   paginatedLeads,
   onSortedLeadsChange,
   onSendEmail,
-  groupBy,
+  groupBy = "stage",
   selectedLeads,
-  onLeadSelectionChange
+  onLeadSelectionChange,
+  onOpenProfiler,
+  onFilteredLeadsChange
 }: LeadsContentProps) {
+  if (viewMode === "table") {
+    return (
+      <LeadsTable
+        leads={leads}
+        paginatedLeads={paginatedLeads}
+        onLeadClick={onLeadClick}
+        onLeadUpdate={onLeadUpdate}
+        columns={columns}
+        onSortedLeadsChange={onSortedLeadsChange}
+        onSendEmail={onSendEmail}
+        onOpenProfiler={onOpenProfiler}
+        selectedLeads={selectedLeads}
+        onLeadSelectionChange={onLeadSelectionChange}
+        onFilteredLeadsChange={onFilteredLeadsChange}
+      />
+    );
+  }
+
   const [selectedLeadForProfiler, setSelectedLeadForProfiler] = useState<Lead | null>(null);
   const [isProfilerOpen, setIsProfilerOpen] = useState(false);
 
@@ -46,32 +67,6 @@ export function LeadsContent({
     setIsProfilerOpen(false);
     setSelectedLeadForProfiler(null);
   };
-
-  if (viewMode === 'table') {
-    return (
-      <>
-        <LeadsTable
-          leads={leads}
-          paginatedLeads={paginatedLeads}
-          onLeadClick={onLeadClick}
-          onLeadUpdate={onLeadUpdate}
-          columns={columns}
-          onSortedLeadsChange={onSortedLeadsChange}
-          onSendEmail={onSendEmail}
-          onOpenProfiler={handleOpenProfiler}
-          selectedLeads={selectedLeads}
-          onLeadSelectionChange={onLeadSelectionChange}
-        />
-
-        <Dialog open={isProfilerOpen} onOpenChange={setIsProfilerOpen}>
-          <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto p-0">
-            
-            <LeadProfiler selectedLead={selectedLeadForProfiler} />
-          </DialogContent>
-        </Dialog>
-      </>
-    );
-  }
 
   const groupedLeads = leads.reduce((acc: { [key: string]: Lead[] }, lead) => {
     const key = lead[groupBy as keyof Lead] as string || 'undefined';
