@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
@@ -36,6 +37,11 @@ export function MicrosoftAuth() {
       let existingUser = await getUserByEmail(email);
       
       if (existingUser) {
+        // Verificar si el usuario está activo
+        if (!existingUser.isActive) {
+          throw new Error('Tu cuenta está inactiva. Por favor contacta al administrador para activarla.');
+        }
+        
         sessionStorage.setItem('authenticated-user-uuid', existingUser.id);
         return existingUser;
       }
@@ -49,12 +55,17 @@ export function MicrosoftAuth() {
         isActive: true
       });
       
+      // Verificar si el usuario recién creado está activo (por si acaso)
+      if (!newUser.isActive) {
+        throw new Error('Tu cuenta fue creada pero está inactiva. Por favor contacta al administrador para activarla.');
+      }
+      
       sessionStorage.setItem('authenticated-user-uuid', newUser.id);
       
       return newUser;
       
     } catch (error) {
-      throw new Error('No se pudo crear o encontrar el usuario en la base de datos');
+      throw error;
     }
   };
 
@@ -95,7 +106,7 @@ export function MicrosoftAuth() {
       // Paso 4: Obtener foto del perfil (opcional, no crítico)
       const userPhoto = await getUserPhoto(response.accessToken);
       
-      // Paso 5: Buscar o crear usuario en base de datos
+      // Paso 5: Buscar o crear usuario en base de datos (CON VALIDACIÓN DE ESTADO ACTIVO)
       const dbUser = await findOrCreateUser(userInfo.email, userInfo.name);
       
       // Paso 6: Crear objeto de usuario final

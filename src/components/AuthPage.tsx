@@ -30,9 +30,16 @@ export const AuthPage: React.FC = () => {
 
       if (error) {
         console.error('Sign in error:', error);
+        
+        // Mostrar mensaje más específico para usuarios inactivos
+        let errorMessage = error.message || "Error de autenticación con Microsoft";
+        if (error.message && error.message.includes('inactiva')) {
+          errorMessage = error.message;
+        }
+        
         toast({
           title: "Error al iniciar sesión",
-          description: error.message || "Error de autenticación con Microsoft",
+          description: errorMessage,
           variant: "destructive",
         });
         setIsLoading(false);
