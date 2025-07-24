@@ -61,11 +61,12 @@ const makeApiCallWithRetry = async (
       };
 
       // Add Entra ID token authorization header
-      if (requestBody.EntraToken) {
-        headers['Authorization'] = `Bearer ${requestBody.EntraToken}`;
+      const entraToken = await getEntraIdToken();
+      if (entraToken) {
+        headers['Authorization'] = `Bearer ${entraToken}`;
         console.log('🔑 Authorization header added with Entra ID token');
       } else {
-        console.warn('⚠️ No Entra ID token provided for API authorization');
+        console.warn('⚠️ No Entra ID token available for API authorization');
       }
 
       const response = await fetch(`${ENV.MAESTRO_API_BASE_URL}/api/maestro`, {
@@ -157,14 +158,10 @@ export const callAzureAgentApi = async (
   
   const startTime = Date.now();
   
-  // Get Entra ID token for authorization
-  const entraToken = await getEntraIdToken();
-  
-  // Preparar el body para el API del maestro
+  // Preparar el body para el API del maestro (sin EntraToken)
   const requestBody: any = {
     App: "Dali",
     correo: userEmail,
-    EntraToken: entraToken || '', // Use Entra ID token instead of access token
     IdConversacion: conversationId || `conv_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
   };
 
@@ -180,8 +177,8 @@ export const callAzureAgentApi = async (
   console.log('  - App:', requestBody.App);
   console.log('  - pregunta:', requestBody.pregunta ? requestBody.pregunta.substring(0, 100) + (requestBody.pregunta.length > 100 ? '...' : '') : 'NOT_INCLUDED');
   console.log('  - correo:', requestBody.correo);
-  console.log('  - EntraToken:', entraToken ? entraToken.substring(0, 30) + '...' : 'empty');
   console.log('  - IdConversacion:', requestBody.IdConversacion);
+  console.log('  - EntraToken: NOW SENT IN AUTHORIZATION HEADER');
 
   try {
     console.log('🎯 MAESTRO API CALL WITH RETRY MECHANISM STARTING...');

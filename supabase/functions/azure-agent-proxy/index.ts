@@ -69,7 +69,7 @@ serve(async (req) => {
     console.log('🎯 === CALLING MAESTRO API FROM PROXY ===');
     console.log('🌐 Target URL:', `${MAESTRO_API_URL}/api/maestro`);
     console.log('🔧 Method: POST');
-    console.log('📤 Request body prepared for Maestro API');
+    console.log('📤 Request body prepared for Maestro API (EntraToken now in header)');
     console.log('⏰ Starting API call...');
     
     const apiController = new AbortController();
@@ -78,19 +78,38 @@ serve(async (req) => {
       apiController.abort();
     }, 60000); // 60 second timeout for API call
     
+    // Prepare headers for Maestro API
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json',
+      'User-Agent': 'Supabase-Edge-Function/1.0',
+    };
+
+    // Add Authorization header if EntraToken is present
+    if (EntraToken) {
+      headers['Authorization'] = `Bearer ${EntraToken}`;
+      console.log('🔑 Authorization header added with EntraToken');
+    } else {
+      console.warn('⚠️ No EntraToken provided for API authorization');
+    }
+
+    // Prepare request body WITHOUT EntraToken
+    const maestroRequestBody = {
+      App,
+      pregunta,
+      correo,
+      IdConversacion
+    };
+
+    console.log('📋 MAESTRO API REQUEST BODY (without EntraToken):');
+    console.log('  - App:', maestroRequestBody.App);
+    console.log('  - pregunta length:', maestroRequestBody.pregunta?.length || 0);
+    console.log('  - correo:', maestroRequestBody.correo);
+    console.log('  - IdConversacion:', maestroRequestBody.IdConversacion);
+    
     const azureResponse = await fetch(`${MAESTRO_API_URL}/api/maestro`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'User-Agent': 'Supabase-Edge-Function/1.0',
-      },
-      body: JSON.stringify({
-        App,
-        pregunta,
-        correo,
-        EntraToken: EntraToken || '',
-        IdConversacion
-      }),
+      headers,
+      body: JSON.stringify(maestroRequestBody),
       signal: apiController.signal
     });
 
