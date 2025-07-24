@@ -9,7 +9,7 @@ import { Lead } from '@/types/crm';
 
 interface ColumnFilterProps {
   columnKey: string;
-  allLeads: Lead[]; // Cambiar a allLeads para usar todos los leads disponibles
+  allLeads: Lead[];
   onFilterChange: (columnKey: string, selectedValues: string[]) => void;
   activeFilters: string[];
 }
@@ -105,6 +105,7 @@ export function ColumnFilter({ columnKey, allLeads, onFilterChange, activeFilter
 
   const handleClear = () => {
     onFilterChange(columnKey, []);
+    setSearchTerm('');
   };
 
   const isAllSelected = filteredValues.length > 0 && filteredValues.every(value => activeFilters.includes(value));
@@ -118,7 +119,7 @@ export function ColumnFilter({ columnKey, allLeads, onFilterChange, activeFilter
           size="sm" 
           className={`h-4 w-4 p-0 ml-1 hover:bg-gray-100 ${activeFilters.length > 0 ? 'text-[#00c83c]' : 'text-gray-400'}`}
           onClick={(e) => {
-            e.stopPropagation(); // Evitar propagación del evento
+            e.stopPropagation();
           }}
         >
           <Filter className="h-3 w-3" />
@@ -178,8 +179,36 @@ export function ColumnFilter({ columnKey, allLeads, onFilterChange, activeFilter
               </label>
             </div>
 
-            {/* Valores individuales */}
-            {filteredValues.map((value) => (
+            {/* Solo mostrar valores que no están seleccionados si hay filtros activos */}
+            {filteredValues.map((value) => {
+              // Si hay filtros activos, solo mostrar los valores seleccionados
+              if (activeFilters.length > 0 && !activeFilters.includes(value)) {
+                return null;
+              }
+              
+              return (
+                <div key={value} className="flex items-center space-x-2">
+                  <Checkbox
+                    checked={activeFilters.includes(value)}
+                    onCheckedChange={(checked) => handleValueToggle(value, checked as boolean)}
+                    onClick={(e) => e.stopPropagation()}
+                  />
+                  <label 
+                    className="text-sm cursor-pointer flex-1 truncate" 
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleValueToggle(value, !activeFilters.includes(value));
+                    }}
+                    title={value}
+                  >
+                    {value}
+                  </label>
+                </div>
+              );
+            })}
+
+            {/* Si no hay filtros activos, mostrar todos los valores */}
+            {activeFilters.length === 0 && filteredValues.map((value) => (
               <div key={value} className="flex items-center space-x-2">
                 <Checkbox
                   checked={activeFilters.includes(value)}
