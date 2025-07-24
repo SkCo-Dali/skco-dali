@@ -99,10 +99,10 @@ class TemplatesService {
       console.log('🔍 TemplatesService: Starting getUserTemplates');
       console.log('🔍 TemplatesService: Input parameters:', { userEmail, options });
       
-      // Get both user templates and system templates
+      // Get both user templates and system templates with correct headers
       const [userTemplates, systemTemplates] = await Promise.all([
-        this.fetchTemplatesByType(userEmail, false, options),
-        this.fetchTemplatesByType(userEmail, true, options)
+        this.fetchTemplatesByType(userEmail, false, options, userEmail), // User templates with user email
+        this.fetchTemplatesByType(userEmail, true, options, 'system')    // System templates with "system" header
       ]);
       
       const allTemplates = [...userTemplates, ...systemTemplates];
