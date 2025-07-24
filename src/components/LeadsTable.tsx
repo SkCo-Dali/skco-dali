@@ -15,8 +15,6 @@ import { FaWhatsapp } from "react-icons/fa";
 import { useLeadDeletion } from "@/hooks/useLeadDeletion";
 import { LeadDeleteConfirmDialog } from "@/components/LeadDeleteConfirmDialog";
 import { toast } from "sonner";
-import { ColumnFilter } from "@/components/ColumnFilter";
-import { useColumnFilters } from "@/hooks/useColumnFilters";
 
 interface LeadsTableProps {
   leads: Lead[];
@@ -116,21 +114,12 @@ export function LeadsTable({
     onLeadDeleted: onLeadUpdate
   });
 
-  // Integrar filtros por columna
-  const {
-    columnFilters,
-    handleColumnFilterChange,
-    clearColumnFilters,
-    filteredLeads: columnFilteredLeads,
-    hasActiveFilters
-  } = useColumnFilters(leads);
-
   // Notificar cambios en los leads filtrados al componente padre
   React.useEffect(() => {
     if (onFilteredLeadsChange) {
-      onFilteredLeadsChange(columnFilteredLeads);
+      onFilteredLeadsChange(leads);
     }
-  }, [columnFilteredLeads, onFilteredLeadsChange]);
+  }, [leads, onFilteredLeadsChange]);
 
   const visibleColumns = activeColumns.filter(col => col.visible);
 
@@ -195,9 +184,8 @@ export function LeadsTable({
     
     setSortConfig({ key: columnKey, direction });
     
-    // Aplicar ordenamiento a los leads filtrados por columna
-    const leadsToSort = hasActiveFilters ? columnFilteredLeads : leads;
-    const sortedLeads = [...leadsToSort].sort((a, b) => {
+    // Aplicar ordenamiento a los leads
+    const sortedLeads = [...leads].sort((a, b) => {
       let aValue: any;
       let bValue: any;
 
@@ -547,12 +535,6 @@ export function LeadsTable({
                       <div className="flex items-center justify-center">
                         {column.label}
                         {renderSortIcon(column.key)}
-                        <ColumnFilter
-                          columnKey={column.key}
-                          allLeads={leads}
-                          onFilterChange={handleColumnFilterChange}
-                          activeFilters={columnFilters[column.key] || []}
-                        />
                       </div>
                     </TableHead>
                   ))}
