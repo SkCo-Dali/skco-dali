@@ -46,7 +46,11 @@ class TemplatesService {
       
       if (tokenData && tokenData.token) {
         headers['Authorization'] = `Bearer ${tokenData.token}`;
-        console.log('TemplatesService: Added Authorization header with ID Token');
+        // Also add X-User-Id header as required by the API
+        if (tokenData.email) {
+          headers['X-User-Id'] = tokenData.email;
+        }
+        console.log('TemplatesService: Added Authorization header with ID Token and X-User-Id');
       } else {
         console.warn('TemplatesService: No valid token found in SecureTokenManager');
       }
@@ -98,7 +102,7 @@ class TemplatesService {
   ): Promise<PromptTemplate[]> {
     try {
       const params = new URLSearchParams({
-        isDefault: isDefault.toString(), // Cambiado de is_default a isDefault
+        is_default: isDefault.toString(), // Revertido a is_default
         ...(options?.category && { category: options.category }),
         ...(options?.search && { search: options.search }),
         ...(options?.limit && { limit: options.limit.toString() }),
@@ -321,4 +325,3 @@ class TemplatesService {
 }
 
 export const templatesService = new TemplatesService();
-
