@@ -32,8 +32,8 @@ export interface CategoriesResponse {
 class TemplatesService {
   private baseUrl = ENV.AI_API_BASE_URL;
 
-  private async getHeaders(): Promise<Record<string, string>> {
-    console.log('🔍 TemplatesService: Starting getHeaders()');
+  private async getHeaders(userIdOverride?: string): Promise<Record<string, string>> {
+    console.log('🔍 TemplatesService: Starting getHeaders() with userIdOverride:', userIdOverride);
     
     const headers: Record<string, string> = {
       'Content-Type': 'application/json',
@@ -52,23 +52,29 @@ class TemplatesService {
         headers['Authorization'] = `Bearer ${tokenData.token}`;
         console.log('🔍 TemplatesService: Added Authorization header');
         
-        // Get user email from session storage for X-User-Id header
-        console.log('🔍 TemplatesService: Getting user data from sessionStorage');
-        const userDataString = sessionStorage.getItem('skandia-crm-user');
-        console.log('🔍 TemplatesService: User data string from sessionStorage:', userDataString ? 'Present' : 'Null');
-        
-        if (userDataString) {
-          const userData = JSON.parse(userDataString);
-          console.log('🔍 TemplatesService: Parsed user data:', userData);
-          
-          if (userData.email) {
-            headers['X-User-Id'] = userData.email;
-            console.log('🔍 TemplatesService: Added X-User-Id header with email:', userData.email);
-          } else {
-            console.warn('🔍 TemplatesService: No email found in user data');
-          }
+        // Use override if provided, otherwise get user email from session storage
+        if (userIdOverride) {
+          headers['X-User-Id'] = userIdOverride;
+          console.log('🔍 TemplatesService: Using userIdOverride for X-User-Id:', userIdOverride);
         } else {
-          console.warn('🔍 TemplatesService: No user data found in sessionStorage');
+          // Get user email from session storage for X-User-Id header
+          console.log('🔍 TemplatesService: Getting user data from sessionStorage');
+          const userDataString = sessionStorage.getItem('skandia-crm-user');
+          console.log('🔍 TemplatesService: User data string from sessionStorage:', userDataString ? 'Present' : 'Null');
+          
+          if (userDataString) {
+            const userData = JSON.parse(userDataString);
+            console.log('🔍 TemplatesService: Parsed user data:', userData);
+            
+            if (userData.email) {
+              headers['X-User-Id'] = userData.email;
+              console.log('🔍 TemplatesService: Added X-User-Id header with email:', userData.email);
+            } else {
+              console.warn('🔍 TemplatesService: No email found in user data');
+            }
+          } else {
+            console.warn('🔍 TemplatesService: No user data found in sessionStorage');
+          }
         }
         
         console.log('🔍 TemplatesService: Final headers:', headers);
@@ -120,11 +126,12 @@ class TemplatesService {
       search?: string;
       limit?: number;
       offset?: number;
-    }
+    },
+    userIdOverride?: string
   ): Promise<PromptTemplate[]> {
     try {
       console.log('🔍 TemplatesService: Starting fetchTemplatesByType');
-      console.log('🔍 TemplatesService: Parameters:', { userEmail, isDefault, options });
+      console.log('🔍 TemplatesService: Parameters:', { userEmail, isDefault, options, userIdOverride });
       
       const params = new URLSearchParams({
         is_default: isDefault.toString(),
@@ -139,7 +146,7 @@ class TemplatesService {
       console.log('🔍 TemplatesService: BACKEND_URL:', BACKEND_URL);
       console.log('🔍 TemplatesService: Query params:', params.toString());
 
-      const headers = await this.getHeaders();
+      const headers = await this.getHeaders(userIdOverride);
       console.log('🔍 TemplatesService: Headers to send:', headers);
 
       console.log('🔍 TemplatesService: Making fetch request...');
@@ -333,24 +340,20 @@ class TemplatesService {
 
   async getSystemTemplates(userEmail: string = 'system'): Promise<PromptTemplate[]> {
     try {
-      console.log('TemplatesService: Getting all templates (user + system) for carousel with userEmail:', userEmail);
+      console.log('TemplatesService: Getting system templates with userEmail:', userEmail);
+      console.log('TemplatesService: Using "system" as X-User-Id header for system templates');
       
-      // Use the same method that works for listing templates - get both user and system templates
-      const [userTemplates, systemTemplates] = await Promise.all([
-        this.fetchTemplatesByType(userEmail, false, { limit: 6 }),
-        this.fetchTemplatesByType(userEmail, true, { limit: 6 })
-      ]);
+      // For system templates, always use "system" as the X-User-Id header
+      const systemTemplates = await this.fetchTemplatesByType(userEmail, true, { limit: 6 }, 'system');
       
-      const allTemplates = [...userTemplates, ...systemTemplates];
-      console.log('TemplatesService: Combined templates for carousel:', {
-        userTemplates: userTemplates.length,
+      console.log('TemplatesService: System templates for carousel:', {
         systemTemplates: systemTemplates.length,
-        total: allTemplates.length
+        total: systemTemplates.length
       });
       
-      return allTemplates;
+      return systemTemplates;
     } catch (error) {
-      console.error('TemplatesService: Error getting templates for carousel:', error);
+      console.error('TemplatesService: Error getting system templates for carousel:', error);
       throw error;
     }
   }
