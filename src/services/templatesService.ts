@@ -1,4 +1,5 @@
 
+
 import { PromptTemplate } from '../types/templates';
 import { ENV } from '@/config/environment';
 
@@ -97,7 +98,7 @@ class TemplatesService {
   ): Promise<PromptTemplate[]> {
     try {
       const params = new URLSearchParams({
-        is_default: isDefault.toString(),
+        isDefault: isDefault.toString(), // Cambiado de is_default a isDefault
         ...(options?.category && { category: options.category }),
         ...(options?.search && { search: options.search }),
         ...(options?.limit && { limit: options.limit.toString() }),
@@ -320,3 +321,4 @@ class TemplatesService {
 }
 
 export const templatesService = new TemplatesService();
+
