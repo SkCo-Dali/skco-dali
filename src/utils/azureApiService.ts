@@ -158,10 +158,9 @@ export const callAzureAgentApi = async (
   
   const startTime = Date.now();
   
-  // Preparar el body para el API del maestro (sin EntraToken)
+  // Preparar el body para el API del maestro (sin correo y sin EntraToken)
   const requestBody: any = {
     App: "Dali",
-    correo: userEmail,
     IdConversacion: conversationId || `conv_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
   };
 
@@ -176,8 +175,8 @@ export const callAzureAgentApi = async (
   console.log('📋 REQUEST BODY PREPARED:');
   console.log('  - App:', requestBody.App);
   console.log('  - pregunta:', requestBody.pregunta ? requestBody.pregunta.substring(0, 100) + (requestBody.pregunta.length > 100 ? '...' : '') : 'NOT_INCLUDED');
-  console.log('  - correo:', requestBody.correo);
   console.log('  - IdConversacion:', requestBody.IdConversacion);
+  console.log('  - correo: NOW OBTAINED FROM AUTHORIZATION HEADER TOKEN');
   console.log('  - EntraToken: NOW SENT IN AUTHORIZATION HEADER');
 
   try {
