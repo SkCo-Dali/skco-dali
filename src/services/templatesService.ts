@@ -1,3 +1,4 @@
+
 import { PromptTemplate } from '../types/templates';
 import { ENV } from '@/config/environment';
 
@@ -340,20 +341,27 @@ class TemplatesService {
 
   async getSystemTemplates(userEmail: string = 'system'): Promise<PromptTemplate[]> {
     try {
-      console.log('TemplatesService: Getting system templates with userEmail:', userEmail);
-      console.log('TemplatesService: Using "system" as X-User-Id header for system templates');
+      console.log('🔍 TemplatesService: Starting getSystemTemplates for carousel');
+      console.log('🔍 TemplatesService: userEmail parameter:', userEmail);
       
-      // For system templates, always use "system" as the X-User-Id header
-      const systemTemplates = await this.fetchTemplatesByType(userEmail, true, { limit: 6 }, 'system');
+      // Get both user templates and system templates for carousel
+      const [userTemplates, systemTemplates] = await Promise.all([
+        this.fetchTemplatesByType(userEmail, false, { limit: 3 }, userEmail), // User templates with user email
+        this.fetchTemplatesByType(userEmail, true, { limit: 3 }, 'system')    // System templates with "system" header
+      ]);
       
-      console.log('TemplatesService: System templates for carousel:', {
+      // Combine and limit to 6 total templates for carousel
+      const allTemplates = [...systemTemplates, ...userTemplates].slice(0, 6);
+      
+      console.log('🔍 TemplatesService: Carousel templates result:', {
         systemTemplates: systemTemplates.length,
-        total: systemTemplates.length
+        userTemplates: userTemplates.length,
+        total: allTemplates.length
       });
       
-      return systemTemplates;
+      return allTemplates;
     } catch (error) {
-      console.error('TemplatesService: Error getting system templates for carousel:', error);
+      console.error('🔍 TemplatesService: Error getting templates for carousel:', error);
       throw error;
     }
   }
