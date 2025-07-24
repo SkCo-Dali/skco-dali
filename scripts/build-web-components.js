@@ -4,6 +4,9 @@ import react from '@vitejs/plugin-react';
 import { resolve } from 'path';
 import fs from 'fs';
 import path from 'path';
+import { fileURLToPath } from 'url';
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // Configuración base para web components
 const createWebComponentConfig = (entry, name, outDir) => defineConfig({
@@ -34,7 +37,7 @@ const createWebComponentConfig = (entry, name, outDir) => defineConfig({
     outDir,
     emptyOutDir: false,
     cssCodeSplit: false,
-    minify: 'terser',
+    minify: 'esbuild',
     terserOptions: {
       compress: {
         drop_console: false, // Mantener console.log para debugging
@@ -115,6 +118,19 @@ class SK_Dali_${componentName}_React extends HTMLElement {
     // Renderizar el componente React
     this.root = ReactDOM.createRoot(container);
     this.renderComponent();
+    if (!this.msalInstance?.getAllAccounts()?.length) {
+      // Si no hay cuentas, forzar re-autenticación
+      try {
+        await this.msalInstance.loginPopup();
+        this.renderComponent(); // Re-renderizar después de autenticación
+      } catch (error) {
+        console.error('Error during authentication:', error);
+        const errorMessage = document.createElement('div');
+        errorMessage.textContent = 'Error de autenticación. Por favor, inténtelo de nuevo.';
+        errorMessage.style.color = 'red';
+        container.appendChild(errorMessage);
+      }
+    }
   }
 
   disconnectedCallback() {
@@ -249,8 +265,10 @@ class SK_Dali_${componentName}_React extends HTMLElement {
 
   // API pública para forzar re-autenticación
   async forceReauth() {
+    console.log('Forzando re-autenticación...');
     if (this.msalInstance) {
       try {
+       
         await this.msalInstance.loginPopup();
         this.renderComponent(); // Re-renderizar después de autenticación
       } catch (error) {
@@ -299,7 +317,7 @@ async function buildWebComponents() {
 
     // Construir cada componente individualmente
     for (const component of components) {
-      console.log(\`🔨 Construyendo \${component}...\`);
+      console.log(`🔨 Construyendo ${component}...`);
       
       // Generar archivo de entrada individual
       const entryFile = await generateIndividualComponent(component);
@@ -313,11 +331,11 @@ async function buildWebComponents() {
       // Limpiar archivo temporal
       fs.unlinkSync(path.join(__dirname, entryFile));
       
-      console.log(\`✅ \${component} construido exitosamente\`);
+      console.log(`✅ ${component} construido exitosamente`);
     }
     
     // Generar archivo index.html de ejemplo
-    const indexHtml = \`<!DOCTYPE html>
+    const indexHtml = `<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
@@ -348,16 +366,16 @@ async function buildWebComponents() {
 &lt;sk-dali-leads-react&gt;&lt;/sk-dali-leads-react&gt;</code></pre>
     </div>
 </body>
-</html>\`;
-    
+</html>`;
+
     fs.writeFileSync(path.join(outDir, 'index.html'), indexHtml);
     
     console.log('✅ Todos los web components generados exitosamente en dist/web-components/');
     console.log('📦 Archivos generados:');
     
     components.forEach(component => {
-      console.log(\`  - SK.Dali.\${component}.React.js\`);
-      console.log(\`  - SK.Dali.\${component}.React.css\`);
+      console.log(`  - SK.Dali.${component}.React.js`);
+      console.log(`  - SK.Dali.${component}.React.css`);
     });
     
     console.log('  - index.html (ejemplo de uso)');
@@ -369,7 +387,7 @@ async function buildWebComponents() {
 }
 
 // Ejecutar si se llama directamente
-if (import.meta.url === \`file://\${process.argv[1]}\`) {
+if (import.meta.url === `file://${process.argv[1]}`) {
   buildWebComponents();
 }
 

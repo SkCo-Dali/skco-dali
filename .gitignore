@@ -24,3 +24,4 @@ yarn-error.log*
 /.turbo
 /.next
 out/
+*.pem

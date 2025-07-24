@@ -1,0 +1,19 @@
+# EditorConfig is awesome: https://EditorConfig.org
+
+# top-most EditorConfig file
+root = true
+# Ignore all files in the node_modules directory
+# This is useful to prevent formatting issues in third-party libraries.
+# It is recommended to add this line to the root .editorconfig file.
+[**/node_modules/**]
+ignore = true
+
+
+
+[*]
+indent_style = space
+indent_size = 4
+end_of_line = lf
+charset = utf-8
+trim_trailing_whitespace = false
+insert_final_newline = false

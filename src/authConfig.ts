@@ -13,6 +13,12 @@ export const msalConfig: Configuration = {
     cacheLocation: ENV.CACHE_LOCATION as 'localStorage' | 'sessionStorage',
     storeAuthStateInCookie: ENV.STORE_AUTH_STATE_IN_COOKIE,
   },
+  system: {
+    loggerOptions: {
+      logLevel: ENV.AUTH_LOG_LEVEL ,
+      piiLoggingEnabled: ENV.PII_LOGGING_ENABLED,
+    }
+  }
 };
 
 // Scopes optimizados para Microsoft Graph API
