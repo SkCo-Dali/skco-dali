@@ -55,32 +55,17 @@ export function LeadsPagination({
   };
 
   // Calcular rango de resultados mostrados
-  const startResult = totalLeads === 0 ? 0 : (currentPage - 1) * leadsPerPage + 1;
+  const startResult = (currentPage - 1) * leadsPerPage + 1;
   const endResult = Math.min(currentPage * leadsPerPage, totalLeads);
 
-  // Manejar cambio de página
-  const handlePageClick = (page: number) => {
-    if (page >= 1 && page <= totalPages && page !== currentPage) {
-      onPageChange(page);
-    }
-  };
-
-  // Manejar cambio en leads por página
-  const handleLeadsPerPageChange = (value: string) => {
-    const newLeadsPerPage = Number(value);
-    if (newLeadsPerPage !== leadsPerPage) {
-      onLeadsPerPageChange(newLeadsPerPage);
-    }
-  };
-
   return (
-    <div className="flex items-center justify-between p-4 bg-white border-t border-gray-200">
+    <div className="flex items-center justify-between p-4 bg-white border-t">
       <div className="flex items-center gap-4">
         <div className="flex items-center gap-2">
           <span className="text-sm text-gray-600">Mostrar:</span>
           <Select 
             value={leadsPerPage.toString()} 
-            onValueChange={handleLeadsPerPageChange}
+            onValueChange={(value) => onLeadsPerPageChange(Number(value))}
           >
             <SelectTrigger className="w-20 h-8 bg-white border border-gray-300">
               <SelectValue />
@@ -94,19 +79,19 @@ export function LeadsPagination({
         </div>
         
         <span className="text-sm text-gray-600">
-          {totalLeads > 0 ? `Resultado ${startResult} - ${endResult} de ${totalLeads}` : 'Sin resultados'}
+          Resultado {startResult} - {endResult} de {totalLeads}
         </span>
       </div>
       
       {totalPages > 1 && (
         <div className="flex items-center gap-1">
           <button
-            className={`flex items-center justify-center w-8 h-8 rounded-full ${
+            className={`flex items-center justify-center w-6 h-6 rounded-full ${
               currentPage === 1 
-                ? 'bg-gray-200 text-gray-400 cursor-not-allowed' 
-                : 'bg-[#00c83c] text-white hover:bg-[#00b835] cursor-pointer'
+                ? 'bg-gray-300 text-gray-500 cursor-not-allowed' 
+                : 'bg-[#00c83c] text-white hover:bg-[#00b835]'
             }`}
-            onClick={() => handlePageClick(currentPage - 1)}
+            onClick={() => currentPage > 1 && onPageChange(currentPage - 1)}
             disabled={currentPage === 1}
           >
             <ChevronLeft className="h-4 w-4" />
@@ -115,15 +100,15 @@ export function LeadsPagination({
           {generatePageNumbers().map((page, index) => (
             <div key={index}>
               {page === 'ellipsis' ? (
-                <span className="px-2 py-1 text-gray-500">...</span>
+                <span className="px-2 py-1 text-[#3f3f3f]">...</span>
               ) : (
                 <button
-                  className={`w-8 h-8 text-sm font-medium rounded transition-colors ${
+                  className={`w-6 h-6 text-xs font-medium ${
                     currentPage === page
-                      ? 'bg-[#00c83c] text-white'
-                      : 'text-gray-700 hover:bg-gray-100 hover:text-[#00c83c]'
+                      ? 'text-[#00c83c]'
+                      : 'text-[#3f3f3f] hover:text-[#00c83c]'
                   }`}
-                  onClick={() => handlePageClick(page as number)}
+                  onClick={() => onPageChange(page as number)}
                 >
                   {page}
                 </button>
@@ -132,12 +117,12 @@ export function LeadsPagination({
           ))}
           
           <button
-            className={`flex items-center justify-center w-8 h-8 rounded-full ${
+            className={`flex items-center justify-center w-6 h-6 rounded-full ${
               currentPage === totalPages 
-                ? 'bg-gray-200 text-gray-400 cursor-not-allowed' 
-                : 'bg-[#00c83c] text-white hover:bg-[#00b835] cursor-pointer'
+                ? 'bg-gray-300 text-gray-500 cursor-not-allowed' 
+                : 'bg-[#00c83c] text-white hover:bg-[#00b835]'
             }`}
-            onClick={() => handlePageClick(currentPage + 1)}
+            onClick={() => currentPage < totalPages && onPageChange(currentPage + 1)}
             disabled={currentPage === totalPages}
           >
             <ChevronRight className="h-4 w-4" />

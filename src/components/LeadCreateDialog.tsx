@@ -1,3 +1,4 @@
+
 import { useState, forwardRef, useImperativeHandle } from "react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -54,12 +55,9 @@ export const LeadCreateDialog = forwardRef<LeadCreateDialogRef, LeadCreateDialog
       source: 'DaliLM',
       value: 0,
       notes: '',
-      documentType: 'CC',
-      documentNumber: 0,
-      product: '',
-      age: 0,
-      gender: 'Prefiero no decir',
-      preferredContactChannel: 'Correo'
+      documentType: '',
+      documentNumber: undefined,
+      product: ''
     });
 
     useImperativeHandle(ref, () => ({
@@ -84,12 +82,9 @@ export const LeadCreateDialog = forwardRef<LeadCreateDialogRef, LeadCreateDialog
         source: 'DaliLM',
         value: 0,
         notes: '',
-        documentType: 'CC',
-        documentNumber: 0,
-        product: '',
-        age: 0,
-        gender: 'Prefiero no decir',
-        preferredContactChannel: 'Correo'
+        documentType: '',
+        documentNumber: undefined,
+        product: ''
       });
       setSelectedProducts([]);
       setShowMoreFields(false);
@@ -178,15 +173,16 @@ export const LeadCreateDialog = forwardRef<LeadCreateDialogRef, LeadCreateDialog
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div className="grid grid-cols-2 gap-4">
                   <div className="relative">
-                    <Select value={formData.documentType} onValueChange={(value: 'CC' | 'CE' | 'PA' | 'NIT') => setFormData({...formData, documentType: value})}>
+                    <Select value={formData.documentType} onValueChange={(value) => setFormData({...formData, documentType: value})}>
                       <SelectTrigger className="border-gray-300 rounded-lg h-12 bg-gray-50">
                         <SelectValue className="!text-muted-foreground" placeholder="Tipo de identificación*" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="CC">Cédula de ciudadanía</SelectItem>
-                        <SelectItem value="PA">Pasaporte</SelectItem>
-                        <SelectItem value="CE">Cédula de Extranjería</SelectItem>
-                        <SelectItem value="NIT">NIT</SelectItem>
+                        <SelectItem value="C">Cédula de ciudadanía</SelectItem>
+                        <SelectItem value="P">Pasaporte</SelectItem>
+                        <SelectItem value="E">Cédula de Extranjería</SelectItem>
+                        <SelectItem value="T">Tarjeta de Identidad</SelectItem>
+                        <SelectItem value="N">NIT</SelectItem>
                       </SelectContent>
                     </Select>
                     {formData.documentType && (
@@ -202,13 +198,13 @@ export const LeadCreateDialog = forwardRef<LeadCreateDialogRef, LeadCreateDialog
                       value={formData.documentNumber?.toString() || ''}
                       onChange={(e) => {
                         const value = e.target.value.replace(/[^0-9]/g, ''); // Solo números
-                        setFormData({...formData, documentNumber: value ? Number(value) : 0});
+                        setFormData({...formData, documentNumber: value ? Number(value) : undefined});
                       }}
                       className="border-gray-300 rounded-lg h-12 bg-gray-50"
                       placeholder="Número de identificación*"
                       required
                     />
-                    {formData.documentNumber && formData.documentNumber > 0 && (
+                    {formData.documentNumber && (
                       <Label className="absolute -top-2 left-3 bg-gray-50 px-1 text-xs text-gray-600">
                         Número de identificación*
                       </Label>
@@ -216,95 +212,97 @@ export const LeadCreateDialog = forwardRef<LeadCreateDialogRef, LeadCreateDialog
                   </div>
                 </div>
                 
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="relative">
-                    <Input
-                      value={formData.name}
-                      onChange={(e) => setFormData({...formData, name: e.target.value})}
-                      className="border-gray-300 rounded-lg h-12 bg-gray-50"
-                      placeholder="Nombres y apellidos*"
-                      required
-                    />
-                    {formData.name && (
-                      <Label className="absolute -top-2 left-3 bg-gray-50 px-1 text-xs text-gray-600">
-                        Nombres y apellidos*
-                      </Label>
-                    )}
-                  </div>
-                  <div className="relative">
-                    <Input
-                      value={formData.phone}
-                      onChange={handlePhoneChange}
-                      className="border-gray-300 rounded-lg h-12 bg-gray-50"
-                      placeholder="Celular*"
-                      required
-                    />
-                    {formData.phone && (
-                      <Label className="absolute -top-2 left-3 bg-gray-50 px-1 text-xs text-gray-600">
-                        Celular*
-                      </Label>
-                    )}
-                  </div>
-                </div>    
+                
 
                 <div className="grid grid-cols-2 gap-4">
                   <div className="relative">
-                    <Input
-                      type="email"
-                      value={formData.email}
-                      onChange={(e) => setFormData({...formData, email: e.target.value})}
-                      className="border-gray-300 rounded-lg h-12 bg-gray-50"
-                      placeholder="Correo electrónico*"
-                      required
-                    />
-                    {formData.email && (
-                      <Label className="absolute -top-2 left-3 bg-gray-50 px-1 text-xs text-gray-600">
-                        Correo electrónico*
-                      </Label>
-                    )}
-                  </div>
-                  <div className="relative">
-                    <Popover open={productSelectOpen} onOpenChange={setProductSelectOpen}>
-                      <PopoverTrigger asChild>
-                        <Button
-                          variant="outline"
-                          className="w-full !px-4 justify-between border border-gray-300 rounded-lg h-12 bg-gray-50 font-normal hover:bg-gray-50"
-                        >
-                          <span className={selectedProducts.length === 0 ? "text-left text-muted-foreground" : ""}>
-                            {getProductDisplayText()}
-                          </span>
-                          <ChevronDown className="h-4 w-4 text-[#00c83c]" />
-                        </Button>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-full p-0" align="start">
-                        <div className="max-h-60 overflow-y-auto">
-                          {productOptions.map((product) => (
-                            <div key={product} className="flex items-center space-x-2 p-3 hover:bg-gray-50">
-                              <Checkbox
-                                id={product}
-                                checked={selectedProducts.includes(product)}
-                                onCheckedChange={() => handleProductToggle(product)}
-                              />
-                              <label
-                                htmlFor={product}
-                                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer flex-1"
-                              >
-                                {product}
-                              </label>
-                            </div>
-                          ))}
-                        </div>
-                      </PopoverContent>
-                    </Popover>
-                    {selectedProducts.length > 0 && (
-                      <Label className="absolute -top-2 left-3 bg-gray-50 px-1 text-xs text-gray-600">
-                        Producto de interés*
-                      </Label>
-                    )}
-                  </div>
+                  <Input
+                    value={formData.name}
+                    onChange={(e) => setFormData({...formData, name: e.target.value})}
+                    className="border-gray-300 rounded-lg h-12 bg-gray-50"
+                    placeholder="Nombres y apellidos*"
+                    required
+                  />
+                  {formData.name && (
+                    <Label className="absolute -top-2 left-3 bg-gray-50 px-1 text-xs text-gray-600">
+                      Nombres y apellidos*
+                    </Label>
+                  )}
                 </div>
-                
                 <div className="relative">
+                  <Input
+                    value={formData.phone}
+                    onChange={handlePhoneChange}
+                    className="border-gray-300 rounded-lg h-12 bg-gray-50"
+                    placeholder="Celular*"
+                    required
+                  />
+                  {formData.phone && (
+                    <Label className="absolute -top-2 left-3 bg-gray-50 px-1 text-xs text-gray-600">
+                      Celular*
+                    </Label>
+                  )}
+                </div>
+              </div>    
+
+                <div className="grid grid-cols-2 gap-4">
+                <div className="relative">
+                  <Input
+                    type="email"
+                    value={formData.email}
+                    onChange={(e) => setFormData({...formData, email: e.target.value})}
+                    className="border-gray-300 rounded-lg h-12 bg-gray-50"
+                    placeholder="Correo electrónico*"
+                    required
+                  />
+                  {formData.email && (
+                    <Label className="absolute -top-2 left-3 bg-gray-50 px-1 text-xs text-gray-600">
+                      Correo electrónico*
+                    </Label>
+                  )}
+                </div>
+                <div className="relative">
+                  <Popover open={productSelectOpen} onOpenChange={setProductSelectOpen}>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        className="w-full !px-4 justify-between border border-gray-300 rounded-lg h-12 bg-gray-50 font-normal hover:bg-gray-50"
+                      >
+                        <span className={selectedProducts.length === 0 ? "text-left text-muted-foreground" : ""}>
+                          {getProductDisplayText()}
+                        </span>
+                        <ChevronDown className="h-4 w-4 text-[#00c83c]" />
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-full p-0" align="start">
+                      <div className="max-h-60 overflow-y-auto">
+                        {productOptions.map((product) => (
+                          <div key={product} className="flex items-center space-x-2 p-3 hover:bg-gray-50">
+                            <Checkbox
+                              id={product}
+                              checked={selectedProducts.includes(product)}
+                              onCheckedChange={() => handleProductToggle(product)}
+                            />
+                            <label
+                              htmlFor={product}
+                              className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer flex-1"
+                            >
+                              {product}
+                            </label>
+                          </div>
+                        ))}
+                      </div>
+                    </PopoverContent>
+                  </Popover>
+                  {selectedProducts.length > 0 && (
+                    <Label className="absolute -top-2 left-3 bg-gray-50 px-1 text-xs text-gray-600">
+                      Producto de interés*
+                    </Label>
+                  )}
+                </div>
+                  </div>
+                
+               <div className="relative">
                   <Input
                     value={formData.campaign}
                     onChange={(e) => setFormData({...formData, campaign: e.target.value})}
@@ -343,12 +341,12 @@ export const LeadCreateDialog = forwardRef<LeadCreateDialogRef, LeadCreateDialog
                           value={formData.age?.toString() || ''}
                           onChange={(e) => {
                             const value = e.target.value.replace(/[^0-9]/g, ''); // Solo números
-                            setFormData({...formData, age: value ? Number(value) : 0});
+                            setFormData({...formData, age: value ? Number(value) : undefined});
                           }}
                           className="border-gray-300 rounded-lg h-12 bg-gray-50"
                           placeholder="Edad"
                         />
-                        {formData.age && formData.age > 0 && (
+                        {formData.age && (
                           <Label className="absolute -top-2 left-3 bg-gray-50 px-1 text-xs text-gray-600">
                             Edad
                           </Label>
@@ -356,14 +354,15 @@ export const LeadCreateDialog = forwardRef<LeadCreateDialogRef, LeadCreateDialog
                       </div>
                       
                       <div className="relative">
-                        <Select value={formData.gender} onValueChange={(value: 'Masculino' | 'Femenino' | 'Prefiero no decir') => setFormData({...formData, gender: value})}>
+                        <Select value={formData.gender} onValueChange={(value) => setFormData({...formData, gender: value})}>
                           <SelectTrigger className="border-gray-300 rounded-lg h-12 bg-gray-50">
                             <SelectValue placeholder="Género" />
                           </SelectTrigger>
                           <SelectContent>
                             <SelectItem value="Masculino">Masculino</SelectItem>
                             <SelectItem value="Femenino">Femenino</SelectItem>
-                            <SelectItem value="Prefiero no decir">Prefiero no decir</SelectItem>
+                            <SelectItem value="Otro">Otro</SelectItem>
+                            <SelectItem value="Prefiero no decirlo">Prefiero no decirlo</SelectItem>
                           </SelectContent>
                         </Select>
                         {formData.gender && (
@@ -389,15 +388,14 @@ export const LeadCreateDialog = forwardRef<LeadCreateDialogRef, LeadCreateDialog
                     </div>
                     
                     <div className="relative">
-                      <Select value={formData.preferredContactChannel} onValueChange={(value: 'Correo' | 'Teléfono' | 'WhatsApp' | 'SMS') => setFormData({...formData, preferredContactChannel: value})}>
+                      <Select value={formData.preferredContactChannel} onValueChange={(value) => setFormData({...formData, preferredContactChannel: value})}>
                         <SelectTrigger className="border-gray-300 rounded-lg h-12 bg-gray-50">
                           <SelectValue placeholder="Canal de contacto preferido" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="Teléfono">Llamada</SelectItem>
+                          <SelectItem value="Llamada">Llamada</SelectItem>
                           <SelectItem value="WhatsApp">WhatsApp</SelectItem>
                           <SelectItem value="Correo">Correo</SelectItem>
-                          <SelectItem value="SMS">SMS</SelectItem>
                         </SelectContent>
                       </Select>
                       {formData.preferredContactChannel && (

@@ -1,7 +1,7 @@
 
 import { useState } from "react";
 import { LeadCard } from "@/components/LeadCard";
-import { EnhancedLeadsTable } from "@/components/EnhancedLeadsTable";
+import { LeadsTable } from "@/components/LeadsTable";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -36,14 +36,6 @@ export function DashboardRecentLeads({ leads }: DashboardRecentLeadsProps) {
     // TODO: Implement lead detail view or modal
   };
 
-  // Basic columns for dashboard view
-  const basicColumns = [
-    { key: 'name', label: 'Nombre', visible: true, width: 200, sortable: true },
-    { key: 'email', label: 'Email', visible: true, width: 200, sortable: true },
-    { key: 'stage', label: 'Etapa', visible: true, width: 150, sortable: true },
-    { key: 'updatedAt', label: 'Actualizado', visible: true, width: 150, sortable: true }
-  ];
-
   return (
     <Card>
       <CardHeader>
@@ -64,11 +56,10 @@ export function DashboardRecentLeads({ leads }: DashboardRecentLeadsProps) {
         </div>
       </CardHeader>
       <CardContent>
-        <EnhancedLeadsTable 
+        <LeadsTable 
           leads={recentLeads} 
           paginatedLeads={recentLeads}
-          onLeadClick={handleLeadClick}
-          columns={basicColumns}
+          onLeadClick={handleLeadClick} 
         />
       </CardContent>
     </Card>
