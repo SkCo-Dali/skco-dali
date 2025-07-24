@@ -1,4 +1,5 @@
 
+
 import { useState, useEffect, useMemo } from "react";
 import { Search, Filter, ArrowUp, ArrowDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -88,9 +89,11 @@ export function ColumnFilter({
     setIsOpen(false);
   };
 
-  const handleSort = (direction: 'asc' | 'desc') => {
+  const handleSort = (direction: 'asc' | 'desc', e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
     onSortChange(column, direction);
-    // No cerrar el popover para permitir múltiples ordenamientos
+    console.log(`Sorting ${column} ${direction}`); // Debug log
   };
 
   const isAllSelected = filteredValues.length > 0 && 
@@ -147,7 +150,7 @@ export function ColumnFilter({
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => handleSort('asc')}
+                onClick={(e) => handleSort('asc', e)}
                 className="flex items-center gap-2 text-sm px-3 py-2 h-8 min-w-0"
               >
                 <ArrowUp className="h-3 w-3" />
@@ -156,7 +159,7 @@ export function ColumnFilter({
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => handleSort('desc')}
+                onClick={(e) => handleSort('desc', e)}
                 className="flex items-center gap-2 text-sm px-3 py-2 h-8 min-w-0"
               >
                 <ArrowDown className="h-3 w-3" />
