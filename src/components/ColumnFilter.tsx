@@ -1,5 +1,6 @@
+
 import { useState, useEffect, useMemo } from "react";
-import { Search, Filter, ArrowUp, ArrowDown } from "lucide-react";
+import { Search, Filter } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -87,13 +88,6 @@ export function ColumnFilter({
     setIsOpen(false);
   };
 
-  const handleSort = (direction: 'asc' | 'desc', e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    onSortChange(column, direction);
-    setIsOpen(false);
-  };
-
   const isAllSelected = filteredValues.length > 0 && 
     filteredValues.every(value => selectedValues.includes(value));
   const isIndeterminate = filteredValues.some(value => selectedValues.includes(value)) && 
@@ -152,30 +146,6 @@ export function ColumnFilter({
             </div>
           </div>
 
-          {/* Opciones de ordenamiento */}
-          <div className="mb-4 pb-4 border-b">
-            <div className="flex gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={(e) => handleSort('asc', e)}
-                className="flex items-center gap-2 text-sm px-3 py-2 h-8 min-w-0"
-              >
-                <ArrowUp className="h-3 w-3" />
-                <span>A-Z</span>
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={(e) => handleSort('desc', e)}
-                className="flex items-center gap-2 text-sm px-3 py-2 h-8 min-w-0"
-              >
-                <ArrowDown className="h-3 w-3" />
-                <span>Z-A</span>
-              </Button>
-            </div>
-          </div>
-
           {/* Contenido del tab activo */}
           {activeTab === 'values' ? (
             <>
@@ -200,12 +170,9 @@ export function ColumnFilter({
                 <div className="flex items-center space-x-2 p-2 hover:bg-gray-50">
                   <Checkbox
                     checked={isAllSelected}
-                    onCheckedChange={(checked) => {
-                      handleSelectAll(checked as boolean);
-                    }}
+                    onCheckedChange={handleSelectAll}
                     className={isIndeterminate ? "data-[state=indeterminate]:bg-primary" : ""}
                     {...(isIndeterminate ? { "data-state": "indeterminate" } : {})}
-                    onClick={(e) => e.stopPropagation()}
                   />
                   <label 
                     className="text-sm font-medium text-gray-700 cursor-pointer"
@@ -224,7 +191,6 @@ export function ColumnFilter({
                     <Checkbox
                       checked={selectedValues.includes(value)}
                       onCheckedChange={(checked) => handleValueChange(value, checked as boolean)}
-                      onClick={(e) => e.stopPropagation()}
                     />
                     <label 
                       className="text-sm text-gray-700 cursor-pointer flex-1"
