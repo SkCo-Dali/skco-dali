@@ -1,5 +1,3 @@
-
-
 import { useState, useEffect, useMemo } from "react";
 import { Search, Filter, ArrowUp, ArrowDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -93,7 +91,7 @@ export function ColumnFilter({
     e.preventDefault();
     e.stopPropagation();
     onSortChange(column, direction);
-    console.log(`Sorting ${column} ${direction}`); // Debug log
+    setIsOpen(false); // Cerrar el popover después de ordenar
   };
 
   const isAllSelected = filteredValues.length > 0 && 
