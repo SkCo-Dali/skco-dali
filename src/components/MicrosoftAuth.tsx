@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
@@ -54,11 +53,6 @@ export function MicrosoftAuth() {
         role: assignedRole,
         isActive: true
       });
-      
-      // Verificar si el usuario recién creado está activo (por si acaso)
-      if (!newUser.isActive) {
-        throw new Error('Tu cuenta fue creada pero está inactiva. Por favor contacta al administrador para activarla.');
-      }
       
       sessionStorage.setItem('authenticated-user-uuid', newUser.id);
       
