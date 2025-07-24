@@ -1,7 +1,11 @@
+
 import React, { useState, useMemo, useEffect, useCallback } from "react"; 
 import { Lead } from "@/types/crm";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Button } from "@/components/ui/button";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { MoreVertical, Edit, Trash2, Mail, MessageSquare } from "lucide-react";
 import { useUsersApi } from "@/hooks/useUsersApi";
 import { useAdvancedFilters } from "@/hooks/useAdvancedFilters";
 import { useMultiSort } from "@/hooks/useMultiSort";
@@ -144,6 +148,37 @@ export function EnhancedLeadsTable({
     return processedLeads;
   }, [processedLeads]);
 
+  // Quick actions handlers
+  const handleEditLead = useCallback((lead: Lead, e: React.MouseEvent) => {
+    e.stopPropagation();
+    onLeadClick(lead);
+  }, [onLeadClick]);
+
+  const handleDeleteLead = useCallback((lead: Lead, e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (window.confirm(`¿Estás seguro de que deseas eliminar el lead "${lead.name}"?`)) {
+      // Aquí iría la lógica para eliminar el lead
+      console.log('Eliminar lead:', lead.id);
+      if (onLeadUpdate) {
+        onLeadUpdate();
+      }
+    }
+  }, [onLeadUpdate]);
+
+  const handleSendEmail = useCallback((lead: Lead, e: React.MouseEvent) => {
+    e.stopPropagation();
+    // Aquí iría la lógica para enviar email
+    console.log('Enviar email a:', lead.email);
+  }, []);
+
+  const handleSendWhatsApp = useCallback((lead: Lead, e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (lead.phone) {
+      const cleanPhone = lead.phone.replace(/\D/g, '');
+      window.open(`https://wa.me/${cleanPhone}`, '_blank');
+    }
+  }, []);
+
   // Cell renderer
   const renderCellContent = useCallback((lead: Lead, columnKey: string) => {
     const assignedUser = users.find(u => u.id === lead.assignedTo);
@@ -157,18 +192,52 @@ export function EnhancedLeadsTable({
     }
 
     // Handle static columns
-    
     switch (columnKey) {
       case 'name':
         return (
-          <div 
-            className="text-gray-900 font-bold text-xs truncate cursor-pointer hover:text-[#00c83c]"
-            onClick={(e) => {
-              e.stopPropagation();
-              onLeadClick(lead);
-            }}
-          >
-            {lead.name}
+          <div className="flex items-center justify-between">
+            <div 
+              className="text-gray-900 font-bold text-xs truncate cursor-pointer hover:text-[#00c83c] flex-1"
+              onClick={(e) => {
+                e.stopPropagation();
+                onLeadClick(lead);
+              }}
+            >
+              {lead.name}
+            </div>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-6 w-6 p-0 ml-2 hover:bg-gray-100"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <MoreVertical className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-48">
+                <DropdownMenuItem onClick={(e) => handleEditLead(lead, e)}>
+                  <Edit className="h-4 w-4 mr-2" />
+                  Editar
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={(e) => handleSendEmail(lead, e)}>
+                  <Mail className="h-4 w-4 mr-2" />
+                  Enviar Email
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={(e) => handleSendWhatsApp(lead, e)}>
+                  <MessageSquare className="h-4 w-4 mr-2" />
+                  Enviar WhatsApp
+                </DropdownMenuItem>
+                <DropdownMenuItem 
+                  onClick={(e) => handleDeleteLead(lead, e)}
+                  className="text-red-600 focus:text-red-600"
+                >
+                  <Trash2 className="h-4 w-4 mr-2" />
+                  Eliminar
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         );
       case 'email':
@@ -200,7 +269,7 @@ export function EnhancedLeadsTable({
       default:
         return <div className="text-gray-700 text-xs">-</div>;
     }
-  }, [users, onLeadClick]);
+  }, [users, onLeadClick, handleEditLead, handleSendEmail, handleSendWhatsApp, handleDeleteLead]);
 
   // STABLE table width calculation
   const tableWidth = useMemo(() => {
@@ -217,7 +286,6 @@ export function EnhancedLeadsTable({
 
   return (
     <div className="space-y-4">
-      
       
       {(hasActiveFilters || sortConfigs.length > 0) && (
         <div className="flex items-center justify-between p-2 bg-blue-50 rounded">
@@ -258,96 +326,94 @@ export function EnhancedLeadsTable({
         💡 Mantén Ctrl/Cmd + clic para ordenamiento múltiple. Arrastra las columnas para reordenar. Arrastra el borde derecho para redimensionar.
       </div>
 
-      {/* Table Container */}
-      <div className="leads-table-container-scroll">
-        <div className="leads-table-scroll-wrapper">
-          <div className="leads-table-inner-scroll">
-            <Table 
-              className="w-full"
-              style={{ 
-                width: `${tableWidth}px`,
-                minWidth: `${tableWidth}px`
-              }}
-            >
-              <TableHeader className="leads-table-header-sticky">
-                <TableRow className="bg-[#fafafa] border-b border-[#fafafa]">
-                  <TableHead className="w-[50px] px-4 py-3 text-center">
-                    <Checkbox
-                      checked={isAllSelected}
-                      onCheckedChange={handleSelectAll}
-                      className={isIndeterminate ? "data-[state=indeterminate]:bg-primary" : ""}
-                      {...(isIndeterminate ? { "data-state": "indeterminate" } : {})}
+      {/* Table Container - Arreglado para evitar doble scroll */}
+      <div className="border rounded-lg overflow-hidden bg-white">
+        <div className="overflow-x-auto">
+          <Table 
+            className="w-full border-collapse"
+            style={{ 
+              width: `${tableWidth}px`,
+              minWidth: `${tableWidth}px`
+            }}
+          >
+            <TableHeader className="sticky top-0 z-10 bg-[#fafafa]">
+              <TableRow className="border-b border-gray-200">
+                <TableHead className="w-[50px] px-4 py-3 text-center bg-[#fafafa]">
+                  <Checkbox
+                    checked={isAllSelected}
+                    onCheckedChange={handleSelectAll}
+                    className={isIndeterminate ? "data-[state=indeterminate]:bg-primary" : ""}
+                    {...(isIndeterminate ? { "data-state": "indeterminate" } : {})}
+                  />
+                </TableHead>
+                {orderedColumns.map((column) => (
+                  <TableHead 
+                    key={column.key}
+                    className={cn(
+                      "relative select-none cursor-pointer px-4 py-3 text-center text-xs font-medium text-gray-600 capitalize tracking-wider bg-[#fafafa]",
+                      column.key === 'name' && "sticky left-[50px] z-20",
+                      draggedColumn === column.key && "opacity-50",
+                      dragOverColumn === column.key && "bg-blue-100"
+                    )}
+                    style={{ width: column.width }}
+                    draggable
+                    onDragStart={() => handleDragStart(column.key)}
+                    onDragOver={(e) => handleDragOver(e, column.key)}
+                    onDragLeave={handleDragLeave}
+                    onDrop={(e) => handleDrop(e, column.key)}
+                    onDragEnd={handleDragEnd}
+                  >
+                    <div className="flex items-center justify-center space-x-2">
+                      <button
+                        onClick={(e) => handleColumnSort(column.key, e)}
+                        className="flex items-center hover:text-foreground cursor-pointer"
+                      >
+                        {column.label}
+                        <MultiSortIndicator 
+                          sortConfig={getSortConfig(column.key)}
+                          totalSorts={sortConfigs.length}
+                        />
+                      </button>
+                      <FilterButton
+                        column={{ ...column, type: allColumnTypes[column.key as keyof typeof allColumnTypes] }}
+                        data={getFilterData(column.key)}
+                        currentFilter={filters[column.key]}
+                        onFilterChange={(filter) => setColumnFilter(column.key, filter)}
+                      />
+                    </div>
+                    <ColumnResizeHandle
+                      onResizeStart={(startX) => handleResizeStart(column.key, startX)}
+                      isResizing={isResizing && resizingColumn === column.key}
                     />
                   </TableHead>
+                ))}
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {paginatedLeads.map((lead) => (
+                <TableRow key={lead.id} className="hover:bg-gray-50 border-b border-gray-100">
+                  <TableCell className="w-[50px] px-4 py-3 text-center">
+                    <Checkbox
+                      checked={selectedLeads.includes(lead.id)}
+                      onCheckedChange={(checked) => handleSelectLead(lead.id, checked as boolean)}
+                    />
+                  </TableCell>
                   {orderedColumns.map((column) => (
-                    <TableHead 
+                    <TableCell 
                       key={column.key}
                       className={cn(
-                        "relative select-none cursor-pointer px-4 py-3 text-center text-xs font-medium text-gray-600 capitalize tracking-wider",
-                        column.key === 'name' ? "leads-name-column-sticky" : "leads-regular-column",
-                        draggedColumn === column.key && "opacity-50",
-                        dragOverColumn === column.key && "bg-blue-100"
+                        "px-4 py-3 text-xs text-center border-r border-gray-100 last:border-r-0",
+                        column.key === 'name' && "sticky left-[50px] bg-white z-10"
                       )}
                       style={{ width: column.width }}
-                      draggable
-                      onDragStart={() => handleDragStart(column.key)}
-                      onDragOver={(e) => handleDragOver(e, column.key)}
-                      onDragLeave={handleDragLeave}
-                      onDrop={(e) => handleDrop(e, column.key)}
-                      onDragEnd={handleDragEnd}
                     >
-                      <div className="flex items-center justify-center space-x-2">
-                        <button
-                          onClick={(e) => handleColumnSort(column.key, e)}
-                          className="flex items-center hover:text-foreground cursor-pointer"
-                        >
-                          {column.label}
-                          <MultiSortIndicator 
-                            sortConfig={getSortConfig(column.key)}
-                            totalSorts={sortConfigs.length}
-                          />
-                        </button>
-                        <FilterButton
-                          column={{ ...column, type: allColumnTypes[column.key as keyof typeof allColumnTypes] }}
-                          data={getFilterData(column.key)}
-                          currentFilter={filters[column.key]}
-                          onFilterChange={(filter) => setColumnFilter(column.key, filter)}
-                        />
-                      </div>
-                      <ColumnResizeHandle
-                        onResizeStart={(startX) => handleResizeStart(column.key, startX)}
-                        isResizing={isResizing && resizingColumn === column.key}
-                      />
-                    </TableHead>
+                      {renderCellContent(lead, column.key)}
+                    </TableCell>
                   ))}
                 </TableRow>
-              </TableHeader>
-              <TableBody>
-                {sortedData.slice(0, 50).map((lead) => (
-                  <TableRow key={lead.id} className="hover:bg-muted/50">
-                    <TableCell className="w-[50px] px-4 py-3 text-center">
-                      <Checkbox
-                        checked={selectedLeads.includes(lead.id)}
-                        onCheckedChange={(checked) => handleSelectLead(lead.id, checked as boolean)}
-                      />
-                    </TableCell>
-                    {orderedColumns.map((column) => (
-                      <TableCell 
-                        key={column.key}
-                        className={cn(
-                          "px-4 py-3 text-xs text-center",
-                          column.key === 'name' ? "leads-name-column-sticky" : "leads-regular-column"
-                        )}
-                        style={{ width: column.width }}
-                      >
-                        {renderCellContent(lead, column.key)}
-                      </TableCell>
-                    ))}
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
+              ))}
+            </TableBody>
+          </Table>
         </div>
       </div>
     </div>
