@@ -4,22 +4,26 @@ import { ENV } from '@/config/environment';
 
 const API_BASE_URL = `${ENV.AI_API_BASE_URL}/api`;
 
-// Helper function to get authorization headers
+// Helper function to get authorization headers with Entra ID token
 const getAuthHeaders = async (): Promise<Record<string, string>> => {
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
   };
 
   try {
-    // Try to get access token from SecureTokenManager
-    const { SecureTokenManager } = await import('@/utils/secureTokenManager');
+    // Get the Entra ID token from SecureTokenManager
+    const { default: SecureTokenManager } = await import('@/utils/secureTokenManager');
     const tokenData = SecureTokenManager.getToken();
     
     if (tokenData && tokenData.token) {
+      // Use the Entra ID token (idToken) for authorization
       headers['Authorization'] = `Bearer ${tokenData.token}`;
+      console.log('🔑 Authorization header added with Entra ID token');
+    } else {
+      console.warn('⚠️ No Entra ID token available for API authorization');
     }
   } catch (error) {
-    console.warn('Could not get access token for API request:', error);
+    console.warn('⚠️ Could not get Entra ID token for API request:', error);
   }
 
   return headers;
@@ -343,6 +347,7 @@ export class AzureConversationService {
       const headers: Record<string, string> = {};
       if (authHeaders['Authorization']) {
         headers['Authorization'] = authHeaders['Authorization'];
+        console.log('🔑 File upload with Entra ID authorization');
       }
 
       const response = await fetch(`${API_BASE_URL}/files/upload`, {

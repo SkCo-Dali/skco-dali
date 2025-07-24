@@ -11,6 +11,25 @@ interface AzureApiResponse {
   ipAddress?: string;
 }
 
+// Helper function to get Entra ID token
+const getEntraIdToken = async (): Promise<string | null> => {
+  try {
+    const { default: SecureTokenManager } = await import('@/utils/secureTokenManager');
+    const tokenData = SecureTokenManager.getToken();
+    
+    if (tokenData && tokenData.token) {
+      console.log('🔑 Entra ID token retrieved for API call');
+      return tokenData.token;
+    } else {
+      console.warn('⚠️ No Entra ID token available');
+      return null;
+    }
+  } catch (error) {
+    console.warn('⚠️ Could not get Entra ID token:', error);
+    return null;
+  }
+};
+
 // Helper function to wait for a specified number of milliseconds
 const sleep = (ms: number): Promise<void> => {
   return new Promise(resolve => setTimeout(resolve, ms));
@@ -41,9 +60,12 @@ const makeApiCallWithRetry = async (
         'Content-Type': 'application/json',
       };
 
-      // Add authorization header if access token is provided
+      // Add Entra ID token authorization header
       if (requestBody.EntraToken) {
         headers['Authorization'] = `Bearer ${requestBody.EntraToken}`;
+        console.log('🔑 Authorization header added with Entra ID token');
+      } else {
+        console.warn('⚠️ No Entra ID token provided for API authorization');
       }
 
       const response = await fetch(`${ENV.MAESTRO_API_BASE_URL}/api/maestro`, {
@@ -135,11 +157,14 @@ export const callAzureAgentApi = async (
   
   const startTime = Date.now();
   
+  // Get Entra ID token for authorization
+  const entraToken = await getEntraIdToken();
+  
   // Preparar el body para el API del maestro
   const requestBody: any = {
     App: "Dali",
     correo: userEmail,
-    EntraToken: accessToken || '',
+    EntraToken: entraToken || '', // Use Entra ID token instead of access token
     IdConversacion: conversationId || `conv_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
   };
 
@@ -155,7 +180,7 @@ export const callAzureAgentApi = async (
   console.log('  - App:', requestBody.App);
   console.log('  - pregunta:', requestBody.pregunta ? requestBody.pregunta.substring(0, 100) + (requestBody.pregunta.length > 100 ? '...' : '') : 'NOT_INCLUDED');
   console.log('  - correo:', requestBody.correo);
-  console.log('  - EntraToken:', accessToken ? accessToken.substring(0, 30) + '...' : 'empty');
+  console.log('  - EntraToken:', entraToken ? entraToken.substring(0, 30) + '...' : 'empty');
   console.log('  - IdConversacion:', requestBody.IdConversacion);
 
   try {
