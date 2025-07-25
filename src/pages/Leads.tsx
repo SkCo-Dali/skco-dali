@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useMemo } from "react";
 import { Lead } from "@/types/crm";
 import { useLeadsApi } from "@/hooks/useLeadsApi";
@@ -187,6 +186,7 @@ export default function Leads() {
                 Crear Lead
               </Button>
               <LeadsActionsButton 
+                selectedLeads={selectedLeads}
                 onClearSelection={handleClearSelection}
                 onLeadUpdate={refetch}
               />
@@ -309,8 +309,8 @@ export default function Leads() {
 
       {/* Diálogos */}
       <LeadCreateDialog
-        open={showCreateDialog}
-        onOpenChange={setShowCreateDialog}
+        isOpen={showCreateDialog}
+        onClose={() => setShowCreateDialog(false)}
         onLeadCreated={refetch}
       />
 
@@ -323,15 +323,14 @@ export default function Leads() {
             <LeadDetail
               lead={selectedLead}
               onClose={handleCloseDetailDialog}
-              onLeadUpdate={handleLeadUpdate}
             />
           )}
         </DialogContent>
       </Dialog>
 
       <LeadsTableColumnSelector
-        open={showColumnSelector}
-        onOpenChange={setShowColumnSelector}
+        isOpen={showColumnSelector}
+        onClose={() => setShowColumnSelector(false)}
         columns={columns}
         onColumnsChange={handleColumnConfigChange}
       />
