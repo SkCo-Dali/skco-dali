@@ -5,6 +5,8 @@ export const ENV = {
   AZURE_CLIENT_ID: import.meta.env.VITE_AZURE_CLIENT_ID || '2cc89bfe-6192-40e2-80a8-fd218121c623',
   AZURE_TENANT_ID: import.meta.env.VITE_AZURE_TENANT_ID || '08271f42-81ef-45d6-81ac-49776c4be615',
   AZURE_AUTHORITY: import.meta.env.VITE_AZURE_AUTHORITY || 'https://login.microsoftonline.com/08271f42-81ef-45d6-81ac-49776c4be615',
+  AUTH_LOG_LEVEL: import.meta.env.VITE_AUTH_LOG_LEVEL || 1, // 0 = Error, 1 = Warning, 2 = Info, 3 = Verbose, 4 = Trace
+  PII_LOGGING_ENABLED: import.meta.env.VITE_PII_LOGGING_ENABLED === 'true' || false,
   
   // Microsoft Graph API
   GRAPH_API_BASE_URL: import.meta.env.VITE_GRAPH_API_BASE_URL || 'https://graph.microsoft.com/v1.0',

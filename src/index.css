@@ -9,72 +9,90 @@
   :root {
     /* Skandia Brand Colors */
     --skandia-blue: 145 100% 38%;
-    --skandia-light-blue: 145 100% 38%;
-    --skandia-dark-blue: 0 0% 25%;
-    --skandia-accent: 0 0% 25%;
+    --skandia-light-blue: 145 100% 45%;
+    --skandia-dark-blue: 210 20% 20%;
+    --skandia-accent: 145 100% 38%;
     --skandia-gray: 210 10% 50%;
     --skandia-light-gray: 210 10% 95%;
     
     --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    --foreground: 210 20% 15%;
 
     --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card-foreground: 210 20% 15%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
+    --popover-foreground: 210 20% 15%;
 
     --primary: var(--skandia-blue);
-    --primary-foreground: 210 40% 98%;
+    --primary-foreground: 0 0% 100%;
 
     --secondary: var(--skandia-light-gray);
     --secondary-foreground: var(--skandia-dark-blue);
 
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    --muted: 210 40% 96%;
+    --muted-foreground: 215 16% 47%;
 
     --accent: var(--skandia-accent);
-    --accent-foreground: 210 40% 98%;
+    --accent-foreground: 0 0% 100%;
 
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
+    --border: 214 32% 91%;
+    --input: 214 32% 91%;
     --ring: var(--skandia-blue);
 
     --radius: 0.75rem;
 
-    --sidebar-background: var(--skandia-dark-blue);
-    --sidebar-foreground: 210 40% 98%;
-    --sidebar-primary: var(--skandia-light-blue);
-    --sidebar-primary-foreground: 0 0% 98%;
-    --sidebar-accent: var(--skandia-blue);
-    --sidebar-accent-foreground: 210 40% 98%;
-    --sidebar-border: var(--skandia-blue);
-    --sidebar-ring: var(--skandia-light-blue);
+    --sidebar-background: 0 0% 100%;
+    --sidebar-foreground: 210 20% 15%;
+    --sidebar-primary: var(--skandia-blue);
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: var(--skandia-light-blue);
+    --sidebar-accent-foreground: 0 0% 100%;
+    --sidebar-border: 214 32% 91%;
+    --sidebar-ring: var(--skandia-blue);
   }
 
   .dark {
-    --background: var(--skandia-dark-blue);
-    --foreground: 210 40% 98%;
-    --card: var(--skandia-blue);
-    --card-foreground: 210 40% 98%;
-    --popover: var(--skandia-blue);
-    --popover-foreground: 210 40% 98%;
-    --primary: var(--skandia-light-blue);
-    --primary-foreground: var(--skandia-dark-blue);
-    --secondary: var(--skandia-blue);
-    --secondary-foreground: 210 40% 98%;
-    --muted: var(--skandia-blue);
-    --muted-foreground: 215 20.2% 65.1%;
+    /* En modo oscuro, mantener la misma paleta visual con ajustes mínimos */
+    --background: 210 20% 8%;
+    --foreground: 0 0% 95%;
+    
+    --card: 210 20% 10%;
+    --card-foreground: 0 0% 95%;
+    
+    --popover: 210 20% 10%;
+    --popover-foreground: 0 0% 95%;
+    
+    --primary: var(--skandia-blue);
+    --primary-foreground: 0 0% 100%;
+    
+    --secondary: 210 20% 12%;
+    --secondary-foreground: 0 0% 90%;
+    
+    --muted: 210 20% 12%;
+    --muted-foreground: 215 20% 65%;
+    
     --accent: var(--skandia-accent);
-    --accent-foreground: 210 40% 98%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-    --border: var(--skandia-blue);
-    --input: var(--skandia-blue);
-    --ring: var(--skandia-light-blue);
+    --accent-foreground: 0 0% 100%;
+    
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+    
+    --border: 210 20% 18%;
+    --input: 210 20% 15%;
+    --ring: var(--skandia-blue);
+
+    --sidebar-background: 210 20% 8%;
+    --sidebar-foreground: 0 0% 95%;
+    --sidebar-primary: var(--skandia-blue);
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: var(--skandia-light-blue);
+    --sidebar-accent-foreground: 0 0% 100%;
+    --sidebar-border: 210 20% 18%;
+    --sidebar-ring: var(--skandia-blue);
   }
 }
 

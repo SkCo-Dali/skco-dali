@@ -47,21 +47,26 @@ export const PromptTemplates: React.FC<PromptTemplatesProps> = ({ onSelectTempla
   useEffect(() => {
     const loadTemplates = async () => {
       if (!userEmail) {
-        console.log('PromptTemplates: No user email, skipping template load');
+        console.log('🔍 PromptTemplates: No user email, skipping template load');
         return;
       }
 
       try {
         setIsLoading(true);
-        console.log('PromptTemplates: Loading all templates (user + system) from backend for:', userEmail);
+        console.log('🔍 PromptTemplates: Loading ALL templates (user + system) from backend for:', userEmail);
         
-        // Get all templates (user and system) in one call
+        // Use getUserTemplates which gets both user and system templates
         const allTemplates = await templatesService.getUserTemplates(userEmail);
         
-        console.log('PromptTemplates: Loaded all templates:', allTemplates.length);
+        console.log('🔍 PromptTemplates: Loaded templates:', {
+          total: allTemplates.length,
+          userTemplates: allTemplates.filter(t => !t.isDefault).length,
+          systemTemplates: allTemplates.filter(t => t.isDefault).length
+        });
+        
         setTemplates(allTemplates);
       } catch (error) {
-        console.error('PromptTemplates: Error loading templates:', error);
+        console.error('🔍 PromptTemplates: Error loading templates:', error);
         toast({
           title: "Error al cargar plantillas",
           description: "No se pudieron cargar las plantillas desde el servidor",

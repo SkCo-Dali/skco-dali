@@ -1,3 +1,4 @@
+
 import { PromptTemplate } from '../types/templates';
 import { ENV } from '@/config/environment';
 
@@ -32,13 +33,57 @@ export interface CategoriesResponse {
 class TemplatesService {
   private baseUrl = ENV.AI_API_BASE_URL;
 
-  private getHeaders(userEmail?: string) {
+  private async getHeaders(userIdOverride?: string): Promise<Record<string, string>> {
+    console.log('🔍 TemplatesService: Starting getHeaders() with userIdOverride:', userIdOverride);
+    
     const headers: Record<string, string> = {
       'Content-Type': 'application/json',
     };
     
-    if (userEmail) {
-      headers['X-User-Id'] = userEmail;
+    try {
+      // Get ID Token from SecureTokenManager for authentication
+      console.log('🔍 TemplatesService: Importing SecureTokenManager');
+      const { SecureTokenManager } = await import('@/utils/secureTokenManager');
+      
+      console.log('🔍 TemplatesService: Getting token from SecureTokenManager');
+      const tokenData = SecureTokenManager.getToken();
+      console.log('🔍 TemplatesService: Token data received:', tokenData ? 'Present' : 'Null');
+      
+      if (tokenData && tokenData.token) {
+        headers['Authorization'] = `Bearer ${tokenData.token}`;
+        console.log('🔍 TemplatesService: Added Authorization header');
+        
+        // Use override if provided, otherwise get user email from session storage
+        if (userIdOverride) {
+          headers['X-User-Id'] = userIdOverride;
+          console.log('🔍 TemplatesService: Using userIdOverride for X-User-Id:', userIdOverride);
+        } else {
+          // Get user email from session storage for X-User-Id header
+          console.log('🔍 TemplatesService: Getting user data from sessionStorage');
+          const userDataString = sessionStorage.getItem('skandia-crm-user');
+          console.log('🔍 TemplatesService: User data string from sessionStorage:', userDataString ? 'Present' : 'Null');
+          
+          if (userDataString) {
+            const userData = JSON.parse(userDataString);
+            console.log('🔍 TemplatesService: Parsed user data:', userData);
+            
+            if (userData.email) {
+              headers['X-User-Id'] = userData.email;
+              console.log('🔍 TemplatesService: Added X-User-Id header with email:', userData.email);
+            } else {
+              console.warn('🔍 TemplatesService: No email found in user data');
+            }
+          } else {
+            console.warn('🔍 TemplatesService: No user data found in sessionStorage');
+          }
+        }
+        
+        console.log('🔍 TemplatesService: Final headers:', headers);
+      } else {
+        console.warn('🔍 TemplatesService: No valid token found in SecureTokenManager');
+      }
+    } catch (error) {
+      console.error('🔍 TemplatesService: Error getting authentication token:', error);
     }
     
     return headers;
@@ -51,16 +96,17 @@ class TemplatesService {
     offset?: number;
   }): Promise<PromptTemplate[]> {
     try {
-      console.log('TemplatesService: Getting all templates (user + system) for:', userEmail, 'options:', options);
+      console.log('🔍 TemplatesService: Starting getUserTemplates');
+      console.log('🔍 TemplatesService: Input parameters:', { userEmail, options });
       
-      // Get both user templates and system templates
+      // Get both user templates and system templates with correct headers
       const [userTemplates, systemTemplates] = await Promise.all([
-        this.fetchTemplatesByType(userEmail, false, options),
-        this.fetchTemplatesByType(userEmail, true, options)
+        this.fetchTemplatesByType(userEmail, false, options, userEmail), // User templates with user email
+        this.fetchTemplatesByType(userEmail, true, options, 'system')    // System templates with "system" header
       ]);
       
       const allTemplates = [...userTemplates, ...systemTemplates];
-      console.log('TemplatesService: Combined templates:', {
+      console.log('🔍 TemplatesService: Combined templates result:', {
         userTemplates: userTemplates.length,
         systemTemplates: systemTemplates.length,
         total: allTemplates.length
@@ -68,7 +114,7 @@ class TemplatesService {
       
       return allTemplates;
     } catch (error) {
-      console.error('TemplatesService: Error fetching all templates:', error);
+      console.error('🔍 TemplatesService: Error in getUserTemplates:', error);
       throw error;
     }
   }
@@ -81,15 +127,14 @@ class TemplatesService {
       search?: string;
       limit?: number;
       offset?: number;
-    }
+    },
+    userIdOverride?: string
   ): Promise<PromptTemplate[]> {
     try {
-      // For system templates, use "system" as user_id and also in header
-      const userId = isDefault ? 'system' : userEmail;
-      const headerUserId = isDefault ? 'system' : userEmail;
+      console.log('🔍 TemplatesService: Starting fetchTemplatesByType');
+      console.log('🔍 TemplatesService: Parameters:', { userEmail, isDefault, options, userIdOverride });
       
       const params = new URLSearchParams({
-        user_id: userId,
         is_default: isDefault.toString(),
         ...(options?.category && { category: options.category }),
         ...(options?.search && { search: options.search }),
@@ -97,47 +142,78 @@ class TemplatesService {
         ...(options?.offset && { offset: options.offset.toString() })
       });
 
-      console.log('TemplatesService: Fetching templates:', {
-        type: isDefault ? 'system' : 'user',
-        url: `${BACKEND_URL}/api/templates?${params}`,
-        headerUserId: headerUserId
+      const fullUrl = `${BACKEND_URL}/api/templates?${params}`;
+      console.log('🔍 TemplatesService: Full URL:', fullUrl);
+      console.log('🔍 TemplatesService: BACKEND_URL:', BACKEND_URL);
+      console.log('🔍 TemplatesService: Query params:', params.toString());
+
+      const headers = await this.getHeaders(userIdOverride);
+      console.log('🔍 TemplatesService: Headers to send:', headers);
+
+      console.log('🔍 TemplatesService: Making fetch request...');
+      const response = await fetch(fullUrl, {
+        method: 'GET',
+        headers
       });
 
-      const response = await fetch(`${BACKEND_URL}/api/templates?${params}`, {
-        method: 'GET',
-        headers: this.getHeaders(headerUserId)
+      console.log('🔍 TemplatesService: Response received:', {
+        status: response.status,
+        statusText: response.statusText,
+        ok: response.ok,
+        headers: Object.fromEntries(response.headers.entries())
       });
 
       if (!response.ok) {
-        console.error('TemplatesService: Response not OK:', response.status, response.statusText);
-        if (response.status === 422) {
-          const errorData = await response.json();
-          console.error('TemplatesService: Validation error:', errorData);
+        console.error('🔍 TemplatesService: Response not OK');
+        
+        let errorData;
+        try {
+          errorData = await response.json();
+          console.error('🔍 TemplatesService: Error response body:', errorData);
+        } catch (parseError) {
+          console.error('🔍 TemplatesService: Could not parse error response:', parseError);
+          const textResponse = await response.text();
+          console.error('🔍 TemplatesService: Error response text:', textResponse);
         }
-        throw new Error(`Failed to fetch ${isDefault ? 'system' : 'user'} templates: ${response.statusText}`);
+        
+        throw new Error(`Failed to fetch ${isDefault ? 'system' : 'user'} templates: ${response.status} ${response.statusText}`);
       }
 
+      console.log('🔍 TemplatesService: Response OK, reading JSON...');
       const responseData = await response.json();
-      console.log('TemplatesService: Raw response data:', responseData);
+      console.log('🔍 TemplatesService: Raw response data:', responseData);
       
       // Extract templates array from response object
       const templates = responseData.templates || [];
-      console.log('TemplatesService: Extracted templates array:', templates.length, 'for type:', isDefault ? 'system' : 'user');
+      console.log('🔍 TemplatesService: Extracted templates array:', templates);
+      console.log('🔍 TemplatesService: Templates count:', templates.length);
       
       // Convert from backend format to frontend format
-      return templates.map((template: any) => ({
-        id: template.id,
-        name: template.name,
-        description: template.description,
-        content: template.content,
-        category: template.category,
-        isDefault: template.isDefault || isDefault,
-        createdAt: new Date(template.createdAt),
-        usageCount: template.usageCount || 0,
-        tags: template.tags || []
-      }));
+      const convertedTemplates = templates.map((template: any) => {
+        const converted = {
+          id: template.id,
+          name: template.name,
+          description: template.description,
+          content: template.content,
+          category: template.category,
+          isDefault: template.isDefault || isDefault,
+          createdAt: new Date(template.createdAt),
+          usageCount: template.usageCount || 0,
+          tags: template.tags || []
+        };
+        console.log('🔍 TemplatesService: Converted template:', converted);
+        return converted;
+      });
+      
+      console.log('🔍 TemplatesService: Final converted templates:', convertedTemplates);
+      return convertedTemplates;
     } catch (error) {
-      console.error(`TemplatesService: Error fetching ${isDefault ? 'system' : 'user'} templates:`, error);
+      console.error('🔍 TemplatesService: Error in fetchTemplatesByType:', error);
+      console.error('🔍 TemplatesService: Error details:', {
+        name: error.name,
+        message: error.message,
+        stack: error.stack
+      });
       // Return empty array instead of throwing to allow partial success
       return [];
     }
@@ -147,9 +223,10 @@ class TemplatesService {
     try {
       console.log('TemplatesService: Creating template for:', userEmail);
       
+      const headers = await this.getHeaders();
       const response = await fetch(`${BACKEND_URL}/api/templates`, {
         method: 'POST',
-        headers: this.getHeaders(userEmail),
+        headers,
         body: JSON.stringify(templateData)
       });
 
@@ -189,9 +266,10 @@ class TemplatesService {
     try {
       console.log('TemplatesService: Updating template:', templateId);
       
+      const headers = await this.getHeaders();
       const response = await fetch(`${BACKEND_URL}/api/templates/${templateId}`, {
         method: 'PUT',
-        headers: this.getHeaders(userEmail),
+        headers,
         body: JSON.stringify(templateData)
       });
 
@@ -223,13 +301,10 @@ class TemplatesService {
     try {
       console.log('TemplatesService: Deleting template:', templateId);
       
-      const params = new URLSearchParams({
-        user_id: userEmail
-      });
-      
-      const response = await fetch(`${BACKEND_URL}/api/templates/${templateId}?${params}`, {
+      const headers = await this.getHeaders();
+      const response = await fetch(`${BACKEND_URL}/api/templates/${templateId}`, {
         method: 'DELETE',
-        headers: this.getHeaders(userEmail)
+        headers
       });
 
       if (!response.ok) {
@@ -247,13 +322,10 @@ class TemplatesService {
     try {
       console.log('TemplatesService: Recording template usage:', templateId);
       
-      const params = new URLSearchParams({
-        user_id: userEmail
-      });
-      
-      const response = await fetch(`${BACKEND_URL}/api/templates/${templateId}/usage?${params}`, {
+      const headers = await this.getHeaders();
+      const response = await fetch(`${BACKEND_URL}/api/templates/${templateId}/usage`, {
         method: 'POST',
-        headers: this.getHeaders(userEmail)
+        headers
       });
 
       if (!response.ok) {
@@ -269,24 +341,27 @@ class TemplatesService {
 
   async getSystemTemplates(userEmail: string = 'system'): Promise<PromptTemplate[]> {
     try {
-      console.log('TemplatesService: Getting all templates (user + system) for carousel with userEmail:', userEmail);
+      console.log('🔍 TemplatesService: Starting getSystemTemplates for carousel');
+      console.log('🔍 TemplatesService: userEmail parameter:', userEmail);
       
-      // Use the same method that works for listing templates - get both user and system templates
+      // Get both user templates and system templates for carousel
       const [userTemplates, systemTemplates] = await Promise.all([
-        this.fetchTemplatesByType(userEmail, false, { limit: 6 }),
-        this.fetchTemplatesByType(userEmail, true, { limit: 6 })
+        this.fetchTemplatesByType(userEmail, false, { limit: 3 }, userEmail), // User templates with user email
+        this.fetchTemplatesByType(userEmail, true, { limit: 3 }, 'system')    // System templates with "system" header
       ]);
       
-      const allTemplates = [...userTemplates, ...systemTemplates];
-      console.log('TemplatesService: Combined templates for carousel:', {
-        userTemplates: userTemplates.length,
+      // Combine and limit to 6 total templates for carousel
+      const allTemplates = [...systemTemplates, ...userTemplates].slice(0, 6);
+      
+      console.log('🔍 TemplatesService: Carousel templates result:', {
         systemTemplates: systemTemplates.length,
+        userTemplates: userTemplates.length,
         total: allTemplates.length
       });
       
       return allTemplates;
     } catch (error) {
-      console.error('TemplatesService: Error getting templates for carousel:', error);
+      console.error('🔍 TemplatesService: Error getting templates for carousel:', error);
       throw error;
     }
   }
@@ -295,13 +370,10 @@ class TemplatesService {
     try {
       console.log('TemplatesService: Getting template categories for:', userEmail);
       
-      const params = new URLSearchParams({
-        user_id: userEmail
-      });
-
-      const response = await fetch(`${BACKEND_URL}/api/templates/categories?${params}`, {
+      const headers = await this.getHeaders();
+      const response = await fetch(`${BACKEND_URL}/api/templates/categories`, {
         method: 'GET',
-        headers: this.getHeaders(userEmail)
+        headers
       });
 
       if (!response.ok) {

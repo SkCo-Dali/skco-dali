@@ -8,7 +8,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { User, Mail, Edit, Trash2, MoreVertical, CircleUserRound, Smartphone } from "lucide-react";
+import { User, Mail, Edit, Trash2, MoreVertical, CircleUserRound, Smartphone, Users } from "lucide-react";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { useUsersApi } from "@/hooks/useUsersApi";
@@ -24,6 +24,7 @@ interface LeadCardProps {
   onDelete?: (lead: Lead) => void;
   onSendEmail?: (lead: Lead) => void;
   onSendWhatsApp?: (lead: Lead) => void;
+  onOpenProfiler?: (lead: Lead) => void;
   onLeadUpdate?: () => void;
 }
 
@@ -48,6 +49,7 @@ export function LeadCard({
   onDelete, 
   onSendEmail, 
   onSendWhatsApp,
+  onOpenProfiler,
   onLeadUpdate
 }: LeadCardProps) {
   const { users } = useUsersApi();
@@ -95,42 +97,37 @@ export function LeadCard({
     }
   };
 
+  const capitalizeWords = (text: string) => {
+    return text.toLowerCase().replace(/\b\w/g, l => l.toUpperCase());
+  };
+
   return (
     <>
       <div className="relative">
         <Card 
-          className="cursor-pointer transition-all duration-200 mt-0 mx-4 pt-6 rounded-lg max-w-md shadow-none"
-          style={{ backgroundColor: '#fafafa'}}
+          className="cursor-pointer transition-all duration-200 mt-0 mx-2 pt-6 max-w-md shadow-md border-0"
+          style={{ backgroundColor: '#fafafa',
+                   borderRadius: '16px'}}
           onClick={handleCardClick}
         >
-          <div className="absolute top-0 left-6 z-20">
-            <Badge 
-              className={`text-xs px-3 py-1 whitespace-nowrap rounded-none rounded-br-lg shadow-sm ${stageColors[lead.stage as keyof typeof stageColors] || 'bg-gray-100 text-gray-800'}`}
-              variant="secondary"
+          <div className="absolute top-0 left-2 z-20">
+            <div 
+              className={`text-xs px-3 py-1 whitespace-nowrap shadow-none ${stageColors[lead.stage as keyof typeof stageColors] || 'bg-gray-100 text-gray-800'}`}
+              style={{
+                borderRadius: '5px 0px 8px 0px'
+              }}
             >
               {lead.stage}
-            </Badge>
+            </div>
           </div>
 
-          <CardHeader className="pb-2 px-4 pt-2">
+          <CardHeader className="pb-2 px-2 pt-2">
             <div className="flex items-start justify-between">
               <div className="min-w-0 flex-1 space-y-2">
-                <h3 className="font-medium text-sm text-gray-900 mb-1">{lead.name}</h3>
-                <div className="flex items-center text-xs text-gray-900 mb-1">
-                  <CircleUserRound className="h-3 w-3 mr-1" />
-                  <span>{lead.documentType || 'CC'}.{lead.documentNumber || '111111111'}</span>
-                </div>
-                <div className="flex items-center text-xs text-gray-900 mb-1">
-                  <Smartphone className="h-3 w-3 mr-1" />
-                  <span>{lead.phone || 'No registra teléfono'}</span>
-                </div>
-                <div className="flex items-center text-xs text-gray-900">
+                <span className="font-medium text-sm text-gray-900 mb-1">{capitalizeWords(lead.name)}</span>
+                <div className="flex items-center text-xs text-gray-900 lowercase">
                   <Mail className="h-3 w-3 mr-1" />
                   <span>{lead.email || 'No registra correo'}</span>
-                </div> 
-                <div className="flex items-center text-xs text-gray-900">
-                  <strong>Asignado a: </strong>
-                  <span  className="ml-1"> {assignedUser?.name || 'Sin asignar'}</span>
                 </div> 
                 <div className="flex items-center text-xs text-gray-900">
                   <strong>Campaña: </strong>
@@ -177,6 +174,15 @@ export function LeadCard({
                       </svg>
                       Enviar WhatsApp
                     </DropdownMenuItem>
+                    {onOpenProfiler && (
+                      <DropdownMenuItem 
+                        onClick={(e) => handleMenuClick(e, () => onOpenProfiler(lead))}
+                        className="flex items-center gap-2 px-3 py-2 hover:bg-gray-50 cursor-pointer text-sm"
+                      >
+                        <Users className="h-4 w-4" />
+                        Perfilar lead
+                      </DropdownMenuItem>
+                    )}
                     <DropdownMenuItem 
                       onClick={(e) => handleMenuClick(e, handleDeleteClick)}
                       className="flex items-center gap-2 px-3 py-2 hover:bg-red-50 cursor-pointer text-red-600 text-sm"

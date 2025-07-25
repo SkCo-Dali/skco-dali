@@ -13,7 +13,7 @@ interface ThemeContextType {
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [themeMode, setThemeMode] = useState<ThemeMode>('system');
+  const [themeMode, setThemeMode] = useState<ThemeMode>('light'); // Cambiar default a 'light'
   const [isDark, setIsDark] = useState(false);
 
   // Función para obtener si el sistema prefiere modo oscuro
@@ -41,13 +41,22 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     if (savedMode && ['light', 'dark', 'system'].includes(savedMode)) {
       setThemeMode(savedMode);
     } else {
-      setThemeMode('system');
+      // Default a modo claro en lugar de system
+      setThemeMode('light');
     }
   }, []);
 
   useEffect(() => {
     // Actualizar isDark cuando cambie el modo
-    setIsDark(calculateIsDark(themeMode));
+    const newIsDark = calculateIsDark(themeMode);
+    setIsDark(newIsDark);
+    
+    // Aplicar tema inmediatamente
+    if (newIsDark) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
   }, [themeMode]);
 
   useEffect(() => {
@@ -56,7 +65,15 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     
     const handleSystemThemeChange = () => {
       if (themeMode === 'system') {
-        setIsDark(getSystemPreference());
+        const newIsDark = getSystemPreference();
+        setIsDark(newIsDark);
+        
+        // Aplicar tema inmediatamente
+        if (newIsDark) {
+          document.documentElement.classList.add('dark');
+        } else {
+          document.documentElement.classList.remove('dark');
+        }
       }
     };
 
@@ -68,17 +85,12 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   }, [themeMode]);
 
   useEffect(() => {
-    // Guardar preferencias y aplicar tema
+    // Guardar preferencias
     localStorage.setItem('themeMode', themeMode);
-    if (isDark) {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-    }
-  }, [themeMode, isDark]);
+  }, [themeMode]);
 
   const toggleTheme = () => {
-    const modes: ThemeMode[] = ['system', 'light', 'dark'];
+    const modes: ThemeMode[] = ['light', 'dark', 'system']; // Reordenar para empezar con light
     const currentIndex = modes.indexOf(themeMode);
     const nextMode = modes[(currentIndex + 1) % modes.length];
     setThemeMode(nextMode);
