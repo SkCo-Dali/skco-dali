@@ -312,6 +312,7 @@
     border: 1px solid #f1f5f9;
     min-height: 20px !important;
     min-width: 20px !important;
+    max-height: 350px !important;
     box-shadow: 0 1px 3px rgba(0,0,0,0.1);
   }
 
