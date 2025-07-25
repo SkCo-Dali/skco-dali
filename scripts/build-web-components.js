@@ -38,12 +38,6 @@ const createWebComponentConfig = (entry, name, outDir) => defineConfig({
     emptyOutDir: false,
     cssCodeSplit: false,
     minify: 'esbuild',
-    terserOptions: {
-      compress: {
-        drop_console: false, // Mantener console.log para debugging
-        drop_debugger: true
-      }
-    }
   },
   resolve: {
     alias: {
@@ -57,6 +51,7 @@ async function generateIndividualComponent(componentName) {
   const componentFile = `generate-${componentName.toLowerCase()}-component.js`;
   const componentContent = `
 import React from 'react';
+import {useState, useEffect} from 'react';
 import ReactDOM from 'react-dom/client';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { BrowserRouter } from 'react-router-dom';
@@ -66,7 +61,7 @@ import { PublicClientApplication } from '@azure/msal-browser';
 import ${componentName} from '../src/pages/${componentName}';
 
 // Importar contextos necesarios
-import { AuthProvider } from '../src/contexts/AuthContext';
+import { AuthProvider, useAuth } from '../src/contexts/AuthContext';
 import { NotificationProvider } from '../src/contexts/NotificationContext';
 import { SimpleConversationProvider } from '../src/contexts/SimpleConversationContext';
 import { ThemeProvider } from '../src/contexts/ThemeContext';
@@ -75,13 +70,18 @@ import { SettingsProvider } from '../src/contexts/SettingsContext';
 // Importar configuración de autenticación
 import { msalConfig } from '../src/authConfig';
 
+
+import { loginRequest } from '../src/authConfig';
+import { getUserByEmail, createUser } from '../src/utils/userApiClient';
+import { TokenValidationService } from '../src/services/tokenValidationService';
+import { getUserRoleByEmail } from '../src/utils/userRoleService';
+import SecureTokenManager from '../src/utils/secureTokenManager';
+
 // Importar CSS
 import '../src/index.css';
 
 // Componente de autenticación automática
 const AutoAuthWrapper = ({ children, Component }) => {
-  const { useAuth } = require('../src/contexts/AuthContext');
-  const { useState, useEffect } = require('react');
 
   const { user, loading, msalInstance, login } = useAuth();
   const [isAutoAuthenticating, setIsAutoAuthenticating] = useState(false);
@@ -93,11 +93,6 @@ const AutoAuthWrapper = ({ children, Component }) => {
     setIsAutoAuthenticating(true);
     
     try {
-      const { loginRequest } = require('../src/authConfig');
-      const { getUserByEmail, createUser } = require('../src/utils/userApiClient');
-      const { TokenValidationService } = require('../src/services/tokenValidationService');
-      const { getUserRoleByEmail } = require('../src/utils/userRoleService');
-      const SecureTokenManager = require('../src/utils/secureTokenManager').default;
 
       // Paso 1: Obtener token de MSAL
       const response = await msalInstance.loginPopup({
