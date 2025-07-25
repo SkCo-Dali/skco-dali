@@ -291,8 +291,10 @@ export function LeadsTable({
     setSortConfig({ key: columnKey, direction: newDirection });
   };
 
-  const handleColumnHeaderClick = (columnKey: string, sortable: boolean) => {
-    if (sortable) {
+  // Nueva función específica para manejar el clic en el nombre de la columna
+  const handleColumnHeaderClick = (columnKey: string, sortable: boolean, e: React.MouseEvent) => {
+    // Solo ordenar si es sortable y no se está haciendo clic en el icono de filtro
+    if (sortable && !e.defaultPrevented) {
       handleSort(columnKey);
     }
   };
@@ -548,8 +550,7 @@ export function LeadsTable({
                       key={column.key}
                       className={`px-4 py-3 text-center text-xs font-medium text-gray-600 capitalize tracking-wider ${
                         column.key === 'name' ? 'leads-name-column-sticky' : 'leads-regular-column'
-                      } ${column.sortable ? 'cursor-pointer hover:bg-gray-100' : ''}`}
-                      onClick={() => handleColumnHeaderClick(column.key, column.sortable)}
+                      }`}
                     >
                       <div className="flex items-center justify-center space-x-1">
                         <ColumnFilter
@@ -561,7 +562,12 @@ export function LeadsTable({
                           currentFilters={columnFilters[column.key] || []}
                           currentTextFilters={textFilters[column.key] || []}
                         />
-                        <span>{column.label}</span>
+                        <span 
+                          className={`${column.sortable ? 'cursor-pointer hover:text-green-600' : ''}`}
+                          onClick={(e) => handleColumnHeaderClick(column.key, column.sortable, e)}
+                        >
+                          {column.label}
+                        </span>
                         {column.sortable && renderSortIcon(column.key)}
                       </div>
                     </TableHead>

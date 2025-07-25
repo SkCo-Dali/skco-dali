@@ -104,6 +104,9 @@ export function ColumnFilter({
           className={`h-6 w-6 p-0 hover:bg-gray-100 ${
             hasActiveFilters ? 'text-green-600' : 'text-gray-400'
           }`}
+          onClick={(e) => {
+            e.stopPropagation(); // Evitar que se propague el evento de click al header
+          }}
         >
           <Filter className="h-3 w-3" />
         </Button>
@@ -170,7 +173,9 @@ export function ColumnFilter({
                 <div className="flex items-center space-x-2 p-2 hover:bg-gray-50">
                   <Checkbox
                     checked={isAllSelected}
-                    onCheckedChange={handleSelectAll}
+                    onCheckedChange={(checked) => {
+                      handleSelectAll(checked as boolean);
+                    }}
                     className={isIndeterminate ? "data-[state=indeterminate]:bg-primary" : ""}
                     {...(isIndeterminate ? { "data-state": "indeterminate" } : {})}
                   />
@@ -190,7 +195,9 @@ export function ColumnFilter({
                   <div key={value} className="flex items-center space-x-2 p-2 hover:bg-gray-50">
                     <Checkbox
                       checked={selectedValues.includes(value)}
-                      onCheckedChange={(checked) => handleValueChange(value, checked as boolean)}
+                      onCheckedChange={(checked) => {
+                        handleValueChange(value, checked as boolean);
+                      }}
                     />
                     <label 
                       className="text-sm text-gray-700 cursor-pointer flex-1"
