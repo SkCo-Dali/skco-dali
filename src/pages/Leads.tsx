@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useMemo } from "react";
 import { Lead } from "@/types/crm";
 import { useLeadsApi } from "@/hooks/useLeadsApi";
@@ -150,6 +151,12 @@ export default function Leads() {
     setFilterDuplicates("all");
   };
 
+  const handleLeadCreate = (leadData: Partial<Lead>) => {
+    console.log('Creating lead:', leadData);
+    // Implementar lógica de creación de lead
+    refetch();
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-96">
@@ -178,13 +185,12 @@ export default function Leads() {
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <h1 className="text-3xl font-bold text-foreground">Gestión de Leads</h1>
             <div className="flex items-center gap-2">
-              <Button
-                onClick={() => setShowCreateDialog(true)}
-                className="bg-[#00c83c] hover:bg-[#00b037] text-white"
-              >
-                <Plus className="w-4 h-4 mr-2" />
-                Crear Lead
-              </Button>
+              <LeadCreateDialog onLeadCreate={handleLeadCreate}>
+                <Button className="bg-[#00c83c] hover:bg-[#00b037] text-white">
+                  <Plus className="w-4 h-4 mr-2" />
+                  Crear Lead
+                </Button>
+              </LeadCreateDialog>
               <LeadsActionsButton 
                 selectedLeads={selectedLeads}
                 onClearSelection={handleClearSelection}
@@ -198,13 +204,10 @@ export default function Leads() {
                 <Filter className="w-4 h-4 mr-2" />
                 Filtros
               </Button>
-              <Button
-                variant="outline"
-                onClick={() => setShowColumnSelector(true)}
-              >
-                <Settings className="w-4 h-4 mr-2" />
-                Personalizar
-              </Button>
+              <LeadsTableColumnSelector
+                columns={columns}
+                onColumnsChange={handleColumnConfigChange}
+              />
             </div>
           </div>
 
@@ -308,12 +311,6 @@ export default function Leads() {
       </div>
 
       {/* Diálogos */}
-      <LeadCreateDialog
-        open={showCreateDialog}
-        onOpenChange={setShowCreateDialog}
-        onLeadCreated={refetch}
-      />
-
       <Dialog open={isDetailDialogOpen} onOpenChange={setIsDetailDialogOpen}>
         <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
@@ -329,13 +326,6 @@ export default function Leads() {
           )}
         </DialogContent>
       </Dialog>
-
-      <LeadsTableColumnSelector
-        open={showColumnSelector}
-        onOpenChange={setShowColumnSelector}
-        columns={columns}
-        onColumnsChange={handleColumnConfigChange}
-      />
     </div>
   );
 }
