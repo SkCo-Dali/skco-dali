@@ -1,5 +1,5 @@
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, memo } from 'react';
 import { Card, CardContent } from './ui/card';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from './ui/tooltip';
 import { Carousel, CarouselContent, CarouselItem } from './ui/carousel';
@@ -11,7 +11,8 @@ interface PromptCarouselProps {
   onSelectTemplate: (content: string) => void;
 }
 
-export const PromptCarousel: React.FC<PromptCarouselProps> = ({ 
+// Memoize el componente para evitar re-renders innecesarios
+export const PromptCarousel: React.FC<PromptCarouselProps> = memo(({ 
   templates, 
   onSelectTemplate 
 }) => {
@@ -206,4 +207,12 @@ export const PromptCarousel: React.FC<PromptCarouselProps> = ({
       </div>
     </TooltipProvider>
   );
-};
+}, (prevProps, nextProps) => {
+  // Solo re-renderizar si las props realmente cambiaron
+  return prevProps.templates.length === nextProps.templates.length &&
+         prevProps.templates.every((template, index) => 
+           template.id === nextProps.templates[index]?.id
+         );
+});
+
+PromptCarousel.displayName = 'PromptCarousel';

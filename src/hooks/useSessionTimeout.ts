@@ -19,6 +19,7 @@ export const useSessionTimeout = ({
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
   const warningRef = useRef<NodeJS.Timeout | null>(null);
   const lastActivityRef = useRef<number>(Date.now());
+  const isActiveRef = useRef<boolean>(false);
 
   const clearTimeouts = useCallback(() => {
     if (timeoutRef.current) {
@@ -65,14 +66,14 @@ export const useSessionTimeout = ({
     console.log(`⏰ Timer de sesión reiniciado: ${timeoutMinutes} minutos`);
   }, [user, timeoutMinutes, warningMinutes, handleTimeout, handleWarning, clearTimeouts]);
 
-  // Optimized activity handler with throttling
+  // Optimized activity handler with more aggressive throttling
   const handleActivity = useCallback(() => {
     const now = Date.now();
     const timeSinceLastActivity = now - lastActivityRef.current;
     
-    // Solo reiniciar el timer si ha pasado más de 5 minutos desde la última actividad
+    // Solo reiniciar el timer si ha pasado más de 10 minutos desde la última actividad
     // para evitar demasiadas reinicios que causen re-renders
-    if (timeSinceLastActivity > 300000) { // 5 minutos en lugar de 1 minuto
+    if (timeSinceLastActivity > 600000) { // 10 minutos
       resetTimer();
     }
   }, [resetTimer]);
@@ -80,43 +81,48 @@ export const useSessionTimeout = ({
   useEffect(() => {
     if (!user) {
       clearTimeouts();
+      isActiveRef.current = false;
       return;
     }
 
-    // Inicializar timer
-    resetTimer();
+    // Solo inicializar una vez por sesión de usuario
+    if (!isActiveRef.current) {
+      isActiveRef.current = true;
+      resetTimer();
 
-    // Usar un throttled event handler para evitar demasiadas llamadas
-    let throttleTimer: NodeJS.Timeout | null = null;
-    
-    const throttledHandler = () => {
-      if (throttleTimer) return;
+      // Usar un throttled event handler más agresivo
+      let throttleTimer: NodeJS.Timeout | null = null;
       
-      throttleTimer = setTimeout(() => {
-        handleActivity();
-        throttleTimer = null;
-      }, 1000); // Throttle de 1 segundo
-    };
+      const throttledHandler = () => {
+        if (throttleTimer) return;
+        
+        throttleTimer = setTimeout(() => {
+          handleActivity();
+          throttleTimer = null;
+        }, 5000); // Throttle de 5 segundos en lugar de 1
+      };
 
-    // Eventos de actividad del usuario con throttling
-    const events = ['mousedown', 'keypress', 'scroll', 'touchstart', 'click'];
-    
-    events.forEach(event => {
-      document.addEventListener(event, throttledHandler, { passive: true });
-    });
-
-    // Remover mousemove del array de eventos para evitar re-renders excesivos
-    // Solo usar eventos más significativos de actividad del usuario
-
-    return () => {
-      clearTimeouts();
-      if (throttleTimer) {
-        clearTimeout(throttleTimer);
-      }
+      // Solo usar eventos realmente significativos de actividad del usuario
+      const events = ['keypress', 'click'];
+      
       events.forEach(event => {
-        document.removeEventListener(event, throttledHandler);
+        document.addEventListener(event, throttledHandler, { passive: true });
       });
-    };
+
+      // Cleanup function
+      const cleanup = () => {
+        clearTimeouts();
+        if (throttleTimer) {
+          clearTimeout(throttleTimer);
+        }
+        events.forEach(event => {
+          document.removeEventListener(event, throttledHandler);
+        });
+        isActiveRef.current = false;
+      };
+
+      return cleanup;
+    }
   }, [user, resetTimer, handleActivity, clearTimeouts]);
 
   return {
