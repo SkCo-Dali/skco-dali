@@ -309,8 +309,8 @@ export default function Leads() {
 
       {/* Diálogos */}
       <LeadCreateDialog
-        isOpen={showCreateDialog}
-        onClose={() => setShowCreateDialog(false)}
+        open={showCreateDialog}
+        onOpenChange={setShowCreateDialog}
         onLeadCreated={refetch}
       />
 
@@ -322,15 +322,17 @@ export default function Leads() {
           {selectedLead && (
             <LeadDetail
               lead={selectedLead}
+              isOpen={isDetailDialogOpen}
               onClose={handleCloseDetailDialog}
+              onSave={handleLeadUpdate}
             />
           )}
         </DialogContent>
       </Dialog>
 
       <LeadsTableColumnSelector
-        isOpen={showColumnSelector}
-        onClose={() => setShowColumnSelector(false)}
+        open={showColumnSelector}
+        onOpenChange={setShowColumnSelector}
         columns={columns}
         onColumnsChange={handleColumnConfigChange}
       />
