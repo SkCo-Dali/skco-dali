@@ -49,28 +49,27 @@ export function LeadsContent({
 
   if (viewMode === 'table') {
     return (
-      <div className="flex flex-col h-full">
-        <div className="flex-1 overflow-hidden">
-          <LeadsTable
-            leads={leads}
-            paginatedLeads={paginatedLeads}
-            onLeadClick={onLeadClick}
-            onLeadUpdate={onLeadUpdate}
-            columns={columns}
-            onSortedLeadsChange={onSortedLeadsChange}
-            onSendEmail={onSendEmail}
-            onOpenProfiler={handleOpenProfiler}
-            selectedLeads={selectedLeads}
-            onLeadSelectionChange={onLeadSelectionChange}
-          />
-        </div>
+      <>
+        <LeadsTable
+          leads={leads}
+          paginatedLeads={paginatedLeads}
+          onLeadClick={onLeadClick}
+          onLeadUpdate={onLeadUpdate}
+          columns={columns}
+          onSortedLeadsChange={onSortedLeadsChange}
+          onSendEmail={onSendEmail}
+          onOpenProfiler={handleOpenProfiler}
+          selectedLeads={selectedLeads}
+          onLeadSelectionChange={onLeadSelectionChange}
+        />
 
         <Dialog open={isProfilerOpen} onOpenChange={setIsProfilerOpen}>
           <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto p-0">
+            
             <LeadProfiler selectedLead={selectedLeadForProfiler} />
           </DialogContent>
         </Dialog>
-      </div>
+      </>
     );
   }
 
@@ -111,14 +110,15 @@ export function LeadsContent({
     return groupLeads.length;
   };
 
+  if (viewMode === 'columns')
   return (
-    <div className="flex flex-col h-full">
-      <div className="flex-1 overflow-hidden">
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 h-full">
+    <>
+      <div className="space-y-6">
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
           {sortedGroups.map(([group, groupLeads]) => (
-            <div key={group} className="flex flex-col h-full">
+            <div key={group} className="space-y-0">
               {/* Header de la columna estilo Kanban */}
-              <div className="bg-[#CAF9CB] rounded-t-lg px-4 py-3 flex items-center justify-between border-b border-gray-200 flex-shrink-0">
+              <div className="bg-[#CAF9CB] rounded-t-lg px-4 py-3 flex items-center justify-between border-b border-gray-200">
                 <div className="flex items-center gap-2">
                   <div className="w-3 h-3 rounded-full bg-green-500"></div>
                   <h3 className="font-semibold text-sm text-gray-800">
@@ -131,7 +131,7 @@ export function LeadsContent({
               </div>
               
               {/* Contenedor de tarjetas con scroll */}
-              <div className="bg-gray-50 border-l border-r border-b border-gray-200 rounded-b-lg flex-1 overflow-y-auto p-3">
+              <div className="bg-gray-50 border-l border-r border-b border-gray-200 rounded-b-lg min-h-[500px] max-h-[600px] overflow-y-auto p-3">
                 <div className="space-y-4">
                   {groupLeads.map((lead) => (
                     <LeadCard
@@ -166,6 +166,6 @@ export function LeadsContent({
           <LeadProfiler selectedLead={selectedLeadForProfiler} />
         </DialogContent>
       </Dialog>
-    </div>
+    </>
   );
 }
