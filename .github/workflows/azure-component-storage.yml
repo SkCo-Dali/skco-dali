@@ -1,0 +1,44 @@
+name: CI with OpenID Connect
+
+on:
+    push:
+        branches: [ develop ]
+
+permissions:
+      id-token: write
+      contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - uses: action/setup-node@v4
+      name: Setup Node.js
+      with:
+        node-version: '22'
+    - name: Install dependencies
+      run: npm install
+    - name: Build
+      run: npm run build:web-components
+    - uses: azure/login@v2
+      with:        
+        client-id: ${{ secrets.AZURE_CLIENT_ID_STORAGE }}
+        tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+        subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+    - name: Upload JS to blob storage
+      uses: azure/CLI@v1
+      with:
+        inlineScript: |
+            az storage blob upload-batch --account-name rgskcoareajarvisdevbe2e  --auth-mode key -d 'dali-components' -s ./dist/web-components --pattern '*.js' --overwrite true
+    - name: Upload CSS to blob storage
+      uses: azure/CLI@v1
+      with:
+        inlineScript: |
+            az storage blob upload-batch --account-name rgskcoareajarvisdevbe2e  --auth-mode key -d 'dali-components' -s ./dist/web-components --pattern '*.css' --overwrite true
+  # Azure logout
+    - name: logout
+      run: |
+            az logout
+      if: always()
