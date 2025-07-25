@@ -626,6 +626,7 @@ export default function Leads() {
             ) : (
               <>
                 <LeadsContent
+                  className="max-h-[500px] overflow-y-auto"
                   viewMode={viewMode}
                   leads={filteredLeads}
                   onLeadClick={handleLeadClick}
