@@ -296,7 +296,7 @@ export default function Leads() {
   return (
     <>
       <div className="flex flex-col h-screen overflow-hidden">
-        <div className="flex-1 flex flex-col px-4 py-4 pt-20 space-y-4">
+        <div className="flex-1 flex flex-col px-4 py-4 pt-20 space-y-4 min-h-0">
           <div className="flex-1 flex flex-col gap-4 min-h-0">
             <div className="flex-shrink-0 space-y-4">
               {/* Header con título y botón de acciones */}
@@ -310,7 +310,7 @@ export default function Leads() {
                     onBulkAssign={handleBulkAssign}
                     onMassEmail={handleMassEmail}
                     onDeleteLeads={handleDeleteSelectedLeads}
-                    selectedLeads={selectedLeads}
+                    selectedLeadsCount={selectedLeads.length}
                     isDeleting={isDeleting}
                   />
                 )}
@@ -630,7 +630,7 @@ export default function Leads() {
                 </div>
               ) : (
                 <div className="flex-1 flex flex-col min-h-0">
-                  <div className="flex-1 min-h-0">
+                  <div className="flex-1 min-h-0 overflow-hidden">
                     <LeadsContent
                       viewMode={viewMode}
                       leads={filteredLeads}
