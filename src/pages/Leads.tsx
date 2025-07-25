@@ -50,6 +50,18 @@ export default function Leads() {
   const [selectedLeads, setSelectedLeads] = useState<string[]>([]);
   const [sortedLeads, setSortedLeads] = useState<Lead[]>([]);
 
+  // Filter states for LeadsFilters component
+  const [filterStage, setFilterStage] = useState<string | string[]>("all");
+  const [filterPriority, setFilterPriority] = useState<string | string[]>("all");
+  const [filterAssignedTo, setFilterAssignedTo] = useState<string | string[]>("all");
+  const [filterSource, setFilterSource] = useState<string | string[]>("all");
+  const [filterCampaign, setFilterCampaign] = useState<string | string[]>("all");
+  const [filterDateFrom, setFilterDateFrom] = useState("");
+  const [filterDateTo, setFilterDateTo] = useState("");
+  const [filterValueMin, setFilterValueMin] = useState("");
+  const [filterValueMax, setFilterValueMax] = useState("");
+  const [filterDuplicates, setFilterDuplicates] = useState("all");
+
   // Usar filtros de columna con filtros de texto integrados
   const { filteredLeads } = useColumnFilters(leads);
 
@@ -67,6 +79,23 @@ export default function Leads() {
       setSortedLeads(filteredLeads);
     }
   }, [filteredLeads, sortedLeads]);
+
+  // Extract unique values for filters
+  const uniqueStages = useMemo(() => {
+    return [...new Set(leads.map(lead => lead.stage).filter(Boolean))];
+  }, [leads]);
+
+  const uniqueSources = useMemo(() => {
+    return [...new Set(leads.map(lead => lead.source).filter(Boolean))];
+  }, [leads]);
+
+  const uniqueCampaigns = useMemo(() => {
+    return [...new Set(leads.map(lead => lead.campaign).filter(Boolean))];
+  }, [leads]);
+
+  const uniqueAssignedTo = useMemo(() => {
+    return [...new Set(leads.map(lead => lead.assignedTo).filter(Boolean))];
+  }, [leads]);
 
   const handleLeadClick = (lead: Lead) => {
     setSelectedLead(lead);
@@ -107,6 +136,19 @@ export default function Leads() {
 
   const handleClearSelection = () => {
     setSelectedLeads([]);
+  };
+
+  const handleClearFilters = () => {
+    setFilterStage("all");
+    setFilterPriority("all");
+    setFilterAssignedTo("all");
+    setFilterSource("all");
+    setFilterCampaign("all");
+    setFilterDateFrom("");
+    setFilterDateTo("");
+    setFilterValueMin("");
+    setFilterValueMax("");
+    setFilterDuplicates("all");
   };
 
   if (loading) {
@@ -176,7 +218,37 @@ export default function Leads() {
           {/* Filtros expandibles */}
           {showFilters && (
             <div className="relative">
-              <LeadsFilters />
+              <LeadsFilters
+                searchTerm={searchTerm}
+                setSearchTerm={setSearchTerm}
+                filterStage={filterStage}
+                setFilterStage={setFilterStage}
+                filterPriority={filterPriority}
+                setFilterPriority={setFilterPriority}
+                filterAssignedTo={filterAssignedTo}
+                setFilterAssignedTo={setFilterAssignedTo}
+                filterSource={filterSource}
+                setFilterSource={setFilterSource}
+                filterCampaign={filterCampaign}
+                setFilterCampaign={setFilterCampaign}
+                filterDateFrom={filterDateFrom}
+                setFilterDateFrom={setFilterDateFrom}
+                filterDateTo={filterDateTo}
+                setFilterDateTo={setFilterDateTo}
+                filterValueMin={filterValueMin}
+                setFilterValueMin={setFilterValueMin}
+                filterValueMax={filterValueMax}
+                setFilterValueMax={setFilterValueMax}
+                filterDuplicates={filterDuplicates}
+                setFilterDuplicates={setFilterDuplicates}
+                sortBy={sortBy}
+                setSortBy={setSortBy}
+                onClearFilters={handleClearFilters}
+                uniqueStages={uniqueStages}
+                uniqueSources={uniqueSources}
+                uniqueCampaigns={uniqueCampaigns}
+                uniqueAssignedTo={uniqueAssignedTo}
+              />
               <Button
                 variant="ghost"
                 size="sm"
