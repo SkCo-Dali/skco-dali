@@ -187,7 +187,6 @@ export default function Leads() {
                 Crear Lead
               </Button>
               <LeadsActionsButton 
-                selectedLeads={selectedLeads}
                 onClearSelection={handleClearSelection}
                 onLeadUpdate={refetch}
               />
@@ -310,8 +309,8 @@ export default function Leads() {
 
       {/* Diálogos */}
       <LeadCreateDialog
-        isOpen={showCreateDialog}
-        onClose={() => setShowCreateDialog(false)}
+        open={showCreateDialog}
+        onOpenChange={setShowCreateDialog}
         onLeadCreated={refetch}
       />
 
@@ -331,8 +330,8 @@ export default function Leads() {
       </Dialog>
 
       <LeadsTableColumnSelector
-        isOpen={showColumnSelector}
-        onClose={() => setShowColumnSelector(false)}
+        open={showColumnSelector}
+        onOpenChange={setShowColumnSelector}
         columns={columns}
         onColumnsChange={handleColumnConfigChange}
       />
