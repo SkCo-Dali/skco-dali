@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useMemo } from "react";
 import { Search, Filter } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -81,11 +82,11 @@ export function ColumnFilter({
 
   const handleApply = () => {
     onFilterChange(column, selectedValues);
-    setIsOpen(false);
+    // Mantener el popover abierto para permitir más interacciones
   };
 
   const handleTextFilterApply = () => {
-    setIsOpen(false);
+    // Mantener el popover abierto para permitir más interacciones
   };
 
   const isAllSelected = filteredValues.length > 0 && 
