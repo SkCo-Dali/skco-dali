@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useMemo } from "react";
 import { Search, Filter } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -32,7 +31,6 @@ export function ColumnFilter({
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedValues, setSelectedValues] = useState<string[]>(currentFilters);
 
-  // Obtener valores únicos para la columna
   const uniqueValues = useMemo(() => {
     const values = data.map(lead => {
       const value = lead[column as keyof Lead];
@@ -43,7 +41,6 @@ export function ColumnFilter({
     return Array.from(new Set(values)).sort();
   }, [data, column]);
 
-  // Filtrar valores basado en la búsqueda
   const filteredValues = useMemo(() => {
     if (!searchTerm) return uniqueValues;
     return uniqueValues.filter(value => 
@@ -51,7 +48,6 @@ export function ColumnFilter({
     );
   }, [uniqueValues, searchTerm]);
 
-  // Actualizar selectedValues cuando cambien los filtros externos
   useEffect(() => {
     setSelectedValues(currentFilters);
   }, [currentFilters]);
@@ -88,6 +84,10 @@ export function ColumnFilter({
     setIsOpen(false);
   };
 
+  const handleTextFilterApply = () => {
+    setIsOpen(false);
+  };
+
   const isAllSelected = filteredValues.length > 0 && 
     filteredValues.every(value => selectedValues.includes(value));
   const isIndeterminate = filteredValues.some(value => selectedValues.includes(value)) && 
@@ -105,7 +105,7 @@ export function ColumnFilter({
             hasActiveFilters ? 'text-green-600' : 'text-gray-400'
           }`}
           onClick={(e) => {
-            e.stopPropagation(); // Evitar que se propague el evento de click al header
+            e.stopPropagation();
           }}
         >
           <Filter className="h-3 w-3" />
@@ -256,6 +256,7 @@ export function ColumnFilter({
                 data={data}
                 onFilterChange={onTextFilterChange}
                 currentConditions={currentTextFilters}
+                onClose={handleTextFilterApply}
               />
             </div>
           )}
