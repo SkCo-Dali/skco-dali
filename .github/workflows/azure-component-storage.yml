@@ -31,13 +31,15 @@ jobs:
         subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
 
     - name: Upload JS to blob storage
-      uses: azure/CLI@v1
+      uses: azure/CLI@v2
       with:
+        azcliversion: latest
         inlineScript: |
             az storage blob upload-batch --account-name rgskcoareajarvisdevbe2e  --auth-mode key -d 'dali-components' -s ./dist/web-components --pattern '*.js' --overwrite true
     - name: Upload CSS to blob storage
-      uses: azure/CLI@v1
+      uses: azure/CLI@v2
       with:
+        azcliversion: latest
         inlineScript: |
             az storage blob upload-batch --account-name rgskcoareajarvisdevbe2e  --auth-mode key -d 'dali-components' -s ./dist/web-components --pattern '*.css' --overwrite true
   # Azure logout
