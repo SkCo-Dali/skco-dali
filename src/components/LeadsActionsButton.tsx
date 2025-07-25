@@ -16,40 +16,36 @@ import {
 } from "lucide-react";
 
 interface LeadsActionsButtonProps {
-  onCreateLead: () => void;
-  onBulkAssign: () => void;
-  onMassEmail: () => void;
-  onDeleteLeads: () => void;
-  selectedLeadsCount: number;
-  isDeleting?: boolean;
+  selectedLeads: string[];
+  onClearSelection: () => void;
+  onLeadUpdate: () => void;
 }
 
 export function LeadsActionsButton({
-  onCreateLead,
-  onBulkAssign,
-  onMassEmail,
-  onDeleteLeads,
-  selectedLeadsCount,
-  isDeleting = false
+  selectedLeads,
+  onClearSelection,
+  onLeadUpdate
 }: LeadsActionsButtonProps) {
+  const selectedLeadsCount = selectedLeads.length;
+
   const handleCreateLead = () => {
     console.log('LeadsActionsButton: handleCreateLead called');
-    onCreateLead();
+    // This will be handled by the parent component
   };
 
   const handleBulkAssign = () => {
     console.log('LeadsActionsButton: handleBulkAssign called');
-    onBulkAssign();
+    // This will be handled by the parent component
   };
 
   const handleMassEmail = () => {
     console.log('LeadsActionsButton: handleMassEmail called');
-    onMassEmail();
+    // This will be handled by the parent component
   };
 
   const handleDeleteLeads = () => {
     console.log('LeadsActionsButton: handleDeleteLeads called');
-    onDeleteLeads();
+    // This will be handled by the parent component
   };
 
   return (
@@ -89,7 +85,6 @@ export function LeadsActionsButton({
         <DropdownMenuItem 
           onClick={handleDeleteLeads} 
           className="cursor-pointer text-red-600 focus:text-red-600 focus:bg-red-50"
-          disabled={isDeleting}
         >
           <Trash className="h-4 w-4 mr-2" />
           Eliminar

@@ -5,17 +5,17 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 interface LeadsPaginationProps {
   currentPage: number;
   totalPages: number;
-  totalLeads: number;
-  leadsPerPage: number;
+  totalLeads?: number;
+  leadsPerPage?: number;
   onPageChange: (page: number) => void;
-  onLeadsPerPageChange: (leadsPerPage: number) => void;
+  onLeadsPerPageChange?: (leadsPerPage: number) => void;
 }
 
 export function LeadsPagination({ 
   currentPage, 
   totalPages, 
-  totalLeads, 
-  leadsPerPage, 
+  totalLeads = 0, 
+  leadsPerPage = 20, 
   onPageChange,
   onLeadsPerPageChange 
 }: LeadsPaginationProps) {
@@ -61,26 +61,30 @@ export function LeadsPagination({
   return (
     <div className="flex items-center justify-between p-4 bg-white border-t">
       <div className="flex items-center gap-4">
-        <div className="flex items-center gap-2">
-          <span className="text-sm text-gray-600">Mostrar:</span>
-          <Select 
-            value={leadsPerPage.toString()} 
-            onValueChange={(value) => onLeadsPerPageChange(Number(value))}
-          >
-            <SelectTrigger className="w-20 h-8 bg-white border border-gray-300">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent className="bg-white border border-gray-300 shadow-lg z-50">
-              <SelectItem value="10">10</SelectItem>
-              <SelectItem value="50">50</SelectItem>
-              <SelectItem value="100">100</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
+        {onLeadsPerPageChange && (
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-gray-600">Mostrar:</span>
+            <Select 
+              value={leadsPerPage.toString()} 
+              onValueChange={(value) => onLeadsPerPageChange(Number(value))}
+            >
+              <SelectTrigger className="w-20 h-8 bg-white border border-gray-300">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent className="bg-white border border-gray-300 shadow-lg z-50">
+                <SelectItem value="10">10</SelectItem>
+                <SelectItem value="50">50</SelectItem>
+                <SelectItem value="100">100</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        )}
         
-        <span className="text-sm text-gray-600">
-          Resultado {startResult} - {endResult} de {totalLeads}
-        </span>
+        {totalLeads > 0 && (
+          <span className="text-sm text-gray-600">
+            Resultado {startResult} - {endResult} de {totalLeads}
+          </span>
+        )}
       </div>
       
       {totalPages > 1 && (

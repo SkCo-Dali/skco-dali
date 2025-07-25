@@ -131,7 +131,7 @@ export default function Leads() {
   return (
     <div className="flex flex-col h-screen">
       {/* Header sticky */}
-      <div className="sticky top-20 z-40 bg-background border-b border-border">
+      <div className="sticky top-0 z-40 bg-background border-b border-border">
         <div className="p-6 space-y-6">
           {/* Título y botones principales */}
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -171,20 +171,17 @@ export default function Leads() {
           <LeadsSearch
             searchTerm={searchTerm}
             onSearchChange={setSearchTerm}
-            placeholder="Ingresa un dato para tu búsqueda"
           />
 
           {/* Filtros expandibles */}
           {showFilters && (
             <LeadsFilters
-              filters={filters}
-              onFiltersChange={setFilters}
               onClose={() => setShowFilters(false)}
             />
           )}
 
           {/* Estadísticas */}
-          <LeadsStats stats={stats} />
+          <LeadsStats />
 
           {/* Controles de vista */}
           <LeadsViewControls
@@ -218,6 +215,7 @@ export default function Leads() {
                 <LeadsPagination
                   currentPage={currentPage}
                   totalPages={totalPages}
+                  totalLeads={filteredLeads.length}
                   onPageChange={setCurrentPage}
                 />
               </div>
@@ -228,8 +226,8 @@ export default function Leads() {
 
       {/* Diálogos */}
       <LeadCreateDialog
-        isOpen={showCreateDialog}
-        onClose={() => setShowCreateDialog(false)}
+        open={showCreateDialog}
+        onOpenChange={setShowCreateDialog}
         onLeadCreated={refetch}
       />
 
@@ -242,15 +240,13 @@ export default function Leads() {
             <LeadDetail
               lead={selectedLead}
               onClose={handleCloseDetailDialog}
-              onUpdate={handleLeadUpdate}
+              onLeadUpdate={handleLeadUpdate}
             />
           )}
         </DialogContent>
       </Dialog>
 
       <LeadsTableColumnSelector
-        isOpen={showColumnSelector}
-        onClose={() => setShowColumnSelector(false)}
         columns={columns}
         onColumnsChange={handleColumnConfigChange}
       />

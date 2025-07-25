@@ -1,4 +1,5 @@
-import { useState, useEffect } from 'react';
+
+import { useState, useEffect, useMemo } from 'react';
 import { Lead, LeadStatus } from '@/types/crm';
 import { getAllLeads, createLead, updateLead, deleteLead, getLeadsByUser } from '@/utils/leadsApiClient';
 import { getReassignableLeads } from '@/utils/leadAssignmentApiClient';
@@ -9,6 +10,11 @@ export const useLeadsApi = () => {
   const [leads, setLeads] = useState<Lead[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [filters, setFilters] = useState({});
+  const [groupBy, setGroupBy] = useState('stage');
+  const [sortBy, setSortBy] = useState('createdAt');
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
   const { user } = useAuth();
 
   // Función para mapear ReassignableLead a Lead
@@ -376,6 +382,20 @@ export const useLeadsApi = () => {
     }
   };
 
+  // Calcular estadísticas
+  const stats = useMemo(() => {
+    if (!leads || !Array.isArray(leads)) return {};
+    
+    return {
+      total: leads.length,
+      new: leads.filter(lead => lead.stage === 'Nuevo').length,
+      assigned: leads.filter(lead => lead.stage === 'Asignado').length,
+      contacted: leads.filter(lead => lead.stage && lead.stage.includes('Localizado')).length,
+      converted: leads.filter(lead => lead.stage === 'Registro de Venta (fondeado)').length,
+      totalValue: leads.reduce((sum, lead) => sum + (lead.value || 0), 0)
+    };
+  }, [leads]);
+
   // Cargar leads al montar el componente
   useEffect(() => {
     loadLeads();
@@ -385,6 +405,18 @@ export const useLeadsApi = () => {
     leads,
     loading,
     error,
+    searchTerm,
+    setSearchTerm,
+    refetch: loadLeads,
+    filters,
+    setFilters,
+    stats,
+    groupBy,
+    setGroupBy,
+    sortBy,
+    setSortBy,
+    sortOrder,
+    setSortOrder,
     loadLeads,
     loadLeadsByUser,
     createNewLead,
