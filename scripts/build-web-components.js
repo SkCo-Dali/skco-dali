@@ -4,6 +4,9 @@ import react from '@vitejs/plugin-react';
 import { resolve } from 'path';
 import fs from 'fs';
 import path from 'path';
+import { fileURLToPath } from 'url';
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // Configuración base para web components
 const createWebComponentConfig = (entry, name, outDir) => defineConfig({
@@ -34,7 +37,7 @@ const createWebComponentConfig = (entry, name, outDir) => defineConfig({
     outDir,
     emptyOutDir: false,
     cssCodeSplit: false,
-    minify: 'terser',
+    minify: 'esbuild',
     terserOptions: {
       compress: {
         drop_console: false, // Mantener console.log para debugging
@@ -74,6 +77,206 @@ import { msalConfig } from '../src/authConfig';
 
 // Importar CSS
 import '../src/index.css';
+
+// Componente de autenticación automática
+const AutoAuthWrapper = ({ children, Component }) => {
+  const { useAuth } = require('../src/contexts/AuthContext');
+  const { useState, useEffect } = require('react');
+
+  const { user, loading, msalInstance, login } = useAuth();
+  const [isAutoAuthenticating, setIsAutoAuthenticating] = useState(false);
+
+  // Función para ejecutar autenticación automática
+  const executeAutoAuth = async () => {
+    if (isAutoAuthenticating || user || loading) return;
+    
+    setIsAutoAuthenticating(true);
+    
+    try {
+      const { loginRequest } = require('../src/authConfig');
+      const { getUserByEmail, createUser } = require('../src/utils/userApiClient');
+      const { TokenValidationService } = require('../src/services/tokenValidationService');
+      const { getUserRoleByEmail } = require('../src/utils/userRoleService');
+      const SecureTokenManager = require('../src/utils/secureTokenManager').default;
+
+      // Paso 1: Obtener token de MSAL
+      const response = await msalInstance.loginPopup({
+        ...loginRequest,
+        prompt: 'select_account'
+      });
+      
+      if (!response || !response.account || !response.accessToken) {
+        throw new Error('Respuesta de autenticación incompleta');
+      }
+      
+      // Paso 2: Validar token
+      const tokenValidation = await TokenValidationService.validateAccessToken(response.accessToken);
+      
+      if (!tokenValidation.isValid || !tokenValidation.userInfo) {
+        throw new Error(tokenValidation.error || 'Token de acceso inválido');
+      }
+
+      const { userInfo } = tokenValidation;
+      
+      // Paso 3: Validar dominio del email
+      if (!TokenValidationService.validateEmailDomain(userInfo.email)) {
+        throw new Error('El email no pertenece a un dominio autorizado');
+      }
+
+      // Almacenar idToken para uso con el backend
+      SecureTokenManager.storeToken({
+        token: response.idToken,
+        expiresAt: response.expiresOn.getTime(),
+        refreshToken: response.account.homeAccountId || '',
+      });
+      
+      // Paso 4: Obtener foto del perfil
+      const getUserPhoto = async (accessToken) => {
+        try {
+          const photoResponse = await fetch('https://graph.microsoft.com/v1.0/me/photo/$value', {
+            headers: { Authorization: \`Bearer \${accessToken}\` },
+          });
+          
+          if (photoResponse.ok) {
+            const photoBlob = await photoResponse.blob();
+            return URL.createObjectURL(photoBlob);
+          }
+          return null;
+        } catch (error) {
+          return null;
+        }
+      };
+
+      const userPhoto = await getUserPhoto(response.accessToken);
+      
+      // Paso 5: Buscar o crear usuario en base de datos
+      const findOrCreateUser = async (email, name) => {
+        try {
+          let existingUser = await getUserByEmail(email);
+          
+          if (existingUser) {
+            sessionStorage.setItem('authenticated-user-uuid', existingUser.id);
+            return existingUser;
+          }
+          
+          const assignedRole = await getUserRoleByEmail(email);
+          const newUser = await createUser({
+            name,
+            email,
+            role: assignedRole,
+            isActive: true
+          });
+          
+          sessionStorage.setItem('authenticated-user-uuid', newUser.id);
+          return newUser;
+          
+        } catch (error) {
+          throw new Error('No se pudo crear o encontrar el usuario en la base de datos');
+        }
+      };
+
+      const dbUser = await findOrCreateUser(userInfo.email, userInfo.name);
+      
+      // Paso 6: Crear objeto de usuario final
+      const finalUser = {
+        id: dbUser.id,
+        name: dbUser.name,
+        email: dbUser.email,
+        role: dbUser.role,
+        avatar: userPhoto,
+        zone: dbUser.zone || 'Skandia',
+        team: dbUser.team || 'Equipo Skandia',
+        jobTitle: userInfo.jobTitle || 'Usuario',
+        isActive: dbUser.isActive,
+        createdAt: dbUser.createdAt || new Date().toISOString()
+      };
+      
+      // Paso 7: Completar login
+      login(finalUser);
+      
+    } catch (error) {
+      console.error('Error en autenticación automática:', error);
+      
+      // Mostrar mensaje de error sin comprometer la seguridad
+      let errorMessage = 'Error durante la autenticación automática';
+      
+      if (error.errorCode === 'user_cancelled') {
+        errorMessage = 'Autenticación cancelada por el usuario';
+      } else if (error.errorCode === 'popup_blocked') {
+        errorMessage = 'El popup fue bloqueado. Por favor, permite popups para este sitio.';
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+      
+      // En un web component, usamos console.error en lugar de alert
+      console.error('Error de autenticación:', errorMessage);
+      
+    } finally {
+      setIsAutoAuthenticating(false);
+    }
+  };
+
+  // Ejecutar autenticación automática cuando no hay usuario
+  useEffect(() => {
+    if (!loading && !user && !isAutoAuthenticating) {
+      executeAutoAuth();
+    }
+  }, [user, loading, isAutoAuthenticating]);
+
+  // Mostrar loading mientras se autentica
+  if (loading || isAutoAuthenticating) {
+    return React.createElement('div', {
+      style: {
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        height: '100vh',
+        flexDirection: 'column'
+      }
+    }, [
+      React.createElement('div', {
+        key: 'spinner',
+        style: {
+          width: '40px',
+          height: '40px',
+          border: '4px solid #f3f3f3',
+          borderTop: '4px solid #3498db',
+          borderRadius: '50%',
+          animation: 'spin 1s linear infinite'
+        }
+      }),
+      React.createElement('p', {
+        key: 'text',
+        style: { marginTop: '16px', color: '#666' }
+      }, isAutoAuthenticating ? 'Autenticando...' : 'Cargando...')
+    ]);
+  }
+
+  // Si no hay usuario después de intentar autenticar, mostrar error
+  if (!user) {
+    return React.createElement('div', {
+      style: {
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        height: '100vh',
+        flexDirection: 'column',
+        padding: '20px'
+      }
+    }, [
+      React.createElement('p', {
+        key: 'error',
+        style: { color: '#e74c3c', marginBottom: '16px' }
+      }, 'No se pudo autenticar automáticamente'),
+      React.createElement('p', {
+        key: 'help',
+        style: { color: '#666', fontSize: '14px' }
+      }, 'Verifica tu conexión y permisos de popup')
+    ]);
+  }
+
+  return children;
+};
 
 class SK_Dali_${componentName}_React extends HTMLElement {
   constructor() {
@@ -195,6 +398,11 @@ class SK_Dali_${componentName}_React extends HTMLElement {
       * {
         box-sizing: border-box;
       }
+      
+      @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+      }
     \`;
     shadow.appendChild(hostStyles);
   }
@@ -225,7 +433,11 @@ class SK_Dali_${componentName}_React extends HTMLElement {
                     React.createElement(
                       SettingsProvider,
                       null,
-                      React.createElement(${componentName})
+                      React.createElement(
+                        AutoAuthWrapper,
+                        { Component: ${componentName} },
+                        React.createElement(${componentName})
+                      )
                     )
                   )
                 )
@@ -249,8 +461,10 @@ class SK_Dali_${componentName}_React extends HTMLElement {
 
   // API pública para forzar re-autenticación
   async forceReauth() {
+    console.log('Forzando re-autenticación...');
     if (this.msalInstance) {
       try {
+       
         await this.msalInstance.loginPopup();
         this.renderComponent(); // Re-renderizar después de autenticación
       } catch (error) {
@@ -299,7 +513,7 @@ async function buildWebComponents() {
 
     // Construir cada componente individualmente
     for (const component of components) {
-      console.log(\`🔨 Construyendo \${component}...\`);
+      console.log(`🔨 Construyendo ${component}...`);
       
       // Generar archivo de entrada individual
       const entryFile = await generateIndividualComponent(component);
@@ -313,11 +527,11 @@ async function buildWebComponents() {
       // Limpiar archivo temporal
       fs.unlinkSync(path.join(__dirname, entryFile));
       
-      console.log(\`✅ \${component} construido exitosamente\`);
+      console.log(`✅ ${component} construido exitosamente`);
     }
     
     // Generar archivo index.html de ejemplo
-    const indexHtml = \`<!DOCTYPE html>
+    const indexHtml = `<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
@@ -348,16 +562,16 @@ async function buildWebComponents() {
 &lt;sk-dali-leads-react&gt;&lt;/sk-dali-leads-react&gt;</code></pre>
     </div>
 </body>
-</html>\`;
-    
+</html>`;
+
     fs.writeFileSync(path.join(outDir, 'index.html'), indexHtml);
     
     console.log('✅ Todos los web components generados exitosamente en dist/web-components/');
     console.log('📦 Archivos generados:');
     
     components.forEach(component => {
-      console.log(\`  - SK.Dali.\${component}.React.js\`);
-      console.log(\`  - SK.Dali.\${component}.React.css\`);
+      console.log(`  - SK.Dali.${component}.React.js`);
+      console.log(`  - SK.Dali.${component}.React.css`);
     });
     
     console.log('  - index.html (ejemplo de uso)');
@@ -369,7 +583,7 @@ async function buildWebComponents() {
 }
 
 // Ejecutar si se llama directamente
-if (import.meta.url === \`file://\${process.argv[1]}\`) {
+if (import.meta.url === `file://${process.argv[1]}`) {
   buildWebComponents();
 }
 

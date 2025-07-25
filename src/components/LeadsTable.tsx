@@ -1,4 +1,4 @@
-import { useState } from "react"; 
+import { useState, useEffect } from "react"; 
 import { Lead } from "@/types/crm";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -15,6 +15,8 @@ import { FaWhatsapp } from "react-icons/fa";
 import { useLeadDeletion } from "@/hooks/useLeadDeletion";
 import { LeadDeleteConfirmDialog } from "@/components/LeadDeleteConfirmDialog";
 import { toast } from "sonner";
+import { ColumnFilter } from "@/components/ColumnFilter";
+import { useColumnFilters } from "@/hooks/useColumnFilters";
 
 interface LeadsTableProps {
   leads: Lead[];
@@ -27,6 +29,7 @@ interface LeadsTableProps {
   onOpenProfiler?: (lead: Lead) => void;
   selectedLeads?: string[];
   onLeadSelectionChange?: (leadIds: string[], isSelected: boolean) => void;
+  onFilteredLeadsChange?: (filteredLeads: Lead[]) => void;
 }
 
 type SortConfig = {
@@ -34,89 +37,88 @@ type SortConfig = {
   direction: 'asc' | 'desc';
 } | null;
 
+// Nueva configuración por defecto con solo 6 columnas visibles
 const defaultColumns: ColumnConfig[] = [
   { key: 'name', label: 'Nombre', visible: true, sortable: true },
+  { key: 'campaign', label: 'Campaña', visible: true, sortable: true },
   { key: 'email', label: 'Email', visible: true, sortable: true },
-  { key: 'phone', label: 'Teléfono', visible: false, sortable: false },
-  { key: 'product', label: 'Producto', visible: true, sortable: true },
+  { key: 'phone', label: 'Teléfono', visible: true, sortable: false },
   { key: 'stage', label: 'Etapa', visible: true, sortable: true },
   { key: 'assignedTo', label: 'Asignado a', visible: true, sortable: true },
-  { key: 'campaign', label: 'Campaña', visible: true, sortable: true },
+  { key: 'documentType', label: 'Tipo documento', visible: false, sortable: true },
+  { key: 'documentNumber', label: 'Número documento', visible: false, sortable: true },
+  { key: 'product', label: 'Producto', visible: false, sortable: true },
   { key: 'source', label: 'Fuente', visible: false, sortable: true },
-  { key: 'lastInteraction', label: 'Últ. interacción', visible: false, sortable: true },
-  { key: 'company', label: 'Empresa', visible: false, sortable: true },
-  { key: 'value', label: 'Valor', visible: false, sortable: true },
-  { key: 'priority', label: 'Prioridad', visible: false, sortable: true },
   { key: 'createdAt', label: 'Fecha creación', visible: false, sortable: true },
+  { key: 'lastInteraction', label: 'Últ. interacción', visible: false, sortable: true },
+  { key: 'priority', label: 'Prioridad', visible: false, sortable: true },
   { key: 'age', label: 'Edad', visible: false, sortable: true },
   { key: 'gender', label: 'Género', visible: false, sortable: true },
   { key: 'preferredContactChannel', label: 'Medio de contacto preferido', visible: false, sortable: true },
-  { key: 'documentType', label: 'Tipo documento', visible: true, sortable: true },
-  { key: 'documentNumber', label: 'Número documento', visible: true, sortable: true },
+  { key: 'company', label: 'Empresa', visible: false, sortable: true },
+  { key: 'value', label: 'Valor', visible: false, sortable: true },
 ];
+
+const capitalizeWords = (text: string) => {
+  return text.toLowerCase().replace(/\b\w/g, l => l.toUpperCase());
+};
+
+// Función para cargar configuración de columnas desde sessionStorage
+const loadColumnConfig = (): ColumnConfig[] => {
+  try {
+    const saved = sessionStorage.getItem('leads-table-columns');
+    if (saved) {
+      const savedColumns = JSON.parse(saved);
+      // Merge saved config with default columns to handle new columns
+      return defaultColumns.map(defaultCol => {
+        const savedCol = savedColumns.find((col: ColumnConfig) => col.key === defaultCol.key);
+        return savedCol ? { ...defaultCol, visible: savedCol.visible } : defaultCol;
+      });
+    }
+  } catch (error) {
+    console.warn('Error loading column configuration:', error);
+  }
+  // Si no hay configuración guardada, usar la configuración por defecto
+  return defaultColumns;
+};
+
+// Función para guardar configuración de columnas en sessionStorage
+const saveColumnConfig = (columns: ColumnConfig[]) => {
+  try {
+    sessionStorage.setItem('leads-table-columns', JSON.stringify(columns));
+  } catch (error) {
+    console.warn('Error saving column configuration:', error);
+  }
+};
 
 export function LeadsTable({ 
   leads, 
   paginatedLeads, 
   onLeadClick, 
   onLeadUpdate, 
-  columns = defaultColumns, 
+  columns, 
   onSortedLeadsChange,
   onSendEmail,
   onOpenProfiler,
   selectedLeads = [],
-  onLeadSelectionChange
+  onLeadSelectionChange,
+  onFilteredLeadsChange
 }: LeadsTableProps) {
   const { users } = useUsersApi();
   const [sortConfig, setSortConfig] = useState<SortConfig>(null);
   const [leadsToDelete, setLeadsToDelete] = useState<Lead[]>([]);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   
-  const { isDeleting, canDeleteLead, deleteSingleLead } = useLeadDeletion({
-    onLeadDeleted: onLeadUpdate
-  });
-
-  const visibleColumns = columns.filter(col => col.visible);
+  // Usar filtros por columna con filtros de texto integrados
+  const { columnFilters, textFilters, filteredLeads, handleColumnFilterChange, handleTextFilterChange } = useColumnFilters(leads);
   
-  const calculateTableWidth = () => {
-    const checkboxColumnWidth = 50; // Nueva columna de checkbox
-    const nameColumnWidth = 350; // Columna nombre siempre 350px
-    const regularColumnWidth = 250; // Todas las demás columnas 250px
-    const visibleRegularColumns = visibleColumns.length - 1; // Restar la columna nombre
-    
-    return checkboxColumnWidth + nameColumnWidth + (visibleRegularColumns * regularColumnWidth);
-  };
-
-  const handleSelectAll = (checked: boolean) => {
-    const currentPageLeadIds = paginatedLeads.map(lead => lead.id);
-    if (onLeadSelectionChange) {
-      onLeadSelectionChange(currentPageLeadIds, checked);
-    }
-  };
-
-  const handleSelectLead = (leadId: string, checked: boolean) => {
-    if (onLeadSelectionChange) {
-      onLeadSelectionChange([leadId], checked);
-    }
-  };
-
-  const isAllSelected = paginatedLeads.length > 0 && paginatedLeads.every(lead => selectedLeads.includes(lead.id));
-  const isIndeterminate = paginatedLeads.some(lead => selectedLeads.includes(lead.id)) && !isAllSelected;
-
-  const handleSort = (columnKey: string) => {
-    let direction: 'asc' | 'desc' = 'asc';
-    
-    if (sortConfig && sortConfig.key === columnKey && sortConfig.direction === 'asc') {
-      direction = 'desc';
-    }
-    
-    setSortConfig({ key: columnKey, direction });
-    
-    const sortedLeads = [...leads].sort((a, b) => {
+  // Aplicar ordenamiento a los leads filtrados
+  const sortedFilteredLeads = sortConfig ? 
+    [...filteredLeads].sort((a, b) => {
       let aValue: any;
       let bValue: any;
 
-      switch (columnKey) {
+      switch (sortConfig.key) {
         case 'name':
           aValue = a.name.toLowerCase();
           bValue = b.name.toLowerCase();
@@ -197,15 +199,102 @@ export function LeadsTable({
       }
 
       if (aValue < bValue) {
-        return direction === 'asc' ? -1 : 1;
+        return sortConfig.direction === 'asc' ? -1 : 1;
       }
       if (aValue > bValue) {
-        return direction === 'asc' ? 1 : -1;
+        return sortConfig.direction === 'asc' ? 1 : -1;
       }
       return 0;
-    });
+    }) : filteredLeads;
+  
+  // Notificar cambios en leads filtrados al componente padre
+  useEffect(() => {
+    if (onFilteredLeadsChange) {
+      onFilteredLeadsChange(sortedFilteredLeads);
+    }
+  }, [sortedFilteredLeads, onFilteredLeadsChange]);
+  
+  // Notificar cambios en leads ordenados al componente padre
+  useEffect(() => {
+    if (onSortedLeadsChange) {
+      onSortedLeadsChange(sortedFilteredLeads);
+    }
+  }, [sortedFilteredLeads, onSortedLeadsChange]);
+  
+  // Usar configuración persistente si no se pasan columnas desde el padre
+  const activeColumns = columns || loadColumnConfig();
+  
+  const { isDeleting, canDeleteLead, deleteSingleLead } = useLeadDeletion({
+    onLeadDeleted: onLeadUpdate
+  });
 
-    onSortedLeadsChange?.(sortedLeads);
+  const visibleColumns = activeColumns.filter(col => col.visible);
+
+  // Orden personalizado de las columnas
+  const customOrder = [
+    'name',                 
+    'campaign',             
+    'email',                
+    'phone',                
+    'documentType',         
+    'documentNumber',       
+    'product',              
+    'stage',                
+    'assignedTo',           
+    'source',               
+    'createdAt',            
+    'lastInteraction',      
+    'priority',             
+    'age',                  
+    'gender',               
+    'preferredContactChannel', 
+    'company',              
+    'value',                
+  ];
+
+  // Ordenar las columnas visibles según customOrder
+  const orderedColumns = visibleColumns.slice().sort((a, b) => {
+    return customOrder.indexOf(a.key) - customOrder.indexOf(b.key);
+  });
+
+  const calculateTableWidth = () => {
+    const checkboxColumnWidth = 50; // Nueva columna de checkbox
+    const nameColumnWidth = 350; // Columna nombre siempre 350px
+    const regularColumnWidth = 250; // Todas las demás columnas 250px
+    const visibleRegularColumns = orderedColumns.length - 1; // Restar la columna nombre
+    
+    return checkboxColumnWidth + nameColumnWidth + (visibleRegularColumns * regularColumnWidth);
+  };
+
+  const handleSelectAll = (checked: boolean) => {
+    // Usar sortedFilteredLeads en lugar de filteredLeads para la selección
+    const currentPageLeadIds = sortedFilteredLeads.slice(0, paginatedLeads.length).map(lead => lead.id);
+    if (onLeadSelectionChange) {
+      onLeadSelectionChange(currentPageLeadIds, checked);
+    }
+  };
+
+  const handleSelectLead = (leadId: string, checked: boolean) => {
+    if (onLeadSelectionChange) {
+      onLeadSelectionChange([leadId], checked);
+    }
+  };
+
+  // Usar sortedFilteredLeads para determinar si todos están seleccionados
+  const currentPageSortedLeads = sortedFilteredLeads.slice(0, paginatedLeads.length);
+  const isAllSelected = currentPageSortedLeads.length > 0 && currentPageSortedLeads.every(lead => selectedLeads.includes(lead.id));
+  const isIndeterminate = currentPageSortedLeads.some(lead => selectedLeads.includes(lead.id)) && !isAllSelected;
+
+  const handleSort = (columnKey: string, direction?: 'asc' | 'desc') => {
+    const newDirection = direction || (sortConfig?.key === columnKey && sortConfig?.direction === 'asc' ? 'desc' : 'asc');
+    console.log(`Sorting by ${columnKey} in ${newDirection} direction`);
+    setSortConfig({ key: columnKey, direction: newDirection });
+  };
+
+  const handleColumnHeaderClick = (columnKey: string, sortable: boolean) => {
+    if (sortable) {
+      handleSort(columnKey);
+    }
   };
 
   const renderSortIcon = (columnKey: string) => {
@@ -283,13 +372,13 @@ export function LeadsTable({
         return (
           <div className="flex items-center justify-between w-full">
             <div 
-              className="text-gray-900 font-medium text-xs truncate pr-2 cursor-pointer hover:text-[#00c83c]"
+              className="text-gray-900 font-bold text-xs truncate pr-2 cursor-pointer hover:text-[#00c83c]"
               onClick={(e) => {
                 e.stopPropagation();
                 onLeadClick(lead);
               }}
             >
-              {lead.name}
+              {capitalizeWords(lead.name)}
             </div>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -334,11 +423,9 @@ export function LeadsTable({
         );
       case 'email':
         return (
-          <EditableLeadCell
-            lead={lead}
-            field="email"
-            onUpdate={() => onLeadUpdate?.()}
-          />
+          <div className="text-gray-700 text-xs text-center">
+            {(lead.email || '').toLowerCase()}
+          </div>
         );
       case 'phone':
         return (
@@ -429,6 +516,9 @@ export function LeadsTable({
     }
   };
 
+  // Usar sortedFilteredLeads para el render
+  const leadsToRender = sortedFilteredLeads.slice(0, paginatedLeads.length);
+
   return (
     <>
       <div className="leads-table-container-scroll">
@@ -453,24 +543,33 @@ export function LeadsTable({
                       />
                     </div>
                   </TableHead>
-                  {visibleColumns.map((column) => (
+                  {orderedColumns.map((column) => (
                     <TableHead 
                       key={column.key}
-                      className={`cursor-pointer select-none px-4 py-3 text-center text-xs font-medium text-gray-600 capitalize tracking-wider ${
+                      className={`px-4 py-3 text-center text-xs font-medium text-gray-600 capitalize tracking-wider ${
                         column.key === 'name' ? 'leads-name-column-sticky' : 'leads-regular-column'
-                      }`}
-                      onClick={() => handleSort(column.key)}
+                      } ${column.sortable ? 'cursor-pointer hover:bg-gray-100' : ''}`}
+                      onClick={() => handleColumnHeaderClick(column.key, column.sortable)}
                     >
-                      <div className="flex items-center justify-center">
-                        {column.label}
-                        {renderSortIcon(column.key)}
+                      <div className="flex items-center justify-center space-x-1">
+                        <ColumnFilter
+                          column={column.key}
+                          data={leads}
+                          onFilterChange={handleColumnFilterChange}
+                          onTextFilterChange={handleTextFilterChange}
+                          onSortChange={handleSort}
+                          currentFilters={columnFilters[column.key] || []}
+                          currentTextFilters={textFilters[column.key] || []}
+                        />
+                        <span>{column.label}</span>
+                        {column.sortable && renderSortIcon(column.key)}
                       </div>
                     </TableHead>
                   ))}
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {paginatedLeads.map((lead, index) => (
+                {leadsToRender.map((lead, index) => (
                   <TableRow 
                     key={lead.id}
                     className="hover:bg-[#fafafa] transition-colors border-[#fafafa]"
@@ -483,7 +582,7 @@ export function LeadsTable({
                         />
                       </div>
                     </TableCell>
-                    {visibleColumns.map((column) => (
+                    {orderedColumns.map((column) => (
                       <TableCell 
                         key={column.key} 
                         className={`px-4 py-3 text-xs text-center ${
@@ -514,3 +613,6 @@ export function LeadsTable({
     </>
   );
 }
+
+// Función utilitaria para usar desde el componente padre
+export { loadColumnConfig, saveColumnConfig };

@@ -31,5 +31,13 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
     return <Navigate to="/auth" replace />;
   }
 
+  // Verificar si el usuario está activo
+  if (!user.isActive) {
+    // Limpiar sesión si el usuario no está activo
+    sessionStorage.removeItem('skandia-crm-user');
+    sessionStorage.removeItem('authenticated-user-uuid');
+    return <Navigate to="/auth" replace />;
+  }
+
   return <>{children}</>;
 };

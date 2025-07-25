@@ -1,7 +1,7 @@
-
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, TrendingUp, TreePine, BarChart3, DollarSign, Clock, Shield, Target } from 'lucide-react';
+import { ArrowLeft, Check } from 'lucide-react';
+import { STRATEGIC_PLAN_CONFIG, FlowType } from './StrategicPlanConfig';
 
 interface StrategicTestFlowProps {
   onBack: () => void;
@@ -281,10 +281,12 @@ export const StrategicTestFlow: React.FC<StrategicTestFlowProps> = ({
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [answers, setAnswers] = useState<Record<number, string>>({});
   const [selectedOption, setSelectedOption] = useState<string>('');
+  const [showPlan, setShowPlan] = useState(false);
 
   const questions = STRATEGIC_QUESTIONS[flowType];
   const currentQuestion = questions[currentQuestionIndex];
   const isLastQuestion = currentQuestionIndex === questions.length - 1;
+  const planConfig = STRATEGIC_PLAN_CONFIG[flowType];
 
   const handleNext = () => {
     // Guardar la respuesta actual
@@ -295,7 +297,7 @@ export const StrategicTestFlow: React.FC<StrategicTestFlowProps> = ({
 
     if (isLastQuestion) {
       console.log('Test completado para:', flowType, answers, { [currentQuestion.id]: selectedOption });
-      // Aquí iría la lógica final
+      setShowPlan(true);
     } else {
       setCurrentQuestionIndex(prev => prev + 1);
       setSelectedOption('');
@@ -303,13 +305,84 @@ export const StrategicTestFlow: React.FC<StrategicTestFlowProps> = ({
   };
 
   const handleBack = () => {
-    if (currentQuestionIndex > 0) {
+    if (showPlan) {
+      setShowPlan(false);
+    } else if (currentQuestionIndex > 0) {
       setCurrentQuestionIndex(prev => prev - 1);
       setSelectedOption(answers[questions[currentQuestionIndex - 1].id] || '');
     } else {
       onBack();
     }
   };
+
+  // Vista del plan personalizado
+  if (showPlan) {
+    return (
+      <div className="min-h-[600px] bg-white p-6 m-0">
+        {/* Header */}
+        <div className="flex items-center gap-4 mb-0">
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            onClick={handleBack}
+            className="p-2"
+          >
+            <ArrowLeft className="h-4 w-4" />
+          </Button>
+        </div>
+
+        {/* Title Section */}
+        <div className="text-center mb-8">
+          <h1 className="text-2xl font-bold text-gray-900 mb-2">
+            {planConfig.title}
+          </h1>
+          <p className="text-gray-600">
+            {planConfig.subtitle}
+          </p>
+        </div>
+
+        {/* Plan Cards - Dividido en 3 columnas */}
+        <div className="grid grid-cols-3 gap-4 mb-8 max-w-4xl mx-auto">
+          {planConfig.components.map((component, index) => (
+            <div 
+              key={component.name}
+              className={`bg-green-50 p-6 text-center ${
+                index < planConfig.components.length - 1 ? 'border-green-50 rounded-md' : ''
+              }`}
+            >
+              <div className="text-3xl mb-4">{component.icon}</div>
+              <div className="text-2xl font-bold text-green-600 mb-2">{component.percentage}</div>
+              <h3 className="text-md font-semibold text-gray-900 mb-2">{component.name}</h3>
+              <p className="text-sm text-gray-600">{component.description}</p>
+            </div>
+          ))}
+        </div>
+
+        {/* Benefits Section - Contenedor gris */}
+        <div className="bg-gray-100 rounded-lg p-6 mb-8 max-w-4xl mx-auto">
+          <h3 className="text-md font-semibold text-gray-900 mb-6">Beneficios de tu plan:</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {planConfig.benefits.map((benefit, index) => (
+              <div key={index} className="flex items-center gap-3">
+                <Check className="h-5 w-5 text-green-600" />
+                <span className="text-sm text-gray-700">{benefit}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Action Button */}
+        <div className="text-center">
+          <Button 
+            className="bg-green-500 hover:bg-green-600 text-white px-8 py-4 text-md font-medium rounded-full"
+            onClick={() => console.log('Plan aceptado')}
+          >
+            Guardar plan 🚀
+          </Button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-[600px] bg-gray-50 p-6 m-0">

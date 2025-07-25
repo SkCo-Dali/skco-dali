@@ -25,6 +25,26 @@ interface LeadsTableColumnSelectorProps {
   showTextLabel?: boolean;
 }
 
+// Función para guardar configuración en sessionStorage
+const saveColumnConfig = (columns: ColumnConfig[]) => {
+  try {
+    sessionStorage.setItem('leads-table-columns', JSON.stringify(columns));
+    console.log('✅ Column configuration saved:', columns.map(c => `${c.key}: ${c.visible}`));
+  } catch (error) {
+    console.warn('Error saving column configuration:', error);
+  }
+};
+
+// Función para limpiar la configuración guardada (útil para resetear)
+const clearColumnConfig = () => {
+  try {
+    sessionStorage.removeItem('leads-table-columns');
+    console.log('🗑️ Column configuration cleared');
+  } catch (error) {
+    console.warn('Error clearing column configuration:', error);
+  }
+};
+
 export function LeadsTableColumnSelector({ 
   columns, 
   onColumnsChange,
@@ -33,25 +53,45 @@ export function LeadsTableColumnSelector({
   const [open, setOpen] = useState(false);
 
   const handleToggleColumn = (columnKey: string) => {
+    // Prevent deselecting the name column as it's mandatory
+    if (columnKey === 'name') {
+      return;
+    }
+    
     const updatedColumns = columns.map(col => 
       col.key === columnKey 
         ? { ...col, visible: !col.visible }
         : col
     );
+    
+    // Guardar configuración en sessionStorage
+    saveColumnConfig(updatedColumns);
     onColumnsChange(updatedColumns);
   };
 
   const handleToggleAll = (checked: boolean) => {
     const updatedColumns = columns.map(col => ({
       ...col,
-      visible: checked
+      // Always keep name column visible even when unchecking all
+      visible: col.key === 'name' ? true : checked
     }));
+    
+    // Guardar configuración en sessionStorage
+    saveColumnConfig(updatedColumns);
     onColumnsChange(updatedColumns);
   };
 
+  // Función para resetear a la configuración por defecto
+  const handleReset = () => {
+    clearColumnConfig();
+    // Recargar la página para aplicar la configuración por defecto
+    window.location.reload();
+  };
+
   const visibleCount = columns.filter(col => col.visible).length;
-  const allSelected = visibleCount === columns.length;
-  const noneSelected = visibleCount === 0;
+  const selectableColumns = columns.filter(col => col.key !== 'name');
+  const allSelectableSelected = selectableColumns.every(col => col.visible);
+  const noneSelectableSelected = selectableColumns.every(col => !col.visible);
 
   return (
     <DropdownMenu open={open} onOpenChange={setOpen}>
@@ -77,8 +117,6 @@ export function LeadsTableColumnSelector({
             </span>
           </div>
           
-         
-
           <ScrollArea className="h-64 border-2 border-[#dedede] rounded-md">
             <div className="space-y-2 p-2">
               {columns.map((column) => (
@@ -87,28 +125,51 @@ export function LeadsTableColumnSelector({
                     id={`column-${column.key}`}
                     checked={column.visible}
                     onCheckedChange={() => handleToggleColumn(column.key)}
+                    disabled={column.key === 'name'}
                   />
                   <label 
                     htmlFor={`column-${column.key}`} 
-                    className="text-sm cursor-pointer flex-1"
+                    className={`text-sm flex-1 ${
+                      column.key === 'name' 
+                        ? 'cursor-default text-gray-500' 
+                        : 'cursor-pointer'
+                    }`}
                   >
                     {column.label}
+                    {column.key === 'name' && (
+                      <span className="ml-1 text-xs text-gray-400">(obligatorio)</span>
+                    )}
                   </label>
                 </div>
               ))}
             </div>
           </ScrollArea>
 
-           {/* Toggle All Section */}
+          {/* Toggle All Section */}
           <div className="flex items-center justify-between mt-4 pb-3 border-b border-gray-100">
             <span className="text-sm font-medium">Seleccionar todas</span>
             <Switch
-              checked={allSelected}
+              checked={allSelectableSelected}
               onCheckedChange={handleToggleAll}
             />
+          </div>
+
+          {/* Reset Button */}
+          <div className="mt-3">
+            <Button
+              onClick={handleReset}
+              variant="outline"
+              size="sm"
+              className="w-full text-xs"
+            >
+              Restablecer por defecto
+            </Button>
           </div>
         </div>
       </DropdownMenuContent>
     </DropdownMenu>
   );
 }
+
+// Exportar funciones utilitarias
+export { saveColumnConfig, clearColumnConfig };

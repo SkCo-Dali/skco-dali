@@ -1,8 +1,7 @@
-
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { ArrowLeft, Luggage, FileText, Bed, ShoppingBag, Target, Calendar, DollarSign } from 'lucide-react';
+import { ArrowLeft, Luggage, FileText, Bed, ShoppingBag, Target, Calendar, DollarSign, RefreshCw, CreditCard, Gift, Check } from 'lucide-react';
 
 interface NightmareFlowProps {
   onBack: () => void;
@@ -87,11 +86,44 @@ const FUND_CREATION_CONFIG = {
   }
 };
 
+// Configuración para el plan de nightmare
+const NIGHTMARE_PLAN_CONFIG = {
+  title: "Tu Plan Sin Complicaciones",
+  subtitle: "Automatizado y eficiente",
+  components: [
+    {
+      name: "Ahorro Automático",
+      percentage: "60%",
+      description: "Inversión mensual automática",
+      icon: "🔄"
+    },
+    {
+      name: "Fondo de Emergencias",
+      percentage: "25%",
+      description: "3 meses de gastos cubiertos",
+      icon: "🛏️"
+    },
+    {
+      name: "Fondo para Gustos",
+      percentage: "15%",
+      description: "Para tus placeres sin culpa",
+      icon: "🎁"
+    }
+  ],
+  benefits: [
+    "Todo automático, sin esfuerzo",
+    "Metas alcanzables mes a mes",
+    "Disfruta sin culpa",
+    "Asesoría cuando la necesites"
+  ]
+};
+
 export const NightmareFlow: React.FC<NightmareFlowProps> = ({ onBack }) => {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [answers, setAnswers] = useState<Record<number, string>>({});
   const [selectedOption, setSelectedOption] = useState<string>('');
   const [showFundCreation, setShowFundCreation] = useState(false);
+  const [showPlan, setShowPlan] = useState(false);
   const [fundName, setFundName] = useState('');
   const [monthlyAmount, setMonthlyAmount] = useState(50000);
   const projectedAmount = monthlyAmount * 6
@@ -121,7 +153,9 @@ export const NightmareFlow: React.FC<NightmareFlowProps> = ({ onBack }) => {
   };
 
   const handleBack = () => {
-    if (showFundCreation) {
+    if (showPlan) {
+      setShowPlan(false);
+    } else if (showFundCreation) {
       setShowFundCreation(false);
     } else if (currentQuestionIndex > 0) {
       setCurrentQuestionIndex(prev => prev - 1);
@@ -138,8 +172,77 @@ export const NightmareFlow: React.FC<NightmareFlowProps> = ({ onBack }) => {
       monthlyAmount: monthlyAmount,
       answers: { ...answers, [currentQuestion.id]: selectedOption }
     });
-    // Aquí iría la lógica para crear el fondo
+    setShowPlan(true);
   };
+
+  // Vista del plan personalizado
+  if (showPlan) {
+    return (
+      <div className="min-h-[600px] bg-white p-6 m-0">
+        {/* Header */}
+        <div className="flex items-center gap-4 mb-0">
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            onClick={handleBack}
+            className="p-2"
+          >
+            <ArrowLeft className="h-4 w-4" />
+          </Button>
+        </div>
+
+        {/* Title Section */}
+        <div className="text-center mb-8">
+          <h1 className="text-2xl font-bold text-gray-900 mb-2">
+            {NIGHTMARE_PLAN_CONFIG.title}
+          </h1>
+          <p className="text-gray-600">
+            {NIGHTMARE_PLAN_CONFIG.subtitle}
+          </p>
+        </div>
+
+        {/* Plan Cards - Dividido en 3 columnas */}
+        <div className="grid grid-cols-3 gap-4 mb-8 max-w-4xl mx-auto">
+          {NIGHTMARE_PLAN_CONFIG.components.map((component, index) => (
+            <div 
+              key={component.name}
+              className={`bg-green-50 p-6 text-center rounded-md ${
+                index < NIGHTMARE_PLAN_CONFIG.components.length - 1 ? 'border-green-50' : ''
+              }`}
+            >
+              <div className="text-3xl mb-4">{component.icon}</div>
+              <div className="text-2xl font-bold text-green-600 mb-2">{component.percentage}</div>
+              <h3 className="text-md font-semibold text-gray-900 mb-2">{component.name}</h3>
+              <p className="text-sm text-gray-600">{component.description}</p>
+            </div>
+          ))}
+        </div>
+
+        {/* Benefits Section - Contenedor gris */}
+        <div className="bg-gray-100 rounded-lg p-6 mb-8 max-w-4xl mx-auto">
+          <h3 className="text-md font-semibold text-gray-900 mb-6">Beneficios de tu plan:</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {NIGHTMARE_PLAN_CONFIG.benefits.map((benefit, index) => (
+              <div key={index} className="flex items-center gap-3">
+                <Check className="h-5 w-5 text-green-600" />
+                <span className="text-sm text-gray-700">{benefit}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Action Button */}
+        <div className="text-center">
+          <Button 
+            className="bg-green-500 hover:bg-green-600 text-white px-8 py-4 text-lg font-medium rounded-full"
+            onClick={() => console.log('Plan aceptado')}
+          >
+            Guardar plan 🚀
+          </Button>
+        </div>
+      </div>
+    );
+  }
 
   // Vista de creación de fondo
   if (showFundCreation && fundConfig) {
@@ -205,14 +308,14 @@ export const NightmareFlow: React.FC<NightmareFlowProps> = ({ onBack }) => {
           </div>
 
           {/* Projection Card */}
-          <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+          <div className="bg-green-50 border border-green-200 rounded-lg p-2">
             <div className="flex items-center gap-3">
               <div className="text-2xl">💡</div>
               <div>
                 <p className="text-sm font-medium text-green-800 mb-1">
                   {fundConfig.projectionText}
                 </p>
-                <p className="text-2xl font-bold text-green-600">
+                <p className="text-lg font-bold text-green-600">
                   ${projectedAmount.toLocaleString()}
                 </p>
               </div>
@@ -278,7 +381,7 @@ export const NightmareFlow: React.FC<NightmareFlowProps> = ({ onBack }) => {
                 <div className={`w-16 h-16 ${option.color} rounded-full flex items-center justify-center mx-auto mb-4`}>
                   <Icon className="h-8 w-8" />
                 </div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                <h3 className="text-md font-semibold text-gray-900 mb-2">
                   {option.title}
                 </h3>
                 <p className="text-sm text-gray-600">
@@ -293,7 +396,7 @@ export const NightmareFlow: React.FC<NightmareFlowProps> = ({ onBack }) => {
       {/* Button */}
       <div className="text-center">
         <Button 
-          className="bg-green-500 hover:bg-green-600 text-white px-8 py-4 text-lg font-medium rounded-full"
+          className="bg-green-500 hover:bg-green-600 text-white px-8 py-4 text-md font-medium rounded-full"
           disabled={!selectedOption}
           onClick={handleNext}
         >

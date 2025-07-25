@@ -1,4 +1,3 @@
-
 import { useState, useMemo } from "react";
 import { Lead } from "@/types/crm";
 
@@ -206,6 +205,6 @@ export function useLeadsFilters(leads: Lead[]) {
     uniqueSources,
     uniqueCampaigns,
     uniqueAssignedTo,
-    duplicateCount
+    duplicateCount,
   };
 }

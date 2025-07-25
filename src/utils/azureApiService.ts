@@ -11,6 +11,25 @@ interface AzureApiResponse {
   ipAddress?: string;
 }
 
+// Helper function to get Entra ID token
+const getEntraIdToken = async (): Promise<string | null> => {
+  try {
+    const { default: SecureTokenManager } = await import('@/utils/secureTokenManager');
+    const tokenData = SecureTokenManager.getToken();
+    
+    if (tokenData && tokenData.token) {
+      console.log('🔑 Entra ID token retrieved for API call');
+      return tokenData.token;
+    } else {
+      console.warn('⚠️ No Entra ID token available');
+      return null;
+    }
+  } catch (error) {
+    console.warn('⚠️ Could not get Entra ID token:', error);
+    return null;
+  }
+};
+
 // Helper function to wait for a specified number of milliseconds
 const sleep = (ms: number): Promise<void> => {
   return new Promise(resolve => setTimeout(resolve, ms));
@@ -41,9 +60,13 @@ const makeApiCallWithRetry = async (
         'Content-Type': 'application/json',
       };
 
-      // Add authorization header if access token is provided
-      if (requestBody.EntraToken) {
-        headers['Authorization'] = `Bearer ${requestBody.EntraToken}`;
+      // Add Entra ID token authorization header
+      const entraToken = await getEntraIdToken();
+      if (entraToken) {
+        headers['Authorization'] = `Bearer ${entraToken}`;
+        console.log('🔑 Authorization header added with Entra ID token');
+      } else {
+        console.warn('⚠️ No Entra ID token available for API authorization');
       }
 
       const response = await fetch(`${ENV.MAESTRO_API_BASE_URL}/api/maestro`, {
@@ -135,11 +158,9 @@ export const callAzureAgentApi = async (
   
   const startTime = Date.now();
   
-  // Preparar el body para el API del maestro
+  // Preparar el body para el API del maestro (sin correo y sin EntraToken)
   const requestBody: any = {
     App: "Dali",
-    correo: userEmail,
-    EntraToken: accessToken || '',
     IdConversacion: conversationId || `conv_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
   };
 
@@ -154,9 +175,9 @@ export const callAzureAgentApi = async (
   console.log('📋 REQUEST BODY PREPARED:');
   console.log('  - App:', requestBody.App);
   console.log('  - pregunta:', requestBody.pregunta ? requestBody.pregunta.substring(0, 100) + (requestBody.pregunta.length > 100 ? '...' : '') : 'NOT_INCLUDED');
-  console.log('  - correo:', requestBody.correo);
-  console.log('  - EntraToken:', accessToken ? accessToken.substring(0, 30) + '...' : 'empty');
   console.log('  - IdConversacion:', requestBody.IdConversacion);
+  console.log('  - correo: NOW OBTAINED FROM AUTHORIZATION HEADER TOKEN');
+  console.log('  - EntraToken: NOW SENT IN AUTHORIZATION HEADER');
 
   try {
     console.log('🎯 MAESTRO API CALL WITH RETRY MECHANISM STARTING...');

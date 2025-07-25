@@ -48,28 +48,28 @@ serve(async (req) => {
       throw new Error(`Invalid JSON in request body: ${parseError.message}`);
     }
     
-    const { App, pregunta, correo, EntraToken, IdConversacion } = requestBody;
+    const { App, pregunta, EntraToken, IdConversacion } = requestBody;
     
     console.log('📊 === REQUEST BODY ANALYSIS ===');
     console.log('  - App:', App);
     console.log('  - pregunta length:', pregunta?.length || 0);
     console.log('  - pregunta preview:', pregunta?.substring(0, 50) + (pregunta?.length > 50 ? '...' : ''));
-    console.log('  - correo:', correo);
     console.log('  - EntraToken present:', !!EntraToken);
     console.log('  - EntraToken preview:', EntraToken ? EntraToken.substring(0, 20) + '...' : 'empty');
     console.log('  - IdConversacion:', IdConversacion);
+    console.log('  - correo: NOW OBTAINED FROM AUTHORIZATION HEADER TOKEN');
     
     // Validate required fields
-    if (!App || !pregunta || !correo) {
+    if (!App || !pregunta) {
       console.error('❌ Missing required fields');
-      throw new Error('Missing required fields: App, pregunta, correo');
+      throw new Error('Missing required fields: App, pregunta');
     }
     
     // Make request to new Maestro API with extended timeout
     console.log('🎯 === CALLING MAESTRO API FROM PROXY ===');
     console.log('🌐 Target URL:', `${MAESTRO_API_URL}/api/maestro`);
     console.log('🔧 Method: POST');
-    console.log('📤 Request body prepared for Maestro API');
+    console.log('📤 Request body prepared for Maestro API (EntraToken now in header, correo from token)');
     console.log('⏰ Starting API call...');
     
     const apiController = new AbortController();
@@ -78,19 +78,36 @@ serve(async (req) => {
       apiController.abort();
     }, 60000); // 60 second timeout for API call
     
+    // Prepare headers for Maestro API
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json',
+      'User-Agent': 'Supabase-Edge-Function/1.0',
+    };
+
+    // Add Authorization header if EntraToken is present
+    if (EntraToken) {
+      headers['Authorization'] = `Bearer ${EntraToken}`;
+      console.log('🔑 Authorization header added with EntraToken');
+    } else {
+      console.warn('⚠️ No EntraToken provided for API authorization');
+    }
+
+    // Prepare request body WITHOUT EntraToken and correo
+    const maestroRequestBody = {
+      App,
+      pregunta,
+      IdConversacion
+    };
+
+    console.log('📋 MAESTRO API REQUEST BODY (without EntraToken and correo):');
+    console.log('  - App:', maestroRequestBody.App);
+    console.log('  - pregunta length:', maestroRequestBody.pregunta?.length || 0);
+    console.log('  - IdConversacion:', maestroRequestBody.IdConversacion);
+    
     const azureResponse = await fetch(`${MAESTRO_API_URL}/api/maestro`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'User-Agent': 'Supabase-Edge-Function/1.0',
-      },
-      body: JSON.stringify({
-        App,
-        pregunta,
-        correo,
-        EntraToken: EntraToken || '',
-        IdConversacion
-      }),
+      headers,
+      body: JSON.stringify(maestroRequestBody),
       signal: apiController.signal
     });
 
