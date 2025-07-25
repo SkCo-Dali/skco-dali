@@ -175,13 +175,25 @@ export default function Leads() {
 
           {/* Filtros expandibles */}
           {showFilters && (
-            <LeadsFilters
-              onClose={() => setShowFilters(false)}
-            />
+            <div className="relative">
+              <LeadsFilters />
+              <Button
+                variant="ghost"
+                size="sm"
+                className="absolute top-2 right-2"
+                onClick={() => setShowFilters(false)}
+              >
+                ×
+              </Button>
+            </div>
           )}
 
           {/* Estadísticas */}
-          <LeadsStats />
+          <LeadsStats 
+            filteredLeads={filteredLeads}
+            currentPage={currentPage}
+            totalPages={totalPages}
+          />
 
           {/* Controles de vista */}
           <LeadsViewControls
@@ -226,8 +238,8 @@ export default function Leads() {
 
       {/* Diálogos */}
       <LeadCreateDialog
-        open={showCreateDialog}
-        onOpenChange={setShowCreateDialog}
+        isOpen={showCreateDialog}
+        onClose={() => setShowCreateDialog(false)}
         onLeadCreated={refetch}
       />
 
@@ -247,6 +259,8 @@ export default function Leads() {
       </Dialog>
 
       <LeadsTableColumnSelector
+        isOpen={showColumnSelector}
+        onClose={() => setShowColumnSelector(false)}
         columns={columns}
         onColumnsChange={handleColumnConfigChange}
       />
