@@ -30,18 +30,12 @@ jobs:
         tenant-id: ${{ vars.AZURE_TENANT_ID }}
         subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
         enable-AzPSSession: true
-    - name: Azure CLI script
-      uses: azure/cli@v2
-      with:
-        azcliversion: latest
-        inlineScript: |
-            az account show
     - name: Upload JS to blob storage
       uses: azure/CLI@v2
       with:
         azcliversion: latest
         inlineScript: |
-            az storage blob upload-batch --account-name rgskcoareajarvisdevbe2e  --auth-mode key -d 'dali-components' -s ./dist/web-components --pattern '*.js' --overwrite true
+            az storage blob upload-batch --account-name rgskcoareajarvisdevbe2e  --auth-mode login -d 'dali-components' -s ./dist/web-components --pattern '*.js' --overwrite true
     - name: Upload CSS to blob storage
       uses: azure/CLI@v2
       with:
@@ -51,7 +45,7 @@ jobs:
         # This is necessary to ensure the CLI uses the correct credentials
         account-name: rgskcoareajarvisdevbe2e
         inlineScript: |
-            az storage blob upload-batch --account-name rgskcoareajarvisdevbe2e  --auth-mode key -d 'dali-components' -s ./dist/web-components --pattern '*.css' --overwrite true
+            az storage blob upload-batch --account-name rgskcoareajarvisdevbe2e  --auth-mode login -d 'dali-components' -s ./dist/web-components --pattern '*.css' --overwrite true
   # Azure logout
     - name: logout
       run: |
