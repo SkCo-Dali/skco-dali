@@ -29,6 +29,7 @@ jobs:
         client-id: ${{ vars.AZURE_CLIENT_ID_STORAGE }}
         tenant-id: ${{ vars.AZURE_TENANT_ID }}
         subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+        enable-AzPSSession: true
 
     - name: Upload JS to blob storage
       uses: azure/CLI@v2
@@ -40,6 +41,10 @@ jobs:
       uses: azure/CLI@v2
       with:
         azcliversion: latest
+        useGlobalConfig: true
+        # Use the same storage account as above
+        # This is necessary to ensure the CLI uses the correct credentials
+        account-name: rgskcoareajarvisdevbe2e
         inlineScript: |
             az storage blob upload-batch --account-name rgskcoareajarvisdevbe2e  --auth-mode key -d 'dali-components' -s ./dist/web-components --pattern '*.css' --overwrite true
   # Azure logout
