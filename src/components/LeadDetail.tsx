@@ -1,4 +1,5 @@
-import React, { useState, useCallback } from 'react';
+
+import React, { useState } from 'react';
 import { Lead } from "@/types/crm";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -8,9 +9,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Mail } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { useInteractionsApi } from "@/hooks/useInteractionsApi";
-import { InteractionsList } from "@/components/InteractionsList";
-import { ClientHistory } from "@/components/ClientHistory";
 import { WhatsAppActionsMenu } from "./WhatsAppActionsMenu";
 
 interface LeadDetailProps {
@@ -21,7 +19,6 @@ interface LeadDetailProps {
 
 export function LeadDetail({ lead, onClose, onUpdate }: LeadDetailProps) {
   const { toast } = useToast();
-  const { createInteractionFromLead, loadLeadInteractions, loadClientHistory, interactions, clientHistory, loading } = useInteractionsApi();
   const [isEmailComposerOpen, setIsEmailComposerOpen] = useState(false);
 
   const [name, setName] = useState(lead.name || '');
@@ -62,13 +59,11 @@ export function LeadDetail({ lead, onClose, onUpdate }: LeadDetailProps) {
       nextFollowUp
     };
 
-    // Mostrar mensaje de éxito
     toast({
       title: "Lead actualizado",
       description: "La información del lead se ha actualizado correctamente.",
     });
 
-    // Cerrar el diálogo
     onClose();
   };
 
@@ -80,39 +75,8 @@ export function LeadDetail({ lead, onClose, onUpdate }: LeadDetailProps) {
     setIsEmailComposerOpen(false);
   };
 
-  const handleCreateInteraction = async () => {
-    const updatedLead = {
-      ...lead,
-      type,
-      outcome,
-      stage,
-      notes
-    };
-
-    const success = await createInteractionFromLead(updatedLead);
-    if (success) {
-      // Recargar las interacciones del lead
-      loadLeadInteractions(lead.id);
-      // Limpiar los campos del formulario
-      setType('');
-      setOutcome('');
-      setStage('');
-      setNotes('');
-    }
-  };
-
-  const handleLoadInteractions = useCallback(() => {
-    loadLeadInteractions(lead.id);
-  }, [loadLeadInteractions, lead.id]);
-
-  const handleLoadClientHistory = useCallback(() => {
-    loadClientHistory(lead);
-  }, [loadClientHistory, lead]);
-
   const handleSendWithSami = () => {
     console.log('Opening WhatsApp with Sami for lead:', lead.name);
-    // Here you would trigger the mass WhatsApp sender with just this lead
-    // For now, we'll just show a toast
     toast({
       title: "WhatsApp con Sami",
       description: `Preparando mensaje para ${lead.name}`,
@@ -224,9 +188,6 @@ export function LeadDetail({ lead, onClose, onUpdate }: LeadDetailProps) {
                 <Label htmlFor="notes">Notas</Label>
                 <Textarea id="notes" value={notes} onChange={(e) => setNotes(e.target.value)} />
               </div>
-              <Button onClick={handleCreateInteraction}>
-                Crear Interacción
-              </Button>
 
               <div className="pt-4 border-t">
                 <div className="flex items-center gap-2 mb-4">
@@ -248,15 +209,6 @@ export function LeadDetail({ lead, onClose, onUpdate }: LeadDetailProps) {
               </div>
             </CardContent>
           </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-xl font-semibold">Historial de Interacciones</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <InteractionsList leadId={lead.id} interactions={interactions} loading={loading} onRefresh={handleLoadInteractions} />
-            </CardContent>
-          </Card>
         </TabsContent>
 
         <TabsContent value="assignment" className="space-y-6">
@@ -265,7 +217,7 @@ export function LeadDetail({ lead, onClose, onUpdate }: LeadDetailProps) {
               <CardTitle className="text-xl font-semibold">Historial del Cliente</CardTitle>
             </CardHeader>
             <CardContent>
-              <ClientHistory lead={lead} clientHistory={clientHistory} loading={loading} onRefresh={handleLoadClientHistory} />
+              <p className="text-gray-500">Funcionalidad en desarrollo...</p>
             </CardContent>
           </Card>
         </TabsContent>

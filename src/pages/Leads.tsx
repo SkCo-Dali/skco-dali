@@ -3,12 +3,6 @@ import { Lead } from "@/types/crm";
 import { LeadsContent } from "@/components/LeadsContent";
 import { LeadsActionsButton } from "@/components/LeadsActionsButton";
 import { LeadsViewControls } from "@/components/LeadsViewControls";
-import { LeadsStats } from "@/components/LeadsStats";
-import { LeadFilters } from "@/components/LeadFilters";
-import { CreateLeadDialog } from "@/components/CreateLeadDialog";
-import { BulkAssignDialog } from "@/components/BulkAssignDialog";
-import { MassEmailDialog } from "@/components/MassEmailDialog";
-import { DeleteLeadsDialog } from "@/components/DeleteLeadsDialog";
 import { ColumnConfig } from "@/components/LeadsTableColumnSelector";
 import { applyFilters } from "@/utils/filters";
 import { initialColumnsConfig } from "@/components/LeadsTableColumnSelector";
@@ -23,11 +17,6 @@ export default function Leads() {
   const [filteredLeads, setFilteredLeads] = useState<Lead[]>([]);
   const [paginatedLeads, setPaginatedLeads] = useState<Lead[]>([]);
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
-  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
-  const [isBulkAssignOpen, setIsBulkAssignOpen] = useState(false);
-  const [isMassEmailOpen, setIsMassEmailOpen] = useState(false);
-  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
-  const [isDeletingLeads, setIsDeletingLeads] = useState(false);
   const [viewMode, setViewMode] = useState<'table' | 'columns'>('table');
   const [groupBy, setGroupBy] = useState('stage');
   const [columns, setColumns] = useState<ColumnConfig[]>(initialColumnsConfig);
@@ -44,7 +33,6 @@ export default function Leads() {
   const [showMassWhatsApp, setShowMassWhatsApp] = useState(false);
 
   useEffect(() => {
-    // Fetch leads from API or use dummy data
     const dummyLeads: Lead[] = [
       {
         id: '1',
@@ -53,16 +41,21 @@ export default function Leads() {
         phone: '3001234567',
         company: 'Acme Corp',
         product: 'Insurance',
-        status: 'active',
+        status: 'New',
         assignedTo: 'Carlos Rodriguez',
-        priority: 'high',
+        priority: 'High',
         stage: 'new',
         nextFollowUp: new Date().toISOString(),
         notes: 'Contacted on 2024-01-20',
         documentType: 'CC',
         documentNumber: 123456789,
         campaign: 'Campaña A',
-        portfolio: 'Portafolio 1'
+        portfolio: 'Portafolio 1',
+        source: 'Web',
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        createdBy: 'admin',
+        value: 1000
       },
       {
         id: '2',
@@ -71,16 +64,21 @@ export default function Leads() {
         phone: '3019876543',
         company: 'Beta Inc',
         product: 'Loans',
-        status: 'inactive',
+        status: 'Contacted',
         assignedTo: 'Ana Perez',
-        priority: 'medium',
+        priority: 'Medium',
         stage: 'contacted',
         nextFollowUp: new Date().toISOString(),
         notes: 'Follow up on 2024-01-25',
         documentType: 'NIT',
         documentNumber: 987654321,
         campaign: 'Campaña B',
-        portfolio: 'Portafolio 2'
+        portfolio: 'Portafolio 2',
+        source: 'Referral',
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        createdBy: 'admin',
+        value: 2000
       },
       {
         id: '3',
@@ -89,16 +87,21 @@ export default function Leads() {
         phone: '3025551212',
         company: 'Gamma Ltd',
         product: 'Credit Cards',
-        status: 'active',
+        status: 'Qualified',
         assignedTo: 'Pedro Gomez',
-        priority: 'low',
+        priority: 'Low',
         stage: 'qualified',
         nextFollowUp: new Date().toISOString(),
         notes: 'Meeting scheduled for 2024-02-01',
         documentType: 'CE',
         documentNumber: 1122334455,
         campaign: 'Campaña C',
-        portfolio: 'Portafolio 3'
+        portfolio: 'Portafolio 3',
+        source: 'campaign',
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        createdBy: 'admin',
+        value: 1500
       },
       {
         id: '4',
@@ -107,16 +110,21 @@ export default function Leads() {
         phone: '3034445656',
         company: 'Delta Corp',
         product: 'Savings Accounts',
-        status: 'active',
+        status: 'New',
         assignedTo: 'Laura Torres',
-        priority: 'high',
+        priority: 'High',
         stage: 'proposal',
         nextFollowUp: new Date().toISOString(),
         notes: 'Proposal sent on 2024-02-05',
         documentType: 'PP',
         documentNumber: 6677889900,
         campaign: 'Campaña D',
-        portfolio: 'Portafolio 4'
+        portfolio: 'Portafolio 4',
+        source: 'web',
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        createdBy: 'admin',
+        value: 1200
       },
       {
         id: '5',
@@ -125,16 +133,21 @@ export default function Leads() {
         phone: '3046667878',
         company: 'Epsilon Inc',
         product: 'Mortgages',
-        status: 'inactive',
+        status: 'Contacted',
         assignedTo: 'David Castro',
-        priority: 'medium',
+        priority: 'Medium',
         stage: 'negotiation',
         nextFollowUp: new Date().toISOString(),
         notes: 'Negotiation in progress',
         documentType: 'CC',
         documentNumber: 1010101010,
         campaign: 'Campaña E',
-        portfolio: 'Portafolio 5'
+        portfolio: 'Portafolio 5',
+        source: 'Hubspot',
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        createdBy: 'admin',
+        value: 1800
       },
       {
         id: '6',
@@ -143,16 +156,21 @@ export default function Leads() {
         phone: '3057778989',
         company: 'Zeta Ltd',
         product: 'Retirement Plans',
-        status: 'active',
+        status: 'New',
         assignedTo: 'Sofia Vargas',
-        priority: 'low',
+        priority: 'Low',
         stage: 'won',
         nextFollowUp: new Date().toISOString(),
         notes: 'Deal closed on 2024-02-10',
         documentType: 'NIT',
         documentNumber: 2020202020,
         campaign: 'Campaña F',
-        portfolio: 'Portafolio 6'
+        portfolio: 'Portafolio 6',
+        source: 'DaliLM',
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        createdBy: 'admin',
+        value: 2500
       },
       {
         id: '7',
@@ -161,16 +179,21 @@ export default function Leads() {
         phone: '3068889090',
         company: 'Eta Corp',
         product: 'Education Funds',
-        status: 'inactive',
+        status: 'Contacted',
         assignedTo: 'Juan Perez',
-        priority: 'high',
+        priority: 'High',
         stage: 'lost',
         nextFollowUp: new Date().toISOString(),
         notes: 'Lost deal due to budget',
         documentType: 'CE',
         documentNumber: 3030303030,
         campaign: 'Campaña G',
-        portfolio: 'Portafolio 7'
+        portfolio: 'Portafolio 7',
+        source: 'DaliAI',
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        createdBy: 'admin',
+        value: 900
       },
       {
         id: '8',
@@ -179,16 +202,21 @@ export default function Leads() {
         phone: '3079990101',
         company: 'Theta Inc',
         product: 'Investment Funds',
-        status: 'active',
+        status: 'New',
         assignedTo: 'Isabella Ramirez',
-        priority: 'medium',
+        priority: 'Medium',
         stage: 'new',
         nextFollowUp: new Date().toISOString(),
         notes: 'New lead from online form',
         documentType: 'PP',
         documentNumber: 4040404040,
         campaign: 'Campaña H',
-        portfolio: 'Portafolio 8'
+        portfolio: 'Portafolio 8',
+        source: 'social',
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        createdBy: 'admin',
+        value: 1100
       },
       {
         id: '9',
@@ -197,16 +225,21 @@ export default function Leads() {
         phone: '3080001212',
         company: 'Iota Ltd',
         product: 'Annuities',
-        status: 'active',
+        status: 'New',
         assignedTo: 'Mateo Silva',
-        priority: 'low',
+        priority: 'Low',
         stage: 'contacted',
         nextFollowUp: new Date().toISOString(),
         notes: 'Contacted via phone on 2024-02-15',
         documentType: 'CC',
         documentNumber: 5050505050,
         campaign: 'Campaña I',
-        portfolio: 'Portafolio 9'
+        portfolio: 'Portafolio 9',
+        source: 'referral',
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        createdBy: 'admin',
+        value: 1300
       },
       {
         id: '10',
@@ -215,16 +248,21 @@ export default function Leads() {
         phone: '3091112323',
         company: 'Kappa Corp',
         product: 'Life Insurance',
-        status: 'active',
+        status: 'New',
         assignedTo: 'Valentina Torres',
-        priority: 'high',
+        priority: 'High',
         stage: 'qualified',
         nextFollowUp: new Date().toISOString(),
         notes: 'Qualified lead, ready for proposal',
         documentType: 'NIT',
         documentNumber: 6060606060,
         campaign: 'Campaña J',
-        portfolio: 'Portafolio 10'
+        portfolio: 'Portafolio 10',
+        source: 'cold-call',
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        createdBy: 'admin',
+        value: 1600
       }
     ];
     setLeads(dummyLeads);
@@ -258,20 +296,19 @@ export default function Leads() {
   };
 
   const handleLeadUpdate = () => {
-    // Refresh leads data
     console.log('Lead updated, refreshing data...');
   };
 
   const handleCreateLead = () => {
-    setIsCreateDialogOpen(true);
+    console.log('Create lead clicked');
   };
 
   const handleBulkAssign = () => {
-    setIsBulkAssignOpen(true);
+    console.log('Bulk assign clicked');
   };
 
   const handleMassEmail = () => {
-    setIsMassEmailOpen(true);
+    console.log('Mass email clicked');
   };
 
   const handleMassWhatsApp = () => {
@@ -280,18 +317,7 @@ export default function Leads() {
   };
 
   const handleDeleteLeads = () => {
-    setIsDeleteDialogOpen(true);
-  };
-
-  const confirmDeleteLeads = async () => {
-    setIsDeletingLeads(true);
-    // Simulate deleting leads
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    // Remove selected leads from the list
-    setLeads(prevLeads => prevLeads.filter(lead => !selectedLeads.includes(lead.id)));
-    setSelectedLeads([]);
-    setIsDeleteDialogOpen(false);
-    setIsDeletingLeads(false);
+    console.log('Delete leads clicked');
   };
 
   const handleSort = (sortBy: string, sortOrder: 'asc' | 'desc') => {
@@ -302,7 +328,6 @@ export default function Leads() {
       if (typeof aValue === 'string' && typeof bValue === 'string') {
         return sortOrder === 'asc' ? aValue.localeCompare(bValue) : bValue.localeCompare(aValue);
       } else {
-        // Handle non-string comparisons if necessary
         return 0;
       }
     });
@@ -315,12 +340,10 @@ export default function Leads() {
 
   const handleSendEmail = (lead: Lead) => {
     console.log('Sending email to:', lead.email);
-    // Open email composer with lead's email
   };
 
   const handleSendWhatsApp = (lead: Lead) => {
     console.log('Opening WhatsApp with Sami for single lead:', lead.name);
-    // Filter to just this lead and open the mass WhatsApp sender
     setFilteredLeads([lead]);
     setShowMassWhatsApp(true);
   };
@@ -337,21 +360,8 @@ export default function Leads() {
 
   return (
     <div className="space-y-6">
-      <LeadFilters
-        onSearch={setSearchTerm}
-        onStatusChange={setStatusFilter}
-        onAssignedToChange={setAssignedToFilter}
-        onPriorityChange={setPriorityFilter}
-        onStageChange={setStageFilter}
-        onProductChange={setProductFilter}
-        onCampaignChange={setCampaignFilter}
-        onPortfolioChange={setPortfolioFilter}
-        onColumnFiltersChange={setColumnFilters}
-        columns={columns}
-      />
-
       <div className="flex justify-between items-center">
-        <LeadsStats leads={leads} />
+        <div className="text-lg font-semibold">Leads ({filteredLeads.length})</div>
         <div className="flex items-center gap-4">
           <LeadsActionsButton
             onCreateLead={handleCreateLead}
@@ -360,7 +370,6 @@ export default function Leads() {
             onMassWhatsApp={handleMassWhatsApp}
             onDeleteLeads={handleDeleteLeads}
             selectedLeadsCount={selectedLeads.length}
-            isDeleting={isDeletingLeads}
           />
           <LeadsViewControls
             viewMode={viewMode}
@@ -388,37 +397,11 @@ export default function Leads() {
         onLeadSelectionChange={handleLeadSelectionChange}
       />
 
-      <CreateLeadDialog
-        isOpen={isCreateDialogOpen}
-        onClose={() => setIsCreateDialogOpen(false)}
-      />
-
-      <BulkAssignDialog
-        isOpen={isBulkAssignOpen}
-        onClose={() => setIsBulkAssignOpen(false)}
-        selectedLeads={selectedLeads}
-      />
-
-      <MassEmailDialog
-        isOpen={isMassEmailOpen}
-        onClose={() => setIsMassEmailOpen(false)}
-        selectedLeads={selectedLeads}
-      />
-
-      <DeleteLeadsDialog
-        isOpen={isDeleteDialogOpen}
-        onClose={() => setIsDeleteDialogOpen(false)}
-        onConfirm={confirmDeleteLeads}
-        selectedLeadsCount={selectedLeads.length}
-        isDeleting={isDeletingLeads}
-      />
-
       {showMassWhatsApp && (
         <MassWhatsAppSender
           filteredLeads={filteredLeads}
           onClose={() => {
             setShowMassWhatsApp(false);
-            // Reset filtered leads if it was set for single lead
             if (filteredLeads.length === 1) {
               setFilteredLeads(applyFilters(leads, {
                 searchTerm,
