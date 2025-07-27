@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Lead } from "@/types/crm";
 import { LeadCard } from "./LeadCard";
@@ -16,6 +15,7 @@ interface LeadsContentProps {
   paginatedLeads: Lead[];
   onSortedLeadsChange: (sorted: Lead[]) => void;
   onSendEmail: (lead: Lead) => void;
+  onSendWhatsApp?: (lead: Lead) => void;
   groupBy: string;
   selectedLeads: string[];
   onLeadSelectionChange: (leadIds: string[], isSelected: boolean) => void;
@@ -30,6 +30,7 @@ export function LeadsContent({
   paginatedLeads,
   onSortedLeadsChange,
   onSendEmail,
+  onSendWhatsApp,
   groupBy,
   selectedLeads,
   onLeadSelectionChange
@@ -58,6 +59,7 @@ export function LeadsContent({
           columns={columns}
           onSortedLeadsChange={onSortedLeadsChange}
           onSendEmail={onSendEmail}
+          onSendWhatsApp={onSendWhatsApp}
           onOpenProfiler={handleOpenProfiler}
           selectedLeads={selectedLeads}
           onLeadSelectionChange={onLeadSelectionChange}
@@ -65,7 +67,6 @@ export function LeadsContent({
 
         <Dialog open={isProfilerOpen} onOpenChange={setIsProfilerOpen}>
           <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto p-0">
-            
             <LeadProfiler selectedLead={selectedLeadForProfiler} />
           </DialogContent>
         </Dialog>
@@ -140,6 +141,7 @@ export function LeadsContent({
                       onClick={() => onLeadClick(lead)}
                       onEdit={onLeadClick}
                       onSendEmail={onSendEmail}
+                      onSendWhatsApp={onSendWhatsApp}
                       onOpenProfiler={handleOpenProfiler}
                       onLeadUpdate={onLeadUpdate}
                     />
