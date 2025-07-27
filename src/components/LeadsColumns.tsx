@@ -39,6 +39,15 @@ export function LeadsColumns({ leads, onLeadClick, onLeadUpdate, onSendEmail, gr
     onLeadClick(lead);
   };
 
+  const handleDelete = (lead: Lead) => {
+    console.log('Delete lead:', lead);
+    if (window.confirm(`¿Estás seguro de que quieres eliminar el lead ${lead.name}?`)) {
+      if (onLeadUpdate) {
+        onLeadUpdate();
+      }
+    }
+  };
+
   const handleSendEmail = (lead: Lead) => {
     if (onSendEmail) {
       onSendEmail(lead);
@@ -118,10 +127,9 @@ export function LeadsColumns({ leads, onLeadClick, onLeadUpdate, onSendEmail, gr
                   lead={lead} 
                   onClick={() => onLeadClick(lead)}
                   onEdit={handleEdit}
+                  onDelete={handleDelete}
                   onSendEmail={handleSendEmail}
                   onSendWhatsApp={handleSendWhatsApp}
-                  onOpenProfiler={() => console.log('Open profiler:', lead)}
-                  onLeadUpdate={onLeadUpdate || (() => {})}
                 />
               ))}
             </div>

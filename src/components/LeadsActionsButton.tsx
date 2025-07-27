@@ -12,15 +12,13 @@ import {
   Plus, 
   Users, 
   Mail, 
-  Trash,
-  MessageSquare
+  Trash 
 } from "lucide-react";
 
 interface LeadsActionsButtonProps {
   onCreateLead: () => void;
   onBulkAssign: () => void;
   onMassEmail: () => void;
-  onMassWhatsApp: () => void;
   onDeleteLeads: () => void;
   selectedLeadsCount: number;
   isDeleting?: boolean;
@@ -30,7 +28,6 @@ export function LeadsActionsButton({
   onCreateLead,
   onBulkAssign,
   onMassEmail,
-  onMassWhatsApp,
   onDeleteLeads,
   selectedLeadsCount,
   isDeleting = false
@@ -48,11 +45,6 @@ export function LeadsActionsButton({
   const handleMassEmail = () => {
     console.log('LeadsActionsButton: handleMassEmail called');
     onMassEmail();
-  };
-
-  const handleMassWhatsApp = () => {
-    console.log('LeadsActionsButton: handleMassWhatsApp called');
-    onMassWhatsApp();
   };
 
   const handleDeleteLeads = () => {
@@ -88,15 +80,6 @@ export function LeadsActionsButton({
         <DropdownMenuItem onClick={handleMassEmail} className="cursor-pointer">
           <Mail className="h-4 w-4 mr-2" />
           Enviar email
-          {selectedLeadsCount > 0 && (
-            <span className="ml-auto text-xs bg-green-100 text-green-800 px-1 py-0.5 rounded">
-              {selectedLeadsCount}
-            </span>
-          )}
-        </DropdownMenuItem>
-        <DropdownMenuItem onClick={handleMassWhatsApp} className="cursor-pointer">
-          <MessageSquare className="h-4 w-4 mr-2" />
-          Enviar WhatsApp con Sami
           {selectedLeadsCount > 0 && (
             <span className="ml-auto text-xs bg-green-100 text-green-800 px-1 py-0.5 rounded">
               {selectedLeadsCount}

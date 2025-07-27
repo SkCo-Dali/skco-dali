@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
@@ -17,21 +18,6 @@ export interface ColumnConfig {
   visible: boolean;
   sortable: boolean;
 }
-
-export const initialColumnsConfig: ColumnConfig[] = [
-  { key: 'name', label: 'Nombre', visible: true, sortable: true },
-  { key: 'email', label: 'Email', visible: true, sortable: true },
-  { key: 'phone', label: 'Teléfono', visible: true, sortable: true },
-  { key: 'company', label: 'Empresa', visible: true, sortable: true },
-  { key: 'product', label: 'Producto', visible: true, sortable: true },
-  { key: 'status', label: 'Estado', visible: true, sortable: true },
-  { key: 'assignedTo', label: 'Asignado a', visible: true, sortable: true },
-  { key: 'priority', label: 'Prioridad', visible: true, sortable: true },
-  { key: 'stage', label: 'Etapa', visible: true, sortable: true },
-  { key: 'campaign', label: 'Campaña', visible: false, sortable: true },
-  { key: 'portfolio', label: 'Portafolio', visible: false, sortable: true },
-  { key: 'nextFollowUp', label: 'Próximo seguimiento', visible: false, sortable: true },
-];
 
 interface LeadsTableColumnSelectorProps {
   columns: ColumnConfig[];
@@ -67,6 +53,7 @@ export function LeadsTableColumnSelector({
   const [open, setOpen] = useState(false);
 
   const handleToggleColumn = (columnKey: string) => {
+    // Prevent deselecting the name column as it's mandatory
     if (columnKey === 'name') {
       return;
     }
@@ -77,6 +64,7 @@ export function LeadsTableColumnSelector({
         : col
     );
     
+    // Guardar configuración en sessionStorage
     saveColumnConfig(updatedColumns);
     onColumnsChange(updatedColumns);
   };
@@ -84,21 +72,26 @@ export function LeadsTableColumnSelector({
   const handleToggleAll = (checked: boolean) => {
     const updatedColumns = columns.map(col => ({
       ...col,
+      // Always keep name column visible even when unchecking all
       visible: col.key === 'name' ? true : checked
     }));
     
+    // Guardar configuración en sessionStorage
     saveColumnConfig(updatedColumns);
     onColumnsChange(updatedColumns);
   };
 
+  // Función para resetear a la configuración por defecto
   const handleReset = () => {
     clearColumnConfig();
+    // Recargar la página para aplicar la configuración por defecto
     window.location.reload();
   };
 
   const visibleCount = columns.filter(col => col.visible).length;
   const selectableColumns = columns.filter(col => col.key !== 'name');
   const allSelectableSelected = selectableColumns.every(col => col.visible);
+  const noneSelectableSelected = selectableColumns.every(col => !col.visible);
 
   return (
     <DropdownMenu open={open} onOpenChange={setOpen}>
@@ -152,6 +145,7 @@ export function LeadsTableColumnSelector({
             </div>
           </ScrollArea>
 
+          {/* Toggle All Section */}
           <div className="flex items-center justify-between mt-4 pb-3 border-b border-gray-100">
             <span className="text-sm font-medium">Seleccionar todas</span>
             <Switch
@@ -160,6 +154,7 @@ export function LeadsTableColumnSelector({
             />
           </div>
 
+          {/* Reset Button */}
           <div className="mt-3">
             <Button
               onClick={handleReset}
@@ -176,4 +171,5 @@ export function LeadsTableColumnSelector({
   );
 }
 
+// Exportar funciones utilitarias
 export { saveColumnConfig, clearColumnConfig };
