@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react"; 
 import { Lead } from "@/types/crm";
 import { Badge } from "@/components/ui/badge";
@@ -17,6 +18,7 @@ import { LeadDeleteConfirmDialog } from "@/components/LeadDeleteConfirmDialog";
 import { toast } from "sonner";
 import { ColumnFilter } from "@/components/ColumnFilter";
 import { useColumnFilters } from "@/hooks/useColumnFilters";
+import { TextFilterCondition } from "@/components/TextFilter";
 import {
   DndContext,
   DragEndEvent,
@@ -114,9 +116,9 @@ interface SortableHeaderProps {
   renderSortIcon: (columnKey: string) => React.ReactNode;
   leads: Lead[];
   columnFilters: Record<string, string[]>;
-  textFilters: Record<string, string[]>;
+  textFilters: Record<string, TextFilterCondition[]>;
   onColumnFilterChange: (column: string, selectedValues: string[]) => void;
-  onTextFilterChange: (column: string, filters: any[]) => void;
+  onTextFilterChange: (column: string, filters: TextFilterCondition[]) => void;
   isNameColumn?: boolean;
 }
 
