@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Lead } from "@/types/crm";
 import { LeadCard } from "./LeadCard";
@@ -55,7 +54,6 @@ export function LeadsContent({
           paginatedLeads={paginatedLeads}
           onLeadClick={onLeadClick}
           onLeadUpdate={onLeadUpdate}
-          columns={columns}
           onSortedLeadsChange={onSortedLeadsChange}
           onSendEmail={onSendEmail}
           onOpenProfiler={handleOpenProfiler}

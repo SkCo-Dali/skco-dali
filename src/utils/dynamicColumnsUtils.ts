@@ -22,18 +22,23 @@ export const extractDynamicColumns = (leads: Lead[]): ColumnConfig[] => {
           console.log(`✅ Successfully parsed additionalInfo for ${lead.name}:`, parsedInfo);
         } catch (e) {
           console.warn(`❌ Failed to parse additionalInfo for ${lead.name}:`, e);
-          return; // Use return instead of continue in forEach
+          // Si no se puede parsear como JSON, saltar este lead
+          return;
         }
       } else if (typeof lead.additionalInfo === 'object' && lead.additionalInfo !== null) {
         // Si ya es un objeto, usarlo directamente
         parsedInfo = lead.additionalInfo;
         console.log(`✅ Using object additionalInfo for ${lead.name}:`, parsedInfo);
+      } else {
+        // Si no es ni string ni objeto, saltar este lead
+        return;
       }
       
       // Extraer claves del objeto parseado
       if (parsedInfo && typeof parsedInfo === 'object' && parsedInfo !== null) {
         Object.keys(parsedInfo).forEach(key => {
           const value = parsedInfo[key];
+          // Solo agregar claves que tengan valores no vacíos
           if (value !== null && value !== undefined && value !== '') {
             console.log(`  ➕ Adding dynamic key: ${key} = ${value}`);
             dynamicKeys.add(key);
@@ -78,6 +83,8 @@ export const getDynamicColumnValue = (lead: Lead, columnKey: string): string => 
     } else if (typeof lead.additionalInfo === 'object' && lead.additionalInfo !== null) {
       // Si ya es un objeto, usarlo directamente
       parsedInfo = lead.additionalInfo;
+    } else {
+      return '';
     }
     
     // Obtener el valor de la clave
