@@ -90,8 +90,8 @@ function SortableColumnItem({ column, onToggle }: SortableColumnItemProps) {
     <div
       ref={setNodeRef}
       style={style}
-      className={`flex items-center space-x-2 p-2 rounded border ${
-        isDragging ? 'border-green-300 bg-green-50' : 'border-transparent hover:bg-gray-50'
+      className={`flex items-center space-x-2 p-2 rounded ${
+        isDragging ? 'bg-green-50' : 'hover:bg-gray-50'
       }`}
     >
       <div
