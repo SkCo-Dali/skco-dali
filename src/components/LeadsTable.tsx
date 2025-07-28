@@ -97,6 +97,7 @@ const loadColumnConfig = (leads: Lead[]): ColumnConfig[] => {
     const dynamicColumns = groupDynamicColumns(extractDynamicColumns(leads));
     console.log('🔄 Dynamic columns extracted in loadColumnConfig:', dynamicColumns);
     console.log('🔄 Dynamic columns count:', dynamicColumns.length);
+    console.log('🔄 Dynamic columns details:', dynamicColumns.map(c => ({ key: c.key, label: c.label, isDynamic: c.isDynamic })));
     
     if (saved) {
       const savedColumns = JSON.parse(saved);
@@ -117,6 +118,7 @@ const loadColumnConfig = (leads: Lead[]): ColumnConfig[] => {
       const finalColumns = [...mergedStaticColumns, ...mergedDynamicColumns];
       console.log('✅ Final columns loaded from storage:', finalColumns.length);
       console.log('✅ Dynamic columns in final result:', finalColumns.filter(c => c.isDynamic).length);
+      console.log('✅ All dynamic columns in final result:', finalColumns.filter(c => c.isDynamic).map(c => ({ key: c.key, label: c.label })));
       return finalColumns;
     }
     
@@ -124,6 +126,7 @@ const loadColumnConfig = (leads: Lead[]): ColumnConfig[] => {
     const finalColumns = [...defaultColumns, ...dynamicColumns];
     console.log('🆕 Using default columns + dynamic:', finalColumns.length);
     console.log('🆕 Dynamic columns in default result:', finalColumns.filter(c => c.isDynamic).length);
+    console.log('🆕 All dynamic columns in default result:', finalColumns.filter(c => c.isDynamic).map(c => ({ key: c.key, label: c.label })));
     return finalColumns;
   } catch (error) {
     console.warn('Error loading column configuration:', error);

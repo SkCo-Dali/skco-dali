@@ -160,7 +160,7 @@ export function LeadsTableColumnSelector({
   const dynamicCols = useMemo(() => {
     const dynamicColumns = columns.filter(col => col.isDynamic);
     console.log('🚀 Dynamic columns found:', dynamicColumns.length);
-    console.log('🚀 Dynamic columns details:', dynamicColumns.map(c => ({ key: c.key, label: c.label })));
+    console.log('🚀 Dynamic columns details:', dynamicColumns.map(c => ({ key: c.key, label: c.label, isDynamic: c.isDynamic })));
     return dynamicColumns;
   }, [columns]);
 
@@ -345,7 +345,10 @@ export function LeadsTableColumnSelector({
                     Total columnas: {columns.length} | Dinámicas detectadas: {dynamicCols.length}
                   </div>
                   <div className="text-xs mt-1 text-red-500">
-                    DEBUG: Claves dinámicas = {JSON.stringify(dynamicCols.map(c => c.key.replace('additionalInfo.', '')))}
+                    DEBUG: Todas las columnas = {JSON.stringify(columns.map(c => ({ key: c.key, isDynamic: c.isDynamic })))}
+                  </div>
+                  <div className="text-xs mt-1 text-red-500">
+                    DEBUG: Claves dinámicas = {JSON.stringify(dynamicCols.map(c => c.key))}
                   </div>
                 </div>
               )}

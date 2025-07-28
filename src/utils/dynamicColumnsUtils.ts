@@ -14,7 +14,7 @@ export const extractDynamicColumns = (leads: Lead[]): ColumnConfig[] => {
     console.log(`🔍 Lead ${index + 1} additionalInfo type:`, typeof lead.additionalInfo);
     
     if (lead.additionalInfo) {
-      let additionalInfoObj = lead.additionalInfo;
+      let additionalInfoObj;
       
       // Si additionalInfo es un string, intentar parsearlo como JSON
       if (typeof lead.additionalInfo === 'string') {
@@ -25,10 +25,14 @@ export const extractDynamicColumns = (leads: Lead[]): ColumnConfig[] => {
           console.warn(`❌ Failed to parse additionalInfo as JSON for lead ${lead.name}:`, error);
           return; // Skip this lead if parsing fails
         }
+      } else {
+        // Si additionalInfo ya es un objeto, usarlo directamente
+        additionalInfoObj = lead.additionalInfo;
+        console.log(`🔍 Lead ${index + 1} additionalInfo is already an object:`, additionalInfoObj);
       }
       
       // Verificar si additionalInfo es un objeto válido
-      if (typeof additionalInfoObj === 'object' && additionalInfoObj !== null) {
+      if (additionalInfoObj && typeof additionalInfoObj === 'object' && additionalInfoObj !== null) {
         const keys = Object.keys(additionalInfoObj);
         console.log(`🔍 Lead ${index + 1} additionalInfo keys:`, keys);
         keys.forEach(key => {
@@ -36,7 +40,7 @@ export const extractDynamicColumns = (leads: Lead[]): ColumnConfig[] => {
           dynamicKeys.add(key);
         });
       } else {
-        console.warn(`❌ additionalInfo is not an object for lead ${lead.name}:`, additionalInfoObj);
+        console.warn(`❌ additionalInfo is not a valid object for lead ${lead.name}:`, additionalInfoObj);
       }
     }
   });
@@ -67,20 +71,23 @@ export const getDynamicColumnValue = (lead: Lead, columnKey: string): string => 
   const key = columnKey.replace('additionalInfo.', '');
   
   if (lead.additionalInfo) {
-    let additionalInfoObj = lead.additionalInfo;
+    let additionalInfoObj;
     
     // Si additionalInfo es un string, parsearlo
-    if (typeof additionalInfoObj === 'string') {
+    if (typeof lead.additionalInfo === 'string') {
       try {
-        additionalInfoObj = JSON.parse(additionalInfoObj);
+        additionalInfoObj = JSON.parse(lead.additionalInfo);
       } catch (error) {
         console.warn('Failed to parse additionalInfo:', error);
         return '';
       }
+    } else {
+      // Si additionalInfo ya es un objeto, usarlo directamente
+      additionalInfoObj = lead.additionalInfo;
     }
     
-    // Verificar que sea un objeto
-    if (typeof additionalInfoObj === 'object' && additionalInfoObj !== null) {
+    // Verificar que sea un objeto válido
+    if (additionalInfoObj && typeof additionalInfoObj === 'object' && additionalInfoObj !== null) {
       const value = additionalInfoObj[key];
       if (value === null || value === undefined) return '';
       return String(value);
