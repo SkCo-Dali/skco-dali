@@ -41,7 +41,8 @@ interface LeadsTableProps {
   paginatedLeads: Lead[];
   onLeadClick: (lead: Lead) => void;
   onLeadUpdate?: () => void;
-  columns?: ColumnConfig[];
+  columns: ColumnConfig[];
+  onColumnsChange?: (columns: ColumnConfig[]) => void;
   onSortedLeadsChange?: (sortedLeads: Lead[]) => void;
   onSendEmail?: (lead: Lead) => void;
   onOpenProfiler?: (lead: Lead) => void;
@@ -55,58 +56,29 @@ type SortConfig = {
   direction: 'asc' | 'desc';
 } | null;
 
-// Nueva configuración por defecto con solo 6 columnas visibles
-const defaultColumns: ColumnConfig[] = [
-  { key: 'name', label: 'Nombre', visible: true, sortable: true },
-  { key: 'campaign', label: 'Campaña', visible: true, sortable: true },
-  { key: 'email', label: 'Email', visible: true, sortable: true },
-  { key: 'phone', label: 'Teléfono', visible: true, sortable: false },
-  { key: 'stage', label: 'Etapa', visible: true, sortable: true },
-  { key: 'assignedTo', label: 'Asignado a', visible: true, sortable: true },
-  { key: 'documentType', label: 'Tipo documento', visible: false, sortable: true },
-  { key: 'documentNumber', label: 'Número documento', visible: false, sortable: true },
-  { key: 'product', label: 'Producto', visible: false, sortable: true },
-  { key: 'source', label: 'Fuente', visible: false, sortable: true },
-  { key: 'createdAt', label: 'Fecha creación', visible: false, sortable: true },
-  { key: 'lastInteraction', label: 'Últ. interacción', visible: false, sortable: true },
-  { key: 'priority', label: 'Prioridad', visible: false, sortable: true },
-  { key: 'age', label: 'Edad', visible: false, sortable: true },
-  { key: 'gender', label: 'Género', visible: false, sortable: true },
-  { key: 'preferredContactChannel', label: 'Medio de contacto preferido', visible: false, sortable: true },
-  { key: 'company', label: 'Empresa', visible: false, sortable: true },
-  { key: 'value', label: 'Valor', visible: false, sortable: true },
-];
-
 const capitalizeWords = (text: string) => {
   return text.toLowerCase().replace(/\b\w/g, l => l.toUpperCase());
 };
 
-// Función para cargar configuración de columnas desde sessionStorage
-const loadColumnConfig = (): ColumnConfig[] => {
-  try {
-    const saved = sessionStorage.getItem('leads-table-columns');
-    if (saved) {
-      const savedColumns = JSON.parse(saved);
-      // Merge saved config with default columns to handle new columns
-      return defaultColumns.map(defaultCol => {
-        const savedCol = savedColumns.find((col: ColumnConfig) => col.key === defaultCol.key);
-        return savedCol ? { ...defaultCol, visible: savedCol.visible } : defaultCol;
-      });
+// Función para obtener el valor de una columna dinámica
+const getDynamicColumnValue = (lead: Lead, columnKey: string) => {
+  if (columnKey.startsWith('additionalInfo.')) {
+    const key = columnKey.replace('additionalInfo.', '');
+    if (lead.additionalInfo) {
+      if (typeof lead.additionalInfo === 'string') {
+        try {
+          const parsed = JSON.parse(lead.additionalInfo);
+          return parsed[key];
+        } catch {
+          return null;
+        }
+      } else {
+        return lead.additionalInfo[key];
+      }
     }
-  } catch (error) {
-    console.warn('Error loading column configuration:', error);
+    return null;
   }
-  // Si no hay configuración guardada, usar la configuración por defecto
-  return defaultColumns;
-};
-
-// Función para guardar configuración de columnas en sessionStorage
-const saveColumnConfig = (columns: ColumnConfig[]) => {
-  try {
-    sessionStorage.setItem('leads-table-columns', JSON.stringify(columns));
-  } catch (error) {
-    console.warn('Error saving column configuration:', error);
-  }
+  return lead[columnKey as keyof Lead];
 };
 
 interface SortableHeaderProps {
@@ -143,7 +115,7 @@ function SortableHeader({
     isDragging,
   } = useSortable({ 
     id: column.key,
-    disabled: isNameColumn // Desactivar drag para la columna de nombre
+    disabled: isNameColumn
   });
 
   const style = {
@@ -195,7 +167,8 @@ export function LeadsTable({
   paginatedLeads, 
   onLeadClick, 
   onLeadUpdate, 
-  columns, 
+  columns,
+  onColumnsChange,
   onSortedLeadsChange,
   onSendEmail,
   onOpenProfiler,
@@ -207,100 +180,116 @@ export function LeadsTable({
   const [sortConfig, setSortConfig] = useState<SortConfig>(null);
   const [leadsToDelete, setLeadsToDelete] = useState<Lead[]>([]);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [activeColumns, setActiveColumns] = useState<ColumnConfig[]>(columns);
   
   // Usar filtros por columna con filtros de texto integrados
   const { columnFilters, textFilters, filteredLeads, handleColumnFilterChange, handleTextFilterChange } = useColumnFilters(leads);
   
+  // Sincronizar las columnas cuando cambien desde el padre
+  useEffect(() => {
+    setActiveColumns(columns);
+  }, [columns]);
+
   // Aplicar ordenamiento a los leads filtrados
   const sortedFilteredLeads = sortConfig ? 
     [...filteredLeads].sort((a, b) => {
       let aValue: any;
       let bValue: any;
 
-      switch (sortConfig.key) {
-        case 'name':
-          aValue = a.name.toLowerCase();
-          bValue = b.name.toLowerCase();
-          break;
-        case 'email':
-          aValue = (a.email || '').toLowerCase();
-          bValue = (b.email || '').toLowerCase();
-          break;
-        case 'product':
-          aValue = (a.product || '').toLowerCase();
-          bValue = (b.product || '').toLowerCase();
-          break;
-        case 'campaign':
-          aValue = (a.campaign || '').toLowerCase();
-          bValue = (b.campaign || '').toLowerCase();
-          break;
-        case 'source':
-          aValue = a.source.toLowerCase();
-          bValue = b.source.toLowerCase();
-          break;
-        case 'stage':
-          aValue = a.stage;
-          bValue = b.stage;
-          break;
-        case 'assignedTo':
-          const assignedUserA = users.find(u => u.id === a.assignedTo);
-          const assignedUserB = users.find(u => u.id === b.assignedTo);
-          aValue = (assignedUserA?.name || a.assignedTo || 'Sin asignar').toLowerCase();
-          bValue = (assignedUserB?.name || b.assignedTo || 'Sin asignar').toLowerCase();
-          break;
-        case 'lastInteraction':
-          aValue = new Date(a.updatedAt).getTime();
-          bValue = new Date(b.updatedAt).getTime();
-          break;
-        case 'phone':
-          aValue = (a.phone || '').toLowerCase();
-          bValue = (b.phone || '').toLowerCase();
-          break;
-        case 'company':
-          aValue = (a.company || '').toLowerCase();
-          bValue = (b.company || '').toLowerCase();
-          break;
-        case 'value':
-          aValue = a.value;
-          bValue = b.value;
-          break;
-        case 'priority':
-          const priorityOrder = { 'low': 1, 'medium': 2, 'high': 3, 'urgent': 4 };
-          aValue = priorityOrder[a.priority as keyof typeof priorityOrder];
-          bValue = priorityOrder[b.priority as keyof typeof priorityOrder];
-          break;
-        case 'createdAt':
-          aValue = new Date(a.createdAt).getTime();
-          bValue = new Date(b.createdAt).getTime();
-          break;
-        case 'age':
-          aValue = a.age || 0;
-          bValue = b.age || 0;
-          break;
-        case 'gender':
-          aValue = (a.gender || '').toLowerCase();
-          bValue = (b.gender || '').toLowerCase();
-          break;
-        case 'preferredContactChannel':
-          aValue = (a.preferredContactChannel || '').toLowerCase();
-          bValue = (b.preferredContactChannel || '').toLowerCase();
-          break;
-        case 'documentType':
-          aValue = (a.documentType || '').toLowerCase();
-          bValue = (b.documentType || '').toLowerCase();
-          break;
-        case 'documentNumber':
-          aValue = a.documentNumber || 0;
-          bValue = b.documentNumber || 0;
-          break;
-        default:
-          return 0;
+      // Manejar campos dinámicos
+      if (sortConfig.key.startsWith('additionalInfo.')) {
+        aValue = getDynamicColumnValue(a, sortConfig.key);
+        bValue = getDynamicColumnValue(b, sortConfig.key);
+      } else {
+        switch (sortConfig.key) {
+          case 'name':
+            aValue = a.name.toLowerCase();
+            bValue = b.name.toLowerCase();
+            break;
+          case 'email':
+            aValue = (a.email || '').toLowerCase();
+            bValue = (b.email || '').toLowerCase();
+            break;
+          case 'product':
+            aValue = (a.product || '').toLowerCase();
+            bValue = (b.product || '').toLowerCase();
+            break;
+          case 'campaign':
+            aValue = (a.campaign || '').toLowerCase();
+            bValue = (b.campaign || '').toLowerCase();
+            break;
+          case 'source':
+            aValue = a.source.toLowerCase();
+            bValue = b.source.toLowerCase();
+            break;
+          case 'stage':
+            aValue = a.stage;
+            bValue = b.stage;
+            break;
+          case 'assignedTo':
+            const assignedUserA = users.find(u => u.id === a.assignedTo);
+            const assignedUserB = users.find(u => u.id === b.assignedTo);
+            aValue = (assignedUserA?.name || a.assignedTo || 'Sin asignar').toLowerCase();
+            bValue = (assignedUserB?.name || b.assignedTo || 'Sin asignar').toLowerCase();
+            break;
+          case 'lastInteraction':
+            aValue = new Date(a.updatedAt).getTime();
+            bValue = new Date(b.updatedAt).getTime();
+            break;
+          case 'phone':
+            aValue = (a.phone || '').toLowerCase();
+            bValue = (b.phone || '').toLowerCase();
+            break;
+          case 'company':
+            aValue = (a.company || '').toLowerCase();
+            bValue = (b.company || '').toLowerCase();
+            break;
+          case 'value':
+            aValue = a.value;
+            bValue = b.value;
+            break;
+          case 'priority':
+            const priorityOrder = { 'low': 1, 'medium': 2, 'high': 3, 'urgent': 4 };
+            aValue = priorityOrder[a.priority as keyof typeof priorityOrder];
+            bValue = priorityOrder[b.priority as keyof typeof priorityOrder];
+            break;
+          case 'createdAt':
+            aValue = new Date(a.createdAt).getTime();
+            bValue = new Date(b.createdAt).getTime();
+            break;
+          case 'age':
+            aValue = a.age || 0;
+            bValue = b.age || 0;
+            break;
+          case 'gender':
+            aValue = (a.gender || '').toLowerCase();
+            bValue = (b.gender || '').toLowerCase();
+            break;
+          case 'preferredContactChannel':
+            aValue = (a.preferredContactChannel || '').toLowerCase();
+            bValue = (b.preferredContactChannel || '').toLowerCase();
+            break;
+          case 'documentType':
+            aValue = (a.documentType || '').toLowerCase();
+            bValue = (b.documentType || '').toLowerCase();
+            break;
+          case 'documentNumber':
+            aValue = a.documentNumber || 0;
+            bValue = b.documentNumber || 0;
+            break;
+          default:
+            return 0;
+        }
       }
 
-      if (aValue < bValue) {
+      // Convertir a string si es necesario para comparar
+      const stringA = String(aValue || '');
+      const stringB = String(bValue || '');
+
+      if (stringA < stringB) {
         return sortConfig.direction === 'asc' ? -1 : 1;
       }
-      if (aValue > bValue) {
+      if (stringA > stringB) {
         return sortConfig.direction === 'asc' ? 1 : -1;
       }
       return 0;
@@ -319,9 +308,6 @@ export function LeadsTable({
       onSortedLeadsChange(sortedFilteredLeads);
     }
   }, [sortedFilteredLeads, onSortedLeadsChange]);
-  
-  // Usar configuración persistente si no se pasan columnas desde el padre
-  const [activeColumns, setActiveColumns] = useState<ColumnConfig[]>(columns || loadColumnConfig());
   
   // Sensors para el drag and drop
   const sensors = useSensors(
@@ -343,16 +329,15 @@ export function LeadsTable({
   const otherColumns = visibleColumns.filter(col => col.key !== 'name');
 
   const calculateTableWidth = () => {
-    const checkboxColumnWidth = 50; // Nueva columna de checkbox
-    const nameColumnWidth = 350; // Columna nombre siempre 350px
-    const regularColumnWidth = 250; // Todas las demás columnas 250px
-    const visibleRegularColumns = visibleColumns.length - 1; // Restar la columna nombre
+    const checkboxColumnWidth = 50;
+    const nameColumnWidth = 350;
+    const regularColumnWidth = 250;
+    const visibleRegularColumns = visibleColumns.length - 1;
     
     return checkboxColumnWidth + nameColumnWidth + (visibleRegularColumns * regularColumnWidth);
   };
 
   const handleSelectAll = (checked: boolean) => {
-    // Usar sortedFilteredLeads en lugar de filteredLeads para la selección
     const currentPageLeadIds = sortedFilteredLeads.slice(0, paginatedLeads.length).map(lead => lead.id);
     if (onLeadSelectionChange) {
       onLeadSelectionChange(currentPageLeadIds, checked);
@@ -365,7 +350,6 @@ export function LeadsTable({
     }
   };
 
-  // Usar sortedFilteredLeads para determinar si todos están seleccionados
   const currentPageSortedLeads = sortedFilteredLeads.slice(0, paginatedLeads.length);
   const isAllSelected = currentPageSortedLeads.length > 0 && currentPageSortedLeads.every(lead => selectedLeads.includes(lead.id));
   const isIndeterminate = currentPageSortedLeads.some(lead => selectedLeads.includes(lead.id)) && !isAllSelected;
@@ -376,9 +360,7 @@ export function LeadsTable({
     setSortConfig({ key: columnKey, direction: newDirection });
   };
 
-  // Nueva función específica para manejar el clic en el nombre de la columna
   const handleColumnHeaderClick = (columnKey: string, sortable: boolean, e: React.MouseEvent) => {
-    // Solo ordenar si es sortable y no se está haciendo clic en el icono de filtro
     if (sortable && !e.defaultPrevented) {
       handleSort(columnKey);
     }
@@ -396,7 +378,6 @@ export function LeadsTable({
     );
   };
 
-  // Función para manejar el reordenamiento de columnas
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
 
@@ -409,12 +390,12 @@ export function LeadsTable({
         const [reorderedColumn] = newOtherColumns.splice(oldIndex, 1);
         newOtherColumns.splice(newIndex, 0, reorderedColumn);
         
-        // Reconstruir la lista completa con la columna de nombre al principio
         const newActiveColumns = nameColumn ? [nameColumn, ...newOtherColumns] : newOtherColumns;
         setActiveColumns(newActiveColumns);
         
-        // Guardar la nueva configuración
-        saveColumnConfig(newActiveColumns);
+        if (onColumnsChange) {
+          onColumnsChange(newActiveColumns);
+        }
       }
     }
   };
@@ -476,6 +457,16 @@ export function LeadsTable({
 
   const renderCellContent = (lead: Lead, columnKey: string) => {
     const assignedUser = users.find(u => u.id === lead.assignedTo);
+
+    // Manejar columnas dinámicas
+    if (columnKey.startsWith('additionalInfo.')) {
+      const value = getDynamicColumnValue(lead, columnKey);
+      return (
+        <span className="text-gray-700 text-xs text-center">
+          {value ? String(value) : '-'}
+        </span>
+      );
+    }
 
     switch (columnKey) {
       case 'name':
@@ -626,7 +617,6 @@ export function LeadsTable({
     }
   };
 
-  // Usar sortedFilteredLeads para el render
   const leadsToRender = sortedFilteredLeads.slice(0, paginatedLeads.length);
 
   return (
@@ -659,7 +649,6 @@ export function LeadsTable({
                       </div>
                     </TableHead>
                     
-                    {/* Columna de nombre fija */}
                     {nameColumn && (
                       <SortableHeader
                         column={nameColumn}
@@ -675,7 +664,6 @@ export function LeadsTable({
                       />
                     )}
                     
-                    {/* Columnas reorganizables */}
                     <SortableContext items={otherColumns.map(col => col.key)} strategy={horizontalListSortingStrategy}>
                       {otherColumns.map((column) => (
                         <SortableHeader
@@ -709,14 +697,12 @@ export function LeadsTable({
                         </div>
                       </TableCell>
                       
-                      {/* Columna de nombre */}
                       {nameColumn && (
                         <TableCell className="px-4 py-3 text-xs text-center leads-name-column-sticky">
                           {renderCellContent(lead, nameColumn.key)}
                         </TableCell>
                       )}
                       
-                      {/* Otras columnas en el orden actual */}
                       {otherColumns.map((column) => (
                         <TableCell 
                           key={column.key} 
@@ -747,6 +733,3 @@ export function LeadsTable({
     </>
   );
 }
-
-// Función utilitaria para usar desde el componente padre
-export { loadColumnConfig, saveColumnConfig };

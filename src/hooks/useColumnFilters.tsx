@@ -19,7 +19,29 @@ export function useColumnFilters(leads: Lead[]) {
       return Object.entries(columnFilters).every(([column, selectedValues]) => {
         if (selectedValues.length === 0) return true;
         
-        const leadValue = lead[column as keyof Lead];
+        let leadValue: any;
+        
+        // Manejar campos dinámicos del additionalInfo
+        if (column.startsWith('additionalInfo.')) {
+          const key = column.replace('additionalInfo.', '');
+          if (lead.additionalInfo) {
+            if (typeof lead.additionalInfo === 'string') {
+              try {
+                const parsed = JSON.parse(lead.additionalInfo);
+                leadValue = parsed[key];
+              } catch {
+                leadValue = null;
+              }
+            } else {
+              leadValue = lead.additionalInfo[key];
+            }
+          } else {
+            leadValue = null;
+          }
+        } else {
+          leadValue = lead[column as keyof Lead];
+        }
+        
         const stringValue = leadValue === null || leadValue === undefined ? "" : String(leadValue);
         
         return selectedValues.includes(stringValue);
