@@ -292,8 +292,8 @@ class SK_Dali_${componentName}_React extends HTMLElement {
 
   async connectedCallback() {
     // Crear shadow DOM para encapsulación
-    const shadow = this.attachShadow({ mode: 'open' });
-    
+    const shadow = this.shadowRoot ? this.shadowRoot : this.attachShadow({ mode: 'open' });
+
     // Crear contenedor para React
     const container = document.createElement('div');
     container.style.cssText = \`
