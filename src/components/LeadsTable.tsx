@@ -354,6 +354,9 @@ export function LeadsTable({
   
   // Usar configuración persistente si no se pasan columnas desde el padre, incluyendo columnas dinámicas
   const [activeColumns, setActiveColumns] = useState<ColumnConfig[]>(() => {
+    console.log('🔍 Initializing activeColumns. Leads count:', leads.length);
+    console.log('🔍 Leads data for dynamic columns:', leads.map(l => ({ name: l.name, additionalInfo: l.additionalInfo })));
+    
     if (columns) {
       console.log('🔄 Using columns from props:', columns.length);
       console.log('🔄 Dynamic columns from props:', columns.filter(c => c.isDynamic).length);
@@ -368,6 +371,7 @@ export function LeadsTable({
   // Actualizar columnas cuando los leads cambien (para capturar nuevas columnas dinámicas)
   useEffect(() => {
     console.log('🔄 Leads changed, updating columns. New leads count:', leads.length);
+    console.log('🔄 Sample lead additionalInfo:', leads[0]?.additionalInfo);
     
     if (!columns) {
       const updatedColumns = loadColumnConfig(leads);

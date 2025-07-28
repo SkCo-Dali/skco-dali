@@ -143,40 +143,44 @@ export function LeadsTableColumnSelector({
   );
 
   console.log('🔍 LeadsTableColumnSelector - Received columns:', columns.length);
-  console.log('🔍 LeadsTableColumnSelector - Dynamic columns:', columns.filter(c => c.isDynamic).length);
-  console.log('🔍 LeadsTableColumnSelector - All columns:', columns.map(c => ({ key: c.key, isDynamic: c.isDynamic })));
+  console.log('🔍 LeadsTableColumnSelector - All columns details:', columns.map(c => ({ 
+    key: c.key, 
+    label: c.label, 
+    isDynamic: c.isDynamic, 
+    visible: c.visible 
+  })));
 
   // Separar columnas estáticas y dinámicas
-  const staticColumns = useMemo(() => {
-    const staticCols = columns.filter(col => !col.isDynamic);
-    console.log('📊 Static columns:', staticCols.map(c => c.key));
-    return staticCols;
+  const staticCols = useMemo(() => {
+    const staticColumns = columns.filter(col => !col.isDynamic);
+    console.log('📊 Static columns:', staticColumns.map(c => c.key));
+    return staticColumns;
   }, [columns]);
   
-  const dynamicColumns = useMemo(() => {
-    const dynamicCols = columns.filter(col => col.isDynamic);
-    console.log('🚀 Dynamic columns:', dynamicCols.map(c => c.key));
-    return dynamicCols;
+  const dynamicCols = useMemo(() => {
+    const dynamicColumns = columns.filter(col => col.isDynamic);
+    console.log('🚀 Dynamic columns:', dynamicColumns.map(c => ({ key: c.key, label: c.label })));
+    return dynamicColumns;
   }, [columns]);
 
   // Filtrar columnas basado en el término de búsqueda
   const filteredStaticColumns = useMemo(() => {
-    if (!searchTerm) return staticColumns;
-    const filtered = staticColumns.filter(column => 
+    if (!searchTerm) return staticCols;
+    const filtered = staticCols.filter(column => 
       column.label.toLowerCase().includes(searchTerm.toLowerCase())
     );
     console.log('🔍 Filtered static columns:', filtered.map(c => c.key));
     return filtered;
-  }, [staticColumns, searchTerm]);
+  }, [staticCols, searchTerm]);
 
   const filteredDynamicColumns = useMemo(() => {
-    if (!searchTerm) return dynamicColumns;
-    const filtered = dynamicColumns.filter(column => 
+    if (!searchTerm) return dynamicCols;
+    const filtered = dynamicCols.filter(column => 
       column.label.toLowerCase().includes(searchTerm.toLowerCase())
     );
     console.log('🔍 Filtered dynamic columns:', filtered.map(c => c.key));
     return filtered;
-  }, [dynamicColumns, searchTerm]);
+  }, [dynamicCols, searchTerm]);
 
   const handleDragEnd = (event: any) => {
     const { active, over } = event;
@@ -337,7 +341,10 @@ export function LeadsTableColumnSelector({
                     Los leads actuales no contienen campos adicionales en additionalInfo
                   </div>
                   <div className="text-xs mt-1">
-                    Total de leads analizados: {columns.length > 0 ? 'leads cargados' : 'sin leads'}
+                    Total de columnas: {columns.length} | Dinámicas: {dynamicCols.length}
+                  </div>
+                  <div className="text-xs mt-1">
+                    DEBUG: {JSON.stringify(columns.filter(c => c.isDynamic).map(c => c.key))}
                   </div>
                 </div>
               )}

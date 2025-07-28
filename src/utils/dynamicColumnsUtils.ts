@@ -4,17 +4,22 @@ import { ColumnConfig } from "@/components/LeadsTableColumnSelector";
 
 // Función para extraer todas las claves únicas del campo additionalInfo
 export const extractDynamicColumns = (leads: Lead[]): ColumnConfig[] => {
-  console.log('🔍 Extracting dynamic columns from leads:', leads.length);
+  console.log('🔍 extractDynamicColumns - Starting with leads:', leads.length);
+  console.log('🔍 extractDynamicColumns - First lead sample:', leads[0]);
   
   const dynamicKeys = new Set<string>();
   
   leads.forEach((lead, index) => {
-    console.log(`🔍 Lead ${index + 1}:`, lead.name, 'additionalInfo:', lead.additionalInfo);
+    console.log(`🔍 Lead ${index + 1}:`, lead.name);
+    console.log(`🔍 Lead ${index + 1} additionalInfo:`, lead.additionalInfo);
+    console.log(`🔍 Lead ${index + 1} additionalInfo type:`, typeof lead.additionalInfo);
     
     if (lead.additionalInfo) {
       // Verificar si additionalInfo es un objeto válido
       if (typeof lead.additionalInfo === 'object' && lead.additionalInfo !== null) {
-        Object.keys(lead.additionalInfo).forEach(key => {
+        const keys = Object.keys(lead.additionalInfo);
+        console.log(`🔍 Lead ${index + 1} additionalInfo keys:`, keys);
+        keys.forEach(key => {
           console.log(`  ➕ Found dynamic key: ${key}`);
           dynamicKeys.add(key);
         });
@@ -22,8 +27,11 @@ export const extractDynamicColumns = (leads: Lead[]): ColumnConfig[] => {
         // Si additionalInfo es un string, intentar parsearlo como JSON
         try {
           const parsed = JSON.parse(lead.additionalInfo);
+          console.log(`🔍 Lead ${index + 1} parsed additionalInfo:`, parsed);
           if (typeof parsed === 'object' && parsed !== null) {
-            Object.keys(parsed).forEach(key => {
+            const keys = Object.keys(parsed);
+            console.log(`🔍 Lead ${index + 1} parsed keys:`, keys);
+            keys.forEach(key => {
               console.log(`  ➕ Found dynamic key from JSON: ${key}`);
               dynamicKeys.add(key);
             });
@@ -35,18 +43,22 @@ export const extractDynamicColumns = (leads: Lead[]): ColumnConfig[] => {
     }
   });
   
-  console.log('🔍 All dynamic keys found:', Array.from(dynamicKeys));
+  console.log('🔍 extractDynamicColumns - All dynamic keys found:', Array.from(dynamicKeys));
   
   // Convertir las claves a configuración de columnas
-  const dynamicColumns = Array.from(dynamicKeys).map(key => ({
-    key: `additionalInfo.${key}`,
-    label: key.charAt(0).toUpperCase() + key.slice(1), // Capitalizar primera letra
-    visible: false, // Por defecto no visible para no abrumar al usuario
-    sortable: true,
-    isDynamic: true
-  }));
+  const dynamicColumns = Array.from(dynamicKeys).map(key => {
+    const column = {
+      key: `additionalInfo.${key}`,
+      label: key.charAt(0).toUpperCase() + key.slice(1), // Capitalizar primera letra
+      visible: false, // Por defecto no visible para no abrumar al usuario
+      sortable: true,
+      isDynamic: true
+    };
+    console.log('✅ Created dynamic column:', column);
+    return column;
+  });
   
-  console.log('✅ Dynamic columns created:', dynamicColumns);
+  console.log('✅ extractDynamicColumns - Final dynamic columns:', dynamicColumns);
   return dynamicColumns;
 };
 
