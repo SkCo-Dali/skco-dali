@@ -22,7 +22,7 @@ export const extractDynamicColumns = (leads: Lead[]): ColumnConfig[] => {
           console.log(`✅ Successfully parsed additionalInfo for ${lead.name}:`, parsedInfo);
         } catch (e) {
           console.warn(`❌ Failed to parse additionalInfo for ${lead.name}:`, e);
-          continue;
+          return; // Use return instead of continue in forEach
         }
       } else {
         // Si ya es un objeto, usarlo directamente
@@ -33,7 +33,7 @@ export const extractDynamicColumns = (leads: Lead[]): ColumnConfig[] => {
       // Extraer claves del objeto parseado
       if (parsedInfo && typeof parsedInfo === 'object' && parsedInfo !== null) {
         Object.keys(parsedInfo).forEach(key => {
-          if (parsedInfo[key] !== null && parsedInfo[key] !== undefined) {
+          if (parsedInfo[key] !== null && parsedInfo[key] !== undefined && parsedInfo[key] !== '') {
             console.log(`  ➕ Adding dynamic key: ${key} = ${parsedInfo[key]}`);
             dynamicKeys.add(key);
           }
