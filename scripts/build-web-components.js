@@ -296,16 +296,16 @@ class SK_Dali_${componentName}_React extends HTMLElement {
 
     // Crear contenedor para React
     const container = document.createElement('div');
-    container.style.cssText = \`
-      width: 100%;
-      height: 100vh;
-      overflow: auto;
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    \`;
+    // container.style.cssText = \`
+    //   width: 100%;
+    //   height: 100vh;
+    //   overflow: auto;
+    //   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    // \`;
     shadow.appendChild(container);
 
     // Copiar estilos globales al shadow DOM
-    await this.copyGlobalStyles(shadow);
+    // await this.copyGlobalStyles(shadow);
 
     // Inicializar MSAL
     await this.initializeMsal();
@@ -459,9 +459,9 @@ class SK_Dali_${componentName}_React extends HTMLElement {
 }
 
 // Registrar el custom element
-if (!customElements.get('sk-dali-${componentName.toLowerCase()}-react')) {
+// if (!customElements.get('sk-dali-${componentName.toLowerCase()}-react')) {
   customElements.define('sk-dali-${componentName.toLowerCase()}-react', SK_Dali_${componentName}_React);
-}
+// }
 
 // Exportar para uso programático
 export default SK_Dali_${componentName}_React;
