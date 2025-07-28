@@ -5,7 +5,6 @@ import { ColumnConfig } from "@/components/LeadsTableColumnSelector";
 // Función para extraer todas las claves únicas del campo additionalInfo
 export const extractDynamicColumns = (leads: Lead[]): ColumnConfig[] => {
   console.log('🔍 extractDynamicColumns - Starting with leads:', leads.length);
-  console.log('🔍 extractDynamicColumns - First lead sample:', leads[0]);
   
   const dynamicKeys = new Set<string>();
   
@@ -15,30 +14,29 @@ export const extractDynamicColumns = (leads: Lead[]): ColumnConfig[] => {
     console.log(`🔍 Lead ${index + 1} additionalInfo type:`, typeof lead.additionalInfo);
     
     if (lead.additionalInfo) {
-      // Verificar si additionalInfo es un objeto válido
-      if (typeof lead.additionalInfo === 'object' && lead.additionalInfo !== null) {
-        const keys = Object.keys(lead.additionalInfo);
-        console.log(`🔍 Lead ${index + 1} additionalInfo keys:`, keys);
-        keys.forEach(key => {
-          console.log(`  ➕ Found dynamic key: ${key}`);
-          dynamicKeys.add(key);
-        });
-      } else if (typeof lead.additionalInfo === 'string') {
-        // Si additionalInfo es un string, intentar parsearlo como JSON
+      let additionalInfoObj = lead.additionalInfo;
+      
+      // Si additionalInfo es un string, intentar parsearlo como JSON
+      if (typeof lead.additionalInfo === 'string') {
         try {
-          const parsed = JSON.parse(lead.additionalInfo);
-          console.log(`🔍 Lead ${index + 1} parsed additionalInfo:`, parsed);
-          if (typeof parsed === 'object' && parsed !== null) {
-            const keys = Object.keys(parsed);
-            console.log(`🔍 Lead ${index + 1} parsed keys:`, keys);
-            keys.forEach(key => {
-              console.log(`  ➕ Found dynamic key from JSON: ${key}`);
-              dynamicKeys.add(key);
-            });
-          }
+          additionalInfoObj = JSON.parse(lead.additionalInfo);
+          console.log(`🔍 Lead ${index + 1} parsed additionalInfo:`, additionalInfoObj);
         } catch (error) {
           console.warn(`❌ Failed to parse additionalInfo as JSON for lead ${lead.name}:`, error);
+          return; // Skip this lead if parsing fails
         }
+      }
+      
+      // Verificar si additionalInfo es un objeto válido
+      if (typeof additionalInfoObj === 'object' && additionalInfoObj !== null) {
+        const keys = Object.keys(additionalInfoObj);
+        console.log(`🔍 Lead ${index + 1} additionalInfo keys:`, keys);
+        keys.forEach(key => {
+          console.log(`  ➕ Adding dynamic key: ${key}`);
+          dynamicKeys.add(key);
+        });
+      } else {
+        console.warn(`❌ additionalInfo is not an object for lead ${lead.name}:`, additionalInfoObj);
       }
     }
   });
@@ -49,7 +47,7 @@ export const extractDynamicColumns = (leads: Lead[]): ColumnConfig[] => {
   const dynamicColumns = Array.from(dynamicKeys).map(key => {
     const column = {
       key: `additionalInfo.${key}`,
-      label: key.charAt(0).toUpperCase() + key.slice(1), // Capitalizar primera letra
+      label: key.charAt(0).toUpperCase() + key.slice(1).replace(/_/g, ' '), // Capitalizar y limpiar underscores
       visible: false, // Por defecto no visible para no abrumar al usuario
       sortable: true,
       isDynamic: true

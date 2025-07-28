@@ -84,6 +84,11 @@ const capitalizeWords = (text: string) => {
 // Función para cargar configuración de columnas desde sessionStorage incluyendo columnas dinámicas
 const loadColumnConfig = (leads: Lead[]): ColumnConfig[] => {
   console.log('🔄 Loading column config for leads:', leads.length);
+  console.log('🔄 Sample leads for dynamic extraction:', leads.slice(0, 3).map(l => ({ 
+    name: l.name, 
+    additionalInfo: l.additionalInfo,
+    additionalInfoType: typeof l.additionalInfo
+  })));
   
   try {
     const saved = sessionStorage.getItem('leads-table-columns');
@@ -91,6 +96,7 @@ const loadColumnConfig = (leads: Lead[]): ColumnConfig[] => {
     // Extraer columnas dinámicas de los leads actuales
     const dynamicColumns = groupDynamicColumns(extractDynamicColumns(leads));
     console.log('🔄 Dynamic columns extracted in loadColumnConfig:', dynamicColumns);
+    console.log('🔄 Dynamic columns count:', dynamicColumns.length);
     
     if (saved) {
       const savedColumns = JSON.parse(saved);
@@ -355,7 +361,11 @@ export function LeadsTable({
   // Usar configuración persistente si no se pasan columnas desde el padre, incluyendo columnas dinámicas
   const [activeColumns, setActiveColumns] = useState<ColumnConfig[]>(() => {
     console.log('🔍 Initializing activeColumns. Leads count:', leads.length);
-    console.log('🔍 Leads data for dynamic columns:', leads.map(l => ({ name: l.name, additionalInfo: l.additionalInfo })));
+    console.log('🔍 Sample leads for initialization:', leads.slice(0, 2).map(l => ({ 
+      name: l.name, 
+      additionalInfo: l.additionalInfo,
+      additionalInfoType: typeof l.additionalInfo
+    })));
     
     if (columns) {
       console.log('🔄 Using columns from props:', columns.length);
@@ -371,9 +381,13 @@ export function LeadsTable({
   // Actualizar columnas cuando los leads cambien (para capturar nuevas columnas dinámicas)
   useEffect(() => {
     console.log('🔄 Leads changed, updating columns. New leads count:', leads.length);
-    console.log('🔄 Sample lead additionalInfo:', leads[0]?.additionalInfo);
+    console.log('🔄 Sample leads in effect:', leads.slice(0, 2).map(l => ({ 
+      name: l.name, 
+      additionalInfo: l.additionalInfo,
+      additionalInfoType: typeof l.additionalInfo
+    })));
     
-    if (!columns) {
+    if (!columns && leads.length > 0) {
       const updatedColumns = loadColumnConfig(leads);
       console.log('🔄 Updated columns due to leads change:', updatedColumns.length);
       console.log('🔄 New dynamic columns:', updatedColumns.filter(c => c.isDynamic).length);
@@ -381,6 +395,9 @@ export function LeadsTable({
       // Solo actualizar si hay diferencias en las columnas dinámicas
       const currentDynamicColumns = activeColumns.filter(c => c.isDynamic);
       const newDynamicColumns = updatedColumns.filter(c => c.isDynamic);
+      
+      console.log('🔄 Current dynamic columns:', currentDynamicColumns.length);
+      console.log('🔄 New dynamic columns found:', newDynamicColumns.length);
       
       if (currentDynamicColumns.length !== newDynamicColumns.length || 
           !currentDynamicColumns.every(col => newDynamicColumns.some(newCol => newCol.key === col.key))) {

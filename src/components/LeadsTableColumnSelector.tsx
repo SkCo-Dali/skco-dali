@@ -153,13 +153,14 @@ export function LeadsTableColumnSelector({
   // Separar columnas estáticas y dinámicas
   const staticCols = useMemo(() => {
     const staticColumns = columns.filter(col => !col.isDynamic);
-    console.log('📊 Static columns:', staticColumns.map(c => c.key));
+    console.log('📊 Static columns:', staticColumns.length);
     return staticColumns;
   }, [columns]);
   
   const dynamicCols = useMemo(() => {
     const dynamicColumns = columns.filter(col => col.isDynamic);
-    console.log('🚀 Dynamic columns:', dynamicColumns.map(c => ({ key: c.key, label: c.label })));
+    console.log('🚀 Dynamic columns found:', dynamicColumns.length);
+    console.log('🚀 Dynamic columns details:', dynamicColumns.map(c => ({ key: c.key, label: c.label })));
     return dynamicColumns;
   }, [columns]);
 
@@ -340,11 +341,11 @@ export function LeadsTableColumnSelector({
                   <div className="text-xs">
                     Los leads actuales no contienen campos adicionales en additionalInfo
                   </div>
-                  <div className="text-xs mt-1">
-                    Total de columnas: {columns.length} | Dinámicas: {dynamicCols.length}
+                  <div className="text-xs mt-1 text-red-500">
+                    Total columnas: {columns.length} | Dinámicas detectadas: {dynamicCols.length}
                   </div>
-                  <div className="text-xs mt-1">
-                    DEBUG: {JSON.stringify(columns.filter(c => c.isDynamic).map(c => c.key))}
+                  <div className="text-xs mt-1 text-red-500">
+                    DEBUG: Claves dinámicas = {JSON.stringify(dynamicCols.map(c => c.key.replace('additionalInfo.', '')))}
                   </div>
                 </div>
               )}
