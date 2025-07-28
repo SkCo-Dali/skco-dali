@@ -348,16 +348,34 @@ export function LeadsTable({
   }, [sortedFilteredLeads, onSortedLeadsChange]);
   
   // Usar configuración persistente si no se pasan columnas desde el padre, incluyendo columnas dinámicas
-  const [activeColumns, setActiveColumns] = useState<ColumnConfig[]>(columns || loadColumnConfig(leads));
+  const [activeColumns, setActiveColumns] = useState<ColumnConfig[]>(() => {
+    if (columns) {
+      console.log('🔄 Using columns from props:', columns);
+      return columns;
+    }
+    const loadedColumns = loadColumnConfig(leads);
+    console.log('🔄 Loaded columns from config:', loadedColumns);
+    console.log('🔄 Dynamic columns loaded:', loadedColumns.filter(c => c.isDynamic));
+    return loadedColumns;
+  });
   
   // Actualizar columnas cuando los leads cambien (para capturar nuevas columnas dinámicas)
   useEffect(() => {
     if (!columns) {
       const updatedColumns = loadColumnConfig(leads);
+      console.log('🔄 Updating columns due to leads change:', updatedColumns);
+      console.log('🔄 New dynamic columns:', updatedColumns.filter(c => c.isDynamic));
       setActiveColumns(updatedColumns);
-      console.log('🔄 Columns updated due to leads change:', updatedColumns.filter(c => c.isDynamic));
     }
   }, [leads, columns]);
+
+  // Función para manejar cambios en las columnas
+  const handleColumnsChange = (newColumns: ColumnConfig[]) => {
+    console.log('🔄 Handling columns change:', newColumns);
+    console.log('🔄 Dynamic columns in change:', newColumns.filter(c => c.isDynamic));
+    setActiveColumns(newColumns);
+    saveColumnConfig(newColumns);
+  };
 
   // Sensors para el drag and drop
   const sensors = useSensors(
