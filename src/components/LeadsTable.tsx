@@ -3,7 +3,7 @@ import { Lead } from "@/types/crm";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Checkbox } from "@/components/ui/checkbox";
-import { User, ChevronUp, ChevronDown, MoreVertical, Edit, Calendar, User as UserIcon, MessageCircle, Trash2, Mail } from "lucide-react";
+import { User, ChevronUp, ChevronDown, MoreVertical, Edit, Calendar, User as UserIcon, MessageCircle, Trash2, Mail, GripVertical } from "lucide-react";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { useUsersApi } from "@/hooks/useUsersApi";
@@ -17,6 +17,22 @@ import { LeadDeleteConfirmDialog } from "@/components/LeadDeleteConfirmDialog";
 import { toast } from "sonner";
 import { ColumnFilter } from "@/components/ColumnFilter";
 import { useColumnFilters } from "@/hooks/useColumnFilters";
+import {
+  DndContext,
+  DragEndEvent,
+  DragOverEvent,
+  DragStartEvent,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  closestCenter,
+} from "@dnd-kit/core";
+import {
+  SortableContext,
+  useSortable,
+  horizontalListSortingStrategy,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 
 interface LeadsTableProps {
   leads: Lead[];
@@ -90,6 +106,87 @@ const saveColumnConfig = (columns: ColumnConfig[]) => {
     console.warn('Error saving column configuration:', error);
   }
 };
+
+interface SortableHeaderProps {
+  column: ColumnConfig;
+  onSort: (columnKey: string, direction?: 'asc' | 'desc') => void;
+  onColumnHeaderClick: (columnKey: string, sortable: boolean, e: React.MouseEvent) => void;
+  renderSortIcon: (columnKey: string) => React.ReactNode;
+  leads: Lead[];
+  columnFilters: Record<string, string[]>;
+  textFilters: Record<string, string[]>;
+  onColumnFilterChange: (column: string, selectedValues: string[]) => void;
+  onTextFilterChange: (column: string, filters: any[]) => void;
+  isNameColumn?: boolean;
+}
+
+function SortableHeader({ 
+  column, 
+  onSort, 
+  onColumnHeaderClick, 
+  renderSortIcon, 
+  leads, 
+  columnFilters, 
+  textFilters,
+  onColumnFilterChange,
+  onTextFilterChange,
+  isNameColumn = false
+}: SortableHeaderProps) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ 
+    id: column.key,
+    disabled: isNameColumn // Desactivar drag para la columna de nombre
+  });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+  };
+
+  return (
+    <TableHead 
+      ref={setNodeRef}
+      style={style}
+      className={`px-4 py-3 text-center text-xs font-medium text-gray-600 capitalize tracking-wider ${
+        column.key === 'name' ? 'leads-name-column-sticky' : 'leads-regular-column'
+      } ${isDragging ? 'opacity-50' : ''}`}
+    >
+      <div className="flex items-center justify-center space-x-1">
+        {!isNameColumn && (
+          <div 
+            {...attributes}
+            {...listeners}
+            className="cursor-grab active:cursor-grabbing p-1 hover:bg-gray-100 rounded"
+          >
+            <GripVertical className="h-3 w-3 text-gray-400" />
+          </div>
+        )}
+        <ColumnFilter
+          column={column.key}
+          data={leads}
+          onFilterChange={onColumnFilterChange}
+          onTextFilterChange={onTextFilterChange}
+          onSortChange={onSort}
+          currentFilters={columnFilters[column.key] || []}
+          currentTextFilters={textFilters[column.key] || []}
+        />
+        <span 
+          className={`${column.sortable ? 'cursor-pointer hover:text-green-600' : ''}`}
+          onClick={(e) => onColumnHeaderClick(column.key, column.sortable, e)}
+        >
+          {column.label}
+        </span>
+        {column.sortable && renderSortIcon(column.key)}
+      </div>
+    </TableHead>
+  );
+}
 
 export function LeadsTable({ 
   leads, 
@@ -222,46 +319,32 @@ export function LeadsTable({
   }, [sortedFilteredLeads, onSortedLeadsChange]);
   
   // Usar configuración persistente si no se pasan columnas desde el padre
-  const activeColumns = columns || loadColumnConfig();
+  const [activeColumns, setActiveColumns] = useState<ColumnConfig[]>(columns || loadColumnConfig());
   
+  // Sensors para el drag and drop
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 8,
+      },
+    })
+  );
+
   const { isDeleting, canDeleteLead, deleteSingleLead } = useLeadDeletion({
     onLeadDeleted: onLeadUpdate
   });
 
   const visibleColumns = activeColumns.filter(col => col.visible);
 
-  // Orden personalizado de las columnas
-  const customOrder = [
-    'name',                 
-    'campaign',             
-    'email',                
-    'phone',                
-    'documentType',         
-    'documentNumber',       
-    'product',              
-    'stage',                
-    'assignedTo',           
-    'source',               
-    'createdAt',            
-    'lastInteraction',      
-    'priority',             
-    'age',                  
-    'gender',               
-    'preferredContactChannel', 
-    'company',              
-    'value',                
-  ];
-
-  // Ordenar las columnas visibles según customOrder
-  const orderedColumns = visibleColumns.slice().sort((a, b) => {
-    return customOrder.indexOf(a.key) - customOrder.indexOf(b.key);
-  });
+  // Separar columna de nombre de las demás
+  const nameColumn = visibleColumns.find(col => col.key === 'name');
+  const otherColumns = visibleColumns.filter(col => col.key !== 'name');
 
   const calculateTableWidth = () => {
     const checkboxColumnWidth = 50; // Nueva columna de checkbox
     const nameColumnWidth = 350; // Columna nombre siempre 350px
     const regularColumnWidth = 250; // Todas las demás columnas 250px
-    const visibleRegularColumns = orderedColumns.length - 1; // Restar la columna nombre
+    const visibleRegularColumns = visibleColumns.length - 1; // Restar la columna nombre
     
     return checkboxColumnWidth + nameColumnWidth + (visibleRegularColumns * regularColumnWidth);
   };
@@ -309,6 +392,29 @@ export function LeadsTable({
     ) : (
       <ChevronDown className="h-4 w-4 ml-1" />
     );
+  };
+
+  // Función para manejar el reordenamiento de columnas
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+
+    if (active.id !== over?.id) {
+      const oldIndex = otherColumns.findIndex(col => col.key === active.id);
+      const newIndex = otherColumns.findIndex(col => col.key === over?.id);
+      
+      if (oldIndex !== -1 && newIndex !== -1) {
+        const newOtherColumns = [...otherColumns];
+        const [reorderedColumn] = newOtherColumns.splice(oldIndex, 1);
+        newOtherColumns.splice(newIndex, 0, reorderedColumn);
+        
+        // Reconstruir la lista completa con la columna de nombre al principio
+        const newActiveColumns = nameColumn ? [nameColumn, ...newOtherColumns] : newOtherColumns;
+        setActiveColumns(newActiveColumns);
+        
+        // Guardar la nueva configuración
+        saveColumnConfig(newActiveColumns);
+      }
+    }
   };
 
   const handleLeadAction = (action: string, lead: Lead, e: React.MouseEvent) => {
@@ -526,82 +632,102 @@ export function LeadsTable({
       <div className="leads-table-container-scroll">
         <div className="leads-table-scroll-wrapper">
           <div className="leads-table-inner-scroll">
-            <Table 
-              className="w-full"
-              style={{ 
-                width: `${calculateTableWidth()}px`,
-                minWidth: `${calculateTableWidth()}px`
-              }}
+            <DndContext
+              sensors={sensors}
+              collisionDetection={closestCenter}
+              onDragEnd={handleDragEnd}
             >
-              <TableHeader className="leads-table-header-sticky">
-                <TableRow className="bg-[#fafafa] border-b border-[#fafafa]">
-                  <TableHead className="w-[50px] px-4 py-3 text-center">
-                    <div className="flex items-center justify-center">
-                      <Checkbox
-                        checked={isAllSelected}
-                        onCheckedChange={handleSelectAll}
-                        className={isIndeterminate ? "data-[state=indeterminate]:bg-primary data-[state=indeterminate]:text-primary-foreground" : ""}
-                        {...(isIndeterminate ? { "data-state": "indeterminate" } : {})}
-                      />
-                    </div>
-                  </TableHead>
-                  {orderedColumns.map((column) => (
-                    <TableHead 
-                      key={column.key}
-                      className={`px-4 py-3 text-center text-xs font-medium text-gray-600 capitalize tracking-wider ${
-                        column.key === 'name' ? 'leads-name-column-sticky' : 'leads-regular-column'
-                      }`}
-                    >
-                      <div className="flex items-center justify-center space-x-1">
-                        <ColumnFilter
-                          column={column.key}
-                          data={leads}
-                          onFilterChange={handleColumnFilterChange}
-                          onTextFilterChange={handleTextFilterChange}
-                          onSortChange={handleSort}
-                          currentFilters={columnFilters[column.key] || []}
-                          currentTextFilters={textFilters[column.key] || []}
-                        />
-                        <span 
-                          className={`${column.sortable ? 'cursor-pointer hover:text-green-600' : ''}`}
-                          onClick={(e) => handleColumnHeaderClick(column.key, column.sortable, e)}
-                        >
-                          {column.label}
-                        </span>
-                        {column.sortable && renderSortIcon(column.key)}
-                      </div>
-                    </TableHead>
-                  ))}
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {leadsToRender.map((lead, index) => (
-                  <TableRow 
-                    key={lead.id}
-                    className="hover:bg-[#fafafa] transition-colors border-[#fafafa]"
-                  >
-                    <TableCell className="w-[50px] px-4 py-3 text-center">
+              <Table 
+                className="w-full"
+                style={{ 
+                  width: `${calculateTableWidth()}px`,
+                  minWidth: `${calculateTableWidth()}px`
+                }}
+              >
+                <TableHeader className="leads-table-header-sticky">
+                  <TableRow className="bg-[#fafafa] border-b border-[#fafafa]">
+                    <TableHead className="w-[50px] px-4 py-3 text-center">
                       <div className="flex items-center justify-center">
                         <Checkbox
-                          checked={selectedLeads.includes(lead.id)}
-                          onCheckedChange={(checked) => handleSelectLead(lead.id, checked as boolean)}
+                          checked={isAllSelected}
+                          onCheckedChange={handleSelectAll}
+                          className={isIndeterminate ? "data-[state=indeterminate]:bg-primary data-[state=indeterminate]:text-primary-foreground" : ""}
+                          {...(isIndeterminate ? { "data-state": "indeterminate" } : {})}
                         />
                       </div>
-                    </TableCell>
-                    {orderedColumns.map((column) => (
-                      <TableCell 
-                        key={column.key} 
-                        className={`px-4 py-3 text-xs text-center ${
-                          column.key === 'name' ? 'leads-name-column-sticky' : 'leads-regular-column'
-                        }`}
-                      >
-                        {renderCellContent(lead, column.key)}
-                      </TableCell>
-                    ))}
+                    </TableHead>
+                    
+                    {/* Columna de nombre fija */}
+                    {nameColumn && (
+                      <SortableHeader
+                        column={nameColumn}
+                        onSort={handleSort}
+                        onColumnHeaderClick={handleColumnHeaderClick}
+                        renderSortIcon={renderSortIcon}
+                        leads={leads}
+                        columnFilters={columnFilters}
+                        textFilters={textFilters}
+                        onColumnFilterChange={handleColumnFilterChange}
+                        onTextFilterChange={handleTextFilterChange}
+                        isNameColumn={true}
+                      />
+                    )}
+                    
+                    {/* Columnas reorganizables */}
+                    <SortableContext items={otherColumns.map(col => col.key)} strategy={horizontalListSortingStrategy}>
+                      {otherColumns.map((column) => (
+                        <SortableHeader
+                          key={column.key}
+                          column={column}
+                          onSort={handleSort}
+                          onColumnHeaderClick={handleColumnHeaderClick}
+                          renderSortIcon={renderSortIcon}
+                          leads={leads}
+                          columnFilters={columnFilters}
+                          textFilters={textFilters}
+                          onColumnFilterChange={handleColumnFilterChange}
+                          onTextFilterChange={handleTextFilterChange}
+                        />
+                      ))}
+                    </SortableContext>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+                </TableHeader>
+                <TableBody>
+                  {leadsToRender.map((lead, index) => (
+                    <TableRow 
+                      key={lead.id}
+                      className="hover:bg-[#fafafa] transition-colors border-[#fafafa]"
+                    >
+                      <TableCell className="w-[50px] px-4 py-3 text-center">
+                        <div className="flex items-center justify-center">
+                          <Checkbox
+                            checked={selectedLeads.includes(lead.id)}
+                            onCheckedChange={(checked) => handleSelectLead(lead.id, checked as boolean)}
+                          />
+                        </div>
+                      </TableCell>
+                      
+                      {/* Columna de nombre */}
+                      {nameColumn && (
+                        <TableCell className="px-4 py-3 text-xs text-center leads-name-column-sticky">
+                          {renderCellContent(lead, nameColumn.key)}
+                        </TableCell>
+                      )}
+                      
+                      {/* Otras columnas en el orden actual */}
+                      {otherColumns.map((column) => (
+                        <TableCell 
+                          key={column.key} 
+                          className="px-4 py-3 text-xs text-center leads-regular-column"
+                        >
+                          {renderCellContent(lead, column.key)}
+                        </TableCell>
+                      ))}
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </DndContext>
           </div>
         </div>
       </div>
