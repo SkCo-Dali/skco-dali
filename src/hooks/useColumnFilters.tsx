@@ -2,7 +2,7 @@
 import { useState, useMemo } from "react";
 import { Lead } from "@/types/crm";
 import { useTextFilters } from "@/hooks/useTextFilters";
-import { TextFilterCondition } from "@/components/TextFilter";
+import { getDynamicColumnValue } from "@/utils/dynamicColumnsUtils";
 
 export function useColumnFilters(leads: Lead[]) {
   const [columnFilters, setColumnFilters] = useState<Record<string, string[]>>({});
@@ -19,10 +19,17 @@ export function useColumnFilters(leads: Lead[]) {
       return Object.entries(columnFilters).every(([column, selectedValues]) => {
         if (selectedValues.length === 0) return true;
         
-        const leadValue = lead[column as keyof Lead];
-        const stringValue = leadValue === null || leadValue === undefined ? "" : String(leadValue);
+        let leadValue: string;
         
-        return selectedValues.includes(stringValue);
+        // Verificar si es una columna dinámica
+        if (column.startsWith('additionalInfo.')) {
+          leadValue = getDynamicColumnValue(lead, column);
+        } else {
+          const rawValue = lead[column as keyof Lead];
+          leadValue = rawValue === null || rawValue === undefined ? "" : String(rawValue);
+        }
+        
+        return selectedValues.includes(leadValue);
       });
     });
   }, [textFilteredLeads, columnFilters]);
