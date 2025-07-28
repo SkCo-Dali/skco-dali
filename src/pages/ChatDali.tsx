@@ -103,7 +103,7 @@ const IndexContent = forwardRef<any, {}>((props, ref) => {
       
       {/* Main content con padding responsivo */}
       <div className={`flex flex-1 w-full h-full relative ${
-        isMobile ? 'pt-20' : ''
+        isMobile ? 'pt-20' : 'pt-20'
       }`}>
         
         {/* Botón de acciones - Posicionamiento optimizado */}
@@ -123,7 +123,7 @@ const IndexContent = forwardRef<any, {}>((props, ref) => {
         
         {/* Chat interface con padding lateral reducido en móvil */}
         <div className={`flex-1 flex flex-col w-full h-full ${
-          isMobile || isMedium ? 'pt-10 px-4' : ' px-8'
+          isMobile || isMedium ? 'pt-10 px-4' : 'pt-10 px-8'
         } ${isMobile ? 'pr-6' : ''}`} 
   style={{ paddingBottom: isMobile ? '20px' : '16px', maxWidth: isMobile ? '100%' : '1200px', margin: '0 auto' }}>
   <SimpleChatInterface ref={chatInterfaceRef} />

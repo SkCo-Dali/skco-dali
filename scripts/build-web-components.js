@@ -292,16 +292,16 @@ class SK_Dali_${componentName}_React extends HTMLElement {
 
   async connectedCallback() {
     // Crear shadow DOM para encapsulación
-    const shadow = this.shadowRoot ? this.shadowRoot : this.attachShadow({ mode: 'open' });
-
+    const shadow = this.attachShadow({ mode: 'open' });
+    
     // Crear contenedor para React
     const container = document.createElement('div');
-    // container.style.cssText = \`
-    //   width: 100%;
-    //   height: 100vh;
-    //   overflow: auto;
-    //   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    // \`;
+    container.style.cssText = \`
+      width: 100%;
+      height: 100vh;
+      overflow: auto;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    \`;
     shadow.appendChild(container);
 
     // Copiar estilos globales al shadow DOM
@@ -347,7 +347,18 @@ class SK_Dali_${componentName}_React extends HTMLElement {
       }
     }
 
- 
+    // Cargar el CSS específico del componente si existe
+    try {
+      const cssResponse = await fetch('./SK.Dali.${componentName}.React.css');
+      if (cssResponse.ok) {
+        const cssText = await cssResponse.text();
+        const componentStyles = document.createElement('style');
+        componentStyles.textContent = cssText;
+        shadow.appendChild(componentStyles);
+      }
+    } catch (error) {
+      // CSS específico no encontrado, continuar sin él
+    }
 
     // Agregar estilos específicos para el web component
     const hostStyles = document.createElement('style');
@@ -459,9 +470,9 @@ class SK_Dali_${componentName}_React extends HTMLElement {
 }
 
 // Registrar el custom element
-// if (!customElements.get('sk-dali-${componentName.toLowerCase()}-react')) {
+if (!customElements.get('sk-dali-${componentName.toLowerCase()}-react')) {
   customElements.define('sk-dali-${componentName.toLowerCase()}-react', SK_Dali_${componentName}_React);
-// }
+}
 
 // Exportar para uso programático
 export default SK_Dali_${componentName}_React;

@@ -305,7 +305,7 @@ export default function Leads() {
   return (
     <>
       <div className="w-full max-w-full px-4 py-8 space-y-6">
-        <div className="flex flex-col lg:flex-row gap-6 ">
+        <div className="flex flex-col lg:flex-row gap-6 pt-20">
           <div className="flex-1 space-y-6">
             {/* Header con título y botón de acciones */}
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">

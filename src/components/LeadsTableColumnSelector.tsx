@@ -1,3 +1,4 @@
+
 import React, { useState, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import {
@@ -35,7 +36,6 @@ export interface ColumnConfig {
   label: string;
   visible: boolean;
   sortable: boolean;
-  isDynamic?: boolean;
 }
 
 interface LeadsTableColumnSelectorProps {
@@ -119,9 +119,6 @@ function SortableColumnItem({ column, onToggle }: SortableColumnItemProps) {
         {column.key === 'name' && (
           <span className="ml-1 text-xs text-gray-400">(obligatorio)</span>
         )}
-        {column.isDynamic && (
-          <span className="ml-1 text-xs text-blue-500">(dinámico)</span>
-        )}
       </label>
     </div>
   );
@@ -142,50 +139,13 @@ export function LeadsTableColumnSelector({
     })
   );
 
-  console.log('🔍 LeadsTableColumnSelector - Received columns:', columns.length);
-  console.log('🔍 All columns received:', columns.map(c => ({ 
-    key: c.key, 
-    label: c.label, 
-    isDynamic: c.isDynamic, 
-    visible: c.visible 
-  })));
-
-  // Separar columnas estáticas y dinámicas
-  const staticCols = useMemo(() => {
-    const staticColumns = columns.filter(col => !col.isDynamic);
-    console.log('📊 Static columns filtered:', staticColumns.length);
-    return staticColumns;
-  }, [columns]);
-  
-  const dynamicCols = useMemo(() => {
-    const dynamicColumns = columns.filter(col => col.isDynamic);
-    console.log('🚀 Dynamic columns filtered:', dynamicColumns.length);
-    console.log('🚀 Dynamic columns details:', dynamicColumns.map(c => ({ 
-      key: c.key, 
-      label: c.label, 
-      isDynamic: c.isDynamic 
-    })));
-    return dynamicColumns;
-  }, [columns]);
-
   // Filtrar columnas basado en el término de búsqueda
-  const filteredStaticColumns = useMemo(() => {
-    if (!searchTerm) return staticCols;
-    const filtered = staticCols.filter(column => 
+  const filteredColumns = useMemo(() => {
+    if (!searchTerm) return columns;
+    return columns.filter(column => 
       column.label.toLowerCase().includes(searchTerm.toLowerCase())
     );
-    console.log('🔍 Filtered static columns:', filtered.map(c => c.key));
-    return filtered;
-  }, [staticCols, searchTerm]);
-
-  const filteredDynamicColumns = useMemo(() => {
-    if (!searchTerm) return dynamicCols;
-    const filtered = dynamicCols.filter(column => 
-      column.label.toLowerCase().includes(searchTerm.toLowerCase())
-    );
-    console.log('🔍 Filtered dynamic columns:', filtered.map(c => c.key));
-    return filtered;
-  }, [dynamicCols, searchTerm]);
+  }, [columns, searchTerm]);
 
   const handleDragEnd = (event: any) => {
     const { active, over } = event;
@@ -211,8 +171,6 @@ export function LeadsTableColumnSelector({
         ? { ...col, visible: !col.visible }
         : col
     );
-    
-    console.log('🔄 Toggling column:', columnKey, 'New state:', updatedColumns.find(c => c.key === columnKey)?.visible);
     
     // Guardar configuración en sessionStorage
     saveColumnConfig(updatedColumns);
@@ -242,9 +200,6 @@ export function LeadsTableColumnSelector({
   const selectableColumns = columns.filter(col => col.key !== 'name');
   const allSelectableSelected = selectableColumns.every(col => col.visible);
 
-  // Combinar todas las columnas para el contexto de drag and drop
-  const allFilteredColumns = [...filteredStaticColumns, ...filteredDynamicColumns];
-
   return (
     <DropdownMenu open={open} onOpenChange={setOpen}>
       <DropdownMenuTrigger asChild>
@@ -269,19 +224,6 @@ export function LeadsTableColumnSelector({
             </span>
           </div>
           
-          {/* Información de debug */}
-          <div className="mb-3 p-2 bg-blue-50 rounded text-xs">
-            <div className="font-medium text-blue-800">Debug Info:</div>
-            <div className="text-blue-600">
-              Total: {columns.length} | Estáticas: {staticCols.length} | Dinámicas: {dynamicCols.length}
-            </div>
-            {dynamicCols.length > 0 && (
-              <div className="text-blue-600 mt-1">
-                Dinámicas: {dynamicCols.map(c => c.key.replace('additionalInfo.', '')).join(', ')}
-              </div>
-            )}
-          </div>
-          
           {/* Buscador */}
           <div className="relative mb-3">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
@@ -299,7 +241,7 @@ export function LeadsTableColumnSelector({
             <span>Arrastra para reordenar las columnas</span>
           </div>
           
-          <ScrollArea className="h-80 border-2 border-[#dedede] rounded-md">
+          <ScrollArea className="h-64 border-2 border-[#dedede] rounded-md">
             <div className="p-2">
               <DndContext
                 sensors={sensors}
@@ -307,59 +249,18 @@ export function LeadsTableColumnSelector({
                 onDragEnd={handleDragEnd}
               >
                 <SortableContext
-                  items={allFilteredColumns.map(col => col.key)}
+                  items={filteredColumns.map(col => col.key)}
                   strategy={verticalListSortingStrategy}
                 >
-                  {/* Columnas estáticas */}
-                  {filteredStaticColumns.length > 0 && (
-                    <div className="mb-4">
-                      <div className="text-xs font-medium text-gray-600 mb-2 px-2 border-b border-gray-200 pb-1">
-                        Columnas estándar ({filteredStaticColumns.length})
-                      </div>
-                      {filteredStaticColumns.map((column) => (
-                        <SortableColumnItem
-                          key={column.key}
-                          column={column}
-                          onToggle={handleToggleColumn}
-                        />
-                      ))}
-                    </div>
-                  )}
-
-                  {/* Columnas dinámicas */}
-                  {filteredDynamicColumns.length > 0 && (
-                    <div className="mb-4">
-                      <div className="text-xs font-medium text-blue-600 mb-2 px-2 border-b border-blue-200 pb-1">
-                        Información adicional ({filteredDynamicColumns.length})
-                      </div>
-                      {filteredDynamicColumns.map((column) => (
-                        <SortableColumnItem
-                          key={column.key}
-                          column={column}
-                          onToggle={handleToggleColumn}
-                        />
-                      ))}
-                    </div>
-                  )}
+                  {filteredColumns.map((column) => (
+                    <SortableColumnItem
+                      key={column.key}
+                      column={column}
+                      onToggle={handleToggleColumn}
+                    />
+                  ))}
                 </SortableContext>
               </DndContext>
-
-              {/* Mensaje cuando no hay resultados */}
-              {allFilteredColumns.length === 0 && searchTerm && (
-                <div className="text-center text-gray-500 text-sm py-8">
-                  No se encontraron columnas con "{searchTerm}"
-                </div>
-              )}
-
-              {/* Mensaje cuando no hay columnas dinámicas */}
-              {filteredStaticColumns.length > 0 && filteredDynamicColumns.length === 0 && !searchTerm && (
-                <div className="text-center text-gray-400 text-xs py-4 border-t border-gray-200">
-                  <div className="mb-2">No hay información adicional disponible</div>
-                  <div className="text-xs">
-                    Los leads actuales no contienen campos adicionales
-                  </div>
-                </div>
-              )}
             </div>
           </ScrollArea>
 

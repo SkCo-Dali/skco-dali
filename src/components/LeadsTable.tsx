@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react"; 
 import { Lead } from "@/types/crm";
 import { Badge } from "@/components/ui/badge";
@@ -18,7 +19,6 @@ import { toast } from "sonner";
 import { ColumnFilter } from "@/components/ColumnFilter";
 import { useColumnFilters } from "@/hooks/useColumnFilters";
 import { TextFilterCondition } from "@/components/TextFilter";
-import { extractDynamicColumns, getDynamicColumnValue, groupDynamicColumns } from "@/utils/dynamicColumnsUtils";
 import {
   DndContext,
   DragEndEvent,
@@ -81,60 +81,29 @@ const capitalizeWords = (text: string) => {
   return text.toLowerCase().replace(/\b\w/g, l => l.toUpperCase());
 };
 
-// Función para cargar configuración de columnas desde sessionStorage incluyendo columnas dinámicas
-const loadColumnConfig = (leads: Lead[]): ColumnConfig[] => {
-  console.log('🔄 loadColumnConfig - Processing leads:', leads.length);
-  
-  // Extraer columnas dinámicas SIEMPRE, incluso si no hay configuración guardada
-  const dynamicColumns = extractDynamicColumns(leads);
-  console.log('🔄 Dynamic columns extracted:', dynamicColumns.length);
-  console.log('🔄 Dynamic columns details:', dynamicColumns.map(c => ({ key: c.key, label: c.label })));
-  
+// Función para cargar configuración de columnas desde sessionStorage
+const loadColumnConfig = (): ColumnConfig[] => {
   try {
     const saved = sessionStorage.getItem('leads-table-columns');
-    
     if (saved) {
       const savedColumns = JSON.parse(saved);
-      console.log('📁 Saved columns found:', savedColumns.length);
-      
-      // Merge saved config with default columns
-      const mergedStaticColumns = defaultColumns.map(defaultCol => {
+      // Merge saved config with default columns to handle new columns
+      return defaultColumns.map(defaultCol => {
         const savedCol = savedColumns.find((col: ColumnConfig) => col.key === defaultCol.key);
         return savedCol ? { ...defaultCol, visible: savedCol.visible } : defaultCol;
       });
-      
-      // Merge dynamic columns with saved visibility
-      const mergedDynamicColumns = dynamicColumns.map(dynCol => {
-        const savedCol = savedColumns.find((col: ColumnConfig) => col.key === dynCol.key);
-        return savedCol ? { ...dynCol, visible: savedCol.visible } : dynCol;
-      });
-      
-      const finalColumns = [...mergedStaticColumns, ...mergedDynamicColumns];
-      console.log('✅ Final merged columns:', finalColumns.length);
-      console.log('✅ Final dynamic columns:', finalColumns.filter(c => c.isDynamic).length);
-      return finalColumns;
     }
-    
-    // Si no hay configuración guardada, usar la configuración por defecto + columnas dinámicas
-    const finalColumns = [...defaultColumns, ...dynamicColumns];
-    console.log('🆕 Using default + dynamic columns:', finalColumns.length);
-    console.log('🆕 Default + dynamic columns breakdown:', {
-      static: defaultColumns.length,
-      dynamic: dynamicColumns.length,
-      total: finalColumns.length
-    });
-    return finalColumns;
   } catch (error) {
     console.warn('Error loading column configuration:', error);
-    return [...defaultColumns, ...dynamicColumns];
   }
+  // Si no hay configuración guardada, usar la configuración por defecto
+  return defaultColumns;
 };
 
 // Función para guardar configuración de columnas en sessionStorage
 const saveColumnConfig = (columns: ColumnConfig[]) => {
   try {
     sessionStorage.setItem('leads-table-columns', JSON.stringify(columns));
-    console.log('💾 Column configuration saved to storage');
   } catch (error) {
     console.warn('Error saving column configuration:', error);
   }
@@ -248,90 +217,84 @@ export function LeadsTable({
       let aValue: any;
       let bValue: any;
 
-      // Manejar columnas dinámicas
-      if (sortConfig.key.startsWith('additionalInfo.')) {
-        aValue = getDynamicColumnValue(a, sortConfig.key).toLowerCase();
-        bValue = getDynamicColumnValue(b, sortConfig.key).toLowerCase();
-      } else {
-        switch (sortConfig.key) {
-          case 'name':
-            aValue = a.name.toLowerCase();
-            bValue = b.name.toLowerCase();
-            break;
-          case 'email':
-            aValue = (a.email || '').toLowerCase();
-            bValue = (b.email || '').toLowerCase();
-            break;
-          case 'product':
-            aValue = (a.product || '').toLowerCase();
-            bValue = (b.product || '').toLowerCase();
-            break;
-          case 'campaign':
-            aValue = (a.campaign || '').toLowerCase();
-            bValue = (b.campaign || '').toLowerCase();
-            break;
-          case 'source':
-            aValue = a.source.toLowerCase();
-            bValue = b.source.toLowerCase();
-            break;
-          case 'stage':
-            aValue = a.stage;
-            bValue = b.stage;
-            break;
-          case 'assignedTo':
-            const assignedUserA = users.find(u => u.id === a.assignedTo);
-            const assignedUserB = users.find(u => u.id === b.assignedTo);
-            aValue = (assignedUserA?.name || a.assignedTo || 'Sin asignar').toLowerCase();
-            bValue = (assignedUserB?.name || b.assignedTo || 'Sin asignar').toLowerCase();
-            break;
-          case 'lastInteraction':
-            aValue = new Date(a.updatedAt).getTime();
-            bValue = new Date(b.updatedAt).getTime();
-            break;
-          case 'phone':
-            aValue = (a.phone || '').toLowerCase();
-            bValue = (b.phone || '').toLowerCase();
-            break;
-          case 'company':
-            aValue = (a.company || '').toLowerCase();
-            bValue = (b.company || '').toLowerCase();
-            break;
-          case 'value':
-            aValue = a.value;
-            bValue = b.value;
-            break;
-          case 'priority':
-            const priorityOrder = { 'low': 1, 'medium': 2, 'high': 3, 'urgent': 4 };
-            aValue = priorityOrder[a.priority as keyof typeof priorityOrder];
-            bValue = priorityOrder[b.priority as keyof typeof priorityOrder];
-            break;
-          case 'createdAt':
-            aValue = new Date(a.createdAt).getTime();
-            bValue = new Date(b.createdAt).getTime();
-            break;
-          case 'age':
-            aValue = a.age || 0;
-            bValue = b.age || 0;
-            break;
-          case 'gender':
-            aValue = (a.gender || '').toLowerCase();
-            bValue = (b.gender || '').toLowerCase();
-            break;
-          case 'preferredContactChannel':
-            aValue = (a.preferredContactChannel || '').toLowerCase();
-            bValue = (b.preferredContactChannel || '').toLowerCase();
-            break;
-          case 'documentType':
-            aValue = (a.documentType || '').toLowerCase();
-            bValue = (b.documentType || '').toLowerCase();
-            break;
-          case 'documentNumber':
-            aValue = a.documentNumber || 0;
-            bValue = b.documentNumber || 0;
-            break;
-          default:
-            return 0;
-        }
+      switch (sortConfig.key) {
+        case 'name':
+          aValue = a.name.toLowerCase();
+          bValue = b.name.toLowerCase();
+          break;
+        case 'email':
+          aValue = (a.email || '').toLowerCase();
+          bValue = (b.email || '').toLowerCase();
+          break;
+        case 'product':
+          aValue = (a.product || '').toLowerCase();
+          bValue = (b.product || '').toLowerCase();
+          break;
+        case 'campaign':
+          aValue = (a.campaign || '').toLowerCase();
+          bValue = (b.campaign || '').toLowerCase();
+          break;
+        case 'source':
+          aValue = a.source.toLowerCase();
+          bValue = b.source.toLowerCase();
+          break;
+        case 'stage':
+          aValue = a.stage;
+          bValue = b.stage;
+          break;
+        case 'assignedTo':
+          const assignedUserA = users.find(u => u.id === a.assignedTo);
+          const assignedUserB = users.find(u => u.id === b.assignedTo);
+          aValue = (assignedUserA?.name || a.assignedTo || 'Sin asignar').toLowerCase();
+          bValue = (assignedUserB?.name || b.assignedTo || 'Sin asignar').toLowerCase();
+          break;
+        case 'lastInteraction':
+          aValue = new Date(a.updatedAt).getTime();
+          bValue = new Date(b.updatedAt).getTime();
+          break;
+        case 'phone':
+          aValue = (a.phone || '').toLowerCase();
+          bValue = (b.phone || '').toLowerCase();
+          break;
+        case 'company':
+          aValue = (a.company || '').toLowerCase();
+          bValue = (b.company || '').toLowerCase();
+          break;
+        case 'value':
+          aValue = a.value;
+          bValue = b.value;
+          break;
+        case 'priority':
+          const priorityOrder = { 'low': 1, 'medium': 2, 'high': 3, 'urgent': 4 };
+          aValue = priorityOrder[a.priority as keyof typeof priorityOrder];
+          bValue = priorityOrder[b.priority as keyof typeof priorityOrder];
+          break;
+        case 'createdAt':
+          aValue = new Date(a.createdAt).getTime();
+          bValue = new Date(b.createdAt).getTime();
+          break;
+        case 'age':
+          aValue = a.age || 0;
+          bValue = b.age || 0;
+          break;
+        case 'gender':
+          aValue = (a.gender || '').toLowerCase();
+          bValue = (b.gender || '').toLowerCase();
+          break;
+        case 'preferredContactChannel':
+          aValue = (a.preferredContactChannel || '').toLowerCase();
+          bValue = (b.preferredContactChannel || '').toLowerCase();
+          break;
+        case 'documentType':
+          aValue = (a.documentType || '').toLowerCase();
+          bValue = (b.documentType || '').toLowerCase();
+          break;
+        case 'documentNumber':
+          aValue = a.documentNumber || 0;
+          bValue = b.documentNumber || 0;
+          break;
+        default:
+          return 0;
       }
 
       if (aValue < bValue) {
@@ -343,6 +306,7 @@ export function LeadsTable({
       return 0;
     }) : filteredLeads;
   
+  // Notificar cambios en leads filtrados al componente padre
   useEffect(() => {
     if (onFilteredLeadsChange) {
       onFilteredLeadsChange(sortedFilteredLeads);
@@ -356,64 +320,9 @@ export function LeadsTable({
     }
   }, [sortedFilteredLeads, onSortedLeadsChange]);
   
-  // Usar configuración persistente si no se pasan columnas desde el padre, incluyendo columnas dinámicas
-  const [activeColumns, setActiveColumns] = useState<ColumnConfig[]>(() => {
-    console.log('🔍 Initializing activeColumns with leads:', leads.length);
-    
-    if (columns) {
-      console.log('🔄 Using columns from props:', columns.length);
-      return columns;
-    }
-    
-    const loadedColumns = loadColumnConfig(leads);
-    console.log('🔄 Loaded columns from config:', loadedColumns.length);
-    console.log('🔄 Dynamic columns in loaded config:', loadedColumns.filter(c => c.isDynamic).length);
-    return loadedColumns;
-  });
+  // Usar configuración persistente si no se pasan columnas desde el padre
+  const [activeColumns, setActiveColumns] = useState<ColumnConfig[]>(columns || loadColumnConfig());
   
-  // Actualizar columnas cuando los leads cambien (para capturar nuevas columnas dinámicas)
-  useEffect(() => {
-    console.log('🔄 useEffect - Leads changed, count:', leads.length);
-    
-    if (!columns && leads.length > 0) {
-      // Extraer columnas dinámicas de los leads actuales
-      const currentDynamicColumns = extractDynamicColumns(leads);
-      console.log('🔄 Current dynamic columns from leads:', currentDynamicColumns.length);
-      
-      // Verificar si hay nuevas columnas dinámicas
-      const existingDynamicColumns = activeColumns.filter(c => c.isDynamic);
-      console.log('🔄 Existing dynamic columns in state:', existingDynamicColumns.length);
-      
-      // Comparar claves para ver si hay cambios
-      const currentKeys = new Set(currentDynamicColumns.map(c => c.key));
-      const existingKeys = new Set(existingDynamicColumns.map(c => c.key));
-      
-      const hasNewColumns = currentDynamicColumns.some(col => !existingKeys.has(col.key));
-      const hasRemovedColumns = existingDynamicColumns.some(col => !currentKeys.has(col.key));
-      
-      console.log('🔄 Dynamic columns comparison:', {
-        hasNewColumns,
-        hasRemovedColumns,
-        currentKeys: Array.from(currentKeys),
-        existingKeys: Array.from(existingKeys)
-      });
-      
-      if (hasNewColumns || hasRemovedColumns) {
-        console.log('📝 Updating columns due to dynamic changes');
-        const updatedColumns = loadColumnConfig(leads);
-        setActiveColumns(updatedColumns);
-      }
-    }
-  }, [leads, columns, activeColumns]);
-
-  // Función para manejar cambios en las columnas
-  const handleColumnsChange = (newColumns: ColumnConfig[]) => {
-    console.log('🔄 Handling columns change:', newColumns.length);
-    console.log('🔄 Dynamic columns in change:', newColumns.filter(c => c.isDynamic).length);
-    setActiveColumns(newColumns);
-    saveColumnConfig(newColumns);
-  };
-
   // Sensors para el drag and drop
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -567,16 +476,6 @@ export function LeadsTable({
 
   const renderCellContent = (lead: Lead, columnKey: string) => {
     const assignedUser = users.find(u => u.id === lead.assignedTo);
-
-    // Manejar columnas dinámicas
-    if (columnKey.startsWith('additionalInfo.')) {
-      const value = getDynamicColumnValue(lead, columnKey);
-      return (
-        <span className="text-gray-700 text-xs text-center">
-          {value || '-'}
-        </span>
-      );
-    }
 
     switch (columnKey) {
       case 'name':
