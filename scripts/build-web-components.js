@@ -305,7 +305,7 @@ class SK_Dali_${componentName}_React extends HTMLElement {
     shadow.appendChild(container);
 
     // Copiar estilos globales al shadow DOM
-    // await this.copyGlobalStyles(shadow);
+    await this.copyGlobalStyles(shadow);
 
     // Inicializar MSAL
     await this.initializeMsal();
