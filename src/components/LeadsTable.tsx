@@ -83,21 +83,15 @@ const capitalizeWords = (text: string) => {
 
 // Función para cargar configuración de columnas desde sessionStorage incluyendo columnas dinámicas
 const loadColumnConfig = (leads: Lead[]): ColumnConfig[] => {
-  console.log('🔄 Loading column config for leads:', leads.length);
-  console.log('🔄 Sample leads for dynamic extraction:', leads.slice(0, 3).map(l => ({ 
-    name: l.name, 
-    additionalInfo: l.additionalInfo,
-    additionalInfoType: typeof l.additionalInfo
-  })));
+  console.log('🔄 loadColumnConfig - Processing leads:', leads.length);
+  
+  // Extraer columnas dinámicas SIEMPRE, incluso si no hay configuración guardada
+  const dynamicColumns = extractDynamicColumns(leads);
+  console.log('🔄 Dynamic columns extracted:', dynamicColumns.length);
+  console.log('🔄 Dynamic columns details:', dynamicColumns.map(c => ({ key: c.key, label: c.label })));
   
   try {
     const saved = sessionStorage.getItem('leads-table-columns');
-    
-    // Extraer columnas dinámicas de los leads actuales
-    const dynamicColumns = groupDynamicColumns(extractDynamicColumns(leads));
-    console.log('🔄 Dynamic columns extracted in loadColumnConfig:', dynamicColumns);
-    console.log('🔄 Dynamic columns count:', dynamicColumns.length);
-    console.log('🔄 Dynamic columns details:', dynamicColumns.map(c => ({ key: c.key, label: c.label, isDynamic: c.isDynamic })));
     
     if (saved) {
       const savedColumns = JSON.parse(saved);
@@ -116,21 +110,22 @@ const loadColumnConfig = (leads: Lead[]): ColumnConfig[] => {
       });
       
       const finalColumns = [...mergedStaticColumns, ...mergedDynamicColumns];
-      console.log('✅ Final columns loaded from storage:', finalColumns.length);
-      console.log('✅ Dynamic columns in final result:', finalColumns.filter(c => c.isDynamic).length);
-      console.log('✅ All dynamic columns in final result:', finalColumns.filter(c => c.isDynamic).map(c => ({ key: c.key, label: c.label })));
+      console.log('✅ Final merged columns:', finalColumns.length);
+      console.log('✅ Final dynamic columns:', finalColumns.filter(c => c.isDynamic).length);
       return finalColumns;
     }
     
     // Si no hay configuración guardada, usar la configuración por defecto + columnas dinámicas
     const finalColumns = [...defaultColumns, ...dynamicColumns];
-    console.log('🆕 Using default columns + dynamic:', finalColumns.length);
-    console.log('🆕 Dynamic columns in default result:', finalColumns.filter(c => c.isDynamic).length);
-    console.log('🆕 All dynamic columns in default result:', finalColumns.filter(c => c.isDynamic).map(c => ({ key: c.key, label: c.label })));
+    console.log('🆕 Using default + dynamic columns:', finalColumns.length);
+    console.log('🆕 Default + dynamic columns breakdown:', {
+      static: defaultColumns.length,
+      dynamic: dynamicColumns.length,
+      total: finalColumns.length
+    });
     return finalColumns;
   } catch (error) {
     console.warn('Error loading column configuration:', error);
-    const dynamicColumns = groupDynamicColumns(extractDynamicColumns(leads));
     return [...defaultColumns, ...dynamicColumns];
   }
 };
@@ -363,48 +358,49 @@ export function LeadsTable({
   
   // Usar configuración persistente si no se pasan columnas desde el padre, incluyendo columnas dinámicas
   const [activeColumns, setActiveColumns] = useState<ColumnConfig[]>(() => {
-    console.log('🔍 Initializing activeColumns. Leads count:', leads.length);
-    console.log('🔍 Sample leads for initialization:', leads.slice(0, 2).map(l => ({ 
-      name: l.name, 
-      additionalInfo: l.additionalInfo,
-      additionalInfoType: typeof l.additionalInfo
-    })));
+    console.log('🔍 Initializing activeColumns with leads:', leads.length);
     
     if (columns) {
       console.log('🔄 Using columns from props:', columns.length);
-      console.log('🔄 Dynamic columns from props:', columns.filter(c => c.isDynamic).length);
       return columns;
     }
+    
     const loadedColumns = loadColumnConfig(leads);
     console.log('🔄 Loaded columns from config:', loadedColumns.length);
-    console.log('🔄 Dynamic columns loaded:', loadedColumns.filter(c => c.isDynamic).length);
+    console.log('🔄 Dynamic columns in loaded config:', loadedColumns.filter(c => c.isDynamic).length);
     return loadedColumns;
   });
   
   // Actualizar columnas cuando los leads cambien (para capturar nuevas columnas dinámicas)
   useEffect(() => {
-    console.log('🔄 Leads changed, updating columns. New leads count:', leads.length);
-    console.log('🔄 Sample leads in effect:', leads.slice(0, 2).map(l => ({ 
-      name: l.name, 
-      additionalInfo: l.additionalInfo,
-      additionalInfoType: typeof l.additionalInfo
-    })));
+    console.log('🔄 useEffect - Leads changed, count:', leads.length);
     
     if (!columns && leads.length > 0) {
-      const updatedColumns = loadColumnConfig(leads);
-      console.log('🔄 Updated columns due to leads change:', updatedColumns.length);
-      console.log('🔄 New dynamic columns:', updatedColumns.filter(c => c.isDynamic).length);
+      // Extraer columnas dinámicas de los leads actuales
+      const currentDynamicColumns = extractDynamicColumns(leads);
+      console.log('🔄 Current dynamic columns from leads:', currentDynamicColumns.length);
       
-      // Solo actualizar si hay diferencias en las columnas dinámicas
-      const currentDynamicColumns = activeColumns.filter(c => c.isDynamic);
-      const newDynamicColumns = updatedColumns.filter(c => c.isDynamic);
+      // Verificar si hay nuevas columnas dinámicas
+      const existingDynamicColumns = activeColumns.filter(c => c.isDynamic);
+      console.log('🔄 Existing dynamic columns in state:', existingDynamicColumns.length);
       
-      console.log('🔄 Current dynamic columns:', currentDynamicColumns.length);
-      console.log('🔄 New dynamic columns found:', newDynamicColumns.length);
+      // Comparar claves para ver si hay cambios
+      const currentKeys = new Set(currentDynamicColumns.map(c => c.key));
+      const existingKeys = new Set(existingDynamicColumns.map(c => c.key));
       
-      if (currentDynamicColumns.length !== newDynamicColumns.length || 
-          !currentDynamicColumns.every(col => newDynamicColumns.some(newCol => newCol.key === col.key))) {
-        console.log('📝 Dynamic columns changed, updating state');
+      const hasNewColumns = currentDynamicColumns.some(col => !existingKeys.has(col.key));
+      const hasRemovedColumns = existingDynamicColumns.some(col => !currentKeys.has(col.key));
+      
+      console.log('🔄 Dynamic columns comparison:', {
+        hasNewColumns,
+        hasRemovedColumns,
+        currentKeys: Array.from(currentKeys),
+        existingKeys: Array.from(existingKeys)
+      });
+      
+      if (hasNewColumns || hasRemovedColumns) {
+        console.log('📝 Updating columns due to dynamic changes');
+        const updatedColumns = loadColumnConfig(leads);
         setActiveColumns(updatedColumns);
       }
     }

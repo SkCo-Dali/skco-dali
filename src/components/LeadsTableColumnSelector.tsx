@@ -143,7 +143,7 @@ export function LeadsTableColumnSelector({
   );
 
   console.log('🔍 LeadsTableColumnSelector - Received columns:', columns.length);
-  console.log('🔍 LeadsTableColumnSelector - All columns details:', columns.map(c => ({ 
+  console.log('🔍 All columns received:', columns.map(c => ({ 
     key: c.key, 
     label: c.label, 
     isDynamic: c.isDynamic, 
@@ -153,14 +153,18 @@ export function LeadsTableColumnSelector({
   // Separar columnas estáticas y dinámicas
   const staticCols = useMemo(() => {
     const staticColumns = columns.filter(col => !col.isDynamic);
-    console.log('📊 Static columns:', staticColumns.length);
+    console.log('📊 Static columns filtered:', staticColumns.length);
     return staticColumns;
   }, [columns]);
   
   const dynamicCols = useMemo(() => {
     const dynamicColumns = columns.filter(col => col.isDynamic);
-    console.log('🚀 Dynamic columns found:', dynamicColumns.length);
-    console.log('🚀 Dynamic columns details:', dynamicColumns.map(c => ({ key: c.key, label: c.label, isDynamic: c.isDynamic })));
+    console.log('🚀 Dynamic columns filtered:', dynamicColumns.length);
+    console.log('🚀 Dynamic columns details:', dynamicColumns.map(c => ({ 
+      key: c.key, 
+      label: c.label, 
+      isDynamic: c.isDynamic 
+    })));
     return dynamicColumns;
   }, [columns]);
 
@@ -265,6 +269,19 @@ export function LeadsTableColumnSelector({
             </span>
           </div>
           
+          {/* Información de debug */}
+          <div className="mb-3 p-2 bg-blue-50 rounded text-xs">
+            <div className="font-medium text-blue-800">Debug Info:</div>
+            <div className="text-blue-600">
+              Total: {columns.length} | Estáticas: {staticCols.length} | Dinámicas: {dynamicCols.length}
+            </div>
+            {dynamicCols.length > 0 && (
+              <div className="text-blue-600 mt-1">
+                Dinámicas: {dynamicCols.map(c => c.key.replace('additionalInfo.', '')).join(', ')}
+              </div>
+            )}
+          </div>
+          
           {/* Buscador */}
           <div className="relative mb-3">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
@@ -339,16 +356,7 @@ export function LeadsTableColumnSelector({
                 <div className="text-center text-gray-400 text-xs py-4 border-t border-gray-200">
                   <div className="mb-2">No hay información adicional disponible</div>
                   <div className="text-xs">
-                    Los leads actuales no contienen campos adicionales en additionalInfo
-                  </div>
-                  <div className="text-xs mt-1 text-red-500">
-                    Total columnas: {columns.length} | Dinámicas detectadas: {dynamicCols.length}
-                  </div>
-                  <div className="text-xs mt-1 text-red-500">
-                    DEBUG: Todas las columnas = {JSON.stringify(columns.map(c => ({ key: c.key, isDynamic: c.isDynamic })))}
-                  </div>
-                  <div className="text-xs mt-1 text-red-500">
-                    DEBUG: Claves dinámicas = {JSON.stringify(dynamicCols.map(c => c.key))}
+                    Los leads actuales no contienen campos adicionales
                   </div>
                 </div>
               )}

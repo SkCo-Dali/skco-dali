@@ -9,58 +9,51 @@ export const extractDynamicColumns = (leads: Lead[]): ColumnConfig[] => {
   const dynamicKeys = new Set<string>();
   
   leads.forEach((lead, index) => {
-    console.log(`🔍 Lead ${index + 1}:`, lead.name);
-    console.log(`🔍 Lead ${index + 1} additionalInfo:`, lead.additionalInfo);
-    console.log(`🔍 Lead ${index + 1} additionalInfo type:`, typeof lead.additionalInfo);
+    console.log(`🔍 Processing lead ${index + 1}:`, lead.name);
+    console.log(`🔍 Lead additionalInfo raw:`, lead.additionalInfo);
     
     if (lead.additionalInfo) {
-      let additionalInfoObj;
+      let parsedInfo;
       
-      // Si additionalInfo es un string, intentar parsearlo como JSON
+      // Si es string, intentar parsear como JSON
       if (typeof lead.additionalInfo === 'string') {
         try {
-          additionalInfoObj = JSON.parse(lead.additionalInfo);
-          console.log(`🔍 Lead ${index + 1} parsed additionalInfo:`, additionalInfoObj);
-        } catch (error) {
-          console.warn(`❌ Failed to parse additionalInfo as JSON for lead ${lead.name}:`, error);
-          return; // Skip this lead if parsing fails
+          parsedInfo = JSON.parse(lead.additionalInfo);
+          console.log(`✅ Successfully parsed additionalInfo for ${lead.name}:`, parsedInfo);
+        } catch (e) {
+          console.warn(`❌ Failed to parse additionalInfo for ${lead.name}:`, e);
+          continue;
         }
       } else {
-        // Si additionalInfo ya es un objeto, usarlo directamente
-        additionalInfoObj = lead.additionalInfo;
-        console.log(`🔍 Lead ${index + 1} additionalInfo is already an object:`, additionalInfoObj);
+        // Si ya es un objeto, usarlo directamente
+        parsedInfo = lead.additionalInfo;
+        console.log(`✅ Using object additionalInfo for ${lead.name}:`, parsedInfo);
       }
       
-      // Verificar si additionalInfo es un objeto válido
-      if (additionalInfoObj && typeof additionalInfoObj === 'object' && additionalInfoObj !== null) {
-        const keys = Object.keys(additionalInfoObj);
-        console.log(`🔍 Lead ${index + 1} additionalInfo keys:`, keys);
-        keys.forEach(key => {
-          console.log(`  ➕ Adding dynamic key: ${key}`);
-          dynamicKeys.add(key);
+      // Extraer claves del objeto parseado
+      if (parsedInfo && typeof parsedInfo === 'object' && parsedInfo !== null) {
+        Object.keys(parsedInfo).forEach(key => {
+          if (parsedInfo[key] !== null && parsedInfo[key] !== undefined) {
+            console.log(`  ➕ Adding dynamic key: ${key} = ${parsedInfo[key]}`);
+            dynamicKeys.add(key);
+          }
         });
-      } else {
-        console.warn(`❌ additionalInfo is not a valid object for lead ${lead.name}:`, additionalInfoObj);
       }
     }
   });
   
-  console.log('🔍 extractDynamicColumns - All dynamic keys found:', Array.from(dynamicKeys));
+  console.log('🔍 All dynamic keys found:', Array.from(dynamicKeys));
   
   // Convertir las claves a configuración de columnas
-  const dynamicColumns = Array.from(dynamicKeys).map(key => {
-    const column = {
-      key: `additionalInfo.${key}`,
-      label: key.charAt(0).toUpperCase() + key.slice(1).replace(/_/g, ' '), // Capitalizar y limpiar underscores
-      visible: false, // Por defecto no visible para no abrumar al usuario
-      sortable: true,
-      isDynamic: true
-    };
-    console.log('✅ Created dynamic column:', column);
-    return column;
-  });
+  const dynamicColumns = Array.from(dynamicKeys).map(key => ({
+    key: `additionalInfo.${key}`,
+    label: key.charAt(0).toUpperCase() + key.slice(1).replace(/_/g, ' '),
+    visible: false,
+    sortable: true,
+    isDynamic: true
+  }));
   
-  console.log('✅ extractDynamicColumns - Final dynamic columns:', dynamicColumns);
+  console.log('✅ Final dynamic columns created:', dynamicColumns);
   return dynamicColumns;
 };
 
@@ -71,24 +64,24 @@ export const getDynamicColumnValue = (lead: Lead, columnKey: string): string => 
   const key = columnKey.replace('additionalInfo.', '');
   
   if (lead.additionalInfo) {
-    let additionalInfoObj;
+    let parsedInfo;
     
-    // Si additionalInfo es un string, parsearlo
+    // Si es string, intentar parsear como JSON
     if (typeof lead.additionalInfo === 'string') {
       try {
-        additionalInfoObj = JSON.parse(lead.additionalInfo);
-      } catch (error) {
-        console.warn('Failed to parse additionalInfo:', error);
+        parsedInfo = JSON.parse(lead.additionalInfo);
+      } catch (e) {
+        console.warn('Failed to parse additionalInfo:', e);
         return '';
       }
     } else {
-      // Si additionalInfo ya es un objeto, usarlo directamente
-      additionalInfoObj = lead.additionalInfo;
+      // Si ya es un objeto, usarlo directamente
+      parsedInfo = lead.additionalInfo;
     }
     
-    // Verificar que sea un objeto válido
-    if (additionalInfoObj && typeof additionalInfoObj === 'object' && additionalInfoObj !== null) {
-      const value = additionalInfoObj[key];
+    // Obtener el valor de la clave
+    if (parsedInfo && typeof parsedInfo === 'object' && parsedInfo !== null) {
+      const value = parsedInfo[key];
       if (value === null || value === undefined) return '';
       return String(value);
     }
@@ -99,6 +92,5 @@ export const getDynamicColumnValue = (lead: Lead, columnKey: string): string => 
 
 // Función para agrupar las columnas dinámicas por prefijo común
 export const groupDynamicColumns = (dynamicColumns: ColumnConfig[]): ColumnConfig[] => {
-  // Ordenar las columnas dinámicas alfabéticamente para mantener consistencia
   return dynamicColumns.sort((a, b) => a.label.localeCompare(b.label));
 };
