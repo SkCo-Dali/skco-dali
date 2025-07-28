@@ -36,6 +36,7 @@ export interface ColumnConfig {
   label: string;
   visible: boolean;
   sortable: boolean;
+  isDynamic?: boolean;
 }
 
 interface LeadsTableColumnSelectorProps {
@@ -119,6 +120,9 @@ function SortableColumnItem({ column, onToggle }: SortableColumnItemProps) {
         {column.key === 'name' && (
           <span className="ml-1 text-xs text-gray-400">(obligatorio)</span>
         )}
+        {column.isDynamic && (
+          <span className="ml-1 text-xs text-blue-500">(dinámico)</span>
+        )}
       </label>
     </div>
   );
@@ -139,13 +143,31 @@ export function LeadsTableColumnSelector({
     })
   );
 
+  // Separar columnas estáticas y dinámicas
+  const staticColumns = useMemo(() => 
+    columns.filter(col => !col.isDynamic), 
+    [columns]
+  );
+  
+  const dynamicColumns = useMemo(() => 
+    columns.filter(col => col.isDynamic), 
+    [columns]
+  );
+
   // Filtrar columnas basado en el término de búsqueda
-  const filteredColumns = useMemo(() => {
-    if (!searchTerm) return columns;
-    return columns.filter(column => 
+  const filteredStaticColumns = useMemo(() => {
+    if (!searchTerm) return staticColumns;
+    return staticColumns.filter(column => 
       column.label.toLowerCase().includes(searchTerm.toLowerCase())
     );
-  }, [columns, searchTerm]);
+  }, [staticColumns, searchTerm]);
+
+  const filteredDynamicColumns = useMemo(() => {
+    if (!searchTerm) return dynamicColumns;
+    return dynamicColumns.filter(column => 
+      column.label.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  }, [dynamicColumns, searchTerm]);
 
   const handleDragEnd = (event: any) => {
     const { active, over } = event;
@@ -241,7 +263,7 @@ export function LeadsTableColumnSelector({
             <span>Arrastra para reordenar las columnas</span>
           </div>
           
-          <ScrollArea className="h-64 border-2 border-[#dedede] rounded-md">
+          <ScrollArea className="h-72 border-2 border-[#dedede] rounded-md">
             <div className="p-2">
               <DndContext
                 sensors={sensors}
@@ -249,18 +271,54 @@ export function LeadsTableColumnSelector({
                 onDragEnd={handleDragEnd}
               >
                 <SortableContext
-                  items={filteredColumns.map(col => col.key)}
+                  items={[...filteredStaticColumns, ...filteredDynamicColumns].map(col => col.key)}
                   strategy={verticalListSortingStrategy}
                 >
-                  {filteredColumns.map((column) => (
-                    <SortableColumnItem
-                      key={column.key}
-                      column={column}
-                      onToggle={handleToggleColumn}
-                    />
-                  ))}
+                  {/* Columnas estáticas */}
+                  {filteredStaticColumns.length > 0 && (
+                    <>
+                      <div className="text-xs font-medium text-gray-600 mb-2 px-2">
+                        Columnas estándar
+                      </div>
+                      {filteredStaticColumns.map((column) => (
+                        <SortableColumnItem
+                          key={column.key}
+                          column={column}
+                          onToggle={handleToggleColumn}
+                        />
+                      ))}
+                    </>
+                  )}
+
+                  {/* Separador si hay ambos tipos */}
+                  {filteredStaticColumns.length > 0 && filteredDynamicColumns.length > 0 && (
+                    <div className="border-t border-gray-200 my-3"></div>
+                  )}
+
+                  {/* Columnas dinámicas */}
+                  {filteredDynamicColumns.length > 0 && (
+                    <>
+                      <div className="text-xs font-medium text-blue-600 mb-2 px-2">
+                        Información adicional
+                      </div>
+                      {filteredDynamicColumns.map((column) => (
+                        <SortableColumnItem
+                          key={column.key}
+                          column={column}
+                          onToggle={handleToggleColumn}
+                        />
+                      ))}
+                    </>
+                  )}
                 </SortableContext>
               </DndContext>
+
+              {/* Mensaje cuando no hay resultados */}
+              {filteredStaticColumns.length === 0 && filteredDynamicColumns.length === 0 && searchTerm && (
+                <div className="text-center text-gray-500 text-sm py-4">
+                  No se encontraron columnas con "{searchTerm}"
+                </div>
+              )}
             </div>
           </ScrollArea>
 
