@@ -1,4 +1,3 @@
-
 import React, { useState, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import {
@@ -143,8 +142,9 @@ export function LeadsTableColumnSelector({
     })
   );
 
-  console.log('🔍 LeadsTableColumnSelector - Received columns:', columns);
-  console.log('🔍 LeadsTableColumnSelector - Dynamic columns:', columns.filter(c => c.isDynamic));
+  console.log('🔍 LeadsTableColumnSelector - Received columns:', columns.length);
+  console.log('🔍 LeadsTableColumnSelector - Dynamic columns:', columns.filter(c => c.isDynamic).length);
+  console.log('🔍 LeadsTableColumnSelector - All columns:', columns.map(c => ({ key: c.key, isDynamic: c.isDynamic })));
 
   // Separar columnas estáticas y dinámicas
   const staticColumns = useMemo(() => {
@@ -332,7 +332,13 @@ export function LeadsTableColumnSelector({
               {/* Mensaje cuando no hay columnas dinámicas */}
               {filteredStaticColumns.length > 0 && filteredDynamicColumns.length === 0 && !searchTerm && (
                 <div className="text-center text-gray-400 text-xs py-4 border-t border-gray-200">
-                  No hay información adicional disponible en los leads actuales
+                  <div className="mb-2">No hay información adicional disponible</div>
+                  <div className="text-xs">
+                    Los leads actuales no contienen campos adicionales en additionalInfo
+                  </div>
+                  <div className="text-xs mt-1">
+                    Total de leads analizados: {columns.length > 0 ? 'leads cargados' : 'sin leads'}
+                  </div>
                 </div>
               )}
             </div>
