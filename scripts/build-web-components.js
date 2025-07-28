@@ -347,18 +347,7 @@ class SK_Dali_${componentName}_React extends HTMLElement {
       }
     }
 
-    // Cargar el CSS específico del componente si existe
-    try {
-      const cssResponse = await fetch('./SK.Dali.${componentName}.React.css');
-      if (cssResponse.ok) {
-        const cssText = await cssResponse.text();
-        const componentStyles = document.createElement('style');
-        componentStyles.textContent = cssText;
-        shadow.appendChild(componentStyles);
-      }
-    } catch (error) {
-      // CSS específico no encontrado, continuar sin él
-    }
+ 
 
     // Agregar estilos específicos para el web component
     const hostStyles = document.createElement('style');
