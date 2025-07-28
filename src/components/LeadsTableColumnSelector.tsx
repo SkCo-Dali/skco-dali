@@ -148,15 +148,15 @@ export function LeadsTableColumnSelector({
 
   // Separar columnas estáticas y dinámicas
   const staticColumns = useMemo(() => {
-    const static = columns.filter(col => !col.isDynamic);
-    console.log('📊 Static columns:', static.map(c => c.key));
-    return static;
+    const staticCols = columns.filter(col => !col.isDynamic);
+    console.log('📊 Static columns:', staticCols.map(c => c.key));
+    return staticCols;
   }, [columns]);
   
   const dynamicColumns = useMemo(() => {
-    const dynamic = columns.filter(col => col.isDynamic);
-    console.log('🚀 Dynamic columns:', dynamic.map(c => c.key));
-    return dynamic;
+    const dynamicCols = columns.filter(col => col.isDynamic);
+    console.log('🚀 Dynamic columns:', dynamicCols.map(c => c.key));
+    return dynamicCols;
   }, [columns]);
 
   // Filtrar columnas basado en el término de búsqueda
