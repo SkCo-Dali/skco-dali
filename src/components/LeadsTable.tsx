@@ -88,6 +88,7 @@ const loadColumnConfig = (leads: Lead[]): ColumnConfig[] => {
     
     // Extraer columnas dinámicas de los leads actuales
     const dynamicColumns = groupDynamicColumns(extractDynamicColumns(leads));
+    console.log('🔄 Dynamic columns extracted:', dynamicColumns);
     
     if (saved) {
       const savedColumns = JSON.parse(saved);
@@ -104,11 +105,15 @@ const loadColumnConfig = (leads: Lead[]): ColumnConfig[] => {
         return savedCol ? { ...dynCol, visible: savedCol.visible } : dynCol;
       });
       
-      return [...mergedStaticColumns, ...mergedDynamicColumns];
+      const finalColumns = [...mergedStaticColumns, ...mergedDynamicColumns];
+      console.log('✅ Columns loaded from storage:', finalColumns);
+      return finalColumns;
     }
     
     // Si no hay configuración guardada, usar la configuración por defecto + columnas dinámicas
-    return [...defaultColumns, ...dynamicColumns];
+    const finalColumns = [...defaultColumns, ...dynamicColumns];
+    console.log('🆕 Using default columns + dynamic:', finalColumns);
+    return finalColumns;
   } catch (error) {
     console.warn('Error loading column configuration:', error);
     const dynamicColumns = groupDynamicColumns(extractDynamicColumns(leads));
@@ -120,6 +125,7 @@ const loadColumnConfig = (leads: Lead[]): ColumnConfig[] => {
 const saveColumnConfig = (columns: ColumnConfig[]) => {
   try {
     sessionStorage.setItem('leads-table-columns', JSON.stringify(columns));
+    console.log('💾 Column configuration saved to storage');
   } catch (error) {
     console.warn('Error saving column configuration:', error);
   }
@@ -349,6 +355,7 @@ export function LeadsTable({
     if (!columns) {
       const updatedColumns = loadColumnConfig(leads);
       setActiveColumns(updatedColumns);
+      console.log('🔄 Columns updated due to leads change:', updatedColumns.filter(c => c.isDynamic));
     }
   }, [leads, columns]);
 
