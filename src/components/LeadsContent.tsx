@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { Lead } from "@/types/crm";
 import { LeadCard } from "./LeadCard";
@@ -12,7 +13,6 @@ interface LeadsContentProps {
   onLeadClick: (lead: Lead) => void;
   onLeadUpdate: () => void;
   columns: ColumnConfig[];
-  onColumnsChange: (columns: ColumnConfig[]) => void;
   paginatedLeads: Lead[];
   onSortedLeadsChange: (sorted: Lead[]) => void;
   onSendEmail: (lead: Lead) => void;
@@ -27,7 +27,6 @@ export function LeadsContent({
   onLeadClick,
   onLeadUpdate,
   columns,
-  onColumnsChange,
   paginatedLeads,
   onSortedLeadsChange,
   onSendEmail,
@@ -57,7 +56,6 @@ export function LeadsContent({
           onLeadClick={onLeadClick}
           onLeadUpdate={onLeadUpdate}
           columns={columns}
-          onColumnsChange={onColumnsChange}
           onSortedLeadsChange={onSortedLeadsChange}
           onSendEmail={onSendEmail}
           onOpenProfiler={handleOpenProfiler}
@@ -67,6 +65,7 @@ export function LeadsContent({
 
         <Dialog open={isProfilerOpen} onOpenChange={setIsProfilerOpen}>
           <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto p-0">
+            
             <LeadProfiler selectedLead={selectedLeadForProfiler} />
           </DialogContent>
         </Dialog>
@@ -83,6 +82,7 @@ export function LeadsContent({
     return acc;
   }, {});
 
+  // Definir el orden de las columnas según la etapa
   const stageOrder = ['new', 'contacted', 'qualified', 'proposal', 'negotiation', 'won', 'lost'];
   const sortedGroups = Object.entries(groupedLeads).sort(([a], [b]) => {
     if (groupBy === 'stage') {
@@ -110,12 +110,14 @@ export function LeadsContent({
     return groupLeads.length;
   };
 
+  if (viewMode === 'columns')
   return (
     <>
       <div className="space-y-6">
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 max-h-[350px] overflow-y-auto">
           {sortedGroups.map(([group, groupLeads]) => (
             <div key={group} className="space-y-0">
+              {/* Header de la columna estilo Kanban */}
               <div className="bg-[#CAF9CB] rounded-t-lg px-4 py-3 flex items-center justify-between border-b border-gray-200">
                 <div className="flex items-center gap-2">
                   <div className="w-3 h-3 rounded-full bg-green-500"></div>
@@ -128,6 +130,7 @@ export function LeadsContent({
                 </div>
               </div>
               
+              {/* Contenedor de tarjetas con scroll */}
               <div className="bg-gray-50 border-l border-r border-b border-gray-200 rounded-b-lg min-h-[500px] max-h-[600px] overflow-y-auto p-3">
                 <div className="space-y-4">
                   {groupLeads.map((lead) => (

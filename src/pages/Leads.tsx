@@ -1,4 +1,3 @@
-
 import React, { useState, useCallback, useMemo, useRef } from "react";
 import { toast } from "sonner";
 import { Lead } from "@/types/crm";
@@ -650,7 +649,6 @@ export default function Leads() {
                   onLeadClick={handleLeadClick}
                   onLeadUpdate={handleLeadUpdate}
                   columns={columns}
-                  onColumnsChange={setColumns}
                   paginatedLeads={paginatedLeads}
                   onSortedLeadsChange={handleSortedLeadsChange}
                   onSendEmail={handleSendEmailToLead}
