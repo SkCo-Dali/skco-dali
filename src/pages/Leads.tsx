@@ -1,4 +1,3 @@
-
 import React, { useState, useCallback, useMemo, useRef } from "react";
 import { toast } from "sonner";
 import { Lead } from "@/types/crm";
@@ -20,6 +19,7 @@ import { useLeadsPagination } from "@/hooks/useLeadsPagination";
 import { useLeadsApi } from "@/hooks/useLeadsApi";
 import { useIsMobile, useIsMedium } from "@/hooks/use-mobile";
 import { ColumnConfig } from "@/components/LeadsTableColumnSelector";
+import { extractDynamicColumns } from "@/utils/dynamicColumnsUtils";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import {
@@ -73,6 +73,21 @@ const DEFAULT_COLUMNS: ColumnConfig[] = [
   { key: 'preferredContactChannel', label: 'Medio de Contacto Preferido', visible: false, sortable: true },
 ];
 
+// Función para cargar configuración de columnas desde sessionStorage
+const loadColumnConfig = (): ColumnConfig[] | null => {
+  try {
+    const saved = sessionStorage.getItem('leads-table-columns');
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      console.log('📥 Loaded column configuration from session:', parsed.map((c: ColumnConfig) => `${c.key}: ${c.visible}`));
+      return parsed;
+    }
+  } catch (error) {
+    console.warn('Error loading column configuration:', error);
+  }
+  return null;
+};
+
 export default function Leads() {
   const [viewMode, setViewMode] = useState<"table" | "columns">("table");
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
@@ -81,7 +96,6 @@ export default function Leads() {
   const [showMassEmail, setShowMassEmail] = useState(false);
   const [showMassWhatsApp, setShowMassWhatsApp] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
-  const [columns, setColumns] = useState<ColumnConfig[]>(DEFAULT_COLUMNS);
   const [sortedLeads, setSortedLeads] = useState<Lead[]>([]);
   const [selectedLeadForEmail, setSelectedLeadForEmail] = useState<Lead | null>(null);
   const [groupBy, setGroupBy] = useState<string>("stage");
@@ -100,6 +114,46 @@ export default function Leads() {
     refreshLeads
   } = useLeadsApi();
 
+  // Memoizar las columnas dinámicas basadas en los datos de leads
+  const dynamicColumns = useMemo(() => {
+    console.log('🔄 Extracting dynamic columns from leads data...');
+    return extractDynamicColumns(leadsData);
+  }, [leadsData]);
+
+  // Combinar columnas por defecto con dinámicas
+  const allColumns = useMemo(() => {
+    const combined = [...DEFAULT_COLUMNS, ...dynamicColumns];
+    console.log('📊 Combined columns:', combined.map(c => `${c.key}: ${c.visible}`));
+    return combined;
+  }, [dynamicColumns]);
+
+  // Estado para las columnas, inicializando con configuración guardada o columnas combinadas
+  const [columns, setColumns] = useState<ColumnConfig[]>(() => {
+    const savedConfig = loadColumnConfig();
+    if (savedConfig) {
+      // Fusionar configuración guardada con nuevas columnas dinámicas
+      const savedKeys = new Set(savedConfig.map(c => c.key));
+      const newDynamicColumns = allColumns.filter(c => !savedKeys.has(c.key));
+      return [...savedConfig, ...newDynamicColumns];
+    }
+    return allColumns;
+  });
+
+  // Actualizar columnas cuando cambien las dinámicas
+  React.useEffect(() => {
+    setColumns(prev => {
+      const existingKeys = new Set(prev.map(c => c.key));
+      const newDynamicColumns = dynamicColumns.filter(c => !existingKeys.has(c.key));
+      
+      if (newDynamicColumns.length > 0) {
+        console.log('➕ Adding new dynamic columns:', newDynamicColumns.map(c => c.key));
+        return [...prev, ...newDynamicColumns];
+      }
+      
+      return prev;
+    });
+  }, [dynamicColumns]);
+
   const handleLeadUpdate = useCallback(() => {
     refreshLeads();
     toast.success("Lead actualizado exitosamente");
@@ -117,6 +171,8 @@ export default function Leads() {
   console.log('🏠 Total leads from useLeadsApi:', leadsData.length);
   console.log('🏠 Loading state:', isLoading);
   console.log('🏠 Error state:', error);
+  console.log('🏠 Dynamic columns found:', dynamicColumns.length);
+  console.log('🏠 Total columns (static + dynamic):', columns.length);
   if (leadsData.length > 0) {
     console.log('🏠 Sample lead from page:', JSON.stringify(leadsData[0], null, 2));
   }
