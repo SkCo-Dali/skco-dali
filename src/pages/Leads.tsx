@@ -86,7 +86,7 @@ const loadColumnConfig = (leads: Lead[]): ColumnConfig[] => {
 };
 
 export function Leads() {
-  const { leads, isLoading, fetchLeads } = useLeadsApi();
+  const { leads, loading: isLoading, loadLeads } = useLeadsApi();
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
   const [viewMode, setViewMode] = useState<'table' | 'columns'>('table');
   const [groupBy, setGroupBy] = useState('stage');
@@ -108,22 +108,22 @@ export function Leads() {
   const {
     searchTerm,
     setSearchTerm,
-    stageFilter,
-    setStageFilter,
-    campaignFilter,
-    setCampaignFilter,
-    assignedToFilter,
-    setAssignedToFilter,
-    sourceFilter,
-    setSourceFilter,
+    filterStage: stageFilter,
+    setFilterStage: setStageFilter,
+    filterCampaign: campaignFilter,
+    setFilterCampaign: setCampaignFilter,
+    filterAssignedTo: assignedToFilter,
+    setFilterAssignedTo: setAssignedToFilter,
+    filterSource: sourceFilter,
+    setFilterSource: setSourceFilter,
     filteredLeads
   } = useLeadsFilters(sortedLeads.length > 0 ? sortedLeads : leads);
 
   const {
     currentPage,
     setCurrentPage,
-    itemsPerPage,
-    setItemsPerPage,
+    leadsPerPage: itemsPerPage,
+    setLeadsPerPage: setItemsPerPage,
     totalPages,
     paginatedLeads
   } = useLeadsPagination(filteredLeads);
@@ -137,7 +137,7 @@ export function Leads() {
   };
 
   const handleLeadUpdate = async () => {
-    await fetchLeads();
+    await loadLeads();
     // Recargar configuración de columnas para incluir nuevas claves dinámicas
     const updatedColumns = loadColumnConfig(leads);
     setColumns(updatedColumns);
@@ -192,7 +192,6 @@ export function Leads() {
               
               <div className="flex items-center gap-3">
                 <LeadsActionsButton 
-                  selectedLeads={selectedLeads}
                   onLeadUpdate={handleLeadUpdate}
                   onClearSelection={() => setSelectedLeads([])}
                 />
@@ -206,7 +205,7 @@ export function Leads() {
             
             <Separator className="my-4" />
             
-            <LeadsStats leads={filteredLeads} />
+            <LeadsStats filteredLeads={filteredLeads} currentPage={currentPage} totalPages={totalPages} />
           </div>
 
           {/* Search and Filters Section */}
@@ -220,10 +219,10 @@ export function Leads() {
               <div className="flex flex-col lg:flex-row gap-4">
                 <div className="flex-1">
                   <LeadsFilters
-                    stageFilter={stageFilter}
-                    campaignFilter={campaignFilter}
-                    assignedToFilter={assignedToFilter}
-                    sourceFilter={sourceFilter}
+                    filterStage={stageFilter}
+                    filterCampaign={campaignFilter}
+                    filterAssignedTo={assignedToFilter}
+                    filterSource={sourceFilter}
                     onStageFilterChange={setStageFilter}
                     onCampaignFilterChange={setCampaignFilter}
                     onAssignedToFilterChange={setAssignedToFilter}
@@ -235,7 +234,7 @@ export function Leads() {
                 <div className="lg:w-auto">
                   <LeadsViewControls
                     viewMode={viewMode}
-                    onViewModeChange={setViewMode}
+                    setViewMode={setViewMode}
                     groupBy={groupBy}
                     onGroupByChange={setGroupBy}
                     itemsPerPage={itemsPerPage}
@@ -276,14 +275,14 @@ export function Leads() {
           lead={selectedLead}
           isOpen={!!selectedLead}
           onClose={handleCloseDetail}
-          onLeadUpdate={handleLeadUpdate}
+          onUpdate={handleLeadUpdate}
         />
       )}
 
       {/* Email Composer Modal */}
       {emailLead && (
         <EmailComposer
-          isOpen={!!emailLead}
+          open={!!emailLead}
           onClose={() => setEmailLead(null)}
           recipientLead={emailLead}
         />
