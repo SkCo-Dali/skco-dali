@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useMemo } from "react";
 import { Card } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
@@ -165,6 +164,32 @@ export function Leads() {
     setColumns(newColumns);
   };
 
+  // Action handlers for LeadsActionsButton
+  const handleCreateLead = () => {
+    console.log('Create lead clicked');
+    // TODO: Implement create lead functionality
+  };
+
+  const handleBulkAssign = () => {
+    console.log('Bulk assign clicked');
+    // TODO: Implement bulk assign functionality
+  };
+
+  const handleMassEmail = () => {
+    console.log('Mass email clicked');
+    // TODO: Implement mass email functionality
+  };
+
+  const handleMassWhatsApp = () => {
+    console.log('Mass WhatsApp clicked');
+    // TODO: Implement mass WhatsApp functionality
+  };
+
+  const handleDeleteLeads = () => {
+    console.log('Delete leads clicked');
+    // TODO: Implement delete leads functionality
+  };
+
   if (isLoading) {
     return (
       <div className="p-6">
@@ -192,8 +217,12 @@ export function Leads() {
               
               <div className="flex items-center gap-3">
                 <LeadsActionsButton 
-                  onLeadUpdate={handleLeadUpdate}
-                  onClearSelection={() => setSelectedLeads([])}
+                  onCreateLead={handleCreateLead}
+                  onBulkAssign={handleBulkAssign}
+                  onMassEmail={handleMassEmail}
+                  onMassWhatsApp={handleMassWhatsApp}
+                  onDeleteLeads={handleDeleteLeads}
+                  selectedLeadsCount={selectedLeads.length}
                 />
                 <LeadsTableColumnSelector
                   columns={columns}
@@ -235,15 +264,6 @@ export function Leads() {
                   <LeadsViewControls
                     viewMode={viewMode}
                     setViewMode={setViewMode}
-                    groupBy={groupBy}
-                    onGroupByChange={setGroupBy}
-                    itemsPerPage={itemsPerPage}
-                    onItemsPerPageChange={setItemsPerPage}
-                    currentPage={currentPage}
-                    totalPages={totalPages}
-                    onPageChange={setCurrentPage}
-                    showGroupBy={viewMode === 'columns'}
-                    showPagination={viewMode === 'table'}
                   />
                 </div>
               </div>
@@ -275,16 +295,19 @@ export function Leads() {
           lead={selectedLead}
           isOpen={!!selectedLead}
           onClose={handleCloseDetail}
-          onUpdate={handleLeadUpdate}
         />
       )}
 
       {/* Email Composer Modal */}
       {emailLead && (
         <EmailComposer
-          open={!!emailLead}
-          onClose={() => setEmailLead(null)}
-          recipientLead={emailLead}
+          template={{
+            subject: '',
+            htmlContent: '',
+            plainContent: ''
+          }}
+          onTemplateChange={() => {}}
+          dynamicFields={[]}
         />
       )}
     </>

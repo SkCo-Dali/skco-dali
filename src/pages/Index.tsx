@@ -1,6 +1,5 @@
 
-import Leads from './Leads';
-
+import { Leads } from './Leads';
 
 const Index = () => {
   return <Leads />;
