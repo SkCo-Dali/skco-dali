@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { Lead } from "@/types/crm";
 import { LeadCard } from "./LeadCard";
@@ -72,7 +73,6 @@ export function LeadsContent({
     );
   }
 
-  
   const groupedLeads = leads.reduce((acc: { [key: string]: Lead[] }, lead) => {
     const key = lead[groupBy as keyof Lead] as string || 'undefined';
     if (!acc[key]) {
