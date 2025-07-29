@@ -1,4 +1,3 @@
-
 import React, { useState, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import {
@@ -30,19 +29,37 @@ import {
   useSortable,
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
+import { Lead } from "@/types/crm";
 
 export interface ColumnConfig {
   key: string;
   label: string;
   visible: boolean;
   sortable: boolean;
+  isDynamic?: boolean;
 }
 
 interface LeadsTableColumnSelectorProps {
   columns: ColumnConfig[];
   onColumnsChange: (columns: ColumnConfig[]) => void;
   showTextLabel?: boolean;
+  leads?: Lead[]; // Para extraer claves dinámicas
 }
+
+// Función para extraer claves dinámicas del additionalInfo
+const extractDynamicKeys = (leads: Lead[]): string[] => {
+  const dynamicKeys = new Set<string>();
+  
+  leads.forEach(lead => {
+    if (lead.additionalInfo && typeof lead.additionalInfo === 'object') {
+      Object.keys(lead.additionalInfo).forEach(key => {
+        dynamicKeys.add(key);
+      });
+    }
+  });
+  
+  return Array.from(dynamicKeys).sort();
+};
 
 // Función para guardar configuración en sessionStorage
 const saveColumnConfig = (columns: ColumnConfig[]) => {
@@ -119,6 +136,9 @@ function SortableColumnItem({ column, onToggle }: SortableColumnItemProps) {
         {column.key === 'name' && (
           <span className="ml-1 text-xs text-gray-400">(obligatorio)</span>
         )}
+        {column.isDynamic && (
+          <span className="ml-1 text-xs text-blue-500">(dinámico)</span>
+        )}
       </label>
     </div>
   );
@@ -127,7 +147,8 @@ function SortableColumnItem({ column, onToggle }: SortableColumnItemProps) {
 export function LeadsTableColumnSelector({ 
   columns, 
   onColumnsChange,
-  showTextLabel = true
+  showTextLabel = true,
+  leads = []
 }: LeadsTableColumnSelectorProps) {
   const [open, setOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
@@ -139,22 +160,60 @@ export function LeadsTableColumnSelector({
     })
   );
 
+  // Extraer claves dinámicas y crear columnas dinámicas
+  const dynamicKeys = useMemo(() => extractDynamicKeys(leads), [leads]);
+  
+  // Combinar columnas fijas con dinámicas
+  const allColumns = useMemo(() => {
+    const fixedColumns = columns.filter(col => !col.isDynamic);
+    const existingDynamicKeys = columns.filter(col => col.isDynamic).map(col => col.key);
+    
+    // Crear nuevas columnas dinámicas para claves que no existen
+    const newDynamicColumns: ColumnConfig[] = dynamicKeys
+      .filter(key => !existingDynamicKeys.includes(`additionalInfo.${key}`))
+      .map(key => ({
+        key: `additionalInfo.${key}`,
+        label: key,
+        visible: false,
+        sortable: true,
+        isDynamic: true
+      }));
+    
+    // Mantener columnas dinámicas existentes que aún tienen datos
+    const validDynamicColumns = columns.filter(col => 
+      col.isDynamic && dynamicKeys.includes(col.key.replace('additionalInfo.', ''))
+    );
+    
+    return [...fixedColumns, ...validDynamicColumns, ...newDynamicColumns];
+  }, [columns, dynamicKeys]);
+
+  // Separar columnas fijas y dinámicas para mostrar
+  const fixedColumns = allColumns.filter(col => !col.isDynamic);
+  const dynamicColumns = allColumns.filter(col => col.isDynamic);
+
   // Filtrar columnas basado en el término de búsqueda
-  const filteredColumns = useMemo(() => {
-    if (!searchTerm) return columns;
-    return columns.filter(column => 
+  const filteredFixedColumns = useMemo(() => {
+    if (!searchTerm) return fixedColumns;
+    return fixedColumns.filter(column => 
       column.label.toLowerCase().includes(searchTerm.toLowerCase())
     );
-  }, [columns, searchTerm]);
+  }, [fixedColumns, searchTerm]);
+
+  const filteredDynamicColumns = useMemo(() => {
+    if (!searchTerm) return dynamicColumns;
+    return dynamicColumns.filter(column => 
+      column.label.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  }, [dynamicColumns, searchTerm]);
 
   const handleDragEnd = (event: any) => {
     const { active, over } = event;
 
     if (active.id !== over.id) {
-      const oldIndex = columns.findIndex(col => col.key === active.id);
-      const newIndex = columns.findIndex(col => col.key === over.id);
+      const oldIndex = allColumns.findIndex(col => col.key === active.id);
+      const newIndex = allColumns.findIndex(col => col.key === over.id);
       
-      const newColumns = arrayMove(columns, oldIndex, newIndex);
+      const newColumns = arrayMove(allColumns, oldIndex, newIndex);
       saveColumnConfig(newColumns);
       onColumnsChange(newColumns);
     }
@@ -166,7 +225,7 @@ export function LeadsTableColumnSelector({
       return;
     }
     
-    const updatedColumns = columns.map(col => 
+    const updatedColumns = allColumns.map(col => 
       col.key === columnKey 
         ? { ...col, visible: !col.visible }
         : col
@@ -178,7 +237,7 @@ export function LeadsTableColumnSelector({
   };
 
   const handleToggleAll = (checked: boolean) => {
-    const updatedColumns = columns.map(col => ({
+    const updatedColumns = allColumns.map(col => ({
       ...col,
       // Always keep name column visible even when unchecking all
       visible: col.key === 'name' ? true : checked
@@ -196,8 +255,8 @@ export function LeadsTableColumnSelector({
     window.location.reload();
   };
 
-  const visibleCount = columns.filter(col => col.visible).length;
-  const selectableColumns = columns.filter(col => col.key !== 'name');
+  const visibleCount = allColumns.filter(col => col.visible).length;
+  const selectableColumns = allColumns.filter(col => col.key !== 'name');
   const allSelectableSelected = selectableColumns.every(col => col.visible);
 
   return (
@@ -220,7 +279,7 @@ export function LeadsTableColumnSelector({
           <div className="flex items-center justify-between mb-3">
             <h3 className="font-medium text-sm">Seleccionar y reordenar columnas</h3>
             <span className="text-xs text-gray-500">
-              {visibleCount} de {columns.length}
+              {visibleCount} de {allColumns.length}
             </span>
           </div>
           
@@ -249,16 +308,52 @@ export function LeadsTableColumnSelector({
                 onDragEnd={handleDragEnd}
               >
                 <SortableContext
-                  items={filteredColumns.map(col => col.key)}
+                  items={[...filteredFixedColumns, ...filteredDynamicColumns].map(col => col.key)}
                   strategy={verticalListSortingStrategy}
                 >
-                  {filteredColumns.map((column) => (
-                    <SortableColumnItem
-                      key={column.key}
-                      column={column}
-                      onToggle={handleToggleColumn}
-                    />
-                  ))}
+                  {/* Sección de columnas fijas */}
+                  {filteredFixedColumns.length > 0 && (
+                    <>
+                      <div className="text-xs font-semibold text-gray-600 mb-2 px-2">
+                        Columnas Fijas
+                      </div>
+                      {filteredFixedColumns.map((column) => (
+                        <SortableColumnItem
+                          key={column.key}
+                          column={column}
+                          onToggle={handleToggleColumn}
+                        />
+                      ))}
+                    </>
+                  )}
+                  
+                  {/* Separador si hay ambas secciones */}
+                  {filteredFixedColumns.length > 0 && filteredDynamicColumns.length > 0 && (
+                    <div className="border-t border-gray-200 my-3"></div>
+                  )}
+                  
+                  {/* Sección de columnas dinámicas */}
+                  {filteredDynamicColumns.length > 0 && (
+                    <>
+                      <div className="text-xs font-semibold text-gray-600 mb-2 px-2">
+                        Información Adicional
+                      </div>
+                      {filteredDynamicColumns.map((column) => (
+                        <SortableColumnItem
+                          key={column.key}
+                          column={column}
+                          onToggle={handleToggleColumn}
+                        />
+                      ))}
+                    </>
+                  )}
+                  
+                  {/* Mensaje si no hay columnas dinámicas */}
+                  {filteredDynamicColumns.length === 0 && !searchTerm && (
+                    <div className="text-xs text-gray-500 p-2 text-center">
+                      No hay campos de información adicional disponibles
+                    </div>
+                  )}
                 </SortableContext>
               </DndContext>
             </div>

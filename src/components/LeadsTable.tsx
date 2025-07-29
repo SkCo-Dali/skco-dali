@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react"; 
 import { Lead } from "@/types/crm";
 import { Badge } from "@/components/ui/badge";
@@ -476,6 +475,20 @@ export function LeadsTable({
 
   const renderCellContent = (lead: Lead, columnKey: string) => {
     const assignedUser = users.find(u => u.id === lead.assignedTo);
+
+    // Handle dynamic columns from additionalInfo
+    if (columnKey.startsWith('additionalInfo.')) {
+      const key = columnKey.replace('additionalInfo.', '');
+      const value = lead.additionalInfo && typeof lead.additionalInfo === 'object' 
+        ? (lead.additionalInfo as Record<string, any>)[key] 
+        : null;
+      
+      return (
+        <span className="text-gray-700 text-xs text-center">
+          {value ? String(value) : '-'}
+        </span>
+      );
+    }
 
     switch (columnKey) {
       case 'name':
