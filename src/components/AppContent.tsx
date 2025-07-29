@@ -5,7 +5,7 @@ import { SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
 import { Header } from "@/components/Header";
 import Dashboard from "@/pages/Dashboard";
-import { Leads } from "@/pages/Leads";
+import Leads from "@/pages/Leads";
 import Tasks from "@/pages/Tasks";
 import Reports from "@/pages/Reports";
 import Informes from "@/pages/Informes";
