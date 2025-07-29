@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react"; 
 import { Lead } from "@/types/crm";
 import { Badge } from "@/components/ui/badge";
@@ -96,7 +95,6 @@ const loadColumnConfig = (): ColumnConfig[] => {
   } catch (error) {
     console.warn('Error loading column configuration:', error);
   }
-  // Si no hay configuración guardada, usar la configuración por defecto
   return defaultColumns;
 };
 
@@ -143,7 +141,7 @@ function SortableHeader({
     isDragging,
   } = useSortable({ 
     id: column.key,
-    disabled: isNameColumn // Desactivar drag para la columna de nombre
+    disabled: isNameColumn
   });
 
   const style = {
@@ -323,6 +321,14 @@ export function LeadsTable({
   // Usar configuración persistente si no se pasan columnas desde el padre
   const [activeColumns, setActiveColumns] = useState<ColumnConfig[]>(columns || loadColumnConfig());
   
+  // Actualizar columnas activas cuando cambien las columnas del padre
+  useEffect(() => {
+    if (columns) {
+      setActiveColumns(columns);
+      saveColumnConfig(columns);
+    }
+  }, [columns]);
+  
   // Sensors para el drag and drop
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -343,16 +349,15 @@ export function LeadsTable({
   const otherColumns = visibleColumns.filter(col => col.key !== 'name');
 
   const calculateTableWidth = () => {
-    const checkboxColumnWidth = 50; // Nueva columna de checkbox
-    const nameColumnWidth = 350; // Columna nombre siempre 350px
-    const regularColumnWidth = 250; // Todas las demás columnas 250px
-    const visibleRegularColumns = visibleColumns.length - 1; // Restar la columna nombre
+    const checkboxColumnWidth = 50;
+    const nameColumnWidth = 350;
+    const regularColumnWidth = 250;
+    const visibleRegularColumns = visibleColumns.length - 1;
     
     return checkboxColumnWidth + nameColumnWidth + (visibleRegularColumns * regularColumnWidth);
   };
 
   const handleSelectAll = (checked: boolean) => {
-    // Usar sortedFilteredLeads en lugar de filteredLeads para la selección
     const currentPageLeadIds = sortedFilteredLeads.slice(0, paginatedLeads.length).map(lead => lead.id);
     if (onLeadSelectionChange) {
       onLeadSelectionChange(currentPageLeadIds, checked);
@@ -365,7 +370,6 @@ export function LeadsTable({
     }
   };
 
-  // Usar sortedFilteredLeads para determinar si todos están seleccionados
   const currentPageSortedLeads = sortedFilteredLeads.slice(0, paginatedLeads.length);
   const isAllSelected = currentPageSortedLeads.length > 0 && currentPageSortedLeads.every(lead => selectedLeads.includes(lead.id));
   const isIndeterminate = currentPageSortedLeads.some(lead => selectedLeads.includes(lead.id)) && !isAllSelected;
@@ -376,9 +380,7 @@ export function LeadsTable({
     setSortConfig({ key: columnKey, direction: newDirection });
   };
 
-  // Nueva función específica para manejar el clic en el nombre de la columna
   const handleColumnHeaderClick = (columnKey: string, sortable: boolean, e: React.MouseEvent) => {
-    // Solo ordenar si es sortable y no se está haciendo clic en el icono de filtro
     if (sortable && !e.defaultPrevented) {
       handleSort(columnKey);
     }
@@ -396,7 +398,6 @@ export function LeadsTable({
     );
   };
 
-  // Función para manejar el reordenamiento de columnas
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
 
@@ -409,11 +410,8 @@ export function LeadsTable({
         const [reorderedColumn] = newOtherColumns.splice(oldIndex, 1);
         newOtherColumns.splice(newIndex, 0, reorderedColumn);
         
-        // Reconstruir la lista completa con la columna de nombre al principio
         const newActiveColumns = nameColumn ? [nameColumn, ...newOtherColumns] : newOtherColumns;
         setActiveColumns(newActiveColumns);
-        
-        // Guardar la nueva configuración
         saveColumnConfig(newActiveColumns);
       }
     }
@@ -626,7 +624,6 @@ export function LeadsTable({
     }
   };
 
-  // Usar sortedFilteredLeads para el render
   const leadsToRender = sortedFilteredLeads.slice(0, paginatedLeads.length);
 
   return (
@@ -659,7 +656,6 @@ export function LeadsTable({
                       </div>
                     </TableHead>
                     
-                    {/* Columna de nombre fija */}
                     {nameColumn && (
                       <SortableHeader
                         column={nameColumn}
@@ -675,7 +671,6 @@ export function LeadsTable({
                       />
                     )}
                     
-                    {/* Columnas reorganizables */}
                     <SortableContext items={otherColumns.map(col => col.key)} strategy={horizontalListSortingStrategy}>
                       {otherColumns.map((column) => (
                         <SortableHeader
@@ -709,14 +704,12 @@ export function LeadsTable({
                         </div>
                       </TableCell>
                       
-                      {/* Columna de nombre */}
                       {nameColumn && (
                         <TableCell className="px-4 py-3 text-xs text-center leads-name-column-sticky">
                           {renderCellContent(lead, nameColumn.key)}
                         </TableCell>
                       )}
                       
-                      {/* Otras columnas en el orden actual */}
                       {otherColumns.map((column) => (
                         <TableCell 
                           key={column.key} 
@@ -748,5 +741,4 @@ export function LeadsTable({
   );
 }
 
-// Función utilitaria para usar desde el componente padre
 export { loadColumnConfig, saveColumnConfig };
