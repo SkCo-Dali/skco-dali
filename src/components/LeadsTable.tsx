@@ -1,33 +1,40 @@
 
-import React, { useState, useMemo } from "react";
+import { useState, useEffect } from "react"; 
 import { Lead } from "@/types/crm";
-import { ColumnConfig } from "@/components/LeadsTableColumnSelector";
-import { getDynamicColumnValue } from "@/utils/dynamicColumnsUtils";
-import { EditableLeadCell } from "@/components/EditableLeadCell";
-import { useColumnFilters } from "@/hooks/useColumnFilters";
-import { ColumnFilter } from "@/components/ColumnFilter";
-import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
-import { 
-  Table, 
-  TableBody, 
-  TableCell, 
-  TableHead, 
-  TableHeader, 
-  TableRow 
-} from "@/components/ui/table";
-import { 
-  ArrowUpDown, 
-  ArrowUp, 
-  ArrowDown, 
-  Mail, 
-  Phone, 
-  User, 
-  Edit,
-  Filter,
-  X
-} from "lucide-react";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Checkbox } from "@/components/ui/checkbox";
+import { User, ChevronUp, ChevronDown, MoreVertical, Edit, Calendar, User as UserIcon, MessageCircle, Trash2, Mail, GripVertical } from "lucide-react";
+import { format } from "date-fns";
+import { es } from "date-fns/locale";
+import { useUsersApi } from "@/hooks/useUsersApi";
+import { ColumnConfig } from "@/components/LeadsTableColumnSelector";
+import { EditableLeadCell } from "@/components/EditableLeadCell";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { Button } from "@/components/ui/button";
+import { FaWhatsapp } from "react-icons/fa";
+import { useLeadDeletion } from "@/hooks/useLeadDeletion";
+import { LeadDeleteConfirmDialog } from "@/components/LeadDeleteConfirmDialog";
+import { toast } from "sonner";
+import { ColumnFilter } from "@/components/ColumnFilter";
+import { useColumnFilters } from "@/hooks/useColumnFilters";
+import { TextFilterCondition } from "@/components/TextFilter";
+import {
+  DndContext,
+  DragEndEvent,
+  DragOverEvent,
+  DragStartEvent,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  closestCenter,
+} from "@dnd-kit/core";
+import {
+  SortableContext,
+  useSortable,
+  horizontalListSortingStrategy,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 
 interface LeadsTableProps {
   leads: Lead[];
@@ -35,217 +42,305 @@ interface LeadsTableProps {
   onLeadClick: (lead: Lead) => void;
   onLeadUpdate?: () => void;
   columns: ColumnConfig[];
-  onColumnsChange: (columns: ColumnConfig[]) => void;
+  onColumnsChange?: (columns: ColumnConfig[]) => void;
   onSortedLeadsChange?: (sortedLeads: Lead[]) => void;
   onSendEmail?: (lead: Lead) => void;
   onOpenProfiler?: (lead: Lead) => void;
   selectedLeads?: string[];
   onLeadSelectionChange?: (leadIds: string[], isSelected: boolean) => void;
+  onFilteredLeadsChange?: (filteredLeads: Lead[]) => void;
 }
 
-export function LeadsTable({
-  leads,
-  paginatedLeads,
-  onLeadClick,
-  onLeadUpdate,
+type SortConfig = {
+  key: string;
+  direction: 'asc' | 'desc';
+} | null;
+
+const capitalizeWords = (text: string) => {
+  return text.toLowerCase().replace(/\b\w/g, l => l.toUpperCase());
+};
+
+// Función para obtener el valor de una columna dinámica
+const getDynamicColumnValue = (lead: Lead, columnKey: string) => {
+  if (columnKey.startsWith('additionalInfo.')) {
+    const key = columnKey.replace('additionalInfo.', '');
+    if (lead.additionalInfo) {
+      if (typeof lead.additionalInfo === 'string') {
+        try {
+          const parsed = JSON.parse(lead.additionalInfo);
+          return parsed[key];
+        } catch {
+          return null;
+        }
+      } else {
+        return lead.additionalInfo[key];
+      }
+    }
+    return null;
+  }
+  return lead[columnKey as keyof Lead];
+};
+
+interface SortableHeaderProps {
+  column: ColumnConfig;
+  onSort: (columnKey: string, direction?: 'asc' | 'desc') => void;
+  onColumnHeaderClick: (columnKey: string, sortable: boolean, e: React.MouseEvent) => void;
+  renderSortIcon: (columnKey: string) => React.ReactNode;
+  leads: Lead[];
+  columnFilters: Record<string, string[]>;
+  textFilters: Record<string, TextFilterCondition[]>;
+  onColumnFilterChange: (column: string, selectedValues: string[]) => void;
+  onTextFilterChange: (column: string, filters: TextFilterCondition[]) => void;
+  isNameColumn?: boolean;
+}
+
+function SortableHeader({ 
+  column, 
+  onSort, 
+  onColumnHeaderClick, 
+  renderSortIcon, 
+  leads, 
+  columnFilters, 
+  textFilters,
+  onColumnFilterChange,
+  onTextFilterChange,
+  isNameColumn = false
+}: SortableHeaderProps) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ 
+    id: column.key,
+    disabled: isNameColumn
+  });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+  };
+
+  return (
+    <TableHead 
+      ref={setNodeRef}
+      style={style}
+      className={`px-4 py-3 text-center text-xs font-medium text-gray-600 capitalize tracking-wider ${
+        column.key === 'name' ? 'leads-name-column-sticky' : 'leads-regular-column'
+      } ${isDragging ? 'opacity-50' : ''}`}
+    >
+      <div className="flex items-center justify-center space-x-1">
+        {!isNameColumn && (
+          <div 
+            {...attributes}
+            {...listeners}
+            className="cursor-grab active:cursor-grabbing p-1 hover:bg-gray-100 rounded"
+          >
+            <GripVertical className="h-3 w-3 text-gray-400" />
+          </div>
+        )}
+        <ColumnFilter
+          column={column.key}
+          data={leads}
+          onFilterChange={onColumnFilterChange}
+          onTextFilterChange={onTextFilterChange}
+          onSortChange={onSort}
+          currentFilters={columnFilters[column.key] || []}
+          currentTextFilters={textFilters[column.key] || []}
+        />
+        <span 
+          className={`${column.sortable ? 'cursor-pointer hover:text-green-600' : ''}`}
+          onClick={(e) => onColumnHeaderClick(column.key, column.sortable, e)}
+        >
+          {column.label}
+        </span>
+        {column.sortable && renderSortIcon(column.key)}
+      </div>
+    </TableHead>
+  );
+}
+
+export function LeadsTable({ 
+  leads, 
+  paginatedLeads, 
+  onLeadClick, 
+  onLeadUpdate, 
   columns,
   onColumnsChange,
   onSortedLeadsChange,
   onSendEmail,
   onOpenProfiler,
   selectedLeads = [],
-  onLeadSelectionChange
+  onLeadSelectionChange,
+  onFilteredLeadsChange
 }: LeadsTableProps) {
-  const [sortBy, setSortBy] = useState<string>("");
-  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
-  const [showFilters, setShowFilters] = useState(false);
-
-  const {
-    filteredLeads,
-    columnFilters,
-    textFilters,
-    handleColumnFilterChange,
-    handleTextFilterChange,
-    clearColumnFilter,
-    clearAllColumnFilters
-  } = useColumnFilters(leads);
-
-  React.useEffect(() => {
-    if (onSortedLeadsChange) {
-      onSortedLeadsChange(filteredLeads);
-    }
-  }, [filteredLeads, onSortedLeadsChange]);
-
-  const visibleColumns = useMemo(() => {
-    return columns.filter(col => col.visible);
+  const { users } = useUsersApi();
+  const [sortConfig, setSortConfig] = useState<SortConfig>(null);
+  const [leadsToDelete, setLeadsToDelete] = useState<Lead[]>([]);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [activeColumns, setActiveColumns] = useState<ColumnConfig[]>(columns);
+  
+  // Usar filtros por columna con filtros de texto integrados
+  const { columnFilters, textFilters, filteredLeads, handleColumnFilterChange, handleTextFilterChange } = useColumnFilters(leads);
+  
+  // Sincronizar las columnas cuando cambien desde el padre
+  useEffect(() => {
+    setActiveColumns(columns);
   }, [columns]);
 
-  const handleSort = (columnKey: string) => {
-    const column = columns.find(col => col.key === columnKey);
-    if (!column?.sortable) return;
-
-    let newOrder: "asc" | "desc" = "asc";
-    
-    if (sortBy === columnKey) {
-      newOrder = sortOrder === "asc" ? "desc" : "asc";
-    }
-    
-    setSortBy(columnKey);
-    setSortOrder(newOrder);
-
-    const sorted = [...filteredLeads].sort((a, b) => {
+  // Aplicar ordenamiento a los leads filtrados
+  const sortedFilteredLeads = sortConfig ? 
+    [...filteredLeads].sort((a, b) => {
       let aValue: any;
       let bValue: any;
 
-      if (columnKey.startsWith('additionalInfo.')) {
-        aValue = getDynamicColumnValue(a, columnKey);
-        bValue = getDynamicColumnValue(b, columnKey);
+      // Manejar campos dinámicos
+      if (sortConfig.key.startsWith('additionalInfo.')) {
+        aValue = getDynamicColumnValue(a, sortConfig.key);
+        bValue = getDynamicColumnValue(b, sortConfig.key);
       } else {
-        aValue = a[columnKey as keyof Lead];
-        bValue = b[columnKey as keyof Lead];
+        switch (sortConfig.key) {
+          case 'name':
+            aValue = a.name.toLowerCase();
+            bValue = b.name.toLowerCase();
+            break;
+          case 'email':
+            aValue = (a.email || '').toLowerCase();
+            bValue = (b.email || '').toLowerCase();
+            break;
+          case 'product':
+            aValue = (a.product || '').toLowerCase();
+            bValue = (b.product || '').toLowerCase();
+            break;
+          case 'campaign':
+            aValue = (a.campaign || '').toLowerCase();
+            bValue = (b.campaign || '').toLowerCase();
+            break;
+          case 'source':
+            aValue = a.source.toLowerCase();
+            bValue = b.source.toLowerCase();
+            break;
+          case 'stage':
+            aValue = a.stage;
+            bValue = b.stage;
+            break;
+          case 'assignedTo':
+            const assignedUserA = users.find(u => u.id === a.assignedTo);
+            const assignedUserB = users.find(u => u.id === b.assignedTo);
+            aValue = (assignedUserA?.name || a.assignedTo || 'Sin asignar').toLowerCase();
+            bValue = (assignedUserB?.name || b.assignedTo || 'Sin asignar').toLowerCase();
+            break;
+          case 'lastInteraction':
+            aValue = new Date(a.updatedAt).getTime();
+            bValue = new Date(b.updatedAt).getTime();
+            break;
+          case 'phone':
+            aValue = (a.phone || '').toLowerCase();
+            bValue = (b.phone || '').toLowerCase();
+            break;
+          case 'company':
+            aValue = (a.company || '').toLowerCase();
+            bValue = (b.company || '').toLowerCase();
+            break;
+          case 'value':
+            aValue = a.value;
+            bValue = b.value;
+            break;
+          case 'priority':
+            const priorityOrder = { 'low': 1, 'medium': 2, 'high': 3, 'urgent': 4 };
+            aValue = priorityOrder[a.priority as keyof typeof priorityOrder];
+            bValue = priorityOrder[b.priority as keyof typeof priorityOrder];
+            break;
+          case 'createdAt':
+            aValue = new Date(a.createdAt).getTime();
+            bValue = new Date(b.createdAt).getTime();
+            break;
+          case 'age':
+            aValue = a.age || 0;
+            bValue = b.age || 0;
+            break;
+          case 'gender':
+            aValue = (a.gender || '').toLowerCase();
+            bValue = (b.gender || '').toLowerCase();
+            break;
+          case 'preferredContactChannel':
+            aValue = (a.preferredContactChannel || '').toLowerCase();
+            bValue = (b.preferredContactChannel || '').toLowerCase();
+            break;
+          case 'documentType':
+            aValue = (a.documentType || '').toLowerCase();
+            bValue = (b.documentType || '').toLowerCase();
+            break;
+          case 'documentNumber':
+            aValue = a.documentNumber || 0;
+            bValue = b.documentNumber || 0;
+            break;
+          default:
+            return 0;
+        }
       }
 
-      // Handle null/undefined values
-      if (aValue === null || aValue === undefined) aValue = "";
-      if (bValue === null || bValue === undefined) bValue = "";
+      // Convertir a string si es necesario para comparar
+      const stringA = String(aValue || '');
+      const stringB = String(bValue || '');
 
-      // Convert to string for consistent comparison
-      const aStr = String(aValue).toLowerCase();
-      const bStr = String(bValue).toLowerCase();
-
-      if (aStr < bStr) return newOrder === "asc" ? -1 : 1;
-      if (aStr > bStr) return newOrder === "asc" ? 1 : -1;
+      if (stringA < stringB) {
+        return sortConfig.direction === 'asc' ? -1 : 1;
+      }
+      if (stringA > stringB) {
+        return sortConfig.direction === 'asc' ? 1 : -1;
+      }
       return 0;
-    });
-
+    }) : filteredLeads;
+  
+  // Notificar cambios en leads filtrados al componente padre
+  useEffect(() => {
+    if (onFilteredLeadsChange) {
+      onFilteredLeadsChange(sortedFilteredLeads);
+    }
+  }, [sortedFilteredLeads, onFilteredLeadsChange]);
+  
+  // Notificar cambios en leads ordenados al componente padre
+  useEffect(() => {
     if (onSortedLeadsChange) {
-      onSortedLeadsChange(sorted);
+      onSortedLeadsChange(sortedFilteredLeads);
     }
-  };
+  }, [sortedFilteredLeads, onSortedLeadsChange]);
+  
+  // Sensors para el drag and drop
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 8,
+      },
+    })
+  );
 
-  const getSortIcon = (columnKey: string) => {
-    if (sortBy !== columnKey) return <ArrowUpDown className="w-4 h-4" />;
-    return sortOrder === "asc" ? <ArrowUp className="w-4 h-4" /> : <ArrowDown className="w-4 h-4" />;
-  };
+  const { isDeleting, canDeleteLead, deleteSingleLead } = useLeadDeletion({
+    onLeadDeleted: onLeadUpdate
+  });
 
-  const renderCellValue = (lead: Lead, column: ColumnConfig) => {
-    let value: any;
+  const visibleColumns = activeColumns.filter(col => col.visible);
+
+  // Separar columna de nombre de las demás
+  const nameColumn = visibleColumns.find(col => col.key === 'name');
+  const otherColumns = visibleColumns.filter(col => col.key !== 'name');
+
+  const calculateTableWidth = () => {
+    const checkboxColumnWidth = 50;
+    const nameColumnWidth = 350;
+    const regularColumnWidth = 250;
+    const visibleRegularColumns = visibleColumns.length - 1;
     
-    if (column.key.startsWith('additionalInfo.')) {
-      value = getDynamicColumnValue(lead, column.key);
-    } else {
-      value = lead[column.key as keyof Lead];
-    }
-
-    if (value === null || value === undefined) {
-      return <span className="text-gray-400">-</span>;
-    }
-
-    // Handle special column types
-    switch (column.key) {
-      case 'stage':
-        const stageLabels: Record<string, string> = {
-          'new': 'En gestión',
-          'contacted': 'En asesoría',
-          'qualified': 'Vinculando',
-          'proposal': 'Propuesta',
-          'negotiation': 'Negociación',
-          'won': 'Ganado',
-          'lost': 'Perdido'
-        };
-        return <Badge variant="secondary">{stageLabels[value] || value}</Badge>;
-      
-      case 'priority':
-        const priorityLabels: Record<string, string> = {
-          'low': 'Baja',
-          'medium': 'Media',
-          'high': 'Alta',
-          'urgent': 'Urgente'
-        };
-        const priorityColors: Record<string, string> = {
-          'low': 'bg-green-100 text-green-800',
-          'medium': 'bg-yellow-100 text-yellow-800',
-          'high': 'bg-orange-100 text-orange-800',
-          'urgent': 'bg-red-100 text-red-800'
-        };
-        return (
-          <Badge className={priorityColors[value] || 'bg-gray-100 text-gray-800'}>
-            {priorityLabels[value] || value}
-          </Badge>
-        );
-      
-      case 'email':
-        return (
-          <div className="flex items-center gap-2">
-            <span className="max-w-[200px] truncate">{value}</span>
-            {onSendEmail && (
-              <Button
-                size="sm"
-                variant="ghost"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onSendEmail(lead);
-                }}
-              >
-                <Mail className="w-4 h-4" />
-              </Button>
-            )}
-          </div>
-        );
-      
-      case 'phone':
-        return (
-          <div className="flex items-center gap-2">
-            <span>{value}</span>
-            <Button
-              size="sm"
-              variant="ghost"
-              onClick={(e) => {
-                e.stopPropagation();
-                const cleanPhone = value.replace(/\D/g, '');
-                window.open(`https://wa.me/${cleanPhone}`, '_blank');
-              }}
-            >
-              <Phone className="w-4 h-4" />
-            </Button>
-          </div>
-        );
-      
-      case 'createdAt':
-      case 'lastInteraction':
-        return value ? new Date(value).toLocaleDateString() : '-';
-      
-      case 'value':
-        return typeof value === 'number' ? `$${value.toLocaleString()}` : value;
-      
-      default:
-        return String(value);
-    }
-  };
-
-  const getUniqueValues = (columnKey: string) => {
-    const values = new Set<string>();
-    
-    leads.forEach(lead => {
-      let value: any;
-      
-      if (columnKey.startsWith('additionalInfo.')) {
-        value = getDynamicColumnValue(lead, columnKey);
-      } else {
-        value = lead[columnKey as keyof Lead];
-      }
-      
-      const stringValue = value === null || value === undefined ? "" : String(value);
-      values.add(stringValue);
-    });
-    
-    return Array.from(values).sort();
+    return checkboxColumnWidth + nameColumnWidth + (visibleRegularColumns * regularColumnWidth);
   };
 
   const handleSelectAll = (checked: boolean) => {
+    const currentPageLeadIds = sortedFilteredLeads.slice(0, paginatedLeads.length).map(lead => lead.id);
     if (onLeadSelectionChange) {
-      const leadIds = paginatedLeads.map(lead => lead.id);
-      onLeadSelectionChange(leadIds, checked);
+      onLeadSelectionChange(currentPageLeadIds, checked);
     }
   };
 
@@ -255,133 +350,386 @@ export function LeadsTable({
     }
   };
 
-  const isAllSelected = paginatedLeads.length > 0 && 
-    paginatedLeads.every(lead => selectedLeads.includes(lead.id));
-  const isIndeterminate = paginatedLeads.some(lead => selectedLeads.includes(lead.id)) && 
-    !isAllSelected;
+  const currentPageSortedLeads = sortedFilteredLeads.slice(0, paginatedLeads.length);
+  const isAllSelected = currentPageSortedLeads.length > 0 && currentPageSortedLeads.every(lead => selectedLeads.includes(lead.id));
+  const isIndeterminate = currentPageSortedLeads.some(lead => selectedLeads.includes(lead.id)) && !isAllSelected;
 
-  const hasActiveFilters = Object.keys(columnFilters).length > 0 || 
-    Object.keys(textFilters).length > 0;
+  const handleSort = (columnKey: string, direction?: 'asc' | 'desc') => {
+    const newDirection = direction || (sortConfig?.key === columnKey && sortConfig?.direction === 'asc' ? 'desc' : 'asc');
+    console.log(`Sorting by ${columnKey} in ${newDirection} direction`);
+    setSortConfig({ key: columnKey, direction: newDirection });
+  };
+
+  const handleColumnHeaderClick = (columnKey: string, sortable: boolean, e: React.MouseEvent) => {
+    if (sortable && !e.defaultPrevented) {
+      handleSort(columnKey);
+    }
+  };
+
+  const renderSortIcon = (columnKey: string) => {
+    if (!sortConfig || sortConfig.key !== columnKey) {
+      return null;
+    }
+    
+    return sortConfig.direction === 'asc' ? (
+      <ChevronUp className="h-4 w-4 ml-1" />
+    ) : (
+      <ChevronDown className="h-4 w-4 ml-1" />
+    );
+  };
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+
+    if (active.id !== over?.id) {
+      const oldIndex = otherColumns.findIndex(col => col.key === active.id);
+      const newIndex = otherColumns.findIndex(col => col.key === over?.id);
+      
+      if (oldIndex !== -1 && newIndex !== -1) {
+        const newOtherColumns = [...otherColumns];
+        const [reorderedColumn] = newOtherColumns.splice(oldIndex, 1);
+        newOtherColumns.splice(newIndex, 0, reorderedColumn);
+        
+        const newActiveColumns = nameColumn ? [nameColumn, ...newOtherColumns] : newOtherColumns;
+        setActiveColumns(newActiveColumns);
+        
+        if (onColumnsChange) {
+          onColumnsChange(newActiveColumns);
+        }
+      }
+    }
+  };
+
+  const handleLeadAction = (action: string, lead: Lead, e: React.MouseEvent) => {
+    e.stopPropagation();
+    
+    switch (action) {
+      case 'edit':
+        onLeadClick(lead);
+        break;
+      case 'email':
+        if (onSendEmail) {
+          onSendEmail(lead);
+        }
+        break;
+      case 'profile':
+        if (onOpenProfiler) {
+          onOpenProfiler(lead);
+        }
+        break;
+      case 'notes':
+        console.log('Ver notas del lead:', lead.name);
+        break;
+      case 'whatsapp':
+        if (lead.phone) {
+          const cleanPhone = lead.phone.replace(/\D/g, '');
+          window.open(`https://wa.me/${cleanPhone}`, '_blank');
+        } else {
+          console.log('No hay número de teléfono disponible para este lead');
+        }
+        break;
+      case 'delete':
+        handleDeleteLead(lead);
+        break;
+      default:
+        break;
+    }
+  };
+
+  const handleDeleteLead = (lead: Lead) => {
+    if (!canDeleteLead(lead)) {
+      toast.error('No tienes permisos para eliminar este lead');
+      return;
+    }
+    setLeadsToDelete([lead]);
+    setShowDeleteDialog(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (leadsToDelete.length === 1) {
+      const success = await deleteSingleLead(leadsToDelete[0].id);
+      if (success) {
+        setShowDeleteDialog(false);
+        setLeadsToDelete([]);
+      }
+    }
+  };
+
+  const renderCellContent = (lead: Lead, columnKey: string) => {
+    const assignedUser = users.find(u => u.id === lead.assignedTo);
+
+    // Manejar columnas dinámicas
+    if (columnKey.startsWith('additionalInfo.')) {
+      const value = getDynamicColumnValue(lead, columnKey);
+      return (
+        <span className="text-gray-700 text-xs text-center">
+          {value ? String(value) : '-'}
+        </span>
+      );
+    }
+
+    switch (columnKey) {
+      case 'name':
+        return (
+          <div className="flex items-center justify-between w-full">
+            <div 
+              className="text-gray-900 font-bold text-xs truncate pr-2 cursor-pointer hover:text-[#00c83c]"
+              onClick={(e) => {
+                e.stopPropagation();
+                onLeadClick(lead);
+              }}
+            >
+              {capitalizeWords(lead.name)}
+            </div>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-8 w-8 p-0 hover:bg-gray-100 flex-shrink-0"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <MoreVertical className="h-4 w-4 text-green-600" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-48 bg-white border shadow-lg">
+                <DropdownMenuItem onClick={(e) => handleLeadAction('edit', lead, e)}>
+                  <Edit className="mr-2 h-4 w-4" />
+                  Edición rápida
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={(e) => handleLeadAction('email', lead, e)}>
+                  <Mail className="mr-2 h-4 w-4" />
+                  Enviar Email
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={(e) => handleLeadAction('whatsapp', lead, e)}>
+                  <FaWhatsapp className="mr-2 h-4 w-4" />
+                  Enviar WhatsApp
+                </DropdownMenuItem>
+                {onOpenProfiler && (
+                  <DropdownMenuItem onClick={(e) => handleLeadAction('profile', lead, e)}>
+                    <UserIcon className="mr-2 h-4 w-4" />
+                    Perfilar lead
+                  </DropdownMenuItem>
+                )}
+                <DropdownMenuItem 
+                  onClick={(e) => handleLeadAction('delete', lead, e)}
+                  className="text-red-600 focus:text-red-600"
+                >
+                  <Trash2 className="mr-2 h-4 w-4" />
+                  Eliminar lead
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+        );
+      case 'email':
+        return (
+          <div className="text-gray-700 text-xs text-center">
+            {(lead.email || '').toLowerCase()}
+          </div>
+        );
+      case 'phone':
+        return (
+          <EditableLeadCell
+            lead={lead}
+            field="phone"
+            onUpdate={() => onLeadUpdate?.()}
+          />
+        );
+      case 'company':
+        return (
+          <EditableLeadCell
+            lead={lead}
+            field="company"
+            onUpdate={() => onLeadUpdate?.()}
+          />
+        );
+      case 'documentNumber':
+        return (
+          <EditableLeadCell
+            lead={lead}
+            field="documentNumber"
+            onUpdate={() => onLeadUpdate?.()}
+          />
+        );
+      case 'product':
+        return (
+          <span className="text-gray-700 text-xs text-center">
+            {lead.product || '-'}
+          </span>
+        );
+      case 'campaign':
+        return (
+          <span className="text-gray-700 text-xs text-center">
+            {lead.campaign || '-'}
+          </span>
+        );
+      case 'source':
+        return <span className="text-gray-700 text-xs capitalize text-center">{lead.source}</span>;
+      case 'stage':
+        return (
+          <EditableLeadCell
+            lead={lead}
+            field="stage"
+            onUpdate={() => onLeadUpdate?.()}
+          />
+        );
+      case 'assignedTo':
+        return (
+          <EditableLeadCell
+            lead={lead}
+            field="assignedTo"
+            onUpdate={() => onLeadUpdate?.()}
+          />
+        );
+      case 'lastInteraction':
+        return (
+          <span className="text-gray-700 text-xs text-center">
+            {format(new Date(lead.updatedAt), "dd/MM/yyyy", { locale: es })}
+          </span>
+        );
+      case 'value':
+        return <span className="text-gray-800 font-medium text-xs text-center">${lead.value.toLocaleString()}</span>;
+      case 'priority':
+        return (
+          <EditableLeadCell
+            lead={lead}
+            field="priority"
+            onUpdate={() => onLeadUpdate?.()}
+          />
+        );
+      case 'createdAt':
+        return (
+          <span className="text-center text-gray-700 text-xs">
+            {format(new Date(lead.createdAt), "dd/MM/yyyy", { locale: es })}
+          </span>
+        );
+      case 'age':
+        return <span className="text-center text-gray-700 text-xs">{lead.age || '-'}</span>;
+      case 'gender':
+        return <span className="text-center text-gray-700 text-xs">{lead.gender || '-'}</span>;
+      case 'preferredContactChannel':
+        return <span className="text-center text-gray-700 text-xs">{lead.preferredContactChannel || '-'}</span>;
+      case 'documentType':
+        return <span className="text-center text-gray-700 text-xs">{lead.documentType || '-'}</span>;
+      default:
+        return null;
+    }
+  };
+
+  const leadsToRender = sortedFilteredLeads.slice(0, paginatedLeads.length);
 
   return (
-    <div className="space-y-4">
-      {/* Filter controls */}
-      <div className="flex items-center gap-2">
-        <Button
-          variant={showFilters ? "default" : "outline"}
-          size="sm"
-          onClick={() => setShowFilters(!showFilters)}
-        >
-          <Filter className="w-4 h-4 mr-2" />
-          {showFilters ? "Ocultar filtros" : "Mostrar filtros"}
-        </Button>
-        
-        {hasActiveFilters && (
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={clearAllColumnFilters}
-          >
-            <X className="w-4 h-4 mr-2" />
-            Limpiar filtros
-          </Button>
-        )}
-      </div>
-
-      <div className="border rounded-lg overflow-hidden">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead className="w-12">
-                <Checkbox
-                  checked={isAllSelected}
-                  onCheckedChange={handleSelectAll}
-                  ref={(el) => {
-                    if (el) el.indeterminate = isIndeterminate;
-                  }}
-                />
-              </TableHead>
-              {visibleColumns.map((column) => (
-                <TableHead key={column.key} className="relative">
-                  <div className="flex flex-col gap-1">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="justify-start p-0 h-auto font-medium"
-                      onClick={() => handleSort(column.key)}
-                      disabled={!column.sortable}
-                    >
-                      {column.label}
-                      {column.sortable && getSortIcon(column.key)}
-                    </Button>
-                    
-                    {showFilters && (
-                      <ColumnFilter
-                        column={column.key}
-                        uniqueValues={getUniqueValues(column.key)}
-                        selectedValues={columnFilters[column.key] || []}
-                        onFilterChange={handleColumnFilterChange}
-                        onTextFilterChange={handleTextFilterChange}
-                        textFilters={textFilters[column.key] || []}
-                      />
-                    )}
-                  </div>
-                </TableHead>
-              ))}
-              <TableHead>Acciones</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {paginatedLeads.map((lead) => (
-              <TableRow
-                key={lead.id}
-                className="cursor-pointer hover:bg-gray-50"
-                onClick={() => onLeadClick(lead)}
+    <>
+      <div className="leads-table-container-scroll">
+        <div className="leads-table-scroll-wrapper">
+          <div className="leads-table-inner-scroll">
+            <DndContext
+              sensors={sensors}
+              collisionDetection={closestCenter}
+              onDragEnd={handleDragEnd}
+            >
+              <Table 
+                className="w-full"
+                style={{ 
+                  width: `${calculateTableWidth()}px`,
+                  minWidth: `${calculateTableWidth()}px`
+                }}
               >
-                <TableCell onClick={(e) => e.stopPropagation()}>
-                  <Checkbox
-                    checked={selectedLeads.includes(lead.id)}
-                    onCheckedChange={(checked) => handleSelectLead(lead.id, checked as boolean)}
-                  />
-                </TableCell>
-                {visibleColumns.map((column) => (
-                  <TableCell key={column.key} className="max-w-[200px]">
-                    {column.key === 'name' ? (
-                      <EditableLeadCell
-                        lead={lead}
-                        field="name"
-                        value={lead.name}
-                        onSave={onLeadUpdate}
-                        onClick={(e) => e.stopPropagation()}
+                <TableHeader className="leads-table-header-sticky">
+                  <TableRow className="bg-[#fafafa] border-b border-[#fafafa]">
+                    <TableHead className="w-[50px] px-4 py-3 text-center">
+                      <div className="flex items-center justify-center">
+                        <Checkbox
+                          checked={isAllSelected}
+                          onCheckedChange={handleSelectAll}
+                          className={isIndeterminate ? "data-[state=indeterminate]:bg-primary data-[state=indeterminate]:text-primary-foreground" : ""}
+                          {...(isIndeterminate ? { "data-state": "indeterminate" } : {})}
+                        />
+                      </div>
+                    </TableHead>
+                    
+                    {nameColumn && (
+                      <SortableHeader
+                        column={nameColumn}
+                        onSort={handleSort}
+                        onColumnHeaderClick={handleColumnHeaderClick}
+                        renderSortIcon={renderSortIcon}
+                        leads={leads}
+                        columnFilters={columnFilters}
+                        textFilters={textFilters}
+                        onColumnFilterChange={handleColumnFilterChange}
+                        onTextFilterChange={handleTextFilterChange}
+                        isNameColumn={true}
                       />
-                    ) : (
-                      renderCellValue(lead, column)
                     )}
-                  </TableCell>
-                ))}
-                <TableCell onClick={(e) => e.stopPropagation()}>
-                  <div className="flex items-center gap-2">
-                    <Button size="sm" variant="ghost" onClick={() => onLeadClick(lead)}>
-                      <Edit className="w-4 h-4" />
-                    </Button>
-                    {onOpenProfiler && (
-                      <Button size="sm" variant="ghost" onClick={() => onOpenProfiler(lead)}>
-                        <User className="w-4 h-4" />
-                      </Button>
-                    )}
-                  </div>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+                    
+                    <SortableContext items={otherColumns.map(col => col.key)} strategy={horizontalListSortingStrategy}>
+                      {otherColumns.map((column) => (
+                        <SortableHeader
+                          key={column.key}
+                          column={column}
+                          onSort={handleSort}
+                          onColumnHeaderClick={handleColumnHeaderClick}
+                          renderSortIcon={renderSortIcon}
+                          leads={leads}
+                          columnFilters={columnFilters}
+                          textFilters={textFilters}
+                          onColumnFilterChange={handleColumnFilterChange}
+                          onTextFilterChange={handleTextFilterChange}
+                        />
+                      ))}
+                    </SortableContext>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {leadsToRender.map((lead, index) => (
+                    <TableRow 
+                      key={lead.id}
+                      className="hover:bg-[#fafafa] transition-colors border-[#fafafa]"
+                    >
+                      <TableCell className="w-[50px] px-4 py-3 text-center">
+                        <div className="flex items-center justify-center">
+                          <Checkbox
+                            checked={selectedLeads.includes(lead.id)}
+                            onCheckedChange={(checked) => handleSelectLead(lead.id, checked as boolean)}
+                          />
+                        </div>
+                      </TableCell>
+                      
+                      {nameColumn && (
+                        <TableCell className="px-4 py-3 text-xs text-center leads-name-column-sticky">
+                          {renderCellContent(lead, nameColumn.key)}
+                        </TableCell>
+                      )}
+                      
+                      {otherColumns.map((column) => (
+                        <TableCell 
+                          key={column.key} 
+                          className="px-4 py-3 text-xs text-center leads-regular-column"
+                        >
+                          {renderCellContent(lead, column.key)}
+                        </TableCell>
+                      ))}
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </DndContext>
+          </div>
+        </div>
       </div>
 
-      {paginatedLeads.length === 0 && (
-        <div className="text-center py-8 text-gray-500">
-          No se encontraron leads con los filtros aplicados
-        </div>
-      )}
-    </div>
+      <LeadDeleteConfirmDialog
+        isOpen={showDeleteDialog}
+        onClose={() => {
+          setShowDeleteDialog(false);
+          setLeadsToDelete([]);
+        }}
+        onConfirm={handleConfirmDelete}
+        leads={leadsToDelete}
+        isDeleting={isDeleting}
+      />
+    </>
   );
 }
