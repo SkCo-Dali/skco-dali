@@ -1,302 +1,176 @@
-import React, { useState, useCallback, useMemo, useRef } from "react";
-import { toast } from "sonner";
-import { Lead } from "@/types/crm";
+
+import { useState, useEffect, useMemo } from "react";
+import { Card } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
 import { LeadsSearch } from "@/components/LeadsSearch";
-import { LeadsFilters } from "@/components/LeadsFilters";
 import { LeadsStats } from "@/components/LeadsStats";
-import { LeadsContent } from "@/components/LeadsContent";
-import { LeadsPagination } from "@/components/LeadsPagination";
 import { LeadDetail } from "@/components/LeadDetail";
-import { LeadsBulkAssignment } from "@/components/LeadsBulkAssignment";
-import { LeadsUpload } from "@/components/LeadsUpload";
-import { LeadCreateDialog, LeadCreateDialogRef } from "@/components/LeadCreateDialog";
-import { MassEmailSender } from "@/components/MassEmailSender";
-import { MassWhatsAppSender } from "@/components/MassWhatsAppSender";
-import { LeadsTableColumnSelector } from "@/components/LeadsTableColumnSelector";
+import { LeadsFilters } from "@/components/LeadsFilters";
+import { LeadsViewControls } from "@/components/LeadsViewControls";
 import { LeadsActionsButton } from "@/components/LeadsActionsButton";
+import { LeadsContent } from "@/components/LeadsContent";
+import { EmailComposer } from "@/components/EmailComposer";
+import { useLeadsApi } from "@/hooks/useLeadsApi";
+import { Lead } from "@/types/crm";
+import { ColumnConfig, LeadsTableColumnSelector } from "@/components/LeadsTableColumnSelector";
 import { useLeadsFilters } from "@/hooks/useLeadsFilters";
 import { useLeadsPagination } from "@/hooks/useLeadsPagination";
-import { useLeadsApi } from "@/hooks/useLeadsApi";
-import { useIsMobile, useIsMedium } from "@/hooks/use-mobile";
-import { ColumnConfig } from "@/components/LeadsTableColumnSelector";
-import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { 
-  Upload, 
-  Plus, 
-  Mail, 
-  Filter, 
-  Users, 
-  ChevronDown, 
-  Table, 
-  Columns,
-  MoreVertical,
-  Group,
-  Trash,
-  MessageSquare
-} from "lucide-react";
-import { useLeadDeletion } from "@/hooks/useLeadDeletion";
-import { LeadDeleteConfirmDialog } from "@/components/LeadDeleteConfirmDialog";
 
-const DEFAULT_COLUMNS: ColumnConfig[] = [
+const defaultColumns: ColumnConfig[] = [
   { key: 'name', label: 'Nombre', visible: true, sortable: true },
   { key: 'campaign', label: 'Campaña', visible: true, sortable: true },
   { key: 'email', label: 'Email', visible: true, sortable: true },
   { key: 'phone', label: 'Teléfono', visible: true, sortable: false },
-  { key: 'stage', label: 'Estado', visible: true, sortable: true },
+  { key: 'stage', label: 'Etapa', visible: true, sortable: true },
   { key: 'assignedTo', label: 'Asignado a', visible: true, sortable: true },
-  { key: 'documentType', label: 'Tipo de Documento', visible: false, sortable: true },
-  { key: 'documentNumber', label: 'Número de Documento', visible: false, sortable: true },
-  { key: 'company', label: 'Empresa', visible: false, sortable: true },
+  { key: 'documentType', label: 'Tipo documento', visible: false, sortable: true },
+  { key: 'documentNumber', label: 'Número documento', visible: false, sortable: true },
   { key: 'product', label: 'Producto', visible: false, sortable: true },
-  { key: 'priority', label: 'Prioridad', visible: false, sortable: true },
   { key: 'source', label: 'Fuente', visible: false, sortable: true },
-  { key: 'value', label: 'Valor', visible: false, sortable: true },
-  { key: 'createdAt', label: 'Fecha de Creación', visible: false, sortable: true },
-  { key: 'lastInteraction', label: 'Fecha de Última Interacción', visible: false, sortable: true },
+  { key: 'createdAt', label: 'Fecha creación', visible: false, sortable: true },
+  { key: 'lastInteraction', label: 'Últ. interacción', visible: false, sortable: true },
+  { key: 'priority', label: 'Prioridad', visible: false, sortable: true },
   { key: 'age', label: 'Edad', visible: false, sortable: true },
   { key: 'gender', label: 'Género', visible: false, sortable: true },
-  { key: 'preferredContactChannel', label: 'Medio de Contacto Preferido', visible: false, sortable: true },
+  { key: 'preferredContactChannel', label: 'Medio de contacto preferido', visible: false, sortable: true },
+  { key: 'company', label: 'Empresa', visible: false, sortable: true },
+  { key: 'value', label: 'Valor', visible: false, sortable: true },
 ];
 
-export default function Leads() {
-  const [viewMode, setViewMode] = useState<"table" | "columns">("table");
-  const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
-  const [showBulkAssign, setShowBulkAssign] = useState(false);
-  const [showUpload, setShowUpload] = useState(false);
-  const [showMassEmail, setShowMassEmail] = useState(false);
-  const [showMassWhatsApp, setShowMassWhatsApp] = useState(false);
-  const [showFilters, setShowFilters] = useState(false);
-  const [columns, setColumns] = useState<ColumnConfig[]>(DEFAULT_COLUMNS);
-  const [sortedLeads, setSortedLeads] = useState<Lead[]>([]);
-  const [selectedLeadForEmail, setSelectedLeadForEmail] = useState<Lead | null>(null);
-  const [groupBy, setGroupBy] = useState<string>("stage");
-  const [selectedLeads, setSelectedLeads] = useState<string[]>([]);
-  const leadCreateDialogRef = useRef<{ openDialog: () => void }>(null);
-  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
-
-  const isMobile = useIsMobile();
-  const isMedium = useIsMedium();
-  const isSmallScreen = isMobile || isMedium;
-
-  const {
-    leads: leadsData,
-    loading: isLoading,
-    error,
-    refreshLeads
-  } = useLeadsApi();
-
-  const handleLeadUpdate = useCallback(() => {
-    refreshLeads();
-    toast.success("Lead actualizado exitosamente");
-  }, [refreshLeads]);
-
-  const { 
-    isDeleting, 
-    canDeleteLeads, 
-    deleteMultipleLeads 
-  } = useLeadDeletion({
-    onLeadDeleted: handleLeadUpdate
+// Función para extraer claves dinámicas de additionalInfo
+const extractDynamicColumns = (leads: Lead[]): ColumnConfig[] => {
+  const dynamicKeys = new Set<string>();
+  
+  leads.forEach(lead => {
+    if (lead.additionalInfo && typeof lead.additionalInfo === 'object') {
+      Object.keys(lead.additionalInfo).forEach(key => {
+        if (key.trim() !== '') {
+          dynamicKeys.add(key);
+        }
+      });
+    }
   });
+  
+  return Array.from(dynamicKeys).map(key => ({
+    key: `additionalInfo.${key}`,
+    label: key,
+    visible: false,
+    sortable: true,
+    isDynamic: true
+  }));
+};
 
-  console.log('🏠 === LEADS PAGE DEBUG ===');
-  console.log('🏠 Total leads from useLeadsApi:', leadsData.length);
-  console.log('🏠 Loading state:', isLoading);
-  console.log('🏠 Error state:', error);
-  if (leadsData.length > 0) {
-    console.log('🏠 Sample lead from page:', JSON.stringify(leadsData[0], null, 2));
+// Función para cargar configuración desde sessionStorage
+const loadColumnConfig = (leads: Lead[]): ColumnConfig[] => {
+  try {
+    const saved = sessionStorage.getItem('leads-table-columns');
+    let savedColumns: ColumnConfig[] = [];
+    
+    if (saved) {
+      savedColumns = JSON.parse(saved);
+    }
+    
+    // Combinar columnas por defecto con las dinámicas
+    const dynamicColumns = extractDynamicColumns(leads);
+    const allColumns = [...defaultColumns, ...dynamicColumns];
+    
+    // Aplicar configuración guardada
+    return allColumns.map(defaultCol => {
+      const savedCol = savedColumns.find((col: ColumnConfig) => col.key === defaultCol.key);
+      return savedCol ? { ...defaultCol, visible: savedCol.visible } : defaultCol;
+    });
+  } catch (error) {
+    console.warn('Error loading column configuration:', error);
+    return [...defaultColumns, ...extractDynamicColumns(leads)];
   }
+};
+
+export function Leads() {
+  const { leads, isLoading, fetchLeads } = useLeadsApi();
+  const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
+  const [viewMode, setViewMode] = useState<'table' | 'columns'>('table');
+  const [groupBy, setGroupBy] = useState('stage');
+  const [sortedLeads, setSortedLeads] = useState<Lead[]>([]);
+  const [selectedLeads, setSelectedLeads] = useState<string[]>([]);
+  const [emailLead, setEmailLead] = useState<Lead | null>(null);
+  
+  // Cargar configuración de columnas incluyendo las dinámicas
+  const [columns, setColumns] = useState<ColumnConfig[]>([]);
+  
+  // Actualizar columnas cuando cambien los leads
+  useEffect(() => {
+    if (leads.length > 0) {
+      const loadedColumns = loadColumnConfig(leads);
+      setColumns(loadedColumns);
+    }
+  }, [leads]);
 
   const {
-    filteredLeads,
     searchTerm,
     setSearchTerm,
-    filterStage,
-    setFilterStage,
-    filterPriority,
-    setFilterPriority,
-    filterAssignedTo,
-    setFilterAssignedTo,
-    filterSource,
-    setFilterSource,
-    filterCampaign,
-    setFilterCampaign,
-    filterDateFrom,
-    setFilterDateFrom,
-    filterDateTo,
-    setFilterDateTo,
-    filterValueMin,
-    setFilterValueMin,
-    filterValueMax,
-    setFilterValueMax,
-    filterDuplicates,
-    setFilterDuplicates,
-    sortBy,
-    setSortBy,
-    clearFilters,
-    uniqueStages,
-    uniqueSources,
-    uniqueCampaigns,
-    uniqueAssignedTo,
-    duplicateCount
-  } = useLeadsFilters(leadsData);
-
-  const leadsToUse = sortedLeads.length > 0 ? sortedLeads : filteredLeads;
+    stageFilter,
+    setStageFilter,
+    campaignFilter,
+    setCampaignFilter,
+    assignedToFilter,
+    setAssignedToFilter,
+    sourceFilter,
+    setSourceFilter,
+    filteredLeads
+  } = useLeadsFilters(sortedLeads.length > 0 ? sortedLeads : leads);
 
   const {
     currentPage,
-    leadsPerPage,
     setCurrentPage,
-    setLeadsPerPage,
-    paginatedLeads,
-    totalPages
-  } = useLeadsPagination(leadsToUse);
+    itemsPerPage,
+    setItemsPerPage,
+    totalPages,
+    paginatedLeads
+  } = useLeadsPagination(filteredLeads);
 
-  const handleLeadClick = useCallback((lead: Lead) => {
+  const handleLeadClick = (lead: Lead) => {
     setSelectedLead(lead);
-  }, []);
+  };
 
-  const handleLeadCreate = useCallback((leadData: Partial<Lead>) => {
-    console.log('Creating lead:', leadData);
-    handleLeadUpdate();
-    toast.success("Lead creado exitosamente");
-  }, [handleLeadUpdate]);
+  const handleCloseDetail = () => {
+    setSelectedLead(null);
+  };
 
-  const handleSortedLeadsChange = useCallback((sorted: Lead[]) => {
+  const handleLeadUpdate = async () => {
+    await fetchLeads();
+    // Recargar configuración de columnas para incluir nuevas claves dinámicas
+    const updatedColumns = loadColumnConfig(leads);
+    setColumns(updatedColumns);
+  };
+
+  const handleSortedLeadsChange = (sorted: Lead[]) => {
     setSortedLeads(sorted);
-    setCurrentPage(1);
-  }, [setCurrentPage]);
-
-  const handleSendEmailToLead = useCallback((lead: Lead) => {
-    setSelectedLeadForEmail(lead);
-    setShowMassEmail(true);
-  }, []);
-
-  const handleLeadSelectionChange = useCallback((leadIds: string[], isSelected: boolean) => {
-    if (isSelected) {
-      setSelectedLeads(prev => [...new Set([...prev, ...leadIds])]);
-    } else {
-      setSelectedLeads(prev => prev.filter(id => !leadIds.includes(id)));
-    }
-  }, []);
-
-  const handleViewModeToggle = () => {
-    const modes: ("table" | "columns")[] = ["table", "columns"];
-    const currentIndex = modes.indexOf(viewMode);
-    const nextIndex = (currentIndex + 1) % modes.length;
-    setViewMode(modes[nextIndex]);
   };
 
-  const getViewModeIcon = () => {
-    switch (viewMode) {
-      case "table":
-        return <Table className="h-4 w-4" />;
-      case "columns":
-        return <Columns className="h-4 w-4" />;
-    }
+  const handleSendEmail = (lead: Lead) => {
+    setEmailLead(lead);
   };
 
-  const getViewModeLabel = () => {
-    switch (viewMode) {
-      case "table":
-        return "Tabla";
-      case "columns":
-        return "Columnas";
-    }
-  };
-
-  const stats = useMemo(() => {
-    const total = leadsData.length;
-    const newLeads = leadsData.filter(lead => lead.stage === "new").length;
-    const contacted = leadsData.filter(lead => lead.stage === "contacted").length;
-    const qualified = leadsData.filter(lead => lead.stage === "qualified").length;
-
-    return { total, newLeads, contacted, qualified };
-  }, [leadsData]);
-
-  const handleDeleteSelectedLeads = () => {
-    const leadsToDelete = selectedLeads.length > 0 
-      ? filteredLeads.filter(lead => selectedLeads.includes(lead.id))
-      : filteredLeads;
-
-    if (leadsToDelete.length === 0) {
-      toast.info("No hay leads para eliminar");
-      return;
-    }
-
-    const { canDelete, restrictedCount } = canDeleteLeads(leadsToDelete);
-    
-    if (!canDelete) {
-      if (restrictedCount === leadsToDelete.length) {
-        toast.error("No tienes permisos para eliminar ninguno de los leads seleccionados");
-        return;
+  const handleLeadSelectionChange = (leadIds: string[], isSelected: boolean) => {
+    setSelectedLeads(prev => {
+      if (isSelected) {
+        return [...new Set([...prev, ...leadIds])];
       } else {
-        toast.warning(`No puedes eliminar ${restrictedCount} de los ${leadsToDelete.length} leads seleccionados por falta de permisos`);
-        return;
+        return prev.filter(id => !leadIds.includes(id));
       }
-    }
-
-    setShowDeleteDialog(true);
+    });
   };
 
-  const handleConfirmDelete = async () => {
-    const leadsToDelete = selectedLeads.length > 0 
-      ? filteredLeads.filter(lead => selectedLeads.includes(lead.id))
-      : filteredLeads;
-
-    const leadIds = leadsToDelete.map(lead => lead.id);
-    const result = await deleteMultipleLeads(leadIds);
-    
-    if (result.success) {
-      setShowDeleteDialog(false);
-      setSelectedLeads([]);
-    }
+  const handleColumnsChange = (newColumns: ColumnConfig[]) => {
+    setColumns(newColumns);
   };
 
-  const handleCreateLead = () => {
-    console.log('Leads.tsx: handleCreateLead called, calling leadCreateDialogRef.current?.openDialog()');
-    leadCreateDialogRef.current?.openDialog();
-  };
-
-  const handleBulkAssign = () => {
-    if (selectedLeads.length === 0) {
-      toast.info("Se aplicará a todos los leads filtrados");
-    }
-    setShowBulkAssign(true);
-  };
-
-  const handleMassEmail = () => {
-    if (selectedLeads.length === 0) {
-      toast.info("Se aplicará a todos los leads filtrados");
-    }
-    setShowMassEmail(true);
-  };
-
-  const handleMassWhatsApp = () => {
-    if (selectedLeads.length === 0) {
-      toast.info("Se aplicará a todos los leads filtrados");
-    }
-    setShowMassWhatsApp(true);
-  };
-
-  if (error) {
+  if (isLoading) {
     return (
-      <div className="container mx-auto px-4 py-8">
-        <div className="text-center text-red-600">
-          Error al cargar los leads: {error}
+      <div className="p-6">
+        <div className="animate-pulse">
+          <div className="h-8 bg-gray-200 rounded w-1/4 mb-4"></div>
+          <div className="h-64 bg-gray-200 rounded"></div>
         </div>
       </div>
     );
@@ -304,461 +178,116 @@ export default function Leads() {
 
   return (
     <>
-      <div className="w-full max-w-full px-4 py-8 space-y-6">
-        <div className="flex flex-col lg:flex-row gap-6">
-          <div className="flex-1 space-y-6">
-            {/* Header con título y botón de acciones */}
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-              <h1 className="text-3xl font-bold">Gestión de Leads</h1>
+      <div className="p-6 bg-[#fafafa] min-h-screen">
+        <div className="max-w-full mx-auto space-y-6">
+          {/* Header Section */}
+          <div className="bg-white rounded-lg shadow-sm p-6">
+            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+              <div>
+                <h1 className="text-2xl font-bold text-gray-900">Gestión de Leads</h1>
+                <p className="text-gray-600 mt-1">
+                  Gestiona y haz seguimiento a tus leads de manera eficiente
+                </p>
+              </div>
               
-              {/* Botón de acciones para pantallas pequeñas y medianas */}
-              {isSmallScreen && (
-                <LeadsActionsButton
-                  onCreateLead={handleCreateLead}
-                  onBulkAssign={handleBulkAssign}
-                  onMassEmail={handleMassEmail}
-                  onMassWhatsApp={handleMassWhatsApp}
-                  onDeleteLeads={handleDeleteSelectedLeads}
-                  selectedLeadsCount={selectedLeads.length}
-                  isDeleting={isDeleting}
+              <div className="flex items-center gap-3">
+                <LeadsActionsButton 
+                  selectedLeads={selectedLeads}
+                  onLeadUpdate={handleLeadUpdate}
+                  onClearSelection={() => setSelectedLeads([])}
                 />
-              )}
+                <LeadsTableColumnSelector
+                  columns={columns}
+                  onColumnsChange={handleColumnsChange}
+                  leads={leads}
+                />
+              </div>
             </div>
+            
+            <Separator className="my-4" />
+            
+            <LeadsStats leads={filteredLeads} />
+          </div>
 
-            {/* Barra de búsqueda y controles */}
-            <div className="flex flex-col lg:flex-row gap-4 items-center">
-              {/* Sección de búsqueda y botones para pantallas grandes */}
-              {!isSmallScreen && (
-                <div className="flex flex-1 items-center gap-2">
-                  <Button
-                    className="gap-1 w-8 h-8 bg-primary"
-                    onClick={handleCreateLead}
-                    size="icon"
-                  >
-                    <Plus className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    className="gap-1 w-8 h-8 bg-primary"
-                    onClick={handleBulkAssign}
-                    size="icon"
-                  >
-                    <Users className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    className="gap-1 w-8 h-8 bg-primary"
-                    onClick={handleMassEmail}
-                    size="icon"
-                  >
-                    <Mail className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    className="gap-1 w-8 h-8 bg-[#25D366] hover:bg-[#25D366]/90"
-                    onClick={handleMassWhatsApp}
-                    size="icon"
-                  >
-                    <MessageSquare className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    className="gap-1 w-8 h-8 bg-red-600 hover:bg-red-700"
-                    onClick={handleDeleteSelectedLeads}
-                    size="icon"
-                    disabled={isDeleting}
-                  >
-                    <Trash className="h-4 w-4" />
-                  </Button>
-                  <LeadsSearch 
-                    searchTerm={searchTerm} 
-                    onSearchChange={setSearchTerm} 
+          {/* Search and Filters Section */}
+          <Card className="p-6">
+            <div className="space-y-4">
+              <LeadsSearch 
+                searchTerm={searchTerm}
+                onSearchChange={setSearchTerm}
+              />
+              
+              <div className="flex flex-col lg:flex-row gap-4">
+                <div className="flex-1">
+                  <LeadsFilters
+                    stageFilter={stageFilter}
+                    campaignFilter={campaignFilter}
+                    assignedToFilter={assignedToFilter}
+                    sourceFilter={sourceFilter}
+                    onStageFilterChange={setStageFilter}
+                    onCampaignFilterChange={setCampaignFilter}
+                    onAssignedToFilterChange={setAssignedToFilter}
+                    onSourceFilterChange={setSourceFilter}
+                    leads={leads}
                   />
                 </div>
-              )}
-
-              {/* Barra de búsqueda y controles para pantallas pequeñas */}
-              {isSmallScreen && (
-                <div className="flex w-full items-center gap-2">
-                  <div className="flex-1">
-                    <LeadsSearch 
-                      searchTerm={searchTerm} 
-                      onSearchChange={setSearchTerm} 
-                    />
-                  </div>
-                  
-                  <div className="flex gap-2">
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button 
-                          className="text-[#3f3f3f] bg-white border border-gray-300 rounded-md hover:bg-white hover:border-gray-300"
-                          size="sm"
-                          style={{ 
-                            width: '32px',
-                            height: '32px'
-                          }}
-                        >
-                          <Filter className="h-4 w-4 text-[#00c83c]" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent className="w-auto p-0 bg-white rounded-2xl shadow-lg border border-gray-200" align="end">
-                        <LeadsFilters
-                          searchTerm={searchTerm}
-                          setSearchTerm={setSearchTerm}
-                          filterStage={filterStage}
-                          setFilterStage={setFilterStage}
-                          filterPriority={filterPriority}
-                          setFilterPriority={setFilterPriority}
-                          filterAssignedTo={filterAssignedTo}
-                          setFilterAssignedTo={setFilterAssignedTo}
-                          filterSource={filterSource}
-                          setFilterSource={setFilterSource}
-                          filterCampaign={filterCampaign}
-                          setFilterCampaign={setFilterCampaign}
-                          filterDateFrom={filterDateFrom}
-                          setFilterDateFrom={setFilterDateFrom}
-                          filterDateTo={filterDateTo}
-                          setFilterDateTo={setFilterDateTo}
-                          filterValueMin={filterValueMin}
-                          setFilterValueMin={setFilterValueMin}
-                          filterValueMax={filterValueMax}
-                          setFilterValueMax={setFilterValueMax}
-                          filterDuplicates={filterDuplicates}
-                          setFilterDuplicates={setFilterDuplicates}
-                          sortBy={sortBy}
-                          setSortBy={setSortBy}
-                          onClearFilters={clearFilters}
-                          uniqueStages={uniqueStages}
-                          uniqueSources={uniqueSources}
-                          uniqueCampaigns={uniqueCampaigns}
-                          uniqueAssignedTo={uniqueAssignedTo}
-                          duplicateCount={duplicateCount}
-                        />
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                    
-                    {viewMode === "columns" && (
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button 
-                            size="sm" 
-                            className="text-[#3f3f3f] bg-white border border-gray-300 rounded-md hover:bg-white hover:border-gray-300"
-                            style={{ 
-                              width: '32px',
-                              height: '32px'
-                            }}
-                          >
-                            <Group className="h-4 w-4 text-[#00c83c]" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end" className="w-48 bg-white rounded-2xl shadow-lg border border-gray-200">
-                          <div className="p-2">
-                            <DropdownMenuItem 
-                              onClick={() => setGroupBy("stage")}
-                              className={groupBy === "stage" ? "bg-[#00c83c]/10 text-[#00c83c]" : ""}
-                            >
-                              Etapa
-                            </DropdownMenuItem>
-                            <DropdownMenuItem 
-                              onClick={() => setGroupBy("priority")}
-                              className={groupBy === "priority" ? "bg-[#00c83c]/10 text-[#00c83c]" : ""}
-                            >
-                              Prioridad
-                            </DropdownMenuItem>
-                            <DropdownMenuItem 
-                              onClick={() => setGroupBy("source")}
-                              className={groupBy === "source" ? "bg-[#00c83c]/10 text-[#00c83c]" : ""}
-                            >
-                              Fuente
-                            </DropdownMenuItem>
-                            <DropdownMenuItem 
-                              onClick={() => setGroupBy("assignedTo")}
-                              className={groupBy === "assignedTo" ? "bg-[#00c83c]/10 text-[#00c83c]" : ""}
-                            >
-                              Asesor asignado
-                            </DropdownMenuItem>
-                            <DropdownMenuItem 
-                              onClick={() => setGroupBy("campaign")}
-                              className={groupBy === "campaign" ? "bg-[#00c83c]/10 text-[#00c83c]" : ""}
-                            >
-                              Campaña
-                            </DropdownMenuItem>
-                          </div>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    )}
-
-                    {viewMode === "table" && (
-                      <div style={{ 
-                        width: '32px',
-                        height: '32px'
-                      }}>
-                        <LeadsTableColumnSelector
-                          columns={columns}
-                          onColumnsChange={setColumns}
-                          showTextLabel={false}
-                        />
-                      </div>
-                    )}
-                    
-                    <Button
-                      className="gap-1 w-8 h-8 bg-secondary"
-                      onClick={handleViewModeToggle}
-                      size="icon"
-                    >
-                      {getViewModeIcon()}
-                    </Button>
-                  </div>
+                
+                <div className="lg:w-auto">
+                  <LeadsViewControls
+                    viewMode={viewMode}
+                    onViewModeChange={setViewMode}
+                    groupBy={groupBy}
+                    onGroupByChange={setGroupBy}
+                    itemsPerPage={itemsPerPage}
+                    onItemsPerPageChange={setItemsPerPage}
+                    currentPage={currentPage}
+                    totalPages={totalPages}
+                    onPageChange={setCurrentPage}
+                    showGroupBy={viewMode === 'columns'}
+                    showPagination={viewMode === 'table'}
+                  />
                 </div>
-              )}
-              
-              {/* Controles para pantallas grandes */}
-              {!isSmallScreen && (
-                <div className="flex gap-2">
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button 
-                        className="text-[#3f3f3f] bg-white border border-gray-300 rounded-md hover:bg-white hover:border-gray-300"
-                        size="sm"
-                        style={{ 
-                          width: 'auto',
-                          height: '32px'
-                        }}
-                      >
-                        <Filter className="h-4 w-4 text-[#00c83c]" />
-                        <span className="ml-1">Filtros</span>
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent className="w-auto p-0 bg-white rounded-2xl shadow-lg border border-gray-200" align="end">
-                      <LeadsFilters
-                        searchTerm={searchTerm}
-                        setSearchTerm={setSearchTerm}
-                        filterStage={filterStage}
-                        setFilterStage={setFilterStage}
-                        filterPriority={filterPriority}
-                        setFilterPriority={setFilterPriority}
-                        filterAssignedTo={filterAssignedTo}
-                        setFilterAssignedTo={setFilterAssignedTo}
-                        filterSource={filterSource}
-                        setFilterSource={setFilterSource}
-                        filterCampaign={filterCampaign}
-                        setFilterCampaign={setFilterCampaign}
-                        filterDateFrom={filterDateFrom}
-                        setFilterDateFrom={setFilterDateFrom}
-                        filterDateTo={filterDateTo}
-                        setFilterDateTo={setFilterDateTo}
-                        filterValueMin={filterValueMin}
-                        setFilterValueMin={setFilterValueMin}
-                        filterValueMax={filterValueMax}
-                        setFilterValueMax={setFilterValueMax}
-                        filterDuplicates={filterDuplicates}
-                        setFilterDuplicates={setFilterDuplicates}
-                        sortBy={sortBy}
-                        setSortBy={setSortBy}
-                        onClearFilters={clearFilters}
-                        uniqueStages={uniqueStages}
-                        uniqueSources={uniqueSources}
-                        uniqueCampaigns={uniqueCampaigns}
-                        uniqueAssignedTo={uniqueAssignedTo}
-                        duplicateCount={duplicateCount}
-                      />
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                  
-                  {viewMode === "columns" && (
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button 
-                          size="sm" 
-                          className="text-[#3f3f3f] bg-white border border-gray-300 rounded-md hover:bg-white hover:border-gray-300"
-                          style={{ 
-                            width: 'auto',
-                            height: '32px'
-                          }}
-                        >
-                          <Group className="h-4 w-4 text-[#00c83c]" />
-                          <span className="ml-1">Agrupar por</span>
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end" className="w-48 bg-white rounded-2xl shadow-lg border border-gray-200">
-                        <div className="p-2">
-                          <DropdownMenuItem 
-                            onClick={() => setGroupBy("stage")}
-                            className={groupBy === "stage" ? "bg-[#00c83c]/10 text-[#00c83c]" : ""}
-                          >
-                            Etapa
-                          </DropdownMenuItem>
-                          <DropdownMenuItem 
-                            onClick={() => setGroupBy("priority")}
-                            className={groupBy === "priority" ? "bg-[#00c83c]/10 text-[#00c83c]" : ""}
-                          >
-                            Prioridad
-                          </DropdownMenuItem>
-                          <DropdownMenuItem 
-                            onClick={() => setGroupBy("source")}
-                            className={groupBy === "source" ? "bg-[#00c83c]/10 text-[#00c83c]" : ""}
-                          >
-                            Fuente
-                          </DropdownMenuItem>
-                          <DropdownMenuItem 
-                            onClick={() => setGroupBy("assignedTo")}
-                            className={groupBy === "assignedTo" ? "bg-[#00c83c]/10 text-[#00c83c]" : ""}
-                          >
-                            Asesor asignado
-                          </DropdownMenuItem>
-                          <DropdownMenuItem 
-                            onClick={() => setGroupBy("campaign")}
-                            className={groupBy === "campaign" ? "bg-[#00c83c]/10 text-[#00c83c]" : ""}
-                          >
-                            Campaña
-                          </DropdownMenuItem>
-                        </div>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  )}
-
-                  {viewMode === "table" && (
-                    <div style={{ 
-                      width: 'auto',
-                      height: '32px'
-                    }}>
-                      <LeadsTableColumnSelector
-                        columns={columns}
-                        onColumnsChange={setColumns}
-                        showTextLabel={true}
-                      />
-                    </div>
-                  )}
-                  
-                  <Button
-                    className="gap-1 w-8 h-8 bg-secondary"
-                    onClick={handleViewModeToggle}
-                    size="icon"
-                  >
-                    {getViewModeIcon()}
-                  </Button>
-                </div>
-              )}
-            </div>
-
-            {isLoading ? (
-              <div className="flex justify-center items-center py-8">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900" />
               </div>
-            ) : (
-              <>
-                <LeadsContent
-                  viewMode={viewMode}
-                  leads={filteredLeads}
-                  onLeadClick={handleLeadClick}
-                  onLeadUpdate={handleLeadUpdate}
-                  columns={columns}
-                  paginatedLeads={paginatedLeads}
-                  onSortedLeadsChange={handleSortedLeadsChange}
-                  onSendEmail={handleSendEmailToLead}
-                  groupBy={groupBy}
-                  selectedLeads={selectedLeads}
-                  onLeadSelectionChange={handleLeadSelectionChange}
-                />
+            </div>
+          </Card>
 
-                <LeadsPagination
-                  currentPage={currentPage}
-                  totalPages={totalPages}
-                  totalLeads={leadsToUse.length}
-                  leadsPerPage={leadsPerPage}
-                  onPageChange={setCurrentPage}
-                  onLeadsPerPageChange={setLeadsPerPage}
-                />
-              </>
-            )}
-          </div>
+          {/* Main Content */}
+          <Card className="overflow-hidden">
+            <LeadsContent
+              viewMode={viewMode}
+              leads={filteredLeads}
+              onLeadClick={handleLeadClick}
+              onLeadUpdate={handleLeadUpdate}
+              columns={columns}
+              paginatedLeads={paginatedLeads}
+              onSortedLeadsChange={handleSortedLeadsChange}
+              onSendEmail={handleSendEmail}
+              groupBy={groupBy}
+              selectedLeads={selectedLeads}
+              onLeadSelectionChange={handleLeadSelectionChange}
+            />
+          </Card>
         </div>
-
-        {/* Dialog for creating leads - Solo el diálogo, sin botón visible */}
-        <LeadCreateDialog ref={leadCreateDialogRef} onLeadCreate={handleLeadCreate} />
-
-        {selectedLead && (
-          <LeadDetail
-            lead={selectedLead}
-            isOpen={!!selectedLead}
-            onClose={() => setSelectedLead(null)}
-            onSave={handleLeadUpdate}
-            onOpenMassEmail={handleSendEmailToLead}
-          />
-        )}
-
-        {showBulkAssign && (
-          <Dialog open={showBulkAssign} onOpenChange={setShowBulkAssign}>
-            <DialogContent className="max-w-2xl">
-              <LeadsBulkAssignment
-                leads={selectedLeads.length > 0 
-                  ? filteredLeads.filter(lead => selectedLeads.includes(lead.id))
-                  : filteredLeads
-                }
-                onLeadsAssigned={() => {
-                  handleLeadUpdate();
-                  setShowBulkAssign(false);
-                  setSelectedLeads([]);
-                }}
-              />
-            </DialogContent>
-          </Dialog>
-        )}
-
-        {showUpload && (
-          <LeadsUpload
-            onLeadsUploaded={() => {
-              handleLeadUpdate();
-              setShowUpload(false);
-            }}
-          />
-        )}
-
-        <Dialog open={showMassEmail} onOpenChange={(open) => {
-          setShowMassEmail(open);
-          if (!open) {
-            setSelectedLeadForEmail(null);
-          }
-        }}>
-          <DialogContent className="max-w-6xl max-h-[90vh] overflow-auto">
-            <MassEmailSender
-              filteredLeads={selectedLeadForEmail 
-                ? [selectedLeadForEmail] 
-                : selectedLeads.length > 0 
-                  ? filteredLeads.filter(lead => selectedLeads.includes(lead.id))
-                  : filteredLeads
-              }
-              onClose={() => {
-                setShowMassEmail(false);
-                setSelectedLeadForEmail(null);
-                setSelectedLeads([]);
-              }}
-            />
-          </DialogContent>
-        </Dialog>
-
-        <Dialog open={showMassWhatsApp} onOpenChange={setShowMassWhatsApp}>
-          <DialogContent className="max-w-7xl max-h-[90vh] overflow-auto">
-            <MassWhatsAppSender
-              filteredLeads={selectedLeads.length > 0 
-                ? filteredLeads.filter(lead => selectedLeads.includes(lead.id))
-                : filteredLeads
-              }
-              onClose={() => {
-                setShowMassWhatsApp(false);
-                setSelectedLeads([]);
-              }}
-            />
-          </DialogContent>
-        </Dialog>
-
-        <LeadDeleteConfirmDialog
-          isOpen={showDeleteDialog}
-          onClose={() => setShowDeleteDialog(false)}
-          onConfirm={handleConfirmDelete}
-          leads={selectedLeads.length > 0 
-            ? filteredLeads.filter(lead => selectedLeads.includes(lead.id))
-            : filteredLeads
-          }
-          isDeleting={isDeleting}
-        />
       </div>
+
+      {/* Lead Detail Modal */}
+      {selectedLead && (
+        <LeadDetail
+          lead={selectedLead}
+          isOpen={!!selectedLead}
+          onClose={handleCloseDetail}
+          onLeadUpdate={handleLeadUpdate}
+        />
+      )}
+
+      {/* Email Composer Modal */}
+      {emailLead && (
+        <EmailComposer
+          isOpen={!!emailLead}
+          onClose={() => setEmailLead(null)}
+          recipientLead={emailLead}
+        />
+      )}
     </>
   );
 }

@@ -292,7 +292,14 @@ export function LeadsTable({
           bValue = b.documentNumber || 0;
           break;
         default:
-          return 0;
+          // Handle dynamic columns from additionalInfo
+          if (sortConfig.key.startsWith('additionalInfo.')) {
+            const key = sortConfig.key.replace('additionalInfo.', '');
+            aValue = (a.additionalInfo?.[key] || '').toString().toLowerCase();
+            bValue = (b.additionalInfo?.[key] || '').toString().toLowerCase();
+          } else {
+            return 0;
+          }
       }
 
       if (aValue < bValue) {
@@ -474,6 +481,17 @@ export function LeadsTable({
 
   const renderCellContent = (lead: Lead, columnKey: string) => {
     const assignedUser = users.find(u => u.id === lead.assignedTo);
+
+    // Handle dynamic columns from additionalInfo
+    if (columnKey.startsWith('additionalInfo.')) {
+      const key = columnKey.replace('additionalInfo.', '');
+      const value = lead.additionalInfo?.[key];
+      return (
+        <span className="text-gray-700 text-xs text-center">
+          {value ? String(value) : '-'}
+        </span>
+      );
+    }
 
     switch (columnKey) {
       case 'name':
