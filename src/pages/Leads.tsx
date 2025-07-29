@@ -107,22 +107,42 @@ export function Leads() {
   const {
     searchTerm,
     setSearchTerm,
-    filterStage: stageFilter,
-    setFilterStage: setStageFilter,
-    filterCampaign: campaignFilter,
-    setFilterCampaign: setCampaignFilter,
-    filterAssignedTo: assignedToFilter,
-    setFilterAssignedTo: setAssignedToFilter,
-    filterSource: sourceFilter,
-    setFilterSource: setSourceFilter,
-    filteredLeads
+    filterStage,
+    setFilterStage,
+    filterPriority,
+    setFilterPriority,
+    filterCampaign,
+    setFilterCampaign,
+    filterAssignedTo,
+    setFilterAssignedTo,
+    filterSource,
+    setFilterSource,
+    filterDateFrom,
+    setFilterDateFrom,
+    filterDateTo,
+    setFilterDateTo,
+    filterValueMin,
+    setFilterValueMin,
+    filterValueMax,
+    setFilterValueMax,
+    filterDuplicates,
+    setFilterDuplicates,
+    sortBy,
+    setSortBy,
+    filteredLeads,
+    clearFilters,
+    uniqueStages,
+    uniqueSources,
+    uniqueCampaigns,
+    uniqueAssignedTo,
+    duplicateCount
   } = useLeadsFilters(sortedLeads.length > 0 ? sortedLeads : leads);
 
   const {
     currentPage,
     setCurrentPage,
-    leadsPerPage: itemsPerPage,
-    setLeadsPerPage: setItemsPerPage,
+    leadsPerPage,
+    setLeadsPerPage,
     totalPages,
     paginatedLeads
   } = useLeadsPagination(filteredLeads);
@@ -248,15 +268,36 @@ export function Leads() {
               <div className="flex flex-col lg:flex-row gap-4">
                 <div className="flex-1">
                   <LeadsFilters
-                    filterStage={stageFilter}
-                    filterCampaign={campaignFilter}
-                    filterAssignedTo={assignedToFilter}
-                    filterSource={sourceFilter}
-                    onStageFilterChange={setStageFilter}
-                    onCampaignFilterChange={setCampaignFilter}
-                    onAssignedToFilterChange={setAssignedToFilter}
-                    onSourceFilterChange={setSourceFilter}
-                    leads={leads}
+                    searchTerm={searchTerm}
+                    setSearchTerm={setSearchTerm}
+                    filterStage={filterStage}
+                    setFilterStage={setFilterStage}
+                    filterPriority={filterPriority}
+                    setFilterPriority={setFilterPriority}
+                    filterAssignedTo={filterAssignedTo}
+                    setFilterAssignedTo={setFilterAssignedTo}
+                    filterSource={filterSource}
+                    setFilterSource={setFilterSource}
+                    filterCampaign={filterCampaign}
+                    setFilterCampaign={setFilterCampaign}
+                    filterDateFrom={filterDateFrom}
+                    setFilterDateFrom={setFilterDateFrom}
+                    filterDateTo={filterDateTo}
+                    setFilterDateTo={setFilterDateTo}
+                    filterValueMin={filterValueMin}
+                    setFilterValueMin={setFilterValueMin}
+                    filterValueMax={filterValueMax}
+                    setFilterValueMax={setFilterValueMax}
+                    filterDuplicates={filterDuplicates}
+                    setFilterDuplicates={setFilterDuplicates}
+                    sortBy={sortBy}
+                    setSortBy={setSortBy}
+                    onClearFilters={clearFilters}
+                    uniqueStages={uniqueStages}
+                    uniqueSources={uniqueSources}
+                    uniqueCampaigns={uniqueCampaigns}
+                    uniqueAssignedTo={uniqueAssignedTo}
+                    duplicateCount={duplicateCount}
                   />
                 </div>
                 
@@ -295,6 +336,7 @@ export function Leads() {
           lead={selectedLead}
           isOpen={!!selectedLead}
           onClose={handleCloseDetail}
+          onSave={handleLeadUpdate}
         />
       )}
 
