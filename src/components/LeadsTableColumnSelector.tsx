@@ -30,19 +30,50 @@ import {
   useSortable,
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
+import { Lead } from "@/types/crm";
 
 export interface ColumnConfig {
   key: string;
   label: string;
   visible: boolean;
   sortable: boolean;
+  isDynamic?: boolean;
 }
 
 interface LeadsTableColumnSelectorProps {
   columns: ColumnConfig[];
   onColumnsChange: (columns: ColumnConfig[]) => void;
   showTextLabel?: boolean;
+  leads?: Lead[];
 }
+
+// Función para obtener las claves dinámicas de additionalInfo
+const getDynamicAdditionalInfoKeys = (leads: Lead[]): string[] => {
+  const keys = new Set<string>();
+  
+  leads.forEach(lead => {
+    if (lead.additionalInfo && typeof lead.additionalInfo === 'object') {
+      Object.keys(lead.additionalInfo).forEach(key => {
+        keys.add(key);
+      });
+    }
+  });
+  
+  return Array.from(keys).sort();
+};
+
+// Función para generar columnas dinámicas
+const generateDynamicColumns = (leads: Lead[]): ColumnConfig[] => {
+  const dynamicKeys = getDynamicAdditionalInfoKeys(leads);
+  
+  return dynamicKeys.map(key => ({
+    key: `additionalInfo.${key}`,
+    label: key.charAt(0).toUpperCase() + key.slice(1).replace(/([A-Z])/g, ' $1'),
+    visible: false,
+    sortable: true,
+    isDynamic: true
+  }));
+};
 
 // Función para guardar configuración en sessionStorage
 const saveColumnConfig = (columns: ColumnConfig[]) => {
@@ -119,6 +150,9 @@ function SortableColumnItem({ column, onToggle }: SortableColumnItemProps) {
         {column.key === 'name' && (
           <span className="ml-1 text-xs text-gray-400">(obligatorio)</span>
         )}
+        {column.isDynamic && (
+          <span className="ml-1 text-xs text-blue-500">(info adicional)</span>
+        )}
       </label>
     </div>
   );
@@ -127,7 +161,8 @@ function SortableColumnItem({ column, onToggle }: SortableColumnItemProps) {
 export function LeadsTableColumnSelector({ 
   columns, 
   onColumnsChange,
-  showTextLabel = true
+  showTextLabel = true,
+  leads = []
 }: LeadsTableColumnSelectorProps) {
   const [open, setOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
@@ -139,22 +174,46 @@ export function LeadsTableColumnSelector({
     })
   );
 
+  // Generar columnas dinámicas y combinar con las existentes
+  const allColumns = useMemo(() => {
+    const dynamicColumns = generateDynamicColumns(leads);
+    const staticColumns = columns.filter(col => !col.isDynamic);
+    
+    // Combinar columnas estáticas con dinámicas, evitando duplicados
+    const combinedColumns = [...staticColumns];
+    
+    dynamicColumns.forEach(dynamicCol => {
+      const existingIndex = combinedColumns.findIndex(col => col.key === dynamicCol.key);
+      if (existingIndex === -1) {
+        combinedColumns.push(dynamicCol);
+      } else {
+        // Actualizar columna existente manteniendo la visibilidad
+        combinedColumns[existingIndex] = {
+          ...dynamicCol,
+          visible: combinedColumns[existingIndex].visible
+        };
+      }
+    });
+    
+    return combinedColumns;
+  }, [columns, leads]);
+
   // Filtrar columnas basado en el término de búsqueda
   const filteredColumns = useMemo(() => {
-    if (!searchTerm) return columns;
-    return columns.filter(column => 
+    if (!searchTerm) return allColumns;
+    return allColumns.filter(column => 
       column.label.toLowerCase().includes(searchTerm.toLowerCase())
     );
-  }, [columns, searchTerm]);
+  }, [allColumns, searchTerm]);
 
   const handleDragEnd = (event: any) => {
     const { active, over } = event;
 
     if (active.id !== over.id) {
-      const oldIndex = columns.findIndex(col => col.key === active.id);
-      const newIndex = columns.findIndex(col => col.key === over.id);
+      const oldIndex = allColumns.findIndex(col => col.key === active.id);
+      const newIndex = allColumns.findIndex(col => col.key === over.id);
       
-      const newColumns = arrayMove(columns, oldIndex, newIndex);
+      const newColumns = arrayMove(allColumns, oldIndex, newIndex);
       saveColumnConfig(newColumns);
       onColumnsChange(newColumns);
     }
@@ -166,7 +225,7 @@ export function LeadsTableColumnSelector({
       return;
     }
     
-    const updatedColumns = columns.map(col => 
+    const updatedColumns = allColumns.map(col => 
       col.key === columnKey 
         ? { ...col, visible: !col.visible }
         : col
@@ -178,7 +237,7 @@ export function LeadsTableColumnSelector({
   };
 
   const handleToggleAll = (checked: boolean) => {
-    const updatedColumns = columns.map(col => ({
+    const updatedColumns = allColumns.map(col => ({
       ...col,
       // Always keep name column visible even when unchecking all
       visible: col.key === 'name' ? true : checked
@@ -196,8 +255,8 @@ export function LeadsTableColumnSelector({
     window.location.reload();
   };
 
-  const visibleCount = columns.filter(col => col.visible).length;
-  const selectableColumns = columns.filter(col => col.key !== 'name');
+  const visibleCount = allColumns.filter(col => col.visible).length;
+  const selectableColumns = allColumns.filter(col => col.key !== 'name');
   const allSelectableSelected = selectableColumns.every(col => col.visible);
 
   return (
@@ -220,7 +279,7 @@ export function LeadsTableColumnSelector({
           <div className="flex items-center justify-between mb-3">
             <h3 className="font-medium text-sm">Seleccionar y reordenar columnas</h3>
             <span className="text-xs text-gray-500">
-              {visibleCount} de {columns.length}
+              {visibleCount} de {allColumns.length}
             </span>
           </div>
           
