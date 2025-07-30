@@ -423,7 +423,7 @@ Notas adicionales: ${lead.notes || 'Ninguna'}`;
               {/* Tab General */}
               <TabsContent value="general" className="space-y-6">
                 
-                    <CardContent className="space-y-6 py-2">
+                    <CardContent className="space-y-6 py-2 px-0">
                       <div className="space-y-0 border-2 border-[#3d4b5c26] shadow-md rounded-md p-2.5">
                         <Label className="p-0 text-sm text-gray-500 font-normal">Nombre completo</Label>
                         <Input
