@@ -602,7 +602,7 @@ Notas adicionales: ${lead.notes || 'Ninguna'}`;
                   <div className="mt-2">
                     <SkAccordion type="single" collapsible className="w-full">
                       <SkAccordionItem value="additional-info" className="border border-gray-200 rounded-lg bg-white shadow-sm">
-                        <SkAccordionTrigger className="px-4 py-4 hover:bg-gray-50 text-left font-semibold text-gray-700">
+                        <SkAccordionTrigger className="px-4 py-4 hover:bg-gray-50 text-left font-semibold text-gray-700 rounded-md">
                           Detalles de Información Adicional
                         </SkAccordionTrigger>
                         <SkAccordionContent className="px-4 pb-4">
