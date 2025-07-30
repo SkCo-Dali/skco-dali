@@ -568,7 +568,7 @@ Por favor, confirmar asistencia.`;
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={(e) => handleLeadAction('outlook', lead, e)}>
                   <Calendar className="mr-2 h-4 w-4" />
-                  Agendar reunión en Outlook
+                  Agendar reunión
                 </DropdownMenuItem>
                 {onOpenProfiler && (
                   <DropdownMenuItem onClick={(e) => handleLeadAction('profile', lead, e)}>
