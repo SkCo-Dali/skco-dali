@@ -1,3 +1,4 @@
+
 import React, { useState, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import {
@@ -11,6 +12,7 @@ import { Switch } from "@/components/ui/switch";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Input } from "@/components/ui/input";
 import { Settings2, Search, GripVertical } from "lucide-react";
+import { Lead } from "@/types/crm";
 import {
   DndContext,
   closestCenter,
@@ -29,7 +31,6 @@ import {
   useSortable,
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { Lead } from "@/types/crm";
 
 export interface ColumnConfig {
   key: string;
@@ -46,40 +47,27 @@ interface LeadsTableColumnSelectorProps {
   leads?: Lead[];
 }
 
-// Función para obtener las claves dinámicas de additionalInfo
-const getDynamicAdditionalInfoKeys = (leads: Lead[]): string[] => {
-  console.log('🔍 Analizando leads para claves dinámicas:', leads.length, 'leads');
-  const keys = new Set<string>();
+// Función para extraer claves dinámicas de additionalInfo
+const extractDynamicColumns = (leads: Lead[]): ColumnConfig[] => {
+  const dynamicKeys = new Set<string>();
   
-  leads.forEach((lead, index) => {
-    console.log(`📋 Lead ${index + 1} (${lead.name}):`, lead.additionalInfo);
+  leads.forEach(lead => {
     if (lead.additionalInfo && typeof lead.additionalInfo === 'object') {
       Object.keys(lead.additionalInfo).forEach(key => {
-        console.log(`  ➕ Agregando clave dinámica: ${key}`);
-        keys.add(key);
+        if (key.trim() !== '') {
+          dynamicKeys.add(key);
+        }
       });
     }
   });
   
-  const dynamicKeys = Array.from(keys).sort();
-  console.log('🎯 Claves dinámicas encontradas:', dynamicKeys);
-  return dynamicKeys;
-};
-
-// Función para generar columnas dinámicas
-const generateDynamicColumns = (leads: Lead[]): ColumnConfig[] => {
-  const dynamicKeys = getDynamicAdditionalInfoKeys(leads);
-  
-  const dynamicColumns = dynamicKeys.map(key => ({
+  return Array.from(dynamicKeys).map(key => ({
     key: `additionalInfo.${key}`,
-    label: key.charAt(0).toUpperCase() + key.slice(1).replace(/([A-Z])/g, ' $1'),
+    label: key,
     visible: false,
     sortable: true,
     isDynamic: true
   }));
-
-  console.log('🏗️ Columnas dinámicas generadas:', dynamicColumns);
-  return dynamicColumns;
 };
 
 // Función para guardar configuración en sessionStorage
@@ -157,9 +145,6 @@ function SortableColumnItem({ column, onToggle }: SortableColumnItemProps) {
         {column.key === 'name' && (
           <span className="ml-1 text-xs text-gray-400">(obligatorio)</span>
         )}
-        {column.isDynamic && (
-          <span className="ml-1 text-xs text-blue-500">(info adicional)</span>
-        )}
       </label>
     </div>
   );
@@ -174,8 +159,6 @@ export function LeadsTableColumnSelector({
   const [open, setOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
 
-  console.log('🎬 LeadsTableColumnSelector renderizado con:', leads.length, 'leads');
-
   const sensors = useSensors(
     useSensor(PointerSensor),
     useSensor(KeyboardSensor, {
@@ -183,45 +166,27 @@ export function LeadsTableColumnSelector({
     })
   );
 
-  // Generar columnas dinámicas y combinar con las existentes
-  const allColumns = useMemo(() => {
-    console.log('🔄 Recalculando columnas...');
-    const dynamicColumns = generateDynamicColumns(leads);
-    const staticColumns = columns.filter(col => !col.isDynamic);
-    
-    // Combinar columnas estáticas con dinámicas, evitando duplicados
-    const combinedColumns = [...staticColumns];
-    
-    dynamicColumns.forEach(dynamicCol => {
-      const existingIndex = combinedColumns.findIndex(col => col.key === dynamicCol.key);
-      if (existingIndex === -1) {
-        combinedColumns.push(dynamicCol);
-      } else {
-        // Actualizar columna existente manteniendo la visibilidad
-        combinedColumns[existingIndex] = {
-          ...dynamicCol,
-          visible: combinedColumns[existingIndex].visible
-        };
-      }
+  // Separar columnas fijas y dinámicas
+  const fixedColumns = columns.filter(col => !col.isDynamic);
+  const dynamicColumns = useMemo(() => {
+    const extracted = extractDynamicColumns(leads);
+    // Mantener la visibilidad de las columnas dinámicas existentes
+    return extracted.map(newCol => {
+      const existing = columns.find(col => col.key === newCol.key);
+      return existing ? { ...newCol, visible: existing.visible } : newCol;
     });
-    
-    console.log('✅ Columnas combinadas finales:', combinedColumns.length);
-    return combinedColumns;
-  }, [columns, leads]);
+  }, [leads, columns]);
 
-  // Separar columnas fijas de las dinámicas para mostrar en secciones
-  const staticColumns = allColumns.filter(col => !col.isDynamic);
-  const dynamicColumns = allColumns.filter(col => col.isDynamic);
-
-  console.log('📊 Columnas estáticas:', staticColumns.length, 'Columnas dinámicas:', dynamicColumns.length);
+  // Combinar todas las columnas
+  const allColumns = [...fixedColumns, ...dynamicColumns];
 
   // Filtrar columnas basado en el término de búsqueda
-  const filteredStaticColumns = useMemo(() => {
-    if (!searchTerm) return staticColumns;
-    return staticColumns.filter(column => 
+  const filteredFixedColumns = useMemo(() => {
+    if (!searchTerm) return fixedColumns;
+    return fixedColumns.filter(column => 
       column.label.toLowerCase().includes(searchTerm.toLowerCase())
     );
-  }, [staticColumns, searchTerm]);
+  }, [fixedColumns, searchTerm]);
 
   const filteredDynamicColumns = useMemo(() => {
     if (!searchTerm) return dynamicColumns;
@@ -303,7 +268,7 @@ export function LeadsTableColumnSelector({
           <div className="flex items-center justify-between mb-3">
             <h3 className="font-medium text-sm">Seleccionar y reordenar columnas</h3>
             <span className="text-xs text-gray-500">
-              {allColumns.filter(col => col.visible).length} de {allColumns.length}
+              {visibleCount} de {allColumns.length}
             </span>
           </div>
           
@@ -324,44 +289,44 @@ export function LeadsTableColumnSelector({
             <span>Arrastra para reordenar las columnas</span>
           </div>
           
-          <ScrollArea className="h-72 border-2 border-[#dedede] rounded-md">
+          <ScrollArea className="h-80 border-2 border-[#dedede] rounded-md">
             <div className="p-2">
               <DndContext
                 sensors={sensors}
                 collisionDetection={closestCenter}
                 onDragEnd={handleDragEnd}
               >
-                <SortableContext
-                  items={[...filteredStaticColumns, ...filteredDynamicColumns].map(col => col.key)}
-                  strategy={verticalListSortingStrategy}
-                >
-                  {/* Sección de Columnas Fijas */}
-                  {filteredStaticColumns.length > 0 && (
-                    <>
-                      <div className="text-xs font-semibold text-gray-600 mb-2 px-2">
-                        Columnas Fijas
-                      </div>
-                      {filteredStaticColumns.map((column) => (
+                {/* Sección de Columnas Fijas */}
+                {filteredFixedColumns.length > 0 && (
+                  <>
+                    <div className="text-xs font-medium text-gray-600 mb-2 px-2 py-1 bg-gray-50 rounded">
+                      Columnas Fijas
+                    </div>
+                    <SortableContext
+                      items={filteredFixedColumns.map(col => col.key)}
+                      strategy={verticalListSortingStrategy}
+                    >
+                      {filteredFixedColumns.map((column) => (
                         <SortableColumnItem
                           key={column.key}
                           column={column}
                           onToggle={handleToggleColumn}
                         />
                       ))}
-                    </>
-                  )}
-                  
-                  {/* Separador si hay ambas secciones */}
-                  {filteredStaticColumns.length > 0 && filteredDynamicColumns.length > 0 && (
-                    <div className="border-t border-gray-200 my-3"></div>
-                  )}
-                  
-                  {/* Sección de Información Adicional */}
-                  {filteredDynamicColumns.length > 0 && (
-                    <>
-                      <div className="text-xs font-semibold text-blue-600 mb-2 px-2">
-                        Información Adicional ({filteredDynamicColumns.length})
-                      </div>
+                    </SortableContext>
+                  </>
+                )}
+
+                {/* Sección de Información Adicional */}
+                {filteredDynamicColumns.length > 0 && (
+                  <>
+                    <div className="text-xs font-medium text-gray-600 mb-2 px-2 py-1 bg-blue-50 rounded mt-3">
+                      Información Adicional
+                    </div>
+                    <SortableContext
+                      items={filteredDynamicColumns.map(col => col.key)}
+                      strategy={verticalListSortingStrategy}
+                    >
                       {filteredDynamicColumns.map((column) => (
                         <SortableColumnItem
                           key={column.key}
@@ -369,19 +334,9 @@ export function LeadsTableColumnSelector({
                           onToggle={handleToggleColumn}
                         />
                       ))}
-                    </>
-                  )}
-                  
-                  {/* Mensaje cuando no hay columnas dinámicas */}
-                  {filteredDynamicColumns.length === 0 && dynamicColumns.length === 0 && (
-                    <div className="text-xs text-gray-500 italic px-2 py-4">
-                      No se encontraron campos de información adicional en los leads
-                      <div className="text-xs text-gray-400 mt-1">
-                        ({leads.length} leads analizados)
-                      </div>
-                    </div>
-                  )}
-                </SortableContext>
+                    </SortableContext>
+                  </>
+                )}
               </DndContext>
             </div>
           </ScrollArea>
