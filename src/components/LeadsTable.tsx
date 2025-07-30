@@ -481,7 +481,10 @@ Etapa: ${lead.stage}
 Por favor, confirmar asistencia.`;
     
     const outlookUrl = `https://outlook.office365.com/calendar/0/deeplink/compose?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}&startdt=${startDate.toISOString()}&enddt=${endDate.toISOString()}`;
-    
+    // Si hay email del lead, agregarlo como invitado
+    if (lead.email) {
+      outlookUrl.searchParams.append('to', lead.email);
+    }
     window.open(outlookUrl, '_blank');
   };
 
