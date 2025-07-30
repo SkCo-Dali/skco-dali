@@ -653,17 +653,17 @@ Notas adicionales: ${lead.notes || 'Ninguna'}`;
                     <CardTitle className="flex items-center pt-2">Resultado de la Gestión</CardTitle>
                 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div>
-                        <Label htmlFor="stage">Estado Actual</Label>
-                        <Select 
-                          value={editedLead.stage} 
-                          onValueChange={(value) => handleManagementChange('stage', value)}
-                        >
-                          <SelectTrigger>
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="Nuevo">Nuevo</SelectItem>
+                      <div className="space-y-0 border-2 border-[#3d4b5c26] shadow-md rounded-md p-2.5">
+                          <Label className="p-0 text-sm text-gray-500 font-normal">Estado Actual</Label>
+                          <Select 
+                            value={editedLead.stage} 
+                            onValueChange={(value) => handleGeneralChange('stage', value)}
+                          >
+                            <SelectTrigger className="border-0 border-b border-gray-200 rounded-none px-0 py-0 m-0 text-sm font-medium bg-transparent leading-none h-auto min-h-0 focus:border-gray-400 focus:shadow-none focus:ring-0">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="Nuevo">Nuevo</SelectItem>
                             <SelectItem value="Asignado">Asignado</SelectItem>
                             <SelectItem value="Localizado: No interesado">Localizado: No interesado</SelectItem>
                             <SelectItem value="Localizado: Prospecto de venta FP">Localizado: Prospecto de venta FP</SelectItem>
@@ -674,11 +674,13 @@ Notas adicionales: ${lead.notes || 'Ninguna'}`;
                             <SelectItem value="No localizado: Número equivocado">No localizado: Número equivocado</SelectItem>
                             <SelectItem value="Contrato Creado">Contrato Creado</SelectItem>
                             <SelectItem value="Registro de Venta (fondeado)">Registro de Venta (fondeado)</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-                       <div>
-                        <Label htmlFor="contactMethod">Medio de Contacto</Label>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      
+                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="space-y-0 border-2 border-[#3d4b5c26] shadow-md rounded-md p-2.5">
+                          <Label className="p-0 text-sm text-gray-500 font-normal">Medio de Contacto</Label>
                         <Select value={contactMethod} onValueChange={setContactMethod}>
                           <SelectTrigger>
                             <SelectValue placeholder="Seleccionar medio" />
