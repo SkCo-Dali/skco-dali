@@ -678,8 +678,7 @@ Notas adicionales: ${lead.notes || 'Ninguna'}`;
                           </Select>
                         </div>
                       
-                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div className="space-y-0 border-2 border-[#3d4b5c26] shadow-md rounded-md p-2.5">
+                       <div className="space-y-0 border-2 border-[#3d4b5c26] shadow-md rounded-md p-2.5">
                           <Label className="p-0 text-sm text-gray-500 font-normal">Medio de Contacto</Label>
                         <Select value={contactMethod} onValueChange={setContactMethod}>
                           <SelectTrigger>
