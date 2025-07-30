@@ -383,7 +383,7 @@ Estado: ${lead.stage || 'No especificado'}
 Notas adicionales: ${lead.notes || 'Ninguna'}`;
 
     // Crear URL para Outlook Web
-    const outlookUrl = new URL('https://outlook.live.com/calendar/0/deeplink/compose');
+    const outlookUrl = new URL('https://outlook.office365.com/calendar/0/deeplink/compose');
     outlookUrl.searchParams.append('subject', subject);
     outlookUrl.searchParams.append('body', body);
     
