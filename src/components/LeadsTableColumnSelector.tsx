@@ -1,4 +1,3 @@
-
 import React, { useState, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import {
@@ -49,30 +48,38 @@ interface LeadsTableColumnSelectorProps {
 
 // Función para obtener las claves dinámicas de additionalInfo
 const getDynamicAdditionalInfoKeys = (leads: Lead[]): string[] => {
+  console.log('🔍 Analizando leads para claves dinámicas:', leads.length, 'leads');
   const keys = new Set<string>();
   
-  leads.forEach(lead => {
+  leads.forEach((lead, index) => {
+    console.log(`📋 Lead ${index + 1} (${lead.name}):`, lead.additionalInfo);
     if (lead.additionalInfo && typeof lead.additionalInfo === 'object') {
       Object.keys(lead.additionalInfo).forEach(key => {
+        console.log(`  ➕ Agregando clave dinámica: ${key}`);
         keys.add(key);
       });
     }
   });
   
-  return Array.from(keys).sort();
+  const dynamicKeys = Array.from(keys).sort();
+  console.log('🎯 Claves dinámicas encontradas:', dynamicKeys);
+  return dynamicKeys;
 };
 
 // Función para generar columnas dinámicas
 const generateDynamicColumns = (leads: Lead[]): ColumnConfig[] => {
   const dynamicKeys = getDynamicAdditionalInfoKeys(leads);
   
-  return dynamicKeys.map(key => ({
+  const dynamicColumns = dynamicKeys.map(key => ({
     key: `additionalInfo.${key}`,
     label: key.charAt(0).toUpperCase() + key.slice(1).replace(/([A-Z])/g, ' $1'),
     visible: false,
     sortable: true,
     isDynamic: true
   }));
+
+  console.log('🏗️ Columnas dinámicas generadas:', dynamicColumns);
+  return dynamicColumns;
 };
 
 // Función para guardar configuración en sessionStorage
@@ -167,6 +174,8 @@ export function LeadsTableColumnSelector({
   const [open, setOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
 
+  console.log('🎬 LeadsTableColumnSelector renderizado con:', leads.length, 'leads');
+
   const sensors = useSensors(
     useSensor(PointerSensor),
     useSensor(KeyboardSensor, {
@@ -176,6 +185,7 @@ export function LeadsTableColumnSelector({
 
   // Generar columnas dinámicas y combinar con las existentes
   const allColumns = useMemo(() => {
+    console.log('🔄 Recalculando columnas...');
     const dynamicColumns = generateDynamicColumns(leads);
     const staticColumns = columns.filter(col => !col.isDynamic);
     
@@ -195,12 +205,15 @@ export function LeadsTableColumnSelector({
       }
     });
     
+    console.log('✅ Columnas combinadas finales:', combinedColumns.length);
     return combinedColumns;
   }, [columns, leads]);
 
   // Separar columnas fijas de las dinámicas para mostrar en secciones
   const staticColumns = allColumns.filter(col => !col.isDynamic);
   const dynamicColumns = allColumns.filter(col => col.isDynamic);
+
+  console.log('📊 Columnas estáticas:', staticColumns.length, 'Columnas dinámicas:', dynamicColumns.length);
 
   // Filtrar columnas basado en el término de búsqueda
   const filteredStaticColumns = useMemo(() => {
@@ -290,7 +303,7 @@ export function LeadsTableColumnSelector({
           <div className="flex items-center justify-between mb-3">
             <h3 className="font-medium text-sm">Seleccionar y reordenar columnas</h3>
             <span className="text-xs text-gray-500">
-              {visibleCount} de {allColumns.length}
+              {allColumns.filter(col => col.visible).length} de {allColumns.length}
             </span>
           </div>
           
@@ -363,6 +376,9 @@ export function LeadsTableColumnSelector({
                   {filteredDynamicColumns.length === 0 && dynamicColumns.length === 0 && (
                     <div className="text-xs text-gray-500 italic px-2 py-4">
                       No se encontraron campos de información adicional en los leads
+                      <div className="text-xs text-gray-400 mt-1">
+                        ({leads.length} leads analizados)
+                      </div>
                     </div>
                   )}
                 </SortableContext>
