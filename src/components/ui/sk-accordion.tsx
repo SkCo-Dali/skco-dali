@@ -23,7 +23,7 @@ const SkAccordionTrigger = React.forwardRef<
   React.ElementRef<typeof AccordionPrimitive.Trigger>,
   React.ComponentPropsWithoutRef<typeof AccordionPrimitive.Trigger>
 >(({ className, children, ...props }, ref) => (
-  <AccordionPrimitive.Header className="sk-accordion-v2-header rounded-md">
+  <AccordionPrimitive.Header className="sk-accordion-v2-header !rounded-lg">
     <AccordionPrimitive.Trigger
       ref={ref}
       className={cn(
