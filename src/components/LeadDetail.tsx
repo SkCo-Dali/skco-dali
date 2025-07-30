@@ -369,6 +369,38 @@ export function LeadDetail({ lead, isOpen, onClose, onSave, onOpenMassEmail }: L
 
   if (!isOpen) return null;
 
+  const handleScheduleOutlookMeeting = () => {
+    const subject = `Reunión con ${lead.name || 'Lead'}`;
+    const body = `Reunión programada con el lead:
+    
+Nombre: ${lead.name || 'No especificado'}
+Email: ${lead.email || 'No especificado'}
+Teléfono: ${lead.phone || 'No especificado'}
+Empresa: ${lead.company || 'No especificado'}
+Campaña: ${lead.campaign || 'No especificado'}
+Estado: ${lead.stage || 'No especificado'}
+
+Notas adicionales: ${lead.notes || 'Ninguna'}`;
+
+    // Crear URL para Outlook Web
+    const outlookUrl = new URL('https://outlook.live.com/calendar/0/deeplink/compose');
+    outlookUrl.searchParams.append('subject', subject);
+    outlookUrl.searchParams.append('body', body);
+    
+    // Si hay email del lead, agregarlo como invitado
+    if (lead.email) {
+      outlookUrl.searchParams.append('to', lead.email);
+    }
+    
+    // Abrir en nueva ventana
+    window.open(outlookUrl.toString(), '_blank');
+    
+    toast({
+      title: "Calendario abierto",
+      description: "Se ha abierto Outlook para agendar la reunión",
+    });
+  };
+
   try {
     return (
       <>
@@ -763,33 +795,41 @@ export function LeadDetail({ lead, isOpen, onClose, onSave, onOpenMassEmail }: L
                         rows={3}
                       />
                     </div>
-<div className="flex gap-2">
-                    <Button 
-                      size="icon" 
-                      onClick={() => onOpenMassEmail?.(lead)}
-                      className="gap-1 w-8 h-8"
-                    >
-                      <Mail className="h-3 w-3" />
-                    </Button>
-                    <Button 
-                      size="icon" 
-                      onClick={() => {
-                        if (lead.phone) {
-                          const cleanPhone = lead.phone.replace(/\D/g, '');
-                          window.open(`https://wa.me/${cleanPhone}`, '_blank');
-                        } else {
-                          toast({
-                            title: "Error",
-                            description: "No hay número de teléfono disponible para este lead",
-                            variant: "destructive",
-                          });
-                        }
-                      }}
-                      className="gap-1 w-8 h-8"
-                    >
-                      <FaWhatsapp className="h-3 w-3" />
-                    </Button>
-</div>
+                    <div className="flex gap-2">
+                      <Button 
+                        size="icon" 
+                        onClick={() => onOpenMassEmail?.(lead)}
+                        className="gap-1 w-8 h-8"
+                      >
+                        <Mail className="h-3 w-3" />
+                      </Button>
+                      <Button 
+                        size="icon" 
+                        onClick={() => {
+                          if (lead.phone) {
+                            const cleanPhone = lead.phone.replace(/\D/g, '');
+                            window.open(`https://wa.me/${cleanPhone}`, '_blank');
+                          } else {
+                            toast({
+                              title: "Error",
+                              description: "No hay número de teléfono disponible para este lead",
+                              variant: "destructive",
+                            });
+                          }
+                        }}
+                        className="gap-1 w-8 h-8"
+                      >
+                        <FaWhatsapp className="h-3 w-3" />
+                      </Button>
+                      <Button 
+                        size="icon" 
+                        onClick={handleScheduleOutlookMeeting}
+                        className="gap-1 w-8 h-8"
+                        title="Agendar reunión en Outlook"
+                      >
+                        <Calendar className="h-3 w-3" />
+                      </Button>
+                    </div>
                   </CardContent>
                 </Card>
 
