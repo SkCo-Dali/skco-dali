@@ -607,7 +607,7 @@ Notas adicionales: ${lead.notes || 'Ninguna'}`;
                         </SkAccordionTrigger>
                         <SkAccordionContent className="px-4 pb-4 pt-0 bg-white border-t border-gray-200">
                           {editedLead.additionalInfo && typeof editedLead.additionalInfo === 'object' && Object.keys(editedLead.additionalInfo).length > 0 ? (
-                            <div className="border rounded-lg overflow-hidden bg-gray-50 mt-4">
+                            <div className="rounded-lg overflow-hidden bg-gray-50 mt-4">
                               <ScrollArea className="h-48">
                                 <Table>
                                   <TableHeader className="sticky top-0 bg-gray-100">
