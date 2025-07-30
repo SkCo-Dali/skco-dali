@@ -426,7 +426,7 @@ Notas adicionales: ${lead.notes || 'Ninguna'}`;
                     <CardContent className="space-y-6 py-2 px-0">
                     
                     <CardTitle className="flex items-center pt-2">
-                      Datos Personales
+                      Información General
                     </CardTitle>
                  
                       <div className="space-y-0 border-2 border-[#3d4b5c26] shadow-md rounded-md p-2.5">
