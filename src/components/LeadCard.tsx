@@ -213,7 +213,7 @@ Por favor, confirmar asistencia.`;
                       className="flex items-center gap-2 px-3 py-2 hover:bg-gray-50 cursor-pointer text-sm"
                     >
                       <Calendar className="h-4 w-4" />
-                      Agendar reunión en Outlook
+                      Agendar reunión
                     </DropdownMenuItem>
                     {onOpenProfiler && (
                       <DropdownMenuItem 
