@@ -542,14 +542,12 @@ Notas adicionales: ${lead.notes || 'Ninguna'}`;
                  
 
                 {/* Información de origen */}
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <Globe className="h-4 w-4" />
+              
+                    
+                  <CardContent className="space-y-6">
+                    <CardTitle className="flex items-center pt-2">
                       Información de Origen
                     </CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-6">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div className="space-y-0 border-2 border-[#3d4b5c26] shadow-md rounded-md p-2.5">
                         <Label className="p-0 text-sm text-gray-500 font-normal">Fuente</Label>
@@ -602,51 +600,7 @@ Notas adicionales: ${lead.notes || 'Ninguna'}`;
                       </div>
                     </div>
 
-                    <div>
-                      <Label>Portafolios</Label>
-                      <div className="flex flex-wrap gap-1 mt-1">
-                        {ensureArray(editedLead.portfolios).map((portfolio, index) => (
-                          <Badge key={index} variant="outline" className="text-xs">
-                            {portfolio}
-                          </Badge>
-                        ))}
-                        {ensureArray(editedLead.portfolios).length === 0 && (
-                          <span className="text-sm text-muted-foreground">No hay portafolios asignados</span>
-                        )}
-                      </div>
-                    </div>
-
-                    <div>
-                      <Label>Tags</Label>
-                      <div className="space-y-2">
-                        <div className="flex flex-wrap gap-1">
-                          {ensureArray(editedLead.tags).map((tag, index) => (
-                            <Badge key={index} variant="secondary" className="text-xs flex items-center gap-1">
-                              {tag}
-                              <Button
-                                size="sm"
-                                variant="ghost"
-                                className="h-3 w-3 p-0 hover:bg-red-100"
-                                onClick={() => handleRemoveTag(tag)}
-                              >
-                                <X className="h-2 w-2" />
-                              </Button>
-                            </Badge>
-                          ))}
-                        </div>
-                        <div className="flex gap-2">
-                          <Input
-                            placeholder="Agregar tag..."
-                            value={newTag}
-                            onChange={(e) => setNewTag(e.target.value)}
-                            onKeyPress={(e) => e.key === 'Enter' && handleAddTag()}
-                          />
-                          <Button size="sm" onClick={handleAddTag}>
-                            Agregar
-                          </Button>
-                        </div>
-                      </div>
-                    </div>
+                    
 
                     {/* Sección de Información Adicional - Sin debug info */}
                     <div>
@@ -685,7 +639,7 @@ Notas adicionales: ${lead.notes || 'Ninguna'}`;
                       </div>
                     </div>
                   </CardContent>
-                </Card>
+
 
                 {/* Notas */}
                 <Card>
