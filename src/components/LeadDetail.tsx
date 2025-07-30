@@ -602,7 +602,7 @@ Notas adicionales: ${lead.notes || 'Ninguna'}`;
                   <div className="mt-2">
                     <SkAccordion type="single" collapsible className="w-full">
                       <SkAccordionItem value="additional-info" className="bg-white border border-gray-300 rounded-lg shadow-md overflow-hidden">
-                        <SkAccordionTrigger className="px-4 py-4 hover:bg-gray-50 text-left font-semibold text-gray-700 flex items-center justify-between w-full [&>svg]:text-green-500 [&>svg]:h-5 [&>svg]:w-5">
+                        <SkAccordionTrigger className="rounded-md px-4 py-4 hover:bg-gray-50 text-left font-semibold text-gray-700 flex items-center justify-between w-full [&>svg]:text-green-500 [&>svg]:h-5 [&>svg]:w-5">
                           Detalles de Información Adicional
                         </SkAccordionTrigger>
                         <SkAccordionContent className="px-4 pb-4 bg-white">
