@@ -425,8 +425,7 @@ Notas adicionales: ${lead.notes || 'Ninguna'}`;
                 
                     <CardContent className="space-y-6 py-2 px-0">
                       <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <Globe className="h-4 w-4" />
+                    <CardTitle className="flex items-center">
                       Datos Personales
                     </CardTitle>
                   </CardHeader>
