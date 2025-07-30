@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useCallback } from "react";
 import {
   ColumnDef,
@@ -34,7 +35,7 @@ import { useDebounce } from "@/hooks/useDebounce";
 import { Badge } from "@/components/ui/badge";
 import { MoreHorizontal } from "lucide-react";
 import { useColumnFilters } from "@/hooks/useColumnFilters";
-import { Pagination } from "@/components/ui/pagination"
+import { LeadsPagination } from "@/components/LeadsPagination";
 
 interface LeadsTableProps {
   leads: Lead[];
@@ -249,6 +250,8 @@ export function LeadsTable({
     setCurrentPage(1);
   };
 
+  const totalPages = Math.ceil(filteredLeads.length / pageSize);
+
   return (
     <div className="space-y-4">
       {/* Header con controles */}
@@ -319,12 +322,13 @@ export function LeadsTable({
         </Table>
       </div>
 
-      <Pagination
-        pageCount={table.getPageCount()}
+      <LeadsPagination
         currentPage={currentPage}
+        totalPages={totalPages}
+        totalLeads={filteredLeads.length}
+        leadsPerPage={pageSize}
         onPageChange={handlePageChange}
-        pageSize={pageSize}
-        onPageSizeChange={handlePageSizeChange}
+        onLeadsPerPageChange={handlePageSizeChange}
       />
     </div>
   );
