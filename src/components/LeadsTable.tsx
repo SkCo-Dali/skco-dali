@@ -480,7 +480,7 @@ Etapa: ${lead.stage}
 
 Por favor, confirmar asistencia.`;
     
-    const outlookUrl = `https://outlook.live.com/calendar/0/deeplink/compose?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}&startdt=${startDate.toISOString()}&enddt=${endDate.toISOString()}`;
+    const outlookUrl = `https://outlook.office365.com/calendar/0/deeplink/compose?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}&startdt=${startDate.toISOString()}&enddt=${endDate.toISOString()}`;
     
     window.open(outlookUrl, '_blank');
   };
