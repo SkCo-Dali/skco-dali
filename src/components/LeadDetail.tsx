@@ -1,3 +1,4 @@
+
 import { useState, useCallback } from "react";
 import { toast } from "sonner";
 import { Lead } from "@/types/crm";
@@ -46,7 +47,7 @@ export function LeadDetail({ lead, isOpen, onClose, onSave, onOpenMassEmail }: L
   const [preferredContactChannel, setPreferredContactChannel] = useState(lead.preferredContactChannel || "");
   const [isSaving, setIsSaving] = useState(false);
 
-  const { updateLead } = useLeadsApi();
+  const { updateExistingLead } = useLeadsApi();
   const { users } = useUsersApi();
 
   const handleSave = useCallback(async () => {
@@ -68,11 +69,11 @@ export function LeadDetail({ lead, isOpen, onClose, onSave, onOpenMassEmail }: L
         documentNumber,
         campaign,
         gender,
-        age: parseInt(age),
+        age: age ? parseInt(age) : undefined,
         preferredContactChannel
       };
       
-      await updateLead(lead.id, updatedLeadData);
+      await updateExistingLead(updatedLeadData);
       toast.success("Lead actualizado exitosamente");
       onSave?.();
       onClose();
@@ -81,7 +82,7 @@ export function LeadDetail({ lead, isOpen, onClose, onSave, onOpenMassEmail }: L
     } finally {
       setIsSaving(false);
     }
-  }, [lead, name, email, phone, company, product, stage, priority, source, value, assignedTo, updateLead, onClose, onSave, documentType, documentNumber, campaign, gender, age, preferredContactChannel]);
+  }, [lead, name, email, phone, company, product, stage, priority, source, value, assignedTo, updateExistingLead, onClose, onSave, documentType, documentNumber, campaign, gender, age, preferredContactChannel]);
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -142,7 +143,7 @@ export function LeadDetail({ lead, isOpen, onClose, onSave, onOpenMassEmail }: L
                 </div>
                 <div>
                   <Label htmlFor="priority">Prioridad</Label>
-                  <Select value={priority} onValueChange={setPriority}>
+                  <Select value={priority} onValueChange={(value: string) => setPriority(value as any)}>
                     <SelectTrigger className="w-full">
                       <SelectValue placeholder="Selecciona una prioridad" />
                     </SelectTrigger>
@@ -156,7 +157,7 @@ export function LeadDetail({ lead, isOpen, onClose, onSave, onOpenMassEmail }: L
                 </div>
                 <div>
                   <Label htmlFor="source">Fuente</Label>
-                  <Select value={source} onValueChange={setSource}>
+                  <Select value={source} onValueChange={(value: string) => setSource(value as any)}>
                     <SelectTrigger className="w-full">
                       <SelectValue placeholder="Selecciona una fuente" />
                     </SelectTrigger>
@@ -280,8 +281,8 @@ export function LeadDetail({ lead, isOpen, onClose, onSave, onOpenMassEmail }: L
                       <Input type="text" value={lead.createdAt} readOnly disabled />
                     </div>
                     <div>
-                      <Label>Última Interacción</Label>
-                      <Input type="text" value={lead.lastInteraction || "N/A"} readOnly disabled />
+                      <Label>Última Actualización</Label>
+                      <Input type="text" value={lead.updatedAt || "N/A"} readOnly disabled />
                     </div>
                   </div>
                 </div>
