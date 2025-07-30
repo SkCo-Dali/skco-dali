@@ -768,7 +768,7 @@ Notas adicionales: ${lead.notes || 'Ninguna'}`;
                       </Button>
                     </div>
                   </CardContent>
-                </Card>
+               
 
                 {/* Historial de Interacciones mejorado */}
                 <div className="flex items-center justify-between">
