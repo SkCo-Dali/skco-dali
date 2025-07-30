@@ -603,8 +603,8 @@ Notas adicionales: ${lead.notes || 'Ninguna'}`;
                   
                   <div className="mt-2 rounded-lg">
                     <SkAccordion type="single" collapsible className="w-full rounded-lg">
-                      <SkAccordionItem value="additional-info" className="bg-white !rounded-lg !shadow-md overflow-hidden">
-                        <SkAccordionTrigger className="px-4 py-4 hover:bg-gray-50 data-[state=open]:bg-gray-100 text-left font-semibold text-gray-700 flex items-center justify-between w-full [&>svg]:text-green-500 [&>svg]:h-5 [&>svg]:w-5 [&>svg]:ml-auto [&>svg]:shrink-0 [&[data-state=open]>svg]:rotate-180">
+                      <SkAccordionItem value="additional-info" className="bg-white !rounded-lg !shadow-md overflow-hidden border border-gray-200">
+                        <SkAccordionTrigger className="px-4 py-4 hover:bg-gray-50 data-[state=open]:bg-gray-100 text-left font-semibold text-gray-700 flex items-center justify-between w-full [&>svg]:text-green-500 [&>svg]:h-5 [&>svg]:w-5 [&>svg]:ml-auto [&>svg]:shrink-0 [&[data-state=open]>svg]:rotate-180 transition-all duration-200">
                           <span>Detalles de Información Adicional</span>
                         </SkAccordionTrigger>
                         <SkAccordionContent className="px-4 pb-4 pt-0 bg-white border-t border-gray-200">
@@ -648,24 +648,21 @@ Notas adicionales: ${lead.notes || 'Ninguna'}`;
 
               {/* Tab Gestión */}
               <TabsContent value="management" className="space-y-6">
+                <CardContent className="space-y-6 py-2 px-0">
+                  <CardTitle className="flex items-center pt-2">Resultado de la Gestión</CardTitle>
                 
-                  
-                  <CardContent className="space-y-6 py-2 px-0">
-
-                    <CardTitle className="flex items-center pt-2">Resultado de la Gestión</CardTitle>
-                
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div className="space-y-0 border-2 border-[#3d4b5c26] shadow-md rounded-md p-2.5">
-                          <Label className="p-0 text-sm text-gray-500 font-normal">Estado Actual</Label>
-                          <Select 
-                            value={editedLead.stage} 
-                            onValueChange={(value) => handleGeneralChange('stage', value)}
-                          >
-                            <SelectTrigger className="border-0 border-b border-gray-200 rounded-none px-0 py-0 m-0 text-sm font-medium bg-transparent leading-none h-auto min-h-0 focus:border-gray-400 focus:shadow-none focus:ring-0">
-                              <SelectValue/>
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="Nuevo">Nuevo</SelectItem>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-0 border-2 border-[#3d4b5c26] shadow-md rounded-md p-2.5">
+                        <Label className="p-0 text-sm text-gray-500 font-normal">Estado Actual</Label>
+                        <Select 
+                          value={editedLead.stage} 
+                          onValueChange={(value) => handleGeneralChange('stage', value)}
+                        >
+                          <SelectTrigger className="border-0 border-b border-gray-200 rounded-none px-0 py-0 m-0 text-sm font-medium bg-transparent leading-none h-auto min-h-0 focus:border-gray-400 focus:shadow-none focus:ring-0">
+                            <SelectValue/>
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="Nuevo">Nuevo</SelectItem>
                             <SelectItem value="Asignado">Asignado</SelectItem>
                             <SelectItem value="Localizado: No interesado">Localizado: No interesado</SelectItem>
                             <SelectItem value="Localizado: Prospecto de venta FP">Localizado: Prospecto de venta FP</SelectItem>
@@ -676,27 +673,29 @@ Notas adicionales: ${lead.notes || 'Ninguna'}`;
                             <SelectItem value="No localizado: Número equivocado">No localizado: Número equivocado</SelectItem>
                             <SelectItem value="Contrato Creado">Contrato Creado</SelectItem>
                             <SelectItem value="Registro de Venta (fondeado)">Registro de Venta (fondeado)</SelectItem>
-                            </SelectContent>
-                          </Select>
-                        </div>
-                      
-                       <div className="space-y-0 border-2 border-[#3d4b5c26] shadow-md rounded-md p-2.5">
-                          <Label className="p-0 text-sm text-gray-500 font-normal">Medio de Contacto</Label>
-                        <Select 
-                          value={contactMethod} 
-                          onValueChange={setContactMethod}>
-                          <SelectTrigger className="border-0 border-b border-gray-200 rounded-none px-0 py-0 m-0 text-sm font-medium bg-transparent leading-none h-auto min-h-0 focus:border-gray-400 focus:shadow-none focus:ring-0>
-                            <SelectValue/>
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="phone">Teléfono</SelectItem>
-                            <SelectItem value="email">Email</SelectItem>
-                            <SelectItem value="whatsapp">WhatsApp</SelectItem>
-                            <SelectItem value="meeting">Reunión</SelectItem>
                           </SelectContent>
                         </Select>
                       </div>
+                    
+                     <div className="space-y-0 border-2 border-[#3d4b5c26] shadow-md rounded-md p-2.5">
+                        <Label className="p-0 text-sm text-gray-500 font-normal">Medio de Contacto</Label>
+                      <Select 
+                        value={contactMethod} 
+                        onValueChange={setContactMethod}
+                      >
+                        <SelectTrigger className="border-0 border-b border-gray-200 rounded-none px-0 py-0 m-0 text-sm font-medium bg-transparent leading-none h-auto min-h-0 focus:border-gray-400 focus:shadow-none focus:ring-0">
+                          <SelectValue/>
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="phone">Teléfono</SelectItem>
+                          <SelectItem value="email">Email</SelectItem>
+                          <SelectItem value="whatsapp">WhatsApp</SelectItem>
+                          <SelectItem value="meeting">Reunión</SelectItem>
+                        </SelectContent>
+                      </Select>
                     </div>
+                  </div>
+                  
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                         <Label htmlFor="priority">Prioridad</Label>
