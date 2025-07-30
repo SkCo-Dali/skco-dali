@@ -21,6 +21,7 @@ import { formatDistanceToNow } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { LeadReassignDialog } from './LeadReassignDialog';
 import { FaWhatsapp } from "react-icons/fa";
+import { SkAccordion, SkAccordionItem, SkAccordionTrigger, SkAccordionContent } from '@/components/ui/sk-accordion';
 
 interface LeadDetailProps {
   lead: Lead;
@@ -600,42 +601,48 @@ Notas adicionales: ${lead.notes || 'Ninguna'}`;
                       Información Adicional
                     </CardTitle>
                     
-
-                    
-
-                    {/* Sección de Información Adicional - Sin debug info */}
+                    {/* Sección de Información Adicional con Acordeón de Skandia */}
                     <div>
                       <div className="mt-2">
-                        {editedLead.additionalInfo && typeof editedLead.additionalInfo === 'object' && Object.keys(editedLead.additionalInfo).length > 0 ? (
-                          <div className="border rounded-lg overflow-hidden">
-                            <ScrollArea className="h-48">
-                              <Table>
-                                <TableHeader className="sticky top-0 bg-gray-50">
-                                  <TableRow>
-                                    <TableHead className="font-medium text-gray-700">Campo</TableHead>
-                                    <TableHead className="font-medium text-gray-700">Valor</TableHead>
-                                  </TableRow>
-                                </TableHeader>
-                                <TableBody>
-                                  {Object.entries(editedLead.additionalInfo).map(([key, value], index) => (
-                                    <TableRow key={key} className={index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
-                                      <TableCell className="font-medium text-gray-600">{key}</TableCell>
-                                      <TableCell className="text-gray-900">
-                                        {typeof value === 'object' && value !== null 
-                                          ? JSON.stringify(value) 
-                                          : String(value || '')}
-                                      </TableCell>
-                                    </TableRow>
-                                  ))}
-                                </TableBody>
-                              </Table>
-                            </ScrollArea>
-                          </div>
-                        ) : (
-                          <div className="p-4 border border-gray-200 rounded-lg bg-gray-50 text-center text-gray-500">
-                            No hay información adicional disponible
-                          </div>
-                        )}
+                        <SkAccordion type="single" collapsible className="w-full">
+                          <SkAccordionItem value="additional-info">
+                            <SkAccordionTrigger>
+                              Detalles de Información Adicional
+                            </SkAccordionTrigger>
+                            <SkAccordionContent>
+                              {editedLead.additionalInfo && typeof editedLead.additionalInfo === 'object' && Object.keys(editedLead.additionalInfo).length > 0 ? (
+                                <div className="border rounded-lg overflow-hidden">
+                                  <ScrollArea className="h-48">
+                                    <Table>
+                                      <TableHeader className="sticky top-0 bg-gray-50">
+                                        <TableRow>
+                                          <TableHead className="font-medium text-gray-700">Campo</TableHead>
+                                          <TableHead className="font-medium text-gray-700">Valor</TableHead>
+                                        </TableRow>
+                                      </TableHeader>
+                                      <TableBody>
+                                        {Object.entries(editedLead.additionalInfo).map(([key, value], index) => (
+                                          <TableRow key={key} className={index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
+                                            <TableCell className="font-medium text-gray-600">{key}</TableCell>
+                                            <TableCell className="text-gray-900">
+                                              {typeof value === 'object' && value !== null 
+                                                ? JSON.stringify(value) 
+                                                : String(value || '')}
+                                            </TableCell>
+                                          </TableRow>
+                                        ))}
+                                      </TableBody>
+                                    </Table>
+                                  </ScrollArea>
+                                </div>
+                              ) : (
+                                <div className="p-4 border border-gray-200 rounded-lg bg-gray-50 text-center text-gray-500">
+                                  No hay información adicional disponible
+                                </div>
+                              )}
+                            </SkAccordionContent>
+                          </SkAccordionItem>
+                        </SkAccordion>
                       </div>
                     </div>
                   </CardContent>
