@@ -602,10 +602,10 @@ Notas adicionales: ${lead.notes || 'Ninguna'}`;
                   <div className="mt-2 rounded-lg">
                     <SkAccordion type="single" collapsible className="w-full rounded-lg">
                       <SkAccordionItem value="additional-info" className="bg-white border border-gray-300 rounded-lg shadow-md overflow-hidden">
-                        <SkAccordionTrigger className="rounded-md px-4 py-4 hover:bg-gray-50 text-left font-semibold text-gray-700 flex items-center justify-between w-full [&>svg]:text-green-500 [&>svg]:h-5 [&>svg]:w-5">
-                          Detalles de Información Adicional
+                        <SkAccordionTrigger className="px-4 py-4 hover:bg-gray-50 data-[state=open]:bg-gray-100 text-left font-semibold text-gray-700 flex items-center justify-between w-full [&>svg]:text-green-500 [&>svg]:h-5 [&>svg]:w-5 [&>svg]:ml-auto [&>svg]:shrink-0 [&[data-state=open]>svg]:rotate-180">
+                          <span>Detalles de Información Adicional</span>
                         </SkAccordionTrigger>
-                        <SkAccordionContent className="px-4 pb-4 bg-white">
+                        <SkAccordionContent className="px-4 pb-4 pt-0 bg-white border-t border-gray-200">
                           {editedLead.additionalInfo && typeof editedLead.additionalInfo === 'object' && Object.keys(editedLead.additionalInfo).length > 0 ? (
                             <div className="border rounded-lg overflow-hidden bg-gray-50">
                               <ScrollArea className="h-48">
