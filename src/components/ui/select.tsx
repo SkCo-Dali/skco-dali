@@ -23,11 +23,7 @@ const SelectTrigger = React.forwardRef<
     {...props}
   >
     {children}
-    <SelectPrimitive.Icon asChild>
-      <div className="h-full flex items-center justify-center ml-2">
-        <ChevronDown className="self-center h-4 w-4 text-[#00c83c]" />
-      </div>
-    </SelectPrimitive.Icon>
+    
   </SelectPrimitive.Trigger>
 ))
 SelectTrigger.displayName = SelectPrimitive.Trigger.displayName

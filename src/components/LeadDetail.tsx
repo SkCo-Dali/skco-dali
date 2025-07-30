@@ -477,6 +477,9 @@ Notas adicionales: ${lead.notes || 'Ninguna'}`;
                               <SelectItem value="NIT">NIT</SelectItem>
                             </SelectContent>
                           </Select>
+
+        <ChevronDown className="self-center h-4 w-4 text-[#00c83c]" />
+ 
                         </div>
                         
                         <div className="space-y-0 border-2 border-[#3d4b5c26] shadow-md rounded-md p-2.5">
