@@ -478,7 +478,6 @@ Notas adicionales: ${lead.notes || 'Ninguna'}`;
                             </SelectContent>
                           </Select>
 
-        <ChevronDown className="self-center h-4 w-4 text-[#00c83c]" />
  
                         </div>
                         
