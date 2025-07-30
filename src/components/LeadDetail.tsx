@@ -648,9 +648,9 @@ Notas adicionales: ${lead.notes || 'Ninguna'}`;
               <TabsContent value="management" className="space-y-6">
                 
                   
-                  <CardContent className="space-y-4">
+                  <CardContent className="space-y-6 py-2 px-0">
 <CardHeader>
-                    <CardTitle>Resultado de la Gestión</CardTitle>
+                    <CardTitle className="flex items-center pt-2">Resultado de la Gestión</CardTitle>
                   </CardHeader>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
