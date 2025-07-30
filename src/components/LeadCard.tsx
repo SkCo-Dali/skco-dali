@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { Lead } from "@/types/crm";
 import { Badge } from "@/components/ui/badge";
@@ -114,11 +115,18 @@ Etapa: ${lead.stage}
 
 Por favor, confirmar asistencia.`;
 
+    const params = new URLSearchParams();
+    params.append('subject', subject);
+    params.append('body', body);
+    params.append('startdt', startDate.toISOString());
+    params.append('enddt', endDate.toISOString());
+    
     // Si hay email del lead, agregarlo como invitado
     if (lead.email) {
       params.append('to', lead.email);
     }
-    const outlookUrl = `https://outlook.office365.com/calendar/0/deeplink/compose?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}&startdt=${startDate.toISOString()}&enddt=${endDate.toISOString()}`;
+    
+    const outlookUrl = `https://outlook.office365.com/calendar/0/deeplink/compose?${params.toString()}`;
     
     window.open(outlookUrl, '_blank');
   };
@@ -136,6 +144,7 @@ Por favor, confirmar asistencia.`;
                    borderRadius: '16px'}}
           onClick={handleCardClick}
         >
+          {// ... keep existing code (stage badge and card structure)}
           <div className="absolute top-0 left-2 z-20">
             <div 
               className={`text-xs px-3 py-1 whitespace-nowrap shadow-none ${stageColors[lead.stage as keyof typeof stageColors] || 'bg-gray-100 text-gray-800'}`}
@@ -173,6 +182,7 @@ Por favor, confirmar asistencia.`;
                     </button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end" className="w-48 bg-white border border-gray-200 shadow-lg z-50">
+                    {// ... keep existing code (edit and email menu items)}
                     {onEdit && (
                       <DropdownMenuItem 
                         onClick={(e) => handleMenuClick(e, () => onEdit(lead))}
@@ -207,6 +217,7 @@ Por favor, confirmar asistencia.`;
                       <Calendar className="h-4 w-4" />
                       Agendar reunión en Outlook
                     </DropdownMenuItem>
+                    {// ... keep existing code (profiler and delete menu items)}
                     {onOpenProfiler && (
                       <DropdownMenuItem 
                         onClick={(e) => handleMenuClick(e, () => onOpenProfiler(lead))}
