@@ -198,13 +198,24 @@ export function LeadsTableColumnSelector({
     return combinedColumns;
   }, [columns, leads]);
 
+  // Separar columnas fijas de las dinámicas para mostrar en secciones
+  const staticColumns = allColumns.filter(col => !col.isDynamic);
+  const dynamicColumns = allColumns.filter(col => col.isDynamic);
+
   // Filtrar columnas basado en el término de búsqueda
-  const filteredColumns = useMemo(() => {
-    if (!searchTerm) return allColumns;
-    return allColumns.filter(column => 
+  const filteredStaticColumns = useMemo(() => {
+    if (!searchTerm) return staticColumns;
+    return staticColumns.filter(column => 
       column.label.toLowerCase().includes(searchTerm.toLowerCase())
     );
-  }, [allColumns, searchTerm]);
+  }, [staticColumns, searchTerm]);
+
+  const filteredDynamicColumns = useMemo(() => {
+    if (!searchTerm) return dynamicColumns;
+    return dynamicColumns.filter(column => 
+      column.label.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  }, [dynamicColumns, searchTerm]);
 
   const handleDragEnd = (event: any) => {
     const { active, over } = event;
@@ -300,7 +311,7 @@ export function LeadsTableColumnSelector({
             <span>Arrastra para reordenar las columnas</span>
           </div>
           
-          <ScrollArea className="h-64 border-2 border-[#dedede] rounded-md">
+          <ScrollArea className="h-72 border-2 border-[#dedede] rounded-md">
             <div className="p-2">
               <DndContext
                 sensors={sensors}
@@ -308,16 +319,52 @@ export function LeadsTableColumnSelector({
                 onDragEnd={handleDragEnd}
               >
                 <SortableContext
-                  items={filteredColumns.map(col => col.key)}
+                  items={[...filteredStaticColumns, ...filteredDynamicColumns].map(col => col.key)}
                   strategy={verticalListSortingStrategy}
                 >
-                  {filteredColumns.map((column) => (
-                    <SortableColumnItem
-                      key={column.key}
-                      column={column}
-                      onToggle={handleToggleColumn}
-                    />
-                  ))}
+                  {/* Sección de Columnas Fijas */}
+                  {filteredStaticColumns.length > 0 && (
+                    <>
+                      <div className="text-xs font-semibold text-gray-600 mb-2 px-2">
+                        Columnas Fijas
+                      </div>
+                      {filteredStaticColumns.map((column) => (
+                        <SortableColumnItem
+                          key={column.key}
+                          column={column}
+                          onToggle={handleToggleColumn}
+                        />
+                      ))}
+                    </>
+                  )}
+                  
+                  {/* Separador si hay ambas secciones */}
+                  {filteredStaticColumns.length > 0 && filteredDynamicColumns.length > 0 && (
+                    <div className="border-t border-gray-200 my-3"></div>
+                  )}
+                  
+                  {/* Sección de Información Adicional */}
+                  {filteredDynamicColumns.length > 0 && (
+                    <>
+                      <div className="text-xs font-semibold text-blue-600 mb-2 px-2">
+                        Información Adicional ({filteredDynamicColumns.length})
+                      </div>
+                      {filteredDynamicColumns.map((column) => (
+                        <SortableColumnItem
+                          key={column.key}
+                          column={column}
+                          onToggle={handleToggleColumn}
+                        />
+                      ))}
+                    </>
+                  )}
+                  
+                  {/* Mensaje cuando no hay columnas dinámicas */}
+                  {filteredDynamicColumns.length === 0 && dynamicColumns.length === 0 && (
+                    <div className="text-xs text-gray-500 italic px-2 py-4">
+                      No se encontraron campos de información adicional en los leads
+                    </div>
+                  )}
                 </SortableContext>
               </DndContext>
             </div>
