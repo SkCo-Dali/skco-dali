@@ -593,59 +593,55 @@ Notas adicionales: ${lead.notes || 'Ninguna'}`;
                     </CardContent>
                  
 
-                {/* Información de origen */}
-              
-                    
-                  <CardContent className="space-y-6 py-2 px-0">
-                    <CardTitle className="flex items-center pt-2">
-                      Información Adicional
-                    </CardTitle>
-                    
-                    {/* Sección de Información Adicional con Acordeón de Skandia */}
-                    <div>
-                      <div className="mt-2">
-                        <SkAccordion type="single" collapsible className="w-full">
-                          <SkAccordionItem value="additional-info">
-                            <SkAccordionTrigger>
-                              Detalles de Información Adicional
-                            </SkAccordionTrigger>
-                            <SkAccordionContent>
-                              {editedLead.additionalInfo && typeof editedLead.additionalInfo === 'object' && Object.keys(editedLead.additionalInfo).length > 0 ? (
-                                <div className="border rounded-lg overflow-hidden">
-                                  <ScrollArea className="h-48">
-                                    <Table>
-                                      <TableHeader className="sticky top-0 bg-gray-50">
-                                        <TableRow>
-                                          <TableHead className="font-medium text-gray-700">Campo</TableHead>
-                                          <TableHead className="font-medium text-gray-700">Valor</TableHead>
-                                        </TableRow>
-                                      </TableHeader>
-                                      <TableBody>
-                                        {Object.entries(editedLead.additionalInfo).map(([key, value], index) => (
-                                          <TableRow key={key} className={index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
-                                            <TableCell className="font-medium text-gray-600">{key}</TableCell>
-                                            <TableCell className="text-gray-900">
-                                              {typeof value === 'object' && value !== null 
-                                                ? JSON.stringify(value) 
-                                                : String(value || '')}
-                                            </TableCell>
-                                          </TableRow>
-                                        ))}
-                                      </TableBody>
-                                    </Table>
-                                  </ScrollArea>
-                                </div>
-                              ) : (
-                                <div className="p-4 border border-gray-200 rounded-lg bg-gray-50 text-center text-gray-500">
-                                  No hay información adicional disponible
-                                </div>
-                              )}
-                            </SkAccordionContent>
-                          </SkAccordionItem>
-                        </SkAccordion>
-                      </div>
-                    </div>
-                  </CardContent>
+                {/* Información Adicional con acordeón de Skandia */}
+                <CardContent className="space-y-6 py-2 px-0">
+                  <CardTitle className="flex items-center pt-2">
+                    Información Adicional
+                  </CardTitle>
+                  
+                  <div className="mt-2">
+                    <SkAccordion type="single" collapsible className="w-full">
+                      <SkAccordionItem value="additional-info" className="border border-gray-200 rounded-lg bg-white shadow-sm">
+                        <SkAccordionTrigger className="px-4 py-4 hover:bg-gray-50 text-left font-semibold text-gray-700">
+                          Detalles de Información Adicional
+                        </SkAccordionTrigger>
+                        <SkAccordionContent className="px-4 pb-4">
+                          {editedLead.additionalInfo && typeof editedLead.additionalInfo === 'object' && Object.keys(editedLead.additionalInfo).length > 0 ? (
+                            <div className="border rounded-lg overflow-hidden bg-gray-50">
+                              <ScrollArea className="h-48">
+                                <Table>
+                                  <TableHeader className="sticky top-0 bg-gray-100">
+                                    <TableRow>
+                                      <TableHead className="font-medium text-gray-700">Campo</TableHead>
+                                      <TableHead className="font-medium text-gray-700">Valor</TableHead>
+                                    </TableRow>
+                                  </TableHeader>
+                                  <TableBody>
+                                    {Object.entries(editedLead.additionalInfo).map(([key, value], index) => (
+                                      <TableRow key={key} className={index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
+                                        <TableCell className="font-medium text-gray-600">{key}</TableCell>
+                                        <TableCell className="text-gray-900">
+                                          {typeof value === 'object' && value !== null 
+                                            ? JSON.stringify(value) 
+                                            : String(value || '')}
+                                        </TableCell>
+                                      </TableRow>
+                                    ))}
+                                  </TableBody>
+                                </Table>
+                              </ScrollArea>
+                            </div>
+                          ) : (
+                            <div className="p-6 text-center text-gray-500 bg-gray-50 rounded-lg border border-gray-200">
+                              <AlertCircle className="h-8 w-8 mx-auto mb-2 text-gray-400" />
+                              <p className="text-sm">No hay información adicional disponible</p>
+                            </div>
+                          )}
+                        </SkAccordionContent>
+                      </SkAccordionItem>
+                    </SkAccordion>
+                  </div>
+                </CardContent>
               </TabsContent>
 
               {/* Tab Gestión */}
