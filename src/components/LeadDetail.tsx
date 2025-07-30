@@ -422,14 +422,7 @@ Notas adicionales: ${lead.notes || 'Ninguna'}`;
 
               {/* Tab General */}
               <TabsContent value="general" className="space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-1 gap-6">
-                  {/* Información básica */}
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="flex items-center gap-2 text-md">
-                        Datos Personales
-                      </CardTitle>
-                    </CardHeader>
+                <Card>
                     <CardContent className="space-y-6">
                       <div className="space-y-0 border-2 border-[#3d4b5c26] shadow-md rounded-md p-2.5">
                         <Label className="p-0 text-sm text-gray-500 font-normal">Nombre completo</Label>
@@ -542,7 +535,6 @@ Notas adicionales: ${lead.notes || 'Ninguna'}`;
                       </div>
                     </CardContent>
                   </Card>
-                </div>
 
                 {/* Información de origen */}
                 <Card>
