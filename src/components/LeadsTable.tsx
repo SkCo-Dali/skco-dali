@@ -452,12 +452,37 @@ export function LeadsTable({
           console.log('No hay número de teléfono disponible para este lead');
         }
         break;
+      case 'outlook':
+        handleOutlookSchedule(lead);
+        break;
       case 'delete':
         handleDeleteLead(lead);
         break;
       default:
         break;
     }
+  };
+
+  const handleOutlookSchedule = (lead: Lead) => {
+    const startDate = new Date();
+    startDate.setHours(startDate.getHours() + 1); // Una hora desde ahora
+    
+    const endDate = new Date(startDate);
+    endDate.setHours(endDate.getHours() + 1); // Duración de 1 hora
+    
+    const subject = `Reunión con ${lead.name}`;
+    const body = `Reunión programada con el lead: ${lead.name}
+    
+Email: ${lead.email || 'No disponible'}
+Teléfono: ${lead.phone || 'No disponible'}
+Campaña: ${lead.campaign || 'No disponible'}
+Etapa: ${lead.stage}
+
+Por favor, confirmar asistencia.`;
+    
+    const outlookUrl = `https://outlook.live.com/calendar/0/deeplink/compose?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}&startdt=${startDate.toISOString()}&enddt=${endDate.toISOString()}`;
+    
+    window.open(outlookUrl, '_blank');
   };
 
   const handleDeleteLead = (lead: Lead) => {
@@ -529,6 +554,10 @@ export function LeadsTable({
                 <DropdownMenuItem onClick={(e) => handleLeadAction('whatsapp', lead, e)}>
                   <FaWhatsapp className="mr-2 h-4 w-4" />
                   Enviar WhatsApp
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={(e) => handleLeadAction('outlook', lead, e)}>
+                  <Calendar className="mr-2 h-4 w-4" />
+                  Agendar reunión en Outlook
                 </DropdownMenuItem>
                 {onOpenProfiler && (
                   <DropdownMenuItem onClick={(e) => handleLeadAction('profile', lead, e)}>
