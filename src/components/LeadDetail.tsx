@@ -414,7 +414,7 @@ Notas adicionales: ${lead.notes || 'Ninguna'}`;
             </DialogHeader>
 
             <Tabs defaultValue="general" className="w-full">
-              <TabsList className="grid w-full grid-cols-3 bg-gray-100 rounded-full">
+              <TabsList className="grid w-full grid-cols-3 bg-gray-100 rounded-full px-4">
                 <TabsTrigger value="general" className="w-full h-full data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#00c83c] data-[state=active]:to-[#A3E40B] data-[state=active]:text-white rounded-full px-4 py-2 mt-0 text-sm font-medium transition-all duration-200">General</TabsTrigger>
                 <TabsTrigger value="management"className="w-full h-full data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#00c83c] data-[state=active]:to-[#A3E40B] data-[state=active]:text-white rounded-full px-4 py-2 mt-0 text-sm font-medium transition-all duration-200" >Gestión</TabsTrigger>
                 <TabsTrigger value="history"className="w-full h-full data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#00c83c] data-[state=active]:to-[#A3E40B] data-[state=active]:text-white rounded-full px-4 py-2 mt-0 text-sm font-medium transition-all duration-200" >Asignación</TabsTrigger>
@@ -425,7 +425,7 @@ Notas adicionales: ${lead.notes || 'Ninguna'}`;
                 
                     <CardContent className="space-y-6 py-2 px-0">
                       <CardHeader>
-                    <CardTitle className="flex items-center">
+                    <CardTitle className="flex items-center pt-4">
                       Datos Personales
                     </CardTitle>
                   </CardHeader>
