@@ -538,17 +538,7 @@ Notas adicionales: ${lead.notes || 'Ninguna'}`;
                           />
                         </div>
                       </div>
-                    </CardContent>
-                 
-
-                {/* Información de origen */}
-              
-                    
-                  <CardContent className="space-y-6 py-2 px-0">
-                    <CardTitle className="flex items-center pt-2">
-                      Información de Origen
-                    </CardTitle>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div className="space-y-0 border-2 border-[#3d4b5c26] shadow-md rounded-md p-2.5">
                         <Label className="p-0 text-sm text-gray-500 font-normal">Fuente</Label>
                         <Input
@@ -599,12 +589,22 @@ Notas adicionales: ${lead.notes || 'Ninguna'}`;
                         </div>
                       </div>
                     </div>
+                    </CardContent>
+                 
+
+                {/* Información de origen */}
+              
+                    
+                  <CardContent className="space-y-6 py-2 px-0">
+                    <CardTitle className="flex items-center pt-2">
+                      Información Adicional
+                    </CardTitle>
+                    
 
                     
 
                     {/* Sección de Información Adicional - Sin debug info */}
                     <div>
-                      <Label>Información Adicional</Label>
                       <div className="mt-2">
                         {editedLead.additionalInfo && typeof editedLead.additionalInfo === 'object' && Object.keys(editedLead.additionalInfo).length > 0 ? (
                           <div className="border rounded-lg overflow-hidden">
@@ -639,23 +639,6 @@ Notas adicionales: ${lead.notes || 'Ninguna'}`;
                       </div>
                     </div>
                   </CardContent>
-
-
-                {/* Notas */}
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Notas</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <Textarea
-                      value={editedLead.notes || ''}
-                      onChange={(e) => handleGeneralChange('notes', e.target.value)}
-                      placeholder="Agregar notas sobre este lead..."
-                      rows={4}
-                      className="border border-gray-200 rounded-lg focus:border-gray-400 focus:ring-0"
-                    />
-                  </CardContent>
-                </Card>
               </TabsContent>
 
               {/* Tab Gestión */}
