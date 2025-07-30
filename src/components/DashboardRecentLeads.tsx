@@ -7,10 +7,19 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Search, Filter } from "lucide-react";
 import { Lead } from "@/types/crm";
+import { ColumnConfig } from "@/components/LeadsTableColumnSelector";
 
 interface DashboardRecentLeadsProps {
   leads: Lead[];
 }
+
+const DEFAULT_COLUMNS: ColumnConfig[] = [
+  { key: 'name', label: 'Nombre', visible: true, sortable: true },
+  { key: 'email', label: 'Email', visible: true, sortable: true },
+  { key: 'phone', label: 'Teléfono', visible: true, sortable: false },
+  { key: 'company', label: 'Compañía', visible: false, sortable: true },
+  { key: 'stage', label: 'Etapa', visible: true, sortable: true },
+];
 
 export function DashboardRecentLeads({ leads }: DashboardRecentLeadsProps) {
   const [searchTerm, setSearchTerm] = useState("");
@@ -36,6 +45,26 @@ export function DashboardRecentLeads({ leads }: DashboardRecentLeadsProps) {
     // TODO: Implement lead detail view or modal
   };
 
+  const handleLeadUpdate = () => {
+    console.log('Lead update requested');
+  };
+
+  const handleSortedLeadsChange = (sorted: Lead[]) => {
+    console.log('Sorted leads changed:', sorted);
+  };
+
+  const handleSendEmail = (lead: Lead) => {
+    console.log('Send email to:', lead);
+  };
+
+  const handleOpenProfiler = (lead: Lead) => {
+    console.log('Open profiler for:', lead);
+  };
+
+  const handleLeadSelectionChange = (leadIds: string[], isSelected: boolean) => {
+    console.log('Lead selection changed:', leadIds, isSelected);
+  };
+
   return (
     <Card>
       <CardHeader>
@@ -59,7 +88,14 @@ export function DashboardRecentLeads({ leads }: DashboardRecentLeadsProps) {
         <LeadsTable 
           leads={recentLeads} 
           paginatedLeads={recentLeads}
-          onLeadClick={handleLeadClick} 
+          onLeadClick={handleLeadClick}
+          onLeadUpdate={handleLeadUpdate}
+          columns={DEFAULT_COLUMNS}
+          onSortedLeadsChange={handleSortedLeadsChange}
+          onSendEmail={handleSendEmail}
+          onOpenProfiler={handleOpenProfiler}
+          selectedLeads={[]}
+          onLeadSelectionChange={handleLeadSelectionChange}
         />
       </CardContent>
     </Card>
