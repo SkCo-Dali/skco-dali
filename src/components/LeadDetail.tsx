@@ -544,7 +544,7 @@ Notas adicionales: ${lead.notes || 'Ninguna'}`;
                 {/* Información de origen */}
               
                     
-                  <CardContent className="space-y-6">
+                  <CardContent className="space-y-6 py-2 px-0">
                     <CardTitle className="flex items-center pt-2">
                       Información de Origen
                     </CardTitle>
