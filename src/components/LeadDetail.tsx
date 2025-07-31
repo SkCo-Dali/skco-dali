@@ -460,29 +460,25 @@ Notas adicionales: ${lead.notes || 'Ninguna'}`;
                       </div>
 
                       <div className="grid grid-cols-2 gap-6">
-                        <div className="grid grid-rows-2 gap-1 border-2 border-[#3d4b5c26] shadow-md rounded-md p-2.5 relative">
-  <Label className="text-sm text-gray-500 font-normal">Tipo de Documento</Label>
-
-  <div className="relative">
-    <Select 
-      value={editedLead.documentType || 'CC'} 
-      onValueChange={(value) => handleGeneralChange('documentType', value)}
-    >
-      <SelectTrigger className="w-full border-0 border-b border-gray-200 rounded-none px-0 py-0 text-sm font-medium bg-transparent leading-none h-auto min-h-0 focus:border-gray-400 focus:shadow-none focus:ring-0 pr-6">
-        <SelectValue />
-      </SelectTrigger>
-      <SelectContent>
-        <SelectItem value="CC">Cédula de Ciudadanía</SelectItem>
-        <SelectItem value="CE">Cédula de Extranjería</SelectItem>
-        <SelectItem value="TI">Tarjeta de Identidad</SelectItem>
-        <SelectItem value="PA">Pasaporte</SelectItem>
-        <SelectItem value="NIT">NIT</SelectItem>
-      </SelectContent>
-    </Select>
-
-    <ChevronDown className="absolute right-0 top-1/2 -translate-y-1/2 h-4 w-4 text-[#00c83c] pointer-events-none" />
-  </div>
-</div>
+                        <div className="grid grid-flow-col grid-rows-2 gap-0 space-y-0 border-2 border-[#3d4b5c26] shadow-md rounded-md p-2.5 relative">
+                          <Label className="col-span-1 p-0 text-sm text-gray-500 font-normal">Tipo de Documento</Label>
+                          <Select 
+                            value={editedLead.documentType || 'CC'} 
+                            onValueChange={(value) => handleGeneralChange('documentType', value)}
+                          >
+                            <SelectTrigger className="col-span-1 row-span-2 border-0 border-b border-gray-200 rounded-none px-0 py-0 m-0 text-sm font-medium bg-transparent leading-none h-auto min-h-0 focus:border-gray-400 focus:shadow-none focus:ring-0">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="CC">Cédula de Ciudadanía</SelectItem>
+                              <SelectItem value="CE">Cédula de Extranjería</SelectItem>
+                              <SelectItem value="TI">Tarjeta de Identidad</SelectItem>
+                              <SelectItem value="PA">Pasaporte</SelectItem>
+                              <SelectItem value="NIT">NIT</SelectItem>
+                            </SelectContent>
+                          </Select>
+                          <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 h-4 w-4 text-[#00c83c]" />
+                        </div>
                         
                         <div className="space-y-0 border-2 border-[#3d4b5c26] shadow-md rounded-md p-2.5">
                           <Label className="p-0 text-sm text-gray-500 font-normal">Número de Documento</Label>
