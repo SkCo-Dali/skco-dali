@@ -461,12 +461,12 @@ Notas adicionales: ${lead.notes || 'Ninguna'}`;
 
                       <div className="grid grid-cols-2 gap-6">
                         <div className="grid grid-flow-col grid-rows-2 gap-0 space-y-0 border-2 border-[#3d4b5c26] shadow-md rounded-md p-2.5 relative">
-                          <Label className="p-0 text-sm text-gray-500 font-normal">Tipo de Documento</Label>
+                          <Label className="col-span-1 p-0 text-sm text-gray-500 font-normal">Tipo de Documento</Label>
                           <Select 
                             value={editedLead.documentType || 'CC'} 
                             onValueChange={(value) => handleGeneralChange('documentType', value)}
                           >
-                            <SelectTrigger className="border-0 border-b border-gray-200 rounded-none px-0 py-0 m-0 text-sm font-medium bg-transparent leading-none h-auto min-h-0 focus:border-gray-400 focus:shadow-none focus:ring-0">
+                            <SelectTrigger className="col-span-1 row-span-2 border-0 border-b border-gray-200 rounded-none px-0 py-0 m-0 text-sm font-medium bg-transparent leading-none h-auto min-h-0 focus:border-gray-400 focus:shadow-none focus:ring-0">
                               <SelectValue />
                             </SelectTrigger>
                             <SelectContent>
