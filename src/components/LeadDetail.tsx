@@ -460,7 +460,7 @@ Notas adicionales: ${lead.notes || 'Ninguna'}`;
                       </div>
 
                       <div className="grid grid-cols-2 gap-6">
-                        <div className="grid grid-flow-col grid-rows-2 gap-4 space-y-0 border-2 border-[#3d4b5c26] shadow-md rounded-md p-2.5 relative">
+                        <div className="grid grid-flow-col grid-rows-2 gap-0 space-y-0 border-2 border-[#3d4b5c26] shadow-md rounded-md p-2.5 relative">
                           <Label className="p-0 text-sm text-gray-500 font-normal">Tipo de Documento</Label>
                           <Select 
                             value={editedLead.documentType || 'CC'} 
