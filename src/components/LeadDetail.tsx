@@ -466,7 +466,7 @@ Notas adicionales: ${lead.notes || 'Ninguna'}`;
                             value={editedLead.documentType || 'CC'} 
                             onValueChange={(value) => handleGeneralChange('documentType', value)}
                           >
-                            <SelectTrigger className="col-span-1 row-span-2 border-0 border-b border-gray-200 rounded-none px-0 py-0 m-0 text-sm font-medium bg-transparent leading-none h-auto min-h-0 focus:border-gray-400 focus:shadow-none focus:ring-0">
+                            <SelectTrigger className="col-span-1 row-span-1 border-0 border-b border-gray-200 rounded-none px-0 py-0 m-0 text-sm font-medium bg-transparent leading-none h-auto min-h-0 focus:border-gray-400 focus:shadow-none focus:ring-0">
                               <SelectValue />
                             </SelectTrigger>
                             <SelectContent>
