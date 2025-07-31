@@ -460,7 +460,7 @@ Notas adicionales: ${lead.notes || 'Ninguna'}`;
                       </div>
 
                       <div className="grid grid-cols-2 gap-6">
-                        <div className="space-y-0 border-2 border-[#3d4b5c26] shadow-md rounded-md p-2.5 relative">
+                        <div className="grid grid-flow-col grid-rows-3 gap-4 space-y-0 border-2 border-[#3d4b5c26] shadow-md rounded-md p-2.5 relative">
                           <Label className="p-0 text-sm text-gray-500 font-normal">Tipo de Documento</Label>
                           <Select 
                             value={editedLead.documentType || 'CC'} 
@@ -477,7 +477,7 @@ Notas adicionales: ${lead.notes || 'Ninguna'}`;
                               <SelectItem value="NIT">NIT</SelectItem>
                             </SelectContent>
                           </Select>
-                          <ChevronDown className="absolute right-2 top-8 h-4 w-4 text-[#00c83c]" />
+                          <ChevronDown className="row-span-2 row-end-3 absolute right-2 top-8 h-4 w-4 text-[#00c83c]" />
                         </div>
                         
                         <div className="space-y-0 border-2 border-[#3d4b5c26] shadow-md rounded-md p-2.5">
