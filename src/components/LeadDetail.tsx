@@ -12,7 +12,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Calendar, MessageSquare, Phone, Mail, UserCheck, Clock, Tag, Building2, Globe, CreditCard, AlertCircle, History, UserPlus, Users, X, ChevronDown } from 'lucide-react';
+import { Calendar, MessageSquare, Phone, Mail, UserCheck, Clock, Tag, Building2, Globe, CreditCard, AlertCircle, History, UserPlus, Users, X } from 'lucide-react';
 import { useUsersApi } from '@/hooks/useUsersApi';
 import { useInteractionsApi } from '@/hooks/useInteractionsApi';
 import { useLeadAssignments } from '@/hooks/useLeadAssignments';
@@ -462,9 +462,9 @@ Notas adicionales: ${lead.notes || 'Ninguna'}`;
                       <div className="grid grid-cols-2 gap-6">
                         <div className="grid grid-flow-col grid-rows-3 gap-4 space-y-0 border-2 border-[#3d4b5c26] shadow-md rounded-md p-2.5">
                           <Label className="col-span-1 p-0 text-sm text-gray-500 font-normal">Tipo de Documento</Label>
-                           <div className="h-full flex items-center justify-center ml-2">
-        <ChevronDown className="row-start-1 row-end-4 h-4 w-4 text-[#00c83c]" />
-      </div>
+                           
+        
+      
                           <Select 
                             value={editedLead.documentType || 'CC'} 
                             onValueChange={(value) => handleGeneralChange('documentType', value)}
@@ -480,7 +480,7 @@ Notas adicionales: ${lead.notes || 'Ninguna'}`;
                               <SelectItem value="NIT">NIT</SelectItem>
                             </SelectContent>
                           </Select>
-
+<ChevronDown className="row-start-1 row-end-4 h-4 w-4 text-[#00c83c]" />
  
                         </div>
                         
