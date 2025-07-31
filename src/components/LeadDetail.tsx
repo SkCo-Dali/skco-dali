@@ -466,7 +466,7 @@ Notas adicionales: ${lead.notes || 'Ninguna'}`;
                             value={editedLead.documentType || 'CC'} 
                             onValueChange={(value) => handleGeneralChange('documentType', value)}
                           >
-                            <SelectTrigger className="col-span-1 row-span-1 border-0 border-b border-gray-200 rounded-none px-0 py-0 m-0 text-sm font-medium bg-transparent leading-none h-auto min-h-0 focus:border-gray-400 focus:shadow-none focus:ring-0">
+                            <SelectTrigger className="col-span-1 row-span-2 border-0 border-b border-gray-200 rounded-none px-0 py-0 m-0 text-sm font-medium bg-transparent leading-none h-auto min-h-0 focus:border-gray-400 focus:shadow-none focus:ring-0">
                               <SelectValue />
                             </SelectTrigger>
                             <SelectContent>
@@ -477,7 +477,7 @@ Notas adicionales: ${lead.notes || 'Ninguna'}`;
                               <SelectItem value="NIT">NIT</SelectItem>
                             </SelectContent>
                           </Select>
-                          <ChevronDown className="self-center row-span-2 absolute right-2 top-8 h-4 w-4 text-[#00c83c]" />
+                          <ChevronDown className="self-center absolute right-2 top-8 h-4 w-4 text-[#00c83c]" />
                         </div>
                         
                         <div className="space-y-0 border-2 border-[#3d4b5c26] shadow-md rounded-md p-2.5">
