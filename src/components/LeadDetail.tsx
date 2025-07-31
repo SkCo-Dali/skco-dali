@@ -460,8 +460,8 @@ Notas adicionales: ${lead.notes || 'Ninguna'}`;
                       </div>
 
                       <div className="grid grid-cols-2 gap-6">
-                        <div className="space-y-0 border-2 border-[#3d4b5c26] shadow-md rounded-md p-2.5">
-                          <Label className="p-0 text-sm text-gray-500 font-normal">Tipo de Documento</Label>
+                        <div className="grid grid-flow-col grid-rows-3 gap-4 space-y-0 border-2 border-[#3d4b5c26] shadow-md rounded-md p-2.5">
+                          <Label className="col-span-2 p-0 text-sm text-gray-500 font-normal">Tipo de Documento</Label>
                           <Select 
                             value={editedLead.documentType || 'CC'} 
                             onValueChange={(value) => handleGeneralChange('documentType', value)}
