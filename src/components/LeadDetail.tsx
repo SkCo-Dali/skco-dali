@@ -12,7 +12,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Calendar, MessageSquare, Phone, Mail, UserCheck, Clock, Tag, Building2, Globe, CreditCard, AlertCircle, History, UserPlus, Users, X } from 'lucide-react';
+import { Calendar, MessageSquare, Phone, Mail, UserCheck, Clock, Tag, Building2, Globe, CreditCard, AlertCircle, History, UserPlus, Users, X, ChevronDown } from 'lucide-react';
 import { useUsersApi } from '@/hooks/useUsersApi';
 import { useInteractionsApi } from '@/hooks/useInteractionsApi';
 import { useLeadAssignments } from '@/hooks/useLeadAssignments';
@@ -21,6 +21,7 @@ import { formatDistanceToNow } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { LeadReassignDialog } from './LeadReassignDialog';
 import { FaWhatsapp } from "react-icons/fa";
+import { SkAccordion, SkAccordionItem, SkAccordionTrigger, SkAccordionContent } from '@/components/ui/sk-accordion';
 
 interface LeadDetailProps {
   lead: Lead;
@@ -369,6 +370,38 @@ export function LeadDetail({ lead, isOpen, onClose, onSave, onOpenMassEmail }: L
 
   if (!isOpen) return null;
 
+  const handleScheduleOutlookMeeting = () => {
+    const subject = `Reunión con ${lead.name || 'Lead'}`;
+    const body = `Reunión programada con el lead:
+    
+Nombre: ${lead.name || 'No especificado'}
+Email: ${lead.email || 'No especificado'}
+Teléfono: ${lead.phone || 'No especificado'}
+Empresa: ${lead.company || 'No especificado'}
+Campaña: ${lead.campaign || 'No especificado'}
+Estado: ${lead.stage || 'No especificado'}
+
+Notas adicionales: ${lead.notes || 'Ninguna'}`;
+
+    // Crear URL para Outlook Web
+    const outlookUrl = new URL('https://outlook.office365.com/calendar/0/deeplink/compose');
+    outlookUrl.searchParams.append('subject', subject);
+    outlookUrl.searchParams.append('body', body);
+    
+    // Si hay email del lead, agregarlo como invitado
+    if (lead.email) {
+      outlookUrl.searchParams.append('to', lead.email);
+    }
+    
+    // Abrir en nueva ventana
+    window.open(outlookUrl.toString(), '_blank');
+    
+    toast({
+      title: "Calendario abierto",
+      description: "Se ha abierto Outlook para agendar la reunión",
+    });
+  };
+
   try {
     return (
       <>
@@ -381,8 +414,8 @@ export function LeadDetail({ lead, isOpen, onClose, onSave, onOpenMassEmail }: L
               </DialogTitle>
             </DialogHeader>
 
-            <Tabs defaultValue="general" className="w-full">
-              <TabsList className="grid w-full grid-cols-3 bg-gray-100 rounded-full">
+            <Tabs defaultValue="general" className="w-full px-6">
+              <TabsList className="grid w-full grid-cols-3 bg-gray-100 rounded-full px-0 py-0 my-0">
                 <TabsTrigger value="general" className="w-full h-full data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#00c83c] data-[state=active]:to-[#A3E40B] data-[state=active]:text-white rounded-full px-4 py-2 mt-0 text-sm font-medium transition-all duration-200">General</TabsTrigger>
                 <TabsTrigger value="management"className="w-full h-full data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#00c83c] data-[state=active]:to-[#A3E40B] data-[state=active]:text-white rounded-full px-4 py-2 mt-0 text-sm font-medium transition-all duration-200" >Gestión</TabsTrigger>
                 <TabsTrigger value="history"className="w-full h-full data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#00c83c] data-[state=active]:to-[#A3E40B] data-[state=active]:text-white rounded-full px-4 py-2 mt-0 text-sm font-medium transition-all duration-200" >Asignación</TabsTrigger>
@@ -390,15 +423,13 @@ export function LeadDetail({ lead, isOpen, onClose, onSave, onOpenMassEmail }: L
 
               {/* Tab General */}
               <TabsContent value="general" className="space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-1 gap-6">
-                  {/* Información básica */}
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="flex items-center gap-2 text-md">
-                        Datos Personales
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-6">
+                
+                    <CardContent className="space-y-6 py-2 px-0">
+                    
+                    <CardTitle className="flex items-center pt-2">
+                      Información General
+                    </CardTitle>
+                 
                       <div className="space-y-0 border-2 border-[#3d4b5c26] shadow-md rounded-md p-2.5">
                         <Label className="p-0 text-sm text-gray-500 font-normal">Nombre completo</Label>
                         <Input
@@ -429,13 +460,13 @@ export function LeadDetail({ lead, isOpen, onClose, onSave, onOpenMassEmail }: L
                       </div>
 
                       <div className="grid grid-cols-2 gap-6">
-                        <div className="space-y-0 border-2 border-[#3d4b5c26] shadow-md rounded-md p-2.5">
-                          <Label className="p-0 text-sm text-gray-500 font-normal">Tipo de Documento</Label>
+                        <div className="grid grid-flow-col grid-rows-2 gap-0 space-y-0 border-2 border-[#3d4b5c26] shadow-md rounded-md p-2.5 relative">
+                          <Label className="col-span-1 p-0 text-sm text-gray-500 font-normal">Tipo de Documento</Label>
                           <Select 
                             value={editedLead.documentType || 'CC'} 
                             onValueChange={(value) => handleGeneralChange('documentType', value)}
                           >
-                            <SelectTrigger className="border-0 border-b border-gray-200 rounded-none px-0 py-0 m-0 text-sm font-medium bg-transparent leading-none h-auto min-h-0 focus:border-gray-400 focus:shadow-none focus:ring-0">
+                            <SelectTrigger className="col-span-1 row-span-2 border-0 border-b border-gray-200 rounded-none px-0 py-0 m-0 text-sm font-medium bg-transparent leading-none h-auto min-h-0 focus:border-gray-400 focus:shadow-none focus:ring-0">
                               <SelectValue />
                             </SelectTrigger>
                             <SelectContent>
@@ -446,6 +477,7 @@ export function LeadDetail({ lead, isOpen, onClose, onSave, onOpenMassEmail }: L
                               <SelectItem value="NIT">NIT</SelectItem>
                             </SelectContent>
                           </Select>
+                          <ChevronDown className="row-start-1 row-end-2 self-center absolute right-2 top-8 h-4 w-4 text-[#00c83c]" />
                         </div>
                         
                         <div className="space-y-0 border-2 border-[#3d4b5c26] shadow-md rounded-md p-2.5">
@@ -508,20 +540,7 @@ export function LeadDetail({ lead, isOpen, onClose, onSave, onOpenMassEmail }: L
                           />
                         </div>
                       </div>
-                    </CardContent>
-                  </Card>
-                </div>
-
-                {/* Información de origen */}
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <Globe className="h-4 w-4" />
-                      Información de Origen
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-6">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div className="space-y-0 border-2 border-[#3d4b5c26] shadow-md rounded-md p-2.5">
                         <Label className="p-0 text-sm text-gray-500 font-normal">Fuente</Label>
                         <Input
@@ -572,126 +591,74 @@ export function LeadDetail({ lead, isOpen, onClose, onSave, onOpenMassEmail }: L
                         </div>
                       </div>
                     </div>
+                    </CardContent>
+                 
 
-                    <div>
-                      <Label>Portafolios</Label>
-                      <div className="flex flex-wrap gap-1 mt-1">
-                        {ensureArray(editedLead.portfolios).map((portfolio, index) => (
-                          <Badge key={index} variant="outline" className="text-xs">
-                            {portfolio}
-                          </Badge>
-                        ))}
-                        {ensureArray(editedLead.portfolios).length === 0 && (
-                          <span className="text-sm text-muted-foreground">No hay portafolios asignados</span>
-                        )}
-                      </div>
-                    </div>
-
-                    <div>
-                      <Label>Tags</Label>
-                      <div className="space-y-2">
-                        <div className="flex flex-wrap gap-1">
-                          {ensureArray(editedLead.tags).map((tag, index) => (
-                            <Badge key={index} variant="secondary" className="text-xs flex items-center gap-1">
-                              {tag}
-                              <Button
-                                size="sm"
-                                variant="ghost"
-                                className="h-3 w-3 p-0 hover:bg-red-100"
-                                onClick={() => handleRemoveTag(tag)}
-                              >
-                                <X className="h-2 w-2" />
-                              </Button>
-                            </Badge>
-                          ))}
-                        </div>
-                        <div className="flex gap-2">
-                          <Input
-                            placeholder="Agregar tag..."
-                            value={newTag}
-                            onChange={(e) => setNewTag(e.target.value)}
-                            onKeyPress={(e) => e.key === 'Enter' && handleAddTag()}
-                          />
-                          <Button size="sm" onClick={handleAddTag}>
-                            Agregar
-                          </Button>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Sección de Información Adicional - Sin debug info */}
-                    <div>
-                      <Label>Información Adicional</Label>
-                      <div className="mt-2">
-                        {editedLead.additionalInfo && typeof editedLead.additionalInfo === 'object' && Object.keys(editedLead.additionalInfo).length > 0 ? (
-                          <div className="border rounded-lg overflow-hidden">
-                            <ScrollArea className="h-48">
-                              <Table>
-                                <TableHeader className="sticky top-0 bg-gray-50">
-                                  <TableRow>
-                                    <TableHead className="font-medium text-gray-700">Campo</TableHead>
-                                    <TableHead className="font-medium text-gray-700">Valor</TableHead>
-                                  </TableRow>
-                                </TableHeader>
-                                <TableBody>
-                                  {Object.entries(editedLead.additionalInfo).map(([key, value], index) => (
-                                    <TableRow key={key} className={index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
-                                      <TableCell className="font-medium text-gray-600">{key}</TableCell>
-                                      <TableCell className="text-gray-900">
-                                        {typeof value === 'object' && value !== null 
-                                          ? JSON.stringify(value) 
-                                          : String(value || '')}
-                                      </TableCell>
+                {/* Información Adicional con acordeón de Skandia */}
+                <CardContent className="space-y-6 py-2 px-0">
+                  <CardTitle className="flex items-center pt-2">
+                    Información Adicional
+                  </CardTitle>
+                  
+                  <div className="mt-2 rounded-lg">
+                    <SkAccordion type="single" collapsible className="w-full rounded-lg">
+                      <SkAccordionItem value="additional-info" className="bg-white !rounded-lg !shadow-md overflow-hidden border border-gray-200">
+                        <SkAccordionTrigger className="px-4 py-4 hover:bg-gray-50 data-[state=open]:bg-gray-100 text-left font-semibold text-gray-700 flex items-center justify-between w-full [&>svg]:text-green-500 [&>svg]:h-5 [&>svg]:w-5 [&>svg]:ml-auto [&>svg]:shrink-0 [&[data-state=open]>svg]:rotate-180 transition-all duration-200">
+                          <span>Detalles de Información Adicional</span>
+                        </SkAccordionTrigger>
+                        <SkAccordionContent className="px-4 pb-4 pt-0 bg-white border-t border-gray-200">
+                          {editedLead.additionalInfo && typeof editedLead.additionalInfo === 'object' && Object.keys(editedLead.additionalInfo).length > 0 ? (
+                            <div className="rounded-lg overflow-hidden bg-gray-50 mt-4">
+                              <ScrollArea className="h-48">
+                                <Table>
+                                  <TableHeader className="sticky top-0 bg-gray-100">
+                                    <TableRow>
+                                      <TableHead className="font-medium text-gray-700">Campo</TableHead>
+                                      <TableHead className="font-medium text-gray-700">Valor</TableHead>
                                     </TableRow>
-                                  ))}
-                                </TableBody>
-                              </Table>
-                            </ScrollArea>
-                          </div>
-                        ) : (
-                          <div className="p-4 border border-gray-200 rounded-lg bg-gray-50 text-center text-gray-500">
-                            No hay información adicional disponible
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                {/* Notas */}
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Notas</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <Textarea
-                      value={editedLead.notes || ''}
-                      onChange={(e) => handleGeneralChange('notes', e.target.value)}
-                      placeholder="Agregar notas sobre este lead..."
-                      rows={4}
-                      className="border border-gray-200 rounded-lg focus:border-gray-400 focus:ring-0"
-                    />
-                  </CardContent>
-                </Card>
+                                  </TableHeader>
+                                  <TableBody>
+                                    {Object.entries(editedLead.additionalInfo).map(([key, value], index) => (
+                                      <TableRow key={key} className={index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
+                                        <TableCell className="font-medium text-gray-600">{key}</TableCell>
+                                        <TableCell className="text-gray-900">
+                                          {typeof value === 'object' && value !== null 
+                                            ? JSON.stringify(value) 
+                                            : String(value || '')}
+                                        </TableCell>
+                                      </TableRow>
+                                    ))}
+                                  </TableBody>
+                                </Table>
+                              </ScrollArea>
+                            </div>
+                          ) : (
+                            <div className="p-6 text-center text-gray-500 bg-gray-50 rounded-lg border border-gray-200">
+                              <AlertCircle className="h-8 w-8 mx-auto mb-2 text-gray-400" />
+                              <p className="text-sm">No hay información adicional disponible</p>
+                            </div>
+                          )}
+                        </SkAccordionContent>
+                      </SkAccordionItem>
+                    </SkAccordion>
+                  </div>
+                </CardContent>
               </TabsContent>
 
               {/* Tab Gestión */}
               <TabsContent value="management" className="space-y-6">
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Resultado de la Gestión</CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div>
-                        <Label htmlFor="stage">Estado Actual</Label>
+                <CardContent className="space-y-6 py-2 px-0">
+                  <CardTitle className="flex items-center pt-2">Resultado de la Gestión</CardTitle>
+                
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-0 border-2 border-[#3d4b5c26] shadow-md rounded-md p-2.5">
+                        <Label className="p-0 text-sm text-gray-500 font-normal">Estado Actual</Label>
                         <Select 
                           value={editedLead.stage} 
-                          onValueChange={(value) => handleManagementChange('stage', value)}
+                          onValueChange={(value) => handleGeneralChange('stage', value)}
                         >
-                          <SelectTrigger>
-                            <SelectValue />
+                          <SelectTrigger className="border-0 border-b border-gray-200 rounded-none px-0 py-0 m-0 text-sm font-medium bg-transparent leading-none h-auto min-h-0 focus:border-gray-400 focus:shadow-none focus:ring-0">
+                            <SelectValue/>
                           </SelectTrigger>
                           <SelectContent>
                             <SelectItem value="Nuevo">Nuevo</SelectItem>
@@ -708,21 +675,26 @@ export function LeadDetail({ lead, isOpen, onClose, onSave, onOpenMassEmail }: L
                           </SelectContent>
                         </Select>
                       </div>
-                       <div>
-                        <Label htmlFor="contactMethod">Medio de Contacto</Label>
-                        <Select value={contactMethod} onValueChange={setContactMethod}>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Seleccionar medio" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="phone">Teléfono</SelectItem>
-                            <SelectItem value="email">Email</SelectItem>
-                            <SelectItem value="whatsapp">WhatsApp</SelectItem>
-                            <SelectItem value="meeting">Reunión</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
+                    
+                     <div className="space-y-0 border-2 border-[#3d4b5c26] shadow-md rounded-md p-2.5">
+                        <Label className="p-0 text-sm text-gray-500 font-normal">Medio de Contacto</Label>
+                      <Select 
+                        value={contactMethod} 
+                        onValueChange={setContactMethod}
+                      >
+                        <SelectTrigger className="border-0 border-b border-gray-200 rounded-none px-0 py-0 m-0 text-sm font-medium bg-transparent leading-none h-auto min-h-0 focus:border-gray-400 focus:shadow-none focus:ring-0">
+                          <SelectValue/>
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="phone">Teléfono</SelectItem>
+                          <SelectItem value="email">Email</SelectItem>
+                          <SelectItem value="whatsapp">WhatsApp</SelectItem>
+                          <SelectItem value="meeting">Reunión</SelectItem>
+                        </SelectContent>
+                      </Select>
                     </div>
+                  </div>
+                  
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                         <Label htmlFor="priority">Prioridad</Label>
@@ -763,35 +735,43 @@ export function LeadDetail({ lead, isOpen, onClose, onSave, onOpenMassEmail }: L
                         rows={3}
                       />
                     </div>
-<div className="flex gap-2">
-                    <Button 
-                      size="icon" 
-                      onClick={() => onOpenMassEmail?.(lead)}
-                      className="gap-1 w-8 h-8"
-                    >
-                      <Mail className="h-3 w-3" />
-                    </Button>
-                    <Button 
-                      size="icon" 
-                      onClick={() => {
-                        if (lead.phone) {
-                          const cleanPhone = lead.phone.replace(/\D/g, '');
-                          window.open(`https://wa.me/${cleanPhone}`, '_blank');
-                        } else {
-                          toast({
-                            title: "Error",
-                            description: "No hay número de teléfono disponible para este lead",
-                            variant: "destructive",
-                          });
-                        }
-                      }}
-                      className="gap-1 w-8 h-8"
-                    >
-                      <FaWhatsapp className="h-3 w-3" />
-                    </Button>
-</div>
+                    <div className="flex gap-2">
+                      <Button 
+                        size="icon" 
+                        onClick={() => onOpenMassEmail?.(lead)}
+                        className="gap-1 w-8 h-8"
+                      >
+                        <Mail className="h-3 w-3" />
+                      </Button>
+                      <Button 
+                        size="icon" 
+                        onClick={() => {
+                          if (lead.phone) {
+                            const cleanPhone = lead.phone.replace(/\D/g, '');
+                            window.open(`https://wa.me/${cleanPhone}`, '_blank');
+                          } else {
+                            toast({
+                              title: "Error",
+                              description: "No hay número de teléfono disponible para este lead",
+                              variant: "destructive",
+                            });
+                          }
+                        }}
+                        className="gap-1 w-8 h-8"
+                      >
+                        <FaWhatsapp className="h-3 w-3" />
+                      </Button>
+                      <Button 
+                        size="icon" 
+                        onClick={handleScheduleOutlookMeeting}
+                        className="gap-1 w-8 h-8"
+                        title="Agendar reunión en Outlook"
+                      >
+                        <Calendar className="h-3 w-3" />
+                      </Button>
+                    </div>
                   </CardContent>
-                </Card>
+               
 
                 {/* Historial de Interacciones mejorado */}
                 <div className="flex items-center justify-between">

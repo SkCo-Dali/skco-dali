@@ -38,12 +38,6 @@ const createWebComponentConfig = (entry, name, outDir) => defineConfig({
     emptyOutDir: false,
     cssCodeSplit: false,
     minify: 'esbuild',
-    terserOptions: {
-      compress: {
-        drop_console: false, // Mantener console.log para debugging
-        drop_debugger: true
-      }
-    }
   },
   resolve: {
     alias: {
@@ -57,6 +51,7 @@ async function generateIndividualComponent(componentName) {
   const componentFile = `generate-${componentName.toLowerCase()}-component.js`;
   const componentContent = `
 import React from 'react';
+import {useState, useEffect} from 'react';
 import ReactDOM from 'react-dom/client';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { BrowserRouter } from 'react-router-dom';
@@ -66,7 +61,7 @@ import { PublicClientApplication } from '@azure/msal-browser';
 import ${componentName} from '../src/pages/${componentName}';
 
 // Importar contextos necesarios
-import { AuthProvider } from '../src/contexts/AuthContext';
+import { AuthProvider, useAuth } from '../src/contexts/AuthContext';
 import { NotificationProvider } from '../src/contexts/NotificationContext';
 import { SimpleConversationProvider } from '../src/contexts/SimpleConversationContext';
 import { ThemeProvider } from '../src/contexts/ThemeContext';
@@ -75,13 +70,18 @@ import { SettingsProvider } from '../src/contexts/SettingsContext';
 // Importar configuración de autenticación
 import { msalConfig } from '../src/authConfig';
 
+
+import { loginRequest } from '../src/authConfig';
+import { getUserByEmail, createUser } from '../src/utils/userApiClient';
+import { TokenValidationService } from '../src/services/tokenValidationService';
+import { getUserRoleByEmail } from '../src/utils/userRoleService';
+import SecureTokenManager from '../src/utils/secureTokenManager';
+
 // Importar CSS
 import '../src/index.css';
 
 // Componente de autenticación automática
 const AutoAuthWrapper = ({ children, Component }) => {
-  const { useAuth } = require('../src/contexts/AuthContext');
-  const { useState, useEffect } = require('react');
 
   const { user, loading, msalInstance, login } = useAuth();
   const [isAutoAuthenticating, setIsAutoAuthenticating] = useState(false);
@@ -93,11 +93,6 @@ const AutoAuthWrapper = ({ children, Component }) => {
     setIsAutoAuthenticating(true);
     
     try {
-      const { loginRequest } = require('../src/authConfig');
-      const { getUserByEmail, createUser } = require('../src/utils/userApiClient');
-      const { TokenValidationService } = require('../src/services/tokenValidationService');
-      const { getUserRoleByEmail } = require('../src/utils/userRoleService');
-      const SecureTokenManager = require('../src/utils/secureTokenManager').default;
 
       // Paso 1: Obtener token de MSAL
       const response = await msalInstance.loginPopup({
@@ -297,16 +292,16 @@ class SK_Dali_${componentName}_React extends HTMLElement {
 
   async connectedCallback() {
     // Crear shadow DOM para encapsulación
-    const shadow = this.attachShadow({ mode: 'open' });
-    
+    const shadow = this.shadowRoot ? this.shadowRoot : this.attachShadow({ mode: 'open' });
+
     // Crear contenedor para React
     const container = document.createElement('div');
-    container.style.cssText = \`
-      width: 100%;
-      height: 100vh;
-      overflow: auto;
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    \`;
+    // container.style.cssText = \`
+    //   width: 100%;
+    //   height: 100vh;
+    //   overflow: auto;
+    //   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    // \`;
     shadow.appendChild(container);
 
     // Copiar estilos globales al shadow DOM
@@ -352,18 +347,7 @@ class SK_Dali_${componentName}_React extends HTMLElement {
       }
     }
 
-    // Cargar el CSS específico del componente si existe
-    try {
-      const cssResponse = await fetch('./SK.Dali.${componentName}.React.css');
-      if (cssResponse.ok) {
-        const cssText = await cssResponse.text();
-        const componentStyles = document.createElement('style');
-        componentStyles.textContent = cssText;
-        shadow.appendChild(componentStyles);
-      }
-    } catch (error) {
-      // CSS específico no encontrado, continuar sin él
-    }
+ 
 
     // Agregar estilos específicos para el web component
     const hostStyles = document.createElement('style');
@@ -475,9 +459,9 @@ class SK_Dali_${componentName}_React extends HTMLElement {
 }
 
 // Registrar el custom element
-if (!customElements.get('sk-dali-${componentName.toLowerCase()}-react')) {
+// if (!customElements.get('sk-dali-${componentName.toLowerCase()}-react')) {
   customElements.define('sk-dali-${componentName.toLowerCase()}-react', SK_Dali_${componentName}_React);
-}
+// }
 
 // Exportar para uso programático
 export default SK_Dali_${componentName}_React;

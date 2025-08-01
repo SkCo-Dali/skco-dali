@@ -1,0 +1,53 @@
+name: Upload webcomponents to Azure Blob Storage
+
+on:
+    push:
+        branches: [ develop ]
+
+permissions:
+      id-token: write
+      contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push'
+    environment: ${{ github.ref_name == 'main' && 'Production' || github.ref_name == 'develop' && 'Development' || github.ref_name == 'staging' && 'Staging' || 'Development' }}
+    steps:
+    - uses: actions/checkout@v3
+    - uses: actions/setup-node@v4
+      name: Setup Node.js
+      with:
+        node-version: '22'
+    - name: Install dependencies
+      run: npm install
+    - name: Build
+      run: npm run build:web-components
+    - uses: azure/login@v2
+      
+      with:        
+        client-id: ${{ vars.AZURE_CLIENT_ID_STORAGE }}
+        tenant-id: ${{ vars.AZURE_TENANT_ID }}
+        subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+        enable-AzPSSession: true
+    - name: Upload JS to blob storage
+      uses: azure/CLI@v2
+      with:
+        azcliversion: latest
+        inlineScript: |
+            az storage blob upload-batch --account-name rgskcoareajarvisdevbe2e  --auth-mode login -d 'dali-components' -s ./dist/web-components --pattern '*.js' --overwrite true
+    - name: Upload CSS to blob storage
+      uses: azure/CLI@v2
+      with:
+        azcliversion: latest
+        useGlobalConfig: true
+        # Use the same storage account as above
+        # This is necessary to ensure the CLI uses the correct credentials
+        account-name: rgskcoareajarvisdevbe2e
+        inlineScript: |
+            az storage blob upload-batch --account-name rgskcoareajarvisdevbe2e  --auth-mode login -d 'dali-components' -s ./dist/web-components --pattern '*.css' --overwrite true
+  # Azure logout
+    - name: logout
+      run: |
+            az logout
+      if: always()

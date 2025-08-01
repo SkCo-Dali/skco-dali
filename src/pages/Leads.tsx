@@ -11,6 +11,7 @@ import { LeadsBulkAssignment } from "@/components/LeadsBulkAssignment";
 import { LeadsUpload } from "@/components/LeadsUpload";
 import { LeadCreateDialog, LeadCreateDialogRef } from "@/components/LeadCreateDialog";
 import { MassEmailSender } from "@/components/MassEmailSender";
+import { MassWhatsAppSender } from "@/components/MassWhatsAppSender";
 import { LeadsTableColumnSelector } from "@/components/LeadsTableColumnSelector";
 import { LeadsActionsButton } from "@/components/LeadsActionsButton";
 import { useLeadsFilters } from "@/hooks/useLeadsFilters";
@@ -44,7 +45,8 @@ import {
   Columns,
   MoreVertical,
   Group,
-  Trash
+  Trash,
+  MessageSquare
 } from "lucide-react";
 import { useLeadDeletion } from "@/hooks/useLeadDeletion";
 import { LeadDeleteConfirmDialog } from "@/components/LeadDeleteConfirmDialog";
@@ -76,6 +78,7 @@ export default function Leads() {
   const [showBulkAssign, setShowBulkAssign] = useState(false);
   const [showUpload, setShowUpload] = useState(false);
   const [showMassEmail, setShowMassEmail] = useState(false);
+  const [showMassWhatsApp, setShowMassWhatsApp] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
   const [columns, setColumns] = useState<ColumnConfig[]>(DEFAULT_COLUMNS);
   const [sortedLeads, setSortedLeads] = useState<Lead[]>([]);
@@ -282,6 +285,13 @@ export default function Leads() {
     setShowMassEmail(true);
   };
 
+  const handleMassWhatsApp = () => {
+    if (selectedLeads.length === 0) {
+      toast.info("Se aplicará a todos los leads filtrados");
+    }
+    setShowMassWhatsApp(true);
+  };
+
   if (error) {
     return (
       <div className="container mx-auto px-4 py-8">
@@ -295,11 +305,11 @@ export default function Leads() {
   return (
     <>
       <div className="w-full max-w-full px-4 py-8 space-y-6">
-        <div className="flex flex-col lg:flex-row gap-6 pt-20">
+        <div className="flex flex-col lg:flex-row gap-6">
           <div className="flex-1 space-y-6">
             {/* Header con título y botón de acciones */}
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-              <h1 className="text-3xl font-bold">Gestión de Leads</h1>
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pt-12">
+              <h1 className="text-3xl font-bold mb-1 tracking-tight text-[#00c83c]">Gestión de Leads</h1>
               
               {/* Botón de acciones para pantallas pequeñas y medianas */}
               {isSmallScreen && (
@@ -307,6 +317,7 @@ export default function Leads() {
                   onCreateLead={handleCreateLead}
                   onBulkAssign={handleBulkAssign}
                   onMassEmail={handleMassEmail}
+                  onMassWhatsApp={handleMassWhatsApp}
                   onDeleteLeads={handleDeleteSelectedLeads}
                   selectedLeadsCount={selectedLeads.length}
                   isDeleting={isDeleting}
@@ -339,6 +350,13 @@ export default function Leads() {
                     size="icon"
                   >
                     <Mail className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    className="gap-1 w-8 h-8 bg-[#25D366] hover:bg-[#25D366]/90"
+                    onClick={handleMassWhatsApp}
+                    size="icon"
+                  >
+                    <MessageSquare className="h-4 w-4" />
                   </Button>
                   <Button
                     className="gap-1 w-8 h-8 bg-red-600 hover:bg-red-700"
@@ -473,6 +491,7 @@ export default function Leads() {
                       }}>
                         <LeadsTableColumnSelector
                           columns={columns}
+                          leads={paginatedLeads}
                           onColumnsChange={setColumns}
                           showTextLabel={false}
                         />
@@ -601,6 +620,7 @@ export default function Leads() {
                       height: '32px'
                     }}>
                       <LeadsTableColumnSelector
+                      leads={paginatedLeads}
                         columns={columns}
                         onColumnsChange={setColumns}
                         showTextLabel={true}
@@ -709,6 +729,21 @@ export default function Leads() {
               onClose={() => {
                 setShowMassEmail(false);
                 setSelectedLeadForEmail(null);
+                setSelectedLeads([]);
+              }}
+            />
+          </DialogContent>
+        </Dialog>
+
+        <Dialog open={showMassWhatsApp} onOpenChange={setShowMassWhatsApp}>
+          <DialogContent className="max-w-7xl max-h-[90vh] overflow-auto">
+            <MassWhatsAppSender
+              filteredLeads={selectedLeads.length > 0 
+                ? filteredLeads.filter(lead => selectedLeads.includes(lead.id))
+                : filteredLeads
+              }
+              onClose={() => {
+                setShowMassWhatsApp(false);
                 setSelectedLeads([]);
               }}
             />

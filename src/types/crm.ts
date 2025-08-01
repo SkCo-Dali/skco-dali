@@ -189,8 +189,41 @@ export interface Lead {
   nextFollowUp?: string; // Changed to string for consistency
   campaignOwnerName?: string;
   interactions?: Interaction[];
-  additionalInfo?: Record<string, any> | null;
+  [key: string]: any;
 }
+
+export const LeadDefaultProperties: string[] = [
+    'id',
+    'name',
+    'email',
+    'phone',
+    'status',
+    'source',
+    'priority',
+    'campaign',
+    'portfolio',
+    'product',
+    'createdAt',
+    'updatedAt',
+    'stage',
+    'assignedTo',
+    'createdBy',
+    'company',
+    'value',
+    'type',
+    'outcome',
+    'notes',
+    'documentType',
+    'documentNumber',
+    'age',
+    'gender',
+    'preferredContactChannel',
+    'portfolios',
+    'tags',
+    'nextFollowUp',
+    'campaignOwnerName',
+    'interactions',
+]
 
 export type LeadStatus = 'New' | 'Contacted' | 'Qualified' | 'Lost' | 'Won';
 export type LeadSource = 'Web' | 'Referral' | 'Social Media' | 'Other' | 'campaign' | 'web' | 'Hubspot' | 'DaliLM' | 'DaliAI' | 'social' | 'referral' | 'cold-call' | 'event';
