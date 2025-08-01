@@ -365,7 +365,7 @@ export function LeadsTable({
   };
 
   const handleSelectAll = (checked: boolean) => {
-    const currentPageLeadIds = sortedFilteredLeads.slice(0, paginatedLeads.length).map(lead => lead.id);
+    const currentPageLeadIds = paginatedLeads.map(lead => lead.id);
     if (onLeadSelectionChange) {
       onLeadSelectionChange(currentPageLeadIds, checked);
     }
@@ -377,9 +377,8 @@ export function LeadsTable({
     }
   };
 
-  const currentPageSortedLeads = sortedFilteredLeads.slice(0, paginatedLeads.length);
-  const isAllSelected = currentPageSortedLeads.length > 0 && currentPageSortedLeads.every(lead => selectedLeads.includes(lead.id));
-  const isIndeterminate = currentPageSortedLeads.some(lead => selectedLeads.includes(lead.id)) && !isAllSelected;
+  const isAllSelected = paginatedLeads.length > 0 && paginatedLeads.every(lead => selectedLeads.includes(lead.id));
+  const isIndeterminate = paginatedLeads.some(lead => selectedLeads.includes(lead.id)) && !isAllSelected;
 
   const handleSort = (columnKey: string, direction?: 'asc' | 'desc') => {
     const newDirection = direction || (sortConfig?.key === columnKey && sortConfig?.direction === 'asc' ? 'desc' : 'asc');
@@ -682,8 +681,6 @@ Por favor, confirmar asistencia.`;
     }
   };
 
-  const leadsToRender = sortedFilteredLeads.slice(0, paginatedLeads.length);
-
   return (
     <>
       <div className="leads-table-container-scroll">
@@ -748,7 +745,7 @@ Por favor, confirmar asistencia.`;
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {leadsToRender.map((lead, index) => (
+                  {paginatedLeads.map((lead, index) => (
                     <TableRow 
                       key={lead.id}
                       className="hover:bg-[#fafafa] transition-colors border-[#fafafa]"
