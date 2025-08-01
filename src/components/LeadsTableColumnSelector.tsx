@@ -176,7 +176,7 @@ export function LeadsTableColumnSelector({
   // Generar columnas dinámicas y combinar con las existentes
   const allColumns = useMemo(() => {
     const dynamicColumns = generateDynamicColumns(leads);
-    const staticColumns = columns.filter(col => !col.isDynamic);
+    const staticColumns = columns;//.filter(col => !col.isDynamic);
     
     // Combinar columnas estáticas con dinámicas, evitando duplicados
     const combinedColumns = [...staticColumns];
