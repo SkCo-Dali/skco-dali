@@ -30,7 +30,7 @@ import {
   useSortable,
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { Lead } from "@/types/crm";
+import { Lead, LeadDefaultProperties } from "@/types/crm";
 
 export interface ColumnConfig {
   key: string;
@@ -52,11 +52,10 @@ const getDynamicAdditionalInfoKeys = (leads: Lead[]): string[] => {
   const keys = new Set<string>();
   
   leads.forEach(lead => {
-    if (lead.additionalInfo && typeof lead.additionalInfo === 'object') {
-      Object.keys(lead.additionalInfo).forEach(key => {
+      Object.keys(lead).forEach(key => {
+        if (LeadDefaultProperties.includes(key)) return;
         keys.add(key);
       });
-    }
   });
   
   return Array.from(keys).sort();
@@ -67,7 +66,7 @@ const generateDynamicColumns = (leads: Lead[]): ColumnConfig[] => {
   const dynamicKeys = getDynamicAdditionalInfoKeys(leads);
   
   return dynamicKeys.map(key => ({
-    key: `additionalInfo.${key}`,
+    key: `${key}`,
     label: key.charAt(0).toUpperCase() + key.slice(1).replace(/([A-Z])/g, ' $1'),
     visible: false,
     sortable: true,

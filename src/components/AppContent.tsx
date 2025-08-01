@@ -57,7 +57,7 @@ export function AppContent() {
         <AppSidebar />
         <div className="flex-1">
           <Header onBannerMessage={handleBannerMessage} />
-          <main className="flex-1">
+          <main className="flex-1 pt-20">
             <Routes>
               <Route path="/" element={<Navigate to="/leads" replace />} />
               <Route path="/dashboard" element={<Dashboard />} />

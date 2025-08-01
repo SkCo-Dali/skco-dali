@@ -670,15 +670,15 @@ Por favor, confirmar asistencia.`;
           </span>
         );
       case 'age':
-        return <span className="text-center text-gray-700 text-xs">{lead.age || '-'}</span>;
+        
       case 'gender':
-        return <span className="text-center text-gray-700 text-xs">{lead.gender || '-'}</span>;
+        
       case 'preferredContactChannel':
-        return <span className="text-center text-gray-700 text-xs">{lead.preferredContactChannel || '-'}</span>;
+        
       case 'documentType':
-        return <span className="text-center text-gray-700 text-xs">{lead.documentType || '-'}</span>;
+        
       default:
-        return null;
+        return <span className="text-center text-gray-700 text-xs">{lead[columnKey] || '-'}</span>;
     }
   };
 

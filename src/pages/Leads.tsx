@@ -491,6 +491,7 @@ export default function Leads() {
                       }}>
                         <LeadsTableColumnSelector
                           columns={columns}
+                          leads={paginatedLeads}
                           onColumnsChange={setColumns}
                           showTextLabel={false}
                         />
@@ -619,6 +620,7 @@ export default function Leads() {
                       height: '32px'
                     }}>
                       <LeadsTableColumnSelector
+                      leads={paginatedLeads}
                         columns={columns}
                         onColumnsChange={setColumns}
                         showTextLabel={true}
