@@ -308,7 +308,7 @@ export default function Leads() {
         <div className="flex flex-col lg:flex-row gap-6">
           <div className="flex-1 space-y-6">
             {/* Header con título y botón de acciones */}
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 pt-12">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 pt-0">
               <h1 className="text-3xl font-bold mb-1 tracking-tight text-[#00c83c]">Gestión de Leads</h1>
               
               {/* Botón de acciones para pantallas pequeñas y medianas */}
