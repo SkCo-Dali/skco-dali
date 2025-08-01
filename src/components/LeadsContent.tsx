@@ -65,7 +65,6 @@ export function LeadsContent({
 
         <Dialog open={isProfilerOpen} onOpenChange={setIsProfilerOpen}>
           <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto p-0">
-            
             <LeadProfiler selectedLead={selectedLeadForProfiler} />
           </DialogContent>
         </Dialog>
@@ -73,7 +72,8 @@ export function LeadsContent({
     );
   }
 
-  const groupedLeads = leads.reduce((acc: { [key: string]: Lead[] }, lead) => {
+  // Para la vista de columnas, usar los leads paginados para crear los grupos
+  const groupedLeads = paginatedLeads.reduce((acc: { [key: string]: Lead[] }, lead) => {
     const key = lead[groupBy as keyof Lead] as string || 'undefined';
     if (!acc[key]) {
       acc[key] = [];

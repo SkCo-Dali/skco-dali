@@ -308,11 +308,9 @@ export default function Leads() {
       <div className="w-full max-w-full px-4 py-8 space-y-6">
         <div className="flex flex-col lg:flex-row gap-6">
           <div className="flex-1 space-y-6">
-            {/* Header con título y botón de acciones */}
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 pt-0">
               <h1 className="text-3xl font-bold mb-1 tracking-tight text-[#00c83c]">Gestión de Leads</h1>
               
-              {/* Botón de acciones para pantallas pequeñas y medianas */}
               {isSmallScreen && (
                 <LeadsActionsButton
                   onCreateLead={handleCreateLead}
@@ -326,9 +324,7 @@ export default function Leads() {
               )}
             </div>
 
-            {/* Barra de búsqueda y controles */}
             <div className="flex flex-col lg:flex-row gap-4 items-center">
-              {/* Sección de búsqueda y botones para pantallas grandes */}
               {!isSmallScreen && (
                 <div className="flex flex-1 items-center gap-2">
                   <Button
@@ -374,7 +370,6 @@ export default function Leads() {
                 </div>
               )}
 
-              {/* Barra de búsqueda y controles para pantallas pequeñas */}
               {isSmallScreen && (
                 <div className="flex w-full items-center gap-2">
                   <div className="flex-1">
@@ -510,7 +505,6 @@ export default function Leads() {
                 </div>
               )}
               
-              {/* Controles para pantallas grandes */}
               {!isSmallScreen && (
                 <div className="flex gap-2">
                   <DropdownMenu>
@@ -648,7 +642,7 @@ export default function Leads() {
               <>
                 <LeadsContent
                   viewMode={viewMode}
-                  leads={filteredLeads}
+                  leads={leadsToUse}
                   onLeadClick={handleLeadClick}
                   onLeadUpdate={handleLeadUpdate}
                   columns={columns}
@@ -673,7 +667,6 @@ export default function Leads() {
           </div>
         </div>
 
-        {/* Dialog for creating leads - Solo el diálogo, sin botón visible */}
         <LeadCreateDialog ref={leadCreateDialogRef} onLeadCreate={handleLeadCreate} />
 
         {selectedLead && (
