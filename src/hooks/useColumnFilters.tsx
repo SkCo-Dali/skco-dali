@@ -19,7 +19,16 @@ export function useColumnFilters(leads: Lead[]) {
       return Object.entries(columnFilters).every(([column, selectedValues]) => {
         if (selectedValues.length === 0) return true;
         
-        const leadValue = lead[column as keyof Lead];
+        let leadValue: any;
+        
+        // Manejar columnas dinámicas de additionalInfo
+        if (column.startsWith('additionalInfo.')) {
+          const key = column.replace('additionalInfo.', '');
+          leadValue = lead.additionalInfo?.[key] || '';
+        } else {
+          leadValue = lead[column as keyof Lead];
+        }
+        
         const stringValue = leadValue === null || leadValue === undefined ? "" : String(leadValue);
         
         return selectedValues.includes(stringValue);

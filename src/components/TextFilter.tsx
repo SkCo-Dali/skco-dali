@@ -16,6 +16,7 @@ interface TextFilterProps {
   data: Lead[];
   onFilterChange: (column: string, conditions: TextFilterCondition[]) => void;
   currentConditions: TextFilterCondition[];
+  onClose?: () => void;
 }
 
 const getOperatorsByColumnType = (column: string) => {
@@ -56,7 +57,7 @@ const getOperatorsByColumnType = (column: string) => {
   ];
 };
 
-export function TextFilter({ column, data, onFilterChange, currentConditions }: TextFilterProps) {
+export function TextFilter({ column, data, onFilterChange, currentConditions, onClose }: TextFilterProps) {
   const [conditions, setConditions] = useState<TextFilterCondition[]>(
     currentConditions.length > 0 ? currentConditions : [{ field: column, operator: 'contains', value: '' }]
   );
@@ -85,6 +86,7 @@ export function TextFilter({ column, data, onFilterChange, currentConditions }: 
       cond.value.trim() !== '' || cond.operator === 'is_empty' || cond.operator === 'is_not_empty'
     );
     onFilterChange(column, validConditions);
+    onClose?.();
   };
 
   const handleClear = () => {

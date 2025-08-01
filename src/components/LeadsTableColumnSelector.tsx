@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -10,20 +10,69 @@ import {
 import { Checkbox } from "@/components/ui/checkbox";
 import { Switch } from "@/components/ui/switch";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Settings2 } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Settings2, Search, GripVertical } from "lucide-react";
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+} from '@dnd-kit/core';
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy,
+} from '@dnd-kit/sortable';
+import {
+  useSortable,
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
+import { Lead, LeadDefaultProperties } from "@/types/crm";
 
 export interface ColumnConfig {
   key: string;
   label: string;
   visible: boolean;
   sortable: boolean;
+  isDynamic?: boolean;
 }
 
 interface LeadsTableColumnSelectorProps {
   columns: ColumnConfig[];
   onColumnsChange: (columns: ColumnConfig[]) => void;
   showTextLabel?: boolean;
+  leads?: Lead[];
 }
+
+// Función para obtener las claves dinámicas de additionalInfo
+const getDynamicAdditionalInfoKeys = (leads: Lead[]): string[] => {
+  const keys = new Set<string>();
+  
+  leads.forEach(lead => {
+      Object.keys(lead).forEach(key => {
+        if (LeadDefaultProperties.includes(key)) return;
+        keys.add(key);
+      });
+  });
+  
+  return Array.from(keys).sort();
+};
+
+// Función para generar columnas dinámicas
+const generateDynamicColumns = (leads: Lead[]): ColumnConfig[] => {
+  const dynamicKeys = getDynamicAdditionalInfoKeys(leads);
+  
+  return dynamicKeys.map(key => ({
+    key: `${key}`,
+    label: key.charAt(0).toUpperCase() + key.slice(1).replace(/([A-Z])/g, ' $1'),
+    visible: false,
+    sortable: true,
+    isDynamic: true
+  }));
+};
 
 // Función para guardar configuración en sessionStorage
 const saveColumnConfig = (columns: ColumnConfig[]) => {
@@ -45,12 +94,129 @@ const clearColumnConfig = () => {
   }
 };
 
+// Componente para cada elemento sortable
+interface SortableColumnItemProps {
+  column: ColumnConfig;
+  onToggle: (columnKey: string) => void;
+}
+
+function SortableColumnItem({ column, onToggle }: SortableColumnItemProps) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: column.key });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+  };
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      className={`flex items-center space-x-2 p-2 rounded ${
+        isDragging ? 'bg-green-50' : 'hover:bg-gray-50'
+      }`}
+    >
+      <div
+        {...attributes}
+        {...listeners}
+        className="cursor-grab active:cursor-grabbing p-1 hover:bg-gray-100 rounded"
+      >
+        <GripVertical className="h-4 w-4 text-gray-400" />
+      </div>
+      <Checkbox
+        id={`column-${column.key}`}
+        checked={column.visible}
+        onCheckedChange={() => onToggle(column.key)}
+        disabled={column.key === 'name'}
+      />
+      <label 
+        htmlFor={`column-${column.key}`} 
+        className={`text-sm flex-1 ${
+          column.key === 'name' 
+            ? 'cursor-default text-gray-500' 
+            : 'cursor-pointer'
+        }`}
+      >
+        {column.label}
+        {column.key === 'name' && (
+          <span className="ml-1 text-xs text-gray-400">(obligatorio)</span>
+        )}
+        {column.isDynamic && (
+          <span className="ml-1 text-xs text-blue-500">(info adicional)</span>
+        )}
+      </label>
+    </div>
+  );
+}
+
 export function LeadsTableColumnSelector({ 
   columns, 
   onColumnsChange,
-  showTextLabel = true
+  showTextLabel = true,
+  leads = []
 }: LeadsTableColumnSelectorProps) {
   const [open, setOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
+
+  // Generar columnas dinámicas y combinar con las existentes
+  const allColumns = useMemo(() => {
+    const dynamicColumns = generateDynamicColumns(leads);
+    const staticColumns = columns;//.filter(col => !col.isDynamic);
+    
+    // Combinar columnas estáticas con dinámicas, evitando duplicados
+    const combinedColumns = [...staticColumns];
+    
+    dynamicColumns.forEach(dynamicCol => {
+      const existingIndex = combinedColumns.findIndex(col => col.key === dynamicCol.key);
+      if (existingIndex === -1) {
+        combinedColumns.push(dynamicCol);
+      } else {
+        // Actualizar columna existente manteniendo la visibilidad
+        combinedColumns[existingIndex] = {
+          ...dynamicCol,
+          visible: combinedColumns[existingIndex].visible
+        };
+      }
+    });
+    
+    return combinedColumns;
+  }, [columns, leads]);
+
+  // Filtrar columnas basado en el término de búsqueda
+  const filteredColumns = useMemo(() => {
+    if (!searchTerm) return allColumns;
+    return allColumns.filter(column => 
+      column.label.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  }, [allColumns, searchTerm]);
+
+  const handleDragEnd = (event: any) => {
+    const { active, over } = event;
+
+    if (active.id !== over.id) {
+      const oldIndex = allColumns.findIndex(col => col.key === active.id);
+      const newIndex = allColumns.findIndex(col => col.key === over.id);
+      
+      const newColumns = arrayMove(allColumns, oldIndex, newIndex);
+      saveColumnConfig(newColumns);
+      onColumnsChange(newColumns);
+    }
+  };
 
   const handleToggleColumn = (columnKey: string) => {
     // Prevent deselecting the name column as it's mandatory
@@ -58,7 +224,7 @@ export function LeadsTableColumnSelector({
       return;
     }
     
-    const updatedColumns = columns.map(col => 
+    const updatedColumns = allColumns.map(col => 
       col.key === columnKey 
         ? { ...col, visible: !col.visible }
         : col
@@ -70,7 +236,7 @@ export function LeadsTableColumnSelector({
   };
 
   const handleToggleAll = (checked: boolean) => {
-    const updatedColumns = columns.map(col => ({
+    const updatedColumns = allColumns.map(col => ({
       ...col,
       // Always keep name column visible even when unchecking all
       visible: col.key === 'name' ? true : checked
@@ -88,10 +254,9 @@ export function LeadsTableColumnSelector({
     window.location.reload();
   };
 
-  const visibleCount = columns.filter(col => col.visible).length;
-  const selectableColumns = columns.filter(col => col.key !== 'name');
+  const visibleCount = allColumns.filter(col => col.visible).length;
+  const selectableColumns = allColumns.filter(col => col.key !== 'name');
   const allSelectableSelected = selectableColumns.every(col => col.visible);
-  const noneSelectableSelected = selectableColumns.every(col => !col.visible);
 
   return (
     <DropdownMenu open={open} onOpenChange={setOpen}>
@@ -111,37 +276,48 @@ export function LeadsTableColumnSelector({
       <DropdownMenuContent align="end" className="w-80 bg-white rounded-2xl shadow-lg border border-gray-200">
         <div className="p-3">
           <div className="flex items-center justify-between mb-3">
-            <h3 className="font-medium text-sm">Seleccionar columnas</h3>
+            <h3 className="font-medium text-sm">Seleccionar y reordenar columnas</h3>
             <span className="text-xs text-gray-500">
-              {visibleCount} de {columns.length}
+              {visibleCount} de {allColumns.length}
             </span>
           </div>
           
+          {/* Buscador */}
+          <div className="relative mb-3">
+            <Input
+              placeholder="Buscar columnas..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-10 border-2 border-[#00c83c] rounded-lg focus:border-[#00c83c] focus:ring-[#00c83c]"
+            />
+          </div>
+
+          {/* Mensaje informativo */}
+          <div className="flex items-center gap-2 mb-3 text-xs text-gray-500">
+            <GripVertical className="h-3 w-3" />
+            <span>Arrastra para reordenar las columnas</span>
+          </div>
+          
           <ScrollArea className="h-64 border-2 border-[#dedede] rounded-md">
-            <div className="space-y-2 p-2">
-              {columns.map((column) => (
-                <div key={column.key} className="flex items-center space-x-2">
-                  <Checkbox
-                    id={`column-${column.key}`}
-                    checked={column.visible}
-                    onCheckedChange={() => handleToggleColumn(column.key)}
-                    disabled={column.key === 'name'}
-                  />
-                  <label 
-                    htmlFor={`column-${column.key}`} 
-                    className={`text-sm flex-1 ${
-                      column.key === 'name' 
-                        ? 'cursor-default text-gray-500' 
-                        : 'cursor-pointer'
-                    }`}
-                  >
-                    {column.label}
-                    {column.key === 'name' && (
-                      <span className="ml-1 text-xs text-gray-400">(obligatorio)</span>
-                    )}
-                  </label>
-                </div>
-              ))}
+            <div className="p-2">
+              <DndContext
+                sensors={sensors}
+                collisionDetection={closestCenter}
+                onDragEnd={handleDragEnd}
+              >
+                <SortableContext
+                  items={filteredColumns.map(col => col.key)}
+                  strategy={verticalListSortingStrategy}
+                >
+                  {filteredColumns.map((column) => (
+                    <SortableColumnItem
+                      key={column.key}
+                      column={column}
+                      onToggle={handleToggleColumn}
+                    />
+                  ))}
+                </SortableContext>
+              </DndContext>
             </div>
           </ScrollArea>
 

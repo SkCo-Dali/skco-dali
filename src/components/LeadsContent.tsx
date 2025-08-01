@@ -114,7 +114,7 @@ export function LeadsContent({
   return (
     <>
       <div className="space-y-6">
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 max-h-[350px] overflow-y-auto">
           {sortedGroups.map(([group, groupLeads]) => (
             <div key={group} className="space-y-0">
               {/* Header de la columna estilo Kanban */}

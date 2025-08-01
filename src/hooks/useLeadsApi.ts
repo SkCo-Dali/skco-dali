@@ -75,7 +75,7 @@ export const useLeadsApi = () => {
       portfolio: reassignableLead.SelectedPortfolios ? 
         (typeof reassignableLead.SelectedPortfolios === 'string' ? 
           JSON.parse(reassignableLead.SelectedPortfolios)[0] : reassignableLead.SelectedPortfolios[0]) || 'Portfolio A' : 'Portfolio A',
-      additionalInfo: additionalInfo
+      ...(additionalInfo ?  additionalInfo  : {})
     };
     
     console.log('✅ Final mapped lead with AdditionalInfo:', JSON.stringify(mappedLead, null, 2));

@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useMemo } from "react";
 import { Search, Filter } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -32,7 +31,6 @@ export function ColumnFilter({
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedValues, setSelectedValues] = useState<string[]>(currentFilters);
 
-  // Obtener valores únicos para la columna
   const uniqueValues = useMemo(() => {
     const values = data.map(lead => {
       const value = lead[column as keyof Lead];
@@ -43,7 +41,6 @@ export function ColumnFilter({
     return Array.from(new Set(values)).sort();
   }, [data, column]);
 
-  // Filtrar valores basado en la búsqueda
   const filteredValues = useMemo(() => {
     if (!searchTerm) return uniqueValues;
     return uniqueValues.filter(value => 
@@ -51,7 +48,6 @@ export function ColumnFilter({
     );
   }, [uniqueValues, searchTerm]);
 
-  // Actualizar selectedValues cuando cambien los filtros externos
   useEffect(() => {
     setSelectedValues(currentFilters);
   }, [currentFilters]);
@@ -88,6 +84,10 @@ export function ColumnFilter({
     setIsOpen(false);
   };
 
+  const handleTextFilterApply = () => {
+    setIsOpen(false);
+  };
+
   const isAllSelected = filteredValues.length > 0 && 
     filteredValues.every(value => selectedValues.includes(value));
   const isIndeterminate = filteredValues.some(value => selectedValues.includes(value)) && 
@@ -104,6 +104,9 @@ export function ColumnFilter({
           className={`h-6 w-6 p-0 hover:bg-gray-100 ${
             hasActiveFilters ? 'text-green-600' : 'text-gray-400'
           }`}
+          onClick={(e) => {
+            e.stopPropagation();
+          }}
         >
           <Filter className="h-3 w-3" />
         </Button>
@@ -151,7 +154,6 @@ export function ColumnFilter({
             <>
               {/* Campo de búsqueda */}
               <div className="relative mb-4">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
                 <Input
                   placeholder="Search"
                   value={searchTerm}
@@ -170,7 +172,9 @@ export function ColumnFilter({
                 <div className="flex items-center space-x-2 p-2 hover:bg-gray-50">
                   <Checkbox
                     checked={isAllSelected}
-                    onCheckedChange={handleSelectAll}
+                    onCheckedChange={(checked) => {
+                      handleSelectAll(checked as boolean);
+                    }}
                     className={isIndeterminate ? "data-[state=indeterminate]:bg-primary" : ""}
                     {...(isIndeterminate ? { "data-state": "indeterminate" } : {})}
                   />
@@ -190,7 +194,9 @@ export function ColumnFilter({
                   <div key={value} className="flex items-center space-x-2 p-2 hover:bg-gray-50">
                     <Checkbox
                       checked={selectedValues.includes(value)}
-                      onCheckedChange={(checked) => handleValueChange(value, checked as boolean)}
+                      onCheckedChange={(checked) => {
+                        handleValueChange(value, checked as boolean);
+                      }}
                     />
                     <label 
                       className="text-sm text-gray-700 cursor-pointer flex-1"
@@ -250,6 +256,7 @@ export function ColumnFilter({
                 data={data}
                 onFilterChange={onTextFilterChange}
                 currentConditions={currentTextFilters}
+                onClose={handleTextFilterApply}
               />
             </div>
           )}
