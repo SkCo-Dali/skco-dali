@@ -50,6 +50,7 @@ import {
 } from "lucide-react";
 import { useLeadDeletion } from "@/hooks/useLeadDeletion";
 import { LeadDeleteConfirmDialog } from "@/components/LeadDeleteConfirmDialog";
+import { FaWhatsapp } from "react-icons/fa";
 
 const DEFAULT_COLUMNS: ColumnConfig[] = [
   { key: 'name', label: 'Nombre', visible: true, sortable: true },
@@ -356,7 +357,7 @@ export default function Leads() {
                     onClick={handleMassWhatsApp}
                     size="icon"
                   >
-                    <MessageSquare className="h-4 w-4" />
+                    <FaWhatsapp className="h-4 w-4" />
                   </Button>
                   <Button
                     className="gap-1 w-8 h-8 bg-red-600 hover:bg-red-700"
