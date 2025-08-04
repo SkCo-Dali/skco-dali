@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useMemo } from "react";
 import { Search, Filter, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -301,12 +300,6 @@ export function ColumnFilter({
                 onFilterChange={onTextFilterChange}
                 currentConditions={currentTextFilters}
                 onClose={handleTextFilterApply}
-                onClear={() => {
-                  onTextFilterChange(column, []);
-                  if (onClearTextFilter) {
-                    onClearTextFilter(column);
-                  }
-                }}
               />
             </div>
           )}
