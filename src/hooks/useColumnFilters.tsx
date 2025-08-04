@@ -56,6 +56,9 @@ export function useColumnFilters(leads: Lead[]) {
       delete newFilters[column];
       return newFilters;
     });
+    
+    // Also clear text filters for this column
+    handleTextFilterChange(column, []);
   };
 
   const clearAllColumnFilters = () => {

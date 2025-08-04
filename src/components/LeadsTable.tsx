@@ -118,8 +118,9 @@ interface SortableHeaderProps {
   textFilters: Record<string, TextFilterCondition[]>;
   onColumnFilterChange: (column: string, selectedValues: string[]) => void;
   onTextFilterChange: (column: string, filters: TextFilterCondition[]) => void;
+  onClearFilter: (column: string) => void;
   isNameColumn?: boolean;
-  onClearFilters?: () => void;
+  onClearAllFilters?: () => void;
 }
 
 function SortableHeader({ 
@@ -132,8 +133,9 @@ function SortableHeader({
   textFilters,
   onColumnFilterChange,
   onTextFilterChange,
+  onClearFilter,
   isNameColumn = false,
-  onClearFilters
+  onClearAllFilters
 }: SortableHeaderProps) {
   const {
     attributes,
@@ -176,6 +178,7 @@ function SortableHeader({
           onFilterChange={onColumnFilterChange}
           onTextFilterChange={onTextFilterChange}
           onSortChange={onSort}
+          onClearFilter={onClearFilter}
           currentFilters={columnFilters[column.key] || []}
           currentTextFilters={textFilters[column.key] || []}
         />
@@ -186,11 +189,11 @@ function SortableHeader({
           {column.label}
         </span>
         {column.sortable && renderSortIcon(column.key)}
-        {isNameColumn && onClearFilters && (
+        {isNameColumn && onClearAllFilters && (
           <Button
             variant="ghost"
             size="sm"
-            onClick={onClearFilters}
+            onClick={onClearAllFilters}
             className="h-6 w-6 p-0 hover:bg-gray-100 text-red-500"
             title="Limpiar todos los filtros"
           >
@@ -222,7 +225,15 @@ export function LeadsTable({
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   
   // Use column filters with integrated text filters
-  const { columnFilters, textFilters, filteredLeads, handleColumnFilterChange, handleTextFilterChange, clearAllFilters } = useColumnFilters(leads);
+  const { 
+    columnFilters, 
+    textFilters, 
+    filteredLeads, 
+    handleColumnFilterChange, 
+    handleTextFilterChange, 
+    clearAllFilters,
+    clearColumnFilter 
+  } = useColumnFilters(leads);
   
   // Apply sorting to filtered leads
   const sortedFilteredLeads = sortConfig ? 
@@ -443,6 +454,10 @@ export function LeadsTable({
     if (onClearFilters) {
       onClearFilters();
     }
+  };
+
+  const handleClearColumnFilter = (column: string) => {
+    clearColumnFilter(column);
   };
 
   const handleLeadAction = (action: string, lead: Lead, e: React.MouseEvent) => {
@@ -740,8 +755,9 @@ Por favor, confirmar asistencia.`;
                         textFilters={textFilters}
                         onColumnFilterChange={handleColumnFilterChange}
                         onTextFilterChange={handleTextFilterChange}
+                        onClearFilter={handleClearColumnFilter}
                         isNameColumn={true}
-                        onClearFilters={handleClearAllFilters}
+                        onClearAllFilters={handleClearAllFilters}
                       />
                     )}
                     
@@ -758,6 +774,7 @@ Por favor, confirmar asistencia.`;
                           textFilters={textFilters}
                           onColumnFilterChange={handleColumnFilterChange}
                           onTextFilterChange={handleTextFilterChange}
+                          onClearFilter={handleClearColumnFilter}
                         />
                       ))}
                     </SortableContext>
