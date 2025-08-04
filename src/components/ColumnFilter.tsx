@@ -13,6 +13,7 @@ interface ColumnFilterProps {
   onFilterChange: (column: string, selectedValues: string[]) => void;
   onTextFilterChange: (column: string, conditions: TextFilterCondition[]) => void;
   onSortChange: (column: string, direction: 'asc' | 'desc') => void;
+  onClearFilter?: (column: string) => void;
   currentFilters: string[];
   currentTextFilters: TextFilterCondition[];
 }
@@ -23,6 +24,7 @@ export function ColumnFilter({
   onFilterChange, 
   onTextFilterChange,
   onSortChange,
+  onClearFilter,
   currentFilters,
   currentTextFilters 
 }: ColumnFilterProps) {
@@ -88,6 +90,13 @@ export function ColumnFilter({
     setIsOpen(false);
   };
 
+  const handleClearAllFilters = () => {
+    if (onClearFilter) {
+      onClearFilter(column);
+    }
+    setSelectedValues([]);
+  };
+
   const isAllSelected = filteredValues.length > 0 && 
     filteredValues.every(value => selectedValues.includes(value));
   const isIndeterminate = filteredValues.some(value => selectedValues.includes(value)) && 
@@ -96,21 +105,35 @@ export function ColumnFilter({
   const hasActiveFilters = currentFilters.length > 0 || currentTextFilters.length > 0;
 
   return (
-    <Popover open={isOpen} onOpenChange={setIsOpen}>
-      <PopoverTrigger asChild>
+    <div className="flex items-center gap-1">
+      {hasActiveFilters && onClearFilter && (
         <Button
           variant="ghost"
           size="sm"
-          className={`h-6 w-6 p-0 hover:bg-gray-100 ${
-            hasActiveFilters ? 'text-green-600' : 'text-gray-400'
-          }`}
+          className="h-4 w-4 p-0 hover:bg-red-100 text-red-500 hover:text-red-600"
           onClick={(e) => {
             e.stopPropagation();
+            handleClearAllFilters();
           }}
         >
-          <Filter className="h-3 w-3" />
+          <span className="text-xs font-bold">×</span>
         </Button>
-      </PopoverTrigger>
+      )}
+      <Popover open={isOpen} onOpenChange={setIsOpen}>
+        <PopoverTrigger asChild>
+          <Button
+            variant="ghost"
+            size="sm"
+            className={`h-6 w-6 p-0 hover:bg-gray-100 ${
+              hasActiveFilters ? 'text-green-600' : 'text-gray-400'
+            }`}
+            onClick={(e) => {
+              e.stopPropagation();
+            }}
+          >
+            <Filter className="h-3 w-3" />
+          </Button>
+        </PopoverTrigger>
       <PopoverContent 
         className="w-80 p-0 bg-white border shadow-lg z-50" 
         align="start"
@@ -213,17 +236,17 @@ export function ColumnFilter({
 
               {/* Botones de acción */}
               <div className="flex justify-between mt-4 pt-4 border-t">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleClear();
-                  }}
-                  className="text-gray-600"
-                >
-                  Clear
-                </Button>
+                 <Button
+                   variant="outline"
+                   size="sm"
+                   onClick={(e) => {
+                     e.stopPropagation();
+                     handleClear();
+                   }}
+                   className="text-gray-600"
+                 >
+                   Clear
+                 </Button>
                 <div className="flex space-x-2">
                   <Button
                     variant="outline"
@@ -263,5 +286,6 @@ export function ColumnFilter({
         </div>
       </PopoverContent>
     </Popover>
+    </div>
   );
 }

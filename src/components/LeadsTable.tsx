@@ -117,6 +117,7 @@ interface SortableHeaderProps {
   textFilters: Record<string, TextFilterCondition[]>;
   onColumnFilterChange: (column: string, selectedValues: string[]) => void;
   onTextFilterChange: (column: string, filters: TextFilterCondition[]) => void;
+  onClearFilter: (column: string) => void;
   isNameColumn?: boolean;
 }
 
@@ -130,6 +131,7 @@ function SortableHeader({
   textFilters,
   onColumnFilterChange,
   onTextFilterChange,
+  onClearFilter,
   isNameColumn = false
 }: SortableHeaderProps) {
   const {
@@ -173,6 +175,7 @@ function SortableHeader({
           onFilterChange={onColumnFilterChange}
           onTextFilterChange={onTextFilterChange}
           onSortChange={onSort}
+          onClearFilter={onClearFilter}
           currentFilters={columnFilters[column.key] || []}
           currentTextFilters={textFilters[column.key] || []}
         />
@@ -207,7 +210,7 @@ export function LeadsTable({
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   
   // Usar filtros por columna con filtros de texto integrados
-  const { columnFilters, textFilters, filteredLeads, handleColumnFilterChange, handleTextFilterChange } = useColumnFilters(leads);
+  const { columnFilters, textFilters, filteredLeads, handleColumnFilterChange, handleTextFilterChange, clearColumnFilter } = useColumnFilters(leads);
   
   // Aplicar ordenamiento a los leads filtrados
   const sortedFilteredLeads = sortConfig ? 
@@ -711,36 +714,38 @@ Por favor, confirmar asistencia.`;
                       </div>
                     </TableHead>
                     
-                    {nameColumn && (
-                      <SortableHeader
-                        column={nameColumn}
-                        onSort={handleSort}
-                        onColumnHeaderClick={handleColumnHeaderClick}
-                        renderSortIcon={renderSortIcon}
-                        leads={leads}
-                        columnFilters={columnFilters}
-                        textFilters={textFilters}
-                        onColumnFilterChange={handleColumnFilterChange}
-                        onTextFilterChange={handleTextFilterChange}
-                        isNameColumn={true}
-                      />
-                    )}
+                     {nameColumn && (
+                       <SortableHeader
+                         column={nameColumn}
+                         onSort={handleSort}
+                         onColumnHeaderClick={handleColumnHeaderClick}
+                         renderSortIcon={renderSortIcon}
+                         leads={leads}
+                         columnFilters={columnFilters}
+                         textFilters={textFilters}
+                         onColumnFilterChange={handleColumnFilterChange}
+                         onTextFilterChange={handleTextFilterChange}
+                         onClearFilter={clearColumnFilter}
+                         isNameColumn={true}
+                       />
+                     )}
                     
                     <SortableContext items={otherColumns.map(col => col.key)} strategy={horizontalListSortingStrategy}>
-                      {otherColumns.map((column) => (
-                        <SortableHeader
-                          key={column.key}
-                          column={column}
-                          onSort={handleSort}
-                          onColumnHeaderClick={handleColumnHeaderClick}
-                          renderSortIcon={renderSortIcon}
-                          leads={leads}
-                          columnFilters={columnFilters}
-                          textFilters={textFilters}
-                          onColumnFilterChange={handleColumnFilterChange}
-                          onTextFilterChange={handleTextFilterChange}
-                        />
-                      ))}
+                       {otherColumns.map((column) => (
+                         <SortableHeader
+                           key={column.key}
+                           column={column}
+                           onSort={handleSort}
+                           onColumnHeaderClick={handleColumnHeaderClick}
+                           renderSortIcon={renderSortIcon}
+                           leads={leads}
+                           columnFilters={columnFilters}
+                           textFilters={textFilters}
+                           onColumnFilterChange={handleColumnFilterChange}
+                           onTextFilterChange={handleTextFilterChange}
+                           onClearFilter={clearColumnFilter}
+                         />
+                       ))}
                     </SortableContext>
                   </TableRow>
                 </TableHeader>
