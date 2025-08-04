@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Lead } from "@/types/crm";
 import { LeadCard } from "./LeadCard";
@@ -20,6 +19,7 @@ interface LeadsContentProps {
   selectedLeads: string[];
   onLeadSelectionChange: (leadIds: string[], isSelected: boolean) => void;
   onFilteredLeadsChange?: (filteredLeads: Lead[]) => void;
+  onClearFilters?: () => void;
 }
 
 export function LeadsContent({
@@ -34,7 +34,8 @@ export function LeadsContent({
   groupBy,
   selectedLeads,
   onLeadSelectionChange,
-  onFilteredLeadsChange
+  onFilteredLeadsChange,
+  onClearFilters
 }: LeadsContentProps) {
   const [selectedLeadForProfiler, setSelectedLeadForProfiler] = useState<Lead | null>(null);
   const [isProfilerOpen, setIsProfilerOpen] = useState(false);
@@ -64,6 +65,7 @@ export function LeadsContent({
           selectedLeads={selectedLeads}
           onLeadSelectionChange={onLeadSelectionChange}
           onFilteredLeadsChange={onFilteredLeadsChange}
+          onClearFilters={onClearFilters}
         />
 
         <Dialog open={isProfilerOpen} onOpenChange={setIsProfilerOpen}>

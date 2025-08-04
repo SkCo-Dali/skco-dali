@@ -47,6 +47,7 @@ interface LeadsTableProps {
   selectedLeads?: string[];
   onLeadSelectionChange?: (leadIds: string[], isSelected: boolean) => void;
   onFilteredLeadsChange?: (filteredLeads: Lead[]) => void;
+  onClearFilters?: () => void;
 }
 
 type SortConfig = {
@@ -118,6 +119,7 @@ interface SortableHeaderProps {
   onColumnFilterChange: (column: string, selectedValues: string[]) => void;
   onTextFilterChange: (column: string, filters: TextFilterCondition[]) => void;
   isNameColumn?: boolean;
+  onClearFilters?: () => void;
 }
 
 function SortableHeader({ 
@@ -130,7 +132,8 @@ function SortableHeader({
   textFilters,
   onColumnFilterChange,
   onTextFilterChange,
-  isNameColumn = false
+  isNameColumn = false,
+  onClearFilters
 }: SortableHeaderProps) {
   const {
     attributes,
@@ -183,6 +186,17 @@ function SortableHeader({
           {column.label}
         </span>
         {column.sortable && renderSortIcon(column.key)}
+        {isNameColumn && onClearFilters && (
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={onClearFilters}
+            className="h-6 w-6 p-0 hover:bg-gray-100 text-red-500"
+            title="Limpiar todos los filtros"
+          >
+            ×
+          </Button>
+        )}
       </div>
     </TableHead>
   );
@@ -199,7 +213,8 @@ export function LeadsTable({
   onOpenProfiler,
   selectedLeads = [],
   onLeadSelectionChange,
-  onFilteredLeadsChange
+  onFilteredLeadsChange,
+  onClearFilters
 }: LeadsTableProps) {
   const { users } = useUsersApi();
   const [sortConfig, setSortConfig] = useState<SortConfig>(null);
@@ -207,7 +222,7 @@ export function LeadsTable({
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   
   // Use column filters with integrated text filters
-  const { columnFilters, textFilters, filteredLeads, handleColumnFilterChange, handleTextFilterChange } = useColumnFilters(leads);
+  const { columnFilters, textFilters, filteredLeads, handleColumnFilterChange, handleTextFilterChange, clearAllFilters } = useColumnFilters(leads);
   
   // Apply sorting to filtered leads
   const sortedFilteredLeads = sortConfig ? 
@@ -420,6 +435,13 @@ export function LeadsTable({
         setActiveColumns(newActiveColumns);
         saveColumnConfig(newActiveColumns);
       }
+    }
+  };
+
+  const handleClearAllFilters = () => {
+    clearAllFilters();
+    if (onClearFilters) {
+      onClearFilters();
     }
   };
 
@@ -719,6 +741,7 @@ Por favor, confirmar asistencia.`;
                         onColumnFilterChange={handleColumnFilterChange}
                         onTextFilterChange={handleTextFilterChange}
                         isNameColumn={true}
+                        onClearFilters={handleClearAllFilters}
                       />
                     )}
                     
