@@ -43,8 +43,6 @@ export function LeadsContent({
           <LeadsViewControls
             viewMode={viewType}
             setViewMode={setViewType}
-            selectedColumns={selectedColumns}
-            onSelectedColumnsChange={setSelectedColumns}
           />
         </div>
         
@@ -77,7 +75,6 @@ export function LeadsContent({
           setFilterDuplicates={filtersHook.setFilterDuplicates}
           sortBy={filtersHook.sortBy}
           setSortBy={filtersHook.setSortBy}
-          leads={leads}
           onClearFilters={filtersHook.clearFilters}
           uniqueStages={filtersHook.uniqueStages}
           uniqueSources={filtersHook.uniqueSources}
