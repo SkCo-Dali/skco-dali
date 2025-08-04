@@ -47,7 +47,6 @@ interface LeadsTableProps {
   selectedLeads?: string[];
   onLeadSelectionChange?: (leadIds: string[], isSelected: boolean) => void;
   onFilteredLeadsChange?: (filteredLeads: Lead[]) => void;
-  onClearFilters?: () => void;
 }
 
 type SortConfig = {
@@ -118,9 +117,7 @@ interface SortableHeaderProps {
   textFilters: Record<string, TextFilterCondition[]>;
   onColumnFilterChange: (column: string, selectedValues: string[]) => void;
   onTextFilterChange: (column: string, filters: TextFilterCondition[]) => void;
-  onClearFilter: (column: string) => void;
   isNameColumn?: boolean;
-  onClearAllFilters?: () => void;
 }
 
 function SortableHeader({ 
@@ -133,9 +130,7 @@ function SortableHeader({
   textFilters,
   onColumnFilterChange,
   onTextFilterChange,
-  onClearFilter,
-  isNameColumn = false,
-  onClearAllFilters
+  isNameColumn = false
 }: SortableHeaderProps) {
   const {
     attributes,
@@ -178,7 +173,6 @@ function SortableHeader({
           onFilterChange={onColumnFilterChange}
           onTextFilterChange={onTextFilterChange}
           onSortChange={onSort}
-          onClearFilter={onClearFilter}
           currentFilters={columnFilters[column.key] || []}
           currentTextFilters={textFilters[column.key] || []}
         />
@@ -189,17 +183,6 @@ function SortableHeader({
           {column.label}
         </span>
         {column.sortable && renderSortIcon(column.key)}
-        {isNameColumn && onClearAllFilters && (
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={onClearAllFilters}
-            className="h-6 w-6 p-0 hover:bg-gray-100 text-red-500"
-            title="Limpiar todos los filtros"
-          >
-            ×
-          </Button>
-        )}
       </div>
     </TableHead>
   );
@@ -216,26 +199,17 @@ export function LeadsTable({
   onOpenProfiler,
   selectedLeads = [],
   onLeadSelectionChange,
-  onFilteredLeadsChange,
-  onClearFilters
+  onFilteredLeadsChange
 }: LeadsTableProps) {
   const { users } = useUsersApi();
   const [sortConfig, setSortConfig] = useState<SortConfig>(null);
   const [leadsToDelete, setLeadsToDelete] = useState<Lead[]>([]);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   
-  // Use column filters with integrated text filters
-  const { 
-    columnFilters, 
-    textFilters, 
-    filteredLeads, 
-    handleColumnFilterChange, 
-    handleTextFilterChange, 
-    clearAllFilters,
-    clearColumnFilter 
-  } = useColumnFilters(leads);
+  // Usar filtros por columna con filtros de texto integrados
+  const { columnFilters, textFilters, filteredLeads, handleColumnFilterChange, handleTextFilterChange } = useColumnFilters(leads);
   
-  // Apply sorting to filtered leads
+  // Aplicar ordenamiento a los leads filtrados
   const sortedFilteredLeads = sortConfig ? 
     [...filteredLeads].sort((a, b) => {
       let aValue: any;
@@ -337,14 +311,14 @@ export function LeadsTable({
       return 0;
     }) : filteredLeads;
   
-  // Notify parent component about filtered leads changes
+  // Notificar cambios en leads filtrados al componente padre
   useEffect(() => {
     if (onFilteredLeadsChange) {
       onFilteredLeadsChange(sortedFilteredLeads);
     }
   }, [sortedFilteredLeads, onFilteredLeadsChange]);
   
-  // Notify parent component about sorted leads changes
+  // Notificar cambios en leads ordenados al componente padre
   useEffect(() => {
     if (onSortedLeadsChange) {
       onSortedLeadsChange(sortedFilteredLeads);
@@ -447,17 +421,6 @@ export function LeadsTable({
         saveColumnConfig(newActiveColumns);
       }
     }
-  };
-
-  const handleClearAllFilters = () => {
-    clearAllFilters();
-    if (onClearFilters) {
-      onClearFilters();
-    }
-  };
-
-  const handleClearColumnFilter = (column: string) => {
-    clearColumnFilter(column);
   };
 
   const handleLeadAction = (action: string, lead: Lead, e: React.MouseEvent) => {
@@ -706,9 +669,13 @@ Por favor, confirmar asistencia.`;
           </span>
         );
       case 'age':
+        
       case 'gender':
+        
       case 'preferredContactChannel':
+        
       case 'documentType':
+        
       default:
         return <span className="text-center text-gray-700 text-xs">{lead[columnKey] || '-'}</span>;
     }
@@ -755,9 +722,7 @@ Por favor, confirmar asistencia.`;
                         textFilters={textFilters}
                         onColumnFilterChange={handleColumnFilterChange}
                         onTextFilterChange={handleTextFilterChange}
-                        onClearFilter={handleClearColumnFilter}
                         isNameColumn={true}
-                        onClearAllFilters={handleClearAllFilters}
                       />
                     )}
                     
@@ -774,7 +739,6 @@ Por favor, confirmar asistencia.`;
                           textFilters={textFilters}
                           onColumnFilterChange={handleColumnFilterChange}
                           onTextFilterChange={handleTextFilterChange}
-                          onClearFilter={handleClearColumnFilter}
                         />
                       ))}
                     </SortableContext>
