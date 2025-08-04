@@ -43,6 +43,8 @@ export function LeadsContent({
           <LeadsViewControls
             viewMode={viewType}
             setViewMode={setViewType}
+            selectedColumns={selectedColumns}
+            onSelectedColumnsChange={setSelectedColumns}
           />
         </div>
         
@@ -63,28 +65,24 @@ export function LeadsContent({
           setFilterPriority={filtersHook.setFilterPriority}
           filterCampaign={filtersHook.filterCampaign}
           setFilterCampaign={filtersHook.setFilterCampaign}
-          filterDateRange={filtersHook.filterDateRange}
-          setFilterDateRange={filtersHook.setFilterDateRange}
-          filterCreatedBy={filtersHook.filterCreatedBy}
-          setFilterCreatedBy={filtersHook.setFilterCreatedBy}
-          filterCompany={filtersHook.filterCompany}
-          setFilterCompany={filtersHook.setFilterCompany}
-          filterValue={filtersHook.filterValue}
-          setFilterValue={filtersHook.setFilterValue}
-          filterLastContact={filtersHook.filterLastContact}
-          setFilterLastContact={filtersHook.setFilterLastContact}
-          filterTags={filtersHook.filterTags}
-          setFilterTags={filtersHook.setFilterTags}
-          filterNotes={filtersHook.filterNotes}
-          setFilterNotes={filtersHook.setFilterNotes}
-          filterEmail={filtersHook.filterEmail}
-          setFilterEmail={filtersHook.setFilterEmail}
-          filterPhone={filtersHook.filterPhone}
-          setFilterPhone={filtersHook.setFilterPhone}
-          filterAdditionalInfo={filtersHook.filterAdditionalInfo}
-          setFilterAdditionalInfo={filtersHook.setFilterAdditionalInfo}
+          filterDateFrom={filtersHook.filterDateFrom}
+          setFilterDateFrom={filtersHook.setFilterDateFrom}
+          filterDateTo={filtersHook.filterDateTo}
+          setFilterDateTo={filtersHook.setFilterDateTo}
+          filterValueMin={filtersHook.filterValueMin}
+          setFilterValueMin={filtersHook.setFilterValueMin}
+          filterValueMax={filtersHook.filterValueMax}
+          setFilterValueMax={filtersHook.setFilterValueMax}
+          filterDuplicates={filtersHook.filterDuplicates}
+          setFilterDuplicates={filtersHook.setFilterDuplicates}
+          sortBy={filtersHook.sortBy}
+          setSortBy={filtersHook.setSortBy}
           leads={leads}
-          onClearFilters={filtersHook.clearAllFilters}
+          onClearFilters={filtersHook.clearFilters}
+          uniqueStages={filtersHook.uniqueStages}
+          uniqueSources={filtersHook.uniqueSources}
+          uniqueCampaigns={filtersHook.uniqueCampaigns}
+          uniqueAssignedTo={filtersHook.uniqueAssignedTo}
           duplicateCount={filtersHook.duplicateCount}
         />
         <LeadsStats 
