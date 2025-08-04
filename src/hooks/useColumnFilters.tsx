@@ -6,13 +6,13 @@ import { TextFilterCondition } from "@/components/TextFilter";
 
 export function useColumnFilters(leads: Lead[]) {
   const [columnFilters, setColumnFilters] = useState<Record<string, string[]>>({});
-  const { textFilters, filteredLeads: textFilteredLeads, handleTextFilterChange } = useTextFilters(leads);
+  const { textFilters, filteredLeads: textFilteredLeads, handleTextFilterChange, clearAllTextFilters } = useTextFilters(leads);
 
   const filteredLeads = useMemo(() => {
-    // Primero aplicar filtros de texto
+    // First apply text filters
     let result = textFilteredLeads;
     
-    // Luego aplicar filtros de columna (valores específicos)
+    // Then apply column filters (specific values)
     if (Object.keys(columnFilters).length === 0) return result;
     
     return result.filter(lead => {
@@ -21,7 +21,7 @@ export function useColumnFilters(leads: Lead[]) {
         
         let leadValue: any;
         
-        // Manejar columnas dinámicas de additionalInfo
+        // Handle dynamic additionalInfo columns
         if (column.startsWith('additionalInfo.')) {
           const key = column.replace('additionalInfo.', '');
           leadValue = lead.additionalInfo?.[key] || '';
@@ -62,6 +62,11 @@ export function useColumnFilters(leads: Lead[]) {
     setColumnFilters({});
   };
 
+  const clearAllFilters = () => {
+    clearAllColumnFilters();
+    clearAllTextFilters();
+  };
+
   return {
     columnFilters,
     textFilters,
@@ -69,6 +74,7 @@ export function useColumnFilters(leads: Lead[]) {
     handleColumnFilterChange,
     handleTextFilterChange,
     clearColumnFilter,
-    clearAllColumnFilters
+    clearAllColumnFilters,
+    clearAllFilters
   };
 }

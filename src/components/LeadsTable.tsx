@@ -206,10 +206,10 @@ export function LeadsTable({
   const [leadsToDelete, setLeadsToDelete] = useState<Lead[]>([]);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   
-  // Usar filtros por columna con filtros de texto integrados
+  // Use column filters with integrated text filters
   const { columnFilters, textFilters, filteredLeads, handleColumnFilterChange, handleTextFilterChange } = useColumnFilters(leads);
   
-  // Aplicar ordenamiento a los leads filtrados
+  // Apply sorting to filtered leads
   const sortedFilteredLeads = sortConfig ? 
     [...filteredLeads].sort((a, b) => {
       let aValue: any;
@@ -311,14 +311,14 @@ export function LeadsTable({
       return 0;
     }) : filteredLeads;
   
-  // Notificar cambios en leads filtrados al componente padre
+  // Notify parent component about filtered leads changes
   useEffect(() => {
     if (onFilteredLeadsChange) {
       onFilteredLeadsChange(sortedFilteredLeads);
     }
   }, [sortedFilteredLeads, onFilteredLeadsChange]);
   
-  // Notificar cambios en leads ordenados al componente padre
+  // Notify parent component about sorted leads changes
   useEffect(() => {
     if (onSortedLeadsChange) {
       onSortedLeadsChange(sortedFilteredLeads);
@@ -669,13 +669,9 @@ Por favor, confirmar asistencia.`;
           </span>
         );
       case 'age':
-        
       case 'gender':
-        
       case 'preferredContactChannel':
-        
       case 'documentType':
-        
       default:
         return <span className="text-center text-gray-700 text-xs">{lead[columnKey] || '-'}</span>;
     }
