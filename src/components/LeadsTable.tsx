@@ -175,7 +175,6 @@ function SortableHeader({
           onFilterChange={onColumnFilterChange}
           onTextFilterChange={onTextFilterChange}
           onSortChange={onSort}
-          onClearFilter={onClearFilter}
           currentFilters={columnFilters[column.key] || []}
           currentTextFilters={textFilters[column.key] || []}
         />
@@ -186,6 +185,21 @@ function SortableHeader({
           {column.label}
         </span>
         {column.sortable && renderSortIcon(column.key)}
+        {/* X button to clear filters - positioned after column name */}
+        {((columnFilters[column.key] && columnFilters[column.key].length > 0) || 
+          (textFilters[column.key] && textFilters[column.key].length > 0)) && (
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-4 w-4 p-0 hover:bg-red-100 text-red-500 hover:text-red-600 ml-1"
+            onClick={(e) => {
+              e.stopPropagation();
+              onClearFilter(column.key);
+            }}
+          >
+            <span className="text-xs font-bold">×</span>
+          </Button>
+        )}
       </div>
     </TableHead>
   );

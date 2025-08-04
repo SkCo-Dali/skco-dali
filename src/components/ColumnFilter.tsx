@@ -73,6 +73,7 @@ export function ColumnFilter({
   const handleClear = () => {
     setSearchTerm("");
     setSelectedValues([]);
+    onFilterChange(column, []); // Apply the clear immediately
   };
 
   const handleCancel = () => {
@@ -90,12 +91,7 @@ export function ColumnFilter({
     setIsOpen(false);
   };
 
-  const handleClearAllFilters = () => {
-    if (onClearFilter) {
-      onClearFilter(column);
-    }
-    setSelectedValues([]);
-  };
+  // Remove this function as it's no longer needed
 
   const isAllSelected = filteredValues.length > 0 && 
     filteredValues.every(value => selectedValues.includes(value));
@@ -106,19 +102,6 @@ export function ColumnFilter({
 
   return (
     <div className="flex items-center gap-1">
-      {hasActiveFilters && onClearFilter && (
-        <Button
-          variant="ghost"
-          size="sm"
-          className="h-4 w-4 p-0 hover:bg-red-100 text-red-500 hover:text-red-600"
-          onClick={(e) => {
-            e.stopPropagation();
-            handleClearAllFilters();
-          }}
-        >
-          <span className="text-xs font-bold">×</span>
-        </Button>
-      )}
       <Popover open={isOpen} onOpenChange={setIsOpen}>
         <PopoverTrigger asChild>
           <Button
