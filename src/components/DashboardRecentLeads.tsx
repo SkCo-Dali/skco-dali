@@ -7,7 +7,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Search, Filter } from "lucide-react";
 import { Lead } from "@/types/crm";
-import { useColumnFilters } from "@/hooks/useColumnFilters";
 
 interface DashboardRecentLeadsProps {
   leads: Lead[];
@@ -37,9 +36,6 @@ export function DashboardRecentLeads({ leads }: DashboardRecentLeadsProps) {
     // TODO: Implement lead detail view or modal
   };
 
-  // Use column filters hook for the table
-  const columnFiltersHook = useColumnFilters(recentLeads);
-
   return (
     <Card>
       <CardHeader>
@@ -62,8 +58,8 @@ export function DashboardRecentLeads({ leads }: DashboardRecentLeadsProps) {
       <CardContent>
         <LeadsTable 
           leads={recentLeads} 
-          onLeadUpdate={() => {}}
-          columnFiltersHook={columnFiltersHook}
+          paginatedLeads={recentLeads}
+          onLeadClick={handleLeadClick} 
         />
       </CardContent>
     </Card>

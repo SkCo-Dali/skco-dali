@@ -6,7 +6,7 @@ import { TextFilterCondition } from "@/components/TextFilter";
 
 export function useColumnFilters(leads: Lead[]) {
   const [columnFilters, setColumnFilters] = useState<Record<string, string[]>>({});
-  const { textFilters, filteredLeads: textFilteredLeads, handleTextFilterChange, clearTextFilter, clearAllTextFilters } = useTextFilters(leads);
+  const { textFilters, filteredLeads: textFilteredLeads, handleTextFilterChange } = useTextFilters(leads);
 
   const filteredLeads = useMemo(() => {
     // Primero aplicar filtros de texto
@@ -62,13 +62,6 @@ export function useColumnFilters(leads: Lead[]) {
     setColumnFilters({});
   };
 
-  const clearAllFilters = () => {
-    setColumnFilters({});
-    clearAllTextFilters();
-  };
-
-  const hasActiveFilters = Object.keys(columnFilters).length > 0 || Object.keys(textFilters).length > 0;
-
   return {
     columnFilters,
     textFilters,
@@ -76,10 +69,6 @@ export function useColumnFilters(leads: Lead[]) {
     handleColumnFilterChange,
     handleTextFilterChange,
     clearColumnFilter,
-    clearTextFilter,
-    clearAllColumnFilters,
-    clearAllTextFilters,
-    clearAllFilters,
-    hasActiveFilters
+    clearAllColumnFilters
   };
 }

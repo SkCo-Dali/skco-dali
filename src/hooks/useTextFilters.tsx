@@ -10,16 +10,7 @@ export function useTextFilters(leads: Lead[]) {
     if (conditions.length === 0) return true;
 
     return conditions.some(condition => {
-      let leadValue: any;
-      
-      // Manejar columnas dinámicas
-      if (column.startsWith('additionalInfo.')) {
-        const key = column.replace('additionalInfo.', '');
-        leadValue = lead.additionalInfo?.[key];
-      } else {
-        leadValue = lead[column as keyof Lead];
-      }
-      
+      const leadValue = lead[column as keyof Lead];
       const stringValue = leadValue === null || leadValue === undefined ? "" : String(leadValue);
       const filterValue = condition.value.toLowerCase();
       const leadValueLower = stringValue.toLowerCase();
