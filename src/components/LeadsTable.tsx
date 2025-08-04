@@ -117,6 +117,8 @@ interface SortableHeaderProps {
   textFilters: Record<string, TextFilterCondition[]>;
   onColumnFilterChange: (column: string, selectedValues: string[]) => void;
   onTextFilterChange: (column: string, filters: TextFilterCondition[]) => void;
+  onClearColumnFilter: (column: string) => void;
+  onClearTextFilter: (column: string) => void;
   isNameColumn?: boolean;
 }
 
@@ -130,6 +132,8 @@ function SortableHeader({
   textFilters,
   onColumnFilterChange,
   onTextFilterChange,
+  onClearColumnFilter,
+  onClearTextFilter,
   isNameColumn = false
 }: SortableHeaderProps) {
   const {
@@ -175,6 +179,8 @@ function SortableHeader({
           onSortChange={onSort}
           currentFilters={columnFilters[column.key] || []}
           currentTextFilters={textFilters[column.key] || []}
+          onClearColumnFilter={onClearColumnFilter}
+          onClearTextFilter={onClearTextFilter}
         />
         <span 
           className={`${column.sortable ? 'cursor-pointer hover:text-green-600' : ''}`}
@@ -207,7 +213,16 @@ export function LeadsTable({
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   
   // Usar filtros por columna con filtros de texto integrados
-  const { columnFilters, textFilters, filteredLeads, handleColumnFilterChange, handleTextFilterChange } = useColumnFilters(leads);
+  const { 
+    columnFilters, 
+    textFilters, 
+    filteredLeads, 
+    handleColumnFilterChange, 
+    handleTextFilterChange,
+    clearColumnFilter,
+    clearTextFilter,
+    hasActiveFilters
+  } = useColumnFilters(leads);
   
   // Aplicar ordenamiento a los leads filtrados
   const sortedFilteredLeads = sortConfig ? 
@@ -722,6 +737,8 @@ Por favor, confirmar asistencia.`;
                         textFilters={textFilters}
                         onColumnFilterChange={handleColumnFilterChange}
                         onTextFilterChange={handleTextFilterChange}
+                        onClearColumnFilter={clearColumnFilter}
+                        onClearTextFilter={clearTextFilter}
                         isNameColumn={true}
                       />
                     )}
@@ -739,6 +756,8 @@ Por favor, confirmar asistencia.`;
                           textFilters={textFilters}
                           onColumnFilterChange={handleColumnFilterChange}
                           onTextFilterChange={handleTextFilterChange}
+                          onClearColumnFilter={clearColumnFilter}
+                          onClearTextFilter={clearTextFilter}
                         />
                       ))}
                     </SortableContext>

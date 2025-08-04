@@ -1,5 +1,6 @@
+
 import { useState, useEffect, useMemo } from "react";
-import { Search, Filter } from "lucide-react";
+import { Search, Filter, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -15,6 +16,8 @@ interface ColumnFilterProps {
   onSortChange: (column: string, direction: 'asc' | 'desc') => void;
   currentFilters: string[];
   currentTextFilters: TextFilterCondition[];
+  onClearColumnFilter?: (column: string) => void;
+  onClearTextFilter?: (column: string) => void;
 }
 
 export function ColumnFilter({ 
@@ -24,7 +27,9 @@ export function ColumnFilter({
   onTextFilterChange,
   onSortChange,
   currentFilters,
-  currentTextFilters 
+  currentTextFilters,
+  onClearColumnFilter,
+  onClearTextFilter
 }: ColumnFilterProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<'values' | 'text'>('values');
@@ -33,7 +38,13 @@ export function ColumnFilter({
 
   const uniqueValues = useMemo(() => {
     const values = data.map(lead => {
-      const value = lead[column as keyof Lead];
+      let value;
+      if (column.startsWith('additionalInfo.')) {
+        const key = column.replace('additionalInfo.', '');
+        value = lead.additionalInfo?.[key];
+      } else {
+        value = lead[column as keyof Lead];
+      }
       if (value === null || value === undefined) return "";
       return String(value);
     }).filter(Boolean);
@@ -88,6 +99,20 @@ export function ColumnFilter({
     setIsOpen(false);
   };
 
+  const handleClearAllFilters = () => {
+    // Limpiar filtros de valores
+    setSelectedValues([]);
+    onFilterChange(column, []);
+    
+    // Limpiar filtros de texto
+    onTextFilterChange(column, []);
+    if (onClearTextFilter) {
+      onClearTextFilter(column);
+    }
+    
+    setIsOpen(false);
+  };
+
   const isAllSelected = filteredValues.length > 0 && 
     filteredValues.every(value => selectedValues.includes(value));
   const isIndeterminate = filteredValues.some(value => selectedValues.includes(value)) && 
@@ -101,7 +126,7 @@ export function ColumnFilter({
         <Button
           variant="ghost"
           size="sm"
-          className={`h-6 w-6 p-0 hover:bg-gray-100 ${
+          className={`h-6 w-6 p-0 hover:bg-gray-100 relative ${
             hasActiveFilters ? 'text-green-600' : 'text-gray-400'
           }`}
           onClick={(e) => {
@@ -109,6 +134,9 @@ export function ColumnFilter({
           }}
         >
           <Filter className="h-3 w-3" />
+          {hasActiveFilters && (
+            <div className="absolute -top-1 -right-1 w-2 h-2 bg-green-500 rounded-full"></div>
+          )}
         </Button>
       </PopoverTrigger>
       <PopoverContent 
@@ -117,8 +145,8 @@ export function ColumnFilter({
         onPointerDownOutside={(e) => e.preventDefault()}
       >
         <div className="p-4" onClick={(e) => e.stopPropagation()}>
-          {/* Header con tabs */}
-          <div className="flex mb-4">
+          {/* Header con tabs y botón limpiar */}
+          <div className="flex justify-between items-center mb-4">
             <div className="flex bg-gray-100 rounded-lg p-1">
               <button 
                 onClick={(e) => {
@@ -147,6 +175,21 @@ export function ColumnFilter({
                 Text Filters
               </button>
             </div>
+            
+            {hasActiveFilters && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleClearAllFilters();
+                }}
+                className="h-6 w-6 p-0 hover:bg-red-100 text-red-500"
+                title="Limpiar todos los filtros"
+              >
+                <X className="h-3 w-3" />
+              </Button>
+            )}
           </div>
 
           {/* Contenido del tab activo */}
@@ -164,6 +207,7 @@ export function ColumnFilter({
                   className="pl-10"
                   onClick={(e) => e.stopPropagation()}
                 />
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
               </div>
 
               {/* Lista de valores */}
@@ -257,6 +301,12 @@ export function ColumnFilter({
                 onFilterChange={onTextFilterChange}
                 currentConditions={currentTextFilters}
                 onClose={handleTextFilterApply}
+                onClear={() => {
+                  onTextFilterChange(column, []);
+                  if (onClearTextFilter) {
+                    onClearTextFilter(column);
+                  }
+                }}
               />
             </div>
           )}
