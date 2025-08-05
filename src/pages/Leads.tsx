@@ -16,7 +16,6 @@ import { LeadsTableColumnSelector } from "@/components/LeadsTableColumnSelector"
 import { LeadsActionsButton } from "@/components/LeadsActionsButton";
 import { useLeadsFilters } from "@/hooks/useLeadsFilters";
 import { useLeadsPagination } from "@/hooks/useLeadsPagination";
-import { useColumnFilters } from "@/hooks/useColumnFilters";
 import { useLeadsApi } from "@/hooks/useLeadsApi";
 import { useIsMobile, useIsMedium } from "@/hooks/use-mobile";
 import { ColumnConfig } from "@/components/LeadsTableColumnSelector";
@@ -123,7 +122,7 @@ export default function Leads() {
   }
 
   const {
-    filteredLeads: baseFilteredLeads,
+    filteredLeads,
     searchTerm,
     setSearchTerm,
     filterStage,
@@ -155,29 +154,6 @@ export default function Leads() {
     uniqueAssignedTo,
     duplicateCount
   } = useLeadsFilters(leadsData);
-
-  // Aplicar la búsqueda por encima de todos los filtros
-  const searchFilteredLeads = useMemo(() => {
-    if (!searchTerm) return baseFilteredLeads;
-    
-    return baseFilteredLeads.filter(lead => {
-      const searchLower = searchTerm.toLowerCase();
-      return (
-        lead.name?.toLowerCase().includes(searchLower) ||
-        lead.email?.toLowerCase().includes(searchLower) ||
-        lead.phone?.toLowerCase().includes(searchLower) ||
-        lead.company?.toLowerCase().includes(searchLower) ||
-        String(lead.documentNumber || '').toLowerCase().includes(searchLower) ||
-        lead.stage?.toLowerCase().includes(searchLower) ||
-        lead.source?.toLowerCase().includes(searchLower) ||
-        lead.campaign?.toLowerCase().includes(searchLower) ||
-        lead.assignedTo?.toLowerCase().includes(searchLower)
-      );
-    });
-  }, [baseFilteredLeads, searchTerm]);
-
-  // Aplicar filtros por columna después de la búsqueda
-  const { columnFilters, textFilters, filteredLeads, handleColumnFilterChange, handleTextFilterChange, clearColumnFilter } = useColumnFilters(searchFilteredLeads);
 
   const leadsToUse = sortedLeads.length > 0 ? sortedLeads : filteredLeads;
 
@@ -676,11 +652,6 @@ export default function Leads() {
                   groupBy={groupBy}
                   selectedLeads={selectedLeads}
                   onLeadSelectionChange={handleLeadSelectionChange}
-                  columnFilters={columnFilters}
-                  textFilters={textFilters}
-                  onColumnFilterChange={handleColumnFilterChange}
-                  onTextFilterChange={handleTextFilterChange}
-                  onClearColumnFilter={clearColumnFilter}
                 />
 
                 <LeadsPagination

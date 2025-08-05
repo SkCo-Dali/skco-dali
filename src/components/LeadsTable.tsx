@@ -16,6 +16,7 @@ import { useLeadDeletion } from "@/hooks/useLeadDeletion";
 import { LeadDeleteConfirmDialog } from "@/components/LeadDeleteConfirmDialog";
 import { toast } from "sonner";
 import { ColumnFilter } from "@/components/ColumnFilter";
+import { useColumnFilters } from "@/hooks/useColumnFilters";
 import { TextFilterCondition } from "@/components/TextFilter";
 import {
   DndContext,
@@ -46,11 +47,6 @@ interface LeadsTableProps {
   selectedLeads?: string[];
   onLeadSelectionChange?: (leadIds: string[], isSelected: boolean) => void;
   onFilteredLeadsChange?: (filteredLeads: Lead[]) => void;
-  columnFilters: Record<string, string[]>;
-  textFilters: Record<string, TextFilterCondition[]>;
-  onColumnFilterChange: (column: string, selectedValues: string[]) => void;
-  onTextFilterChange: (column: string, conditions: TextFilterCondition[]) => void;
-  onClearColumnFilter: (column: string) => void;
 }
 
 type SortConfig = {
@@ -117,11 +113,12 @@ interface SortableHeaderProps {
   onColumnHeaderClick: (columnKey: string, sortable: boolean, e: React.MouseEvent) => void;
   renderSortIcon: (columnKey: string) => React.ReactNode;
   leads: Lead[];
-  isNameColumn?: boolean;
   columnFilters: Record<string, string[]>;
   textFilters: Record<string, TextFilterCondition[]>;
   onColumnFilterChange: (column: string, selectedValues: string[]) => void;
-  onTextFilterChange: (column: string, conditions: TextFilterCondition[]) => void;
+  onTextFilterChange: (column: string, filters: TextFilterCondition[]) => void;
+  onClearFilter: (column: string) => void;
+  isNameColumn?: boolean;
 }
 
 function SortableHeader({ 
@@ -130,11 +127,12 @@ function SortableHeader({
   onColumnHeaderClick, 
   renderSortIcon, 
   leads, 
-  isNameColumn = false,
-  columnFilters,
+  columnFilters, 
   textFilters,
   onColumnFilterChange,
-  onTextFilterChange
+  onTextFilterChange,
+  onClearFilter,
+  isNameColumn = false
 }: SortableHeaderProps) {
   const {
     attributes,
@@ -187,6 +185,21 @@ function SortableHeader({
           {column.label}
         </span>
         {column.sortable && renderSortIcon(column.key)}
+        {/* X button to clear filters - positioned after column name */}
+        {((columnFilters[column.key] && columnFilters[column.key].length > 0) || 
+          (textFilters[column.key] && textFilters[column.key].length > 0)) && (
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-4 w-4 p-0 hover:bg-red-100 text-red-500 hover:text-red-600 ml-1"
+            onClick={(e) => {
+              e.stopPropagation();
+              onClearFilter(column.key);
+            }}
+          >
+            <span className="text-xs font-bold">×</span>
+          </Button>
+        )}
       </div>
     </TableHead>
   );
@@ -203,22 +216,19 @@ export function LeadsTable({
   onOpenProfiler,
   selectedLeads = [],
   onLeadSelectionChange,
-  onFilteredLeadsChange,
-  columnFilters,
-  textFilters,
-  onColumnFilterChange,
-  onTextFilterChange,
-  onClearColumnFilter
+  onFilteredLeadsChange
 }: LeadsTableProps) {
   const { users } = useUsersApi();
   const [sortConfig, setSortConfig] = useState<SortConfig>(null);
   const [leadsToDelete, setLeadsToDelete] = useState<Lead[]>([]);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   
-  // Los filtros ya vienen aplicados desde la página padre, solo mostramos los leads paginados
-  // Aplicar ordenamiento a los leads paginados
+  // Usar filtros por columna con filtros de texto integrados
+  const { columnFilters, textFilters, filteredLeads, handleColumnFilterChange, handleTextFilterChange, clearColumnFilter } = useColumnFilters(leads);
+  
+  // Aplicar ordenamiento a los leads filtrados
   const sortedFilteredLeads = sortConfig ? 
-    [...paginatedLeads].sort((a, b) => {
+    [...filteredLeads].sort((a, b) => {
       let aValue: any;
       let bValue: any;
 
@@ -316,9 +326,9 @@ export function LeadsTable({
         return sortConfig.direction === 'asc' ? 1 : -1;
       }
       return 0;
-    }) : paginatedLeads;
+    }) : filteredLeads;
   
-  // Notificar cambios en leads ordenados al componente padre
+  // Notificar cambios en leads filtrados al componente padre
   useEffect(() => {
     if (onFilteredLeadsChange) {
       onFilteredLeadsChange(sortedFilteredLeads);
@@ -718,18 +728,19 @@ Por favor, confirmar asistencia.`;
                       </div>
                     </TableHead>
                     
-                      {nameColumn && (
+                     {nameColumn && (
                        <SortableHeader
                          column={nameColumn}
                          onSort={handleSort}
                          onColumnHeaderClick={handleColumnHeaderClick}
                          renderSortIcon={renderSortIcon}
                          leads={leads}
-                         isNameColumn={true}
                          columnFilters={columnFilters}
                          textFilters={textFilters}
-                         onColumnFilterChange={onColumnFilterChange}
-                         onTextFilterChange={onTextFilterChange}
+                         onColumnFilterChange={handleColumnFilterChange}
+                         onTextFilterChange={handleTextFilterChange}
+                         onClearFilter={clearColumnFilter}
+                         isNameColumn={true}
                        />
                      )}
                     
@@ -744,8 +755,9 @@ Por favor, confirmar asistencia.`;
                            leads={leads}
                            columnFilters={columnFilters}
                            textFilters={textFilters}
-                           onColumnFilterChange={onColumnFilterChange}
-                           onTextFilterChange={onTextFilterChange}
+                           onColumnFilterChange={handleColumnFilterChange}
+                           onTextFilterChange={handleTextFilterChange}
+                           onClearFilter={clearColumnFilter}
                          />
                        ))}
                     </SortableContext>

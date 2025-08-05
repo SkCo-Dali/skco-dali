@@ -74,7 +74,6 @@ export function ColumnFilter({
     setSearchTerm("");
     setSelectedValues([]);
     onFilterChange(column, []); // Apply the clear immediately
-    setIsOpen(false); // Close the popover
   };
 
   const handleCancel = () => {
@@ -92,7 +91,7 @@ export function ColumnFilter({
     setIsOpen(false);
   };
 
-  // Prevent auto-deselection by removing problematic effects
+  // Remove this function as it's no longer needed
 
   const isAllSelected = filteredValues.length > 0 && 
     filteredValues.every(value => selectedValues.includes(value));
