@@ -122,7 +122,7 @@ export default function Leads() {
   }
 
   const {
-    filteredLeads,
+    filteredLeads: baseFilteredLeads,
     searchTerm,
     setSearchTerm,
     filterStage,
@@ -154,6 +154,26 @@ export default function Leads() {
     uniqueAssignedTo,
     duplicateCount
   } = useLeadsFilters(leadsData);
+
+  // Aplicar la búsqueda por encima de todos los filtros
+  const filteredLeads = useMemo(() => {
+    if (!searchTerm) return baseFilteredLeads;
+    
+    return baseFilteredLeads.filter(lead => {
+      const searchLower = searchTerm.toLowerCase();
+      return (
+        lead.name?.toLowerCase().includes(searchLower) ||
+        lead.email?.toLowerCase().includes(searchLower) ||
+        lead.phone?.toLowerCase().includes(searchLower) ||
+        lead.company?.toLowerCase().includes(searchLower) ||
+        String(lead.documentNumber || '').toLowerCase().includes(searchLower) ||
+        lead.stage?.toLowerCase().includes(searchLower) ||
+        lead.source?.toLowerCase().includes(searchLower) ||
+        lead.campaign?.toLowerCase().includes(searchLower) ||
+        lead.assignedTo?.toLowerCase().includes(searchLower)
+      );
+    });
+  }, [baseFilteredLeads, searchTerm]);
 
   const leadsToUse = sortedLeads.length > 0 ? sortedLeads : filteredLeads;
 

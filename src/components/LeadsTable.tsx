@@ -224,11 +224,11 @@ export function LeadsTable({
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   
   // Usar filtros por columna con filtros de texto integrados
-  const { columnFilters, textFilters, filteredLeads, handleColumnFilterChange, handleTextFilterChange, clearColumnFilter } = useColumnFilters(leads);
+  const { columnFilters, textFilters, filteredLeads, handleColumnFilterChange, handleTextFilterChange, clearColumnFilter } = useColumnFilters(paginatedLeads);
   
-  // Aplicar ordenamiento a los leads filtrados
+  // Aplicar ordenamiento a los leads paginados (sin filtros adicionales en tabla)
   const sortedFilteredLeads = sortConfig ? 
-    [...filteredLeads].sort((a, b) => {
+    [...paginatedLeads].sort((a, b) => {
       let aValue: any;
       let bValue: any;
 
@@ -326,7 +326,7 @@ export function LeadsTable({
         return sortConfig.direction === 'asc' ? 1 : -1;
       }
       return 0;
-    }) : filteredLeads;
+    }) : paginatedLeads;
   
   // Notificar cambios en leads filtrados al componente padre
   useEffect(() => {
