@@ -6,7 +6,7 @@ import { STRATEGIC_PLAN_CONFIG, FlowType } from './StrategicPlanConfig';
 interface StrategicTestFlowProps {
   onBack: () => void;
   selectedLead?: any;
-  flowType: 'multiply' | 'family' | 'preserve';
+  flowType: 'planificador' | 'familiar' | 'maduro';
 }
 
 const STRATEGIC_QUESTIONS = {
