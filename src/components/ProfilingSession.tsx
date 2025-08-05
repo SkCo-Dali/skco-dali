@@ -23,22 +23,22 @@ export const ProfilingSession: React.FC<ProfilingSessionProps> = ({
 
   const answers = [
     {
-      id: 'nightmare',
+      id: 'inmediatista',
       emoji: '😱',
       text: '"Que no me rinda es mi pesadilla. Gasto y luego veo."'
     },
     {
-      id: 'multiply',
+      id: 'planificador',
       emoji: '🧠',
       text: '"Quiero multiplicarlo, pero con inteligencia."'
     },
     {
-      id: 'family',
+      id: 'familiar',
       emoji: '👨‍👩‍👧‍👦',
       text: '"Quiero que a mi familia no le falte nada."'
     },
     {
-      id: 'preserve',
+      id: 'maduro',
       emoji: '🛡️',
       text: '"Quiero que lo que ya hice, no se pierda."'
     }
@@ -68,13 +68,13 @@ export const ProfilingSession: React.FC<ProfilingSessionProps> = ({
 
   const getConfirmationbutton = () => {
     switch (selectedAnswer) {
-      case 'nightmare':
+      case 'inmediatista':
         return '¡Sí, quiero lograrlo! →';
-      case 'multiply':
+      case 'planificador':
         return 'Optimizar mi portafolio →';
-      case 'family':
+      case 'familiar':
         return 'Proteger a mi familia →';
-      case 'preserve':
+      case 'maduro':
         return 'Asegurar mi retiro →';
       default:
         return '';
@@ -91,7 +91,7 @@ export const ProfilingSession: React.FC<ProfilingSessionProps> = ({
     setCurrentFlow(selectedAnswer);
   };
 
-  if (currentFlow === 'nightmare') {
+  if (currentFlow === 'inmediatista') {
     return (
       <NightmareFlow 
         onBack={() => setCurrentFlow(null)}
@@ -100,12 +100,12 @@ export const ProfilingSession: React.FC<ProfilingSessionProps> = ({
     );
   }
 
-  if (currentFlow === 'multiply' || currentFlow === 'family' || currentFlow === 'preserve') {
+  if (currentFlow === 'planificador' || currentFlow === 'familiar' || currentFlow === 'maduro') {
     return (
       <StrategicTestFlow 
         onBack={() => setCurrentFlow(null)}
         selectedLead={selectedLead}
-        flowType={currentFlow as 'multiply' | 'family' | 'preserve'}
+        flowType={currentFlow as 'planificador' | 'familiar' | 'maduro'}
       />
     );
   }
