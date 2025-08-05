@@ -56,10 +56,15 @@ export function DashboardRecentLeads({ leads }: DashboardRecentLeadsProps) {
         </div>
       </CardHeader>
       <CardContent>
-        <LeadsTable 
-          leads={recentLeads} 
+        <LeadsTable
+          leads={recentLeads}
           paginatedLeads={recentLeads}
-          onLeadClick={handleLeadClick} 
+          onLeadClick={handleLeadClick}
+          columnFilters={{}}
+          textFilters={{}}
+          onColumnFilterChange={() => {}}
+          onTextFilterChange={() => {}}
+          onClearColumnFilter={() => {}}
         />
       </CardContent>
     </Card>

@@ -16,6 +16,7 @@ import { LeadsTableColumnSelector } from "@/components/LeadsTableColumnSelector"
 import { LeadsActionsButton } from "@/components/LeadsActionsButton";
 import { useLeadsFilters } from "@/hooks/useLeadsFilters";
 import { useLeadsPagination } from "@/hooks/useLeadsPagination";
+import { useColumnFilters } from "@/hooks/useColumnFilters";
 import { useLeadsApi } from "@/hooks/useLeadsApi";
 import { useIsMobile, useIsMedium } from "@/hooks/use-mobile";
 import { ColumnConfig } from "@/components/LeadsTableColumnSelector";
@@ -156,7 +157,7 @@ export default function Leads() {
   } = useLeadsFilters(leadsData);
 
   // Aplicar la búsqueda por encima de todos los filtros
-  const filteredLeads = useMemo(() => {
+  const searchFilteredLeads = useMemo(() => {
     if (!searchTerm) return baseFilteredLeads;
     
     return baseFilteredLeads.filter(lead => {
@@ -174,6 +175,9 @@ export default function Leads() {
       );
     });
   }, [baseFilteredLeads, searchTerm]);
+
+  // Aplicar filtros por columna después de la búsqueda
+  const { columnFilters, textFilters, filteredLeads, handleColumnFilterChange, handleTextFilterChange, clearColumnFilter } = useColumnFilters(searchFilteredLeads);
 
   const leadsToUse = sortedLeads.length > 0 ? sortedLeads : filteredLeads;
 
@@ -672,6 +676,11 @@ export default function Leads() {
                   groupBy={groupBy}
                   selectedLeads={selectedLeads}
                   onLeadSelectionChange={handleLeadSelectionChange}
+                  columnFilters={columnFilters}
+                  textFilters={textFilters}
+                  onColumnFilterChange={handleColumnFilterChange}
+                  onTextFilterChange={handleTextFilterChange}
+                  onClearColumnFilter={clearColumnFilter}
                 />
 
                 <LeadsPagination
