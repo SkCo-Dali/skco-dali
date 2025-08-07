@@ -11,6 +11,7 @@ import Reports from "@/pages/Reports";
 import Informes from "@/pages/Informes";
 import Users from "@/pages/Users";
 import ChatDali from "@/pages/ChatDali";
+import Gamification from "@/pages/Gamification";
 import Index from "@/pages/Index";
 import NotFound from "@/pages/NotFound";
 import { useAuth } from "@/contexts/AuthContext";
@@ -69,6 +70,7 @@ export function AppContent() {
               <Route path="/admin/users" element={<Users />} />
               <Route path="/chat" element={<ChatDali ref={chatDaliRef} />} />
               <Route path="/Chat" element={<ChatDali ref={chatDaliRef} />} />
+              <Route path="/gamification" element={<Gamification />} />
               <Route path="/index" element={<Index />} />
               <Route path="*" element={<NotFound />} />
             </Routes>

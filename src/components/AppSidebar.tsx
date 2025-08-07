@@ -40,6 +40,7 @@ const allMenuItems = [
     page: "ChatDali", 
     customIcon: "https://skcoblobresources.blob.core.windows.net/digital-assets/icons/icon-skandia/sk_globo_p.svg"
   },
+  { title: "Gamificación", url: "/gamification", iconClass: "", page: "gamification", customIcon: "https://skcoblobresources.blob.core.windows.net/digital-assets/icons/icon-skandia/sk_trofeo_p.svg" },
   { title: "Dashboard", url: "/reports", iconClass: "", page: "reports", customIcon: "https://skcoblobresources.blob.core.windows.net/digital-assets/icons/icon-skandia/sk_grafica_1_n.svg" },
   { title: "Informes", url: "/informes", iconClass: "", page: "informes", customIcon: "https://skcoblobresources.blob.core.windows.net/digital-assets/icons/icon-skandia/sk_chart_2_p.svg" },
   { title: "Calendario", url: "/calendar", iconClass: "", page: "calendar", customIcon: "https://skcoblobresources.blob.core.windows.net/digital-assets/icons/icon-skandia/sk_calendario_p.svg" },
