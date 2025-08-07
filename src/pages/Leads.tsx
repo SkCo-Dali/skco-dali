@@ -156,7 +156,20 @@ export default function Leads() {
     duplicateCount
   } = useLeadsFilters(leadsData);
 
-  const leadsToUse = sortedLeads.length > 0 ? sortedLeads : filteredLeads;
+  // Use filtered leads from the filter hook, and override with sortedLeads only if explicitly sorted
+  const leadsToUse = sortedLeads.length > 0 && sortedLeads !== filteredLeads ? sortedLeads : filteredLeads;
+
+  // DEBUG: Log filtering results
+  console.log('🔍 === FILTERING DEBUG ===');
+  console.log('🔍 Search term:', searchTerm);
+  console.log('🔍 Filter stage:', filterStage);
+  console.log('🔍 Raw leads count:', leadsData.length);
+  console.log('🔍 Filtered leads count:', filteredLeads.length);
+  console.log('🔍 Sorted leads count:', sortedLeads.length);
+  console.log('🔍 Leads to use count:', leadsToUse.length);
+  if (filteredLeads.length > 0) {
+    console.log('🔍 First filtered lead:', JSON.stringify(filteredLeads[0], null, 2));
+  }
 
   const {
     currentPage,
@@ -326,7 +339,7 @@ export default function Leads() {
             </div>
 
             {/* KPI Cards and Stage Summary */}
-            <AllLeadsKPICards leads={filteredLeads} />
+            <AllLeadsKPICards leads={leadsToUse} />
 
             <div className="flex flex-col lg:flex-row gap-4 items-center">
               {!isSmallScreen && (
