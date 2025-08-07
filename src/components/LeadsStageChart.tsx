@@ -49,55 +49,59 @@ export function LeadsStageChart({ leads }: LeadsStageChartProps) {
         <CardTitle className="text-lg font-semibold">Distribución de Leads por Estado</CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="h-80 w-full">
-          <ResponsiveContainer width="100%" height="100%">
-            <BarChart
-              data={chartData}
-              margin={{
-                top: 20,
-                right: 30,
-                left: 20,
-                bottom: 80,
-              }}
-            >
-              <CartesianGrid strokeDasharray="3 3" className="opacity-30" />
-              <XAxis 
-                dataKey="stage" 
-                angle={-45}
-                textAnchor="end"
-                height={80}
-                interval={0}
-                fontSize={12}
-                tick={{ fontSize: 12 }}
-              />
-              <YAxis 
-                tick={{ fontSize: 12 }}
-              />
-              <Tooltip content={<CustomTooltip />} />
-              <Bar 
-                dataKey="count" 
-                fill="hsl(var(--primary))" 
-                radius={[4, 4, 0, 0]}
-                className="hover:opacity-80"
-              />
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
-        
-        {/* Tabla resumen */}
-        <div className="mt-6">
-          <h4 className="text-sm font-medium mb-3 text-muted-foreground">Resumen por Estado</h4>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 text-sm">
-            {chartData.map((item) => (
-              <div key={item.fullStage} className="flex justify-between items-center p-2 bg-muted/30 rounded">
-                <span className="truncate pr-2" title={item.fullStage}>
-                  {item.stage}
-                </span>
-                <span className="font-medium whitespace-nowrap">
-                  {item.count} ({item.percentage}%)
-                </span>
-              </div>
-            ))}
+        <div className="flex flex-col lg:flex-row gap-6">
+          {/* Gráfica de barras horizontales */}
+          <div className="flex-1 h-64">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart
+                data={chartData}
+                layout="horizontal"
+                margin={{
+                  top: 20,
+                  right: 30,
+                  left: 120,
+                  bottom: 20,
+                }}
+              >
+                <CartesianGrid strokeDasharray="3 3" className="opacity-30" />
+                <XAxis 
+                  type="number"
+                  tick={{ fontSize: 12 }}
+                />
+                <YAxis 
+                  type="category"
+                  dataKey="stage" 
+                  width={120}
+                  fontSize={12}
+                  tick={{ fontSize: 11 }}
+                  interval={0}
+                />
+                <Tooltip content={<CustomTooltip />} />
+                <Bar 
+                  dataKey="count" 
+                  fill="hsl(var(--primary))" 
+                  radius={[0, 4, 4, 0]}
+                  className="hover:opacity-80"
+                />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+          
+          {/* Resumen por estado al lado derecho */}
+          <div className="lg:w-80">
+            <h4 className="text-sm font-medium mb-3 text-muted-foreground">Resumen por Estado</h4>
+            <div className="space-y-2 text-sm max-h-56 overflow-y-auto">
+              {chartData.map((item) => (
+                <div key={item.fullStage} className="flex justify-between items-center p-2 bg-muted/30 rounded">
+                  <span className="truncate pr-2" title={item.fullStage}>
+                    {item.stage}
+                  </span>
+                  <span className="font-medium whitespace-nowrap">
+                    {item.count} ({item.percentage}%)
+                  </span>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </CardContent>
