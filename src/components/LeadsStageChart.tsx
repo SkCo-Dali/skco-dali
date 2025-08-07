@@ -60,7 +60,7 @@ export function LeadsStageChart({ leads }: LeadsStageChartProps) {
   };
 
   return (
-    <Card className="w-full">
+    <Card className="grid grid-cols-1 md:grid-cols-1 lg:grid-cols-1 gap-4 mb-6">
       <CardHeader>
         <CardTitle className="text-lg font-semibold">Distribución de Leads por Estado</CardTitle>
       </CardHeader>
