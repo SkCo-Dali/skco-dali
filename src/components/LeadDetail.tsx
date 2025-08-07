@@ -461,25 +461,19 @@ Notas adicionales: ${lead.notes || 'Ninguna'}`;
                       </div>
 
                       <div className="grid grid-cols-2 gap-6">
-                        <div className="grid grid-flow-col grid-rows-2 gap-0 space-y-0 border-2 border-[#3d4b5c26] shadow-md rounded-md p-2.5 relative">
-                          <Label className="col-span-1 p-0 text-sm text-gray-500 font-normal">Tipo de Documento</Label>
-                          <Select 
-                            value={editedLead.documentType || 'CC'} 
-                            onValueChange={(value) => handleGeneralChange('documentType', value)}
-                          >
-                            <SelectTrigger className="col-span-1 row-span-2 border-0 border-b border-gray-200 rounded-none px-0 py-0 m-0 text-sm font-medium bg-transparent leading-none h-auto min-h-0 focus:border-gray-400 focus:shadow-none focus:ring-0">
-                              <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="CC">Cédula de Ciudadanía</SelectItem>
-                              <SelectItem value="CE">Cédula de Extranjería</SelectItem>
-                              <SelectItem value="TI">Tarjeta de Identidad</SelectItem>
-                              <SelectItem value="PA">Pasaporte</SelectItem>
-                              <SelectItem value="NIT">NIT</SelectItem>
-                            </SelectContent>
-                          </Select>
-                          <ChevronDown className="row-start-1 row-end-2 self-center absolute right-2 top-8 h-4 w-4 text-[#00c83c]" />
-                        </div>
+
+                        <CustomFieldSelect
+                          label="Tipo de Documento"
+                          value={editedLead.documentType || ''}
+                          onValueChange={(value) => handleGeneralChange('documentType', value)}
+                          options={[
+                            { value: 'CC', label: 'Cédula de Ciudadanía' },
+                            { value: 'CE', label: 'Cédula de Extranjería' },
+                            { value: 'TI', label: 'Tarjeta de Identidad' },
+                            { value: 'PA', label: 'Pasaporte' },
+                            { value: 'NIT', label: 'NIT' },
+                          ]}
+                        />
                         
                         <div className="space-y-0 border-2 border-[#3d4b5c26] shadow-md rounded-md p-2.5">
                           <Label className="p-0 text-sm text-gray-500 font-normal">Número de Documento</Label>
