@@ -223,7 +223,8 @@ export function LeadsTable({
   const [leadsToDelete, setLeadsToDelete] = useState<Lead[]>([]);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   
-  // Usar filtros por columna con filtros de texto integrados
+  // Los leads ya vienen filtrados por useLeadsFilters del padre
+  // Solo aplicamos filtros adicionales por columna
   const { columnFilters, textFilters, filteredLeads, handleColumnFilterChange, handleTextFilterChange, clearColumnFilter } = useColumnFilters(leads);
   
   // Aplicar ordenamiento a los leads filtrados

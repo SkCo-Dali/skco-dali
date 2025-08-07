@@ -51,11 +51,6 @@ export function useLeadsFilters(leads: Lead[]) {
   }, [leads]);
 
   const filteredLeads = useMemo(() => {
-    console.log('🎯 useLeadsFilters: Starting filteredLeads calculation');
-    console.log('🎯 Total input leads:', leads.length);
-    console.log('🎯 Search term:', searchTerm);
-    console.log('🎯 Filter stage:', filterStage);
-    
     return leads.filter((lead) => {
       // Búsqueda por texto en nombre, email, teléfono, número de documento o campaña
       const searchRegex = new RegExp(searchTerm, "i");
@@ -117,10 +112,7 @@ export function useLeadsFilters(leads: Lead[]) {
     });
   }, [leads, searchTerm, filterStage, filterPriority, filterAssignedTo, filterSource, filterCampaign, filterDateFrom, filterDateTo, filterValueMin, filterValueMax, filterDuplicates, duplicateIdentifiers]);
 
-  console.log('🎯 useLeadsFilters: Filtered leads result:', filteredLeads.length);
-
   const sortedLeads = useMemo(() => {
-    console.log('🎯 useLeadsFilters: Starting sortedLeads calculation with', filteredLeads.length, 'leads');
     return [...filteredLeads].sort((a, b) => {
       switch (sortBy) {
         case "name":
@@ -135,8 +127,6 @@ export function useLeadsFilters(leads: Lead[]) {
       }
     });
   }, [filteredLeads, sortBy]);
-
-  console.log('🎯 useLeadsFilters: Sorted leads result:', sortedLeads.length);
 
   const clearFilters = () => {
     setSearchTerm("");

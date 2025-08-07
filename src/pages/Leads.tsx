@@ -114,14 +114,6 @@ export default function Leads() {
     onLeadDeleted: handleLeadUpdate
   });
 
-  console.log('🏠 === LEADS PAGE DEBUG ===');
-  console.log('🏠 Total leads from useLeadsApi:', leadsData.length);
-  console.log('🏠 Loading state:', isLoading);
-  console.log('🏠 Error state:', error);
-  if (leadsData.length > 0) {
-    console.log('🏠 Sample lead from page:', JSON.stringify(leadsData[0], null, 2));
-  }
-
   const {
     filteredLeads,
     searchTerm,
@@ -158,18 +150,6 @@ export default function Leads() {
 
   // Use filtered leads from the filter hook, and override with sortedLeads only if explicitly sorted
   const leadsToUse = sortedLeads.length > 0 && sortedLeads !== filteredLeads ? sortedLeads : filteredLeads;
-
-  // DEBUG: Log filtering results
-  console.log('🔍 === FILTERING DEBUG ===');
-  console.log('🔍 Search term:', searchTerm);
-  console.log('🔍 Filter stage:', filterStage);
-  console.log('🔍 Raw leads count:', leadsData.length);
-  console.log('🔍 Filtered leads count:', filteredLeads.length);
-  console.log('🔍 Sorted leads count:', sortedLeads.length);
-  console.log('🔍 Leads to use count:', leadsToUse.length);
-  if (filteredLeads.length > 0) {
-    console.log('🔍 First filtered lead:', JSON.stringify(filteredLeads[0], null, 2));
-  }
 
   const {
     currentPage,
@@ -244,8 +224,8 @@ export default function Leads() {
 
   const handleDeleteSelectedLeads = () => {
     const leadsToDelete = selectedLeads.length > 0 
-      ? filteredLeads.filter(lead => selectedLeads.includes(lead.id))
-      : filteredLeads;
+      ? leadsToUse.filter(lead => selectedLeads.includes(lead.id))
+      : leadsToUse;
 
     if (leadsToDelete.length === 0) {
       toast.info("No hay leads para eliminar");
@@ -269,8 +249,8 @@ export default function Leads() {
 
   const handleConfirmDelete = async () => {
     const leadsToDelete = selectedLeads.length > 0 
-      ? filteredLeads.filter(lead => selectedLeads.includes(lead.id))
-      : filteredLeads;
+      ? leadsToUse.filter(lead => selectedLeads.includes(lead.id))
+      : leadsToUse;
 
     const leadIds = leadsToDelete.map(lead => lead.id);
     const result = await deleteMultipleLeads(leadIds);
@@ -701,8 +681,8 @@ export default function Leads() {
             <DialogContent className="max-w-2xl">
               <LeadsBulkAssignment
                 leads={selectedLeads.length > 0 
-                  ? filteredLeads.filter(lead => selectedLeads.includes(lead.id))
-                  : filteredLeads
+                  ? leadsToUse.filter(lead => selectedLeads.includes(lead.id))
+                  : leadsToUse
                 }
                 onLeadsAssigned={() => {
                   handleLeadUpdate();
@@ -734,8 +714,8 @@ export default function Leads() {
               filteredLeads={selectedLeadForEmail 
                 ? [selectedLeadForEmail] 
                 : selectedLeads.length > 0 
-                  ? filteredLeads.filter(lead => selectedLeads.includes(lead.id))
-                  : filteredLeads
+                  ? leadsToUse.filter(lead => selectedLeads.includes(lead.id))
+                  : leadsToUse
               }
               onClose={() => {
                 setShowMassEmail(false);
@@ -750,8 +730,8 @@ export default function Leads() {
           <DialogContent className="max-w-7xl max-h-[90vh] overflow-auto">
             <MassWhatsAppSender
               filteredLeads={selectedLeads.length > 0 
-                ? filteredLeads.filter(lead => selectedLeads.includes(lead.id))
-                : filteredLeads
+                ? leadsToUse.filter(lead => selectedLeads.includes(lead.id))
+                : leadsToUse
               }
               onClose={() => {
                 setShowMassWhatsApp(false);
@@ -766,8 +746,8 @@ export default function Leads() {
           onClose={() => setShowDeleteDialog(false)}
           onConfirm={handleConfirmDelete}
           leads={selectedLeads.length > 0 
-            ? filteredLeads.filter(lead => selectedLeads.includes(lead.id))
-            : filteredLeads
+            ? leadsToUse.filter(lead => selectedLeads.includes(lead.id))
+            : leadsToUse
           }
           isDeleting={isDeleting}
         />
