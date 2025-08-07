@@ -1,9 +1,8 @@
 
-import Leads from './Index';
-
+import { Navigate } from 'react-router-dom';
 
 const Index = () => {
-  return <Index />;
+  return <Navigate to="/leads" replace />;
 };
 
 export default Index;
