@@ -51,8 +51,11 @@ export function ColumnFilter({
   }, [uniqueValues, searchTerm]);
 
   useEffect(() => {
-    setSelectedValues(currentFilters);
-  }, [currentFilters]);
+    // Solo actualizar si el popover está cerrado o si realmente cambiaron los filtros externos
+    if (!isOpen) {
+      setSelectedValues(currentFilters);
+    }
+  }, [currentFilters, isOpen]);
 
   const handleSelectAll = (checked: boolean) => {
     if (checked) {
