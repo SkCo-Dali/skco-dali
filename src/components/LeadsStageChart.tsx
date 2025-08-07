@@ -28,6 +28,22 @@ export function LeadsStageChart({ leads }: LeadsStageChartProps) {
     percentage: totalLeads > 0 ? ((count / totalLeads) * 100).toFixed(1) : '0'
   })).sort((a, b) => b.count - a.count);
 
+  // Si no hay datos, mostrar mensaje
+  if (chartData.length === 0) {
+    return (
+      <Card className="w-full">
+        <CardHeader>
+          <CardTitle className="text-lg font-semibold">Distribución de Leads por Estado</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="flex items-center justify-center h-64 text-muted-foreground">
+            No hay datos disponibles para mostrar
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
   const CustomTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
       const data = payload[0].payload;
@@ -79,9 +95,10 @@ export function LeadsStageChart({ leads }: LeadsStageChartProps) {
                 <Tooltip content={<CustomTooltip />} />
                 <Bar 
                   dataKey="count" 
-                  fill="hsl(var(--primary))" 
+                  fill="#3b82f6" 
                   radius={[0, 4, 4, 0]}
                   className="hover:opacity-80"
+                  minPointSize={5}
                 />
               </BarChart>
             </ResponsiveContainer>
