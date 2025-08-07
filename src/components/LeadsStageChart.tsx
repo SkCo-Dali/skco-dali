@@ -66,44 +66,7 @@ export function LeadsStageChart({ leads }: LeadsStageChartProps) {
       </CardHeader>
       <CardContent>
         <div className="flex flex-col lg:flex-row gap-6">
-          {/* Gráfica de barras horizontales */}
-          <div className="flex-1 h-64">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart
-                data={chartData}
-                layout="horizontal"
-                margin={{
-                  top: 20,
-                  right: 30,
-                  left: 120,
-                  bottom: 20,
-                }}
-              >
-                <CartesianGrid strokeDasharray="3 3" className="opacity-30" />
-                <XAxis 
-                  type="number"
-                  tick={{ fontSize: 12 }}
-                />
-                <YAxis 
-                  type="category"
-                  dataKey="stage" 
-                  width={120}
-                  fontSize={12}
-                  tick={{ fontSize: 11 }}
-                  interval={0}
-                />
-                <Tooltip content={<CustomTooltip />} />
-                <Bar 
-                  dataKey="count" 
-                  fill="#3b82f6" 
-                  radius={[0, 4, 4, 0]}
-                  className="hover:opacity-80"
-                  minPointSize={5}
-                />
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-          
+      
           {/* Resumen por estado al lado derecho */}
           <div className="lg:w-80">
             <h4 className="text-sm font-medium mb-3 text-muted-foreground">Resumen por Estado</h4>
