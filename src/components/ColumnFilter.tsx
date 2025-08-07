@@ -185,11 +185,7 @@ export function ColumnFilter({
                     {...(isIndeterminate ? { "data-state": "indeterminate" } : {})}
                   />
                   <label 
-                    className="text-sm font-medium text-gray-700 cursor-pointer"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleSelectAll(!isAllSelected);
-                    }}
+                    className="text-sm font-medium text-gray-700 cursor-pointer select-none"
                   >
                     (Select All)
                   </label>
@@ -205,11 +201,7 @@ export function ColumnFilter({
                       }}
                     />
                     <label 
-                      className="text-sm text-gray-700 cursor-pointer flex-1"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleValueChange(value, !selectedValues.includes(value));
-                      }}
+                      className="text-sm text-gray-700 cursor-pointer flex-1 select-none"
                     >
                       {value}
                     </label>
