@@ -4,6 +4,8 @@ import { Lead } from "@/types/crm";
 import { LeadsSearch } from "@/components/LeadsSearch";
 import { LeadsFilters } from "@/components/LeadsFilters";
 import { LeadsStats } from "@/components/LeadsStats";
+import { LeadsKPICards } from "@/components/LeadsKPICards";
+import { LeadsStageChart } from "@/components/LeadsStageChart";
 import { LeadsContent } from "@/components/LeadsContent";
 import { LeadsPagination } from "@/components/LeadsPagination";
 import { LeadDetail } from "@/components/LeadDetail";
@@ -306,7 +308,7 @@ export default function Leads() {
   return (
     <>
       <div className="w-full max-w-full px-4 py-8 space-y-6">
-        <div className="flex flex-col lg:flex-row gap-6">
+            <div className="flex flex-col lg:flex-row gap-6">
           <div className="flex-1 space-y-6">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 pt-0">
               <h1 className="text-3xl font-bold mb-1 tracking-tight text-[#00c83c]">Gestión de Leads</h1>
@@ -323,6 +325,12 @@ export default function Leads() {
                 />
               )}
             </div>
+
+            {/* KPI Cards */}
+            <LeadsKPICards leads={leadsData} />
+
+            {/* Stage Chart */}
+            <LeadsStageChart leads={leadsData} />
 
             <div className="flex flex-col lg:flex-row gap-4 items-center">
               {!isSmallScreen && (
