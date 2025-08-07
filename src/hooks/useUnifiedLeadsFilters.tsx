@@ -16,6 +16,7 @@ export function useUnifiedLeadsFilters(leads: Lead[]) {
   const [filterValueMax, setFilterValueMax] = useState("");
   const [filterDuplicates, setFilterDuplicates] = useState<string>("all");
   const [sortBy, setSortBy] = useState("updated");
+  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
 
   // Estado para filtros por columna
   const [columnFilters, setColumnFilters] = useState<Record<string, string[]>>({});
@@ -223,19 +224,27 @@ export function useUnifiedLeadsFilters(leads: Lead[]) {
   // Aplicar ordenamiento
   const sortedLeads = useMemo(() => {
     return [...filteredLeads].sort((a, b) => {
+      let result = 0;
+      
       switch (sortBy) {
         case "name":
-          return a.name.localeCompare(b.name);
+          result = a.name.localeCompare(b.name);
+          break;
         case "value":
-          return b.value - a.value;
+          result = b.value - a.value;
+          break;
         case "created":
-          return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+          result = new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+          break;
         case "updated":
         default:
-          return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();
+          result = new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();
+          break;
       }
+      
+      return sortDirection === 'asc' ? result : -result;
     });
-  }, [filteredLeads, sortBy]);
+  }, [filteredLeads, sortBy, sortDirection]);
 
   // Funciones para manejar filtros por columna
   const handleColumnFilterChange = (column: string, selectedValues: string[]) => {
@@ -358,6 +367,8 @@ export function useUnifiedLeadsFilters(leads: Lead[]) {
     setFilterDuplicates,
     sortBy,
     setSortBy,
+    sortDirection,
+    setSortDirection,
     
     // Filtros por columna
     columnFilters,

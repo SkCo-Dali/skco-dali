@@ -25,6 +25,11 @@ interface LeadsContentProps {
   onTextFilterChange?: (column: string, filters: any[]) => void;
   onClearColumnFilter?: (column: string) => void;
   hasFiltersForColumn?: (column: string) => boolean;
+  // Props para ordenamiento
+  sortBy?: string;
+  setSortBy?: (sort: string) => void;
+  sortDirection?: 'asc' | 'desc';
+  setSortDirection?: (direction: 'asc' | 'desc') => void;
 }
 
 export function LeadsContent({
@@ -44,7 +49,11 @@ export function LeadsContent({
   onColumnFilterChange,
   onTextFilterChange,
   onClearColumnFilter,
-  hasFiltersForColumn
+  hasFiltersForColumn,
+  sortBy,
+  setSortBy,
+  sortDirection,
+  setSortDirection
 }: LeadsContentProps) {
   const [selectedLeadForProfiler, setSelectedLeadForProfiler] = useState<Lead | null>(null);
   const [isProfilerOpen, setIsProfilerOpen] = useState(false);
@@ -79,6 +88,10 @@ export function LeadsContent({
           onTextFilterChange={onTextFilterChange}
           onClearColumnFilter={onClearColumnFilter}
           hasFiltersForColumn={hasFiltersForColumn}
+          sortBy={sortBy}
+          setSortBy={setSortBy}
+          sortDirection={sortDirection}
+          setSortDirection={setSortDirection}
         />
 
         <Dialog open={isProfilerOpen} onOpenChange={setIsProfilerOpen}>

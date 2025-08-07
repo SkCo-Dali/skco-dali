@@ -52,6 +52,11 @@ interface LeadsTableProps {
   onTextFilterChange?: (column: string, filters: any[]) => void;
   onClearColumnFilter?: (column: string) => void;
   hasFiltersForColumn?: (column: string) => boolean;
+  // Props para ordenamiento desde el hook unificado
+  sortBy?: string;
+  setSortBy?: (sort: string) => void;
+  sortDirection?: 'asc' | 'desc';
+  setSortDirection?: (direction: 'asc' | 'desc') => void;
 }
 
 type SortConfig = {
@@ -227,10 +232,14 @@ export function LeadsTable({
   onColumnFilterChange,
   onTextFilterChange,
   onClearColumnFilter,
-  hasFiltersForColumn
+  hasFiltersForColumn,
+  sortBy,
+  setSortBy,
+  sortDirection,
+  setSortDirection
 }: LeadsTableProps) {
   const { users } = useUsersApi();
-  const [sortConfig, setSortConfig] = useState<SortConfig>(null);
+  // Removed local sortConfig - using unified sort from props
   const [leadsToDelete, setLeadsToDelete] = useState<Lead[]>([]);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   
@@ -238,107 +247,8 @@ export function LeadsTable({
   // Solo necesitamos aplicar ordenamiento local en la tabla si es necesario
   const filteredLeads = leads;
   
-  // Aplicar ordenamiento a los leads filtrados
-  const sortedFilteredLeads = sortConfig ? 
-    [...filteredLeads].sort((a, b) => {
-      let aValue: any;
-      let bValue: any;
-
-      // Manejar columnas dinámicas de additionalInfo
-      if (sortConfig.key.startsWith('additionalInfo.')) {
-        const key = sortConfig.key.replace('additionalInfo.', '');
-        aValue = (a.additionalInfo?.[key] || '').toString().toLowerCase();
-        bValue = (b.additionalInfo?.[key] || '').toString().toLowerCase();
-      } else {
-        switch (sortConfig.key) {
-          case 'name':
-            aValue = a.name.toLowerCase();
-            bValue = b.name.toLowerCase();
-            break;
-          case 'email':
-            aValue = (a.email || '').toLowerCase();
-            bValue = (b.email || '').toLowerCase();
-            break;
-          case 'product':
-            aValue = (a.product || '').toLowerCase();
-            bValue = (b.product || '').toLowerCase();
-            break;
-          case 'campaign':
-            aValue = (a.campaign || '').toLowerCase();
-            bValue = (b.campaign || '').toLowerCase();
-            break;
-          case 'source':
-            aValue = a.source.toLowerCase();
-            bValue = b.source.toLowerCase();
-            break;
-          case 'stage':
-            aValue = a.stage;
-            bValue = b.stage;
-            break;
-          case 'assignedTo':
-            const assignedUserA = users.find(u => u.id === a.assignedTo);
-            const assignedUserB = users.find(u => u.id === b.assignedTo);
-            aValue = (assignedUserA?.name || a.assignedTo || 'Sin asignar').toLowerCase();
-            bValue = (assignedUserB?.name || b.assignedTo || 'Sin asignar').toLowerCase();
-            break;
-          case 'lastInteraction':
-            aValue = new Date(a.updatedAt).getTime();
-            bValue = new Date(b.updatedAt).getTime();
-            break;
-          case 'phone':
-            aValue = (a.phone || '').toLowerCase();
-            bValue = (b.phone || '').toLowerCase();
-            break;
-          case 'company':
-            aValue = (a.company || '').toLowerCase();
-            bValue = (b.company || '').toLowerCase();
-            break;
-          case 'value':
-            aValue = a.value;
-            bValue = b.value;
-            break;
-          case 'priority':
-            const priorityOrder = { 'low': 1, 'medium': 2, 'high': 3, 'urgent': 4 };
-            aValue = priorityOrder[a.priority as keyof typeof priorityOrder];
-            bValue = priorityOrder[b.priority as keyof typeof priorityOrder];
-            break;
-          case 'createdAt':
-            aValue = new Date(a.createdAt).getTime();
-            bValue = new Date(b.createdAt).getTime();
-            break;
-          case 'age':
-            aValue = a.age || 0;
-            bValue = b.age || 0;
-            break;
-          case 'gender':
-            aValue = (a.gender || '').toLowerCase();
-            bValue = (b.gender || '').toLowerCase();
-            break;
-          case 'preferredContactChannel':
-            aValue = (a.preferredContactChannel || '').toLowerCase();
-            bValue = (b.preferredContactChannel || '').toLowerCase();
-            break;
-          case 'documentType':
-            aValue = (a.documentType || '').toLowerCase();
-            bValue = (b.documentType || '').toLowerCase();
-            break;
-          case 'documentNumber':
-            aValue = a.documentNumber || 0;
-            bValue = b.documentNumber || 0;
-            break;
-          default:
-            return 0;
-        }
-      }
-
-      if (aValue < bValue) {
-        return sortConfig.direction === 'asc' ? -1 : 1;
-      }
-      if (aValue > bValue) {
-        return sortConfig.direction === 'asc' ? 1 : -1;
-      }
-      return 0;
-    }) : filteredLeads;
+  // Los leads ya vienen ordenados desde el hook unificado
+  const sortedFilteredLeads = filteredLeads;
   
   // Notificar cambios en leads filtrados al componente padre
   useEffect(() => {
@@ -410,9 +320,12 @@ export function LeadsTable({
   const isIndeterminate = paginatedLeads.some(lead => selectedLeads.includes(lead.id)) && !isAllSelected;
 
   const handleSort = (columnKey: string, direction?: 'asc' | 'desc') => {
-    const newDirection = direction || (sortConfig?.key === columnKey && sortConfig?.direction === 'asc' ? 'desc' : 'asc');
+    if (!setSortBy || !setSortDirection) return;
+    
+    const newDirection = direction || (sortBy === columnKey && sortDirection === 'asc' ? 'desc' : 'asc');
     console.log(`Sorting by ${columnKey} in ${newDirection} direction`);
-    setSortConfig({ key: columnKey, direction: newDirection });
+    setSortBy(columnKey);
+    setSortDirection(newDirection);
   };
 
   const handleColumnHeaderClick = (columnKey: string, sortable: boolean, e: React.MouseEvent) => {
@@ -422,11 +335,11 @@ export function LeadsTable({
   };
 
   const renderSortIcon = (columnKey: string) => {
-    if (!sortConfig || sortConfig.key !== columnKey) {
+    if (!sortBy || sortBy !== columnKey) {
       return null;
     }
     
-    return sortConfig.direction === 'asc' ? (
+    return sortDirection === 'asc' ? (
       <ChevronUp className="h-4 w-4 ml-1" />
     ) : (
       <ChevronDown className="h-4 w-4 ml-1" />

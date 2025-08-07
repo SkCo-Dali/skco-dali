@@ -140,6 +140,8 @@ export default function Leads() {
     setFilterDuplicates,
     sortBy,
     setSortBy,
+    sortDirection,
+    setSortDirection,
     columnFilters,
     textFilters,
     handleColumnFilterChange,
@@ -658,6 +660,10 @@ export default function Leads() {
               onTextFilterChange={handleTextFilterChange}
               onClearColumnFilter={clearColumnFilter}
               hasFiltersForColumn={hasFiltersForColumn}
+              sortBy={sortBy}
+              setSortBy={setSortBy}
+              sortDirection={sortDirection}
+              setSortDirection={setSortDirection}
             />
 
                 <LeadsPagination
