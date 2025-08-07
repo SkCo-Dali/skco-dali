@@ -65,7 +65,7 @@ export function LeadsStageChart({ leads }: LeadsStageChartProps) {
         <CardTitle className="text-lg font-semibold">Distribución de Leads por Estado</CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="flex flex-col lg:flex-row gap-6">
+        <div className="flex flex-col lg:flex-row gap-0">
       
           {/* Resumen por estado al lado derecho */}
           <div className="lg:w-80">
