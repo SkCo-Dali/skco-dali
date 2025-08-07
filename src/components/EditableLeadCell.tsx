@@ -1,13 +1,6 @@
 
 import { useState } from "react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { 
-  CustomFieldSelect, 
-  CustomFieldSelectContent, 
-  CustomFieldSelectItem, 
-  CustomFieldSelectTrigger, 
-  CustomFieldSelectValue 
-} from "@/components/ui/custom-field-select";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Lead, User } from "@/types/crm";
@@ -188,47 +181,47 @@ export function EditableLeadCell({ lead, field, onUpdate }: EditableLeadCellProp
 
   if (field === 'stage') {
     return (
-      <CustomFieldSelect
+      <Select
         value={lead.stage}
         onValueChange={handleValueChange}
         disabled={isUpdating}
       >
-        <CustomFieldSelectTrigger label="Estado">
-          <CustomFieldSelectValue>
+        <SelectTrigger className="w-full border-none shadow-none p-2 h-8">
+          <span className="text-xs text-center">
             {lead.stage}
-          </CustomFieldSelectValue>
-        </CustomFieldSelectTrigger>
-        <CustomFieldSelectContent>
+          </span>
+        </SelectTrigger>
+        <SelectContent className="bg-white z-50">
           {stageOptions.map((stage) => (
-            <CustomFieldSelectItem key={stage} value={stage}>
+            <SelectItem key={stage} value={stage}>
               {stage}
-            </CustomFieldSelectItem>
+            </SelectItem>
           ))}
-        </CustomFieldSelectContent>
-      </CustomFieldSelect>
+        </SelectContent>
+      </Select>
     );
   }
 
   if (field === 'priority') {
     return (
-      <CustomFieldSelect
+      <Select
         value={lead.priority}
         onValueChange={handleValueChange}
         disabled={isUpdating}
       >
-        <CustomFieldSelectTrigger label="Prioridad">
-          <CustomFieldSelectValue>
+        <SelectTrigger className="w-full border-none shadow-none p-2 h-8">
+          <span className="text-xs text-center">
             {priorityLabels[lead.priority as keyof typeof priorityLabels] || lead.priority}
-          </CustomFieldSelectValue>
-        </CustomFieldSelectTrigger>
-        <CustomFieldSelectContent>
+          </span>
+        </SelectTrigger>
+        <SelectContent className="bg-white z-50">
           {priorityOptions.map((priority) => (
-            <CustomFieldSelectItem key={priority} value={priority}>
+            <SelectItem key={priority} value={priority}>
               {priorityLabels[priority as keyof typeof priorityLabels]}
-            </CustomFieldSelectItem>
+            </SelectItem>
           ))}
-        </CustomFieldSelectContent>
-      </CustomFieldSelect>
+        </SelectContent>
+      </Select>
     );
   }
 
@@ -236,25 +229,25 @@ export function EditableLeadCell({ lead, field, onUpdate }: EditableLeadCellProp
     const assignedUser = users.find(u => u.id === lead.assignedTo);
     
     return (
-      <CustomFieldSelect
+      <Select
         value={lead.assignedTo || ""}
         onValueChange={handleValueChange}
         disabled={isUpdating}
       >
-        <CustomFieldSelectTrigger label="Asignado a">
-          <CustomFieldSelectValue>
-            {assignedUser?.name || 'Sin asignar'}
-          </CustomFieldSelectValue>
-        </CustomFieldSelectTrigger>
-        <CustomFieldSelectContent>
-          <CustomFieldSelectItem value="unassigned">Sin asignar</CustomFieldSelectItem>
+        <SelectTrigger className="w-full border-none shadow-none p-2 h-8">
+          <span className="text-xs text-left">
+            {assignedUser?.name || ''}
+          </span>
+        </SelectTrigger>
+        <SelectContent className="bg-white z-50">
+          <SelectItem value="unassigned">Sin asignar</SelectItem>
           {users.map((user) => (
-            <CustomFieldSelectItem key={user.id} value={user.id}>
+            <SelectItem key={user.id} value={user.id}>
               {user.name}
-            </CustomFieldSelectItem>
+            </SelectItem>
           ))}
-        </CustomFieldSelectContent>
-      </CustomFieldSelect>
+        </SelectContent>
+      </Select>
     );
   }
 
