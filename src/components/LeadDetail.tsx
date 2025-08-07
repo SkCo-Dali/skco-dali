@@ -13,6 +13,7 @@ import { Separator } from '@/components/ui/separator';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Calendar, MessageSquare, Phone, Mail, UserCheck, Clock, Tag, Building2, Globe, CreditCard, AlertCircle, History, UserPlus, Users, X, ChevronDown } from 'lucide-react';
+import { CustomFieldSelect } from '@/components/ui/custom-field-select';
 import { useUsersApi } from '@/hooks/useUsersApi';
 import { useInteractionsApi } from '@/hooks/useInteractionsApi';
 import { useLeadAssignments } from '@/hooks/useLeadAssignments';
@@ -502,23 +503,17 @@ Notas adicionales: ${lead.notes || 'Ninguna'}`;
                           />
                         </div>
                         
-                        <div className="space-y-0 border-2 border-[#3d4b5c26] shadow-md rounded-md p-2.5">
-                          <Label className="p-0 text-sm text-gray-500 font-normal">Género</Label>
-                          <Select 
-                            value={editedLead.gender || 'Prefiero no decir'} 
-                            onValueChange={(value) => handleGeneralChange('gender', value)}
-                          >
-                            <SelectTrigger className="border-0 border-b border-gray-200 rounded-none px-0 py-0 m-0 text-sm font-medium bg-transparent leading-none h-auto min-h-0 focus:border-gray-400 focus:shadow-none focus:ring-0">
-                              <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="Masculino">Masculino</SelectItem>
-                              <SelectItem value="Femenino">Femenino</SelectItem>
-                              <SelectItem value="Otro">Otro</SelectItem>
-                              <SelectItem value="Prefiero no decir">Prefiero no decir</SelectItem>
-                            </SelectContent>
-                          </Select>
-                        </div>
+                        <CustomFieldSelect
+                          label="Género"
+                          value={editedLead.gender || 'Prefiero no decir'}
+                          onValueChange={(value) => handleGeneralChange('gender', value)}
+                          options={[
+                            { value: 'Masculino', label: 'Masculino' },
+                            { value: 'Femenino', label: 'Femenino' },
+                            { value: 'Otro', label: 'Otro' },
+                            { value: 'Prefiero no decir', label: 'Prefiero no decir' }
+                          ]}
+                        />
                       </div>
 
                       <div className="grid grid-cols-2 gap-6"> 
@@ -651,68 +646,51 @@ Notas adicionales: ${lead.notes || 'Ninguna'}`;
                   <CardTitle className="flex items-center pt-2">Resultado de la Gestión</CardTitle>
                 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="space-y-0 border-2 border-[#3d4b5c26] shadow-md rounded-md p-2.5">
-                        <Label className="p-0 text-sm text-gray-500 font-normal">Estado Actual</Label>
-                        <Select 
-                          value={editedLead.stage} 
-                          onValueChange={(value) => handleGeneralChange('stage', value)}
-                        >
-                          <SelectTrigger className="border-0 border-b border-gray-200 rounded-none px-0 py-0 m-0 text-sm font-medium bg-transparent leading-none h-auto min-h-0 focus:border-gray-400 focus:shadow-none focus:ring-0">
-                            <SelectValue/>
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="Nuevo">Nuevo</SelectItem>
-                            <SelectItem value="Asignado">Asignado</SelectItem>
-                            <SelectItem value="Localizado: No interesado">Localizado: No interesado</SelectItem>
-                            <SelectItem value="Localizado: Prospecto de venta FP">Localizado: Prospecto de venta FP</SelectItem>
-                            <SelectItem value="Localizado: Prospecto de venta AD">Localizado: Prospecto de venta AD</SelectItem>
-                            <SelectItem value="Localizado: Volver a llamar">Localizado: Volver a llamar</SelectItem>
-                            <SelectItem value="Localizado: No vuelve a contestar">Localizado: No vuelve a contestar</SelectItem>
-                            <SelectItem value="No localizado: No contesta">No localizado: No contesta</SelectItem>
-                            <SelectItem value="No localizado: Número equivocado">No localizado: Número equivocado</SelectItem>
-                            <SelectItem value="Contrato Creado">Contrato Creado</SelectItem>
-                            <SelectItem value="Registro de Venta (fondeado)">Registro de Venta (fondeado)</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
+                    <CustomFieldSelect
+                        label="Estado Actual"
+                        value={editedLead.stage}
+                        onValueChange={(value) => handleGeneralChange('stage', value)}
+                        options={[
+                          { value: 'Nuevo', label: 'Nuevo' },
+                          { value: 'Asignado', label: 'Asignado' },
+                          { value: 'Localizado: No interesado', label: 'Localizado: No interesado' },
+                          { value: 'Localizado: Prospecto de venta FP', label: 'Localizado: Prospecto de venta FP' },
+                          { value: 'Localizado: Prospecto de venta AD', label: 'Localizado: Prospecto de venta AD' },
+                          { value: 'Localizado: Volver a llamar', label: 'Localizado: Volver a llamar' },
+                          { value: 'Localizado: No vuelve a contestar', label: 'Localizado: No vuelve a contestar' },
+                          { value: 'No localizado: No contesta', label: 'No localizado: No contesta' },
+                          { value: 'No localizado: Número equivocado', label: 'No localizado: Número equivocado' },
+                          { value: 'Contrato Creado', label: 'Contrato Creado' },
+                          { value: 'Registro de Venta (fondeado)', label: 'Registro de Venta (fondeado)' }
+                        ]}
+                      />
                     
-                     <div className="space-y-0 border-2 border-[#3d4b5c26] shadow-md rounded-md p-2.5">
-                        <Label className="p-0 text-sm text-gray-500 font-normal">Medio de Contacto</Label>
-                      <Select 
-                        value={contactMethod} 
+                     <CustomFieldSelect
+                        label="Medio de Contacto"
+                        value={contactMethod}
                         onValueChange={setContactMethod}
-                      >
-                        <SelectTrigger className="border-0 border-b border-gray-200 rounded-none px-0 py-0 m-0 text-sm font-medium bg-transparent leading-none h-auto min-h-0 focus:border-gray-400 focus:shadow-none focus:ring-0">
-                          <SelectValue/>
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="phone">Teléfono</SelectItem>
-                          <SelectItem value="email">Email</SelectItem>
-                          <SelectItem value="whatsapp">WhatsApp</SelectItem>
-                          <SelectItem value="meeting">Reunión</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
+                        options={[
+                          { value: 'phone', label: 'Teléfono' },
+                          { value: 'email', label: 'Email' },
+                          { value: 'whatsapp', label: 'WhatsApp' },
+                          { value: 'meeting', label: 'Reunión' }
+                        ]}
+                        placeholder="Seleccionar medio"
+                      />
                   </div>
                   
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                        <Label htmlFor="priority">Prioridad</Label>
-                        <Select 
-                          value={editedLead.priority} 
-                          onValueChange={(value) => handleGeneralChange('priority', value)}
-                        >
-                          <SelectTrigger>
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="low">Baja</SelectItem>
-                            <SelectItem value="medium">Media</SelectItem>
-                            <SelectItem value="high">Alta</SelectItem>
-                            <SelectItem value="urgent">Urgente</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
+                    <CustomFieldSelect
+                        label="Prioridad"
+                        value={editedLead.priority}
+                        onValueChange={(value) => handleGeneralChange('priority', value)}
+                        options={[
+                          { value: 'low', label: 'Baja' },
+                          { value: 'medium', label: 'Media' },
+                          { value: 'high', label: 'Alta' },
+                          { value: 'urgent', label: 'Urgente' }
+                        ]}
+                      />
                     <div>
                       <Label htmlFor="followUpDate">Próximo seguimiento</Label>
                       <Input
