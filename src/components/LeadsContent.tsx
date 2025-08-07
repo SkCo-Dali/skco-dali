@@ -19,6 +19,12 @@ interface LeadsContentProps {
   groupBy: string;
   selectedLeads: string[];
   onLeadSelectionChange: (leadIds: string[], isSelected: boolean) => void;
+  columnFilters?: Record<string, string[]>;
+  textFilters?: Record<string, any[]>;
+  onColumnFilterChange?: (column: string, selectedValues: string[]) => void;
+  onTextFilterChange?: (column: string, filters: any[]) => void;
+  onClearColumnFilter?: (column: string) => void;
+  hasFiltersForColumn?: (column: string) => boolean;
 }
 
 export function LeadsContent({
@@ -32,7 +38,13 @@ export function LeadsContent({
   onSendEmail,
   groupBy,
   selectedLeads,
-  onLeadSelectionChange
+  onLeadSelectionChange,
+  columnFilters = {},
+  textFilters = {},
+  onColumnFilterChange,
+  onTextFilterChange,
+  onClearColumnFilter,
+  hasFiltersForColumn
 }: LeadsContentProps) {
   const [selectedLeadForProfiler, setSelectedLeadForProfiler] = useState<Lead | null>(null);
   const [isProfilerOpen, setIsProfilerOpen] = useState(false);
@@ -61,6 +73,12 @@ export function LeadsContent({
           onOpenProfiler={handleOpenProfiler}
           selectedLeads={selectedLeads}
           onLeadSelectionChange={onLeadSelectionChange}
+          columnFilters={columnFilters}
+          textFilters={textFilters}
+          onColumnFilterChange={onColumnFilterChange}
+          onTextFilterChange={onTextFilterChange}
+          onClearColumnFilter={onClearColumnFilter}
+          hasFiltersForColumn={hasFiltersForColumn}
         />
 
         <Dialog open={isProfilerOpen} onOpenChange={setIsProfilerOpen}>

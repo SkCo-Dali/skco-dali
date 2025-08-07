@@ -16,7 +16,6 @@ import { useLeadDeletion } from "@/hooks/useLeadDeletion";
 import { LeadDeleteConfirmDialog } from "@/components/LeadDeleteConfirmDialog";
 import { toast } from "sonner";
 import { ColumnFilter } from "@/components/ColumnFilter";
-import { useColumnFilters } from "@/hooks/useColumnFilters";
 import { TextFilterCondition } from "@/components/TextFilter";
 import {
   DndContext,
@@ -47,6 +46,12 @@ interface LeadsTableProps {
   selectedLeads?: string[];
   onLeadSelectionChange?: (leadIds: string[], isSelected: boolean) => void;
   onFilteredLeadsChange?: (filteredLeads: Lead[]) => void;
+  columnFilters?: Record<string, string[]>;
+  textFilters?: Record<string, any[]>;
+  onColumnFilterChange?: (column: string, selectedValues: string[]) => void;
+  onTextFilterChange?: (column: string, filters: any[]) => void;
+  onClearColumnFilter?: (column: string) => void;
+  hasFiltersForColumn?: (column: string) => boolean;
 }
 
 type SortConfig = {
@@ -216,16 +221,22 @@ export function LeadsTable({
   onOpenProfiler,
   selectedLeads = [],
   onLeadSelectionChange,
-  onFilteredLeadsChange
+  onFilteredLeadsChange,
+  columnFilters = {},
+  textFilters = {},
+  onColumnFilterChange,
+  onTextFilterChange,
+  onClearColumnFilter,
+  hasFiltersForColumn
 }: LeadsTableProps) {
   const { users } = useUsersApi();
   const [sortConfig, setSortConfig] = useState<SortConfig>(null);
   const [leadsToDelete, setLeadsToDelete] = useState<Lead[]>([]);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   
-  // Los leads ya vienen filtrados por useLeadsFilters del padre
-  // Solo aplicamos filtros adicionales por columna
-  const { columnFilters, textFilters, filteredLeads, handleColumnFilterChange, handleTextFilterChange, clearColumnFilter } = useColumnFilters(leads);
+  // Los leads ya vienen completamente filtrados desde el hook unificado del padre
+  // Solo necesitamos aplicar ordenamiento local en la tabla si es necesario
+  const filteredLeads = leads;
   
   // Aplicar ordenamiento a los leads filtrados
   const sortedFilteredLeads = sortConfig ? 
@@ -735,12 +746,12 @@ Por favor, confirmar asistencia.`;
                          onSort={handleSort}
                          onColumnHeaderClick={handleColumnHeaderClick}
                          renderSortIcon={renderSortIcon}
-                         leads={leads}
-                         columnFilters={columnFilters}
-                         textFilters={textFilters}
-                         onColumnFilterChange={handleColumnFilterChange}
-                         onTextFilterChange={handleTextFilterChange}
-                         onClearFilter={clearColumnFilter}
+                  leads={leads}
+                  columnFilters={columnFilters || {}}
+                  textFilters={textFilters || {}}
+                  onColumnFilterChange={onColumnFilterChange || (() => {})}
+                  onTextFilterChange={onTextFilterChange || (() => {})}
+                  onClearFilter={onClearColumnFilter || (() => {})}
                          isNameColumn={true}
                        />
                      )}
@@ -753,14 +764,14 @@ Por favor, confirmar asistencia.`;
                            onSort={handleSort}
                            onColumnHeaderClick={handleColumnHeaderClick}
                            renderSortIcon={renderSortIcon}
-                           leads={leads}
-                           columnFilters={columnFilters}
-                           textFilters={textFilters}
-                           onColumnFilterChange={handleColumnFilterChange}
-                           onTextFilterChange={handleTextFilterChange}
-                           onClearFilter={clearColumnFilter}
-                         />
-                       ))}
+                            leads={leads}
+                            columnFilters={columnFilters || {}}
+                            textFilters={textFilters || {}}
+                            onColumnFilterChange={onColumnFilterChange || (() => {})}
+                            onTextFilterChange={onTextFilterChange || (() => {})}
+                            onClearFilter={onClearColumnFilter || (() => {})}
+                          />
+                        ))}
                     </SortableContext>
                   </TableRow>
                 </TableHeader>

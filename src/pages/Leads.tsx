@@ -15,7 +15,7 @@ import { MassEmailSender } from "@/components/MassEmailSender";
 import { MassWhatsAppSender } from "@/components/MassWhatsAppSender";
 import { LeadsTableColumnSelector } from "@/components/LeadsTableColumnSelector";
 import { LeadsActionsButton } from "@/components/LeadsActionsButton";
-import { useLeadsFilters } from "@/hooks/useLeadsFilters";
+import { useUnifiedLeadsFilters } from "@/hooks/useUnifiedLeadsFilters";
 import { useLeadsPagination } from "@/hooks/useLeadsPagination";
 import { useLeadsApi } from "@/hooks/useLeadsApi";
 import { useIsMobile, useIsMedium } from "@/hooks/use-mobile";
@@ -140,16 +140,19 @@ export default function Leads() {
     setFilterDuplicates,
     sortBy,
     setSortBy,
+    columnFilters,
+    textFilters,
+    handleColumnFilterChange,
+    handleTextFilterChange,
+    clearColumnFilter,
+    hasFiltersForColumn,
     clearFilters,
     uniqueStages,
     uniqueSources,
     uniqueCampaigns,
     uniqueAssignedTo,
     duplicateCount
-  } = useLeadsFilters(leadsData);
-
-  // Use filtered leads from the filter hook, and override with sortedLeads only if explicitly sorted
-  const leadsToUse = sortedLeads.length > 0 && sortedLeads !== filteredLeads ? sortedLeads : filteredLeads;
+  } = useUnifiedLeadsFilters(leadsData);
 
   const {
     currentPage,
@@ -158,7 +161,7 @@ export default function Leads() {
     setLeadsPerPage,
     paginatedLeads,
     totalPages
-  } = useLeadsPagination(leadsToUse);
+  } = useLeadsPagination(filteredLeads);
 
   const handleLeadClick = useCallback((lead: Lead) => {
     setSelectedLead(lead);
@@ -224,8 +227,8 @@ export default function Leads() {
 
   const handleDeleteSelectedLeads = () => {
     const leadsToDelete = selectedLeads.length > 0 
-      ? leadsToUse.filter(lead => selectedLeads.includes(lead.id))
-      : leadsToUse;
+      ? filteredLeads.filter(lead => selectedLeads.includes(lead.id))
+      : filteredLeads;
 
     if (leadsToDelete.length === 0) {
       toast.info("No hay leads para eliminar");
@@ -249,8 +252,8 @@ export default function Leads() {
 
   const handleConfirmDelete = async () => {
     const leadsToDelete = selectedLeads.length > 0 
-      ? leadsToUse.filter(lead => selectedLeads.includes(lead.id))
-      : leadsToUse;
+      ? filteredLeads.filter(lead => selectedLeads.includes(lead.id))
+      : filteredLeads;
 
     const leadIds = leadsToDelete.map(lead => lead.id);
     const result = await deleteMultipleLeads(leadIds);
@@ -319,7 +322,7 @@ export default function Leads() {
             </div>
 
             {/* KPI Cards and Stage Summary */}
-            <AllLeadsKPICards leads={leadsToUse} />
+            <AllLeadsKPICards leads={filteredLeads} />
 
             <div className="flex flex-col lg:flex-row gap-4 items-center">
               {!isSmallScreen && (
@@ -637,24 +640,30 @@ export default function Leads() {
               </div>
             ) : (
               <>
-                <LeadsContent
-                  viewMode={viewMode}
-                  leads={leadsToUse}
-                  onLeadClick={handleLeadClick}
-                  onLeadUpdate={handleLeadUpdate}
-                  columns={columns}
-                  paginatedLeads={paginatedLeads}
-                  onSortedLeadsChange={handleSortedLeadsChange}
-                  onSendEmail={handleSendEmailToLead}
-                  groupBy={groupBy}
-                  selectedLeads={selectedLeads}
-                  onLeadSelectionChange={handleLeadSelectionChange}
-                />
+            <LeadsContent
+              viewMode={viewMode}
+              leads={filteredLeads}
+              onLeadClick={handleLeadClick}
+              onLeadUpdate={handleLeadUpdate}
+              columns={columns}
+              paginatedLeads={paginatedLeads}
+              onSortedLeadsChange={handleSortedLeadsChange}
+              onSendEmail={handleSendEmailToLead}
+              groupBy={groupBy}
+              selectedLeads={selectedLeads}
+              onLeadSelectionChange={handleLeadSelectionChange}
+              columnFilters={columnFilters}
+              textFilters={textFilters}
+              onColumnFilterChange={handleColumnFilterChange}
+              onTextFilterChange={handleTextFilterChange}
+              onClearColumnFilter={clearColumnFilter}
+              hasFiltersForColumn={hasFiltersForColumn}
+            />
 
                 <LeadsPagination
                   currentPage={currentPage}
                   totalPages={totalPages}
-                  totalLeads={leadsToUse.length}
+                  totalLeads={filteredLeads.length}
                   leadsPerPage={leadsPerPage}
                   onPageChange={setCurrentPage}
                   onLeadsPerPageChange={setLeadsPerPage}
@@ -681,8 +690,8 @@ export default function Leads() {
             <DialogContent className="max-w-2xl">
               <LeadsBulkAssignment
                 leads={selectedLeads.length > 0 
-                  ? leadsToUse.filter(lead => selectedLeads.includes(lead.id))
-                  : leadsToUse
+                  ? filteredLeads.filter(lead => selectedLeads.includes(lead.id))
+                  : filteredLeads
                 }
                 onLeadsAssigned={() => {
                   handleLeadUpdate();
@@ -714,8 +723,8 @@ export default function Leads() {
               filteredLeads={selectedLeadForEmail 
                 ? [selectedLeadForEmail] 
                 : selectedLeads.length > 0 
-                  ? leadsToUse.filter(lead => selectedLeads.includes(lead.id))
-                  : leadsToUse
+                  ? filteredLeads.filter(lead => selectedLeads.includes(lead.id))
+                  : filteredLeads
               }
               onClose={() => {
                 setShowMassEmail(false);
@@ -730,8 +739,8 @@ export default function Leads() {
           <DialogContent className="max-w-7xl max-h-[90vh] overflow-auto">
             <MassWhatsAppSender
               filteredLeads={selectedLeads.length > 0 
-                ? leadsToUse.filter(lead => selectedLeads.includes(lead.id))
-                : leadsToUse
+                ? filteredLeads.filter(lead => selectedLeads.includes(lead.id))
+                : filteredLeads
               }
               onClose={() => {
                 setShowMassWhatsApp(false);
@@ -746,8 +755,8 @@ export default function Leads() {
           onClose={() => setShowDeleteDialog(false)}
           onConfirm={handleConfirmDelete}
           leads={selectedLeads.length > 0 
-            ? leadsToUse.filter(lead => selectedLeads.includes(lead.id))
-            : leadsToUse
+            ? filteredLeads.filter(lead => selectedLeads.includes(lead.id))
+            : filteredLeads
           }
           isDeleting={isDeleting}
         />

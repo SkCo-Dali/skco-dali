@@ -1,7 +1,9 @@
 import { useState, useMemo } from "react";
 import { Lead } from "@/types/crm";
+import { TextFilterCondition } from "@/components/TextFilter";
 
-export function useLeadsFilters(leads: Lead[]) {
+export function useUnifiedLeadsFilters(leads: Lead[]) {
+  // Estado para filtros generales
   const [searchTerm, setSearchTerm] = useState("");
   const [filterStage, setFilterStage] = useState<string | string[]>("all");
   const [filterPriority, setFilterPriority] = useState<string | string[]>("all");
@@ -14,6 +16,10 @@ export function useLeadsFilters(leads: Lead[]) {
   const [filterValueMax, setFilterValueMax] = useState("");
   const [filterDuplicates, setFilterDuplicates] = useState<string>("all");
   const [sortBy, setSortBy] = useState("updated");
+
+  // Estado para filtros por columna
+  const [columnFilters, setColumnFilters] = useState<Record<string, string[]>>({});
+  const [textFilters, setTextFilters] = useState<Record<string, TextFilterCondition[]>>({});
 
   // Identificar leads duplicados por email, teléfono o número de documento
   const duplicateIdentifiers = useMemo(() => {
@@ -50,6 +56,61 @@ export function useLeadsFilters(leads: Lead[]) {
     };
   }, [leads]);
 
+  // Función para aplicar filtros de texto en columnas específicas
+  const applyTextFilter = (lead: Lead, column: string, conditions: TextFilterCondition[]) => {
+    if (conditions.length === 0) return true;
+
+    return conditions.some(condition => {
+      let leadValue: any;
+      
+      // Manejar columnas dinámicas de additionalInfo
+      if (column.startsWith('additionalInfo.')) {
+        const key = column.replace('additionalInfo.', '');
+        leadValue = lead.additionalInfo?.[key] || '';
+      } else {
+        leadValue = lead[column as keyof Lead];
+      }
+
+      const stringValue = leadValue === null || leadValue === undefined ? "" : String(leadValue);
+      const filterValue = condition.value.toLowerCase();
+      const leadValueLower = stringValue.toLowerCase();
+
+      switch (condition.operator) {
+        case 'equals':
+          return leadValueLower === filterValue;
+        case 'not_equals':
+          return leadValueLower !== filterValue;
+        case 'contains':
+          return leadValueLower.includes(filterValue);
+        case 'not_contains':
+          return !leadValueLower.includes(filterValue);
+        case 'starts_with':
+          return leadValueLower.startsWith(filterValue);
+        case 'ends_with':
+          return leadValueLower.endsWith(filterValue);
+        case 'is_empty':
+          return stringValue === '';
+        case 'is_not_empty':
+          return stringValue !== '';
+        case 'greater_than':
+          return Number(leadValue) > Number(condition.value);
+        case 'less_than':
+          return Number(leadValue) < Number(condition.value);
+        case 'greater_equal':
+          return Number(leadValue) >= Number(condition.value);
+        case 'less_equal':
+          return Number(leadValue) <= Number(condition.value);
+        case 'after':
+          return new Date(stringValue) > new Date(condition.value);
+        case 'before':
+          return new Date(stringValue) < new Date(condition.value);
+        default:
+          return true;
+      }
+    });
+  };
+
+  // Aplicar todos los filtros en un solo paso
   const filteredLeads = useMemo(() => {
     return leads.filter((lead) => {
       // Búsqueda por texto en nombre, email, teléfono, número de documento o campaña
@@ -70,6 +131,14 @@ export function useLeadsFilters(leads: Lead[]) {
         return filterValue === leadValue;
       };
 
+      // Filtros generales
+      const matchesGeneralFilters = 
+        matchesMultiFilter(filterStage, lead.stage) &&
+        matchesMultiFilter(filterPriority, lead.priority) &&
+        matchesMultiFilter(filterAssignedTo, lead.assignedTo) &&
+        matchesMultiFilter(filterSource, lead.source) &&
+        matchesMultiFilter(filterCampaign, lead.campaign || "");
+
       // Filtros de fecha
       const dateFromFilter = !filterDateFrom || new Date(lead.createdAt) >= new Date(filterDateFrom);
       const dateToFilter = !filterDateTo || new Date(lead.createdAt) <= new Date(filterDateTo);
@@ -78,7 +147,7 @@ export function useLeadsFilters(leads: Lead[]) {
       const valueMinFilter = !filterValueMin || lead.value >= parseInt(filterValueMin);
       const valueMaxFilter = !filterValueMax || lead.value <= parseInt(filterValueMax);
 
-      // Filtro de duplicados - verificar email, teléfono o documento
+      // Filtro de duplicados
       const duplicatesFilter = () => {
         if (filterDuplicates === "all") return true;
         
@@ -96,22 +165,62 @@ export function useLeadsFilters(leads: Lead[]) {
         return true;
       };
 
+      // Filtros por columna específica
+      const matchesColumnFilters = Object.entries(columnFilters).every(([column, selectedValues]) => {
+        if (selectedValues.length === 0) return true;
+        
+        let leadValue: any;
+        
+        // Manejar columnas dinámicas de additionalInfo
+        if (column.startsWith('additionalInfo.')) {
+          const key = column.replace('additionalInfo.', '');
+          leadValue = lead.additionalInfo?.[key] || '';
+        } else {
+          leadValue = lead[column as keyof Lead];
+        }
+        
+        const stringValue = leadValue === null || leadValue === undefined ? "" : String(leadValue);
+        
+        return selectedValues.includes(stringValue);
+      });
+
+      // Filtros de texto por columna
+      const matchesTextFilters = Object.entries(textFilters).every(([column, conditions]) => {
+        if (conditions.length === 0) return true;
+        return applyTextFilter(lead, column, conditions);
+      });
+
       return (
         matchesSearch &&
-        matchesMultiFilter(filterStage, lead.stage) &&
-        matchesMultiFilter(filterPriority, lead.priority) &&
-        matchesMultiFilter(filterAssignedTo, lead.assignedTo) &&
-        matchesMultiFilter(filterSource, lead.source) &&
-        matchesMultiFilter(filterCampaign, lead.campaign || "") &&
+        matchesGeneralFilters &&
         dateFromFilter &&
         dateToFilter &&
         valueMinFilter &&
         valueMaxFilter &&
-        duplicatesFilter()
+        duplicatesFilter() &&
+        matchesColumnFilters &&
+        matchesTextFilters
       );
     });
-  }, [leads, searchTerm, filterStage, filterPriority, filterAssignedTo, filterSource, filterCampaign, filterDateFrom, filterDateTo, filterValueMin, filterValueMax, filterDuplicates, duplicateIdentifiers]);
+  }, [
+    leads, 
+    searchTerm, 
+    filterStage, 
+    filterPriority, 
+    filterAssignedTo, 
+    filterSource, 
+    filterCampaign, 
+    filterDateFrom, 
+    filterDateTo, 
+    filterValueMin, 
+    filterValueMax, 
+    filterDuplicates, 
+    duplicateIdentifiers,
+    columnFilters,
+    textFilters
+  ]);
 
+  // Aplicar ordenamiento
   const sortedLeads = useMemo(() => {
     return [...filteredLeads].sort((a, b) => {
       switch (sortBy) {
@@ -128,7 +237,49 @@ export function useLeadsFilters(leads: Lead[]) {
     });
   }, [filteredLeads, sortBy]);
 
-  const clearFilters = () => {
+  // Funciones para manejar filtros por columna
+  const handleColumnFilterChange = (column: string, selectedValues: string[]) => {
+    setColumnFilters(prev => {
+      const newFilters = { ...prev };
+      
+      if (selectedValues.length === 0) {
+        delete newFilters[column];
+      } else {
+        newFilters[column] = selectedValues;
+      }
+      
+      return newFilters;
+    });
+  };
+
+  const handleTextFilterChange = (column: string, conditions: TextFilterCondition[]) => {
+    setTextFilters(prev => {
+      const newFilters = { ...prev };
+      
+      if (conditions.length === 0) {
+        delete newFilters[column];
+      } else {
+        newFilters[column] = conditions;
+      }
+      
+      return newFilters;
+    });
+  };
+
+  const clearColumnFilter = (column: string) => {
+    setColumnFilters(prev => {
+      const newFilters = { ...prev };
+      delete newFilters[column];
+      return newFilters;
+    });
+    setTextFilters(prev => {
+      const newFilters = { ...prev };
+      delete newFilters[column];
+      return newFilters;
+    });
+  };
+
+  const clearAllFilters = () => {
     setSearchTerm("");
     setFilterStage("all");
     setFilterPriority("all");
@@ -140,6 +291,13 @@ export function useLeadsFilters(leads: Lead[]) {
     setFilterValueMin("");
     setFilterValueMax("");
     setFilterDuplicates("all");
+    setColumnFilters({});
+    setTextFilters({});
+  };
+
+  const hasFiltersForColumn = (column: string) => {
+    return (columnFilters[column] && columnFilters[column].length > 0) || 
+           (textFilters[column] && textFilters[column].length > 0);
   };
 
   // Obtener opciones únicas para los filtros
@@ -163,9 +321,9 @@ export function useLeadsFilters(leads: Lead[]) {
     [leads]
   );
 
-  // Contar leads duplicados - solo calculamos cuando se necesita
+  // Contar leads duplicados
   const duplicateCount = useMemo(() => {
-    if (filterDuplicates === "all") return 0; // No necesario calcularlo si no se usa
+    if (filterDuplicates === "all") return 0;
     
     return leads.filter(lead => 
       (lead.email && duplicateIdentifiers.emails.includes(lead.email.toLowerCase())) ||
@@ -175,6 +333,7 @@ export function useLeadsFilters(leads: Lead[]) {
   }, [leads, duplicateIdentifiers, filterDuplicates]);
 
   return {
+    // Filtros generales
     searchTerm,
     setSearchTerm,
     filterStage,
@@ -199,8 +358,20 @@ export function useLeadsFilters(leads: Lead[]) {
     setFilterDuplicates,
     sortBy,
     setSortBy,
+    
+    // Filtros por columna
+    columnFilters,
+    textFilters,
+    handleColumnFilterChange,
+    handleTextFilterChange,
+    clearColumnFilter,
+    hasFiltersForColumn,
+    
+    // Resultados
     filteredLeads: sortedLeads,
-    clearFilters,
+    clearFilters: clearAllFilters,
+    
+    // Opciones para dropdowns
     uniqueStages,
     uniqueSources,
     uniqueCampaigns,
