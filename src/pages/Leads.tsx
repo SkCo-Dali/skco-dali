@@ -324,7 +324,7 @@ export default function Leads() {
             </div>
 
             {/* KPI Cards and Stage Summary */}
-            <AllLeadsKPICards leads={filteredLeads} />
+            <AllLeadsKPICards leads={filteredLeads} unFilteredLeads={leadsData} />
 
             <div className="flex flex-col lg:flex-row gap-4 items-center">
               {!isSmallScreen && (
