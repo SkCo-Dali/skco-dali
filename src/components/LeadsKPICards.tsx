@@ -22,7 +22,7 @@ export function LeadsKPICards({ leads }: LeadsKPICardsProps) {
   const registroVentaPercentage = totalLeads > 0 ? ((registroVenta / totalLeads) * 100).toFixed(1) : '0';
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
       <KPICard
         title="Total de Leads"
         value={totalLeads.toLocaleString()}

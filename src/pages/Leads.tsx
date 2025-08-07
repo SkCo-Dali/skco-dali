@@ -4,8 +4,7 @@ import { Lead } from "@/types/crm";
 import { LeadsSearch } from "@/components/LeadsSearch";
 import { LeadsFilters } from "@/components/LeadsFilters";
 import { LeadsStats } from "@/components/LeadsStats";
-import { LeadsKPICards } from "@/components/LeadsKPICards";
-import { LeadsStageChart } from "@/components/LeadsStageChart";
+import { AllLeadsKPICards } from "@/components/AllLeadsKPICards";
 import { LeadsContent } from "@/components/LeadsContent";
 import { LeadsPagination } from "@/components/LeadsPagination";
 import { LeadDetail } from "@/components/LeadDetail";
@@ -326,11 +325,8 @@ export default function Leads() {
               )}
             </div>
 
-            {/* KPI Cards */}
-            <LeadsKPICards leads={leadsData} />
-
-            {/* Stage Chart */}
-            <LeadsStageChart leads={leadsData} />
+            {/* KPI Cards and Stage Summary */}
+            <AllLeadsKPICards leads={filteredLeads} />
 
             <div className="flex flex-col lg:flex-row gap-4 items-center">
               {!isSmallScreen && (
