@@ -17,7 +17,6 @@ export function CreateReportDialog({ open, onOpenChange, onCreateReport }: Creat
   const [formData, setFormData] = useState({
     name: '',
     description: '',
-    embedUrl: '',
     reportId: '',
     workspaceId: '',
     isActive: true,
@@ -29,17 +28,22 @@ export function CreateReportDialog({ open, onOpenChange, onCreateReport }: Creat
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!formData.name.trim() || !formData.reportId.trim()) {
+    if (!formData.name.trim() || !formData.reportId.trim() || !formData.workspaceId.trim()) {
       return;
     }
 
-    onCreateReport(formData);
+    // Build embed URL automatically
+    const embedUrl = `https://app.powerbi.com/reportEmbed?reportId=${formData.reportId}&groupId=${formData.workspaceId}`;
+
+    onCreateReport({
+      ...formData,
+      embedUrl
+    });
     
     // Reset form
     setFormData({
       name: '',
       description: '',
-      embedUrl: '',
       reportId: '',
       workspaceId: '',
       isActive: true,
@@ -82,6 +86,17 @@ export function CreateReportDialog({ open, onOpenChange, onCreateReport }: Creat
           </div>
 
           <div className="space-y-2">
+            <Label htmlFor="workspaceId">Workspace ID *</Label>
+            <Input
+              id="workspaceId"
+              value={formData.workspaceId}
+              onChange={(e) => setFormData(prev => ({ ...prev, workspaceId: e.target.value }))}
+              placeholder="GUID del workspace en Power BI"
+              required
+            />
+          </div>
+
+          <div className="space-y-2">
             <Label htmlFor="description">Descripción</Label>
             <Textarea
               id="description"
@@ -89,26 +104,6 @@ export function CreateReportDialog({ open, onOpenChange, onCreateReport }: Creat
               onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
               placeholder="Descripción del reporte..."
               rows={3}
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="embedUrl">URL de Embed</Label>
-            <Input
-              id="embedUrl"
-              value={formData.embedUrl}
-              onChange={(e) => setFormData(prev => ({ ...prev, embedUrl: e.target.value }))}
-              placeholder="https://app.powerbi.com/reportEmbed?reportId=..."
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="workspaceId">Workspace ID</Label>
-            <Input
-              id="workspaceId"
-              value={formData.workspaceId}
-              onChange={(e) => setFormData(prev => ({ ...prev, workspaceId: e.target.value }))}
-              placeholder="GUID del workspace en Power BI"
             />
           </div>
 
