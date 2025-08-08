@@ -47,7 +47,7 @@ export function LeadsStageCard({ leads }: LeadsStageCardProps) {
 
   return (
     <Card className="hover:shadow-md transition-shadow h-full">
-      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3 px-2">
+      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3 px-2.5">
         <CardTitle className="text-sm font-medium">Resumen por Estado</CardTitle>
         <BarChart3 className="h-5 w-5 text-muted-foreground" />
       </CardHeader>
