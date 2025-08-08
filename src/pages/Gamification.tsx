@@ -79,7 +79,7 @@ export default function Gamification() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold">Gamificación</h1>
+          <h1 className="text-xl md:text-2xl lg:text-3xl font-bold mb-1 tracking-tight text-[#00c83c]">Gamificación</h1>
           <p className="text-muted-foreground">
             Compite, mejora y alcanza nuevos niveles
           </p>
