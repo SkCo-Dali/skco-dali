@@ -351,7 +351,7 @@ export default function Leads() {
                     <Mail className="h-4 w-4" />
                   </Button>
                   <Button
-                    className="gap-1 w-8 h-8 bg-[#25D366] hover:bg-[#25D366]/90"
+                    className="gap-1 w-8 h-8 bg-[#00c83c] hover:bg-[#25D366]/90"
                     onClick={handleMassWhatsApp}
                     size="icon"
                   >
