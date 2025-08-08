@@ -27,7 +27,7 @@ export function KPICard({ title, value, change, changeType = 'neutral', icon: Ic
       <CardContent className="pb-3 md:pb-4 px-3 md:px-6">
         <div className="text-xl md:text-2xl lg:text-3xl font-bold mb-1 md:mb-2">{value}</div>
         {change && (
-          <p className={`text-xs md:text-sm ${changeColor} mb-1`}>
+          <p className={`text-xs md:text-xs ${changeColor} mb-1`}>
             {change}
           </p>
         )}
