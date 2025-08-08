@@ -119,9 +119,6 @@ export function MassWhatsAppSender({ filteredLeads, onClose }: MassWhatsAppSende
                 {validationErrors.length} números inválidos
               </Badge>
             )}
-            <Button variant="outline" onClick={onClose}>
-              Cerrar
-            </Button>
           </div>
         </div>
         
