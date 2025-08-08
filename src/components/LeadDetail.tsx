@@ -685,7 +685,7 @@ Notas adicionales: ${lead.notes || 'Ninguna'}`;
                           { value: 'urgent', label: 'Urgente' }
                         ]}
                       />
-                    <div>
+                    <div className="space-y-0 border-2 border-[#3d4b5c26] shadow-md rounded-md p-2.5">
                       <Label htmlFor="followUpDate">Próximo seguimiento</Label>
                       <Input
                         id="followUpDate"
@@ -696,7 +696,8 @@ Notas adicionales: ${lead.notes || 'Ninguna'}`;
                     </div>
                     </div>
                     
-                    
+
+                  
                     <div>
                       <Label htmlFor="managementNotes">Notas de gestión</Label>
                       <Textarea
