@@ -152,7 +152,7 @@ export default function Informes() {
 
   return (
     <div className="min-h-screen pt-16">
-      <div className="p-4">
+      <div className="px-4 py-6">
         <div className="flex items-center justify-between mb-6">
           <div>
             <h1 className="text-3xl font-bold mb-1 tracking-tight text-[#00c83c]">
