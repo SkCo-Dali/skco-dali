@@ -741,7 +741,8 @@ export default function Leads() {
           </DialogContent>
         </Dialog>
 
-        <Dialog className="max-w-7xl max-h-[90vh] overflow-auto" open={showMassWhatsApp} onOpenChange={setShowMassWhatsApp}>
+        <Dialog open={showMassWhatsApp} onOpenChange={setShowMassWhatsApp}>
+          <DialogContent className="max-w-6xl max-h-[90vh] overflow-auto">
             <MassWhatsAppSender
               filteredLeads={selectedLeads.length > 0 
                 ? filteredLeads.filter(lead => selectedLeads.includes(lead.id))
@@ -752,6 +753,7 @@ export default function Leads() {
                 setSelectedLeads([]);
               }}
             />
+          </DialogContent>
         </Dialog>
 
         <LeadDeleteConfirmDialog
