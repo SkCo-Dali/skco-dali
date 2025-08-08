@@ -32,7 +32,7 @@ export function CustomFieldSelect({
             <span className="text-sm text-gray-500 font-normal leading-tight">
               {label}
             </span>
-            <span className="text-base font-medium text-gray-900 leading-tight">
+            <span className="text-sm font-medium text-gray-900 leading-tight">
               {selectedOption?.label || placeholder}
             </span>
           </div>
