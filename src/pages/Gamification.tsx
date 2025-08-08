@@ -84,9 +84,6 @@ export default function Gamification() {
             Compite, mejora y alcanza nuevos niveles
           </p>
         </div>
-        <Button onClick={handleTestChatDali} variant="outline">
-          🎯 Probar Chat Dali (+5 pts)
-        </Button>
       </div>
 
       {/* Notifications */}
