@@ -16,7 +16,7 @@ export default function Reports() {
           width="100%"
           height="600"
           className="md:h-[800px]"
-          src="https://app.powerbi.com/view?r=eyJrIjoiNTcwMDQxOGItOTUxNy00ZGVjLWI0NTktODcyYzMxMjliZGNjIiwidCI6IjA4MjcxZjQyLTgxZWYtNDVkNi04MWFjLTQ5Nzc2YzRiZTYxNSIsImMiOjR9"
+          src="https://app.powerbi.com/reportEmbed?reportId=d5017ea9-1327-4357-9cbd-d75321c990b2&autoAuth=true&ctid=08271f42-81ef-45d6-81ac-49776c4be615"
           frameBorder="0"
           allowFullScreen={true}
           allow="fullscreen"
