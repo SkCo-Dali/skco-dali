@@ -43,7 +43,7 @@ export function CustomFieldSelect({
             <SelectItem 
               key={option.value} 
               value={option.value}
-              className="hover:bg-gray-50 focus:bg-gray-50 cursor-pointer"
+              className="hover:bg-[#00c83c] focus:bg-gray-50 cursor-pointer"
             >
               {option.label}
             </SelectItem>
