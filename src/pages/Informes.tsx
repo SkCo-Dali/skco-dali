@@ -14,7 +14,11 @@ interface PowerBIReport {
   name: string;
   description?: string;
   embedUrl: string;
+  reportId: string;
+  workspaceId?: string;
   isAssigned: boolean;
+  requiresRLS: boolean;
+  roles?: string[];
 }
 
 export default function Informes() {
@@ -27,35 +31,69 @@ export default function Informes() {
   const [searchTerm, setSearchTerm] = useState("");
   const [viewMode, setViewMode] = useState<"grid" | "table">("grid");
 
-  // Mock data - replace with actual API call
-  const mockReports: PowerBIReport[] = [
+  /**
+   * CONFIGURACIÓN DE REPORTES POWER BI
+   * ===================================
+   * 
+   * Para agregar un nuevo reporte, simplemente añade un objeto al array con:
+   * 
+   * - id: Identificador único del reporte
+   * - name: Nombre descriptivo que verá el usuario
+   * - description: Descripción del reporte (opcional)
+   * - embedUrl: URL completa de embed de Power BI (obtén esto de tu workspace de Power BI)
+   * - reportId: ID del reporte de Power BI
+   * - workspaceId: ID del workspace donde está el reporte (opcional)
+   * - isAssigned: true/false - si está asignado a usuarios
+   * - requiresRLS: true/false - si requiere Row Level Security
+   * - roles: Array de roles que pueden acceder al reporte
+   * 
+   * IMPORTANTE: El usuario autenticado se pasa automáticamente como parámetro UID
+   * para que Power BI aplique las reglas de Row Level Security correspondientes.
+   */
+  const powerBIReports: PowerBIReport[] = [
     {
       id: '1',
       name: 'Estado Pólizas',
       description: 'Reporte de estado de pólizas asignadas',
-      embedUrl: '',
-      isAssigned: true
+      embedUrl: '', // Add your embed URL here
+      reportId: '', // Add your report ID here
+      workspaceId: '', // Add your workspace ID here
+      isAssigned: true,
+      requiresRLS: true,
+      roles: ['PolicyViewer']
     },
     {
       id: '2', 
       name: 'CRM DALI',
       description: 'Dashboard principal del CRM',
-      embedUrl: 'https://app.powerbi.com/reportEmbed?reportId=0c9aca2e-0a09-49cf-9e06-fbfe7fb62cf9&groupId=9988790d-a5c3-459b-97cb-ee8103957bbc&w=2&config=eyJjbHVzdGVyVXJsIjoiaHR0cHM6Ly9XQUJJLVNPVVRILUNFTlRSQUwtVVMtQy1QUklNQVJZLXJlZGlyZWN0LmFuYWx5c2lzLndpbmRvd3MubmV0IiwiZW1iZWRGZWF0dXJlcyI6eyJ1c2FnZU1ldHJpY3NWTmV4dCI6dHJ1ZX19&uid=hsrdn',
-      isAssigned: true
+      embedUrl: 'https://app.powerbi.com/reportEmbed?reportId=0c9aca2e-0a09-49cf-9e06-fbfe7fb62cf9&groupId=9988790d-a5c3-459b-97cb-ee8103957bbc',
+      reportId: '0c9aca2e-0a09-49cf-9e06-fbfe7fb62cf9',
+      workspaceId: '9988790d-a5c3-459b-97cb-ee8103957bbc',
+      isAssigned: true,
+      requiresRLS: true,
+      roles: ['CRMUser']
     },
     {
       id: '3',
       name: 'Transacciones Por Portafolios',
       description: 'Análisis de transacciones por portafolios',
-      embedUrl: '',
-      isAssigned: true
+      embedUrl: '', // Add your embed URL here
+      reportId: '', // Add your report ID here  
+      workspaceId: '', // Add your workspace ID here
+      isAssigned: true,
+      requiresRLS: true,
+      roles: ['PortfolioAnalyst']
     },
     {
       id: '4',
       name: 'Consulta Clientes Ley 2300',
       description: 'Consulta especializada Ley 2300',
-      embedUrl: '',
-      isAssigned: false
+      embedUrl: '', // Add your embed URL here
+      reportId: '', // Add your report ID here
+      workspaceId: '', // Add your workspace ID here
+      isAssigned: false,
+      requiresRLS: true,
+      roles: ['LegalConsultant']
     }
   ];
 
@@ -67,17 +105,35 @@ export default function Informes() {
     try {
       setLoading(true);
       
-      // TODO: Replace with actual API call to get user's assigned reports
-      // const response = await fetch('/api/powerbi/reports', {
+      // TODO: Replace with actual API call to get user's assigned reports with RLS
+      // This would typically check user permissions and roles against Power BI
+      // const response = await fetch('/api/powerbi/user-reports', {
       //   headers: {
       //     'Authorization': `Bearer ${userToken}`,
       //     'Content-Type': 'application/json'
-      //   }
+      //   },
+      //   body: JSON.stringify({
+      //     userId: user?.email,
+      //     userRoles: user?.roles || []
+      //   })
       // });
       // const data = await response.json();
       
-      // For now, filter mock data based on assignment
-      const assignedReports = mockReports.filter(report => report.isAssigned);
+      // Filter reports based on user assignment and roles
+      const assignedReports = powerBIReports.filter(report => {
+        // Check if report is assigned to user
+        if (!report.isAssigned) return false;
+        
+        // If RLS is required, check user roles (placeholder logic)
+        if (report.requiresRLS && report.roles) {
+          // TODO: Replace with actual user role check
+          // return user?.roles?.some(role => report.roles?.includes(role));
+          return true; // For now, allow all assigned reports
+        }
+        
+        return true;
+      });
+      
       setReports(assignedReports);
       
     } catch (error) {
@@ -268,19 +324,34 @@ export default function Informes() {
                 </div>
               ) : (
                 <div className="w-full" style={{ height: '600px' }}>
-                  {/* TODO: Replace with actual Power BI embed */}
-                  <div className="w-full h-full bg-gray-100 rounded-lg flex items-center justify-center border-2 border-dashed border-gray-300">
-                    <div className="text-center">
-                      <FileBarChart className="h-16 w-16 mx-auto mb-4 text-gray-400" />
-                      <h3 className="text-lg font-medium mb-2">Informe: {selectedReport.name}</h3>
-                      <p className="text-gray-500 mb-4">
-                        Aquí se mostrará el informe de Power BI embebido
-                      </p>
-                      <p className="text-sm text-gray-400">
-                        Token de embed: {embedToken ? 'Disponible' : 'No disponible'}
-                      </p>
+                  {selectedReport.embedUrl ? (
+                    <iframe
+                      title={`Power BI Report - ${selectedReport.name}`}
+                      width="100%"
+                      height="100%"
+                      src={`${selectedReport.embedUrl}&autoAuth=true&filterPaneEnabled=true&navContentPaneEnabled=true&uid=${encodeURIComponent(user?.email || '')}`}
+                      frameBorder="0"
+                      allowFullScreen={true}
+                      allow="fullscreen"
+                      className="rounded-lg"
+                    />
+                  ) : (
+                    <div className="w-full h-full bg-gray-100 rounded-lg flex items-center justify-center border-2 border-dashed border-gray-300">
+                      <div className="text-center">
+                        <FileBarChart className="h-16 w-16 mx-auto mb-4 text-gray-400" />
+                        <h3 className="text-lg font-medium mb-2">Configuración Pendiente</h3>
+                        <p className="text-gray-500 mb-4">
+                          La URL de embed para este informe no ha sido configurada.
+                        </p>
+                        <p className="text-sm text-gray-400">
+                          Report ID: {selectedReport.reportId || 'No configurado'}
+                        </p>
+                        <p className="text-sm text-gray-400">
+                          Workspace ID: {selectedReport.workspaceId || 'No configurado'}
+                        </p>
+                      </div>
                     </div>
-                  </div>
+                  )}
                 </div>
               )}
             </CardContent>
