@@ -154,7 +154,7 @@ export const LeadCreateDialog = forwardRef<LeadCreateDialogRef, LeadCreateDialog
           </DialogHeader>
           
           <Tabs defaultValue="individual" className="w-full">
-            <TabsList className="grid w-full grid-cols-2 mb-6 bg-gray-100 p-1 rounded-full">
+            <TabsList className="grid w-full grid-cols-2 mb-6 bg-gray-100 p-1 rounded-full px-0 py-0 my-0">
               <TabsTrigger 
                 value="individual" 
                 className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#00c83c] data-[state=active]:to-[#A3E40B] data-[state=active]:text-white rounded-full px-8 py-2 text-sm font-medium transition-all duration-200"
