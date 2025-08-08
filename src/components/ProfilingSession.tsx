@@ -45,21 +45,21 @@ export const ProfilingSession: React.FC<ProfilingSessionProps> = ({
   ];
 
   const profiles = [
-    { letter: 'A', type: 'Inmediatista' },
-    { letter: 'B', type: 'Planificador' },
-    { letter: 'C', type: 'Familiar' },
-    { letter: 'D', type: 'Maduro' }
+    { letter: 'A', type: 'inmediatista' },
+    { letter: 'B', type: 'planificador' },
+    { letter: 'C', type: 'familiar' },
+    { letter: 'D', type: 'maduro' }
   ];
 
   const getConfirmationMessage = () => {
     switch (selectedAnswer) {
-      case 'nightmare':
+      case 'inmediatista':
         return 'Buscas disfrutar tu vida sin culpas, pero sabes que necesitas orden sin sacrificar tu estilo.';
-      case 'multiply':
+      case 'planificador':
         return 'Tienes experiencia invirtiendo pero buscas optimizar tu estrategia con decisiones basadas en datos.';
-      case 'family':
+      case 'familiar':
         return 'Tu prioridad es proteger a tu familia y asegurar su futuro. No estás solo en esto.';
-      case 'preserve':
+      case 'maduro':
         return 'Has trabajado toda tu vida para llegar hasta aquí. Mereces un retiro tranquilo y sin preocupaciones.';
       default:
         return '';
