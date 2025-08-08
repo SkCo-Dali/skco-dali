@@ -32,7 +32,7 @@ export function KPICard({ title, value, change, changeType = 'neutral', icon: Ic
           </p>
         )}
         {description && (
-          <p className="text-sm md:text-sm text-muted-foreground">
+          <p className="text-xs md:text-xs text-muted-foreground">
             {description}
           </p>
         )}
