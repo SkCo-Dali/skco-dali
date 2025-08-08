@@ -286,7 +286,18 @@ export const StrategicTestFlow: React.FC<StrategicTestFlowProps> = ({
   const questions = STRATEGIC_QUESTIONS[flowType];
   const currentQuestion = questions[currentQuestionIndex];
   const isLastQuestion = currentQuestionIndex === questions.length - 1;
-  const planConfig = STRATEGIC_PLAN_CONFIG[flowType];
+  
+  // Map flowType to config key
+  const getConfigKey = (flow: typeof flowType): FlowType => {
+    switch (flow) {
+      case 'planificador': return 'multiply';
+      case 'familiar': return 'family';
+      case 'maduro': return 'preserve';
+      default: return 'multiply';
+    }
+  };
+  
+  const planConfig = STRATEGIC_PLAN_CONFIG[getConfigKey(flowType)];
 
   const handleNext = () => {
     // Guardar la respuesta actual
