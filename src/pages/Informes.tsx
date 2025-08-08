@@ -50,52 +50,69 @@ export default function Informes() {
    * IMPORTANTE: El usuario autenticado se pasa automáticamente como parámetro UID
    * para que Power BI aplique las reglas de Row Level Security correspondientes.
    */
-  const powerBIReports: PowerBIReport[] = [
-    {
-      id: '1',
-      name: 'Estado Pólizas',
-      description: 'Reporte de estado de pólizas asignadas',
-      embedUrl: '', // Add your embed URL here
-      reportId: '', // Add your report ID here
-      workspaceId: '', // Add your workspace ID here
-      isAssigned: true,
-      requiresRLS: true,
-      roles: ['PolicyViewer']
-    },
-    {
-      id: '2', 
-      name: 'CRM DALI',
-      description: 'Dashboard principal del CRM',
-      embedUrl: 'https://app.powerbi.com/reportEmbed?reportId=0c9aca2e-0a09-49cf-9e06-fbfe7fb62cf9&groupId=9988790d-a5c3-459b-97cb-ee8103957bbc',
-      reportId: '0c9aca2e-0a09-49cf-9e06-fbfe7fb62cf9',
-      workspaceId: '9988790d-a5c3-459b-97cb-ee8103957bbc',
-      isAssigned: true,
-      requiresRLS: true,
-      roles: ['CRMUser']
-    },
-    {
-      id: '3',
-      name: 'Transacciones Por Portafolios',
-      description: 'Análisis de transacciones por portafolios',
-      embedUrl: '', // Add your embed URL here
-      reportId: '', // Add your report ID here  
-      workspaceId: '', // Add your workspace ID here
-      isAssigned: true,
-      requiresRLS: true,
-      roles: ['PortfolioAnalyst']
-    },
-    {
-      id: '4',
-      name: 'Consulta Clientes Ley 2300',
-      description: 'Consulta especializada Ley 2300',
-      embedUrl: '', // Add your embed URL here
-      reportId: '', // Add your report ID here
-      workspaceId: '', // Add your workspace ID here
-      isAssigned: false,
-      requiresRLS: true,
-      roles: ['LegalConsultant']
+  const fetchReportsFromAPI = async (): Promise<PowerBIReport[]> => {
+    try {
+      // TODO: Replace with actual API call to get reports from admin system
+      // const response = await fetch('/api/powerbi/user-reports', {
+      //   headers: {
+      //     'Authorization': `Bearer ${token}`,
+      //     'Content-Type': 'application/json'
+      //   }
+      // });
+      // return await response.json();
+      
+      // Mock data that would come from the admin system
+      return [
+        {
+          id: '1',
+          name: 'Estado Pólizas',
+          description: 'Reporte de estado de pólizas asignadas',
+          embedUrl: '', // Configured by admin
+          reportId: '', // Configured by admin
+          workspaceId: '', // Configured by admin
+          isAssigned: true,
+          requiresRLS: true,
+          roles: ['PolicyViewer']
+        },
+        {
+          id: '2', 
+          name: 'CRM DALI',
+          description: 'Dashboard principal del CRM',
+          embedUrl: 'https://app.powerbi.com/reportEmbed?reportId=0c9aca2e-0a09-49cf-9e06-fbfe7fb62cf9&groupId=9988790d-a5c3-459b-97cb-ee8103957bbc',
+          reportId: '0c9aca2e-0a09-49cf-9e06-fbfe7fb62cf9',
+          workspaceId: '9988790d-a5c3-459b-97cb-ee8103957bbc',
+          isAssigned: true,
+          requiresRLS: true,
+          roles: ['CRMUser']
+        },
+        {
+          id: '3',
+          name: 'Transacciones Por Portafolios',
+          description: 'Análisis de transacciones por portafolios',
+          embedUrl: '', // Configured by admin
+          reportId: '', // Configured by admin  
+          workspaceId: '', // Configured by admin
+          isAssigned: true,
+          requiresRLS: true,
+          roles: ['PortfolioAnalyst']
+        },
+        {
+          id: '4',
+          name: 'Consulta Clientes Ley 2300',
+          description: 'Consulta especializada Ley 2300',
+          embedUrl: '', // Configured by admin
+          reportId: '', // Configured by admin
+          workspaceId: '', // Configured by admin
+          isAssigned: false,
+          requiresRLS: true,
+          roles: ['LegalConsultant']
+        }
+      ];
+    } catch (error) {
+      console.error('Error fetching reports:', error);
+      return [];
     }
-  ];
+  };
 
   useEffect(() => {
     fetchUserReports();
@@ -105,24 +122,18 @@ export default function Informes() {
     try {
       setLoading(true);
       
-      // TODO: Replace with actual API call to get user's assigned reports with RLS
-      // This would typically check user permissions and roles against Power BI
-      // const response = await fetch('/api/powerbi/user-reports', {
-      //   headers: {
-      //     'Authorization': `Bearer ${userToken}`,
-      //     'Content-Type': 'application/json'
-      //   },
-      //   body: JSON.stringify({
-      //     userId: user?.email,
-      //     userRoles: user?.roles || []
-      //   })
-      // });
-      // const data = await response.json();
+      // Get reports from admin-configured system
+      const allReports = await fetchReportsFromAPI();
       
       // Filter reports based on user assignment and roles
-      const assignedReports = powerBIReports.filter(report => {
-        // Check if report is assigned to user
+      const assignedReports = allReports.filter(report => {
+        // Check if report is active and assigned to user
         if (!report.isAssigned) return false;
+        
+        // TODO: Check if user is specifically assigned to this report
+        // This would come from the admin assignment system
+        // const userAssignments = await checkUserReportAssignments(user?.email, report.id);
+        // if (!userAssignments.isAssigned) return false;
         
         // If RLS is required, check user roles (placeholder logic)
         if (report.requiresRLS && report.roles) {
@@ -216,6 +227,9 @@ export default function Informes() {
             </h1>
             <p className="text-muted-foreground">
               Accede a los informes asignados a tu perfil
+              {user?.role === 'admin' && (
+                <> • <a href="/admin/reports" className="text-[#00c83c] hover:underline">Administrar reportes</a></>
+              )}
             </p>
           </div>
           

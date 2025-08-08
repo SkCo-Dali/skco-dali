@@ -14,6 +14,7 @@ import ChatDali from "@/pages/ChatDali";
 import Gamification from "@/pages/Gamification";
 import Index from "@/pages/Index";
 import NotFound from "@/pages/NotFound";
+import PowerBIReportsAdmin from "@/components/admin/PowerBIReportsAdmin";
 import { useAuth } from "@/contexts/AuthContext";
 import { Login } from "@/components/Login";
 
@@ -68,6 +69,7 @@ export function AppContent() {
               <Route path="/informes" element={<Informes />} />
               <Route path="/users" element={<Users />} />
               <Route path="/admin/users" element={<Users />} />
+              <Route path="/admin/reports" element={<PowerBIReportsAdmin />} />
               <Route path="/chat" element={<ChatDali ref={chatDaliRef} />} />
               <Route path="/Chat" element={<ChatDali ref={chatDaliRef} />} />
               <Route path="/gamification" element={<Gamification />} />
