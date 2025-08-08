@@ -124,20 +124,20 @@ export default function Gamification() {
 
       {/* Main Content */}
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid w-full grid-cols-4">
-          <TabsTrigger value="overview">
+        <TabsList className="grid w-full grid-cols-4 bg-gray-100 rounded-full px-0 py-0 my-0">  
+          <TabsTrigger value="overview" className="w-full h-full data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#00c83c] data-[state=active]:to-[#A3E40B] data-[state=active]:text-white rounded-full px-4 py-2 mt-0 text-sm font-medium transition-all duration-200">
             <Target className="h-4 w-4 mr-2" />
             Resumen
           </TabsTrigger>
-          <TabsTrigger value="ranking">
+          <TabsTrigger value="ranking" className="w-full h-full data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#00c83c] data-[state=active]:to-[#A3E40B] data-[state=active]:text-white rounded-full px-4 py-2 mt-0 text-sm font-medium transition-all duration-200">
             <Trophy className="h-4 w-4 mr-2" />
             Ranking
           </TabsTrigger>
-          <TabsTrigger value="weekly">
+          <TabsTrigger value="weekly" className="w-full h-full data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#00c83c] data-[state=active]:to-[#A3E40B] data-[state=active]:text-white rounded-full px-4 py-2 mt-0 text-sm font-medium transition-all duration-200">
             <Calendar className="h-4 w-4 mr-2" />
             Semanal
           </TabsTrigger>
-          <TabsTrigger value="progress">
+          <TabsTrigger value="progress" className="w-full h-full data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#00c83c] data-[state=active]:to-[#A3E40B] data-[state=active]:text-white rounded-full px-4 py-2 mt-0 text-sm font-medium transition-all duration-200">
             <Clock className="h-4 w-4 mr-2" />
             Mi Progreso
           </TabsTrigger>
