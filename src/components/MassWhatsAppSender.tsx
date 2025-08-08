@@ -109,7 +109,7 @@ export function MassWhatsAppSender({ filteredLeads, onClose }: MassWhatsAppSende
             <MessageSquare className="h-6 w-6 text-[#25D366]" />
             <h2 className="text-xl font-semibold">Envío Masivo de WhatsApp</h2>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 mx-2">
             <Badge variant="secondary">
               {validLeads.length} leads válidos
             </Badge>
