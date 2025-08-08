@@ -105,6 +105,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   const extendSession = () => {
     setShowTimeoutWarning(false);
+    // Actualizar la última actividad para asegurar que se resetee correctamente
+    setLastActivity(Date.now());
     resetSessionTimer();
     toast({
       title: "Sesión extendida",
