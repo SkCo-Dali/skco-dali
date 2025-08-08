@@ -57,7 +57,7 @@ export default function Gamification() {
 
   if (error || !profile || !stats) {
     return (
-      <div className="container mx-auto p-6">
+      <div className="container mx-auto min-h-screen p-6">
         <Card>
           <CardContent className="p-6">
             <div className="text-center">
