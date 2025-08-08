@@ -36,7 +36,7 @@ export function CustomFieldSelect({
               {selectedOption?.label || placeholder}
             </span>
           </div>
-          <ChevronDown className="h-4 w-4 text-gray-400 absolute right-0 top-1/2 transform -translate-y-1/2 flex-shrink-0" />
+          <ChevronDown className="h-4 w-4 text-[#00c83c] absolute right-0 top-1/2 transform -translate-y-1/2 flex-shrink-0" />
         </SelectTrigger>
         <SelectContent className="bg-white border border-gray-200 shadow-lg rounded-md z-50">
           {options.map((option) => (
