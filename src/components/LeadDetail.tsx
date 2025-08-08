@@ -686,13 +686,18 @@ Notas adicionales: ${lead.notes || 'Ninguna'}`;
                         ]}
                       />
                     <div className="space-y-0 border-2 border-[#3d4b5c26] shadow-md rounded-md p-2.5">
-                      <Label htmlFor="followUpDate">Próximo seguimiento</Label>
+                      <Label 
+  htmlFor="followUpDate" 
+  className="text-sm font-medium text-gray-700"
+>
+  Próximo seguimiento
+</Label>
                       <Input
                         id="followUpDate"
                         type="datetime-local"
                         value={formatDateForInput(editedLead.nextFollowUp || '')}
                         onChange={(e) => handleManagementChange('nextFollowUp', e.target.value)}
-                        className="!border-0"
+                        className="!border-0 mt-0"
                       />
                     </div>
                     </div>
