@@ -75,7 +75,7 @@ export default function Gamification() {
   const nextLevelProgress = getProgressToNextLevel();
 
   return (
-    <div className="container mx-auto p-6 space-y-6">
+    <div className="container min-h-screen p-6 space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
