@@ -10,7 +10,7 @@ interface StrategicTestFlowProps {
 }
 
 const STRATEGIC_QUESTIONS = {
-  multiply: [
+  planificador: [
     {
       id: "expectations_5_years",
       title: "Test Estratégico - Inversor con Propósito",
@@ -76,7 +76,7 @@ const STRATEGIC_QUESTIONS = {
       buttonText: "Finalizar Test →"
     }
   ],
-  family: [
+  familiar: [
     {
       id: "who_to_protect",
       title: "Análisis Familiar - Cuidador Visionario",
@@ -142,7 +142,7 @@ const STRATEGIC_QUESTIONS = {
       buttonText: "Finalizar Test →"
     }
   ],
-  preserve: [
+  maduro: [
     {
       id: "monthly_need",
       title: "Análisis de Situación - Constructor de Legado",
