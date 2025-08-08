@@ -304,7 +304,7 @@ export default function Leads() {
 
   return (
     <>
-      <div className="w-full max-w-full px-4 py-8 space-y-6">
+      <div className="w-full max-w-full px-2 py-6 space-y-6">
             <div className="flex flex-col lg:flex-row gap-6">
           <div className="flex-1 space-y-6">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 pt-0">
