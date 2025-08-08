@@ -51,7 +51,7 @@ export function LeadsStageCard({ leads }: LeadsStageCardProps) {
         <CardTitle className="text-sm font-medium">Resumen por Estado</CardTitle>
         <BarChart3 className="h-5 w-5 text-muted-foreground" />
       </CardHeader>
-      <CardContent className="pb-4">
+      <CardContent className="pb-4 px-3">
         <div className="space-y-2 text-sm max-h-40 overflow-y-auto px-0">
           {chartData.slice(0, 5).map((item) => (
             <div key={item.fullStage} className="flex justify-between items-center">
