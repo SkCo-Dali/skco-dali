@@ -55,7 +55,7 @@ export function LeadsStageCard({ leads }: LeadsStageCardProps) {
         <div className="space-y-2 text-sm max-h-40 overflow-y-auto px-0">
           {chartData.slice(0, 5).map((item) => (
             <div key={item.fullStage} className="flex justify-between items-center">
-              <span className="truncate pr-2 text-xs" title={item.fullStage}>
+              <span className="truncate pr-2 text-xs text-muted-foreground" title={item.fullStage}>
                 {item.stage}
               </span>
               <span className="font-medium whitespace-nowrap text-xs">
