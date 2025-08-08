@@ -697,7 +697,7 @@ Notas adicionales: ${lead.notes || 'Ninguna'}`;
                         type="datetime-local"
                         value={formatDateForInput(editedLead.nextFollowUp || '')}
                         onChange={(e) => handleManagementChange('nextFollowUp', e.target.value)}
-                        className="!border-0 py-0 px-0 m-0 text-sm font-medium text-gray-900 leading-tight"
+                        className="border-0 border-b border-gray-200 rounded-none px-0 py-0 m-0 text-base font-medium bg-transparent leading-none h-auto min-h-0 focus:border-gray-400 focus:shadow-none focus:ring-0"
                       />
                     </div>
                     </div>
