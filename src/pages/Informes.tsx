@@ -40,7 +40,7 @@ export default function Informes() {
       id: '2', 
       name: 'CRM DALI',
       description: 'Dashboard principal del CRM',
-      embedUrl: 'https://app.powerbi.com/reportEmbed?reportId=1e4d8470-6565-40f6-ab48-c43dbbf2e81d&autoAuth=true&ctid=08271f42-81ef-45d6-81ac-49776c4be615',
+      embedUrl: 'https://app.powerbi.com/reportEmbed?reportId=0c9aca2e-0a09-49cf-9e06-fbfe7fb62cf9&groupId=9988790d-a5c3-459b-97cb-ee8103957bbc&w=2&config=eyJjbHVzdGVyVXJsIjoiaHR0cHM6Ly9XQUJJLVNPVVRILUNFTlRSQUwtVVMtQy1QUklNQVJZLXJlZGlyZWN0LmFuYWx5c2lzLndpbmRvd3MubmV0IiwiZW1iZWRGZWF0dXJlcyI6eyJ1c2FnZU1ldHJpY3NWTmV4dCI6dHJ1ZX19&uid=hsrdn',
       isAssigned: true
     },
     {
