@@ -141,7 +141,7 @@ export default function Gamification() {
         </TabsList>
 
         <TabsContent value="overview" className="space-y-6">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-4">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-2">
             <div className="lg:col-span-1">
               <GamificationCard 
                 profile={profile} 
