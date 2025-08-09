@@ -6,6 +6,12 @@
       "allowedRoles": ["authenticated"]
     },
     {
+      "route": "/assets/*",
+      "headers": {
+        "cache-control": "max-age=31536000"
+      }
+    },
+    {
       "route": "/*",
       "serve": "/index.html",
       "statusCode": 200
@@ -13,15 +19,15 @@
   ],
   "responseOverrides": {
     "401": {
-      "redirect": "/auth",
+      "redirect": "/",
       "statusCode": 302
     },
     "403": {
-      "redirect": "/auth",
+      "redirect": "/", 
       "statusCode": 302
     },
     "404": {
-      "redirect": "/index.html",
+      "serve": "/index.html",
       "statusCode": 200
     }
   },
