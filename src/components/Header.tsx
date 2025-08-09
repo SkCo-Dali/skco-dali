@@ -90,7 +90,7 @@ export function Header({ onBannerMessage, chatInterfaceRef }: HeaderProps = {}) 
 
   {/* Campana de notificaciones a la derecha, sin margen lateral extra */}
   <div className="flex items-center space-x-2 md:space-x-4 pr-2 sm:pr-4 md:pr-6">
-    <NotificationCenter />
+    {/*<NotificationCenter />*/}
     {!isMobile && <UserProfile />}
   </div>
 </div>
