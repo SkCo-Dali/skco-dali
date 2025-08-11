@@ -1,13 +1,15 @@
-import React from "react";
+import React, { useState } from "react";
 import { Lead } from "@/types/crm";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { BarChart3 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { BarChart3, ChevronDown, ChevronUp } from "lucide-react";
 
 interface LeadsStageCardProps {
   leads: Lead[];
 }
 
 export function LeadsStageCard({ leads }: LeadsStageCardProps) {
+  const [isExpanded, setIsExpanded] = useState(false);
   const totalLeads = leads.length;
   
   // Contar leads por estado
@@ -52,20 +54,39 @@ export function LeadsStageCard({ leads }: LeadsStageCardProps) {
         <BarChart3 className="h-5 w-5 text-muted-foreground" />
       </CardHeader>
       <CardContent className="pb-4 px-3">
-        <div className="space-y-2 text-sm max-h-40 overflow-y-auto px-0">
-          {chartData.slice(0, 5).map((item) => (
-            <div key={item.fullStage} className="flex justify-between items-center">
-              <span className="truncate pr-2 text-xs text-muted-foreground" title={item.fullStage}>
-                {item.stage}
-              </span>
-              <span className="font-medium whitespace-nowrap text-xs">
-                {item.count} ({item.percentage}%)
-              </span>
-            </div>
-          ))}
-          {chartData.length > 5 && (
-            <div className="text-xs text-muted-foreground text-center pt-1">
-              +{chartData.length - 5} estados más
+        <div className="space-y-2 text-sm px-0">
+          <div className={`space-y-2 ${!isExpanded ? 'max-h-24 overflow-hidden' : 'max-h-40 overflow-y-auto'} transition-all duration-300`}>
+            {(isExpanded ? chartData : chartData.slice(0, 3)).map((item) => (
+              <div key={item.fullStage} className="flex justify-between items-center">
+                <span className="truncate pr-2 text-xs text-muted-foreground" title={item.fullStage}>
+                  {item.stage}
+                </span>
+                <span className="font-medium whitespace-nowrap text-xs">
+                  {item.count} ({item.percentage}%)
+                </span>
+              </div>
+            ))}
+          </div>
+          {chartData.length > 3 && (
+            <div className="flex justify-center pt-2">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setIsExpanded(!isExpanded)}
+                className="h-6 px-2 text-xs text-muted-foreground hover:text-foreground"
+              >
+                {isExpanded ? (
+                  <>
+                    <ChevronUp className="h-3 w-3 mr-1" />
+                    Ver menos
+                  </>
+                ) : (
+                  <>
+                    <ChevronDown className="h-3 w-3 mr-1" />
+                    Ver más (+{chartData.length - 3})
+                  </>
+                )}
+              </Button>
             </div>
           )}
         </div>
