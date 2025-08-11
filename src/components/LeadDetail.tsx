@@ -289,6 +289,7 @@ export function LeadDetail({ lead, isOpen, onClose, onSave, onOpenMassEmail }: L
         nextFollowUp: editedLead.nextFollowUp ? formatDateForAPI(editedLead.nextFollowUp) : editedLead.nextFollowUp
       };
       
+      // Invocar directamente el API de edición de lead
       await onSave(leadToSave);
       
       // Resetear estado de cambios generales
@@ -323,7 +324,7 @@ export function LeadDetail({ lead, isOpen, onClose, onSave, onOpenMassEmail }: L
     }
     
     try {
-      // Crear interacción con datos de gestión
+      // 1. Crear interacción con datos de gestión
       console.log('🔄 Creating interaction from management data...');
       
       // Formatear la fecha del próximo seguimiento para el API
@@ -349,17 +350,15 @@ export function LeadDetail({ lead, isOpen, onClose, onSave, onOpenMassEmail }: L
         return;
       }
       
-      // Si hay cambios de gestión que afecten el lead (stage, nextFollowUp), guardar también el lead
-      if (editedLead.stage !== lead.stage || editedLead.nextFollowUp !== lead.nextFollowUp) {
-        console.log('🔄 Updating lead with management changes...');
-        
-        const leadToSave = {
-          ...editedLead,
-          nextFollowUp: editedLead.nextFollowUp ? formatDateForAPI(editedLead.nextFollowUp) : editedLead.nextFollowUp
-        };
-        
-        await onSave(leadToSave);
-      }
+      // 2. Actualizar el lead con cambios de gestión (estado, fecha próximo seguimiento, prioridad)
+      console.log('🔄 Updating lead with management changes...');
+      
+      const leadToSave = {
+        ...editedLead,
+        nextFollowUp: editedLead.nextFollowUp ? formatDateForAPI(editedLead.nextFollowUp) : editedLead.nextFollowUp
+      };
+      
+      await onSave(leadToSave);
       
       // Recargar interacciones después de crear una nueva
       await loadLeadInteractions(lead.id);
@@ -372,7 +371,7 @@ export function LeadDetail({ lead, isOpen, onClose, onSave, onOpenMassEmail }: L
       
       toast({
         title: "Éxito",
-        description: "Gestión guardada exitosamente",
+        description: "Gestión registrada e información del lead actualizada exitosamente",
       });
       
     } catch (error) {
