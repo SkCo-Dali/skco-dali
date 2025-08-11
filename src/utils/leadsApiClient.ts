@@ -291,9 +291,9 @@ export const uploadLeadsFile = async (file: File, userId: string): Promise<void>
     type: file.type,
     lastModified: new Date(file.lastModified).toLocaleString()
   });
-  console.log('👤 User ID:', userId);
+  console.log('👤 User ID (no longer sent to API):', userId);
   
-  const endpoint = `${API_BASE_URL}/bulk?userId=${userId}`;
+  const endpoint = `${API_BASE_URL}/bulk`;
   console.log('📡 API endpoint:', endpoint);
 
   try {
