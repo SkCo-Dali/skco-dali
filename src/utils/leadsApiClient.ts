@@ -60,20 +60,33 @@ export const createLead = async (leadData: CreateLeadRequest): Promise<Lead> => 
 
   try {
     const headers = await getAuthHeaders();
+    
+    // Console logs para debugging
+    console.log('🚀 CREATE LEAD API CALL');
+    console.log('📍 Endpoint:', endpoint);
+    console.log('🔑 Headers:', headers);
+    console.log('📄 Body data:', JSON.stringify(leadData, null, 2));
+    
     const response = await fetchWithRetry(endpoint, {
       method: 'POST',
       headers,
       body: JSON.stringify(leadData),
     });
 
+    console.log('📥 Response status:', response.status);
+    console.log('📥 Response headers:', Object.fromEntries(response.headers.entries()));
+
     if (!response.ok) {
+      console.error('❌ API Error:', response.status, response.statusText);
       throw new Error(`Error al crear lead: ${response.status} - ${response.statusText}`);
     }
 
     const result: CreateLeadResponse = await response.json();
+    console.log('✅ API Response:', result);
     
     return mapApiLeadToLead(result.lead);
   } catch (error) {
+    console.error('💥 CREATE LEAD ERROR:', error);
     throw error;
   }
 };
