@@ -112,19 +112,25 @@ export const LeadCreateDialog = forwardRef<LeadCreateDialogRef, LeadCreateDialog
     };
 
     const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+      console.log('📂 === LEAD CREATE DIALOG: handleFileUpload called ===');
       const file = event.target.files?.[0];
+      console.log('📁 Uploading file:', file);
       if (file) {
+        console.log('✅ File selected, setting upload state...');
         setUploadedFile(file);
         setIsUploading(true);
         
+        console.log('⏳ Starting simulated upload progress...');
         // Simulate upload progress
         let progress = 0;
         const interval = setInterval(() => {
           progress += 10;
           setUploadProgress(progress);
+          console.log(`📊 Upload progress: ${progress}%`);
           if (progress >= 100) {
             clearInterval(interval);
             setIsUploading(false);
+            console.log('✅ File upload simulation completed');
           }
         }, 200);
       }
