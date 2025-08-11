@@ -19,11 +19,17 @@ export function LeadsUpload({ onLeadsUploaded }: LeadsUploadProps) {
   const { user } = useAuth();
 
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    console.log('🚀 === LEADS UPLOAD: handleFileUpload triggered ===');
     const file = event.target.files?.[0];
     if (!file) {
       console.log('❌ No se seleccionó archivo');
       return;
     }
+    console.log('📁 Archivo seleccionado para carga:', {
+      name: file.name,
+      size: file.size,
+      type: file.type
+    });
 
     if (!user?.id) {
       console.error('❌ Usuario no autenticado');
@@ -162,7 +168,12 @@ export function LeadsUpload({ onLeadsUploaded }: LeadsUploadProps) {
               disabled={uploading}
             />
             <Button 
-              onClick={() => fileInputRef.current?.click()}
+              onClick={() => {
+                console.log('🔘 === CARGAR LEADS BUTTON CLICKED ===');
+                console.log('📁 fileInputRef.current:', fileInputRef.current);
+                console.log('⏳ uploading state:', uploading);
+                fileInputRef.current?.click();
+              }}
               disabled={uploading}
             >
               {uploading ? "Subiendo..." : "Seleccionar Archivo"}

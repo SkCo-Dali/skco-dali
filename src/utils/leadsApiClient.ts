@@ -284,18 +284,38 @@ export const bulkAssignLeads = async (leadIds: string[], assignedTo: string): Pr
 
 // API 9: Cargar archivo de Leads
 export const uploadLeadsFile = async (file: File, userId: string): Promise<void> => {
+  console.log('🚀 === UPLOAD LEADS FILE API CALL STARTED ===');
+  console.log('📁 File details:', {
+    name: file.name,
+    size: file.size,
+    type: file.type,
+    lastModified: new Date(file.lastModified).toLocaleString()
+  });
+  console.log('👤 User ID:', userId);
+  
   const endpoint = `${API_BASE_URL}/bulk?userId=${userId}`;
+  console.log('📡 API endpoint:', endpoint);
 
   try {
     const formData = new FormData();
     formData.append('file', file);
+    console.log('📦 FormData created with file attached');
 
+    console.log('🔐 Getting auth headers...');
     const authHeaders = await getAuthHeaders();
+    console.log('🔑 Auth headers received:', Object.keys(authHeaders));
+    
     // Don't include Content-Type for FormData, let browser set it
     const headers: Record<string, string> = {};
     if (authHeaders['Authorization']) {
       headers['Authorization'] = authHeaders['Authorization'];
+      console.log('✅ Authorization header included:', headers['Authorization'] ? 'Bearer token present' : 'No token');
+    } else {
+      console.log('❌ No Authorization header found in authHeaders');
     }
+    
+    console.log('📤 Final headers for upload:', Object.keys(headers));
+    console.log('🚀 Making fetch request to upload file...');
 
     const response = await fetch(endpoint, {
       method: 'POST',
@@ -303,11 +323,21 @@ export const uploadLeadsFile = async (file: File, userId: string): Promise<void>
       body: formData,
     });
 
+    console.log('📨 Response received:', {
+      status: response.status,
+      statusText: response.statusText,
+      ok: response.ok,
+      headers: Object.fromEntries(response.headers.entries())
+    });
+
     if (!response.ok) {
+      const errorText = await response.text();
+      console.error('❌ API Error Response:', errorText);
       throw new Error(`Error al cargar archivo: ${response.statusText}`);
     }
     
-    await response.json();
+    const result = await response.json();
+    console.log('✅ Upload successful, response data:', result);
   } catch (error) {
     throw error;
   }
