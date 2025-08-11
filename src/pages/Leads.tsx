@@ -170,8 +170,11 @@ export default function Leads() {
   }, []);
 
   const handleLeadCreate = useCallback((leadData: Partial<Lead>) => {
-    console.log('Creating lead:', leadData);
+    console.log('🎬 === LEADS.TSX: handleLeadCreate called ===');
+    console.log('📋 Lead data received in Leads.tsx:', JSON.stringify(leadData, null, 2));
+    console.log('🔄 About to call handleLeadUpdate...');
     handleLeadUpdate();
+    console.log('✅ handleLeadUpdate completed, showing success toast');
     toast.success("Lead creado exitosamente");
   }, [handleLeadUpdate]);
 
@@ -267,8 +270,11 @@ export default function Leads() {
   };
 
   const handleCreateLead = () => {
-    console.log('Leads.tsx: handleCreateLead called, calling leadCreateDialogRef.current?.openDialog()');
+    console.log('🚀 === LEADS.TSX: handleCreateLead button clicked ===');
+    console.log('🔄 About to open lead creation dialog...');
+    console.log('📞 Calling leadCreateDialogRef.current?.openDialog()');
     leadCreateDialogRef.current?.openDialog();
+    console.log('✅ Dialog open command sent');
   };
 
   const handleBulkAssign = () => {
