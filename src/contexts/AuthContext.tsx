@@ -307,11 +307,11 @@ export function AuthProvider({ children }: AuthProviderProps) {
           }
         }
         
-        console.log('🔄 Usando token existente en memoria...');
-        // Para getAccessToken seguimos devolviendo el accessToken para uso interno
-        // pero el idToken se mantiene almacenado para el backend
-        console.log('✅ Retornando accessToken actual:', accessToken ? `${accessToken.substring(0, 20)}...` : 'null');
-        return accessToken;
+        console.log('🔄 Usando token almacenado válido...');
+        // Si tenemos un token válido almacenado, usarlo
+        const validToken = storedTokenData.token;
+        console.log('✅ Retornando token almacenado válido:', validToken ? `${validToken.substring(0, 20)}...` : 'null');
+        return validToken;
       }
 
       console.log('🔍 No hay token válido almacenado, obteniendo uno nuevo...');
