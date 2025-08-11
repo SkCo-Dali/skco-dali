@@ -141,10 +141,17 @@ export function useMassEmail() {
       console.log('📧 Method: POST');
       console.log('📧 Body enviado:', JSON.stringify(payload, null, 2));
 
+      // LOG: Headers que se enviarán
+      console.log('📧 Headers que se enviarán:', {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      });
+
       const response = await fetch(endpoint, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify(payload)
       });
