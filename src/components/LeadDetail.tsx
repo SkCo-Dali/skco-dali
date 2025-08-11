@@ -278,48 +278,81 @@ export function LeadDetail({ lead, isOpen, onClose, onSave, onOpenMassEmail }: L
     return editedLead.product ? editedLead.product.split(', ').filter(p => p.trim()) : [];
   };
 
-  const handleSave = async () => {
-    console.log('🔄 Saving lead changes...');
-    console.log('📋 General changes:', generalChanges);
-    console.log('📋 Management changes:', managementChanges);
+  // Función para guardar solo cambios generales
+  const handleSaveGeneral = async () => {
+    console.log('🔄 Saving general changes...');
     
     try {
-      // Si hay cambios de gestión, crear interacción primero
-      if (managementChanges && contactMethod && result && managementNotes) {
-        console.log('🔄 Creating interaction from management data...');
-        
-        // Formatear la fecha del próximo seguimiento para el API
-        const formattedNextFollowUp = editedLead.nextFollowUp ? formatDateForAPI(editedLead.nextFollowUp) : '';
-        
-        // Preparar el lead con datos de gestión para crear la interacción
-        const leadWithInteractionData = {
-          ...editedLead,
-          type: contactMethod,
-          outcome: result,
-          notes: managementNotes,
-          nextFollowUp: formattedNextFollowUp
-        };
-        
-        const interactionCreated = await createInteractionFromLead(leadWithInteractionData);
-        
-        if (!interactionCreated) {
-          toast({
-            title: "Error",
-            description: "No se pudo crear la interacción",
-            variant: "destructive",
-          });
-          return;
-        }
-        
-        // Recargar interacciones después de crear una nueva
-        await loadLeadInteractions(lead.id);
+      // Formatear la fecha antes de guardar el lead
+      const leadToSave = {
+        ...editedLead,
+        nextFollowUp: editedLead.nextFollowUp ? formatDateForAPI(editedLead.nextFollowUp) : editedLead.nextFollowUp
+      };
+      
+      await onSave(leadToSave);
+      
+      // Resetear estado de cambios generales
+      setGeneralChanges(false);
+      
+      toast({
+        title: "Éxito",
+        description: "Información general guardada exitosamente",
+      });
+      
+    } catch (error) {
+      console.error('❌ Error saving general changes:', error);
+      toast({
+        title: "Error",
+        description: "No se pudieron guardar los cambios generales",
+        variant: "destructive",
+      });
+    }
+  };
+
+  // Función para guardar solo cambios de gestión
+  const handleSaveManagement = async () => {
+    console.log('🔄 Saving management changes...');
+    
+    if (!contactMethod || !result || !managementNotes) {
+      toast({
+        title: "Error",
+        description: "Todos los campos de gestión son obligatorios",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    try {
+      // Crear interacción con datos de gestión
+      console.log('🔄 Creating interaction from management data...');
+      
+      // Formatear la fecha del próximo seguimiento para el API
+      const formattedNextFollowUp = editedLead.nextFollowUp ? formatDateForAPI(editedLead.nextFollowUp) : '';
+      
+      // Preparar el lead con datos de gestión para crear la interacción
+      const leadWithInteractionData = {
+        ...editedLead,
+        type: contactMethod,
+        outcome: result,
+        notes: managementNotes,
+        nextFollowUp: formattedNextFollowUp
+      };
+      
+      const interactionCreated = await createInteractionFromLead(leadWithInteractionData);
+      
+      if (!interactionCreated) {
+        toast({
+          title: "Error",
+          description: "No se pudo crear la interacción",
+          variant: "destructive",
+        });
+        return;
       }
       
-      // Si hay cambios generales O cambios de gestión que afecten el lead (stage, nextFollowUp)
-      if (generalChanges || (managementChanges && (editedLead.stage !== lead.stage || editedLead.nextFollowUp !== lead.nextFollowUp))) {
-        console.log('🔄 Updating lead...');
+      // Si hay cambios de gestión que afecten el lead (stage, nextFollowUp), guardar también el lead
+      if (editedLead.stage !== lead.stage || editedLead.nextFollowUp !== lead.nextFollowUp) {
+        console.log('🔄 Updating lead with management changes...');
         
-        // Formatear la fecha antes de guardar el lead
         const leadToSave = {
           ...editedLead,
           nextFollowUp: editedLead.nextFollowUp ? formatDateForAPI(editedLead.nextFollowUp) : editedLead.nextFollowUp
@@ -328,8 +361,10 @@ export function LeadDetail({ lead, isOpen, onClose, onSave, onOpenMassEmail }: L
         await onSave(leadToSave);
       }
       
-      // Resetear estados de cambios
-      setGeneralChanges(false);
+      // Recargar interacciones después de crear una nueva
+      await loadLeadInteractions(lead.id);
+      
+      // Resetear estados de cambios de gestión
       setManagementChanges(false);
       setContactMethod('');
       setResult('');
@@ -337,14 +372,14 @@ export function LeadDetail({ lead, isOpen, onClose, onSave, onOpenMassEmail }: L
       
       toast({
         title: "Éxito",
-        description: "Cambios guardados exitosamente",
+        description: "Gestión guardada exitosamente",
       });
       
     } catch (error) {
-      console.error('❌ Error saving changes:', error);
+      console.error('❌ Error saving management changes:', error);
       toast({
         title: "Error",
-        description: "No se pudieron guardar los cambios",
+        description: "No se pudieron guardar los cambios de gestión",
         variant: "destructive",
       });
     }
@@ -632,6 +667,17 @@ Notas adicionales: ${lead.notes || 'Ninguna'}`;
                     </SkAccordion>
                   </div>
                 </CardContent>
+                
+                {/* Botón específico para guardar cambios generales */}
+                <div className="flex justify-end gap-2 pt-4 border-t">
+                  <Button 
+                    onClick={handleSaveGeneral}
+                    disabled={!generalChanges}
+                    className="bg-gradient-to-r from-[#00c83c] to-[#A3E40B] hover:from-[#00b038] hover:to-[#92d20a]"
+                  >
+                    Guardar Cambios Generales
+                  </Button>
+                </div>
               </TabsContent>
 
               {/* Tab Gestión */}
@@ -643,7 +689,7 @@ Notas adicionales: ${lead.notes || 'Ninguna'}`;
                     <CustomFieldSelect
                         label="Estado Actual"
                         value={editedLead.stage}
-                        onValueChange={(value) => handleGeneralChange('stage', value)}
+                        onValueChange={(value) => handleManagementChange('stage', value)}
                         options={[
                           { value: 'Nuevo', label: 'Nuevo' },
                           { value: 'Asignado', label: 'Asignado' },
@@ -673,18 +719,31 @@ Notas adicionales: ${lead.notes || 'Ninguna'}`;
                       />
                   </div>
                   
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <CustomFieldSelect
-                        label="Prioridad"
-                        value={editedLead.priority}
-                        onValueChange={(value) => handleGeneralChange('priority', value)}
-                        options={[
-                          { value: 'low', label: 'Baja' },
-                          { value: 'medium', label: 'Media' },
-                          { value: 'high', label: 'Alta' },
-                          { value: 'urgent', label: 'Urgente' }
-                        ]}
-                      />
+                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                     <CustomFieldSelect
+                         label="Resultado de Gestión"
+                         value={result}
+                         onValueChange={setResult}
+                         options={[
+                           { value: 'Contacto exitoso', label: 'Contacto exitoso' },
+                           { value: 'No contesta', label: 'No contesta' },
+                           { value: 'Reagendar', label: 'Reagendar' },
+                           { value: 'No interesado', label: 'No interesado' },
+                           { value: 'Información enviada', label: 'Información enviada' }
+                         ]}
+                         placeholder="Seleccionar resultado"
+                       />
+                     <CustomFieldSelect
+                         label="Prioridad"
+                         value={editedLead.priority}
+                         onValueChange={(value) => handleManagementChange('priority', value)}
+                         options={[
+                           { value: 'low', label: 'Baja' },
+                           { value: 'medium', label: 'Media' },
+                           { value: 'high', label: 'Alta' },
+                           { value: 'urgent', label: 'Urgente' }
+                         ]}
+                       />
                     <div className="space-y-0 border-2 border-[#3d4b5c26] shadow-md rounded-md p-2.5">
                       <Label 
   htmlFor="followUpDate" 
@@ -750,6 +809,17 @@ Notas adicionales: ${lead.notes || 'Ninguna'}`;
                       </Button>
                     </div>
                   </CardContent>
+                
+                {/* Botón específico para guardar cambios de gestión */}
+                <div className="flex justify-end gap-2 pt-4 border-t">
+                  <Button 
+                    onClick={handleSaveManagement}
+                    disabled={!managementChanges || !contactMethod || !result || !managementNotes}
+                    className="bg-gradient-to-r from-[#00c83c] to-[#A3E40B] hover:from-[#00b038] hover:to-[#92d20a]"
+                  >
+                    Guardar Gestión
+                  </Button>
+                </div>
                
 
                 {/* Historial de Interacciones mejorado */}
@@ -982,16 +1052,10 @@ Notas adicionales: ${lead.notes || 'Ninguna'}`;
               </TabsContent>
             </Tabs>
 
-            {/* Botones de acción */}
-            <div className="flex justify-end gap-2 pt-4 border-t">
+            {/* Botón de cerrar global */}
+            <div className="flex justify-center pt-4 border-t">
               <Button variant="outline" onClick={onClose}>
-                Cancelar
-              </Button>
-              <Button 
-                onClick={handleSave}
-                disabled={!generalChanges && !managementChanges}
-              >
-                Guardar Cambios
+                Cerrar
               </Button>
             </div>
           </DialogContent>
