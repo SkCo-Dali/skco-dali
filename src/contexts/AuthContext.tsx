@@ -244,26 +244,39 @@ export function AuthProvider({ children }: AuthProviderProps) {
   };
 
   const getAccessToken = async (): Promise<string | undefined> => {
+    console.log('🔐 === INICIANDO getAccessToken ===');
+    console.log('🔍 isInitialized:', isInitialized);
+    console.log('🔍 accessToken actual:', accessToken ? `${accessToken.substring(0, 20)}...` : 'null');
+    
     if (!isInitialized) {
+      console.log('❌ MSAL no inicializado, retornando undefined');
       return undefined;
     }
 
     try {
+      console.log('🔍 Verificando token almacenado...');
       // Intentar obtener token almacenado de forma segura
       const storedTokenData = SecureTokenManager.getToken();
+      console.log('🔍 Token almacenado obtenido:', storedTokenData ? 'Existe' : 'No existe');
       
       if (storedTokenData && !SecureTokenManager.isTokenExpired(storedTokenData)) {
+        console.log('✅ Token almacenado válido encontrado');
         // Si el token necesita renovación, intentar renovarlo
         if (SecureTokenManager.shouldRefreshToken(storedTokenData)) {
+          console.log('🔄 Token necesita renovación...');
           // Intentar renovar token
           const accounts = msalInstance.getAllAccounts();
+          console.log('👥 Cuentas disponibles:', accounts.length);
+          
           if (accounts.length > 0) {
             try {
+              console.log('🔄 Intentando renovar token silenciosamente...');
               const response = await msalInstance.acquireTokenSilent({
                 ...loginRequest,
                 account: accounts[0],
               });
               
+              console.log('✅ Token renovado exitosamente');
               // Almacenar idToken renovado para el backend
               const newTokenData = {
                 token: response.idToken,
@@ -274,8 +287,11 @@ export function AuthProvider({ children }: AuthProviderProps) {
               
               // Mantener accessToken para uso interno
               setAccessToken(response.accessToken);
+              console.log('✅ Retornando token renovado:', response.accessToken ? `${response.accessToken.substring(0, 20)}...` : 'null');
               return response.accessToken;
             } catch (refreshError) {
+              console.log('❌ Error renovando token silenciosamente:', refreshError);
+              console.log('🔄 Intentando popup para nuevo token...');
               // Si falla la renovación, intentar obtener nuevo token
               const response = await msalInstance.loginPopup(loginRequest);
               const tokenData = {
@@ -285,18 +301,23 @@ export function AuthProvider({ children }: AuthProviderProps) {
               };
               SecureTokenManager.storeToken(tokenData);
               setAccessToken(response.accessToken);
+              console.log('✅ Nuevo token obtenido via popup:', response.accessToken ? `${response.accessToken.substring(0, 20)}...` : 'null');
               return response.accessToken;
             }
           }
         }
         
+        console.log('🔄 Usando token existente en memoria...');
         // Para getAccessToken seguimos devolviendo el accessToken para uso interno
         // pero el idToken se mantiene almacenado para el backend
+        console.log('✅ Retornando accessToken actual:', accessToken ? `${accessToken.substring(0, 20)}...` : 'null');
         return accessToken;
       }
 
+      console.log('🔍 No hay token válido almacenado, obteniendo uno nuevo...');
       // Si no hay token válido almacenado, obtener uno nuevo
       const accounts = msalInstance.getAllAccounts();
+      console.log('👥 Cuentas disponibles para nuevo token:', accounts.length);
       
       if (accounts.length === 0) {
         const response = await msalInstance.loginPopup(loginRequest);
