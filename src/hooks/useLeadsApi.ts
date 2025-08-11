@@ -223,6 +223,9 @@ export const useLeadsApi = () => {
 
   // Crear nuevo lead
   const createNewLead = async (leadData: Partial<Lead>) => {
+    console.log('🎬 === STARTING CREATE NEW LEAD PROCESS ===');
+    console.log('🎬 Function: createNewLead called with:', JSON.stringify(leadData, null, 2));
+    
     if (!user?.id) {
       console.error('❌ Usuario no autenticado');
       return null;
@@ -245,7 +248,9 @@ export const useLeadsApi = () => {
       console.log('🎯 UUID final enviado en CreatedBy:', createRequest.CreatedBy);
       console.log('🎯 UUID final enviado en AssignedTo:', createRequest.assignedTo);
       
+      console.log('📞 About to call createLead API function...');
       const newLead = await createLead(createRequest);
+      console.log('📞 createLead API function returned:', JSON.stringify(newLead, null, 2));
       
       // Actualizar la lista local solo si el usuario puede ver el lead
       const canSeeNewLead = filterLeadsByRole([newLead]).length > 0;
