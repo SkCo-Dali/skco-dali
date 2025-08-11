@@ -174,14 +174,22 @@ export default function Leads() {
     console.log('🎬 === LEADS.TSX: handleLeadCreate called ===');
     console.log('📋 Lead data received in Leads.tsx:', JSON.stringify(leadData, null, 2));
     console.log('🔄 About to call createNewLead from useLeadsApi...');
+    console.log('📝 createNewLead function reference:', typeof createNewLead);
     
-    const result = await createNewLead(leadData);
-    if (result) {
-      console.log('✅ Lead created successfully, refreshing data...');
-      handleLeadUpdate();
-      toast.success("Lead creado exitosamente");
-    } else {
-      console.error('❌ Failed to create lead');
+    try {
+      console.log('⚡ Calling createNewLead...');
+      const result = await createNewLead(leadData);
+      console.log('🎯 createNewLead result:', result);
+      if (result) {
+        console.log('✅ Lead created successfully, refreshing data...');
+        handleLeadUpdate();
+        toast.success("Lead creado exitosamente");
+      } else {
+        console.error('❌ Failed to create lead - result is null/undefined');
+        toast.error("Error al crear el lead");
+      }
+    } catch (error) {
+      console.error('💥 Exception in handleLeadCreate:', error);
       toast.error("Error al crear el lead");
     }
   }, [createNewLead, handleLeadUpdate]);
