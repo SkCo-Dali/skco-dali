@@ -98,7 +98,8 @@ export default function Leads() {
     leads: leadsData,
     loading: isLoading,
     error,
-    refreshLeads
+    refreshLeads,
+    createNewLead
   } = useLeadsApi();
 
   const handleLeadUpdate = useCallback(() => {
@@ -169,14 +170,21 @@ export default function Leads() {
     setSelectedLead(lead);
   }, []);
 
-  const handleLeadCreate = useCallback((leadData: Partial<Lead>) => {
+  const handleLeadCreate = useCallback(async (leadData: Partial<Lead>) => {
     console.log('🎬 === LEADS.TSX: handleLeadCreate called ===');
     console.log('📋 Lead data received in Leads.tsx:', JSON.stringify(leadData, null, 2));
-    console.log('🔄 About to call handleLeadUpdate...');
-    handleLeadUpdate();
-    console.log('✅ handleLeadUpdate completed, showing success toast');
-    toast.success("Lead creado exitosamente");
-  }, [handleLeadUpdate]);
+    console.log('🔄 About to call createNewLead from useLeadsApi...');
+    
+    const result = await createNewLead(leadData);
+    if (result) {
+      console.log('✅ Lead created successfully, refreshing data...');
+      handleLeadUpdate();
+      toast.success("Lead creado exitosamente");
+    } else {
+      console.error('❌ Failed to create lead');
+      toast.error("Error al crear el lead");
+    }
+  }, [createNewLead, handleLeadUpdate]);
 
   const handleSortedLeadsChange = useCallback((sorted: Lead[]) => {
     setSortedLeads(sorted);
