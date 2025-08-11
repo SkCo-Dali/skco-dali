@@ -157,7 +157,7 @@ export const LeadCreateDialog = forwardRef<LeadCreateDialogRef, LeadCreateDialog
         uploadLeadsFile(uploadedFile, user.id)
           .then(() => {
             console.log('✅ Upload successful');
-            onLeadCreate({});
+            // No llamar onLeadCreate después del bulk upload
             setOpen(false);
             toast({
               title: "Éxito",
