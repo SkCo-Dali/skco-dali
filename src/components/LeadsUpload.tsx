@@ -163,7 +163,19 @@ export function LeadsUpload({ onLeadsUploaded }: LeadsUploadProps) {
               ref={fileInputRef}
               type="file"
               accept=".csv,.xlsx,.xls"
-              onChange={handleFileUpload}
+              onChange={(e) => {
+                console.log('🎯 === FILE INPUT CHANGE EVENT TRIGGERED ===');
+                console.log('📂 Event target files:', e.target.files);
+                console.log('📂 Files length:', e.target.files?.length);
+                if (e.target.files?.[0]) {
+                  console.log('📁 Selected file details:', {
+                    name: e.target.files[0].name,
+                    size: e.target.files[0].size,
+                    type: e.target.files[0].type
+                  });
+                }
+                handleFileUpload(e);
+              }}
               className="hidden"
               disabled={uploading}
             />
