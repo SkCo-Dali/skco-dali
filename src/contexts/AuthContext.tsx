@@ -259,80 +259,14 @@ export function AuthProvider({ children }: AuthProviderProps) {
       const storedTokenData = SecureTokenManager.getToken();
       console.log('🔍 Token almacenado obtenido:', storedTokenData ? 'Existe' : 'No existe');
       
-      if (storedTokenData && !SecureTokenManager.isTokenExpired(storedTokenData)) {
-        console.log('✅ Token almacenado válido encontrado');
-        // Si el token necesita renovación, intentar renovarlo
-        if (SecureTokenManager.shouldRefreshToken(storedTokenData)) {
-          console.log('🔄 Token necesita renovación...');
-          // Intentar renovar token
-          const accounts = msalInstance.getAllAccounts();
-          console.log('👥 Cuentas disponibles:', accounts.length);
-          
-          if (accounts.length > 0) {
-            try {
-              console.log('🔄 Intentando renovar token silenciosamente...');
-              const response = await msalInstance.acquireTokenSilent({
-                ...loginRequest,
-                account: accounts[0],
-              });
-              
-              console.log('✅ Token renovado exitosamente');
-              // Almacenar idToken renovado para el backend
-              const newTokenData = {
-                token: response.idToken,
-                expiresAt: response.expiresOn ? response.expiresOn.getTime() : Date.now() + (3600 * 1000),
-                refreshToken: response.account?.homeAccountId
-              };
-              SecureTokenManager.storeToken(newTokenData);
-              
-              // Mantener accessToken para uso interno
-              setAccessToken(response.accessToken);
-              console.log('✅ Retornando tokens renovados');
-              return {
-                idToken: response.idToken || '',
-                accessToken: response.accessToken || ''
-              };
-            } catch (refreshError) {
-              console.log('❌ Error renovando token silenciosamente:', refreshError);
-              console.log('🔄 Intentando popup para nuevo token...');
-              // Si falla la renovación, intentar obtener nuevo token
-              const response = await msalInstance.loginPopup(loginRequest);
-              const tokenData = {
-                token: response.idToken,
-                expiresAt: response.expiresOn ? response.expiresOn.getTime() : Date.now() + (3600 * 1000),
-                refreshToken: response.account?.homeAccountId
-              };
-              SecureTokenManager.storeToken(tokenData);
-              setAccessToken(response.accessToken);
-              console.log('✅ Nuevo token obtenido via popup');
-              return {
-                idToken: response.idToken || '',
-                accessToken: response.accessToken || ''
-              };
-            }
-          }
-        }
-        
-        console.log('🔄 Usando token almacenado válido...');
-        // Retornar tanto idToken como accessToken
-        const result = {
-          idToken: storedTokenData.token,
-          accessToken: accessToken || storedTokenData.token
-        };
-        console.log('✅ Retornando tokens completos:', {
-          idToken: result.idToken || 'null',
-          accessToken: result.accessToken || 'null'
-        });
-        return result;
-      }
-
-      console.log('🔍 No hay token válido almacenado, obteniendo uno nuevo...');
-      // Si no hay token válido almacenado, obtener uno nuevo
       const accounts = msalInstance.getAllAccounts();
-      console.log('👥 Cuentas disponibles para nuevo token:', accounts.length);
+      console.log('👥 Cuentas disponibles:', accounts.length);
       
       if (accounts.length === 0) {
+        console.log('🔄 No hay cuentas, iniciando login popup...');
         const response = await msalInstance.loginPopup(loginRequest);
+        
+        // Almacenar idToken para el backend
         const tokenData = {
           token: response.idToken,
           expiresAt: response.expiresOn ? response.expiresOn.getTime() : Date.now() + (3600 * 1000),
@@ -340,6 +274,13 @@ export function AuthProvider({ children }: AuthProviderProps) {
         };
         SecureTokenManager.storeToken(tokenData);
         setAccessToken(response.accessToken);
+        
+        console.log('✅ Tokens obtenidos via login popup:', {
+          idToken: response.idToken || 'null',
+          accessToken: response.accessToken || 'null',
+          tokensAreDifferent: response.idToken !== response.accessToken
+        });
+        
         return {
           idToken: response.idToken || '',
           accessToken: response.accessToken || ''
@@ -348,42 +289,63 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
       const account = accounts[0];
       
+      // Intentar obtener tokens silenciosamente
       try {
-        const response = await msalInstance.acquireTokenSilent({
+        console.log('🔄 Intentando obtener tokens silenciosamente...');
+        const silentResponse = await msalInstance.acquireTokenSilent({
           ...loginRequest,
           account,
         });
+        
+        // Almacenar idToken renovado para el backend
+        const newTokenData = {
+          token: silentResponse.idToken,
+          expiresAt: silentResponse.expiresOn ? silentResponse.expiresOn.getTime() : Date.now() + (3600 * 1000),
+          refreshToken: silentResponse.account?.homeAccountId
+        };
+        SecureTokenManager.storeToken(newTokenData);
+        
+        // Mantener accessToken para uso interno
+        setAccessToken(silentResponse.accessToken);
+        
+        console.log('✅ Tokens renovados silenciosamente:', {
+          idToken: silentResponse.idToken || 'null',
+          accessToken: silentResponse.accessToken || 'null',
+          tokensAreDifferent: silentResponse.idToken !== silentResponse.accessToken
+        });
+        
+        return {
+          idToken: silentResponse.idToken || '',
+          accessToken: silentResponse.accessToken || ''
+        };
+      } catch (silentError) {
+        console.log('❌ Error en token silencioso:', silentError);
+        console.log('🔄 Intentando popup para nuevo token...');
+        
+        // Si falla la renovación silenciosa, usar popup
+        const popupResponse = await msalInstance.acquireTokenPopup({
+          ...loginRequest,
+          account,
+        });
+        
         const tokenData = {
-          token: response.idToken,
-          expiresAt: response.expiresOn ? response.expiresOn.getTime() : Date.now() + (3600 * 1000),
-          refreshToken: response.account?.homeAccountId
+          token: popupResponse.idToken,
+          expiresAt: popupResponse.expiresOn ? popupResponse.expiresOn.getTime() : Date.now() + (3600 * 1000),
+          refreshToken: popupResponse.account?.homeAccountId
         };
         SecureTokenManager.storeToken(tokenData);
-        setAccessToken(response.accessToken);
+        setAccessToken(popupResponse.accessToken);
+        
+        console.log('✅ Tokens obtenidos via popup:', {
+          idToken: popupResponse.idToken || 'null',
+          accessToken: popupResponse.accessToken || 'null',
+          tokensAreDifferent: popupResponse.idToken !== popupResponse.accessToken
+        });
+        
         return {
-          idToken: response.idToken || '',
-          accessToken: response.accessToken || ''
+          idToken: popupResponse.idToken || '',
+          accessToken: popupResponse.accessToken || ''
         };
-      } catch (error) {
-        if (error instanceof InteractionRequiredAuthError) {
-          const response = await msalInstance.acquireTokenPopup({
-            ...loginRequest,
-            account,
-          });
-          const tokenData = {
-            token: response.idToken,
-            expiresAt: response.expiresOn ? response.expiresOn.getTime() : Date.now() + (3600 * 1000),
-            refreshToken: response.account?.homeAccountId
-          };
-          SecureTokenManager.storeToken(tokenData);
-          setAccessToken(response.accessToken);
-          return {
-            idToken: response.idToken || '',
-            accessToken: response.accessToken || ''
-          };
-        } else {
-          throw error;
-        }
       }
     } catch (error) {
       console.log('❌ Error general en getAccessToken:', error);
