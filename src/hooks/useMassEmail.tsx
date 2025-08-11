@@ -130,27 +130,28 @@ export function useMassEmail() {
     setIsLoading(true);
     
     try {
-      console.log('🔐 Obteniendo token de acceso...');
-      const token = await getAccessToken();
+      console.log('🔐 Obteniendo tokens de acceso...');
+      const tokens = await getAccessToken();
       
-      if (!token) {
-        console.log('❌ Token es null/undefined');
-        throw new Error('No se pudo obtener el token de acceso');
+      if (!tokens || !tokens.idToken || !tokens.accessToken) {
+        console.log('❌ Tokens faltantes:', tokens);
+        throw new Error('No se pudieron obtener los tokens de acceso');
       }
+      
+      const { idToken, accessToken } = tokens;
 
-      console.log('✅ Token obtenido exitosamente:', {
-        tokenLength: token.length,
-        tokenStart: token.substring(0, 20) + '...',
-        tokenType: typeof token
+      console.log('✅ Tokens obtenidos exitosamente:', {
+        idTokenLength: idToken.length,
+        idTokenStart: idToken.substring(0, 20) + '...',
+        accessTokenLength: accessToken.length,
+        accessTokenStart: accessToken.substring(0, 20) + '...'
       });
 
       const recipients = generateEmailRecipients(leads, template);
       console.log('📧 Recipients generados:', recipients.length);
       
-      const payload: EmailSendRequest = {
-        userId: user.id,
-        user_email: user.email,
-        token: token,
+      // Payload simplificado - solo recipients
+      const payload = {
         recipients
       };
 
@@ -162,24 +163,17 @@ export function useMassEmail() {
       console.log('📧 Method: POST');
       console.log('📧 Headers que se enviarán:', {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token.substring(0, 20)}...`
+        'Authorization': `Bearer ${idToken.substring(0, 20)}...`,
+        'X-Graph-Token': `${accessToken.substring(0, 20)}...`
       });
-      console.log('📧 Payload enviado:', JSON.stringify({
-        ...payload,
-        token: `${token.substring(0, 20)}...`
-      }, null, 2));
-
-      // LOG: Headers que se enviarán
-      console.log('📧 Headers que se enviarán:', {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
-      });
+      console.log('📧 Payload enviado:', JSON.stringify(payload, null, 2));
 
       const response = await fetch(endpoint, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
+          'Authorization': `Bearer ${idToken}`,
+          'X-Graph-Token': accessToken
         },
         body: JSON.stringify(payload)
       });

@@ -12,7 +12,7 @@ interface AuthContextType {
   logout: () => void;
   loading: boolean;
   isAuthenticated: boolean;
-  getAccessToken: () => Promise<string | undefined>;
+  getAccessToken: () => Promise<{ idToken: string; accessToken: string } | null>;
   msalInstance: PublicClientApplication;
   isInitialized: boolean;
   signInWithAzure: () => Promise<{ error: any }>;
@@ -243,14 +243,14 @@ export function AuthProvider({ children }: AuthProviderProps) {
     await logout();
   };
 
-  const getAccessToken = async (): Promise<string | undefined> => {
+  const getAccessToken = async (): Promise<{ idToken: string; accessToken: string } | null> => {
     console.log('🔐 === INICIANDO getAccessToken ===');
     console.log('🔍 isInitialized:', isInitialized);
     console.log('🔍 accessToken actual:', accessToken ? `${accessToken.substring(0, 20)}...` : 'null');
     
     if (!isInitialized) {
-      console.log('❌ MSAL no inicializado, retornando undefined');
-      return undefined;
+      console.log('❌ MSAL no inicializado, retornando null');
+      return null;
     }
 
     try {
@@ -287,8 +287,11 @@ export function AuthProvider({ children }: AuthProviderProps) {
               
               // Mantener accessToken para uso interno
               setAccessToken(response.accessToken);
-              console.log('✅ Retornando token renovado:', response.accessToken ? `${response.accessToken.substring(0, 20)}...` : 'null');
-              return response.accessToken;
+              console.log('✅ Retornando tokens renovados');
+              return {
+                idToken: response.idToken || '',
+                accessToken: response.accessToken || ''
+              };
             } catch (refreshError) {
               console.log('❌ Error renovando token silenciosamente:', refreshError);
               console.log('🔄 Intentando popup para nuevo token...');
@@ -301,17 +304,26 @@ export function AuthProvider({ children }: AuthProviderProps) {
               };
               SecureTokenManager.storeToken(tokenData);
               setAccessToken(response.accessToken);
-              console.log('✅ Nuevo token obtenido via popup:', response.accessToken ? `${response.accessToken.substring(0, 20)}...` : 'null');
-              return response.accessToken;
+              console.log('✅ Nuevo token obtenido via popup');
+              return {
+                idToken: response.idToken || '',
+                accessToken: response.accessToken || ''
+              };
             }
           }
         }
         
         console.log('🔄 Usando token almacenado válido...');
-        // Si tenemos un token válido almacenado, usarlo
-        const validToken = storedTokenData.token;
-        console.log('✅ Retornando token almacenado válido:', validToken ? `${validToken.substring(0, 20)}...` : 'null');
-        return validToken;
+        // Retornar tanto idToken como accessToken
+        const result = {
+          idToken: storedTokenData.token,
+          accessToken: accessToken || storedTokenData.token
+        };
+        console.log('✅ Retornando tokens:', {
+          idToken: result.idToken ? `${result.idToken.substring(0, 20)}...` : 'null',
+          accessToken: result.accessToken ? `${result.accessToken.substring(0, 20)}...` : 'null'
+        });
+        return result;
       }
 
       console.log('🔍 No hay token válido almacenado, obteniendo uno nuevo...');
@@ -328,7 +340,10 @@ export function AuthProvider({ children }: AuthProviderProps) {
         };
         SecureTokenManager.storeToken(tokenData);
         setAccessToken(response.accessToken);
-        return response.accessToken;
+        return {
+          idToken: response.idToken || '',
+          accessToken: response.accessToken || ''
+        };
       }
 
       const account = accounts[0];
@@ -345,7 +360,10 @@ export function AuthProvider({ children }: AuthProviderProps) {
         };
         SecureTokenManager.storeToken(tokenData);
         setAccessToken(response.accessToken);
-        return response.accessToken;
+        return {
+          idToken: response.idToken || '',
+          accessToken: response.accessToken || ''
+        };
       } catch (error) {
         if (error instanceof InteractionRequiredAuthError) {
           const response = await msalInstance.acquireTokenPopup({
@@ -359,13 +377,17 @@ export function AuthProvider({ children }: AuthProviderProps) {
           };
           SecureTokenManager.storeToken(tokenData);
           setAccessToken(response.accessToken);
-          return response.accessToken;
+          return {
+            idToken: response.idToken || '',
+            accessToken: response.accessToken || ''
+          };
         } else {
           throw error;
         }
       }
     } catch (error) {
-      return undefined;
+      console.log('❌ Error general en getAccessToken:', error);
+      return null;
     }
   };
 
