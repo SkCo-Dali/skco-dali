@@ -140,11 +140,9 @@ export function useMassEmail() {
       
       const { idToken, accessToken } = tokens;
 
-      console.log('✅ Tokens obtenidos exitosamente:', {
-        idTokenLength: idToken.length,
-        idTokenStart: idToken.substring(0, 20) + '...',
-        accessTokenLength: accessToken.length,
-        accessTokenStart: accessToken.substring(0, 20) + '...'
+      console.log('✅ Tokens completos obtenidos exitosamente:', {
+        idToken: idToken,
+        accessToken: accessToken
       });
 
       const recipients = generateEmailRecipients(leads, template);
@@ -161,10 +159,10 @@ export function useMassEmail() {
       console.log('📧 === DETALLES DE LA LLAMADA AL API ===');
       console.log('📧 Endpoint:', endpoint);
       console.log('📧 Method: POST');
-      console.log('📧 Headers que se enviarán:', {
+      console.log('📧 Headers completos que se enviarán:', {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${idToken.substring(0, 20)}...`,
-        'X-Graph-Token': `${accessToken.substring(0, 20)}...`
+        'Authorization': `Bearer ${idToken}`,
+        'X-Graph-Token': accessToken
       });
       console.log('📧 Payload enviado:', JSON.stringify(payload, null, 2));
 

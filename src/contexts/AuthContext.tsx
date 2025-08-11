@@ -246,7 +246,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const getAccessToken = async (): Promise<{ idToken: string; accessToken: string } | null> => {
     console.log('🔐 === INICIANDO getAccessToken ===');
     console.log('🔍 isInitialized:', isInitialized);
-    console.log('🔍 accessToken actual:', accessToken ? `${accessToken.substring(0, 20)}...` : 'null');
+    console.log('🔍 accessToken actual completo:', accessToken || 'null');
     
     if (!isInitialized) {
       console.log('❌ MSAL no inicializado, retornando null');
@@ -319,9 +319,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
           idToken: storedTokenData.token,
           accessToken: accessToken || storedTokenData.token
         };
-        console.log('✅ Retornando tokens:', {
-          idToken: result.idToken ? `${result.idToken.substring(0, 20)}...` : 'null',
-          accessToken: result.accessToken ? `${result.accessToken.substring(0, 20)}...` : 'null'
+        console.log('✅ Retornando tokens completos:', {
+          idToken: result.idToken || 'null',
+          accessToken: result.accessToken || 'null'
         });
         return result;
       }
