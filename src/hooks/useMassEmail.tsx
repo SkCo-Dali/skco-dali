@@ -240,27 +240,41 @@ export function useMassEmail() {
     setIsLoading(true);
     
     try {
+      // Obtener token de acceso
+      const tokens = await getAccessToken();
+      
+      if (!tokens || !tokens.idToken) {
+        throw new Error('No se pudieron obtener los tokens de acceso');
+      }
+
+      // Construir parámetros sin userId
       const params = new URLSearchParams({
-        userId: user.id,
         ...(campaign && { campaign }),
         ...(status && { status }),
         ...(createdAt && { createdAt })
       });
 
-      const endpoint = `${ENV.CRM_API_BASE_URL}/api/emails/logs?${params}`;
+      const endpoint = `${ENV.CRM_API_BASE_URL}/api/emails/logs${params.toString() ? `?${params}` : ''}`;
       
       // LOG: Endpoint y parámetros para obtener logs
       console.log('📧 OBTENER LOGS DE CORREOS - API CALL');
       console.log('📧 Endpoint:', endpoint);
       console.log('📧 Method: GET');
+      console.log('📧 Headers:', {
+        'Authorization': `Bearer ${tokens.idToken}`
+      });
       console.log('📧 Params:', {
-        userId: user.id,
         ...(campaign && { campaign }),
         ...(status && { status }),
         ...(createdAt && { createdAt })
       });
 
-      const response = await fetch(endpoint);
+      const response = await fetch(endpoint, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${tokens.idToken}`
+        }
+      });
 
       // LOG: Respuesta del servidor
       console.log('📧 Logs Response status:', response.status);
