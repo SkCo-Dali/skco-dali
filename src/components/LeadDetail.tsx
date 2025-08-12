@@ -872,8 +872,7 @@ Notas adicionales: ${lead.notes || 'Ninguna'}`;
                         onClick={handleProfilerClick}
                         className=" h-8 bg-primary text-white"
                       >
-                        <Brain className="h-4 w-4 mr-2" />
-                        {hasExistingProfile && profileData ? 'Ver Perfil' : 'Perfilar Lead'}
+                        {hasExistingProfile && profileData ? 'Perfilar Lead' : 'Perfilar Lead'}
                       </Button>
                       <Button 
                     onClick={handleSaveManagement}
