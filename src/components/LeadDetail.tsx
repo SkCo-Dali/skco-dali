@@ -250,7 +250,7 @@ export function LeadDetail({ lead, isOpen, onClose, onSave, onOpenMassEmail }: L
     console.log('ProfilerClick triggered:', { hasExistingProfile, profileData, profilingLoading });
     if (hasExistingProfile && profileData) {
       // Si ya tiene perfil completado, mostrar resultados
-      setShowProfileResults(true);
+      setShowProfiler(true);
     } else {
       // Si no tiene perfil, iniciar proceso de perfilamiento
       setShowProfiler(true);
