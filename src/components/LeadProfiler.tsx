@@ -63,11 +63,12 @@ export const LeadProfiler: React.FC<LeadProfilerProps> = ({
   };
 
   // Función para mapear perfil a tipo de flujo estratégico
-  const getFlowTypeFromProfile = (profileType: string): FlowType => {
-    const profileMapping: Record<string, FlowType> = {
+  const getFlowTypeFromProfile = (profileType: string): FlowType | 'nightmare' => {
+    const profileMapping: Record<string, FlowType | 'nightmare'> = {
       'familiar': 'family', 
       'maduro': 'preserve',
-      'planificador': 'multiply'
+      'planificador': 'multiply',
+      'inmediatista': 'nightmare'
     };
 
     const normalizedProfile = profileType.toLowerCase();
@@ -201,7 +202,40 @@ export const LeadProfiler: React.FC<LeadProfilerProps> = ({
           {clientStatus?.hasProfile && clientStatus?.isCompleted && profileResults ? (
             (() => {
               const flowType = getFlowTypeFromProfile(profileResults.finalProfileType);
-              const strategicPlan = STRATEGIC_PLAN_CONFIG[flowType];
+              
+              // Configuración para nightmare plan
+              const NIGHTMARE_PLAN_CONFIG = {
+                title: "Tu Plan Sin Complicaciones",
+                subtitle: "Automatizado y eficiente",
+                components: [
+                  {
+                    name: "Ahorro Automático",
+                    percentage: "60%",
+                    description: "Inversión mensual automática",
+                    icon: "🔄"
+                  },
+                  {
+                    name: "Fondo de Emergencias",
+                    percentage: "25%",
+                    description: "3 meses de gastos cubiertos",
+                    icon: "🛏️"
+                  },
+                  {
+                    name: "Fondo para Gustos",
+                    percentage: "15%",
+                    description: "Para tus placeres sin culpa",
+                    icon: "🎁"
+                  }
+                ],
+                benefits: [
+                  "Todo automático, sin esfuerzo",
+                  "Metas alcanzables mes a mes",
+                  "Disfruta sin culpa",
+                  "Asesoría cuando la necesites"
+                ]
+              };
+
+              const strategicPlan = flowType === 'nightmare' ? NIGHTMARE_PLAN_CONFIG : STRATEGIC_PLAN_CONFIG[flowType as FlowType];
               
               // Configuración de colores por componente
               const componentColors = [
