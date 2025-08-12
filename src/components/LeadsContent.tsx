@@ -103,8 +103,8 @@ export function LeadsContent({
     );
   }
 
-  // Para la vista de columnas, usar los leads paginados para crear los grupos
-  const groupedLeads = paginatedLeads.reduce((acc: { [key: string]: Lead[] }, lead) => {
+  // Para la vista de columnas, usar todos los leads para crear los grupos
+  const groupedLeads = leads.reduce((acc: { [key: string]: Lead[] }, lead) => {
     const key = lead[groupBy as keyof Lead] as string || 'undefined';
     if (!acc[key]) {
       acc[key] = [];
