@@ -352,7 +352,7 @@ export default function Leads() {
               {!isSmallScreen && (
                 <div className="flex flex-1 items-center gap-2">
                   <Button
-                    className="gap-1 min-w-8 min-h-8 bg-primary"
+                    className="gap-1 w-8 h-8 bg-primary"
                     onClick={handleCreateLead}
                     size="icon"
                   >
