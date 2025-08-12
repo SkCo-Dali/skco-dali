@@ -169,15 +169,7 @@ const ProfileResults: React.FC<ProfileResultsProps> = ({ isOpen, onClose, profil
             </p>
           </div>
 
-          {/* Botón de Acción */}
-          <div className="text-center pt-4">
-            <Button 
-              className="bg-gradient-to-r from-[#00c83c] to-[#A3E40B] hover:from-[#00b038] hover:to-[#92d20a] text-white px-8 py-2"
-              onClick={onClose}
-            >
-              Guardar plan 📝
-            </Button>
-          </div>
+  
 
           {/* Información adicional */}
           {profileData.createdAt && (
