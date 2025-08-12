@@ -372,13 +372,13 @@ export default function Leads() {
                   >
                     <Mail className="h-4 w-4" />
                   </Button>
-                  <Button
+                  {/*<Button
                     className="gap-1 w-8 h-8 bg-[#00c83c]"
                     onClick={handleMassWhatsApp}
                     size="icon"
                   >
                     <FaWhatsapp className="h-4 w-4" />
-                  </Button>
+                  </Button>*/}
                   <Button
                     className="gap-1 w-8 h-8 bg-red-600 hover:bg-red-700"
                     onClick={handleDeleteSelectedLeads}
