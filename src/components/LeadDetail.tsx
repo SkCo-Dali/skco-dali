@@ -875,20 +875,17 @@ Notas adicionales: ${lead.notes || 'Ninguna'}`;
                         <Brain className="h-4 w-4 mr-2" />
                         {hasExistingProfile && profileData ? 'Ver Perfil' : 'Perfilar Lead'}
                       </Button>
-                    </div>
-
-                  </CardContent>
-                
-                {/* Botón específico para guardar cambios de gestión */}
-                <div className="flex justify-end gap-2 pt-2 border-t">
-                  <Button 
+                      <Button 
                     onClick={handleSaveManagement}
                     disabled={!managementChanges || !contactMethod || !result || !managementNotes}
-                    className="bg-primary"
+                    className="bg-primary absolute right-0"
                   >
                     Guardar Gestión
                   </Button>
-                </div>
+                    </div>
+
+                  </CardContent>
+    
                
 
                 {/* Historial de Interacciones mejorado */}
