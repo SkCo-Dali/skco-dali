@@ -871,18 +871,15 @@ Notas adicionales: ${lead.notes || 'Ninguna'}`;
                       >
                         <Calendar className="h-3 w-3" />
                       </Button>
-                    </div>
-
-                    {/* Botón del Perfilador */}
-                    <div className="mt-4 pt-4 border-t">
                       <Button
                         onClick={handleProfilerClick}
-                        className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white"
+                        className="w-full bg-primary text-white"
                       >
                         <Brain className="h-4 w-4 mr-2" />
                         {hasExistingProfile && profileData ? 'Ver Perfil' : 'Perfilar Lead'}
                       </Button>
                     </div>
+
                   </CardContent>
                 
                 {/* Botón específico para guardar cambios de gestión */}
