@@ -873,7 +873,7 @@ Notas adicionales: ${lead.notes || 'Ninguna'}`;
                       </Button>
                       <Button
                         onClick={handleProfilerClick}
-                        className="w-full bg-primary text-white"
+                        className="bg-primary text-white"
                       >
                         <Brain className="h-4 w-4 mr-2" />
                         {hasExistingProfile && profileData ? 'Ver Perfil' : 'Perfilar Lead'}
