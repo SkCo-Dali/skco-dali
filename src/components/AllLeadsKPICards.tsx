@@ -43,7 +43,7 @@ export function AllLeadsKPICards({ leads }: AllLeadsKPICardsProps) {
       <KPICard
         title="Contratos Creados"
         value={contratoCreado.toString()}
-        icon={DollarSign}
+        icon={CheckCircle}
         change={`${contratoCreadoPercentage}% del total`}
         changeType={contratoCreado > 0 ? 'positive' : 'neutral'}
         description="Leads con contrato creado"
@@ -52,7 +52,7 @@ export function AllLeadsKPICards({ leads }: AllLeadsKPICardsProps) {
       <KPICard
         title="Ventas Registradas"
         value={registroVenta.toString()}
-        icon={CheckCircle}
+        icon={DollarSign}
         change={`${registroVentaPercentage}% del total`}
         changeType={registroVenta > 0 ? 'positive' : 'neutral'}
         description="Leads con venta fondeada"
