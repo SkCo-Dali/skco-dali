@@ -34,13 +34,7 @@ const allMenuItems = [
   { title: "Inicio", url: "/", iconClass: "", page: "dashboard", customIcon: "https://skcoblobresources.blob.core.windows.net/digital-assets/icons/icon-skandia/sk_casa_p.svg" },
   { title: "Leads", url: "/leads", iconClass: "", page: "leads", customIcon: "https://skcoblobresources.blob.core.windows.net/digital-assets/icons/icon-skandia/sk_profile_1_p.svg" },
   { title: "Market Dali", url: "/oportunidades", iconClass: "", page: "opportunities", customIcon: "https://skcoblobresources.blob.core.windows.net/digital-assets/icons/icon-skandia/sk_market_p.svg" },
-  { 
-    title: "Chat Dali", 
-    url: "/Chat", 
-    iconClass: "", 
-    page: "ChatDali", 
-    customIcon: "https://skcoblobresources.blob.core.windows.net/digital-assets/icons/icon-skandia/sk_globo_p.svg"
-  },
+  { title: "Chat Dali", url: "/Chat", iconClass: "", page: "ChatDali", customIcon: "https://skcoblobresources.blob.core.windows.net/digital-assets/icons/icon-skandia/sk_globo_p.svg"},
   { title: "Gamificación", url: "/gamification", iconClass: "", page: "gamification", customIcon: "https://skcoblobresources.blob.core.windows.net/digital-assets/icons/icon-skandia/sk_trofeo_p.svg" },
   { title: "Dashboard", url: "/reports", iconClass: "", page: "reports", customIcon: "https://skcoblobresources.blob.core.windows.net/digital-assets/icons/icon-skandia/sk_grafica_1_n.svg" },
   { title: "Informes", url: "/informes", iconClass: "", page: "informes", customIcon: "https://skcoblobresources.blob.core.windows.net/digital-assets/icons/icon-skandia/sk_chart_2_p.svg" },
