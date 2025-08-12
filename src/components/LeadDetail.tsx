@@ -1146,7 +1146,7 @@ Notas adicionales: ${lead.notes || 'Ninguna'}`;
 
         {/* Componente del Perfilador */}
         <Dialog open={showProfiler} onOpenChange={() => setShowProfiler(false)}>
-          <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogContent className="max-w-4xl min-h-[600px] overflow-y-auto">
             <LeadProfiler
               selectedLead={lead}
               onBack={() => setShowProfiler(false)}
