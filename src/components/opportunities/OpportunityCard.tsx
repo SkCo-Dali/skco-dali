@@ -100,6 +100,7 @@ export const OpportunityCard: React.FC<OpportunityCardProps> = ({
           <div className="text-xs text-orange-600 bg-orange-50 px-2 py-1 rounded">
             ⏰ Vence {new Date(opportunity.expiresAt).toLocaleDateString('es-ES')}
           </div>
+      )}
         </div>
 
         {/* Customer Count */}
