@@ -7,6 +7,7 @@ import { LeadProfilerProps } from '@/types/leadProfiler';
 import { ProfilingSession } from './ProfilingSession';
 import { useProfilingApi } from '@/hooks/useProfilingApi';
 import ProfileResults from './ProfileResults';
+import { STRATEGIC_PLAN_CONFIG, FlowType } from './StrategicPlanConfig';
 
 export const LeadProfiler: React.FC<LeadProfilerProps> = ({
   selectedLead,
@@ -59,6 +60,19 @@ export const LeadProfiler: React.FC<LeadProfilerProps> = ({
     }
     
     setShowSession(true);
+  };
+
+  // Función para mapear perfil a tipo de flujo estratégico
+  const getFlowTypeFromProfile = (profileType: string): FlowType => {
+    const profileMapping: Record<string, FlowType> = {
+      'agresivo': 'multiply',
+      'moderado': 'family', 
+      'conservador': 'preserve',
+      'planificador': 'family'
+    };
+
+    const normalizedProfile = profileType.toLowerCase();
+    return profileMapping[normalizedProfile] || 'family';
   };
 
   if (showSession) {
@@ -186,89 +200,73 @@ export const LeadProfiler: React.FC<LeadProfilerProps> = ({
         <div className="space-y-6">
           {/* Si el cliente tiene perfil completado, mostrar resultados */}
           {clientStatus?.hasProfile && clientStatus?.isCompleted && profileResults ? (
-            <div className="space-y-4">
-              <div className="bg-white rounded-lg p-6 border">
-                {/* Perfil y Nivel de Riesgo */}
-                <div className="text-center space-y-2 mb-6">
-                  <div className="inline-block bg-gray-100 rounded-full px-4 py-2">
-                    <span className="text-sm font-medium">Perfil: {profileResults.finalProfileType}</span>
-                  </div>
-                </div>
+            (() => {
+              const flowType = getFlowTypeFromProfile(profileResults.finalProfileType);
+              const strategicPlan = STRATEGIC_PLAN_CONFIG[flowType];
+              
+              // Configuración de colores por componente
+              const componentColors = [
+                { bgColor: 'bg-green-50', dotColor: 'bg-green-500', textColor: 'text-green-600' },
+                { bgColor: 'bg-blue-50', dotColor: 'bg-blue-500', textColor: 'text-blue-600' },
+                { bgColor: 'bg-yellow-50', dotColor: 'bg-yellow-500', textColor: 'text-yellow-600' }
+              ];
 
-                {/* Distribución del Portafolio */}
+              return (
                 <div className="space-y-4">
-                  <h4 className="font-semibold text-gray-800 text-center mb-4">Distribución del Portafolio</h4>
-                  
-                  {/* Portafolio Agresivo */}
-                  <div className="bg-red-50 rounded-lg p-4 border">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <div className="w-3 h-3 bg-red-500 rounded-full"></div>
-                        <span className="text-sm font-medium">Portafolio Agresivo</span>
+                  <div className="bg-white rounded-lg p-6 border">
+                    {/* Perfil y Nivel de Riesgo */}
+                    <div className="text-center space-y-2 mb-6">
+                      <div className="inline-block bg-gray-100 rounded-full px-4 py-2">
+                        <span className="text-sm font-medium">Perfil: {profileResults.finalProfileType}</span>
                       </div>
-                      <span className="text-lg font-bold text-red-600">40%</span>
                     </div>
-                    <p className="text-xs text-gray-600 mt-1">Acciones internacionales y locales</p>
-                  </div>
 
-                  {/* Portafolio Moderado */}
-                  <div className="bg-yellow-50 rounded-lg p-4 border">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
-                        <span className="text-sm font-medium">Portafolio Moderado</span>
-                      </div>
-                      <span className="text-lg font-bold text-yellow-600">35%</span>
+                    {/* Distribución del Portafolio */}
+                    <div className="space-y-4">
+                      <h4 className="font-semibold text-gray-800 text-center mb-4">{strategicPlan.title}</h4>
+                      
+                      {strategicPlan.components.map((component, index) => {
+                        const colors = componentColors[index] || componentColors[0];
+                        return (
+                          <div key={index} className={`${colors.bgColor} rounded-lg p-4 border`}>
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center gap-2">
+                                <div className={`w-3 h-3 ${colors.dotColor} rounded-full`}></div>
+                                <span className="text-sm font-medium">{component.name}</span>
+                              </div>
+                              <span className={`text-lg font-bold ${colors.textColor}`}>{component.percentage}</span>
+                            </div>
+                            <p className="text-xs text-gray-600 mt-1">{component.description}</p>
+                          </div>
+                        );
+                      })}
                     </div>
-                    <p className="text-xs text-gray-600 mt-1">Fondos mixtos y bonos corporativos</p>
-                  </div>
 
-                  {/* Liquidez Estratégica */}
-                  <div className="bg-blue-50 rounded-lg p-4 border">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
-                        <span className="text-sm font-medium">Liquidez Estratégica</span>
+                    {/* Beneficios */}
+                    <div className="mt-6 pt-4 border-t">
+                      <h4 className="font-semibold text-gray-800 mb-3 text-sm">Beneficios del plan:</h4>
+                      <div className="space-y-2">
+                        {strategicPlan.benefits.map((benefit, index) => (
+                          <div key={index} className="flex items-center gap-2">
+                            <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                            <span className="text-xs text-gray-700">{benefit}</span>
+                          </div>
+                        ))}
                       </div>
-                      <span className="text-lg font-bold text-blue-600">25%</span>
                     </div>
-                    <p className="text-xs text-gray-600 mt-1">CDTs y fondos de liquidez</p>
+
+                    {/* Fecha de creación */}
+                    {profileResults.createdAt && (
+                      <div className="mt-4 pt-3 border-t text-center">
+                        <p className="text-xs text-gray-500">
+                          Perfil creado: {new Date(profileResults.createdAt).toLocaleDateString('es-ES')}
+                        </p>
+                      </div>
+                    )}
                   </div>
                 </div>
-
-                {/* Beneficios */}
-                <div className="mt-6 pt-4 border-t">
-                  <h4 className="font-semibold text-gray-800 mb-3 text-sm">Beneficios del plan:</h4>
-                  <div className="space-y-2">
-                    <div className="flex items-center gap-2">
-                      <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                      <span className="text-xs text-gray-700">Rentabilidad esperada: 12-15% anual</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                      <span className="text-xs text-gray-700">Rebalanceo automático</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                      <span className="text-xs text-gray-700">Diversificación internacional</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                      <span className="text-xs text-gray-700">Asesoría especializada</span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Fecha de creación */}
-                {profileResults.createdAt && (
-                  <div className="mt-4 pt-3 border-t text-center">
-                    <p className="text-xs text-gray-500">
-                      Perfil creado: {new Date(profileResults.createdAt).toLocaleDateString('es-ES')}
-                    </p>
-                  </div>
-                )}
-              </div>
-            </div>
+              );
+            })()
           ) : (
             /* Test de Perfil Financiero */
             <div className="text-center">
