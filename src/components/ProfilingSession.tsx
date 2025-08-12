@@ -146,7 +146,7 @@ export const ProfilingSession: React.FC<ProfilingSessionProps> = ({
     return (
       <div className="min-h-[600px] flex flex-col m-0">
         {/* Contenedor superior con fondo verde */}
-        <div className="flex-1 bg-gray-50 flex flex-col items-center justify-center p-6 text-white text-center relative">
+        <div className="flex-1 bg-gradient-to-r from-green-500 to-green-600 flex flex-col items-center justify-center p-6 text-white text-center relative">
           <Button 
             variant="ghost" 
             size="sm" 
