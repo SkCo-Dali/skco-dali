@@ -144,7 +144,7 @@ Por favor, confirmar asistencia.`;
                    borderRadius: '16px'}}
           onClick={handleCardClick}
         >
-          <div className="absolute top-0 left-2 z-20">
+          <div className="absolute top-0 left-1 z-20">
             <div 
               className={`text-xs px-2 md:px-3 py-1 whitespace-nowrap shadow-none ${stageColors[lead.stage as keyof typeof stageColors] || 'bg-gray-100 text-gray-800'}`}
               style={{
