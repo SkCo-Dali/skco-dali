@@ -95,6 +95,11 @@ export const OpportunityCard: React.FC<OpportunityCardProps> = ({
           <Badge variant="secondary" className="text-xs px-2 py-0.5">
             {OPPORTUNITY_TYPE_LABELS[opportunity.type]}
           </Badge>
+          {/* Time Window (if applicable) */}
+        {opportunity.expiresAt && (
+          <div className="text-xs text-orange-600 bg-orange-50 px-2 py-1 rounded">
+            ⏰ Vence {new Date(opportunity.expiresAt).toLocaleDateString('es-ES')}
+          </div>
         </div>
 
         {/* Customer Count */}
