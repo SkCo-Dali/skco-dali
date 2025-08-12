@@ -143,7 +143,7 @@ export function AppSidebar({ onTemplateSelect }: AppSidebarProps) {
                     variant="ghost"
                     size="icon"
                     onClick={toggleSidebar}
-                    className="text-primary hover:bg-transparent flex-shrink-0"
+                    className="text-primary hover:bg-transparent flex-shrink-0 p-0"
                   >
                     <img 
                       src="https://skcoblobresources.blob.core.windows.net/digital-assets/icons/icon-skandia/sk_header_menu_resposive.svg"
