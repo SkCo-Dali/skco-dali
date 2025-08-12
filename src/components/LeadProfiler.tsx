@@ -1,15 +1,54 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { User, Target, ArrowRight } from 'lucide-react';
+import { User, Target, ArrowRight, Loader2 } from 'lucide-react';
 import { LeadProfilerProps } from '@/types/leadProfiler';
 import { ProfilingSession } from './ProfilingSession';
+import { useProfilingApi } from '@/hooks/useProfilingApi';
 
 export const LeadProfiler: React.FC<LeadProfilerProps> = ({
   selectedLead
 }) => {
   const [showSession, setShowSession] = useState(false);
+  const { loading, checkClient, currentProfileId } = useProfilingApi();
+  const [clientStatus, setClientStatus] = useState<{
+    hasProfile: boolean;
+    isCompleted?: boolean;
+    profileId: string | null;
+  } | null>(null);
+
+  // Verificar si el cliente ya tiene perfil al cargar el componente
+  useEffect(() => {
+    if (selectedLead?.email || selectedLead?.documentNumber) {
+      checkClientProfile();
+    }
+  }, [selectedLead]);
+
+  const checkClientProfile = async () => {
+    if (!selectedLead) return;
+    
+    const result = await checkClient(
+      selectedLead.email,
+      selectedLead.documentNumber?.toString()
+    );
+    
+    if (result) {
+      setClientStatus(result);
+    }
+  };
+
+  const handleStartSession = () => {
+    // Si tiene perfil completado, mostrar opción de nuevo perfil
+    if (clientStatus?.hasProfile && clientStatus?.isCompleted) {
+      const confirmNew = window.confirm(
+        'El cliente ya tiene un perfil completado. ¿Desea crear uno nuevo?'
+      );
+      if (!confirmNew) return;
+    }
+    
+    setShowSession(true);
+  };
 
   if (showSession) {
     return (
@@ -110,10 +149,23 @@ export const LeadProfiler: React.FC<LeadProfilerProps> = ({
           {/* Button */}
           <Button 
             className="w-full bg-green-500 hover:bg-green-600 text-white py-4 text-md font-medium flex items-center justify-center gap-2"
-            onClick={() => setShowSession(true)}
+            onClick={handleStartSession}
+            disabled={loading}
           >
-            Iniciar Sesión de Perfilado
-            <ArrowRight className="h-5 w-5" />
+            {loading ? (
+              <>
+                <Loader2 className="h-5 w-5 animate-spin" />
+                Verificando cliente...
+              </>
+            ) : (
+              <>
+                {clientStatus?.hasProfile && clientStatus?.isCompleted 
+                  ? 'Crear Nuevo Perfil' 
+                  : 'Iniciar Sesión de Perfilado'
+                }
+                <ArrowRight className="h-5 w-5" />
+              </>
+            )}
           </Button>
         </div>
 
@@ -127,6 +179,20 @@ export const LeadProfiler: React.FC<LeadProfilerProps> = ({
             <h3 className="text-xl font-bold text-gray-900 mb-2">Test de Perfil Financiero</h3>
             <p className="text-gray-600 mb-4">Vista previa de lo que verá el cliente</p>
             <p className="text-lg font-medium text-gray-900">1 pregunta para personalizar la experiencia</p>
+            
+            {/* Mostrar estado del cliente */}
+            {clientStatus && (
+              <div className="mt-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
+                <p className="text-sm text-blue-800">
+                  {clientStatus.hasProfile 
+                    ? clientStatus.isCompleted 
+                      ? '✅ Cliente con perfil completado'
+                      : '⚠️ Cliente con perfil en progreso'
+                    : '🆕 Cliente nuevo'
+                  }
+                </p>
+              </div>
+            )}
           </div>
         </div>
       </div>

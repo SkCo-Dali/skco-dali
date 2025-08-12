@@ -1,11 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Loader2 } from 'lucide-react';
 import { Lead } from '@/types/crm';
 import { NightmareFlow } from './NightmareFlow';
 import { StrategicTestFlow } from './StrategicTestFlow';
+import { useProfilingApi } from '@/hooks/useProfilingApi';
 
 interface ProfilingSessionProps {
   selectedLead?: Lead;
@@ -20,6 +21,24 @@ export const ProfilingSession: React.FC<ProfilingSessionProps> = ({
   const [notes, setNotes] = useState<string>('');
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [currentFlow, setCurrentFlow] = useState<string | null>(null);
+  const { 
+    loading, 
+    currentProfileId, 
+    startProfiling, 
+    saveResponse 
+  } = useProfilingApi();
+
+  // Iniciar perfilamiento cuando se monte el componente
+  useEffect(() => {
+    if (selectedLead && !currentProfileId) {
+      initializeProfiling();
+    }
+  }, [selectedLead]);
+
+  const initializeProfiling = async () => {
+    if (!selectedLead) return;
+    await startProfiling(selectedLead);
+  };
 
   const answers = [
     {
@@ -81,9 +100,20 @@ export const ProfilingSession: React.FC<ProfilingSessionProps> = ({
     }
   };
 
-  const handleFinalize = () => {
-    if (selectedAnswer) {
-      setShowConfirmation(true);
+  const handleFinalize = async () => {
+    if (selectedAnswer && currentProfileId) {
+      // Guardar la respuesta inicial
+      const saved = await saveResponse(
+        currentProfileId,
+        'initial_question',
+        'money_mindset',
+        selectedAnswer,
+        notes || undefined
+      );
+      
+      if (saved) {
+        setShowConfirmation(true);
+      }
     }
   };
 
@@ -96,6 +126,7 @@ export const ProfilingSession: React.FC<ProfilingSessionProps> = ({
       <NightmareFlow 
         onBack={() => setCurrentFlow(null)}
         selectedLead={selectedLead}
+        profileId={currentProfileId}
       />
     );
   }
@@ -106,6 +137,7 @@ export const ProfilingSession: React.FC<ProfilingSessionProps> = ({
         onBack={() => setCurrentFlow(null)}
         selectedLead={selectedLead}
         flowType={currentFlow as 'planificador' | 'familiar' | 'maduro'}
+        profileId={currentProfileId}
       />
     );
   }
@@ -240,10 +272,17 @@ export const ProfilingSession: React.FC<ProfilingSessionProps> = ({
 
           <Button 
             className="w-full bg-green-500 hover:bg-green-600 text-white py-4 text-md font-medium"
-            disabled={!selectedAnswer}
+            disabled={!selectedAnswer || loading || !currentProfileId}
             onClick={handleFinalize}
           >
-            Finalizar
+            {loading ? (
+              <>
+                <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                Guardando...
+              </>
+            ) : (
+              'Finalizar'
+            )}
           </Button>
         </div>
       </div>
