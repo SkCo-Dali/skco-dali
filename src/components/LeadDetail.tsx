@@ -880,7 +880,7 @@ Notas adicionales: ${lead.notes || 'Ninguna'}`;
                   </CardContent>
                 
                 {/* Botón específico para guardar cambios de gestión */}
-                <div className="flex justify-end gap-2 pt-4 border-t">
+                <div className="flex justify-end gap-2 pt-2 border-t">
                   <Button 
                     onClick={handleSaveManagement}
                     disabled={!managementChanges || !contactMethod || !result || !managementNotes}
