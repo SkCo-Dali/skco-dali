@@ -737,7 +737,7 @@ Notas adicionales: ${lead.notes || 'Ninguna'}`;
                   <Button 
                     onClick={handleSaveGeneral}
                     disabled={!generalChanges}
-                    className="bg-gradient-to-r from-[#00c83c] to-[#A3E40B] hover:from-[#00b038] hover:to-[#92d20a]"
+                    className="bg-primary"
                   >
                     Guardar Cambios Generales
                   </Button>
@@ -873,7 +873,7 @@ Notas adicionales: ${lead.notes || 'Ninguna'}`;
                       </Button>
                       <Button
                         onClick={handleProfilerClick}
-                        className="bg-primary text-white"
+                        className=" h-8 bg-primary text-white"
                       >
                         <Brain className="h-4 w-4 mr-2" />
                         {hasExistingProfile && profileData ? 'Ver Perfil' : 'Perfilar Lead'}
@@ -887,7 +887,7 @@ Notas adicionales: ${lead.notes || 'Ninguna'}`;
                   <Button 
                     onClick={handleSaveManagement}
                     disabled={!managementChanges || !contactMethod || !result || !managementNotes}
-                    className="bg-gradient-to-r from-[#00c83c] to-[#A3E40B] hover:from-[#00b038] hover:to-[#92d20a]"
+                    className="bg-primary"
                   >
                     Guardar Gestión
                   </Button>
