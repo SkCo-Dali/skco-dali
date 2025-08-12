@@ -511,12 +511,12 @@ Por favor, confirmar asistencia.`;
                   <Calendar className="mr-2 h-4 w-4" />
                   Agendar reunión
                 </DropdownMenuItem>
-                {/*{onOpenProfiler && (
+                {onOpenProfiler && (
                   <DropdownMenuItem onClick={(e) => handleLeadAction('profile', lead, e)}>
                     <UserIcon className="mr-2 h-4 w-4" />
                     Perfilar lead
                   </DropdownMenuItem>
-                )}*/}
+                )}
                 <DropdownMenuItem 
                   onClick={(e) => handleLeadAction('delete', lead, e)}
                   className="text-red-600 focus:text-red-600"
