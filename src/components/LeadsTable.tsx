@@ -536,27 +536,21 @@ Por favor, confirmar asistencia.`;
         );
       case 'phone':
         return (
-          <EditableLeadCell
-            lead={lead}
-            field="phone"
-            onUpdate={() => onLeadUpdate?.()}
-          />
+          <div className="text-gray-700 text-xs text-center">
+            {lead.phone || '-'}
+          </div>
         );
       case 'company':
         return (
-          <EditableLeadCell
-            lead={lead}
-            field="company"
-            onUpdate={() => onLeadUpdate?.()}
-          />
+          <div className="text-gray-700 text-xs text-center">
+            {lead.company || '-'}
+          </div>
         );
       case 'documentNumber':
         return (
-          <EditableLeadCell
-            lead={lead}
-            field="documentNumber"
-            onUpdate={() => onLeadUpdate?.()}
-          />
+          <div className="text-gray-700 text-xs text-center">
+            {lead.documentNumber || '-'}
+          </div>
         );
       case 'product':
         return (
@@ -597,12 +591,16 @@ Por favor, confirmar asistencia.`;
       case 'value':
         return <span className="text-gray-800 font-medium text-xs text-center">${lead.value.toLocaleString()}</span>;
       case 'priority':
+        const priorityLabels = {
+          'low': 'Baja',
+          'medium': 'Media',
+          'high': 'Alta',
+          'urgent': 'Urgente'
+        };
         return (
-          <EditableLeadCell
-            lead={lead}
-            field="priority"
-            onUpdate={() => onLeadUpdate?.()}
-          />
+          <div className="text-gray-700 text-xs text-center">
+            {priorityLabels[lead.priority as keyof typeof priorityLabels] || lead.priority || '-'}
+          </div>
         );
       case 'createdAt':
         return (
