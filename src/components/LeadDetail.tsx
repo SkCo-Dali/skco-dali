@@ -524,7 +524,7 @@ Notas adicionales: ${lead.notes || 'Ninguna'}`;
               {/* Tab General */}
               <TabsContent value="general" className="space-y-6">
                 
-                    <CardContent className="space-y-6 py-1 px-0">
+                    <CardContent className="space-y-2 py-2 px-0">
                     
                     <CardTitle className="flex items-center pt-2">
                       Información General
