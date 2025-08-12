@@ -215,7 +215,7 @@ Por favor, confirmar asistencia.`;
                       <Calendar className="h-4 w-4" />
                       Agendar reunión
                     </DropdownMenuItem>
-                    {/*{onOpenProfiler && (
+                    {onOpenProfiler && (
                       <DropdownMenuItem 
                         onClick={(e) => handleMenuClick(e, () => onOpenProfiler(lead))}
                         className="flex items-center gap-2 px-3 py-2 hover:bg-gray-50 cursor-pointer text-sm"
@@ -223,7 +223,7 @@ Por favor, confirmar asistencia.`;
                         <Users className="h-4 w-4" />
                         Perfilar lead
                       </DropdownMenuItem>
-                    )}*/}
+                    )}
                     <DropdownMenuItem 
                       onClick={(e) => handleMenuClick(e, handleDeleteClick)}
                       className="flex items-center gap-2 px-3 py-2 hover:bg-red-50 cursor-pointer text-red-600 text-sm"
