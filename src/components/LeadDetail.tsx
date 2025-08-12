@@ -539,7 +539,7 @@ Notas adicionales: ${lead.notes || 'Ninguna'}`;
                         />
                       </div>
 
-                      <div className="grid grid-cols-2 gap-6">
+                      <div className="grid grid-cols-2 gap-2">
                         <div className="space-y-0 border-2 border-[#3d4b5c26] shadow-md rounded-md p-2.5">
                           <Label className="p-0 text-sm text-gray-500 font-normal">Email</Label>
                           <Input
@@ -559,7 +559,7 @@ Notas adicionales: ${lead.notes || 'Ninguna'}`;
                         </div>
                       </div>
 
-                      <div className="grid grid-cols-2 gap-6">
+                      <div className="grid grid-cols-2 gap-2">
 
                         <CustomFieldSelect
                           label="Tipo de Documento"
@@ -585,7 +585,7 @@ Notas adicionales: ${lead.notes || 'Ninguna'}`;
                         </div>
                       </div>
 
-                      <div className="grid grid-cols-2 gap-6">
+                      <div className="grid grid-cols-2 gap-2">
                         <div className="space-y-0 border-2 border-[#3d4b5c26] shadow-md rounded-md p-2.5">
                           <Label className="p-0 text-sm text-gray-500 font-normal">Edad</Label>
                           <Input
@@ -609,7 +609,7 @@ Notas adicionales: ${lead.notes || 'Ninguna'}`;
                         />
                       </div>
 
-                      <div className="grid grid-cols-2 gap-6"> 
+                      <div className="grid grid-cols-2 gap-2"> 
                         <div className="space-y-0 border-2 border-[#3d4b5c26] shadow-md rounded-md p-2.5">
                           <Label className="p-0 text-sm text-gray-500 font-normal">Empresa</Label>
                           <Input
@@ -746,10 +746,10 @@ Notas adicionales: ${lead.notes || 'Ninguna'}`;
 
               {/* Tab Gestión */}
               <TabsContent value="management" className="space-y-6">
-                <CardContent className="space-y-2 py-2 px-0">
+                <CardContent className="py-2 px-0">
                   <CardTitle className="flex items-center pt-2">Resultado de la Gestión</CardTitle>
                 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                     <CustomFieldSelect
                         label="Estado Actual"
                         value={editedLead.stage}
@@ -783,7 +783,7 @@ Notas adicionales: ${lead.notes || 'Ninguna'}`;
                       />
                   </div>
                   
-                   <div className="grid grid-cols-1 md:grid-cols-2 gap-2 space-y-2">
+                   <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                      <CustomFieldSelect
                          label="Resultado de Gestión"
                          value={result}
@@ -808,13 +808,13 @@ Notas adicionales: ${lead.notes || 'Ninguna'}`;
                            { value: 'urgent', label: 'Urgente' }
                          ]}
                        />
+                     </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                     <div className="space-y-0 border-2 border-[#3d4b5c26] shadow-md rounded-md p-2.5">
                       <Label 
-  htmlFor="followUpDate" 
-  className="text-sm text-gray-500 font-normal leading-tight"
->
-  Próximo seguimiento
-</Label>
+                        htmlFor="followUpDate" 
+                        className="text-sm text-gray-500 font-normal leading-tight">Próximo seguimiento
+                      </Label>
                       <Input
                         id="followUpDate"
                         type="datetime-local"
@@ -823,10 +823,7 @@ Notas adicionales: ${lead.notes || 'Ninguna'}`;
                         className="border-0 border-b border-gray-200 rounded-none px-0 py-0 m-0 text-base font-medium bg-transparent leading-none h-auto min-h-0 focus:border-gray-400 focus:shadow-none focus:ring-0"
                       />
                     </div>
-                    </div>
-                    
-
-                  
+                  </div>
                     <div>
                       <Label htmlFor="managementNotes">Notas de gestión</Label>
                       <Textarea
