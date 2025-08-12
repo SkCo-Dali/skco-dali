@@ -97,9 +97,9 @@ export const OpportunityCard: React.FC<OpportunityCardProps> = ({
           </Badge>
           {/* Time Window (if applicable) */}
         {opportunity.expiresAt && (
-          <div className="text-xs text-orange-600 bg-orange-50 px-2 py-1 rounded">
-            ⏰ Vence {new Date(opportunity.expiresAt).toLocaleDateString('es-ES')}
-          </div>
+          <Badge className="text-xs px-2 py-0.5 text-orange-600 bg-orange-50">
+            Vence {new Date(opportunity.expiresAt).toLocaleDateString('es-ES')}
+          </Badge>
       )}
         </div>
 
@@ -122,12 +122,6 @@ export const OpportunityCard: React.FC<OpportunityCardProps> = ({
           />
         </div>
 
-        {/* Time Window (if applicable) */}
-        {opportunity.expiresAt && (
-          <div className="text-xs text-orange-600 bg-orange-50 px-2 py-1 rounded">
-            ⏰ Vence {new Date(opportunity.expiresAt).toLocaleDateString('es-ES')}
-          </div>
-        )}
       </CardContent>
 
       <CardFooter>
