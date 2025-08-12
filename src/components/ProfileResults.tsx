@@ -150,7 +150,7 @@ const ProfileResults: React.FC<ProfileResultsProps> = ({ isOpen, onClose, profil
             </div>
           </div>
 
-          {/* Productos Recomendados */}
+          {/* Productos Recomendados 
           <div>
             <h3 className="font-semibold text-gray-800 mb-2">Productos Recomendados:</h3>
             <p className="text-sm text-gray-600 bg-gray-50 p-3 rounded-lg">
@@ -158,13 +158,13 @@ const ProfileResults: React.FC<ProfileResultsProps> = ({ isOpen, onClose, profil
             </p>
           </div>
 
-          {/* Estrategia de Inversión */}
+          {/* Estrategia de Inversión 
           <div>
             <h3 className="font-semibold text-gray-800 mb-2">Estrategia de Inversión:</h3>
             <p className="text-sm text-gray-600 bg-gray-50 p-3 rounded-lg">
               {profileData.investmentStrategy}
             </p>
-          </div>
+          </div>*/}
 
   
 
