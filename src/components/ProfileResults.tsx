@@ -26,8 +26,8 @@ const ProfileResults: React.FC<ProfileResultsProps> = ({ isOpen, onClose, profil
   const getFlowTypeFromProfile = (profileType: string): FlowType => {
     const profileMapping: Record<string, FlowType> = {
       'agresivo': 'multiply',
-      'moderado': 'family', 
-      'conservador': 'preserve',
+      'familiar': 'family', 
+      'maduro': 'preserve',
       'planificador': 'multiply'
     };
 
