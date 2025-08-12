@@ -25,7 +25,6 @@ const ProfileResults: React.FC<ProfileResultsProps> = ({ isOpen, onClose, profil
   // Función para mapear perfil a tipo de flujo estratégico
   const getFlowTypeFromProfile = (profileType: string): FlowType => {
     const profileMapping: Record<string, FlowType> = {
-      'agresivo': 'multiply',
       'familiar': 'family', 
       'maduro': 'preserve',
       'planificador': 'multiply'

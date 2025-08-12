@@ -65,7 +65,6 @@ export const LeadProfiler: React.FC<LeadProfilerProps> = ({
   // Función para mapear perfil a tipo de flujo estratégico
   const getFlowTypeFromProfile = (profileType: string): FlowType => {
     const profileMapping: Record<string, FlowType> = {
-      'agresivo': 'multiply',
       'familiar': 'family', 
       'maduro': 'preserve',
       'planificador': 'multiply'
