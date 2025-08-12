@@ -878,7 +878,7 @@ Notas adicionales: ${lead.notes || 'Ninguna'}`;
                       <Button 
                     onClick={handleSaveManagement}
                     disabled={!managementChanges || !contactMethod || !result || !managementNotes}
-                    className="bg-primary absolute right-0"
+                    className="bg-primary flex justify-end
                   >
                     Guardar Gestión
                   </Button>
