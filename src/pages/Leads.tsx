@@ -352,21 +352,21 @@ export default function Leads() {
               {!isSmallScreen && (
                 <div className="flex flex-1 items-center gap-2">
                   <Button
-                    className="gap-1 w-8 h-8 bg-primary"
+                    className="gap-1 min-w-8 min-h-8 bg-primary"
                     onClick={handleCreateLead}
                     size="icon"
                   >
                     <Plus className="h-4 w-4" />
                   </Button>
                   <Button
-                    className="gap-1 w-8 h-8 bg-primary"
+                    className="gap-1 min-w-8 min-h-8 bg-primary"
                     onClick={handleBulkAssign}
                     size="icon"
                   >
                     <Users className="h-4 w-4" />
                   </Button>
                   <Button
-                    className="gap-1 w-8 h-8 bg-primary"
+                    className="gap-1 min-w-8 min-h-8 bg-primary"
                     onClick={handleMassEmail}
                     size="icon"
                   >
@@ -380,7 +380,7 @@ export default function Leads() {
                     <FaWhatsapp className="h-4 w-4" />
                   </Button>*/}
                   <Button
-                    className="gap-1 w-8 h-8 bg-red-600 hover:bg-red-700"
+                    className="gap-1 min-w-8 min-h-8 bg-red-600 hover:bg-red-700"
                     onClick={handleDeleteSelectedLeads}
                     size="icon"
                     disabled={isDeleting}
