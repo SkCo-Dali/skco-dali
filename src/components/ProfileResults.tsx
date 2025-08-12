@@ -28,7 +28,7 @@ const ProfileResults: React.FC<ProfileResultsProps> = ({ isOpen, onClose, profil
       'agresivo': 'multiply',
       'moderado': 'family', 
       'conservador': 'preserve',
-      'planificador': 'family'
+      'planificador': 'multiply'
     };
 
     const normalizedProfile = profileType.toLowerCase();

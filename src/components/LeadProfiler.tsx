@@ -68,7 +68,7 @@ export const LeadProfiler: React.FC<LeadProfilerProps> = ({
       'agresivo': 'multiply',
       'moderado': 'family', 
       'conservador': 'preserve',
-      'planificador': 'family'
+      'planificador': 'multiply'
     };
 
     const normalizedProfile = profileType.toLowerCase();
