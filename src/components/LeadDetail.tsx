@@ -875,7 +875,7 @@ Notas adicionales: ${lead.notes || 'Ninguna'}`;
 
                     {/* Botón del Perfilador */}
                     <div className="mt-4 pt-4 border-t">
-                    <Button
+                      <Button
                         onClick={handleProfilerClick}
                         className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white"
                       >
