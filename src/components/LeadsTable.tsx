@@ -512,10 +512,10 @@ Por favor, confirmar asistencia.`;
                   Agendar reunión
                 </DropdownMenuItem>
                 {onOpenProfiler && (
-                  <DropdownMenuItem onClick={(e) => handleLeadAction('profile', lead, e)}>
+            {/*<DropdownMenuItem onClick={(e) => handleLeadAction('profile', lead, e)}>
                     <UserIcon className="mr-2 h-4 w-4" />
                     Perfilar lead
-                  </DropdownMenuItem>
+                  </DropdownMenuItem>*/}
                 )}
                 <DropdownMenuItem 
                   onClick={(e) => handleLeadAction('delete', lead, e)}
