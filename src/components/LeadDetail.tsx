@@ -12,16 +12,19 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Calendar, MessageSquare, Phone, Mail, UserCheck, Clock, Tag, Building2, Globe, CreditCard, AlertCircle, History, UserPlus, Users, X, ChevronDown } from 'lucide-react';
+import { Calendar, MessageSquare, Phone, Mail, UserCheck, Clock, Tag, Building2, Globe, CreditCard, AlertCircle, History, UserPlus, Users, X, ChevronDown, Brain } from 'lucide-react';
 import { CustomFieldSelect } from '@/components/ui/custom-field-select';
 import { useUsersApi } from '@/hooks/useUsersApi';
 import { useInteractionsApi } from '@/hooks/useInteractionsApi';
 import { useLeadAssignments } from '@/hooks/useLeadAssignments';
 import { useLeadsApi } from '@/hooks/useLeadsApi';
+import { useProfilingApi } from '@/hooks/useProfilingApi';
 import { useToast } from '@/hooks/use-toast';
 import { formatDistanceToNow } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { LeadReassignDialog } from './LeadReassignDialog';
+import { ProfilingSession } from './ProfilingSession';
+import ProfileResults from './ProfileResults';
 import { FaWhatsapp } from "react-icons/fa";
 import { SkAccordion, SkAccordionItem, SkAccordionTrigger, SkAccordionContent } from '@/components/ui/sk-accordion';
 
@@ -151,6 +154,12 @@ export function LeadDetail({ lead, isOpen, onClose, onSave, onOpenMassEmail }: L
   const [newTag, setNewTag] = useState('');
   const [newProduct, setNewProduct] = useState('');
   
+  // Estados para el perfilador
+  const [showProfiler, setShowProfiler] = useState(false);
+  const [showProfileResults, setShowProfileResults] = useState(false);
+  const [profileData, setProfileData] = useState<any>(null);
+  const [hasExistingProfile, setHasExistingProfile] = useState(false);
+  
   // Estados para tracking de cambios
   const [generalChanges, setGeneralChanges] = useState(false);
   const [managementChanges, setManagementChanges] = useState(false);
@@ -164,6 +173,7 @@ export function LeadDetail({ lead, isOpen, onClose, onSave, onOpenMassEmail }: L
   const { interactions, clientHistory, loading: interactionsLoading, loadLeadInteractions, loadClientHistory, createInteractionFromLead } = useInteractionsApi();
   const { updateExistingLead } = useLeadsApi();
   const { getLeadHistory } = useLeadAssignments();
+  const { checkClient, getResults, loading: profilingLoading } = useProfilingApi();
   const [assignmentHistory, setAssignmentHistory] = useState<any[]>([]);
   const [historyLoading, setHistoryLoading] = useState(false);
   const [showingClientHistory, setShowingClientHistory] = useState(false);
@@ -193,6 +203,9 @@ export function LeadDetail({ lead, isOpen, onClose, onSave, onOpenMassEmail }: L
       
       // Cargar historial de asignaciones
       loadAssignmentHistory();
+      
+      // Verificar si el lead tiene un perfil existente
+      checkExistingProfile();
     }
   }, [isOpen, lead.id]);
 
@@ -208,6 +221,47 @@ export function LeadDetail({ lead, isOpen, onClose, onSave, onOpenMassEmail }: L
     } finally {
       setHistoryLoading(false);
     }
+  };
+
+  // Verificar si el lead tiene un perfil existente
+  const checkExistingProfile = async () => {
+    try {
+      const result = await checkClient(lead.email, lead.documentNumber?.toString());
+      if (result?.hasProfile && result?.profileId) {
+        setHasExistingProfile(true);
+        // Si tiene perfil y está completado, cargar los resultados
+        if (result.isCompleted) {
+          const profileResults = await getResults(result.profileId);
+          if (profileResults) {
+            setProfileData(profileResults);
+          }
+        }
+      } else {
+        setHasExistingProfile(false);
+      }
+    } catch (error) {
+      console.error('Error checking existing profile:', error);
+      setHasExistingProfile(false);
+    }
+  };
+
+  // Manejar clic en botón de perfilador
+  const handleProfilerClick = () => {
+    if (hasExistingProfile && profileData) {
+      // Si ya tiene perfil completado, mostrar resultados
+      setShowProfileResults(true);
+    } else {
+      // Si no tiene perfil, iniciar proceso de perfilamiento
+      setShowProfiler(true);
+    }
+  };
+
+  // Manejar cuando se completa un nuevo perfil
+  const handleProfileCompleted = async (completedProfileData: any) => {
+    setProfileData(completedProfileData);
+    setHasExistingProfile(true);
+    setShowProfiler(false);
+    setShowProfileResults(true);
   };
 
   // Nueva función para cargar historial completo del cliente
@@ -817,6 +871,18 @@ Notas adicionales: ${lead.notes || 'Ninguna'}`;
                         <Calendar className="h-3 w-3" />
                       </Button>
                     </div>
+
+                    {/* Botón del Perfilador */}
+                    <div className="mt-4 pt-4 border-t">
+                      <Button
+                        onClick={handleProfilerClick}
+                        disabled={profilingLoading}
+                        className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white"
+                      >
+                        <Brain className="h-4 w-4 mr-2" />
+                        {hasExistingProfile && profileData ? 'Ver Perfil' : 'Perfilar Lead'}
+                      </Button>
+                    </div>
                   </CardContent>
                 
                 {/* Botón específico para guardar cambios de gestión */}
@@ -1076,6 +1142,21 @@ Notas adicionales: ${lead.notes || 'Ninguna'}`;
           onClose={() => setShowReassignDialog(false)}
           lead={editedLead}
           onSuccess={handleReassignSuccess}
+        />
+
+        {/* Componente del Perfilador */}
+        {showProfiler && (
+          <ProfilingSession
+            selectedLead={lead}
+            onBack={() => setShowProfiler(false)}
+          />
+        )}
+
+        {/* Resultados del Perfil */}
+        <ProfileResults
+          isOpen={showProfileResults}
+          onClose={() => setShowProfileResults(false)}
+          profileData={profileData}
         />
       </>
     );
