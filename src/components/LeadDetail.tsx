@@ -1123,13 +1123,6 @@ Notas adicionales: ${lead.notes || 'Ninguna'}`;
                 )}
               </TabsContent>
             </Tabs>
-
-            {/* Botón de cerrar global */}
-            <div className="flex justify-center pt-4 border-t">
-              <Button variant="outline" onClick={onClose}>
-                Cerrar
-              </Button>
-            </div>
           </DialogContent>
         </Dialog>
 
