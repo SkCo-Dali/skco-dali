@@ -783,7 +783,7 @@ Notas adicionales: ${lead.notes || 'Ninguna'}`;
                       />
                   </div>
                   
-                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 space-y-2">
                      <CustomFieldSelect
                          label="Resultado de Gestión"
                          value={result}
