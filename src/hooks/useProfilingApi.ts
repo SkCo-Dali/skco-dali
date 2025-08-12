@@ -68,11 +68,11 @@ export const useProfilingApi = () => {
 
   const getHeaders = async () => {
     const tokens = await getAccessToken();
-    if (!tokens?.accessToken) {
+    if (!tokens?.idToken) {
       throw new Error('Usuario no autenticado');
     }
     return {
-      'Authorization': `Bearer ${tokens.accessToken}`,
+      'Authorization': `Bearer ${tokens.idToken}`,
       'Content-Type': 'application/json'
     };
   };
