@@ -1148,7 +1148,6 @@ Notas adicionales: ${lead.notes || 'Ninguna'}`;
         <Dialog open={showProfiler} onOpenChange={() => setShowProfiler(false)}>
           <DialogContent className="max-w-4xl min-h-[600px] bg-gray-50 overflow-y-auto">
             <LeadProfiler
-              className="m-0 p-0"
               selectedLead={lead}
               onBack={() => setShowProfiler(false)}
             />
