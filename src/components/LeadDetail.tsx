@@ -247,6 +247,7 @@ export function LeadDetail({ lead, isOpen, onClose, onSave, onOpenMassEmail }: L
 
   // Manejar clic en botón de perfilador
   const handleProfilerClick = () => {
+    console.log('ProfilerClick triggered:', { hasExistingProfile, profileData, profilingLoading });
     if (hasExistingProfile && profileData) {
       // Si ya tiene perfil completado, mostrar resultados
       setShowProfileResults(true);
@@ -874,9 +875,8 @@ Notas adicionales: ${lead.notes || 'Ninguna'}`;
 
                     {/* Botón del Perfilador */}
                     <div className="mt-4 pt-4 border-t">
-                      <Button
+                    <Button
                         onClick={handleProfilerClick}
-                        disabled={profilingLoading}
                         className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white"
                       >
                         <Brain className="h-4 w-4 mr-2" />
