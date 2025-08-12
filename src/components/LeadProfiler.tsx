@@ -8,7 +8,8 @@ import { ProfilingSession } from './ProfilingSession';
 import { useProfilingApi } from '@/hooks/useProfilingApi';
 
 export const LeadProfiler: React.FC<LeadProfilerProps> = ({
-  selectedLead
+  selectedLead,
+  onBack
 }) => {
   const [showSession, setShowSession] = useState(false);
   const { loading, checkClient, currentProfileId } = useProfilingApi();
@@ -54,7 +55,10 @@ export const LeadProfiler: React.FC<LeadProfilerProps> = ({
     return (
       <ProfilingSession 
         selectedLead={selectedLead}
-        onBack={() => setShowSession(false)}
+        onBack={() => {
+          setShowSession(false);
+          if (onBack) onBack();
+        }}
       />
     );
   }

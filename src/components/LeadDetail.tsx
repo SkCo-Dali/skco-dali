@@ -23,7 +23,7 @@ import { useToast } from '@/hooks/use-toast';
 import { formatDistanceToNow } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { LeadReassignDialog } from './LeadReassignDialog';
-import { ProfilingSession } from './ProfilingSession';
+import { LeadProfiler } from './LeadProfiler';
 import ProfileResults from './ProfileResults';
 import { FaWhatsapp } from "react-icons/fa";
 import { SkAccordion, SkAccordionItem, SkAccordionTrigger, SkAccordionContent } from '@/components/ui/sk-accordion';
@@ -1146,7 +1146,7 @@ Notas adicionales: ${lead.notes || 'Ninguna'}`;
 
         {/* Componente del Perfilador */}
         {showProfiler && (
-          <ProfilingSession
+          <LeadProfiler
             selectedLead={lead}
             onBack={() => setShowProfiler(false)}
           />
