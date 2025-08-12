@@ -181,7 +181,7 @@ export const ProfilingSession: React.FC<ProfilingSessionProps> = ({
   }
 
   return (
-    <div className="min-h-[600px] bg-green-50 p-6 m-0">
+    <div className="min-h-[600px] bg-gray-50 p-6 m-0">
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-4">
