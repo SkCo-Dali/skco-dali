@@ -277,8 +277,7 @@ export const LeadProfiler: React.FC<LeadProfilerProps> = ({
                 <Target className="h-10 w-10 text-pink-500" />
               </div>
               <h3 className="text-xl font-bold text-gray-900 mb-2">Test de Perfil Financiero</h3>
-              <p className="text-gray-600 mb-4">Vista previa de lo que verá el cliente</p>
-              <p className="text-lg font-medium text-gray-900">1 pregunta para personalizar la experiencia</p>
+             
               
               {/* Mostrar estado del cliente */}
               {clientStatus && (
@@ -288,7 +287,7 @@ export const LeadProfiler: React.FC<LeadProfilerProps> = ({
                       ? clientStatus.isCompleted 
                         ? '✅ Cliente con perfil completado'
                         : '⚠️ Cliente con perfil en progreso'
-                      : '🆕 Cliente nuevo'
+                      : '🆕 Cliente sin perfil'
                     }
                   </p>
                 </div>
