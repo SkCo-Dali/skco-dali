@@ -106,14 +106,11 @@ const ProfileResults: React.FC<ProfileResultsProps> = ({ isOpen, onClose, profil
           </p>
         </DialogHeader>
 
-        <div className="space-y-6 p-6">
+        <div className="space-y-6 p-2">
           {/* Perfil y Nivel de Riesgo */}
           <div className="text-center space-y-2">
             <Badge variant="outline" className="text-lg px-4 py-2">
               Perfil: {profileData.finalProfileType}
-            </Badge>
-            <Badge variant="secondary" className="ml-2">
-              Riesgo: {profileData.riskLevel}
             </Badge>
           </div>
 
