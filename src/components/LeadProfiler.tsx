@@ -160,27 +160,26 @@ export const LeadProfiler: React.FC<LeadProfilerProps> = ({
             </div>
           </div>
 
-          {/* Button */}
-          <Button 
-            className="w-full bg-green-500 hover:bg-green-600 text-white py-4 text-md font-medium flex items-center justify-center gap-2"
-            onClick={handleStartSession}
-            disabled={loading}
-          >
-            {loading ? (
-              <>
-                <Loader2 className="h-5 w-5 animate-spin" />
-                Verificando cliente...
-              </>
-            ) : (
-              <>
-                {clientStatus?.hasProfile && clientStatus?.isCompleted 
-                  ? 'Crear Nuevo Perfil' 
-                  : 'Iniciar Sesión de Perfilado'
-                }
-                <ArrowRight className="h-5 w-5" />
-              </>
-            )}
-          </Button>
+          {/* Button - Solo mostrar si no tiene perfil completado */}
+          {!(clientStatus?.hasProfile && clientStatus?.isCompleted) && (
+            <Button 
+              className="w-full bg-green-500 hover:bg-green-600 text-white py-4 text-md font-medium flex items-center justify-center gap-2"
+              onClick={handleStartSession}
+              disabled={loading}
+            >
+              {loading ? (
+                <>
+                  <Loader2 className="h-5 w-5 animate-spin" />
+                  Verificando cliente...
+                </>
+              ) : (
+                <>
+                  Iniciar Sesión de Perfilado
+                  <ArrowRight className="h-5 w-5" />
+                </>
+              )}
+            </Button>
+          )}
         </div>
 
         {/* Right Column */}
