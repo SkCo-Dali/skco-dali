@@ -17,6 +17,7 @@ import { CustomFieldSelect } from '@/components/ui/custom-field-select';
 import { useUsersApi } from '@/hooks/useUsersApi';
 import { useInteractionsApi } from '@/hooks/useInteractionsApi';
 import { useLeadAssignments } from '@/hooks/useLeadAssignments';
+import { useLeadsApi } from '@/hooks/useLeadsApi';
 import { useToast } from '@/hooks/use-toast';
 import { formatDistanceToNow } from 'date-fns';
 import { es } from 'date-fns/locale';
@@ -161,6 +162,7 @@ export function LeadDetail({ lead, isOpen, onClose, onSave, onOpenMassEmail }: L
   
   const { users } = useUsersApi();
   const { interactions, clientHistory, loading: interactionsLoading, loadLeadInteractions, loadClientHistory, createInteractionFromLead } = useInteractionsApi();
+  const { updateExistingLead } = useLeadsApi();
   const { getLeadHistory } = useLeadAssignments();
   const [assignmentHistory, setAssignmentHistory] = useState<any[]>([]);
   const [historyLoading, setHistoryLoading] = useState(false);
@@ -289,8 +291,12 @@ export function LeadDetail({ lead, isOpen, onClose, onSave, onOpenMassEmail }: L
         nextFollowUp: editedLead.nextFollowUp ? formatDateForAPI(editedLead.nextFollowUp) : editedLead.nextFollowUp
       };
       
-      // Invocar directamente el API de edición de lead
-      await onSave(leadToSave);
+      // Llamar directamente al API de actualización de lead (PUT /api/leads/{id})
+      console.log('🔄 Calling updateExistingLead API...');
+      await updateExistingLead(leadToSave);
+      
+      // Notificar al componente padre para refrescar datos
+      onSave(leadToSave);
       
       // Resetear estado de cambios generales
       setGeneralChanges(false);
@@ -324,7 +330,7 @@ export function LeadDetail({ lead, isOpen, onClose, onSave, onOpenMassEmail }: L
     }
     
     try {
-      // 1. Crear interacción con datos de gestión
+      // 1. Crear interacción con datos de gestión (POST /api/interactions)
       console.log('🔄 Creating interaction from management data...');
       
       // Formatear la fecha del próximo seguimiento para el API
@@ -350,7 +356,7 @@ export function LeadDetail({ lead, isOpen, onClose, onSave, onOpenMassEmail }: L
         return;
       }
       
-      // 2. Actualizar el lead con cambios de gestión (estado, fecha próximo seguimiento, prioridad)
+      // 2. Actualizar el lead con cambios de gestión (PUT /api/leads/{id})
       console.log('🔄 Updating lead with management changes...');
       
       const leadToSave = {
@@ -358,7 +364,11 @@ export function LeadDetail({ lead, isOpen, onClose, onSave, onOpenMassEmail }: L
         nextFollowUp: editedLead.nextFollowUp ? formatDateForAPI(editedLead.nextFollowUp) : editedLead.nextFollowUp
       };
       
-      await onSave(leadToSave);
+      // Llamar directamente al API de actualización de lead (PUT /api/leads/{id})
+      await updateExistingLead(leadToSave);
+      
+      // Notificar al componente padre para refrescar datos
+      onSave(leadToSave);
       
       // Recargar interacciones después de crear una nueva
       await loadLeadInteractions(lead.id);
