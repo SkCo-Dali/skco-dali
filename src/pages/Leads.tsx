@@ -4,6 +4,7 @@ import { Lead } from "@/types/crm";
 import { LeadsSearch } from "@/components/LeadsSearch";
 import { LeadsFilters } from "@/components/LeadsFilters";
 import { LeadsStats } from "@/components/LeadsStats";
+import { AllLeadsKPICards } from "@/components/AllLeadsKPICards";
 import { LeadsContent } from "@/components/LeadsContent";
 import { LeadsPagination } from "@/components/LeadsPagination";
 import { LeadDetail } from "@/components/LeadDetail";
@@ -14,7 +15,7 @@ import { MassEmailSender } from "@/components/MassEmailSender";
 import { MassWhatsAppSender } from "@/components/MassWhatsAppSender";
 import { LeadsTableColumnSelector } from "@/components/LeadsTableColumnSelector";
 import { LeadsActionsButton } from "@/components/LeadsActionsButton";
-import { useLeadsFilters } from "@/hooks/useLeadsFilters";
+import { useUnifiedLeadsFilters } from "@/hooks/useUnifiedLeadsFilters";
 import { useLeadsPagination } from "@/hooks/useLeadsPagination";
 import { useLeadsApi } from "@/hooks/useLeadsApi";
 import { useIsMobile, useIsMedium } from "@/hooks/use-mobile";
@@ -50,6 +51,7 @@ import {
 } from "lucide-react";
 import { useLeadDeletion } from "@/hooks/useLeadDeletion";
 import { LeadDeleteConfirmDialog } from "@/components/LeadDeleteConfirmDialog";
+import { FaWhatsapp } from "react-icons/fa";
 
 const DEFAULT_COLUMNS: ColumnConfig[] = [
   { key: 'name', label: 'Nombre', visible: true, sortable: true },
@@ -96,7 +98,8 @@ export default function Leads() {
     leads: leadsData,
     loading: isLoading,
     error,
-    refreshLeads
+    refreshLeads,
+    createNewLead
   } = useLeadsApi();
 
   const handleLeadUpdate = useCallback(() => {
@@ -111,14 +114,6 @@ export default function Leads() {
   } = useLeadDeletion({
     onLeadDeleted: handleLeadUpdate
   });
-
-  console.log('🏠 === LEADS PAGE DEBUG ===');
-  console.log('🏠 Total leads from useLeadsApi:', leadsData.length);
-  console.log('🏠 Loading state:', isLoading);
-  console.log('🏠 Error state:', error);
-  if (leadsData.length > 0) {
-    console.log('🏠 Sample lead from page:', JSON.stringify(leadsData[0], null, 2));
-  }
 
   const {
     filteredLeads,
@@ -146,15 +141,21 @@ export default function Leads() {
     setFilterDuplicates,
     sortBy,
     setSortBy,
+    sortDirection,
+    setSortDirection,
+    columnFilters,
+    textFilters,
+    handleColumnFilterChange,
+    handleTextFilterChange,
+    clearColumnFilter,
+    hasFiltersForColumn,
     clearFilters,
     uniqueStages,
     uniqueSources,
     uniqueCampaigns,
     uniqueAssignedTo,
     duplicateCount
-  } = useLeadsFilters(leadsData);
-
-  const leadsToUse = sortedLeads.length > 0 ? sortedLeads : filteredLeads;
+  } = useUnifiedLeadsFilters(leadsData);
 
   const {
     currentPage,
@@ -163,17 +164,35 @@ export default function Leads() {
     setLeadsPerPage,
     paginatedLeads,
     totalPages
-  } = useLeadsPagination(leadsToUse);
+  } = useLeadsPagination(filteredLeads);
 
   const handleLeadClick = useCallback((lead: Lead) => {
     setSelectedLead(lead);
   }, []);
 
-  const handleLeadCreate = useCallback((leadData: Partial<Lead>) => {
-    console.log('Creating lead:', leadData);
-    handleLeadUpdate();
-    toast.success("Lead creado exitosamente");
-  }, [handleLeadUpdate]);
+  const handleLeadCreate = useCallback(async (leadData: Partial<Lead>) => {
+    console.log('🎬 === LEADS.TSX: handleLeadCreate called ===');
+    console.log('📋 Lead data received in Leads.tsx:', JSON.stringify(leadData, null, 2));
+    console.log('🔄 About to call createNewLead from useLeadsApi...');
+    console.log('📝 createNewLead function reference:', typeof createNewLead);
+    
+    try {
+      console.log('⚡ Calling createNewLead...');
+      const result = await createNewLead(leadData);
+      console.log('🎯 createNewLead result:', result);
+      if (result) {
+        console.log('✅ Lead created successfully, refreshing data...');
+        handleLeadUpdate();
+        toast.success("Lead creado exitosamente");
+      } else {
+        console.error('❌ Failed to create lead - result is null/undefined');
+        toast.error("Error al crear el lead");
+      }
+    } catch (error) {
+      console.error('💥 Exception in handleLeadCreate:', error);
+      toast.error("Error al crear el lead");
+    }
+  }, [createNewLead, handleLeadUpdate]);
 
   const handleSortedLeadsChange = useCallback((sorted: Lead[]) => {
     setSortedLeads(sorted);
@@ -267,8 +286,11 @@ export default function Leads() {
   };
 
   const handleCreateLead = () => {
-    console.log('Leads.tsx: handleCreateLead called, calling leadCreateDialogRef.current?.openDialog()');
+    console.log('🚀 === LEADS.TSX: handleCreateLead button clicked ===');
+    console.log('🔄 About to open lead creation dialog...');
+    console.log('📞 Calling leadCreateDialogRef.current?.openDialog()');
     leadCreateDialogRef.current?.openDialog();
+    console.log('✅ Dialog open command sent');
   };
 
   const handleBulkAssign = () => {
@@ -304,14 +326,12 @@ export default function Leads() {
 
   return (
     <>
-      <div className="w-full max-w-full px-4 py-8 space-y-6">
-        <div className="flex flex-col lg:flex-row gap-6">
+      <div className="w-full max-w-full px-4 py-6 space-y-6">
+            <div className="flex flex-col lg:flex-row gap-6">
           <div className="flex-1 space-y-6">
-            {/* Header con título y botón de acciones */}
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pt-12">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 pt-0">
               <h1 className="text-3xl font-bold mb-1 tracking-tight text-[#00c83c]">Gestión de Leads</h1>
               
-              {/* Botón de acciones para pantallas pequeñas y medianas */}
               {isSmallScreen && (
                 <LeadsActionsButton
                   onCreateLead={handleCreateLead}
@@ -325,9 +345,10 @@ export default function Leads() {
               )}
             </div>
 
-            {/* Barra de búsqueda y controles */}
+            {/* KPI Cards and Stage Summary */}
+            <AllLeadsKPICards leads={filteredLeads} />
+
             <div className="flex flex-col lg:flex-row gap-4 items-center">
-              {/* Sección de búsqueda y botones para pantallas grandes */}
               {!isSmallScreen && (
                 <div className="flex flex-1 items-center gap-2">
                   <Button
@@ -351,13 +372,13 @@ export default function Leads() {
                   >
                     <Mail className="h-4 w-4" />
                   </Button>
-                  <Button
-                    className="gap-1 w-8 h-8 bg-[#25D366] hover:bg-[#25D366]/90"
+                  {/*<Button
+                    className="gap-1 w-8 h-8 bg-[#00c83c]"
                     onClick={handleMassWhatsApp}
                     size="icon"
                   >
-                    <MessageSquare className="h-4 w-4" />
-                  </Button>
+                    <FaWhatsapp className="h-4 w-4" />
+                  </Button>*/}
                   <Button
                     className="gap-1 w-8 h-8 bg-red-600 hover:bg-red-700"
                     onClick={handleDeleteSelectedLeads}
@@ -373,7 +394,6 @@ export default function Leads() {
                 </div>
               )}
 
-              {/* Barra de búsqueda y controles para pantallas pequeñas */}
               {isSmallScreen && (
                 <div className="flex w-full items-center gap-2">
                   <div className="flex-1">
@@ -509,7 +529,6 @@ export default function Leads() {
                 </div>
               )}
               
-              {/* Controles para pantallas grandes */}
               {!isSmallScreen && (
                 <div className="flex gap-2">
                   <DropdownMenu>
@@ -645,24 +664,34 @@ export default function Leads() {
               </div>
             ) : (
               <>
-                <LeadsContent
-                  viewMode={viewMode}
-                  leads={filteredLeads}
-                  onLeadClick={handleLeadClick}
-                  onLeadUpdate={handleLeadUpdate}
-                  columns={columns}
-                  paginatedLeads={paginatedLeads}
-                  onSortedLeadsChange={handleSortedLeadsChange}
-                  onSendEmail={handleSendEmailToLead}
-                  groupBy={groupBy}
-                  selectedLeads={selectedLeads}
-                  onLeadSelectionChange={handleLeadSelectionChange}
-                />
+            <LeadsContent
+              viewMode={viewMode}
+              leads={filteredLeads}
+              onLeadClick={handleLeadClick}
+              onLeadUpdate={handleLeadUpdate}
+              columns={columns}
+              paginatedLeads={paginatedLeads}
+              onSortedLeadsChange={handleSortedLeadsChange}
+              onSendEmail={handleSendEmailToLead}
+              groupBy={groupBy}
+              selectedLeads={selectedLeads}
+              onLeadSelectionChange={handleLeadSelectionChange}
+              columnFilters={columnFilters}
+              textFilters={textFilters}
+              onColumnFilterChange={handleColumnFilterChange}
+              onTextFilterChange={handleTextFilterChange}
+              onClearColumnFilter={clearColumnFilter}
+              hasFiltersForColumn={hasFiltersForColumn}
+              sortBy={sortBy}
+              setSortBy={setSortBy}
+              sortDirection={sortDirection}
+              setSortDirection={setSortDirection}
+            />
 
                 <LeadsPagination
                   currentPage={currentPage}
                   totalPages={totalPages}
-                  totalLeads={leadsToUse.length}
+                  totalLeads={filteredLeads.length}
                   leadsPerPage={leadsPerPage}
                   onPageChange={setCurrentPage}
                   onLeadsPerPageChange={setLeadsPerPage}
@@ -672,7 +701,6 @@ export default function Leads() {
           </div>
         </div>
 
-        {/* Dialog for creating leads - Solo el diálogo, sin botón visible */}
         <LeadCreateDialog ref={leadCreateDialogRef} onLeadCreate={handleLeadCreate} />
 
         {selectedLead && (
@@ -736,7 +764,7 @@ export default function Leads() {
         </Dialog>
 
         <Dialog open={showMassWhatsApp} onOpenChange={setShowMassWhatsApp}>
-          <DialogContent className="max-w-7xl max-h-[90vh] overflow-auto">
+          <DialogContent className="max-w-6xl max-h-[90vh] overflow-auto">
             <MassWhatsAppSender
               filteredLeads={selectedLeads.length > 0 
                 ? filteredLeads.filter(lead => selectedLeads.includes(lead.id))

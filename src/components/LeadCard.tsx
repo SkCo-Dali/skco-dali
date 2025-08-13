@@ -139,14 +139,14 @@ Por favor, confirmar asistencia.`;
     <>
       <div className="relative">
         <Card 
-          className="cursor-pointer transition-all duration-200 mt-0 mx-2 pt-6 max-w-md shadow-md border-0"
+          className="cursor-pointer transition-all duration-200 mt-0 mx-1 md:mx-2 pt-4 md:pt-6 max-w-md shadow-md border-0"
           style={{ backgroundColor: '#fafafa',
                    borderRadius: '16px'}}
           onClick={handleCardClick}
         >
-          <div className="absolute top-0 left-2 z-20">
+          <div className="absolute top-0 left-1 z-20">
             <div 
-              className={`text-xs px-3 py-1 whitespace-nowrap shadow-none ${stageColors[lead.stage as keyof typeof stageColors] || 'bg-gray-100 text-gray-800'}`}
+              className={`text-xs px-2 md:px-3 py-1 whitespace-nowrap shadow-none ${stageColors[lead.stage as keyof typeof stageColors] || 'bg-gray-100 text-gray-800'}`}
               style={{
                 borderRadius: '5px 0px 8px 0px'
               }}
@@ -157,15 +157,15 @@ Por favor, confirmar asistencia.`;
 
           <CardHeader className="pb-2 px-2 pt-2">
             <div className="flex items-start justify-between">
-              <div className="min-w-0 flex-1 space-y-2">
-                <span className="font-medium text-sm text-gray-900 mb-1">{capitalizeWords(lead.name)}</span>
+              <div className="min-w-0 flex-1 space-y-1 md:space-y-2">
+                <span className="font-medium text-xs md:text-sm text-gray-900 mb-1">{capitalizeWords(lead.name)}</span>
                 <div className="flex items-center text-xs text-gray-900 lowercase">
                   <Mail className="h-3 w-3 mr-1" />
-                  <span>{lead.email || 'No registra correo'}</span>
+                  <span className="truncate">{lead.email || 'No registra correo'}</span>
                 </div> 
                 <div className="flex items-center text-xs text-gray-900">
                   <strong>Campaña: </strong>
-                  <span className="ml-1"> {lead.campaign || ''}</span>
+                  <span className="ml-1 truncate"> {lead.campaign || ''}</span>
                 </div> 
               </div>
               
@@ -173,11 +173,11 @@ Por favor, confirmar asistencia.`;
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <button 
-                      className="h-6 w-6 flex-shrink-0 hover:bg-gray-100 rounded flex items-center justify-center"
+                      className="h-5 w-5 md:h-6 md:w-6 flex-shrink-0 hover:bg-gray-100 rounded flex items-center justify-center"
                       style={{ color: '#00c83c' }}
                       onClick={(e) => e.stopPropagation()}
                     >
-                      <MoreVertical className="h-6 w-6" />
+                      <MoreVertical className="h-5 w-5 md:h-6 md:w-6" />
                     </button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end" className="w-48 bg-white border border-gray-200 shadow-lg z-50">
@@ -237,7 +237,7 @@ Por favor, confirmar asistencia.`;
             </div>
           </CardHeader>
           
-          <CardContent className="px-4 pb-3 pt-0">
+          <CardContent className="px-3 md:px-4 pb-2 md:pb-3 pt-0">
             
           </CardContent>
         </Card>

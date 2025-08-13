@@ -12,6 +12,9 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Lead, Priority } from "@/types/crm";
 import { Plus, ChevronDown, Upload, FileText, RefreshCcw } from "lucide-react";
+import { uploadLeadsFile } from "@/utils/leadsApiClient";
+import { useAuth } from "@/contexts/AuthContext";
+import { useToast } from "@/hooks/use-toast";
 
 interface LeadCreateDialogProps {
   onLeadCreate: (leadData: Partial<Lead>) => void;
@@ -38,6 +41,9 @@ const productOptions = [
 
 export const LeadCreateDialog = forwardRef<LeadCreateDialogRef, LeadCreateDialogProps>(
   ({ onLeadCreate, children }, ref) => {
+    const { user } = useAuth();
+    const { toast } = useToast();
+    
     const [open, setOpen] = useState(false);
     const [showMoreFields, setShowMoreFields] = useState(false);
     const [uploadProgress, setUploadProgress] = useState(0);
@@ -106,19 +112,25 @@ export const LeadCreateDialog = forwardRef<LeadCreateDialogRef, LeadCreateDialog
     };
 
     const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+      console.log('📂 === LEAD CREATE DIALOG: handleFileUpload called ===');
       const file = event.target.files?.[0];
+      console.log('📁 Uploading file:', file);
       if (file) {
+        console.log('✅ File selected, setting upload state...');
         setUploadedFile(file);
         setIsUploading(true);
         
+        console.log('⏳ Starting simulated upload progress...');
         // Simulate upload progress
         let progress = 0;
         const interval = setInterval(() => {
           progress += 10;
           setUploadProgress(progress);
+          console.log(`📊 Upload progress: ${progress}%`);
           if (progress >= 100) {
             clearInterval(interval);
             setIsUploading(false);
+            console.log('✅ File upload simulation completed');
           }
         }, 200);
       }
@@ -131,9 +143,43 @@ export const LeadCreateDialog = forwardRef<LeadCreateDialogRef, LeadCreateDialog
     };
 
     const handleBulkUpload = () => {
-      // Implement bulk upload logic here
-      console.log('Uploading file:', uploadedFile);
-      setOpen(false);
+      console.log('🚀 === LEAD CREATE DIALOG: handleBulkUpload called ===');
+      console.log('📁 Uploading file:', uploadedFile);
+      console.log('📋 File details:', uploadedFile ? {
+        name: uploadedFile.name,
+        size: uploadedFile.size,
+        type: uploadedFile.type
+      } : 'No file');
+      console.log('👤 Current user:', user);
+      
+      if (uploadedFile && user?.id) {
+        console.log('🔄 About to call uploadLeadsFile API...');
+        uploadLeadsFile(uploadedFile, user.id)
+          .then(() => {
+            console.log('✅ Upload successful');
+            // No llamar onLeadCreate después del bulk upload
+            setOpen(false);
+            toast({
+              title: "Éxito",
+              description: "Leads cargados exitosamente",
+            });
+          })
+          .catch((error) => {
+            console.error('❌ Upload failed:', error);
+            toast({
+              title: "Error",
+              description: "Error al cargar los leads",
+              variant: "destructive",
+            });
+          });
+      } else {
+        console.error('❌ Missing file or user ID');
+        toast({
+          title: "Error",
+          description: "Archivo o usuario no válido",
+          variant: "destructive",
+        });
+      }
     };
 
     const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -154,7 +200,7 @@ export const LeadCreateDialog = forwardRef<LeadCreateDialogRef, LeadCreateDialog
           </DialogHeader>
           
           <Tabs defaultValue="individual" className="w-full">
-            <TabsList className="grid w-full grid-cols-2 mb-6 bg-gray-100 p-1 rounded-full">
+            <TabsList className="grid w-full grid-cols-2 mb-6 bg-gray-100 rounded-full px-0 py-0 my-0">
               <TabsTrigger 
                 value="individual" 
                 className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#00c83c] data-[state=active]:to-[#A3E40B] data-[state=active]:text-white rounded-full px-8 py-2 text-sm font-medium transition-all duration-200"

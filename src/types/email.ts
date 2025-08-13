@@ -9,9 +9,6 @@ export interface EmailRecipient {
 }
 
 export interface EmailSendRequest {
-  userId: string;
-  user_email: string;
-  token: string;
   recipients: EmailRecipient[];
 }
 

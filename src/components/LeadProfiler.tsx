@@ -1,21 +1,88 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { User, Target, ArrowRight } from 'lucide-react';
+import { User, Target, ArrowRight, Loader2 } from 'lucide-react';
 import { LeadProfilerProps } from '@/types/leadProfiler';
 import { ProfilingSession } from './ProfilingSession';
+import { useProfilingApi } from '@/hooks/useProfilingApi';
+import ProfileResults from './ProfileResults';
+import { STRATEGIC_PLAN_CONFIG, FlowType } from './StrategicPlanConfig';
 
 export const LeadProfiler: React.FC<LeadProfilerProps> = ({
-  selectedLead
+  selectedLead,
+  onBack
 }) => {
   const [showSession, setShowSession] = useState(false);
+  const { loading, checkClient, getResults, currentProfileId } = useProfilingApi();
+  const [clientStatus, setClientStatus] = useState<{
+    hasProfile: boolean;
+    isCompleted?: boolean;
+    profileId: string | null;
+  } | null>(null);
+  const [profileResults, setProfileResults] = useState<any>(null);
+
+  // Verificar si el cliente ya tiene perfil al cargar el componente
+  useEffect(() => {
+    if (selectedLead?.email || selectedLead?.documentNumber) {
+      checkClientProfile();
+    }
+  }, [selectedLead]);
+
+  const checkClientProfile = async () => {
+    if (!selectedLead) return;
+    
+    const result = await checkClient(
+      selectedLead.email,
+      selectedLead.documentNumber?.toString()
+    );
+    
+    if (result) {
+      setClientStatus(result);
+      
+      // Si tiene perfil completado, obtener los resultados
+      if (result.hasProfile && result.isCompleted && result.profileId) {
+        const profileData = await getResults(result.profileId);
+        if (profileData) {
+          setProfileResults(profileData);
+        }
+      }
+    }
+  };
+
+  const handleStartSession = () => {
+    // Si tiene perfil completado, mostrar opción de nuevo perfil
+    if (clientStatus?.hasProfile && clientStatus?.isCompleted) {
+      const confirmNew = window.confirm(
+        'El cliente ya tiene un perfil completado. ¿Desea crear uno nuevo?'
+      );
+      if (!confirmNew) return;
+    }
+    
+    setShowSession(true);
+  };
+
+  // Función para mapear perfil a tipo de flujo estratégico
+  const getFlowTypeFromProfile = (profileType: string): FlowType | 'nightmare' => {
+    const profileMapping: Record<string, FlowType | 'nightmare'> = {
+      'familiar': 'family', 
+      'maduro': 'preserve',
+      'planificador': 'multiply',
+      'inmediatista': 'nightmare'
+    };
+
+    const normalizedProfile = profileType.toLowerCase();
+    return profileMapping[normalizedProfile] || 'family';
+  };
 
   if (showSession) {
     return (
       <ProfilingSession 
         selectedLead={selectedLead}
-        onBack={() => setShowSession(false)}
+        onBack={() => {
+          setShowSession(false);
+          if (onBack) onBack();
+        }}
       />
     );
   }
@@ -107,27 +174,156 @@ export const LeadProfiler: React.FC<LeadProfilerProps> = ({
             </div>
           </div>
 
-          {/* Button */}
-          <Button 
-            className="w-full bg-green-500 hover:bg-green-600 text-white py-4 text-md font-medium flex items-center justify-center gap-2"
-            onClick={() => setShowSession(true)}
-          >
-            Iniciar Sesión de Perfilado
-            <ArrowRight className="h-5 w-5" />
-          </Button>
+          {/* Button - Solo mostrar si no tiene perfil completado */}
+          {!(clientStatus?.hasProfile && clientStatus?.isCompleted) && (
+            <Button 
+              className="w-full bg-green-500 hover:bg-green-600 text-white py-4 text-md font-medium flex items-center justify-center gap-2"
+              onClick={handleStartSession}
+              disabled={loading}
+            >
+              {loading ? (
+                <>
+                  <Loader2 className="h-5 w-5 animate-spin" />
+                  Verificando cliente...
+                </>
+              ) : (
+                <>
+                  Iniciar Sesión de Perfilado
+                  <ArrowRight className="h-5 w-5" />
+                </>
+              )}
+            </Button>
+          )}
         </div>
 
         {/* Right Column */}
         <div className="space-y-6">
-          {/* Test de Perfil Financiero */}
-          <div className="text-center">
-            <div className="w-20 h-20 bg-pink-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <Target className="h-10 w-10 text-pink-500" />
+          {/* Si el cliente tiene perfil completado, mostrar resultados */}
+          {clientStatus?.hasProfile && clientStatus?.isCompleted && profileResults ? (
+            (() => {
+              const flowType = getFlowTypeFromProfile(profileResults.finalProfileType);
+              
+              // Configuración para nightmare plan
+              const NIGHTMARE_PLAN_CONFIG = {
+                title: "Tu Plan Sin Complicaciones",
+                subtitle: "Automatizado y eficiente",
+                components: [
+                  {
+                    name: "Ahorro Automático",
+                    percentage: "60%",
+                    description: "Inversión mensual automática",
+                    icon: "🔄"
+                  },
+                  {
+                    name: "Fondo de Emergencias",
+                    percentage: "25%",
+                    description: "3 meses de gastos cubiertos",
+                    icon: "🛏️"
+                  },
+                  {
+                    name: "Fondo para Gustos",
+                    percentage: "15%",
+                    description: "Para tus placeres sin culpa",
+                    icon: "🎁"
+                  }
+                ],
+                benefits: [
+                  "Todo automático, sin esfuerzo",
+                  "Metas alcanzables mes a mes",
+                  "Disfruta sin culpa",
+                  "Asesoría cuando la necesites"
+                ]
+              };
+
+              const strategicPlan = flowType === 'nightmare' ? NIGHTMARE_PLAN_CONFIG : STRATEGIC_PLAN_CONFIG[flowType as FlowType];
+              
+              // Configuración de colores por componente
+              const componentColors = [
+                { bgColor: 'bg-green-50', dotColor: 'bg-green-500', textColor: 'text-green-600' },
+                { bgColor: 'bg-blue-50', dotColor: 'bg-blue-500', textColor: 'text-blue-600' },
+                { bgColor: 'bg-yellow-50', dotColor: 'bg-yellow-500', textColor: 'text-yellow-600' }
+              ];
+
+              return (
+                <div className="space-y-4">
+                  <div className="bg-white rounded-lg p-6 border">
+                    {/* Perfil y Nivel de Riesgo */}
+                    <div className="text-center space-y-2 mb-6">
+                      <div className="inline-block bg-gray-100 rounded-full px-4 py-2">
+                        <span className="text-sm font-medium">Perfil: {profileResults.finalProfileType}</span>
+                      </div>
+                    </div>
+
+                    {/* Distribución del Portafolio */}
+                    <div className="space-y-4">
+                      <h4 className="font-semibold text-gray-800 text-center mb-4">{strategicPlan.title}</h4>
+                      
+                      {strategicPlan.components.map((component, index) => {
+                        const colors = componentColors[index] || componentColors[0];
+                        return (
+                          <div key={index} className={`${colors.bgColor} rounded-lg p-4 border`}>
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center gap-2">
+                                <div className={`w-3 h-3 ${colors.dotColor} rounded-full`}></div>
+                                <span className="text-sm font-medium">{component.name}</span>
+                              </div>
+                              <span className={`text-lg font-bold ${colors.textColor}`}>{component.percentage}</span>
+                            </div>
+                            <p className="text-xs text-gray-600 mt-1">{component.description}</p>
+                          </div>
+                        );
+                      })}
+                    </div>
+
+                    {/* Beneficios */}
+                    <div className="mt-6 pt-4 border-t">
+                      <h4 className="font-semibold text-gray-800 mb-3 text-sm">Beneficios del plan:</h4>
+                      <div className="space-y-2">
+                        {strategicPlan.benefits.map((benefit, index) => (
+                          <div key={index} className="flex items-center gap-2">
+                            <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                            <span className="text-xs text-gray-700">{benefit}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Fecha de creación */}
+                    {profileResults.createdAt && (
+                      <div className="mt-4 pt-3 border-t text-center">
+                        <p className="text-xs text-gray-500">
+                          Perfil creado: {new Date(profileResults.createdAt).toLocaleDateString('es-ES')}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              );
+            })()
+          ) : (
+            /* Test de Perfil Financiero */
+            <div className="text-center">
+              <div className="w-20 h-20 bg-pink-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Target className="h-10 w-10 text-pink-500" />
+              </div>
+              <h3 className="text-xl font-bold text-gray-900 mb-2">Test de Perfil Financiero</h3>
+             
+              
+              {/* Mostrar estado del cliente */}
+              {clientStatus && (
+                <div className="mt-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
+                  <p className="text-sm text-blue-800">
+                    {clientStatus.hasProfile 
+                      ? clientStatus.isCompleted 
+                        ? '✅ Cliente con perfil completado'
+                        : '⚠️ Cliente con perfil en progreso'
+                      : '🆕 Cliente sin perfil'
+                    }
+                  </p>
+                </div>
+              )}
             </div>
-            <h3 className="text-xl font-bold text-gray-900 mb-2">Test de Perfil Financiero</h3>
-            <p className="text-gray-600 mb-4">Vista previa de lo que verá el cliente</p>
-            <p className="text-lg font-medium text-gray-900">1 pregunta para personalizar la experiencia</p>
-          </div>
+          )}
         </div>
       </div>
     </div>

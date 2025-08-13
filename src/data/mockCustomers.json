@@ -1,0 +1,167 @@
+[
+  {
+    "id": "cust-001",
+    "name": "María Elena Rodríguez",
+    "email": "maria.rodriguez@email.com",
+    "phone": "+57 300 123 4567",
+    "location": "Bogotá",
+    "age": 42,
+    "products": ["FPV", "Crea Patrimonio"],
+    "tags": ["Premium", "Alto Valor"],
+    "opportunityId": "opp-001"
+  },
+  {
+    "id": "cust-002",
+    "name": "Carlos Andrés Mejía",
+    "email": "carlos.mejia@email.com",
+    "phone": "+57 301 234 5678",
+    "location": "Medellín",
+    "age": 38,
+    "products": ["FPV"],
+    "tags": ["Cumpleaños Q4"],
+    "opportunityId": "opp-001"
+  },
+  {
+    "id": "cust-003",
+    "name": "Ana Sofia Vargas",
+    "email": "ana.vargas@email.com",
+    "phone": "+57 302 345 6789",
+    "location": "Cali",
+    "age": 45,
+    "products": ["Crea Patrimonio", "FIC"],
+    "tags": ["Premium", "Diversificado"],
+    "opportunityId": "opp-001"
+  },
+  {
+    "id": "cust-004",
+    "name": "Roberto Fernández",
+    "email": "roberto.fernandez@email.com",
+    "phone": "+57 303 456 7890",
+    "location": "Bogotá",
+    "age": 51,
+    "products": ["Cesantías"],
+    "tags": ["Inactivo", "12+ meses"],
+    "opportunityId": "opp-002"
+  },
+  {
+    "id": "cust-005",
+    "name": "Liliana Castro",
+    "email": "liliana.castro@email.com",
+    "phone": "+57 304 567 8901",
+    "location": "Barranquilla",
+    "age": 36,
+    "products": ["Cesantías"],
+    "tags": ["Sin movimientos", "Welcome Back"],
+    "opportunityId": "opp-002"
+  },
+  {
+    "id": "cust-006",
+    "name": "Diego Alexánder Ruiz",
+    "email": "diego.ruiz@email.com",
+    "phone": "+57 305 678 9012",
+    "location": "Cartagena",
+    "age": 29,
+    "products": ["Cesantías"],
+    "tags": ["Joven", "Reactivación"],
+    "opportunityId": "opp-002"
+  },
+  {
+    "id": "cust-007",
+    "name": "Patricia Moreno",
+    "email": "patricia.moreno@email.com",
+    "phone": "+57 306 789 0123",
+    "location": "Bucaramanga",
+    "age": 33,
+    "products": ["FPV"],
+    "tags": ["Cross-sell", "Buen historial"],
+    "opportunityId": "opp-003"
+  },
+  {
+    "id": "cust-008",
+    "name": "Alejandro Jiménez",
+    "email": "alejandro.jimenez@email.com",
+    "phone": "+57 307 890 1234",
+    "location": "Pereira",
+    "age": 40,
+    "products": ["FPV"],
+    "tags": ["Aportes regulares", "Patrimonio candidato"],
+    "opportunityId": "opp-003"
+  },
+  {
+    "id": "cust-009",
+    "name": "Isabella González",
+    "email": "isabella.gonzalez@email.com",
+    "phone": "+57 308 901 2345",
+    "location": "Manizales",
+    "age": 31,
+    "products": ["FPV"],
+    "tags": ["Diversificación", "Joven profesional"],
+    "opportunityId": "opp-003"
+  },
+  {
+    "id": "cust-010",
+    "name": "Fernando López",
+    "email": "fernando.lopez@email.com",
+    "phone": "+57 309 012 3456",
+    "location": "Cúcuta",
+    "age": 58,
+    "products": ["FIC"],
+    "tags": ["Vencimiento próximo", "Inversionista"],
+    "opportunityId": "opp-004"
+  },
+  {
+    "id": "cust-011",
+    "name": "Claudia Herrera",
+    "email": "claudia.herrera@email.com",
+    "phone": "+57 310 123 4567",
+    "location": "Ibagué",
+    "age": 47,
+    "products": ["FIC"],
+    "tags": ["Renovación", "Experiencia"],
+    "opportunityId": "opp-004"
+  },
+  {
+    "id": "cust-012",
+    "name": "Sebastián Torres",
+    "email": "sebastian.torres@email.com",
+    "phone": "+57 311 234 5678",
+    "location": "Santa Marta",
+    "age": 35,
+    "products": ["FIC"],
+    "tags": ["Retención", "Migración posible"],
+    "opportunityId": "opp-004"
+  },
+  {
+    "id": "cust-013",
+    "name": "Valentina Gómez",
+    "email": "valentina.gomez@email.com",
+    "phone": "+57 312 345 6789",
+    "location": "Bogotá",
+    "age": 27,
+    "products": [],
+    "tags": ["Lead caliente", "Digital native"],
+    "opportunityId": "opp-005"
+  },
+  {
+    "id": "cust-014",
+    "name": "Nicolás Ramírez",
+    "email": "nicolas.ramirez@email.com",
+    "phone": "+57 313 456 7890",
+    "location": "Medellín",
+    "age": 32,
+    "products": [],
+    "tags": ["Contenido descargado", "Alta conversión"],
+    "opportunityId": "opp-005"
+  },
+  {
+    "id": "cust-015",
+    "name": "Camila Ospina",
+    "email": "camila.ospina@email.com",
+    "phone": "+57 314 567 8901",
+    "location": "Cali",
+    "age": 29,
+    "products": [],
+    "tags": ["Múltiples visitas", "Interesada"],
+    "opportunityId": "opp-005"
+  }
+]

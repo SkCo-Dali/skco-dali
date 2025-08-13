@@ -24,6 +24,7 @@ export interface LeadProfilerProps {
   onProfileDelete?: (profileId: string) => void;
   existingProfiles?: LeadProfile[];
   selectedLead?: Lead;
+  onBack?: () => void;
 }
 
 export interface ProfileFormData {

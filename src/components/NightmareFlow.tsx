@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { ArrowLeft, Luggage, FileText, Bed, ShoppingBag, Target, Calendar, DollarSign, RefreshCw, CreditCard, Gift, Check } from 'lucide-react';
+import { ArrowLeft, Luggage, FileText, Bed, ShoppingBag, Target, Calendar, DollarSign, RefreshCw, CreditCard, Gift, Check, Loader2 } from 'lucide-react';
+import { useProfilingApi } from '@/hooks/useProfilingApi';
 
 interface NightmareFlowProps {
   onBack: () => void;
   selectedLead?: any;
+  profileId?: string | null;
 }
 
 const NIGHTMARE_QUESTIONS = [
@@ -118,7 +120,7 @@ const NIGHTMARE_PLAN_CONFIG = {
   ]
 };
 
-export const NightmareFlow: React.FC<NightmareFlowProps> = ({ onBack }) => {
+export const NightmareFlow: React.FC<NightmareFlowProps> = ({ onBack, profileId }) => {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [answers, setAnswers] = useState<Record<number, string>>({});
   const [selectedOption, setSelectedOption] = useState<string>('');
@@ -127,17 +129,28 @@ export const NightmareFlow: React.FC<NightmareFlowProps> = ({ onBack }) => {
   const [fundName, setFundName] = useState('');
   const [monthlyAmount, setMonthlyAmount] = useState(50000);
   const projectedAmount = monthlyAmount * 6
+  const { loading, saveResponse, completeProfiling } = useProfilingApi();
 
   const currentQuestion = NIGHTMARE_QUESTIONS[currentQuestionIndex];
   const isLastQuestion = currentQuestionIndex === NIGHTMARE_QUESTIONS.length - 1;
   const fundConfig = selectedOption ? FUND_CREATION_CONFIG[selectedOption as keyof typeof FUND_CREATION_CONFIG] : null;
 
-  const handleNext = () => {
+  const handleNext = async () => {
     // Guardar la respuesta actual
     setAnswers(prev => ({
       ...prev,
       [currentQuestion.id]: selectedOption
     }));
+
+    // Guardar en la API
+    if (profileId) {
+      await saveResponse(
+        profileId,
+        'nightmare_flow',
+        currentQuestion.id.toString(),
+        selectedOption
+      );
+    }
 
     if (isLastQuestion) {
       // Configurar valores por defecto para la creación del fondo
@@ -165,7 +178,21 @@ export const NightmareFlow: React.FC<NightmareFlowProps> = ({ onBack }) => {
     }
   };
 
-  const handleCreateFund = () => {
+  const handleCreateFund = async () => {
+    // Guardar datos del fondo
+    if (profileId) {
+      await saveResponse(
+        profileId,
+        'nightmare_flow',
+        'fund_creation',
+        JSON.stringify({
+          type: selectedOption,
+          name: fundName,
+          monthlyAmount: monthlyAmount
+        })
+      );
+    }
+    
     console.log('Crear fondo:', {
       type: selectedOption,
       name: fundName,
@@ -235,9 +262,21 @@ export const NightmareFlow: React.FC<NightmareFlowProps> = ({ onBack }) => {
         <div className="text-center">
           <Button 
             className="bg-green-500 hover:bg-green-600 text-white px-8 py-4 text-lg font-medium rounded-full"
-            onClick={() => console.log('Plan aceptado')}
+            onClick={async () => {
+              if (profileId) {
+                await completeProfiling(profileId, 'Plan Nightmare completado');
+              }
+            }}
+            disabled={loading}
           >
-            Guardar plan 🚀
+            {loading ? (
+              <>
+                <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                Guardando...
+              </>
+            ) : (
+              'Guardar plan 🚀'
+            )}
           </Button>
         </div>
       </div>
@@ -395,13 +434,20 @@ export const NightmareFlow: React.FC<NightmareFlowProps> = ({ onBack }) => {
 
       {/* Button */}
       <div className="text-center">
-        <Button 
-          className="bg-green-500 hover:bg-green-600 text-white px-8 py-4 text-md font-medium rounded-full"
-          disabled={!selectedOption}
-          onClick={handleNext}
-        >
-          {currentQuestion.buttonText}
-        </Button>
+          <Button 
+            className="bg-green-500 hover:bg-green-600 text-white px-8 py-4 text-md font-medium rounded-full"
+            disabled={!selectedOption || loading}
+            onClick={handleNext}
+          >
+            {loading ? (
+              <>
+                <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                Guardando...
+              </>
+            ) : (
+              currentQuestion.buttonText
+            )}
+          </Button>
       </div>
     </div>
   );

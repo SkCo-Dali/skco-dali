@@ -1,0 +1,475 @@
+[
+  {
+    "id": "opp-001",
+    "title": "Cumpleaños Q4 - Clientes Premium",
+    "subtitle": "Oportunidad de felicitación y venta cruzada en temporada alta",
+    "description": "Clientes con cumpleaños en Q4 que califican para productos adicionales basado en su perfil de inversión.",
+    "type": "birthday",
+    "priority": "alta",
+    "score": 92,
+    "customerCount": 847,
+    "icon": "🎂",
+    "tags": ["Premium", "Q4", "Venta Cruzada"],
+    "segment": "Edad 35-55, Bogotá/Medellín",
+    "suggestedProduct": "Fondo de Pensiones Obligatorias",
+    "trigger": "Cumpleaños en próximos 30 días",
+    "timeWindow": {
+      "start": "2024-01-15",
+      "end": "2024-02-14"
+    },
+    "strategy": {
+      "email": {
+        "subject": "¡Feliz cumpleaños! Te tenemos una sorpresa especial 🎉",
+        "body": "Querido [NOMBRE], en tu día especial queremos celebrar contigo y ofrecerte condiciones exclusivas para ampliar tu portafolio de inversión..."
+      },
+      "whatsapp": {
+        "template": "birthday_premium",
+        "message": "🎉 ¡Feliz cumpleaños [NOMBRE]! Tenemos una oportunidad única para ti..."
+      },
+      "call": {
+        "script": "Iniciar con felicitación personal, indagar sobre planes financieros para el nuevo año, presentar FPO con beneficios exclusivos."
+      }
+    },
+    "metrics": {
+      "conversionRate": 23.5,
+      "ctrEstimated": 18.2,
+      "estimatedSales": 2850000
+    },
+    "isHighlighted": true,
+    "createdAt": "2024-01-10T10:00:00Z",
+    "expiresAt": "2024-02-14T23:59:59Z"
+  },
+  {
+    "id": "opp-002",
+    "title": "Reactivación Clientes Inactivos - Cesantías",
+    "subtitle": "Clientes con cesantías sin movimiento por más de 12 meses",
+    "description": "Estrategia Welcome Back para reactivar clientes con fondos de cesantías dormidos.",
+    "type": "reactivation",
+    "priority": "alta",
+    "score": 88,
+    "customerCount": 1245,
+    "icon": "♻️",
+    "tags": ["Cesantías", "Inactivos", "Welcome Back"],
+    "segment": "Todas las edades, Nacional",
+    "suggestedProduct": "Fondo de Cesantías",
+    "trigger": "Sin movimientos > 12 meses",
+    "timeWindow": {
+      "start": "2024-01-20",
+      "end": "2024-03-15"
+    },
+    "strategy": {
+      "email": {
+        "subject": "Tu dinero puede trabajar mejor para ti - ¡Regresa a Skandia!",
+        "body": "Hemos notado que no has realizado movimientos en tu cuenta de cesantías. Te mostramos cómo optimizar tus recursos..."
+      },
+      "whatsapp": {
+        "template": "reactivation_cesantias",
+        "message": "¡Hola [NOMBRE]! Queremos ayudarte a que tu dinero genere más rendimientos 💰"
+      },
+      "call": {
+        "script": "Contacto empático, preguntar por situación actual, mostrar rendimientos perdidos, ofrecer asesoría gratuita."
+      }
+    },
+    "metrics": {
+      "conversionRate": 15.8,
+      "ctrEstimated": 12.4,
+      "estimatedSales": 980000
+    },
+    "isHighlighted": true,
+    "createdAt": "2024-01-12T14:30:00Z"
+  },
+  {
+    "id": "opp-003",
+    "title": "Cross-sell Crea Patrimonio - Clientes FPV",
+    "subtitle": "Clientes FPV con capacidad para diversificar inversiones",
+    "description": "Oportunidad de venta cruzada de Crea Patrimonio a clientes actuales de FPV con buen historial.",
+    "type": "cross-sell",
+    "priority": "media",
+    "score": 85,
+    "customerCount": 623,
+    "icon": "🎯",
+    "tags": ["FPV", "Patrimonio", "Diversificación"],
+    "segment": "Edad 28-45, Ingresos altos",
+    "suggestedProduct": "Crea Patrimonio",
+    "trigger": "FPV activo > 6 meses, aportes regulares",
+    "timeWindow": {
+      "start": "2024-01-25",
+      "end": "2024-02-29"
+    },
+    "strategy": {
+      "email": {
+        "subject": "Potencia tu estrategia de inversión con Crea Patrimonio",
+        "body": "Como cliente FPV exitoso, tienes el perfil ideal para diversificar con nuestro fondo estrella..."
+      },
+      "whatsapp": {
+        "template": "cross_sell_patrimonio",
+        "message": "📈 [NOMBRE], ¿sabías que puedes complementar tu FPV con Crea Patrimonio?"
+      },
+      "call": {
+        "script": "Felicitar por disciplina en FPV, explicar beneficios de diversificación, mostrar simulador de rentabilidad."
+      }
+    },
+    "metrics": {
+      "conversionRate": 28.2,
+      "ctrEstimated": 22.1,
+      "estimatedSales": 1950000
+    },
+    "isHighlighted": true,
+    "createdAt": "2024-01-08T09:15:00Z"
+  },
+  {
+    "id": "opp-004",
+    "title": "Renovaciones FIC próximas a vencer",
+    "subtitle": "Clientes con FIC que vencen en los próximos 60 días",
+    "description": "Retener clientes de Fondos de Inversión Colectiva próximos a vencimiento.",
+    "type": "retention",
+    "priority": "alta",
+    "score": 78,
+    "customerCount": 324,
+    "icon": "🔒",
+    "tags": ["FIC", "Renovación", "Retención"],
+    "segment": "Inversionistas experimentados",
+    "suggestedProduct": "Fondo de Inversión Colectiva",
+    "trigger": "Vencimiento en 60 días",
+    "timeWindow": {
+      "start": "2024-01-15",
+      "end": "2024-02-28"
+    },
+    "strategy": {
+      "email": {
+        "subject": "Tu inversión vence pronto - Asegura tu continuidad",
+        "body": "Tu FIC vence el [FECHA]. Te ayudamos a tomar la mejor decisión para renovar o migrar..."
+      },
+      "whatsapp": {
+        "template": "retention_fic",
+        "message": "⏰ [NOMBRE], tu FIC vence pronto. ¿Revisamos las opciones juntos?"
+      },
+      "call": {
+        "script": "Recordar vencimiento, evaluar satisfacción, mostrar opciones de renovación o productos alternativos."
+      }
+    },
+    "metrics": {
+      "conversionRate": 65.3,
+      "ctrEstimated": 45.7,
+      "estimatedSales": 3200000
+    },
+    "isHighlighted": false,
+    "createdAt": "2024-01-11T16:45:00Z",
+    "expiresAt": "2024-02-28T23:59:59Z"
+  },
+  {
+    "id": "opp-005",
+    "title": "Leads calientes - Campaña Digital",
+    "subtitle": "Leads de alta calidad generados por marketing digital",
+    "description": "Contactos que descargaron contenido premium y visitaron múltiples páginas.",
+    "type": "campaign",
+    "priority": "alta",
+    "score": 89,
+    "customerCount": 178,
+    "icon": "📣",
+    "tags": ["Digital", "Contenido", "Alta Conversión"],
+    "segment": "Edad 25-40, Digitales",
+    "suggestedProduct": "Fondo Voluntario de Pensión",
+    "trigger": "Score de lead > 80",
+    "timeWindow": {
+      "start": "2024-01-18",
+      "end": "2024-01-25"
+    },
+    "strategy": {
+      "email": {
+        "subject": "Gracias por tu interés - Personalicemos tu estrategia",
+        "body": "Vimos que descargaste nuestra guía de inversiones. Te contactaremos para crear tu plan personalizado..."
+      },
+      "whatsapp": {
+        "template": "hot_leads_followup",
+        "message": "¡Hola [NOMBRE]! Vimos tu interés en nuestros productos 📊"
+      },
+      "call": {
+        "script": "Referenciar contenido descargado, indagar necesidades específicas, agendar reunión personalizada."
+      }
+    },
+    "metrics": {
+      "conversionRate": 42.1,
+      "ctrEstimated": 68.3,
+      "estimatedSales": 1780000
+    },
+    "isHighlighted": false,
+    "createdAt": "2024-01-16T11:20:00Z",
+    "expiresAt": "2024-01-25T23:59:59Z"
+  },
+  {
+    "id": "opp-006",
+    "title": "IA: Propensión a Crea Ahorro",
+    "subtitle": "Segmento identificado por IA con alta propensión a ahorro programado",
+    "description": "Algoritmo identifica clientes ideales para Crea Ahorro basado en patrones de comportamiento.",
+    "type": "ai-recommendation",
+    "priority": "media",
+    "score": 81,
+    "customerCount": 892,
+    "icon": "🤖",
+    "tags": ["IA", "Ahorro", "Comportamiento"],
+    "segment": "Edad 22-35, Empleados",
+    "suggestedProduct": "Crea Ahorro",
+    "trigger": "Algoritmo ML Score > 0.75",
+    "timeWindow": {
+      "start": "2024-01-20",
+      "end": "2024-03-01"
+    },
+    "strategy": {
+      "email": {
+        "subject": "El momento perfecto para empezar a ahorrar ha llegado",
+        "body": "Basado en tu perfil, creemos que Crea Ahorro es ideal para ti. Te mostramos cómo empezar..."
+      },
+      "whatsapp": {
+        "template": "ai_crea_ahorro",
+        "message": "💡 [NOMBRE], nuestro análisis sugiere que es tu momento de empezar a ahorrar"
+      },
+      "call": {
+        "script": "Explicar identificación por IA, mostrar beneficios de ahorro programado, ofrecer simulación personalizada."
+      }
+    },
+    "metrics": {
+      "conversionRate": 19.7,
+      "ctrEstimated": 14.2,
+      "estimatedSales": 1340000
+    },
+    "isHighlighted": false,
+    "createdAt": "2024-01-13T08:30:00Z"
+  },
+  {
+    "id": "opp-007",
+    "title": "Contacto Reciente - Consultas Web",
+    "subtitle": "Clientes que contactaron soporte en últimos 15 días",
+    "description": "Aprovechar contacto reciente para identificar necesidades adicionales.",
+    "type": "recent-contact",
+    "priority": "media",
+    "score": 73,
+    "customerCount": 234,
+    "icon": "📞",
+    "tags": ["Soporte", "Consultas", "Oportunidad"],
+    "segment": "Clientes actuales, Variado",
+    "suggestedProduct": "Evaluación de necesidades",
+    "trigger": "Contacto en últimos 15 días",
+    "timeWindow": {
+      "start": "2024-01-22",
+      "end": "2024-02-05"
+    },
+    "strategy": {
+      "email": {
+        "subject": "¿Resolvimos tu consulta? Te ayudamos con más",
+        "body": "Gracias por contactarnos recientemente. Queremos asegurar tu satisfacción y conocer si tienes otras necesidades..."
+      },
+      "whatsapp": {
+        "template": "recent_contact_followup",
+        "message": "¡Hola [NOMBRE]! ¿Cómo estuvo el servicio que recibiste? 😊"
+      },
+      "call": {
+        "script": "Verificar satisfacción con servicio recibido, identificar necesidades no cubiertas, ofrecer productos relevantes."
+      }
+    },
+    "metrics": {
+      "conversionRate": 12.8,
+      "ctrEstimated": 35.4,
+      "estimatedSales": 567000
+    },
+    "isHighlighted": false,
+    "createdAt": "2024-01-17T13:15:00Z"
+  },
+  {
+    "id": "opp-008",
+    "title": "Riesgo Asesoría Doble - Intervención",
+    "subtitle": "Clientes con doble asesoría en riesgo de migrar",
+    "description": "Clientes que recibieron asesoría de competencia, requieren intervención inmediata.",
+    "type": "risk-advisory",
+    "priority": "alta",
+    "score": 95,
+    "customerCount": 67,
+    "icon": "⚠️",
+    "tags": ["Riesgo", "Competencia", "Urgente"],
+    "segment": "Clientes de alto valor",
+    "suggestedProduct": "Retención integral",
+    "trigger": "Alerta de sistema CRM",
+    "timeWindow": {
+      "start": "2024-01-19",
+      "end": "2024-01-26"
+    },
+    "strategy": {
+      "email": {
+        "subject": "Tu asesor personal quiere hablar contigo",
+        "body": "Es importante que conversemos sobre tu portafolio y las mejores opciones disponibles para ti..."
+      },
+      "whatsapp": {
+        "template": "risk_intervention",
+        "message": "🚨 [NOMBRE], es urgente que hablemos sobre tu portafolio"
+      },
+      "call": {
+        "script": "Contacto inmediato, mostrar valor diferencial, oferta especial de retención, agendar reunión presencial."
+      }
+    },
+    "metrics": {
+      "conversionRate": 78.5,
+      "ctrEstimated": 89.2,
+      "estimatedSales": 4200000
+    },
+    "isHighlighted": false,
+    "createdAt": "2024-01-18T15:45:00Z",
+    "expiresAt": "2024-01-26T23:59:59Z"
+  },
+  {
+    "id": "opp-009",
+    "title": "Alto Riesgo Cancelación FPV",
+    "subtitle": "Clientes FPV con patrones de cancelación inminente",
+    "description": "Modelo predictivo identifica clientes con 85%+ probabilidad de cancelar FPV.",
+    "type": "churn-risk",
+    "priority": "alta",
+    "score": 91,
+    "customerCount": 156,
+    "icon": "🚨",
+    "tags": ["Cancelación", "FPV", "Predictivo"],
+    "segment": "Clientes FPV activos",
+    "suggestedProduct": "Plan de retención FPV",
+    "trigger": "Score de riesgo > 85%",
+    "timeWindow": {
+      "start": "2024-01-21",
+      "end": "2024-01-28"
+    },
+    "strategy": {
+      "email": {
+        "subject": "¿Algún inconveniente con tu FPV? Hablemos",
+        "body": "Hemos notado algunas señales que nos preocupan sobre tu satisfacción. Queremos ayudarte..."
+      },
+      "whatsapp": {
+        "template": "churn_prevention",
+        "message": "💬 [NOMBRE], ¿todo está bien con tu FPV? Queremos asegurar tu tranquilidad"
+      },
+      "call": {
+        "script": "Contacto empático, identificar problemas específicos, ofrecer soluciones inmediatas, incentivos especiales."
+      }
+    },
+    "metrics": {
+      "conversionRate": 67.2,
+      "ctrEstimated": 73.8,
+      "estimatedSales": 2890000
+    },
+    "isHighlighted": false,
+    "createdAt": "2024-01-19T12:10:00Z",
+    "expiresAt": "2024-01-28T23:59:59Z"
+  },
+  {
+    "id": "opp-010",
+    "title": "Eventos de Vida - Matrimonios",
+    "subtitle": "Clientes que cambiaron estado civil a casado recientemente",
+    "description": "Aprovechar cambio de estado civil para ofertar productos familiares.",
+    "type": "life-events",
+    "priority": "media",
+    "score": 76,
+    "customerCount": 128,
+    "icon": "🎉",
+    "tags": ["Matrimonio", "Familia", "Cambio"],
+    "segment": "Edad 25-35, Recién casados",
+    "suggestedProduct": "Crea Patrimonio",
+    "trigger": "Cambio estado civil en registros",
+    "timeWindow": {
+      "start": "2024-01-23",
+      "end": "2024-03-15"
+    },
+    "strategy": {
+      "email": {
+        "subject": "¡Felicitaciones por tu matrimonio! Construyan juntos su futuro",
+        "body": "En esta nueva etapa es el momento perfecto para planificar en pareja. Te mostramos cómo..."
+      },
+      "whatsapp": {
+        "template": "life_events_marriage",
+        "message": "💍 ¡Felicitaciones [NOMBRE]! Ahora pueden planificar su futuro juntos"
+      },
+      "call": {
+        "script": "Felicitar por matrimonio, hablar de planificación en pareja, ofrecer asesoría financiera familiar."
+      }
+    },
+    "metrics": {
+      "conversionRate": 24.3,
+      "ctrEstimated": 31.7,
+      "estimatedSales": 1150000
+    },
+    "isHighlighted": false,
+    "createdAt": "2024-01-14T10:25:00Z"
+  },
+  {
+    "id": "opp-011",
+    "title": "Cross-sell Inversiones Internacionales",
+    "subtitle": "Clientes Crea Patrimonio listos para diversificar globalmente",
+    "description": "Oportunidad de expansión a inversiones internacionales para clientes experimentados.",
+    "type": "cross-sell",
+    "priority": "media",
+    "score": 79,
+    "customerCount": 445,
+    "icon": "🌍",
+    "tags": ["Internacional", "Diversificación", "Expertos"],
+    "segment": "Clientes Crea Patrimonio > 2 años",
+    "suggestedProduct": "Inversiones Internacionales",
+    "trigger": "Patrimonio > $50M, experiencia 2+ años",
+    "timeWindow": {
+      "start": "2024-01-25",
+      "end": "2024-03-30"
+    },
+    "strategy": {
+      "email": {
+        "subject": "Lleva tu portafolio al siguiente nivel - Mercados internacionales",
+        "body": "Con tu experiencia en Crea Patrimonio, estás listo para explorar oportunidades globales..."
+      },
+      "whatsapp": {
+        "template": "cross_sell_international",
+        "message": "🌎 [NOMBRE], ¿listo para inversiones internacionales?"
+      },
+      "call": {
+        "script": "Reconocer expertise, explicar beneficios de diversificación global, mostrar casos de éxito."
+      }
+    },
+    "metrics": {
+      "conversionRate": 16.9,
+      "ctrEstimated": 19.4,
+      "estimatedSales": 2670000
+    },
+    "isHighlighted": false,
+    "createdAt": "2024-01-15T14:50:00Z"
+  },
+  {
+    "id": "opp-012",
+    "title": "Reactivación Inmobiliario - Ex clientes",
+    "subtitle": "Ex clientes de Portafolio Inmobiliario con nuevo perfil de riesgo",
+    "description": "Clientes que salieron de inmobiliario pero ahora califican nuevamente.",
+    "type": "reactivation",
+    "priority": "baja",
+    "score": 68,
+    "customerCount": 298,
+    "icon": "🏠",
+    "tags": ["Inmobiliario", "Ex clientes", "Reactivación"],
+    "segment": "Ex clientes inmobiliario",
+    "suggestedProduct": "Portafolio Inmobiliario",
+    "trigger": "Cambio en perfil de riesgo",
+    "timeWindow": {
+      "start": "2024-01-28",
+      "end": "2024-04-15"
+    },
+    "strategy": {
+      "email": {
+        "subject": "El mercado inmobiliario ha cambiado - Explora nuevas oportunidades",
+        "body": "Las condiciones del mercado inmobiliario son diferentes ahora. Te mostramos las nuevas ventajas..."
+      },
+      "whatsapp": {
+        "template": "reactivation_real_estate",
+        "message": "🏠 [NOMBRE], el mercado inmobiliario tiene nuevas oportunidades"
+      },
+      "call": {
+        "script": "Actualizar sobre cambios del mercado, mostrar nuevas ventajas, evaluar perfil actual."
+      }
+    },
+    "metrics": {
+      "conversionRate": 11.2,
+      "ctrEstimated": 8.7,
+      "estimatedSales": 890000
+    },
+    "isHighlighted": false,
+    "createdAt": "2024-01-16T09:40:00Z"
+  }
+]

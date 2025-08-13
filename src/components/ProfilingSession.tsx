@@ -1,11 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Loader2 } from 'lucide-react';
 import { Lead } from '@/types/crm';
 import { NightmareFlow } from './NightmareFlow';
 import { StrategicTestFlow } from './StrategicTestFlow';
+import { useProfilingApi } from '@/hooks/useProfilingApi';
 
 interface ProfilingSessionProps {
   selectedLead?: Lead;
@@ -20,46 +21,64 @@ export const ProfilingSession: React.FC<ProfilingSessionProps> = ({
   const [notes, setNotes] = useState<string>('');
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [currentFlow, setCurrentFlow] = useState<string | null>(null);
+  const { 
+    loading, 
+    currentProfileId, 
+    startProfiling, 
+    saveResponse 
+  } = useProfilingApi();
+
+  // Iniciar perfilamiento cuando se monte el componente
+  useEffect(() => {
+    if (selectedLead && !currentProfileId) {
+      initializeProfiling();
+    }
+  }, [selectedLead]);
+
+  const initializeProfiling = async () => {
+    if (!selectedLead) return;
+    await startProfiling(selectedLead);
+  };
 
   const answers = [
     {
-      id: 'nightmare',
+      id: 'inmediatista',
       emoji: '😱',
       text: '"Que no me rinda es mi pesadilla. Gasto y luego veo."'
     },
     {
-      id: 'multiply',
+      id: 'planificador',
       emoji: '🧠',
       text: '"Quiero multiplicarlo, pero con inteligencia."'
     },
     {
-      id: 'family',
+      id: 'familiar',
       emoji: '👨‍👩‍👧‍👦',
       text: '"Quiero que a mi familia no le falte nada."'
     },
     {
-      id: 'preserve',
+      id: 'maduro',
       emoji: '🛡️',
       text: '"Quiero que lo que ya hice, no se pierda."'
     }
   ];
 
   const profiles = [
-    { letter: 'A', type: 'Inmediatista' },
-    { letter: 'B', type: 'Planificador' },
-    { letter: 'C', type: 'Familiar' },
-    { letter: 'D', type: 'Maduro' }
+    { letter: 'A', type: 'inmediatista' },
+    { letter: 'B', type: 'planificador' },
+    { letter: 'C', type: 'familiar' },
+    { letter: 'D', type: 'maduro' }
   ];
 
   const getConfirmationMessage = () => {
     switch (selectedAnswer) {
-      case 'nightmare':
+      case 'inmediatista':
         return 'Buscas disfrutar tu vida sin culpas, pero sabes que necesitas orden sin sacrificar tu estilo.';
-      case 'multiply':
+      case 'planificador':
         return 'Tienes experiencia invirtiendo pero buscas optimizar tu estrategia con decisiones basadas en datos.';
-      case 'family':
+      case 'familiar':
         return 'Tu prioridad es proteger a tu familia y asegurar su futuro. No estás solo en esto.';
-      case 'preserve':
+      case 'maduro':
         return 'Has trabajado toda tu vida para llegar hasta aquí. Mereces un retiro tranquilo y sin preocupaciones.';
       default:
         return '';
@@ -68,22 +87,33 @@ export const ProfilingSession: React.FC<ProfilingSessionProps> = ({
 
   const getConfirmationbutton = () => {
     switch (selectedAnswer) {
-      case 'nightmare':
+      case 'inmediatista':
         return '¡Sí, quiero lograrlo! →';
-      case 'multiply':
+      case 'planificador':
         return 'Optimizar mi portafolio →';
-      case 'family':
+      case 'familiar':
         return 'Proteger a mi familia →';
-      case 'preserve':
+      case 'maduro':
         return 'Asegurar mi retiro →';
       default:
         return '';
     }
   };
 
-  const handleFinalize = () => {
-    if (selectedAnswer) {
-      setShowConfirmation(true);
+  const handleFinalize = async () => {
+    if (selectedAnswer && currentProfileId) {
+      // Guardar la respuesta inicial
+      const saved = await saveResponse(
+        currentProfileId,
+        'initial_question',
+        'money_mindset',
+        selectedAnswer,
+        notes || undefined
+      );
+      
+      if (saved) {
+        setShowConfirmation(true);
+      }
     }
   };
 
@@ -91,21 +121,23 @@ export const ProfilingSession: React.FC<ProfilingSessionProps> = ({
     setCurrentFlow(selectedAnswer);
   };
 
-  if (currentFlow === 'nightmare') {
+  if (currentFlow === 'inmediatista') {
     return (
       <NightmareFlow 
         onBack={() => setCurrentFlow(null)}
         selectedLead={selectedLead}
+        profileId={currentProfileId}
       />
     );
   }
 
-  if (currentFlow === 'multiply' || currentFlow === 'family' || currentFlow === 'preserve') {
+  if (currentFlow === 'planificador' || currentFlow === 'familiar' || currentFlow === 'maduro') {
     return (
       <StrategicTestFlow 
         onBack={() => setCurrentFlow(null)}
         selectedLead={selectedLead}
-        flowType={currentFlow as 'multiply' | 'family' | 'preserve'}
+        flowType={currentFlow as 'planificador' | 'familiar' | 'maduro'}
+        profileId={currentProfileId}
       />
     );
   }
@@ -149,7 +181,7 @@ export const ProfilingSession: React.FC<ProfilingSessionProps> = ({
   }
 
   return (
-    <div className="min-h-[600px] bg-green-50 p-6 m-0">
+    <div className="min-h-[600px] bg-gray-50 p-6 m-0">
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-4">
@@ -240,10 +272,17 @@ export const ProfilingSession: React.FC<ProfilingSessionProps> = ({
 
           <Button 
             className="w-full bg-green-500 hover:bg-green-600 text-white py-4 text-md font-medium"
-            disabled={!selectedAnswer}
+            disabled={!selectedAnswer || loading || !currentProfileId}
             onClick={handleFinalize}
           >
-            Finalizar
+            {loading ? (
+              <>
+                <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                Guardando...
+              </>
+            ) : (
+              'Finalizar'
+            )}
           </Button>
         </div>
       </div>

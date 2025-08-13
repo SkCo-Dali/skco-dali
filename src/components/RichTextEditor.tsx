@@ -397,7 +397,7 @@ export function RichTextEditor({ value, onChange, placeholder }: RichTextEditorP
           <Image className="h-4 w-4" />
         </Button>
 
-        {/* Archivos adjuntos */}
+        {/* Archivos adjuntos 
         <Button
           type="button"
           variant="ghost"
@@ -410,7 +410,7 @@ export function RichTextEditor({ value, onChange, placeholder }: RichTextEditorP
           className="h-8 w-8 p-0"
         >
           <Paperclip className="h-4 w-4" />
-        </Button>
+        </Button>*/}
       </div>
 
       {/* Editor */}

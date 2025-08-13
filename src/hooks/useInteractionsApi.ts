@@ -48,7 +48,7 @@ export const useInteractionsApi = () => {
         Type: lead.type,
         Description: lead.notes,
         Stage: lead.stage,
-        Outcome: lead.outcome
+        Outcome: "neutral" // Valor por defecto según el patrón requerido: positive|neutral|negative
       };
 
       await createInteraction(interactionData);

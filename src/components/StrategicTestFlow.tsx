@@ -1,16 +1,18 @@
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Check } from 'lucide-react';
+import { ArrowLeft, Check, Loader2 } from 'lucide-react';
 import { STRATEGIC_PLAN_CONFIG, FlowType } from './StrategicPlanConfig';
+import { useProfilingApi } from '@/hooks/useProfilingApi';
 
 interface StrategicTestFlowProps {
   onBack: () => void;
   selectedLead?: any;
-  flowType: 'multiply' | 'family' | 'preserve';
+  flowType: 'planificador' | 'familiar' | 'maduro';
+  profileId?: string | null;
 }
 
 const STRATEGIC_QUESTIONS = {
-  multiply: [
+  planificador: [
     {
       id: "expectations_5_years",
       title: "Test Estratégico - Inversor con Propósito",
@@ -76,7 +78,7 @@ const STRATEGIC_QUESTIONS = {
       buttonText: "Finalizar Test →"
     }
   ],
-  family: [
+  familiar: [
     {
       id: "who_to_protect",
       title: "Análisis Familiar - Cuidador Visionario",
@@ -142,7 +144,7 @@ const STRATEGIC_QUESTIONS = {
       buttonText: "Finalizar Test →"
     }
   ],
-  preserve: [
+  maduro: [
     {
       id: "monthly_need",
       title: "Análisis de Situación - Constructor de Legado",
@@ -276,24 +278,47 @@ const STRATEGIC_QUESTIONS = {
 
 export const StrategicTestFlow: React.FC<StrategicTestFlowProps> = ({ 
   onBack, 
-  flowType 
+  flowType,
+  profileId 
 }) => {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
-  const [answers, setAnswers] = useState<Record<number, string>>({});
+  const [answers, setAnswers] = useState<Record<string, string>>({});
   const [selectedOption, setSelectedOption] = useState<string>('');
   const [showPlan, setShowPlan] = useState(false);
+  const { loading, saveResponse, completeProfiling } = useProfilingApi();
 
   const questions = STRATEGIC_QUESTIONS[flowType];
   const currentQuestion = questions[currentQuestionIndex];
   const isLastQuestion = currentQuestionIndex === questions.length - 1;
-  const planConfig = STRATEGIC_PLAN_CONFIG[flowType];
+  
+  // Map flowType to config key
+  const getConfigKey = (flow: typeof flowType): FlowType => {
+    switch (flow) {
+      case 'planificador': return 'multiply';
+      case 'familiar': return 'family';
+      case 'maduro': return 'preserve';
+      default: return 'multiply';
+    }
+  };
+  
+  const planConfig = STRATEGIC_PLAN_CONFIG[getConfigKey(flowType)];
 
-  const handleNext = () => {
+  const handleNext = async () => {
     // Guardar la respuesta actual
     setAnswers(prev => ({
       ...prev,
       [currentQuestion.id]: selectedOption
     }));
+
+    // Guardar en la API
+    if (profileId) {
+      await saveResponse(
+        profileId,
+        'strategic_flow',
+        currentQuestion.id,
+        selectedOption
+      );
+    }
 
     if (isLastQuestion) {
       console.log('Test completado para:', flowType, answers, { [currentQuestion.id]: selectedOption });
@@ -375,9 +400,21 @@ export const StrategicTestFlow: React.FC<StrategicTestFlowProps> = ({
         <div className="text-center">
           <Button 
             className="bg-green-500 hover:bg-green-600 text-white px-8 py-4 text-md font-medium rounded-full"
-            onClick={() => console.log('Plan aceptado')}
+            onClick={async () => {
+              if (profileId) {
+                await completeProfiling(profileId, `Plan ${flowType} completado`);
+              }
+            }}
+            disabled={loading}
           >
-            Guardar plan 🚀
+            {loading ? (
+              <>
+                <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                Guardando...
+              </>
+            ) : (
+              'Guardar plan 🚀'
+            )}
           </Button>
         </div>
       </div>
@@ -452,10 +489,17 @@ export const StrategicTestFlow: React.FC<StrategicTestFlowProps> = ({
       <div className="text-center">
         <Button 
           className="bg-green-400 h-10 hover:bg-green-500 text-white px-8 py-4 text-md font-medium rounded-full"
-          disabled={!selectedOption}
+          disabled={!selectedOption || loading}
           onClick={handleNext}
         >
-          {currentQuestion.buttonText}
+          {loading ? (
+            <>
+              <Loader2 className="h-4 w-4 animate-spin mr-2" />
+              Guardando...
+            </>
+          ) : (
+            currentQuestion.buttonText
+          )}
         </Button>
       </div>
     </div>
