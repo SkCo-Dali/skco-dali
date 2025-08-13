@@ -2,7 +2,7 @@ import { createContext, useContext, useState, useEffect, ReactNode } from 'react
 import { User } from '@/types/crm';
 import { PublicClientApplication, InteractionRequiredAuthError, AccountInfo } from '@azure/msal-browser';
 import { msalConfig, loginRequest } from '@/authConfig';
-import { SessionTimeoutWarning } from '@/components/SessionTimeoutWarning';
+
 import { useToast } from '@/hooks/use-toast';
 import SecureTokenManager from '@/utils/secureTokenManager';
 
@@ -42,82 +42,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const [loading, setLoading] = useState(true);
   const [accessToken, setAccessToken] = useState<string | null>(null);
   
-  // Estados para el timeout de sesión
-  const [showTimeoutWarning, setShowTimeoutWarning] = useState(false);
-  const [timeoutTimer, setTimeoutTimer] = useState<NodeJS.Timeout | null>(null);
-  const [warningTimer, setWarningTimer] = useState<NodeJS.Timeout | null>(null);
-  const [lastActivity, setLastActivity] = useState<number>(Date.now());
-  
   const { toast } = useToast();
 
-  // Configuración del timeout (en minutos)
-  const SESSION_TIMEOUT_MINUTES = 30;
-  const WARNING_MINUTES = 5;
-
-  const clearSessionTimers = () => {
-    if (timeoutTimer) {
-      clearTimeout(timeoutTimer);
-      setTimeoutTimer(null);
-    }
-    if (warningTimer) {
-      clearTimeout(warningTimer);
-      setWarningTimer(null);
-    }
-  };
-
-  const handleSessionTimeout = async () => {
-    setShowTimeoutWarning(false);
-    toast({
-      title: "Sesión expirada",
-      description: "Tu sesión ha expirado por inactividad",
-      variant: "destructive",
-    });
-    await logout();
-  };
-
-  const showSessionWarning = () => {
-    setShowTimeoutWarning(true);
-  };
-
-  const resetSessionTimer = () => {
-    if (!user) return;
-
-    clearSessionTimers();
-    setLastActivity(Date.now());
-
-    const warningMs = (SESSION_TIMEOUT_MINUTES - WARNING_MINUTES) * 60 * 1000;
-    const newWarningTimer = setTimeout(showSessionWarning, warningMs);
-    setWarningTimer(newWarningTimer);
-
-    const timeoutMs = SESSION_TIMEOUT_MINUTES * 60 * 1000;
-    const newTimeoutTimer = setTimeout(handleSessionTimeout, timeoutMs);
-    setTimeoutTimer(newTimeoutTimer);
-  };
-
-  const handleUserActivity = () => {
-    const now = Date.now();
-    const timeSinceLastActivity = now - lastActivity;
-    
-    if (timeSinceLastActivity > 60000) {
-      resetSessionTimer();
-    }
-  };
-
-  const extendSession = () => {
-    setShowTimeoutWarning(false);
-    // Actualizar la última actividad para asegurar que se resetee correctamente
-    setLastActivity(Date.now());
-    resetSessionTimer();
-    toast({
-      title: "Sesión extendida",
-      description: `Tu sesión se ha extendido por ${SESSION_TIMEOUT_MINUTES} minutos más`,
-    });
-  };
-
-  const handleTimeoutLogout = async () => {
-    setShowTimeoutWarning(false);
-    await logout();
-  };
 
   useEffect(() => {
     const initializeMsal = async () => {
@@ -160,27 +86,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
     initializeMsal();
   }, []);
 
-  useEffect(() => {
-    if (!user) {
-      clearSessionTimers();
-      return;
-    }
-
-    resetSessionTimer();
-
-    const events = ['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart', 'click'];
-    
-    events.forEach(event => {
-      document.addEventListener(event, handleUserActivity, { passive: true });
-    });
-
-    return () => {
-      clearSessionTimers();
-      events.forEach(event => {
-        document.removeEventListener(event, handleUserActivity);
-      });
-    };
-  }, [user]);
 
   const login = (userData: User) => {
     setUser(userData);
@@ -190,8 +95,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const logout = async () => {
     setUser(null);
     setAccessToken(null);
-    setShowTimeoutWarning(false);
-    clearSessionTimers();
     
     // Limpiar tokens de forma segura
     SecureTokenManager.clearToken();
@@ -370,12 +273,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
   return (
     <AuthContext.Provider value={value}>
       {children}
-      <SessionTimeoutWarning
-        isOpen={showTimeoutWarning}
-        onExtend={extendSession}
-        onLogout={handleTimeoutLogout}
-        remainingMinutes={WARNING_MINUTES}
-      />
     </AuthContext.Provider>
   );
 }
