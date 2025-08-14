@@ -98,14 +98,17 @@ const loadColumnConfig = (): ColumnConfig[] => {
     if (saved) {
       const savedColumns = JSON.parse(saved);
       // Merge saved config with default columns to handle new columns
-      return defaultColumns.map(defaultCol => {
+      const mergedColumns = defaultColumns.map(defaultCol => {
         const savedCol = savedColumns.find((col: ColumnConfig) => col.key === defaultCol.key);
         return savedCol ? { ...defaultCol, visible: savedCol.visible } : defaultCol;
       });
+      console.log('🔄 Merged columns configuration:', mergedColumns.map(c => `${c.key}: ${c.visible}`));
+      return mergedColumns;
     }
   } catch (error) {
     console.warn('Error loading column configuration:', error);
   }
+  console.log('📋 Using default columns configuration:', defaultColumns.map(c => `${c.key}: ${c.visible}`));
   return defaultColumns;
 };
 
