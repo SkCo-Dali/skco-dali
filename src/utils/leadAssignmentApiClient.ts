@@ -15,7 +15,7 @@ const getAuthHeaders = async (): Promise<Record<string, string>> => {
     const tokenData = SecureTokenManager.getToken();
     
     if (tokenData?.token) {
-      headers['Authorization'] = `IdToken ${tokenData.token}`;
+      headers['Authorization'] = `Bearer ${tokenData.token}`;
       console.log('🔐 Using IdToken from SecureTokenManager for API request');
     } else {
       console.warn('⚠️ No IdToken found in SecureTokenManager');
