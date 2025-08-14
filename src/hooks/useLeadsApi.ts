@@ -140,7 +140,7 @@ export const useLeadsApi = () => {
       console.log('🔄 Calling getReassignableLeads API...');
       
       // Usar la API de leads reasignables en lugar de la API regular
-      const reassignableLeads = await getReassignableLeads(user.id);
+      const reassignableLeads = await getReassignableLeads();
       
       console.log('📊 === REASSIGNABLE LEADS API RESPONSE ===');
       console.log('📊 Response type:', typeof reassignableLeads);

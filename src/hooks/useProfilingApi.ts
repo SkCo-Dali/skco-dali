@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { Lead } from '@/types/crm';
+import { ENV } from '@/config/environment';
 
 interface CheckClientRequest {
   email?: string;
@@ -78,7 +79,7 @@ export const useProfilingApi = () => {
   };
 
   const getBaseUrl = () => {
-    return 'https://skcodalilmdev.azurewebsites.net';
+    return ENV.CRM_API_BASE_URL;
   };
 
   // 1. Verificar cliente
