@@ -609,14 +609,16 @@ Por favor, confirmar asistencia.`;
             {format(new Date(lead.createdAt), "dd/MM/yyyy", { locale: es })}
           </span>
         );
+      case 'nextFollowUp':
+        return (
+          <span className="text-gray-700 text-xs text-center">
+            {lead.nextFollowUp ? format(new Date(lead.nextFollowUp), "dd/MM/yyyy", { locale: es }) : '-'}
+          </span>
+        );
       case 'age':
-        
       case 'gender':
-        
       case 'preferredContactChannel':
-        
       case 'documentType':
-        
       default:
         return <span className="text-center text-gray-700 text-xs">{lead[columnKey] || '-'}</span>;
     }
