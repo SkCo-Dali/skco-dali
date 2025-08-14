@@ -95,3 +95,26 @@ export const getReassignableLeads = async (): Promise<ReassignableLead[]> => {
   
   return result;
 };
+
+// Interface for assignable users
+export interface AssignableUser {
+  Id: string;
+  Name: string;
+  Email: string;
+  Role: string;
+}
+
+// 5. Obtener usuarios asignables para reasignación de leads
+export const getAssignableUsers = async (): Promise<AssignableUser[]> => {
+  console.log('🔄 === Starting getAssignableUsers API call ===');
+  
+  try {
+    const response = await makeRequest<AssignableUser[]>('/api/lead-assignments/users/assignable');
+    console.log('✅ Assignable users retrieved successfully:', response.length);
+    return response;
+  } catch (error) {
+    console.error('❌ === ERROR IN ASSIGNABLE USERS API CALL ===');
+    console.error('Error details:', error);
+    throw error;
+  }
+};
