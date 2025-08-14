@@ -187,7 +187,7 @@ export interface Lead {
   preferredContactChannel?: string;
   portfolios?: string[];
   tags?: string[];
-  NextFollowUp?: string; // Changed to string for consistency
+  nextFollowUp?: string; // Changed to string for consistency
   campaignOwnerName?: string;
   interactions?: Interaction[];
   [key: string]: any;
