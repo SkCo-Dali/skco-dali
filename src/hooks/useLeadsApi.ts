@@ -85,42 +85,15 @@ export const useLeadsApi = () => {
     return mappedLead;
   };
 
-  // Función para filtrar leads según el rol del usuario
+  // El backend controla qué leads mostrar, no necesitamos filtrar por rol en frontend
   const filterLeadsByRole = (allLeads: Lead[]): Lead[] => {
     if (!user) return [];
 
-    console.log(`🎯 Applying role-based filtering for role: ${user.role}`);
-    console.log(`🎯 Input leads count: ${allLeads.length}`);
+    console.log(`🎯 Backend controls lead visibility - showing all ${allLeads.length} leads for role: ${user.role}`);
     console.log(`🎯 User ID: ${user.id}`);
-
-    switch (user.role) {
-      case 'admin':
-      case 'analista':
-        // Solo admin y analista pueden ver todos los leads
-        console.log(`🎯 Role ${user.role} can see all leads`);
-        return allLeads;
-      
-      case 'gestor':
-      case 'supervisor':
-      case 'director':
-      case 'socio':
-        // Para estos roles usando la API de leads reasignables:
-        // El API ya retorna solo los leads que pueden reasignar (asignados actualmente o anteriormente)
-        // Por lo tanto, no necesitamos filtrar más - mostrar todos los que retorna el API
-        console.log(`🎯 Role ${user.role} using reassignable leads API - showing all returned leads`);
-        console.log(`🎯 Showing ${allLeads.length} reassignable leads for ${user.role}`);
-        return allLeads;
-      
-      case 'fp':
-        // Solo pueden ver leads que les asignen
-        const fpFilteredLeads = allLeads.filter(lead => lead.assignedTo === user.id);
-        console.log(`🎯 Role ${user.role} can see ${fpFilteredLeads.length} of ${allLeads.length} leads (only assigned to them)`);
-        return fpFilteredLeads;
-      
-      default:
-        console.log(`🎯 Unknown role ${user.role} - returning empty array`);
-        return [];
-    }
+    
+    // Retornar todos los leads que envía el API, el backend ya controla la visibilidad
+    return allLeads;
   };
 
   // Cargar leads reasignables para el usuario actual
