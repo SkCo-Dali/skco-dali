@@ -724,72 +724,37 @@ Notas adicionales: ${lead.notes || 'Ninguna'}`;
                           <span>Detalles de Información Adicional</span>
                         </SkAccordionTrigger>
                         <SkAccordionContent className="px-4 pb-4 pt-0 bg-white border-t border-gray-200">
-                          {(() => {
-                            // Función helper para parsear additionalInfo de diferentes formatos
-                            const parseAdditionalInfo = (additionalInfo: any) => {
-                              console.log('🔍 Parsing additionalInfo:', { type: typeof additionalInfo, value: additionalInfo });
-                              
-                              if (!additionalInfo) return null;
-                              
-                              // Si es string, intentar parsearlo como JSON
-                              if (typeof additionalInfo === 'string') {
-                                try {
-                                  const parsed = JSON.parse(additionalInfo);
-                                  return parsed && typeof parsed === 'object' ? parsed : null;
-                                } catch {
-                                  // Si no se puede parsear como JSON, mostrar como texto plano
-                                  return { 'Información': additionalInfo };
-                                }
-                              }
-                              
-                              // Si es objeto, verificar que tenga contenido
-                              if (typeof additionalInfo === 'object' && additionalInfo !== null) {
-                                return Object.keys(additionalInfo).length > 0 ? additionalInfo : null;
-                              }
-                              
-                              // Para otros tipos, convertir a string
-                              if (additionalInfo !== undefined && additionalInfo !== null) {
-                                return { 'Información': String(additionalInfo) };
-                              }
-                              
-                              return null;
-                            };
-
-                            const parsedInfo = parseAdditionalInfo(editedLead.additionalInfo);
-                            console.log('🔍 Parsed additionalInfo result:', parsedInfo);
-
-                            return parsedInfo ? (
-                              <div className="rounded-lg overflow-hidden bg-gray-50 mt-4">
-                                <ScrollArea className="h-48">
-                                  <Table>
-                                    <TableHeader className="sticky top-0 bg-gray-100">
-                                      <TableRow>
-                                        <TableHead className="font-medium text-gray-700">Campo</TableHead>
-                                        <TableHead className="font-medium text-gray-700">Valor</TableHead>
+                          {editedLead.additionalInfo && typeof editedLead.additionalInfo === 'object' && Object.keys(editedLead.additionalInfo).length > 0 ? (
+                            <div className="rounded-lg overflow-hidden bg-gray-50 mt-4">
+                              <ScrollArea className="h-48">
+                                <Table>
+                                  <TableHeader className="sticky top-0 bg-gray-100">
+                                    <TableRow>
+                                      <TableHead className="font-medium text-gray-700">Campo</TableHead>
+                                      <TableHead className="font-medium text-gray-700">Valor</TableHead>
+                                    </TableRow>
+                                  </TableHeader>
+                                  <TableBody>
+                                    {Object.entries(editedLead.additionalInfo).map(([key, value], index) => (
+                                      <TableRow key={key} className={index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
+                                        <TableCell className="font-medium text-gray-600">{key}</TableCell>
+                                        <TableCell className="text-gray-900">
+                                          {typeof value === 'object' && value !== null 
+                                            ? JSON.stringify(value) 
+                                            : String(value || '')}
+                                        </TableCell>
                                       </TableRow>
-                                    </TableHeader>
-                                    <TableBody>
-                                      {Object.entries(parsedInfo).map(([key, value], index) => (
-                                        <TableRow key={key} className={index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
-                                          <TableCell className="font-medium text-gray-600">{key}</TableCell>
-                                          <TableCell className="text-gray-900">
-                                            {typeof value === 'object' && value !== null 
-                                              ? JSON.stringify(value, null, 2) 
-                                              : String(value || '')}
-                                          </TableCell>
-                                        </TableRow>
-                                      ))}
-                                    </TableBody>
-                                  </Table>
-                                </ScrollArea>
-                              </div>
-                            ) : (
-                              <div className="p-6 text-center text-gray-500 bg-gray-50 rounded-lg border border-gray-200">
-                                <AlertCircle className="h-8 w-8 mx-auto mb-2 text-gray-400" />
-                                <p className="text-sm">No hay información adicional disponible</p>
-                              </div>
-                            );
-                          })()}
+                                    ))}
+                                  </TableBody>
+                                </Table>
+                              </ScrollArea>
+                            </div>
+                          ) : (
+                            <div className="p-6 text-center text-gray-500 bg-gray-50 rounded-lg border border-gray-200">
+                              <AlertCircle className="h-8 w-8 mx-auto mb-2 text-gray-400" />
+                              <p className="text-sm">No hay información adicional disponible</p>
+                            </div>
+                          )}
                         </SkAccordionContent>
                       </SkAccordionItem>
                     </SkAccordion>
