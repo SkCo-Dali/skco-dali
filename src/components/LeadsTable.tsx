@@ -78,6 +78,7 @@ const defaultColumns: ColumnConfig[] = [
   { key: 'source', label: 'Fuente', visible: false, sortable: true },
   { key: 'createdAt', label: 'Fecha creación', visible: false, sortable: true },
   { key: 'lastInteraction', label: 'Últ. interacción', visible: false, sortable: true },
+  { key: 'nextFollowUp', label: 'Próximo seguimiento', visible: false, sortable: true },
   { key: 'priority', label: 'Prioridad', visible: false, sortable: true },
   { key: 'age', label: 'Edad', visible: false, sortable: true },
   { key: 'gender', label: 'Género', visible: false, sortable: true },
@@ -606,6 +607,12 @@ Por favor, confirmar asistencia.`;
         return (
           <span className="text-center text-gray-700 text-xs">
             {format(new Date(lead.createdAt), "dd/MM/yyyy", { locale: es })}
+          </span>
+        );
+      case 'nextFollowUp':
+        return (
+          <span className="text-gray-700 text-xs text-center">
+            {lead.nextFollowUp ? format(new Date(lead.nextFollowUp), "dd/MM/yyyy", { locale: es }) : '-'}
           </span>
         );
       case 'age':
