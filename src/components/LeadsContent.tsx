@@ -19,6 +19,17 @@ interface LeadsContentProps {
   groupBy: string;
   selectedLeads: string[];
   onLeadSelectionChange: (leadIds: string[], isSelected: boolean) => void;
+  columnFilters?: Record<string, string[]>;
+  textFilters?: Record<string, any[]>;
+  onColumnFilterChange?: (column: string, selectedValues: string[]) => void;
+  onTextFilterChange?: (column: string, filters: any[]) => void;
+  onClearColumnFilter?: (column: string) => void;
+  hasFiltersForColumn?: (column: string) => boolean;
+  // Props para ordenamiento
+  sortBy?: string;
+  setSortBy?: (sort: string) => void;
+  sortDirection?: 'asc' | 'desc';
+  setSortDirection?: (direction: 'asc' | 'desc') => void;
 }
 
 export function LeadsContent({
@@ -32,7 +43,17 @@ export function LeadsContent({
   onSendEmail,
   groupBy,
   selectedLeads,
-  onLeadSelectionChange
+  onLeadSelectionChange,
+  columnFilters = {},
+  textFilters = {},
+  onColumnFilterChange,
+  onTextFilterChange,
+  onClearColumnFilter,
+  hasFiltersForColumn,
+  sortBy,
+  setSortBy,
+  sortDirection,
+  setSortDirection
 }: LeadsContentProps) {
   const [selectedLeadForProfiler, setSelectedLeadForProfiler] = useState<Lead | null>(null);
   const [isProfilerOpen, setIsProfilerOpen] = useState(false);
@@ -61,11 +82,20 @@ export function LeadsContent({
           onOpenProfiler={handleOpenProfiler}
           selectedLeads={selectedLeads}
           onLeadSelectionChange={onLeadSelectionChange}
+          columnFilters={columnFilters}
+          textFilters={textFilters}
+          onColumnFilterChange={onColumnFilterChange}
+          onTextFilterChange={onTextFilterChange}
+          onClearColumnFilter={onClearColumnFilter}
+          hasFiltersForColumn={hasFiltersForColumn}
+          sortBy={sortBy}
+          setSortBy={setSortBy}
+          sortDirection={sortDirection}
+          setSortDirection={setSortDirection}
         />
 
         <Dialog open={isProfilerOpen} onOpenChange={setIsProfilerOpen}>
           <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto p-0">
-            
             <LeadProfiler selectedLead={selectedLeadForProfiler} />
           </DialogContent>
         </Dialog>
@@ -73,6 +103,7 @@ export function LeadsContent({
     );
   }
 
+  // Para la vista de columnas, usar todos los leads para crear los grupos
   const groupedLeads = leads.reduce((acc: { [key: string]: Lead[] }, lead) => {
     const key = lead[groupBy as keyof Lead] as string || 'undefined';
     if (!acc[key]) {

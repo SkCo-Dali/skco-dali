@@ -10,17 +10,21 @@ const getAuthHeaders = async (): Promise<Record<string, string>> => {
   };
 
   try {
-    // Try to get access token from SecureTokenManager
+    // Import SecureTokenManager
     const { SecureTokenManager } = await import('@/utils/secureTokenManager');
     const tokenData = SecureTokenManager.getToken();
     
-    if (tokenData && tokenData.token) {
+    if (tokenData?.token) {
       headers['Authorization'] = `Bearer ${tokenData.token}`;
+      console.log('🔐 Using IdToken from SecureTokenManager for API request');
+    } else {
+      console.warn('⚠️ No IdToken found in SecureTokenManager');
     }
   } catch (error) {
-    console.warn('Could not get access token for API request:', error);
+    console.warn('⚠️ Could not get IdToken for API request:', error);
   }
 
+  console.log('📤 Request headers:', JSON.stringify(headers, null, 2));
   return headers;
 };
 
@@ -32,24 +36,37 @@ const makeRequest = async <T>(
   const url = `${API_BASE_URL}${endpoint}`;
   
   try {
+    console.log('📡 Making API request to:', url);
+    console.log('📡 Request method:', options.method || 'GET');
+    
     const authHeaders = await getAuthHeaders();
+    const finalHeaders = {
+      ...authHeaders,
+      ...options.headers,
+    };
+    
+    console.log('📤 Final request headers:', JSON.stringify(finalHeaders, null, 2));
+    
     const response = await fetch(url, {
-      headers: {
-        ...authHeaders,
-        ...options.headers,
-      },
+      headers: finalHeaders,
       ...options,
     });
     
+    console.log('📥 Response status:', response.status);
+    console.log('📥 Response headers:', JSON.stringify(Object.fromEntries(response.headers.entries()), null, 2));
+    
     if (!response.ok) {
       const errorText = await response.text();
+      console.error('❌ API Error response:', errorText);
       throw new Error(`Error ${response.status}: ${errorText}`);
     }
 
     const data = await response.json();
+    console.log('✅ API Response data:', JSON.stringify(data, null, 2));
     return data;
     
   } catch (error) {
+    console.error('❌ Request failed:', error);
     throw error;
   }
 };
@@ -72,9 +89,32 @@ export const getUserAssignmentHistory = async (userId: string): Promise<LeadAssi
   return makeRequest<LeadAssignmentHistory[]>(`/api/lead-assignments/user/${userId}/history`);
 };
 
-// 4. Obtener leads reasignables por usuario
-export const getReassignableLeads = async (userId: string): Promise<ReassignableLead[]> => {
-  const result = await makeRequest<ReassignableLead[]>(`/api/lead-assignments/reassignable/${userId}`);
+// 4. Obtener leads reasignables
+export const getReassignableLeads = async (): Promise<ReassignableLead[]> => {
+  const result = await makeRequest<ReassignableLead[]>('/api/lead-assignments');
   
   return result;
+};
+
+// Interface for assignable users
+export interface AssignableUser {
+  Id: string;
+  Name: string;
+  Email: string;
+  Role: string;
+}
+
+// 5. Obtener usuarios asignables para reasignación de leads
+export const getAssignableUsers = async (): Promise<AssignableUser[]> => {
+  console.log('🔄 === Starting getAssignableUsers API call ===');
+  
+  try {
+    const response = await makeRequest<AssignableUser[]>('/api/lead-assignments/users/assignable');
+    console.log('✅ Assignable users retrieved successfully:', response.length);
+    return response;
+  } catch (error) {
+    console.error('❌ === ERROR IN ASSIGNABLE USERS API CALL ===');
+    console.error('Error details:', error);
+    throw error;
+  }
 };

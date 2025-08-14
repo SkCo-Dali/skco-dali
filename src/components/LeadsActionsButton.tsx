@@ -94,7 +94,7 @@ export function LeadsActionsButton({
             </span>
           )}
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={handleMassWhatsApp} className="cursor-pointer">
+        {/*<DropdownMenuItem onClick={handleMassWhatsApp} className="cursor-pointer">
           <MessageSquare className="h-4 w-4 mr-2 text-[#25D366]" />
           Enviar WhatsApp con Sami
           {selectedLeadsCount > 0 && (
@@ -102,7 +102,7 @@ export function LeadsActionsButton({
               {selectedLeadsCount}
             </span>
           )}
-        </DropdownMenuItem>
+        </DropdownMenuItem>?*/}
         <DropdownMenuItem 
           onClick={handleDeleteLeads} 
           className="cursor-pointer text-red-600 focus:text-red-600 focus:bg-red-50"

@@ -12,16 +12,22 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Calendar, MessageSquare, Phone, Mail, UserCheck, Clock, Tag, Building2, Globe, CreditCard, AlertCircle, History, UserPlus, Users, X, ChevronDown } from 'lucide-react';
+import { Calendar, MessageSquare, Phone, Mail, UserCheck, Clock, Tag, Building2, Globe, CreditCard, AlertCircle, History, UserPlus, Users, X, ChevronDown, Brain } from 'lucide-react';
+import { CustomFieldSelect } from '@/components/ui/custom-field-select';
 import { useUsersApi } from '@/hooks/useUsersApi';
 import { useInteractionsApi } from '@/hooks/useInteractionsApi';
 import { useLeadAssignments } from '@/hooks/useLeadAssignments';
+import { useLeadsApi } from '@/hooks/useLeadsApi';
+import { useProfilingApi } from '@/hooks/useProfilingApi';
 import { useToast } from '@/hooks/use-toast';
 import { formatDistanceToNow } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { LeadReassignDialog } from './LeadReassignDialog';
+import { LeadProfiler } from './LeadProfiler';
+import ProfileResults from './ProfileResults';
 import { FaWhatsapp } from "react-icons/fa";
 import { SkAccordion, SkAccordionItem, SkAccordionTrigger, SkAccordionContent } from '@/components/ui/sk-accordion';
+import { InputSanitizer } from '@/utils/inputSanitizer';
 
 interface LeadDetailProps {
   lead: Lead;
@@ -149,6 +155,12 @@ export function LeadDetail({ lead, isOpen, onClose, onSave, onOpenMassEmail }: L
   const [newTag, setNewTag] = useState('');
   const [newProduct, setNewProduct] = useState('');
   
+  // Estados para el perfilador
+  const [showProfiler, setShowProfiler] = useState(false);
+  const [showProfileResults, setShowProfileResults] = useState(false);
+  const [profileData, setProfileData] = useState<any>(null);
+  const [hasExistingProfile, setHasExistingProfile] = useState(false);
+  
   // Estados para tracking de cambios
   const [generalChanges, setGeneralChanges] = useState(false);
   const [managementChanges, setManagementChanges] = useState(false);
@@ -160,7 +172,9 @@ export function LeadDetail({ lead, isOpen, onClose, onSave, onOpenMassEmail }: L
   
   const { users } = useUsersApi();
   const { interactions, clientHistory, loading: interactionsLoading, loadLeadInteractions, loadClientHistory, createInteractionFromLead } = useInteractionsApi();
+  const { updateExistingLead } = useLeadsApi();
   const { getLeadHistory } = useLeadAssignments();
+  const { checkClient, getResults, loading: profilingLoading } = useProfilingApi();
   const [assignmentHistory, setAssignmentHistory] = useState<any[]>([]);
   const [historyLoading, setHistoryLoading] = useState(false);
   const [showingClientHistory, setShowingClientHistory] = useState(false);
@@ -190,6 +204,9 @@ export function LeadDetail({ lead, isOpen, onClose, onSave, onOpenMassEmail }: L
       
       // Cargar historial de asignaciones
       loadAssignmentHistory();
+      
+      // Verificar si el lead tiene un perfil existente
+      checkExistingProfile();
     }
   }, [isOpen, lead.id]);
 
@@ -205,6 +222,48 @@ export function LeadDetail({ lead, isOpen, onClose, onSave, onOpenMassEmail }: L
     } finally {
       setHistoryLoading(false);
     }
+  };
+
+  // Verificar si el lead tiene un perfil existente
+  const checkExistingProfile = async () => {
+    try {
+      const result = await checkClient(lead.email, lead.documentNumber?.toString());
+      if (result?.hasProfile && result?.profileId) {
+        setHasExistingProfile(true);
+        // Si tiene perfil y está completado, cargar los resultados
+        if (result.isCompleted) {
+          const profileResults = await getResults(result.profileId);
+          if (profileResults) {
+            setProfileData(profileResults);
+          }
+        }
+      } else {
+        setHasExistingProfile(false);
+      }
+    } catch (error) {
+      console.error('Error checking existing profile:', error);
+      setHasExistingProfile(false);
+    }
+  };
+
+  // Manejar clic en botón de perfilador
+  const handleProfilerClick = () => {
+    console.log('ProfilerClick triggered:', { hasExistingProfile, profileData, profilingLoading });
+    if (hasExistingProfile && profileData) {
+      // Si ya tiene perfil completado, mostrar resultados
+      setShowProfiler(true);
+    } else {
+      // Si no tiene perfil, iniciar proceso de perfilamiento
+      setShowProfiler(true);
+    }
+  };
+
+  // Manejar cuando se completa un nuevo perfil
+  const handleProfileCompleted = async (completedProfileData: any) => {
+    setProfileData(completedProfileData);
+    setHasExistingProfile(true);
+    setShowProfiler(false);
+    setShowProfileResults(true);
   };
 
   // Nueva función para cargar historial completo del cliente
@@ -236,6 +295,31 @@ export function LeadDetail({ lead, isOpen, onClose, onSave, onOpenMassEmail }: L
   const handleManagementChange = (field: keyof Lead, value: any) => {
     setEditedLead(prev => ({ ...prev, [field]: value }));
     setManagementChanges(true);
+  };
+
+  // Funciones de validación para campos numéricos y email
+  const handlePhoneChange = (value: string) => {
+    const numericValue = value.replace(/[^0-9]/g, '');
+    handleGeneralChange('phone', numericValue);
+  };
+
+  const handleEmailChange = (value: string) => {
+    handleGeneralChange('email', value.toLowerCase());
+  };
+
+  const handleDocumentNumberChange = (value: string) => {
+    const numericValue = value.replace(/[^0-9]/g, '');
+    handleGeneralChange('documentNumber', numericValue ? Number(numericValue) : '');
+  };
+
+  const handleAgeChange = (value: string) => {
+    const numericValue = value.replace(/[^0-9]/g, '');
+    handleGeneralChange('age', numericValue ? Number(numericValue) : '');
+  };
+
+  const isValidEmail = (email: string): boolean => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
   };
 
   // Función para agregar nuevo tag
@@ -277,58 +361,100 @@ export function LeadDetail({ lead, isOpen, onClose, onSave, onOpenMassEmail }: L
     return editedLead.product ? editedLead.product.split(', ').filter(p => p.trim()) : [];
   };
 
-  const handleSave = async () => {
-    console.log('🔄 Saving lead changes...');
-    console.log('📋 General changes:', generalChanges);
-    console.log('📋 Management changes:', managementChanges);
+  // Función para guardar solo cambios generales
+  const handleSaveGeneral = async () => {
+    console.log('🔄 Saving general changes...');
     
     try {
-      // Si hay cambios de gestión, crear interacción primero
-      if (managementChanges && contactMethod && result && managementNotes) {
-        console.log('🔄 Creating interaction from management data...');
-        
-        // Formatear la fecha del próximo seguimiento para el API
-        const formattedNextFollowUp = editedLead.nextFollowUp ? formatDateForAPI(editedLead.nextFollowUp) : '';
-        
-        // Preparar el lead con datos de gestión para crear la interacción
-        const leadWithInteractionData = {
-          ...editedLead,
-          type: contactMethod,
-          outcome: result,
-          notes: managementNotes,
-          nextFollowUp: formattedNextFollowUp
-        };
-        
-        const interactionCreated = await createInteractionFromLead(leadWithInteractionData);
-        
-        if (!interactionCreated) {
-          toast({
-            title: "Error",
-            description: "No se pudo crear la interacción",
-            variant: "destructive",
-          });
-          return;
-        }
-        
-        // Recargar interacciones después de crear una nueva
-        await loadLeadInteractions(lead.id);
-      }
+      // Formatear la fecha antes de guardar el lead
+      const leadToSave = {
+        ...editedLead,
+        nextFollowUp: editedLead.nextFollowUp ? formatDateForAPI(editedLead.nextFollowUp) : editedLead.nextFollowUp
+      };
       
-      // Si hay cambios generales O cambios de gestión que afecten el lead (stage, nextFollowUp)
-      if (generalChanges || (managementChanges && (editedLead.stage !== lead.stage || editedLead.nextFollowUp !== lead.nextFollowUp))) {
-        console.log('🔄 Updating lead...');
-        
-        // Formatear la fecha antes de guardar el lead
-        const leadToSave = {
-          ...editedLead,
-          nextFollowUp: editedLead.nextFollowUp ? formatDateForAPI(editedLead.nextFollowUp) : editedLead.nextFollowUp
-        };
-        
-        await onSave(leadToSave);
-      }
+      // Llamar directamente al API de actualización de lead (PUT /api/leads/{id})
+      console.log('🔄 Calling updateExistingLead API...');
+      await updateExistingLead(leadToSave);
       
-      // Resetear estados de cambios
+      // Notificar al componente padre para refrescar datos
+      onSave(leadToSave);
+      
+      // Resetear estado de cambios generales
       setGeneralChanges(false);
+      
+      toast({
+        title: "Éxito",
+        description: "Información general guardada exitosamente",
+      });
+      
+    } catch (error) {
+      console.error('❌ Error saving general changes:', error);
+      toast({
+        title: "Error",
+        description: "No se pudieron guardar los cambios generales",
+        variant: "destructive",
+      });
+    }
+  };
+
+  // Función para guardar solo cambios de gestión
+  const handleSaveManagement = async () => {
+    console.log('🔄 Saving management changes...');
+    
+    if (!contactMethod || !result || !managementNotes) {
+      toast({
+        title: "Error",
+        description: "Todos los campos de gestión son obligatorios",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    try {
+      // 1. Crear interacción con datos de gestión (POST /api/interactions)
+      console.log('🔄 Creating interaction from management data...');
+      
+      // Formatear la fecha del próximo seguimiento para el API
+      const formattedNextFollowUp = editedLead.nextFollowUp ? formatDateForAPI(editedLead.nextFollowUp) : '';
+      
+      // Preparar el lead con datos de gestión para crear la interacción
+      const leadWithInteractionData = {
+        ...editedLead,
+        type: contactMethod,
+        outcome: result,
+        notes: managementNotes,
+        nextFollowUp: formattedNextFollowUp
+      };
+      
+      const interactionCreated = await createInteractionFromLead(leadWithInteractionData);
+      
+      if (!interactionCreated) {
+        toast({
+          title: "Error",
+          description: "No se pudo crear la interacción",
+          variant: "destructive",
+        });
+        return;
+      }
+      
+      // 2. Actualizar el lead con cambios de gestión (PUT /api/leads/{id})
+      console.log('🔄 Updating lead with management changes...');
+      
+      const leadToSave = {
+        ...editedLead,
+        nextFollowUp: editedLead.nextFollowUp ? formatDateForAPI(editedLead.nextFollowUp) : editedLead.nextFollowUp
+      };
+      
+      // Llamar directamente al API de actualización de lead (PUT /api/leads/{id})
+      await updateExistingLead(leadToSave);
+      
+      // Notificar al componente padre para refrescar datos
+      onSave(leadToSave);
+      
+      // Recargar interacciones después de crear una nueva
+      await loadLeadInteractions(lead.id);
+      
+      // Resetear estados de cambios de gestión
       setManagementChanges(false);
       setContactMethod('');
       setResult('');
@@ -336,14 +462,14 @@ export function LeadDetail({ lead, isOpen, onClose, onSave, onOpenMassEmail }: L
       
       toast({
         title: "Éxito",
-        description: "Cambios guardados exitosamente",
+        description: "Gestión registrada e información del lead actualizada exitosamente",
       });
       
     } catch (error) {
-      console.error('❌ Error saving changes:', error);
+      console.error('❌ Error saving management changes:', error);
       toast({
         title: "Error",
-        description: "No se pudieron guardar los cambios",
+        description: "No se pudieron guardar los cambios de gestión",
         variant: "destructive",
       });
     }
@@ -358,9 +484,9 @@ export function LeadDetail({ lead, isOpen, onClose, onSave, onOpenMassEmail }: L
     });
   };
 
-  // Encontrar el usuario asignado actual
+  // Use assignedToName directly from API or fallback to user lookup
   const assignedUser = users.find(user => user.id === editedLead.assignedTo);
-  const assignedUserName = assignedUser ? assignedUser.name : 'Sin asignar';
+  const assignedUserName = editedLead.assignedToName || assignedUser?.name || 'Sin asignar';
 
   // Add error boundary check
   if (!lead || !lead.id) {
@@ -424,7 +550,7 @@ Notas adicionales: ${lead.notes || 'Ninguna'}`;
               {/* Tab General */}
               <TabsContent value="general" className="space-y-6">
                 
-                    <CardContent className="space-y-6 py-2 px-0">
+                    <CardContent className="space-y-2 py-2 px-0">
                     
                     <CardTitle className="flex items-center pt-2">
                       Información General
@@ -439,89 +565,80 @@ Notas adicionales: ${lead.notes || 'Ninguna'}`;
                         />
                       </div>
 
-                      <div className="grid grid-cols-2 gap-6">
-                        <div className="space-y-0 border-2 border-[#3d4b5c26] shadow-md rounded-md p-2.5">
-                          <Label className="p-0 text-sm text-gray-500 font-normal">Email</Label>
-                          <Input
-                            type="email"
-                            value={(editedLead.email || '').toLowerCase()}
-                            onChange={(e) => handleGeneralChange('email', e.target.value.toLowerCase())}
-                            className="border-0 border-b border-gray-200 rounded-none px-0 py-0 m-0 text-base font-medium bg-transparent leading-none h-auto min-h-0 focus:border-gray-400 focus:shadow-none focus:ring-0"
-                          />
-                        </div>
-                        <div className="space-y-0 border-2 border-[#3d4b5c26] shadow-md rounded-md p-2.5">
-                          <Label className="p-0 text-sm text-gray-500 font-normal">Teléfono</Label>
-                          <Input
-                            value={editedLead.phone || ''}
-                            onChange={(e) => handleGeneralChange('phone', e.target.value)}
-                            className="border-0 border-b border-gray-200 rounded-none px-0 py-0 m-0 text-base font-medium bg-transparent leading-none h-auto min-h-0 focus:border-gray-400 focus:shadow-none focus:ring-0"
-                          />
-                        </div>
+                      <div className="grid grid-cols-2 gap-2">
+                         <div className="space-y-0 border-2 border-[#3d4b5c26] shadow-md rounded-md p-2.5">
+                           <Label className="p-0 text-sm text-gray-500 font-normal">Email</Label>
+                           <Input
+                             type="email"
+                             value={(editedLead.email || '').toLowerCase()}
+                             onChange={(e) => handleEmailChange(e.target.value)}
+                             className={`border-0 border-b border-gray-200 rounded-none px-0 py-0 m-0 text-base font-medium bg-transparent leading-none h-auto min-h-0 focus:border-gray-400 focus:shadow-none focus:ring-0 ${editedLead.email && !isValidEmail(editedLead.email) ? 'border-red-500' : ''}`}
+                           />
+                           {editedLead.email && !isValidEmail(editedLead.email) && (
+                             <p className="text-red-500 text-xs mt-1">Formato de correo inválido</p>
+                           )}
+                         </div>
+                         <div className="space-y-0 border-2 border-[#3d4b5c26] shadow-md rounded-md p-2.5">
+                           <Label className="p-0 text-sm text-gray-500 font-normal">Teléfono</Label>
+                           <Input
+                             value={editedLead.phone || ''}
+                             onChange={(e) => handlePhoneChange(e.target.value)}
+                             className="border-0 border-b border-gray-200 rounded-none px-0 py-0 m-0 text-base font-medium bg-transparent leading-none h-auto min-h-0 focus:border-gray-400 focus:shadow-none focus:ring-0"
+                           />
+                         </div>
                       </div>
 
-                      <div className="grid grid-cols-2 gap-6">
-                        <div className="grid grid-flow-col grid-rows-2 gap-0 space-y-0 border-2 border-[#3d4b5c26] shadow-md rounded-md p-2.5 relative">
-                          <Label className="col-span-1 p-0 text-sm text-gray-500 font-normal">Tipo de Documento</Label>
-                          <Select 
-                            value={editedLead.documentType || 'CC'} 
-                            onValueChange={(value) => handleGeneralChange('documentType', value)}
-                          >
-                            <SelectTrigger className="col-span-1 row-span-2 border-0 border-b border-gray-200 rounded-none px-0 py-0 m-0 text-sm font-medium bg-transparent leading-none h-auto min-h-0 focus:border-gray-400 focus:shadow-none focus:ring-0">
-                              <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="CC">Cédula de Ciudadanía</SelectItem>
-                              <SelectItem value="CE">Cédula de Extranjería</SelectItem>
-                              <SelectItem value="TI">Tarjeta de Identidad</SelectItem>
-                              <SelectItem value="PA">Pasaporte</SelectItem>
-                              <SelectItem value="NIT">NIT</SelectItem>
-                            </SelectContent>
-                          </Select>
-                          <ChevronDown className="row-start-1 row-end-2 self-center absolute right-2 top-8 h-4 w-4 text-[#00c83c]" />
-                        </div>
+                      <div className="grid grid-cols-2 gap-2">
+
+                        <CustomFieldSelect
+                          label="Tipo de Documento"
+                          value={editedLead.documentType || ''}
+                          onValueChange={(value) => handleGeneralChange('documentType', value)}
+                          options={[
+                            { value: 'CC', label: 'Cédula de Ciudadanía' },
+                            { value: 'CE', label: 'Cédula de Extranjería' },
+                            { value: 'TI', label: 'Tarjeta de Identidad' },
+                            { value: 'PA', label: 'Pasaporte' },
+                            { value: 'NIT', label: 'NIT' },
+                          ]}
+                        />
                         
-                        <div className="space-y-0 border-2 border-[#3d4b5c26] shadow-md rounded-md p-2.5">
-                          <Label className="p-0 text-sm text-gray-500 font-normal">Número de Documento</Label>
-                          <Input
-                            type="number"
-                            value={editedLead.documentNumber || ''}
-                            onChange={(e) => handleGeneralChange('documentNumber', Number(e.target.value))}
-                            className="border-0 border-b border-gray-200 rounded-none px-0 py-0 m-0 text-base font-medium bg-transparent leading-none h-auto min-h-0 focus:border-gray-400 focus:shadow-none focus:ring-0"
-                          />
-                        </div>
+                         <div className="space-y-0 border-2 border-[#3d4b5c26] shadow-md rounded-md p-2.5">
+                           <Label className="p-0 text-sm text-gray-500 font-normal">Número de Documento</Label>
+                           <Input
+                             type="text"
+                             value={editedLead.documentNumber || ''}
+                             onChange={(e) => handleDocumentNumberChange(e.target.value)}
+                             className="border-0 border-b border-gray-200 rounded-none px-0 py-0 m-0 text-base font-medium bg-transparent leading-none h-auto min-h-0 focus:border-gray-400 focus:shadow-none focus:ring-0"
+                           />
+                         </div>
                       </div>
 
-                      <div className="grid grid-cols-2 gap-6">
-                        <div className="space-y-0 border-2 border-[#3d4b5c26] shadow-md rounded-md p-2.5">
-                          <Label className="p-0 text-sm text-gray-500 font-normal">Edad</Label>
-                          <Input
-                            type="number"
-                            value={editedLead.age || ''}
-                            onChange={(e) => handleGeneralChange('age', Number(e.target.value))}
-                            className="border-0 border-b border-gray-200 rounded-none px-0 py-0 m-0 text-base font-medium bg-transparent leading-none h-auto min-h-0 focus:border-gray-400 focus:shadow-none focus:ring-0"
-                          />
-                        </div>
+                      <div className="grid grid-cols-2 gap-2">
+                         <div className="space-y-0 border-2 border-[#3d4b5c26] shadow-md rounded-md p-2.5">
+                           <Label className="p-0 text-sm text-gray-500 font-normal">Edad</Label>
+                           <Input
+                             type="text"
+                             value={editedLead.age || ''}
+                             onChange={(e) => handleAgeChange(e.target.value)}
+                             className="border-0 border-b border-gray-200 rounded-none px-0 py-0 m-0 text-base font-medium bg-transparent leading-none h-auto min-h-0 focus:border-gray-400 focus:shadow-none focus:ring-0"
+                           />
+                         </div>
                         
-                        <div className="space-y-0 border-2 border-[#3d4b5c26] shadow-md rounded-md p-2.5">
-                          <Label className="p-0 text-sm text-gray-500 font-normal">Género</Label>
-                          <Select 
-                            value={editedLead.gender || 'Prefiero no decir'} 
-                            onValueChange={(value) => handleGeneralChange('gender', value)}
-                          >
-                            <SelectTrigger className="border-0 border-b border-gray-200 rounded-none px-0 py-0 m-0 text-sm font-medium bg-transparent leading-none h-auto min-h-0 focus:border-gray-400 focus:shadow-none focus:ring-0">
-                              <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="Masculino">Masculino</SelectItem>
-                              <SelectItem value="Femenino">Femenino</SelectItem>
-                              <SelectItem value="Otro">Otro</SelectItem>
-                              <SelectItem value="Prefiero no decir">Prefiero no decir</SelectItem>
-                            </SelectContent>
-                          </Select>
-                        </div>
+                        <CustomFieldSelect
+                          label="Género"
+                          value={editedLead.gender || 'Prefiero no decir'}
+                          onValueChange={(value) => handleGeneralChange('gender', value)}
+                          options={[
+                            { value: 'Masculino', label: 'Masculino' },
+                            { value: 'Femenino', label: 'Femenino' },
+                            { value: 'Otro', label: 'Otro' },
+                            { value: 'Prefiero no decir', label: 'Prefiero no decir' }
+                          ]}
+                        />
                       </div>
 
-                      <div className="grid grid-cols-2 gap-6"> 
+                      <div className="grid grid-cols-2 gap-2"> 
                         <div className="space-y-0 border-2 border-[#3d4b5c26] shadow-md rounded-md p-2.5">
                           <Label className="p-0 text-sm text-gray-500 font-normal">Empresa</Label>
                           <Input
@@ -607,124 +724,170 @@ Notas adicionales: ${lead.notes || 'Ninguna'}`;
                           <span>Detalles de Información Adicional</span>
                         </SkAccordionTrigger>
                         <SkAccordionContent className="px-4 pb-4 pt-0 bg-white border-t border-gray-200">
-                          {editedLead.additionalInfo && typeof editedLead.additionalInfo === 'object' && Object.keys(editedLead.additionalInfo).length > 0 ? (
-                            <div className="rounded-lg overflow-hidden bg-gray-50 mt-4">
-                              <ScrollArea className="h-48">
-                                <Table>
-                                  <TableHeader className="sticky top-0 bg-gray-100">
-                                    <TableRow>
-                                      <TableHead className="font-medium text-gray-700">Campo</TableHead>
-                                      <TableHead className="font-medium text-gray-700">Valor</TableHead>
-                                    </TableRow>
-                                  </TableHeader>
-                                  <TableBody>
-                                    {Object.entries(editedLead.additionalInfo).map(([key, value], index) => (
-                                      <TableRow key={key} className={index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
-                                        <TableCell className="font-medium text-gray-600">{key}</TableCell>
-                                        <TableCell className="text-gray-900">
-                                          {typeof value === 'object' && value !== null 
-                                            ? JSON.stringify(value) 
-                                            : String(value || '')}
-                                        </TableCell>
+                          {(() => {
+                            // Función helper para parsear additionalInfo de diferentes formatos
+                            const parseAdditionalInfo = (additionalInfo: any) => {
+                              console.log('🔍 Parsing additionalInfo:', { type: typeof additionalInfo, value: additionalInfo });
+                              
+                              if (!additionalInfo) return null;
+                              
+                              // Si es string, intentar parsearlo como JSON
+                              if (typeof additionalInfo === 'string') {
+                                try {
+                                  const parsed = JSON.parse(additionalInfo);
+                                  return parsed && typeof parsed === 'object' ? parsed : null;
+                                } catch {
+                                  // Si no se puede parsear como JSON, mostrar como texto plano
+                                  return { 'Información': additionalInfo };
+                                }
+                              }
+                              
+                              // Si es objeto, verificar que tenga contenido
+                              if (typeof additionalInfo === 'object' && additionalInfo !== null) {
+                                return Object.keys(additionalInfo).length > 0 ? additionalInfo : null;
+                              }
+                              
+                              // Para otros tipos, convertir a string
+                              if (additionalInfo !== undefined && additionalInfo !== null) {
+                                return { 'Información': String(additionalInfo) };
+                              }
+                              
+                              return null;
+                            };
+
+                            const parsedInfo = parseAdditionalInfo(editedLead.additionalInfo);
+                            console.log('🔍 Parsed additionalInfo result:', parsedInfo);
+
+                            return parsedInfo ? (
+                              <div className="rounded-lg overflow-hidden bg-gray-50 mt-4">
+                                <ScrollArea className="h-48">
+                                  <Table>
+                                    <TableHeader className="sticky top-0 bg-gray-100">
+                                      <TableRow>
+                                        <TableHead className="font-medium text-gray-700">Campo</TableHead>
+                                        <TableHead className="font-medium text-gray-700">Valor</TableHead>
                                       </TableRow>
-                                    ))}
-                                  </TableBody>
-                                </Table>
-                              </ScrollArea>
-                            </div>
-                          ) : (
-                            <div className="p-6 text-center text-gray-500 bg-gray-50 rounded-lg border border-gray-200">
-                              <AlertCircle className="h-8 w-8 mx-auto mb-2 text-gray-400" />
-                              <p className="text-sm">No hay información adicional disponible</p>
-                            </div>
-                          )}
+                                    </TableHeader>
+                                    <TableBody>
+                                      {Object.entries(parsedInfo).map(([key, value], index) => (
+                                        <TableRow key={key} className={index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
+                                          <TableCell className="font-medium text-gray-600">{key}</TableCell>
+                                          <TableCell className="text-gray-900">
+                                            {typeof value === 'object' && value !== null 
+                                              ? JSON.stringify(value, null, 2) 
+                                              : String(value || '')}
+                                          </TableCell>
+                                        </TableRow>
+                                      ))}
+                                    </TableBody>
+                                  </Table>
+                                </ScrollArea>
+                              </div>
+                            ) : (
+                              <div className="p-6 text-center text-gray-500 bg-gray-50 rounded-lg border border-gray-200">
+                                <AlertCircle className="h-8 w-8 mx-auto mb-2 text-gray-400" />
+                                <p className="text-sm">No hay información adicional disponible</p>
+                              </div>
+                            );
+                          })()}
                         </SkAccordionContent>
                       </SkAccordionItem>
                     </SkAccordion>
                   </div>
                 </CardContent>
+                
+                {/* Botón específico para guardar cambios generales */}
+                <div className="flex justify-end gap-2 pt-4 border-t">
+                  <Button 
+                    onClick={handleSaveGeneral}
+                    disabled={!generalChanges}
+                    className="bg-primary"
+                  >
+                    Guardar Cambios Generales
+                  </Button>
+                </div>
               </TabsContent>
 
               {/* Tab Gestión */}
               <TabsContent value="management" className="space-y-6">
-                <CardContent className="space-y-6 py-2 px-0">
+                <CardContent className="py-2 px-0 space-y-2">
                   <CardTitle className="flex items-center pt-2">Resultado de la Gestión</CardTitle>
                 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="space-y-0 border-2 border-[#3d4b5c26] shadow-md rounded-md p-2.5">
-                        <Label className="p-0 text-sm text-gray-500 font-normal">Estado Actual</Label>
-                        <Select 
-                          value={editedLead.stage} 
-                          onValueChange={(value) => handleGeneralChange('stage', value)}
-                        >
-                          <SelectTrigger className="border-0 border-b border-gray-200 rounded-none px-0 py-0 m-0 text-sm font-medium bg-transparent leading-none h-auto min-h-0 focus:border-gray-400 focus:shadow-none focus:ring-0">
-                            <SelectValue/>
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="Nuevo">Nuevo</SelectItem>
-                            <SelectItem value="Asignado">Asignado</SelectItem>
-                            <SelectItem value="Localizado: No interesado">Localizado: No interesado</SelectItem>
-                            <SelectItem value="Localizado: Prospecto de venta FP">Localizado: Prospecto de venta FP</SelectItem>
-                            <SelectItem value="Localizado: Prospecto de venta AD">Localizado: Prospecto de venta AD</SelectItem>
-                            <SelectItem value="Localizado: Volver a llamar">Localizado: Volver a llamar</SelectItem>
-                            <SelectItem value="Localizado: No vuelve a contestar">Localizado: No vuelve a contestar</SelectItem>
-                            <SelectItem value="No localizado: No contesta">No localizado: No contesta</SelectItem>
-                            <SelectItem value="No localizado: Número equivocado">No localizado: Número equivocado</SelectItem>
-                            <SelectItem value="Contrato Creado">Contrato Creado</SelectItem>
-                            <SelectItem value="Registro de Venta (fondeado)">Registro de Venta (fondeado)</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                    <CustomFieldSelect
+                        label="Estado Actual"
+                        value={editedLead.stage}
+                        onValueChange={(value) => handleManagementChange('stage', value)}
+                        options={[
+                          { value: 'Nuevo', label: 'Nuevo' },
+                          { value: 'Asignado', label: 'Asignado' },
+                          { value: 'Localizado: No interesado', label: 'Localizado: No interesado' },
+                          { value: 'Localizado: Prospecto de venta FP', label: 'Localizado: Prospecto de venta FP' },
+                          { value: 'Localizado: Prospecto de venta AD', label: 'Localizado: Prospecto de venta AD' },
+                          { value: 'Localizado: Volver a llamar', label: 'Localizado: Volver a llamar' },
+                          { value: 'Localizado: No vuelve a contestar', label: 'Localizado: No vuelve a contestar' },
+                          { value: 'No localizado: No contesta', label: 'No localizado: No contesta' },
+                          { value: 'No localizado: Número equivocado', label: 'No localizado: Número equivocado' },
+                          { value: 'Contrato Creado', label: 'Contrato Creado' },
+                          { value: 'Registro de Venta (fondeado)', label: 'Registro de Venta (fondeado)' }
+                        ]}
+                      />
                     
-                     <div className="space-y-0 border-2 border-[#3d4b5c26] shadow-md rounded-md p-2.5">
-                        <Label className="p-0 text-sm text-gray-500 font-normal">Medio de Contacto</Label>
-                      <Select 
-                        value={contactMethod} 
+                     <CustomFieldSelect
+                        label="Medio de Contacto"
+                        value={contactMethod}
                         onValueChange={setContactMethod}
-                      >
-                        <SelectTrigger className="border-0 border-b border-gray-200 rounded-none px-0 py-0 m-0 text-sm font-medium bg-transparent leading-none h-auto min-h-0 focus:border-gray-400 focus:shadow-none focus:ring-0">
-                          <SelectValue/>
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="phone">Teléfono</SelectItem>
-                          <SelectItem value="email">Email</SelectItem>
-                          <SelectItem value="whatsapp">WhatsApp</SelectItem>
-                          <SelectItem value="meeting">Reunión</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
+                        options={[
+                          { value: 'phone', label: 'Teléfono' },
+                          { value: 'email', label: 'Email' },
+                          { value: 'whatsapp', label: 'WhatsApp' },
+                          { value: 'meeting', label: 'Reunión' }
+                        ]}
+                        placeholder="Seleccionar medio"
+                      />
                   </div>
                   
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                        <Label htmlFor="priority">Prioridad</Label>
-                        <Select 
-                          value={editedLead.priority} 
-                          onValueChange={(value) => handleGeneralChange('priority', value)}
-                        >
-                          <SelectTrigger>
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="low">Baja</SelectItem>
-                            <SelectItem value="medium">Media</SelectItem>
-                            <SelectItem value="high">Alta</SelectItem>
-                            <SelectItem value="urgent">Urgente</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-                    <div>
-                      <Label htmlFor="followUpDate">Próximo seguimiento</Label>
+                   <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                     <CustomFieldSelect
+                         label="Resultado de Gestión"
+                         value={result}
+                         onValueChange={setResult}
+                         options={[
+                           { value: 'Contacto exitoso', label: 'Contacto exitoso' },
+                           { value: 'No contesta', label: 'No contesta' },
+                           { value: 'Reagendar', label: 'Reagendar' },
+                           { value: 'No interesado', label: 'No interesado' },
+                           { value: 'Información enviada', label: 'Información enviada' }
+                         ]}
+                         placeholder="Seleccionar resultado"
+                       />
+                     <CustomFieldSelect
+                         label="Prioridad"
+                         value={editedLead.priority}
+                         onValueChange={(value) => handleManagementChange('priority', value)}
+                         options={[
+                           { value: 'low', label: 'Baja' },
+                           { value: 'medium', label: 'Media' },
+                           { value: 'high', label: 'Alta' },
+                           { value: 'urgent', label: 'Urgente' }
+                         ]}
+                       />
+                     </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                    <div className="space-y-0 border-2 border-[#3d4b5c26] shadow-md rounded-md p-2.5">
+                      <Label 
+                        htmlFor="followUpDate" 
+                        className="text-sm text-gray-500 font-normal leading-tight">Próximo seguimiento
+                      </Label>
                       <Input
                         id="followUpDate"
                         type="datetime-local"
                         value={formatDateForInput(editedLead.nextFollowUp || '')}
                         onChange={(e) => handleManagementChange('nextFollowUp', e.target.value)}
+                        className="border-0 border-b border-gray-200 rounded-none px-0 py-0 m-0 text-base font-medium bg-transparent leading-none h-auto min-h-0 focus:border-gray-400 focus:shadow-none focus:ring-0"
                       />
                     </div>
-                    </div>
-                    
-                    
+                  </div>
                     <div>
                       <Label htmlFor="managementNotes">Notas de gestión</Label>
                       <Textarea
@@ -769,8 +932,23 @@ Notas adicionales: ${lead.notes || 'Ninguna'}`;
                       >
                         <Calendar className="h-3 w-3" />
                       </Button>
+                      <Button
+                        onClick={handleProfilerClick}
+                        className=" h-8 bg-primary text-white"
+                      >
+                        {hasExistingProfile && profileData ? 'Perfilar Lead' : 'Perfilar Lead'}
+                      </Button>
+                      <Button 
+                    onClick={handleSaveManagement}
+                    disabled={!managementChanges || !contactMethod || !result || !managementNotes}
+                    className="bg-primary absolute right-12 h-8"
+                  >
+                    Guardar Gestión
+                  </Button>
                     </div>
+
                   </CardContent>
+    
                
 
                 {/* Historial de Interacciones mejorado */}
@@ -1002,19 +1180,6 @@ Notas adicionales: ${lead.notes || 'Ninguna'}`;
                 )}
               </TabsContent>
             </Tabs>
-
-            {/* Botones de acción */}
-            <div className="flex justify-end gap-2 pt-4 border-t">
-              <Button variant="outline" onClick={onClose}>
-                Cancelar
-              </Button>
-              <Button 
-                onClick={handleSave}
-                disabled={!generalChanges && !managementChanges}
-              >
-                Guardar Cambios
-              </Button>
-            </div>
           </DialogContent>
         </Dialog>
 
@@ -1024,6 +1189,23 @@ Notas adicionales: ${lead.notes || 'Ninguna'}`;
           onClose={() => setShowReassignDialog(false)}
           lead={editedLead}
           onSuccess={handleReassignSuccess}
+        />
+
+        {/* Componente del Perfilador */}
+        <Dialog open={showProfiler} onOpenChange={() => setShowProfiler(false)}>
+          <DialogContent className="max-w-4xl min-h-[600px] p-0 bg-gray-50 overflow-y-auto">
+            <LeadProfiler
+              selectedLead={lead}
+              onBack={() => setShowProfiler(false)}
+            />
+          </DialogContent>
+        </Dialog>
+
+        {/* Resultados del Perfil */}
+        <ProfileResults
+          isOpen={showProfileResults}
+          onClose={() => setShowProfileResults(false)}
+          profileData={profileData}
         />
       </>
     );

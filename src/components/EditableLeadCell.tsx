@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -9,6 +9,7 @@ import { useLeadAssignments } from "@/hooks/useLeadAssignments";
 import { changeLeadStage } from "@/utils/leadsApiClient";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
+import { getAssignableUsers, AssignableUser } from "@/utils/leadAssignmentApiClient";
 
 interface EditableLeadCellProps {
   lead: Lead;
@@ -52,6 +53,34 @@ export function EditableLeadCell({ lead, field, onUpdate }: EditableLeadCellProp
   const [isUpdating, setIsUpdating] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [editValue, setEditValue] = useState('');
+  const [assignableUsers, setAssignableUsers] = useState<AssignableUser[]>([]);
+  const [loadingAssignableUsers, setLoadingAssignableUsers] = useState(false);
+
+  // Load assignable users when component mounts
+  useEffect(() => {
+    const loadAssignableUsers = async () => {
+      if (field !== 'assignedTo') return;
+      
+      setLoadingAssignableUsers(true);
+      try {
+        console.log('🔄 Loading assignable users for lead reassignment...');
+        const users = await getAssignableUsers();
+        console.log('✅ Assignable users loaded:', users.length);
+        setAssignableUsers(users);
+      } catch (error) {
+        console.error('❌ Error loading assignable users:', error);
+        toast({
+          title: "Error",
+          description: "Error al cargar usuarios asignables",
+          variant: "destructive"
+        });
+      } finally {
+        setLoadingAssignableUsers(false);
+      }
+    };
+
+    loadAssignableUsers();
+  }, [field, toast]);
 
   const handleValueChange = async (newValue: string) => {
     if (!user) {
@@ -100,11 +129,21 @@ export function EditableLeadCell({ lead, field, onUpdate }: EditableLeadCellProp
         } else {
           console.log(`🔄 Simple assignment change for lead ${lead.id} to ${assignedToValue}`);
           
-          toast({
-            title: "Información",
-            description: "Funcionalidad de asignación simple aún en desarrollo",
-            variant: "default",
-          });
+          const success = await handleReassignLead(lead.id, assignedToValue);
+          
+          if (success) {
+            const assignedUser = assignableUsers.find(u => u.Id === assignedToValue);
+            const assignedName = assignedUser?.Name || 'Usuario desconocido';
+            
+            console.log(`✅ Lead ${lead.id} assigned successfully to ${assignedName}`);
+            
+            toast({
+              title: "Éxito",
+              description: `Lead asignado exitosamente a ${assignedName}`,
+            });
+
+            onUpdate();
+          }
         }
       } else if (field === 'priority') {
         console.log(`🔄 Changing lead ${lead.id} priority to ${newValue}`);
@@ -226,24 +265,26 @@ export function EditableLeadCell({ lead, field, onUpdate }: EditableLeadCellProp
   }
 
   if (field === 'assignedTo') {
+    // Use assignedToName directly from API, fallback to user lookup for editing
     const assignedUser = users.find(u => u.id === lead.assignedTo);
+    const displayName = lead.assignedToName || assignedUser?.name || 'Sin asignar';
     
     return (
       <Select
         value={lead.assignedTo || ""}
         onValueChange={handleValueChange}
-        disabled={isUpdating}
+        disabled={isUpdating || loadingAssignableUsers}
       >
         <SelectTrigger className="w-full border-none shadow-none p-2 h-8">
           <span className="text-xs text-left">
-            {assignedUser?.name || ''}
+            {displayName}
           </span>
         </SelectTrigger>
         <SelectContent className="bg-white z-50">
           <SelectItem value="unassigned">Sin asignar</SelectItem>
-          {users.map((user) => (
-            <SelectItem key={user.id} value={user.id}>
-              {user.name}
+          {assignableUsers.map((user) => (
+            <SelectItem key={user.Id} value={user.Id}>
+              {user.Name} ({user.Role})
             </SelectItem>
           ))}
         </SelectContent>

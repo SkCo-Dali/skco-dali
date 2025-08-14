@@ -97,7 +97,10 @@ export function useMassEmail() {
     leads: Lead[], 
     template: EmailTemplate
   ): Promise<boolean> => {
+    console.log('📧 === INICIANDO ENVÍO DE CORREOS MASIVOS ===');
+    
     if (!user) {
+      console.log('❌ Usuario no autenticado');
       toast({
         title: "Error",
         description: "Usuario no autenticado",
@@ -106,8 +109,15 @@ export function useMassEmail() {
       return false;
     }
 
+    console.log('👤 Usuario autenticado:', {
+      id: user.id,
+      email: user.email,
+      name: user.name
+    });
+
     // Validación del límite de 20 correos
     if (leads.length > 20) {
+      console.log('❌ Límite de correos excedido:', leads.length);
       toast({
         title: "Error",
         description: "El máximo permitido es 20 correos por envío",
@@ -116,35 +126,52 @@ export function useMassEmail() {
       return false;
     }
 
+    console.log('📊 Número de leads a procesar:', leads.length);
     setIsLoading(true);
     
     try {
-      const token = await getAccessToken();
-      if (!token) {
-        throw new Error('No se pudo obtener el token de acceso');
+      console.log('🔐 Obteniendo tokens de acceso...');
+      const tokens = await getAccessToken();
+      
+      if (!tokens || !tokens.idToken || !tokens.accessToken) {
+        console.log('❌ Tokens faltantes:', tokens);
+        throw new Error('No se pudieron obtener los tokens de acceso');
       }
+      
+      const { idToken, accessToken } = tokens;
+
+      console.log('✅ Tokens completos obtenidos exitosamente:', {
+        idToken: idToken,
+        accessToken: accessToken
+      });
 
       const recipients = generateEmailRecipients(leads, template);
+      console.log('📧 Recipients generados:', recipients.length);
       
-      const payload: EmailSendRequest = {
-        userId: user.id,
-        user_email: user.email,
-        token: token,
+      // Payload simplificado - solo recipients
+      const payload = {
         recipients
       };
 
       const endpoint = `${ENV.CRM_API_BASE_URL}/api/emails/send`;
       
       // LOG: Endpoint y body que se envía
-      console.log('📧 ENVÍO DE CORREOS MASIVOS - API CALL');
+      console.log('📧 === DETALLES DE LA LLAMADA AL API ===');
       console.log('📧 Endpoint:', endpoint);
       console.log('📧 Method: POST');
-      console.log('📧 Body enviado:', JSON.stringify(payload, null, 2));
+      console.log('📧 Headers completos que se enviarán:', {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${idToken}`,
+        'X-Graph-Token': accessToken
+      });
+      console.log('📧 Payload enviado:', JSON.stringify(payload, null, 2));
 
       const response = await fetch(endpoint, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${idToken}`,
+          'X-Graph-Token': accessToken
         },
         body: JSON.stringify(payload)
       });
@@ -213,27 +240,41 @@ export function useMassEmail() {
     setIsLoading(true);
     
     try {
+      // Obtener token de acceso
+      const tokens = await getAccessToken();
+      
+      if (!tokens || !tokens.idToken) {
+        throw new Error('No se pudieron obtener los tokens de acceso');
+      }
+
+      // Construir parámetros sin userId
       const params = new URLSearchParams({
-        userId: user.id,
         ...(campaign && { campaign }),
         ...(status && { status }),
         ...(createdAt && { createdAt })
       });
 
-      const endpoint = `${ENV.CRM_API_BASE_URL}/api/emails/logs?${params}`;
+      const endpoint = `${ENV.CRM_API_BASE_URL}/api/emails/logs${params.toString() ? `?${params}` : ''}`;
       
       // LOG: Endpoint y parámetros para obtener logs
       console.log('📧 OBTENER LOGS DE CORREOS - API CALL');
       console.log('📧 Endpoint:', endpoint);
       console.log('📧 Method: GET');
+      console.log('📧 Headers:', {
+        'Authorization': `Bearer ${tokens.idToken}`
+      });
       console.log('📧 Params:', {
-        userId: user.id,
         ...(campaign && { campaign }),
         ...(status && { status }),
         ...(createdAt && { createdAt })
       });
 
-      const response = await fetch(endpoint);
+      const response = await fetch(endpoint, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${tokens.idToken}`
+        }
+      });
 
       // LOG: Respuesta del servidor
       console.log('📧 Logs Response status:', response.status);

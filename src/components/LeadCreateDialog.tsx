@@ -12,6 +12,10 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Lead, Priority } from "@/types/crm";
 import { Plus, ChevronDown, Upload, FileText, RefreshCcw } from "lucide-react";
+import { uploadLeadsFile } from "@/utils/leadsApiClient";
+import { useAuth } from "@/contexts/AuthContext";
+import { useToast } from "@/hooks/use-toast";
+import { InputSanitizer } from "@/utils/inputSanitizer";
 
 interface LeadCreateDialogProps {
   onLeadCreate: (leadData: Partial<Lead>) => void;
@@ -38,6 +42,9 @@ const productOptions = [
 
 export const LeadCreateDialog = forwardRef<LeadCreateDialogRef, LeadCreateDialogProps>(
   ({ onLeadCreate, children }, ref) => {
+    const { user } = useAuth();
+    const { toast } = useToast();
+    
     const [open, setOpen] = useState(false);
     const [showMoreFields, setShowMoreFields] = useState(false);
     const [uploadProgress, setUploadProgress] = useState(0);
@@ -106,19 +113,25 @@ export const LeadCreateDialog = forwardRef<LeadCreateDialogRef, LeadCreateDialog
     };
 
     const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+      console.log('📂 === LEAD CREATE DIALOG: handleFileUpload called ===');
       const file = event.target.files?.[0];
+      console.log('📁 Uploading file:', file);
       if (file) {
+        console.log('✅ File selected, setting upload state...');
         setUploadedFile(file);
         setIsUploading(true);
         
+        console.log('⏳ Starting simulated upload progress...');
         // Simulate upload progress
         let progress = 0;
         const interval = setInterval(() => {
           progress += 10;
           setUploadProgress(progress);
+          console.log(`📊 Upload progress: ${progress}%`);
           if (progress >= 100) {
             clearInterval(interval);
             setIsUploading(false);
+            console.log('✅ File upload simulation completed');
           }
         }, 200);
       }
@@ -131,16 +144,72 @@ export const LeadCreateDialog = forwardRef<LeadCreateDialogRef, LeadCreateDialog
     };
 
     const handleBulkUpload = () => {
-      // Implement bulk upload logic here
-      console.log('Uploading file:', uploadedFile);
-      setOpen(false);
+      console.log('🚀 === LEAD CREATE DIALOG: handleBulkUpload called ===');
+      console.log('📁 Uploading file:', uploadedFile);
+      console.log('📋 File details:', uploadedFile ? {
+        name: uploadedFile.name,
+        size: uploadedFile.size,
+        type: uploadedFile.type
+      } : 'No file');
+      console.log('👤 Current user:', user);
+      
+      if (uploadedFile && user?.id) {
+        console.log('🔄 About to call uploadLeadsFile API...');
+        uploadLeadsFile(uploadedFile, user.id)
+          .then(() => {
+            console.log('✅ Upload successful');
+            // No llamar onLeadCreate después del bulk upload
+            setOpen(false);
+            toast({
+              title: "Éxito",
+              description: "Leads cargados exitosamente",
+            });
+          })
+          .catch((error) => {
+            console.error('❌ Upload failed:', error);
+            toast({
+              title: "Error",
+              description: "Error al cargar los leads",
+              variant: "destructive",
+            });
+          });
+      } else {
+        console.error('❌ Missing file or user ID');
+        toast({
+          title: "Error",
+          description: "Archivo o usuario no válido",
+          variant: "destructive",
+        });
+      }
     };
 
     const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
       const value = e.target.value;
-      // Solo permitir números, espacios, guiones y paréntesis
-      const numericValue = value.replace(/[^0-9\s\-\(\)]/g, '');
+      // Solo permitir números
+      const numericValue = value.replace(/[^0-9]/g, '');
       setFormData({...formData, phone: numericValue});
+    };
+
+    const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+      const value = e.target.value;
+      setFormData({...formData, email: value});
+    };
+
+    const handleDocumentNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+      const value = e.target.value;
+      const numericValue = value.replace(/[^0-9]/g, '');
+      setFormData({...formData, documentNumber: numericValue ? Number(numericValue) : undefined});
+    };
+
+    const handleAgeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+      const value = e.target.value;
+      const numericValue = value.replace(/[^0-9]/g, '');
+      setFormData({...formData, age: numericValue ? Number(numericValue) : undefined});
+    };
+
+    const isValidEmail = (email: string): boolean => {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      return emailRegex.test(email);
     };
 
     return (
@@ -154,7 +223,7 @@ export const LeadCreateDialog = forwardRef<LeadCreateDialogRef, LeadCreateDialog
           </DialogHeader>
           
           <Tabs defaultValue="individual" className="w-full">
-            <TabsList className="grid w-full grid-cols-2 mb-6 bg-gray-100 p-1 rounded-full">
+            <TabsList className="grid w-full grid-cols-2 mb-6 bg-gray-100 rounded-full px-0 py-0 my-0">
               <TabsTrigger 
                 value="individual" 
                 className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#00c83c] data-[state=active]:to-[#A3E40B] data-[state=active]:text-white rounded-full px-8 py-2 text-sm font-medium transition-all duration-200"
@@ -192,18 +261,15 @@ export const LeadCreateDialog = forwardRef<LeadCreateDialogRef, LeadCreateDialog
                     )}
                   </div>
                   
-                  <div className="relative">
-                    <Input
-                      type="text"
-                      value={formData.documentNumber?.toString() || ''}
-                      onChange={(e) => {
-                        const value = e.target.value.replace(/[^0-9]/g, ''); // Solo números
-                        setFormData({...formData, documentNumber: value ? Number(value) : undefined});
-                      }}
-                      className="border-gray-300 rounded-lg h-12 bg-gray-50"
-                      placeholder="Número de identificación*"
-                      required
-                    />
+                   <div className="relative">
+                     <Input
+                       type="text"
+                       value={formData.documentNumber?.toString() || ''}
+                       onChange={handleDocumentNumberChange}
+                       className="border-gray-300 rounded-lg h-12 bg-gray-50"
+                       placeholder="Número de identificación*"
+                       required
+                     />
                     {formData.documentNumber && (
                       <Label className="absolute -top-2 left-3 bg-gray-50 px-1 text-xs text-gray-600">
                         Número de identificación*
@@ -246,20 +312,23 @@ export const LeadCreateDialog = forwardRef<LeadCreateDialogRef, LeadCreateDialog
               </div>    
 
                 <div className="grid grid-cols-2 gap-4">
-                <div className="relative">
-                  <Input
-                    type="email"
-                    value={formData.email}
-                    onChange={(e) => setFormData({...formData, email: e.target.value})}
-                    className="border-gray-300 rounded-lg h-12 bg-gray-50"
-                    placeholder="Correo electrónico*"
-                    required
-                  />
-                  {formData.email && (
-                    <Label className="absolute -top-2 left-3 bg-gray-50 px-1 text-xs text-gray-600">
-                      Correo electrónico*
-                    </Label>
-                  )}
+                 <div className="relative">
+                   <Input
+                     type="email"
+                     value={formData.email}
+                     onChange={handleEmailChange}
+                     className={`border-gray-300 rounded-lg h-12 bg-gray-50 ${formData.email && !isValidEmail(formData.email) ? 'border-red-500' : ''}`}
+                     placeholder="Correo electrónico*"
+                     required
+                   />
+                   {formData.email && (
+                     <Label className="absolute -top-2 left-3 bg-gray-50 px-1 text-xs text-gray-600">
+                       Correo electrónico*
+                     </Label>
+                   )}
+                   {formData.email && !isValidEmail(formData.email) && (
+                     <p className="text-red-500 text-xs mt-1">Formato de correo inválido</p>
+                   )}
                 </div>
                 <div className="relative">
                   <Popover open={productSelectOpen} onOpenChange={setProductSelectOpen}>
@@ -335,17 +404,14 @@ export const LeadCreateDialog = forwardRef<LeadCreateDialogRef, LeadCreateDialog
                 {showMoreFields && (
                   <div className="space-y-4 border-t pt-4">
                     <div className="grid grid-cols-2 gap-4">
-                      <div className="relative">
-                        <Input
-                          type="text"
-                          value={formData.age?.toString() || ''}
-                          onChange={(e) => {
-                            const value = e.target.value.replace(/[^0-9]/g, ''); // Solo números
-                            setFormData({...formData, age: value ? Number(value) : undefined});
-                          }}
-                          className="border-gray-300 rounded-lg h-12 bg-gray-50"
-                          placeholder="Edad"
-                        />
+                       <div className="relative">
+                         <Input
+                           type="text"
+                           value={formData.age?.toString() || ''}
+                           onChange={handleAgeChange}
+                           className="border-gray-300 rounded-lg h-12 bg-gray-50"
+                           placeholder="Edad"
+                         />
                         {formData.age && (
                           <Label className="absolute -top-2 left-3 bg-gray-50 px-1 text-xs text-gray-600">
                             Edad

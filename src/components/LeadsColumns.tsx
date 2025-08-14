@@ -84,8 +84,9 @@ export function LeadsColumns({ leads, onLeadClick, onLeadUpdate, onSendEmail, gr
           break;
         case 'assignedTo':
           key = lead.assignedTo;
+          // Use assignedToName directly from API or fallback to user lookup
           const user = users.find(u => u.id === lead.assignedTo);
-          label = user?.name || (lead.assignedTo ? `Usuario ${lead.assignedTo}` : 'Sin asignar');
+          label = lead.assignedToName || user?.name || (lead.assignedTo ? `Usuario ${lead.assignedTo}` : 'Sin asignar');
           break;
         case 'campaign':
           key = lead.campaign;

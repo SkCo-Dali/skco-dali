@@ -55,7 +55,7 @@ export const getRolePermissions = (role: UserRole): RolePermissions => {
         canBulkAssignLeads: true,
         canAccessUserManagement: true,
         canAssignRoles: true,
-        accessiblePages: ['dashboard', 'leads', 'ChatDali', 'reports', 'informes', 'users', 'settings','index']
+        accessiblePages: ['dashboard', 'leads', 'ChatDali','opportunities','gamification', 'reports', 'informes', 'users', 'settings','index']
       };
     case 'manager':
     case 'supervisor':
@@ -72,7 +72,7 @@ export const getRolePermissions = (role: UserRole): RolePermissions => {
         canBulkAssignLeads: true,
         canAccessUserManagement: false,
         canAssignRoles: false,
-        accessiblePages: ['leads', 'ChatDali', 'reports', 'informes','index']
+        accessiblePages: ['leads', 'ChatDali', 'reports','index']
       };
     case 'agent':
     case 'gestor':
@@ -93,7 +93,7 @@ export const getRolePermissions = (role: UserRole): RolePermissions => {
         canBulkAssignLeads: false,
         canAccessUserManagement: false,
         canAssignRoles: false,
-        accessiblePages: ['leads', 'ChatDali', 'informes','index']
+        accessiblePages: ['leads', 'ChatDali','index']
       };
     case 'viewer':
     case 'seguridad':
@@ -109,7 +109,7 @@ export const getRolePermissions = (role: UserRole): RolePermissions => {
         canBulkAssignLeads: false,
         canAccessUserManagement: false,
         canAssignRoles: false,
-        accessiblePages: ['leads', 'ChatDali','index']
+        accessiblePages: ['leads', 'ChatDali', 'index']
       };
     default:
       return {
@@ -173,6 +173,7 @@ export interface Lead {
   updatedAt: string; // Changed to string for consistency
   stage: string;
   assignedTo: string;
+  assignedToName?: string; // Name of the assigned user from API
   createdBy: string; // Added missing property
   company?: string;
   value: number;

@@ -160,8 +160,8 @@ export const useLeadAssignments = () => {
     setError(null);
 
     try {
-      console.log(`🔄 Getting reassignable leads for user: ${targetUserId}`);
-      const leads = await getReassignableLeads(targetUserId);
+      console.log(`🔄 Getting reassignable leads`);
+      const leads = await getReassignableLeads();
       console.log('✅ Reassignable leads retrieved:', leads.length, 'leads');
       return leads;
     } catch (err) {

@@ -55,6 +55,7 @@ export const useLeadsApi = () => {
       priority: reassignableLead.Priority || reassignableLead.priority,
       value: parseFloat(reassignableLead.Value) || reassignableLead.value || 0,
       assignedTo: reassignableLead.AssignedTo || reassignableLead.assigned_to,
+      assignedToName: reassignableLead.AssignedToName || reassignableLead.assignedToName, // Use the name directly from API
       createdBy: reassignableLead.CreatedBy || reassignableLead.created_by || '1', // Add createdBy with fallback
       createdAt: reassignableLead.CreatedAt || reassignableLead.created_at,
       updatedAt: reassignableLead.UpdatedAt || reassignableLead.updated_at,
@@ -84,42 +85,15 @@ export const useLeadsApi = () => {
     return mappedLead;
   };
 
-  // Función para filtrar leads según el rol del usuario
+  // El backend controla qué leads mostrar, no necesitamos filtrar por rol en frontend
   const filterLeadsByRole = (allLeads: Lead[]): Lead[] => {
     if (!user) return [];
 
-    console.log(`🎯 Applying role-based filtering for role: ${user.role}`);
-    console.log(`🎯 Input leads count: ${allLeads.length}`);
+    console.log(`🎯 Backend controls lead visibility - showing all ${allLeads.length} leads for role: ${user.role}`);
     console.log(`🎯 User ID: ${user.id}`);
-
-    switch (user.role) {
-      case 'admin':
-      case 'analista':
-        // Solo admin y analista pueden ver todos los leads
-        console.log(`🎯 Role ${user.role} can see all leads`);
-        return allLeads;
-      
-      case 'gestor':
-      case 'supervisor':
-      case 'director':
-      case 'socio':
-        // Para estos roles usando la API de leads reasignables:
-        // El API ya retorna solo los leads que pueden reasignar (asignados actualmente o anteriormente)
-        // Por lo tanto, no necesitamos filtrar más - mostrar todos los que retorna el API
-        console.log(`🎯 Role ${user.role} using reassignable leads API - showing all returned leads`);
-        console.log(`🎯 Showing ${allLeads.length} reassignable leads for ${user.role}`);
-        return allLeads;
-      
-      case 'fp':
-        // Solo pueden ver leads que les asignen
-        const fpFilteredLeads = allLeads.filter(lead => lead.assignedTo === user.id);
-        console.log(`🎯 Role ${user.role} can see ${fpFilteredLeads.length} of ${allLeads.length} leads (only assigned to them)`);
-        return fpFilteredLeads;
-      
-      default:
-        console.log(`🎯 Unknown role ${user.role} - returning empty array`);
-        return [];
-    }
+    
+    // Retornar todos los leads que envía el API, el backend ya controla la visibilidad
+    return allLeads;
   };
 
   // Cargar leads reasignables para el usuario actual
@@ -136,11 +110,11 @@ export const useLeadsApi = () => {
       console.log('🚀 === STARTING REASSIGNABLE LEADS API CALL ===');
       console.log('👤 Current user ID:', user.id);
       console.log('👤 Current user role:', user.role);
-      console.log('📡 API endpoint will be: /api/lead-assignments/reassignable/' + user.id);
+      console.log('📡 API endpoint will be: /api/lead-assignments');
       console.log('🔄 Calling getReassignableLeads API...');
       
       // Usar la API de leads reasignables en lugar de la API regular
-      const reassignableLeads = await getReassignableLeads(user.id);
+      const reassignableLeads = await getReassignableLeads();
       
       console.log('📊 === REASSIGNABLE LEADS API RESPONSE ===');
       console.log('📊 Response type:', typeof reassignableLeads);
@@ -223,6 +197,9 @@ export const useLeadsApi = () => {
 
   // Crear nuevo lead
   const createNewLead = async (leadData: Partial<Lead>) => {
+    console.log('🎬 === STARTING CREATE NEW LEAD PROCESS ===');
+    console.log('🎬 Function: createNewLead called with:', JSON.stringify(leadData, null, 2));
+    
     if (!user?.id) {
       console.error('❌ Usuario no autenticado');
       return null;
@@ -245,7 +222,9 @@ export const useLeadsApi = () => {
       console.log('🎯 UUID final enviado en CreatedBy:', createRequest.CreatedBy);
       console.log('🎯 UUID final enviado en AssignedTo:', createRequest.assignedTo);
       
+      console.log('📞 About to call createLead API function...');
       const newLead = await createLead(createRequest);
+      console.log('📞 createLead API function returned:', JSON.stringify(newLead, null, 2));
       
       // Actualizar la lista local solo si el usuario puede ver el lead
       const canSeeNewLead = filterLeadsByRole([newLead]).length > 0;

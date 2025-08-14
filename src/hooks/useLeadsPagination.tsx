@@ -6,10 +6,10 @@ export const useLeadsPagination = (leads: Lead[], initialLeadsPerPage: number = 
   const [currentPage, setCurrentPage] = useState(1);
   const [leadsPerPage, setLeadsPerPage] = useState(initialLeadsPerPage);
 
-  // Resetear a la primera página cuando cambien los leads o la cantidad por página
+  // Resetear a la primera página cuando cambien los leads
   useEffect(() => {
     setCurrentPage(1);
-  }, [leads]);
+  }, [leads.length]); // Solo cuando cambie la cantidad de leads
 
   // Resetear a la primera página cuando cambie la cantidad por página
   useEffect(() => {
@@ -17,6 +17,13 @@ export const useLeadsPagination = (leads: Lead[], initialLeadsPerPage: number = 
   }, [leadsPerPage]);
 
   const totalPages = Math.ceil(leads.length / leadsPerPage);
+
+  // Asegurar que la página actual no exceda el total de páginas
+  useEffect(() => {
+    if (currentPage > totalPages && totalPages > 0) {
+      setCurrentPage(totalPages);
+    }
+  }, [currentPage, totalPages]);
 
   const paginatedLeads = useMemo(() => {
     const startIndex = (currentPage - 1) * leadsPerPage;
