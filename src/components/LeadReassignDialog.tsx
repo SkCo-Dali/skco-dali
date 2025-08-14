@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Lead, User } from "@/types/crm";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
-import { getAllUsers } from "@/utils/userApiClient";
+import { getAssignableUsers, AssignableUser } from "@/utils/leadAssignmentApiClient";
 import { useLeadAssignments } from "@/hooks/useLeadAssignments";
 import { UserCheck, X } from "lucide-react";
 
@@ -23,41 +23,24 @@ export function LeadReassignDialog({ lead, isOpen, onClose, onSuccess }: LeadRea
   const [selectedUserId, setSelectedUserId] = useState<string>("");
   const [reason, setReason] = useState<string>("No informa");
   const [notes, setNotes] = useState<string>("Sin info");
-  const [assignableUsers, setAssignableUsers] = useState<User[]>([]);
+  const [assignableUsers, setAssignableUsers] = useState<AssignableUser[]>([]);
   const [loadingUsers, setLoadingUsers] = useState(false);
   
   const { toast } = useToast();
   const { user: currentUser } = useAuth();
   const { loading: reassignLoading, handleReassignLead } = useLeadAssignments();
 
-  const getAssignableRoles = (userRole: User['role']): User['role'][] => {
-    switch (userRole) {
-      case 'admin':
-        return ['supervisor', 'gestor', 'fp'];
-      case 'supervisor':
-        return ['gestor', 'fp'];
-      case 'gestor':
-        return ['fp'];
-      default:
-        return [];
-    }
-  };
-
-  const canAssignLeads = currentUser ? getAssignableRoles(currentUser.role).length > 0 : false;
-
   useEffect(() => {
     const fetchAssignableUsers = async () => {
-      if (!canAssignLeads || !isOpen) return;
+      if (!isOpen) return;
       
       setLoadingUsers(true);
       try {
-        console.log('🔄 Cargando usuarios asignables para reasignación...');
-        const allUsers = await getAllUsers();
+        console.log('🔄 Cargando usuarios asignables para reasignación desde API...');
+        const users = await getAssignableUsers();
         
-        const assignableRoles = getAssignableRoles(currentUser?.role || 'fp');
-        const filteredUsers = allUsers.filter(user => 
-          assignableRoles.includes(user.role) && user.id !== lead?.assignedTo
-        );
+        // Filtrar el usuario actual al que ya está asignado el lead
+        const filteredUsers = users.filter(user => user.Id !== lead?.assignedTo);
         
         console.log('✅ Usuarios asignables cargados para reasignación:', filteredUsers.length);
         setAssignableUsers(filteredUsers);
@@ -74,7 +57,7 @@ export function LeadReassignDialog({ lead, isOpen, onClose, onSuccess }: LeadRea
     };
 
     fetchAssignableUsers();
-  }, [isOpen, canAssignLeads, currentUser?.role, lead?.assignedTo, toast]);
+  }, [isOpen, lead?.assignedTo, toast]);
 
   const handleSubmit = async () => {
     if (!lead || !selectedUserId) {
@@ -130,9 +113,6 @@ export function LeadReassignDialog({ lead, isOpen, onClose, onSuccess }: LeadRea
     onClose();
   };
 
-  if (!canAssignLeads) {
-    return null;
-  }
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
@@ -166,8 +146,8 @@ export function LeadReassignDialog({ lead, isOpen, onClose, onSuccess }: LeadRea
               </SelectTrigger>
               <SelectContent>
                 {assignableUsers.map((user) => (
-                  <SelectItem key={user.id} value={user.id}>
-                    {user.name} ({user.email}) - {user.role}
+                  <SelectItem key={user.Id} value={user.Id}>
+                    {user.Name} ({user.Email}) - {user.Role}
                   </SelectItem>
                 ))}
               </SelectContent>

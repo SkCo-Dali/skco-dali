@@ -54,7 +54,9 @@ export function LeadCard({
   onLeadUpdate
 }: LeadCardProps) {
   const { users } = useUsersApi();
+  // Use assignedToName directly from API or fallback to user lookup
   const assignedUser = users.find(u => u.id === lead.assignedTo);
+  const assignedUserName = lead.assignedToName || assignedUser?.name || 'Sin asignar';
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   
   const { isDeleting, canDeleteLead, deleteSingleLead } = useLeadDeletion({

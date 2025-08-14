@@ -458,6 +458,7 @@ Por favor, confirmar asistencia.`;
   };
 
   const renderCellContent = (lead: Lead, columnKey: string) => {
+    // Use assignedToName directly from API instead of looking up users
     const assignedUser = users.find(u => u.id === lead.assignedTo);
 
     // Manejar columnas dinámicas de additionalInfo
