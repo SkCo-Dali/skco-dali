@@ -261,9 +261,9 @@ export function LeadsFilters({
                           checked={Array.isArray(filterAssignedTo) ? filterAssignedTo.includes(user.id) : filterAssignedTo === user.id}
                           onCheckedChange={() => setFilterAssignedTo(handleMultiSelectValue(filterAssignedTo, user.id))}
                         />
-                         <label htmlFor={`user-${user.id}`} className="text-sm cursor-pointer flex-1">
-                           {user.name}
-                         </label>
+                        <label htmlFor={`user-${user.id}`} className="text-sm cursor-pointer flex-1">
+                          {user.name}
+                        </label>
                       </div>
                     ))}
                   </ScrollArea>
