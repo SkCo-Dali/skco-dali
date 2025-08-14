@@ -226,7 +226,9 @@ export function EditableLeadCell({ lead, field, onUpdate }: EditableLeadCellProp
   }
 
   if (field === 'assignedTo') {
+    // Use assignedToName directly from API, fallback to user lookup for editing
     const assignedUser = users.find(u => u.id === lead.assignedTo);
+    const displayName = lead.assignedToName || assignedUser?.name || 'Sin asignar';
     
     return (
       <Select
@@ -236,7 +238,7 @@ export function EditableLeadCell({ lead, field, onUpdate }: EditableLeadCellProp
       >
         <SelectTrigger className="w-full border-none shadow-none p-2 h-8">
           <span className="text-xs text-left">
-            {assignedUser?.name || ''}
+            {displayName}
           </span>
         </SelectTrigger>
         <SelectContent className="bg-white z-50">

@@ -173,6 +173,7 @@ export interface Lead {
   updatedAt: string; // Changed to string for consistency
   stage: string;
   assignedTo: string;
+  assignedToName?: string; // Name of the assigned user from API
   createdBy: string; // Added missing property
   company?: string;
   value: number;

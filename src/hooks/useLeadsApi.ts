@@ -55,6 +55,7 @@ export const useLeadsApi = () => {
       priority: reassignableLead.Priority || reassignableLead.priority,
       value: parseFloat(reassignableLead.Value) || reassignableLead.value || 0,
       assignedTo: reassignableLead.AssignedTo || reassignableLead.assigned_to,
+      assignedToName: reassignableLead.AssignedToName || reassignableLead.assignedToName, // Use the name directly from API
       createdBy: reassignableLead.CreatedBy || reassignableLead.created_by || '1', // Add createdBy with fallback
       createdAt: reassignableLead.CreatedAt || reassignableLead.created_at,
       updatedAt: reassignableLead.UpdatedAt || reassignableLead.updated_at,

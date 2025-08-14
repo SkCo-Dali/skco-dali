@@ -484,9 +484,9 @@ export function LeadDetail({ lead, isOpen, onClose, onSave, onOpenMassEmail }: L
     });
   };
 
-  // Encontrar el usuario asignado actual
+  // Use assignedToName directly from API or fallback to user lookup
   const assignedUser = users.find(user => user.id === editedLead.assignedTo);
-  const assignedUserName = assignedUser ? assignedUser.name : 'Sin asignar';
+  const assignedUserName = editedLead.assignedToName || assignedUser?.name || 'Sin asignar';
 
   // Add error boundary check
   if (!lead || !lead.id) {
