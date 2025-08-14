@@ -10,18 +10,21 @@ const getAuthHeaders = async (): Promise<Record<string, string>> => {
   };
 
   try {
-    // Try to get IdToken from AuthContext
-    const { useAuth } = await import('@/contexts/AuthContext');
-    const { getAccessToken } = useAuth();
-    const tokenData = await getAccessToken();
+    // Import SecureTokenManager
+    const { SecureTokenManager } = await import('@/utils/secureTokenManager');
+    const tokenData = SecureTokenManager.getToken();
     
-    if (tokenData && tokenData.idToken) {
-      headers['Authorization'] = `IdToken ${tokenData.idToken}`;
+    if (tokenData?.token) {
+      headers['Authorization'] = `IdToken ${tokenData.token}`;
+      console.log('🔐 Using IdToken from SecureTokenManager for API request');
+    } else {
+      console.warn('⚠️ No IdToken found in SecureTokenManager');
     }
   } catch (error) {
-    console.warn('Could not get IdToken for API request:', error);
+    console.warn('⚠️ Could not get IdToken for API request:', error);
   }
 
+  console.log('📤 Request headers:', JSON.stringify(headers, null, 2));
   return headers;
 };
 
@@ -33,24 +36,37 @@ const makeRequest = async <T>(
   const url = `${API_BASE_URL}${endpoint}`;
   
   try {
+    console.log('📡 Making API request to:', url);
+    console.log('📡 Request method:', options.method || 'GET');
+    
     const authHeaders = await getAuthHeaders();
+    const finalHeaders = {
+      ...authHeaders,
+      ...options.headers,
+    };
+    
+    console.log('📤 Final request headers:', JSON.stringify(finalHeaders, null, 2));
+    
     const response = await fetch(url, {
-      headers: {
-        ...authHeaders,
-        ...options.headers,
-      },
+      headers: finalHeaders,
       ...options,
     });
     
+    console.log('📥 Response status:', response.status);
+    console.log('📥 Response headers:', JSON.stringify(Object.fromEntries(response.headers.entries()), null, 2));
+    
     if (!response.ok) {
       const errorText = await response.text();
+      console.error('❌ API Error response:', errorText);
       throw new Error(`Error ${response.status}: ${errorText}`);
     }
 
     const data = await response.json();
+    console.log('✅ API Response data:', JSON.stringify(data, null, 2));
     return data;
     
   } catch (error) {
+    console.error('❌ Request failed:', error);
     throw error;
   }
 };

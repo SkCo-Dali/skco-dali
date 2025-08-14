@@ -136,7 +136,7 @@ export const useLeadsApi = () => {
       console.log('🚀 === STARTING REASSIGNABLE LEADS API CALL ===');
       console.log('👤 Current user ID:', user.id);
       console.log('👤 Current user role:', user.role);
-      console.log('📡 API endpoint will be: /api/lead-assignments/reassignable/' + user.id);
+      console.log('📡 API endpoint will be: /api/lead-assignments');
       console.log('🔄 Calling getReassignableLeads API...');
       
       // Usar la API de leads reasignables en lugar de la API regular
