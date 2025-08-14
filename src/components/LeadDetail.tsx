@@ -27,6 +27,7 @@ import { LeadProfiler } from './LeadProfiler';
 import ProfileResults from './ProfileResults';
 import { FaWhatsapp } from "react-icons/fa";
 import { SkAccordion, SkAccordionItem, SkAccordionTrigger, SkAccordionContent } from '@/components/ui/sk-accordion';
+import { InputSanitizer } from '@/utils/inputSanitizer';
 
 interface LeadDetailProps {
   lead: Lead;
@@ -296,6 +297,31 @@ export function LeadDetail({ lead, isOpen, onClose, onSave, onOpenMassEmail }: L
     setManagementChanges(true);
   };
 
+  // Funciones de validación para campos numéricos y email
+  const handlePhoneChange = (value: string) => {
+    const numericValue = value.replace(/[^0-9]/g, '');
+    handleGeneralChange('phone', numericValue);
+  };
+
+  const handleEmailChange = (value: string) => {
+    handleGeneralChange('email', value.toLowerCase());
+  };
+
+  const handleDocumentNumberChange = (value: string) => {
+    const numericValue = value.replace(/[^0-9]/g, '');
+    handleGeneralChange('documentNumber', numericValue ? Number(numericValue) : '');
+  };
+
+  const handleAgeChange = (value: string) => {
+    const numericValue = value.replace(/[^0-9]/g, '');
+    handleGeneralChange('age', numericValue ? Number(numericValue) : '');
+  };
+
+  const isValidEmail = (email: string): boolean => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
+
   // Función para agregar nuevo tag
   const handleAddTag = () => {
     if (newTag.trim() && !ensureArray(editedLead.tags).includes(newTag.trim())) {
@@ -540,23 +566,26 @@ Notas adicionales: ${lead.notes || 'Ninguna'}`;
                       </div>
 
                       <div className="grid grid-cols-2 gap-2">
-                        <div className="space-y-0 border-2 border-[#3d4b5c26] shadow-md rounded-md p-2.5">
-                          <Label className="p-0 text-sm text-gray-500 font-normal">Email</Label>
-                          <Input
-                            type="email"
-                            value={(editedLead.email || '').toLowerCase()}
-                            onChange={(e) => handleGeneralChange('email', e.target.value.toLowerCase())}
-                            className="border-0 border-b border-gray-200 rounded-none px-0 py-0 m-0 text-base font-medium bg-transparent leading-none h-auto min-h-0 focus:border-gray-400 focus:shadow-none focus:ring-0"
-                          />
-                        </div>
-                        <div className="space-y-0 border-2 border-[#3d4b5c26] shadow-md rounded-md p-2.5">
-                          <Label className="p-0 text-sm text-gray-500 font-normal">Teléfono</Label>
-                          <Input
-                            value={editedLead.phone || ''}
-                            onChange={(e) => handleGeneralChange('phone', e.target.value)}
-                            className="border-0 border-b border-gray-200 rounded-none px-0 py-0 m-0 text-base font-medium bg-transparent leading-none h-auto min-h-0 focus:border-gray-400 focus:shadow-none focus:ring-0"
-                          />
-                        </div>
+                         <div className="space-y-0 border-2 border-[#3d4b5c26] shadow-md rounded-md p-2.5">
+                           <Label className="p-0 text-sm text-gray-500 font-normal">Email</Label>
+                           <Input
+                             type="email"
+                             value={(editedLead.email || '').toLowerCase()}
+                             onChange={(e) => handleEmailChange(e.target.value)}
+                             className={`border-0 border-b border-gray-200 rounded-none px-0 py-0 m-0 text-base font-medium bg-transparent leading-none h-auto min-h-0 focus:border-gray-400 focus:shadow-none focus:ring-0 ${editedLead.email && !isValidEmail(editedLead.email) ? 'border-red-500' : ''}`}
+                           />
+                           {editedLead.email && !isValidEmail(editedLead.email) && (
+                             <p className="text-red-500 text-xs mt-1">Formato de correo inválido</p>
+                           )}
+                         </div>
+                         <div className="space-y-0 border-2 border-[#3d4b5c26] shadow-md rounded-md p-2.5">
+                           <Label className="p-0 text-sm text-gray-500 font-normal">Teléfono</Label>
+                           <Input
+                             value={editedLead.phone || ''}
+                             onChange={(e) => handlePhoneChange(e.target.value)}
+                             className="border-0 border-b border-gray-200 rounded-none px-0 py-0 m-0 text-base font-medium bg-transparent leading-none h-auto min-h-0 focus:border-gray-400 focus:shadow-none focus:ring-0"
+                           />
+                         </div>
                       </div>
 
                       <div className="grid grid-cols-2 gap-2">
@@ -574,27 +603,27 @@ Notas adicionales: ${lead.notes || 'Ninguna'}`;
                           ]}
                         />
                         
-                        <div className="space-y-0 border-2 border-[#3d4b5c26] shadow-md rounded-md p-2.5">
-                          <Label className="p-0 text-sm text-gray-500 font-normal">Número de Documento</Label>
-                          <Input
-                            type="number"
-                            value={editedLead.documentNumber || ''}
-                            onChange={(e) => handleGeneralChange('documentNumber', Number(e.target.value))}
-                            className="border-0 border-b border-gray-200 rounded-none px-0 py-0 m-0 text-base font-medium bg-transparent leading-none h-auto min-h-0 focus:border-gray-400 focus:shadow-none focus:ring-0"
-                          />
-                        </div>
+                         <div className="space-y-0 border-2 border-[#3d4b5c26] shadow-md rounded-md p-2.5">
+                           <Label className="p-0 text-sm text-gray-500 font-normal">Número de Documento</Label>
+                           <Input
+                             type="text"
+                             value={editedLead.documentNumber || ''}
+                             onChange={(e) => handleDocumentNumberChange(e.target.value)}
+                             className="border-0 border-b border-gray-200 rounded-none px-0 py-0 m-0 text-base font-medium bg-transparent leading-none h-auto min-h-0 focus:border-gray-400 focus:shadow-none focus:ring-0"
+                           />
+                         </div>
                       </div>
 
                       <div className="grid grid-cols-2 gap-2">
-                        <div className="space-y-0 border-2 border-[#3d4b5c26] shadow-md rounded-md p-2.5">
-                          <Label className="p-0 text-sm text-gray-500 font-normal">Edad</Label>
-                          <Input
-                            type="number"
-                            value={editedLead.age || ''}
-                            onChange={(e) => handleGeneralChange('age', Number(e.target.value))}
-                            className="border-0 border-b border-gray-200 rounded-none px-0 py-0 m-0 text-base font-medium bg-transparent leading-none h-auto min-h-0 focus:border-gray-400 focus:shadow-none focus:ring-0"
-                          />
-                        </div>
+                         <div className="space-y-0 border-2 border-[#3d4b5c26] shadow-md rounded-md p-2.5">
+                           <Label className="p-0 text-sm text-gray-500 font-normal">Edad</Label>
+                           <Input
+                             type="text"
+                             value={editedLead.age || ''}
+                             onChange={(e) => handleAgeChange(e.target.value)}
+                             className="border-0 border-b border-gray-200 rounded-none px-0 py-0 m-0 text-base font-medium bg-transparent leading-none h-auto min-h-0 focus:border-gray-400 focus:shadow-none focus:ring-0"
+                           />
+                         </div>
                         
                         <CustomFieldSelect
                           label="Género"

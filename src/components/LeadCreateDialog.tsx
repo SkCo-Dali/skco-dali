@@ -15,6 +15,7 @@ import { Plus, ChevronDown, Upload, FileText, RefreshCcw } from "lucide-react";
 import { uploadLeadsFile } from "@/utils/leadsApiClient";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
+import { InputSanitizer } from "@/utils/inputSanitizer";
 
 interface LeadCreateDialogProps {
   onLeadCreate: (leadData: Partial<Lead>) => void;
@@ -184,9 +185,31 @@ export const LeadCreateDialog = forwardRef<LeadCreateDialogRef, LeadCreateDialog
 
     const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
       const value = e.target.value;
-      // Solo permitir números, espacios, guiones y paréntesis
-      const numericValue = value.replace(/[^0-9\s\-\(\)]/g, '');
+      // Solo permitir números
+      const numericValue = value.replace(/[^0-9]/g, '');
       setFormData({...formData, phone: numericValue});
+    };
+
+    const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+      const value = e.target.value;
+      setFormData({...formData, email: value});
+    };
+
+    const handleDocumentNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+      const value = e.target.value;
+      const numericValue = value.replace(/[^0-9]/g, '');
+      setFormData({...formData, documentNumber: numericValue ? Number(numericValue) : undefined});
+    };
+
+    const handleAgeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+      const value = e.target.value;
+      const numericValue = value.replace(/[^0-9]/g, '');
+      setFormData({...formData, age: numericValue ? Number(numericValue) : undefined});
+    };
+
+    const isValidEmail = (email: string): boolean => {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      return emailRegex.test(email);
     };
 
     return (
@@ -238,18 +261,15 @@ export const LeadCreateDialog = forwardRef<LeadCreateDialogRef, LeadCreateDialog
                     )}
                   </div>
                   
-                  <div className="relative">
-                    <Input
-                      type="text"
-                      value={formData.documentNumber?.toString() || ''}
-                      onChange={(e) => {
-                        const value = e.target.value.replace(/[^0-9]/g, ''); // Solo números
-                        setFormData({...formData, documentNumber: value ? Number(value) : undefined});
-                      }}
-                      className="border-gray-300 rounded-lg h-12 bg-gray-50"
-                      placeholder="Número de identificación*"
-                      required
-                    />
+                   <div className="relative">
+                     <Input
+                       type="text"
+                       value={formData.documentNumber?.toString() || ''}
+                       onChange={handleDocumentNumberChange}
+                       className="border-gray-300 rounded-lg h-12 bg-gray-50"
+                       placeholder="Número de identificación*"
+                       required
+                     />
                     {formData.documentNumber && (
                       <Label className="absolute -top-2 left-3 bg-gray-50 px-1 text-xs text-gray-600">
                         Número de identificación*
@@ -292,20 +312,23 @@ export const LeadCreateDialog = forwardRef<LeadCreateDialogRef, LeadCreateDialog
               </div>    
 
                 <div className="grid grid-cols-2 gap-4">
-                <div className="relative">
-                  <Input
-                    type="email"
-                    value={formData.email}
-                    onChange={(e) => setFormData({...formData, email: e.target.value})}
-                    className="border-gray-300 rounded-lg h-12 bg-gray-50"
-                    placeholder="Correo electrónico*"
-                    required
-                  />
-                  {formData.email && (
-                    <Label className="absolute -top-2 left-3 bg-gray-50 px-1 text-xs text-gray-600">
-                      Correo electrónico*
-                    </Label>
-                  )}
+                 <div className="relative">
+                   <Input
+                     type="email"
+                     value={formData.email}
+                     onChange={handleEmailChange}
+                     className={`border-gray-300 rounded-lg h-12 bg-gray-50 ${formData.email && !isValidEmail(formData.email) ? 'border-red-500' : ''}`}
+                     placeholder="Correo electrónico*"
+                     required
+                   />
+                   {formData.email && (
+                     <Label className="absolute -top-2 left-3 bg-gray-50 px-1 text-xs text-gray-600">
+                       Correo electrónico*
+                     </Label>
+                   )}
+                   {formData.email && !isValidEmail(formData.email) && (
+                     <p className="text-red-500 text-xs mt-1">Formato de correo inválido</p>
+                   )}
                 </div>
                 <div className="relative">
                   <Popover open={productSelectOpen} onOpenChange={setProductSelectOpen}>
@@ -381,17 +404,14 @@ export const LeadCreateDialog = forwardRef<LeadCreateDialogRef, LeadCreateDialog
                 {showMoreFields && (
                   <div className="space-y-4 border-t pt-4">
                     <div className="grid grid-cols-2 gap-4">
-                      <div className="relative">
-                        <Input
-                          type="text"
-                          value={formData.age?.toString() || ''}
-                          onChange={(e) => {
-                            const value = e.target.value.replace(/[^0-9]/g, ''); // Solo números
-                            setFormData({...formData, age: value ? Number(value) : undefined});
-                          }}
-                          className="border-gray-300 rounded-lg h-12 bg-gray-50"
-                          placeholder="Edad"
-                        />
+                       <div className="relative">
+                         <Input
+                           type="text"
+                           value={formData.age?.toString() || ''}
+                           onChange={handleAgeChange}
+                           className="border-gray-300 rounded-lg h-12 bg-gray-50"
+                           placeholder="Edad"
+                         />
                         {formData.age && (
                           <Label className="absolute -top-2 left-3 bg-gray-50 px-1 text-xs text-gray-600">
                             Edad
