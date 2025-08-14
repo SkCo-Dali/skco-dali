@@ -64,7 +64,7 @@ type SortConfig = {
   direction: 'asc' | 'desc';
 } | null;
 
-// Nueva configuración por defecto con solo 6 columnas visibles
+  // Nueva configuración por defecto con solo 6 columnas visibles
 const defaultColumns: ColumnConfig[] = [
   { key: 'name', label: 'Nombre', visible: true, sortable: true },
   { key: 'campaign', label: 'Campaña', visible: true, sortable: true },
@@ -85,6 +85,7 @@ const defaultColumns: ColumnConfig[] = [
   { key: 'preferredContactChannel', label: 'Medio de contacto preferido', visible: false, sortable: true },
   { key: 'company', label: 'Empresa', visible: false, sortable: true },
   { key: 'value', label: 'Valor', visible: false, sortable: true },
+  { key: 'additionalInfo', label: 'Información Adicional', visible: false, sortable: false },
 ];
 
 const capitalizeWords = (text: string) => {
@@ -472,6 +473,27 @@ Por favor, confirmar asistencia.`;
       );
     }
 
+    // Manejar columna de additionalInfo general
+    if (columnKey === 'additionalInfo') {
+      if (lead.additionalInfo && typeof lead.additionalInfo === 'object') {
+        const additionalEntries = Object.entries(lead.additionalInfo).filter(([_, value]) => value);
+        if (additionalEntries.length > 0) {
+          return (
+            <div className="text-gray-700 text-xs text-center max-w-[200px]">
+              {additionalEntries.map(([key, value]) => (
+                <div key={key} className="text-xs">
+                  <strong>{key}:</strong> {String(value)}
+                </div>
+              ))}
+            </div>
+          );
+        }
+      }
+      return (
+        <span className="text-gray-700 text-xs text-center">-</span>
+      );
+    }
+
     switch (columnKey) {
       case 'name':
         return (
@@ -578,11 +600,9 @@ Por favor, confirmar asistencia.`;
         );
       case 'assignedTo':
         return (
-          <EditableLeadCell
-            lead={lead}
-            field="assignedTo"
-            onUpdate={() => onLeadUpdate?.()}
-          />
+          <span className="text-gray-700 text-xs text-center">
+            {lead.assignedToName || assignedUser?.name || 'Sin asignar'}
+          </span>
         );
       case 'lastInteraction':
         return (
