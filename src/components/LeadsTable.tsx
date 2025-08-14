@@ -78,7 +78,7 @@ const defaultColumns: ColumnConfig[] = [
   { key: 'source', label: 'Fuente', visible: false, sortable: true },
   { key: 'createdAt', label: 'Fecha creación', visible: false, sortable: true },
   { key: 'lastInteraction', label: 'Últ. interacción', visible: false, sortable: true },
-  { key: 'nextFollowUp', label: 'Próximo seguimiento', visible: false, sortable: true },
+  { key: 'nextFollowUp', label: 'Próximo Seguimiento', visible: false, sortable: true },
   { key: 'priority', label: 'Prioridad', visible: false, sortable: true },
   { key: 'age', label: 'Edad', visible: false, sortable: true },
   { key: 'gender', label: 'Género', visible: false, sortable: true },
@@ -98,17 +98,14 @@ const loadColumnConfig = (): ColumnConfig[] => {
     if (saved) {
       const savedColumns = JSON.parse(saved);
       // Merge saved config with default columns to handle new columns
-      const mergedColumns = defaultColumns.map(defaultCol => {
+      return defaultColumns.map(defaultCol => {
         const savedCol = savedColumns.find((col: ColumnConfig) => col.key === defaultCol.key);
         return savedCol ? { ...defaultCol, visible: savedCol.visible } : defaultCol;
       });
-      console.log('🔄 Merged columns configuration:', mergedColumns.map(c => `${c.key}: ${c.visible}`));
-      return mergedColumns;
     }
   } catch (error) {
     console.warn('Error loading column configuration:', error);
   }
-  console.log('📋 Using default columns configuration:', defaultColumns.map(c => `${c.key}: ${c.visible}`));
   return defaultColumns;
 };
 
@@ -610,12 +607,6 @@ Por favor, confirmar asistencia.`;
         return (
           <span className="text-center text-gray-700 text-xs">
             {format(new Date(lead.createdAt), "dd/MM/yyyy", { locale: es })}
-          </span>
-        );
-      case 'nextFollowUp':
-        return (
-          <span className="text-gray-700 text-xs text-center">
-            {lead.nextFollowUp ? format(new Date(lead.nextFollowUp), "dd/MM/yyyy", { locale: es }) : '-'}
           </span>
         );
       case 'age':
