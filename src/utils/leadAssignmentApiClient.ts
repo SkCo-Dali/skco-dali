@@ -10,16 +10,15 @@ const getAuthHeaders = async (): Promise<Record<string, string>> => {
   };
 
   try {
-    // Try to get IdToken from AuthContext
-    const { useAuth } = await import('@/contexts/AuthContext');
-    const { getAccessToken } = useAuth();
-    const tokenData = await getAccessToken();
+    // Try to get access token from SecureTokenManager
+    const { SecureTokenManager } = await import('@/utils/secureTokenManager');
+    const tokenData = SecureTokenManager.getToken();
     
-    if (tokenData && tokenData.idToken) {
-      headers['Authorization'] = `IdToken ${tokenData.idToken}`;
+    if (tokenData && tokenData.token) {
+      headers['Authorization'] = `Bearer ${tokenData.token}`;
     }
   } catch (error) {
-    console.warn('Could not get IdToken for API request:', error);
+    console.warn('Could not get access token for API request:', error);
   }
 
   return headers;
@@ -73,9 +72,9 @@ export const getUserAssignmentHistory = async (userId: string): Promise<LeadAssi
   return makeRequest<LeadAssignmentHistory[]>(`/api/lead-assignments/user/${userId}/history`);
 };
 
-// 4. Obtener leads reasignables
-export const getReassignableLeads = async (): Promise<ReassignableLead[]> => {
-  const result = await makeRequest<ReassignableLead[]>('/api/lead-assignments');
+// 4. Obtener leads reasignables por usuario
+export const getReassignableLeads = async (userId: string): Promise<ReassignableLead[]> => {
+  const result = await makeRequest<ReassignableLead[]>(`/api/lead-assignments/reassignable/${userId}`);
   
   return result;
 };
