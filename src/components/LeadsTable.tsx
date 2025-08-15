@@ -584,6 +584,14 @@ Por favor, confirmar asistencia.`;
             onUpdate={() => onLeadUpdate?.()}
           />
         );
+      case 'assignedToName':
+        return (
+          <EditableLeadCell
+            lead={lead}
+            field="assignedToName"
+            onUpdate={() => onLeadUpdate?.()}
+          />
+        );
       case 'lastInteraction':
         return (
           <span className="text-gray-700 text-xs text-center">
