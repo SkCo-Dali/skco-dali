@@ -69,6 +69,7 @@ const DEFAULT_COLUMNS: ColumnConfig[] = [
   { key: 'value', label: 'Valor', visible: false, sortable: true },
   { key: 'createdAt', label: 'Fecha de Creación', visible: false, sortable: true },
   { key: 'lastInteraction', label: 'Fecha de Última Interacción', visible: false, sortable: true },
+  { key: 'nextFollowUp', label: 'Próximo seguimiento', visible: false, sortable: true },
   { key: 'age', label: 'Edad', visible: false, sortable: true },
   { key: 'gender', label: 'Género', visible: false, sortable: true },
   { key: 'preferredContactChannel', label: 'Medio de Contacto Preferido', visible: false, sortable: true },
