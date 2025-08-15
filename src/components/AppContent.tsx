@@ -11,6 +11,7 @@ import Reports from "@/pages/Reports";
 import Informes from "@/pages/Informes";
 import Users from "@/pages/Users";
 import { Opportunities } from "@/pages/Opportunities";
+import { OpportunityDetails } from "@/pages/OpportunityDetails";
 import ChatDali from "@/pages/ChatDali";
 import Gamification from "@/pages/Gamification";
 import Index from "@/pages/Index";
@@ -70,6 +71,7 @@ export function AppContent() {
               <Route path="/informes" element={<Informes />} />
               <Route path="/users" element={<Users />} />
               <Route path="/oportunidades" element={<Opportunities />} />
+              <Route path="/oportunidades/:id" element={<OpportunityDetails />} />
               <Route path="/admin/users" element={<Users />} />
               <Route path="/admin/reports" element={<PowerBIReportsAdmin />} />
               <Route path="/chat" element={<ChatDali ref={chatDaliRef} />} />
