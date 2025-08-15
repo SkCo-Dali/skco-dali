@@ -13,7 +13,7 @@ import { getAssignableUsers, AssignableUser } from "@/utils/leadAssignmentApiCli
 
 interface EditableLeadCellProps {
   lead: Lead;
-  field: 'stage' | 'assignedTo' | 'email' | 'phone' | 'company' | 'documentNumber' | 'priority';
+  field: 'stage' | 'assignedTo' | 'assignedToName' | 'email' | 'phone' | 'company' | 'documentNumber' | 'priority';
   onUpdate: () => void;
 }
 
@@ -59,7 +59,7 @@ export function EditableLeadCell({ lead, field, onUpdate }: EditableLeadCellProp
   // Load assignable users when component mounts
   useEffect(() => {
     const loadAssignableUsers = async () => {
-      if (field !== 'assignedTo') return;
+      if (field !== 'assignedTo' && field !== 'assignedToName') return;
       
       setLoadingAssignableUsers(true);
       try {
@@ -104,7 +104,7 @@ export function EditableLeadCell({ lead, field, onUpdate }: EditableLeadCellProp
           description: `Etapa del lead actualizada a '${newValue}'`,
         });
         
-      } else if (field === 'assignedTo') {
+      } else if (field === 'assignedTo' || field === 'assignedToName') {
         const assignedToValue = newValue === 'unassigned' ? '' : newValue;
         
         if (lead.assignedTo && assignedToValue && lead.assignedTo !== assignedToValue) {
@@ -264,7 +264,7 @@ export function EditableLeadCell({ lead, field, onUpdate }: EditableLeadCellProp
     );
   }
 
-  if (field === 'assignedTo') {
+  if (field === 'assignedTo' || field === 'assignedToName') {
     // Use assignedToName directly from API, fallback to user lookup for editing
     const assignedUser = users.find(u => u.id === lead.assignedTo);
     const displayName = lead.assignedToName || assignedUser?.name || 'Sin asignar';
