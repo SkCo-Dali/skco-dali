@@ -208,6 +208,7 @@ export const LeadDefaultProperties: string[] = [
     'updatedAt',
     'stage',
     'assignedTo',
+    'assignedToName',
     'createdBy',
     'company',
     'value',
