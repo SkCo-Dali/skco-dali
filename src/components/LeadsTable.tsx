@@ -85,7 +85,6 @@ const defaultColumns: ColumnConfig[] = [
   { key: 'preferredContactChannel', label: 'Medio de contacto preferido', visible: false, sortable: true },
   { key: 'company', label: 'Empresa', visible: false, sortable: true },
   { key: 'value', label: 'Valor', visible: false, sortable: true },
-  { key: 'additionalInfo', label: 'Información adicional', visible: false, sortable: false },
 ];
 
 const capitalizeWords = (text: string) => {
@@ -459,6 +458,9 @@ Por favor, confirmar asistencia.`;
   };
 
   const renderCellContent = (lead: Lead, columnKey: string) => {
+    // Use assignedToName directly from API instead of looking up users
+    const assignedUser = users.find(u => u.id === lead.assignedTo);
+
     // Manejar columnas dinámicas de additionalInfo
     if (columnKey.startsWith('additionalInfo.')) {
       const key = columnKey.replace('additionalInfo.', '');
@@ -576,9 +578,11 @@ Por favor, confirmar asistencia.`;
         );
       case 'assignedTo':
         return (
-          <span className="text-gray-700 text-xs text-center">
-            {lead.assignedToName || '-'}
-          </span>
+          <EditableLeadCell
+            lead={lead}
+            field="assignedTo"
+            onUpdate={() => onLeadUpdate?.()}
+          />
         );
       case 'lastInteraction':
         return (
@@ -610,14 +614,6 @@ Por favor, confirmar asistencia.`;
         return (
           <span className="text-gray-700 text-xs text-center">
             {lead.nextFollowUp ? format(new Date(lead.nextFollowUp), "dd/MM/yyyy", { locale: es }) : '-'}
-          </span>
-        );
-      case 'additionalInfo':
-        return (
-          <span className="text-gray-700 text-xs text-center">
-            {lead.additionalInfo && Object.keys(lead.additionalInfo).length > 0 
-              ? Object.entries(lead.additionalInfo).map(([key, value]) => `${key}: ${value}`).join(', ')
-              : '-'}
           </span>
         );
       case 'age':

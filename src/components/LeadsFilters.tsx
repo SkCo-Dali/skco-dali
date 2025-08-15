@@ -240,34 +240,34 @@ export function LeadsFilters({
                     {getDisplayText(filterAssignedTo, "Selecciona usuario(s)", users)}
                   </SelectValue>
                 </SelectTrigger>
-                  <SelectContent className="bg-white z-50">
-                    <SelectItem value="all">Todos los usuarios</SelectItem>
-                    <div className="px-2 py-2 border-b">
-                      <div className="relative">
-                        <Search className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 h-3 w-3" />
-                        <Input
-                          placeholder="Buscar usuario..."
-                          value={userSearch}
-                          onChange={(e) => setUserSearch(e.target.value)}
-                          className="pl-8 h-6 text-xs"
-                        />
-                      </div>
+                <SelectContent className="bg-white z-50">
+                  <SelectItem value="all">Todos los usuarios</SelectItem>
+                  <div className="px-2 py-2 border-b">
+                    <div className="relative">
+                      <Search className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 h-3 w-3" />
+                      <Input
+                        placeholder="Buscar usuario..."
+                        value={userSearch}
+                        onChange={(e) => setUserSearch(e.target.value)}
+                        className="pl-8 h-6 text-xs"
+                      />
                     </div>
-                    <ScrollArea className="h-32">
-                      {filteredUsers.map((user) => (
-                        <div key={user.id} className="flex items-center space-x-2 px-2 py-1">
-                          <Checkbox
-                            id={`user-${user.id}`}
-                            checked={Array.isArray(filterAssignedTo) ? filterAssignedTo.includes(user.id) : filterAssignedTo === user.id}
-                            onCheckedChange={() => setFilterAssignedTo(handleMultiSelectValue(filterAssignedTo, user.id))}
-                          />
-                          <label htmlFor={`user-${user.id}`} className="text-sm cursor-pointer flex-1">
-                            {user.name}
-                          </label>
-                        </div>
-                      ))}
-                    </ScrollArea>
-                  </SelectContent>
+                  </div>
+                  <ScrollArea className="h-32">
+                    {filteredUsers.map((user) => (
+                      <div key={user.id} className="flex items-center space-x-2 px-2 py-1">
+                        <Checkbox
+                          id={`user-${user.id}`}
+                          checked={Array.isArray(filterAssignedTo) ? filterAssignedTo.includes(user.id) : filterAssignedTo === user.id}
+                          onCheckedChange={() => setFilterAssignedTo(handleMultiSelectValue(filterAssignedTo, user.id))}
+                        />
+                        <label htmlFor={`user-${user.id}`} className="text-sm cursor-pointer flex-1">
+                          {user.name}
+                        </label>
+                      </div>
+                    ))}
+                  </ScrollArea>
+                </SelectContent>
               </Select>
             </div>
 
