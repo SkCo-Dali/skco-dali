@@ -60,7 +60,6 @@ const DEFAULT_COLUMNS: ColumnConfig[] = [
   { key: 'phone', label: 'Teléfono', visible: true, sortable: false },
   { key: 'stage', label: 'Estado', visible: true, sortable: true },
   { key: 'assignedToName', label: 'Asignado a', visible: true, sortable: true },
-  { key: 'assignedTo', label: 'Assigned To', visible: false, sortable: true },
   { key: 'documentType', label: 'Tipo de Documento', visible: false, sortable: true },
   { key: 'documentNumber', label: 'Número de Documento', visible: false, sortable: true },
   { key: 'company', label: 'Empresa', visible: false, sortable: true },
