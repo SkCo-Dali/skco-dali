@@ -72,7 +72,7 @@ export const getRolePermissions = (role: UserRole): RolePermissions => {
         canBulkAssignLeads: true,
         canAccessUserManagement: false,
         canAssignRoles: false,
-        accessiblePages: ['leads', 'ChatDali', 'reports','index']
+        accessiblePages: ['leads', 'ChatDali', 'reports']
       };
     case 'agent':
     case 'gestor':
@@ -93,7 +93,7 @@ export const getRolePermissions = (role: UserRole): RolePermissions => {
         canBulkAssignLeads: false,
         canAccessUserManagement: false,
         canAssignRoles: false,
-        accessiblePages: ['leads', 'ChatDali','index']
+        accessiblePages: ['leads', 'ChatDali']
       };
     case 'viewer':
     case 'seguridad':
@@ -109,7 +109,7 @@ export const getRolePermissions = (role: UserRole): RolePermissions => {
         canBulkAssignLeads: false,
         canAccessUserManagement: false,
         canAssignRoles: false,
-        accessiblePages: ['leads', 'ChatDali', 'index']
+        accessiblePages: ['leads', 'ChatDali']
       };
     default:
       return {
@@ -124,7 +124,7 @@ export const getRolePermissions = (role: UserRole): RolePermissions => {
         canBulkAssignLeads: false,
         canAccessUserManagement: false,
         canAssignRoles: false,
-        accessiblePages: ['dashboard','index']
+        accessiblePages: ['dashboard']
       };
   }
 };
