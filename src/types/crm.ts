@@ -55,7 +55,7 @@ export const getRolePermissions = (role: UserRole): RolePermissions => {
         canBulkAssignLeads: true,
         canAccessUserManagement: true,
         canAssignRoles: true,
-        accessiblePages: ['dashboard', 'leads', 'ChatDali','opportunities','gamification', 'reports', 'informes', 'users', 'settings','index']
+        accessiblePages: ['dashboard', 'leads', 'ChatDali','opportunities','gamification', 'reports', 'informes', 'users', 'settings']
       };
     case 'manager':
     case 'supervisor':
