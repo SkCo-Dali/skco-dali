@@ -83,7 +83,7 @@ export const Opportunities: React.FC = () => {
   return (
     <div className="container mx-auto px-4 py-8 space-y-8">
       {/* Header */}
-      <div className="text-center space-y-4">
+      <div className="space-y-4">
         <h1 className="text-4xl font-bold bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
           Market Dali
         </h1>
