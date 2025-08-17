@@ -31,7 +31,7 @@ interface AppSidebarProps {
 }
 
 const allMenuItems = [
-  {/*{ title: "Inicio", url: "/", iconClass: "", page: "dashboard", customIcon: "https://skcoblobresources.blob.core.windows.net/digital-assets/icons/icon-skandia/sk_casa_p.svg" },*/}
+  // { title: "Inicio", url: "/", iconClass: "", page: "dashboard", customIcon: "https://skcoblobresources.blob.core.windows.net/digital-assets/icons/icon-skandia/sk_casa_p.svg" },
   { title: "Leads", url: "/leads", iconClass: "", page: "leads", customIcon: "https://skcoblobresources.blob.core.windows.net/digital-assets/icons/icon-skandia/sk_profile_1_p.svg" },
   { title: "Market Dali", url: "/oportunidades", iconClass: "", page: "opportunities", customIcon: "https://skcoblobresources.blob.core.windows.net/digital-assets/icons/icon-skandia/sk_maletin_1_p.svg" },
   { title: "Chat Dali", url: "/Chat", iconClass: "", page: "ChatDali", customIcon: "https://skcoblobresources.blob.core.windows.net/digital-assets/icons/icon-skandia/sk_globo_p.svg"},
