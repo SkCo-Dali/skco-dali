@@ -59,11 +59,11 @@ const IndexContent = forwardRef<any, {}>((props, ref) => {
   };
 
   return (
-    <div className="h-screen w-full bg-gray-50 dark:bg-gray-900 flex flex-col overflow-hidden">
+    <div className="h-screen w-full flex flex-col overflow-hidden bg-background">
 
       {/* Header fijo en móvil */}
       {isMobile && (
-        <div className="fixed top-0 left-0 right-0 z-50 bg-white">
+        <div className="fixed top-0 left-0 right-0 z-50 bg-background border-b flex-shrink-0">
           <Header 
             onBannerMessage={handleBannerMessage}
             chatInterfaceRef={chatInterfaceRef}
@@ -81,7 +81,7 @@ const IndexContent = forwardRef<any, {}>((props, ref) => {
       />
       
       {/* Main content */}
-      <div className={`flex flex-1 w-full relative ${isMobile ? 'pt-20' : ''} min-h-0 overflow-hidden`}>
+      <div className={`flex-1 flex w-full ${isMobile ? 'pt-20' : ''} min-h-0 overflow-hidden`}>
         
         {/* Botón de acciones */}
         <div className="fixed z-40 top-18 right-2">
@@ -92,17 +92,8 @@ const IndexContent = forwardRef<any, {}>((props, ref) => {
           />
         </div>
         
-        {/* Chat interface */}
-        <div 
-          className={`flex-1 flex flex-col w-full h-full min-h-0 overflow-hidden
-            ${isMobile || isMedium ? 'pt-10 px-4' : 'px-8'}
-            ${isMobile ? 'pr-6' : ''}`} 
-          style={{ 
-            paddingBottom: isMobile ? '20px' : '16px',
-            maxWidth: isMobile ? '100%' : '1200px',
-            margin: '0 auto'
-          }}
-        >
+        {/* Chat interface - contenedor directo sin padding extra */}
+        <div className="flex-1 min-h-0 overflow-hidden">
           <SimpleChatInterface ref={chatInterfaceRef} />
         </div>
       </div>
