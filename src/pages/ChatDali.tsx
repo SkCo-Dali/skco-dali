@@ -59,7 +59,7 @@ const IndexContent = forwardRef<any, {}>((props, ref) => {
   };
 
   return (
-    <div className="h-auto w-full bg-gray-50 dark:bg-gray-900 flex flex-col overflow-hidden">
+    <div className="h-screen w-full bg-gray-50 dark:bg-gray-900 flex flex-col overflow-hidden">
 
       {/* Header fijo en móvil */}
       {isMobile && (
@@ -81,7 +81,7 @@ const IndexContent = forwardRef<any, {}>((props, ref) => {
       />
       
       {/* Main content */}
-      <div className={`flex flex-1 w-full relative ${isMobile ? 'pt-20' : ''} min-h-0`}>
+      <div className={`flex flex-1 w-full relative ${isMobile ? 'pt-20' : ''} min-h-0 overflow-hidden`}>
         
         {/* Botón de acciones */}
         <div className="fixed z-40 top-18 right-2">
@@ -94,7 +94,7 @@ const IndexContent = forwardRef<any, {}>((props, ref) => {
         
         {/* Chat interface */}
         <div 
-          className={`flex-1 flex flex-col w-full min-h-0
+          className={`flex-1 flex flex-col w-full h-full min-h-0 overflow-hidden
             ${isMobile || isMedium ? 'pt-10 px-4' : 'px-8'}
             ${isMobile ? 'pr-6' : ''}`} 
           style={{ 
