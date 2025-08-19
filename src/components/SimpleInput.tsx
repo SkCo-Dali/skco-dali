@@ -64,35 +64,39 @@ export const SimpleInput: React.FC<SimpleInputProps> = ({
 
   return (
     <div className={`border-t bg-white w-full ${isMobile ? 'p-3' : 'p-4'}`}>
-      <form onSubmit={handleSubmit} className="flex items-end space-x-2 w-full">
-        <Textarea
-          ref={textareaRef}
-          value={value}
-          onChange={handleTextareaChange}
-          onKeyDown={handleKeyDown}
-          placeholder={disabled ? "Enviando..." : "Escribe tu mensaje..."}
-          disabled={disabled}
-          className={`flex-1 resize-none transition-all duration-200 border-gray-300 focus:border-green-500 focus:ring-1 focus:ring-green-500 ${
-            isMobile ? 'min-h-[40px] text-base' : 'min-h-[44px] text-sm'
-          }`}
-          rows={1}
-          style={{ 
-            height: isMobile ? '40px' : '44px',
-            fontSize: isMobile ? '16px' : '14px'
-          }}
-          <Button
-          type="submit"
-          disabled={disabled || !value.trim()}
-          className={`bg-green-500 hover:bg-green-600 text-white flex-shrink-0 ${
-            isMobile ? 'h-[40px] w-[40px] min-w-[40px]' : 'h-[44px] w-[44px]'
-          }`}
-          size="icon"
-        >
-          <Send className={`${isMobile ? 'h-3.5 w-3.5' : 'h-4 w-4'}`} />
-        </Button>
-        />
-        
-        
+      <form onSubmit={handleSubmit} className="w-full">
+        <div className="relative">
+          <Textarea
+            ref={textareaRef}
+            value={value}
+            onChange={handleTextareaChange}
+            onKeyDown={handleKeyDown}
+            placeholder={disabled ? "Enviando..." : "Escribe tu mensaje..."}
+            disabled={disabled}
+            className={`w-full resize-none transition-all duration-200 border-gray-300 focus:border-green-500 focus:ring-1 focus:ring-green-500 ${
+              isMobile ? 'min-h-[40px] text-base pr-12' : 'min-h-[44px] text-sm pr-12'
+            }`}
+            rows={1}
+            style={{ 
+              height: isMobile ? '40px' : '44px',
+              fontSize: isMobile ? '16px' : '14px',
+              paddingRight: value.trim() ? (isMobile ? '48px' : '52px') : '12px'
+            }}
+          />
+          
+          {value.trim() && (
+            <Button
+              type="submit"
+              disabled={disabled}
+              className={`absolute right-2 top-1/2 -translate-y-1/2 bg-green-500 hover:bg-green-600 text-white flex-shrink-0 ${
+                isMobile ? 'h-[32px] w-[32px] min-w-[32px]' : 'h-[36px] w-[36px]'
+              }`}
+              size="icon"
+            >
+              <Send className={`${isMobile ? 'h-3 w-3' : 'h-3.5 w-3.5'}`} />
+            </Button>
+          )}
+        </div>
       </form>
     </div>
   );
