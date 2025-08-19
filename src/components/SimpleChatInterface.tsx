@@ -390,7 +390,7 @@ export const SimpleChatInterface = forwardRef<any, {}>((props, ref) => {
         )}
 
         {/* INPUT — SIEMPRE VISIBLE (no scrollea) */}
-        <div className="border-t bg-background sticky bottom-0 flex-shrink-0">
+        <div className="bg-background sticky bottom-0 flex-shrink-0">
           <SimpleInput
             onSendMessage={handleSendMessage}
             disabled={isLoading}
