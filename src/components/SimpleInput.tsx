@@ -63,9 +63,9 @@ export const SimpleInput: React.FC<SimpleInputProps> = ({
   };
 
   return (
-    <div className={`border-t rounded-full bg-white w-full ${isMobile ? 'p-3' : 'p-4'}`}>
+    <div className={`w-full ${isMobile ? 'p-3' : 'p-4'}`}>
       <form onSubmit={handleSubmit} className="w-full">
-        <div className="relative">
+        <div className="relative max-w-4xl mx-auto">
           <Textarea
             ref={textareaRef}
             value={value}
@@ -73,7 +73,7 @@ export const SimpleInput: React.FC<SimpleInputProps> = ({
             onKeyDown={handleKeyDown}
             placeholder={disabled ? "Enviando..." : "Escribe tu mensaje..."}
             disabled={disabled}
-            className={`w-full resize-none transition-all duration-200 border-gray-300 focus:border-green-500 focus:ring-1 focus:ring-green-500 ${
+            className={`w-full resize-none transition-all duration-200 bg-background border-input focus:border-ring focus:ring-1 focus:ring-ring rounded-2xl ${
               isMobile ? 'min-h-[40px] text-base pr-12' : 'min-h-[44px] text-sm pr-12'
             }`}
             rows={1}
@@ -88,7 +88,8 @@ export const SimpleInput: React.FC<SimpleInputProps> = ({
             <Button
               type="submit"
               disabled={disabled}
-              className={`absolute right-2 top-1/2 -translate-y-1/2 text-[#00c83c] flex-shrink-0 ${
+              variant="ghost"
+              className={`absolute right-2 top-1/2 -translate-y-1/2 text-primary hover:text-primary hover:bg-primary/10 flex-shrink-0 ${
                 isMobile ? 'h-[32px] w-[32px] min-w-[32px]' : 'h-[36px] w-[36px]'
               }`}
               size="icon"

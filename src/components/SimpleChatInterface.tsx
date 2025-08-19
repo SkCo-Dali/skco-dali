@@ -1,4 +1,5 @@
-import React, { useState, useEffect, forwardRef, useImperativeHandle } from 'react';
+import React, { useState, useEffect, forwardRef, useImperativeHandle, useRef } from 'react';
+import { ArrowDown } from 'lucide-react';
 import { SimpleMessage } from './SimpleMessage';
 import { SimpleInput } from './SimpleInput';
 import { PromptCarousel } from './PromptCarousel';
@@ -14,6 +15,7 @@ import { useIsMobile } from '../hooks/use-mobile';
 import { ConversationHistoryModal } from './ConversationHistoryModal';
 import { PromptTemplates } from './PromptTemplates';
 import { ENV } from '../config/environment';
+import { Button } from './ui/button';
 
 // Function to generate a smart title from user message
 const generateConversationTitle = (message: string): string => {
@@ -50,10 +52,13 @@ export const SimpleChatInterface = forwardRef<any, {}>((props, ref) => {
   const [templatesError, setTemplatesError] = useState<string | null>(null);
   const [showConversationModal, setShowConversationModal] = useState(false);
   const [showTemplatesModal, setShowTemplatesModal] = useState(false);
+  const [showScrollToBottom, setShowScrollToBottom] = useState(false);
   const { currentConversation, addMessage, createNewConversation } = useSimpleConversation();
   const { user, accessToken } = useAuth();
   const { aiSettings } = useSettings();
   const isMobile = useIsMobile();
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const messagesContainerRef = useRef<HTMLDivElement>(null);
 
   const userEmail = user?.email || "";
   const messages = currentConversation?.messages || [];
@@ -93,6 +98,30 @@ export const SimpleChatInterface = forwardRef<any, {}>((props, ref) => {
       delete window.setTemplateContent;
     };
   }, []);
+
+  // Scroll to bottom function
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
+
+  // Handle scroll events to show/hide scroll to bottom button
+  const handleScroll = () => {
+    if (messagesContainerRef.current) {
+      const { scrollTop, scrollHeight, clientHeight } = messagesContainerRef.current;
+      const isScrolledToBottom = scrollHeight - scrollTop - clientHeight < 100;
+      setShowScrollToBottom(!isScrolledToBottom && messages.length > 0);
+    }
+  };
+
+  // Auto scroll to bottom on new messages
+  useEffect(() => {
+    if (messages.length > 0) {
+      const timer = setTimeout(() => {
+        scrollToBottom();
+      }, 100);
+      return () => clearTimeout(timer);
+    }
+  }, [messages.length]);
 
   // Expose imperative methods
   useImperativeHandle(ref, () => ({
@@ -327,21 +356,21 @@ export const SimpleChatInterface = forwardRef<any, {}>((props, ref) => {
 
   return (
     <>
-      {/* Contenedor principal completamente responsivo */}
-      <div className={`flex flex-col w-full h-full max-w-6xl mx-auto pt-4 ${
-        isMobile ? 'px-2' : 'px-4'
-      }`}>
-
+      {/* Contenedor principal con altura completa */}
+      <div className="flex flex-col h-screen w-full max-w-6xl mx-auto bg-background">
+        
         {/* Área de mensajes con scroll independiente */}
-        <div className={`flex-1 overflow-y-auto overflow-x-hidden bg-white border-gray-700 shadow-md rounded-t-lg ${
-          isMobile ? 'px-3 py-2 mb-2' : 'p-4 mb-4'
-        }`} style={{
-          WebkitOverflowScrolling: 'touch',
-          height: isMobile ? 'calc(100vh - 240px)' : 'calc(100vh - 200px)',
-          minHeight: '300px'
-        }}>
+        <div 
+          ref={messagesContainerRef}
+          onScroll={handleScroll}
+          className="flex-1 overflow-y-auto overflow-x-hidden bg-background"
+          style={{
+            WebkitOverflowScrolling: 'touch',
+            height: 'calc(100vh - 120px)',
+          }}
+        >
           {messages.length === 0 ? (
-            <div className="flex flex-col items-center justify-center h-full w-full">
+            <div className="flex flex-col items-center justify-center h-full w-full px-4">
               <div className={`${isMobile ? 'w-12 h-12' : 'w-16 h-16'} rounded-full mx-auto mb-4 bg-green-100 p-2 overflow-hidden`}>
                 <img 
                   src="https://aistudiojarvis0534199251.blob.core.windows.net/skandia-icons/DaliLogo.gif" 
@@ -349,25 +378,25 @@ export const SimpleChatInterface = forwardRef<any, {}>((props, ref) => {
                   className="w-full h-full object-contain"
                 />
               </div>
-              <p className={`text-gray-500 mb-4 text-center ${isMobile ? 'text-sm px-2' : ''}`}>
+              <p className={`text-muted-foreground mb-4 text-center ${isMobile ? 'text-sm px-2' : ''}`}>
                 ¡Hola! Soy Dali, tu asistente de IA. ¿En qué puedo ayudarte hoy?
               </p>
 
               {templatesLoading && (
-                <p className={`text-center text-gray-500 w-full ${isMobile ? 'text-sm' : ''}`}>
+                <p className={`text-center text-muted-foreground w-full ${isMobile ? 'text-sm' : ''}`}>
                   Cargando plantillas...
                 </p>
               )}
 
               {templatesError && (
-                <p className={`text-center text-red-500 w-full ${isMobile ? 'text-sm' : ''}`}>
+                <p className={`text-center text-destructive w-full ${isMobile ? 'text-sm' : ''}`}>
                   Error cargando plantillas: {templatesError}
                 </p>
               )}
 
               {!templatesLoading && !templatesError && templates.length > 0 && (
                 <div className="w-full">
-                  <h3 className={`font-medium text-gray-600 mb-2 text-center ${isMobile ? 'text-sm px-2' : 'text-sm'}`}>
+                  <h3 className={`font-medium text-muted-foreground mb-2 text-center ${isMobile ? 'text-sm px-2' : 'text-sm'}`}>
                     Prueba estas plantillas para comenzar:
                   </h3>
                   <PromptCarousel 
@@ -378,36 +407,51 @@ export const SimpleChatInterface = forwardRef<any, {}>((props, ref) => {
               )}
 
               {!templatesLoading && !templatesError && templates.length === 0 && (
-                <p className={`text-center text-gray-500 w-full ${isMobile ? 'text-sm' : ''}`}>
+                <p className={`text-center text-muted-foreground w-full ${isMobile ? 'text-sm' : ''}`}>
                   No hay plantillas disponibles
                 </p>
               )}
             </div>
           ) : (
-            <div className="w-full max-w-full overflow-x-hidden">
+            <div className="w-full max-w-4xl mx-auto px-4 py-4">
               {messages.map((message) => (
                 <SimpleMessage key={message.id} message={message} />
               ))}
               {isLoading && (
                 <div className="flex justify-start mb-4">
-                  <div className="bg-white rounded-2xl px-4 py-3 border border-gray-200 shadow-sm">
+                  <div className="bg-card rounded-2xl px-4 py-3 border shadow-sm">
                     <div className="flex items-center space-x-2">
                       <div className="flex space-x-1">
-                        <div className="w-2 h-2 bg-gray-400 rounded-full animate-pulse"></div>
-                        <div className="w-2 h-2 bg-gray-400 rounded-full animate-pulse" style={{ animationDelay: '0.2s' }}></div>
-                        <div className="w-2 h-2 bg-gray-400 rounded-full animate-pulse" style={{ animationDelay: '0.4s' }}></div>
+                        <div className="w-2 h-2 bg-muted-foreground rounded-full animate-pulse"></div>
+                        <div className="w-2 h-2 bg-muted-foreground rounded-full animate-pulse" style={{ animationDelay: '0.2s' }}></div>
+                        <div className="w-2 h-2 bg-muted-foreground rounded-full animate-pulse" style={{ animationDelay: '0.4s' }}></div>
                       </div>
-                      <span className="text-sm text-gray-500">Pensando...</span>
+                      <span className="text-sm text-muted-foreground">Pensando...</span>
                     </div>
                   </div>
                 </div>
               )}
+              <div ref={messagesEndRef} />
             </div>
           )}
         </div>
 
+        {/* Botón flotante para ir al final */}
+        {showScrollToBottom && (
+          <div className="fixed bottom-24 right-6 z-10">
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={scrollToBottom}
+              className="h-10 w-10 rounded-full shadow-lg bg-background border-border hover:bg-accent"
+            >
+              <ArrowDown className="h-4 w-4" />
+            </Button>
+          </div>
+        )}
+
         {/* Input fijo en la parte inferior */}
-        <div className="bg-white border-t rounded-b-lg flex-shrink-0">
+        <div className="border-t bg-background flex-shrink-0 sticky bottom-0">
           <SimpleInput 
             onSendMessage={handleSendMessage} 
             disabled={isLoading}
