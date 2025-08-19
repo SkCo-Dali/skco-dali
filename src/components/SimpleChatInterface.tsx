@@ -304,7 +304,7 @@ export const SimpleChatInterface = forwardRef<any, {}>((props, ref) => {
   return (
     <>
       {/* CONTENEDOR PRINCIPAL: usa toda la altura disponible del padre */}
-      <div className="h-650 w-full flex flex-col min-h-0 bg-background m-12">
+      <div className="h-650px w-full flex flex-col min-h-0 bg-background m-12">
 
         {/* MENSAJES — ÚNICO LUGAR CON SCROLL */}
         <div
