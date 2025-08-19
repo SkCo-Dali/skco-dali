@@ -80,18 +80,19 @@ export const SimpleInput: React.FC<SimpleInputProps> = ({
             height: isMobile ? '40px' : '44px',
             fontSize: isMobile ? '16px' : '14px'
           }}
-        />
-        
-        <Button
+          <Button
           type="submit"
           disabled={disabled || !value.trim()}
-          className={`bg-green-500 hover:bg-green-600 text-white flex-shrink-0 ${
+          className={`text-[#00c83c] flex-shrink-0 ${
             isMobile ? 'h-[40px] w-[40px] min-w-[40px]' : 'h-[44px] w-[44px]'
           }`}
           size="icon"
         >
           <Send className={`${isMobile ? 'h-3.5 w-3.5' : 'h-4 w-4'}`} />
         </Button>
+        />
+        
+        
       </form>
     </div>
   );
