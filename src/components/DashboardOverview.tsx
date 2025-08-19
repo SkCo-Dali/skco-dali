@@ -19,7 +19,7 @@ export function DashboardOverview({ leads, loading }: DashboardOverviewProps) {
     const userId = user.id;
 
     // Filter leads based on user role
-    const userLeads = userRole === 'admin' || userRole === 'manager' || userRole === 'supervisor' || userRole === 'director'
+    const userLeads = userRole === 'admin' || userRole === 'socio' || userRole === 'supervisor' || userRole === 'director'
       ? leads // Admins and managers see all leads
       : leads.filter(lead => lead.assignedTo === userId || lead.createdBy === userId);
 
