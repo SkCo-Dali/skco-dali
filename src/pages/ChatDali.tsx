@@ -80,7 +80,7 @@ const IndexContent = forwardRef<any, {}>((props, ref) => {
   };
 
   return (
-    <div className="h-screen w-full overflow-hidden bg-gray-50 dark:bg-gray-900 transition-colors duration-200">
+    <div className="h-screen w-full bg-gray-50 dark:bg-gray-900 transition-colors duration-200">
       
       {/* Header fijo en móvil */}
       {isMobile && (
