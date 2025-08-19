@@ -83,7 +83,7 @@ export const SimpleInput: React.FC<SimpleInputProps> = ({
           <Button
           type="submit"
           disabled={disabled || !value.trim()}
-          className={`text-[#00c83c] flex-shrink-0 ${
+          className={`bg-green-500 hover:bg-green-600 text-white flex-shrink-0 ${
             isMobile ? 'h-[40px] w-[40px] min-w-[40px]' : 'h-[44px] w-[44px]'
           }`}
           size="icon"
