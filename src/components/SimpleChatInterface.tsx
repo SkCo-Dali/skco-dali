@@ -304,13 +304,13 @@ export const SimpleChatInterface = forwardRef<any, {}>((props, ref) => {
   return (
     <>
       {/* CONTENEDOR PRINCIPAL: usa toda la altura disponible del padre */}
-      <div className="flex flex-col w-full max-w-4xl mx-auto bg-background h-full min-h-0 overflow-hidden">
+      <div className="h-screen w-full flex flex-col min-h-0 bg-background">
 
         {/* MENSAJES — ÚNICO LUGAR CON SCROLL */}
         <div
           ref={messagesContainerRef}
           onScroll={handleScroll}
-          className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden bg-background"
+          className="flex-1 min-h-0 overflow-y-auto px-4"
           style={{ WebkitOverflowScrolling: 'touch' }}
         >
           {messages.length === 0 ? (
@@ -390,7 +390,7 @@ export const SimpleChatInterface = forwardRef<any, {}>((props, ref) => {
         )}
 
         {/* INPUT — SIEMPRE VISIBLE (no scrollea) */}
-        <div className="border-t bg-background flex-shrink-0">
+        <div className="border-t bg-background sticky bottom-0 flex-shrink-0">
           <SimpleInput
             onSendMessage={handleSendMessage}
             disabled={isLoading}
