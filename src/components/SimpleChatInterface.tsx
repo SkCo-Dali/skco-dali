@@ -303,14 +303,14 @@ export const SimpleChatInterface = forwardRef<any, {}>((props, ref) => {
 
   return (
     <>
-      {/* CONTENEDOR PRINCIPAL: altura completa sin márgenes externos */}
-      <div className="flex flex-col w-full h-full min-h-0 overflow-hidden bg-background">
+      {/* CONTENEDOR PRINCIPAL: usa toda la altura disponible del padre */}
+      <div className="flex flex-col w-full max-w-4xl mx-auto bg-background h-full min-h-0 overflow-hidden">
 
         {/* MENSAJES — ÚNICO LUGAR CON SCROLL */}
         <div
           ref={messagesContainerRef}
           onScroll={handleScroll}
-          className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden"
+          className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden bg-background"
           style={{ WebkitOverflowScrolling: 'touch' }}
         >
           {messages.length === 0 ? (
@@ -354,25 +354,23 @@ export const SimpleChatInterface = forwardRef<any, {}>((props, ref) => {
               )}
             </div>
           ) : (
-            <div className="w-full px-4 py-4">
-              <div className="max-w-4xl mx-auto">
-                {messages.map((m) => <SimpleMessage key={m.id} message={m} />)}
-                {isLoading && (
-                  <div className="flex justify-start mb-4">
-                    <div className="bg-card rounded-2xl px-4 py-3 border shadow-sm">
-                      <div className="flex items-center space-x-2">
-                        <div className="flex space-x-1">
-                          <div className="w-2 h-2 bg-muted-foreground rounded-full animate-pulse"></div>
-                          <div className="w-2 h-2 bg-muted-foreground rounded-full animate-pulse" style={{ animationDelay: '0.2s' }}></div>
-                          <div className="w-2 h-2 bg-muted-foreground rounded-full animate-pulse" style={{ animationDelay: '0.4s' }}></div>
-                        </div>
-                        <span className="text-sm text-muted-foreground">Pensando...</span>
+            <div className="w-full max-w-4xl mx-auto px-4 py-4">
+              {messages.map((m) => <SimpleMessage key={m.id} message={m} />)}
+              {isLoading && (
+                <div className="flex justify-start mb-4">
+                  <div className="bg-card rounded-2xl px-4 py-3 border shadow-sm">
+                    <div className="flex items-center space-x-2">
+                      <div className="flex space-x-1">
+                        <div className="w-2 h-2 bg-muted-foreground rounded-full animate-pulse"></div>
+                        <div className="w-2 h-2 bg-muted-foreground rounded-full animate-pulse" style={{ animationDelay: '0.2s' }}></div>
+                        <div className="w-2 h-2 bg-muted-foreground rounded-full animate-pulse" style={{ animationDelay: '0.4s' }}></div>
                       </div>
+                      <span className="text-sm text-muted-foreground">Pensando...</span>
                     </div>
                   </div>
-                )}
-                <div ref={messagesEndRef} />
-              </div>
+                </div>
+              )}
+              <div ref={messagesEndRef} />
             </div>
           )}
         </div>
@@ -392,7 +390,7 @@ export const SimpleChatInterface = forwardRef<any, {}>((props, ref) => {
         )}
 
         {/* INPUT — SIEMPRE VISIBLE (no scrollea) */}
-        <div className="border-t bg-background flex-shrink-0 w-full max-w-4xl mx-auto">
+        <div className="border-t bg-background flex-shrink-0">
           <SimpleInput
             onSendMessage={handleSendMessage}
             disabled={isLoading}
