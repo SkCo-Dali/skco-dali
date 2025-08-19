@@ -356,14 +356,14 @@ export const SimpleChatInterface = forwardRef<any, {}>((props, ref) => {
 
   return (
     <>
-      {/* Contenedor principal con altura completa */}
-      <div className="flex flex-col h-full w-full max-w-6xl mx-auto bg-background">
+      {/* Contenedor principal con altura de viewport completa */}
+      <div className="flex flex-col h-screen w-full max-w-6xl mx-auto bg-background overflow-hidden">
         
         {/* Área de mensajes con scroll independiente */}
         <div 
           ref={messagesContainerRef}
           onScroll={handleScroll}
-          className="flex-1 overflow-y-auto overflow-x-hidden bg-background min-h-0"
+          className="flex-1 overflow-y-auto overflow-x-hidden bg-background"
           style={{
             WebkitOverflowScrolling: 'touch',
           }}
