@@ -63,7 +63,7 @@ export const SimpleInput: React.FC<SimpleInputProps> = ({
   };
 
   return (
-    <div className={`border-t bg-white w-full ${isMobile ? 'p-3' : 'p-4'}`}>
+    <div className={`border-t rounded-full bg-white w-full ${isMobile ? 'p-3' : 'p-4'}`}>
       <form onSubmit={handleSubmit} className="w-full">
         <div className="relative">
           <Textarea
@@ -88,7 +88,7 @@ export const SimpleInput: React.FC<SimpleInputProps> = ({
             <Button
               type="submit"
               disabled={disabled}
-              className={`absolute right-2 top-1/2 -translate-y-1/2 bg-green-500 hover:bg-green-600 text-white flex-shrink-0 ${
+              className={`absolute right-2 top-1/2 -translate-y-1/2 text-[#00c83c] flex-shrink-0 ${
                 isMobile ? 'h-[32px] w-[32px] min-w-[32px]' : 'h-[36px] w-[36px]'
               }`}
               size="icon"
