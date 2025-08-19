@@ -357,7 +357,7 @@ export const SimpleChatInterface = forwardRef<any, {}>((props, ref) => {
   return (
     <>
       {/* Contenedor principal con altura de viewport completa */}
-      <div className="flex flex-col h-auto w-full max-w-6xl mx-auto bg-background overflow-hidden">
+      <div className="flex flex-col h-auto w-full max-w-6xl mx-auto bg-background">
         
         {/* Área de mensajes con scroll independiente */}
         <div 
