@@ -8,7 +8,6 @@ import { ChatMessage } from '../types/chat';
 import { useAuth } from '../contexts/AuthContext';
 import { callAzureAgentApi } from '../utils/azureApiService';
 import { useSettings } from '../contexts/SettingsContext';
-import { azureConversationService } from '../services/azureConversationService';
 import { templatesService } from '../services/templatesService';
 import { PromptTemplate } from '../types/templates';
 import { useIsMobile } from '../hooks/use-mobile';
@@ -17,30 +16,20 @@ import { PromptTemplates } from './PromptTemplates';
 import { ENV } from '../config/environment';
 import { Button } from './ui/button';
 
-// Function to generate a smart title from user message
+// Genera un título “inteligente” desde el 1er mensaje del usuario
 const generateConversationTitle = (message: string): string => {
-  // Clean the message and get first meaningful part
   const cleanMessage = message.trim();
-  
-  // If message is very short, use it as is
-  if (cleanMessage.length <= 30) {
-    return cleanMessage;
-  }
-  
-  // Try to get the first sentence or meaningful phrase
+  if (cleanMessage.length <= 30) return cleanMessage;
+
   const firstSentence = cleanMessage.split(/[.!?]/)[0];
-  if (firstSentence.length <= 50) {
-    return firstSentence.trim();
-  }
-  
-  // If still too long, truncate at word boundary
+  if (firstSentence.length <= 50) return firstSentence.trim();
+
   const words = cleanMessage.split(' ');
   let title = '';
-  for (const word of words) {
-    if ((title + ' ' + word).length > 45) break;
-    title = title ? title + ' ' + word : word;
+  for (const w of words) {
+    if ((title + ' ' + w).length > 45) break;
+    title = title ? `${title} ${w}` : w;
   }
-  
   return title || cleanMessage.substring(0, 45);
 };
 
@@ -53,101 +42,91 @@ export const SimpleChatInterface = forwardRef<any, {}>((props, ref) => {
   const [showConversationModal, setShowConversationModal] = useState(false);
   const [showTemplatesModal, setShowTemplatesModal] = useState(false);
   const [showScrollToBottom, setShowScrollToBottom] = useState(false);
+
   const { currentConversation, addMessage, createNewConversation } = useSimpleConversation();
   const { user, accessToken } = useAuth();
   const { aiSettings } = useSettings();
   const isMobile = useIsMobile();
+
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
 
-  const userEmail = user?.email || "";
+  const userEmail = user?.email || '';
   const messages = currentConversation?.messages || [];
 
-  // Log counts
-  console.log('🔵 SimpleChatInterface: Messages count:', messages.length);
-  console.log('🔵 SimpleChatInterface: Templates count:', templates.length);
-
-  // Load templates for carousel
+  // ===== Templates para el carrusel =====
   useEffect(() => {
     const loadTemplates = async () => {
       if (!userEmail) return;
-
       try {
         setTemplatesLoading(true);
         setTemplatesError(null);
         const allTemplates = await templatesService.getSystemTemplates(userEmail);
-        const carouselTemplates = allTemplates.slice(0, 6);
-        setTemplates(carouselTemplates);
-      } catch (error) {
-        setTemplatesError(error instanceof Error ? error.message : 'Unknown error');
+        setTemplates(allTemplates.slice(0, 6));
+      } catch (err) {
+        setTemplatesError(err instanceof Error ? err.message : 'Unknown error');
         setTemplates([]);
       } finally {
         setTemplatesLoading(false);
       }
     };
-
     loadTemplates();
   }, [userEmail]);
 
-  // Register global setTemplateContent function
+  // Permite setear el input desde fuera (PromptTemplates, etc.)
   useEffect(() => {
-    window.setTemplateContent = (content: string) => {
-      setInputMessage(content);
-    };
-    return () => {
-      delete window.setTemplateContent;
-    };
+    (window as any).setTemplateContent = (content: string) => setInputMessage(content);
+    return () => { delete (window as any).setTemplateContent; };
   }, []);
 
-  // Scroll to bottom function
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  };
-
-  // Handle scroll events to show/hide scroll to bottom button
-  const handleScroll = () => {
+  // Scroll helpers
+  const scrollToBottom = (smooth = true) => {
+    // scrollea dentro del contenedor de mensajes (no en el body)
     if (messagesContainerRef.current) {
-      const { scrollTop, scrollHeight, clientHeight } = messagesContainerRef.current;
-      const isScrolledToBottom = scrollHeight - scrollTop - clientHeight < 100;
-      setShowScrollToBottom(!isScrolledToBottom && messages.length > 0);
+      messagesContainerRef.current.scrollTo({
+        top: messagesContainerRef.current.scrollHeight,
+        behavior: smooth ? 'smooth' : 'auto'
+      });
+    } else {
+      messagesEndRef.current?.scrollIntoView({ behavior: smooth ? 'smooth' : 'auto' });
     }
   };
 
-  // Auto scroll to bottom on new messages
+  const handleScroll = () => {
+    if (!messagesContainerRef.current) return;
+    const { scrollTop, scrollHeight, clientHeight } = messagesContainerRef.current;
+    const nearBottom = scrollHeight - scrollTop - clientHeight < 100;
+    setShowScrollToBottom(!nearBottom && messages.length > 0);
+  };
+
+  // Auto scroll al recibir nuevos mensajes
   useEffect(() => {
     if (messages.length > 0) {
-      const timer = setTimeout(() => {
-        scrollToBottom();
-      }, 100);
-      return () => clearTimeout(timer);
+      const t = setTimeout(() => scrollToBottom(true), 80);
+      return () => clearTimeout(t);
     }
   }, [messages.length]);
 
-  // Expose imperative methods
+  // Exponer métodos imperativos al padre
   useImperativeHandle(ref, () => ({
-    handleBannerMessage: (automaticReply: string) => {
-      handleSendMessage(automaticReply);
-    },
-    setInputMessage: (content: string) => {
-      setInputMessage(content);
-    },
+    handleBannerMessage: (automaticReply: string) => handleSendMessage(automaticReply),
+    setInputMessage: (content: string) => setInputMessage(content),
     handleStartNewConversation: () => {
       setInputMessage('');
       createNewConversation();
     }
   }));
 
+  // Crear conversación si no existe
   useEffect(() => {
-    if (!currentConversation) {
-      createNewConversation();
-    }
+    if (!currentConversation) createNewConversation();
   }, [currentConversation, createNewConversation]);
 
+  // ===== Envío de mensaje =====
   const handleSendMessage = async (content: string) => {
     if (!content.trim() || !currentConversation) return;
 
     setInputMessage('');
-
     const userMessage: ChatMessage = {
       id: Date.now().toString(),
       type: 'user',
@@ -159,18 +138,18 @@ export const SimpleChatInterface = forwardRef<any, {}>((props, ref) => {
     setIsLoading(true);
 
     try {
-      // Generate smart title for new conversations
+      // ¿Es nueva conversación?
       const isNewConversation = messages.length === 0;
-      const conversationTitle = isNewConversation 
+      const conversationTitle = isNewConversation
         ? generateConversationTitle(content)
         : currentConversation.title;
 
-      // Crear/Actualizar conversación y llamada API
-      if (messages.length === 0) {
+      // Crear/actualizar conversación en tu backend
+      if (isNewConversation) {
         const conversationData = {
           id: currentConversation.id,
           userId: userEmail,
-          title: conversationTitle, // Use generated title
+          title: conversationTitle,
           messages: [{
             messageId: userMessage.id,
             role: 'user' as const,
@@ -184,22 +163,20 @@ export const SimpleChatInterface = forwardRef<any, {}>((props, ref) => {
           totalTokens: 0,
           attachments: []
         };
-        // Get auth headers
+
         const { SecureTokenManager } = await import('@/utils/secureTokenManager');
         const tokenData = SecureTokenManager.getToken();
         const headers: Record<string, string> = { 'Content-Type': 'application/json' };
-        if (tokenData && tokenData.token) {
-          headers['Authorization'] = `Bearer ${tokenData.token}`;
-        }
+        if (tokenData?.token) headers['Authorization'] = `Bearer ${tokenData.token}`;
 
-        const response = await fetch(`${ENV.AI_API_BASE_URL}/api/conversations`, {
+        const res = await fetch(`${ENV.AI_API_BASE_URL}/api/conversations`, {
           method: 'POST',
           headers,
           body: JSON.stringify(conversationData)
         });
-        if (!response.ok) {
-          const errorText = await response.text();
-          throw new Error(`Failed to create conversation: ${response.status} ${response.statusText} - ${errorText}`);
+        if (!res.ok) {
+          const errorText = await res.text();
+          throw new Error(`Failed to create conversation: ${res.status} ${res.statusText} - ${errorText}`);
         }
       } else {
         const updatedMessages = [...messages, userMessage];
@@ -212,51 +189,44 @@ export const SimpleChatInterface = forwardRef<any, {}>((props, ref) => {
             role: msg.type === 'user' ? 'user' as const : 'assistant' as const,
             content: msg.content,
             timestamp: msg.timestamp.toISOString(),
-            data: msg.data,
-            chart: msg.chart,
-            downloadLink: msg.downloadLink,
-            videoPreview: msg.videoPreview,
-            metadata: msg.metadata
+            data: (msg as any).data,
+            chart: (msg as any).chart,
+            downloadLink: (msg as any).downloadLink,
+            videoPreview: (msg as any).videoPreview,
+            metadata: (msg as any).metadata
           })),
           updatedAt: new Date().toISOString(),
           tags: currentConversation.tags,
           isArchived: currentConversation.isArchived,
           totalTokens: currentConversation.totalTokens
         };
-        // Get auth headers for update
-        const { SecureTokenManager: STMUpdate } = await import('@/utils/secureTokenManager');
-        const updateTokenData = STMUpdate.getToken();
-        const updateHeaders: Record<string, string> = { 'Content-Type': 'application/json' };
-        if (updateTokenData && updateTokenData.token) {
-          updateHeaders['Authorization'] = `Bearer ${updateTokenData.token}`;
-        }
 
-        const updateResponse = await fetch(`${ENV.AI_API_BASE_URL}/api/conversations/${currentConversation.id}?user_id=${encodeURIComponent(userEmail)}`, {
-          method: 'PUT',
-          headers: updateHeaders,
-          body: JSON.stringify(conversationUpdate)
-        });
-        if (!updateResponse.ok) {
-          const errorText = await updateResponse.text();
-          console.error('Error updating conversation:', updateResponse.status, errorText);
+        const { SecureTokenManager: STMUpdate } = await import('@/utils/secureTokenManager');
+        const tokenData = STMUpdate.getToken();
+        const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+        if (tokenData?.token) headers['Authorization'] = `Bearer ${tokenData.token}`;
+
+        const res = await fetch(
+          `${ENV.AI_API_BASE_URL}/api/conversations/${currentConversation.id}?user_id=${encodeURIComponent(userEmail)}`,
+          { method: 'PUT', headers, body: JSON.stringify(conversationUpdate) }
+        );
+        if (!res.ok) {
+          const errorText = await res.text();
+          console.error('Error updating conversation:', res.status, errorText);
         }
       }
 
-      const response = await callAzureAgentApi(
-        '',
-        [],
-        aiSettings,
-        userEmail,
-        accessToken,
-        currentConversation.id
-      );
+      // Llamada al agente
+      const response = await callAzureAgentApi('', [], aiSettings, userEmail, accessToken, currentConversation.id);
 
+      // Preparar respuesta del asistente
       let aiResponseContent = '';
-      if (response.text) {
-        aiResponseContent = response.text;
-      } else if (response.data) {
-        if (response.data.headers && response.data.rows) {
-          aiResponseContent = `Se encontraron ${response.data.rows.length} registros con los siguientes campos: ${response.data.headers.join(', ')}`;
+      if ((response as any).text) {
+        aiResponseContent = (response as any).text;
+      } else if ((response as any).data) {
+        const d = (response as any).data;
+        if (d.headers && d.rows) {
+          aiResponseContent = `Se encontraron ${d.rows.length} registros con los siguientes campos: ${d.headers.join(', ')}`;
         } else {
           aiResponseContent = 'Se procesaron los datos correctamente.';
         }
@@ -269,29 +239,30 @@ export const SimpleChatInterface = forwardRef<any, {}>((props, ref) => {
         type: 'assistant',
         content: aiResponseContent,
         timestamp: new Date(),
-        data: response.data,
-        chart: response.chart,
-        downloadLink: response.downloadLink,
-        videoPreview: response.videoPreview
+        data: (response as any).data,
+        chart: (response as any).chart,
+        downloadLink: (response as any).downloadLink,
+        videoPreview: (response as any).videoPreview
       };
 
       addMessage(aiMessage);
 
+      // Update final con el título (si cambió) y mensajes finales
       const finalMessages = [...messages, userMessage, aiMessage];
       const conversationFinalUpdate = {
         id: currentConversation.id,
         userId: userEmail,
-        title: conversationTitle, // Use the same generated title
+        title: conversationTitle,
         messages: finalMessages.map(msg => ({
           messageId: msg.id,
           role: msg.type === 'user' ? 'user' as const : 'assistant' as const,
           content: msg.content,
           timestamp: msg.timestamp.toISOString(),
-          data: msg.data,
-          chart: msg.chart,
-          downloadLink: msg.downloadLink,
-          videoPreview: msg.videoPreview,
-          metadata: msg.metadata
+          data: (msg as any).data,
+          chart: (msg as any).chart,
+          downloadLink: (msg as any).downloadLink,
+          videoPreview: (msg as any).videoPreview,
+          metadata: (msg as any).metadata
         })),
         updatedAt: new Date().toISOString(),
         tags: currentConversation.tags,
@@ -299,81 +270,55 @@ export const SimpleChatInterface = forwardRef<any, {}>((props, ref) => {
         totalTokens: currentConversation.totalTokens
       };
 
-      // Get auth headers for final update
-      const { SecureTokenManager: STM } = await import('@/utils/secureTokenManager');
-      const finalTokenData = STM.getToken();
+      const { SecureTokenManager: STMFinal } = await import('@/utils/secureTokenManager');
+      const finalToken = STMFinal.getToken();
       const finalHeaders: Record<string, string> = { 'Content-Type': 'application/json' };
-      if (finalTokenData && finalTokenData.token) {
-        finalHeaders['Authorization'] = `Bearer ${finalTokenData.token}`;
+      if (finalToken?.token) finalHeaders['Authorization'] = `Bearer ${finalToken.token}`;
+
+      const finalRes = await fetch(
+        `${ENV.AI_API_BASE_URL}/api/conversations/${currentConversation.id}?user_id=${encodeURIComponent(userEmail)}`,
+        { method: 'PUT', headers: finalHeaders, body: JSON.stringify(conversationFinalUpdate) }
+      );
+      if (!finalRes.ok) {
+        const errorText = await finalRes.text();
+        console.error('Error in final conversation update:', finalRes.status, errorText);
       }
-
-      const finalUpdateResponse = await fetch(`${ENV.AI_API_BASE_URL}/api/conversations/${currentConversation.id}?user_id=${encodeURIComponent(userEmail)}`, {
-        method: 'PUT',
-        headers: finalHeaders,
-        body: JSON.stringify(conversationFinalUpdate)
-      });
-
-      if (!finalUpdateResponse.ok) {
-        const errorText = await finalUpdateResponse.text();
-        console.error('Error in final conversation update:', finalUpdateResponse.status, errorText);
-      }
-
     } catch (error) {
       console.error('Error in handleSendMessage:', error);
-      const errorMessage: ChatMessage = {
+      addMessage({
         id: (Date.now() + 1).toString(),
         type: 'assistant',
         content: 'Lo siento, hubo un error al procesar tu solicitud. Por favor, inténtalo de nuevo.',
         timestamp: new Date()
-      };
-      addMessage(errorMessage);
+      });
     } finally {
       setIsLoading(false);
+      // seguridad extra para mantener vista al final
+      scrollToBottom(true);
     }
   };
 
-  const handleStartNewConversation = () => {
-    setInputMessage('');
-    createNewConversation();
-  };
-
-  const handleTemplateSelect = (content: string) => {
-    setInputMessage(content);
-  };
-
-  const handleSearchConversations = () => {
-    setShowConversationModal(true);
-  };
-
-  const handleViewTemplates = () => {
-    setShowTemplatesModal(true);
-  };
-
-  const handleSelectTemplate = (content: string) => {
-    setShowTemplatesModal(false);
-    setInputMessage(content);
-  };
+  // Handlers auxiliares
+  const handleTemplateSelect = (content: string) => setInputMessage(content);
 
   return (
     <>
-      {/* Contenedor principal con altura de viewport completa */}
-      <div className="flex flex-col h-screen w-full max-w-6xl mx-auto bg-background m-12">
-        
-        {/* Área de mensajes con scroll independiente */}
-        <div 
+      {/* CONTENEDOR PRINCIPAL: no usa h-screen aquí; respetamos el alto del padre y evitamos overflow en el body */}
+      <div className="flex flex-col w-full max-w-6xl mx-auto bg-background h-full min-h-0">
+
+        {/* MENSAJES — ÚNICO LUGAR CON SCROLL */}
+        <div
           ref={messagesContainerRef}
           onScroll={handleScroll}
-          className="flex-1 overflow-y-auto overflow-x-hidden bg-background"
-          style={{
-            WebkitOverflowScrolling: 'touch',
-          }}
+          className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden bg-background"
+          style={{ WebkitOverflowScrolling: 'touch' }}
         >
           {messages.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-full w-full px-4">
               <div className={`${isMobile ? 'w-12 h-12' : 'w-16 h-16'} rounded-full mx-auto mb-4 bg-green-100 p-2 overflow-hidden`}>
-                <img 
-                  src="https://aistudiojarvis0534199251.blob.core.windows.net/skandia-icons/DaliLogo.gif" 
-                  alt="Dali AI Logo" 
+                <img
+                  src="https://aistudiojarvis0534199251.blob.core.windows.net/skandia-icons/DaliLogo.gif"
+                  alt="Dali AI Logo"
                   className="w-full h-full object-contain"
                 />
               </div>
@@ -398,10 +343,7 @@ export const SimpleChatInterface = forwardRef<any, {}>((props, ref) => {
                   <h3 className={`font-medium text-muted-foreground mb-2 text-center ${isMobile ? 'text-sm px-2' : 'text-sm'}`}>
                     Prueba estas plantillas para comenzar:
                   </h3>
-                  <PromptCarousel 
-                    templates={templates}
-                    onSelectTemplate={handleTemplateSelect}
-                  />
+                  <PromptCarousel templates={templates} onSelectTemplate={handleTemplateSelect} />
                 </div>
               )}
 
@@ -413,9 +355,7 @@ export const SimpleChatInterface = forwardRef<any, {}>((props, ref) => {
             </div>
           ) : (
             <div className="w-full max-w-4xl mx-auto px-4 py-4">
-              {messages.map((message) => (
-                <SimpleMessage key={message.id} message={message} />
-              ))}
+              {messages.map((m) => <SimpleMessage key={m.id} message={m} />)}
               {isLoading && (
                 <div className="flex justify-start mb-4">
                   <div className="bg-card rounded-2xl px-4 py-3 border shadow-sm">
@@ -435,13 +375,13 @@ export const SimpleChatInterface = forwardRef<any, {}>((props, ref) => {
           )}
         </div>
 
-        {/* Botón flotante para ir al final */}
+        {/* BOTÓN FLOTANTE IR AL FINAL (posicionamiento fijo respecto a la ventana) */}
         {showScrollToBottom && (
           <div className="fixed bottom-24 right-6 z-10">
             <Button
               variant="outline"
               size="icon"
-              onClick={scrollToBottom}
+              onClick={() => scrollToBottom(true)}
               className="h-10 w-10 rounded-full shadow-lg bg-background border-border hover:bg-accent"
             >
               <ArrowDown className="h-4 w-4" />
@@ -449,10 +389,10 @@ export const SimpleChatInterface = forwardRef<any, {}>((props, ref) => {
           </div>
         )}
 
-        {/* Input fijo en la parte inferior */}
-        <div className="border-t bg-background flex-shrink-0 sticky bottom-0">
-          <SimpleInput 
-            onSendMessage={handleSendMessage} 
+        {/* INPUT — SIEMPRE VISIBLE (no scrollea) */}
+        <div className="border-t bg-background flex-shrink-0">
+          <SimpleInput
+            onSendMessage={handleSendMessage}
             disabled={isLoading}
             value={inputMessage}
             onChange={setInputMessage}
@@ -460,8 +400,8 @@ export const SimpleChatInterface = forwardRef<any, {}>((props, ref) => {
         </div>
       </div>
 
-      {/* Modales */}
-      <ConversationHistoryModal 
+      {/* MODALES */}
+      <ConversationHistoryModal
         isOpen={showConversationModal}
         onClose={() => setShowConversationModal(false)}
       />
@@ -470,7 +410,7 @@ export const SimpleChatInterface = forwardRef<any, {}>((props, ref) => {
         <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-lg w-full max-w-4xl h-[80vh] overflow-hidden">
             <PromptTemplates
-              onSelectTemplate={handleSelectTemplate}
+              onSelectTemplate={(c) => { setShowTemplatesModal(false); setInputMessage(c); }}
               onClose={() => setShowTemplatesModal(false)}
             />
           </div>
@@ -481,3 +421,4 @@ export const SimpleChatInterface = forwardRef<any, {}>((props, ref) => {
 });
 
 SimpleChatInterface.displayName = 'SimpleChatInterface';
+
