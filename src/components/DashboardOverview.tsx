@@ -1,8 +1,14 @@
 import React, { useMemo } from "react";
 import { Lead } from "@/types/crm";
 import { KPICard } from "@/components/KPICard";
+import { TodayFollowUpsList } from "@/components/dashboard/TodayFollowUpsList";
+import { TodayTasksList } from "@/components/dashboard/TodayTasksList";
+import { TodayOpportunitiesList } from "@/components/dashboard/TodayOpportunitiesList";
 import { useAuth } from "@/contexts/AuthContext";
+import { useTasks } from "@/hooks/useTasks";
 import { Users, TrendingUp, Calendar, CheckCircle, DollarSign, UserCheck } from "lucide-react";
+import mockOpportunities from "@/data/mockOpportunities.json";
+import { IOpportunity } from "@/types/opportunities";
 
 interface DashboardOverviewProps {
   leads: Lead[];
@@ -11,17 +17,25 @@ interface DashboardOverviewProps {
 
 export function DashboardOverview({ leads, loading }: DashboardOverviewProps) {
   const { user } = useAuth();
+  const { tasks } = useTasks();
+  const opportunities = mockOpportunities as IOpportunity[];
+
+  // Filter leads based on user role
+  const userLeads = useMemo(() => {
+    if (!user) return [];
+    const userRole = user.role;
+    const userId = user.id;
+    
+    return userRole === 'admin' || userRole === 'socio' || userRole === 'supervisor' || userRole === 'director'
+      ? leads // Admins and managers see all leads
+      : leads.filter(lead => lead.assignedTo === userId || lead.createdBy === userId);
+  }, [leads, user]);
 
   const kpis = useMemo(() => {
     if (!user || loading) return null;
 
     const userRole = user.role;
     const userId = user.id;
-
-    // Filter leads based on user role
-    const userLeads = userRole === 'admin' || userRole === 'socio' || userRole === 'supervisor' || userRole === 'director'
-      ? leads // Admins and managers see all leads
-      : leads.filter(lead => lead.assignedTo === userId || lead.createdBy === userId);
 
     // Calculate KPIs
     const totalLeads = userLeads.length;
@@ -74,7 +88,7 @@ export function DashboardOverview({ leads, loading }: DashboardOverviewProps) {
       totalValue,
       conversionRate: totalLeads > 0 ? ((convertedLeads / totalLeads) * 100).toFixed(1) : '0'
     };
-  }, [leads, user, loading]);
+  }, [userLeads, user, loading]);
 
   if (loading) {
     return (
@@ -172,6 +186,16 @@ export function DashboardOverview({ leads, loading }: DashboardOverviewProps) {
           icon={DollarSign}
           description="Valor potencial de leads"
         />
+      </div>
+
+      {/* Today's Activities Section */}
+      <div className="mt-8">
+        <h3 className="text-xl font-semibold mb-4">Actividades de Hoy</h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <TodayFollowUpsList leads={userLeads} />
+          <TodayTasksList tasks={tasks} />
+          <TodayOpportunitiesList opportunities={opportunities} />
+        </div>
       </div>
     </div>
   );
