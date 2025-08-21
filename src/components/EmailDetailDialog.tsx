@@ -71,7 +71,7 @@ export function EmailDetailDialog({ email, isOpen, onClose }: EmailDetailDialogP
                 <Calendar className="h-4 w-4 text-muted-foreground" />
                 <span className="text-sm font-medium">Fecha de envío:</span>
                 <span className="text-sm">
-                  {formatBogotaDateTime(new Date(email.CreatedAt), "dd/MM/yyyy HH:mm", { locale: es })}
+                  {formatBogotaDateTime(email.CreatedAt, "dd/MM/yyyy HH:mm")}
                 </span>
               </div>
               
@@ -81,7 +81,7 @@ export function EmailDetailDialog({ email, isOpen, onClose }: EmailDetailDialogP
                     <CheckCircle className="h-4 w-4 text-green-600" />
                     <span className="text-sm font-medium">Abierto:</span>
                     <span className="text-sm text-green-600">
-                      {format(new Date(email.OpenedAt), "dd/MM/yyyy HH:mm", { locale: es })}
+                      {formatBogotaDateTime(email.OpenedAt, "dd/MM/yyyy HH:mm")}
                     </span>
                   </>
                 ) : (
