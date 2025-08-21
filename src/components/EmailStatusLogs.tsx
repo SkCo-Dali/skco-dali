@@ -8,8 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Search, RefreshCw, Eye, CheckCircle } from 'lucide-react';
 import { EmailLog } from '@/types/email';
-import { format } from 'date-fns';
-import { es } from 'date-fns/locale';
+import { formatBogotaDateTime } from "@/utils/dateUtils";
 import { EmailDetailDialog } from '@/components/EmailDetailDialog';
 
 interface EmailStatusLogsProps {
@@ -170,7 +169,7 @@ export function EmailStatusLogs({ logs, isLoading, onRefresh }: EmailStatusLogsP
                           </Badge>
                         </TableCell>
                         <TableCell>
-                          {format(new Date(log.CreatedAt), "dd/MM/yyyy HH:mm", { locale: es })}
+                          {formatBogotaDateTime(log.CreatedAt)}
                         </TableCell>
                         <TableCell>
                           <div className="flex items-center gap-2">
@@ -178,7 +177,7 @@ export function EmailStatusLogs({ logs, isLoading, onRefresh }: EmailStatusLogsP
                               <>
                                 <CheckCircle className="h-4 w-4 text-green-600" />
                                 <span className="text-sm text-green-600">
-                                  {format(new Date(log.OpenedAt), "dd/MM/yyyy HH:mm", { locale: es })}
+                                  {formatBogotaDateTime(log.OpenedAt)}
                                 </span>
                               </>
                             ) : (

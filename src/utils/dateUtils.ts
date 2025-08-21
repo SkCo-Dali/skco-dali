@@ -1,18 +1,45 @@
 
+import { format } from 'date-fns';
+import { es } from 'date-fns/locale';
+import { formatDistanceToNow } from 'date-fns';
 
 export const convertToBogotaTime = (dateTimeString: string): Date => {
-  const utcDate = new Date(dateTimeString);
+  const utcDate = new Date(dateTimeString);
+  // Restar 5 horas (UTC-5 para Colombia)
+  utcDate.setHours(utcDate.getHours() - 5);
+  return utcDate;
+};
 
-  // Restar 5 horas (UTC-5)
-  utcDate.setHours(utcDate.getHours()-5);
+// Formatear fecha y hora en zona horaria de Bogotá
+export const formatBogotaDateTime = (dateTimeString: string, formatPattern: string = "dd/MM/yyyy HH:mm"): string => {
+  const bogotaDate = convertToBogotaTime(dateTimeString);
+  return format(bogotaDate, formatPattern, { locale: es });
+};
 
-  console.log('Date conversion (UTC-5 fixed):', {
-    original: dateTimeString,
-    adjusted: utcDate.toISOString(),
-    display: utcDate.toLocaleString('es-CO', { hour12: true })
-  });
+// Formatear solo fecha en zona horaria de Bogotá
+export const formatBogotaDate = (dateTimeString: string): string => {
+  return formatBogotaDateTime(dateTimeString, "dd/MM/yyyy");
+};
 
-  return utcDate;
+// Formatear solo hora en zona horaria de Bogotá
+export const formatBogotaTime = (dateTimeString: string): string => {
+  return formatBogotaDateTime(dateTimeString, "HH:mm");
+};
+
+// Formatear hora con AM/PM en zona horaria de Bogotá
+export const formatBogotaTimeAmPm = (dateTimeString: string): string => {
+  const bogotaDate = convertToBogotaTime(dateTimeString);
+  return bogotaDate.toLocaleTimeString('es-CO', { 
+    hour: '2-digit', 
+    minute: '2-digit',
+    hour12: true
+  });
+};
+
+// Formatear distancia relativa al tiempo actual (hace X tiempo) en zona horaria de Bogotá
+export const formatBogotaDistanceToNow = (dateTimeString: string): string => {
+  const bogotaDate = convertToBogotaTime(dateTimeString);
+  return formatDistanceToNow(bogotaDate, { addSuffix: true, locale: es });
 };
 
 

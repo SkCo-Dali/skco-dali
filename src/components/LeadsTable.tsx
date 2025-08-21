@@ -4,8 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Checkbox } from "@/components/ui/checkbox";
 import { User, ChevronUp, ChevronDown, MoreVertical, Edit, Calendar, User as UserIcon, MessageCircle, Trash2, Mail, GripVertical } from "lucide-react";
-import { format } from "date-fns";
-import { es } from "date-fns/locale";
+import { formatBogotaDate } from "@/utils/dateUtils";
 import { useUsersApi } from "@/hooks/useUsersApi";
 import { ColumnConfig } from "@/components/LeadsTableColumnSelector";
 import { EditableLeadCell } from "@/components/EditableLeadCell";
@@ -595,7 +594,7 @@ Por favor, confirmar asistencia.`;
       case 'lastInteraction':
         return (
           <span className="text-gray-700 text-xs text-center">
-            {format(new Date(lead.updatedAt), "dd/MM/yyyy", { locale: es })}
+            {formatBogotaDate(lead.updatedAt)}
           </span>
         );
       case 'value':
@@ -615,13 +614,13 @@ Por favor, confirmar asistencia.`;
       case 'createdAt':
         return (
           <span className="text-center text-gray-700 text-xs">
-            {format(new Date(lead.createdAt), "dd/MM/yyyy", { locale: es })}
+            {formatBogotaDate(lead.createdAt)}
           </span>
         );
       case 'nextFollowUp':
         return (
           <span className="text-gray-700 text-xs text-center">
-            {lead.nextFollowUp ? format(new Date(lead.nextFollowUp), "dd/MM/yyyy", { locale: es }) : '-'}
+            {lead.nextFollowUp ? formatBogotaDate(lead.nextFollowUp) : '-'}
           </span>
         );
       case 'age':

@@ -5,8 +5,7 @@ import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Badge } from '@/components/ui/badge';
 import { CheckCheck, Bell, Clock, AlertCircle, CheckCircle, Info, AlertTriangle, X } from 'lucide-react';
-import { formatDistanceToNow } from 'date-fns';
-import { es } from 'date-fns/locale';
+import { formatBogotaDistanceToNow } from '@/utils/dateUtils';
 
 interface NotificationPanelProps {
   isOpen: boolean;
@@ -133,10 +132,7 @@ export const NotificationPanel: React.FC<NotificationPanelProps> = ({ isOpen, on
                       </p>
                       <div className="flex items-center text-xs text-gray-500 mt-2">
                         <Clock className="h-3 w-3 mr-1" />
-                        {formatDistanceToNow(new Date(notification.created_at), { 
-                          addSuffix: true, 
-                          locale: es 
-                        })}
+                        {formatBogotaDistanceToNow(notification.created_at)}
                       </div>
                     </div>
                   </div>

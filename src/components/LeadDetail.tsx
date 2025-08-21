@@ -20,8 +20,7 @@ import { useLeadAssignments } from '@/hooks/useLeadAssignments';
 import { useLeadsApi } from '@/hooks/useLeadsApi';
 import { useProfilingApi } from '@/hooks/useProfilingApi';
 import { useToast } from '@/hooks/use-toast';
-import { formatDistanceToNow } from 'date-fns';
-import { es } from 'date-fns/locale';
+import { formatBogotaDistanceToNow } from '@/utils/dateUtils';
 import { LeadReassignDialog } from './LeadReassignDialog';
 import { LeadProfiler } from './LeadProfiler';
 import ProfileResults from './ProfileResults';
@@ -1045,9 +1044,9 @@ Notas adicionales: ${lead.notes || 'Ninguna'}`;
                                   <p className="text-xs text-muted-foreground mt-1">
                                     {clientLead.Email} • {clientLead.Campaign || 'Sin campaña'}
                                   </p>
-                                  <p className="text-xs text-muted-foreground">
-                                    Creado: {formatDistanceToNow(new Date(clientLead.CreatedAt), { addSuffix: true, locale: es })}
-                                  </p>
+                                   <p className="text-xs text-muted-foreground">
+                                     Creado: {formatBogotaDistanceToNow(clientLead.CreatedAt)}
+                                   </p>
                                 </div>
                                 <Badge variant="outline" className="text-xs">
                                   {clientLead.Interactions.length} interacciones
@@ -1076,7 +1075,7 @@ Notas adicionales: ${lead.notes || 'Ninguna'}`;
                                           <span>•</span>
                                           <span>Etapa: {interaction.Stage}</span>
                                           <span>•</span>
-                                          <span>{formatDistanceToNow(new Date(interaction.CreatedAt), { addSuffix: true, locale: es })}</span>
+                                           <span>{formatBogotaDistanceToNow(interaction.CreatedAt)}</span>
                                         </div>
                                       </div>
                                     </div>
@@ -1115,7 +1114,7 @@ Notas adicionales: ${lead.notes || 'Ninguna'}`;
                                         <div className="flex items-center gap-4 mt-2 text-xs text-muted-foreground">
                                           <span>Tipo: {interaction.Type}</span>
                                           <span>•</span>
-                                          <span>{formatDistanceToNow(new Date(interaction.CreatedAt), { addSuffix: true, locale: es })}</span>
+                                          <span>{formatBogotaDistanceToNow(interaction.CreatedAt)}</span>
                                         </div>
                                       </div>
                                     </div>
@@ -1187,12 +1186,9 @@ Notas adicionales: ${lead.notes || 'Ninguna'}`;
                               )}
                             </div>
                             <div className="text-right">
-                              <p className="text-xs text-muted-foreground">
-                                {formatDistanceToNow(new Date(entry.assigned_at), { 
-                                  addSuffix: true, 
-                                  locale: es 
-                                })}
-                              </p>
+                               <p className="text-xs text-muted-foreground">
+                                 {formatBogotaDistanceToNow(entry.assigned_at)}
+                               </p>
                               <p className="text-xs text-muted-foreground">
                                 Por: {entry.assigned_by_name || 'Sistema'}
                               </p>

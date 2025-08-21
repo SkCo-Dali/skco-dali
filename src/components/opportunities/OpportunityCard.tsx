@@ -7,6 +7,7 @@ import { Progress } from '@/components/ui/progress';
 import { IOpportunity, OPPORTUNITY_TYPE_LABELS, PRIORITY_COLORS } from '@/types/opportunities';
 import { opportunitiesService } from '@/services/mock/opportunitiesService';
 import { useToast } from '@/hooks/use-toast';
+import { formatBogotaDate } from '@/utils/dateUtils';
 
 interface OpportunityCardProps {
   opportunity: IOpportunity;
@@ -98,7 +99,7 @@ export const OpportunityCard: React.FC<OpportunityCardProps> = ({
           {/* Time Window (if applicable) */}
         {opportunity.expiresAt && (
           <Badge className="text-xs px-2 py-0.5 text-orange-600 bg-orange-50">
-            Vence {new Date(opportunity.expiresAt).toLocaleDateString('es-ES')}
+            Vence {formatBogotaDate(opportunity.expiresAt)}
           </Badge>
       )}
         </div>
