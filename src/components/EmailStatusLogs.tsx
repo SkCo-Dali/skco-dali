@@ -33,6 +33,12 @@ export function EmailStatusLogs({ logs, isLoading, onRefresh }: EmailStatusLogsP
     return matchesSearch;
   });
 
+  const bogotaFmt = new Intl.DateTimeFormat("es-CO", {
+  timeZone: "America/Bogota",
+  year: "numeric", month: "2-digit", day: "2-digit",
+  hour: "2-digit", minute: "2-digit", hour12: false,
+});
+  
   const getStatusColor = (status: EmailLog['Status']) => {
     switch (status) {
       case 'Success':
@@ -168,9 +174,7 @@ export function EmailStatusLogs({ logs, isLoading, onRefresh }: EmailStatusLogsP
                             {log.Status === 'Success' ? 'Exitoso' : 'Fallido'}
                           </Badge>
                         </TableCell>
-                        <TableCell>
-                          {format(new Date(log.CreatedAt), "dd/MM/yyyy HH:mm", { locale: es })}
-                        </TableCell>
+                        <TableCell>{bogotaFmt.format(new Date(log.CreatedAt))}</TableCell>
                         <TableCell>
                           <div className="flex items-center gap-2">
                             {log.OpenedAt ? (
