@@ -9,6 +9,7 @@ import { CheckCircle, Eye, Calendar, User, Mail, FileText, Globe } from 'lucide-
 import { EmailLog } from '@/types/email';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
+import { formatBogotaDateTime } from "@/utils/dateUtils";
 
 interface EmailDetailDialogProps {
   email: EmailLog | null;
@@ -70,7 +71,7 @@ export function EmailDetailDialog({ email, isOpen, onClose }: EmailDetailDialogP
                 <Calendar className="h-4 w-4 text-muted-foreground" />
                 <span className="text-sm font-medium">Fecha de envío:</span>
                 <span className="text-sm">
-                  {format(new Date(email.CreatedAt), "dd/MM/yyyy HH:mm", { locale: es })}
+                  {formatBogotaDateTime(new Date(email.CreatedAt), "dd/MM/yyyy HH:mm", { locale: es })}
                 </span>
               </div>
               
