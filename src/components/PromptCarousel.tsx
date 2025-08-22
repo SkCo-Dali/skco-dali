@@ -157,7 +157,7 @@ export const PromptCarousel: React.FC<PromptCarouselProps> = memo(({
         <div className="relative">
           <div 
             ref={scrollContainerRef}
-            className="flex gap-3 overflow-x-auto pb-2"
+            className="flex justify-center-safe gap-3 overflow-x-auto pb-2"
             style={{ 
               scrollbarWidth: 'none', 
               msOverflowStyle: 'none',
