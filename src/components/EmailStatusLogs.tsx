@@ -178,7 +178,7 @@ export function EmailStatusLogs({ logs, isLoading, onRefresh }: EmailStatusLogsP
                             )}
                           </div>
                         </TableCell>
-                        <TableCell className="max-w-xs">
+                        <TableCell className="max-w-50">
                           {log.ErrorMessage && (
                             <span className="text-red-600 text-sm truncate block" title={log.ErrorMessage}>
                               {log.ErrorMessage}
