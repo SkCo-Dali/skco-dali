@@ -33,8 +33,12 @@ export function ColorPicker({ onColorSelect }: ColorPickerProps) {
   useEffect(() => {
     const hexColor = `#${rgbR.toString(16).padStart(2, '0')}${rgbG.toString(16).padStart(2, '0')}${rgbB.toString(16).padStart(2, '0')}`;
     setCustomColor(hexColor);
+  }, [rgbR, rgbG, rgbB]);
+
+  const handleRgbChange = (r: number, g: number, b: number) => {
+    const hexColor = `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`;
     onColorSelect(hexColor);
-  }, [rgbR, rgbG, rgbB, onColorSelect]);
+  };
 
   return (
     <Popover>
@@ -113,7 +117,9 @@ export function ColorPicker({ onColorSelect }: ColorPickerProps) {
                   value={rgbR}
                   onChange={(e) => {
                     const value = parseInt(e.target.value) || 0;
-                    setRgbR(Math.min(255, Math.max(0, value)));
+                    const newR = Math.min(255, Math.max(0, value));
+                    setRgbR(newR);
+                    handleRgbChange(newR, rgbG, rgbB);
                   }}
                   onMouseDown={(e) => e.stopPropagation()}
                   onFocus={(e) => e.stopPropagation()}
@@ -131,7 +137,9 @@ export function ColorPicker({ onColorSelect }: ColorPickerProps) {
                   value={rgbG}
                   onChange={(e) => {
                     const value = parseInt(e.target.value) || 0;
-                    setRgbG(Math.min(255, Math.max(0, value)));
+                    const newG = Math.min(255, Math.max(0, value));
+                    setRgbG(newG);
+                    handleRgbChange(rgbR, newG, rgbB);
                   }}
                   onMouseDown={(e) => e.stopPropagation()}
                   onFocus={(e) => e.stopPropagation()}
@@ -149,7 +157,9 @@ export function ColorPicker({ onColorSelect }: ColorPickerProps) {
                   value={rgbB}
                   onChange={(e) => {
                     const value = parseInt(e.target.value) || 0;
-                    setRgbB(Math.min(255, Math.max(0, value)));
+                    const newB = Math.min(255, Math.max(0, value));
+                    setRgbB(newB);
+                    handleRgbChange(rgbR, rgbG, newB);
                   }}
                   onMouseDown={(e) => e.stopPropagation()}
                   onFocus={(e) => e.stopPropagation()}
