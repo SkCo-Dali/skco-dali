@@ -85,7 +85,7 @@ export function ColorPicker({ onColorSelect }: ColorPickerProps) {
                 }}
                 className="w-12 h-8 rounded border cursor-pointer"
               />
-              <Input
+              {/*<Input
                 type="text"
                 value={customColor}
                 onChange={(e) => {
@@ -94,7 +94,7 @@ export function ColorPicker({ onColorSelect }: ColorPickerProps) {
                 }}
                 className="flex-1"
                 placeholder="#000000"
-              />
+              />*/}
             </div>
             
             {/*<div className="grid grid-cols-3 gap-2">
