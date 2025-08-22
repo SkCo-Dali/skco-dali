@@ -37,9 +37,6 @@ export function EmailDetailDialog({ email, isOpen, onClose }: EmailDetailDialogP
         <DialogHeader>
           <DialogTitle className="flex items-center justify-between">
             <span>Detalles del Correo</span>
-            <Badge className={`px-3 ${getStatusColor(email.Status)}`} variant="secondary">
-              {email.Status === 'Success' ? 'Exitoso' : 'Fallido'}
-            </Badge>
           </DialogTitle>
         </DialogHeader>
         
