@@ -183,7 +183,7 @@ export function ManageReportAssignmentsDialog({
             <div className="max-h-60 overflow-y-auto border rounded-md">
               {loading ? (
                 <div className="p-4 text-center">
-                  <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-[#00c83c] mx-auto"></div>
+                  <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-[#00C73D] mx-auto"></div>
                 </div>
               ) : filteredUsers.length === 0 ? (
                 <div className="p-4 text-center text-muted-foreground">
@@ -223,7 +223,7 @@ export function ManageReportAssignmentsDialog({
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
               Cancelar
             </Button>
-            <Button type="submit" className="bg-[#00c83c] hover:bg-[#00c83c]/90">
+            <Button type="submit" className="bg-[#00C73D] hover:bg-[#00C73D]/90">
               Guardar Asignaciones
             </Button>
           </DialogFooter>

@@ -142,21 +142,21 @@ export function MassEmailSender({ filteredLeads, onClose }: MassEmailSenderProps
           <TabsList className="grid w-full grid-cols-3 mb-6 bg-gray-100 rounded-full px-0 py-0 my-0">
             <TabsTrigger 
               value="compose" 
-              className="w-full h-full data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#00c83c] data-[state=active]:to-[#A3E40B] data-[state=active]:text-white rounded-full px-4 py-2 mt-0 text-sm font-medium transition-all duration-200"
+              className="w-full h-full data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#00C73D] data-[state=active]:to-[#A3E40B] data-[state=active]:text-white rounded-full px-4 py-2 mt-0 text-sm font-medium transition-all duration-200"
             >
               <Mail className="h-4 w-4" />
               Nuevo Correo
             </TabsTrigger>
             <TabsTrigger 
               value="preview" 
-              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#00c83c] data-[state=active]:to-[#A3E40B] data-[state=active]:text-white rounded-full px-10 py-2 h-full text-sm font-medium transition-all duration-200"
+              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#00C73D] data-[state=active]:to-[#A3E40B] data-[state=active]:text-white rounded-full px-10 py-2 h-full text-sm font-medium transition-all duration-200"
             >
               <Eye className="h-4 w-4" />
               Previsualizar
             </TabsTrigger>
             <TabsTrigger 
               value="logs" 
-              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#00c83c] data-[state=active]:to-[#A3E40B] data-[state=active]:text-white rounded-full px-10 py-2 h-full text-sm font-medium transition-all duration-200"
+              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#00C73D] data-[state=active]:to-[#A3E40B] data-[state=active]:text-white rounded-full px-10 py-2 h-full text-sm font-medium transition-all duration-200"
             >
               <History className="h-4 w-4" />
               Historial

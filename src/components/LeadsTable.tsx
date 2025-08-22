@@ -476,7 +476,7 @@ Por favor, confirmar asistencia.`;
         return (
           <div className="flex items-center justify-between w-full">
             <div 
-              className="text-gray-900 font-bold text-xs truncate pr-2 cursor-pointer hover:text-[#00c83c]"
+              className="text-gray-900 font-bold text-xs truncate pr-2 cursor-pointer hover:text-[#00C73D]"
               onClick={(e) => {
                 e.stopPropagation();
                 onLeadClick(lead);
@@ -635,7 +635,7 @@ Por favor, confirmar asistencia.`;
   return (
     <>
       <div className="leads-table-container-scroll">
-        <div className="leads-table-scroll-wrapper shadow-md">
+        <div className="leads-table-scroll-wrapper">
           <div className="leads-table-inner-scroll">
             <DndContext
               sensors={sensors}
