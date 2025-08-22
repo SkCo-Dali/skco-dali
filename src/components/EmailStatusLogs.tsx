@@ -67,6 +67,7 @@ export function EmailStatusLogs({ logs, isLoading, onRefresh }: EmailStatusLogsP
         <CardHeader>
           <CardTitle className="flex items-center justify-between">
             Historial de Correos Enviados
+            <h2 className="font-medium">{log.ToEmail} </h2>
             <Button
               variant="outline"
               size="sm"
@@ -112,7 +113,6 @@ export function EmailStatusLogs({ logs, isLoading, onRefresh }: EmailStatusLogsP
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Destinatario</TableHead>
                     <TableHead>Asunto</TableHead>
                     <TableHead>Campaña</TableHead>
                     <TableHead>Estado</TableHead>
