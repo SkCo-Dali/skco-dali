@@ -635,7 +635,7 @@ Por favor, confirmar asistencia.`;
   return (
     <>
       <div className="leads-table-container-scroll">
-        <div className="leads-table-scroll-wrapper">
+        <div className="leads-table-scroll-wrapper shadow-sm border">
           <div className="leads-table-inner-scroll">
             <DndContext
               sensors={sensors}
