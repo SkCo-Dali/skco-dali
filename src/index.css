@@ -278,7 +278,7 @@
     overflow-y: auto !important;
     /* Configuración de scrollbar */
     scrollbar-width: thin !important;
-    scrollbar-color: #00c83c #f1f5f9 !important;
+    scrollbar-color: #00c73d #f1f5f9 !important;
     contain: strict;
   }
 
@@ -307,7 +307,7 @@
   }
 
   .leads-table-scroll-wrapper::-webkit-scrollbar-thumb {
-    background: #00c83c !important;
+    background: #00c73d !important;
     border-radius: 6px;
     border: 1px solid #f1f5f9;
     min-height: 20px !important;
@@ -373,7 +373,7 @@
   }
 
   .dark .leads-table-scroll-wrapper::-webkit-scrollbar-thumb {
-    background: #00c83c !important;
+    background: #00c73d !important;
     border-color: #374151;
   }
 

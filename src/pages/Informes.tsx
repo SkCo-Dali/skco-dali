@@ -210,7 +210,7 @@ export default function Informes() {
       <div className="min-h-screen pt-16">
         <div className="p-4">
           <div className="flex items-center justify-center py-12">
-            <Loader2 className="h-8 w-8 animate-spin text-[#00c83c]" />
+            <Loader2 className="h-8 w-8 animate-spin text-[#00c73d]" />
           </div>
         </div>
       </div>
@@ -222,13 +222,13 @@ export default function Informes() {
       <div className="px-4 py-6">
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h1 className="text-3xl font-bold mb-1 tracking-tight text-[#00c83c]">
+            <h1 className="text-3xl font-bold mb-1 tracking-tight text-[#00c73d]">
               Informes Power BI
             </h1>
             <p className="text-muted-foreground">
               Accede a los informes asignados a tu perfil
               {user?.role === 'admin' && (
-                <> • <a href="/admin/reports" className="text-[#00c83c] hover:underline">Administrar reportes</a></>
+                <> • <a href="/admin/reports" className="text-[#00c73d] hover:underline">Administrar reportes</a></>
               )}
             </p>
           </div>
@@ -237,7 +237,7 @@ export default function Informes() {
             <Button 
               onClick={handleBackToList}
               variant="outline"
-              className="text-[#00c83c] border-[#00c83c] hover:bg-[#00c83c] hover:text-white"
+              className="text-[#00c73d] border-[#00c73d] hover:bg-[#00c73d] hover:text-white"
             >
               Volver a la lista
             </Button>
@@ -286,13 +286,13 @@ export default function Informes() {
                   filteredReports.map((report) => (
                     <Card 
                       key={report.id} 
-                      className="cursor-pointer hover:shadow-lg transition-shadow border-l-4 border-l-[#00c83c]"
+                      className="cursor-pointer hover:shadow-lg transition-shadow border-l-4 border-l-[#00c73d]"
                       onClick={() => handleReportSelect(report)}
                     >
                       <CardHeader className="pb-3">
                         <div className="flex items-center space-x-3">
-                          <div className="p-2 bg-[#00c83c]/10 rounded-lg">
-                            <FileBarChart className="h-6 w-6 text-[#00c83c]" />
+                          <div className="p-2 bg-[#00c73d]/10 rounded-lg">
+                            <FileBarChart className="h-6 w-6 text-[#00c73d]" />
                           </div>
                           <div className="flex-1">
                             <CardTitle className="text-lg">{report.name}</CardTitle>
@@ -309,7 +309,7 @@ export default function Informes() {
                           </span>
                           <Button 
                             size="sm" 
-                            className="bg-[#00c83c] hover:bg-[#00c83c]/90"
+                            className="bg-[#00c73d] hover:bg-[#00c73d]/90"
                           >
                             Ver Informe
                           </Button>
@@ -326,14 +326,14 @@ export default function Informes() {
           <Card className="w-full">
             <CardHeader>
               <CardTitle className="flex items-center space-x-2">
-                <FileBarChart className="h-5 w-5 text-[#00c83c]" />
+                <FileBarChart className="h-5 w-5 text-[#00c73d]" />
                 <span>{selectedReport.name}</span>
               </CardTitle>
             </CardHeader>
             <CardContent>
               {loadingEmbed ? (
                 <div className="flex items-center justify-center py-12">
-                  <Loader2 className="h-8 w-8 animate-spin text-[#00c83c]" />
+                  <Loader2 className="h-8 w-8 animate-spin text-[#00c73d]" />
                   <span className="ml-2">Cargando informe...</span>
                 </div>
               ) : (
