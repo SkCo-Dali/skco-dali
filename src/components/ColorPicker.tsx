@@ -95,6 +95,8 @@ export function ColorPicker({ onColorSelect }: ColorPickerProps) {
                 }}
                 onMouseDown={(e) => e.stopPropagation()}
                 onFocus={(e) => e.stopPropagation()}
+                onClick={(e) => e.stopPropagation()}
+                onKeyDown={(e) => e.stopPropagation()}
                 className="flex-1"
                 placeholder="#000000"
               />
@@ -115,6 +117,8 @@ export function ColorPicker({ onColorSelect }: ColorPickerProps) {
                   }}
                   onMouseDown={(e) => e.stopPropagation()}
                   onFocus={(e) => e.stopPropagation()}
+                  onClick={(e) => e.stopPropagation()}
+                  onKeyDown={(e) => e.stopPropagation()}
                   className="text-xs"
                 />
               </div>
@@ -132,6 +136,8 @@ export function ColorPicker({ onColorSelect }: ColorPickerProps) {
                   }}
                   onMouseDown={(e) => e.stopPropagation()}
                   onFocus={(e) => e.stopPropagation()}
+                  onClick={(e) => e.stopPropagation()}
+                  onKeyDown={(e) => e.stopPropagation()}
                   className="text-xs"
                 />
               </div>
@@ -149,6 +155,8 @@ export function ColorPicker({ onColorSelect }: ColorPickerProps) {
                   }}
                   onMouseDown={(e) => e.stopPropagation()}
                   onFocus={(e) => e.stopPropagation()}
+                  onClick={(e) => e.stopPropagation()}
+                  onKeyDown={(e) => e.stopPropagation()}
                   className="text-xs"
                 />
               </div>
