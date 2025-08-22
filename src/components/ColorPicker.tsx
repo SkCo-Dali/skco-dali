@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -18,9 +18,8 @@ const STANDARD_COLORS = [
 ];
 
 const THEME_COLORS = [
-  '#1F497D', '#4F81BD', '#9CBB58', '#F79646', '#C0504D', '#9F4C7C',
-  '#366092', '#5F9BD5', '#A9D18E', '#FFB366', '#DA7A7A', '#B392C0',
-  '#8DB4E2', '#95B3D9', '#B7DEA8', '#FCC266', '#E59B9B', '#C7A5CC'
+  '#00C73D', '#00C83C', '#02B1FF', '#FE9200', '#404040', '#52FFD9', 
+  '#45E39E', '#FFAE08', '#8FE000', '#45AD00', '#00F0E0', 
 ];
 
 export function ColorPicker({ onColorSelect }: ColorPickerProps) {
@@ -29,14 +28,9 @@ export function ColorPicker({ onColorSelect }: ColorPickerProps) {
   const [rgbG, setRgbG] = useState(0);
   const [rgbB, setRgbB] = useState(0);
 
-  // Sincronizar RGB con hex color cuando cambian los valores RGB
-  useEffect(() => {
+  const handleRgbChange = () => {
     const hexColor = `#${rgbR.toString(16).padStart(2, '0')}${rgbG.toString(16).padStart(2, '0')}${rgbB.toString(16).padStart(2, '0')}`;
     setCustomColor(hexColor);
-  }, [rgbR, rgbG, rgbB]);
-
-  const handleRgbChange = (r: number, g: number, b: number) => {
-    const hexColor = `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`;
     onColorSelect(hexColor);
   };
 
@@ -98,16 +92,12 @@ export function ColorPicker({ onColorSelect }: ColorPickerProps) {
                   setCustomColor(e.target.value);
                   onColorSelect(e.target.value);
                 }}
-                onMouseDown={(e) => e.stopPropagation()}
-                onFocus={(e) => e.stopPropagation()}
-                onClick={(e) => e.stopPropagation()}
-                onKeyDown={(e) => e.stopPropagation()}
                 className="flex-1"
                 placeholder="#000000"
               />
             </div>
             
-            <div className="grid grid-cols-3 gap-2">
+            {/*<div className="grid grid-cols-3 gap-2">
               <div>
                 <Label className="text-xs">R</Label>
                 <Input
@@ -117,14 +107,9 @@ export function ColorPicker({ onColorSelect }: ColorPickerProps) {
                   value={rgbR}
                   onChange={(e) => {
                     const value = parseInt(e.target.value) || 0;
-                    const newR = Math.min(255, Math.max(0, value));
-                    setRgbR(newR);
-                    handleRgbChange(newR, rgbG, rgbB);
+                    setRgbR(Math.min(255, Math.max(0, value)));
+                    handleRgbChange();
                   }}
-                  onMouseDown={(e) => e.stopPropagation()}
-                  onFocus={(e) => e.stopPropagation()}
-                  onClick={(e) => e.stopPropagation()}
-                  onKeyDown={(e) => e.stopPropagation()}
                   className="text-xs"
                 />
               </div>
@@ -137,14 +122,9 @@ export function ColorPicker({ onColorSelect }: ColorPickerProps) {
                   value={rgbG}
                   onChange={(e) => {
                     const value = parseInt(e.target.value) || 0;
-                    const newG = Math.min(255, Math.max(0, value));
-                    setRgbG(newG);
-                    handleRgbChange(rgbR, newG, rgbB);
+                    setRgbG(Math.min(255, Math.max(0, value)));
+                    handleRgbChange();
                   }}
-                  onMouseDown={(e) => e.stopPropagation()}
-                  onFocus={(e) => e.stopPropagation()}
-                  onClick={(e) => e.stopPropagation()}
-                  onKeyDown={(e) => e.stopPropagation()}
                   className="text-xs"
                 />
               </div>
@@ -157,18 +137,13 @@ export function ColorPicker({ onColorSelect }: ColorPickerProps) {
                   value={rgbB}
                   onChange={(e) => {
                     const value = parseInt(e.target.value) || 0;
-                    const newB = Math.min(255, Math.max(0, value));
-                    setRgbB(newB);
-                    handleRgbChange(rgbR, rgbG, newB);
+                    setRgbB(Math.min(255, Math.max(0, value)));
+                    handleRgbChange();
                   }}
-                  onMouseDown={(e) => e.stopPropagation()}
-                  onFocus={(e) => e.stopPropagation()}
-                  onClick={(e) => e.stopPropagation()}
-                  onKeyDown={(e) => e.stopPropagation()}
                   className="text-xs"
                 />
               </div>
-            </div>
+            </div>*/}
           </div>
         </div>
       </PopoverContent>
