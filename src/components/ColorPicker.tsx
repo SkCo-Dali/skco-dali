@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -29,11 +29,12 @@ export function ColorPicker({ onColorSelect }: ColorPickerProps) {
   const [rgbG, setRgbG] = useState(0);
   const [rgbB, setRgbB] = useState(0);
 
-  const handleRgbChange = () => {
+  // Sincronizar RGB con hex color cuando cambian los valores RGB
+  useEffect(() => {
     const hexColor = `#${rgbR.toString(16).padStart(2, '0')}${rgbG.toString(16).padStart(2, '0')}${rgbB.toString(16).padStart(2, '0')}`;
     setCustomColor(hexColor);
     onColorSelect(hexColor);
-  };
+  }, [rgbR, rgbG, rgbB, onColorSelect]);
 
   return (
     <Popover>
@@ -113,7 +114,6 @@ export function ColorPicker({ onColorSelect }: ColorPickerProps) {
                   onChange={(e) => {
                     const value = parseInt(e.target.value) || 0;
                     setRgbR(Math.min(255, Math.max(0, value)));
-                    handleRgbChange();
                   }}
                   onMouseDown={(e) => e.stopPropagation()}
                   onFocus={(e) => e.stopPropagation()}
@@ -132,7 +132,6 @@ export function ColorPicker({ onColorSelect }: ColorPickerProps) {
                   onChange={(e) => {
                     const value = parseInt(e.target.value) || 0;
                     setRgbG(Math.min(255, Math.max(0, value)));
-                    handleRgbChange();
                   }}
                   onMouseDown={(e) => e.stopPropagation()}
                   onFocus={(e) => e.stopPropagation()}
@@ -151,7 +150,6 @@ export function ColorPicker({ onColorSelect }: ColorPickerProps) {
                   onChange={(e) => {
                     const value = parseInt(e.target.value) || 0;
                     setRgbB(Math.min(255, Math.max(0, value)));
-                    handleRgbChange();
                   }}
                   onMouseDown={(e) => e.stopPropagation()}
                   onFocus={(e) => e.stopPropagation()}
