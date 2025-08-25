@@ -1108,9 +1108,6 @@ Notas adicionales: ${lead.notes || 'Ninguna'}`;
                                       </div>
                                       <div>
                                         <h4 className="font-medium">{interaction.Description || 'Sin título'}</h4>
-                                        <p className="text-sm text-muted-foreground mt-1">
-                                          {interaction.Description}
-                                        </p>
                                         <div className="flex items-center gap-4 mt-2 text-xs text-muted-foreground">
                                           <span>Tipo: {interaction.Type}</span>
                                           <span>•</span>
