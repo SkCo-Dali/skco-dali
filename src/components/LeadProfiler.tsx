@@ -8,6 +8,7 @@ import { ProfilingSession } from './ProfilingSession';
 import { useProfilingApi } from '@/hooks/useProfilingApi';
 import ProfileResults from './ProfileResults';
 import { STRATEGIC_PLAN_CONFIG, FlowType } from './StrategicPlanConfig';
+import { formatBogotaDate } from '@/utils/dateUtils';
 
 export const LeadProfiler: React.FC<LeadProfilerProps> = ({
   selectedLead,
@@ -292,7 +293,7 @@ export const LeadProfiler: React.FC<LeadProfilerProps> = ({
                     {profileResults.createdAt && (
                       <div className="mt-4 pt-3 border-t text-center">
                         <p className="text-xs text-gray-500">
-                          Perfil creado: {new Date(profileResults.createdAt).toLocaleDateString('es-ES')}
+                          Perfil creado: {formatBogotaDate(profileResults.createdAt)}
                         </p>
                       </div>
                     )}

@@ -1,7 +1,6 @@
 
 import { useState } from 'react';
-import { formatDistanceToNow } from 'date-fns';
-import { es } from 'date-fns/locale';
+import { formatBogotaDistanceToNow } from '@/utils/dateUtils';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { 
@@ -109,10 +108,7 @@ export function NotificationItem({ notification }: NotificationItemProps) {
           
           <div className="flex items-center justify-between mt-2">
             <span className="text-xs text-muted-foreground">
-              {formatDistanceToNow(new Date(notification.createdAt), { 
-                addSuffix: true, 
-                locale: es 
-              })}
+              {formatBogotaDistanceToNow(notification.createdAt)}
             </span>
             
             <Badge variant="outline" className="text-xs">

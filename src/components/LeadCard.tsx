@@ -176,7 +176,7 @@ Por favor, confirmar asistencia.`;
                   <DropdownMenuTrigger asChild>
                     <button 
                       className="h-5 w-5 md:h-6 md:w-6 flex-shrink-0 hover:bg-gray-100 rounded flex items-center justify-center"
-                      style={{ color: '#00c83c' }}
+                      style={{ color: '#00C73D' }}
                       onClick={(e) => e.stopPropagation()}
                     >
                       <MoreVertical className="h-5 w-5 md:h-6 md:w-6" />

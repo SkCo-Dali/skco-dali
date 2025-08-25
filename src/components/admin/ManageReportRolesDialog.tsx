@@ -123,7 +123,7 @@ export function ManageReportRolesDialog({
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
               Cancelar
             </Button>
-            <Button type="submit" className="bg-[#00c83c] hover:bg-[#00c83c]/90">
+            <Button type="submit" className="bg-[#00C73D] hover:bg-[#00C73D]/90">
               Guardar Roles
             </Button>
           </DialogFooter>

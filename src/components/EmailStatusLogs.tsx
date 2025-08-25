@@ -8,8 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Search, RefreshCw, Eye, CheckCircle } from 'lucide-react';
 import { EmailLog } from '@/types/email';
-import { format } from 'date-fns';
-import { es } from 'date-fns/locale';
+import { formatBogotaDateTime } from "@/utils/dateUtils";
 import { EmailDetailDialog } from '@/components/EmailDetailDialog';
 
 interface EmailStatusLogsProps {
@@ -33,6 +32,7 @@ export function EmailStatusLogs({ logs, isLoading, onRefresh }: EmailStatusLogsP
     return matchesSearch;
   });
 
+  
   const getStatusColor = (status: EmailLog['Status']) => {
     switch (status) {
       case 'Success':
@@ -82,16 +82,6 @@ export function EmailStatusLogs({ logs, isLoading, onRefresh }: EmailStatusLogsP
           <div className="space-y-4">
             {/* Filtros */}
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-                <Input
-                  placeholder="Buscar por email o asunto..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10"
-                />
-              </div>
-              
               <Input
                 type="text"
                 placeholder="Filtrar por campaña"
@@ -122,7 +112,6 @@ export function EmailStatusLogs({ logs, isLoading, onRefresh }: EmailStatusLogsP
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Destinatario</TableHead>
                     <TableHead>Asunto</TableHead>
                     <TableHead>Campaña</TableHead>
                     <TableHead>Estado</TableHead>
@@ -154,7 +143,6 @@ export function EmailStatusLogs({ logs, isLoading, onRefresh }: EmailStatusLogsP
                         className="cursor-pointer hover:bg-muted/50"
                         onClick={() => setSelectedEmail(log)}
                       >
-                        <TableCell className="font-medium">{log.ToEmail}</TableCell>
                         <TableCell className="max-w-xs truncate" title={log.Subject}>
                           {log.Subject}
                         </TableCell>
@@ -169,7 +157,7 @@ export function EmailStatusLogs({ logs, isLoading, onRefresh }: EmailStatusLogsP
                           </Badge>
                         </TableCell>
                         <TableCell>
-                          {format(new Date(log.CreatedAt), "dd/MM/yyyy HH:mm", { locale: es })}
+                          {formatBogotaDateTime(log.CreatedAt)}
                         </TableCell>
                         <TableCell>
                           <div className="flex items-center gap-2">
@@ -177,7 +165,7 @@ export function EmailStatusLogs({ logs, isLoading, onRefresh }: EmailStatusLogsP
                               <>
                                 <CheckCircle className="h-4 w-4 text-green-600" />
                                 <span className="text-sm text-green-600">
-                                  {format(new Date(log.OpenedAt), "dd/MM/yyyy HH:mm", { locale: es })}
+                                  {formatBogotaDateTime(log.OpenedAt)}
                                 </span>
                               </>
                             ) : (
@@ -188,7 +176,7 @@ export function EmailStatusLogs({ logs, isLoading, onRefresh }: EmailStatusLogsP
                             )}
                           </div>
                         </TableCell>
-                        <TableCell className="max-w-xs">
+                        <TableCell className="max-w-10">
                           {log.ErrorMessage && (
                             <span className="text-red-600 text-sm truncate block" title={log.ErrorMessage}>
                               {log.ErrorMessage}

@@ -2,8 +2,7 @@
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { format } from 'date-fns';
-import { es } from 'date-fns/locale';
+import { formatBogotaDateTime } from '@/utils/dateUtils';
 import { Clock, User, AlertTriangle } from 'lucide-react';
 import { Task, TaskStatus } from '@/types/tasks';
 import { useTasks } from '@/hooks/useTasks';
@@ -101,7 +100,7 @@ function TaskCard({ task, onClick }: TaskCardProps) {
           <div className="flex items-center gap-1">
             <Clock className="h-3 w-3" />
             <span className={isOverdue(task.dueDate) ? 'text-red-600 font-medium' : ''}>
-              {format(new Date(task.dueDate), 'dd MMM', { locale: es })}
+              {formatBogotaDateTime(task.dueDate, 'dd MMM')}
             </span>
           </div>
           <div className="flex items-center gap-1">

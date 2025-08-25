@@ -14,7 +14,7 @@ export function InformesViewControls({ viewMode, onViewModeChange }: InformesVie
         variant={viewMode === "grid" ? "default" : "ghost"}
         size="sm"
         onClick={() => onViewModeChange("grid")}
-        className={viewMode === "grid" ? "bg-[#00c83c] hover:bg-[#00c83c]/90" : ""}
+        className={viewMode === "grid" ? "bg-[#00C73D] hover:bg-[#00C73D]/90" : ""}
       >
         <Grid className="h-4 w-4" />
       </Button>
@@ -22,7 +22,7 @@ export function InformesViewControls({ viewMode, onViewModeChange }: InformesVie
         variant={viewMode === "table" ? "default" : "ghost"}
         size="sm"
         onClick={() => onViewModeChange("table")}
-        className={viewMode === "table" ? "bg-[#00c83c] hover:bg-[#00c83c]/90" : ""}
+        className={viewMode === "table" ? "bg-[#00C73D] hover:bg-[#00C73D]/90" : ""}
       >
         <Table className="h-4 w-4" />
       </Button>

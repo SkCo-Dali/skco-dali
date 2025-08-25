@@ -5,8 +5,7 @@ import { Button } from '../ui/button';
 import { Badge } from '../ui/badge';
 import { Card, CardContent } from '../ui/card';
 import { Input } from '../ui/input';
-import { formatDistanceToNow } from 'date-fns';
-import { es } from 'date-fns/locale';
+import { formatBogotaDistanceToNow } from '@/utils/dateUtils';
 
 interface ConversationCardProps {
   conversation: {
@@ -143,7 +142,7 @@ export const ConversationCard: React.FC<ConversationCardProps> = ({
             <div className="flex items-center gap-6 text-sm text-gray-500">
               <div className="flex items-center gap-1.5">
                 <Clock className="h-4 w-4" />
-                <span>{formatDistanceToNow(conversation.updatedAt, { addSuffix: true, locale: es })}</span>
+                <span>{formatBogotaDistanceToNow(conversation.updatedAt.toISOString())}</span>
               </div>
               
               <div className="flex items-center gap-1.5">

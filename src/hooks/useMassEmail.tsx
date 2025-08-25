@@ -74,7 +74,7 @@ export function useMassEmail() {
 
   const createInteractionForEmailSent = useCallback(async (
     leadId: string,
-    plainContent: string
+    subject: string
   ): Promise<void> => {
     if (!user?.id) return;
 
@@ -83,7 +83,7 @@ export function useMassEmail() {
         LeadId: leadId,
         UserId: user.id,
         Type: 'email',
-        Description: `Se envió un correo a través de Dali LM: ${plainContent}`,
+        Description: `Se envió un correo a través de Dali - Asunto: ${subject}`,
         Stage: '', // No se envía Stage según la documentación
         Outcome: 'neutral'
       });
@@ -197,7 +197,7 @@ export function useMassEmail() {
       for (const successfulSend of successfulSends) {
         const recipient = recipients.find(r => r.to === successfulSend.to);
         if (recipient) {
-          await createInteractionForEmailSent(recipient.LeadId, recipient.plain_content);
+          await createInteractionForEmailSent(recipient.LeadId, recipient.subject);
         }
       }
 

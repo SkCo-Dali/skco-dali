@@ -21,48 +21,27 @@ const IndexContent = forwardRef<any, {}>((props, ref) => {
 
   useImperativeHandle(ref, () => ({
     handleBannerMessage: (automaticReply: string) => {
-      console.log('🟢🟢🟢 ChatDali: handleBannerMessage called with:', automaticReply);
       if (chatInterfaceRef.current && chatInterfaceRef.current.handleBannerMessage) {
-        console.log('🟢🟢🟢 ChatDali: Forwarding to SimpleChatInterface');
         chatInterfaceRef.current.handleBannerMessage(automaticReply);
-      } else {
-        console.log('🔴🔴🔴 ChatDali: SimpleChatInterface ref not available');
       }
     }
   }));
 
   const handleNewChat = () => {
-    if (chatInterfaceRef.current && chatInterfaceRef.current.handleStartNewConversation) {
+    if (chatInterfaceRef.current?.handleStartNewConversation) {
       chatInterfaceRef.current.handleStartNewConversation();
     }
   };
 
   const handleBannerMessage = (automaticReply: string) => {
-    console.log('🟡🟡🟡 ChatDali: handleBannerMessage called with:', automaticReply);
-    if (chatInterfaceRef.current && chatInterfaceRef.current.handleBannerMessage) {
-      console.log('🟢🟢🟢 ChatDali: Forwarding banner message to SimpleChatInterface');
+    if (chatInterfaceRef.current?.handleBannerMessage) {
       chatInterfaceRef.current.handleBannerMessage(automaticReply);
-    } else {
-      console.log('🔴🔴🔴 ChatDali: SimpleChatInterface ref not available for banner message');
     }
   };
 
   const handleTemplateSelect = (content: string) => {
-    console.log('🟢🟢🟢 ChatDali: handleTemplateSelect called with:', content);
-    console.log('🟢🟢🟢 ChatDali: chatInterfaceRef.current exists:', !!chatInterfaceRef.current);
-    
-    if (chatInterfaceRef.current) {
-      console.log('🟢🟢🟢 ChatDali: chatInterfaceRef.current.setInputMessage exists:', !!chatInterfaceRef.current.setInputMessage);
-      console.log('🟢🟢🟢 ChatDali: About to call setInputMessage with:', content);
-      
-      if (chatInterfaceRef.current.setInputMessage) {
-        chatInterfaceRef.current.setInputMessage(content);
-        console.log('🟢🟢🟢 ChatDali: setInputMessage called successfully');
-      } else {
-        console.log('🔴🔴🔴 ChatDali: setInputMessage method not available on SimpleChatInterface ref');
-      }
-    } else {
-      console.log('🔴🔴🔴 ChatDali: SimpleChatInterface ref not available for template');
+    if (chatInterfaceRef.current?.setInputMessage) {
+      chatInterfaceRef.current.setInputMessage(content);
     }
   };
 
@@ -80,8 +59,8 @@ const IndexContent = forwardRef<any, {}>((props, ref) => {
   };
 
   return (
-    <div className="h-screen w-full overflow-hidden bg-gray-50 dark:bg-gray-900 transition-colors duration-200">
-      
+    <div className="h-screen w-full bg-white dark:bg-gray-900 flex flex-col overflow-hidden">
+
       {/* Header fijo en móvil */}
       {isMobile && (
         <div className="fixed top-0 left-0 right-0 z-50 bg-white">
@@ -101,19 +80,11 @@ const IndexContent = forwardRef<any, {}>((props, ref) => {
         onTemplateSelect={handleTemplateSelect}
       />
       
-      {/* Main content con padding responsivo */}
-      <div className={`flex flex-1 w-full h-full relative ${
-        isMobile ? 'pt-20' : ''
-      }`}>
+      {/* Main content */}
+      <div className={`flex flex-1 w-full relative ${isMobile ? 'pt-20' : ''} min-h-0 overflow-hidden`}>
         
-        {/* Botón de acciones - Posicionamiento optimizado */}
-        <div className={`fixed z-40 ${
-          isMobile 
-            ? 'top-18 right-2' // Reducido el margen derecho en móvil
-            : isMedium 
-              ? 'top-18 right-2'
-              : 'top-18 right-2'
-        }`}>
+        {/* Botón de acciones */}
+        <div className="fixed z-40 top-18 right-2">
           <ChatActionsButton
             onNewConversation={handleNewChat}
             onSearchConversations={handleSearchConversations}
@@ -121,13 +92,19 @@ const IndexContent = forwardRef<any, {}>((props, ref) => {
           />
         </div>
         
-        {/* Chat interface con padding lateral reducido en móvil */}
-        <div className={`flex-1 flex flex-col w-full h-full ${
-          isMobile || isMedium ? 'pt-10 px-4' : ' px-8'
-        } ${isMobile ? 'pr-6' : ''}`} 
-  style={{ paddingBottom: isMobile ? '20px' : '16px', maxWidth: isMobile ? '100%' : '1200px', margin: '0 auto' }}>
-  <SimpleChatInterface ref={chatInterfaceRef} />
-</div>
+        {/* Chat interface */}
+        <div 
+          className={`flex-1 flex flex-col w-full h-full min-h-0 overflow-hidden
+            ${isMobile || isMedium ? 'pt-10 px-4' : 'px-8'}
+            ${isMobile ? 'pr-6' : ''}`} 
+          style={{ 
+            paddingBottom: isMobile ? '20px' : '16px',
+            maxWidth: isMobile ? '100%' : '1200px',
+            margin: '0 auto'
+          }}
+        >
+          <SimpleChatInterface ref={chatInterfaceRef} />
+        </div>
       </div>
 
       {/* Modales */}
@@ -167,3 +144,4 @@ const ChatDali = forwardRef<any, {}>((props, ref) => {
 ChatDali.displayName = 'ChatDali';
 
 export default ChatDali;
+

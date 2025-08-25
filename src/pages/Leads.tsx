@@ -67,8 +67,8 @@ const DEFAULT_COLUMNS: ColumnConfig[] = [
   { key: 'priority', label: 'Prioridad', visible: false, sortable: true },
   { key: 'source', label: 'Fuente', visible: false, sortable: true },
   { key: 'value', label: 'Valor', visible: false, sortable: true },
-  { key: 'createdAt', label: 'Fecha de Creación', visible: false, sortable: true },
-  { key: 'lastInteraction', label: 'Fecha de Última Interacción', visible: false, sortable: true },
+  { key: 'createdAt', label: 'Fecha de Creación', visible: true, sortable: true },
+  { key: 'lastInteraction', label: 'Fecha de Última Interacción', visible: true, sortable: true },
   { key: 'nextFollowUp', label: 'Próximo seguimiento', visible: false, sortable: true },
   { key: 'age', label: 'Edad', visible: false, sortable: true },
   { key: 'gender', label: 'Género', visible: false, sortable: true },
@@ -331,7 +331,7 @@ export default function Leads() {
             <div className="flex flex-col lg:flex-row gap-6">
           <div className="flex-1 space-y-6">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 pt-0">
-              <h1 className="text-3xl font-bold mb-1 tracking-tight text-[#00c83c]">Gestión de Leads</h1>
+              <h1 className="text-3xl font-bold mb-1 tracking-tight text-[#00c73d]">Gestión de Leads</h1>
               
               {isSmallScreen && (
                 <LeadsActionsButton
@@ -374,7 +374,7 @@ export default function Leads() {
                     <Mail className="h-4 w-4" />
                   </Button>
                   {/*<Button
-                    className="gap-1 w-8 h-8 bg-[#00c83c]"
+                    className="gap-1 w-8 h-8 bg-[#00c73d]"
                     onClick={handleMassWhatsApp}
                     size="icon"
                   >
@@ -415,7 +415,7 @@ export default function Leads() {
                             height: '32px'
                           }}
                         >
-                          <Filter className="h-4 w-4 text-[#00c83c]" />
+                          <Filter className="h-4 w-4 text-[#00c73d]" />
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent className="w-auto p-0 bg-white rounded-2xl shadow-lg border border-gray-200" align="end">
@@ -465,38 +465,38 @@ export default function Leads() {
                               height: '32px'
                             }}
                           >
-                            <Group className="h-4 w-4 text-[#00c83c]" />
+                            <Group className="h-4 w-4 text-[#00c73d]" />
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end" className="w-48 bg-white rounded-2xl shadow-lg border border-gray-200">
                           <div className="p-2">
                             <DropdownMenuItem 
                               onClick={() => setGroupBy("stage")}
-                              className={groupBy === "stage" ? "bg-[#00c83c]/10 text-[#00c83c]" : ""}
+                              className={groupBy === "stage" ? "bg-[#00c73d]/10 text-[#00c73d]" : ""}
                             >
                               Etapa
                             </DropdownMenuItem>
                             <DropdownMenuItem 
                               onClick={() => setGroupBy("priority")}
-                              className={groupBy === "priority" ? "bg-[#00c83c]/10 text-[#00c83c]" : ""}
+                              className={groupBy === "priority" ? "bg-[#00c73d]/10 text-[#00c73d]" : ""}
                             >
                               Prioridad
                             </DropdownMenuItem>
                             <DropdownMenuItem 
                               onClick={() => setGroupBy("source")}
-                              className={groupBy === "source" ? "bg-[#00c83c]/10 text-[#00c83c]" : ""}
+                              className={groupBy === "source" ? "bg-[#00c73d]/10 text-[#00c73d]" : ""}
                             >
                               Fuente
                             </DropdownMenuItem>
                             <DropdownMenuItem 
                               onClick={() => setGroupBy("assignedTo")}
-                              className={groupBy === "assignedTo" ? "bg-[#00c83c]/10 text-[#00c83c]" : ""}
+                              className={groupBy === "assignedTo" ? "bg-[#00c73d]/10 text-[#00c73d]" : ""}
                             >
                               Asesor asignado
                             </DropdownMenuItem>
                             <DropdownMenuItem 
                               onClick={() => setGroupBy("campaign")}
-                              className={groupBy === "campaign" ? "bg-[#00c83c]/10 text-[#00c83c]" : ""}
+                              className={groupBy === "campaign" ? "bg-[#00c73d]/10 text-[#00c73d]" : ""}
                             >
                               Campaña
                             </DropdownMenuItem>
@@ -542,7 +542,7 @@ export default function Leads() {
                           height: '32px'
                         }}
                       >
-                        <Filter className="h-4 w-4 text-[#00c83c]" />
+                        <Filter className="h-4 w-4 text-[#00c73d]" />
                         <span className="ml-1">Filtros</span>
                       </Button>
                     </DropdownMenuTrigger>
@@ -593,7 +593,7 @@ export default function Leads() {
                             height: '32px'
                           }}
                         >
-                          <Group className="h-4 w-4 text-[#00c83c]" />
+                          <Group className="h-4 w-4 text-[#00c73d]" />
                           <span className="ml-1">Agrupar por</span>
                         </Button>
                       </DropdownMenuTrigger>
@@ -601,31 +601,31 @@ export default function Leads() {
                         <div className="p-2">
                           <DropdownMenuItem 
                             onClick={() => setGroupBy("stage")}
-                            className={groupBy === "stage" ? "bg-[#00c83c]/10 text-[#00c83c]" : ""}
+                            className={groupBy === "stage" ? "bg-[#00c73d]/10 text-[#00c73d]" : ""}
                           >
                             Etapa
                           </DropdownMenuItem>
                           <DropdownMenuItem 
                             onClick={() => setGroupBy("priority")}
-                            className={groupBy === "priority" ? "bg-[#00c83c]/10 text-[#00c83c]" : ""}
+                            className={groupBy === "priority" ? "bg-[#00c73d]/10 text-[#00c73d]" : ""}
                           >
                             Prioridad
                           </DropdownMenuItem>
                           <DropdownMenuItem 
                             onClick={() => setGroupBy("source")}
-                            className={groupBy === "source" ? "bg-[#00c83c]/10 text-[#00c83c]" : ""}
+                            className={groupBy === "source" ? "bg-[#00c73d]/10 text-[#00c73d]" : ""}
                           >
                             Fuente
                           </DropdownMenuItem>
                           <DropdownMenuItem 
                             onClick={() => setGroupBy("assignedTo")}
-                            className={groupBy === "assignedTo" ? "bg-[#00c83c]/10 text-[#00c83c]" : ""}
+                            className={groupBy === "assignedTo" ? "bg-[#00c73d]/10 text-[#00c73d]" : ""}
                           >
                             Asesor asignado
                           </DropdownMenuItem>
                           <DropdownMenuItem 
                             onClick={() => setGroupBy("campaign")}
-                            className={groupBy === "campaign" ? "bg-[#00c83c]/10 text-[#00c83c]" : ""}
+                            className={groupBy === "campaign" ? "bg-[#00c73d]/10 text-[#00c73d]" : ""}
                           >
                             Campaña
                           </DropdownMenuItem>

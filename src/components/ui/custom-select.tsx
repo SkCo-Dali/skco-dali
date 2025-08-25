@@ -24,7 +24,7 @@ const CustomSelectTrigger = React.forwardRef<
   >
     <span className="flex-1 text-left truncate">{children}</span>
     <div className="flex items-center justify-center h-full ml-2 flex-shrink-0">
-      <ChevronDown className="h-4 w-4 text-[#00c83c]" />
+      <ChevronDown className="h-4 w-4 text-[#00c73d]" />
     </div>
   </SelectPrimitive.Trigger>
 ))

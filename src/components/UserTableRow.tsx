@@ -168,7 +168,7 @@ export function UserTableRow({
                     style={{
                       backgroundColor: "#ffffff",
                       border: "1px solid #ffffff",
-                      color: "#00c83c",
+                      color: "#00C73D",
                     }}
                     onMouseEnter={e => {
                       e.currentTarget.style.backgroundColor = "#3f3f3f";
@@ -176,7 +176,7 @@ export function UserTableRow({
                     }}
                     onMouseLeave={e => {
                       e.currentTarget.style.backgroundColor = "#ffffff";
-                      e.currentTarget.style.color = "#00c83c";
+                      e.currentTarget.style.color = "#00C73D";
                     }}
                     
                   >

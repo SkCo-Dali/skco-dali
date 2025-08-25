@@ -119,7 +119,7 @@ export function LeadReassignDialog({ lead, isOpen, onClose, onSuccess }: LeadRea
       <DialogContent className="max-w-md">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <UserCheck className="h-5 w-5 text-[#00c83c]" />
+            <UserCheck className="h-5 w-5 text-[#00C73D]" />
             Reasignar Lead
           </DialogTitle>
         </DialogHeader>

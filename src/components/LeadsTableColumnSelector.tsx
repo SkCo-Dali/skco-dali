@@ -269,7 +269,7 @@ export function LeadsTableColumnSelector({
             height: '32px'
           }}
         >
-          <Settings2 className="h-4 w-4 text-[#00c83c]" />
+          <Settings2 className="h-4 w-4 text-[#00C73D]" />
           {showTextLabel && <span className="ml-1">Personaliza</span>}
         </Button>
       </DropdownMenuTrigger>
@@ -288,7 +288,7 @@ export function LeadsTableColumnSelector({
               placeholder="Buscar columnas..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10 border-2 border-[#00c83c] rounded-lg focus:border-[#00c83c] focus:ring-[#00c83c]"
+              className="pl-10 border-2 border-[#00C73D] rounded-lg focus:border-[#00C73D] focus:ring-[#00C73D]"
             />
           </div>
 

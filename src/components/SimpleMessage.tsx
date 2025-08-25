@@ -9,6 +9,7 @@ import { ThumbsUp, ThumbsDown } from 'lucide-react';
 import { Button } from './ui/button';
 import { useSimpleConversation } from '../contexts/SimpleConversationContext';
 import { ENV } from '../config/environment';
+import { formatBogotaTimeAmPm } from '../utils/dateUtils';
 
 interface SimpleMessageProps {
   message: ChatMessage;
@@ -206,10 +207,7 @@ export const SimpleMessage: React.FC<SimpleMessageProps> = ({ message }) => {
             
             {/* Timestamp */}
             <div className={`mt-2 text-xs text-gray-500 ${isUser ? 'text-right' : 'text-left'}`}>
-              {new Date(message.timestamp).toLocaleTimeString([], { 
-                hour: '2-digit', 
-                minute: '2-digit' 
-              })}
+              {formatBogotaTimeAmPm(message.timestamp.toISOString())}
             </div>
           </div>
 

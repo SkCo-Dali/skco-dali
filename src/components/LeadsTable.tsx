@@ -4,8 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Checkbox } from "@/components/ui/checkbox";
 import { User, ChevronUp, ChevronDown, MoreVertical, Edit, Calendar, User as UserIcon, MessageCircle, Trash2, Mail, GripVertical } from "lucide-react";
-import { format } from "date-fns";
-import { es } from "date-fns/locale";
+import { formatBogotaDate } from "@/utils/dateUtils";
 import { useUsersApi } from "@/hooks/useUsersApi";
 import { ColumnConfig } from "@/components/LeadsTableColumnSelector";
 import { EditableLeadCell } from "@/components/EditableLeadCell";
@@ -76,9 +75,9 @@ const defaultColumns: ColumnConfig[] = [
   { key: 'documentNumber', label: 'Número documento', visible: false, sortable: true },
   { key: 'product', label: 'Producto', visible: false, sortable: true },
   { key: 'source', label: 'Fuente', visible: false, sortable: true },
-  { key: 'createdAt', label: 'Fecha creación', visible: false, sortable: true },
+  { key: 'createdAt', label: 'Fecha creación', visible: true, sortable: true },
   { key: 'lastInteraction', label: 'Últ. interacción', visible: false, sortable: true },
-  { key: 'nextFollowUp', label: 'Próximo seguimiento', visible: false, sortable: true },
+  { key: 'nextFollowUp', label: 'Próximo seguimiento', visible: true, sortable: true },
   { key: 'priority', label: 'Prioridad', visible: false, sortable: true },
   { key: 'age', label: 'Edad', visible: false, sortable: true },
   { key: 'gender', label: 'Género', visible: false, sortable: true },
@@ -477,7 +476,7 @@ Por favor, confirmar asistencia.`;
         return (
           <div className="flex items-center justify-between w-full">
             <div 
-              className="text-gray-900 font-bold text-xs truncate pr-2 cursor-pointer hover:text-[#00c83c]"
+              className="text-gray-900 font-bold text-xs truncate pr-2 cursor-pointer hover:text-[#00C73D]"
               onClick={(e) => {
                 e.stopPropagation();
                 onLeadClick(lead);
@@ -595,7 +594,7 @@ Por favor, confirmar asistencia.`;
       case 'lastInteraction':
         return (
           <span className="text-gray-700 text-xs text-center">
-            {format(new Date(lead.updatedAt), "dd/MM/yyyy", { locale: es })}
+            {formatBogotaDate(lead.updatedAt)}
           </span>
         );
       case 'value':
@@ -615,13 +614,13 @@ Por favor, confirmar asistencia.`;
       case 'createdAt':
         return (
           <span className="text-center text-gray-700 text-xs">
-            {format(new Date(lead.createdAt), "dd/MM/yyyy", { locale: es })}
+            {formatBogotaDate(lead.createdAt)}
           </span>
         );
       case 'nextFollowUp':
         return (
           <span className="text-gray-700 text-xs text-center">
-            {lead.nextFollowUp ? format(new Date(lead.nextFollowUp), "dd/MM/yyyy", { locale: es }) : '-'}
+            {lead.nextFollowUp ? formatBogotaDate(lead.nextFollowUp) : '-'}
           </span>
         );
       case 'age':
@@ -636,7 +635,7 @@ Por favor, confirmar asistencia.`;
   return (
     <>
       <div className="leads-table-container-scroll">
-        <div className="leads-table-scroll-wrapper">
+        <div className="leads-table-scroll-wrapper shadow-sm border">
           <div className="leads-table-inner-scroll">
             <DndContext
               sensors={sensors}

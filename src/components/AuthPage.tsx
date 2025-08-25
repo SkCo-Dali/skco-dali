@@ -150,7 +150,7 @@ export const AuthPage: React.FC = () => {
                   target="_blank"
                   rel="noopener noreferrer"
                   className="underline"
-                  style={{ color: "#00C83C" }}
+                  style={{ color: "#00C73D" }}
                   >
                   política
                 </a>{" "}
@@ -160,7 +160,7 @@ export const AuthPage: React.FC = () => {
                   target="_blank"
                   rel="noopener noreferrer"
                   className="underline"
-                  style={{ color: "#00C83C" }}
+                  style={{ color: "#00C73D" }}
                   >
                   términos y condiciones
                 </a>.

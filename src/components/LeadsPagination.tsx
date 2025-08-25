@@ -89,7 +89,7 @@ export function LeadsPagination({
             className={`flex items-center justify-center w-6 h-6 rounded-full ${
               currentPage === 1 
                 ? 'bg-gray-300 text-gray-500 cursor-not-allowed' 
-                : 'bg-[#00c83c] text-white hover:bg-[#00b835]'
+                : 'bg-[#00C73D] text-white hover:bg-[#00b835]'
             }`}
             onClick={() => currentPage > 1 && onPageChange(currentPage - 1)}
             disabled={currentPage === 1}
@@ -105,8 +105,8 @@ export function LeadsPagination({
                 <button
                   className={`w-6 h-6 text-xs font-medium ${
                     currentPage === page
-                      ? 'text-[#00c83c]'
-                      : 'text-[#3f3f3f] hover:text-[#00c83c]'
+                      ? 'text-[#00C73D]'
+                      : 'text-[#3f3f3f] hover:text-[#00C73D]'
                   }`}
                   onClick={() => onPageChange(page as number)}
                 >
@@ -120,7 +120,7 @@ export function LeadsPagination({
             className={`flex items-center justify-center w-6 h-6 rounded-full ${
               currentPage === totalPages 
                 ? 'bg-gray-300 text-gray-500 cursor-not-allowed' 
-                : 'bg-[#00c83c] text-white hover:bg-[#00b835]'
+                : 'bg-[#00C73D] text-white hover:bg-[#00b835]'
             }`}
             onClick={() => currentPage < totalPages && onPageChange(currentPage + 1)}
             disabled={currentPage === totalPages}

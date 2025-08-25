@@ -140,7 +140,7 @@ export function EditReportDialog({ open, onOpenChange, report, onEditReport }: E
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
               Cancelar
             </Button>
-            <Button type="submit" className="bg-[#00c83c] hover:bg-[#00c83c]/90">
+            <Button type="submit" className="bg-[#00C73D] hover:bg-[#00C73D]/90">
               Guardar Cambios
             </Button>
           </DialogFooter>

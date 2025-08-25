@@ -18,9 +18,8 @@ const STANDARD_COLORS = [
 ];
 
 const THEME_COLORS = [
-  '#1F497D', '#4F81BD', '#9CBB58', '#F79646', '#C0504D', '#9F4C7C',
-  '#366092', '#5F9BD5', '#A9D18E', '#FFB366', '#DA7A7A', '#B392C0',
-  '#8DB4E2', '#95B3D9', '#B7DEA8', '#FCC266', '#E59B9B', '#C7A5CC'
+  '#00C73D', '#00C83C', '#02B1FF', '#FE9200', '#404040', '#52FFD9', 
+  '#45E39E', '#FFAE08', '#8FE000', '#45AD00', '#00F0E0', 
 ];
 
 export function ColorPicker({ onColorSelect }: ColorPickerProps) {
@@ -86,7 +85,7 @@ export function ColorPicker({ onColorSelect }: ColorPickerProps) {
                 }}
                 className="w-12 h-8 rounded border cursor-pointer"
               />
-              <Input
+              {/*<Input
                 type="text"
                 value={customColor}
                 onChange={(e) => {
@@ -95,10 +94,10 @@ export function ColorPicker({ onColorSelect }: ColorPickerProps) {
                 }}
                 className="flex-1"
                 placeholder="#000000"
-              />
+              />*/}
             </div>
             
-            <div className="grid grid-cols-3 gap-2">
+            {/*<div className="grid grid-cols-3 gap-2">
               <div>
                 <Label className="text-xs">R</Label>
                 <Input
@@ -144,7 +143,7 @@ export function ColorPicker({ onColorSelect }: ColorPickerProps) {
                   className="text-xs"
                 />
               </div>
-            </div>
+            </div>*/}
           </div>
         </div>
       </PopoverContent>
