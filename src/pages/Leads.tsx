@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useMemo, useRef } from "react";
-import { toast } from "sonner";
+import { useToast } from '@/hooks/use-toast';
 import { Lead } from "@/types/crm";
 import { LeadsSearch } from "@/components/LeadsSearch";
 import { LeadsFilters } from "@/components/LeadsFilters";
@@ -105,8 +105,13 @@ export default function Leads() {
 
   const handleLeadUpdate = useCallback(() => {
     refreshLeads();
-    toast.success("Lead actualizado exitosamente");
+    toast({
+      title: "Éxito",
+      description: "Lead actualizado exitosamente"
+    });
   }, [refreshLeads]);
+
+  const { toast } = useToast();
 
   const { 
     isDeleting, 
@@ -184,14 +189,25 @@ export default function Leads() {
       if (result) {
         console.log('✅ Lead created successfully, refreshing data...');
         handleLeadUpdate();
-        toast.success("Lead creado exitosamente");
+        toast({
+          title: "Éxito",
+          description: "Lead creado exitosamente"
+        });
       } else {
         console.error('❌ Failed to create lead - result is null/undefined');
-        toast.error("Error al crear el lead");
+        toast({
+          title: "Error",
+          description: "Error al crear el lead",
+          variant: "destructive"
+        });
       }
     } catch (error) {
       console.error('💥 Exception in handleLeadCreate:', error);
-      toast.error("Error al crear el lead");
+      toast({
+        title: "Error",
+        description: "Error al crear el lead",
+        variant: "destructive"
+      });
     }
   }, [createNewLead, handleLeadUpdate]);
 
@@ -253,7 +269,10 @@ export default function Leads() {
       : filteredLeads;
 
     if (leadsToDelete.length === 0) {
-      toast.info("No hay leads para eliminar");
+      toast({
+        title: "Información",
+        description: "No hay leads para eliminar"
+      });
       return;
     }
 
@@ -269,12 +288,20 @@ export default function Leads() {
       if (restrictedCount === leadsToDelete.length) {
         const message = "No tienes permisos para eliminar ninguno de los leads seleccionados. Solo puedes eliminar leads que hayas creado y tengas asignados.";
         console.log('❌ Leads: All leads restricted:', message);
-        toast.error(message);
+        toast({
+          title: "Permisos insuficientes",
+          description: message,
+          variant: "destructive"
+        });
         return;
       } else {
         const message = `No puedes eliminar ${restrictedCount} de los ${leadsToDelete.length} leads seleccionados por falta de permisos. Solo puedes eliminar leads que hayas creado y tengas asignados.`;
         console.log('❌ Leads: Some leads restricted:', message);
-        toast.warning(message);
+        toast({
+          title: "Permisos insuficientes",
+          description: message,
+          variant: "destructive"
+        });
         return;
       }
     }
@@ -306,21 +333,30 @@ export default function Leads() {
 
   const handleBulkAssign = () => {
     if (selectedLeads.length === 0) {
-      toast.info("Se aplicará a todos los leads filtrados");
+      toast({
+        title: "Información",
+        description: "Se aplicará a todos los leads filtrados"
+      });
     }
     setShowBulkAssign(true);
   };
 
   const handleMassEmail = () => {
     if (selectedLeads.length === 0) {
-      toast.info("Se aplicará a todos los leads filtrados");
+      toast({
+        title: "Información", 
+        description: "Se aplicará a todos los leads filtrados"
+      });
     }
     setShowMassEmail(true);
   };
 
   const handleMassWhatsApp = () => {
     if (selectedLeads.length === 0) {
-      toast.info("Se aplicará a todos los leads filtrados");
+      toast({
+        title: "Información",
+        description: "Se aplicará a todos los leads filtrados"
+      });
     }
     setShowMassWhatsApp(true);
   };
