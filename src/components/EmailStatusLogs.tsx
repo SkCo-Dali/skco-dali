@@ -66,7 +66,7 @@ export function EmailStatusLogs({ logs, isLoading, onRefresh }: EmailStatusLogsP
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center justify-between">
-            Historial de Correos Enviados
+            Correos Enviados a {log.ToEmail}
             <Button
               variant="outline"
               size="sm"
@@ -112,7 +112,6 @@ export function EmailStatusLogs({ logs, isLoading, onRefresh }: EmailStatusLogsP
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Destinatario</TableHead>
                     <TableHead>Asunto</TableHead>
                     <TableHead>Campaña</TableHead>
                     <TableHead>Estado</TableHead>
@@ -144,7 +143,7 @@ export function EmailStatusLogs({ logs, isLoading, onRefresh }: EmailStatusLogsP
                         className="cursor-pointer hover:bg-muted/50"
                         onClick={() => setSelectedEmail(log)}
                       >
-                        <TableCell className="font-medium">{log.ToEmail}</TableCell>
+                        
                         <TableCell className="max-w-xs truncate" title={log.Subject}>
                           {log.Subject}
                         </TableCell>
