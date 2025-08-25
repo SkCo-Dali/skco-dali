@@ -76,11 +76,6 @@ export function EmailStatusLogs({ logs, isLoading, onRefresh }: EmailStatusLogsP
               <RefreshCw className={`h-4 w-4 mr-2 ${isLoading ? 'animate-spin' : ''}`} />
               Actualizar
             </Button>
-            {isLoading ? (
-                  ) : filteredLogs.length === 0 ? (
-                  ) : (
-                    filteredLogs.map((log) => (
-                        <h2 className="font-medium">{log.ToEmail}</h2>
           </CardTitle>
         </CardHeader>
         <CardContent>
