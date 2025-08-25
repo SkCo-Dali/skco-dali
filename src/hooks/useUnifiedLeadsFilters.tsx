@@ -1,6 +1,10 @@
 import { useState, useMemo } from "react";
 import { Lead } from "@/types/crm";
 import { TextFilterCondition } from "@/components/TextFilter";
+import { startOfDay, endOfDay, startOfWeek, endOfWeek, startOfMonth, endOfMonth, 
+         startOfQuarter, endOfQuarter, startOfYear, endOfYear, subDays, subWeeks, 
+         subMonths, subQuarters, subYears, addDays, addWeeks, addMonths, addQuarters, 
+         addYears, isWithinInterval } from "date-fns";
 
 export function useUnifiedLeadsFilters(leads: Lead[]) {
   // Estado para filtros generales
@@ -56,6 +60,97 @@ export function useUnifiedLeadsFilters(leads: Lead[]) {
       documents: duplicateDocuments
     };
   }, [leads]);
+
+  // Función para aplicar filtros de fecha por rangos
+  const applyDateRangeFilter = (lead: Lead, column: string, selectedRanges: string[]) => {
+    if (selectedRanges.length === 0) return true;
+
+    const dateValue = lead[column as keyof Lead] as string;
+    if (!dateValue) return false;
+
+    try {
+      const leadDate = new Date(dateValue);
+      const now = new Date();
+
+      return selectedRanges.some(rangeId => {
+        let start: Date, end: Date;
+
+        switch (rangeId) {
+          case 'today':
+            start = startOfDay(now);
+            end = endOfDay(now);
+            break;
+          case 'yesterday':
+            const yesterday = subDays(now, 1);
+            start = startOfDay(yesterday);
+            end = endOfDay(yesterday);
+            break;
+          case 'this-week':
+            start = startOfWeek(now, { weekStartsOn: 1 });
+            end = endOfWeek(now, { weekStartsOn: 1 });
+            break;
+          case 'last-week':
+            const lastWeek = subWeeks(now, 1);
+            start = startOfWeek(lastWeek, { weekStartsOn: 1 });
+            end = endOfWeek(lastWeek, { weekStartsOn: 1 });
+            break;
+          case 'next-week':
+            const nextWeek = addWeeks(now, 1);
+            start = startOfWeek(nextWeek, { weekStartsOn: 1 });
+            end = endOfWeek(nextWeek, { weekStartsOn: 1 });
+            break;
+          case 'this-month':
+            start = startOfMonth(now);
+            end = endOfMonth(now);
+            break;
+          case 'last-month':
+            const lastMonth = subMonths(now, 1);
+            start = startOfMonth(lastMonth);
+            end = endOfMonth(lastMonth);
+            break;
+          case 'next-month':
+            const nextMonth = addMonths(now, 1);
+            start = startOfMonth(nextMonth);
+            end = endOfMonth(nextMonth);
+            break;
+          case 'this-quarter':
+            start = startOfQuarter(now);
+            end = endOfQuarter(now);
+            break;
+          case 'last-quarter':
+            const lastQuarter = subQuarters(now, 1);
+            start = startOfQuarter(lastQuarter);
+            end = endOfQuarter(lastQuarter);
+            break;
+          case 'next-quarter':
+            const nextQuarter = addQuarters(now, 1);
+            start = startOfQuarter(nextQuarter);
+            end = endOfQuarter(nextQuarter);
+            break;
+          case 'this-year':
+            start = startOfYear(now);
+            end = endOfYear(now);
+            break;
+          case 'last-year':
+            const lastYear = subYears(now, 1);
+            start = startOfYear(lastYear);
+            end = endOfYear(lastYear);
+            break;
+          case 'next-year':
+            const nextYear = addYears(now, 1);
+            start = startOfYear(nextYear);
+            end = endOfYear(nextYear);
+            break;
+          default:
+            return false;
+        }
+
+        return isWithinInterval(leadDate, { start, end });
+      });
+    } catch {
+      return false;
+    }
+  };
 
   // Función para aplicar filtros de texto en columnas específicas
   const applyTextFilter = (lead: Lead, column: string, conditions: TextFilterCondition[]) => {
@@ -169,6 +264,12 @@ export function useUnifiedLeadsFilters(leads: Lead[]) {
       // Filtros por columna específica
       const matchesColumnFilters = Object.entries(columnFilters).every(([column, selectedValues]) => {
         if (selectedValues.length === 0) return true;
+        
+        // Check if this is a date column and handle date ranges
+        const isDateColumn = column === 'createdAt' || column === 'updatedAt' || column === 'nextFollowUp';
+        if (isDateColumn) {
+          return applyDateRangeFilter(lead, column, selectedValues);
+        }
         
         let leadValue: any;
         
