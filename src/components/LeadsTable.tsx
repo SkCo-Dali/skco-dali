@@ -13,7 +13,7 @@ import { Button } from "@/components/ui/button";
 import { FaWhatsapp } from "react-icons/fa";
 import { useLeadDeletion } from "@/hooks/useLeadDeletion";
 import { LeadDeleteConfirmDialog } from "@/components/LeadDeleteConfirmDialog";
-import { toast } from "sonner";
+import { useToast } from '@/hooks/use-toast';
 import { ColumnFilter } from "@/components/ColumnFilter";
 import { TextFilterCondition } from "@/components/TextFilter";
 import {
@@ -239,6 +239,7 @@ export function LeadsTable({
   setSortDirection
 }: LeadsTableProps) {
   const { users } = useUsersApi();
+  const { toast } = useToast();
   // Removed local sortConfig - using unified sort from props
   const [leadsToDelete, setLeadsToDelete] = useState<Lead[]>([]);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
@@ -438,10 +439,18 @@ Por favor, confirmar asistencia.`;
   };
 
   const handleDeleteLead = (lead: Lead) => {
+    console.log('🗑️ LeadsTable: Attempting to delete lead:', lead.id, 'canDelete:', canDeleteLead(lead));
     if (!canDeleteLead(lead)) {
-      toast.error('No tienes permisos para eliminar este lead');
+      const message = 'No tienes permisos para eliminar este lead. Solo puedes eliminar leads que hayas creado y tengas asignados.';
+      console.log('❌ LeadsTable: Permission denied:', message);
+      toast({
+        title: "Permisos insuficientes",
+        description: message,
+        variant: "destructive"
+      });
       return;
     }
+    console.log('✅ LeadsTable: Permission granted, showing delete dialog');
     setLeadsToDelete([lead]);
     setShowDeleteDialog(true);
   };
