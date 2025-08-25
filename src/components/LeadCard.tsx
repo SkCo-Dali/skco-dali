@@ -86,10 +86,14 @@ export function LeadCard({
   };
 
   const handleDeleteClick = () => {
+    console.log('🗑️ LeadCard: Attempting to delete lead:', lead.id, 'canDelete:', canDeleteLead(lead));
     if (!canDeleteLead(lead)) {
-      toast.error('No tienes permisos para eliminar este lead');
+      const message = 'No tienes permisos para eliminar este lead. Solo puedes eliminar leads que hayas creado y tengas asignados.';
+      console.log('❌ LeadCard: Permission denied:', message);
+      toast.error(message);
       return;
     }
+    console.log('✅ LeadCard: Permission granted, showing delete dialog');
     setShowDeleteDialog(true);
   };
 

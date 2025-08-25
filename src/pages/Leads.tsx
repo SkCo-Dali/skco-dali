@@ -258,13 +258,23 @@ export default function Leads() {
     }
 
     const { canDelete, restrictedCount } = canDeleteLeads(leadsToDelete);
+    console.log('🗑️ Leads: Bulk delete validation:', { 
+      totalLeads: leadsToDelete.length, 
+      canDelete, 
+      restrictedCount,
+      leadIds: leadsToDelete.map(l => l.id)
+    });
     
     if (!canDelete) {
       if (restrictedCount === leadsToDelete.length) {
-        toast.error("No tienes permisos para eliminar ninguno de los leads seleccionados");
+        const message = "No tienes permisos para eliminar ninguno de los leads seleccionados. Solo puedes eliminar leads que hayas creado y tengas asignados.";
+        console.log('❌ Leads: All leads restricted:', message);
+        toast.error(message);
         return;
       } else {
-        toast.warning(`No puedes eliminar ${restrictedCount} de los ${leadsToDelete.length} leads seleccionados por falta de permisos`);
+        const message = `No puedes eliminar ${restrictedCount} de los ${leadsToDelete.length} leads seleccionados por falta de permisos. Solo puedes eliminar leads que hayas creado y tengas asignados.`;
+        console.log('❌ Leads: Some leads restricted:', message);
+        toast.warning(message);
         return;
       }
     }
