@@ -66,7 +66,7 @@ export function EmailStatusLogs({ logs, isLoading, onRefresh }: EmailStatusLogsP
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center justify-between">
-            Correos Enviados a {logs.ToEmail} 
+            Historial de Correos Enviados
             <Button
               variant="outline"
               size="sm"
