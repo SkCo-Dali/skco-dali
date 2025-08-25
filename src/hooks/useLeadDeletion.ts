@@ -21,8 +21,8 @@ export function useLeadDeletion({ onLeadDeleted }: UseLeadDeletionProps = {}) {
       return true;
     }
 
-    // Los roles supervisor, fp, director y socio pueden eliminar leads que hayan creado y tengan asignados
-    const allowedRoles = ['supervisor', 'fp', 'director', 'socio'];
+    // Los roles con permisos canDelete pueden eliminar leads que hayan creado y tengan asignados
+    const allowedRoles = ['manager', 'supervisor', 'agent', 'gestor', 'fp', 'director', 'promotor', 'aliado', 'socio'];
     if (!allowedRoles.includes(user.role)) {
       return false;
     }
