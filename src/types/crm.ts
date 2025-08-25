@@ -62,7 +62,7 @@ export const getRolePermissions = (role: UserRole): RolePermissions => {
       return {
         canCreate: true,
         canEdit: true,
-        canDelete: false,
+        canDelete: true,
         canAssign: true,
         canViewAll: true,
         canManageUsers: false,
@@ -83,13 +83,13 @@ export const getRolePermissions = (role: UserRole): RolePermissions => {
       return {
         canCreate: true,
         canEdit: true,
-        canDelete: false,
-        canAssign: false,
+        canDelete: true,
+        canAssign: true,
         canViewAll: false,
         canManageUsers: false,
         canAccessReports: false,
         canUploadLeads: false,
-        canBulkAssignLeads: false,
+        canBulkAssignLeads: true,
         canAccessUserManagement: false,
         canAssignRoles: false,
         accessiblePages: ['leads', 'ChatDali']
