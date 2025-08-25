@@ -14,7 +14,7 @@ export function DashboardCharts({ leads }: DashboardChartsProps) {
       {/* Pipeline Chart */}
       <Card>
         <CardHeader className="pb-4">
-          <CardTitle className="text-[#00c83c]">Pipeline de Ventas</CardTitle>
+          <CardTitle className="text-[#00C73D]">Pipeline de Ventas</CardTitle>
         </CardHeader>
         <CardContent className="pl-2">
           <div className="space-y-4">
@@ -99,7 +99,7 @@ export function DashboardCharts({ leads }: DashboardChartsProps) {
       {/* Quick Stats */}
       <Card>
         <CardHeader className="pb-4">
-          <CardTitle className="text-[#00c83c]">Estadísticas Rápidas</CardTitle>
+          <CardTitle className="text-[#00C73D]">Estadísticas Rápidas</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">

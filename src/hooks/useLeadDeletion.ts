@@ -1,6 +1,6 @@
 
 import { useState } from 'react';
-import { toast } from 'sonner';
+import { useToast } from '@/hooks/use-toast';
 import { deleteLead } from '@/utils/leadsApiClient';
 import { Lead } from '@/types/crm';
 import { useAuth } from '@/contexts/AuthContext';
@@ -12,6 +12,7 @@ interface UseLeadDeletionProps {
 export function useLeadDeletion({ onLeadDeleted }: UseLeadDeletionProps = {}) {
   const [isDeleting, setIsDeleting] = useState(false);
   const { user } = useAuth();
+  const { toast } = useToast();
 
   const canDeleteLead = (lead: Lead): boolean => {
     if (!user) return false;
@@ -21,8 +22,8 @@ export function useLeadDeletion({ onLeadDeleted }: UseLeadDeletionProps = {}) {
       return true;
     }
 
-    // Los roles supervisor, fp, director y socio pueden eliminar leads que hayan creado y tengan asignados
-    const allowedRoles = ['supervisor', 'fp', 'director', 'socio'];
+    // Los roles con permisos canDelete pueden eliminar leads que hayan creado y tengan asignados
+    const allowedRoles = ['manager', 'supervisor', 'agent', 'gestor', 'fp', 'director', 'promotor', 'aliado', 'socio'];
     if (!allowedRoles.includes(user.role)) {
       return false;
     }
@@ -50,12 +51,19 @@ export function useLeadDeletion({ onLeadDeleted }: UseLeadDeletionProps = {}) {
     setIsDeleting(true);
     try {
       await deleteLead(leadId);
-      toast.success('Lead eliminado exitosamente');
+      toast({
+        title: "Éxito",
+        description: "Lead eliminado exitosamente"
+      });
       onLeadDeleted?.();
       return true;
     } catch (error) {
       console.error('Error al eliminar lead:', error);
-      toast.error('Error al eliminar el lead');
+      toast({
+        title: "Error",
+        description: "Error al eliminar el lead",
+        variant: "destructive"
+      });
       return false;
     } finally {
       setIsDeleting(false);
@@ -79,12 +87,19 @@ export function useLeadDeletion({ onLeadDeleted }: UseLeadDeletionProps = {}) {
       }
 
       if (successCount > 0) {
-        toast.success(`${successCount} lead(s) eliminado(s) exitosamente`);
+        toast({
+          title: "Éxito",
+          description: `${successCount} lead(s) eliminado(s) exitosamente`
+        });
         onLeadDeleted?.();
       }
 
       if (errorCount > 0) {
-        toast.error(`Error al eliminar ${errorCount} lead(s)`);
+        toast({
+          title: "Error",
+          description: `Error al eliminar ${errorCount} lead(s)`,
+          variant: "destructive"
+        });
       }
 
       return {

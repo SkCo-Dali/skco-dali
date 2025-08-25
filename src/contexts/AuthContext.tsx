@@ -5,6 +5,7 @@ import { msalConfig, loginRequest } from '@/authConfig';
 
 import { useToast } from '@/hooks/use-toast';
 import SecureTokenManager from '@/utils/secureTokenManager';
+import { TokenHeartbeatManager } from '@/components/TokenHeartbeatManager';
 
 interface AuthContextType {
   user: User | null;
@@ -272,6 +273,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   return (
     <AuthContext.Provider value={value}>
+      <TokenHeartbeatManager />
       {children}
     </AuthContext.Provider>
   );

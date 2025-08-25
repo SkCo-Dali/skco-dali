@@ -29,7 +29,7 @@ export function WhatsAppTemplateSelector({
         </CardHeader>
         <CardContent>
           <div className="flex items-center justify-center h-32">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#00c83c]"></div>
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#00C73D]"></div>
           </div>
         </CardContent>
       </Card>
@@ -69,7 +69,7 @@ export function WhatsAppTemplateSelector({
               key={template.id}
               className={`cursor-pointer transition-all hover:shadow-md ${
                 selectedTemplate?.id === template.id
-                  ? 'ring-2 ring-[#00c83c] border-[#00c83c]'
+                  ? 'ring-2 ring-[#00C73D] border-[#00C73D]'
                   : 'border-gray-200'
               }`}
               onClick={() => onSelectTemplate(template)}
@@ -87,7 +87,7 @@ export function WhatsAppTemplateSelector({
                       </Badge>
                     )}
                     {selectedTemplate?.id === template.id && (
-                      <Badge className="text-xs bg-[#00c83c]">
+                      <Badge className="text-xs bg-[#00C73D]">
                         Seleccionada
                       </Badge>
                     )}

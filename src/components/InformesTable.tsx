@@ -129,8 +129,8 @@ export function InformesTable({ reports, onReportSelect }: InformesTableProps) {
             >
               <TableCell>
                 <div className="flex items-center space-x-3">
-                  <div className="p-2 bg-[#00c83c]/10 rounded-lg">
-                    <FileBarChart className="h-4 w-4 text-[#00c83c]" />
+                  <div className="p-2 bg-[#00C73D]/10 rounded-lg">
+                    <FileBarChart className="h-4 w-4 text-[#00C73D]" />
                   </div>
                   <div className="font-medium">{report.name}</div>
                 </div>
@@ -154,7 +154,7 @@ export function InformesTable({ reports, onReportSelect }: InformesTableProps) {
               <TableCell>
                 <Button 
                   size="sm" 
-                  className="bg-[#00c83c] hover:bg-[#00c83c]/90"
+                  className="bg-[#00C73D] hover:bg-[#00C73D]/90"
                   onClick={(e) => {
                     e.stopPropagation();
                     onReportSelect(report);

@@ -31,7 +31,7 @@ export function UserProfile() {
         <Button variant="ghost" className="relative h-10 w-10 rounded-full">
           <Avatar className="h-10 w-10">
             <AvatarImage src={user.avatar} alt={user.name} />
-            <AvatarFallback className="bg-[#00c83c] text-white">
+            <AvatarFallback className="bg-[#00C73D] text-white">
               {user.name.split(" ").map(n => n[0]).join("")}
             </AvatarFallback>
           </Avatar>
@@ -44,7 +44,7 @@ export function UserProfile() {
             <p className="text-xs leading-none text-muted-foreground">{user.email}</p>
             {user.jobTitle && (
               <div className="flex items-center space-x-1 mt-1">
-                <Briefcase className="h-3 w-3 text-[#00c83c]" />
+                <Briefcase className="h-3 w-3 text-[#00C73D]" />
                 <span className="text-xs text-muted-foreground capitalize">{user.jobTitle}</span>
               </div>
             )}

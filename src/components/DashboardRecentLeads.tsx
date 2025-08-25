@@ -40,7 +40,7 @@ export function DashboardRecentLeads({ leads }: DashboardRecentLeadsProps) {
     <Card>
       <CardHeader>
         <div className="flex flex-col space-y-4">
-          <CardTitle className="text-[#00c83c]">Leads Recientes</CardTitle>
+          <CardTitle className="text-[#00C73D]">Leads Recientes</CardTitle>
           <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-4 space-y-2 sm:space-y-0">
             {/* búsqueda */}
             <div className="relative w-full sm:max-w-xs">

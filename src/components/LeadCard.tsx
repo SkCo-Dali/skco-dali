@@ -16,7 +16,7 @@ import { useUsersApi } from "@/hooks/useUsersApi";
 import { MdOutlineCampaign } from "react-icons/md";
 import { useLeadDeletion } from "@/hooks/useLeadDeletion";
 import { LeadDeleteConfirmDialog } from "@/components/LeadDeleteConfirmDialog";
-import { toast } from "sonner";
+import { useToast } from '@/hooks/use-toast';
 
 interface LeadCardProps {
   lead: Lead;
@@ -58,6 +58,7 @@ export function LeadCard({
   const assignedUser = users.find(u => u.id === lead.assignedTo);
   const assignedUserName = lead.assignedToName || assignedUser?.name || 'Sin asignar';
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const { toast } = useToast();
   
   const { isDeleting, canDeleteLead, deleteSingleLead } = useLeadDeletion({
     onLeadDeleted: onLeadUpdate
@@ -86,10 +87,18 @@ export function LeadCard({
   };
 
   const handleDeleteClick = () => {
+    console.log('🗑️ LeadCard: Attempting to delete lead:', lead.id, 'canDelete:', canDeleteLead(lead));
     if (!canDeleteLead(lead)) {
-      toast.error('No tienes permisos para eliminar este lead');
+      const message = 'No tienes permisos para eliminar este lead. Solo puedes eliminar leads que hayas creado y tengas asignados.';
+      console.log('❌ LeadCard: Permission denied:', message);
+      toast({
+        title: "Permisos insuficientes",
+        description: message,
+        variant: "destructive"
+      });
       return;
     }
+    console.log('✅ LeadCard: Permission granted, showing delete dialog');
     setShowDeleteDialog(true);
   };
 
@@ -176,7 +185,7 @@ Por favor, confirmar asistencia.`;
                   <DropdownMenuTrigger asChild>
                     <button 
                       className="h-5 w-5 md:h-6 md:w-6 flex-shrink-0 hover:bg-gray-100 rounded flex items-center justify-center"
-                      style={{ color: '#00c83c' }}
+                      style={{ color: '#00C73D' }}
                       onClick={(e) => e.stopPropagation()}
                     >
                       <MoreVertical className="h-5 w-5 md:h-6 md:w-6" />

@@ -226,13 +226,13 @@ export const LeadCreateDialog = forwardRef<LeadCreateDialogRef, LeadCreateDialog
             <TabsList className="grid w-full grid-cols-2 mb-6 bg-gray-100 rounded-full px-0 py-0 my-0">
               <TabsTrigger 
                 value="individual" 
-                className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#00c83c] data-[state=active]:to-[#A3E40B] data-[state=active]:text-white rounded-full px-8 py-2 text-sm font-medium transition-all duration-200"
+                className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#00C73D] data-[state=active]:to-[#A3E40B] data-[state=active]:text-white rounded-full px-8 py-2 text-sm font-medium transition-all duration-200"
               >
                 Individual
               </TabsTrigger>
               <TabsTrigger 
                 value="bulk" 
-                className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#00c83c] data-[state=active]:to-[#A3E40B] data-[state=active]:text-white rounded-full px-8 py-2 text-sm font-medium transition-all duration-200"
+                className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#00C73D] data-[state=active]:to-[#A3E40B] data-[state=active]:text-white rounded-full px-8 py-2 text-sm font-medium transition-all duration-200"
               >
                 Carga masiva
               </TabsTrigger>
@@ -340,7 +340,7 @@ export const LeadCreateDialog = forwardRef<LeadCreateDialogRef, LeadCreateDialog
                         <span className={selectedProducts.length === 0 ? "text-left text-muted-foreground" : ""}>
                           {getProductDisplayText()}
                         </span>
-                        <ChevronDown className="h-4 w-4 text-[#00c83c]" />
+                        <ChevronDown className="h-4 w-4 text-[#00C73D]" />
                       </Button>
                     </PopoverTrigger>
                     <PopoverContent className="w-full p-0" align="start">
@@ -477,7 +477,7 @@ export const LeadCreateDialog = forwardRef<LeadCreateDialogRef, LeadCreateDialog
                 <button
                   type="button"
                   onClick={() => setShowMoreFields(!showMoreFields)}
-                  className="flex items-center text-[#00c83c] font-medium hover:text-green-600 transition-colors"
+                  className="flex items-center text-[#00C73D] font-medium hover:text-green-600 transition-colors"
                 >
                   <Plus className="h-4 w-4 mr-2" />
                   {showMoreFields ? 'Ocultar más datos' : 'Añadir más datos'}
@@ -485,7 +485,7 @@ export const LeadCreateDialog = forwardRef<LeadCreateDialogRef, LeadCreateDialog
                 
                 <Button 
                   type="submit" 
-                  className="w-full bg-gradient-to-r from-[#00c83c] to-[#00a532] hover:from-[#00a532] hover:to-[#008c2a] text-white font-medium h-10 rounded-full text-base mt-6 transition-all duration-200"
+                  className="w-full bg-gradient-to-r from-[#00C73D] to-[#00a532] hover:from-[#00a532] hover:to-[#008c2a] text-white font-medium h-10 rounded-full text-base mt-6 transition-all duration-200"
                 >
                   Agregar lead
                 </Button>
@@ -494,7 +494,7 @@ export const LeadCreateDialog = forwardRef<LeadCreateDialogRef, LeadCreateDialog
             
             <TabsContent value="bulk" className="space-y-6">
               <div className="flex items-center space-x-2 mb-4">
-                <div className="w-6 h-6 bg-[#00c83c] rounded-full flex items-center justify-center">
+                <div className="w-6 h-6 bg-[#00C73D] rounded-full flex items-center justify-center">
                   <span className="w-2 h-2 bg-white rounded-full"></span>
                 </div>
                 <h3 className="text-lg font-semibold text-gray-800">Sube tu archivo de leads</h3>
@@ -556,7 +556,7 @@ export const LeadCreateDialog = forwardRef<LeadCreateDialogRef, LeadCreateDialog
               <Button 
                 onClick={handleBulkUpload}
                 disabled={!uploadedFile || isUploading}
-                className="w-full bg-gradient-to-r from-[#00c83c] to-[#00a532] hover:from-[#00a532] hover:to-[#008c2a] text-white font-medium h-10 rounded-full text-base transition-all duration-200"
+                className="w-full bg-gradient-to-r from-[#00C73D] to-[#00a532] hover:from-[#00a532] hover:to-[#008c2a] text-white font-medium h-10 rounded-full text-base transition-all duration-200"
               >
                 Cargar leads
               </Button>

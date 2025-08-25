@@ -200,7 +200,7 @@ export default function PowerBIReportsAdmin() {
       <div className="min-h-screen pt-0">
         <div className="p-4">
           <div className="flex items-center justify-center py-12">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#00c83c]"></div>
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#00C73D]"></div>
           </div>
         </div>
       </div>
@@ -212,7 +212,7 @@ export default function PowerBIReportsAdmin() {
       <div className="px-4 py-6">
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h1 className="text-3xl font-bold mb-1 tracking-tight text-[#00c83c]">
+            <h1 className="text-3xl font-bold mb-1 tracking-tight text-[#00C73D]">
               Administrar Reportes Power BI
             </h1>
             <p className="text-muted-foreground">
@@ -222,7 +222,7 @@ export default function PowerBIReportsAdmin() {
           
           <Button 
             onClick={() => setShowCreateDialog(true)}
-            className="bg-[#00c83c] hover:bg-[#00c83c]/90"
+            className="bg-[#00C73D] hover:bg-[#00C73D]/90"
           >
             <Plus className="h-4 w-4 mr-2" />
             Nuevo Reporte
@@ -231,12 +231,12 @@ export default function PowerBIReportsAdmin() {
 
         <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
           {reports.map((report) => (
-            <Card key={report.id} className="border-l-4 border-l-[#00c83c]">
+            <Card key={report.id} className="border-l-4 border-l-[#00C73D]">
               <CardHeader className="pb-3">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-3">
-                    <div className="p-2 bg-[#00c83c]/10 rounded-lg">
-                      <FileBarChart className="h-5 w-5 text-[#00c83c]" />
+                    <div className="p-2 bg-[#00C73D]/10 rounded-lg">
+                      <FileBarChart className="h-5 w-5 text-[#00C73D]" />
                     </div>
                     <div>
                       <CardTitle className="text-lg">{report.name}</CardTitle>

@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { TrendingUp, Scale, Droplet, CheckCircle } from 'lucide-react';
 import { STRATEGIC_PLAN_CONFIG, FlowType } from './StrategicPlanConfig';
+import { formatBogotaDate } from '@/utils/dateUtils';
 
 interface ProfileResultsProps {
   isOpen: boolean;
@@ -155,7 +156,7 @@ const ProfileResults: React.FC<ProfileResultsProps> = ({ isOpen, onClose, profil
           {/* Información adicional */}
           {profileData.createdAt && (
             <div className="text-center text-xs text-gray-500 pt-4 border-t">
-              Perfil creado: {new Date(profileData.createdAt).toLocaleDateString('es-ES')}
+              Perfil creado: {formatBogotaDate(profileData.createdAt)}
             </div>
           )}
         </div>

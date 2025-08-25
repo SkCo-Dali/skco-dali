@@ -20,8 +20,7 @@ import { useLeadAssignments } from '@/hooks/useLeadAssignments';
 import { useLeadsApi } from '@/hooks/useLeadsApi';
 import { useProfilingApi } from '@/hooks/useProfilingApi';
 import { useToast } from '@/hooks/use-toast';
-import { formatDistanceToNow } from 'date-fns';
-import { es } from 'date-fns/locale';
+import { formatBogotaDistanceToNow } from '@/utils/dateUtils';
 import { LeadReassignDialog } from './LeadReassignDialog';
 import { LeadProfiler } from './LeadProfiler';
 import ProfileResults from './ProfileResults';
@@ -542,9 +541,9 @@ Notas adicionales: ${lead.notes || 'Ninguna'}`;
 
             <Tabs defaultValue="general" className="w-full px-6">
               <TabsList className="grid w-full grid-cols-3 bg-gray-100 rounded-full px-0 py-0 my-0">
-                <TabsTrigger value="general" className="w-full h-full data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#00c83c] data-[state=active]:to-[#A3E40B] data-[state=active]:text-white rounded-full px-4 py-2 mt-0 text-sm font-medium transition-all duration-200">General</TabsTrigger>
-                <TabsTrigger value="management"className="w-full h-full data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#00c83c] data-[state=active]:to-[#A3E40B] data-[state=active]:text-white rounded-full px-4 py-2 mt-0 text-sm font-medium transition-all duration-200" >Gestión</TabsTrigger>
-                <TabsTrigger value="history"className="w-full h-full data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#00c83c] data-[state=active]:to-[#A3E40B] data-[state=active]:text-white rounded-full px-4 py-2 mt-0 text-sm font-medium transition-all duration-200" >Asignación</TabsTrigger>
+                <TabsTrigger value="general" className="w-full h-full data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#00C73D] data-[state=active]:to-[#A3E40B] data-[state=active]:text-white rounded-full px-4 py-2 mt-0 text-sm font-medium transition-all duration-200">General</TabsTrigger>
+                <TabsTrigger value="management"className="w-full h-full data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#00C73D] data-[state=active]:to-[#A3E40B] data-[state=active]:text-white rounded-full px-4 py-2 mt-0 text-sm font-medium transition-all duration-200" >Gestión</TabsTrigger>
+                <TabsTrigger value="history"className="w-full h-full data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#00C73D] data-[state=active]:to-[#A3E40B] data-[state=active]:text-white rounded-full px-4 py-2 mt-0 text-sm font-medium transition-all duration-200" >Asignación</TabsTrigger>
               </TabsList>
 
               {/* Tab General */}
@@ -657,7 +656,7 @@ Notas adicionales: ${lead.notes || 'Ninguna'}`;
                           />
                         </div>
                       </div>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div className="grid grid-cols-2 gap-2">
                       <div className="space-y-0 border-2 border-[#3d4b5c26] shadow-md rounded-md p-2.5">
                         <Label className="p-0 text-sm text-gray-500 font-normal">Fuente</Label>
                         <Input
@@ -863,7 +862,7 @@ Notas adicionales: ${lead.notes || 'Ninguna'}`;
                         value={contactMethod}
                         onValueChange={setContactMethod}
                         options={[
-                          { value: 'phone', label: 'Teléfono' },
+                          { value: 'call', label: 'Teléfono' },
                           { value: 'email', label: 'Email' },
                           { value: 'whatsapp', label: 'WhatsApp' },
                           { value: 'meeting', label: 'Reunión' }
@@ -1045,9 +1044,9 @@ Notas adicionales: ${lead.notes || 'Ninguna'}`;
                                   <p className="text-xs text-muted-foreground mt-1">
                                     {clientLead.Email} • {clientLead.Campaign || 'Sin campaña'}
                                   </p>
-                                  <p className="text-xs text-muted-foreground">
-                                    Creado: {formatDistanceToNow(new Date(clientLead.CreatedAt), { addSuffix: true, locale: es })}
-                                  </p>
+                                   <p className="text-xs text-muted-foreground">
+                                     Creado: {formatBogotaDistanceToNow(clientLead.CreatedAt)}
+                                   </p>
                                 </div>
                                 <Badge variant="outline" className="text-xs">
                                   {clientLead.Interactions.length} interacciones
@@ -1076,7 +1075,7 @@ Notas adicionales: ${lead.notes || 'Ninguna'}`;
                                           <span>•</span>
                                           <span>Etapa: {interaction.Stage}</span>
                                           <span>•</span>
-                                          <span>{formatDistanceToNow(new Date(interaction.CreatedAt), { addSuffix: true, locale: es })}</span>
+                                           <span>{formatBogotaDistanceToNow(interaction.CreatedAt)}</span>
                                         </div>
                                       </div>
                                     </div>
@@ -1109,13 +1108,10 @@ Notas adicionales: ${lead.notes || 'Ninguna'}`;
                                       </div>
                                       <div>
                                         <h4 className="font-medium">{interaction.Description || 'Sin título'}</h4>
-                                        <p className="text-sm text-muted-foreground mt-1">
-                                          {interaction.Description}
-                                        </p>
                                         <div className="flex items-center gap-4 mt-2 text-xs text-muted-foreground">
                                           <span>Tipo: {interaction.Type}</span>
                                           <span>•</span>
-                                          <span>{formatDistanceToNow(new Date(interaction.CreatedAt), { addSuffix: true, locale: es })}</span>
+                                          <span>{formatBogotaDistanceToNow(interaction.CreatedAt)}</span>
                                         </div>
                                       </div>
                                     </div>
@@ -1187,12 +1183,9 @@ Notas adicionales: ${lead.notes || 'Ninguna'}`;
                               )}
                             </div>
                             <div className="text-right">
-                              <p className="text-xs text-muted-foreground">
-                                {formatDistanceToNow(new Date(entry.assigned_at), { 
-                                  addSuffix: true, 
-                                  locale: es 
-                                })}
-                              </p>
+                               <p className="text-xs text-muted-foreground">
+                                 {formatBogotaDistanceToNow(entry.assigned_at)}
+                               </p>
                               <p className="text-xs text-muted-foreground">
                                 Por: {entry.assigned_by_name || 'Sistema'}
                               </p>

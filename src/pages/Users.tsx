@@ -224,7 +224,7 @@ export default function UsersPage() {
     <div className="min-h-screen pt-16">
       <div className="p-4">
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-4">
-          <h1 className="text-3xl font-bold mb-1 text-[#00c83c]">Gestión de Usuarios</h1>
+          <h1 className="text-3xl font-bold mb-1 text-[#00c73d]">Gestión de Usuarios</h1>
           <p className="text-muted-foreground">Administra usuarios y roles del sistema</p>
         </div>
         {permissions?.canAssignRoles && (

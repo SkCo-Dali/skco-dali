@@ -46,7 +46,7 @@ export function Login({ onLogin }: LoginProps) {
 
             <div className="space-y-4 pt-4 border-t">
               <div className="flex items-center space-x-2 text-sm text-gray-600">
-                <Shield className="h-4 w-4 text-[#00c83c]" />
+                <Shield className="h-4 w-4 text-[#00C73D]" />
                 <span>Autenticación segura con Entra ID</span>
               </div>
               
