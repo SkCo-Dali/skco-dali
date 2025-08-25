@@ -862,7 +862,7 @@ Notas adicionales: ${lead.notes || 'Ninguna'}`;
                         value={contactMethod}
                         onValueChange={setContactMethod}
                         options={[
-                          { value: 'phone', label: 'Teléfono' },
+                          { value: 'call', label: 'Teléfono' },
                           { value: 'email', label: 'Email' },
                           { value: 'whatsapp', label: 'WhatsApp' },
                           { value: 'meeting', label: 'Reunión' }
@@ -1020,123 +1020,111 @@ Notas adicionales: ${lead.notes || 'Ninguna'}`;
                 
                 <Separator />
                 
-                <ScrollArea className="h-80 w-full border rounded-md p-4">
-                  {interactionsLoading ? (
-                    <div className="flex items-center justify-center py-8">
-                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-                      <span className="ml-2">Cargando interacciones...</span>
-                    </div>
-                  ) : (
-                    <>
-                      {/* Mostrar historial completo del cliente cuando está disponible */}
-                      {showingClientHistory && clientHistory.length > 0 ? (
-                        <div className="space-y-6">
-                          {clientHistory.map((clientLead) => (
-                            <Card key={clientLead.LeadId} className={clientLead.LeadId === lead.id ? "border-primary" : ""}>
-                              <CardHeader className="pb-3">
-                                <div className="flex items-center justify-between">
-                                  <div>
-                                    <CardTitle className="text-sm font-medium">
-                                      {clientLead.Name}
-                                      {clientLead.LeadId === lead.id && (
-                                        <Badge className="ml-2 text-xs">Lead actual</Badge>
-                                      )}
-                                    </CardTitle>
-                                    <p className="text-xs text-muted-foreground mt-1">
-                                      {clientLead.Email} • {clientLead.Campaign || 'Sin campaña'}
-                                    </p>
-                                     <p className="text-xs text-muted-foreground">
-                                       Creado: {formatBogotaDistanceToNow(clientLead.CreatedAt)}
-                                     </p>
-                                  </div>
-                                  <Badge variant="outline" className="text-xs">
-                                    {clientLead.Interactions.length} interacciones
-                                  </Badge>
-                                </div>
-                              </CardHeader>
-                              <CardContent className="pt-0">
-                                {clientLead.Interactions.length === 0 ? (
-                                  <p className="text-sm text-muted-foreground text-center py-4">
-                                    No hay interacciones para este lead
+                {interactionsLoading ? (
+                  <div className="flex items-center justify-center py-8">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+                    <span className="ml-2">Cargando interacciones...</span>
+                  </div>
+                ) : (
+                  <>
+                    {/* Mostrar historial completo del cliente cuando está disponible */}
+                    {showingClientHistory && clientHistory.length > 0 ? (
+                      <div className="space-y-6">
+                        {clientHistory.map((clientLead) => (
+                          <Card key={clientLead.LeadId} className={clientLead.LeadId === lead.id ? "border-primary" : ""}>
+                            <CardHeader className="pb-3">
+                              <div className="flex items-center justify-between">
+                                <div>
+                                  <CardTitle className="text-sm font-medium">
+                                    {clientLead.Name}
+                                    {clientLead.LeadId === lead.id && (
+                                      <Badge className="ml-2 text-xs">Lead actual</Badge>
+                                    )}
+                                  </CardTitle>
+                                  <p className="text-xs text-muted-foreground mt-1">
+                                    {clientLead.Email} • {clientLead.Campaign || 'Sin campaña'}
                                   </p>
-                                ) : (
-                                  <div className="space-y-3">
-                                    {clientLead.Interactions.map((interaction) => (
-                                      <div key={interaction.Id} className="flex items-start gap-3 p-3 bg-gray-50 rounded-lg">
-                                        <div className="p-2 rounded-full bg-blue-100 text-blue-600">
-                                          {interaction.Type === 'email' && <Mail className="h-3 w-3" />}
-                                          {interaction.Type === 'phone' && <Phone className="h-3 w-3" />}
-                                          {interaction.Type === 'whatsapp' && <MessageSquare className="h-3 w-3" />}
-                                          {interaction.Type === 'meeting' && <Calendar className="h-3 w-3" />}
-                                        </div>
-                                        <div className="flex-1">
-                                          <h5 className="text-sm font-medium">
-                                            {interaction.Type === 'email' 
-                                              ? `Se envió un correo a través de Dali${interaction.Description && interaction.Description !== 'Sin título' ? ` - ${interaction.Description}` : ''}`
-                                              : interaction.Description || 'Sin título'
-                                            }
-                                          </h5>
-                                          <div className="flex items-center gap-3 mt-1 text-xs text-muted-foreground">
-                                            <span>Tipo: {interaction.Type}</span>
-                                            <span>•</span>
-                                            <span>Etapa: {interaction.Stage}</span>
-                                            <span>•</span>
-                                             <span>{formatBogotaDistanceToNow(interaction.CreatedAt)}</span>
-                                          </div>
-                                        </div>
+                                   <p className="text-xs text-muted-foreground">
+                                     Creado: {formatBogotaDistanceToNow(clientLead.CreatedAt)}
+                                   </p>
+                                </div>
+                                <Badge variant="outline" className="text-xs">
+                                  {clientLead.Interactions.length} interacciones
+                                </Badge>
+                              </div>
+                            </CardHeader>
+                            <CardContent className="pt-0">
+                              {clientLead.Interactions.length === 0 ? (
+                                <p className="text-sm text-muted-foreground text-center py-4">
+                                  No hay interacciones para este lead
+                                </p>
+                              ) : (
+                                <div className="space-y-3">
+                                  {clientLead.Interactions.map((interaction) => (
+                                    <div key={interaction.Id} className="flex items-start gap-3 p-3 bg-gray-50 rounded-lg">
+                                      <div className="p-2 rounded-full bg-blue-100 text-blue-600">
+                                        {interaction.Type === 'email' && <Mail className="h-3 w-3" />}
+                                        {interaction.Type === 'phone' && <Phone className="h-3 w-3" />}
+                                        {interaction.Type === 'whatsapp' && <MessageSquare className="h-3 w-3" />}
+                                        {interaction.Type === 'meeting' && <Calendar className="h-3 w-3" />}
                                       </div>
-                                    ))}
-                                  </div>
-                                )}
-                              </CardContent>
-                            </Card>
-                          ))}
-                        </div>
-                      ) : (
-                        /* Mostrar solo interacciones del lead actual */
-                        <>
-                          {interactions.length === 0 ? (
-                            <div className="text-center py-8 text-muted-foreground">
-                              No hay interacciones registradas para este lead
-                            </div>
-                          ) : (
-                            <div className="space-y-4">
-                              {interactions.map((interaction) => (
-                                <Card key={interaction.Id}>
-                                  <CardContent className="pt-4">
-                                    <div className="flex items-start justify-between">
-                                      <div className="flex items-start gap-3">
-                                        <div className="p-2 rounded-full bg-blue-100 text-blue-600">
-                                          {interaction.Type === 'email' && <Mail className="h-4 w-4" />}
-                                          {interaction.Type === 'phone' && <Phone className="h-4 w-4" />}
-                                          {interaction.Type === 'whatsapp' && <MessageSquare className="h-4 w-4" />}
-                                          {interaction.Type === 'meeting' && <Calendar className="h-4 w-4" />}
-                                        </div>
-                                        <div>
-                                          <h4 className="font-medium">
-                                            {interaction.Type === 'email' 
-                                              ? `Se envió un correo a través de Dali${interaction.Description && interaction.Description !== 'Sin título' ? ` - ${interaction.Description}` : ''}`
-                                              : interaction.Description || 'Sin título'
-                                            }
-                                          </h4>
-                                          <div className="flex items-center gap-4 mt-2 text-xs text-muted-foreground">
-                                            <span>Tipo: {interaction.Type}</span>
-                                            <span>•</span>
-                                            <span>{formatBogotaDistanceToNow(interaction.CreatedAt)}</span>
-                                          </div>
+                                      <div className="flex-1">
+                                        <h5 className="text-sm font-medium">{interaction.Description || 'Sin título'}</h5>
+                                        <div className="flex items-center gap-3 mt-1 text-xs text-muted-foreground">
+                                          <span>Tipo: {interaction.Type}</span>
+                                          <span>•</span>
+                                          <span>Etapa: {interaction.Stage}</span>
+                                          <span>•</span>
+                                           <span>{formatBogotaDistanceToNow(interaction.CreatedAt)}</span>
                                         </div>
                                       </div>
                                     </div>
-                                  </CardContent>
-                                </Card>
-                              ))}
-                            </div>
-                          )}
-                        </>
-                      )}
-                    </>
-                  )}
-                </ScrollArea>
+                                  ))}
+                                </div>
+                              )}
+                            </CardContent>
+                          </Card>
+                        ))}
+                      </div>
+                    ) : (
+                      /* Mostrar solo interacciones del lead actual */
+                      <>
+                        {interactions.length === 0 ? (
+                          <div className="text-center py-8 text-muted-foreground">
+                            No hay interacciones registradas para este lead
+                          </div>
+                        ) : (
+                          <div className="space-y-4">
+                            {interactions.map((interaction) => (
+                              <Card key={interaction.Id}>
+                                <CardContent className="pt-4">
+                                  <div className="flex items-start justify-between">
+                                    <div className="flex items-start gap-3">
+                                      <div className="p-2 rounded-full bg-blue-100 text-blue-600">
+                                        {interaction.Type === 'email' && <Mail className="h-4 w-4" />}
+                                        {interaction.Type === 'phone' && <Phone className="h-4 w-4" />}
+                                        {interaction.Type === 'whatsapp' && <MessageSquare className="h-4 w-4" />}
+                                        {interaction.Type === 'meeting' && <Calendar className="h-4 w-4" />}
+                                      </div>
+                                      <div>
+                                        <h4 className="font-medium">{interaction.Description || 'Sin título'}</h4>
+                                        <div className="flex items-center gap-4 mt-2 text-xs text-muted-foreground">
+                                          <span>Tipo: {interaction.Type}</span>
+                                          <span>•</span>
+                                          <span>{formatBogotaDistanceToNow(interaction.CreatedAt)}</span>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </CardContent>
+                              </Card>
+                            ))}
+                          </div>
+                        )}
+                      </>
+                    )}
+                  </>
+                )}
               </TabsContent>
 
               {/* Tab Historial */}
