@@ -4,7 +4,7 @@ import { TextFilterCondition } from "@/components/TextFilter";
 import { startOfDay, endOfDay, startOfWeek, endOfWeek, startOfMonth, endOfMonth, 
          startOfQuarter, endOfQuarter, startOfYear, endOfYear, subDays, subWeeks, 
          subMonths, subQuarters, subYears, addDays, addWeeks, addMonths, addQuarters, 
-         addYears, isWithinInterval } from "date-fns";
+         addYears, isWithinInterval, isSameDay, isAfter, isBefore } from "date-fns";
 
 export function useUnifiedLeadsFilters(leads: Lead[]) {
   // Estado para filtros generales
@@ -73,6 +73,43 @@ export function useUnifiedLeadsFilters(leads: Lead[]) {
       const now = new Date();
 
       return selectedRanges.some(rangeId => {
+        // Handle custom date conditions
+        if (rangeId.startsWith('custom:')) {
+          const conditionStr = rangeId.replace('custom:', '');
+          try {
+            const condition = JSON.parse(conditionStr);
+            const startDate = condition.startDate ? new Date(condition.startDate) : null;
+            const endDate = condition.endDate ? new Date(condition.endDate) : null;
+
+            switch (condition.operator) {
+              case 'equals':
+                return startDate && isSameDay(leadDate, startDate);
+              case 'after':
+                return startDate && isAfter(leadDate, startDate);
+              case 'before':
+                return startDate && isBefore(leadDate, startDate);
+              case 'between':
+                return startDate && endDate && 
+                       isWithinInterval(leadDate, { start: startDate, end: endDate });
+              default:
+                return false;
+            }
+          } catch {
+            return false;
+          }
+        }
+
+        // Handle specific date selections
+        if (rangeId.includes('-')) {
+          const [year, month, day] = rangeId.split('-');
+          const targetDate = new Date(parseInt(year), 
+            ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio',
+             'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre']
+            .indexOf(month), parseInt(day));
+          return isSameDay(leadDate, targetDate);
+        }
+
+        // Handle predefined ranges
         let start: Date, end: Date;
 
         switch (rangeId) {

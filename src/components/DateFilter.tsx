@@ -4,10 +4,14 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Calendar as CalendarComponent } from "@/components/ui/calendar";
+import { cn } from "@/lib/utils";
 import { format, startOfDay, endOfDay, startOfWeek, endOfWeek, startOfMonth, endOfMonth, 
          startOfQuarter, endOfQuarter, startOfYear, endOfYear, subDays, subWeeks, 
          subMonths, subQuarters, subYears, addDays, addWeeks, addMonths, addQuarters, 
-         addYears, isWithinInterval, parseISO } from "date-fns";
+         addYears, isWithinInterval, parseISO, isSameDay, isAfter, isBefore } from "date-fns";
 import { es } from "date-fns/locale";
 import { Lead } from "@/types/crm";
 
@@ -17,6 +21,13 @@ interface DateFilterProps {
   onFilterChange: (column: string, selectedRanges: string[]) => void;
   onClearFilter?: (column: string) => void;
   currentFilters: string[];
+}
+
+interface DateRangeCondition {
+  id: string;
+  operator: string;
+  startDate?: Date;
+  endDate?: Date;
 }
 
 interface DateRange {
@@ -133,10 +144,13 @@ export function DateFilter({
   currentFilters 
 }: DateFilterProps) {
   const [isOpen, setIsOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState<'ranges' | 'specific' | 'custom'>('ranges');
   const [selectedRanges, setSelectedRanges] = useState<string[]>(currentFilters);
+  const [selectedSpecificDates, setSelectedSpecificDates] = useState<string[]>([]);
+  const [customConditions, setCustomConditions] = useState<DateRangeCondition[]>([]);
   const [isDateTreeOpen, setIsDateTreeOpen] = useState(true);
 
-  // Group dates by year and month for the tree view
+  // Group dates by year, month, and day for the tree view
   const groupedDates = useMemo(() => {
     const dates = data.map(lead => {
       const dateValue = lead[column as keyof Lead] as string;
@@ -149,15 +163,17 @@ export function DateFilter({
       }
     }).filter(Boolean) as Date[];
 
-    const grouped: Record<string, Record<string, Date[]>> = {};
+    const grouped: Record<string, Record<string, Record<string, Date[]>>> = {};
     
     dates.forEach(date => {
       const year = date.getFullYear().toString();
       const month = format(date, 'MMMM', { locale: es });
+      const day = format(date, 'dd', { locale: es });
       
       if (!grouped[year]) grouped[year] = {};
-      if (!grouped[year][month]) grouped[year][month] = [];
-      grouped[year][month].push(date);
+      if (!grouped[year][month]) grouped[year][month] = {};
+      if (!grouped[year][month][day]) grouped[year][month][day] = [];
+      grouped[year][month][day].push(date);
     });
 
     return grouped;
@@ -171,26 +187,71 @@ export function DateFilter({
     }
   };
 
-  const handleSelectAll = (checked: boolean) => {
+  const handleSpecificDateChange = (dateString: string, checked: boolean) => {
     if (checked) {
-      setSelectedRanges(DATE_RANGES.map(range => range.id));
+      setSelectedSpecificDates(prev => [...prev, dateString]);
     } else {
-      setSelectedRanges([]);
+      setSelectedSpecificDates(prev => prev.filter(d => d !== dateString));
     }
   };
 
+  const handleSelectAll = (checked: boolean) => {
+    if (activeTab === 'ranges') {
+      if (checked) {
+        setSelectedRanges(DATE_RANGES.map(range => range.id));
+      } else {
+        setSelectedRanges([]);
+      }
+    }
+  };
+
+  const addCustomCondition = () => {
+    setCustomConditions(prev => [...prev, {
+      id: `custom-${Date.now()}`,
+      operator: 'equals'
+    }]);
+  };
+
+  const updateCustomCondition = (index: number, field: keyof DateRangeCondition, value: any) => {
+    setCustomConditions(prev => {
+      const newConditions = [...prev];
+      newConditions[index] = { ...newConditions[index], [field]: value };
+      return newConditions;
+    });
+  };
+
+  const removeCustomCondition = (index: number) => {
+    setCustomConditions(prev => prev.filter((_, i) => i !== index));
+  };
+
   const handleApply = () => {
-    onFilterChange(column, selectedRanges);
+    let finalFilters: string[] = [];
+    
+    if (activeTab === 'ranges') {
+      finalFilters = selectedRanges;
+    } else if (activeTab === 'specific') {
+      finalFilters = selectedSpecificDates;
+    } else if (activeTab === 'custom') {
+      finalFilters = customConditions
+        .filter(condition => condition.startDate || (condition.operator === 'equals' && condition.startDate))
+        .map(condition => `custom:${JSON.stringify(condition)}`);
+    }
+    
+    onFilterChange(column, finalFilters);
     setIsOpen(false);
   };
 
   const handleClear = () => {
     setSelectedRanges([]);
+    setSelectedSpecificDates([]);
+    setCustomConditions([]);
     onFilterChange(column, []);
   };
 
   const handleCancel = () => {
     setSelectedRanges(currentFilters);
+    setSelectedSpecificDates([]);
+    setCustomConditions([]);
     setIsOpen(false);
   };
 
@@ -218,66 +279,193 @@ export function DateFilter({
         onPointerDownOutside={(e) => e.preventDefault()}
       >
         <div className="p-4" onClick={(e) => e.stopPropagation()}>
-          {/* Header */}
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-sm font-semibold text-gray-700">Filtros de Fecha</h3>
+          {/* Header with tabs */}
+          <div className="flex mb-4">
+            <div className="flex bg-gray-100 rounded-lg p-1">
+              <button 
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setActiveTab('ranges');
+                }}
+                className={`px-3 py-1 text-xs font-medium rounded-md ${
+                  activeTab === 'ranges' 
+                    ? 'text-white bg-green-500' 
+                    : 'text-gray-600 hover:bg-gray-200'
+                }`}
+              >
+                Rangos
+              </button>
+              <button 
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setActiveTab('specific');
+                }}
+                className={`px-3 py-1 text-xs font-medium rounded-md ${
+                  activeTab === 'specific' 
+                    ? 'text-white bg-green-500' 
+                    : 'text-gray-600 hover:bg-gray-200'
+                }`}
+              >
+                Específicas
+              </button>
+              <button 
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setActiveTab('custom');
+                }}
+                className={`px-3 py-1 text-xs font-medium rounded-md ${
+                  activeTab === 'custom' 
+                    ? 'text-white bg-green-500' 
+                    : 'text-gray-600 hover:bg-gray-200'
+                }`}
+              >
+                Personalizado
+              </button>
+            </div>
           </div>
 
           <div className="max-h-80 overflow-y-auto space-y-2">
-            {/* Select All */}
-            <div className="flex items-center space-x-2 p-2 hover:bg-gray-50 border-b">
-              <Checkbox
-                checked={isAllSelected}
-                onCheckedChange={handleSelectAll}
-                className={isIndeterminate ? "data-[state=indeterminate]:bg-primary" : ""}
-                {...(isIndeterminate ? { "data-state": "indeterminate" } : {})}
-              />
-              <label className="text-sm font-medium text-gray-700 cursor-pointer select-none">
-                (Seleccionar Todo)
-              </label>
-            </div>
+            {activeTab === 'ranges' && (
+              <>
+                {/* Select All */}
+                <div className="flex items-center space-x-2 p-2 hover:bg-gray-50 border-b">
+                  <Checkbox
+                    checked={isAllSelected}
+                    onCheckedChange={handleSelectAll}
+                    className={isIndeterminate ? "data-[state=indeterminate]:bg-primary" : ""}
+                    {...(isIndeterminate ? { "data-state": "indeterminate" } : {})}
+                  />
+                  <label className="text-sm font-medium text-gray-700 cursor-pointer select-none">
+                    (Seleccionar Todo)
+                  </label>
+                </div>
 
-            {/* Predefined ranges */}
-            {DATE_RANGES.map((range) => (
-              <div key={range.id} className="flex items-center space-x-2 p-2 hover:bg-gray-50">
-                <Checkbox
-                  checked={selectedRanges.includes(range.id)}
-                  onCheckedChange={(checked) => handleRangeChange(range.id, checked as boolean)}
-                />
-                <label className="text-sm text-gray-700 cursor-pointer flex-1 select-none">
-                  {range.label}
-                </label>
+                {/* Predefined ranges */}
+                {DATE_RANGES.map((range) => (
+                  <div key={range.id} className="flex items-center space-x-2 p-2 hover:bg-gray-50">
+                    <Checkbox
+                      checked={selectedRanges.includes(range.id)}
+                      onCheckedChange={(checked) => handleRangeChange(range.id, checked as boolean)}
+                    />
+                    <label className="text-sm text-gray-700 cursor-pointer flex-1 select-none">
+                      {range.label}
+                    </label>
+                  </div>
+                ))}
+              </>
+            )}
+
+            {activeTab === 'specific' && (
+              <Collapsible open={isDateTreeOpen} onOpenChange={setIsDateTreeOpen}>
+                <CollapsibleTrigger className="flex items-center space-x-2 p-2 hover:bg-gray-50 w-full text-left border-b">
+                  <ChevronDown className={`h-4 w-4 transition-transform ${isDateTreeOpen ? '' : '-rotate-90'}`} />
+                  <span className="text-sm font-medium text-gray-700">Fechas Específicas</span>
+                </CollapsibleTrigger>
+                <CollapsibleContent className="ml-2">
+                  {Object.entries(groupedDates)
+                    .sort(([a], [b]) => parseInt(b) - parseInt(a))
+                    .map(([year, months]) => (
+                      <Collapsible key={year}>
+                        <CollapsibleTrigger className="flex items-center space-x-2 p-1 hover:bg-gray-50 w-full text-left">
+                          <ChevronDown className="h-3 w-3" />
+                          <span className="text-xs text-gray-600">{year}</span>
+                        </CollapsibleTrigger>
+                        <CollapsibleContent className="ml-4">
+                          {Object.entries(months).map(([month, days]) => (
+                            <Collapsible key={month}>
+                              <CollapsibleTrigger className="flex items-center space-x-2 p-1 hover:bg-gray-50 w-full text-left">
+                                <ChevronDown className="h-3 w-3" />
+                                <span className="text-xs text-gray-500">{month}</span>
+                              </CollapsibleTrigger>
+                              <CollapsibleContent className="ml-4">
+                                {Object.entries(days).map(([day, dates]) => (
+                                  <div key={day} className="flex items-center space-x-2 p-1 hover:bg-gray-50">
+                                    <Checkbox
+                                      checked={selectedSpecificDates.includes(`${year}-${month}-${day}`)}
+                                      onCheckedChange={(checked) => handleSpecificDateChange(`${year}-${month}-${day}`, checked as boolean)}
+                                    />
+                                    <label className="text-xs text-gray-600 cursor-pointer flex-1 select-none">
+                                      {day} ({dates.length})
+                                    </label>
+                                  </div>
+                                ))}
+                              </CollapsibleContent>
+                            </Collapsible>
+                          ))}
+                        </CollapsibleContent>
+                      </Collapsible>
+                    ))}
+                </CollapsibleContent>
+              </Collapsible>
+            )}
+
+            {activeTab === 'custom' && (
+              <div className="space-y-3">
+                {customConditions.map((condition, index) => (
+                  <div key={condition.id} className="border rounded p-3 space-y-2">
+                    <div className="flex items-center justify-between">
+                      <Select
+                        value={condition.operator}
+                        onValueChange={(value) => updateCustomCondition(index, 'operator', value)}
+                      >
+                        <SelectTrigger className="w-32">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent className="bg-white border shadow-lg">
+                          <SelectItem value="equals">Es igual a</SelectItem>
+                          <SelectItem value="after">Después de</SelectItem>
+                          <SelectItem value="before">Antes de</SelectItem>
+                          <SelectItem value="between">Entre</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      {customConditions.length > 1 && (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => removeCustomCondition(index)}
+                          className="text-red-500 hover:text-red-700"
+                        >
+                          ✕
+                        </Button>
+                      )}
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <CalendarComponent
+                        mode="single"
+                        selected={condition.startDate}
+                        onSelect={(date) => updateCustomCondition(index, 'startDate', date)}
+                        className={cn("p-3 pointer-events-auto border rounded")}
+                        locale={es}
+                      />
+                      
+                      {condition.operator === 'between' && (
+                        <>
+                          <div className="text-xs text-gray-500 text-center">Hasta:</div>
+                          <CalendarComponent
+                            mode="single"
+                            selected={condition.endDate}
+                            onSelect={(date) => updateCustomCondition(index, 'endDate', date)}
+                            className={cn("p-3 pointer-events-auto border rounded")}
+                            locale={es}
+                          />
+                        </>
+                      )}
+                    </div>
+                  </div>
+                ))}
+                
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={addCustomCondition}
+                  className="w-full"
+                  disabled={customConditions.length >= 5}
+                >
+                  + Agregar Condición
+                </Button>
               </div>
-            ))}
-
-            {/* Date tree view */}
-            <Collapsible open={isDateTreeOpen} onOpenChange={setIsDateTreeOpen}>
-              <CollapsibleTrigger className="flex items-center space-x-2 p-2 hover:bg-gray-50 w-full text-left">
-                <ChevronDown className={`h-4 w-4 transition-transform ${isDateTreeOpen ? '' : '-rotate-90'}`} />
-                <span className="text-sm font-medium text-gray-700">Fechas Específicas</span>
-              </CollapsibleTrigger>
-              <CollapsibleContent className="ml-4">
-                {Object.entries(groupedDates)
-                  .sort(([a], [b]) => parseInt(b) - parseInt(a))
-                  .map(([year, months]) => (
-                    <Collapsible key={year}>
-                      <CollapsibleTrigger className="flex items-center space-x-2 p-1 hover:bg-gray-50 w-full text-left">
-                        <ChevronDown className="h-3 w-3" />
-                        <span className="text-xs text-gray-600">{year}</span>
-                      </CollapsibleTrigger>
-                      <CollapsibleContent className="ml-4">
-                        {Object.entries(months).map(([month, dates]) => (
-                          <div key={month} className="flex items-center space-x-2 p-1 hover:bg-gray-50">
-                            <span className="text-xs text-gray-500 ml-4">
-                              {month} ({dates.length})
-                            </span>
-                          </div>
-                        ))}
-                      </CollapsibleContent>
-                    </Collapsible>
-                  ))}
-              </CollapsibleContent>
-            </Collapsible>
+            )}
           </div>
 
           {/* Action buttons */}
