@@ -115,7 +115,7 @@ export function useUnifiedLeadsFilters(leads: Lead[]) {
           return isSameDay(leadDate, targetDate);
         }
 
-        // Handle predefined ranges - Make sure dates are valid
+         // Handle predefined ranges - Make sure dates are valid
         let start: Date, end: Date;
 
         try {
@@ -186,15 +186,24 @@ export function useUnifiedLeadsFilters(leads: Lead[]) {
               end = endOfYear(nextYear);
               break;
             default:
+              console.warn('Date filter - Unknown range:', rangeId);
               return false;
           }
 
           // Verify dates are valid before comparing
           if (isNaN(start.getTime()) || isNaN(end.getTime())) {
+            console.error('Date filter - Invalid dates:', rangeId, start, end);
             return false;
           }
 
-          return isWithinInterval(leadDate, { start, end });
+          const result = isWithinInterval(leadDate, { start, end });
+          
+          // Debug log for range filtering
+          if (rangeId !== 'today') { // Don't spam with today logs
+            console.log(`Date filter - Range: ${rangeId}, Lead: ${leadDate.toISOString()}, Start: ${start.toISOString()}, End: ${end.toISOString()}, Match: ${result}`);
+          }
+          
+          return result;
         } catch (error) {
           console.error('Error processing date range:', rangeId, error);
           return false;
