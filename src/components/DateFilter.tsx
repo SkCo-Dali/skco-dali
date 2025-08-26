@@ -402,8 +402,8 @@ export function DateFilter({
             {activeTab === 'custom' && (
               <div className="space-y-3">
                 {customConditions.length === 0 && (
-                  <div className="text-center text-gray-500 text-sm py-4">
-                    Haz clic en "Agregar Condición" para crear un filtro personalizado
+                  <div className="text-center text-wrap text-gray-500 text-sm py-4">
+                    Haz clic en "Agregar Condición" para crear un filtro
                   </div>
                 )}
                 
