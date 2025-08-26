@@ -330,10 +330,15 @@ export function useUnifiedLeadsFilters(leads: Lead[]) {
       const matchesColumnFilters = Object.entries(columnFilters).every(([column, selectedValues]) => {
         if (selectedValues.length === 0) return true;
         
+        console.log(`Column filter check - Column: ${column}, Selected values:`, selectedValues);
+        
         // Check if this is a date column and handle date ranges
         const isDateColumn = column === 'createdAt' || column === 'updatedAt' || column === 'nextFollowUp' || column === 'lastInteraction';
         if (isDateColumn) {
-          return applyDateRangeFilter(lead, column, selectedValues);
+          console.log(`Applying date filter for column ${column} with values:`, selectedValues);
+          const result = applyDateRangeFilter(lead, column, selectedValues);
+          console.log(`Date filter result for lead ${lead.name}: ${result}`);
+          return result;
         }
         
         let leadValue: any;
