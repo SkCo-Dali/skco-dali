@@ -401,54 +401,79 @@ export function DateFilter({
 
             {activeTab === 'custom' && (
               <div className="space-y-3">
+                {customConditions.length === 0 && (
+                  <div className="text-center text-gray-500 text-sm py-4">
+                    Haz clic en "Agregar Condición" para crear un filtro personalizado
+                  </div>
+                )}
+                
                 {customConditions.map((condition, index) => (
-                  <div key={condition.id} className="border rounded p-3 space-y-2">
+                  <div key={condition.id} className="border rounded p-3 space-y-3 bg-white">
                     <div className="flex items-center justify-between">
                       <Select
                         value={condition.operator}
                         onValueChange={(value) => updateCustomCondition(index, 'operator', value)}
                       >
-                        <SelectTrigger className="w-32">
-                          <SelectValue />
+                        <SelectTrigger className="w-40">
+                          <SelectValue placeholder="Seleccionar..." />
                         </SelectTrigger>
-                        <SelectContent className="bg-white border shadow-lg">
+                        <SelectContent className="bg-white border shadow-lg z-50">
                           <SelectItem value="equals">Es igual a</SelectItem>
                           <SelectItem value="after">Después de</SelectItem>
                           <SelectItem value="before">Antes de</SelectItem>
                           <SelectItem value="between">Entre</SelectItem>
                         </SelectContent>
                       </Select>
-                      {customConditions.length > 1 && (
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => removeCustomCondition(index)}
-                          className="text-red-500 hover:text-red-700"
-                        >
-                          ✕
-                        </Button>
-                      )}
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          removeCustomCondition(index);
+                        }}
+                        className="text-red-500 hover:text-red-700 h-8 w-8 p-0"
+                      >
+                        ✕
+                      </Button>
                     </div>
                     
-                    <div className="space-y-2">
-                      <CalendarComponent
-                        mode="single"
-                        selected={condition.startDate}
-                        onSelect={(date) => updateCustomCondition(index, 'startDate', date)}
-                        className={cn("p-3 pointer-events-auto border rounded")}
-                        locale={es}
-                      />
-                      
-                      {condition.operator === 'between' && (
+                    <div className="space-y-3">
+                      {condition.operator && (
                         <>
-                          <div className="text-xs text-gray-500 text-center">Hasta:</div>
-                          <CalendarComponent
-                            mode="single"
-                            selected={condition.endDate}
-                            onSelect={(date) => updateCustomCondition(index, 'endDate', date)}
-                            className={cn("p-3 pointer-events-auto border rounded")}
-                            locale={es}
-                          />
+                          <div className="text-xs text-gray-600 font-medium">
+                            {condition.operator === 'equals' ? 'Fecha:' : 
+                             condition.operator === 'after' ? 'Desde:' :
+                             condition.operator === 'before' ? 'Hasta:' : 'Desde:'}
+                          </div>
+                          <div className="bg-gray-50 rounded-md" onClick={(e) => e.stopPropagation()}>
+                            <CalendarComponent
+                              mode="single"
+                              selected={condition.startDate}
+                              onSelect={(date) => {
+                                updateCustomCondition(index, 'startDate', date);
+                              }}
+                              className="p-3 pointer-events-auto"
+                              locale={es}
+                            />
+                          </div>
+                          
+                          {condition.operator === 'between' && (
+                            <>
+                              <div className="text-xs text-gray-600 font-medium">Hasta:</div>
+                              <div className="bg-gray-50 rounded-md" onClick={(e) => e.stopPropagation()}>
+                                <CalendarComponent
+                                  mode="single"
+                                  selected={condition.endDate}
+                                  onSelect={(date) => {
+                                    updateCustomCondition(index, 'endDate', date);
+                                  }}
+                                  className="p-3 pointer-events-auto"
+                                  locale={es}
+                                  disabled={(date) => condition.startDate ? date < condition.startDate : false}
+                                />
+                              </div>
+                            </>
+                          )}
                         </>
                       )}
                     </div>
@@ -458,7 +483,10 @@ export function DateFilter({
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={addCustomCondition}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    addCustomCondition();
+                  }}
                   className="w-full"
                   disabled={customConditions.length >= 5}
                 >
