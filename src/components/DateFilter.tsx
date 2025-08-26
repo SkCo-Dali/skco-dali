@@ -274,7 +274,7 @@ export function DateFilter({
         </Button>
       </PopoverTrigger>
       <PopoverContent 
-        className="max-w-100 p-0 bg-white border shadow-lg z-50" 
+        className="min-w-100 p-0 bg-white border shadow-lg z-50" 
         align="start"
         onPointerDownOutside={(e) => e.preventDefault()}
       >
@@ -319,7 +319,7 @@ export function DateFilter({
                     : 'text-gray-600 hover:bg-gray-200'
                 }`}
               >
-                Personalizado
+                Rango
               </button>
             </div>
           </div>
