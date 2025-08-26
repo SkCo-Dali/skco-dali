@@ -160,6 +160,7 @@ export function TaskCreateDialog({ onTaskCreated }: TaskCreateDialogProps) {
                   selected={dueDate}
                   onSelect={setDueDate}
                   initialFocus
+                  className="p-3 pointer-events-auto"
                 />
               </PopoverContent>
             </Popover>

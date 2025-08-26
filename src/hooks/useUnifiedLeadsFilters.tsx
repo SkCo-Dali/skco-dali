@@ -1,6 +1,10 @@
 import { useState, useMemo } from "react";
 import { Lead } from "@/types/crm";
 import { TextFilterCondition } from "@/components/TextFilter";
+import { startOfDay, endOfDay, startOfWeek, endOfWeek, startOfMonth, endOfMonth, 
+         startOfQuarter, endOfQuarter, startOfYear, endOfYear, subDays, subWeeks, 
+         subMonths, subQuarters, subYears, addDays, addWeeks, addMonths, addQuarters, 
+         addYears, isWithinInterval, isSameDay, isAfter, isBefore } from "date-fns";
 
 export function useUnifiedLeadsFilters(leads: Lead[]) {
   // Estado para filtros generales
@@ -56,6 +60,150 @@ export function useUnifiedLeadsFilters(leads: Lead[]) {
       documents: duplicateDocuments
     };
   }, [leads]);
+
+  // Función para aplicar filtros de fecha por rangos
+  const applyDateRangeFilter = (lead: Lead, column: string, selectedRanges: string[]) => {
+    if (selectedRanges.length === 0) return true;
+
+    // Map lastInteraction column to updatedAt field
+    const dateField = column === 'lastInteraction' ? 'updatedAt' : column;
+    const dateValue = lead[dateField as keyof Lead] as string;
+    if (!dateValue) return false;
+
+    try {
+      const leadDate = new Date(dateValue);
+      if (isNaN(leadDate.getTime())) return false; // Check for invalid date
+      
+      const now = new Date();
+
+      return selectedRanges.some(rangeId => {
+        // Handle custom date conditions
+        if (rangeId.startsWith('custom:')) {
+          const conditionStr = rangeId.replace('custom:', '');
+          try {
+            const condition = JSON.parse(conditionStr);
+            const startDate = condition.startDate ? new Date(condition.startDate) : null;
+            const endDate = condition.endDate ? new Date(condition.endDate) : null;
+
+            switch (condition.operator) {
+              case 'equals':
+                return startDate && isSameDay(leadDate, startDate);
+              case 'after':
+                return startDate && isAfter(leadDate, startDate);
+              case 'before':
+                return startDate && isBefore(leadDate, startDate);
+              case 'between':
+                return startDate && endDate && 
+                       isWithinInterval(leadDate, { start: startDate, end: endDate });
+              default:
+                return false;
+            }
+          } catch {
+            return false;
+          }
+        }
+
+        // Handle specific date selections
+        if (rangeId.includes('-')) {
+          const [year, month, day] = rangeId.split('-');
+          const monthIndex = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio',
+             'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre']
+            .indexOf(month);
+          if (monthIndex === -1) return false;
+          
+          const targetDate = new Date(parseInt(year), monthIndex, parseInt(day));
+          return isSameDay(leadDate, targetDate);
+        }
+
+         // Handle predefined ranges
+        let start: Date, end: Date;
+        
+        try {
+          switch (rangeId) {
+            case 'today':
+              start = startOfDay(now);
+              end = endOfDay(now);
+              break;
+            case 'yesterday':
+              const yesterday = subDays(now, 1);
+              start = startOfDay(yesterday);
+              end = endOfDay(yesterday);
+              break;
+            case 'this-week':
+              start = startOfWeek(now, { weekStartsOn: 1 });
+              end = endOfWeek(now, { weekStartsOn: 1 });
+              break;
+            case 'last-week':
+              const lastWeek = subWeeks(now, 1);
+              start = startOfWeek(lastWeek, { weekStartsOn: 1 });
+              end = endOfWeek(lastWeek, { weekStartsOn: 1 });
+              break;
+            case 'next-week':
+              const nextWeek = addWeeks(now, 1);
+              start = startOfWeek(nextWeek, { weekStartsOn: 1 });
+              end = endOfWeek(nextWeek, { weekStartsOn: 1 });
+              break;
+            case 'this-month':
+              start = startOfMonth(now);
+              end = endOfMonth(now);
+              break;
+            case 'last-month':
+              const lastMonth = subMonths(now, 1);
+              start = startOfMonth(lastMonth);
+              end = endOfMonth(lastMonth);
+              break;
+            case 'next-month':
+              const nextMonth = addMonths(now, 1);
+              start = startOfMonth(nextMonth);
+              end = endOfMonth(nextMonth);
+              break;
+            case 'this-quarter':
+              start = startOfQuarter(now);
+              end = endOfQuarter(now);
+              break;
+            case 'last-quarter':
+              const lastQuarter = subQuarters(now, 1);
+              start = startOfQuarter(lastQuarter);
+              end = endOfQuarter(lastQuarter);
+              break;
+            case 'next-quarter':
+              const nextQuarter = addQuarters(now, 1);
+              start = startOfQuarter(nextQuarter);
+              end = endOfQuarter(nextQuarter);
+              break;
+            case 'this-year':
+              start = startOfYear(now);
+              end = endOfYear(now);
+              break;
+            case 'last-year':
+              const lastYear = subYears(now, 1);
+              start = startOfYear(lastYear);
+              end = endOfYear(lastYear);
+              break;
+            case 'next-year':
+              const nextYear = addYears(now, 1);
+              start = startOfYear(nextYear);
+              end = endOfYear(nextYear);
+              break;
+            default:
+              return false;
+          }
+          
+          // Verify dates are valid before comparing
+          if (isNaN(start.getTime()) || isNaN(end.getTime())) {
+            return false;
+          }
+
+          return isWithinInterval(leadDate, { start, end });
+        } catch (error) {
+          return false;
+        }
+      });
+    } catch (error) {
+      console.error('Error in date filter:', error);
+      return false;
+    }
+  };
 
   // Función para aplicar filtros de texto en columnas específicas
   const applyTextFilter = (lead: Lead, column: string, conditions: TextFilterCondition[]) => {
@@ -141,8 +289,10 @@ export function useUnifiedLeadsFilters(leads: Lead[]) {
         matchesMultiFilter(filterCampaign, lead.campaign || "");
 
       // Filtros de fecha
-      const dateFromFilter = !filterDateFrom || new Date(lead.createdAt) >= new Date(filterDateFrom);
-      const dateToFilter = !filterDateTo || new Date(lead.createdAt) <= new Date(filterDateTo);
+      const leadCreatedDate = new Date(lead.createdAt);
+      
+      const dateFromFilter = !filterDateFrom || leadCreatedDate >= startOfDay(new Date(filterDateFrom));
+      const dateToFilter = !filterDateTo || leadCreatedDate <= endOfDay(new Date(filterDateTo));
       
       // Filtros de valor
       const valueMinFilter = !filterValueMin || lead.value >= parseInt(filterValueMin);
@@ -169,6 +319,12 @@ export function useUnifiedLeadsFilters(leads: Lead[]) {
       // Filtros por columna específica
       const matchesColumnFilters = Object.entries(columnFilters).every(([column, selectedValues]) => {
         if (selectedValues.length === 0) return true;
+        
+        // Check if this is a date column and handle date ranges
+        const isDateColumn = column === 'createdAt' || column === 'updatedAt' || column === 'nextFollowUp' || column === 'lastInteraction';
+        if (isDateColumn) {
+          return applyDateRangeFilter(lead, column, selectedValues);
+        }
         
         let leadValue: any;
         

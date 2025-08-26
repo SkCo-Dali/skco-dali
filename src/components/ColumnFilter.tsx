@@ -6,6 +6,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Lead } from "@/types/crm";
 import { TextFilter, TextFilterCondition } from "@/components/TextFilter";
+import { DateFilter } from "@/components/DateFilter";
 
 interface ColumnFilterProps {
   column: string;
@@ -102,6 +103,24 @@ export function ColumnFilter({
     !isAllSelected;
 
   const hasActiveFilters = currentFilters.length > 0 || currentTextFilters.length > 0;
+
+  // Check if this is a date column
+  const isDateColumn = column === 'createdAt' || column === 'updatedAt' || column === 'nextFollowUp' || column === 'lastInteraction';
+
+  // If it's a date column, use the DateFilter component
+  if (isDateColumn) {
+    return (
+      <div className="flex items-center gap-1">
+        <DateFilter
+          column={column}
+          data={data}
+          onFilterChange={onFilterChange}
+          onClearFilter={onClearFilter}
+          currentFilters={currentFilters}
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="flex items-center gap-1">

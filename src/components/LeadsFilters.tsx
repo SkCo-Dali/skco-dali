@@ -6,9 +6,13 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { useUsersApi } from "@/hooks/useUsersApi";
 import { useIsMobile, useIsMedium } from "@/hooks/use-mobile";
-import { FilterX, Search } from "lucide-react";
+import { FilterX, Search, Calendar as CalendarIcon } from "lucide-react";
+import { format } from "date-fns";
+import { cn } from "@/lib/utils";
 
 interface LeadsFiltersProps {
   searchTerm: string;
@@ -428,25 +432,87 @@ export function LeadsFilters({
           <div className="space-y-3 pt-3 border-t">
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-1">
-                <Label htmlFor="date-from" className="text-sm">Fecha desde</Label>
-                <Input
-                  type="date"
-                  value={filterDateFrom}
-                  onChange={(e) => setFilterDateFrom(e.target.value)}
-                  className="h-8 text-sm"
-                  placeholder="mm/dd/aaaa"
-                />
+                <Label className="text-sm">Fecha desde</Label>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className={cn(
+                        "w-full h-8 justify-start text-left font-normal text-sm",
+                        !filterDateFrom && "text-muted-foreground"
+                      )}
+                    >
+                      <CalendarIcon className="mr-2 h-4 w-4" />
+                      {filterDateFrom ? (() => {
+                        const [year, month, day] = filterDateFrom.split('-');
+                        return `${day}/${month}/${year}`;
+                      })() : "Seleccionar fecha"}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <Calendar
+                      mode="single"
+                      selected={filterDateFrom ? (() => {
+                        const [year, month, day] = filterDateFrom.split('-');
+                        return new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
+                      })() : undefined}
+                      onSelect={(date) => {
+                        if (date) {
+                          const year = date.getFullYear();
+                          const month = String(date.getMonth() + 1).padStart(2, '0');
+                          const day = String(date.getDate()).padStart(2, '0');
+                          setFilterDateFrom(`${year}-${month}-${day}`);
+                        } else {
+                          setFilterDateFrom("");
+                        }
+                      }}
+                      initialFocus
+                      className={cn("p-3 pointer-events-auto")}
+                    />
+                  </PopoverContent>
+                </Popover>
               </div>
 
               <div className="space-y-1">
-                <Label htmlFor="date-to" className="text-sm">Fecha hasta</Label>
-                <Input
-                  type="date"
-                  value={filterDateTo}
-                  onChange={(e) => setFilterDateTo(e.target.value)}
-                  className="h-8 text-sm"
-                  placeholder="mm/dd/aaaa"
-                />
+                <Label className="text-sm">Fecha hasta</Label>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className={cn(
+                        "w-full h-8 justify-start text-left font-normal text-sm",
+                        !filterDateTo && "text-muted-foreground"
+                      )}
+                    >
+                      <CalendarIcon className="mr-2 h-4 w-4" />
+                      {filterDateTo ? (() => {
+                        const [year, month, day] = filterDateTo.split('-');
+                        return `${day}/${month}/${year}`;
+                      })() : "Seleccionar fecha"}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <Calendar
+                      mode="single"
+                      selected={filterDateTo ? (() => {
+                        const [year, month, day] = filterDateTo.split('-');
+                        return new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
+                      })() : undefined}
+                      onSelect={(date) => {
+                        if (date) {
+                          const year = date.getFullYear();
+                          const month = String(date.getMonth() + 1).padStart(2, '0');
+                          const day = String(date.getDate()).padStart(2, '0');
+                          setFilterDateTo(`${year}-${month}-${day}`);
+                        } else {
+                          setFilterDateTo("");
+                        }
+                      }}
+                      initialFocus
+                      className={cn("p-3 pointer-events-auto")}
+                    />
+                  </PopoverContent>
+                </Popover>
               </div>
             </div>
 
