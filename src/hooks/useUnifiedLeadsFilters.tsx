@@ -116,8 +116,11 @@ export function useUnifiedLeadsFilters(leads: Lead[]) {
         }
 
          // Handle predefined ranges - Make sure dates are valid
+        // Debug the dates being processed
+        console.log(`Processing range: ${rangeId} for lead date: ${dateValue} (parsed: ${leadDate.toISOString()})`);
+        
         let start: Date, end: Date;
-
+        
         try {
           switch (rangeId) {
             case 'today':
@@ -189,7 +192,9 @@ export function useUnifiedLeadsFilters(leads: Lead[]) {
               console.warn('Date filter - Unknown range:', rangeId);
               return false;
           }
-
+          
+          console.log(`Date range calculated: ${rangeId} -> Start: ${start.toISOString()}, End: ${end.toISOString()}`);
+          
           // Verify dates are valid before comparing
           if (isNaN(start.getTime()) || isNaN(end.getTime())) {
             console.error('Date filter - Invalid dates:', rangeId, start, end);
@@ -199,9 +204,7 @@ export function useUnifiedLeadsFilters(leads: Lead[]) {
           const result = isWithinInterval(leadDate, { start, end });
           
           // Debug log for range filtering
-          if (rangeId !== 'today') { // Don't spam with today logs
-            console.log(`Date filter - Range: ${rangeId}, Lead: ${leadDate.toISOString()}, Start: ${start.toISOString()}, End: ${end.toISOString()}, Match: ${result}`);
-          }
+          console.log(`Date filter - Range: ${rangeId}, Lead: ${leadDate.toISOString()}, Start: ${start.toISOString()}, End: ${end.toISOString()}, Match: ${result}`);
           
           return result;
         } catch (error) {
