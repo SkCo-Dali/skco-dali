@@ -443,14 +443,29 @@ export function LeadsFilters({
                       )}
                     >
                       <CalendarIcon className="mr-2 h-4 w-4" />
-                      {filterDateFrom ? format(new Date(filterDateFrom), "dd/MM/yyyy") : "Seleccionar fecha"}
+                      {filterDateFrom ? (() => {
+                        const [year, month, day] = filterDateFrom.split('-');
+                        return `${day}/${month}/${year}`;
+                      })() : "Seleccionar fecha"}
                     </Button>
                   </PopoverTrigger>
                   <PopoverContent className="w-auto p-0" align="start">
                     <Calendar
                       mode="single"
-                      selected={filterDateFrom ? new Date(filterDateFrom) : undefined}
-                      onSelect={(date) => setFilterDateFrom(date ? format(date, "yyyy-MM-dd") : "")}
+                      selected={filterDateFrom ? (() => {
+                        const [year, month, day] = filterDateFrom.split('-');
+                        return new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
+                      })() : undefined}
+                      onSelect={(date) => {
+                        if (date) {
+                          const year = date.getFullYear();
+                          const month = String(date.getMonth() + 1).padStart(2, '0');
+                          const day = String(date.getDate()).padStart(2, '0');
+                          setFilterDateFrom(`${year}-${month}-${day}`);
+                        } else {
+                          setFilterDateFrom("");
+                        }
+                      }}
                       initialFocus
                       className={cn("p-3 pointer-events-auto")}
                     />
@@ -470,14 +485,29 @@ export function LeadsFilters({
                       )}
                     >
                       <CalendarIcon className="mr-2 h-4 w-4" />
-                      {filterDateTo ? format(new Date(filterDateTo), "dd/MM/yyyy") : "Seleccionar fecha"}
+                      {filterDateTo ? (() => {
+                        const [year, month, day] = filterDateTo.split('-');
+                        return `${day}/${month}/${year}`;
+                      })() : "Seleccionar fecha"}
                     </Button>
                   </PopoverTrigger>
                   <PopoverContent className="w-auto p-0" align="start">
                     <Calendar
                       mode="single"
-                      selected={filterDateTo ? new Date(filterDateTo) : undefined}
-                      onSelect={(date) => setFilterDateTo(date ? format(date, "yyyy-MM-dd") : "")}
+                      selected={filterDateTo ? (() => {
+                        const [year, month, day] = filterDateTo.split('-');
+                        return new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
+                      })() : undefined}
+                      onSelect={(date) => {
+                        if (date) {
+                          const year = date.getFullYear();
+                          const month = String(date.getMonth() + 1).padStart(2, '0');
+                          const day = String(date.getDate()).padStart(2, '0');
+                          setFilterDateTo(`${year}-${month}-${day}`);
+                        } else {
+                          setFilterDateTo("");
+                        }
+                      }}
                       initialFocus
                       className={cn("p-3 pointer-events-auto")}
                     />
