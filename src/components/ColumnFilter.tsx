@@ -105,7 +105,7 @@ export function ColumnFilter({
   const hasActiveFilters = currentFilters.length > 0 || currentTextFilters.length > 0;
 
   // Check if this is a date column
-  const isDateColumn = column === 'createdAt' || column === 'updatedAt' || column === 'nextFollowUp';
+  const isDateColumn = column === 'createdAt' || column === 'updatedAt' || column === 'nextFollowUp' || column === 'lastInteraction';
 
   // If it's a date column, use the DateFilter component
   if (isDateColumn) {
