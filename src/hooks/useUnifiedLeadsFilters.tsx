@@ -275,8 +275,10 @@ export function useUnifiedLeadsFilters(leads: Lead[]) {
         matchesMultiFilter(filterCampaign, lead.campaign || "");
 
       // Filtros de fecha
-      const dateFromFilter = !filterDateFrom || new Date(lead.createdAt) >= new Date(filterDateFrom);
-      const dateToFilter = !filterDateTo || new Date(lead.createdAt) <= new Date(filterDateTo);
+      const leadCreatedDate = new Date(lead.createdAt);
+      
+      const dateFromFilter = !filterDateFrom || leadCreatedDate >= startOfDay(new Date(filterDateFrom));
+      const dateToFilter = !filterDateTo || leadCreatedDate <= endOfDay(new Date(filterDateTo));
       
       // Filtros de valor
       const valueMinFilter = !filterValueMin || lead.value >= parseInt(filterValueMin);
