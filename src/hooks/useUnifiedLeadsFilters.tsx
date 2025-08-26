@@ -115,10 +115,7 @@ export function useUnifiedLeadsFilters(leads: Lead[]) {
           return isSameDay(leadDate, targetDate);
         }
 
-         // Handle predefined ranges - Make sure dates are valid
-        // Debug the dates being processed
-        console.log(`Processing range: ${rangeId} for lead date: ${dateValue} (parsed: ${leadDate.toISOString()})`);
-        
+         // Handle predefined ranges
         let start: Date, end: Date;
         
         try {
@@ -189,26 +186,16 @@ export function useUnifiedLeadsFilters(leads: Lead[]) {
               end = endOfYear(nextYear);
               break;
             default:
-              console.warn('Date filter - Unknown range:', rangeId);
               return false;
           }
           
-          console.log(`Date range calculated: ${rangeId} -> Start: ${start.toISOString()}, End: ${end.toISOString()}`);
-          
           // Verify dates are valid before comparing
           if (isNaN(start.getTime()) || isNaN(end.getTime())) {
-            console.error('Date filter - Invalid dates:', rangeId, start, end);
             return false;
           }
 
-          const result = isWithinInterval(leadDate, { start, end });
-          
-          // Debug log for range filtering
-          console.log(`Date filter - Range: ${rangeId}, Lead: ${leadDate.toISOString()}, Start: ${start.toISOString()}, End: ${end.toISOString()}, Match: ${result}`);
-          
-          return result;
+          return isWithinInterval(leadDate, { start, end });
         } catch (error) {
-          console.error('Error processing date range:', rangeId, error);
           return false;
         }
       });
@@ -333,15 +320,10 @@ export function useUnifiedLeadsFilters(leads: Lead[]) {
       const matchesColumnFilters = Object.entries(columnFilters).every(([column, selectedValues]) => {
         if (selectedValues.length === 0) return true;
         
-        console.log(`Column filter check - Column: ${column}, Selected values:`, selectedValues);
-        
         // Check if this is a date column and handle date ranges
         const isDateColumn = column === 'createdAt' || column === 'updatedAt' || column === 'nextFollowUp' || column === 'lastInteraction';
         if (isDateColumn) {
-          console.log(`Applying date filter for column ${column} with values:`, selectedValues);
-          const result = applyDateRangeFilter(lead, column, selectedValues);
-          console.log(`Date filter result for lead ${lead.name}: ${result}`);
-          return result;
+          return applyDateRangeFilter(lead, column, selectedValues);
         }
         
         let leadValue: any;
