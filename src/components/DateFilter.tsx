@@ -274,7 +274,7 @@ export function DateFilter({
         </Button>
       </PopoverTrigger>
       <PopoverContent 
-        className="min-w-full p-0 bg-white border shadow-lg z-50" 
+        className="w-full p-0 bg-white border shadow-lg z-50" 
         align="start"
         onPointerDownOutside={(e) => e.preventDefault()}
       >
@@ -319,7 +319,7 @@ export function DateFilter({
                     : 'text-gray-600 hover:bg-gray-200'
                 }`}
               >
-                Rango
+                Personalizado
               </button>
             </div>
           </div>
@@ -403,6 +403,7 @@ export function DateFilter({
               <div className="space-y-3">
                 {customConditions.length === 0 && (
                   <div className="text-center text-wrap text-gray-500 text-sm py-4">
+                    Haz clic en "Agregar Condición" para crear un filtro
                   </div>
                 )}
                 
