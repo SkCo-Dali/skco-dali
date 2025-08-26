@@ -274,7 +274,7 @@ export function DateFilter({
         </Button>
       </PopoverTrigger>
       <PopoverContent 
-        className="min-w-80 p-0 bg-white border shadow-lg z-50" 
+        className="min-w-sm p-0 bg-white border shadow-lg z-50" 
         align="start"
         onPointerDownOutside={(e) => e.preventDefault()}
       >
