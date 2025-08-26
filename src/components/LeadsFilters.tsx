@@ -8,7 +8,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useUsersApi } from "@/hooks/useUsersApi";
 import { useIsMobile, useIsMedium } from "@/hooks/use-mobile";
-import { FilterX, Search } from "lucide-react";
+import { FilterX, Search, Calendar } from "lucide-react";
 
 interface LeadsFiltersProps {
   searchTerm: string;
@@ -433,9 +433,17 @@ export function LeadsFilters({
                   type="date"
                   value={filterDateFrom}
                   onChange={(e) => setFilterDateFrom(e.target.value)}
-                  className="h-8 text-sm"
+                  className="h-8 text-sm pr-10"
                   placeholder="mm/dd/aaaa"
                 />
+                <button
+        type="button"
+        onClick={openPicker}
+        aria-label="Abrir calendario"
+        className="absolute inset-y-0 right-0 flex items-center px-2 text-gray-500 hover:text-gray-700"
+      >
+        <Calendar className="h-4 w-4" />
+      </button>
               </div>
 
               <div className="space-y-1">
