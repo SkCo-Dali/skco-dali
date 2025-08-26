@@ -293,7 +293,7 @@ export function DateFilter({
                     : 'text-gray-600 hover:bg-gray-200'
                 }`}
               >
-                Rangos
+                Periodos
               </button>
               <button 
                 onClick={(e) => {
