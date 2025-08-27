@@ -10,49 +10,21 @@ const getAuthHeaders = async (): Promise<Record<string, string>> => {
   };
 
   try {
-    console.log('🔐 Getting auth headers for lead assignment API...');
+    // Import SecureTokenManager
+    const { SecureTokenManager } = await import('@/utils/secureTokenManager');
+    const tokenData = SecureTokenManager.getToken();
     
-    // Intentar obtener el sessionToken de la sesión activa
-    const sessionData = sessionStorage.getItem('app_session_data');
-    console.log('🔍 Session data exists:', !!sessionData);
-    
-    if (sessionData) {
-      const parsed = JSON.parse(sessionData);
-      console.log('🔍 Session data keys:', Object.keys(parsed));
-      
-      if (parsed.sessionToken) {
-        // Usar sessionToken para APIs de la aplicación
-        headers['Authorization'] = `Bearer ${parsed.sessionToken}`;
-        console.log('🔐 Using sessionToken from app session');
-        console.log('🔐 SessionToken preview:', parsed.sessionToken?.substring(0, 30) + '...');
-      } else {
-        console.warn('⚠️ No sessionToken found in session data');
-      }
+    if (tokenData?.token) {
+      headers['Authorization'] = `Bearer ${tokenData.token}`;
+      console.log('🔐 Using IdToken from SecureTokenManager for API request');
     } else {
-      console.warn('⚠️ No session data found');
-      
-      // Fallback: Intentar usar token de Azure directamente
-      console.log('🔄 Falling back to Azure token from SecureTokenManager...');
-      const { SecureTokenManager } = await import('@/utils/secureTokenManager');
-      const tokenData = SecureTokenManager.getToken();
-      
-      if (tokenData?.token) {
-        headers['Authorization'] = `Bearer ${tokenData.token}`;
-        console.log('🔐 Using Azure IdToken as fallback');
-        console.log('🔐 Token preview:', tokenData.token?.substring(0, 30) + '...');
-      } else {
-        console.warn('⚠️ No Azure token found either');
-      }
+      console.warn('⚠️ No IdToken found in SecureTokenManager');
     }
   } catch (error) {
-    console.error('❌ Error getting auth headers:', error);
+    console.warn('⚠️ Could not get IdToken for API request:', error);
   }
 
-  console.log('📤 Final request headers (auth):', { 
-    'Content-Type': headers['Content-Type'],
-    'Authorization': headers['Authorization'] ? 'Bearer ' + headers['Authorization'].substring(7, 37) + '...' : 'NOT SET'
-  });
-  
+  console.log('📤 Request headers:', JSON.stringify(headers, null, 2));
   return headers;
 };
 
@@ -64,11 +36,8 @@ const makeRequest = async <T>(
   const url = `${API_BASE_URL}${endpoint}`;
   
   try {
-    console.log('🚀 === HTTP REQUEST STARTING ===');
     console.log('📡 Making API request to:', url);
     console.log('📡 Request method:', options.method || 'GET');
-    console.log('📡 API_BASE_URL:', API_BASE_URL);
-    console.log('📡 Full endpoint path:', endpoint);
     
     const authHeaders = await getAuthHeaders();
     const finalHeaders = {
@@ -76,30 +45,14 @@ const makeRequest = async <T>(
       ...options.headers,
     };
     
-    console.log('📤 === REQUEST HEADERS ===');
-    console.log('📤 Authorization header exists:', !!finalHeaders['Authorization']);
-    if (finalHeaders['Authorization']) {
-      const authValue = finalHeaders['Authorization'];
-      console.log('📤 Authorization preview:', authValue.substring(0, 50) + '...' + authValue.substring(authValue.length - 20));
-    }
-    console.log('📤 Content-Type:', finalHeaders['Content-Type']);
-    console.log('📤 All headers:', Object.keys(finalHeaders));
+    console.log('📤 Final request headers:', JSON.stringify(finalHeaders, null, 2));
     
-    if (options.body) {
-      console.log('📦 Request body:', options.body);
-    }
-    
-    console.log('🌐 === MAKING FETCH REQUEST ===');
     const response = await fetch(url, {
       headers: finalHeaders,
       ...options,
     });
     
-    console.log('📥 === HTTP RESPONSE RECEIVED ===');
     console.log('📥 Response status:', response.status);
-    console.log('📥 Response ok:', response.ok);
-    console.log('📥 Response statusText:', response.statusText);
-    console.log('📥 Response URL:', response.url);
     console.log('📥 Response headers:', JSON.stringify(Object.fromEntries(response.headers.entries()), null, 2));
     
     if (!response.ok) {

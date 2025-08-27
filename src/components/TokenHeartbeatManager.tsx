@@ -1,10 +1,10 @@
-import { useSessionManager } from '@/hooks/useSessionManager';
+import { useTokenHeartbeat } from '@/hooks/useTokenHeartbeat';
 
 /**
- * Componente interno para manejar las sesiones de la aplicación
+ * Componente interno para manejar la renovación automática de tokens
  * Se debe usar dentro del AuthProvider para que tenga acceso al contexto de autenticación
  */
 export const TokenHeartbeatManager = () => {
-  useSessionManager();
+  useTokenHeartbeat();
   return null; // Este componente no renderiza nada
 };
