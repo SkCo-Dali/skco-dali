@@ -64,7 +64,7 @@ export const NotificationPanel: React.FC<NotificationPanelProps> = ({ isOpen, on
       />
       
       {/* Panel */}
-      <div className="fixed right-0 top-0 h-full w-full max-w-md bg-white dark:bg-gray-800 shadow-xl border-l border-gray-200 dark:border-gray-700 md:absolute md:top-full md:right-0 md:h-auto md:max-h-96 md:w-80 md:rounded-lg md:border md:shadow-lg">
+      <div className="fixed right-0 top-0 h-full w-full max-w-md bg-white dark:bg-gray-800 shadow-xl border-l border-gray-200 dark:border-gray-700 md:absolute md:top-full md:right-0 md:h-auto md:max-h-96 md:w-80 md:rounded-xl md:border md:shadow-lg">
         <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
           <div className="flex items-center space-x-2">
             <Bell className="h-5 w-5" />
@@ -113,7 +113,7 @@ export const NotificationPanel: React.FC<NotificationPanelProps> = ({ isOpen, on
               {notifications.map((notification) => (
                 <div
                   key={notification.id}
-                  className={`p-3 rounded-lg border cursor-pointer transition-all hover:shadow-sm ${getNotificationBg(notification.type, notification.read)}`}
+                  className={`p-3 rounded-xl border cursor-pointer transition-all hover:shadow-sm ${getNotificationBg(notification.type, notification.read)}`}
                   onClick={() => !notification.read && markAsRead(notification.id)}
                 >
                   <div className="flex items-start space-x-3">

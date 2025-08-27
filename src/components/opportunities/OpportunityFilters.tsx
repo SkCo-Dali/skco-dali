@@ -236,7 +236,7 @@ export const OpportunityFiltersComponent: React.FC<OpportunityFiltersProps> = ({
             <SheetHeader>
               <SheetTitle>Filtros</SheetTitle>
             </SheetHeader>
-            <div className="mt-6 overflow-y-auto max-h-[calc(100vh-120px)]">
+            <div className="mt-4 overflow-y-auto max-h-[calc(100vh-120px)]">
               <FilterContent />
             </div>
           </SheetContent>
@@ -262,7 +262,7 @@ export const OpportunityFiltersComponent: React.FC<OpportunityFiltersProps> = ({
             <SheetHeader>
               <SheetTitle>Filtros</SheetTitle>
             </SheetHeader>
-            <div className="mt-6 overflow-y-auto max-h-[calc(100vh-120px)]">
+            <div className="mt-4 overflow-y-auto max-h-[calc(100vh-120px)]">
               <FilterContent />
             </div>
           </SheetContent>

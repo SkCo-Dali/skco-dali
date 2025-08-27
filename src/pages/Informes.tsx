@@ -219,8 +219,8 @@ export default function Informes() {
 
   return (
     <div className="min-h-screen pt-0">
-      <div className="px-4 py-6">
-        <div className="flex items-center justify-between mb-6">
+      <div className="px-4 py-4">
+        <div className="flex items-center justify-between mb-4">
           <div>
             <h1 className="text-3xl font-bold mb-1 tracking-tight text-[#00c73d]">
               Informes Power BI
@@ -247,7 +247,7 @@ export default function Informes() {
         {!selectedReport ? (
           <>
             {/* Search and view controls */}
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
               <InformesSearch 
                 searchTerm={searchTerm}
                 onSearchChange={setSearchTerm}
@@ -291,7 +291,7 @@ export default function Informes() {
                     >
                       <CardHeader className="pb-3">
                         <div className="flex items-center space-x-3">
-                          <div className="p-2 bg-[#00c73d]/10 rounded-lg">
+                          <div className="p-2 bg-[#00c73d]/10 rounded-xl">
                             <FileBarChart className="h-6 w-6 text-[#00c73d]" />
                           </div>
                           <div className="flex-1">
@@ -347,10 +347,10 @@ export default function Informes() {
                       frameBorder="0"
                       allowFullScreen={true}
                       allow="fullscreen"
-                      className="rounded-lg"
+                      className="rounded-xl"
                     />
                   ) : (
-                    <div className="w-full h-full bg-gray-100 rounded-lg flex items-center justify-center border-2 border-dashed border-gray-300">
+                    <div className="w-full h-full bg-gray-100 rounded-xl flex items-center justify-center border-2 border-dashed border-gray-300">
                       <div className="text-center">
                         <FileBarChart className="h-16 w-16 mx-auto mb-4 text-gray-400" />
                         <h3 className="text-lg font-medium mb-2">Configuración Pendiente</h3>

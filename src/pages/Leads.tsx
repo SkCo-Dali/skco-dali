@@ -363,7 +363,7 @@ export default function Leads() {
 
   if (error) {
     return (
-      <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto px-4 py-5">
         <div className="text-center text-red-600">
           Error al cargar los leads: {error}
         </div>
@@ -373,7 +373,7 @@ export default function Leads() {
 
   return (
     <>
-      <div className="w-full max-w-full px-4 py-6 space-y-6">
+      <div className="w-full max-w-full px-4 py-4 space-y-6">
             <div className="flex flex-col lg:flex-row gap-6">
           <div className="flex-1 space-y-6">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 pt-0">
@@ -706,7 +706,7 @@ export default function Leads() {
             </div>
 
             {isLoading ? (
-              <div className="flex justify-center items-center py-8">
+              <div className="flex justify-center items-center py-5">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900" />
               </div>
             ) : (

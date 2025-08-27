@@ -61,7 +61,7 @@ export function WhatsAppSendLogs({
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#00C73D]"></div>
           </div>
         ) : logs.length === 0 ? (
-          <div className="text-center text-muted-foreground py-8">
+          <div className="text-center text-muted-foreground py-5">
             <MessageSquare className="h-12 w-12 mx-auto mb-4 text-gray-300" />
             <p>No hay envíos registrados</p>
           </div>

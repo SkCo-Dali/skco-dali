@@ -36,7 +36,7 @@ export function WhatsAppPreview({
           {previewLeads.map((lead, index) => (
             <div
               key={lead.id}
-              className="border rounded-lg p-4 bg-gray-50"
+              className="border rounded-xl p-4 bg-gray-50"
             >
               <div className="flex items-center justify-between mb-2">
                 <div className="flex items-center gap-2">
@@ -60,7 +60,7 @@ export function WhatsAppPreview({
           ))}
           
           {leads.length > 10 && (
-            <div className="text-center text-sm text-muted-foreground p-4 border rounded-lg">
+            <div className="text-center text-sm text-muted-foreground p-4 border rounded-xl">
               ... y {leads.length - 10} mensajes más
             </div>
           )}

@@ -48,7 +48,7 @@ export function LeadsStageChart({ leads }: LeadsStageChartProps) {
     if (active && payload && payload.length) {
       const data = payload[0].payload;
       return (
-        <div className="bg-background border border-border rounded-lg p-3 shadow-lg">
+        <div className="bg-background border border-border rounded-xl p-3 shadow-lg">
           <p className="font-medium text-foreground">{data.fullStage}</p>
           <p className="text-primary">
             <span className="font-semibold">{data.count}</span> leads ({data.percentage}%)
@@ -60,7 +60,7 @@ export function LeadsStageChart({ leads }: LeadsStageChartProps) {
   };
 
   return (
-    <Card className="grid grid-cols-1 md:grid-cols-1 lg:grid-cols-1 gap-4 mb-6">
+    <Card className="grid grid-cols-1 md:grid-cols-1 lg:grid-cols-1 gap-4 mb-4">
       <CardHeader>
         <CardTitle className="text-lg font-semibold">Distribución de Leads por Estado</CardTitle>
       </CardHeader>

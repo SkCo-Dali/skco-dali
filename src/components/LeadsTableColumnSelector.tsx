@@ -288,7 +288,7 @@ export function LeadsTableColumnSelector({
               placeholder="Buscar columnas..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10 border-2 border-[#00C73D] rounded-lg focus:border-[#00C73D] focus:ring-[#00C73D]"
+              className="pl-10 border-2 border-[#00C73D] rounded-xl focus:border-[#00C73D] focus:ring-[#00C73D]"
             />
           </div>
 

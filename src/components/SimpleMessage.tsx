@@ -165,7 +165,7 @@ export const SimpleMessage: React.FC<SimpleMessageProps> = ({ message }) => {
             
             {/* Chart data */}
             {message.chart && (
-              <div className="mt-3 p-3 bg-gray-50 rounded-lg">
+              <div className="mt-3 p-3 bg-gray-50 rounded-xl">
                 <p className="text-sm text-gray-600 mb-2">Gráfica generada:</p>
                 <div className="text-sm text-gray-700">
                   {JSON.stringify(message.chart, null, 2)}
@@ -179,7 +179,7 @@ export const SimpleMessage: React.FC<SimpleMessageProps> = ({ message }) => {
                 <a 
                   href={message.downloadLink.url}
                   download={message.downloadLink.filename}
-                  className="inline-flex items-center px-3 py-2 text-sm bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 transition-colors"
+                  className="inline-flex items-center px-3 py-2 text-sm bg-blue-100 text-blue-700 rounded-xl hover:bg-blue-200 transition-colors"
                 >
                   📄 Descargar: {message.downloadLink.filename}
                 </a>
@@ -188,7 +188,7 @@ export const SimpleMessage: React.FC<SimpleMessageProps> = ({ message }) => {
             
             {/* Video preview */}
             {message.videoPreview && (
-              <div className="mt-3 p-3 bg-gray-50 rounded-lg">
+              <div className="mt-3 p-3 bg-gray-50 rounded-xl">
                 <p className="text-sm text-gray-600 mb-2">Video generado:</p>
                 <div className="text-sm text-gray-700">
                   <strong>{message.videoPreview.title}</strong>

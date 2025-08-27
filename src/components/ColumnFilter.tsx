@@ -147,7 +147,7 @@ export function ColumnFilter({
         <div className="p-4" onClick={(e) => e.stopPropagation()}>
           {/* Header con tabs */}
           <div className="flex mb-4">
-            <div className="flex bg-gray-100 rounded-lg p-1">
+            <div className="flex bg-gray-100 rounded-xl p-1">
               <button 
                 onClick={(e) => {
                   e.stopPropagation();

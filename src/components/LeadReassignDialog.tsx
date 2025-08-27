@@ -126,7 +126,7 @@ export function LeadReassignDialog({ lead, isOpen, onClose, onSuccess }: LeadRea
 
         <div className="space-y-4">
           {lead && (
-            <div className="p-3 bg-gray-50 rounded-lg">
+            <div className="p-3 bg-gray-50 rounded-xl">
               <p className="font-medium">{lead.name}</p>
               <p className="text-sm text-gray-600">{lead.email}</p>
             </div>

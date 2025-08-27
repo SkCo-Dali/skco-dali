@@ -74,7 +74,7 @@ function TaskCard({ task, onClick }: TaskCardProps) {
       {...attributes}
       {...listeners}
       onClick={onClick}
-      className="p-3 border rounded-lg bg-white shadow-sm cursor-pointer hover:shadow-md transition-shadow"
+      className="p-3 border rounded-xl bg-white shadow-sm cursor-pointer hover:shadow-md transition-shadow"
     >
       <div className="space-y-2">
         <div className="flex items-start justify-between">
@@ -128,7 +128,7 @@ function DroppableColumn({ status, children, onDrop }: DroppableColumnProps) {
   return (
     <div
       ref={setNodeRef}
-      className={`space-y-3 min-h-[200px] ${isOver ? 'bg-gray-50 rounded-lg' : ''}`}
+      className={`space-y-3 min-h-[200px] ${isOver ? 'bg-gray-50 rounded-xl' : ''}`}
     >
       {children}
     </div>
@@ -226,7 +226,7 @@ export function TaskBoard({ tasks }: TaskBoardProps) {
                       ))}
                       
                       {tasksByStatus[status as TaskStatus].length === 0 && (
-                        <div className="text-center py-8 text-muted-foreground">
+                        <div className="text-center py-5 text-muted-foreground">
                           <p className="text-sm">No hay tareas</p>
                         </div>
                       )}
@@ -240,7 +240,7 @@ export function TaskBoard({ tasks }: TaskBoardProps) {
 
         <DragOverlay>
           {activeTask ? (
-            <div className="p-3 border rounded-lg bg-white shadow-lg opacity-90">
+            <div className="p-3 border rounded-xl bg-white shadow-lg opacity-90">
               <h4 className="text-sm font-medium">{activeTask.title}</h4>
             </div>
           ) : null}

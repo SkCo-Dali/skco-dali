@@ -20,7 +20,7 @@ export const ConversationSearchBar: React.FC<ConversationSearchBarProps> = ({
   isLoading
 }) => {
   return (
-    <div className="p-6 pb-4 border-b bg-white flex-shrink-0">
+    <div className="p-4 pb-4 border-b bg-white flex-shrink-0">
       <div className="relative">
         <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 z-10" />
         <Input

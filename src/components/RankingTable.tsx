@@ -40,7 +40,7 @@ export function RankingTable({ rankings, showWeekly = false }: RankingTableProps
           {rankings.map((ranking) => (
             <div
               key={ranking.userId}
-              className={`flex items-center justify-between p-3 rounded-lg border transition-colors ${
+              className={`flex items-center justify-between p-3 rounded-xl border transition-colors ${
                 ranking.isCurrentUser 
                   ? 'bg-primary/5 border-primary/20' 
                   : 'hover:bg-muted/50'

@@ -159,7 +159,7 @@ export function MassWhatsAppSender({ filteredLeads, onClose }: MassWhatsAppSende
             </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="compose" className="space-y-6 mt-6">
+          <TabsContent value="compose" className="space-y-6 mt-4">
             <WhatsAppTemplateSelector
               templates={templates}
               selectedTemplate={selectedTemplate}
@@ -198,7 +198,7 @@ export function MassWhatsAppSender({ filteredLeads, onClose }: MassWhatsAppSende
             </div>
           </TabsContent>
 
-          <TabsContent value="preview" className="space-y-6 mt-6">
+          <TabsContent value="preview" className="space-y-6 mt-4">
             {selectedTemplate ? (
               <WhatsAppPreview
                 leads={validLeads}
@@ -207,7 +207,7 @@ export function MassWhatsAppSender({ filteredLeads, onClose }: MassWhatsAppSende
               />
             ) : (
               <Card>
-                <CardContent className="text-center py-8">
+                <CardContent className="text-center py-5">
                   <p className="text-muted-foreground">
                     Selecciona una plantilla para ver la previsualización
                   </p>
@@ -233,7 +233,7 @@ export function MassWhatsAppSender({ filteredLeads, onClose }: MassWhatsAppSende
             </div>
           </TabsContent>
 
-          <TabsContent value="logs" className="space-y-6 mt-6">
+          <TabsContent value="logs" className="space-y-6 mt-4">
             <WhatsAppSendLogs
               logs={sendLogs}
               isLoading={isLoading}

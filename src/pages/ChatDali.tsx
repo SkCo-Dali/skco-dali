@@ -95,7 +95,7 @@ const IndexContent = forwardRef<any, {}>((props, ref) => {
         {/* Chat interface */}
         <div 
           className={`flex-1 flex flex-col w-full h-full min-h-0 overflow-hidden
-            ${isMobile || isMedium ? 'pt-10 px-4' : 'px-8'}
+            ${isMobile || isMedium ? 'pt-10 px-4' : 'px-5'}
             ${isMobile ? 'pr-6' : ''}`} 
           style={{ 
             paddingBottom: isMobile ? '20px' : '16px',
@@ -115,7 +115,7 @@ const IndexContent = forwardRef<any, {}>((props, ref) => {
 
       {showTemplatesModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-lg w-full max-w-4xl h-[80vh] overflow-hidden">
+          <div className="bg-white rounded-xl w-full max-w-4xl h-[80vh] overflow-hidden">
             <PromptTemplates
               onSelectTemplate={handleSelectTemplate}
               onClose={() => setShowTemplatesModal(false)}

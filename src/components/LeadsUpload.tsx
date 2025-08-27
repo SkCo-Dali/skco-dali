@@ -151,7 +151,7 @@ export function LeadsUpload({ onLeadsUploaded }: LeadsUploadProps) {
           <DialogTitle>Subir Leads Masivamente</DialogTitle>
         </DialogHeader>
         <div className="space-y-4">
-          <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
+          <div className="border-2 border-dashed border-gray-300 rounded-xl p-4 text-center">
             <FileSpreadsheet className="mx-auto h-12 w-12 text-gray-400 mb-4" />
             <p className="text-sm text-gray-600 mb-4">
               Selecciona un archivo CSV o Excel con los leads

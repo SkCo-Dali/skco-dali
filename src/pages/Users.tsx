@@ -30,9 +30,9 @@ export default function UsersPage() {
   // Verificar permisos de acceso
   if (!permissions?.canAccessUserManagement) {
     return (
-      <div className="container mx-auto py-8">
+      <div className="container mx-auto py-5">
         <Card>
-          <CardContent className="text-center py-8">
+          <CardContent className="text-center py-5">
             <Shield className="h-12 w-12 text-gray-400 mx-auto mb-4" />
             <h2 className="text-xl font-semibold mb-2">Acceso Restringido</h2>
             <p className="text-gray-600">No tienes permisos para acceder a la gestión de usuarios.</p>

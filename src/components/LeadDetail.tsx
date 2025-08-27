@@ -716,9 +716,9 @@ Notas adicionales: ${lead.notes || 'Ninguna'}`;
                     Información Adicional
                   </CardTitle>
                   
-                  <div className="mt-2 rounded-lg">
-                    <SkAccordion type="single" collapsible className="w-full rounded-lg">
-                      <SkAccordionItem value="additional-info" className="bg-white !rounded-lg !shadow-md overflow-hidden border border-gray-200">
+                  <div className="mt-2 rounded-xl">
+                    <SkAccordion type="single" collapsible className="w-full rounded-xl">
+                      <SkAccordionItem value="additional-info" className="bg-white !rounded-xl !shadow-md overflow-hidden border border-gray-200">
                         <SkAccordionTrigger className="px-4 py-4 hover:bg-gray-50 data-[state=open]:bg-gray-100 text-left font-semibold text-gray-700 flex items-center justify-between w-full [&>svg]:text-green-500 [&>svg]:h-5 [&>svg]:w-5 [&>svg]:ml-auto [&>svg]:shrink-0 [&[data-state=open]>svg]:rotate-180 transition-all duration-200">
                           <span>Detalles de Información Adicional</span>
                         </SkAccordionTrigger>
@@ -783,7 +783,7 @@ Notas adicionales: ${lead.notes || 'Ninguna'}`;
                             console.log('🔍 Parsed additionalInfo result:', parsedInfo);
 
                             return parsedInfo ? (
-                              <div className="rounded-lg overflow-hidden bg-gray-50 mt-4">
+                              <div className="rounded-xl overflow-hidden bg-gray-50 mt-4">
                                 <ScrollArea className="h-48">
                                   <Table>
                                     <TableHeader className="sticky top-0 bg-gray-100">
@@ -808,7 +808,7 @@ Notas adicionales: ${lead.notes || 'Ninguna'}`;
                                 </ScrollArea>
                               </div>
                             ) : (
-                              <div className="p-6 text-center text-gray-500 bg-gray-50 rounded-lg border border-gray-200">
+                              <div className="p-4 text-center text-gray-500 bg-gray-50 rounded-xl border border-gray-200">
                                 <AlertCircle className="h-8 w-8 mx-auto mb-2 text-gray-400" />
                                 <p className="text-sm">No hay información adicional disponible</p>
                               </div>
@@ -1021,7 +1021,7 @@ Notas adicionales: ${lead.notes || 'Ninguna'}`;
                 <Separator />
                 
                 {interactionsLoading ? (
-                  <div className="flex items-center justify-center py-8">
+                  <div className="flex items-center justify-center py-5">
                     <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
                     <span className="ml-2">Cargando interacciones...</span>
                   </div>
@@ -1061,7 +1061,7 @@ Notas adicionales: ${lead.notes || 'Ninguna'}`;
                               ) : (
                                 <div className="space-y-3">
                                   {clientLead.Interactions.map((interaction) => (
-                                    <div key={interaction.Id} className="flex items-start gap-3 p-3 bg-gray-50 rounded-lg">
+                                    <div key={interaction.Id} className="flex items-start gap-3 p-3 bg-gray-50 rounded-xl">
                                       <div className="p-2 rounded-full bg-blue-100 text-blue-600">
                                         {interaction.Type === 'email' && <Mail className="h-3 w-3" />}
                                         {interaction.Type === 'phone' && <Phone className="h-3 w-3" />}
@@ -1090,7 +1090,7 @@ Notas adicionales: ${lead.notes || 'Ninguna'}`;
                       /* Mostrar solo interacciones del lead actual */
                       <>
                         {interactions.length === 0 ? (
-                          <div className="text-center py-8 text-muted-foreground">
+                          <div className="text-center py-5 text-muted-foreground">
                             No hay interacciones registradas para este lead
                           </div>
                         ) : (
@@ -1152,12 +1152,12 @@ Notas adicionales: ${lead.notes || 'Ninguna'}`;
                 </div>
                 
                 {historyLoading ? (
-                  <div className="flex items-center justify-center py-8">
+                  <div className="flex items-center justify-center py-5">
                     <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary mr-2"></div>
                     <span>Cargando historial...</span>
                   </div>
                 ) : assignmentHistory.length === 0 ? (
-                  <div className="text-center py-8 text-muted-foreground">
+                  <div className="text-center py-5 text-muted-foreground">
                     <History className="h-12 w-12 mx-auto mb-4 opacity-50" />
                     <p>No hay historial de asignaciones disponible</p>
                   </div>
