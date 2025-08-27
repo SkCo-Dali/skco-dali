@@ -83,20 +83,39 @@ export const useSessionManager = () => {
    * Inicia una nueva sesión
    */
   const startSession = useCallback(async () => {
-    if (!isAuthenticated || !isInitialized) return;
+    console.log('🚀 SessionManager.startSession called');
+    console.log('🔍 isAuthenticated:', isAuthenticated);
+    console.log('🔍 isInitialized:', isInitialized);
+    
+    if (!isAuthenticated || !isInitialized) {
+      console.log('❌ Cannot start session - user not authenticated or not initialized');
+      return;
+    }
 
     try {
-      console.log('🟢 SessionManager: Iniciando nueva sesión');
+      console.log('🟢 Starting new session...');
+      console.log('🔐 Calling getAccessToken...');
       
       const tokens = await getAccessToken();
+      console.log('🔐 getAccessToken result:', {
+        hasTokens: !!tokens,
+        hasAccessToken: !!tokens?.accessToken,
+        hasIdToken: !!tokens?.idToken,
+        accessTokenPreview: tokens?.accessToken?.substring(0, 50) + '...',
+        idTokenPreview: tokens?.idToken?.substring(0, 50) + '...'
+      });
+      
       if (!tokens?.accessToken) {
         throw new Error('No se pudo obtener token de acceso');
       }
 
       // Obtener información del navegador
       const userAgent = navigator.userAgent;
+      console.log('🖥️ User Agent:', userAgent);
       
+      console.log('📞 Calling SessionService.startSession...');
       const response = await SessionService.startSession(tokens.accessToken, undefined, userAgent);
+      console.log('📞 SessionService.startSession response received');
       
       const sessionData: SessionData = {
         sessionToken: response.sessionToken,
@@ -105,14 +124,21 @@ export const useSessionManager = () => {
         expiresAt: new Date(response.expiresAt)
       };
 
+      console.log('💾 Storing session data...');
       storeSessionData(sessionData);
+      
+      console.log('💓 Starting heartbeat...');
       startHeartbeat();
       
-      console.log('✅ SessionManager: Sesión iniciada exitosamente');
+      console.log('✅ Session started successfully');
+      console.log('🆔 Session ID:', sessionData.sessionId);
+      console.log('⏰ Expires at:', sessionData.expiresAt);
+      
       retryCountRef.current = 0;
       
     } catch (error) {
-      console.error('❌ SessionManager: Error iniciando sesión:', error);
+      console.error('❌ Error starting session:', error);
+      console.error('❌ Error stack:', error instanceof Error ? error.stack : 'No stack');
       throw error;
     }
   }, [getAccessToken, isAuthenticated, isInitialized]);
@@ -277,28 +303,41 @@ export const useSessionManager = () => {
 
   // Effect para inicializar sesión cuando el usuario se autentica
   useEffect(() => {
+    console.log('🔄 SessionManager useEffect triggered');
+    console.log('🔍 isAuthenticated:', isAuthenticated);
+    console.log('🔍 isInitialized:', isInitialized);
+    
     if (isAuthenticated && isInitialized) {
+      console.log('🟢 User is authenticated and initialized, managing session...');
+      
       // Intentar cargar sesión existente
       const existingSession = loadSessionData();
       
       if (existingSession) {
+        console.log('🔄 Found existing session, loading...');
+        console.log('🔍 Existing session ID:', existingSession.sessionId);
+        console.log('🔍 Existing session expires at:', existingSession.expiresAt);
+        
         setSessionData(existingSession);
         setIsSessionActive(true);
         startHeartbeat();
-        console.log('🔄 SessionManager: Sesión existente cargada');
+        console.log('✅ Existing session loaded and heartbeat started');
       } else {
+        console.log('🆕 No existing session found, starting new session...');
         // Iniciar nueva sesión
         startSession().catch(error => {
-          console.error('Error iniciando sesión automátically:', error);
+          console.error('❌ Error starting session automatically:', error);
         });
       }
     } else {
+      console.log('🔴 User not authenticated or not initialized, stopping session...');
       stopHeartbeat();
       clearSessionData();
     }
 
     // Cleanup al desmontar
     return () => {
+      console.log('🧹 SessionManager cleanup - stopping heartbeat');
       stopHeartbeat();
     };
   }, [isAuthenticated, isInitialized]);

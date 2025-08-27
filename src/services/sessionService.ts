@@ -36,44 +36,91 @@ export class SessionService {
    * Inicia una nueva sesión de la aplicación
    */
   static async startSession(accessToken: string, ipAddress?: string, userAgent?: string): Promise<SessionResponse> {
-    const response = await fetch(`${BASE_URL}/api/sessions`, {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${accessToken}`,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        ...(ipAddress && { ipAddress }),
-        ...(userAgent && { userAgent })
-      })
-    });
+    console.log('🚀 SessionService.startSession called');
+    console.log('🔐 AccessToken available:', !!accessToken);
+    console.log('🔐 AccessToken length:', accessToken?.length || 0);
+    console.log('🔐 AccessToken preview:', accessToken?.substring(0, 50) + '...');
+    console.log('🌐 BASE_URL:', BASE_URL);
+    console.log('📍 Full endpoint:', `${BASE_URL}/api/sessions`);
+    console.log('🖥️ UserAgent:', userAgent);
+    console.log('📡 IP Address:', ipAddress);
 
-    if (!response.ok) {
-      const error = await response.text();
-      throw new Error(`Error al iniciar sesión: ${response.status} - ${error}`);
+    const requestBody = {
+      ...(ipAddress && { ipAddress }),
+      ...(userAgent && { userAgent })
+    };
+    
+    console.log('📦 Request body:', JSON.stringify(requestBody, null, 2));
+
+    try {
+      const response = await fetch(`${BASE_URL}/api/sessions`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${accessToken}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(requestBody)
+      });
+
+      console.log('📊 Response status:', response.status);
+      console.log('📊 Response ok:', response.ok);
+      console.log('📊 Response headers:', Object.fromEntries(response.headers.entries()));
+
+      if (!response.ok) {
+        const error = await response.text();
+        console.error('❌ Response error text:', error);
+        throw new Error(`Error al iniciar sesión: ${response.status} - ${error}`);
+      }
+
+      const responseData = await response.json();
+      console.log('✅ Session started successfully');
+      console.log('📦 Response data keys:', Object.keys(responseData));
+      console.log('🔐 Session token preview:', responseData.sessionToken?.substring(0, 30) + '...');
+      console.log('🆔 Session ID:', responseData.sessionId);
+      console.log('⏰ Expires at:', responseData.expiresAt);
+
+      return responseData;
+    } catch (error) {
+      console.error('❌ SessionService.startSession error:', error);
+      throw error;
     }
-
-    return response.json();
   }
 
   /**
    * Mantiene viva la sesión (heartbeat)
    */
   static async heartbeat(sessionToken: string): Promise<HeartbeatResponse> {
-    const response = await fetch(`${BASE_URL}/api/sessions/heartbeat`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ sessionToken })
-    });
+    console.log('💓 SessionService.heartbeat called');
+    console.log('🔐 Session token preview:', sessionToken?.substring(0, 30) + '...');
+    console.log('📍 Full endpoint:', `${BASE_URL}/api/sessions/heartbeat`);
 
-    if (!response.ok) {
-      const error = await response.text();
-      throw new Error(`Error en heartbeat: ${response.status} - ${error}`);
+    try {
+      const response = await fetch(`${BASE_URL}/api/sessions/heartbeat`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ sessionToken })
+      });
+
+      console.log('📊 Heartbeat response status:', response.status);
+      console.log('📊 Heartbeat response ok:', response.ok);
+
+      if (!response.ok) {
+        const error = await response.text();
+        console.error('❌ Heartbeat error text:', error);
+        throw new Error(`Error en heartbeat: ${response.status} - ${error}`);
+      }
+
+      const responseData = await response.json();
+      console.log('✅ Heartbeat successful');
+      console.log('⏰ Seconds to expiry:', responseData.secondsToExpiry);
+
+      return responseData;
+    } catch (error) {
+      console.error('❌ SessionService.heartbeat error:', error);
+      throw error;
     }
-
-    return response.json();
   }
 
   /**

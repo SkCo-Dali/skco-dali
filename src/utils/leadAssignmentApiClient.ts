@@ -10,21 +10,49 @@ const getAuthHeaders = async (): Promise<Record<string, string>> => {
   };
 
   try {
-    // Import SecureTokenManager
-    const { SecureTokenManager } = await import('@/utils/secureTokenManager');
-    const tokenData = SecureTokenManager.getToken();
+    console.log('🔐 Getting auth headers for lead assignment API...');
     
-    if (tokenData?.token) {
-      headers['Authorization'] = `Bearer ${tokenData.token}`;
-      console.log('🔐 Using IdToken from SecureTokenManager for API request');
+    // Intentar obtener el sessionToken de la sesión activa
+    const sessionData = sessionStorage.getItem('app_session_data');
+    console.log('🔍 Session data exists:', !!sessionData);
+    
+    if (sessionData) {
+      const parsed = JSON.parse(sessionData);
+      console.log('🔍 Session data keys:', Object.keys(parsed));
+      
+      if (parsed.sessionToken) {
+        // Usar sessionToken para APIs de la aplicación
+        headers['Authorization'] = `Bearer ${parsed.sessionToken}`;
+        console.log('🔐 Using sessionToken from app session');
+        console.log('🔐 SessionToken preview:', parsed.sessionToken?.substring(0, 30) + '...');
+      } else {
+        console.warn('⚠️ No sessionToken found in session data');
+      }
     } else {
-      console.warn('⚠️ No IdToken found in SecureTokenManager');
+      console.warn('⚠️ No session data found');
+      
+      // Fallback: Intentar usar token de Azure directamente
+      console.log('🔄 Falling back to Azure token from SecureTokenManager...');
+      const { SecureTokenManager } = await import('@/utils/secureTokenManager');
+      const tokenData = SecureTokenManager.getToken();
+      
+      if (tokenData?.token) {
+        headers['Authorization'] = `Bearer ${tokenData.token}`;
+        console.log('🔐 Using Azure IdToken as fallback');
+        console.log('🔐 Token preview:', tokenData.token?.substring(0, 30) + '...');
+      } else {
+        console.warn('⚠️ No Azure token found either');
+      }
     }
   } catch (error) {
-    console.warn('⚠️ Could not get IdToken for API request:', error);
+    console.error('❌ Error getting auth headers:', error);
   }
 
-  console.log('📤 Request headers:', JSON.stringify(headers, null, 2));
+  console.log('📤 Final request headers (auth):', { 
+    'Content-Type': headers['Content-Type'],
+    'Authorization': headers['Authorization'] ? 'Bearer ' + headers['Authorization'].substring(7, 37) + '...' : 'NOT SET'
+  });
+  
   return headers;
 };
 
