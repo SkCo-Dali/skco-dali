@@ -35,15 +35,31 @@ export class SessionService {
   /**
    * Inicia una nueva sesión de la aplicación
    */
-  static async startSession(accessToken: string, ipAddress?: string, userAgent?: string): Promise<SessionResponse> {
+  static async startSession(ipAddress?: string, userAgent?: string): Promise<SessionResponse> {
     console.log('🚀 SessionService.startSession called');
-    console.log('🔐 AccessToken available:', !!accessToken);
-    console.log('🔐 AccessToken length:', accessToken?.length || 0);
-    console.log('🔐 AccessToken preview:', accessToken?.substring(0, 50) + '...');
     console.log('🌐 BASE_URL:', BASE_URL);
     console.log('📍 Full endpoint:', `${BASE_URL}/api/sessions`);
     console.log('🖥️ UserAgent:', userAgent);
     console.log('📡 IP Address:', ipAddress);
+
+    // Obtener idToken del SecureTokenManager (igual que userApiClient.ts)
+    let idToken: string;
+    try {
+      const { SecureTokenManager } = await import('@/utils/secureTokenManager');
+      const tokenData = SecureTokenManager.getToken();
+      
+      if (!tokenData || !tokenData.token) {
+        throw new Error('No se encontró idToken en SecureTokenManager');
+      }
+      
+      idToken = tokenData.token;
+      console.log('🔐 IdToken obtenido del SecureTokenManager');
+      console.log('🔐 IdToken length:', idToken?.length || 0);
+      console.log('🔐 IdToken preview:', idToken?.substring(0, 50) + '...');
+    } catch (error) {
+      console.error('❌ Error obteniendo idToken:', error);
+      throw new Error('No se pudo obtener el token de autenticación');
+    }
 
     const requestBody = {
       ...(ipAddress && { ipAddress }),
@@ -54,7 +70,7 @@ export class SessionService {
 
     // Log complete request details
     const requestHeaders = {
-      'Authorization': `Bearer ${accessToken}`,
+      'Authorization': `Bearer ${idToken}`,
       'Content-Type': 'application/json'
     };
     
@@ -62,7 +78,7 @@ export class SessionService {
     console.log('📍 Method: POST');
     console.log('📍 URL:', `${BASE_URL}/api/sessions`);
     console.log('📍 Headers:', {
-      'Authorization': `Bearer ${accessToken.substring(0, 50)}...${accessToken.substring(accessToken.length - 20)}`,
+      'Authorization': `Bearer ${idToken.substring(0, 50)}...${idToken.substring(idToken.length - 20)}`,
       'Content-Type': requestHeaders['Content-Type']
     });
     console.log('📍 Body:', JSON.stringify(requestBody, null, 2));
@@ -158,11 +174,27 @@ export class SessionService {
   /**
    * Lista las sesiones activas del usuario
    */
-  static async getMySessions(accessToken: string): Promise<SessionInfo[]> {
+  static async getMySessions(): Promise<SessionInfo[]> {
+    // Obtener idToken del SecureTokenManager
+    let idToken: string;
+    try {
+      const { SecureTokenManager } = await import('@/utils/secureTokenManager');
+      const tokenData = SecureTokenManager.getToken();
+      
+      if (!tokenData || !tokenData.token) {
+        throw new Error('No se encontró idToken en SecureTokenManager');
+      }
+      
+      idToken = tokenData.token;
+    } catch (error) {
+      console.error('❌ Error obteniendo idToken para getMySessions:', error);
+      throw new Error('No se pudo obtener el token de autenticación');
+    }
+
     const response = await fetch(`${BASE_URL}/api/sessions/me`, {
       method: 'GET',
       headers: {
-        'Authorization': `Bearer ${accessToken}`
+        'Authorization': `Bearer ${idToken}`
       }
     });
 

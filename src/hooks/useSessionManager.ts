@@ -114,7 +114,7 @@ export const useSessionManager = () => {
       console.log('🖥️ User Agent:', userAgent);
       
       console.log('📞 Calling SessionService.startSession...');
-      const response = await SessionService.startSession(tokens.accessToken, undefined, userAgent);
+      const response = await SessionService.startSession(undefined, userAgent);
       console.log('📞 SessionService.startSession response received');
       
       const sessionData: SessionData = {
@@ -289,17 +289,14 @@ export const useSessionManager = () => {
    */
   const getMySessions = useCallback(async () => {
     try {
-      const tokens = await getAccessToken();
-      if (!tokens?.accessToken) {
-        throw new Error('No se pudo obtener token de acceso');
-      }
-
-      return await SessionService.getMySessions(tokens.accessToken);
+      console.log('📋 Obteniendo lista de sesiones activas usando idToken...');
+      
+      return await SessionService.getMySessions();
     } catch (error) {
       console.error('Error obteniendo sesiones:', error);
       throw error;
     }
-  }, [getAccessToken]);
+  }, []);
 
   // Effect para inicializar sesión cuando el usuario se autentica
   useEffect(() => {
