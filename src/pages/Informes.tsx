@@ -299,7 +299,7 @@ export default function Informes() {
                           </div>
                         </div>
                       </CardHeader>
-                      <CardContent>
+                      <CardContent className='pb-4'>
                         <p className="text-sm text-gray-600">
                           {report.description || 'Informe de Power BI'}
                         </p>

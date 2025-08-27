@@ -11,7 +11,7 @@ interface GamificationCardProps {
 export function GamificationCard({ profile, nextLevel }: GamificationCardProps) {
   return (
     <Card className="w-full">
-      <CardHeader>
+      <CardHeader className="pb-4">
         <div className="flex items-center justify-between">
           <CardTitle className="text-lg">Mi Progreso</CardTitle>
           <div className="flex items-center gap-2">
@@ -22,7 +22,7 @@ export function GamificationCard({ profile, nextLevel }: GamificationCardProps) 
           </div>
         </div>
       </CardHeader>
-      <CardContent className="space-y-4">
+      <CardContent className="pb-4 space-y-4">
         <div className="grid grid-cols-2 gap-4">
           <div className="text-center">
             <p className="text-2xl font-bold text-primary">{profile.totalPoints}</p>

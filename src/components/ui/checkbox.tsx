@@ -9,7 +9,7 @@ const Checkbox = React.forwardRef<
   React.ElementRef<typeof CheckboxPrimitive.Root>,
   React.ComponentPropsWithoutRef<typeof CheckboxPrimitive.Root>
 >(({ className, ...props }, ref) => (
-  <div className="form-check">
+<div className="form-check" style={{ marginBottom: "0.125rem", paddingLeft: "1.5em", marginTop: "0" }}>
     <CheckboxPrimitive.Root
       ref={ref}
       className={cn(

@@ -55,7 +55,7 @@ export const OpportunityCard: React.FC<OpportunityCardProps> = ({
 
   return (
     <Card className="group hover:shadow-lg transition-all duration-300 hover:-translate-y-1 cursor-pointer border-border/50 hover:border-primary/20">
-      <CardHeader className="pb-3">
+      <CardHeader className="pb-3 px-4">
         <div className="flex items-start justify-between">
           <div className="flex items-center gap-3">
             <div className="text-2xl w-10 h-10 flex items-center justify-center rounded-full bg-primary/10">
@@ -84,7 +84,7 @@ export const OpportunityCard: React.FC<OpportunityCardProps> = ({
         </p>
       </CardHeader>
 
-      <CardContent className="space-y-4">
+      <CardContent className="space-y-4 px-4">
         {/* Tags */}
         <div className="flex flex-wrap gap-1.5">
           <Badge 

@@ -29,13 +29,13 @@ export function RankingTable({ rankings, showWeekly = false }: RankingTableProps
 
   return (
     <Card>
-      <CardHeader>
+      <CardHeader className="pb-4">
         <CardTitle className="flex items-center gap-2">
           <Trophy className="h-5 w-5" />
           {showWeekly ? 'Ranking Semanal' : 'Ranking General'}
         </CardTitle>
       </CardHeader>
-      <CardContent>
+      <CardContent className="pb-4">
         <div className="space-y-3">
           {rankings.map((ranking) => (
             <div
