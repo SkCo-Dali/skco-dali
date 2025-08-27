@@ -52,13 +52,25 @@ export class SessionService {
     
     console.log('📦 Request body:', JSON.stringify(requestBody, null, 2));
 
+    // Log complete request details
+    const requestHeaders = {
+      'Authorization': `Bearer ${accessToken}`,
+      'Content-Type': 'application/json'
+    };
+    
+    console.log('📤 === HTTP REQUEST DETAILS ===');
+    console.log('📍 Method: POST');
+    console.log('📍 URL:', `${BASE_URL}/api/sessions`);
+    console.log('📍 Headers:', {
+      'Authorization': `Bearer ${accessToken.substring(0, 50)}...${accessToken.substring(accessToken.length - 20)}`,
+      'Content-Type': requestHeaders['Content-Type']
+    });
+    console.log('📍 Body:', JSON.stringify(requestBody, null, 2));
+
     try {
       const response = await fetch(`${BASE_URL}/api/sessions`, {
         method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${accessToken}`,
-          'Content-Type': 'application/json'
-        },
+        headers: requestHeaders,
         body: JSON.stringify(requestBody)
       });
 

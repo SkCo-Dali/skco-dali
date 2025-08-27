@@ -4,6 +4,7 @@ import { getAllLeads, createLead, updateLead, deleteLead, getLeadsByUser } from 
 import { getReassignableLeads } from '@/utils/leadAssignmentApiClient';
 import { mapLeadToCreateRequest, mapLeadToUpdateRequest } from '@/utils/leadsApiMapper';
 import { useAuth } from '@/contexts/AuthContext';
+import { ENV } from '@/config/environment';
 
 export const useLeadsApi = () => {
   const [leads, setLeads] = useState<Lead[]>([]);
@@ -109,9 +110,10 @@ export const useLeadsApi = () => {
     try {
       console.log('🚀 === STARTING REASSIGNABLE LEADS API CALL ===');
       console.log('👤 Current user ID:', user.id);
+      console.log('👤 Current user email:', user.email);
       console.log('👤 Current user role:', user.role);
-      console.log('📡 API endpoint will be: /api/lead-assignments');
-      console.log('🔄 Calling getReassignableLeads API...');
+      console.log('📡 Full API URL will be:', `${ENV.CRM_API_BASE_URL}/api/lead-assignments`);
+      console.log('🔄 About to call getReassignableLeads API...');
       
       // Usar la API de leads reasignables en lugar de la API regular
       const reassignableLeads = await getReassignableLeads();

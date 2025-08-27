@@ -64,8 +64,11 @@ const makeRequest = async <T>(
   const url = `${API_BASE_URL}${endpoint}`;
   
   try {
+    console.log('🚀 === HTTP REQUEST STARTING ===');
     console.log('📡 Making API request to:', url);
     console.log('📡 Request method:', options.method || 'GET');
+    console.log('📡 API_BASE_URL:', API_BASE_URL);
+    console.log('📡 Full endpoint path:', endpoint);
     
     const authHeaders = await getAuthHeaders();
     const finalHeaders = {
@@ -73,14 +76,30 @@ const makeRequest = async <T>(
       ...options.headers,
     };
     
-    console.log('📤 Final request headers:', JSON.stringify(finalHeaders, null, 2));
+    console.log('📤 === REQUEST HEADERS ===');
+    console.log('📤 Authorization header exists:', !!finalHeaders['Authorization']);
+    if (finalHeaders['Authorization']) {
+      const authValue = finalHeaders['Authorization'];
+      console.log('📤 Authorization preview:', authValue.substring(0, 50) + '...' + authValue.substring(authValue.length - 20));
+    }
+    console.log('📤 Content-Type:', finalHeaders['Content-Type']);
+    console.log('📤 All headers:', Object.keys(finalHeaders));
     
+    if (options.body) {
+      console.log('📦 Request body:', options.body);
+    }
+    
+    console.log('🌐 === MAKING FETCH REQUEST ===');
     const response = await fetch(url, {
       headers: finalHeaders,
       ...options,
     });
     
+    console.log('📥 === HTTP RESPONSE RECEIVED ===');
     console.log('📥 Response status:', response.status);
+    console.log('📥 Response ok:', response.ok);
+    console.log('📥 Response statusText:', response.statusText);
+    console.log('📥 Response URL:', response.url);
     console.log('📥 Response headers:', JSON.stringify(Object.fromEntries(response.headers.entries()), null, 2));
     
     if (!response.ok) {
