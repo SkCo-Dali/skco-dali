@@ -6,6 +6,7 @@ import { msalConfig, loginRequest } from '@/authConfig';
 import { useToast } from '@/hooks/use-toast';
 import SecureTokenManager from '@/utils/secureTokenManager';
 import { TokenHeartbeatManager } from '@/components/TokenHeartbeatManager';
+import { SessionService } from '@/services/sessionService';
 
 interface AuthContextType {
   user: User | null;
@@ -17,6 +18,7 @@ interface AuthContextType {
   msalInstance: PublicClientApplication;
   isInitialized: boolean;
   signInWithAzure: () => Promise<{ error: any }>;
+  endSession?: () => Promise<void>;
   accessToken: string | null;
   signOut: () => Promise<void>;
 }
@@ -93,7 +95,28 @@ export function AuthProvider({ children }: AuthProviderProps) {
     sessionStorage.setItem('skandia-crm-user', JSON.stringify(userData));
   };
 
+  const endSession = async () => {
+    // Terminar sesión en el servidor si existe
+    try {
+      const sessionData = sessionStorage.getItem('app_session_data');
+      if (sessionData) {
+        const { sessionToken } = JSON.parse(sessionData);
+        if (sessionToken) {
+          await SessionService.logout(sessionToken);
+        }
+      }
+    } catch (error) {
+      console.warn('Error terminando sesión en servidor:', error);
+    }
+    
+    // Limpiar datos de sesión local
+    sessionStorage.removeItem('app_session_data');
+  };
+
   const logout = async () => {
+    // Terminar sesión de la aplicación primero
+    await endSession();
+    
     setUser(null);
     setAccessToken(null);
     
@@ -267,6 +290,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     msalInstance,
     isInitialized,
     signInWithAzure,
+    endSession,
     accessToken,
     signOut,
   };
