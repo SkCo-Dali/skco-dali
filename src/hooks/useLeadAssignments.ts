@@ -25,7 +25,8 @@ export const useLeadAssignments = () => {
     leadId: string, 
     toUserId: string, 
     reason: string = "No informa", 
-    notes: string = "Sin info"
+    notes: string = "Sin info",
+    newStage?: string
   ): Promise<boolean> => {
     if (!user?.id) {
       toast({
@@ -55,7 +56,8 @@ export const useLeadAssignments = () => {
         to_user_id: toUserId,
         assigned_by: fromUserId,
         reason,
-        notes
+        notes,
+        new_stage: newStage || 'asignado' // Por defecto 'asignado' si no se especifica
       };
 
       const response = await reassignLead(request);
