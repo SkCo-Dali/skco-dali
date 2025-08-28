@@ -79,13 +79,12 @@ export function LeadReassignDialog({ lead, isOpen, onClose, onSuccess }: LeadRea
     }
 
     try {
-        const success = await handleReassignLead(
-          lead.id,
-          selectedUserId,
-          reason.trim(),
-          notes.trim(),
-          'asignado' // Estado por defecto al reasignar
-        );
+      const success = await handleReassignLead(
+        lead.id,
+        selectedUserId,
+        reason.trim(),
+        notes.trim()
+      );
 
       if (success) {
         toast({

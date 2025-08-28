@@ -8,7 +8,6 @@ export interface ReassignLeadRequest {
   assigned_by: string;
   reason: string;
   notes: string;
-  new_stage?: string; // Estado opcional para el lead reasignado
 }
 
 export interface ReassignLeadResponse {
