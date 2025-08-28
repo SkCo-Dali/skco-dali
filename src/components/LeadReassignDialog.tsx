@@ -83,7 +83,8 @@ export function LeadReassignDialog({ lead, isOpen, onClose, onSuccess }: LeadRea
         lead.id,
         selectedUserId,
         reason.trim(),
-        notes.trim()
+        notes.trim(),
+        lead.stage
       );
 
       if (success) {

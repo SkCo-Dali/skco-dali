@@ -8,6 +8,7 @@ export interface ReassignLeadRequest {
   assigned_by: string;
   reason: string;
   notes: string;
+  new_stage?: string;
 }
 
 export interface ReassignLeadResponse {

@@ -25,7 +25,8 @@ export const useLeadAssignments = () => {
     leadId: string, 
     toUserId: string, 
     reason: string = "No informa", 
-    notes: string = "Sin info"
+    notes: string = "Sin info",
+    currentStage?: string
   ): Promise<boolean> => {
     if (!user?.id) {
       toast({
@@ -49,13 +50,17 @@ export const useLeadAssignments = () => {
     setError(null);
 
     try {
+      // Si el lead está en estado "nuevo", automáticamente cambiar a "asignado"
+      const shouldChangeToAssigned = currentStage?.toLowerCase() === 'nuevo';
+      
       const request: ReassignLeadRequest = {
         lead_id: leadId,
         from_user_id: fromUserId,
         to_user_id: toUserId,
         assigned_by: fromUserId,
         reason,
-        notes
+        notes,
+        ...(shouldChangeToAssigned && { new_stage: 'asignado' })
       };
 
       const response = await reassignLead(request);
