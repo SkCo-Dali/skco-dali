@@ -85,14 +85,32 @@ export const useLeadsApi = () => {
     return mappedLead;
   };
 
-  // El backend controla qué leads mostrar, no necesitamos filtrar por rol en frontend
+  // El backend controla qué leads mostrar, pero aplicamos filtros adicionales por rol
   const filterLeadsByRole = (allLeads: Lead[]): Lead[] => {
     if (!user) return [];
 
-    console.log(`🎯 Backend controls lead visibility - showing all ${allLeads.length} leads for role: ${user.role}`);
+    console.log(`🎯 Filtering ${allLeads.length} leads for role: ${user.role}`);
     console.log(`🎯 User ID: ${user.id}`);
     
-    // Retornar todos los leads que envía el API, el backend ya controla la visibilidad
+    // Para analistas: mostrar todos los leads del backend + todos los leads con source "Hubspot"
+    if (user.role === 'analista') {
+      const hubspotLeads = allLeads.filter(lead => 
+        lead.source?.toLowerCase() === 'hubspot'
+      );
+      
+      console.log(`🎯 Analista can see all backend leads (${allLeads.length}) + Hubspot leads (${hubspotLeads.length})`);
+      
+      // Evitar duplicados combinando leads del backend con leads de Hubspot
+      const uniqueLeads = allLeads.concat(
+        hubspotLeads.filter(hubspotLead => 
+          !allLeads.some(backendLead => backendLead.id === hubspotLead.id)
+        )
+      );
+      
+      return uniqueLeads;
+    }
+    
+    // Para otros roles, retornar todos los leads que envía el API
     return allLeads;
   };
 
