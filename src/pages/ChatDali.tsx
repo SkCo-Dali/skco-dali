@@ -10,11 +10,16 @@ import { useIsMobile, useIsMedium } from "../hooks/use-mobile";
 import { Header } from "../components/Header";
 import { ConversationHistoryModal } from "../components/ConversationHistoryModal";
 import { PromptTemplates } from "../components/PromptTemplates";
+import { OpportunityHighlights } from "../components/opportunities/OpportunityHighlights";
+import { OpportunityDetailsModal } from "../components/opportunities/OpportunityDetailsModal";
+import { IOpportunity } from "../types/opportunities";
 
 const IndexContent = forwardRef<any, {}>((props, ref) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [showConversationModal, setShowConversationModal] = useState(false);
   const [showTemplatesModal, setShowTemplatesModal] = useState(false);
+  const [selectedOpportunity, setSelectedOpportunity] = useState<IOpportunity | null>(null);
+  const [showOpportunityModal, setShowOpportunityModal] = useState(false);
   const isMobile = useIsMobile();
   const isMedium = useIsMedium();
   const chatInterfaceRef = useRef<any>(null);
@@ -56,6 +61,16 @@ const IndexContent = forwardRef<any, {}>((props, ref) => {
   const handleSelectTemplate = (content: string) => {
     setShowTemplatesModal(false);
     handleTemplateSelect(content);
+  };
+
+  const handleViewOpportunityDetails = (opportunity: IOpportunity) => {
+    setSelectedOpportunity(opportunity);
+    setShowOpportunityModal(true);
+  };
+
+  const handleCloseOpportunityModal = () => {
+    setShowOpportunityModal(false);
+    setSelectedOpportunity(null);
   };
 
   return (
@@ -103,6 +118,9 @@ const IndexContent = forwardRef<any, {}>((props, ref) => {
             margin: '0 auto'
           }}
         >
+          {/* Market Dali Opportunities */}
+          <OpportunityHighlights onViewDetails={handleViewOpportunityDetails} />
+          
           <SimpleChatInterface ref={chatInterfaceRef} />
         </div>
       </div>
@@ -123,6 +141,13 @@ const IndexContent = forwardRef<any, {}>((props, ref) => {
           </div>
         </div>
       )}
+
+      {/* Opportunity Details Modal */}
+      <OpportunityDetailsModal
+        opportunity={selectedOpportunity}
+        isOpen={showOpportunityModal}
+        onClose={handleCloseOpportunityModal}
+      />
     </div>
   );
 });
