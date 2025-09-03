@@ -27,6 +27,33 @@ export function useUnifiedLeadsFilters(leads: Lead[]) {
   const [textFilters, setTextFilters] = useState<Record<string, TextFilterCondition[]>>({});
 
   // Identificar leads duplicados por email, teléfono o número de documento
+  // Helper function to clean product field for consistent filtering
+  const cleanProductField = (value: any): string => {
+    if (typeof value === 'string') {
+      // Clean all JSON-like characters and escape sequences
+      let cleaned = value
+        .replace(/\\"/g, '"')          // Remove escape sequences
+        .replace(/[\[\]"'\\]/g, '')    // Remove all brackets and quotes
+        .replace(/,+/g, ',')           // Replace multiple commas with single comma
+        .replace(/^,|,$/g, '')         // Remove leading/trailing commas
+        .trim();
+      
+      // Split by comma and rejoin with hyphens
+      if (cleaned.includes(',')) {
+        return cleaned
+          .split(',')
+          .map(item => item.trim())
+          .filter(item => item && item !== '')
+          .join(' - ');
+      }
+      
+      return cleaned;
+    }
+    if (Array.isArray(value)) return value.filter(item => item && item.trim()).join(' - ');
+    if (value === null || value === undefined) return '';
+    return String(value);
+  };
+
   const duplicateIdentifiers = useMemo(() => {
     const emailCounts = leads.reduce((acc, lead) => {
       if (lead.email) {
@@ -336,7 +363,13 @@ export function useUnifiedLeadsFilters(leads: Lead[]) {
           leadValue = lead[column as keyof Lead];
         }
         
-        const stringValue = leadValue === null || leadValue === undefined ? "" : String(leadValue);
+        // Apply product field cleaning for consistent comparison
+        let stringValue: string;
+        if (column === 'product') {
+          stringValue = cleanProductField(leadValue);
+        } else {
+          stringValue = leadValue === null || leadValue === undefined ? "" : String(leadValue);
+        }
         
         return selectedValues.includes(stringValue);
       });
