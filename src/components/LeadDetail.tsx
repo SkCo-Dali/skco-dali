@@ -85,20 +85,24 @@ const ensureArray = (value: any): any[] => {
 // Helper function to ensure product is always a clean string
 const ensureString = (value: any): string => {
   if (typeof value === 'string') {
-    // Try to parse as JSON if it looks like JSON
-    if ((value.startsWith('[') && value.endsWith(']')) || (value.startsWith('{') && value.endsWith('}'))) {
-      try {
-        const parsed = JSON.parse(value);
-        if (Array.isArray(parsed)) {
-          return parsed.filter(item => item && item.trim()).join(' - ');
-        }
-        return String(parsed);
-      } catch (error) {
-        // If parsing fails, clean the string by removing brackets and quotes
-        return value.replace(/[\[\]"']/g, '').replace(/,\s*/g, ' - ').trim();
-      }
+    // Clean all JSON-like characters and escape sequences
+    let cleaned = value
+      .replace(/\\"/g, '"')          // Remove escape sequences
+      .replace(/[\[\]"'\\]/g, '')    // Remove all brackets and quotes
+      .replace(/,+/g, ',')           // Replace multiple commas with single comma
+      .replace(/^,|,$/g, '')         // Remove leading/trailing commas
+      .trim();
+    
+    // Split by comma and rejoin with hyphens
+    if (cleaned.includes(',')) {
+      return cleaned
+        .split(',')
+        .map(item => item.trim())
+        .filter(item => item && item !== '')
+        .join(' - ');
     }
-    return value;
+    
+    return cleaned;
   }
   if (Array.isArray(value)) return value.filter(item => item && item.trim()).join(' - ');
   if (value === null || value === undefined) return '';
