@@ -349,17 +349,28 @@
     max-width: 250px !important;
   }
 
-  /* Header sticky */
+  /* Header sticky - configuración mejorada */
   .leads-table-header-sticky {
     position: sticky !important;
     top: 0 !important;
     z-index: 15 !important;
     background: #fafafa !important;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important;
   }
 
   .leads-table-header-sticky .leads-name-column-sticky {
     z-index: 20 !important;
     background: #fafafa !important;
+    position: sticky !important;
+    left: 0 !important;
+  }
+
+  /* Asegurar que el header esté por encima del contenido */
+  .leads-table-header-sticky th {
+    position: sticky !important;
+    top: 0 !important;
+    background: #fafafa !important;
+    z-index: 10 !important;
   }
 
   /* Dark mode */
@@ -390,9 +401,14 @@
 
   .dark .leads-table-header-sticky {
     background: #374151 !important;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.3) !important;
   }
 
   .dark .leads-table-header-sticky .leads-name-column-sticky {
+    background: #374151 !important;
+  }
+
+  .dark .leads-table-header-sticky th {
     background: #374151 !important;
   }
 
