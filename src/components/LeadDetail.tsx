@@ -726,58 +726,63 @@ Notas adicionales: ${lead.notes || 'Ninguna'}`;
                           {(() => {
                             // Función para obtener solo las claves dinámicas del campo additionalInfo
                             const getAdditionalInfoFields = (lead: any) => {
-                              console.log('🔍 Getting additionalInfo fields from lead:', lead.id);
-                              console.log('🔍 Lead additionalInfo value:', lead.additionalInfo);
-                              console.log('🔍 Lead additionalInfo type:', typeof lead.additionalInfo);
+                              console.log('🔍 DEBUG: Full lead object:', lead);
+                              console.log('🔍 DEBUG: All lead properties:', Object.keys(lead));
+                              console.log('🔍 DEBUG: Lead additionalInfo value:', lead.additionalInfo);
+                              console.log('🔍 DEBUG: Lead additionalInfo type:', typeof lead.additionalInfo);
                               
-                              // Si no existe el campo additionalInfo, retornar null
-                              if (!lead.additionalInfo) {
-                                console.log('🔍 No additionalInfo field found');
-                                return null;
-                              }
+                              // Buscar cualquier campo que contenga información adicional más allá de los campos estándar
+                              const standardFields = [
+                                'id', 'name', 'email', 'phone', 'status', 'source', 'priority', 'campaign',
+                                'portfolio', 'product', 'createdAt', 'updatedAt', 'stage', 'assignedTo', 
+                                'assignedToName', 'createdBy', 'company', 'value', 'type', 'outcome', 
+                                'notes', 'documentType', 'documentNumber', 'age', 'gender', 
+                                'preferredContactChannel', 'portfolios', 'tags', 'nextFollowUp', 
+                                'campaignOwnerName', 'interactions'
+                              ];
                               
-                              let parsedFields: any = {};
+                              const additionalFields: any = {};
                               
-                              // Si additionalInfo es un objeto, usarlo directamente
-                              if (typeof lead.additionalInfo === 'object' && lead.additionalInfo !== null) {
-                                console.log('🔍 additionalInfo is object, using directly');
-                                parsedFields = { ...lead.additionalInfo };
-                              }
-                              // Si es un string, intentar parsearlo como JSON
-                              else if (typeof lead.additionalInfo === 'string') {
-                                console.log('🔍 additionalInfo is string, attempting to parse JSON');
-                                try {
-                                  const parsed = JSON.parse(lead.additionalInfo);
-                                  if (typeof parsed === 'object' && parsed !== null) {
-                                    parsedFields = { ...parsed };
-                                  } else {
-                                    // Si no es un objeto, tratarlo como un valor simple
-                                    parsedFields = { additionalInfo: lead.additionalInfo };
+                              // Buscar primero el campo additionalInfo específico
+                              if (lead.additionalInfo) {
+                                console.log('🔍 Found additionalInfo field:', lead.additionalInfo);
+                                
+                                if (typeof lead.additionalInfo === 'object' && lead.additionalInfo !== null) {
+                                  console.log('🔍 additionalInfo is object, using directly');
+                                  Object.assign(additionalFields, lead.additionalInfo);
+                                } else if (typeof lead.additionalInfo === 'string') {
+                                  console.log('🔍 additionalInfo is string, attempting to parse JSON');
+                                  try {
+                                    const parsed = JSON.parse(lead.additionalInfo);
+                                    if (typeof parsed === 'object' && parsed !== null) {
+                                      Object.assign(additionalFields, parsed);
+                                    } else {
+                                      additionalFields.additionalInfo = lead.additionalInfo;
+                                    }
+                                  } catch (error) {
+                                    console.log('🔍 Failed to parse additionalInfo as JSON, treating as string value');
+                                    additionalFields.additionalInfo = lead.additionalInfo;
                                   }
-                                } catch (error) {
-                                  console.log('🔍 Failed to parse additionalInfo as JSON, treating as string value');
-                                  parsedFields = { additionalInfo: lead.additionalInfo };
+                                } else {
+                                  console.log('🔍 additionalInfo is other type, converting to string');
+                                  additionalFields.additionalInfo = String(lead.additionalInfo);
                                 }
                               }
-                              // Para cualquier otro tipo, convertir a string
-                              else {
-                                console.log('🔍 additionalInfo is other type, converting to string');
-                                parsedFields = { additionalInfo: String(lead.additionalInfo) };
-                              }
                               
-                              // Filtrar campos vacíos o nulos
-                              const filteredFields = Object.fromEntries(
-                                Object.entries(parsedFields).filter(([key, value]) => 
-                                  value !== null && 
-                                  value !== undefined && 
-                                  value !== '' &&
-                                  key.trim() !== ''
-                                )
-                              );
+                              // Buscar también campos dinámicos que no sean estándar
+                              Object.keys(lead).forEach(key => {
+                                if (!standardFields.includes(key) && key !== 'additionalInfo') {
+                                  const value = lead[key];
+                                  if (value !== null && value !== undefined && value !== '') {
+                                    console.log(`🔍 Found dynamic field: ${key}`, value);
+                                    additionalFields[key] = value;
+                                  }
+                                }
+                              });
                               
-                              console.log('🔍 Final filtered additionalInfo fields:', filteredFields);
+                              console.log('🔍 Final additional fields:', additionalFields);
                               
-                              return Object.keys(filteredFields).length > 0 ? filteredFields : null;
+                              return Object.keys(additionalFields).length > 0 ? additionalFields : null;
                             };
 
                             const additionalInfoFields = getAdditionalInfoFields(editedLead);
