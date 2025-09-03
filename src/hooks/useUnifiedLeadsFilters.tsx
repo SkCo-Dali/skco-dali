@@ -5,6 +5,7 @@ import { startOfDay, endOfDay, startOfWeek, endOfWeek, startOfMonth, endOfMonth,
          startOfQuarter, endOfQuarter, startOfYear, endOfYear, subDays, subWeeks, 
          subMonths, subQuarters, subYears, addDays, addWeeks, addMonths, addQuarters, 
          addYears, isWithinInterval, isSameDay, isAfter, isBefore } from "date-fns";
+import { convertToBogotaTime } from "@/utils/dateUtils";
 
 export function useUnifiedLeadsFilters(leads: Lead[]) {
   // Estado para filtros generales
@@ -98,10 +99,12 @@ export function useUnifiedLeadsFilters(leads: Lead[]) {
     if (!dateValue) return false;
 
     try {
-      const leadDate = new Date(dateValue);
+      // Convert lead date to Bogotá time for consistent comparison
+      const leadDate = convertToBogotaTime(dateValue);
       if (isNaN(leadDate.getTime())) return false; // Check for invalid date
       
-      const now = new Date();
+      // Use current time in Bogotá timezone for range calculations
+      const now = convertToBogotaTime(new Date().toISOString());
 
       return selectedRanges.some(rangeId => {
         // Handle custom date conditions
@@ -109,8 +112,8 @@ export function useUnifiedLeadsFilters(leads: Lead[]) {
           const conditionStr = rangeId.replace('custom:', '');
           try {
             const condition = JSON.parse(conditionStr);
-            const startDate = condition.startDate ? new Date(condition.startDate) : null;
-            const endDate = condition.endDate ? new Date(condition.endDate) : null;
+            const startDate = condition.startDate ? convertToBogotaTime(condition.startDate) : null;
+            const endDate = condition.endDate ? convertToBogotaTime(condition.endDate) : null;
 
             switch (condition.operator) {
               case 'equals':
@@ -315,11 +318,11 @@ export function useUnifiedLeadsFilters(leads: Lead[]) {
         matchesMultiFilter(filterSource, lead.source) &&
         matchesMultiFilter(filterCampaign, lead.campaign || "");
 
-      // Filtros de fecha
-      const leadCreatedDate = new Date(lead.createdAt);
+      // Filtros de fecha usando zona horaria de Bogotá
+      const leadCreatedDate = convertToBogotaTime(lead.createdAt);
       
-      const dateFromFilter = !filterDateFrom || leadCreatedDate >= startOfDay(new Date(filterDateFrom));
-      const dateToFilter = !filterDateTo || leadCreatedDate <= endOfDay(new Date(filterDateTo));
+      const dateFromFilter = !filterDateFrom || leadCreatedDate >= startOfDay(convertToBogotaTime(filterDateFrom));
+      const dateToFilter = !filterDateTo || leadCreatedDate <= endOfDay(convertToBogotaTime(filterDateTo));
       
       // Filtros de valor
       const valueMinFilter = !filterValueMin || lead.value >= parseInt(filterValueMin);
@@ -444,10 +447,10 @@ export function useUnifiedLeadsFilters(leads: Lead[]) {
       if (aValue == null) return 1;
       if (bValue == null) return -1;
       
-      // Date comparison
+      // Date comparison con zona horaria de Bogotá
       if (sortBy === 'createdAt' || sortBy === 'updatedAt' || sortBy === 'nextFollowUp' || sortBy === 'lastInteraction') {
-        const aDate = new Date(aValue);
-        const bDate = new Date(bValue);
+        const aDate = convertToBogotaTime(aValue);
+        const bDate = convertToBogotaTime(bValue);
         result = bDate.getTime() - aDate.getTime(); // Most recent first by default
       }
       // Numeric comparison
