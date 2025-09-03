@@ -255,22 +255,21 @@
     @apply text-gray-500;
   }
 
-  /* TABLA DE LEADS - SCROLL ADAPTATIVO Y FUNCIONAL - STICKY HEADER MEJORADO */
+  /* TABLA DE LEADS - SCROLL ADAPTATIVO Y FUNCIONAL */
   .leads-table-container-scroll {
     position: relative;
     width: 100%;
     max-width: 100%;
     background: #fafafa;
     border-radius: 8px;
-    overflow: hidden;
+    overflow: visible;
     contain: layout style;
   }
 
   .leads-table-scroll-wrapper {
     position: relative;
     width: 100%;
-    max-height: 500px;
-    min-height: 300px;
+    height: 350px;
     border: 1px solid #fafafa;
     border-radius: 8px;
     background: #fafafa;
@@ -280,7 +279,7 @@
     /* Configuración de scrollbar */
     scrollbar-width: thin !important;
     scrollbar-color: #00c73d #f1f5f9 !important;
-    contain: layout;
+    contain: strict;
   }
 
   .leads-table-inner-scroll {
@@ -349,36 +348,17 @@
     max-width: 250px !important;
   }
 
-  /* Header sticky - configuración definitiva y funcional */
+  /* Header sticky */
   .leads-table-header-sticky {
     position: sticky !important;
     top: 0 !important;
-    z-index: 100 !important;
+    z-index: 15 !important;
     background: #fafafa !important;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important;
-    border-bottom: 1px solid #e5e7eb !important;
-  }
-
-  .leads-table-header-sticky tr {
-    background: #fafafa !important;
-  }
-
-  .leads-table-header-sticky th {
-    position: sticky !important;
-    top: 0 !important;
-    background: #fafafa !important;
-    z-index: 90 !important;
-    border-bottom: 1px solid #e5e7eb !important;
   }
 
   .leads-table-header-sticky .leads-name-column-sticky {
-    position: sticky !important;
-    top: 0 !important;
-    left: 0 !important;
-    z-index: 110 !important;
+    z-index: 20 !important;
     background: #fafafa !important;
-    border-right: 2px solid #e5e7eb !important;
-    box-shadow: 2px 0 4px rgba(0,0,0,0.1), 0 2px 4px rgba(0,0,0,0.1) !important;
   }
 
   /* Dark mode */
@@ -409,22 +389,10 @@
 
   .dark .leads-table-header-sticky {
     background: #374151 !important;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.3) !important;
-  }
-
-  .dark .leads-table-header-sticky tr {
-    background: #374151 !important;
-  }
-
-  .dark .leads-table-header-sticky th {
-    background: #374151 !important;
-    border-bottom-color: #4b5563 !important;
   }
 
   .dark .leads-table-header-sticky .leads-name-column-sticky {
     background: #374151 !important;
-    border-right-color: #4b5563 !important;
-    box-shadow: 2px 0 4px rgba(0,0,0,0.3), 0 2px 4px rgba(0,0,0,0.3) !important;
   }
 
   /* Estilos de Tabla Estilo ChatGPT - MEJORADOS */
