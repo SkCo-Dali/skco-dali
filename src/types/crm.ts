@@ -92,7 +92,7 @@ export const getRolePermissions = (role: UserRole): RolePermissions => {
         canBulkAssignLeads: true,
         canAccessUserManagement: false,
         canAssignRoles: false,
-        accessiblePages: ['leads', 'ChatDali']
+        accessiblePages: ['leads', 'ChatDali', 'reports']
       };
     case 'analista':
       return {
