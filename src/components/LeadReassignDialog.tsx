@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -8,7 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Lead, User } from "@/types/crm";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
-import { getAssignableUsers, AssignableUser } from "@/utils/leadAssignmentApiClient";
+import { getAllUsers } from "@/utils/userApiClient";
 import { useLeadAssignments } from "@/hooks/useLeadAssignments";
 import { UserCheck, X } from "lucide-react";
 
@@ -23,7 +22,7 @@ export function LeadReassignDialog({ lead, isOpen, onClose, onSuccess }: LeadRea
   const [selectedUserId, setSelectedUserId] = useState<string>("");
   const [reason, setReason] = useState<string>("No informa");
   const [notes, setNotes] = useState<string>("Sin info");
-  const [assignableUsers, setAssignableUsers] = useState<AssignableUser[]>([]);
+  const [assignableUsers, setAssignableUsers] = useState<User[]>([]);
   const [loadingUsers, setLoadingUsers] = useState(false);
   
   const { toast } = useToast();
@@ -37,10 +36,12 @@ export function LeadReassignDialog({ lead, isOpen, onClose, onSuccess }: LeadRea
       setLoadingUsers(true);
       try {
         console.log('🔄 Cargando usuarios asignables para reasignación desde API...');
-        const users = await getAssignableUsers();
+        const users = await getAllUsers();
         
-        // Filtrar el usuario actual al que ya está asignado el lead
-        const filteredUsers = users.filter(user => user.Id !== lead?.assignedTo);
+        // Filtrar solo usuarios activos y que no sea el usuario actual asignado
+        const filteredUsers = users.filter(user => 
+          user.isActive && user.id !== lead?.assignedTo
+        );
         
         console.log('✅ Usuarios asignables cargados para reasignación:', filteredUsers.length);
         setAssignableUsers(filteredUsers);
@@ -48,7 +49,7 @@ export function LeadReassignDialog({ lead, isOpen, onClose, onSuccess }: LeadRea
         console.error('❌ Error cargando usuarios asignables:', error);
         toast({
           title: "Error",
-          description: "No se pudieron cargar los usuarios disponibles",
+          description: "Error al cargar usuarios asignables",
           variant: "destructive"
         });
       } finally {
@@ -147,8 +148,8 @@ export function LeadReassignDialog({ lead, isOpen, onClose, onSuccess }: LeadRea
               </SelectTrigger>
               <SelectContent>
                 {assignableUsers.map((user) => (
-                  <SelectItem key={user.Id} value={user.Id}>
-                    {user.Name} ({user.Email}) - {user.Role}
+                  <SelectItem key={user.id} value={user.id}>
+                    {user.name} ({user.email}) - {user.role}
                   </SelectItem>
                 ))}
               </SelectContent>
