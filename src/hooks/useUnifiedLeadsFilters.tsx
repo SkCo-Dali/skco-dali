@@ -382,20 +382,52 @@ export function useUnifiedLeadsFilters(leads: Lead[]) {
     return [...filteredLeads].sort((a, b) => {
       let result = 0;
       
-      switch (sortBy) {
-        case "name":
-          result = a.name.localeCompare(b.name);
-          break;
-        case "value":
-          result = b.value - a.value;
-          break;
-        case "created":
-          result = new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
-          break;
-        case "updated":
-        default:
-          result = new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();
-          break;
+      // Get values from both leads for comparison
+      let aValue: any, bValue: any;
+      
+      // Handle special date field mappings
+      if (sortBy === 'lastInteraction') {
+        aValue = a.updatedAt;
+        bValue = b.updatedAt;
+      } else if (sortBy === 'created') {
+        aValue = a.createdAt;
+        bValue = b.createdAt;
+      } else if (sortBy === 'updated') {
+        aValue = a.updatedAt;
+        bValue = b.updatedAt;
+      } else if (sortBy?.startsWith('additionalInfo.')) {
+        // Handle dynamic additionalInfo columns
+        const key = sortBy.replace('additionalInfo.', '');
+        aValue = a.additionalInfo?.[key] || '';
+        bValue = b.additionalInfo?.[key] || '';
+      } else {
+        // Handle all other columns dynamically
+        aValue = a[sortBy as keyof Lead];
+        bValue = b[sortBy as keyof Lead];
+      }
+      
+      // Handle null/undefined values
+      if (aValue == null && bValue == null) return 0;
+      if (aValue == null) return 1;
+      if (bValue == null) return -1;
+      
+      // Date comparison
+      if (sortBy === 'createdAt' || sortBy === 'updatedAt' || sortBy === 'nextFollowUp' || sortBy === 'lastInteraction') {
+        const aDate = new Date(aValue);
+        const bDate = new Date(bValue);
+        result = bDate.getTime() - aDate.getTime(); // Most recent first by default
+      }
+      // Numeric comparison
+      else if (sortBy === 'value' || sortBy === 'age' || sortBy === 'documentNumber') {
+        const aNum = Number(aValue) || 0;
+        const bNum = Number(bValue) || 0;
+        result = bNum - aNum; // Higher values first by default
+      }
+      // String comparison (case-insensitive)
+      else {
+        const aStr = String(aValue).toLowerCase();
+        const bStr = String(bValue).toLowerCase();
+        result = aStr.localeCompare(bStr);
       }
       
       return sortDirection === 'asc' ? result : -result;
