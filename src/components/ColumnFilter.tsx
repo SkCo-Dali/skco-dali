@@ -34,10 +34,43 @@ export function ColumnFilter({
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedValues, setSelectedValues] = useState<string[]>(currentFilters);
 
+  // Helper function to clean product field for filters
+  const cleanProductField = (value: any): string => {
+    if (typeof value === 'string') {
+      // Clean all JSON-like characters and escape sequences
+      let cleaned = value
+        .replace(/\\"/g, '"')          // Remove escape sequences
+        .replace(/[\[\]"'\\]/g, '')    // Remove all brackets and quotes
+        .replace(/,+/g, ',')           // Replace multiple commas with single comma
+        .replace(/^,|,$/g, '')         // Remove leading/trailing commas
+        .trim();
+      
+      // Split by comma and rejoin with hyphens
+      if (cleaned.includes(',')) {
+        return cleaned
+          .split(',')
+          .map(item => item.trim())
+          .filter(item => item && item !== '')
+          .join(' - ');
+      }
+      
+      return cleaned;
+    }
+    if (Array.isArray(value)) return value.filter(item => item && item.trim()).join(' - ');
+    if (value === null || value === undefined) return '';
+    return String(value);
+  };
+
   const uniqueValues = useMemo(() => {
     const values = data.map(lead => {
       const value = lead[column as keyof Lead];
       if (value === null || value === undefined) return "";
+      
+      // Apply product field cleaning if it's the product column
+      if (column === 'product') {
+        return cleanProductField(value);
+      }
+      
       return String(value);
     }).filter(Boolean);
     

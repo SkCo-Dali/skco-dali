@@ -90,6 +90,33 @@ const capitalizeWords = (text: string) => {
   return text.toLowerCase().replace(/\b\w/g, l => l.toUpperCase());
 };
 
+// Helper function to clean product field
+const cleanProductField = (value: any): string => {
+  if (typeof value === 'string') {
+    // Clean all JSON-like characters and escape sequences
+    let cleaned = value
+      .replace(/\\"/g, '"')          // Remove escape sequences
+      .replace(/[\[\]"'\\]/g, '')    // Remove all brackets and quotes
+      .replace(/,+/g, ',')           // Replace multiple commas with single comma
+      .replace(/^,|,$/g, '')         // Remove leading/trailing commas
+      .trim();
+    
+    // Split by comma and rejoin with hyphens
+    if (cleaned.includes(',')) {
+      return cleaned
+        .split(',')
+        .map(item => item.trim())
+        .filter(item => item && item !== '')
+        .join(' - ');
+    }
+    
+    return cleaned;
+  }
+  if (Array.isArray(value)) return value.filter(item => item && item.trim()).join(' - ');
+  if (value === null || value === undefined) return '';
+  return String(value);
+};
+
 // Función para cargar configuración de columnas desde sessionStorage
 const loadColumnConfig = (): ColumnConfig[] => {
   try {
@@ -565,7 +592,7 @@ Por favor, confirmar asistencia.`;
       case 'product':
         return (
           <span className="text-gray-700 text-xs text-center">
-            {lead.product || '-'}
+            {cleanProductField(lead.product) || '-'}
           </span>
         );
       case 'campaign':
