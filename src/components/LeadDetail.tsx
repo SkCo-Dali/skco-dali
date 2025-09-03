@@ -724,65 +724,66 @@ Notas adicionales: ${lead.notes || 'Ninguna'}`;
                         </SkAccordionTrigger>
                         <SkAccordionContent className="px-4 pb-4 pt-0 bg-white border-t border-gray-200">
                           {(() => {
-                            // Función helper para parsear additionalInfo de diferentes formatos
-                            const parseAdditionalInfo = (leadData: any) => {
-                              // Buscar campos que contengan información adicional
-                              const additionalFields: any = {};
+                            // Función para obtener solo las claves dinámicas del campo additionalInfo
+                            const getAdditionalInfoFields = (lead: any) => {
+                              console.log('🔍 Getting additionalInfo fields from lead:', lead.id);
+                              console.log('🔍 Lead additionalInfo value:', lead.additionalInfo);
+                              console.log('🔍 Lead additionalInfo type:', typeof lead.additionalInfo);
                               
-                              // Lista de campos que pueden contener información adicional
-                              const possibleAdditionalFields = [
-                                'additionalInfo', 'AdditionalInfo', 'additional_info',
-                                'contrato', 'Contrato', 'contract', 'Contract'
-                              ];
-                              
-                              console.log('🔍 Parsing additionalInfo from lead:', { leadKeys: Object.keys(leadData) });
-                              
-                              // Buscar en todos los campos del lead
-                              for (const [key, value] of Object.entries(leadData)) {
-                                // Si encontramos un campo que parece información adicional
-                                if (possibleAdditionalFields.some(field => 
-                                  key.toLowerCase().includes(field.toLowerCase()) ||
-                                  field.toLowerCase().includes(key.toLowerCase())
-                                )) {
-                                  console.log(`🔍 Found potential additional field: ${key}`, value);
-                                  
-                                  if (value !== null && value !== undefined && value !== '') {
-                                    if (typeof value === 'string') {
-                                      try {
-                                        const parsed = JSON.parse(value);
-                                        if (typeof parsed === 'object') {
-                                          Object.assign(additionalFields, parsed);
-                                        } else {
-                                          additionalFields[key] = value;
-                                        }
-                                      } catch {
-                                        additionalFields[key] = value;
-                                      }
-                                    } else if (typeof value === 'object') {
-                                      Object.assign(additionalFields, value);
-                                    } else {
-                                      additionalFields[key] = value;
-                                    }
-                                  }
-                                }
-                                // También buscar campos con valores numéricos que podrían ser contratos
-                                else if (typeof value === 'number' || (typeof value === 'string' && /^\d+$/.test(value))) {
-                                  if (key.toLowerCase().includes('contrato') || 
-                                      key.toLowerCase().includes('contract') ||
-                                      (typeof value === 'string' && value.length >= 5)) {
-                                    additionalFields[key] = value;
-                                  }
-                                }
+                              // Si no existe el campo additionalInfo, retornar null
+                              if (!lead.additionalInfo) {
+                                console.log('🔍 No additionalInfo field found');
+                                return null;
                               }
                               
-                              console.log('🔍 Final additional fields:', additionalFields);
-                              return Object.keys(additionalFields).length > 0 ? additionalFields : null;
+                              let parsedFields: any = {};
+                              
+                              // Si additionalInfo es un objeto, usarlo directamente
+                              if (typeof lead.additionalInfo === 'object' && lead.additionalInfo !== null) {
+                                console.log('🔍 additionalInfo is object, using directly');
+                                parsedFields = { ...lead.additionalInfo };
+                              }
+                              // Si es un string, intentar parsearlo como JSON
+                              else if (typeof lead.additionalInfo === 'string') {
+                                console.log('🔍 additionalInfo is string, attempting to parse JSON');
+                                try {
+                                  const parsed = JSON.parse(lead.additionalInfo);
+                                  if (typeof parsed === 'object' && parsed !== null) {
+                                    parsedFields = { ...parsed };
+                                  } else {
+                                    // Si no es un objeto, tratarlo como un valor simple
+                                    parsedFields = { additionalInfo: lead.additionalInfo };
+                                  }
+                                } catch (error) {
+                                  console.log('🔍 Failed to parse additionalInfo as JSON, treating as string value');
+                                  parsedFields = { additionalInfo: lead.additionalInfo };
+                                }
+                              }
+                              // Para cualquier otro tipo, convertir a string
+                              else {
+                                console.log('🔍 additionalInfo is other type, converting to string');
+                                parsedFields = { additionalInfo: String(lead.additionalInfo) };
+                              }
+                              
+                              // Filtrar campos vacíos o nulos
+                              const filteredFields = Object.fromEntries(
+                                Object.entries(parsedFields).filter(([key, value]) => 
+                                  value !== null && 
+                                  value !== undefined && 
+                                  value !== '' &&
+                                  key.trim() !== ''
+                                )
+                              );
+                              
+                              console.log('🔍 Final filtered additionalInfo fields:', filteredFields);
+                              
+                              return Object.keys(filteredFields).length > 0 ? filteredFields : null;
                             };
 
-                            const parsedInfo = parseAdditionalInfo(editedLead);
-                            console.log('🔍 Parsed additionalInfo result:', parsedInfo);
+                            const additionalInfoFields = getAdditionalInfoFields(editedLead);
+                            console.log('🔍 Final additionalInfo result:', additionalInfoFields);
 
-                            return parsedInfo ? (
+                            return additionalInfoFields ? (
                               <div className="rounded-xl overflow-hidden bg-gray-50 mt-4">
                                 <ScrollArea className="h-48">
                                   <Table>
@@ -793,7 +794,7 @@ Notas adicionales: ${lead.notes || 'Ninguna'}`;
                                       </TableRow>
                                     </TableHeader>
                                     <TableBody>
-                                      {Object.entries(parsedInfo).map(([key, value], index) => (
+                                      {Object.entries(additionalInfoFields).map(([key, value], index) => (
                                         <TableRow key={key} className={index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
                                           <TableCell className="font-medium text-gray-600">{key}</TableCell>
                                           <TableCell className="text-gray-900">
