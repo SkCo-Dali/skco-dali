@@ -100,15 +100,15 @@ export const getRolePermissions = (role: UserRole): RolePermissions => {
         canEdit: false,
         canDelete: false,
         canAssign: false,
-        canViewAll: false,
+        canViewAll: true,
         canManageUsers: false,
-        canAccessReports: false,
+        canAccessReports: true,
         canUploadLeads: false,
         canBulkAssignLeads: false,
         canAccessUserManagement: false,
         canAssignRoles: false,
         accessiblePages: ['leads', 'ChatDali', 'reports']
-      }; 
+      };
     case 'viewer':
     case 'seguridad':
       return {

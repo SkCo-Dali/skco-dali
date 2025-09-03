@@ -92,22 +92,11 @@ export const useLeadsApi = () => {
     console.log(`🎯 Filtering ${allLeads.length} leads for role: ${user.role}`);
     console.log(`🎯 User ID: ${user.id}`);
     
-    // Para analistas: mostrar todos los leads del backend + todos los leads con source "Hubspot"
+    // Para analistas: pueden ver todos los leads que envía el backend
     if (user.role === 'analista') {
-      const hubspotLeads = allLeads.filter(lead => 
-        lead.source?.toLowerCase() === 'hubspot'
-      );
+      console.log(`🎯 Analista can see all ${allLeads.length} leads from backend (includes Hubspot leads)`);
       
-      console.log(`🎯 Analista can see all backend leads (${allLeads.length}) + Hubspot leads (${hubspotLeads.length})`);
-      
-      // Evitar duplicados combinando leads del backend con leads de Hubspot
-      const uniqueLeads = allLeads.concat(
-        hubspotLeads.filter(hubspotLead => 
-          !allLeads.some(backendLead => backendLead.id === hubspotLead.id)
-        )
-      );
-      
-      return uniqueLeads;
+      return allLeads;
     }
     
     // Para otros roles, retornar todos los leads que envía el API
