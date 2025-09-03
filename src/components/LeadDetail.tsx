@@ -82,10 +82,25 @@ const ensureArray = (value: any): any[] => {
   return [];
 };
 
-// Helper function to ensure product is always a string
+// Helper function to ensure product is always a clean string
 const ensureString = (value: any): string => {
-  if (typeof value === 'string') return value;
-  if (Array.isArray(value)) return value.join(', ');
+  if (typeof value === 'string') {
+    // Try to parse as JSON if it looks like JSON
+    if ((value.startsWith('[') && value.endsWith(']')) || (value.startsWith('{') && value.endsWith('}'))) {
+      try {
+        const parsed = JSON.parse(value);
+        if (Array.isArray(parsed)) {
+          return parsed.filter(item => item && item.trim()).join(' - ');
+        }
+        return String(parsed);
+      } catch (error) {
+        // If parsing fails, clean the string by removing brackets and quotes
+        return value.replace(/[\[\]"']/g, '').replace(/,\s*/g, ' - ').trim();
+      }
+    }
+    return value;
+  }
+  if (Array.isArray(value)) return value.filter(item => item && item.trim()).join(' - ');
   if (value === null || value === undefined) return '';
   return String(value);
 };
@@ -339,9 +354,9 @@ export function LeadDetail({ lead, isOpen, onClose, onSave, onOpenMassEmail }: L
   // Function to add new product - now handles string concatenation
   const handleAddProduct = () => {
     if (newProduct.trim()) {
-      const currentProducts = editedLead.product ? editedLead.product.split(', ').filter(p => p.trim()) : [];
+      const currentProducts = getProductsArray();
       if (!currentProducts.includes(newProduct.trim())) {
-        const updatedProducts = [...currentProducts, newProduct.trim()].join(', ');
+        const updatedProducts = [...currentProducts, newProduct.trim()].join(' - ');
         handleGeneralChange('product', updatedProducts);
         setNewProduct('');
       }
@@ -350,14 +365,24 @@ export function LeadDetail({ lead, isOpen, onClose, onSave, onOpenMassEmail }: L
 
   // Function to remove product - now handles string manipulation
   const handleRemoveProduct = (productToRemove: string) => {
-    const currentProducts = editedLead.product ? editedLead.product.split(', ').filter(p => p.trim()) : [];
-    const updatedProducts = currentProducts.filter(product => product !== productToRemove).join(', ');
+    const currentProducts = getProductsArray();
+    const updatedProducts = currentProducts.filter(product => product !== productToRemove).join(' - ');
     handleGeneralChange('product', updatedProducts);
   };
 
   // Function to get products as array for display
   const getProductsArray = (): string[] => {
-    return editedLead.product ? editedLead.product.split(', ').filter(p => p.trim()) : [];
+    if (!editedLead.product) return [];
+    
+    // Handle different separators and clean the products
+    const cleanProduct = editedLead.product.replace(/[\[\]"']/g, '').trim();
+    if (!cleanProduct) return [];
+    
+    // Split by different possible separators and clean each item
+    return cleanProduct
+      .split(/[,-]/)
+      .map(p => p.trim())
+      .filter(p => p && p !== '');
   };
 
   // Función para guardar solo cambios generales
