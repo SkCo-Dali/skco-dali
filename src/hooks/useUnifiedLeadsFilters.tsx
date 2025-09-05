@@ -134,6 +134,27 @@ export function useUnifiedLeadsFilters(leads: Lead[]) {
         }
 
         // Handle specific date selections
+        
+        // Handle year selection (year:2025)
+        if (rangeId.startsWith('year:')) {
+          const year = parseInt(rangeId.replace('year:', ''));
+          return leadDate.getFullYear() === year;
+        }
+        
+        // Handle month selection (month:2025-septiembre)
+        if (rangeId.startsWith('month:')) {
+          const monthStr = rangeId.replace('month:', '');
+          const [year, month] = monthStr.split('-');
+          const monthIndex = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio',
+             'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre']
+            .indexOf(month);
+          if (monthIndex === -1) return false;
+          
+          return leadDate.getFullYear() === parseInt(year) && 
+                 leadDate.getMonth() === monthIndex;
+        }
+        
+        // Handle specific day selection (2025-septiembre-15)
         if (rangeId.includes('-')) {
           const [year, month, day] = rangeId.split('-');
           const monthIndex = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio',

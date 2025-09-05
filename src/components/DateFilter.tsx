@@ -195,6 +195,22 @@ export function DateFilter({
     }
   };
 
+  const handleYearChange = (year: string, checked: boolean) => {
+    if (checked) {
+      setSelectedSpecificDates(prev => [...prev, `year:${year}`]);
+    } else {
+      setSelectedSpecificDates(prev => prev.filter(d => d !== `year:${year}`));
+    }
+  };
+
+  const handleMonthChange = (year: string, month: string, checked: boolean) => {
+    if (checked) {
+      setSelectedSpecificDates(prev => [...prev, `month:${year}-${month}`]);
+    } else {
+      setSelectedSpecificDates(prev => prev.filter(d => d !== `month:${year}-${month}`));
+    }
+  };
+
   const handleSelectAll = (checked: boolean) => {
     if (activeTab === 'ranges') {
       if (checked) {
@@ -362,39 +378,51 @@ export function DateFilter({
                   <span className="text-sm font-medium text-gray-700">Fechas Específicas</span>
                 </CollapsibleTrigger>
                 <CollapsibleContent className="ml-2">
-                  {Object.entries(groupedDates)
-                    .sort(([a], [b]) => parseInt(b) - parseInt(a))
-                    .map(([year, months]) => (
-                      <Collapsible key={year}>
-                        <CollapsibleTrigger className="flex items-center space-x-2 p-1 hover:bg-gray-50 w-full text-left">
-                          <ChevronDown className="h-3 w-3" />
-                          <span className="text-xs text-gray-600">{year}</span>
-                        </CollapsibleTrigger>
-                        <CollapsibleContent className="ml-4">
-                          {Object.entries(months).map(([month, days]) => (
-                            <Collapsible key={month}>
-                              <CollapsibleTrigger className="flex items-center space-x-2 p-1 hover:bg-gray-50 w-full text-left">
-                                <ChevronDown className="h-3 w-3" />
-                                <span className="text-xs text-gray-500">{month}</span>
-                              </CollapsibleTrigger>
-                              <CollapsibleContent className="ml-4">
-                                {Object.entries(days).map(([day, dates]) => (
-                                  <div key={day} className="flex items-center space-x-2 p-1 hover:bg-gray-50">
-                                    <Checkbox
-                                      checked={selectedSpecificDates.includes(`${year}-${month}-${day}`)}
-                                      onCheckedChange={(checked) => handleSpecificDateChange(`${year}-${month}-${day}`, checked as boolean)}
-                                    />
-                                    <label className="text-xs text-gray-600 cursor-pointer flex-1 select-none">
-                                      {day} ({dates.length})
-                                    </label>
-                                  </div>
-                                ))}
-                              </CollapsibleContent>
-                            </Collapsible>
-                          ))}
-                        </CollapsibleContent>
-                      </Collapsible>
-                    ))}
+                   {Object.entries(groupedDates)
+                     .sort(([a], [b]) => parseInt(b) - parseInt(a))
+                     .map(([year, months]) => (
+                       <Collapsible key={year}>
+                         <div className="flex items-center space-x-2 p-1 hover:bg-gray-50 w-full">
+                           <Checkbox
+                             checked={selectedSpecificDates.includes(`year:${year}`)}
+                             onCheckedChange={(checked) => handleYearChange(year, checked as boolean)}
+                           />
+                           <CollapsibleTrigger className="flex items-center space-x-2 flex-1 text-left">
+                             <ChevronDown className="h-3 w-3" />
+                             <span className="text-xs text-gray-600">{year}</span>
+                           </CollapsibleTrigger>
+                         </div>
+                         <CollapsibleContent className="ml-4">
+                           {Object.entries(months).map(([month, days]) => (
+                             <Collapsible key={month}>
+                               <div className="flex items-center space-x-2 p-1 hover:bg-gray-50 w-full">
+                                 <Checkbox
+                                   checked={selectedSpecificDates.includes(`month:${year}-${month}`)}
+                                   onCheckedChange={(checked) => handleMonthChange(year, month, checked as boolean)}
+                                 />
+                                 <CollapsibleTrigger className="flex items-center space-x-2 flex-1 text-left">
+                                   <ChevronDown className="h-3 w-3" />
+                                   <span className="text-xs text-gray-500">{month}</span>
+                                 </CollapsibleTrigger>
+                               </div>
+                               <CollapsibleContent className="ml-4">
+                                 {Object.entries(days).map(([day, dates]) => (
+                                   <div key={day} className="flex items-center space-x-2 p-1 hover:bg-gray-50">
+                                     <Checkbox
+                                       checked={selectedSpecificDates.includes(`${year}-${month}-${day}`)}
+                                       onCheckedChange={(checked) => handleSpecificDateChange(`${year}-${month}-${day}`, checked as boolean)}
+                                     />
+                                     <label className="text-xs text-gray-600 cursor-pointer flex-1 select-none">
+                                       {day} ({dates.length})
+                                     </label>
+                                   </div>
+                                 ))}
+                               </CollapsibleContent>
+                             </Collapsible>
+                           ))}
+                         </CollapsibleContent>
+                       </Collapsible>
+                     ))}
                 </CollapsibleContent>
               </Collapsible>
             )}
