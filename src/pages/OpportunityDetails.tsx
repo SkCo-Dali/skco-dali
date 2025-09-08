@@ -244,7 +244,7 @@ export const OpportunityDetails: React.FC = () => {
                       <div className="w-1 h-5 bg-primary rounded-full"></div>
                       Datos Clave
                     </h3>
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-2 gap-6 p-4">
                       {/* Clientes Impactables */}
                       <Tooltip>
                         <TooltipTrigger asChild>
