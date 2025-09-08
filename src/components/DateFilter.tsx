@@ -340,10 +340,10 @@ export function DateFilter({
             </div>
           </div>
 
-          <div className="max-h-80 overflow-y-auto space-y-2">
+          {/*<div className="max-h-80 overflow-y-auto space-y-2">
             {activeTab === 'ranges' && (
               <>
-                {/* Select All */}
+                {/* Select All 
                 <div className="flex items-center space-x-2 p-2 hover:bg-gray-50 border-b">
                   <Checkbox
                     checked={isAllSelected}
@@ -354,7 +354,7 @@ export function DateFilter({
                   <label className="text-sm font-medium text-gray-700 cursor-pointer select-none">
                     (Seleccionar Todo)
                   </label>
-                </div>
+                </div> */}
 
                 {/* Predefined ranges */}
                 {DATE_RANGES.map((range) => (
