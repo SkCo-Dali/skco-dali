@@ -140,61 +140,6 @@ export const OpportunityDetailsModal: React.FC<OpportunityDetailsModalProps> = (
               </CardContent>
             </Card>
 
-            {/* Strategy */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-base">Estrategia Sugerida</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                {/* Email Strategy */}
-                <div className="space-y-2">
-                  <div className="flex items-center gap-2">
-                    <Mail className="h-4 w-4 text-blue-500" />
-                    <h4 className="font-medium text-sm">Email</h4>
-                  </div>
-                  <div className="pl-6 space-y-2 text-sm">
-                    <div>
-                      <span className="font-medium">Asunto: </span>
-                      <span className="text-muted-foreground">{opportunity.strategy.email.subject}</span>
-                    </div>
-                    <div>
-                      <span className="font-medium">Mensaje: </span>
-                      <p className="text-muted-foreground mt-1">{opportunity.strategy.email.body}</p>
-                    </div>
-                  </div>
-                </div>
-
-                {/* WhatsApp Strategy */}
-                <div className="space-y-2">
-                  <div className="flex items-center gap-2">
-                    <MessageCircle className="h-4 w-4 text-green-500" />
-                    <h4 className="font-medium text-sm">WhatsApp</h4>
-                  </div>
-                  <div className="pl-6 space-y-2 text-sm">
-                    <div>
-                      <span className="font-medium">Template: </span>
-                      <span className="text-muted-foreground">{opportunity.strategy.whatsapp.template}</span>
-                    </div>
-                    <div>
-                      <span className="font-medium">Mensaje: </span>
-                      <p className="text-muted-foreground mt-1">{opportunity.strategy.whatsapp.message}</p>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Call Strategy */}
-                <div className="space-y-2">
-                  <div className="flex items-center gap-2">
-                    <Phone className="h-4 w-4 text-orange-500" />
-                    <h4 className="font-medium text-sm">Llamada</h4>
-                  </div>
-                  <div className="pl-6 text-sm">
-                    <span className="font-medium">Script: </span>
-                    <p className="text-muted-foreground mt-1">{opportunity.strategy.call.script}</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
           </div>
 
           {/* Sidebar */}
@@ -240,53 +185,7 @@ export const OpportunityDetailsModal: React.FC<OpportunityDetailsModalProps> = (
               </CardContent>
             </Card>
 
-            {/* Timeline */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-sm">
-                  <Calendar className="h-4 w-4" />
-                  Timeline
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                <div className="space-y-2">
-                  <span className="text-muted-foreground text-sm">Ventana de Tiempo</span>
-                  <div className="text-xs">
-                    <div>Inicio: {new Date(opportunity.timeWindow.start).toLocaleDateString('es-ES')}</div>
-                    <div>Fin: {new Date(opportunity.timeWindow.end).toLocaleDateString('es-ES')}</div>
-                  </div>
-                </div>
 
-                {opportunity.expiresAt && (
-                  <div className="space-y-2">
-                    <span className="text-muted-foreground text-sm">Vencimiento</span>
-                    <Badge variant="outline" className="w-full justify-center text-xs text-orange-600 border-orange-200">
-                      {new Date(opportunity.expiresAt).toLocaleDateString('es-ES')}
-                    </Badge>
-                  </div>
-                )}
-
-                <div className="space-y-2">
-                  <span className="text-muted-foreground text-sm">Creado</span>
-                  <div className="text-xs">
-                    {new Date(opportunity.createdAt).toLocaleDateString('es-ES')}
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Trigger */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-sm">
-                  <Target className="h-4 w-4" />
-                  Disparador
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-muted-foreground text-xs">{opportunity.trigger}</p>
-              </CardContent>
-            </Card>
           </div>
         </div>
       </DialogContent>
