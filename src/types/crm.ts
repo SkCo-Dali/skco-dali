@@ -105,7 +105,7 @@ export const getRolePermissions = (role: UserRole): RolePermissions => {
       return {
         canCreate: true,
         canEdit: true,
-        canDelete: false,
+        canDelete: true,
         canAssign: false,
         canViewAll: false,
         canManageUsers: false,
@@ -120,7 +120,7 @@ export const getRolePermissions = (role: UserRole): RolePermissions => {
       };
     case 'analista':
       return {
-        canCreate: true,
+        canCreate: false,
         canEdit: false,
         canDelete: false,
         canAssign: false,
