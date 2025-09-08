@@ -79,14 +79,11 @@ export const OpportunityCard: React.FC<OpportunityCardProps> = ({
           </div>
         </div>
 
-        {/* Title and subtitle - centered */}
-        <div className="space-y-1">
+        {/* Title - centered */}
+        <div>
           <h3 className="font-bold text-sm line-clamp-2 group-hover:text-primary transition-colors text-center">
             {opportunity.title}
           </h3>
-          <p className="text-xs text-muted-foreground line-clamp-2 text-center">
-            {opportunity.subtitle}
-          </p>
         </div>
 
         {/* Top badge if highlighted */}
