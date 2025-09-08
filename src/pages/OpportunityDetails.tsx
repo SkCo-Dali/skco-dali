@@ -184,8 +184,8 @@ export const OpportunityDetails: React.FC = () => {
               <div className="flex items-start gap-6">
                 {/* Enhanced Icon */}
                 <div className="relative">
-                  <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-primary/20 via-primary/10 to-primary/5 flex items-center justify-center shadow-lg border border-primary/20">
-                    <span className="text-4xl filter drop-shadow-sm">{opportunity.icon}</span>
+                  <div className="w-24 h-24 rounded-2xl bg-gradient-to-br from-primary/20 via-primary/10 to-primary/5 flex items-center justify-center shadow-lg border border-primary/20">
+                    <span className="text-5xl filter drop-shadow-sm">{opportunity.icon}</span>
                   </div>
                   <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-green-500 rounded-full flex items-center justify-center shadow-md">
                     <div className="w-2 h-2 bg-white rounded-full"></div>
@@ -224,7 +224,7 @@ export const OpportunityDetails: React.FC = () => {
                   <div className="w-1 h-5 bg-primary rounded-full"></div>
                   Descripción
                 </h3>
-                <p className="text-muted-foreground leading-relaxed text-base pl-3 border-l-2 border-muted">{opportunity.description}</p>
+                <p className="text-muted-foreground leading-relaxed text-lg pl-3 border-l-2 border-muted">{opportunity.description}</p>
               </div>
 
               {/* Key Metrics - E-commerce Style */}
@@ -234,32 +234,32 @@ export const OpportunityDetails: React.FC = () => {
                     <div className="w-1 h-5 bg-primary rounded-full"></div>
                     Datos Clave
                   </h3>
-                  <div className="grid grid-cols-2 gap-6">
+                  <div className="grid grid-cols-2 gap-4">
                     {/* Clientes Impactables */}
                     <div className="relative group">
                       <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-blue-600/10 rounded-2xl blur-xl group-hover:blur-lg transition-all duration-300"></div>
-                      <div className="relative bg-white/60 backdrop-blur-sm border border-blue-200/50 rounded-2xl p-6 text-center hover:shadow-xl transition-all duration-300 group-hover:-translate-y-1">
-                        <div className="flex items-center justify-center w-12 h-12 bg-blue-100 rounded-xl mx-auto mb-3">
-                          <Users className="h-6 w-6 text-blue-600" />
+                      <div className="relative bg-white/60 backdrop-blur-sm border border-blue-200/50 rounded-2xl p-4 text-center hover:shadow-xl transition-all duration-300 group-hover:-translate-y-1">
+                        <div className="flex items-center justify-center w-10 h-10 bg-blue-100 rounded-xl mx-auto mb-2">
+                          <Users className="h-5 w-5 text-blue-600" />
                         </div>
-                        <div className="text-3xl font-bold text-blue-700 mb-1">
+                        <div className="text-2xl font-bold text-blue-700 mb-1">
                           {formatCustomerCount(opportunity.metrics.conversionRate * 1000)}
                         </div>
-                        <div className="text-sm font-medium text-blue-600">Clientes Impactables</div>
+                        <div className="text-xs font-medium text-blue-600">Clientes Impactables</div>
                       </div>
                     </div>
                     
                     {/* Comisiones Potenciales */}
                     <div className="relative group">
                       <div className="absolute inset-0 bg-gradient-to-r from-green-500/10 to-green-600/10 rounded-2xl blur-xl group-hover:blur-lg transition-all duration-300"></div>
-                      <div className="relative bg-white/60 backdrop-blur-sm border border-green-200/50 rounded-2xl p-6 text-center hover:shadow-xl transition-all duration-300 group-hover:-translate-y-1">
-                        <div className="flex items-center justify-center w-12 h-12 bg-green-100 rounded-xl mx-auto mb-3">
-                          <TrendingUp className="h-6 w-6 text-green-600" />
+                      <div className="relative bg-white/60 backdrop-blur-sm border border-green-200/50 rounded-2xl p-4 text-center hover:shadow-xl transition-all duration-300 group-hover:-translate-y-1">
+                        <div className="flex items-center justify-center w-10 h-10 bg-green-100 rounded-xl mx-auto mb-2">
+                          <TrendingUp className="h-5 w-5 text-green-600" />
                         </div>
-                        <div className="text-3xl font-bold text-green-700 mb-1">
+                        <div className="text-2xl font-bold text-green-700 mb-1">
                           ${Math.round(opportunity.metrics.estimatedSales * 0.1).toLocaleString()}
                         </div>
-                        <div className="text-sm font-medium text-green-600">Comisiones Potenciales</div>
+                        <div className="text-xs font-medium text-green-600">Comisiones Potenciales</div>
                       </div>
                     </div>
                   </div>
