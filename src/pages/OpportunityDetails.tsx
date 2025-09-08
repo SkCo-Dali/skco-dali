@@ -179,62 +179,106 @@ export const OpportunityDetails: React.FC = () => {
         {/* Main Content */}
         <div className="lg:col-span-2 space-y-6">
           {/* Opportunity Info */}
-          <Card>
-            <CardHeader>
-              <div className="flex items-start gap-4">
-                <div className="text-3xl w-12 h-12 flex items-center justify-center rounded-full bg-primary/10">
-                  {opportunity.icon}
+          <Card className="overflow-hidden border-0 shadow-lg bg-gradient-to-br from-background via-background to-muted/20">
+            <CardHeader className="pb-6">
+              <div className="flex items-start gap-6">
+                {/* Enhanced Icon */}
+                <div className="relative">
+                  <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-primary/20 via-primary/10 to-primary/5 flex items-center justify-center shadow-lg border border-primary/20">
+                    <span className="text-4xl filter drop-shadow-sm">{opportunity.icon}</span>
+                  </div>
+                  <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-green-500 rounded-full flex items-center justify-center shadow-md">
+                    <div className="w-2 h-2 bg-white rounded-full"></div>
+                  </div>
                 </div>
-                <div className="flex-1">
-                  <CardTitle className="text-xl mb-2">{opportunity.title}</CardTitle>
-                  <p className="text-muted-foreground">{opportunity.subtitle}</p>
+                
+                {/* Title and Subtitle */}
+                <div className="flex-1 space-y-3">
+                  <div>
+                    <CardTitle className="text-2xl font-bold mb-2 bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text">
+                      {opportunity.title}
+                    </CardTitle>
+                    <p className="text-muted-foreground text-lg font-medium">{opportunity.subtitle}</p>
+                  </div>
+                  
+                  {/* Priority and Type Badges */}
+                  <div className="flex flex-wrap gap-3">
+                    <Badge 
+                      variant="outline" 
+                      className={`${getPriorityColor(opportunity.priority)} font-semibold px-3 py-1`}
+                    >
+                      Prioridad {opportunity.priority.toUpperCase()}
+                    </Badge>
+                    <Badge variant="secondary" className="bg-blue-50 text-blue-700 border-blue-200 font-medium px-3 py-1">
+                      {OPPORTUNITY_TYPE_LABELS[opportunity.type]}
+                    </Badge>
+                  </div>
                 </div>
               </div>
             </CardHeader>
-            <CardContent className="space-y-6">
-              <div className="space-y-4">
-                <h3 className="font-semibold text-lg">Descripción</h3>
-                <p className="text-muted-foreground leading-relaxed">{opportunity.description}</p>
+            
+            <CardContent className="space-y-8">
+              {/* Description */}
+              <div className="space-y-3">
+                <h3 className="font-semibold text-lg flex items-center gap-2">
+                  <div className="w-1 h-5 bg-primary rounded-full"></div>
+                  Descripción
+                </h3>
+                <p className="text-muted-foreground leading-relaxed text-base pl-3 border-l-2 border-muted">{opportunity.description}</p>
               </div>
 
-              {/* Tags */}
-              <div className="space-y-2">
-                <h4 className="font-medium">Clasificación</h4>
-                <div className="flex flex-wrap gap-2">
-                  <Badge 
-                    variant="outline" 
-                    className={getPriorityColor(opportunity.priority)}
-                  >
-                    Prioridad {opportunity.priority.toUpperCase()}
-                  </Badge>
-                  <Badge variant="secondary">
-                    {OPPORTUNITY_TYPE_LABELS[opportunity.type]}
-                  </Badge>
-                  {opportunity.tags.map((tag, index) => (
-                    <Badge key={index} variant="outline">
-                      {tag}
-                    </Badge>
-                  ))}
-                </div>
-              </div>
-
-              {/* Metrics */}
+              {/* Key Metrics - E-commerce Style */}
               {opportunity.metrics && (
                 <div className="space-y-4">
-                  <h4 className="font-medium">Métricas Proyectadas</h4>
-                  <div className="grid grid-cols-3 gap-4">
-                    <div className="text-center p-3 bg-muted/50 rounded-xl">
-                      <div className="text-xl font-bold text-primary">{opportunity.metrics.conversionRate}%</div>
-                      <div className="text-sm text-muted-foreground">Conversión</div>
+                  <h3 className="font-semibold text-lg flex items-center gap-2">
+                    <div className="w-1 h-5 bg-primary rounded-full"></div>
+                    Datos Clave
+                  </h3>
+                  <div className="grid grid-cols-2 gap-6">
+                    {/* Clientes Impactables */}
+                    <div className="relative group">
+                      <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-blue-600/10 rounded-2xl blur-xl group-hover:blur-lg transition-all duration-300"></div>
+                      <div className="relative bg-white/60 backdrop-blur-sm border border-blue-200/50 rounded-2xl p-6 text-center hover:shadow-xl transition-all duration-300 group-hover:-translate-y-1">
+                        <div className="flex items-center justify-center w-12 h-12 bg-blue-100 rounded-xl mx-auto mb-3">
+                          <Users className="h-6 w-6 text-blue-600" />
+                        </div>
+                        <div className="text-3xl font-bold text-blue-700 mb-1">
+                          {formatCustomerCount(opportunity.metrics.conversionRate * 1000)}
+                        </div>
+                        <div className="text-sm font-medium text-blue-600">Clientes Impactables</div>
+                      </div>
                     </div>
-                    <div className="text-center p-3 bg-muted/50 rounded-xl">
-                      <div className="text-xl font-bold text-blue-600">{opportunity.metrics.ctrEstimated}%</div>
-                      <div className="text-sm text-muted-foreground">CTR Estimado</div>
+                    
+                    {/* Comisiones Potenciales */}
+                    <div className="relative group">
+                      <div className="absolute inset-0 bg-gradient-to-r from-green-500/10 to-green-600/10 rounded-2xl blur-xl group-hover:blur-lg transition-all duration-300"></div>
+                      <div className="relative bg-white/60 backdrop-blur-sm border border-green-200/50 rounded-2xl p-6 text-center hover:shadow-xl transition-all duration-300 group-hover:-translate-y-1">
+                        <div className="flex items-center justify-center w-12 h-12 bg-green-100 rounded-xl mx-auto mb-3">
+                          <TrendingUp className="h-6 w-6 text-green-600" />
+                        </div>
+                        <div className="text-3xl font-bold text-green-700 mb-1">
+                          ${Math.round(opportunity.metrics.estimatedSales * 0.1).toLocaleString()}
+                        </div>
+                        <div className="text-sm font-medium text-green-600">Comisiones Potenciales</div>
+                      </div>
                     </div>
-                    <div className="text-center p-3 bg-muted/50 rounded-xl">
-                      <div className="text-xl font-bold text-green-600">${opportunity.metrics.estimatedSales.toLocaleString()}</div>
-                      <div className="text-sm text-muted-foreground">Ventas Est.</div>
-                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Tags */}
+              {opportunity.tags.length > 0 && (
+                <div className="space-y-3">
+                  <h4 className="font-medium text-base flex items-center gap-2">
+                    <div className="w-0.5 h-4 bg-muted-foreground/50 rounded-full"></div>
+                    Etiquetas
+                  </h4>
+                  <div className="flex flex-wrap gap-2">
+                    {opportunity.tags.map((tag, index) => (
+                      <Badge key={index} variant="outline" className="bg-muted/30 hover:bg-muted/50 transition-colors px-3 py-1">
+                        {tag}
+                      </Badge>
+                    ))}
                   </div>
                 </div>
               )}
