@@ -10,11 +10,6 @@ import {
   ArrowLeft, 
   Users, 
   TrendingUp, 
-  Calendar, 
-  Target, 
-  Mail, 
-  MessageCircle, 
-  Phone,
   Heart,
   RefreshCw 
 } from 'lucide-react';
@@ -243,61 +238,6 @@ export const OpportunityDetails: React.FC = () => {
             </CardContent>
           </Card>
 
-          {/* Strategy */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Estrategia Sugerida</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {/* Email Strategy */}
-              <div className="space-y-3">
-                <div className="flex items-center gap-2">
-                  <Mail className="h-4 w-4 text-blue-500" />
-                  <h4 className="font-medium">Email</h4>
-                </div>
-                <div className="pl-6 space-y-2">
-                  <div>
-                    <span className="font-medium">Asunto: </span>
-                    <span className="text-muted-foreground">{opportunity.strategy.email.subject}</span>
-                  </div>
-                  <div>
-                    <span className="font-medium">Mensaje: </span>
-                    <p className="text-muted-foreground mt-1">{opportunity.strategy.email.body}</p>
-                  </div>
-                </div>
-              </div>
-
-              {/* WhatsApp Strategy */}
-              <div className="space-y-3">
-                <div className="flex items-center gap-2">
-                  <MessageCircle className="h-4 w-4 text-green-500" />
-                  <h4 className="font-medium">WhatsApp</h4>
-                </div>
-                <div className="pl-6 space-y-2">
-                  <div>
-                    <span className="font-medium">Template: </span>
-                    <span className="text-muted-foreground">{opportunity.strategy.whatsapp.template}</span>
-                  </div>
-                  <div>
-                    <span className="font-medium">Mensaje: </span>
-                    <p className="text-muted-foreground mt-1">{opportunity.strategy.whatsapp.message}</p>
-                  </div>
-                </div>
-              </div>
-
-              {/* Call Strategy */}
-              <div className="space-y-3">
-                <div className="flex items-center gap-2">
-                  <Phone className="h-4 w-4 text-orange-500" />
-                  <h4 className="font-medium">Llamada</h4>
-                </div>
-                <div className="pl-6">
-                  <span className="font-medium">Script: </span>
-                  <p className="text-muted-foreground mt-1">{opportunity.strategy.call.script}</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
         </div>
 
         {/* Sidebar */}
@@ -343,53 +283,7 @@ export const OpportunityDetails: React.FC = () => {
             </CardContent>
           </Card>
 
-          {/* Timeline */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Calendar className="h-5 w-5" />
-                Timeline
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <span className="text-muted-foreground">Ventana de Tiempo</span>
-                <div className="text-sm">
-                  <div>Inicio: {new Date(opportunity.timeWindow.start).toLocaleDateString('es-ES')}</div>
-                  <div>Fin: {new Date(opportunity.timeWindow.end).toLocaleDateString('es-ES')}</div>
-                </div>
-              </div>
 
-              {opportunity.expiresAt && (
-                <div className="space-y-2">
-                  <span className="text-muted-foreground">Vencimiento</span>
-                  <Badge variant="outline" className="w-full justify-center text-orange-600 border-orange-200">
-                    {new Date(opportunity.expiresAt).toLocaleDateString('es-ES')}
-                  </Badge>
-                </div>
-              )}
-
-              <div className="space-y-2">
-                <span className="text-muted-foreground">Creado</span>
-                <div className="text-sm">
-                  {new Date(opportunity.createdAt).toLocaleDateString('es-ES')}
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Trigger */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Target className="h-5 w-5" />
-                Disparador
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-muted-foreground text-sm">{opportunity.trigger}</p>
-            </CardContent>
-          </Card>
         </div>
       </div>
     </div>
