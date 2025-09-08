@@ -298,7 +298,7 @@ export function DateFilter({
           {/* Header with tabs */}
           <div className="flex mb-4">
             <div className="flex bg-gray-100 rounded-xl p-1">
-              <button 
+              {/* <button 
                 onClick={(e) => {
                   e.stopPropagation();
                   setActiveTab('ranges');
@@ -310,7 +310,7 @@ export function DateFilter({
                 }`}
               >
                 Periodos
-              </button>
+              </button>*/}
               <button 
                 onClick={(e) => {
                   e.stopPropagation();
