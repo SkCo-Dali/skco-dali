@@ -46,7 +46,7 @@ export function WhatsAppTemplateSelector({
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="text-center text-muted-foreground py-8">
+          <div className="text-center text-muted-foreground py-5">
             No hay plantillas disponibles
           </div>
         </CardContent>
@@ -113,7 +113,7 @@ export function WhatsAppTemplateSelector({
         </div>
         
         {selectedTemplate && (
-          <div className="mt-4 p-4 bg-green-50 border border-green-200 rounded-lg">
+          <div className="mt-4 p-4 bg-green-50 border border-green-200 rounded-xl">
             <h4 className="font-medium text-green-800 mb-2">Plantilla Seleccionada:</h4>
             <p className="text-sm text-green-700">{selectedTemplate.content}</p>
           </div>

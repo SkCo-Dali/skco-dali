@@ -108,7 +108,7 @@ export function EditReportDialog({ open, onOpenChange, report, onEditReport }: E
             />
           </div>
 
-          <div className="flex items-center justify-between p-4 border rounded-lg">
+          <div className="flex items-center justify-between p-4 border rounded-xl">
             <div className="space-y-1">
               <Label htmlFor="isActive">Reporte Activo</Label>
               <p className="text-sm text-muted-foreground">
@@ -122,7 +122,7 @@ export function EditReportDialog({ open, onOpenChange, report, onEditReport }: E
             />
           </div>
 
-          <div className="flex items-center justify-between p-4 border rounded-lg">
+          <div className="flex items-center justify-between p-4 border rounded-xl">
             <div className="space-y-1">
               <Label htmlFor="requiresRLS">Requiere Row Level Security</Label>
               <p className="text-sm text-muted-foreground">

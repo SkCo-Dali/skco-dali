@@ -144,7 +144,7 @@ export function DateFilter({
   currentFilters 
 }: DateFilterProps) {
   const [isOpen, setIsOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState<'ranges' | 'specific' | 'custom'>('ranges');
+  const [activeTab, setActiveTab] = useState<'ranges' | 'specific' | 'custom'>('specific');
   const [selectedRanges, setSelectedRanges] = useState<string[]>(currentFilters);
   const [selectedSpecificDates, setSelectedSpecificDates] = useState<string[]>([]);
   const [customConditions, setCustomConditions] = useState<DateRangeCondition[]>([]);
@@ -192,6 +192,22 @@ export function DateFilter({
       setSelectedSpecificDates(prev => [...prev, dateString]);
     } else {
       setSelectedSpecificDates(prev => prev.filter(d => d !== dateString));
+    }
+  };
+
+  const handleYearChange = (year: string, checked: boolean) => {
+    if (checked) {
+      setSelectedSpecificDates(prev => [...prev, `year:${year}`]);
+    } else {
+      setSelectedSpecificDates(prev => prev.filter(d => d !== `year:${year}`));
+    }
+  };
+
+  const handleMonthChange = (year: string, month: string, checked: boolean) => {
+    if (checked) {
+      setSelectedSpecificDates(prev => [...prev, `month:${year}-${month}`]);
+    } else {
+      setSelectedSpecificDates(prev => prev.filter(d => d !== `month:${year}-${month}`));
     }
   };
 
@@ -281,8 +297,8 @@ export function DateFilter({
         <div className="p-4" onClick={(e) => e.stopPropagation()}>
           {/* Header with tabs */}
           <div className="flex mb-4">
-            <div className="flex bg-gray-100 rounded-lg p-1">
-              <button 
+            <div className="flex bg-gray-100 rounded-xl p-1">
+              {/* <button 
                 onClick={(e) => {
                   e.stopPropagation();
                   setActiveTab('ranges');
@@ -294,7 +310,7 @@ export function DateFilter({
                 }`}
               >
                 Periodos
-              </button>
+              </button>*/}
               <button 
                 onClick={(e) => {
                   e.stopPropagation();
@@ -325,9 +341,9 @@ export function DateFilter({
           </div>
 
           <div className="max-h-80 overflow-y-auto space-y-2">
-            {activeTab === 'ranges' && (
+            {/*{activeTab === 'ranges' && (
               <>
-                {/* Select All */}
+                 Select All 
                 <div className="flex items-center space-x-2 p-2 hover:bg-gray-50 border-b">
                   <Checkbox
                     checked={isAllSelected}
@@ -338,9 +354,9 @@ export function DateFilter({
                   <label className="text-sm font-medium text-gray-700 cursor-pointer select-none">
                     (Seleccionar Todo)
                   </label>
-                </div>
+                </div> 
 
-                {/* Predefined ranges */}
+                {/* Predefined ranges 
                 {DATE_RANGES.map((range) => (
                   <div key={range.id} className="flex items-center space-x-2 p-2 hover:bg-gray-50">
                     <Checkbox
@@ -353,7 +369,7 @@ export function DateFilter({
                   </div>
                 ))}
               </>
-            )}
+            )}*/}
 
             {activeTab === 'specific' && (
               <Collapsible open={isDateTreeOpen} onOpenChange={setIsDateTreeOpen}>
@@ -362,39 +378,51 @@ export function DateFilter({
                   <span className="text-sm font-medium text-gray-700">Fechas Específicas</span>
                 </CollapsibleTrigger>
                 <CollapsibleContent className="ml-2">
-                  {Object.entries(groupedDates)
-                    .sort(([a], [b]) => parseInt(b) - parseInt(a))
-                    .map(([year, months]) => (
-                      <Collapsible key={year}>
-                        <CollapsibleTrigger className="flex items-center space-x-2 p-1 hover:bg-gray-50 w-full text-left">
-                          <ChevronDown className="h-3 w-3" />
-                          <span className="text-xs text-gray-600">{year}</span>
-                        </CollapsibleTrigger>
-                        <CollapsibleContent className="ml-4">
-                          {Object.entries(months).map(([month, days]) => (
-                            <Collapsible key={month}>
-                              <CollapsibleTrigger className="flex items-center space-x-2 p-1 hover:bg-gray-50 w-full text-left">
-                                <ChevronDown className="h-3 w-3" />
-                                <span className="text-xs text-gray-500">{month}</span>
-                              </CollapsibleTrigger>
-                              <CollapsibleContent className="ml-4">
-                                {Object.entries(days).map(([day, dates]) => (
-                                  <div key={day} className="flex items-center space-x-2 p-1 hover:bg-gray-50">
-                                    <Checkbox
-                                      checked={selectedSpecificDates.includes(`${year}-${month}-${day}`)}
-                                      onCheckedChange={(checked) => handleSpecificDateChange(`${year}-${month}-${day}`, checked as boolean)}
-                                    />
-                                    <label className="text-xs text-gray-600 cursor-pointer flex-1 select-none">
-                                      {day} ({dates.length})
-                                    </label>
-                                  </div>
-                                ))}
-                              </CollapsibleContent>
-                            </Collapsible>
-                          ))}
-                        </CollapsibleContent>
-                      </Collapsible>
-                    ))}
+                   {Object.entries(groupedDates)
+                     .sort(([a], [b]) => parseInt(b) - parseInt(a))
+                     .map(([year, months]) => (
+                       <Collapsible key={year}>
+                         <div className="flex items-center space-x-2 p-1 hover:bg-gray-50 w-full">
+                           <Checkbox
+                             checked={selectedSpecificDates.includes(`year:${year}`)}
+                             onCheckedChange={(checked) => handleYearChange(year, checked as boolean)}
+                           />
+                           <CollapsibleTrigger className="flex items-center space-x-2 flex-1 text-left">
+                             <ChevronDown className="h-3 w-3" />
+                             <span className="text-xs text-gray-600">{year}</span>
+                           </CollapsibleTrigger>
+                         </div>
+                         <CollapsibleContent className="ml-4">
+                           {Object.entries(months).map(([month, days]) => (
+                             <Collapsible key={month}>
+                               <div className="flex items-center space-x-2 p-1 hover:bg-gray-50 w-full">
+                                 <Checkbox
+                                   checked={selectedSpecificDates.includes(`month:${year}-${month}`)}
+                                   onCheckedChange={(checked) => handleMonthChange(year, month, checked as boolean)}
+                                 />
+                                 <CollapsibleTrigger className="flex items-center space-x-2 flex-1 text-left">
+                                   <ChevronDown className="h-3 w-3" />
+                                   <span className="text-xs text-gray-500">{month}</span>
+                                 </CollapsibleTrigger>
+                               </div>
+                               <CollapsibleContent className="ml-4">
+                                 {Object.entries(days).map(([day, dates]) => (
+                                   <div key={day} className="flex items-center space-x-2 p-1 hover:bg-gray-50">
+                                     <Checkbox
+                                       checked={selectedSpecificDates.includes(`${year}-${month}-${day}`)}
+                                       onCheckedChange={(checked) => handleSpecificDateChange(`${year}-${month}-${day}`, checked as boolean)}
+                                     />
+                                     <label className="text-xs text-gray-600 cursor-pointer flex-1 select-none">
+                                       {day} ({dates.length})
+                                     </label>
+                                   </div>
+                                 ))}
+                               </CollapsibleContent>
+                             </Collapsible>
+                           ))}
+                         </CollapsibleContent>
+                       </Collapsible>
+                     ))}
                 </CollapsibleContent>
               </Collapsible>
             )}

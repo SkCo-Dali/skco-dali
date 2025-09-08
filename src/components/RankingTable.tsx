@@ -29,18 +29,18 @@ export function RankingTable({ rankings, showWeekly = false }: RankingTableProps
 
   return (
     <Card>
-      <CardHeader>
+      <CardHeader className="pb-4">
         <CardTitle className="flex items-center gap-2">
           <Trophy className="h-5 w-5" />
           {showWeekly ? 'Ranking Semanal' : 'Ranking General'}
         </CardTitle>
       </CardHeader>
-      <CardContent>
+      <CardContent className="pb-4">
         <div className="space-y-3">
           {rankings.map((ranking) => (
             <div
               key={ranking.userId}
-              className={`flex items-center justify-between p-3 rounded-lg border transition-colors ${
+              className={`flex items-center justify-between p-3 rounded-xl border transition-colors ${
                 ranking.isCurrentUser 
                   ? 'bg-primary/5 border-primary/20' 
                   : 'hover:bg-muted/50'

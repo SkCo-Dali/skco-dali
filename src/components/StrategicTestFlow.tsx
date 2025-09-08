@@ -343,7 +343,7 @@ export const StrategicTestFlow: React.FC<StrategicTestFlowProps> = ({
   // Vista del plan personalizado
   if (showPlan) {
     return (
-      <div className="min-h-[600px] bg-white p-6 m-0">
+      <div className="min-h-[600px] bg-white p-4 m-0">
         {/* Header */}
         <div className="flex items-center gap-4 mb-0">
           <Button 
@@ -371,7 +371,7 @@ export const StrategicTestFlow: React.FC<StrategicTestFlowProps> = ({
           {planConfig.components.map((component, index) => (
             <div 
               key={component.name}
-              className={`bg-green-50 p-6 text-center ${
+              className={`bg-green-50 p-4 text-center ${
                 index < planConfig.components.length - 1 ? 'border-green-50 rounded-md' : ''
               }`}
             >
@@ -384,8 +384,8 @@ export const StrategicTestFlow: React.FC<StrategicTestFlowProps> = ({
         </div>
 
         {/* Benefits Section - Contenedor gris */}
-        <div className="bg-gray-100 rounded-lg p-6 mb-8 max-w-4xl mx-auto">
-          <h3 className="text-md font-semibold text-gray-900 mb-6">Beneficios de tu plan:</h3>
+        <div className="bg-gray-100 rounded-xl p-4 mb-8 max-w-4xl mx-auto">
+          <h3 className="text-md font-semibold text-gray-900 mb-4">Beneficios de tu plan:</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {planConfig.benefits.map((benefit, index) => (
               <div key={index} className="flex items-center gap-3">
@@ -399,7 +399,7 @@ export const StrategicTestFlow: React.FC<StrategicTestFlowProps> = ({
         {/* Action Button */}
         <div className="text-center">
           <Button 
-            className="bg-green-500 hover:bg-green-600 text-white px-8 py-4 text-md font-medium rounded-full"
+            className="bg-green-500 hover:bg-green-600 text-white px-5 py-4 text-md font-medium rounded-full"
             onClick={async () => {
               if (profileId) {
                 await completeProfiling(profileId, `Plan ${flowType} completado`);
@@ -422,7 +422,7 @@ export const StrategicTestFlow: React.FC<StrategicTestFlowProps> = ({
   }
 
   return (
-    <div className="min-h-[600px] bg-gray-50 p-6 m-0">
+    <div className="min-h-[600px] bg-gray-50 p-4 m-0">
       {/* Header */}
       <div className="flex items-center gap-4 mb-8">
         <Button 
@@ -440,7 +440,7 @@ export const StrategicTestFlow: React.FC<StrategicTestFlowProps> = ({
 
       {/* Progress and Title */}
       <div className="max-w-4xl mx-auto mb-8">
-        <div className="mb-6">
+        <div className="mb-4">
           <div className="w-full bg-gray-200 rounded-full h-2 mb-4">
             <div 
               className="bg-green-500 h-2 rounded-full transition-all duration-300" 
@@ -462,7 +462,7 @@ export const StrategicTestFlow: React.FC<StrategicTestFlowProps> = ({
           return (
             <label
               key={option.id}
-              className={`flex items-center gap-4 p-4 rounded-lg border-2 cursor-pointer transition-colors ${
+              className={`flex items-center gap-4 p-4 rounded-xl border-2 cursor-pointer transition-colors ${
                 selectedOption === option.id 
                   ? 'border-green-500 bg-green-50' 
                   : 'border-gray-200 bg-white hover:border-gray-300'
@@ -476,7 +476,7 @@ export const StrategicTestFlow: React.FC<StrategicTestFlowProps> = ({
                 onChange={(e) => setSelectedOption(e.target.value)}
                 className="w-4 h-4"
               />
-              <div className="w-12 h-12 rounded-lg flex items-center justify-center text-2xl">
+              <div className="w-12 h-12 rounded-xl flex items-center justify-center text-2xl">
                 {option.icon}
               </div>
               <span className="text-md text-gray-900">{option.text}</span>
@@ -488,7 +488,7 @@ export const StrategicTestFlow: React.FC<StrategicTestFlowProps> = ({
       {/* Button */}
       <div className="text-center">
         <Button 
-          className="bg-green-400 h-10 hover:bg-green-500 text-white px-8 py-4 text-md font-medium rounded-full"
+          className="bg-green-400 h-10 hover:bg-green-500 text-white px-5 py-4 text-md font-medium rounded-full"
           disabled={!selectedOption || loading}
           onClick={handleNext}
         >

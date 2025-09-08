@@ -89,7 +89,7 @@ export const LeadProfiler: React.FC<LeadProfilerProps> = ({
   }
 
   return (
-    <div className="min-h-[600px] bg-gray-50 p-6 m-0">
+    <div className="min-h-[600px] bg-gray-50 p-4 m-0">
       {/* Header */}
       <div className="flex items-center justify-between mb-8">
         <div className="flex items-center gap-4">
@@ -108,9 +108,9 @@ export const LeadProfiler: React.FC<LeadProfilerProps> = ({
         <div className="space-y-6">
           {/* Identificador del Cliente */}
           <Card className="bg-blue-50 border-blue-200">
-            <CardContent className="p-6">
+            <CardContent className="p-4">
               <h3 className="text-md font-semibold text-gray-900 mb-4">Identificador del Cliente</h3>
-              <div className="bg-white rounded-lg p-4 border">
+              <div className="bg-white rounded-xl p-4 border">
                 <p className="text-sm font-medium text-gray-900">
                   {selectedLead?.name || 'No registra nombre'}
                 </p>
@@ -120,7 +120,7 @@ export const LeadProfiler: React.FC<LeadProfilerProps> = ({
 
           {/* Preparación de la sesión */}
           <Card className="bg-green-50 border-green-200">
-            <CardContent className="p-6">
+            <CardContent className="p-4">
               <h3 className="text-md font-semibold text-gray-900 mb-4">Preparación de la sesión:</h3>
               <div className="space-y-3">
                 <div className="flex items-start gap-3">
@@ -247,9 +247,9 @@ export const LeadProfiler: React.FC<LeadProfilerProps> = ({
 
               return (
                 <div className="space-y-4">
-                  <div className="bg-white rounded-lg p-6 border">
+                  <div className="bg-white rounded-xl p-4 border">
                     {/* Perfil y Nivel de Riesgo */}
-                    <div className="text-center space-y-2 mb-6">
+                    <div className="text-center space-y-2 mb-4">
                       <div className="inline-block bg-gray-100 rounded-full px-4 py-2">
                         <span className="text-sm font-medium">Perfil: {profileResults.finalProfileType}</span>
                       </div>
@@ -262,7 +262,7 @@ export const LeadProfiler: React.FC<LeadProfilerProps> = ({
                       {strategicPlan.components.map((component, index) => {
                         const colors = componentColors[index] || componentColors[0];
                         return (
-                          <div key={index} className={`${colors.bgColor} rounded-lg p-4 border`}>
+                          <div key={index} className={`${colors.bgColor} rounded-xl p-4 border`}>
                             <div className="flex items-center justify-between">
                               <div className="flex items-center gap-2">
                                 <div className={`w-3 h-3 ${colors.dotColor} rounded-full`}></div>
@@ -277,7 +277,7 @@ export const LeadProfiler: React.FC<LeadProfilerProps> = ({
                     </div>
 
                     {/* Beneficios */}
-                    <div className="mt-6 pt-4 border-t">
+                    <div className="mt-4 pt-4 border-t">
                       <h4 className="font-semibold text-gray-800 mb-3 text-sm">Beneficios del plan:</h4>
                       <div className="space-y-2">
                         {strategicPlan.benefits.map((benefit, index) => (
@@ -312,7 +312,7 @@ export const LeadProfiler: React.FC<LeadProfilerProps> = ({
               
               {/* Mostrar estado del cliente */}
               {clientStatus && (
-                <div className="mt-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
+                <div className="mt-4 p-3 bg-blue-50 rounded-xl border border-blue-200">
                   <p className="text-sm text-blue-800">
                     {clientStatus.hasProfile 
                       ? clientStatus.isCompleted 

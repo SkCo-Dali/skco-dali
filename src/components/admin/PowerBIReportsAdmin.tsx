@@ -209,8 +209,8 @@ export default function PowerBIReportsAdmin() {
 
   return (
     <div className="min-h-screen pt-0">
-      <div className="px-4 py-6">
-        <div className="flex items-center justify-between mb-6">
+      <div className="px-4 py-4">
+        <div className="flex items-center justify-between mb-4">
           <div>
             <h1 className="text-3xl font-bold mb-1 tracking-tight text-[#00C73D]">
               Administrar Reportes Power BI
@@ -235,7 +235,7 @@ export default function PowerBIReportsAdmin() {
               <CardHeader className="pb-3">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-3">
-                    <div className="p-2 bg-[#00C73D]/10 rounded-lg">
+                    <div className="p-2 bg-[#00C73D]/10 rounded-xl">
                       <FileBarChart className="h-5 w-5 text-[#00C73D]" />
                     </div>
                     <div>

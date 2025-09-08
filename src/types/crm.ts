@@ -34,6 +34,8 @@ export interface RolePermissions {
   canBulkAssignLeads?: boolean;
   canAccessUserManagement?: boolean;
   canAssignRoles?: boolean;
+  canSendEmail?: boolean;
+  canSendWhatsApp?: boolean;
   accessiblePages: string[];
 }
 
@@ -55,6 +57,8 @@ export const getRolePermissions = (role: UserRole): RolePermissions => {
         canBulkAssignLeads: true,
         canAccessUserManagement: true,
         canAssignRoles: true,
+        canSendEmail: true,
+        canSendWhatsApp: true,
         accessiblePages: ['dashboard', 'leads', 'ChatDali','opportunities','gamification', 'reports', 'informes', 'users', 'settings','index']
       };
     case 'manager':
@@ -71,11 +75,12 @@ export const getRolePermissions = (role: UserRole): RolePermissions => {
         canBulkAssignLeads: true,
         canAccessUserManagement: false,
         canAssignRoles: false,
+        canSendEmail: true,
+        canSendWhatsApp: true,
         accessiblePages: ['leads', 'ChatDali', 'reports']
       };
     case 'agent':
     case 'gestor':
-    case 'fp':
     case 'promotor':
     case 'aliado':
     case 'socio':
@@ -92,13 +97,15 @@ export const getRolePermissions = (role: UserRole): RolePermissions => {
         canBulkAssignLeads: true,
         canAccessUserManagement: false,
         canAssignRoles: false,
-        accessiblePages: ['leads', 'ChatDali']
+        canSendEmail: true,
+        canSendWhatsApp: true,
+        accessiblePages: ['leads', 'ChatDali',]
       };
-    case 'analista':
+    case 'fp':
       return {
-        canCreate: false,
-        canEdit: false,
-        canDelete: false,
+        canCreate: true,
+        canEdit: true,
+        canDelete: true,
         canAssign: false,
         canViewAll: false,
         canManageUsers: false,
@@ -107,8 +114,27 @@ export const getRolePermissions = (role: UserRole): RolePermissions => {
         canBulkAssignLeads: false,
         canAccessUserManagement: false,
         canAssignRoles: false,
-        accessiblePages: ['leads', 'ChatDali', 'reports']
-      }; 
+        canSendEmail: true,
+        canSendWhatsApp: true,
+        accessiblePages: ['leads', 'ChatDali',]
+      };
+    case 'analista':
+      return {
+        canCreate: false,
+        canEdit: false,
+        canDelete: false,
+        canAssign: false,
+        canViewAll: true,
+        canManageUsers: false,
+        canAccessReports: true,
+        canUploadLeads: false,
+        canBulkAssignLeads: false,
+        canAccessUserManagement: false,
+        canAssignRoles: false,
+        canSendEmail: false,
+        canSendWhatsApp: false,
+        accessiblePages: ['leads', 'reports']
+      };
     case 'viewer':
     case 'seguridad':
       return {
@@ -123,6 +149,8 @@ export const getRolePermissions = (role: UserRole): RolePermissions => {
         canBulkAssignLeads: false,
         canAccessUserManagement: false,
         canAssignRoles: false,
+        canSendEmail: true,
+        canSendWhatsApp: true,
         accessiblePages: ['leads', 'ChatDali']
       };
     default:
@@ -138,6 +166,8 @@ export const getRolePermissions = (role: UserRole): RolePermissions => {
         canBulkAssignLeads: false,
         canAccessUserManagement: false,
         canAssignRoles: false,
+        canSendEmail: false,
+        canSendWhatsApp: false,
         accessiblePages: ['dashboard']
       };
   }

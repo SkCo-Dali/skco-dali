@@ -238,7 +238,7 @@ export function AppSidebar({ onTemplateSelect }: AppSidebarProps) {
             </div>
 
             {showLogo && (
-              <div className="flex justify-center mt-4 mb-6">
+              <div className="flex justify-center mt-4 mb-4">
                 <img
                   src="https://aistudiojarvis0534199251.blob.core.windows.net/skandia-icons/DALILM.png"
                   alt="Logo Skandia"
@@ -259,7 +259,7 @@ export function AppSidebar({ onTemplateSelect }: AppSidebarProps) {
       {/* Modal para las plantillas */}
       {showTemplatesModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
-          <div className="bg-white rounded-lg w-[90vw] max-w-4xl h-[80vh] overflow-hidden">
+          <div className="bg-white rounded-xl w-[90vw] max-w-4xl h-[80vh] overflow-hidden">
             <PromptTemplates
               onSelectTemplate={handleSelectTemplate}
               onClose={() => setShowTemplatesModal(false)}

@@ -176,7 +176,7 @@ export function LeadsContent({
                     />
                   ))}
                   {groupLeads.length === 0 && (
-                    <div className="text-center text-gray-500 py-8">
+                    <div className="text-center text-gray-500 py-5">
                       <p className="text-sm">No hay leads en esta etapa</p>
                     </div>
                   )}

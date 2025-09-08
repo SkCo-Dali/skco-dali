@@ -16,7 +16,7 @@ export function Login({ onLogin }: LoginProps) {
         {/* Logo y header */}
         <div className="text-center mb-8">
           {/* Video principal más grande y completo */}
-          <div className="w-full max-w-2xl h-64 mx-auto mb-6 rounded-lg overflow-hidden shadow-lg bg-black">
+          <div className="w-full max-w-2xl h-64 mx-auto mb-4 rounded-xl overflow-hidden shadow-lg bg-black">
             <video 
               src="https://aistudiojarvis0534199251.blob.core.windows.net/skandia-icons/Dali_.mp4"
               autoPlay

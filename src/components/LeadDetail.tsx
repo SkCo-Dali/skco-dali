@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Lead, User, Interaction } from '@/types/crm';
+import { Lead, User, Interaction, getRolePermissions } from '@/types/crm';
+import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -82,10 +83,29 @@ const ensureArray = (value: any): any[] => {
   return [];
 };
 
-// Helper function to ensure product is always a string
+// Helper function to ensure product is always a clean string
 const ensureString = (value: any): string => {
-  if (typeof value === 'string') return value;
-  if (Array.isArray(value)) return value.join(', ');
+  if (typeof value === 'string') {
+    // Clean all JSON-like characters and escape sequences
+    let cleaned = value
+      .replace(/\\"/g, '"')          // Remove escape sequences
+      .replace(/[\[\]"'\\]/g, '')    // Remove all brackets and quotes
+      .replace(/,+/g, ',')           // Replace multiple commas with single comma
+      .replace(/^,|,$/g, '')         // Remove leading/trailing commas
+      .trim();
+    
+    // Split by comma and rejoin with hyphens
+    if (cleaned.includes(',')) {
+      return cleaned
+        .split(',')
+        .map(item => item.trim())
+        .filter(item => item && item !== '')
+        .join(' - ');
+    }
+    
+    return cleaned;
+  }
+  if (Array.isArray(value)) return value.filter(item => item && item.trim()).join(' - ');
   if (value === null || value === undefined) return '';
   return String(value);
 };
@@ -140,6 +160,9 @@ export function LeadDetail({ lead, isOpen, onClose, onSave, onOpenMassEmail }: L
     additionalInfoValue: lead.additionalInfo,
     additionalInfoKeys: lead.additionalInfo ? Object.keys(lead.additionalInfo) : 'No keys'
   });
+  
+  const { user } = useAuth();
+  const permissions = user ? getRolePermissions(user.role) : null;
   
   // Ensure tags and other array fields are properly initialized, but keep product as string
   const safeLeadData = {
@@ -339,9 +362,9 @@ export function LeadDetail({ lead, isOpen, onClose, onSave, onOpenMassEmail }: L
   // Function to add new product - now handles string concatenation
   const handleAddProduct = () => {
     if (newProduct.trim()) {
-      const currentProducts = editedLead.product ? editedLead.product.split(', ').filter(p => p.trim()) : [];
+      const currentProducts = getProductsArray();
       if (!currentProducts.includes(newProduct.trim())) {
-        const updatedProducts = [...currentProducts, newProduct.trim()].join(', ');
+        const updatedProducts = [...currentProducts, newProduct.trim()].join(' - ');
         handleGeneralChange('product', updatedProducts);
         setNewProduct('');
       }
@@ -350,14 +373,24 @@ export function LeadDetail({ lead, isOpen, onClose, onSave, onOpenMassEmail }: L
 
   // Function to remove product - now handles string manipulation
   const handleRemoveProduct = (productToRemove: string) => {
-    const currentProducts = editedLead.product ? editedLead.product.split(', ').filter(p => p.trim()) : [];
-    const updatedProducts = currentProducts.filter(product => product !== productToRemove).join(', ');
+    const currentProducts = getProductsArray();
+    const updatedProducts = currentProducts.filter(product => product !== productToRemove).join(' - ');
     handleGeneralChange('product', updatedProducts);
   };
 
   // Function to get products as array for display
   const getProductsArray = (): string[] => {
-    return editedLead.product ? editedLead.product.split(', ').filter(p => p.trim()) : [];
+    if (!editedLead.product) return [];
+    
+    // Handle different separators and clean the products
+    const cleanProduct = editedLead.product.replace(/[\[\]"']/g, '').trim();
+    if (!cleanProduct) return [];
+    
+    // Split by different possible separators and clean each item
+    return cleanProduct
+      .split(/[,-]/)
+      .map(p => p.trim())
+      .filter(p => p && p !== '');
   };
 
   // Función para guardar solo cambios generales
@@ -540,10 +573,12 @@ Notas adicionales: ${lead.notes || 'Ninguna'}`;
             </DialogHeader>
 
             <Tabs defaultValue="general" className="w-full px-6">
-              <TabsList className="grid w-full grid-cols-3 bg-gray-100 rounded-full px-0 py-0 my-0">
+              <TabsList className={`grid w-full ${permissions?.canAssign ? 'grid-cols-3' : 'grid-cols-2'} bg-gray-100 rounded-full px-0 py-0 my-0`}>
                 <TabsTrigger value="general" className="w-full h-full data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#00C73D] data-[state=active]:to-[#A3E40B] data-[state=active]:text-white rounded-full px-4 py-2 mt-0 text-sm font-medium transition-all duration-200">General</TabsTrigger>
                 <TabsTrigger value="management"className="w-full h-full data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#00C73D] data-[state=active]:to-[#A3E40B] data-[state=active]:text-white rounded-full px-4 py-2 mt-0 text-sm font-medium transition-all duration-200" >Gestión</TabsTrigger>
-                <TabsTrigger value="history"className="w-full h-full data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#00C73D] data-[state=active]:to-[#A3E40B] data-[state=active]:text-white rounded-full px-4 py-2 mt-0 text-sm font-medium transition-all duration-200" >Asignación</TabsTrigger>
+                {permissions?.canAssign && (
+                  <TabsTrigger value="history"className="w-full h-full data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#00C73D] data-[state=active]:to-[#A3E40B] data-[state=active]:text-white rounded-full px-4 py-2 mt-0 text-sm font-medium transition-all duration-200" >Asignación</TabsTrigger>
+                )}
               </TabsList>
 
               {/* Tab General */}
@@ -716,74 +751,80 @@ Notas adicionales: ${lead.notes || 'Ninguna'}`;
                     Información Adicional
                   </CardTitle>
                   
-                  <div className="mt-2 rounded-lg">
-                    <SkAccordion type="single" collapsible className="w-full rounded-lg">
-                      <SkAccordionItem value="additional-info" className="bg-white !rounded-lg !shadow-md overflow-hidden border border-gray-200">
+                  <div className="mt-2 rounded-xl">
+                    <SkAccordion type="single" collapsible className="w-full rounded-xl">
+                      <SkAccordionItem value="additional-info" className="bg-white !rounded-xl !shadow-md overflow-hidden border border-gray-200">
                         <SkAccordionTrigger className="px-4 py-4 hover:bg-gray-50 data-[state=open]:bg-gray-100 text-left font-semibold text-gray-700 flex items-center justify-between w-full [&>svg]:text-green-500 [&>svg]:h-5 [&>svg]:w-5 [&>svg]:ml-auto [&>svg]:shrink-0 [&[data-state=open]>svg]:rotate-180 transition-all duration-200">
                           <span>Detalles de Información Adicional</span>
                         </SkAccordionTrigger>
                         <SkAccordionContent className="px-4 pb-4 pt-0 bg-white border-t border-gray-200">
                           {(() => {
-                            // Función helper para parsear additionalInfo de diferentes formatos
-                            const parseAdditionalInfo = (leadData: any) => {
-                              // Buscar campos que contengan información adicional
-                              const additionalFields: any = {};
+                            // Función para obtener solo las claves dinámicas del campo additionalInfo
+                            const getAdditionalInfoFields = (lead: any) => {
+                              console.log('🔍 DEBUG: Full lead object:', lead);
+                              console.log('🔍 DEBUG: All lead properties:', Object.keys(lead));
+                              console.log('🔍 DEBUG: Lead additionalInfo value:', lead.additionalInfo);
+                              console.log('🔍 DEBUG: Lead additionalInfo type:', typeof lead.additionalInfo);
                               
-                              // Lista de campos que pueden contener información adicional
-                              const possibleAdditionalFields = [
-                                'additionalInfo', 'AdditionalInfo', 'additional_info',
-                                'contrato', 'Contrato', 'contract', 'Contract'
+                              // Buscar cualquier campo que contenga información adicional más allá de los campos estándar
+                              const standardFields = [
+                                'id', 'name', 'email', 'phone', 'status', 'source', 'priority', 'campaign',
+                                'portfolio', 'product', 'createdAt', 'updatedAt', 'stage', 'assignedTo', 
+                                'assignedToName', 'createdBy', 'company', 'value', 'type', 'outcome', 
+                                'notes', 'documentType', 'documentNumber', 'age', 'gender', 
+                                'preferredContactChannel', 'portfolios', 'tags', 'nextFollowUp', 
+                                'campaignOwnerName', 'interactions'
                               ];
                               
-                              console.log('🔍 Parsing additionalInfo from lead:', { leadKeys: Object.keys(leadData) });
+                              const additionalFields: any = {};
                               
-                              // Buscar en todos los campos del lead
-                              for (const [key, value] of Object.entries(leadData)) {
-                                // Si encontramos un campo que parece información adicional
-                                if (possibleAdditionalFields.some(field => 
-                                  key.toLowerCase().includes(field.toLowerCase()) ||
-                                  field.toLowerCase().includes(key.toLowerCase())
-                                )) {
-                                  console.log(`🔍 Found potential additional field: ${key}`, value);
-                                  
-                                  if (value !== null && value !== undefined && value !== '') {
-                                    if (typeof value === 'string') {
-                                      try {
-                                        const parsed = JSON.parse(value);
-                                        if (typeof parsed === 'object') {
-                                          Object.assign(additionalFields, parsed);
-                                        } else {
-                                          additionalFields[key] = value;
-                                        }
-                                      } catch {
-                                        additionalFields[key] = value;
-                                      }
-                                    } else if (typeof value === 'object') {
-                                      Object.assign(additionalFields, value);
+                              // Buscar primero el campo additionalInfo específico
+                              if (lead.additionalInfo) {
+                                console.log('🔍 Found additionalInfo field:', lead.additionalInfo);
+                                
+                                if (typeof lead.additionalInfo === 'object' && lead.additionalInfo !== null) {
+                                  console.log('🔍 additionalInfo is object, using directly');
+                                  Object.assign(additionalFields, lead.additionalInfo);
+                                } else if (typeof lead.additionalInfo === 'string') {
+                                  console.log('🔍 additionalInfo is string, attempting to parse JSON');
+                                  try {
+                                    const parsed = JSON.parse(lead.additionalInfo);
+                                    if (typeof parsed === 'object' && parsed !== null) {
+                                      Object.assign(additionalFields, parsed);
                                     } else {
-                                      additionalFields[key] = value;
+                                      additionalFields.additionalInfo = lead.additionalInfo;
                                     }
+                                  } catch (error) {
+                                    console.log('🔍 Failed to parse additionalInfo as JSON, treating as string value');
+                                    additionalFields.additionalInfo = lead.additionalInfo;
                                   }
-                                }
-                                // También buscar campos con valores numéricos que podrían ser contratos
-                                else if (typeof value === 'number' || (typeof value === 'string' && /^\d+$/.test(value))) {
-                                  if (key.toLowerCase().includes('contrato') || 
-                                      key.toLowerCase().includes('contract') ||
-                                      (typeof value === 'string' && value.length >= 5)) {
-                                    additionalFields[key] = value;
-                                  }
+                                } else {
+                                  console.log('🔍 additionalInfo is other type, converting to string');
+                                  additionalFields.additionalInfo = String(lead.additionalInfo);
                                 }
                               }
                               
+                              // Buscar también campos dinámicos que no sean estándar
+                              Object.keys(lead).forEach(key => {
+                                if (!standardFields.includes(key) && key !== 'additionalInfo') {
+                                  const value = lead[key];
+                                  if (value !== null && value !== undefined && value !== '') {
+                                    console.log(`🔍 Found dynamic field: ${key}`, value);
+                                    additionalFields[key] = value;
+                                  }
+                                }
+                              });
+                              
                               console.log('🔍 Final additional fields:', additionalFields);
+                              
                               return Object.keys(additionalFields).length > 0 ? additionalFields : null;
                             };
 
-                            const parsedInfo = parseAdditionalInfo(editedLead);
-                            console.log('🔍 Parsed additionalInfo result:', parsedInfo);
+                            const additionalInfoFields = getAdditionalInfoFields(editedLead);
+                            console.log('🔍 Final additionalInfo result:', additionalInfoFields);
 
-                            return parsedInfo ? (
-                              <div className="rounded-lg overflow-hidden bg-gray-50 mt-4">
+                            return additionalInfoFields ? (
+                              <div className="rounded-xl overflow-hidden bg-gray-50 mt-4">
                                 <ScrollArea className="h-48">
                                   <Table>
                                     <TableHeader className="sticky top-0 bg-gray-100">
@@ -793,7 +834,7 @@ Notas adicionales: ${lead.notes || 'Ninguna'}`;
                                       </TableRow>
                                     </TableHeader>
                                     <TableBody>
-                                      {Object.entries(parsedInfo).map(([key, value], index) => (
+                                      {Object.entries(additionalInfoFields).map(([key, value], index) => (
                                         <TableRow key={key} className={index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
                                           <TableCell className="font-medium text-gray-600">{key}</TableCell>
                                           <TableCell className="text-gray-900">
@@ -808,7 +849,7 @@ Notas adicionales: ${lead.notes || 'Ninguna'}`;
                                 </ScrollArea>
                               </div>
                             ) : (
-                              <div className="p-6 text-center text-gray-500 bg-gray-50 rounded-lg border border-gray-200">
+                              <div className="p-4 text-center text-gray-500 bg-gray-50 rounded-xl border border-gray-200">
                                 <AlertCircle className="h-8 w-8 mx-auto mb-2 text-gray-400" />
                                 <p className="text-sm">No hay información adicional disponible</p>
                               </div>
@@ -1021,7 +1062,7 @@ Notas adicionales: ${lead.notes || 'Ninguna'}`;
                 <Separator />
                 
                 {interactionsLoading ? (
-                  <div className="flex items-center justify-center py-8">
+                  <div className="flex items-center justify-center py-5">
                     <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
                     <span className="ml-2">Cargando interacciones...</span>
                   </div>
@@ -1061,7 +1102,7 @@ Notas adicionales: ${lead.notes || 'Ninguna'}`;
                               ) : (
                                 <div className="space-y-3">
                                   {clientLead.Interactions.map((interaction) => (
-                                    <div key={interaction.Id} className="flex items-start gap-3 p-3 bg-gray-50 rounded-lg">
+                                    <div key={interaction.Id} className="flex items-start gap-3 p-3 bg-gray-50 rounded-xl">
                                       <div className="p-2 rounded-full bg-blue-100 text-blue-600">
                                         {interaction.Type === 'email' && <Mail className="h-3 w-3" />}
                                         {interaction.Type === 'phone' && <Phone className="h-3 w-3" />}
@@ -1090,7 +1131,7 @@ Notas adicionales: ${lead.notes || 'Ninguna'}`;
                       /* Mostrar solo interacciones del lead actual */
                       <>
                         {interactions.length === 0 ? (
-                          <div className="text-center py-8 text-muted-foreground">
+                          <div className="text-center py-5 text-muted-foreground">
                             No hay interacciones registradas para este lead
                           </div>
                         ) : (
@@ -1152,12 +1193,12 @@ Notas adicionales: ${lead.notes || 'Ninguna'}`;
                 </div>
                 
                 {historyLoading ? (
-                  <div className="flex items-center justify-center py-8">
+                  <div className="flex items-center justify-center py-5">
                     <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary mr-2"></div>
                     <span>Cargando historial...</span>
                   </div>
                 ) : assignmentHistory.length === 0 ? (
-                  <div className="text-center py-8 text-muted-foreground">
+                  <div className="text-center py-5 text-muted-foreground">
                     <History className="h-12 w-12 mx-auto mb-4 opacity-50" />
                     <p>No hay historial de asignaciones disponible</p>
                   </div>

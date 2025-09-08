@@ -205,7 +205,7 @@ export const NightmareFlow: React.FC<NightmareFlowProps> = ({ onBack, profileId 
   // Vista del plan personalizado
   if (showPlan) {
     return (
-      <div className="min-h-[600px] bg-white p-6 m-0">
+      <div className="min-h-[600px] bg-white p-4 m-0">
         {/* Header */}
         <div className="flex items-center gap-4 mb-0">
           <Button 
@@ -233,7 +233,7 @@ export const NightmareFlow: React.FC<NightmareFlowProps> = ({ onBack, profileId 
           {NIGHTMARE_PLAN_CONFIG.components.map((component, index) => (
             <div 
               key={component.name}
-              className={`bg-green-50 p-6 text-center rounded-md ${
+              className={`bg-green-50 p-4 text-center rounded-md ${
                 index < NIGHTMARE_PLAN_CONFIG.components.length - 1 ? 'border-green-50' : ''
               }`}
             >
@@ -246,8 +246,8 @@ export const NightmareFlow: React.FC<NightmareFlowProps> = ({ onBack, profileId 
         </div>
 
         {/* Benefits Section - Contenedor gris */}
-        <div className="bg-gray-100 rounded-lg p-6 mb-8 max-w-4xl mx-auto">
-          <h3 className="text-md font-semibold text-gray-900 mb-6">Beneficios de tu plan:</h3>
+        <div className="bg-gray-100 rounded-xl p-4 mb-8 max-w-4xl mx-auto">
+          <h3 className="text-md font-semibold text-gray-900 mb-4">Beneficios de tu plan:</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {NIGHTMARE_PLAN_CONFIG.benefits.map((benefit, index) => (
               <div key={index} className="flex items-center gap-3">
@@ -261,7 +261,7 @@ export const NightmareFlow: React.FC<NightmareFlowProps> = ({ onBack, profileId 
         {/* Action Button */}
         <div className="text-center">
           <Button 
-            className="bg-green-500 hover:bg-green-600 text-white px-8 py-4 text-lg font-medium rounded-full"
+            className="bg-green-500 hover:bg-green-600 text-white px-5 py-4 text-lg font-medium rounded-full"
             onClick={async () => {
               if (profileId) {
                 await completeProfiling(profileId, 'Plan Nightmare completado');
@@ -301,7 +301,7 @@ export const NightmareFlow: React.FC<NightmareFlowProps> = ({ onBack, profileId 
 
         {/* Success Icon */}
         <div className="text-center mb-8 mt-0">
-          <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
+          <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
             <Target className="h-10 w-10 text-green-600" />
           </div>
           
@@ -341,13 +341,13 @@ export const NightmareFlow: React.FC<NightmareFlowProps> = ({ onBack, profileId 
                 type="number"
                 value={monthlyAmount}
                 onChange={(e) => setMonthlyAmount(Number(e.target.value))}
-                className="!pl-10 text-sm py-3 border-2 border-gray-200 focus:border-green-500 rounded-lg"
+                className="!pl-10 text-sm py-3 border-2 border-gray-200 focus:border-green-500 rounded-xl"
               />
             </div>
           </div>
 
           {/* Projection Card */}
-          <div className="bg-green-50 border border-green-200 rounded-lg p-2">
+          <div className="bg-green-50 border border-green-200 rounded-xl p-2">
             <div className="flex items-center gap-3">
               <div className="text-2xl">💡</div>
               <div>
@@ -375,7 +375,7 @@ export const NightmareFlow: React.FC<NightmareFlowProps> = ({ onBack, profileId 
 
   // Vista de preguntas (código existente)
   return (
-    <div className="min-h-[600px] bg-gray-50 p-6 m-0">
+    <div className="min-h-[600px] bg-gray-50 p-4 m-0">
       {/* Header */}
       <div className="flex items-center gap-4 mb-8">
         <Button 
@@ -402,7 +402,7 @@ export const NightmareFlow: React.FC<NightmareFlowProps> = ({ onBack, profileId 
           return (
             <label
               key={option.id}
-              className={`relative p-6 rounded-lg border-2 cursor-pointer transition-colors ${
+              className={`relative p-4 rounded-xl border-2 cursor-pointer transition-colors ${
                 selectedOption === option.id 
                   ? 'border-green-500 bg-green-50' 
                   : 'border-gray-200 bg-white hover:border-gray-300'
@@ -435,7 +435,7 @@ export const NightmareFlow: React.FC<NightmareFlowProps> = ({ onBack, profileId 
       {/* Button */}
       <div className="text-center">
           <Button 
-            className="bg-green-500 hover:bg-green-600 text-white px-8 py-4 text-md font-medium rounded-full"
+            className="bg-green-500 hover:bg-green-600 text-white px-5 py-4 text-md font-medium rounded-full"
             disabled={!selectedOption || loading}
             onClick={handleNext}
           >

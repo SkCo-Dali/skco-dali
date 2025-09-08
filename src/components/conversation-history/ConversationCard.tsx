@@ -78,7 +78,7 @@ export const ConversationCard: React.FC<ConversationCardProps> = ({
       } ${isLoading ? 'opacity-60' : ''}`}
       onClick={() => !isEditingTitle && onLoad(conversation.id)}
     >
-      <CardContent className="p-6">
+      <CardContent className="p-4">
         <div className="flex items-start justify-between">
           <div className="flex-1 min-w-0 space-y-3">
             {/* Título con indicadores */}

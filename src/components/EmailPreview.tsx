@@ -90,7 +90,7 @@ export function EmailPreview({
         </div>
         
         {leads.length > maxPreviews && (
-          <div className="mt-4 p-3 bg-muted rounded-lg text-center">
+          <div className="mt-4 p-3 bg-muted rounded-xl text-center">
             <p className="text-sm text-muted-foreground">
               ... y {leads.length - maxPreviews} correos más se enviarían con el mismo formato
             </p>

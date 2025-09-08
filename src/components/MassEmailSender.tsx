@@ -142,7 +142,7 @@ export function MassEmailSender({ filteredLeads, onClose }: MassEmailSenderProps
 
         {/* Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className={`grid w-full ${showHistoryTab ? 'grid-cols-3' : 'grid-cols-2'} mb-6 bg-gray-100 rounded-full px-0 py-0 my-0`}>
+          <TabsList className={`grid w-full ${showHistoryTab ? 'grid-cols-3' : 'grid-cols-2'} mb-4 bg-gray-100 rounded-full px-0 py-0 my-0`}>
             <TabsTrigger 
               value="compose" 
               className="w-full h-full data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#00C73D] data-[state=active]:to-[#A3E40B] data-[state=active]:text-white rounded-full px-4 py-2 mt-0 text-sm font-medium transition-all duration-200"
@@ -168,7 +168,7 @@ export function MassEmailSender({ filteredLeads, onClose }: MassEmailSenderProps
             )}
           </TabsList>
 
-          <TabsContent value="compose" className="space-y-6 mt-6">
+          <TabsContent value="compose" className="space-y-6 mt-4">
             <EmailComposer
               template={template}
               onTemplateChange={setTemplate}
@@ -199,7 +199,7 @@ export function MassEmailSender({ filteredLeads, onClose }: MassEmailSenderProps
             </div>
           </TabsContent>
 
-          <TabsContent value="preview" className="space-y-6 mt-6">
+          <TabsContent value="preview" className="space-y-6 mt-4">
             {/* Mensaje info con control de visibilidad */}
             {showInfoMessage && <InfoMessage onClose={() => setShowInfoMessage(false)} />}
 
@@ -227,7 +227,7 @@ export function MassEmailSender({ filteredLeads, onClose }: MassEmailSenderProps
           </TabsContent>
 
           {showHistoryTab && (
-            <TabsContent value="logs" className="space-y-6 mt-6">
+            <TabsContent value="logs" className="space-y-6 mt-4">
               <EmailStatusLogs
                 logs={emailLogs.filter(log => log.LeadId === validLeads[0]?.id)}
                 isLoading={isLoading}

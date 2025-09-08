@@ -69,7 +69,7 @@ export const DataChart: React.FC<DataChartProps> = ({ chartData }) => {
   const { type, data, xKey, yKey, nameKey, valueKey, title, yKey2, radarKeys } = chartData;
 
   return (
-    <div className="bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
+    <div className="bg-white dark:bg-gray-800 p-4 rounded-xl border border-gray-200 dark:border-gray-700">
       {title && (
         <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
           {title}

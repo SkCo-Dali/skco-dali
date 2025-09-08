@@ -61,7 +61,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-4xl h-[80vh] p-0">
-        <DialogHeader className="p-6 pb-0">
+        <DialogHeader className="p-4 pb-0">
           <DialogTitle>Configuración</DialogTitle>
         </DialogHeader>
         
@@ -85,7 +85,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
 
           {/* Content area */}
           <div className="flex-1 overflow-y-auto">
-            <div className="p-6">
+            <div className="p-4">
               {renderTabContent()}
             </div>
           </div>

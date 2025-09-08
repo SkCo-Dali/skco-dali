@@ -44,7 +44,7 @@ export default function Gamification() {
 
   if (loading) {
     return (
-      <div className="container mx-auto p-6">
+      <div className="container mx-auto p-4">
         <div className="flex items-center justify-center h-64">
           <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
@@ -57,9 +57,9 @@ export default function Gamification() {
 
   if (error || !profile || !stats) {
     return (
-      <div className="container mx-auto min-h-screen p-6">
+      <div className="container mx-auto min-h-screen p-4">
         <Card>
-          <CardContent className="p-6">
+          <CardContent className="p-4">
             <div className="text-center">
               <p className="text-destructive mb-4">{error || "Error al cargar datos"}</p>
               <Button onClick={() => window.location.reload()}>
@@ -75,7 +75,7 @@ export default function Gamification() {
   const nextLevelProgress = getProgressToNextLevel();
 
   return (
-    <div className="w-full max-w-full px-4 py-6 space-y-6">
+    <div className="w-full max-w-full px-4 py-4 space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>

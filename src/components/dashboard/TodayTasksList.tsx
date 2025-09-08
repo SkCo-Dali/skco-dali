@@ -65,7 +65,7 @@ export function TodayTasksList({ tasks }: TodayTasksListProps) {
           </p>
         ) : (
           todayTasks.slice(0, 5).map((task) => (
-            <div key={task.id} className="flex items-center justify-between p-3 rounded-lg border bg-card hover:bg-accent/50 transition-colors">
+            <div key={task.id} className="flex items-center justify-between p-3 rounded-xl border bg-card hover:bg-accent/50 transition-colors">
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 mb-1">
                   {getPriorityIcon(task.priority)}

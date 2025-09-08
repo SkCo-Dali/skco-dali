@@ -15,6 +15,7 @@ import {
   Trash,
   MessageSquare
 } from "lucide-react";
+import { RolePermissions } from "@/types/crm";
 
 interface LeadsActionsButtonProps {
   onCreateLead: () => void;
@@ -24,6 +25,7 @@ interface LeadsActionsButtonProps {
   onDeleteLeads: () => void;
   selectedLeadsCount: number;
   isDeleting?: boolean;
+  permissions: RolePermissions;
 }
 
 export function LeadsActionsButton({
@@ -33,7 +35,8 @@ export function LeadsActionsButton({
   onMassWhatsApp,
   onDeleteLeads,
   selectedLeadsCount,
-  isDeleting = false
+  isDeleting = false,
+  permissions
 }: LeadsActionsButtonProps) {
   const handleCreateLead = () => {
     console.log('LeadsActionsButton: handleCreateLead called');
@@ -72,50 +75,60 @@ export function LeadsActionsButton({
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-56 bg-white rounded-2xl shadow-lg border border-gray-200 z-50" align="end">
-        <DropdownMenuItem onClick={handleCreateLead} className="cursor-pointer">
-          <Plus className="h-4 w-4 mr-2" />
-          Crear Lead
-        </DropdownMenuItem>
-        <DropdownMenuItem onClick={handleBulkAssign} className="cursor-pointer">
-          <Users className="h-4 w-4 mr-2" />
-          Asignación masiva
-          {selectedLeadsCount > 0 && (
-            <span className="ml-auto text-xs bg-blue-100 text-blue-800 px-1 py-0.5 rounded">
-              {selectedLeadsCount}
-            </span>
-          )}
-        </DropdownMenuItem>
-        <DropdownMenuItem onClick={handleMassEmail} className="cursor-pointer">
-          <Mail className="h-4 w-4 mr-2" />
-          Enviar email
-          {selectedLeadsCount > 0 && (
-            <span className="ml-auto text-xs bg-green-100 text-green-800 px-1 py-0.5 rounded">
-              {selectedLeadsCount}
-            </span>
-          )}
-        </DropdownMenuItem>
-        {/*<DropdownMenuItem onClick={handleMassWhatsApp} className="cursor-pointer">
-          <MessageSquare className="h-4 w-4 mr-2 text-[#25D366]" />
-          Enviar WhatsApp con Sami
-          {selectedLeadsCount > 0 && (
-            <span className="ml-auto text-xs bg-green-100 text-green-800 px-1 py-0.5 rounded">
-              {selectedLeadsCount}
-            </span>
-          )}
-        </DropdownMenuItem>?*/}
-        <DropdownMenuItem 
-          onClick={handleDeleteLeads} 
-          className="cursor-pointer text-red-600 focus:text-red-600 focus:bg-red-50"
-          disabled={isDeleting}
-        >
-          <Trash className="h-4 w-4 mr-2" />
-          Eliminar
-          {selectedLeadsCount > 0 && (
-            <span className="ml-auto text-xs bg-red-100 text-red-800 px-1 py-0.5 rounded">
-              {selectedLeadsCount}
-            </span>
-          )}
-        </DropdownMenuItem>
+        {permissions.canCreate && (
+          <DropdownMenuItem onClick={handleCreateLead} className="cursor-pointer">
+            <Plus className="h-4 w-4 mr-2" />
+            Crear Lead
+          </DropdownMenuItem>
+        )}
+        {permissions.canBulkAssignLeads && (
+          <DropdownMenuItem onClick={handleBulkAssign} className="cursor-pointer">
+            <Users className="h-4 w-4 mr-2" />
+            Asignación masiva
+            {selectedLeadsCount > 0 && (
+              <span className="ml-auto text-xs bg-blue-100 text-blue-800 px-1 py-0.5 rounded">
+                {selectedLeadsCount}
+              </span>
+            )}
+          </DropdownMenuItem>
+        )}
+        {permissions.canSendEmail && (
+          <DropdownMenuItem onClick={handleMassEmail} className="cursor-pointer">
+            <Mail className="h-4 w-4 mr-2" />
+            Enviar email
+            {selectedLeadsCount > 0 && (
+              <span className="ml-auto text-xs bg-green-100 text-green-800 px-1 py-0.5 rounded">
+                {selectedLeadsCount}
+              </span>
+            )}
+          </DropdownMenuItem>
+        )}
+        {permissions.canSendWhatsApp && (
+          <DropdownMenuItem onClick={handleMassWhatsApp} className="cursor-pointer">
+            <MessageSquare className="h-4 w-4 mr-2 text-[#25D366]" />
+            Enviar WhatsApp con Sami
+            {selectedLeadsCount > 0 && (
+              <span className="ml-auto text-xs bg-green-100 text-green-800 px-1 py-0.5 rounded">
+                {selectedLeadsCount}
+              </span>
+            )}
+          </DropdownMenuItem>
+        )}
+        {permissions.canDelete && (
+          <DropdownMenuItem 
+            onClick={handleDeleteLeads} 
+            className="cursor-pointer text-red-600 focus:text-red-600 focus:bg-red-50"
+            disabled={isDeleting}
+          >
+            <Trash className="h-4 w-4 mr-2" />
+            Eliminar
+            {selectedLeadsCount > 0 && (
+              <span className="ml-auto text-xs bg-red-100 text-red-800 px-1 py-0.5 rounded">
+                {selectedLeadsCount}
+              </span>
+            )}
+          </DropdownMenuItem>
+        )}
       </DropdownMenuContent>
     </DropdownMenu>
   );

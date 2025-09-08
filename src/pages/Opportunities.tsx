@@ -66,7 +66,7 @@ export const Opportunities: React.FC = () => {
 
   if (error) {
     return (
-      <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto px-4 py-5">
         <Alert variant="destructive">
           <AlertDescription className="flex items-center justify-between">
             <span>{error}</span>
@@ -81,7 +81,7 @@ export const Opportunities: React.FC = () => {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8 space-y-8">
+    <div className="container mx-auto px-4 py-5 space-y-8">
       {/* Header */}
       <div className="space-y-4">
         <h1 className="text-4xl font-bold bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">

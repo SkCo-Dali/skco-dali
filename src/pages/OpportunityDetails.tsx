@@ -81,7 +81,7 @@ export const OpportunityDetails: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="container mx-auto px-4 py-8 space-y-6">
+      <div className="container mx-auto px-4 py-5 space-y-6">
         <div className="flex items-center gap-4">
           <Skeleton className="h-10 w-10 rounded-full" />
           <Skeleton className="h-8 w-32" />
@@ -119,8 +119,8 @@ export const OpportunityDetails: React.FC = () => {
 
   if (error || !opportunity) {
     return (
-      <div className="container mx-auto px-4 py-8">
-        <div className="flex items-center gap-4 mb-6">
+      <div className="container mx-auto px-4 py-5">
+        <div className="flex items-center gap-4 mb-4">
           <Button variant="ghost" size="icon" onClick={handleBack}>
             <ArrowLeft className="h-4 w-4" />
           </Button>
@@ -152,7 +152,7 @@ export const OpportunityDetails: React.FC = () => {
   };
 
   return (
-    <div className="container mx-auto px-4 py-8 space-y-6">
+    <div className="container mx-auto px-4 py-5 space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
@@ -225,15 +225,15 @@ export const OpportunityDetails: React.FC = () => {
                 <div className="space-y-4">
                   <h4 className="font-medium">Métricas Proyectadas</h4>
                   <div className="grid grid-cols-3 gap-4">
-                    <div className="text-center p-3 bg-muted/50 rounded-lg">
+                    <div className="text-center p-3 bg-muted/50 rounded-xl">
                       <div className="text-xl font-bold text-primary">{opportunity.metrics.conversionRate}%</div>
                       <div className="text-sm text-muted-foreground">Conversión</div>
                     </div>
-                    <div className="text-center p-3 bg-muted/50 rounded-lg">
+                    <div className="text-center p-3 bg-muted/50 rounded-xl">
                       <div className="text-xl font-bold text-blue-600">{opportunity.metrics.ctrEstimated}%</div>
                       <div className="text-sm text-muted-foreground">CTR Estimado</div>
                     </div>
-                    <div className="text-center p-3 bg-muted/50 rounded-lg">
+                    <div className="text-center p-3 bg-muted/50 rounded-xl">
                       <div className="text-xl font-bold text-green-600">${opportunity.metrics.estimatedSales.toLocaleString()}</div>
                       <div className="text-sm text-muted-foreground">Ventas Est.</div>
                     </div>

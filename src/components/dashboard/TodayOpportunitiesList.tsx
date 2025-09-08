@@ -71,7 +71,7 @@ export function TodayOpportunitiesList({ opportunities }: TodayOpportunitiesList
           </p>
         ) : (
           todayOpportunities.slice(0, 5).map((opportunity) => (
-            <div key={opportunity.id} className="flex items-center justify-between p-3 rounded-lg border bg-card hover:bg-accent/50 transition-colors">
+            <div key={opportunity.id} className="flex items-center justify-between p-3 rounded-xl border bg-card hover:bg-accent/50 transition-colors">
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 mb-1">
                   <span className="text-sm">{getTypeIcon(opportunity.type)}</span>

@@ -4,10 +4,9 @@ import { es } from 'date-fns/locale';
 import { formatDistanceToNow } from 'date-fns';
 
 export const convertToBogotaTime = (dateTimeString: string): Date => {
-  const utcDate = new Date(dateTimeString);
-  // Restar 5 horas (UTC-5 para Colombia)
-  utcDate.setHours(utcDate.getHours() - 5);
-  return utcDate;
+  // Simply create a Date object - JavaScript Date already handles timezone conversion
+  // The input should be in ISO format which is UTC
+  return new Date(dateTimeString);
 };
 
 // Formatear fecha y hora en zona horaria de Bogotá
