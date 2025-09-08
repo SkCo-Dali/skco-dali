@@ -75,7 +75,6 @@ export const getRolePermissions = (role: UserRole): RolePermissions => {
       };
     case 'agent':
     case 'gestor':
-    case 'fp':
     case 'promotor':
     case 'aliado':
     case 'socio':
@@ -90,6 +89,21 @@ export const getRolePermissions = (role: UserRole): RolePermissions => {
         canAccessReports: false,
         canUploadLeads: false,
         canBulkAssignLeads: true,
+        canAccessUserManagement: false,
+        canAssignRoles: false,
+        accessiblePages: ['leads', 'ChatDali',]
+      };
+    case 'fp':
+      return {
+        canCreate: true,
+        canEdit: true,
+        canDelete: false,
+        canAssign: false,
+        canViewAll: false,
+        canManageUsers: false,
+        canAccessReports: false,
+        canUploadLeads: false,
+        canBulkAssignLeads: false,
         canAccessUserManagement: false,
         canAssignRoles: false,
         accessiblePages: ['leads', 'ChatDali',]

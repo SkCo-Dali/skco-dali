@@ -1,6 +1,7 @@
 import React, { useState, useCallback, useMemo, useRef } from "react";
 import { useToast } from '@/hooks/use-toast';
-import { Lead } from "@/types/crm";
+import { Lead, getRolePermissions } from "@/types/crm";
+import { useAuth } from '@/contexts/AuthContext';
 import { LeadsSearch } from "@/components/LeadsSearch";
 import { LeadsFilters } from "@/components/LeadsFilters";
 import { LeadsStats } from "@/components/LeadsStats";
@@ -94,6 +95,9 @@ export default function Leads() {
   const isMobile = useIsMobile();
   const isMedium = useIsMedium();
   const isSmallScreen = isMobile || isMedium;
+  
+  const { user } = useAuth();
+  const userPermissions = user ? getRolePermissions(user.role) : null;
 
   const {
     leads: leadsData,
@@ -379,7 +383,7 @@ export default function Leads() {
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 pt-0">
               <h1 className="text-3xl font-bold mb-1 tracking-tight text-[#00c73d]">Gestión de Leads</h1>
               
-              {isSmallScreen && (
+              {isSmallScreen && userPermissions && (
                 <LeadsActionsButton
                   onCreateLead={handleCreateLead}
                   onBulkAssign={handleBulkAssign}
@@ -388,6 +392,7 @@ export default function Leads() {
                   onDeleteLeads={handleDeleteSelectedLeads}
                   selectedLeadsCount={selectedLeads.length}
                   isDeleting={isDeleting}
+                  permissions={userPermissions}
                 />
               )}
             </div>
@@ -398,20 +403,24 @@ export default function Leads() {
             <div className="flex flex-col lg:flex-row gap-4 items-center">
               {!isSmallScreen && (
                 <div className="flex flex-1 items-center gap-2">
-                  <Button
-                    className="gap-1 w-8 h-8 bg-primary"
-                    onClick={handleCreateLead}
-                    size="icon"
-                  >
-                    <Plus className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    className="gap-1 w-8 h-8 bg-primary"
-                    onClick={handleBulkAssign}
-                    size="icon"
-                  >
-                    <Users className="h-4 w-4" />
-                  </Button>
+                  {userPermissions?.canCreate && (
+                    <Button
+                      className="gap-1 w-8 h-8 bg-primary"
+                      onClick={handleCreateLead}
+                      size="icon"
+                    >
+                      <Plus className="h-4 w-4" />
+                    </Button>
+                  )}
+                  {userPermissions?.canBulkAssignLeads && (
+                    <Button
+                      className="gap-1 w-8 h-8 bg-primary"
+                      onClick={handleBulkAssign}
+                      size="icon"
+                    >
+                      <Users className="h-4 w-4" />
+                    </Button>
+                  )}
                   <Button
                     className="gap-1 w-8 h-8 bg-primary"
                     onClick={handleMassEmail}
@@ -426,14 +435,16 @@ export default function Leads() {
                   >
                     <FaWhatsapp className="h-4 w-4" />
                   </Button>*/}
-                  <Button
-                    className="gap-1 w-8 h-8 bg-red-600 hover:bg-red-700"
-                    onClick={handleDeleteSelectedLeads}
-                    size="icon"
-                    disabled={isDeleting}
-                  >
-                    <Trash className="h-4 w-4" />
-                  </Button>
+                  {userPermissions?.canDelete && (
+                    <Button
+                      className="gap-1 w-8 h-8 bg-red-600 hover:bg-red-700"
+                      onClick={handleDeleteSelectedLeads}
+                      size="icon"
+                      disabled={isDeleting}
+                    >
+                      <Trash className="h-4 w-4" />
+                    </Button>
+                  )}
                   <LeadsSearch 
                     searchTerm={searchTerm} 
                     onSearchChange={setSearchTerm} 
@@ -760,7 +771,7 @@ export default function Leads() {
           />
         )}
 
-        {showBulkAssign && (
+        {showBulkAssign && userPermissions?.canBulkAssignLeads && (
           <Dialog open={showBulkAssign} onOpenChange={setShowBulkAssign}>
             <DialogContent className="max-w-2xl">
               <LeadsBulkAssignment
@@ -778,7 +789,7 @@ export default function Leads() {
           </Dialog>
         )}
 
-        {showUpload && (
+        {showUpload && userPermissions?.canUploadLeads && (
           <LeadsUpload
             onLeadsUploaded={() => {
               handleLeadUpdate();
