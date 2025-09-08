@@ -54,86 +54,74 @@ export const OpportunityCard: React.FC<OpportunityCardProps> = ({
   };
 
   return (
-    <Card className="group hover:shadow-lg transition-all duration-300 hover:-translate-y-1 cursor-pointer border-border/50 hover:border-primary/20">
-      <CardHeader className="pb-3 px-4">
+    <Card 
+      className="group hover:shadow-xl transition-all duration-300 hover:-translate-y-2 cursor-pointer bg-white shadow-md border-0 hover:shadow-lg"
+      onClick={handleViewDetails}
+    >
+      <CardHeader className="pb-4 px-6 pt-6">
         <div className="flex items-start justify-between">
-          <div className="flex items-center gap-3">
-            <div className="text-2xl w-10 h-10 flex items-center justify-center rounded-full bg-primary/10">
+          <div className="flex items-center gap-4">
+            <div className="text-3xl w-12 h-12 flex items-center justify-center rounded-2xl bg-gradient-to-br from-primary/20 to-primary/10 border border-primary/20">
               {opportunity.icon}
             </div>
             <div className="flex-1">
-              <h3 className="font-semibold text-base line-clamp-2 group-hover:text-primary transition-colors">
+              <h3 className="font-bold text-lg line-clamp-2 group-hover:text-primary transition-colors mb-1">
                 {opportunity.title}
               </h3>
+              <p className="text-sm text-muted-foreground line-clamp-2">
+                {opportunity.subtitle}
+              </p>
             </div>
           </div>
           <Button
             variant="ghost"
             size="icon"
             onClick={handleFavoriteToggle}
-            className="h-8 w-8 shrink-0 hover:bg-red-50 hover:text-red-500"
+            className="h-9 w-9 shrink-0 hover:bg-red-50 hover:text-red-500"
           >
             <Heart 
-              className={`h-4 w-4 ${isFavorite ? 'fill-red-500 text-red-500' : 'text-muted-foreground'}`} 
+              className={`h-5 w-5 ${isFavorite ? 'fill-red-500 text-red-500' : 'text-muted-foreground'}`} 
             />
           </Button>
         </div>
-        
-        <p className="text-sm text-muted-foreground line-clamp-2 mt-2">
-          {opportunity.subtitle}
-        </p>
       </CardHeader>
 
-      <CardContent className="space-y-4 px-4">
+      <CardContent className="space-y-5 px-6">
         {/* Tags */}
-        <div className="flex flex-wrap gap-1.5">
+        <div className="flex flex-wrap gap-2">
           <Badge 
             variant="outline" 
-            className={`text-xs px-2 py-0.5 ${getPriorityColor(opportunity.priority)}`}
+            className={`text-xs px-3 py-1 font-semibold ${getPriorityColor(opportunity.priority)}`}
           >
-            {opportunity.priority.toUpperCase()}
+            Prioridad {opportunity.priority.toUpperCase()}
           </Badge>
-          <Badge variant="secondary" className="text-xs px-2 py-0.5">
+          <Badge variant="secondary" className="text-xs px-3 py-1 font-medium bg-blue-50 text-blue-700 border-blue-200">
             {OPPORTUNITY_TYPE_LABELS[opportunity.type]}
           </Badge>
-          {/* Time Window (if applicable) */}
-        {opportunity.expiresAt && (
-          <Badge className="text-xs px-2 py-0.5 text-orange-600 bg-orange-50">
-            Vence {formatBogotaDate(opportunity.expiresAt)}
-          </Badge>
-      )}
+          {opportunity.expiresAt && (
+            <Badge className="text-xs px-3 py-1 text-orange-600 bg-orange-50 border-orange-200">
+              Vence {formatBogotaDate(opportunity.expiresAt)}
+            </Badge>
+          )}
         </div>
 
         {/* Customer Count */}
-        <div className="flex items-center gap-2 text-sm">
-          <Users className="h-4 w-4 text-muted-foreground" />
-          <span className="font-medium">{formatCustomerCount(opportunity.customerCount)}</span>
-          <span className="text-muted-foreground">clientes impactables</span>
-        </div>
-
-        {/* Score Bar */}
-        <div className="space-y-2">
-          <div className="flex justify-between items-center">
-            <span className="text-sm font-medium">Score de Impacto</span>
-            <span className="text-sm font-bold text-primary">{opportunity.score}/100</span>
+        <div className="flex items-center gap-3 text-base">
+          <div className="p-2 bg-blue-50 rounded-lg">
+            <Users className="h-5 w-5 text-blue-600" />
           </div>
-          <Progress 
-            value={opportunity.score} 
-            className="h-2"
-          />
+          <div>
+            <span className="font-bold text-blue-700">{formatCustomerCount(opportunity.customerCount)}</span>
+            <span className="text-muted-foreground ml-1">clientes impactables</span>
+          </div>
         </div>
-
       </CardContent>
 
-      <CardFooter>
-        <Button 
-          onClick={handleViewDetails}
-          className="w-full group/btn"
-          variant="outline"
-        >
-          Ver detalles
-          <ArrowRight className="h-4 w-4 ml-2 group-hover/btn:translate-x-1 transition-transform" />
-        </Button>
+      <CardFooter className="px-6 pb-6">
+        <div className="w-full flex items-center justify-center py-2 text-sm text-primary font-medium group-hover:text-primary/80 transition-colors">
+          <span>Ver detalles</span>
+          <ArrowRight className="h-4 w-4 ml-2 group-hover:translate-x-1 transition-transform" />
+        </div>
       </CardFooter>
     </Card>
   );
