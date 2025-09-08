@@ -242,44 +242,38 @@ export const OpportunityDetails: React.FC = () => {
 
         {/* Sidebar */}
         <div className="space-y-6">
-          {/* Key Stats */}
+          {/* Actions */}
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <TrendingUp className="h-5 w-5" />
-                Información Clave
+                ¿Qué puedo hacer?
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="flex items-center justify-between">
-                <span className="text-muted-foreground">Score de Impacto</span>
-                <span className="font-bold text-primary">{opportunity.score}/100</span>
-              </div>
-              <Progress value={opportunity.score} className="h-2" />
+            <CardContent className="space-y-3">
+              <Button 
+                variant="default" 
+                className="w-full justify-start h-auto py-3 px-4"
+                size="lg"
+              >
+                Cargar como leads y enviar correo masivo
+              </Button>
               
-              <div className="flex items-center justify-between">
-                <span className="text-muted-foreground">Clientes Impactables</span>
-                <div className="flex items-center gap-1">
-                  <Users className="h-4 w-4 text-muted-foreground" />
-                  <span className="font-medium">{formatCustomerCount(opportunity.customerCount)}</span>
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <span className="text-muted-foreground">Producto Sugerido</span>
-                <Badge variant="outline" className="w-full justify-center">
-                  {opportunity.suggestedProduct}
-                </Badge>
-              </div>
-
-              {opportunity.segment && (
-                <div className="space-y-2">
-                  <span className="text-muted-foreground">Segmento</span>
-                  <Badge variant="secondary" className="w-full justify-center">
-                    {opportunity.segment}
-                  </Badge>
-                </div>
-              )}
+              <Button 
+                variant="outline" 
+                className="w-full justify-start h-auto py-3 px-4"
+                size="lg"
+              >
+                Cargar como leads y enviar whatsapp masivo
+              </Button>
+              
+              <Button 
+                variant="secondary" 
+                className="w-full justify-start h-auto py-3 px-4"
+                size="lg"
+              >
+                Aprende a pedir esta base en Chat Dali
+              </Button>
             </CardContent>
           </Card>
 
