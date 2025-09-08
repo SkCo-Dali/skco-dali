@@ -263,16 +263,16 @@ export const OpportunityDetails: React.FC = () => {
               <div className="relative">
                 <Button 
                   variant="default" 
-                  className="w-full justify-start h-auto py-4 px-5 text-left bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 shadow-md hover:shadow-lg transition-all duration-200 group"
+                  className="w-full justify-start h-auto py-3 px-4 text-left bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 shadow-md hover:shadow-lg transition-all duration-200 group"
                   size="lg"
                 >
-                  <div className="flex items-center gap-3">
-                    <div className="p-2 bg-white/20 rounded-lg group-hover:bg-white/30 transition-colors">
-                      <Mail className="h-5 w-5" />
+                  <div className="flex items-center gap-3 w-full min-w-0">
+                    <div className="flex-shrink-0 p-2 bg-white/20 rounded-lg group-hover:bg-white/30 transition-colors">
+                      <Mail className="h-4 w-4" />
                     </div>
-                    <div className="flex flex-col items-start">
-                      <span className="font-semibold">Cargar como leads y enviar correo masivo</span>
-                      <span className="text-xs opacity-90">Acción recomendada</span>
+                    <div className="flex flex-col items-start min-w-0 flex-1">
+                      <span className="font-semibold text-sm leading-tight">Cargar como leads y enviar correo masivo</span>
+                      <span className="text-xs opacity-90 mt-0.5">Acción recomendada</span>
                     </div>
                   </div>
                 </Button>
@@ -286,16 +286,16 @@ export const OpportunityDetails: React.FC = () => {
               {/* Secondary Action - WhatsApp */}
               <Button 
                 variant="outline" 
-                className="w-full justify-start h-auto py-4 px-5 text-left border-2 hover:bg-green-50 hover:border-green-200 hover:text-green-700 transition-all duration-200 group"
+                className="w-full justify-start h-auto py-3 px-4 text-left border-2 hover:bg-green-50 hover:border-green-200 hover:text-green-700 transition-all duration-200 group"
                 size="lg"
               >
-                <div className="flex items-center gap-3">
-                  <div className="p-2 bg-green-100 rounded-lg group-hover:bg-green-200 transition-colors">
-                    <MessageSquare className="h-5 w-5 text-green-600" />
+                <div className="flex items-center gap-3 w-full min-w-0">
+                  <div className="flex-shrink-0 p-2 bg-green-100 rounded-lg group-hover:bg-green-200 transition-colors">
+                    <MessageSquare className="h-4 w-4 text-green-600" />
                   </div>
-                  <div className="flex flex-col items-start">
-                    <span className="font-medium">Cargar como leads y enviar WhatsApp masivo</span>
-                    <span className="text-xs text-muted-foreground">Mensajería directa</span>
+                  <div className="flex flex-col items-start min-w-0 flex-1">
+                    <span className="font-medium text-sm leading-tight">Cargar como leads y enviar WhatsApp masivo</span>
+                    <span className="text-xs text-muted-foreground mt-0.5">Mensajería directa</span>
                   </div>
                 </div>
               </Button>
@@ -303,16 +303,16 @@ export const OpportunityDetails: React.FC = () => {
               {/* Learning Action */}
               <Button 
                 variant="secondary" 
-                className="w-full justify-start h-auto py-4 px-5 text-left bg-blue-50 hover:bg-blue-100 border border-blue-200 hover:border-blue-300 text-blue-700 hover:text-blue-800 transition-all duration-200 group"
+                className="w-full justify-start h-auto py-3 px-4 text-left bg-blue-50 hover:bg-blue-100 border border-blue-200 hover:border-blue-300 text-blue-700 hover:text-blue-800 transition-all duration-200 group"
                 size="lg"
               >
-                <div className="flex items-center gap-3">
-                  <div className="p-2 bg-blue-100 rounded-lg group-hover:bg-blue-200 transition-colors">
-                    <GraduationCap className="h-5 w-5 text-blue-600" />
+                <div className="flex items-center gap-3 w-full min-w-0">
+                  <div className="flex-shrink-0 p-2 bg-blue-100 rounded-lg group-hover:bg-blue-200 transition-colors">
+                    <GraduationCap className="h-4 w-4 text-blue-600" />
                   </div>
-                  <div className="flex flex-col items-start">
-                    <span className="font-medium">Aprende a pedir esta base en Chat Dali</span>
-                    <span className="text-xs text-blue-600">Guía interactiva</span>
+                  <div className="flex flex-col items-start min-w-0 flex-1">
+                    <span className="font-medium text-sm leading-tight">Aprende a pedir esta base en Chat Dali</span>
+                    <span className="text-xs text-blue-600 mt-0.5">Guía interactiva</span>
                   </div>
                 </div>
               </Button>
