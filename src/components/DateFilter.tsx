@@ -144,7 +144,7 @@ export function DateFilter({
   currentFilters 
 }: DateFilterProps) {
   const [isOpen, setIsOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState<'ranges' | 'specific' | 'custom'>('ranges');
+  const [activeTab, setActiveTab] = useState<'ranges' | 'specific' | 'custom'>('specific');
   const [selectedRanges, setSelectedRanges] = useState<string[]>(currentFilters);
   const [selectedSpecificDates, setSelectedSpecificDates] = useState<string[]>([]);
   const [customConditions, setCustomConditions] = useState<DateRangeCondition[]>([]);
