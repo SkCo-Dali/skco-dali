@@ -15,11 +15,13 @@ import {
   Mail,
   MessageSquare,
   GraduationCap,
-  Lightbulb
+  Lightbulb,
+  Info
 } from 'lucide-react';
 import { IOpportunity, OPPORTUNITY_TYPE_LABELS, PRIORITY_COLORS } from '@/types/opportunities';
 import { opportunitiesService } from '@/services/mock/opportunitiesService';
 import { useToast } from '@/hooks/use-toast';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 export const OpportunityDetails: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -213,6 +215,12 @@ export const OpportunityDetails: React.FC = () => {
                     <Badge variant="secondary" className="bg-blue-50 text-blue-700 border-blue-200 font-medium px-3 py-1">
                       {OPPORTUNITY_TYPE_LABELS[opportunity.type]}
                     </Badge>
+                    {/* Tags moved from bottom */}
+                    {opportunity.tags.map((tag, index) => (
+                      <Badge key={index} variant="outline" className="bg-muted/30 hover:bg-muted/50 transition-colors px-3 py-1">
+                        {tag}
+                      </Badge>
+                    ))}
                   </div>
                 </div>
               </div>
@@ -230,59 +238,61 @@ export const OpportunityDetails: React.FC = () => {
 
               {/* Key Metrics - E-commerce Style */}
               {opportunity.metrics && (
-                <div className="space-y-4">
-                  <h3 className="font-semibold text-lg flex items-center gap-2">
-                    <div className="w-1 h-5 bg-primary rounded-full"></div>
-                    Datos Clave
-                  </h3>
-                  <div className="grid grid-cols-2 gap-4">
-                    {/* Clientes Impactables */}
-                    <div className="relative group">
-                      <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-blue-600/10 rounded-2xl blur-xl group-hover:blur-lg transition-all duration-300"></div>
-                      <div className="relative bg-white/60 backdrop-blur-sm border border-blue-200/50 rounded-2xl p-4 text-center hover:shadow-xl transition-all duration-300 group-hover:-translate-y-1">
-                        <div className="flex items-center justify-center w-10 h-10 bg-blue-100 rounded-xl mx-auto mb-2">
-                          <Users className="h-5 w-5 text-blue-600" />
-                        </div>
-                        <div className="text-2xl font-bold text-blue-700 mb-1">
-                          {formatCustomerCount(opportunity.metrics.conversionRate * 1000)}
-                        </div>
-                        <div className="text-xs font-medium text-blue-600">Clientes Impactables</div>
-                      </div>
-                    </div>
-                    
-                    {/* Comisiones Potenciales */}
-                    <div className="relative group">
-                      <div className="absolute inset-0 bg-gradient-to-r from-green-500/10 to-green-600/10 rounded-2xl blur-xl group-hover:blur-lg transition-all duration-300"></div>
-                      <div className="relative bg-white/60 backdrop-blur-sm border border-green-200/50 rounded-2xl p-4 text-center hover:shadow-xl transition-all duration-300 group-hover:-translate-y-1">
-                        <div className="flex items-center justify-center w-10 h-10 bg-green-100 rounded-xl mx-auto mb-2">
-                          <TrendingUp className="h-5 w-5 text-green-600" />
-                        </div>
-                        <div className="text-2xl font-bold text-green-700 mb-1">
-                          ${Math.round(opportunity.metrics.estimatedSales * 0.1).toLocaleString()}
-                        </div>
-                        <div className="text-xs font-medium text-green-600">Comisiones Potenciales</div>
-                      </div>
+                <TooltipProvider>
+                  <div className="space-y-4">
+                    <h3 className="font-semibold text-lg flex items-center gap-2">
+                      <div className="w-1 h-5 bg-primary rounded-full"></div>
+                      Datos Clave
+                    </h3>
+                    <div className="grid grid-cols-2 gap-4">
+                      {/* Clientes Impactables */}
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <div className="relative group cursor-help">
+                            <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-blue-600/10 rounded-2xl blur-xl group-hover:blur-lg transition-all duration-300"></div>
+                            <div className="relative bg-white/60 backdrop-blur-sm border border-blue-200/50 rounded-2xl p-4 text-center hover:shadow-xl hover:shadow-blue-500/20 transition-all duration-300 group-hover:-translate-y-1 group-hover:bg-white/80">
+                              <div className="flex items-center justify-center w-10 h-10 bg-blue-100 rounded-xl mx-auto mb-2 group-hover:bg-blue-200 transition-colors relative">
+                                <Users className="h-5 w-5 text-blue-600" />
+                                <Info className="h-3 w-3 text-blue-500 absolute -top-1 -right-1 opacity-60" />
+                              </div>
+                              <div className="text-2xl font-bold text-blue-700 mb-1">
+                                {formatCustomerCount(opportunity.metrics.conversionRate * 1000)}
+                              </div>
+                              <div className="text-xs font-medium text-blue-600">Clientes Impactables</div>
+                            </div>
+                          </div>
+                        </TooltipTrigger>
+                        <TooltipContent className="max-w-xs">
+                          <p className="text-sm">Número estimado de clientes que cumplen las condiciones para recibir la oferta</p>
+                        </TooltipContent>
+                      </Tooltip>
+                      
+                      {/* Comisiones Potenciales */}
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <div className="relative group cursor-help">
+                            <div className="absolute inset-0 bg-gradient-to-r from-green-500/10 to-green-600/10 rounded-2xl blur-xl group-hover:blur-lg transition-all duration-300"></div>
+                            <div className="relative bg-white/60 backdrop-blur-sm border border-green-200/50 rounded-2xl p-4 text-center hover:shadow-xl hover:shadow-green-500/20 transition-all duration-300 group-hover:-translate-y-1 group-hover:bg-white/80">
+                              <div className="flex items-center justify-center w-10 h-10 bg-green-100 rounded-xl mx-auto mb-2 group-hover:bg-green-200 transition-colors relative">
+                                <TrendingUp className="h-5 w-5 text-green-600" />
+                                <Info className="h-3 w-3 text-green-500 absolute -top-1 -right-1 opacity-60" />
+                              </div>
+                              <div className="text-2xl font-bold text-green-700 mb-1">
+                                ${Math.round(opportunity.metrics.estimatedSales * 0.1).toLocaleString()}
+                              </div>
+                              <div className="text-xs font-medium text-green-600">Comisiones Potenciales</div>
+                            </div>
+                          </div>
+                        </TooltipTrigger>
+                        <TooltipContent className="max-w-xs">
+                          <p className="text-sm">Monto máximo de comisiones que podrías generar con esta oportunidad</p>
+                        </TooltipContent>
+                      </Tooltip>
                     </div>
                   </div>
-                </div>
+                </TooltipProvider>
               )}
 
-              {/* Tags */}
-              {opportunity.tags.length > 0 && (
-                <div className="space-y-3">
-                  <h4 className="font-medium text-base flex items-center gap-2">
-                    <div className="w-0.5 h-4 bg-muted-foreground/50 rounded-full"></div>
-                    Etiquetas
-                  </h4>
-                  <div className="flex flex-wrap gap-2">
-                    {opportunity.tags.map((tag, index) => (
-                      <Badge key={index} variant="outline" className="bg-muted/30 hover:bg-muted/50 transition-colors px-3 py-1">
-                        {tag}
-                      </Badge>
-                    ))}
-                  </div>
-                </div>
-              )}
             </CardContent>
           </Card>
 
