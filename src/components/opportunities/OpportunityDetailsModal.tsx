@@ -1,5 +1,5 @@
 import React from 'react';
-import { X, Users, TrendingUp, Calendar, Target, Mail, MessageCircle, Phone, Heart } from 'lucide-react';
+import { Users, TrendingUp, Heart } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -184,8 +184,6 @@ export const OpportunityDetailsModal: React.FC<OpportunityDetailsModalProps> = (
                 )}
               </CardContent>
             </Card>
-
-
           </div>
         </div>
       </DialogContent>
