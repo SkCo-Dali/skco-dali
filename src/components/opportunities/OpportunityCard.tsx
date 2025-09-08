@@ -1,9 +1,8 @@
 import React from 'react';
-import { Heart, Users, ArrowRight } from 'lucide-react';
+import { Heart, Users } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
-import { Progress } from '@/components/ui/progress';
 import { IOpportunity, OPPORTUNITY_TYPE_LABELS, PRIORITY_COLORS } from '@/types/opportunities';
 import { opportunitiesService } from '@/services/mock/opportunitiesService';
 import { useToast } from '@/hooks/use-toast';
@@ -55,17 +54,17 @@ export const OpportunityCard: React.FC<OpportunityCardProps> = ({
 
   return (
     <Card 
-      className="group hover:shadow-xl transition-all duration-300 hover:-translate-y-2 cursor-pointer bg-white shadow-md border-0 hover:shadow-lg"
+      className="group hover:shadow-xl transition-all duration-300 hover:-translate-y-1 cursor-pointer bg-white shadow-md border-0 hover:shadow-lg h-fit max-w-xs"
       onClick={handleViewDetails}
     >
-      <CardHeader className="pb-3 px-5 pt-4">
+      <CardHeader className="pb-1.5 px-3 pt-2.5">
         <div className="flex items-start justify-between">
-          <div className="flex items-center gap-3">
-            <div className="text-2xl w-10 h-10 flex items-center justify-center rounded-xl bg-gradient-to-br from-primary/20 to-primary/10 border border-primary/20">
+          <div className="flex items-center gap-2">
+            <div className="text-3xl w-12 h-12 flex items-center justify-center rounded-lg bg-gradient-to-br from-primary/20 to-primary/10 border border-primary/20">
               {opportunity.icon}
             </div>
-            <div className="flex-1">
-              <h3 className="font-bold text-base line-clamp-2 group-hover:text-primary transition-colors mb-0.5">
+            <div className="flex-1 min-w-0">
+              <h3 className="font-bold text-sm line-clamp-2 group-hover:text-primary transition-colors mb-0.5">
                 {opportunity.title}
               </h3>
               <p className="text-xs text-muted-foreground line-clamp-1">
@@ -77,51 +76,54 @@ export const OpportunityCard: React.FC<OpportunityCardProps> = ({
             variant="ghost"
             size="icon"
             onClick={handleFavoriteToggle}
-            className="h-8 w-8 shrink-0 hover:bg-red-50 hover:text-red-500"
+            className="h-6 w-6 shrink-0 hover:bg-red-50 hover:text-red-500"
           >
             <Heart 
-              className={`h-4 w-4 ${isFavorite ? 'fill-red-500 text-red-500' : 'text-muted-foreground'}`} 
+              className={`h-3 w-3 ${isFavorite ? 'fill-red-500 text-red-500' : 'text-muted-foreground'}`} 
             />
           </Button>
         </div>
       </CardHeader>
 
-      <CardContent className="space-y-3 px-5">
+      <CardContent className="space-y-1.5 px-3">
         {/* Tags */}
-        <div className="flex flex-wrap gap-1.5">
+        <div className="flex flex-wrap gap-1">
           <Badge 
             variant="outline" 
-            className={`text-xs px-2 py-0.5 font-semibold ${getPriorityColor(opportunity.priority)}`}
+            className={`text-xs px-1.5 py-0.5 font-semibold ${getPriorityColor(opportunity.priority)}`}
           >
             {opportunity.priority.toUpperCase()}
           </Badge>
-          <Badge variant="secondary" className="text-xs px-2 py-0.5 font-medium bg-blue-50 text-blue-700 border-blue-200">
+          <Badge variant="secondary" className="text-xs px-1.5 py-0.5 font-medium bg-blue-50 text-blue-700 border-blue-200">
             {OPPORTUNITY_TYPE_LABELS[opportunity.type]}
           </Badge>
           {opportunity.expiresAt && (
-            <Badge className="text-xs px-2 py-0.5 text-orange-600 bg-orange-50 border-orange-200">
+            <Badge className="text-xs px-1.5 py-0.5 text-orange-600 bg-orange-50 border-orange-200">
               Vence {formatBogotaDate(opportunity.expiresAt)}
             </Badge>
           )}
         </div>
 
         {/* Customer Count */}
-        <div className="flex items-center gap-2 text-sm">
-          <div className="p-1.5 bg-blue-50 rounded-lg">
-            <Users className="h-4 w-4 text-blue-600" />
+        <div className="flex items-center gap-1.5 text-xs">
+          <div className="p-1 bg-blue-50 rounded">
+            <Users className="h-3 w-3 text-blue-600" />
           </div>
           <div>
             <span className="font-bold text-blue-700">{formatCustomerCount(opportunity.customerCount)}</span>
-            <span className="text-muted-foreground ml-1">clientes impactables</span>
+            <span className="text-muted-foreground ml-1">clientes</span>
           </div>
         </div>
       </CardContent>
 
-      <CardFooter className="px-5 pb-4">
-        <div className="w-full flex items-center justify-center py-1.5 text-sm text-primary font-medium group-hover:text-primary/80 transition-colors">
-          <span>Ver detalles</span>
-          <ArrowRight className="h-4 w-4 ml-2 group-hover:translate-x-1 transition-transform" />
-        </div>
+      <CardFooter className="px-3 pb-2.5 pt-1">
+        <Button 
+          variant="default" 
+          size="sm" 
+          className="w-full h-7 text-xs font-medium bg-primary hover:bg-primary/90 text-white"
+        >
+          Ver oportunidad →
+        </Button>
       </CardFooter>
     </Card>
   );
