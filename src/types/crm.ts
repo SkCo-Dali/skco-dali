@@ -34,6 +34,8 @@ export interface RolePermissions {
   canBulkAssignLeads?: boolean;
   canAccessUserManagement?: boolean;
   canAssignRoles?: boolean;
+  canSendEmail?: boolean;
+  canSendWhatsApp?: boolean;
   accessiblePages: string[];
 }
 
@@ -55,6 +57,8 @@ export const getRolePermissions = (role: UserRole): RolePermissions => {
         canBulkAssignLeads: true,
         canAccessUserManagement: true,
         canAssignRoles: true,
+        canSendEmail: true,
+        canSendWhatsApp: true,
         accessiblePages: ['dashboard', 'leads', 'ChatDali','opportunities','gamification', 'reports', 'informes', 'users', 'settings','index']
       };
     case 'manager':
@@ -71,6 +75,8 @@ export const getRolePermissions = (role: UserRole): RolePermissions => {
         canBulkAssignLeads: true,
         canAccessUserManagement: false,
         canAssignRoles: false,
+        canSendEmail: true,
+        canSendWhatsApp: true,
         accessiblePages: ['leads', 'ChatDali', 'reports']
       };
     case 'agent':
@@ -91,6 +97,8 @@ export const getRolePermissions = (role: UserRole): RolePermissions => {
         canBulkAssignLeads: true,
         canAccessUserManagement: false,
         canAssignRoles: false,
+        canSendEmail: true,
+        canSendWhatsApp: true,
         accessiblePages: ['leads', 'ChatDali',]
       };
     case 'fp':
@@ -106,6 +114,8 @@ export const getRolePermissions = (role: UserRole): RolePermissions => {
         canBulkAssignLeads: false,
         canAccessUserManagement: false,
         canAssignRoles: false,
+        canSendEmail: true,
+        canSendWhatsApp: true,
         accessiblePages: ['leads', 'ChatDali',]
       };
     case 'analista':
@@ -121,6 +131,8 @@ export const getRolePermissions = (role: UserRole): RolePermissions => {
         canBulkAssignLeads: false,
         canAccessUserManagement: false,
         canAssignRoles: false,
+        canSendEmail: false,
+        canSendWhatsApp: false,
         accessiblePages: ['leads', 'reports']
       };
     case 'viewer':
@@ -137,6 +149,8 @@ export const getRolePermissions = (role: UserRole): RolePermissions => {
         canBulkAssignLeads: false,
         canAccessUserManagement: false,
         canAssignRoles: false,
+        canSendEmail: true,
+        canSendWhatsApp: true,
         accessiblePages: ['leads', 'ChatDali']
       };
     default:
@@ -152,6 +166,8 @@ export const getRolePermissions = (role: UserRole): RolePermissions => {
         canBulkAssignLeads: false,
         canAccessUserManagement: false,
         canAssignRoles: false,
+        canSendEmail: false,
+        canSendWhatsApp: false,
         accessiblePages: ['dashboard']
       };
   }
