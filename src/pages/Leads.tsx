@@ -421,6 +421,7 @@ export default function Leads() {
                       <Users className="h-4 w-4" />
                     </Button>
                   )}
+                  {userPermissions?.canSendEmail && (
                   <Button
                     className="gap-1 w-8 h-8 bg-primary"
                     onClick={handleMassEmail}
