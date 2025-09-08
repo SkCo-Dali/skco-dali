@@ -14,7 +14,8 @@ import {
   RefreshCw,
   Mail,
   MessageSquare,
-  GraduationCap
+  GraduationCap,
+  Lightbulb
 } from 'lucide-react';
 import { IOpportunity, OPPORTUNITY_TYPE_LABELS, PRIORITY_COLORS } from '@/types/opportunities';
 import { opportunitiesService } from '@/services/mock/opportunitiesService';
@@ -294,7 +295,7 @@ export const OpportunityDetails: React.FC = () => {
             <CardHeader className="pb-4">
               <CardTitle className="flex items-center gap-3 text-lg">
                 <div className="p-2 rounded-lg bg-primary/10">
-                  <TrendingUp className="h-5 w-5 text-primary" />
+                  <Lightbulb className="h-5 w-5 text-primary" />
                 </div>
                 ¿Qué puedo hacer?
               </CardTitle>
@@ -302,7 +303,7 @@ export const OpportunityDetails: React.FC = () => {
                 Acciones disponibles para esta oportunidad
               </p>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-4 pb-6">
               {/* Primary Action - Email */}
               <div className="relative">
                 <Button 
@@ -330,15 +331,15 @@ export const OpportunityDetails: React.FC = () => {
               {/* Secondary Action - WhatsApp */}
               <Button 
                 variant="outline" 
-                className="w-full justify-start h-auto py-3 px-4 text-left border-2 hover:bg-green-50 hover:border-green-200 hover:text-green-700 transition-all duration-200 group"
+                className="w-full justify-start h-auto py-3 px-3 text-left border-2 hover:bg-green-50 hover:border-green-200 hover:text-green-700 transition-all duration-200 group"
                 size="lg"
               >
-                <div className="flex items-center gap-3 w-full min-w-0">
+                <div className="flex items-center gap-2 w-full min-w-0">
                   <div className="flex-shrink-0 p-2 bg-green-100 rounded-lg group-hover:bg-green-200 transition-colors">
                     <MessageSquare className="h-4 w-4 text-green-600" />
                   </div>
                   <div className="flex flex-col items-start min-w-0 flex-1">
-                    <span className="font-medium text-sm leading-tight">Cargar como leads y enviar WhatsApp masivo</span>
+                    <span className="font-medium text-xs leading-tight">Cargar como leads y enviar WhatsApp masivo</span>
                     <span className="text-xs text-muted-foreground mt-0.5">Mensajería directa</span>
                   </div>
                 </div>
