@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Lead, User, Interaction } from '@/types/crm';
+import { Lead, User, Interaction, getRolePermissions } from '@/types/crm';
+import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -159,6 +160,9 @@ export function LeadDetail({ lead, isOpen, onClose, onSave, onOpenMassEmail }: L
     additionalInfoValue: lead.additionalInfo,
     additionalInfoKeys: lead.additionalInfo ? Object.keys(lead.additionalInfo) : 'No keys'
   });
+  
+  const { user } = useAuth();
+  const permissions = user ? getRolePermissions(user.role) : null;
   
   // Ensure tags and other array fields are properly initialized, but keep product as string
   const safeLeadData = {
@@ -569,10 +573,12 @@ Notas adicionales: ${lead.notes || 'Ninguna'}`;
             </DialogHeader>
 
             <Tabs defaultValue="general" className="w-full px-6">
-              <TabsList className="grid w-full grid-cols-3 bg-gray-100 rounded-full px-0 py-0 my-0">
+              <TabsList className={`grid w-full ${permissions?.canAssign ? 'grid-cols-3' : 'grid-cols-2'} bg-gray-100 rounded-full px-0 py-0 my-0`}>
                 <TabsTrigger value="general" className="w-full h-full data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#00C73D] data-[state=active]:to-[#A3E40B] data-[state=active]:text-white rounded-full px-4 py-2 mt-0 text-sm font-medium transition-all duration-200">General</TabsTrigger>
                 <TabsTrigger value="management"className="w-full h-full data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#00C73D] data-[state=active]:to-[#A3E40B] data-[state=active]:text-white rounded-full px-4 py-2 mt-0 text-sm font-medium transition-all duration-200" >Gestión</TabsTrigger>
-                <TabsTrigger value="history"className="w-full h-full data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#00C73D] data-[state=active]:to-[#A3E40B] data-[state=active]:text-white rounded-full px-4 py-2 mt-0 text-sm font-medium transition-all duration-200" >Asignación</TabsTrigger>
+                {permissions?.canAssign && (
+                  <TabsTrigger value="history"className="w-full h-full data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#00C73D] data-[state=active]:to-[#A3E40B] data-[state=active]:text-white rounded-full px-4 py-2 mt-0 text-sm font-medium transition-all duration-200" >Asignación</TabsTrigger>
+                )}
               </TabsList>
 
               {/* Tab General */}
