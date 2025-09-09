@@ -1170,7 +1170,7 @@ Notas adicionales: ${lead.notes || 'Ninguna'}`;
               <TabsContent value="history" className="space-y-4">
                 <div className="flex items-center justify-between my-2">
   <div className="flex items-center gap-2 my-4">
-    <Label>Usuario Actual Asignado:</Label>
+    <Label className="text-sm font-medium">Usuario Actual Asignado:</Label>
     <span className="text-sm font-medium">{assignedUserName}</span>
   </div>
                   {permissions?.canAssign && (      
