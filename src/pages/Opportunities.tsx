@@ -142,7 +142,7 @@ export const Opportunities: React.FC = () => {
         {/* Highlighted Opportunities */}
         {!loading && highlightedOpportunities.length > 0 && (
           <div className="space-y-3 mb-6">
-            <div className="flex items-center gap-2 mb-2">
+            <div className="flex items-center gap-2 mb-4">
               <h2 className="text-xl font-semibold">Oportunidades Destacadas</h2>
               <Badge variant="secondary" className="bg-amber-100 text-amber-700">⭐ Top 3</Badge>
             </div>
@@ -215,7 +215,7 @@ export const Opportunities: React.FC = () => {
         )}
 
         {/* All Opportunities Section with Sidebar */}
-       <div className= "mb-2"> 
+       <div className= "mb-4"> 
          <h2 className="text-xl font-semibold">
               Todas las Oportunidades
               {!loading && opportunities.length > 0 && (
