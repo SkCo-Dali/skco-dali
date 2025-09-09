@@ -139,144 +139,142 @@ export const Opportunities: React.FC = () => {
           </div>
         )}
 
-        <div className="flex gap-6">
-          {/* Main Content */}
-          <div className="flex-1 space-y-4">
-            {/* Highlighted Opportunities */}
-            {!loading && highlightedOpportunities.length > 0 && (
-              <div className="space-y-3">
-                <div className="flex items-center gap-2">
-                  <h2 className="text-xl font-semibold">Oportunidades Destacadas</h2>
-                  <Badge variant="secondary" className="bg-amber-100 text-amber-700">⭐ Top 3</Badge>
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
-                  {highlightedOpportunities.map((opportunity, index) => (
-                    <div key={opportunity.id} className="relative">
-                      {/* Top Badge */}
-                      <div className="absolute -top-2 -left-2 z-10">
-                        <Badge 
-                          variant="destructive" 
-                          className="bg-gradient-to-r from-orange-500 to-red-500 text-white font-bold px-2 py-1 text-xs shadow-lg"
-                        >
-                          🔥Top {index + 1}
-                        </Badge>
-                      </div>
-                      <div className="ring-2 ring-primary/30 ring-offset-2 rounded-xl">
-                        <OpportunityCard
-                          opportunity={opportunity}
-                          onViewDetails={handleViewDetails}
-                          onFavoriteChange={handleFavoriteChange}
-                        />
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Search and Sort */}
-            <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center justify-between">
-              <div className="relative flex-1 max-w-md">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input
-                  placeholder="Buscar oportunidades..."
-                  value={filters.search || ''}
-                  onChange={(e) => setFilters({ ...filters, search: e.target.value || undefined })}
-                  className="pl-10 bg-white"
-                />
-              </div>
-              
-              <Select value={sortBy} onValueChange={(value) => setSortBy(value as SortOption)}>
-                <SelectTrigger className="w-[180px] bg-white">
-                  <SelectValue placeholder="Ordenar por" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="relevance">Relevancia</SelectItem>
-                  <SelectItem value="customers">Más clientes</SelectItem>
-                  <SelectItem value="recent">Más reciente</SelectItem>
-                  <SelectItem value="expiring">Próximos a vencer</SelectItem>
-                </SelectContent>
-              </Select>
+        {/* Highlighted Opportunities */}
+        {!loading && highlightedOpportunities.length > 0 && (
+          <div className="space-y-3 mb-6">
+            <div className="flex items-center gap-2">
+              <h2 className="text-xl font-semibold">Oportunidades Destacadas</h2>
+              <Badge variant="secondary" className="bg-amber-100 text-amber-700">⭐ Top 3</Badge>
             </div>
-
-            {/* Active Filters Display */}
-            {(filters.type?.length || filters.priority?.length || filters.onlyFavorites) && (
-              <div className="flex flex-wrap gap-2">
-                {filters.type?.map((type) => (
-                  <Badge key={type} variant="secondary" className="capitalize bg-white">
-                    {type}
-                  </Badge>
-                ))}
-                {filters.priority?.map((priority) => (
-                  <Badge key={priority} variant="secondary" className="capitalize bg-white">
-                    {priority}
-                  </Badge>
-                ))}
-                {filters.onlyFavorites && (
-                  <Badge variant="secondary" className="bg-white">Favoritas</Badge>
-                )}
-              </div>
-            )}
-
-            {/* Opportunities Grid */}
-            <div className="space-y-3">
-              <h2 className="text-xl font-semibold">
-                Todas las Oportunidades
-                {!loading && opportunities.length > 0 && (
-                  <span className="text-sm text-muted-foreground ml-2">
-                    ({opportunities.length} resultados)
-                  </span>
-                )}
-              </h2>
-
-              {loading ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
-                  {Array.from({ length: 8 }).map((_, index) => (
-                    <Card key={index} className="p-3 bg-white">
-                      <div className="space-y-3">
-                        <div className="flex items-center gap-2">
-                          <Skeleton className="h-8 w-8 rounded-lg" />
-                          <div className="space-y-1 flex-1">
-                            <Skeleton className="h-3 w-3/4" />
-                            <Skeleton className="h-3 w-1/2" />
-                          </div>
-                        </div>
-                        <div className="flex gap-1">
-                          <Skeleton className="h-5 w-12" />
-                          <Skeleton className="h-5 w-16" />
-                        </div>
-                        <Skeleton className="h-3 w-full" />
-                        <Skeleton className="h-6 w-full" />
-                      </div>
-                    </Card>
-                  ))}
-                </div>
-              ) : opportunities.length === 0 ? (
-                <Card className="p-8 text-center bg-white">
-                  <div className="space-y-3">
-                    <div className="text-4xl">🔍</div>
-                    <h3 className="text-lg font-semibold">No se encontraron oportunidades</h3>
-                    <p className="text-muted-foreground text-sm">
-                      Intenta ajustar los filtros o buscar con diferentes términos.
-                    </p>
-                    <Button variant="outline" onClick={handleClearFilters}>
-                      Limpiar filtros
-                    </Button>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
+              {highlightedOpportunities.map((opportunity, index) => (
+                <div key={opportunity.id} className="relative">
+                  {/* Top Badge */}
+                  <div className="absolute -top-2 -left-2 z-10">
+                    <Badge 
+                      variant="destructive" 
+                      className="bg-gradient-to-r from-orange-500 to-red-500 text-white font-bold px-2 py-1 text-xs shadow-lg"
+                    >
+                      🔥Top {index + 1}
+                    </Badge>
                   </div>
-                </Card>
-              ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
-                  {opportunities.map((opportunity) => (
+                  <div className="ring-2 ring-primary/30 ring-offset-2 rounded-xl">
                     <OpportunityCard
-                      key={opportunity.id}
                       opportunity={opportunity}
                       onViewDetails={handleViewDetails}
                       onFavoriteChange={handleFavoriteChange}
                     />
-                  ))}
+                  </div>
                 </div>
-              )}
+              ))}
             </div>
+          </div>
+        )}
+
+        {/* Search and Sort Controls */}
+        <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center justify-between mb-4">
+          <div className="relative flex-1 max-w-md">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Buscar oportunidades..."
+              value={filters.search || ''}
+              onChange={(e) => setFilters({ ...filters, search: e.target.value || undefined })}
+              className="pl-10 bg-white"
+            />
+          </div>
+          
+          <Select value={sortBy} onValueChange={(value) => setSortBy(value as SortOption)}>
+            <SelectTrigger className="w-[180px] bg-white">
+              <SelectValue placeholder="Ordenar por" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="relevance">Relevancia</SelectItem>
+              <SelectItem value="customers">Más clientes</SelectItem>
+              <SelectItem value="recent">Más reciente</SelectItem>
+              <SelectItem value="expiring">Próximos a vencer</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
+        {/* Active Filters Display */}
+        {(filters.type?.length || filters.priority?.length || filters.onlyFavorites) && (
+          <div className="flex flex-wrap gap-2 mb-4">
+            {filters.type?.map((type) => (
+              <Badge key={type} variant="secondary" className="capitalize bg-white">
+                {type}
+              </Badge>
+            ))}
+            {filters.priority?.map((priority) => (
+              <Badge key={priority} variant="secondary" className="capitalize bg-white">
+                {priority}
+              </Badge>
+            ))}
+            {filters.onlyFavorites && (
+              <Badge variant="secondary" className="bg-white">Favoritas</Badge>
+            )}
+          </div>
+        )}
+
+        {/* All Opportunities Section with Sidebar */}
+        <div className="flex gap-6">
+          {/* Opportunities Grid */}
+          <div className="flex-1 space-y-3">
+            <h2 className="text-xl font-semibold">
+              Todas las Oportunidades
+              {!loading && opportunities.length > 0 && (
+                <span className="text-sm text-muted-foreground ml-2">
+                  ({opportunities.length} resultados)
+                </span>
+              )}
+            </h2>
+
+            {loading ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
+                {Array.from({ length: 8 }).map((_, index) => (
+                  <Card key={index} className="p-3 bg-white">
+                    <div className="space-y-3">
+                      <div className="flex items-center gap-2">
+                        <Skeleton className="h-8 w-8 rounded-lg" />
+                        <div className="space-y-1 flex-1">
+                          <Skeleton className="h-3 w-3/4" />
+                          <Skeleton className="h-3 w-1/2" />
+                        </div>
+                      </div>
+                      <div className="flex gap-1">
+                        <Skeleton className="h-5 w-12" />
+                        <Skeleton className="h-5 w-16" />
+                      </div>
+                      <Skeleton className="h-3 w-full" />
+                      <Skeleton className="h-6 w-full" />
+                    </div>
+                  </Card>
+                ))}
+              </div>
+            ) : opportunities.length === 0 ? (
+              <Card className="p-8 text-center bg-white">
+                <div className="space-y-3">
+                  <div className="text-4xl">🔍</div>
+                  <h3 className="text-lg font-semibold">No se encontraron oportunidades</h3>
+                  <p className="text-muted-foreground text-sm">
+                    Intenta ajustar los filtros o buscar con diferentes términos.
+                  </p>
+                  <Button variant="outline" onClick={handleClearFilters}>
+                    Limpiar filtros
+                  </Button>
+                </div>
+              </Card>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
+                {opportunities.map((opportunity) => (
+                  <OpportunityCard
+                    key={opportunity.id}
+                    opportunity={opportunity}
+                    onViewDetails={handleViewDetails}
+                    onFavoriteChange={handleFavoriteChange}
+                  />
+                ))}
+              </div>
+            )}
           </div>
 
           {/* Filters Sidebar - Always visible on desktop */}
@@ -372,17 +370,17 @@ export const Opportunities: React.FC = () => {
               </CardContent>
             </Card>
           </div>
+        </div>
 
-          {/* Mobile Filters */}
-          <div className="lg:hidden">
-            <OpportunityFiltersComponent
-              filters={filters}
-              sortBy={sortBy}
-              onFiltersChange={setFilters}
-              onSortChange={setSortBy}
-              onClearFilters={handleClearFilters}
-            />
-          </div>
+        {/* Mobile Filters */}
+        <div className="lg:hidden">
+          <OpportunityFiltersComponent
+            filters={filters}
+            sortBy={sortBy}
+            onFiltersChange={setFilters}
+            onSortChange={setSortBy}
+            onClearFilters={handleClearFilters}
+          />
         </div>
       </div>
     </div>
