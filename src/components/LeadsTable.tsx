@@ -84,7 +84,6 @@ const defaultColumns: ColumnConfig[] = [
   { key: 'preferredContactChannel', label: 'Medio de contacto preferido', visible: false, sortable: true },
   { key: 'company', label: 'Empresa', visible: false, sortable: true },
   { key: 'value', label: 'Valor', visible: false, sortable: true },
-  { key: 'tags', label: 'Etiquetas', visible: false, sortable: true },
 ];
 
 const capitalizeWords = (text: string) => {

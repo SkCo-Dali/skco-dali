@@ -69,7 +69,6 @@ const DEFAULT_COLUMNS: ColumnConfig[] = [
   { key: 'priority', label: 'Prioridad', visible: false, sortable: true },
   { key: 'source', label: 'Fuente', visible: false, sortable: true },
   { key: 'value', label: 'Valor', visible: false, sortable: true },
-  { key: 'tags', label: 'Etiquetas', visible: false, sortable: true },
   { key: 'createdAt', label: 'Fecha de Creación', visible: true, sortable: true },
   { key: 'lastInteraction', label: 'Fecha de Última Interacción', visible: true, sortable: true },
   { key: 'nextFollowUp', label: 'Próximo seguimiento', visible: true, sortable: true },
