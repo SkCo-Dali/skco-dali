@@ -1,3 +1,39 @@
+// Nuevos tipos para protocolo "Dali WA Sender"
+export interface DaliWAMessage {
+  id: string;
+  to: string;
+  renderedText: string;
+}
+
+export interface DaliWABatchPayload {
+  batchId: string;
+  throttle?: { minMs?: number; maxMs?: number; perMin?: number };
+  messages: DaliWAMessage[];
+}
+
+export interface DaliWAExtPong {
+  version: string;
+  loggedIn: boolean;
+}
+
+export interface DaliWAMsgProgress {
+  messageId: string;
+  status: 'sent' | 'failed';
+  error?: string;
+  ticks?: '✓' | '✓✓' | '✓✓ azul';
+}
+
+export interface DaliWABatchDone {
+  batchId: string;
+  sent: number;
+  failed: number;
+  error?: string;
+}
+
+// Tipos para el estado de detección
+export type ExtensionState = 'unknown' | 'not_detected' | 'detected' | 'session_ok' | 'session_failed';
+
+// Tipos legacy mantenidos para compatibilidad
 export interface MensajeSalida {
   id: string;
   to_e164: string;

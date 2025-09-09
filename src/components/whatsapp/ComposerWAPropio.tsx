@@ -35,7 +35,7 @@ interface ComposerWAPropioProps {
 export interface SendConfig {
   message: string;
   attachments: FileRef[];
-  throttle: { porMinuto: number; jitterSeg: [number, number] | null };
+  throttle: { minMs?: number; maxMs?: number; perMin?: number };
   dryRun: boolean;
   validLeads: Lead[];
 }
@@ -107,10 +107,8 @@ export function ComposerWAPropio({ leads, onBack, onSend }: ComposerWAPropioProp
   };
 
   const canSend = () => {
-    // Temporalmente deshabilitado el check de requisitos para pruebas
-    return true && // requirementsValid && 
-           message.trim().length > 0 && 
-           validLeads.length > 0;
+    // Habilitado siempre para usar el nuevo protocolo Dali WA Sender
+    return message.trim().length > 0 && validLeads.length > 0;
   };
 
   const handleSend = () => {
@@ -120,8 +118,9 @@ export function ComposerWAPropio({ leads, onBack, onSend }: ComposerWAPropioProp
       message: message.trim(),
       attachments,
       throttle: {
-        porMinuto: throttlePerMinute,
-        jitterSeg: useJitter ? [2, 5] : null
+        minMs: Math.floor(60000 / throttlePerMinute), // Convertir por minuto a millisegundos mínimos
+        maxMs: Math.floor(60000 / throttlePerMinute) + (useJitter ? 4000 : 0), // Agregar jitter si está habilitado
+        perMin: throttlePerMinute
       },
       dryRun,
       validLeads

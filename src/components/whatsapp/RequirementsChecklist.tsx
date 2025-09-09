@@ -1,17 +1,10 @@
 import { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { 
-  Chrome, 
-  Download, 
-  ExternalLink, 
-  CheckCircle, 
-  XCircle, 
-  AlertCircle,
-  RefreshCw
-} from 'lucide-react';
-import { ExtensionBridge } from '@/utils/extension-bridge';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { CheckCircle, XCircle, AlertCircle, Chrome, Globe, MessageSquare, ExternalLink } from 'lucide-react';
+import { detectChrome, detectExtension, checkWALogin } from '@/services/waSelfSender';
 
 interface RequirementsChecklistProps {
   onValidationChange: (isValid: boolean) => void;
@@ -21,54 +14,85 @@ export function RequirementsChecklist({ onValidationChange }: RequirementsCheckl
   const [isChrome, setIsChrome] = useState(false);
   const [extensionDetected, setExtensionDetected] = useState(false);
   const [sessionActive, setSessionActive] = useState(false);
+  const [extensionVersion, setExtensionVersion] = useState<string>('');
+  const [isCheckingExtension, setIsCheckingExtension] = useState(false);
   const [isCheckingSession, setIsCheckingSession] = useState(false);
 
-  const extensionBridge = new ExtensionBridge();
-
+  // Verificar requisitos iniciales
   useEffect(() => {
-    console.log('RequirementsChecklist: Inicializando checks');
+    console.log('🔍 RequirementsChecklist: Iniciando verificaciones...');
     
     // Verificar Chrome
-    const chromeDetected = ExtensionBridge.isChrome();
-    console.log('RequirementsChecklist: Chrome detectado:', chromeDetected);
+    const chromeDetected = detectChrome();
+    console.log('🔍 Chrome detectado:', chromeDetected);
     setIsChrome(chromeDetected);
     
     // Verificar extensión automáticamente
-    checkExtension();
-
-    return () => {
-      extensionBridge.cleanup();
-    };
+    if (chromeDetected) {
+      checkExtension();
+    }
   }, []);
 
+  // Actualizar validación cuando cambien los requisitos
   useEffect(() => {
-    // Notificar cambios de validación
     const isValid = isChrome && extensionDetected && sessionActive;
     onValidationChange(isValid);
   }, [isChrome, extensionDetected, sessionActive, onValidationChange]);
 
+  // Verificar extensión Dali WA Sender
   const checkExtension = async () => {
-    console.log('RequirementsChecklist: Verificando extensión...');
+    if (!isChrome) return;
+    
+    setIsCheckingExtension(true);
     try {
-      const detected = await extensionBridge.ping();
-      console.log('RequirementsChecklist: Extensión detectada:', detected);
-      setExtensionDetected(detected);
-      // No asumir que la sesión está activa solo porque la extensión responde
+      console.log('🔍 Verificando extensión Dali WA Sender...');
+      
+      const detection = await detectExtension();
+      console.log('📡 Respuesta de extensión:', detection);
+      
+      if (detection.ok && detection.info) {
+        setExtensionDetected(true);
+        setExtensionVersion(detection.info.version);
+        setSessionActive(detection.info.loggedIn);
+        console.log('✅ Extensión Dali WA Sender detectada:', detection.info);
+      } else {
+        setExtensionDetected(false);
+        setExtensionVersion('');
+        setSessionActive(false);
+        console.log('❌ No se pudo detectar la extensión Dali WA Sender');
+      }
+      
     } catch (error) {
-      console.log('RequirementsChecklist: Error verificando extensión:', error);
+      console.error('❌ Error verificando extensión:', error);
       setExtensionDetected(false);
+      setExtensionVersion('');
       setSessionActive(false);
+    } finally {
+      setIsCheckingExtension(false);
     }
   };
 
+  // Verificar sesión de WhatsApp Web
   const verifySession = async () => {
     if (!extensionDetected) return;
     
     setIsCheckingSession(true);
     try {
-      const sessionOk = await extensionBridge.ping();
-      setSessionActive(sessionOk);
+      console.log('🔍 Verificando sesión de WhatsApp Web...');
+      
+      const isLoggedIn = await checkWALogin();
+      console.log('📡 Estado de sesión WA:', isLoggedIn);
+      
+      setSessionActive(isLoggedIn);
+      
+      if (isLoggedIn) {
+        console.log('✅ Sesión de WhatsApp Web activa');
+      } else {
+        console.log('❌ No hay sesión activa en WhatsApp Web');
+      }
+      
     } catch (error) {
+      console.error('❌ Error verificando sesión:', error);
       setSessionActive(false);
     } finally {
       setIsCheckingSession(false);
@@ -80,8 +104,7 @@ export function RequirementsChecklist({ onValidationChange }: RequirementsCheckl
   };
 
   const openExtensionInstall = () => {
-    const installUrl = 'https://chromewebstore.google.com/detail/wa-sender/hcddckfgihadahfdiefinmneegaoehdh';
-    window.open(installUrl, '_blank');
+    window.open('chrome://extensions/', '_blank');
   };
 
   const StatusIcon = ({ condition }: { condition: boolean | null }) => {
@@ -95,133 +118,130 @@ export function RequirementsChecklist({ onValidationChange }: RequirementsCheckl
       <CardHeader>
         <CardTitle className="text-lg flex items-center gap-2">
           <CheckCircle className="h-5 w-5" />
-          Checklist de Requisitos
+          Checklist de Requisitos - Dali WA Sender
         </CardTitle>
+        <CardDescription>
+          Verifica que todos los componentes estén listos para el envío
+        </CardDescription>
       </CardHeader>
-      <CardContent className="space-y-4">
-        {/* Chrome */}
-        <div className="flex items-center justify-between p-3 border rounded-lg">
-          <div className="flex items-center gap-3">
-            <Chrome className="h-5 w-5 text-blue-600" />
-            <div>
-              <h4 className="font-medium">Google Chrome</h4>
-              <p className="text-sm text-muted-foreground">
-                Navegador requerido para la extensión
-              </p>
+      <CardContent>
+        <div className="space-y-4">
+          {/* Requisito 1: Navegador compatible */}
+          <div className="flex items-center justify-between p-4 border rounded-lg">
+            <div className="flex items-center space-x-3">
+              <Chrome className="h-5 w-5 text-blue-600" />
+              <div>
+                <div className="flex items-center space-x-2">
+                  <span className="font-medium">Navegador compatible</span>
+                  <StatusIcon condition={isChrome} />
+                  <Badge variant={isChrome ? "default" : "destructive"}>
+                    {isChrome ? "Chrome/Edge detectado" : "Requerido"}
+                  </Badge>
+                </div>
+                <p className="text-sm text-muted-foreground">
+                  Chrome o Edge Chromium necesario para la extensión
+                </p>
+              </div>
             </div>
           </div>
-          <div className="flex items-center gap-2">
-            <StatusIcon condition={isChrome} />
-            {isChrome ? (
-              <Badge variant="secondary" className="bg-green-50 text-green-700">
-                Detectado
-              </Badge>
-            ) : (
-              <Badge variant="destructive">
-                No detectado
-              </Badge>
-            )}
-          </div>
-        </div>
 
-        {/* Extensión */}
-        <div className="flex items-center justify-between p-3 border rounded-lg">
-          <div className="flex items-center gap-3">
-            <Download className="h-5 w-5 text-purple-600" />
-            <div>
-              <h4 className="font-medium">Extensión WA-Sender</h4>
-              <p className="text-sm text-muted-foreground">
-                Automatiza el envío en WhatsApp Web
-              </p>
+          {/* Requisito 2: Extensión Dali WA Sender */}
+          <div className="flex items-center justify-between p-4 border rounded-lg">
+            <div className="flex items-center space-x-3">
+              <MessageSquare className="h-5 w-5 text-green-600" />
+              <div>
+                <div className="flex items-center space-x-2">
+                  <span className="font-medium">Extensión Dali WA Sender</span>
+                  <StatusIcon condition={extensionDetected} />
+                  <Badge variant={extensionDetected ? "default" : "destructive"}>
+                    {extensionDetected ? `Instalada (v${extensionVersion})` : "No detectada"}
+                  </Badge>
+                </div>
+                <p className="text-sm text-muted-foreground">
+                  Extensión propia para automatizar WhatsApp Web
+                </p>
+              </div>
             </div>
-          </div>
-          <div className="flex items-center gap-2">
-            <StatusIcon condition={extensionDetected} />
-            {extensionDetected ? (
-              <Badge variant="secondary" className="bg-green-50 text-green-700">
-                Instalada
-              </Badge>
-            ) : (
-              <>
-                <Badge variant="destructive">
-                  No instalada
-                </Badge>
-                <Button
+            {!extensionDetected && isChrome && (
+              <div className="flex space-x-2">
+                <Button 
                   onClick={openExtensionInstall}
+                  variant="outline" 
                   size="sm"
-                  variant="outline"
-                  className="ml-2"
                 >
-                  <Download className="h-3 w-3 mr-1" />
-                  Instalar
+                  <ExternalLink className="h-4 w-4 mr-2" />
+                  Gestionar extensiones
                 </Button>
-              </>
+                <Button 
+                  onClick={checkExtension}
+                  variant="outline" 
+                  size="sm"
+                  disabled={isCheckingExtension}
+                >
+                  {isCheckingExtension ? "Verificando..." : "Reintentar"}
+                </Button>
+              </div>
             )}
           </div>
-        </div>
 
-        {/* WhatsApp Web */}
-        <div className="flex items-center justify-between p-3 border rounded-lg">
-          <div className="flex items-center gap-3">
-            <ExternalLink className="h-5 w-5 text-[#25D366]" />
-            <div>
-              <h4 className="font-medium">WhatsApp Web</h4>
-              <p className="text-sm text-muted-foreground">
-                Sesión activa requerida
-              </p>
+          {/* Requisito 3: Sesión de WhatsApp Web */}
+          <div className="flex items-center justify-between p-4 border rounded-lg">
+            <div className="flex items-center space-x-3">
+              <Globe className="h-5 w-5 text-green-600" />
+              <div>
+                <div className="flex items-center space-x-2">
+                  <span className="font-medium">WhatsApp Web</span>
+                  <StatusIcon condition={sessionActive} />
+                  <Badge variant={sessionActive ? "default" : "destructive"}>
+                    {sessionActive ? "Sesión activa" : "Sin sesión"}
+                  </Badge>
+                </div>
+                <p className="text-sm text-muted-foreground">
+                  Sesión iniciada en web.whatsapp.com
+                </p>
+              </div>
             </div>
-          </div>
-          <div className="flex items-center gap-2">
-            <StatusIcon condition={sessionActive} />
-            {sessionActive ? (
-              <Badge variant="secondary" className="bg-green-50 text-green-700">
-                Sesión activa
-              </Badge>
-            ) : (
-              <>
-                <Badge variant="destructive">
-                  Sin sesión
-                </Badge>
-                <Button
+            {extensionDetected && !sessionActive && (
+              <div className="flex space-x-2">
+                <Button 
                   onClick={openWhatsAppWeb}
+                  variant="outline" 
                   size="sm"
-                  variant="outline"
-                  className="ml-2"
                 >
-                  <ExternalLink className="h-3 w-3 mr-1" />
-                  Abrir
+                  <ExternalLink className="h-4 w-4 mr-2" />
+                  Abrir WhatsApp Web
                 </Button>
-              </>
+                <Button 
+                  onClick={verifySession}
+                  variant="outline" 
+                  size="sm"
+                  disabled={isCheckingSession}
+                >
+                  {isCheckingSession ? "Verificando..." : "Verificar Sesión"}
+                </Button>
+              </div>
             )}
           </div>
-        </div>
-
-        {/* Verificar sesión */}
-        <div className="pt-2">
-          <Button
-            onClick={verifySession}
-            disabled={!extensionDetected || isCheckingSession}
-            variant="outline"
-            className="w-full"
-          >
-            {isCheckingSession ? (
-              <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
-            ) : (
-              <RefreshCw className="h-4 w-4 mr-2" />
-            )}
-            Verificar Sesión
-          </Button>
         </div>
 
         {/* Alertas */}
         {!isChrome && (
-          <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
-            <p className="text-sm text-red-800 font-medium">
-              Esta opción requiere Google Chrome en escritorio y la instalación 
-              de la extensión WA-Sender.
-            </p>
-          </div>
+          <Alert className="mt-4">
+            <AlertCircle className="h-4 w-4" />
+            <AlertDescription>
+              <strong>Google Chrome requerido:</strong> Esta funcionalidad requiere Chrome o Edge Chromium 
+              para funcionar con la extensión Dali WA Sender.
+            </AlertDescription>
+          </Alert>
         )}
+
+        {/* Nota de privacidad */}
+        <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+          <p className="text-sm text-blue-800">
+            <strong>🔒 Privacidad garantizada:</strong> Dali no accede a tus chats de WhatsApp. 
+            La extensión solo automatiza el envío en tu navegador local.
+          </p>
+        </div>
       </CardContent>
     </Card>
   );

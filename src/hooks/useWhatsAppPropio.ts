@@ -2,13 +2,20 @@ import { useState, useRef, useCallback } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import { Lead } from '@/types/crm';
 import { 
-  LoteSalida, 
-  MensajeSalida, 
   SendProgress, 
   SendEvent,
-  FileRef
+  DaliWAMessage,
+  DaliWABatchPayload
 } from '@/types/whatsapp-propio';
-import { ExtensionBridge } from '@/utils/extension-bridge';
+import { 
+  listenExtensionMessages, 
+  sendBatch, 
+  pauseBatch, 
+  resumeBatch, 
+  cancelBatch,
+  detectExtension,
+  checkWALogin 
+} from '@/services/waSelfSender';
 import { useToast } from '@/hooks/use-toast';
 
 export interface UseWhatsAppPropioReturn {
@@ -24,9 +31,9 @@ export interface UseWhatsAppPropioReturn {
 
 export interface SendMessagesConfig {
   message: string;
-  attachments: FileRef[];
+  attachments: any[]; // FileRef[] - simplificado por ahora
   leads: Lead[];
-  throttle: { porMinuto: number; jitterSeg: [number, number] | null };
+  throttle: { minMs?: number; maxMs?: number; perMin?: number };
   dryRun: boolean;
   userEmail: string;
 }
@@ -45,8 +52,8 @@ export function useWhatsAppPropio(): UseWhatsAppPropioReturn {
   const [sendEvents, setSendEvents] = useState<SendEvent[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   
-  const extensionBridge = useRef<ExtensionBridge | null>(null);
-  const currentLoteId = useRef<string | null>(null);
+  const messageListener = useRef<(() => void) | null>(null);
+  const currentBatchId = useRef<string | null>(null);
 
   const addEvent = useCallback((event: Omit<SendEvent, 'id' | 'timestamp'>) => {
     const newEvent: SendEvent = {
@@ -55,7 +62,7 @@ export function useWhatsAppPropio(): UseWhatsAppPropioReturn {
       timestamp: new Date().toISOString()
     };
     
-    setSendEvents(prev => [...prev, newEvent]);
+    setSendEvents(prev => [newEvent, ...prev].slice(0, 50)); // Mantener solo los últimos 50
   }, []);
 
   const updateProgress = useCallback((update: Partial<SendProgress>) => {
@@ -65,7 +72,7 @@ export function useWhatsAppPropio(): UseWhatsAppPropioReturn {
   const renderMessage = useCallback((template: string, lead: Lead): string => {
     return template
       .replace(/{name}/g, lead.name || 'N/A')
-      .replace(/{company}/g, lead.company || 'N/A')
+      .replace(/{company}/g, lead.company || 'N/A')  
       .replace(/{email}/g, lead.email || 'N/A')
       .replace(/{phone}/g, lead.phone || 'N/A');
   }, []);
@@ -74,88 +81,91 @@ export function useWhatsAppPropio(): UseWhatsAppPropioReturn {
     try {
       setIsLoading(true);
       
-      // Crear bridge si no existe
-      if (!extensionBridge.current) {
-        extensionBridge.current = new ExtensionBridge();
+      // Verificar extensión primero
+      const extensionCheck = await detectExtension();
+      if (!extensionCheck.ok) {
+        throw new Error('Extensión Dali WA Sender no detectada');
       }
 
-      const bridge = extensionBridge.current;
-      
-      // Verificar extensión
-      const extensionOk = await bridge.ping();
-      if (!extensionOk) {
-        throw new Error('Extensión no detectada o WhatsApp Web no está activo');
+      // Verificar sesión de WhatsApp Web
+      const sessionCheck = await checkWALogin();
+      if (!sessionCheck) {
+        throw new Error('No hay sesión activa en WhatsApp Web');
       }
 
       // Preparar leads (usar solo los primeros 3 si es dryRun)
       const leadsToSend = config.dryRun ? config.leads.slice(0, 3) : config.leads;
       
-      // Crear mensajes
-      const mensajes: MensajeSalida[] = leadsToSend.map(lead => ({
+      // Crear mensajes con el nuevo formato
+      const messages: DaliWAMessage[] = leadsToSend.map(lead => ({
         id: uuidv4(),
-        to_e164: lead.phone,
-        texto_resuelto: renderMessage(config.message, lead),
-        adjuntos: config.attachments.length > 0 ? config.attachments : undefined
+        to: lead.phone, // Usar formato E.164 si es necesario
+        renderedText: renderMessage(config.message, lead)
       }));
 
-      // Crear lote
-      const lote: LoteSalida = {
-        loteId: uuidv4(),
-        mensajes,
-        throttle: config.throttle,
-        dryRun: config.dryRun,
-        meta: {
-          createdBy: config.userEmail,
-          fuente: 'WA_PROPIO'
+      // Crear payload del lote
+      const batchPayload: DaliWABatchPayload = {
+        batchId: uuidv4(),
+        messages,
+        throttle: {
+          minMs: config.throttle.minMs || 3000,
+          maxMs: config.throttle.maxMs || 7000,
+          perMin: config.throttle.perMin || 10
         }
       };
 
-      currentLoteId.current = lote.loteId;
+      currentBatchId.current = batchPayload.batchId;
 
       // Inicializar progreso
       setSendProgress({
-        total: mensajes.length,
+        total: messages.length,
         sent: 0,
         failed: 0,
-        pending: mensajes.length,
+        pending: messages.length,
         isActive: true,
         isPaused: false
       });
 
       setSendEvents([]);
 
-      // Configurar listeners de eventos
-      bridge.onEvent((event) => {
-        if (event.loteId !== lote.loteId) return;
+      // Configurar listener de mensajes de la extensión
+      if (messageListener.current) {
+        messageListener.current(); // Limpiar listener anterior
+      }
 
-        switch (event.kind) {
-          case 'event':
-            if (event.messageId && event.status) {
-              const mensaje = mensajes.find(m => m.id === event.messageId);
-              if (mensaje) {
-                const lead = leadsToSend.find(l => l.phone === mensaje.to_e164);
-                if (lead) {
-                  addEvent({
-                    leadName: lead.name,
-                    phoneNumber: mensaje.to_e164,
-                    status: event.status,
-                    error: event.error,
-                    ticks: event.ticks
-                  });
+      messageListener.current = listenExtensionMessages((e) => {
+        const messageType = e.data?.type;
+        
+        if (messageType === 'DALI_WA_MSG_PROGRESS') {
+          const progress = e.data;
+          const message = messages.find(m => m.id === progress.messageId);
+          if (message) {
+            const lead = leadsToSend.find(l => l.phone === message.to);
+            if (lead) {
+              addEvent({
+                leadName: lead.name,
+                phoneNumber: message.to,
+                status: progress.status,
+                error: progress.error,
+                ticks: progress.ticks
+              });
 
-                  // Actualizar progreso
-                  setSendProgress(prev => ({
-                    ...prev,
-                    sent: event.status === 'sent' ? prev.sent + 1 : prev.sent,
-                    failed: event.status === 'failed' ? prev.failed + 1 : prev.failed,
-                    pending: prev.pending - 1
-                  }));
-                }
-              }
+              // Actualizar contadores
+              setSendProgress(prev => {
+                const newSent = progress.status === 'sent' ? prev.sent + 1 : prev.sent;
+                const newFailed = progress.status === 'failed' ? prev.failed + 1 : prev.failed;
+                return {
+                  ...prev,
+                  sent: newSent,
+                  failed: newFailed,
+                  pending: prev.total - newSent - newFailed
+                };
+              });
             }
-            break;
-
-          case 'done':
+          }
+        } else if (messageType === 'DALI_WA_BATCH_DONE') {
+          const done = e.data;
+          if (done.batchId === currentBatchId.current) {
             updateProgress({
               isActive: false,
               isPaused: false
@@ -163,22 +173,27 @@ export function useWhatsAppPropio(): UseWhatsAppPropioReturn {
 
             toast({
               title: "Envío completado",
-              description: `Se enviaron ${event.sent} mensajes correctamente`,
+              description: `Se enviaron ${done.sent} mensajes correctamente${done.failed > 0 ? `, ${done.failed} fallaron` : ''}`,
             });
 
+            // Limpiar listener
+            if (messageListener.current) {
+              messageListener.current();
+              messageListener.current = null;
+            }
+
             // TODO: Persistir en API cuando esté disponible
-            // await persistirLote(lote, events);
-            
-            break;
+            // await persistirBatch(batchPayload, sendEvents);
+          }
         }
       });
 
       // Enviar lote a la extensión
-      bridge.sendBatch(lote);
+      sendBatch(batchPayload);
 
       toast({
         title: config.dryRun ? "Enviando mensajes de prueba" : "Enviando mensajes",
-        description: `Iniciando envío a ${mensajes.length} contactos`,
+        description: `Iniciando envío a ${messages.length} contactos`,
       });
 
     } catch (error) {
@@ -193,25 +208,50 @@ export function useWhatsAppPropio(): UseWhatsAppPropioReturn {
         isActive: false,
         isPaused: false
       });
+      
+      // Limpiar listener en caso de error
+      if (messageListener.current) {
+        messageListener.current();
+        messageListener.current = null;
+      }
     } finally {
       setIsLoading(false);
     }
   }, [toast, addEvent, updateProgress, renderMessage]);
 
   const pauseResume = useCallback(() => {
-    if (extensionBridge.current && currentLoteId.current) {
-      extensionBridge.current.pauseResume();
-      setSendProgress(prev => ({ ...prev, isPaused: !prev.isPaused }));
+    if (currentBatchId.current && sendProgress.isActive) {
+      if (sendProgress.isPaused) {
+        resumeBatch();
+        setSendProgress(prev => ({ ...prev, isPaused: false }));
+        toast({
+          title: "Envío reanudado",
+          description: "Continuando con el envío de mensajes"
+        });
+      } else {
+        pauseBatch();
+        setSendProgress(prev => ({ ...prev, isPaused: true }));
+        toast({
+          title: "Envío pausado",
+          description: "El envío ha sido pausado temporalmente"
+        });
+      }
     }
-  }, []);
+  }, [sendProgress.isActive, sendProgress.isPaused, toast]);
 
   const cancelSend = useCallback(() => {
-    if (extensionBridge.current && currentLoteId.current) {
-      extensionBridge.current.cancel();
+    if (currentBatchId.current && sendProgress.isActive) {
+      cancelBatch();
       updateProgress({
         isActive: false,
         isPaused: false
       });
+      
+      // Limpiar listener
+      if (messageListener.current) {
+        messageListener.current();
+        messageListener.current = null;
+      }
       
       toast({
         title: "Envío cancelado",
@@ -219,7 +259,7 @@ export function useWhatsAppPropio(): UseWhatsAppPropioReturn {
         variant: "destructive"
       });
     }
-  }, [toast, updateProgress]);
+  }, [sendProgress.isActive, toast, updateProgress]);
 
   const downloadReport = useCallback(() => {
     if (sendEvents.length === 0) return;
@@ -242,7 +282,7 @@ export function useWhatsAppPropio(): UseWhatsAppPropioReturn {
     const url = URL.createObjectURL(blob);
     
     link.setAttribute('href', url);
-    link.setAttribute('download', `whatsapp-reporte-${new Date().toISOString().split('T')[0]}.csv`);
+    link.setAttribute('download', `dali-whatsapp-reporte-${new Date().toISOString().split('T')[0]}.csv`);
     link.style.visibility = 'hidden';
     
     document.body.appendChild(link);
