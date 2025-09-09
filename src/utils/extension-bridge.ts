@@ -80,7 +80,12 @@ export class ExtensionBridge {
   }
 
   public static isChrome(): boolean {
-    return navigator.userAgent.includes('Chrome') && !!(window as any).chrome;
+    // Detectar Chrome específicamente, excluyendo Edge y otros navegadores basados en Chromium
+    const isChrome = navigator.userAgent.includes('Chrome') && !!(window as any).chrome;
+    const isEdge = navigator.userAgent.includes('Edge') || navigator.userAgent.includes('Edg/');
+    const isOpera = navigator.userAgent.includes('Opera') || navigator.userAgent.includes('OPR');
+    
+    return isChrome && !isEdge && !isOpera;
   }
 
   public cleanup() {

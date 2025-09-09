@@ -47,9 +47,7 @@ export function RequirementsChecklist({ onValidationChange }: RequirementsCheckl
     try {
       const detected = await extensionBridge.ping();
       setExtensionDetected(detected);
-      if (detected) {
-        setSessionActive(true);
-      }
+      // No asumir que la sesión está activa solo porque la extensión responde
     } catch (error) {
       setExtensionDetected(false);
       setSessionActive(false);
@@ -75,8 +73,7 @@ export function RequirementsChecklist({ onValidationChange }: RequirementsCheckl
   };
 
   const openExtensionInstall = () => {
-    const installUrl = process.env.NEXT_PUBLIC_WA_EXTENSION_INSTALL_URL || 
-      'https://chrome.google.com/webstore/detail/dali-wa-sender/ejemplo';
+    const installUrl = 'https://chromewebstore.google.com/detail/wa-sender/hcddckfgihadahfdiefinmneegaoehdh';
     window.open(installUrl, '_blank');
   };
 
@@ -125,7 +122,7 @@ export function RequirementsChecklist({ onValidationChange }: RequirementsCheckl
           <div className="flex items-center gap-3">
             <Download className="h-5 w-5 text-purple-600" />
             <div>
-              <h4 className="font-medium">Extensión Dali WA Sender</h4>
+              <h4 className="font-medium">Extensión WA-Sender</h4>
               <p className="text-sm text-muted-foreground">
                 Automatiza el envío en WhatsApp Web
               </p>
@@ -214,7 +211,7 @@ export function RequirementsChecklist({ onValidationChange }: RequirementsCheckl
           <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
             <p className="text-sm text-red-800 font-medium">
               Esta opción requiere Google Chrome en escritorio y la instalación 
-              de la extensión Dali WA Sender.
+              de la extensión WA-Sender.
             </p>
           </div>
         )}
