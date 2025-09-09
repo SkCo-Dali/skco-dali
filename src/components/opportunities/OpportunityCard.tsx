@@ -78,7 +78,7 @@ export const OpportunityCard: React.FC<OpportunityCardProps> = ({
             <CardContent className="px-3 pb-3 pt-1 text-center space-y-2.5">
               {/* Large emoji as "product image" */}
               <div className="flex justify-center">
-                <div className="text-6xl w-20 h-20 flex items-center justify-center rounded-2xl bg-gradient-to-br from-primary/10 to-primary/5 border border-primary/10">
+                <div className="text-6xl w-20 h-20 flex items-center justify-center rounded-2xl bg-gradient-to-br from-primary/10 to-primary/5">
                   {opportunity.icon}
                 </div>
               </div>
