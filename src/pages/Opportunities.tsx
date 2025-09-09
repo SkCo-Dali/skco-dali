@@ -174,7 +174,6 @@ export const Opportunities: React.FC = () => {
         {/* Search and Sort Controls */}
         <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center justify-between mb-4">
           <div className="relative flex-1 max-w-md">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
               placeholder="Buscar oportunidades..."
               value={filters.search || ''}
@@ -216,7 +215,7 @@ export const Opportunities: React.FC = () => {
         )}
 
         {/* All Opportunities Section with Sidebar */}
-       <div> 
+       <div className= "mb-6"> 
          <h2 className="text-xl font-semibold">
               Todas las Oportunidades
               {!loading && opportunities.length > 0 && (
