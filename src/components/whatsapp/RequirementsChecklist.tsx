@@ -26,8 +26,12 @@ export function RequirementsChecklist({ onValidationChange }: RequirementsCheckl
   const extensionBridge = new ExtensionBridge();
 
   useEffect(() => {
+    console.log('RequirementsChecklist: Inicializando checks');
+    
     // Verificar Chrome
-    setIsChrome(ExtensionBridge.isChrome());
+    const chromeDetected = ExtensionBridge.isChrome();
+    console.log('RequirementsChecklist: Chrome detectado:', chromeDetected);
+    setIsChrome(chromeDetected);
     
     // Verificar extensión automáticamente
     checkExtension();
@@ -44,11 +48,14 @@ export function RequirementsChecklist({ onValidationChange }: RequirementsCheckl
   }, [isChrome, extensionDetected, sessionActive, onValidationChange]);
 
   const checkExtension = async () => {
+    console.log('RequirementsChecklist: Verificando extensión...');
     try {
       const detected = await extensionBridge.ping();
+      console.log('RequirementsChecklist: Extensión detectada:', detected);
       setExtensionDetected(detected);
       // No asumir que la sesión está activa solo porque la extensión responde
     } catch (error) {
+      console.log('RequirementsChecklist: Error verificando extensión:', error);
       setExtensionDetected(false);
       setSessionActive(false);
     }

@@ -19,15 +19,18 @@ export class ExtensionBridge {
     if (event.source !== window) return;
 
     const { type, payload } = event.data;
+    console.log('ExtensionBridge: Mensaje recibido:', { type, payload });
     
-    if (type === 'DALI_WA_PONG') {
+    // Manejar diferentes tipos de respuesta PONG
+    if (type === 'DALI_WA_PONG' || type === 'WA_SENDER_PONG' || type === 'WA_PONG') {
+      console.log('ExtensionBridge: Pong detectado, tipo:', type);
       this.notifyListeners({ kind: 'pong' });
-    } else if (type === 'DALI_WA_EVENT') {
+    } else if (type === 'DALI_WA_EVENT' || type === 'WA_SENDER_EVENT' || type === 'WA_EVENT') {
       this.notifyListeners({
         kind: 'event',
         ...payload
       });
-    } else if (type === 'DALI_WA_DONE') {
+    } else if (type === 'DALI_WA_DONE' || type === 'WA_SENDER_DONE' || type === 'WA_DONE') {
       this.notifyListeners({
         kind: 'done',
         ...payload
@@ -53,17 +56,38 @@ export class ExtensionBridge {
 
   public ping(): Promise<boolean> {
     return new Promise((resolve) => {
-      const timeout = setTimeout(() => resolve(false), 3000);
+      console.log('ExtensionBridge: Iniciando ping a la extensión WA-Sender');
+      
+      const timeout = setTimeout(() => {
+        console.log('ExtensionBridge: Timeout - extensión no detectada');
+        resolve(false);
+      }, 3000);
       
       const removeListener = this.onEvent((event) => {
+        console.log('ExtensionBridge: Evento recibido:', event);
         if (event.kind === 'pong') {
+          console.log('ExtensionBridge: Pong recibido - extensión detectada');
           clearTimeout(timeout);
           removeListener();
           resolve(true);
         }
       });
 
+      // Intentar múltiples tipos de ping por si la extensión usa diferentes nombres
+      console.log('ExtensionBridge: Enviando ping...');
       window.postMessage({ type: 'DALI_WA_PING' }, '*');
+      window.postMessage({ type: 'WA_SENDER_PING' }, '*');
+      window.postMessage({ type: 'WA_PING' }, '*');
+      
+      // También revisar si hay alguna variable global que indique la presencia de la extensión
+      setTimeout(() => {
+        if ((window as any).waSenderExtension || (window as any).WA_SENDER_EXTENSION) {
+          console.log('ExtensionBridge: Extensión detectada via variable global');
+          clearTimeout(timeout);
+          removeListener();
+          resolve(true);
+        }
+      }, 100);
     });
   }
 
