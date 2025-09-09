@@ -75,7 +75,7 @@ export const OpportunityCard: React.FC<OpportunityCardProps> = ({
               </Button>
             </div>
 
-            <CardContent className="px-3 pb-3 pt-0 text-center space-y-3">
+            <CardContent className="px-3 pb-3 pt-1 text-center space-y-2.5">
               {/* Large emoji as "product image" */}
               <div className="flex justify-center">
                 <div className="text-6xl w-20 h-20 flex items-center justify-center rounded-2xl bg-gradient-to-br from-primary/10 to-primary/5 border border-primary/10">
@@ -89,15 +89,6 @@ export const OpportunityCard: React.FC<OpportunityCardProps> = ({
                   {opportunity.title}
                 </h3>
               </div>
-
-              {/* Top badge if highlighted */}
-              {opportunity.isHighlighted && (
-                <div className="flex justify-center">
-                  <Badge className="text-xs px-2 py-0.5 bg-gradient-to-r from-orange-500 to-red-500 text-white border-0 font-bold">
-                    🔥 Top {opportunity.score > 90 ? '1' : opportunity.score > 80 ? '2' : '3'}
-                  </Badge>
-                </div>
-              )}
 
               {/* Priority and Type Badges */}
               <div className="flex flex-wrap gap-1 justify-center">
