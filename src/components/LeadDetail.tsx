@@ -573,12 +573,10 @@ Notas adicionales: ${lead.notes || 'Ninguna'}`;
             </DialogHeader>
 
             <Tabs defaultValue="general" className="w-full px-6">
-              <TabsList className={`grid w-full ${permissions?.canAssign ? 'grid-cols-3' : 'grid-cols-2'} bg-gray-100 rounded-full px-0 py-0 my-0`}>
+              <TabsList className="grid w-full grid-cols-3 bg-gray-100 rounded-full px-0 py-0 my-0">
                 <TabsTrigger value="general" className="w-full h-full data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#00C73D] data-[state=active]:to-[#A3E40B] data-[state=active]:text-white rounded-full px-4 py-2 mt-0 text-sm font-medium transition-all duration-200">General</TabsTrigger>
                 <TabsTrigger value="management"className="w-full h-full data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#00C73D] data-[state=active]:to-[#A3E40B] data-[state=active]:text-white rounded-full px-4 py-2 mt-0 text-sm font-medium transition-all duration-200" >Gestión</TabsTrigger>
-                {permissions?.canAssign && (
                   <TabsTrigger value="history"className="w-full h-full data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#00C73D] data-[state=active]:to-[#A3E40B] data-[state=active]:text-white rounded-full px-4 py-2 mt-0 text-sm font-medium transition-all duration-200" >Asignación</TabsTrigger>
-                )}
               </TabsList>
 
               {/* Tab General */}
@@ -1172,9 +1170,10 @@ Notas adicionales: ${lead.notes || 'Ninguna'}`;
               <TabsContent value="history" className="space-y-4">
                 <div className="flex items-center justify-between my-2">
   <div className="flex items-center gap-2 my-4">
-    <Label>Usuario Actual Asignado:</Label>
+    <span className="text-sm font-bold">Usuario Actual Asignado:</span>
     <span className="text-sm font-medium">{assignedUserName}</span>
   </div>
+                  {permissions?.canAssign && (      
   <Button
     size="sm"
     variant="outline"
@@ -1184,6 +1183,7 @@ Notas adicionales: ${lead.notes || 'Ninguna'}`;
     <UserPlus className="h-3 w-3" />
     Reasignar
   </Button>
+        )}
 </div>
                 <div className="flex items-center gap-2 mb-4">
                   <History className="h-5 w-5" />
