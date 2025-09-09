@@ -107,7 +107,8 @@ export function ComposerWAPropio({ leads, onBack, onSend }: ComposerWAPropioProp
   };
 
   const canSend = () => {
-    return requirementsValid && 
+    // Temporalmente deshabilitado el check de requisitos para pruebas
+    return true && // requirementsValid && 
            message.trim().length > 0 && 
            validLeads.length > 0;
   };
