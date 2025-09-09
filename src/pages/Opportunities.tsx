@@ -158,7 +158,7 @@ export const Opportunities: React.FC = () => {
                       🔥Top {index + 1}
                     </Badge>
                   </div>
-                  <div className="ring-2 ring-primary/30 ring-offset-2 rounded-xl">
+                  <div className="ring-2 ring-offset-2 rounded-xl">
                     <OpportunityCard
                       opportunity={opportunity}
                       onViewDetails={handleViewDetails}
