@@ -216,7 +216,7 @@ export const Opportunities: React.FC = () => {
           </div>
           
           <Select value={sortBy} onValueChange={(value) => setSortBy(value as SortOption)}>
-              <label className="mr-2">Ordenar por:</label>
+              <label className="pr-2">Ordenar por:</label>
             <SelectTrigger className="w-[180px] bg-white">
               <SelectValue placeholder="Ordenar por" />
             </SelectTrigger>
