@@ -171,29 +171,7 @@ export const Opportunities: React.FC = () => {
           </div>
         )}
 
-        {/* Search and Sort Controls */}
-        <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center justify-between mb-4">
-          <div className="relative flex-1 max-w-md">
-            <Input
-              placeholder="Buscar oportunidades..."
-              value={filters.search || ''}
-              onChange={(e) => setFilters({ ...filters, search: e.target.value || undefined })}
-              className="pl-10 bg-white"
-            />
-          </div>
-          
-          <Select value={sortBy} onValueChange={(value) => setSortBy(value as SortOption)}>
-            <SelectTrigger className="w-[180px] bg-white">
-              <SelectValue placeholder="Ordenar por" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="relevance">Relevancia</SelectItem>
-              <SelectItem value="customers">Más clientes</SelectItem>
-              <SelectItem value="recent">Más reciente</SelectItem>
-              <SelectItem value="expiring">Próximos a vencer</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
+        
 
         {/* Active Filters Display */}
         {(filters.type?.length || filters.priority?.length || filters.onlyFavorites) && (
@@ -225,6 +203,31 @@ export const Opportunities: React.FC = () => {
               )}
             </h2>
           </div>
+
+        {/* Search and Sort Controls */}
+        <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center justify-between mb-4">
+          <div className="relative flex-1 max-w-md">
+            <Input
+              placeholder="Buscar oportunidades..."
+              value={filters.search || ''}
+              onChange={(e) => setFilters({ ...filters, search: e.target.value || undefined })}
+              className="pl-10 bg-white"
+            />
+          </div>
+          
+          <Select value={sortBy} onValueChange={(value) => setSortBy(value as SortOption)}>
+            <SelectTrigger className="w-[180px] bg-white">
+              <SelectValue placeholder="Ordenar por" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="relevance">Relevancia</SelectItem>
+              <SelectItem value="customers">Más clientes</SelectItem>
+              <SelectItem value="recent">Más reciente</SelectItem>
+              <SelectItem value="expiring">Próximos a vencer</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+        
         <div className="flex gap-6">
           {/* Opportunities Grid */}
           <div className="flex-1 space-y-3">
