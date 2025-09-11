@@ -21,11 +21,23 @@ export class ExtensionBridge {
     const { type, payload } = event.data;
     console.log('ExtensionBridge: Mensaje recibido:', { type, payload });
     
-    // Manejar diferentes tipos de respuesta PONG
-    if (type === 'DALI_WA_PONG' || type === 'WA_SENDER_PONG' || type === 'WA_PONG') {
+    // Manejar respuesta PONG de la extensión
+    if (type === 'DALI_WA_EXT_PONG') {
       console.log('ExtensionBridge: Pong detectado, tipo:', type);
       this.notifyListeners({ kind: 'pong' });
-    } else if (type === 'DALI_WA_EVENT' || type === 'WA_SENDER_EVENT' || type === 'WA_EVENT') {
+    } 
+    // Manejar resultados individuales de mensajes
+    else if (type === 'DALI_WA_RESULT') {
+      console.log(`Resultado para ${event.data.phoneRaw}: ${event.data.status}`);
+      this.notifyListeners({
+        kind: 'event',
+        messageId: event.data.phoneRaw,
+        status: event.data.status === 'success' ? 'sent' : 'failed',
+        error: event.data.status === 'error' ? event.data.error : undefined
+      });
+    }
+    // Mantener compatibilidad con tipos anteriores
+    else if (type === 'DALI_WA_EVENT' || type === 'WA_SENDER_EVENT' || type === 'WA_EVENT') {
       this.notifyListeners({
         kind: 'event',
         ...payload
@@ -73,11 +85,25 @@ export class ExtensionBridge {
         }
       });
 
-      // Intentar múltiples tipos de ping por si la extensión usa diferentes nombres
-      console.log('ExtensionBridge: Enviando ping...');
-      window.postMessage({ type: 'DALI_WA_PING' }, '*');
-      window.postMessage({ type: 'WA_SENDER_PING' }, '*');
-      window.postMessage({ type: 'WA_PING' }, '*');
+      // Usar chrome.runtime para comunicarse con la extensión específica
+      try {
+        console.log('ExtensionBridge: Enviando ping via chrome.runtime...');
+        chrome.runtime.sendMessage("ecbjlbfhlbljkgdjiajioahaebpmgkfd", { type: "DALI_WA_EXT_PING" }, (response) => {
+          if (chrome.runtime.lastError) {
+            console.log("Extensión no encontrada via chrome.runtime");
+            return;
+          }
+          if (response && response.type === "DALI_WA_EXT_PONG") {
+            console.log(`Extensión encontrada, versión: ${response.version}`);
+            clearTimeout(timeout);
+            removeListener();
+            resolve(true);
+          }
+        });
+      } catch (error) {
+        console.log('ExtensionBridge: chrome.runtime no disponible, usando postMessage...');
+        window.postMessage({ type: 'DALI_WA_EXT_PING' }, '*');
+      }
       
       // También revisar si hay alguna variable global que indique la presencia de la extensión
       setTimeout(() => {

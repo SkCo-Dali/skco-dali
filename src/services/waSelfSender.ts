@@ -22,7 +22,24 @@ export function detectExtension(timeoutMs = 3000): Promise<Detected> {
       }
     };
     window.addEventListener("message", onMsg);
-    window.postMessage({ type: "DALI_WA_EXT_PING" }, "*");
+    
+    // Enviar ping a la extensión usando chrome.runtime
+    try {
+      chrome.runtime.sendMessage("ecbjlbfhlbljkgdjiajioahaebpmgkfd", { type: "DALI_WA_EXT_PING" }, (response) => {
+        if (chrome.runtime.lastError) {
+          console.log("Extensión no encontrada via chrome.runtime");
+          return;
+        }
+        if (response && response.type === "DALI_WA_EXT_PONG") {
+          window.removeEventListener("message", onMsg);
+          resolve({ ok: true, info: { version: response.version, loggedIn: response.loggedIn } });
+        }
+      });
+    } catch (error) {
+      // Fallback a postMessage si chrome.runtime no está disponible
+      window.postMessage({ type: "DALI_WA_EXT_PING" }, "*");
+    }
+    
     setTimeout(() => { 
       window.removeEventListener("message", onMsg); 
       resolve({ ok: false }); 
@@ -39,7 +56,21 @@ export function checkWALogin(timeoutMs = 3000): Promise<boolean> {
       }
     };
     window.addEventListener("message", onMsg);
-    window.postMessage({ type: "DALI_WA_EXT_STATUS" }, "*");
+    
+    try {
+      chrome.runtime.sendMessage("ecbjlbfhlbljkgdjiajioahaebpmgkfd", { type: "DALI_WA_EXT_STATUS" }, (response) => {
+        if (chrome.runtime.lastError) {
+          return;
+        }
+        if (response && response.type === "DALI_WA_EXT_STATUS_OK") {
+          window.removeEventListener("message", onMsg);
+          resolve(!!response.loggedIn);
+        }
+      });
+    } catch (error) {
+      window.postMessage({ type: "DALI_WA_EXT_STATUS" }, "*");
+    }
+    
     setTimeout(() => { 
       window.removeEventListener("message", onMsg); 
       resolve(false); 
@@ -53,8 +84,25 @@ export type SendBatchPayload = {
   messages: Array<{ id: string; to: string; renderedText: string }>;
 };
 
+export type BatchItem = {
+  phone: string;
+  textResolved: string;
+};
+
 export function sendBatch(payload: SendBatchPayload) {
-  window.postMessage({ type: "DALI_WA_SEND_BATCH", payload }, "*");
+  try {
+    // Enviar a la extensión usando chrome.runtime
+    chrome.runtime.sendMessage("ecbjlbfhlbljkgdjiajioahaebpmgkfd", {
+      type: "DALI_WA_SEND_BATCH",
+      items: payload.messages.map(msg => ({
+        phone: msg.to,
+        textResolved: msg.renderedText
+      }))
+    });
+  } catch (error) {
+    // Fallback a postMessage
+    window.postMessage({ type: "DALI_WA_SEND_BATCH", payload }, "*");
+  }
 }
 
 export function pauseBatch() { 

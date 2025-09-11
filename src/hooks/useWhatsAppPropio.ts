@@ -16,6 +16,7 @@ import {
   detectExtension,
   checkWALogin 
 } from '@/services/waSelfSender';
+import { WhatsAppExtensionCommunicator } from '@/utils/whatsapp-extension';
 import { useToast } from '@/hooks/use-toast';
 
 export interface UseWhatsAppPropioReturn {
@@ -54,6 +55,7 @@ export function useWhatsAppPropio(): UseWhatsAppPropioReturn {
   
   const messageListener = useRef<(() => void) | null>(null);
   const currentBatchId = useRef<string | null>(null);
+  const extensionCommunicator = useRef<WhatsAppExtensionCommunicator>(new WhatsAppExtensionCommunicator());
 
   const addEvent = useCallback((event: Omit<SendEvent, 'id' | 'timestamp'>) => {
     const newEvent: SendEvent = {
@@ -81,16 +83,10 @@ export function useWhatsAppPropio(): UseWhatsAppPropioReturn {
     try {
       setIsLoading(true);
       
-      // Verificar extensión primero
-      const extensionCheck = await detectExtension();
-      if (!extensionCheck.ok) {
-        throw new Error('Extensión Dali WA Sender no detectada');
-      }
-
-      // Verificar sesión de WhatsApp Web
-      const sessionCheck = await checkWALogin();
-      if (!sessionCheck) {
-        throw new Error('No hay sesión activa en WhatsApp Web');
+      // Verificar extensión usando la nueva utilidad
+      const extensionCheck = await extensionCommunicator.current.checkExtension();
+      if (!extensionCheck.installed) {
+        throw new Error('Extensión Dali WA Sender no detectada. Asegúrate de tenerla instalada y habilitada.');
       }
 
       // Preparar leads (usar solo los primeros 3 si es dryRun)
@@ -128,68 +124,70 @@ export function useWhatsAppPropio(): UseWhatsAppPropioReturn {
 
       setSendEvents([]);
 
-      // Configurar listener de mensajes de la extensión
+      // Configurar listener para resultados de la extensión
       if (messageListener.current) {
         messageListener.current(); // Limpiar listener anterior
       }
 
-      messageListener.current = listenExtensionMessages((e) => {
-        const messageType = e.data?.type;
+      messageListener.current = extensionCommunicator.current.onResult((result) => {
+        console.log(`Resultado para ${result.phoneRaw}: ${result.status}`);
         
-        if (messageType === 'DALI_WA_MSG_PROGRESS') {
-          const progress = e.data;
-          const message = messages.find(m => m.id === progress.messageId);
-          if (message) {
-            const lead = leadsToSend.find(l => l.phone === message.to);
-            if (lead) {
-              addEvent({
-                leadName: lead.name,
-                phoneNumber: message.to,
-                status: progress.status,
-                error: progress.error,
-                ticks: progress.ticks
+        // Encontrar el lead correspondiente
+        const lead = leadsToSend.find(l => l.phone === result.phoneRaw);
+        if (lead) {
+          addEvent({
+            leadName: lead.name,
+            phoneNumber: result.phoneRaw,
+            status: result.status === 'success' ? 'sent' : 'failed',
+            error: result.error,
+            ticks: result.status === 'success' ? '✓' : undefined
+          });
+
+          // Actualizar contadores
+          setSendProgress(prev => {
+            const newSent = result.status === 'success' ? prev.sent + 1 : prev.sent;
+            const newFailed = result.status === 'error' ? prev.failed + 1 : prev.failed;
+            const completed = newSent + newFailed;
+            
+            // Si completamos todos los mensajes
+            if (completed >= prev.total) {
+              updateProgress({
+                isActive: false,
+                isPaused: false
               });
 
-              // Actualizar contadores
-              setSendProgress(prev => {
-                const newSent = progress.status === 'sent' ? prev.sent + 1 : prev.sent;
-                const newFailed = progress.status === 'failed' ? prev.failed + 1 : prev.failed;
-                return {
-                  ...prev,
-                  sent: newSent,
-                  failed: newFailed,
-                  pending: prev.total - newSent - newFailed
-                };
+              toast({
+                title: "Envío completado",
+                description: `Se enviaron ${newSent} mensajes correctamente${newFailed > 0 ? `, ${newFailed} fallaron` : ''}`,
               });
+
+              // Limpiar listener
+              if (messageListener.current) {
+                messageListener.current();
+                messageListener.current = null;
+              }
             }
-          }
-        } else if (messageType === 'DALI_WA_BATCH_DONE') {
-          const done = e.data;
-          if (done.batchId === currentBatchId.current) {
-            updateProgress({
-              isActive: false,
-              isPaused: false
-            });
-
-            toast({
-              title: "Envío completado",
-              description: `Se enviaron ${done.sent} mensajes correctamente${done.failed > 0 ? `, ${done.failed} fallaron` : ''}`,
-            });
-
-            // Limpiar listener
-            if (messageListener.current) {
-              messageListener.current();
-              messageListener.current = null;
-            }
-
-            // TODO: Persistir en API cuando esté disponible
-            // await persistirBatch(batchPayload, sendEvents);
-          }
+            
+            return {
+              ...prev,
+              sent: newSent,
+              failed: newFailed,
+              pending: prev.total - completed
+            };
+          });
         }
       });
 
-      // Enviar lote a la extensión
-      sendBatch(batchPayload);
+      // Enviar lote a la extensión usando la nueva utilidad
+      const batchItems = messages.map(msg => ({
+        phone: msg.to,
+        textResolved: msg.renderedText
+      }));
+      
+      const batchSent = await extensionCommunicator.current.sendBatch(batchItems);
+      if (!batchSent) {
+        throw new Error('Error al enviar el lote a la extensión');
+      }
 
       toast({
         title: config.dryRun ? "Enviando mensajes de prueba" : "Enviando mensajes",
