@@ -39,6 +39,7 @@ const allMenuItems = [
   { title: "Dashboard", url: "/reports", iconClass: "", page: "reports", customIcon: "https://skcoblobresources.blob.core.windows.net/digital-assets/icons/icon-skandia/sk_grafica_1_n.svg" },
   { title: "Informes", url: "/informes", iconClass: "", page: "informes", customIcon: "https://skcoblobresources.blob.core.windows.net/digital-assets/icons/icon-skandia/sk_chart_2_p.svg" },
   { title: "Comisiones", url: "/comisiones", iconClass: "", page: "comisiones", customIcon: "https://skcoblobresources.blob.core.windows.net/digital-assets/icons/icon-skandia/sk_moneda_p.svg" },
+  { title: "Motor Comisiones", url: "/motor-comisiones", iconClass: "", page: "motor-comisiones", customIcon: "https://skcoblobresources.blob.core.windows.net/digital-assets/icons/icon-skandia/sk_engranajes_p.svg" },
   { title: "Calendario", url: "/calendar", iconClass: "", page: "calendar", customIcon: "https://skcoblobresources.blob.core.windows.net/digital-assets/icons/icon-skandia/sk_calendario_p.svg" },
   { title: "Tareas", url: "/tasks", iconClass: "", page: "tasks", customIcon: "https://skcoblobresources.blob.core.windows.net/digital-assets/icons/icon-skandia/sk_puntos_p.svg" },
 ];
