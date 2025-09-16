@@ -1,6 +1,7 @@
 import { IOpportunity, ICustomer, OpportunityFilters, SortOption, OpportunityStats } from '@/types/opportunities';
-import { getOpportunitySummary } from '@/utils/opportunitiesApiClient';
+import { getOpportunitySummary, loadLeadsFromOpportunity } from '@/utils/opportunitiesApiClient';
 import { mapApiOpportunityToOpportunity } from '@/utils/opportunitiesApiMapper';
+import { Lead, LeadStatus, LeadSource, Priority, Campaign, Portfolio } from '@/types/crm';
 
 // Import mock data as fallback
 import mockOpportunities from '@/data/mockOpportunities.json';
@@ -198,6 +199,53 @@ class OpportunitiesService {
       success: true,
       message: `Campaña cargada para la oportunidad ${opportunityId}`
     };
+  }
+
+  async loadAsLeads(opportunityId: string): Promise<Lead[]> {
+    const numericId = parseInt(opportunityId, 10);
+    if (isNaN(numericId)) {
+      throw new Error('ID de oportunidad inválido');
+    }
+
+    try {
+      const apiLeads = await loadLeadsFromOpportunity(numericId);
+      
+      // Convert API response to Lead format
+      const leads: Lead[] = apiLeads.map(apiLead => ({
+        id: `${apiLead.documentNumber}`, // Using document number as unique ID
+        name: apiLead.name,
+        email: apiLead.email,
+        phone: apiLead.phone,
+        status: 'New' as LeadStatus,
+        source: (apiLead.source || 'Other') as LeadSource,
+        priority: (apiLead.priority === 'Alta' ? 'High' : 
+                  apiLead.priority === 'Media' ? 'Medium' : 'Low') as Priority,
+        campaign: (apiLead.campaign || '') as Campaign,
+        portfolio: '' as Portfolio,
+        product: Array.isArray(apiLead.product) ? apiLead.product.join(', ') : '',
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        stage: apiLead.stage,
+        assignedTo: apiLead.assignedTo,
+        createdBy: apiLead.CreatedBy,
+        company: apiLead.company || '',
+        value: apiLead.value,
+        notes: apiLead.notes || '',
+        documentType: apiLead.DocumentType,
+        documentNumber: apiLead.documentNumber,
+        age: apiLead.Age,
+        gender: apiLead.Gender,
+        preferredContactChannel: apiLead.PreferredContactChannel,
+        portfolios: apiLead.SelectedPortfolios || [],
+        tags: apiLead.tags || [],
+        nextFollowUp: apiLead.nextFollowUp,
+      }));
+
+      return leads;
+    } catch (error) {
+      console.error('Error loading leads from opportunity:', error);
+      throw error;
+    }
   }
 
   private trackEvent(event: string, data: any): void {

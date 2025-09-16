@@ -22,6 +22,8 @@ import { IOpportunity, OPPORTUNITY_TYPE_LABELS, PRIORITY_COLORS } from '@/types/
 import { opportunitiesService } from '@/services/opportunitiesService';
 import { useToast } from '@/hooks/use-toast';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { MassEmailSender } from '@/components/MassEmailSender';
+import { Lead } from '@/types/crm';
 
 export const OpportunityDetails: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -31,6 +33,9 @@ export const OpportunityDetails: React.FC = () => {
   const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState<string | null>(null);
   const [isFavorite, setIsFavorite] = React.useState(false);
+  const [loadingLeads, setLoadingLeads] = React.useState(false);
+  const [showEmailSender, setShowEmailSender] = React.useState(false);
+  const [loadedLeads, setLoadedLeads] = React.useState<Lead[]>([]);
 
   const loadOpportunity = React.useCallback(async () => {
     if (!id) return;
@@ -78,6 +83,33 @@ export const OpportunityDetails: React.FC = () => {
 
   const handleRetry = () => {
     loadOpportunity();
+  };
+
+  const handleLoadAsLeads = async () => {
+    if (!opportunity) return;
+    
+    try {
+      setLoadingLeads(true);
+      const leads = await opportunitiesService.loadAsLeads(opportunity.id);
+      setLoadedLeads(leads);
+      setShowEmailSender(true);
+      
+      toast({
+        title: "Leads cargados exitosamente",
+        description: `Se cargaron ${leads.length} clientes como leads`,
+        duration: 3000,
+      });
+    } catch (error) {
+      console.error('Error loading leads:', error);
+      toast({
+        title: "Error al cargar leads",
+        description: "No se pudieron cargar los clientes como leads",
+        variant: "destructive",
+        duration: 5000,
+      });
+    } finally {
+      setLoadingLeads(false);
+    }
   };
 
   if (loading) {
@@ -320,13 +352,17 @@ export const OpportunityDetails: React.FC = () => {
                   variant="default" 
                   className="w-full justify-start h-auto py-3 px-4 text-left bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 shadow-md hover:shadow-lg transition-all duration-200 group"
                   size="lg"
+                  onClick={handleLoadAsLeads}
+                  disabled={loadingLeads}
                 >
                   <div className="flex items-center gap-3 w-full min-w-0">
                     <div className="flex-shrink-0 p-2 bg-white/20 rounded-lg group-hover:bg-white/30 transition-colors">
                       <Mail className="h-4 w-4" />
                     </div>
                     <div className="flex flex-col items-start min-w-0 flex-1">
-                      <span className="font-semibold text-sm leading-tight">Cargar como leads y enviar correo masivo</span>
+                      <span className="font-semibold text-sm leading-tight">
+                        {loadingLeads ? 'Cargando leads...' : 'Cargar como leads y enviar correo masivo'}
+                      </span>
                       <span className="text-xs opacity-90 mt-0.5">Acción recomendada</span>
                     </div>
                   </div>
@@ -377,6 +413,18 @@ export const OpportunityDetails: React.FC = () => {
 
         </div>
       </div>
+
+      {/* Email Sender Modal */}
+      {showEmailSender && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-background rounded-lg shadow-2xl max-w-6xl w-full max-h-[90vh] overflow-hidden">
+            <MassEmailSender 
+              filteredLeads={loadedLeads}
+              onClose={() => setShowEmailSender(false)}
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 };

@@ -1,4 +1,4 @@
-import { ApiOpportunity, OpportunityFiltersApi } from '@/types/opportunitiesApi';
+import { ApiOpportunity, OpportunityFiltersApi, LoadLeadsFromOpportunityRequest, LoadLeadsFromOpportunityResponse } from '@/types/opportunitiesApi';
 import { ENV } from '@/config/environment';
 
 const API_BASE_URL = ENV.MARKET_DALI_API_BASE_URL;
@@ -81,6 +81,43 @@ export const getOpportunitySummary = async (): Promise<ApiOpportunity[]> => {
     return result;
   } catch (error) {
     console.error('💥 GET OPPORTUNITIES ERROR:', error);
+    throw error;
+  }
+};
+
+// API: Cargar clientes de oportunidad como leads
+export const loadLeadsFromOpportunity = async (opportunityId: number): Promise<LoadLeadsFromOpportunityResponse[]> => {
+  const endpoint = `${API_BASE_URL}/leads/from-opportunity`;
+
+  try {
+    const headers = await getAuthHeaders();
+    
+    console.log('🚀 LOAD LEADS FROM OPPORTUNITY API CALL');
+    console.log('📍 Endpoint:', endpoint);
+    console.log('🔑 Headers:', headers);
+    console.log('📤 Request body:', { OpportunityId: opportunityId });
+    
+    const response = await fetchWithRetry(endpoint, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify({
+        OpportunityId: opportunityId
+      }),
+    });
+
+    console.log('📥 Response status:', response.status);
+
+    if (!response.ok) {
+      console.error('❌ API Error:', response.status, response.statusText);
+      throw new Error(`Error al cargar leads desde oportunidad: ${response.status} - ${response.statusText}`);
+    }
+
+    const result: LoadLeadsFromOpportunityResponse[] = await response.json();
+    console.log('✅ API Response:', result);
+    
+    return result;
+  } catch (error) {
+    console.error('💥 LOAD LEADS FROM OPPORTUNITY ERROR:', error);
     throw error;
   }
 };
