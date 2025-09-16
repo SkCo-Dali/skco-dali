@@ -16,6 +16,7 @@ export const ENV = {
   AI_API_BASE_URL: import.meta.env.VITE_AI_API_BASE_URL || 'https://skcoDaliAIDev.azurewebsites.net',
   TEMPLATES_API_BASE_URL: import.meta.env.VITE_TEMPLATES_API_BASE_URL || 'https://skcodaliaidev.azurewebsites.net',
   MAESTRO_API_BASE_URL: import.meta.env.VITE_MAESTRO_API_BASE_URL || 'https://skcoaimultiagentdev.azurewebsites.net',
+  MARKET_DALI_API_BASE_URL: import.meta.env.VITE_MARKET_DALI_API_BASE_URL || 'https://skcomarketdali-hmd6ddbke7akbfaz.eastus2-01.azurewebsites.net',
   
   // Static Resources
   BLOB_RESOURCES_URL: import.meta.env.VITE_BLOB_RESOURCES_URL || 'https://skcoblobresources.blob.core.windows.net',

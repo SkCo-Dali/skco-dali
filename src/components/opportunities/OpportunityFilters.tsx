@@ -8,8 +8,8 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/co
 import { Badge } from '@/components/ui/badge';
 import { Slider } from '@/components/ui/slider';
 import { Filter, X, Search, SlidersHorizontal } from 'lucide-react';
-import { OpportunityFilters, SortOption, OPPORTUNITY_TYPE_LABELS } from '@/types/opportunities';
-import { opportunitiesService } from '@/services/mock/opportunitiesService';
+import { OpportunityFilters, SortOption, OPPORTUNITY_TYPE_LABELS, OpportunityType, Priority } from '@/types/opportunities';
+import { opportunitiesService } from '@/services/opportunitiesService';
 
 interface OpportunityFiltersProps {
   filters: OpportunityFilters;
@@ -36,7 +36,7 @@ export const OpportunityFiltersComponent: React.FC<OpportunityFiltersProps> = ({
   const handleTypeChange = (type: string, checked: boolean) => {
     const currentTypes = filters.type || [];
     const newTypes = checked
-      ? [...currentTypes, type as any]
+      ? [...currentTypes, type as OpportunityType]
       : currentTypes.filter(t => t !== type);
     
     onFiltersChange({ 
@@ -48,7 +48,7 @@ export const OpportunityFiltersComponent: React.FC<OpportunityFiltersProps> = ({
   const handlePriorityChange = (priority: string, checked: boolean) => {
     const currentPriorities = filters.priority || [];
     const newPriorities = checked
-      ? [...currentPriorities, priority as any]
+      ? [...currentPriorities, priority as Priority]
       : currentPriorities.filter(p => p !== priority);
     
     onFiltersChange({ 

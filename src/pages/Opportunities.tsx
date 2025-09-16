@@ -13,7 +13,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Users, TrendingUp, Heart, Award, RefreshCw, Search, X } from 'lucide-react';
 import { IOpportunity, OpportunityFilters, SortOption, OpportunityStats, OPPORTUNITY_TYPE_LABELS } from '@/types/opportunities';
-import { opportunitiesService } from '@/services/mock/opportunitiesService';
+import { opportunitiesService } from '@/services/opportunitiesService';
 
 export const Opportunities: React.FC = () => {
   const navigate = useNavigate();
