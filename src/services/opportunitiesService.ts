@@ -33,42 +33,22 @@ class OpportunitiesService {
   }
 
   async getOpportunities(filters?: OpportunityFilters, sort?: SortOption): Promise<IOpportunity[]> {
-    try {
-      // Try to get data from API first
-      const apiOpportunities = await getOpportunitySummary();
-      let opportunities = apiOpportunities.map(mapApiOpportunityToOpportunity);
-      
-      console.log('✅ Using real API data:', opportunities.length, 'opportunities');
-      
-      // Apply filters
-      if (filters) {
-        opportunities = this.applyFilters(opportunities, filters);
-      }
-      
-      // Apply sorting
-      if (sort) {
-        opportunities = this.applySorting(opportunities, sort);
-      }
-      
-      return opportunities;
-    } catch (error) {
-      console.error('❌ Error fetching from API, falling back to mock data:', error);
-      
-      // Fallback to mock data
-      let opportunities: IOpportunity[] = mockOpportunities as IOpportunity[];
-      
-      // Apply filters
-      if (filters) {
-        opportunities = this.applyFilters(opportunities, filters);
-      }
-      
-      // Apply sorting
-      if (sort) {
-        opportunities = this.applySorting(opportunities, sort);
-      }
-      
-      return opportunities;
+    const apiOpportunities = await getOpportunitySummary();
+    let opportunities = apiOpportunities.map(mapApiOpportunityToOpportunity);
+    
+    console.log('✅ Using real API data:', opportunities.length, 'opportunities');
+    
+    // Apply filters
+    if (filters) {
+      opportunities = this.applyFilters(opportunities, filters);
     }
+    
+    // Apply sorting
+    if (sort) {
+      opportunities = this.applySorting(opportunities, sort);
+    }
+    
+    return opportunities;
   }
 
   private applyFilters(opportunities: IOpportunity[], filters: OpportunityFilters): IOpportunity[] {
