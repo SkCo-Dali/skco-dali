@@ -87,7 +87,7 @@ export const getOpportunitySummary = async (): Promise<ApiOpportunity[]> => {
 
 // API: Cargar clientes de oportunidad como leads
 export const loadLeadsFromOpportunity = async (opportunityId: number): Promise<LoadLeadsFromOpportunityResponse[]> => {
-  const endpoint = `${API_BASE_URL}/leads/from-opportunity`;
+  const endpoint = `${API_BASE_URL}/leads/from-opportunity?opportunity_id=${opportunityId}`;
 
   try {
     const headers = await getAuthHeaders();
@@ -95,14 +95,10 @@ export const loadLeadsFromOpportunity = async (opportunityId: number): Promise<L
     console.log('🚀 LOAD LEADS FROM OPPORTUNITY API CALL');
     console.log('📍 Endpoint:', endpoint);
     console.log('🔑 Headers:', headers);
-    console.log('📤 Request body:', { OpportunityId: opportunityId });
     
     const response = await fetchWithRetry(endpoint, {
       method: 'POST',
       headers,
-      body: JSON.stringify({
-        OpportunityId: opportunityId
-      }),
     });
 
     console.log('📥 Response status:', response.status);
