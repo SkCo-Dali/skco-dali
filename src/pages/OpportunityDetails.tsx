@@ -417,12 +417,11 @@ export const OpportunityDetails: React.FC = () => {
           >
             <div className="absolute inset-0 bg-black/70" />
             <div
-              className="relative w-full max-w-6xl max-h-[90vh] overflow-auto rounded-xl bg-background shadow-2xl ring-1 ring-black/10"
+              className="relative w-full max-w-6xl max-h-[90vh] overflow-auto rounded-xl bg-background shadow-2xl ring-1 ring-black/10 p-4"
               onClick={(e) => e.stopPropagation()}
             >
               <h2 id="mass-email-title" className="sr-only">Envío masivo de correos</h2>
               <MassEmailSender
-                className="p-4"
                 filteredLeads={loadedLeads}
                 onClose={() => setShowEmailSender(false)}
               />
