@@ -417,8 +417,9 @@ export const OpportunityDetails: React.FC = () => {
       {/* Email Sender Modal */}
       {showEmailSender && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-background rounded-lg shadow-2xl max-w-6xl w-full max-h-[90vh] overflow-hidden p-6">
-            <MassEmailSender 
+          <div className="bg-background rounded-lg shadow-2xl max-w-6xl w-full max-h-[90vh] overflow-hidden">
+            <MassEmailSender
+              className="p-6"
               filteredLeads={loadedLeads}
               onClose={() => setShowEmailSender(false)}
             />
