@@ -1,5 +1,6 @@
 import React from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { createPortal } from 'react-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -39,13 +40,10 @@ export const OpportunityDetails: React.FC = () => {
 
   const loadOpportunity = React.useCallback(async () => {
     if (!id) return;
-    
     try {
       setLoading(true);
       setError(null);
-      
       const opportunityData = await opportunitiesService.getOpportunityById(id);
-      
       if (opportunityData) {
         setOpportunity(opportunityData);
         setIsFavorite(opportunitiesService.isFavorite(id));
@@ -64,16 +62,29 @@ export const OpportunityDetails: React.FC = () => {
     loadOpportunity();
   }, [loadOpportunity]);
 
+  // Bloquea scroll y permite cerrar con Escape cuando el modal está abierto
+  React.useEffect(() => {
+    if (!showEmailSender) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setShowEmailSender(false);
+    };
+    document.addEventListener('keydown', onKey);
+    return () => {
+      document.body.style.overflow = prev;
+      document.removeEventListener('keydown', onKey);
+    };
+  }, [showEmailSender]);
+
   const handleBack = () => {
     navigate('/oportunidades');
   };
 
   const handleFavoriteToggle = () => {
     if (!opportunity) return;
-    
     const newFavoriteState = opportunitiesService.toggleFavorite(opportunity.id);
     setIsFavorite(newFavoriteState);
-    
     toast({
       title: newFavoriteState ? "Agregado a favoritas" : "Removido de favoritas",
       description: opportunity.title,
@@ -87,13 +98,11 @@ export const OpportunityDetails: React.FC = () => {
 
   const handleLoadAsLeads = async () => {
     if (!opportunity) return;
-    
     try {
       setLoadingLeads(true);
       const leads = await opportunitiesService.loadAsLeads(opportunity.id);
       setLoadedLeads(leads);
       setShowEmailSender(true);
-      
       toast({
         title: "Leads cargados exitosamente",
         description: `Se cargaron ${leads.length} clientes como leads`,
@@ -159,7 +168,6 @@ export const OpportunityDetails: React.FC = () => {
           </Button>
           <h1 className="text-2xl font-bold">Detalles de Oportunidad</h1>
         </div>
-        
         <Alert variant="destructive">
           <AlertDescription className="flex items-center justify-between">
             <span>{error}</span>
@@ -197,7 +205,6 @@ export const OpportunityDetails: React.FC = () => {
             <p className="text-muted-foreground">Información completa de la oportunidad comercial</p>
           </div>
         </div>
-        
         <Button
           variant="ghost"
           size="icon"
@@ -217,7 +224,7 @@ export const OpportunityDetails: React.FC = () => {
           <Card className="overflow-hidden border-0 shadow-lg bg-gradient-to-br from-background via-background to-muted/20">
             <CardHeader className="pb-6">
               <div className="flex items-start gap-6">
-                {/* Enhanced Icon */}
+                {/* Icono */}
                 <div className="relative">
                   <div className="w-24 h-24 rounded-2xl bg-gradient-to-br from-primary/20 via-primary/10 to-primary/5 flex items-center justify-center shadow-lg border border-primary/20">
                     <span className="text-5xl filter drop-shadow-sm">{opportunity.icon}</span>
@@ -226,8 +233,7 @@ export const OpportunityDetails: React.FC = () => {
                     <div className="w-2 h-2 bg-white rounded-full"></div>
                   </div>
                 </div>
-                
-                {/* Title and Subtitle */}
+                {/* Título */}
                 <div className="flex-1 space-y-3">
                   <div>
                     <CardTitle className="text-2xl font-bold mb-2 bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text">
@@ -235,8 +241,7 @@ export const OpportunityDetails: React.FC = () => {
                     </CardTitle>
                     <p className="text-muted-foreground text-lg font-medium">{opportunity.subtitle}</p>
                   </div>
-                  
-                  {/* Priority and Type Badges */}
+                  {/* Badges */}
                   <div className="flex flex-wrap gap-3">
                     <Badge 
                       variant="outline" 
@@ -247,7 +252,6 @@ export const OpportunityDetails: React.FC = () => {
                     <Badge variant="secondary" className="bg-blue-50 text-blue-700 border-blue-200 font-medium px-3 py-1">
                       {OPPORTUNITY_TYPE_LABELS[opportunity.type]}
                     </Badge>
-                    {/* Tags moved from bottom */}
                     {opportunity.tags.map((tag, index) => (
                       <Badge key={index} variant="outline" className="bg-muted/30 hover:bg-muted/50 transition-colors px-3 py-1">
                         {tag}
@@ -257,18 +261,18 @@ export const OpportunityDetails: React.FC = () => {
                 </div>
               </div>
             </CardHeader>
-            
             <CardContent className="space-y-8">
-              {/* Description */}
+              {/* Descripción */}
               <div className="space-y-3">
                 <h3 className="font-semibold text-lg flex items-center gap-2">
                   <div className="w-1 h-5 bg-primary rounded-full"></div>
                   Descripción
                 </h3>
-                <p className="text-muted-foreground leading-relaxed text-lg pl-3 border-l-2 border-muted">{opportunity.description}</p>
+                <p className="text-muted-foreground leading-relaxed text-lg pl-3 border-l-2 border-muted">
+                  {opportunity.description}
+                </p>
               </div>
-
-              {/* Key Metrics - E-commerce Style */}
+              {/* Métricas */}
               {opportunity.metrics && (
                 <TooltipProvider>
                   <div className="space-y-4">
@@ -277,7 +281,6 @@ export const OpportunityDetails: React.FC = () => {
                       Datos Clave
                     </h3>
                     <div className="grid grid-cols-2 gap-6 p-4">
-                      {/* Clientes Impactables */}
                       <Tooltip>
                         <TooltipTrigger asChild>
                           <div className="relative group cursor-help">
@@ -298,8 +301,6 @@ export const OpportunityDetails: React.FC = () => {
                           <p className="text-sm">Número estimado de clientes que cumplen las condiciones para recibir la oferta</p>
                         </TooltipContent>
                       </Tooltip>
-                      
-                      {/* Comisiones Potenciales */}
                       <Tooltip>
                         <TooltipTrigger asChild>
                           <div className="relative group cursor-help">
@@ -324,15 +325,12 @@ export const OpportunityDetails: React.FC = () => {
                   </div>
                 </TooltipProvider>
               )}
-
             </CardContent>
           </Card>
-
         </div>
 
         {/* Sidebar */}
         <div className="space-y-6">
-          {/* Actions */}
           <Card className="shadow-lg border-0 bg-gradient-to-br from-background to-muted/30">
             <CardHeader className="pb-4">
               <CardTitle className="flex items-center gap-3 text-lg">
@@ -341,12 +339,9 @@ export const OpportunityDetails: React.FC = () => {
                 </div>
                 ¿Qué puedo hacer?
               </CardTitle>
-              <p className="text-sm text-muted-foreground">
-                Acciones disponibles para esta oportunidad
-              </p>
+              <p className="text-sm text-muted-foreground">Acciones disponibles para esta oportunidad</p>
             </CardHeader>
             <CardContent className="space-y-4 pb-6">
-              {/* Primary Action - Email */}
               <div className="relative">
                 <Button 
                   variant="default" 
@@ -373,8 +368,7 @@ export const OpportunityDetails: React.FC = () => {
                   </div>
                 </div>
               </div>
-              
-              {/* Secondary Action - WhatsApp */}
+
               <Button 
                 variant="outline" 
                 className="w-full justify-start h-auto py-3 px-3 text-left border-2 hover:bg-green-50 hover:border-green-200 hover:text-green-700 transition-all duration-200 group"
@@ -385,13 +379,12 @@ export const OpportunityDetails: React.FC = () => {
                     <MessageSquare className="h-4 w-4 text-green-600" />
                   </div>
                   <div className="flex flex-col items-start min-w-0 flex-1">
-                    <span className="font-medium text-xs leading-tight">Cargar como leads y enviar WhatsApp masivo</span>
+                    <span className="text-xs leading-tight font-medium">Cargar como leads y enviar WhatsApp masivo</span>
                     <span className="text-xs text-muted-foreground mt-0.5">Mensajería directa</span>
                   </div>
                 </div>
               </Button>
-              
-              {/* Learning Action */}
+
               <Button 
                 variant="secondary" 
                 className="w-full justify-start h-auto py-3 px-4 text-left bg-blue-50 hover:bg-blue-100 border border-blue-200 hover:border-blue-300 text-blue-700 hover:text-blue-800 transition-all duration-200 group"
@@ -409,23 +402,35 @@ export const OpportunityDetails: React.FC = () => {
               </Button>
             </CardContent>
           </Card>
-
-
         </div>
       </div>
 
-      {/* Email Sender Modal */}
-      {showEmailSender && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-background rounded-lg shadow-2xl max-w-6xl w-full max-h-[90vh] overflow-hidden">
-            <MassEmailSender
-              className="p-6"
-              filteredLeads={loadedLeads}
-              onClose={() => setShowEmailSender(false)}
-            />
-          </div>
-        </div>
-      )}
+      {/* Email Sender Modal via Portal */}
+      {showEmailSender &&
+        createPortal(
+          <div
+            className="fixed inset-0 z-[9999] flex items-center justify-center p-4"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="mass-email-title"
+            onClick={() => setShowEmailSender(false)}
+          >
+            <div className="absolute inset-0 bg-black/70" />
+            <div
+              className="relative w-full max-w-6xl max-h-[90vh] overflow-auto rounded-xl bg-background shadow-2xl ring-1 ring-black/10"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <h2 id="mass-email-title" className="sr-only">Envío masivo de correos</h2>
+              <MassEmailSender
+                className="p-4"
+                filteredLeads={loadedLeads}
+                onClose={() => setShowEmailSender(false)}
+              />
+            </div>
+          </div>,
+          document.body
+        )
+      }
     </div>
   );
 };
