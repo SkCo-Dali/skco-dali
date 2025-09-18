@@ -11,16 +11,18 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { CalendarIcon } from "lucide-react";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
-import { AssignmentType, ROLES_LIST } from "@/data/commissionPlans";
+import { CommissionPlan, AssignmentType, ROLES_LIST } from "@/data/commissionPlans";
 import { useToast } from "@/hooks/use-toast";
 
 interface CreateCommissionPlanDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  onCreatePlan: (planData: Partial<CommissionPlan>) => Promise<CommissionPlan | null>;
 }
 
-export function CreateCommissionPlanDialog({ open, onOpenChange }: CreateCommissionPlanDialogProps) {
+export function CreateCommissionPlanDialog({ open, onOpenChange, onCreatePlan }: CreateCommissionPlanDialogProps) {
   const { toast } = useToast();
+  const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
     description: '',
@@ -30,7 +32,18 @@ export function CreateCommissionPlanDialog({ open, onOpenChange }: CreateCommiss
     assignmentValue: ''
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const resetForm = () => {
+    setFormData({
+      name: '',
+      description: '',
+      startDate: undefined,
+      endDate: undefined,
+      assignmentType: 'all_users',
+      assignmentValue: ''
+    });
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!formData.name || !formData.description || !formData.startDate || !formData.endDate) {
@@ -42,37 +55,43 @@ export function CreateCommissionPlanDialog({ open, onOpenChange }: CreateCommiss
       return;
     }
 
-    // Here you would typically save the commission plan
-    console.log('Creating commission plan:', formData);
+    if (formData.assignmentType !== 'all_users' && !formData.assignmentValue) {
+      toast({
+        title: "Validation Error",
+        description: `Please specify a ${formData.assignmentType} name.`,
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setIsLoading(true);
     
-    toast({
-      title: "Success",
-      description: "Commission plan created successfully."
-    });
-    
-    onOpenChange(false);
-    // Reset form
-    setFormData({
-      name: '',
-      description: '',
-      startDate: undefined,
-      endDate: undefined,
-      assignmentType: 'all_users',
-      assignmentValue: ''
-    });
+    try {
+      const planData: Partial<CommissionPlan> = {
+        name: formData.name,
+        description: formData.description,
+        startDate: format(formData.startDate, 'yyyy-MM-dd'),
+        endDate: format(formData.endDate, 'yyyy-MM-dd'),
+        assignmentType: formData.assignmentType,
+        assignmentValue: formData.assignmentType !== 'all_users' ? formData.assignmentValue : undefined,
+      };
+
+      const result = await onCreatePlan(planData);
+      
+      if (result) {
+        onOpenChange(false);
+        resetForm();
+      }
+    } catch (error) {
+      console.error('Error creating commission plan:', error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleCancel = () => {
     onOpenChange(false);
-    // Reset form
-    setFormData({
-      name: '',
-      description: '',
-      startDate: undefined,
-      endDate: undefined,
-      assignmentType: 'all_users',
-      assignmentValue: ''
-    });
+    resetForm();
   };
 
   return (
@@ -228,11 +247,11 @@ export function CreateCommissionPlanDialog({ open, onOpenChange }: CreateCommiss
           </div>
 
           <DialogFooter className="gap-2">
-            <Button type="button" variant="outline" onClick={handleCancel}>
+            <Button type="button" variant="outline" onClick={handleCancel} disabled={isLoading}>
               Cancel
             </Button>
-            <Button type="submit" className="bg-primary hover:bg-primary/90">
-              Create Plan
+            <Button type="submit" className="bg-primary hover:bg-primary/90" disabled={isLoading}>
+              {isLoading ? "Creating..." : "Create Plan"}
             </Button>
           </DialogFooter>
         </form>

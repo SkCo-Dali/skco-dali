@@ -21,11 +21,13 @@ interface EditCommissionPlanDialogProps {
   plan: CommissionPlan;
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  onUpdatePlan: (id: string, planData: Partial<CommissionPlan>) => Promise<CommissionPlan | null>;
 }
 
-export function EditCommissionPlanDialog({ plan, open, onOpenChange }: EditCommissionPlanDialogProps) {
+export function EditCommissionPlanDialog({ plan, open, onOpenChange, onUpdatePlan }: EditCommissionPlanDialogProps) {
   const { toast } = useToast();
   const [isCreateRuleOpen, setIsCreateRuleOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
     description: '',
@@ -48,12 +50,27 @@ export function EditCommissionPlanDialog({ plan, open, onOpenChange }: EditCommi
     }
   }, [plan]);
 
-  const handleSaveAsDraft = () => {
-    toast({
-      title: "Draft Saved",
-      description: "Commission plan saved as draft."
-    });
-    onOpenChange(false);
+  const handleSaveAsDraft = async () => {
+    setIsLoading(true);
+    try {
+      const updatedData: Partial<CommissionPlan> = {
+        name: formData.name,
+        description: formData.description,
+        startDate: formData.startDate ? format(formData.startDate, 'yyyy-MM-dd') : undefined,
+        endDate: formData.endDate ? format(formData.endDate, 'yyyy-MM-dd') : undefined,
+        assignmentType: formData.assignmentType,
+        assignmentValue: formData.assignmentType !== 'all_users' ? formData.assignmentValue : undefined,
+      };
+
+      const result = await onUpdatePlan(plan.id, updatedData);
+      if (result) {
+        onOpenChange(false);
+      }
+    } catch (error) {
+      console.error('Error updating plan:', error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleSendForApproval = () => {
@@ -263,6 +280,7 @@ export function EditCommissionPlanDialog({ plan, open, onOpenChange }: EditCommi
             <Button 
               onClick={handlePublishAndCalculate}
               className="bg-primary hover:bg-primary/90"
+              disabled={isLoading}
             >
               Publish & Calculate
             </Button>
@@ -270,19 +288,22 @@ export function EditCommissionPlanDialog({ plan, open, onOpenChange }: EditCommi
               onClick={handleSaveAsDraft}
               variant="outline"
               className="bg-primary/10 hover:bg-primary/20 text-primary border-primary"
+              disabled={isLoading}
             >
-              Save as Draft
+              {isLoading ? "Saving..." : "Save as Draft"}
             </Button>
             <Button 
               onClick={handleSendForApproval}
               variant="outline"
               className="bg-primary/10 hover:bg-primary/20 text-primary border-primary"
+              disabled={isLoading}
             >
               Ready to Approve
             </Button>
             <Button 
               onClick={handleCancel}
               variant="outline"
+              disabled={isLoading}
             >
               Cancel
             </Button>

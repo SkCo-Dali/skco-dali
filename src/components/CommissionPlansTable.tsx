@@ -3,23 +3,52 @@ import { CommissionPlan, CommissionPlanStatus, ASSIGNMENT_LABELS } from "@/data/
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Edit, MoreHorizontal } from "lucide-react";
+import { Edit, MoreHorizontal, Trash2 } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { EditCommissionPlanDialog } from "@/components/EditCommissionPlanDialog";
 import { format } from "date-fns";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 interface CommissionPlansTableProps {
   plans: CommissionPlan[];
   status: CommissionPlanStatus;
+  onUpdatePlan: (id: string, planData: Partial<CommissionPlan>) => Promise<CommissionPlan | null>;
+  onDeletePlan: (id: string) => Promise<boolean>;
 }
 
-export function CommissionPlansTable({ plans, status }: CommissionPlansTableProps) {
+export function CommissionPlansTable({ plans, status, onUpdatePlan, onDeletePlan }: CommissionPlansTableProps) {
   const [selectedPlan, setSelectedPlan] = useState<CommissionPlan | null>(null);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [planToDelete, setPlanToDelete] = useState<CommissionPlan | null>(null);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
 
   const handleEdit = (plan: CommissionPlan) => {
     setSelectedPlan(plan);
     setIsEditDialogOpen(true);
+  };
+
+  const handleDelete = (plan: CommissionPlan) => {
+    setPlanToDelete(plan);
+    setIsDeleteDialogOpen(true);
+  };
+
+  const confirmDelete = async () => {
+    if (planToDelete) {
+      const success = await onDeletePlan(planToDelete.id);
+      if (success) {
+        setIsDeleteDialogOpen(false);
+        setPlanToDelete(null);
+      }
+    }
   };
 
   const getStatusBadgeVariant = (status: CommissionPlanStatus) => {
@@ -116,6 +145,13 @@ export function CommissionPlansTable({ plans, status }: CommissionPlansTableProp
                         <Edit className="mr-2 h-4 w-4" />
                         Edit
                       </DropdownMenuItem>
+                      <DropdownMenuItem 
+                        onClick={() => handleDelete(plan)}
+                        className="text-destructive focus:text-destructive"
+                      >
+                        <Trash2 className="mr-2 h-4 w-4" />
+                        Delete
+                      </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
                 </TableCell>
@@ -130,8 +166,34 @@ export function CommissionPlansTable({ plans, status }: CommissionPlansTableProp
           plan={selectedPlan}
           open={isEditDialogOpen}
           onOpenChange={setIsEditDialogOpen}
+          onUpdatePlan={onUpdatePlan}
         />
       )}
+
+      <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Commission Plan</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete "{planToDelete?.name}"? This action cannot be undone.
+              {planToDelete && (
+                <div className="mt-2 text-sm text-muted-foreground">
+                  Note: If this plan has associated rules, you must delete those first.
+                </div>
+              )}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={confirmDelete}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
   );
 }
