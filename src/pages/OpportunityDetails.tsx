@@ -311,7 +311,7 @@ export const OpportunityDetails: React.FC = () => {
                                 <Info className="h-3 w-3 text-green-500 absolute -top-1 -right-1 opacity-60" />
                               </div>
                               <div className="text-2xl font-bold text-green-700 mb-1">
-                                ${Math.round(opportunity.metrics.estimatedSales * 0.1).toLocaleString()}
+                                ${opportunity.metrics.estimatedSales.toLocaleString()}
                               </div>
                               <div className="text-xs font-medium text-green-600">Comisiones Potenciales</div>
                             </div>

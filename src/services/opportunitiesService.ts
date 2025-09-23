@@ -151,6 +151,9 @@ class OpportunitiesService {
       avgScore: opportunities.length > 0 
         ? opportunities.reduce((sum, opp) => sum + opp.score, 0) / opportunities.length 
         : 0,
+      totalCommissionPotential: opportunities.reduce((sum, opp) => 
+        sum + (opp.metrics?.estimatedSales || 0), 0
+      ),
     };
   }
 

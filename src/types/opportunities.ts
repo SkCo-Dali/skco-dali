@@ -89,6 +89,7 @@ export interface OpportunityStats {
   totalCustomers: number;
   favoritesCount: number;
   avgScore: number;
+  totalCommissionPotential: number;
 }
 
 export const OPPORTUNITY_TYPE_LABELS: Record<OpportunityType, string> = {

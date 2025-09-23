@@ -132,7 +132,7 @@ export const Opportunities: React.FC = () => {
                 <div className="flex items-center justify-center mb-1">
                   <TrendingUp className="h-4 w-4 text-green-500" />
                 </div>
-                <div className="text-xl font-bold">${(stats.totalCustomers * 125).toLocaleString()}</div>
+                <div className="text-xl font-bold">${stats.totalCommissionPotential?.toLocaleString() || '0'}</div>
                 <div className="text-xs text-muted-foreground">Comisiones Potenciales</div>
               </CardContent>
             </Card>
