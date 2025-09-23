@@ -112,7 +112,7 @@ export function WhatsAppEntryModal({
 
               <Button 
                 onClick={onSelectPropio}
-                className="w-full bg-[#25D366] hover:bg-[#25D366]/90"
+                className="w-full bg-[#25D366] hover:bg-[#25D366]/90 pb-4"
                 size="lg"
               >
                 Continuar con mi WhatsApp
