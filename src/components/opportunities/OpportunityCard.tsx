@@ -1,5 +1,5 @@
 import React from 'react';
-import { Heart, Users } from 'lucide-react';
+import { Heart, Users, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
@@ -67,9 +67,28 @@ export const OpportunityCard: React.FC<OpportunityCardProps> = ({
       <Tooltip>
         <TooltipTrigger asChild>
           <Card 
-            className="group hover:shadow-xl transition-all duration-300 hover:-translate-y-1 cursor-pointer bg-white shadow-md border-0 hover:shadow-lg h-fit w-full max-w-[280px]"
+            className={`group transition-all duration-300 cursor-pointer shadow-md border-0 h-fit w-full max-w-[280px] relative ${
+              opportunity.isActive 
+                ? 'hover:shadow-xl hover:-translate-y-1 hover:shadow-lg bg-white' 
+                : 'bg-gray-50 opacity-75'
+            }`}
             onClick={handleViewDetails}
           >
+            {/* Inactive overlay */}
+            {!opportunity.isActive && (
+              <div className="absolute inset-0 z-10 flex items-center justify-center bg-black/20 rounded-lg">
+                <div className="bg-red-600 text-white px-3 py-2 rounded-lg shadow-lg text-center transform -rotate-12">
+                  <div className="flex items-center gap-1 mb-1">
+                    <X className="h-4 w-4" />
+                    <span className="font-bold text-sm">Ya fue aprovechada</span>
+                  </div>
+                  <div className="text-xs opacity-90">
+                    Regresa pronto para nuevos Leads
+                  </div>
+                </div>
+              </div>
+            )}
+
             {/* Top section with favorite button */}
             <div className="flex justify-end p-2">
               <Button
@@ -77,6 +96,7 @@ export const OpportunityCard: React.FC<OpportunityCardProps> = ({
                 size="icon"
                 onClick={handleFavoriteToggle}
                 className="h-6 w-6 shrink-0 hover:bg-red-50 hover:text-red-500"
+                disabled={!opportunity.isActive}
               >
                 <Heart 
                   className={`h-3 w-3 ${isFavorite ? 'fill-red-500 text-red-500' : 'text-muted-foreground'}`} 
@@ -84,17 +104,25 @@ export const OpportunityCard: React.FC<OpportunityCardProps> = ({
               </Button>
             </div>
 
-            <CardContent className="px-3 pb-3 pt-1 text-center space-y-2.5">
+            <CardContent className={`px-3 pb-3 pt-1 text-center space-y-2.5 ${!opportunity.isActive ? 'grayscale' : ''}`}>
               {/* Large emoji as "product image" */}
               <div className="flex justify-center">
-                <div className="text-6xl w-20 h-20 flex items-center justify-center rounded-2xl bg-gradient-to-br from-primary/10 to-primary/5">
+                <div className={`text-6xl w-20 h-20 flex items-center justify-center rounded-2xl ${
+                  opportunity.isActive 
+                    ? 'bg-gradient-to-br from-primary/10 to-primary/5' 
+                    : 'bg-gray-100'
+                }`}>
                   {opportunity.icon}
                 </div>
               </div>
 
               {/* Title - centered */}
               <div>
-                <h3 className="font-bold text-sm line-clamp-2 group-hover:text-primary transition-colors text-center">
+                <h3 className={`font-bold text-sm line-clamp-2 transition-colors text-center ${
+                  opportunity.isActive 
+                    ? 'group-hover:text-primary' 
+                    : 'text-gray-500'
+                }`}>
                   {opportunity.title}
                 </h3>
               </div>
@@ -134,11 +162,16 @@ export const OpportunityCard: React.FC<OpportunityCardProps> = ({
 
               {/* Action Button */}
               <Button 
-                variant="default" 
+                variant={opportunity.isActive ? "default" : "secondary"}
                 size="sm" 
-                className="w-full h-8 text-xs font-medium bg-primary hover:bg-primary/90 text-white mt-4"
+                className={`w-full h-8 text-xs font-medium mt-4 ${
+                  opportunity.isActive 
+                    ? 'bg-primary hover:bg-primary/90 text-white' 
+                    : 'bg-gray-200 text-gray-500 cursor-not-allowed hover:bg-gray-200'
+                }`}
+                disabled={!opportunity.isActive}
               >
-                Ver oportunidad →
+                {opportunity.isActive ? 'Ver oportunidad →' : 'No disponible'}
               </Button>
             </CardContent>
           </Card>

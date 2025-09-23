@@ -36,6 +36,7 @@ export interface IOpportunity {
   };
   isHighlighted: boolean;
   isFavorite: boolean;
+  isActive: boolean;
   createdAt: string;
   expiresAt?: string;
 }
