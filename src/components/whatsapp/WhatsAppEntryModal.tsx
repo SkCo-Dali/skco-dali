@@ -129,7 +129,7 @@ export function WhatsAppEntryModal({
             </div>
             
             <CardHeader className="pb-4">
-              <CardTitle className="flex items-center gap-2 text-lg">
+              <CardTitle className="flex items-center gap-2 text-lg pt-4">
                 <Bot className="h-5 w-5 text-orange-500" />
                 Envía desde Sami WhatsApp
               </CardTitle>
