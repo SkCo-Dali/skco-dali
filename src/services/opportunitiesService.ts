@@ -163,20 +163,16 @@ class OpportunitiesService {
     
     try {
       // Call API to update favorite status
-      const response = await updateOpportunityFavourite(parseInt(opportunityId), newIsFavorite);
+      await updateOpportunityFavourite(parseInt(opportunityId), newIsFavorite);
       
-      if (response.success) {
-        // Update local state only if API call was successful
-        if (newIsFavorite) {
-          this.favorites.add(opportunityId);
-        } else {
-          this.favorites.delete(opportunityId);
-        }
-        this.saveFavorites();
-        return newIsFavorite;
+      // If we reach here, the API call was successful (no exception thrown)
+      if (newIsFavorite) {
+        this.favorites.add(opportunityId);
       } else {
-        throw new Error(response.message || 'Failed to update favorite status');
+        this.favorites.delete(opportunityId);
       }
+      this.saveFavorites();
+      return newIsFavorite;
     } catch (error) {
       console.error('Error updating favorite status:', error);
       // Don't update local state if API call fails
