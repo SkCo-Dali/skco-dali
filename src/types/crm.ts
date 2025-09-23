@@ -36,7 +36,7 @@ export interface RolePermissions {
   canAssignRoles?: boolean;
   canSendEmail?: boolean;
   canSendWhatsApp?: boolean;
-  canSendmassiveWhatsApp?: bollean;
+  canSendmassiveWhatsApp?: boolean;
   accessiblePages: string[];
 }
 
