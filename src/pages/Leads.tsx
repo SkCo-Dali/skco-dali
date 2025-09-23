@@ -437,7 +437,7 @@ export default function Leads() {
                     <Mail className="h-4 w-4" />
                   </Button>
                   )}
-                  {userPermissions?.canSendWhatsApp && user?.email && (
+                  {userPermissions?.canSendmassiveWhatsApp && user?.email && (
                     <WhatsAppPropioButton
                       leads={selectedLeads.length > 0 ? 
                         filteredLeads.filter(lead => selectedLeads.includes(lead.id)) : 
