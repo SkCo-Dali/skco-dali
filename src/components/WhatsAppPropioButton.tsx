@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { MessageSquare } from 'lucide-react';
 import { Lead } from '@/types/crm';
 import { WhatsAppPropioManager } from '@/components/whatsapp/WhatsAppPropioManager';
+import { FaWhatsapp } from "react-icons/fa";
 
 interface WhatsAppPropioButtonProps {
   leads: Lead[];
@@ -18,10 +19,9 @@ export function WhatsAppPropioButton({ leads, userEmail, disabled = false }: Wha
       <Button
         onClick={() => setIsOpen(true)}
         disabled={disabled || leads.length === 0}
-        className="bg-[#25D366] hover:bg-[#25D366]/90"
+        className=" h-8 w-8 bg-[#25D366] hover:bg-[#25D366]/90"
       >
-        <MessageSquare className="h-4 w-4 mr-2" />
-        Enviar WhatsApp ({leads.length})
+        <FaWhatsapp className="h-4 w-4 mr-2" />
       </Button>
 
       <WhatsAppPropioManager
