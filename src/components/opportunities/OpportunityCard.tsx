@@ -25,17 +25,26 @@ export const OpportunityCard: React.FC<OpportunityCardProps> = ({
     opportunitiesService.isFavorite(opportunity.id)
   );
 
-  const handleFavoriteToggle = (e: React.MouseEvent) => {
+  const handleFavoriteToggle = async (e: React.MouseEvent) => {
     e.stopPropagation();
-    const newFavoriteState = opportunitiesService.toggleFavorite(opportunity.id);
-    setIsFavorite(newFavoriteState);
-    onFavoriteChange?.(opportunity.id, newFavoriteState);
-    
-    toast({
-      title: newFavoriteState ? "Agregado a favoritas" : "Removido de favoritas",
-      description: opportunity.title,
-      duration: 2000,
-    });
+    try {
+      const newFavoriteState = await opportunitiesService.toggleFavorite(opportunity.id);
+      setIsFavorite(newFavoriteState);
+      onFavoriteChange?.(opportunity.id, newFavoriteState);
+      
+      toast({
+        title: newFavoriteState ? "Agregado a favoritas" : "Removido de favoritas",
+        description: opportunity.title,
+        duration: 2000,
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "No se pudo actualizar el estado de favorito",
+        variant: "destructive",
+        duration: 3000,
+      });
+    }
   };
 
   const handleViewDetails = () => {

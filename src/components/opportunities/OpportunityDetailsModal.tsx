@@ -29,17 +29,26 @@ export const OpportunityDetailsModal: React.FC<OpportunityDetailsModalProps> = (
     }
   }, [opportunity]);
 
-  const handleFavoriteToggle = () => {
+  const handleFavoriteToggle = async () => {
     if (!opportunity) return;
     
-    const newFavoriteState = opportunitiesService.toggleFavorite(opportunity.id);
-    setIsFavorite(newFavoriteState);
-    
-    toast({
-      title: newFavoriteState ? "Agregado a favoritas" : "Removido de favoritas",
-      description: opportunity.title,
-      duration: 2000,
-    });
+    try {
+      const newFavoriteState = await opportunitiesService.toggleFavorite(opportunity.id);
+      setIsFavorite(newFavoriteState);
+      
+      toast({
+        title: newFavoriteState ? "Agregado a favoritas" : "Removido de favoritas",
+        description: opportunity.title,
+        duration: 2000,
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "No se pudo actualizar el estado de favorito",
+        variant: "destructive",
+        duration: 3000,
+      });
+    }
   };
 
   if (!opportunity) return null;

@@ -1,5 +1,5 @@
 import { IOpportunity, ICustomer, OpportunityFilters, SortOption, OpportunityStats } from '@/types/opportunities';
-import { getOpportunitySummary, loadLeadsFromOpportunity } from '@/utils/opportunitiesApiClient';
+import { getOpportunitySummary, loadLeadsFromOpportunity, updateOpportunityFavourite } from '@/utils/opportunitiesApiClient';
 import { mapApiOpportunityToOpportunity } from '@/utils/opportunitiesApiMapper';
 import { Lead, LeadStatus, LeadSource, Priority, Campaign, Portfolio } from '@/types/crm';
 
@@ -157,14 +157,31 @@ class OpportunitiesService {
     };
   }
 
-  toggleFavorite(opportunityId: string): boolean {
-    if (this.favorites.has(opportunityId)) {
-      this.favorites.delete(opportunityId);
-    } else {
-      this.favorites.add(opportunityId);
+  async toggleFavorite(opportunityId: string): Promise<boolean> {
+    const currentIsFavorite = this.favorites.has(opportunityId);
+    const newIsFavorite = !currentIsFavorite;
+    
+    try {
+      // Call API to update favorite status
+      const response = await updateOpportunityFavourite(parseInt(opportunityId), newIsFavorite);
+      
+      if (response.success) {
+        // Update local state only if API call was successful
+        if (newIsFavorite) {
+          this.favorites.add(opportunityId);
+        } else {
+          this.favorites.delete(opportunityId);
+        }
+        this.saveFavorites();
+        return newIsFavorite;
+      } else {
+        throw new Error(response.message || 'Failed to update favorite status');
+      }
+    } catch (error) {
+      console.error('Error updating favorite status:', error);
+      // Don't update local state if API call fails
+      throw error;
     }
-    this.saveFavorites();
-    return this.favorites.has(opportunityId);
   }
 
   isFavorite(opportunityId: string): boolean {

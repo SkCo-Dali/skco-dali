@@ -61,3 +61,13 @@ export interface LoadLeadsFromOpportunityResponse {
   PreferredContactChannel: string | null;
   AdditionalInfo: Record<string, any>;
 }
+
+export interface UpdateFavouriteRequest {
+  opportunity_id: number;
+  is_favourite: boolean;
+}
+
+export interface UpdateFavouriteResponse {
+  success: boolean;
+  message?: string;
+}

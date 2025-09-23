@@ -1,4 +1,4 @@
-import { ApiOpportunity, OpportunityFiltersApi, LoadLeadsFromOpportunityRequest, LoadLeadsFromOpportunityResponse } from '@/types/opportunitiesApi';
+import { ApiOpportunity, OpportunityFiltersApi, LoadLeadsFromOpportunityRequest, LoadLeadsFromOpportunityResponse, UpdateFavouriteRequest, UpdateFavouriteResponse } from '@/types/opportunitiesApi';
 import { ENV } from '@/config/environment';
 
 const API_BASE_URL = ENV.MARKET_DALI_API_BASE_URL;
@@ -114,6 +114,45 @@ export const loadLeadsFromOpportunity = async (opportunityId: number): Promise<L
     return result;
   } catch (error) {
     console.error('💥 LOAD LEADS FROM OPPORTUNITY ERROR:', error);
+    throw error;
+  }
+};
+
+// API: Actualizar favorito de oportunidad
+export const updateOpportunityFavourite = async (opportunityId: number, isFavourite: boolean): Promise<UpdateFavouriteResponse> => {
+  const endpoint = `${API_BASE_URL}/opportunity-leads/favourite`;
+
+  try {
+    const headers = await getAuthHeaders();
+    const requestBody: UpdateFavouriteRequest = {
+      opportunity_id: opportunityId,
+      is_favourite: isFavourite
+    };
+    
+    console.log('🚀 UPDATE OPPORTUNITY FAVOURITE API CALL');
+    console.log('📍 Endpoint:', endpoint);
+    console.log('🔑 Headers:', headers);
+    console.log('📝 Body:', requestBody);
+    
+    const response = await fetchWithRetry(endpoint, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify(requestBody)
+    });
+
+    console.log('📥 Response status:', response.status);
+
+    if (!response.ok) {
+      console.error('❌ API Error:', response.status, response.statusText);
+      throw new Error(`Error al actualizar favorito: ${response.status} - ${response.statusText}`);
+    }
+
+    const result: UpdateFavouriteResponse = await response.json();
+    console.log('✅ API Response:', result);
+    
+    return result;
+  } catch (error) {
+    console.error('💥 UPDATE OPPORTUNITY FAVOURITE ERROR:', error);
     throw error;
   }
 };
