@@ -67,7 +67,7 @@ export function WhatsAppEntryModal({
               </CardDescription>
             </CardHeader>
 
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-4 pb-4">
               <div>
                 <h4 className="font-medium text-sm mb-2 flex items-center gap-1">
                   <CheckCircle className="h-4 w-4 text-muted-foreground" />
@@ -112,7 +112,7 @@ export function WhatsAppEntryModal({
 
               <Button 
                 onClick={onSelectPropio}
-                className="w-full bg-[#25D366] hover:bg-[#25D366]/90 pb-4"
+                className="w-full bg-[#25D366] hover:bg-[#25D366]/90"
                 size="lg"
               >
                 Continuar con mi WhatsApp
