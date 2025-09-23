@@ -291,7 +291,7 @@ export const OpportunityDetails: React.FC = () => {
                                 <Info className="h-3 w-3 text-blue-500 absolute -top-1 -right-1 opacity-60" />
                               </div>
                               <div className="text-2xl font-bold text-blue-700 mb-1">
-                                {formatCustomerCount(opportunity.metrics.conversionRate * 1000)}
+                                {formatCustomerCount(opportunity.customerCount)}
                               </div>
                               <div className="text-xs font-medium text-blue-600">Clientes Impactables</div>
                             </div>
