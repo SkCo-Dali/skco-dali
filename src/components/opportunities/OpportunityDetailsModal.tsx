@@ -25,7 +25,7 @@ export const OpportunityDetailsModal: React.FC<OpportunityDetailsModalProps> = (
 
   React.useEffect(() => {
     if (opportunity) {
-      setIsFavorite(opportunitiesService.isFavorite(opportunity.id));
+      setIsFavorite(opportunity.isFavorite);
     }
   }, [opportunity]);
 

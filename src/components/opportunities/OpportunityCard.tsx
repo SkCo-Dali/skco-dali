@@ -22,7 +22,7 @@ export const OpportunityCard: React.FC<OpportunityCardProps> = ({
 }) => {
   const { toast } = useToast();
   const [isFavorite, setIsFavorite] = React.useState(
-    opportunitiesService.isFavorite(opportunity.id)
+    opportunity.isFavorite
   );
 
   const handleFavoriteToggle = async (e: React.MouseEvent) => {

@@ -63,6 +63,7 @@ export const mapApiOpportunityToOpportunity = (apiOpportunity: ApiOpportunity): 
       estimatedSales: apiOpportunity.ComisionPotencial,
     } : undefined,
     isHighlighted: apiOpportunity.Priority === 'Alta',
+    isFavorite: apiOpportunity.IsFavourite,
     createdAt: new Date().toISOString(),
     expiresAt: apiOpportunity.End,
   };

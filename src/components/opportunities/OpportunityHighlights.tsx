@@ -150,7 +150,7 @@ export const OpportunityHighlights: React.FC<OpportunityHighlightsProps> = ({
                   >
                     <Heart 
                       className={`h-3 w-3 ${
-                        opportunitiesService.isFavorite(opportunity.id) 
+                        opportunity.isFavorite 
                           ? 'fill-red-500 text-red-500' 
                           : 'text-muted-foreground'
                       }`} 

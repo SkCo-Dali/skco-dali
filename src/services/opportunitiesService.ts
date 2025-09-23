@@ -96,7 +96,7 @@ class OpportunitiesService {
       }
       
       // Filter by favorites
-      if (filters.onlyFavorites && !this.isFavorite(opp.id)) {
+      if (filters.onlyFavorites && !opp.isFavorite) {
         return false;
       }
       
@@ -147,7 +147,7 @@ class OpportunitiesService {
     return {
       totalOpportunities: opportunities.length,
       totalCustomers: opportunities.reduce((sum, opp) => sum + opp.customerCount, 0),
-      favoritesCount: this.favorites.size,
+      favoritesCount: opportunities.filter(opp => opp.isFavorite).length,
       avgScore: opportunities.length > 0 
         ? opportunities.reduce((sum, opp) => sum + opp.score, 0) / opportunities.length 
         : 0,
@@ -181,6 +181,8 @@ class OpportunitiesService {
   }
 
   isFavorite(opportunityId: string): boolean {
+    // This method is now mainly used for backwards compatibility
+    // The actual favorite status should come from the API data
     return this.favorites.has(opportunityId);
   }
 

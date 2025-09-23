@@ -35,6 +35,7 @@ export interface IOpportunity {
     estimatedSales: number;
   };
   isHighlighted: boolean;
+  isFavorite: boolean;
   createdAt: string;
   expiresAt?: string;
 }

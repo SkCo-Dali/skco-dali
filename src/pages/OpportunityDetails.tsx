@@ -46,7 +46,7 @@ export const OpportunityDetails: React.FC = () => {
       const opportunityData = await opportunitiesService.getOpportunityById(id);
       if (opportunityData) {
         setOpportunity(opportunityData);
-        setIsFavorite(opportunitiesService.isFavorite(id));
+        setIsFavorite(opportunityData.isFavorite);
       } else {
         setError('Oportunidad no encontrada');
       }
