@@ -128,7 +128,7 @@ export function WhatsAppEntryModal({
               </Badge>
             </div>
             
-            <CardHeader className="pb-3">
+            <CardHeader className="pb-4">
               <CardTitle className="flex items-center gap-2 text-lg">
                 <Bot className="h-5 w-5 text-orange-500" />
                 Envía desde Sami WhatsApp
