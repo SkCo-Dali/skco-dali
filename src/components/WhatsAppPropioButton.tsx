@@ -21,7 +21,7 @@ export function WhatsAppPropioButton({ leads, userEmail, disabled = false }: Wha
         disabled={disabled || leads.length === 0}
         className=" h-8 w-8 bg-[#25D366] hover:bg-[#25D366]/90"
       >
-        <FaWhatsapp className="h-4 w-4 mr-2" />
+        <FaWhatsapp className="h-4 w-4" />
       </Button>
 
       <WhatsAppPropioManager
