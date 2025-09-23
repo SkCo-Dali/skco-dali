@@ -1,47 +1,48 @@
 import { ApiOpportunity } from '@/types/opportunitiesApi';
 import { IOpportunity, Priority, OpportunityType } from '@/types/opportunities';
 
-// Helper function to map priority number to priority enum
-const mapPriorityFromApi = (priority: number): Priority => {
-  if (priority <= 1) return 'alta';
-  if (priority <= 2) return 'media';
+// Helper function to map priority string to priority enum
+const mapPriorityFromApi = (priority: string): Priority => {
+  const priorityLower = priority.toLowerCase();
+  if (priorityLower === 'alta') return 'alta';
+  if (priorityLower === 'media') return 'media';
   return 'baja';
 };
 
-// Helper function to map categories to opportunity type
-const mapCategoriestoType = (categories: string[]): OpportunityType => {
-  const categoryLower = categories[0]?.toLowerCase() || '';
-  
-  if (categoryLower.includes('cumpleaños') || categoryLower.includes('birthday')) return 'birthday';
-  if (categoryLower.includes('fidelización') || categoryLower.includes('retención')) return 'retention';
-  if (categoryLower.includes('venta cruzada') || categoryLower.includes('cross')) return 'cross-sell';
-  if (categoryLower.includes('reactivación')) return 'reactivation';
-  if (categoryLower.includes('campaña')) return 'campaign';
-  if (categoryLower.includes('contacto')) return 'recent-contact';
-  if (categoryLower.includes('riesgo')) return 'churn-risk';
-  if (categoryLower.includes('declaración') || categoryLower.includes('renta')) return 'life-events';
+// Helper function to map API Type to opportunity type enum
+const mapTypeFromApi = (type: string): OpportunityType => {
+  if (type.includes('Cumpleaños')) return 'birthday';
+  if (type.includes('Cross-sell')) return 'cross-sell';
+  if (type.includes('Retención')) return 'retention';
+  if (type.includes('Reactivación')) return 'reactivation';
+  if (type.includes('Campaña')) return 'campaign';
+  if (type.includes('Contacto')) return 'recent-contact';
+  if (type.includes('Riesgo')) return 'churn-risk';
+  if (type.includes('Eventos')) return 'life-events';
   
   return 'ai-recommendation';
 };
 
 // Map API opportunity to internal opportunity format
 export const mapApiOpportunityToOpportunity = (apiOpportunity: ApiOpportunity): IOpportunity => {
+  const opportunityType = mapTypeFromApi(apiOpportunity.Type);
+  
   const mappedOpportunity: IOpportunity = {
     id: apiOpportunity.OpportunityId.toString(),
     title: apiOpportunity.Title,
     subtitle: apiOpportunity.Subtitle,
     description: apiOpportunity.Description,
-    type: mapCategoriestoType(apiOpportunity.Categories),
+    type: opportunityType,
     priority: mapPriorityFromApi(apiOpportunity.Priority),
-    score: Math.min(100, Math.max(0, (4 - apiOpportunity.Priority) * 25)), // Convert priority to score (0-100)
+    score: apiOpportunity.Priority === 'Alta' ? 90 : apiOpportunity.Priority === 'Media' ? 60 : 30,
     customerCount: apiOpportunity.lead_count,
-    icon: getIconForType(mapCategoriestoType(apiOpportunity.Categories)),
+    icon: getIconForType(opportunityType),
     tags: apiOpportunity.Categories,
     suggestedProduct: 'Producto recomendado', // Default value, could be enhanced
     trigger: 'Análisis automático', // Default value
     timeWindow: {
-      start: new Date().toISOString(),
-      end: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(), // 30 days from now
+      start: apiOpportunity.Beggining,
+      end: apiOpportunity.End,
     },
     strategy: {
       email: {
@@ -56,14 +57,14 @@ export const mapApiOpportunityToOpportunity = (apiOpportunity: ApiOpportunity): 
         script: `Llamar para ${apiOpportunity.Title}`,
       },
     },
-    metrics: {
+    metrics: apiOpportunity.ComisionPotencial > 0 ? {
       conversionRate: 15 + Math.random() * 20, // Random value between 15-35%
       ctrEstimated: 2 + Math.random() * 5, // Random value between 2-7%
-      estimatedSales: apiOpportunity.lead_count * (50000 + Math.random() * 100000), // Random estimation
-    },
-    isHighlighted: apiOpportunity.Priority <= 1, // High priority opportunities are highlighted
+      estimatedSales: apiOpportunity.ComisionPotencial,
+    } : undefined,
+    isHighlighted: apiOpportunity.Priority === 'Alta',
     createdAt: new Date().toISOString(),
-    expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(), // 7 days from now
+    expiresAt: apiOpportunity.End,
   };
 
   return mappedOpportunity;

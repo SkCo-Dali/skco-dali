@@ -2,12 +2,18 @@
 
 export interface ApiOpportunity {
   OpportunityId: number;
-  Priority: number;
+  Priority: string;
   lead_count: number;
   Title: string;
   Subtitle: string;
   Description: string;
   Categories: string[];
+  Beggining: string;
+  End: string;
+  Type: string;
+  IsActive: boolean;
+  IsFavourite: boolean;
+  ComisionPotencial: number;
 }
 
 export interface OpportunityFiltersApi {
