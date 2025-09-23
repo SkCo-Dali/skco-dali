@@ -356,6 +356,13 @@
     background: #fafafa !important;
   }
 
+  .leads-table-header-sticky th {
+    position: sticky !important;
+    top: 0 !important;
+    z-index: 15 !important;
+    background: #fafafa !important;
+  }
+
   .leads-table-header-sticky .leads-name-column-sticky {
     z-index: 20 !important;
     background: #fafafa !important;
@@ -388,6 +395,10 @@
   }
 
   .dark .leads-table-header-sticky {
+    background: #374151 !important;
+  }
+
+  .dark .leads-table-header-sticky th {
     background: #374151 !important;
   }
 
