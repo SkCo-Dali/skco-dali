@@ -291,6 +291,12 @@
     overflow: visible;
   }
 
+  /* Evitar doble contenedor con overflow en el Table de shadcn dentro de LeadsTable
+     para que position: sticky del header funcione respecto al scroll wrapper externo */
+  .leads-table-inner-scroll > div {
+    overflow: visible !important;
+  }
+
   /* SCROLLBAR PERSONALIZADO - WEBKIT */
   .leads-table-scroll-wrapper::-webkit-scrollbar {
     width: 12px !important;
