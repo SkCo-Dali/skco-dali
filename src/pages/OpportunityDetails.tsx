@@ -272,35 +272,38 @@ export const OpportunityDetails: React.FC = () => {
                   {opportunity.description}
                 </p>
               </div>
-              {/* Métricas */}
-              {opportunity.metrics && (
-                <TooltipProvider>
-                  <div className="space-y-4">
-                    <h3 className="font-semibold text-lg flex items-center gap-2">
-                      <div className="w-1 h-5 bg-primary rounded-full"></div>
-                      Datos Clave
-                    </h3>
-                    <div className="grid grid-cols-2 gap-6 p-4">
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <div className="relative group cursor-help">
-                            <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-blue-600/10 rounded-2xl blur-xl group-hover:blur-lg transition-all duration-300"></div>
-                            <div className="relative bg-white/60 backdrop-blur-sm border border-blue-200/50 rounded-2xl p-4 text-center hover:shadow-xl hover:shadow-blue-500/20 transition-all duration-300 group-hover:-translate-y-1 group-hover:bg-white/80">
-                              <div className="flex items-center justify-center w-10 h-10 bg-blue-100 rounded-xl mx-auto mb-2 group-hover:bg-blue-200 transition-colors relative">
-                                <Users className="h-5 w-5 text-blue-600" />
-                                <Info className="h-3 w-3 text-blue-500 absolute -top-1 -right-1 opacity-60" />
-                              </div>
-                              <div className="text-2xl font-bold text-blue-700 mb-1">
-                                {formatCustomerCount(opportunity.customerCount)}
-                              </div>
-                              <div className="text-xs font-medium text-blue-600">Clientes Impactables</div>
+              {/* Datos Clave */}
+              <TooltipProvider>
+                <div className="space-y-4">
+                  <h3 className="font-semibold text-lg flex items-center gap-2">
+                    <div className="w-1 h-5 bg-primary rounded-full"></div>
+                    Datos Clave
+                  </h3>
+                  <div className={`grid gap-6 p-4 ${opportunity.metrics ? 'grid-cols-2' : 'grid-cols-1'}`}>
+                    {/* Clientes Impactables - siempre visible */}
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <div className="relative group cursor-help">
+                          <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-blue-600/10 rounded-2xl blur-xl group-hover:blur-lg transition-all duration-300"></div>
+                          <div className="relative bg-white/60 backdrop-blur-sm border border-blue-200/50 rounded-2xl p-4 text-center hover:shadow-xl hover:shadow-blue-500/20 transition-all duration-300 group-hover:-translate-y-1 group-hover:bg-white/80">
+                            <div className="flex items-center justify-center w-10 h-10 bg-blue-100 rounded-xl mx-auto mb-2 group-hover:bg-blue-200 transition-colors relative">
+                              <Users className="h-5 w-5 text-blue-600" />
+                              <Info className="h-3 w-3 text-blue-500 absolute -top-1 -right-1 opacity-60" />
                             </div>
+                            <div className="text-2xl font-bold text-blue-700 mb-1">
+                              {formatCustomerCount(opportunity.customerCount)}
+                            </div>
+                            <div className="text-xs font-medium text-blue-600">Clientes Impactables</div>
                           </div>
-                        </TooltipTrigger>
-                        <TooltipContent className="max-w-xs">
-                          <p className="text-sm">Número estimado de clientes que cumplen las condiciones para recibir la oferta</p>
-                        </TooltipContent>
-                      </Tooltip>
+                        </div>
+                      </TooltipTrigger>
+                      <TooltipContent className="max-w-xs">
+                        <p className="text-sm">Número estimado de clientes que cumplen las condiciones para recibir la oferta</p>
+                      </TooltipContent>
+                    </Tooltip>
+                    
+                    {/* Comisiones Potenciales - solo si hay metrics */}
+                    {opportunity.metrics && (
                       <Tooltip>
                         <TooltipTrigger asChild>
                           <div className="relative group cursor-help">
@@ -321,10 +324,10 @@ export const OpportunityDetails: React.FC = () => {
                           <p className="text-sm">Monto máximo de comisiones que podrías generar con esta oportunidad</p>
                         </TooltipContent>
                       </Tooltip>
-                    </div>
+                    )}
                   </div>
-                </TooltipProvider>
-              )}
+                </div>
+              </TooltipProvider>
             </CardContent>
           </Card>
         </div>
