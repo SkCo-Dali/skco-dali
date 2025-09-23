@@ -48,7 +48,9 @@ export const OpportunityCard: React.FC<OpportunityCardProps> = ({
   };
 
   const handleViewDetails = () => {
-    onViewDetails(opportunity);
+    if (opportunity.isActive) {
+      onViewDetails(opportunity);
+    }
   };
 
   const formatCustomerCount = (count: number) => {
@@ -67,10 +69,10 @@ export const OpportunityCard: React.FC<OpportunityCardProps> = ({
       <Tooltip>
         <TooltipTrigger asChild>
           <Card 
-            className={`group transition-all duration-300 cursor-pointer shadow-md border-0 h-fit w-full max-w-[280px] relative ${
+            className={`group transition-all duration-300 shadow-md border-0 h-fit w-full max-w-[280px] relative ${
               opportunity.isActive 
-                ? 'hover:shadow-xl hover:-translate-y-1 hover:shadow-lg bg-white' 
-                : 'bg-gray-50 opacity-75'
+                ? 'hover:shadow-xl hover:-translate-y-1 hover:shadow-lg bg-white cursor-pointer' 
+                : 'bg-gray-50 opacity-75 cursor-not-allowed'
             }`}
             onClick={handleViewDetails}
           >

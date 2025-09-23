@@ -39,7 +39,7 @@ export const OpportunityHighlights: React.FC<OpportunityHighlightsProps> = ({
   const handleFavoriteToggle = (e: React.MouseEvent, opportunityId: string) => {
     e.stopPropagation();
     const opportunity = opportunities.find(opp => opp.id === opportunityId);
-    if (!opportunity) return;
+    if (!opportunity || !opportunity.isActive) return;
 
     const newFavoriteState = opportunitiesService.toggleFavorite(opportunityId);
     
@@ -126,12 +126,12 @@ export const OpportunityHighlights: React.FC<OpportunityHighlightsProps> = ({
           {opportunities.map((opportunity) => (
             <Card 
               key={opportunity.id} 
-              className={`group transition-all duration-200 cursor-pointer border-border/50 relative ${
+              className={`group transition-all duration-200 border-border/50 relative ${
                 opportunity.isActive 
-                  ? 'hover:shadow-md hover:border-primary/20' 
-                  : 'bg-gray-50 opacity-75'
+                  ? 'hover:shadow-md hover:border-primary/20 cursor-pointer' 
+                  : 'bg-gray-50 opacity-75 cursor-not-allowed'
               }`}
-              onClick={() => onViewDetails(opportunity)}
+              onClick={() => opportunity.isActive && onViewDetails(opportunity)}
             >
               <CardContent className={`p-4 space-y-3 ${!opportunity.isActive ? 'grayscale' : ''}`}>
                 {/* Inactive overlay */}
@@ -223,7 +223,9 @@ export const OpportunityHighlights: React.FC<OpportunityHighlightsProps> = ({
                   }`}
                   onClick={(e) => {
                     e.stopPropagation();
-                    onViewDetails(opportunity);
+                    if (opportunity.isActive) {
+                      onViewDetails(opportunity);
+                    }
                   }}
                   disabled={!opportunity.isActive}
                 >
