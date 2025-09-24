@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { ScrollArea } from "@/components/ui/scroll-area";
+
 import { Lead, User } from "@/types/crm";
 import { useUsersApi } from "@/hooks/useUsersApi";
 import { useLeadAssignments } from "@/hooks/useLeadAssignments";
@@ -12,6 +12,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { getAssignableUsers, AssignableUser } from "@/utils/leadAssignmentApiClient";
 import { Search } from "lucide-react";
+import { LeadAssigneeSelect } from "@/components/LeadAssigneeSelect";
 
 interface EditableLeadCellProps {
   lead: Lead;
@@ -57,8 +58,6 @@ export function EditableLeadCell({ lead, field, onUpdate }: EditableLeadCellProp
   const [editValue, setEditValue] = useState('');
   const [assignableUsers, setAssignableUsers] = useState<AssignableUser[]>([]);
   const [loadingAssignableUsers, setLoadingAssignableUsers] = useState(false);
-  const [userSearch, setUserSearch] = useState<string>("");
-
   // Load assignable users when component mounts
   useEffect(() => {
     const loadAssignableUsers = async () => {
@@ -272,68 +271,14 @@ export function EditableLeadCell({ lead, field, onUpdate }: EditableLeadCellProp
     const assignedUser = users.find(u => u.id === lead.assignedTo);
     const displayName = lead.assignedToName || assignedUser?.name || 'Sin asignar';
 
-    // Filter users based on search term
-    const filteredUsers = assignableUsers.filter(user => 
-      user.Name.toLowerCase().includes(userSearch.toLowerCase()) ||
-      user.Email.toLowerCase().includes(userSearch.toLowerCase()) ||
-      user.Role.toLowerCase().includes(userSearch.toLowerCase())
-    );
-    
     return (
-      <Select
+      <LeadAssigneeSelect
         value={lead.assignedTo || ""}
-        onValueChange={handleValueChange}
-        disabled={isUpdating || loadingAssignableUsers}
-        onOpenChange={(open) => {
-          if (!open) {
-            setUserSearch(""); // Clear search when closing
-          }
-        }}
-      >
-        <SelectTrigger className="w-full border-none shadow-none p-2 h-8">
-          <span className="text-xs text-left">
-            {displayName}
-          </span>
-        </SelectTrigger>
-        <SelectContent 
-          className="bg-white z-50"
-          onCloseAutoFocus={(e) => e.preventDefault()}
-          onEscapeKeyDown={(e) => e.stopPropagation()}
-        >
-           <div className="px-2 py-2 border-b" onMouseDown={(e) => e.stopPropagation()} onKeyDownCapture={(e) => e.stopPropagation()}>
-             <div className="relative">
-               <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-400 h-3 w-3" />
-               <Input
-                 placeholder="Buscar usuario..."
-                 value={userSearch}
-                 onChange={(e) => setUserSearch(e.target.value)}
-                 className="pl-8 h-6 text-xs"
-                 autoFocus
-                  onKeyDown={(e) => { e.stopPropagation(); (e as any).nativeEvent?.stopImmediatePropagation?.(); }}
-                  onKeyUp={(e) => { e.stopPropagation(); (e as any).nativeEvent?.stopImmediatePropagation?.(); }}
-                  onInput={(e) => { e.stopPropagation(); (e as any).nativeEvent?.stopImmediatePropagation?.(); }}
-                  onFocus={(e) => e.stopPropagation()}
-                  onClick={(e) => e.stopPropagation()}
-                  onMouseDown={(e) => e.stopPropagation()}
-                  onPointerDown={(e) => e.stopPropagation()}
-                />
-              </div>
-           </div>
-          <ScrollArea className="h-48">
-            <SelectItem value="unassigned">Sin asignar</SelectItem>
-            {filteredUsers.map((user) => (
-              <SelectItem key={user.Id} value={user.Id}>
-                {user.Name} ({user.Role})
-              </SelectItem>
-            ))}
-            {filteredUsers.length === 0 && userSearch && (
-              <div className="px-2 py-2 text-sm text-gray-500 text-center">
-                No se encontraron usuarios
-              </div>
-            )}
-          </ScrollArea>
-        </SelectContent>
-      </Select>
+        displayName={displayName}
+        users={assignableUsers}
+        loading={loadingAssignableUsers}
+        onSelect={handleValueChange}
+      />
     );
   }
 
