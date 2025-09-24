@@ -113,6 +113,10 @@ export function MassEmailSender({ filteredLeads, onClose }: MassEmailSenderProps
       setActiveTab('logs');
       // Actualizar logs
       fetchEmailLogs();
+      // Cerrar el modal después del envío exitoso
+      setTimeout(() => {
+        onClose();
+      }, 2000);
     }
   };
 
@@ -138,6 +142,14 @@ export function MassEmailSender({ filteredLeads, onClose }: MassEmailSenderProps
               )}
             </div>
           </div>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={onClose}
+            className="h-8 w-8 hover:bg-gray-100"
+          >
+            <X className="h-4 w-4" />
+          </Button>
         </div>
 
         {/* Tabs */}

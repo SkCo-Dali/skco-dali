@@ -426,7 +426,10 @@ export const OpportunityDetails: React.FC = () => {
             role="dialog"
             aria-modal="true"
             aria-labelledby="mass-email-title"
-            onClick={() => setShowEmailSender(false)}
+            onClick={() => {
+              setShowEmailSender(false);
+              handleBack();
+            }}
           >
             <div className="absolute inset-0 bg-black/70" />
             <div
