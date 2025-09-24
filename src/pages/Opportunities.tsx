@@ -289,7 +289,7 @@ export const Opportunities: React.FC = () => {
               <CardHeader className="pb-3">
                 <h3 className="font-semibold text-lg">Filtros</h3>
               </CardHeader>
-              <CardContent className="space-y-4">
+              <CardContent className="space-y-4 pb-4">
                 {/* Only Favorites */}
                 <div className="space-y-2">
                   <Label className="text-sm font-medium">Filtros especiales</Label>
