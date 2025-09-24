@@ -55,7 +55,7 @@ export function UserAssigneeSelect({
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
-        <div className="w-full border border-input bg-background hover:bg-accent hover:text-accent-foreground rounded-md px-3 py-2 text-sm cursor-pointer flex items-center justify-between">
+        <div className="w-full border border-input bg-background hover:text-accent-foreground rounded-md px-3 py-2 text-sm cursor-pointer flex items-center justify-between">
           <span className={selectedUser ? "text-foreground" : "text-muted-foreground"}>
             {selectedUser ? `${selectedUser.name} (${selectedUser.role})` : placeholder}
           </span>
