@@ -295,8 +295,12 @@ export function EditableLeadCell({ lead, field, onUpdate }: EditableLeadCellProp
             {displayName}
           </span>
         </SelectTrigger>
-        <SelectContent className="bg-white z-50">
-           <div className="px-2 py-2 border-b" onMouseDown={(e) => e.stopPropagation()}>
+        <SelectContent 
+          className="bg-white z-50"
+          onCloseAutoFocus={(e) => e.preventDefault()}
+          onEscapeKeyDown={(e) => e.stopPropagation()}
+        >
+           <div className="px-2 py-2 border-b" onMouseDown={(e) => e.stopPropagation()} onKeyDownCapture={(e) => e.stopPropagation()}>
              <div className="relative">
                <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-400 h-3 w-3" />
                <Input
@@ -305,13 +309,15 @@ export function EditableLeadCell({ lead, field, onUpdate }: EditableLeadCellProp
                  onChange={(e) => setUserSearch(e.target.value)}
                  className="pl-8 h-6 text-xs"
                  autoFocus
-                 onKeyDown={(e) => e.stopPropagation()}
-                 onFocus={(e) => e.stopPropagation()}
-                 onClick={(e) => e.stopPropagation()}
-                 onMouseDown={(e) => e.stopPropagation()}
-                 onPointerDown={(e) => e.stopPropagation()}
-               />
-             </div>
+                  onKeyDown={(e) => { e.stopPropagation(); (e as any).nativeEvent?.stopImmediatePropagation?.(); }}
+                  onKeyUp={(e) => { e.stopPropagation(); (e as any).nativeEvent?.stopImmediatePropagation?.(); }}
+                  onInput={(e) => { e.stopPropagation(); (e as any).nativeEvent?.stopImmediatePropagation?.(); }}
+                  onFocus={(e) => e.stopPropagation()}
+                  onClick={(e) => e.stopPropagation()}
+                  onMouseDown={(e) => e.stopPropagation()}
+                  onPointerDown={(e) => e.stopPropagation()}
+                />
+              </div>
            </div>
           <ScrollArea className="h-48">
             <SelectItem value="unassigned">Sin asignar</SelectItem>
