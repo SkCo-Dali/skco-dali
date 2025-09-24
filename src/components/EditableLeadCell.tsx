@@ -296,7 +296,7 @@ export function EditableLeadCell({ lead, field, onUpdate }: EditableLeadCellProp
           </span>
         </SelectTrigger>
         <SelectContent className="bg-white z-50">
-           <div className="px-2 py-2 border-b">
+           <div className="px-2 py-2 border-b" onMouseDown={(e) => e.stopPropagation()}>
              <div className="relative">
                <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-400 h-3 w-3" />
                <Input
@@ -308,6 +308,8 @@ export function EditableLeadCell({ lead, field, onUpdate }: EditableLeadCellProp
                  onKeyDown={(e) => e.stopPropagation()}
                  onFocus={(e) => e.stopPropagation()}
                  onClick={(e) => e.stopPropagation()}
+                 onMouseDown={(e) => e.stopPropagation()}
+                 onPointerDown={(e) => e.stopPropagation()}
                />
              </div>
            </div>
