@@ -436,7 +436,10 @@ export const OpportunityDetails: React.FC = () => {
               <h2 id="mass-email-title" className="sr-only">Envío masivo de correos</h2>
               <MassEmailSender
                 filteredLeads={loadedLeads}
-                onClose={() => setShowEmailSender(false)}
+                onClose={() => {
+                  setShowEmailSender(false);
+                  handleBack();
+                }}
               />
             </div>
           </div>,
