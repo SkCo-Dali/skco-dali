@@ -167,6 +167,10 @@ export function LeadReassignDialog({ lead, isOpen, onClose, onSuccess }: LeadRea
                       value={userSearch}
                       onChange={(e) => setUserSearch(e.target.value)}
                       className="pl-8 h-6 text-xs"
+                      autoFocus
+                      onKeyDown={(e) => e.stopPropagation()}
+                      onFocus={(e) => e.stopPropagation()}
+                      onClick={(e) => e.stopPropagation()}
                     />
                   </div>
                 </div>

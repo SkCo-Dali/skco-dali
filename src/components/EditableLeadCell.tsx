@@ -296,17 +296,21 @@ export function EditableLeadCell({ lead, field, onUpdate }: EditableLeadCellProp
           </span>
         </SelectTrigger>
         <SelectContent className="bg-white z-50">
-          <div className="px-2 py-2 border-b">
-            <div className="relative">
-              <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-400 h-3 w-3" />
-              <Input
-                placeholder="Buscar usuario..."
-                value={userSearch}
-                onChange={(e) => setUserSearch(e.target.value)}
-                className="pl-8 h-6 text-xs"
-              />
-            </div>
-          </div>
+           <div className="px-2 py-2 border-b">
+             <div className="relative">
+               <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-400 h-3 w-3" />
+               <Input
+                 placeholder="Buscar usuario..."
+                 value={userSearch}
+                 onChange={(e) => setUserSearch(e.target.value)}
+                 className="pl-8 h-6 text-xs"
+                 autoFocus
+                 onKeyDown={(e) => e.stopPropagation()}
+                 onFocus={(e) => e.stopPropagation()}
+                 onClick={(e) => e.stopPropagation()}
+               />
+             </div>
+           </div>
           <ScrollArea className="h-48">
             <SelectItem value="unassigned">Sin asignar</SelectItem>
             {filteredUsers.map((user) => (
