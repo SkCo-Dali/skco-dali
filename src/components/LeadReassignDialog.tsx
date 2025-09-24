@@ -3,15 +3,13 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Input } from "@/components/ui/input";
-import { ScrollArea } from "@/components/ui/scroll-area";
+import { UserAssigneeSelect } from "@/components/UserAssigneeSelect";
 import { Lead, User } from "@/types/crm";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
 import { getAllUsers } from "@/utils/userApiClient";
 import { useLeadAssignments } from "@/hooks/useLeadAssignments";
-import { UserCheck, X, Search } from "lucide-react";
+import { UserCheck } from "lucide-react";
 
 interface LeadReassignDialogProps {
   lead: Lead | null;
@@ -26,18 +24,11 @@ export function LeadReassignDialog({ lead, isOpen, onClose, onSuccess }: LeadRea
   const [notes, setNotes] = useState<string>("Sin info");
   const [assignableUsers, setAssignableUsers] = useState<User[]>([]);
   const [loadingUsers, setLoadingUsers] = useState(false);
-  const [userSearch, setUserSearch] = useState<string>("");
   
   const { toast } = useToast();
   const { user: currentUser } = useAuth();
   const { loading: reassignLoading, handleReassignLead } = useLeadAssignments();
 
-  // Filter users based on search term
-  const filteredUsers = assignableUsers.filter(user => 
-    user.name.toLowerCase().includes(userSearch.toLowerCase()) ||
-    user.email.toLowerCase().includes(userSearch.toLowerCase()) ||
-    user.role.toLowerCase().includes(userSearch.toLowerCase())
-  );
 
   useEffect(() => {
     const fetchAssignableUsers = async () => {
@@ -108,7 +99,6 @@ export function LeadReassignDialog({ lead, isOpen, onClose, onSuccess }: LeadRea
         setSelectedUserId("");
         setReason("No informa");
         setNotes("Sin info");
-        setUserSearch(""); // Clear search on successful submission
         
         // Llamar callback de éxito y cerrar modal
         onSuccess?.();
@@ -123,7 +113,6 @@ export function LeadReassignDialog({ lead, isOpen, onClose, onSuccess }: LeadRea
     setSelectedUserId("");
     setReason("No informa");
     setNotes("Sin info");
-    setUserSearch(""); // Clear search when closing
     onClose();
   };
 
@@ -148,46 +137,13 @@ export function LeadReassignDialog({ lead, isOpen, onClose, onSuccess }: LeadRea
 
           <div>
             <Label htmlFor="newUser">Nuevo Usuario Asignado</Label>
-            <Select 
-              value={selectedUserId} 
-              onValueChange={setSelectedUserId}
-              disabled={loadingUsers || reassignLoading}
-            >
-              <SelectTrigger>
-                <SelectValue
-                  placeholder={loadingUsers ? "Cargando usuarios..." : "Seleccionar usuario"}
-                />
-              </SelectTrigger>
-              <SelectContent className="bg-white z-50">
-                <div className="px-2 py-2 border-b">
-                  <div className="relative">
-                    <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-400 h-3 w-3" />
-                    <Input
-                      placeholder="Buscar usuario..."
-                      value={userSearch}
-                      onChange={(e) => setUserSearch(e.target.value)}
-                      className="pl-8 h-6 text-xs"
-                      autoFocus
-                      onKeyDown={(e) => e.stopPropagation()}
-                      onFocus={(e) => e.stopPropagation()}
-                      onClick={(e) => e.stopPropagation()}
-                    />
-                  </div>
-                </div>
-                <ScrollArea className="h-48">
-                  {filteredUsers.map((user) => (
-                    <SelectItem key={user.id} value={user.id}>
-                      {user.name} ({user.email}) - {user.role}
-                    </SelectItem>
-                  ))}
-                  {filteredUsers.length === 0 && userSearch && (
-                    <div className="px-2 py-2 text-sm text-gray-500 text-center">
-                      No se encontraron usuarios
-                    </div>
-                  )}
-                </ScrollArea>
-              </SelectContent>
-            </Select>
+            <UserAssigneeSelect
+              value={selectedUserId}
+              users={assignableUsers}
+              loading={loadingUsers}
+              onSelect={setSelectedUserId}
+              placeholder={loadingUsers ? "Cargando usuarios..." : "Seleccionar usuario"}
+            />
           </div>
 
           <div>
