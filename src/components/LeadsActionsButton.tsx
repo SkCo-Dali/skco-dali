@@ -122,7 +122,7 @@ export function LeadsActionsButton({
           {permissions.canSendmassiveWhatsApp && (
             <DropdownMenuItem onClick={handleWhatsAppPropio} className="cursor-pointer">
               <FaWhatsapp className="h-4 w-4 mr-2" />
-              WhatsApp
+              Enviar WhatsApp
               {selectedLeadsCount > 0 && (
                 <span className="ml-auto text-xs bg-green-100 text-green-800 px-1 py-0.5 rounded">
                   {selectedLeadsCount}
