@@ -15,18 +15,18 @@ const CustomSelectTrigger = React.forwardRef<
   React.ComponentPropsWithoutRef<typeof SelectPrimitive.Trigger>
 >(({ className, children, ...props }, ref) => (
   <SelectPrimitive.Trigger
-    ref={ref}
-    className={cn(
-      "flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-[#94a3b8] focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50",
-      className
-    )}
-    {...props}
-  >
-    <span className="flex-1 text-left truncate">{children}</span>
-    <div className="flex items-center justify-center h-full ml-2 flex-shrink-0">
-      <ChevronDown className="h-4 w-4 text-[#00c73d]" />
-    </div>
-  </SelectPrimitive.Trigger>
+  ref={ref}
+  className={cn(
+    "flex h-10 w-full items-center rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-[#94a3b8] focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 text-left", // <- clave
+    className
+  )}
+  {...props}
+>
+  <span className="min-w-0 flex-1 truncate text-left">{children}</span>
+  <div className="ml-2 h-full shrink-0 flex items-center justify-center">
+    <ChevronDown className="h-4 w-4 text-[#00c73d]" />
+  </div>
+</SelectPrimitive.Trigger>
 ))
 CustomSelectTrigger.displayName = SelectPrimitive.Trigger.displayName
 
