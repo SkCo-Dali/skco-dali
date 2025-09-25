@@ -118,8 +118,8 @@ const IndexContent = forwardRef<any, {}>((props, ref) => {
             margin: '0 auto'
           }}
         >
-          Market Dali Opportunities 
-          <OpportunityHighlights onViewDetails={handleViewOpportunityDetails} />
+         {/* Market Dali Opportunities 
+          <OpportunityHighlights onViewDetails={handleViewOpportunityDetails} />*/}
           
           <SimpleChatInterface ref={chatInterfaceRef} />
         </div>
