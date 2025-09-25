@@ -13,9 +13,11 @@ import {
   Users, 
   Mail, 
   Trash,
-  MessageSquare
+  MessageSquare,
+  Smartphone
 } from "lucide-react";
-import { RolePermissions } from "@/types/crm";
+import { RolePermissions, Lead } from "@/types/crm";
+import { WhatsAppPropioButton } from "@/components/WhatsAppPropioButton";
 
 interface LeadsActionsButtonProps {
   onCreateLead: () => void;
@@ -26,6 +28,8 @@ interface LeadsActionsButtonProps {
   selectedLeadsCount: number;
   isDeleting?: boolean;
   permissions: RolePermissions;
+  leads: Lead[];
+  userEmail: string;
 }
 
 export function LeadsActionsButton({
@@ -36,7 +40,9 @@ export function LeadsActionsButton({
   onDeleteLeads,
   selectedLeadsCount,
   isDeleting = false,
-  permissions
+  permissions,
+  leads,
+  userEmail
 }: LeadsActionsButtonProps) {
   const handleCreateLead = () => {
     console.log('LeadsActionsButton: handleCreateLead called');
@@ -102,6 +108,14 @@ export function LeadsActionsButton({
               </span>
             )}
           </DropdownMenuItem>
+        )}
+        {permissions.canSendWhatsApp && (
+          <div className="p-1">
+            <WhatsAppPropioButton
+              leads={leads}
+              userEmail={userEmail}
+            />
+          </div>
         )}
         {permissions.canSendWhatsApp && (
           <DropdownMenuItem onClick={handleMassWhatsApp} className="cursor-pointer">

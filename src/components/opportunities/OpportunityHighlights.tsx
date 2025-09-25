@@ -1,12 +1,12 @@
 import React from 'react';
-import { Heart, Users, TrendingUp, ChevronDown, ChevronUp, Eye } from 'lucide-react';
+import { Heart, Users, TrendingUp, ChevronDown, ChevronUp, Eye, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Skeleton } from '@/components/ui/skeleton';
 import { IOpportunity, OPPORTUNITY_TYPE_LABELS, PRIORITY_COLORS } from '@/types/opportunities';
-import { opportunitiesService } from '@/services/mock/opportunitiesService';
+import { opportunitiesService } from '@/services/opportunitiesService';
 import { useToast } from '@/hooks/use-toast';
 
 interface OpportunityHighlightsProps {
@@ -39,7 +39,7 @@ export const OpportunityHighlights: React.FC<OpportunityHighlightsProps> = ({
   const handleFavoriteToggle = (e: React.MouseEvent, opportunityId: string) => {
     e.stopPropagation();
     const opportunity = opportunities.find(opp => opp.id === opportunityId);
-    if (!opportunity) return;
+    if (!opportunity || !opportunity.isActive) return;
 
     const newFavoriteState = opportunitiesService.toggleFavorite(opportunityId);
     
@@ -126,18 +126,43 @@ export const OpportunityHighlights: React.FC<OpportunityHighlightsProps> = ({
           {opportunities.map((opportunity) => (
             <Card 
               key={opportunity.id} 
-              className="group hover:shadow-md transition-all duration-200 cursor-pointer border-border/50 hover:border-primary/20"
-              onClick={() => onViewDetails(opportunity)}
+              className={`group transition-all duration-200 border-border/50 relative ${
+                opportunity.isActive 
+                  ? 'hover:shadow-md hover:border-primary/20 cursor-pointer' 
+                  : 'bg-gray-50 opacity-75 cursor-not-allowed'
+              }`}
+              onClick={() => opportunity.isActive && onViewDetails(opportunity)}
             >
-              <CardContent className="p-4 space-y-3">
+              <CardContent className={`p-4 space-y-3 ${!opportunity.isActive ? 'grayscale' : ''}`}>
+                {/* Inactive overlay */}
+                {!opportunity.isActive && (
+                  <div className="absolute inset-0 z-10 flex items-center justify-center bg-black/20 rounded-lg">
+                    <div className="bg-red-600 text-white px-2 py-1.5 rounded shadow-lg text-center transform -rotate-12">
+                      <div className="flex items-center gap-1 mb-0.5">
+                        <X className="h-3 w-3" />
+                        <span className="font-bold text-xs">Ya fue aprovechada</span>
+                      </div>
+                      <div className="text-xs opacity-90 leading-tight">
+                        Regresa pronto para nuevos Leads
+                      </div>
+                    </div>
+                  </div>
+                )}
+
                 {/* Header */}
                 <div className="flex items-start justify-between">
                   <div className="flex items-center gap-2 flex-1">
-                    <div className="text-lg w-8 h-8 flex items-center justify-center rounded-full bg-primary/10">
+                    <div className={`text-lg w-8 h-8 flex items-center justify-center rounded-full ${
+                      opportunity.isActive ? 'bg-primary/10' : 'bg-gray-100'
+                    }`}>
                       {opportunity.icon}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <h3 className="font-medium text-sm line-clamp-1 group-hover:text-primary transition-colors">
+                      <h3 className={`font-medium text-sm line-clamp-1 transition-colors ${
+                        opportunity.isActive 
+                          ? 'group-hover:text-primary' 
+                          : 'text-gray-500'
+                      }`}>
                         {opportunity.title}
                       </h3>
                     </div>
@@ -147,10 +172,11 @@ export const OpportunityHighlights: React.FC<OpportunityHighlightsProps> = ({
                     size="icon"
                     onClick={(e) => handleFavoriteToggle(e, opportunity.id)}
                     className="h-6 w-6 shrink-0 hover:bg-red-50 hover:text-red-500"
+                    disabled={!opportunity.isActive}
                   >
                     <Heart 
                       className={`h-3 w-3 ${
-                        opportunitiesService.isFavorite(opportunity.id) 
+                        opportunity.isFavorite 
                           ? 'fill-red-500 text-red-500' 
                           : 'text-muted-foreground'
                       }`} 
@@ -191,15 +217,20 @@ export const OpportunityHighlights: React.FC<OpportunityHighlightsProps> = ({
                 {/* CTA */}
                 <Button 
                   size="sm" 
-                  variant="outline" 
-                  className="w-full text-xs h-7"
+                  variant={opportunity.isActive ? "outline" : "secondary"}
+                  className={`w-full text-xs h-7 ${
+                    !opportunity.isActive ? 'cursor-not-allowed text-gray-500' : ''
+                  }`}
                   onClick={(e) => {
                     e.stopPropagation();
-                    onViewDetails(opportunity);
+                    if (opportunity.isActive) {
+                      onViewDetails(opportunity);
+                    }
                   }}
+                  disabled={!opportunity.isActive}
                 >
                   <Eye className="h-3 w-3 mr-1" />
-                  Ver detalles
+                  {opportunity.isActive ? 'Ver detalles' : 'No disponible'}
                 </Button>
               </CardContent>
             </Card>

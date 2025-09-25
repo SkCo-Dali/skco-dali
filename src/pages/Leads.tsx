@@ -14,6 +14,7 @@ import { LeadsUpload } from "@/components/LeadsUpload";
 import { LeadCreateDialog, LeadCreateDialogRef } from "@/components/LeadCreateDialog";
 import { MassEmailSender } from "@/components/MassEmailSender";
 import { MassWhatsAppSender } from "@/components/MassWhatsAppSender";
+import { WhatsAppPropioButton } from "@/components/WhatsAppPropioButton";
 import { LeadsTableColumnSelector } from "@/components/LeadsTableColumnSelector";
 import { LeadsActionsButton } from "@/components/LeadsActionsButton";
 import { useUnifiedLeadsFilters } from "@/hooks/useUnifiedLeadsFilters";
@@ -384,18 +385,23 @@ export default function Leads() {
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 pt-0">
               <h1 className="text-3xl font-bold mb-1 tracking-tight text-[#00c73d]">Gestión de Leads</h1>
               
-              {isSmallScreen && userPermissions && (
-                <LeadsActionsButton
-                  onCreateLead={handleCreateLead}
-                  onBulkAssign={handleBulkAssign}
-                  onMassEmail={handleMassEmail}
-                  onMassWhatsApp={handleMassWhatsApp}
-                  onDeleteLeads={handleDeleteSelectedLeads}
-                  selectedLeadsCount={selectedLeads.length}
-                  isDeleting={isDeleting}
-                  permissions={userPermissions}
-                />
-              )}
+               {isSmallScreen && userPermissions && user?.email && (
+                 <LeadsActionsButton
+                   onCreateLead={handleCreateLead}
+                   onBulkAssign={handleBulkAssign}
+                   onMassEmail={handleMassEmail}
+                   onMassWhatsApp={handleMassWhatsApp}
+                   onDeleteLeads={handleDeleteSelectedLeads}
+                   selectedLeadsCount={selectedLeads.length}
+                   isDeleting={isDeleting}
+                   permissions={userPermissions}
+                   leads={selectedLeads.length > 0 ? 
+                     filteredLeads.filter(lead => selectedLeads.includes(lead.id)) : 
+                     filteredLeads
+                   }
+                   userEmail={user.email}
+                 />
+               )}
             </div>
 
             {/* KPI Cards and Stage Summary */}
@@ -431,13 +437,15 @@ export default function Leads() {
                     <Mail className="h-4 w-4" />
                   </Button>
                   )}
-                  {/*<Button
-                    className="gap-1 w-8 h-8 bg-[#00c73d]"
-                    onClick={handleMassWhatsApp}
-                    size="icon"
-                  >
-                    <FaWhatsapp className="h-4 w-4" />
-                  </Button>*/}
+                  {userPermissions?.canSendmassiveWhatsApp && user?.email && (
+                    <WhatsAppPropioButton
+                      leads={selectedLeads.length > 0 ? 
+                        filteredLeads.filter(lead => selectedLeads.includes(lead.id)) : 
+                        filteredLeads
+                      }
+                      userEmail={user.email}
+                    />
+                  )}
                   {userPermissions?.canDelete && (
                     <Button
                       className="gap-1 w-8 h-8 bg-red-600 hover:bg-red-700"

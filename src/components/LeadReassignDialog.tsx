@@ -3,13 +3,13 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { UserAssigneeSelect } from "@/components/UserAssigneeSelect";
 import { Lead, User } from "@/types/crm";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
 import { getAllUsers } from "@/utils/userApiClient";
 import { useLeadAssignments } from "@/hooks/useLeadAssignments";
-import { UserCheck, X } from "lucide-react";
+import { UserCheck } from "lucide-react";
 
 interface LeadReassignDialogProps {
   lead: Lead | null;
@@ -28,6 +28,7 @@ export function LeadReassignDialog({ lead, isOpen, onClose, onSuccess }: LeadRea
   const { toast } = useToast();
   const { user: currentUser } = useAuth();
   const { loading: reassignLoading, handleReassignLead } = useLeadAssignments();
+
 
   useEffect(() => {
     const fetchAssignableUsers = async () => {
@@ -136,24 +137,13 @@ export function LeadReassignDialog({ lead, isOpen, onClose, onSuccess }: LeadRea
 
           <div>
             <Label htmlFor="newUser">Nuevo Usuario Asignado</Label>
-            <Select 
-              value={selectedUserId} 
-              onValueChange={setSelectedUserId}
-              disabled={loadingUsers || reassignLoading}
-            >
-              <SelectTrigger>
-                <SelectValue
-                  placeholder={loadingUsers ? "Cargando usuarios..." : "Seleccionar usuario"}
-                />
-              </SelectTrigger>
-              <SelectContent>
-                {assignableUsers.map((user) => (
-                  <SelectItem key={user.id} value={user.id}>
-                    {user.name} ({user.email}) - {user.role}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <UserAssigneeSelect
+              value={selectedUserId}
+              users={assignableUsers}
+              loading={loadingUsers}
+              onSelect={setSelectedUserId}
+              placeholder={loadingUsers ? "Cargando usuarios..." : "Seleccionar usuario"}
+            />
           </div>
 
           <div>

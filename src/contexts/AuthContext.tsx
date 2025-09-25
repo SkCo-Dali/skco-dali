@@ -4,7 +4,7 @@ import { PublicClientApplication, InteractionRequiredAuthError, AccountInfo } fr
 import { msalConfig, loginRequest } from '@/authConfig';
 
 import { useToast } from '@/hooks/use-toast';
-import { TokenHeartbeatManager } from '@/components/TokenHeartbeatManager';
+import { SmartSessionManager } from '@/components/SmartSessionManager';
 import { SecureTokenManager } from '@/utils/secureTokenManager';
 import { useSessionManager } from '@/hooks/useSessionManager';
 
@@ -295,7 +295,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   return (
     <AuthContext.Provider value={value}>
-      <TokenHeartbeatManager />
+      <SmartSessionManager />
       {children}
     </AuthContext.Provider>
   );

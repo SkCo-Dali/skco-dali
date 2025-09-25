@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
+
 import { Lead, User } from "@/types/crm";
 import { useUsersApi } from "@/hooks/useUsersApi";
 import { useLeadAssignments } from "@/hooks/useLeadAssignments";
@@ -10,6 +11,8 @@ import { changeLeadStage } from "@/utils/leadsApiClient";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { getAssignableUsers, AssignableUser } from "@/utils/leadAssignmentApiClient";
+import { Search } from "lucide-react";
+import { LeadAssigneeSelect } from "@/components/LeadAssigneeSelect";
 
 interface EditableLeadCellProps {
   lead: Lead;
@@ -55,7 +58,6 @@ export function EditableLeadCell({ lead, field, onUpdate }: EditableLeadCellProp
   const [editValue, setEditValue] = useState('');
   const [assignableUsers, setAssignableUsers] = useState<AssignableUser[]>([]);
   const [loadingAssignableUsers, setLoadingAssignableUsers] = useState(false);
-
   // Load assignable users when component mounts
   useEffect(() => {
     const loadAssignableUsers = async () => {
@@ -268,27 +270,15 @@ export function EditableLeadCell({ lead, field, onUpdate }: EditableLeadCellProp
     // Use assignedToName directly from API, fallback to user lookup for editing
     const assignedUser = users.find(u => u.id === lead.assignedTo);
     const displayName = lead.assignedToName || assignedUser?.name || 'Sin asignar';
-    
+
     return (
-      <Select
+      <LeadAssigneeSelect
         value={lead.assignedTo || ""}
-        onValueChange={handleValueChange}
-        disabled={isUpdating || loadingAssignableUsers}
-      >
-        <SelectTrigger className="w-full border-none shadow-none p-2 h-8">
-          <span className="text-xs text-left">
-            {displayName}
-          </span>
-        </SelectTrigger>
-        <SelectContent className="bg-white z-50">
-          <SelectItem value="unassigned">Sin asignar</SelectItem>
-          {assignableUsers.map((user) => (
-            <SelectItem key={user.Id} value={user.Id}>
-              {user.Name} ({user.Role})
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
+        displayName={displayName}
+        users={assignableUsers}
+        loading={loadingAssignableUsers}
+        onSelect={handleValueChange}
+      />
     );
   }
 
