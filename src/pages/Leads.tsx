@@ -79,7 +79,14 @@ const DEFAULT_COLUMNS: ColumnConfig[] = [
 ];
 
 export default function Leads() {
-  const [viewMode, setViewMode] = useState<"table" | "columns">("table");
+  const isMobile = useIsMobile();
+  const isMedium = useIsMedium();
+  const isSmallScreen = isMobile || isMedium;
+  
+  // Set default view mode based on screen size
+  const [viewMode, setViewMode] = useState<"table" | "columns">(
+    isSmallScreen ? "columns" : "table"
+  );
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
   const [showBulkAssign, setShowBulkAssign] = useState(false);
   const [showUpload, setShowUpload] = useState(false);
@@ -94,9 +101,6 @@ export default function Leads() {
   const leadCreateDialogRef = useRef<{ openDialog: () => void }>(null);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 
-  const isMobile = useIsMobile();
-  const isMedium = useIsMedium();
-  const isSmallScreen = isMobile || isMedium;
   
   const { user } = useAuth();
   const userPermissions = user ? getRolePermissions(user.role) : null;
@@ -716,13 +720,13 @@ export default function Leads() {
                     </div>
                   )}
                   
-                    {/*<Button
+                  <Button
                     className="gap-1 w-8 h-8 bg-secondary"
                     onClick={handleViewModeToggle}
                     size="icon"
                   >
                     {getViewModeIcon()}
-                  </Button>*/}
+                  </Button>
                 </div>
               )}
             </div>
