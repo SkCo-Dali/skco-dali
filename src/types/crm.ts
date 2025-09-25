@@ -103,7 +103,7 @@ export const getRolePermissions = (role: UserRole): RolePermissions => {
         canSendEmail: true,
         canSendWhatsApp: true,
         canSendmassiveWhatsApp: false,
-        accessiblePages: ['leads', 'ChatDali','Opportunities']
+        accessiblePages: ['leads', 'ChatDali']
       };
     case 'fp':
       return {
@@ -121,7 +121,7 @@ export const getRolePermissions = (role: UserRole): RolePermissions => {
         canSendEmail: true,
         canSendWhatsApp: true,
         canSendmassiveWhatsApp: false,
-        accessiblePages: ['leads', 'ChatDali','Opportunities']
+        accessiblePages: ['leads', 'ChatDali']
       };
     case 'analista':
       return {
