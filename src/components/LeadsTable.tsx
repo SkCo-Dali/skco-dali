@@ -75,7 +75,7 @@ const defaultColumns: ColumnConfig[] = [
   { key: 'documentNumber', label: 'Número documento', visible: false, sortable: true },
   { key: 'product', label: 'Producto', visible: false, sortable: true },
   { key: 'source', label: 'Fuente', visible: false, sortable: true },
-  { key: 'tags', label: 'Tags', visible: false, sortable: true },
+  { Key: 'tags', label: 'Tags', visible: false, sortable: true },  
   { key: 'createdAt', label: 'Fecha creación', visible: true, sortable: true },
   { key: 'lastInteraction', label: 'Últ. interacción', visible: true, sortable: true },
   { key: 'nextFollowUp', label: 'Próximo seguimiento', visible: true, sortable: true },
@@ -659,6 +659,23 @@ Por favor, confirmar asistencia.`;
           <span className="text-gray-700 text-xs text-center">
             {lead.nextFollowUp ? formatBogotaDate(lead.nextFollowUp) : '-'}
           </span>
+             );
+      case 'tags':
+        return (
+          <div className="flex flex-wrap gap-1 justify-center max-w-[200px]">
+            {lead.tags && lead.tags.length > 0 ? (
+              lead.tags.map((tag, index) => (
+                <span
+                  key={index}
+                  className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-primary/10 text-primary border border-primary/20"
+                >
+                  {tag}
+                </span>
+              ))
+            ) : (
+              <span className="text-gray-400 text-xs">-</span>
+            )}
+          </div>
         );
       case 'tags':
         return (
