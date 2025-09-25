@@ -253,7 +253,7 @@ export function LeadsFilters({
                         placeholder="Buscar usuario..."
                         value={userSearch}
                         onChange={(e) => setUserSearch(e.target.value)}
-                        className="pl-8 h-6 text-xs"
+                        className="pl-2 h-6 text-xs"
                       />
                     </div>
                   </div>
@@ -300,7 +300,7 @@ export function LeadsFilters({
                         placeholder="Buscar fuente..."
                         value={sourceSearch}
                         onChange={(e) => setSourceSearch(e.target.value)}
-                        className="pl-8 h-6 text-xs"
+                        className="pl-2 h-6 text-xs"
                       />
                     </div>
                   </div>
@@ -347,7 +347,7 @@ export function LeadsFilters({
                         placeholder="Buscar campaña..."
                         value={campaignSearch}
                         onChange={(e) => setCampaignSearch(e.target.value)}
-                        className="pl-8 h-6 text-xs"
+                        className="pl-2 h-6 text-xs"
                       />
                     </div>
                   </div>
