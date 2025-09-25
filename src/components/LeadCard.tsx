@@ -34,13 +34,15 @@ const stageColors = {
   'Asignado': 'bg-yellow-100 text-yellow-800',
   'Localizado: No interesado': 'bg-red-100 text-red-800',
   'Localizado: Prospecto de venta FP': 'bg-green-100 text-green-800',
-  'Localizado: Prospecto de venta AD': 'bg-purple-100 text-purple-800',
+  'Localizado: Prospecto de venta AD': 'bg-green-100 text-green-800',
+  'Localizado: Prospecto de venta - Pendiente': 'bg-green-100 text-green-800',
   'Localizado: Volver a llamar': 'bg-orange-100 text-orange-800',
   'Localizado: No vuelve a contestar': 'bg-gray-100 text-gray-800',
   'No localizado: No contesta': 'bg-gray-100 text-gray-800',
   'No localizado: Número equivocado': 'bg-red-100 text-red-800',
   'Contrato Creado': 'bg-green-100 text-green-800',
   'Registro de Venta (fondeado)': 'bg-green-100 text-green-800',
+  'Repetido': 'bg-red-100 text-red-800'
 };
 
 export function LeadCard({ 
