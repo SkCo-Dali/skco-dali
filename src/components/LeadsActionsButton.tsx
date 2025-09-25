@@ -109,24 +109,13 @@ export function LeadsActionsButton({
             )}
           </DropdownMenuItem>
         )}
-        {permissions.canSendWhatsApp && (
+        {permissions.canSendmassiveWhatsApp && (
           <div className="p-1">
             <WhatsAppPropioButton
               leads={leads}
               userEmail={userEmail}
             />
           </div>
-        )}
-        {permissions.canSendWhatsApp && (
-          <DropdownMenuItem onClick={handleMassWhatsApp} className="cursor-pointer">
-            <MessageSquare className="h-4 w-4 mr-2 text-[#25D366]" />
-            Enviar WhatsApp con Sami
-            {selectedLeadsCount > 0 && (
-              <span className="ml-auto text-xs bg-green-100 text-green-800 px-1 py-0.5 rounded">
-                {selectedLeadsCount}
-              </span>
-            )}
-          </DropdownMenuItem>
         )}
         {permissions.canDelete && (
           <DropdownMenuItem 
