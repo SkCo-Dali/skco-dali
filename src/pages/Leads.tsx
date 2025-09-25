@@ -389,7 +389,23 @@ export default function Leads() {
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 pt-0">
               <h1 className="text-3xl font-bold mb-1 tracking-tight text-[#00c73d]">Gestión de Leads</h1>
               
-               
+               {isSmallScreen && userPermissions && user?.email && (
+                 <LeadsActionsButton
+                   onCreateLead={handleCreateLead}
+                   onBulkAssign={handleBulkAssign}
+                   onMassEmail={handleMassEmail}
+                   onMassWhatsApp={handleMassWhatsApp}
+                   onDeleteLeads={handleDeleteSelectedLeads}
+                   selectedLeadsCount={selectedLeads.length}
+                   isDeleting={isDeleting}
+                   permissions={userPermissions}
+                   leads={selectedLeads.length > 0 ? 
+                     filteredLeads.filter(lead => selectedLeads.includes(lead.id)) : 
+                     filteredLeads
+                   }
+                   userEmail={user.email}
+                 />
+               )}
             </div>
 
             {/* KPI Cards and Stage Summary */}
@@ -444,23 +460,6 @@ export default function Leads() {
                       <Trash className="h-4 w-4" />
                     </Button>
                   )}
-                  {isSmallScreen && userPermissions && user?.email && (
-                 <LeadsActionsButton
-                   onCreateLead={handleCreateLead}
-                   onBulkAssign={handleBulkAssign}
-                   onMassEmail={handleMassEmail}
-                   onMassWhatsApp={handleMassWhatsApp}
-                   onDeleteLeads={handleDeleteSelectedLeads}
-                   selectedLeadsCount={selectedLeads.length}
-                   isDeleting={isDeleting}
-                   permissions={userPermissions}
-                   leads={selectedLeads.length > 0 ? 
-                     filteredLeads.filter(lead => selectedLeads.includes(lead.id)) : 
-                     filteredLeads
-                   }
-                   userEmail={user.email}
-                 />
-               )}
                   <LeadsSearch 
                     searchTerm={searchTerm} 
                     onSearchChange={setSearchTerm} 
