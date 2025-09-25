@@ -24,7 +24,7 @@ export function LeadsStageCard({ leads }: LeadsStageCardProps) {
 
   // Preparar datos para el resumen
   const chartData = Object.entries(stageStats).map(([stage, count]) => ({
-    stage: stage.length > 15 ? `${stage.substring(0, 15)}...` : stage,
+    stage: stage,
     fullStage: stage,
     count,
     percentage: totalLeads > 0 ? ((count / totalLeads) * 100).toFixed(1) : '0'
@@ -57,8 +57,8 @@ export function LeadsStageCard({ leads }: LeadsStageCardProps) {
         <div className="space-y-2 text-sm px-0">
           <div className={`space-y-2 ${!isExpanded ? 'max-h-24 overflow-hidden' : 'max-h-40 overflow-y-auto'} transition-all duration-300`}>
             {(isExpanded ? chartData : chartData.slice(0, 3)).map((item) => (
-              <div key={item.fullStage} className="flex justify-between items-center">
-                <span className="truncate pr-1 text-xs text-muted-foreground" title={item.fullStage}>
+              <div key={item.fullStage} className="flex justify-between items-start gap-2">
+                <span className="text-xs text-muted-foreground flex-1 leading-tight">
                   {item.stage}
                 </span>
                 <span className="font-medium whitespace-nowrap text-xs">
