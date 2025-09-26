@@ -24,7 +24,7 @@ export function WhatsAppPropioButton({ leads, userEmail, disabled = false }: Wha
       <Button
         onClick={() => setIsOpen(true)}
         disabled={disabled || leads.length === 0}
-        className={isSmallOrMedium ? "gap-2 px-3 py-2 h-auto" : "gap-2 px-3 py-2 h-auto"}
+        className={isSmallOrMedium ? "h-8 w-8 gap-2 px-3 py-2 h-auto" : "h-8 w-8 gap-2 px-3 py-2 h-auto"}
         size={isSmallOrMedium ? "icon" : "icon"}
         variant={isSmallOrMedium ? "default" : "default"}
       >
