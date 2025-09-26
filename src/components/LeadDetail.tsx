@@ -887,12 +887,14 @@ Notas adicionales: ${lead.notes || 'Ninguna'}`;
                           { value: 'Localizado: No interesado', label: 'Localizado: No interesado' },
                           { value: 'Localizado: Prospecto de venta FP', label: 'Localizado: Prospecto de venta FP' },
                           { value: 'Localizado: Prospecto de venta AD', label: 'Localizado: Prospecto de venta AD' },
+                          { value: 'Localizado: Prospecto de venta - Pendiente', label: 'Localizado: Prospecto de venta - Pendiente' },
                           { value: 'Localizado: Volver a llamar', label: 'Localizado: Volver a llamar' },
                           { value: 'Localizado: No vuelve a contestar', label: 'Localizado: No vuelve a contestar' },
                           { value: 'No localizado: No contesta', label: 'No localizado: No contesta' },
                           { value: 'No localizado: Número equivocado', label: 'No localizado: Número equivocado' },
                           { value: 'Contrato Creado', label: 'Contrato Creado' },
-                          { value: 'Registro de Venta (fondeado)', label: 'Registro de Venta (fondeado)' }
+                          { value: 'Registro de Venta (fondeado)', label: 'Registro de Venta (fondeado)' },
+                          { value: 'Repetido', label: 'Repetido' }
                         ]}
                       />
                     

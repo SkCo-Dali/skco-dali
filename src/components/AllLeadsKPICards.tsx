@@ -23,7 +23,7 @@ export function AllLeadsKPICards({ leads }: AllLeadsKPICardsProps) {
   const registroVentaPercentage = totalLeads > 0 ? ((registroVenta / totalLeads) * 100).toFixed(1) : '0';
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4 mb-4">
+    <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-6 gap-4 mb-4">
       <KPICard
         title="Total de Leads"
         value={totalLeads.toLocaleString()}
@@ -58,7 +58,9 @@ export function AllLeadsKPICards({ leads }: AllLeadsKPICardsProps) {
         description="Leads con venta fondeada"
       />
       
-      <LeadsStageCard leads={leads} />
+      <div className="lg:col-span-2">
+        <LeadsStageCard leads={leads} />
+      </div>
     </div>
   );
 }

@@ -26,12 +26,14 @@ const stageOptions = [
   'Localizado: No interesado',
   'Localizado: Prospecto de venta FP',
   'Localizado: Prospecto de venta AD',
+  'Localizado: Prospecto de venta - Pendiente',
   'Localizado: Volver a llamar',
   'Localizado: No vuelve a contestar',
   'No localizado: No contesta',
   'No localizado: Número equivocado',
   'Contrato Creado',
-  'Registro de Venta (fondeado)'
+  'Registro de Venta (fondeado)',
+  'Repetido'
 ];
 
 const priorityOptions = [
