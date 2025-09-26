@@ -760,14 +760,16 @@ export default function Leads() {
               setSortDirection={setSortDirection}
             />
 
-                <LeadsPagination
-                  currentPage={currentPage}
-                  totalPages={totalPages}
-                  totalLeads={filteredLeads.length}
-                  leadsPerPage={leadsPerPage}
-                  onPageChange={setCurrentPage}
-                  onLeadsPerPageChange={setLeadsPerPage}
-                />
+                {viewMode === 'table' && (
+                  <LeadsPagination
+                    currentPage={currentPage}
+                    totalPages={totalPages}
+                    totalLeads={filteredLeads.length}
+                    leadsPerPage={leadsPerPage}
+                    onPageChange={setCurrentPage}
+                    onLeadsPerPageChange={setLeadsPerPage}
+                  />
+                )}
               </>
             )}
           </div>
