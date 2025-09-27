@@ -290,8 +290,8 @@ export const usePaginatedLeadsApi = () => {
 
   // Funciones para actualizar filtros
   const updateFilters = useCallback((newFilters: Partial<LeadsFiltersState>) => {
-    setFilters(prev => ({ ...prev, ...newFilters }));
     // Reiniciar a la primera página cuando cambian los filtros
+    // Solo loadLeads maneja setFilters para evitar bucles infinitos
     loadLeads(1, newFilters);
   }, [loadLeads]);
 
