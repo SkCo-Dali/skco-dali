@@ -97,7 +97,7 @@ export const getReassignableLeadsPaginated = async (params: LeadsApiParams): Pro
   qs.set("page_size", String(params.page_size ?? 50));
   if (params.sort_by) qs.set("sort_by", params.sort_by);
   if (params.sort_dir) qs.set("sort_dir", params.sort_dir);
-  if (params.filters) qs.set("filters", encodeURIComponent(JSON.stringify(params.filters)));
+  if (params.filters) qs.set("filters", JSON.stringify(params.filters));
   
   const endpoint = `/api/lead-assignments/reassignable?${qs.toString()}`;
   console.log('📡 Fetching paginated leads from:', endpoint);
@@ -121,7 +121,7 @@ export const getDistinctValues = async (params: DistinctValuesParams): Promise<D
   qs.set("field", params.field);
   if (params.search) qs.set("search", params.search);
   if (params.limit) qs.set("limit", String(params.limit));
-  if (params.filters) qs.set("filters", encodeURIComponent(JSON.stringify(params.filters)));
+  if (params.filters) qs.set("filters", JSON.stringify(params.filters));
   
   const endpoint = `/api/lead-assignments/distinct?${qs.toString()}`;
   console.log('📡 Fetching distinct values from:', endpoint);
