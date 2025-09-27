@@ -5,7 +5,6 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Checkbox } from "@/components/ui/checkbox";
 import { User, ChevronUp, ChevronDown, MoreVertical, Edit, Calendar, User as UserIcon, MessageCircle, Trash2, Mail, GripVertical } from "lucide-react";
 import { formatBogotaDate } from "@/utils/dateUtils";
-import { useUsersApi } from "@/hooks/useUsersApi";
 import { ColumnConfig } from "@/components/LeadsTableColumnSelector";
 import { EditableLeadCell } from "@/components/EditableLeadCell";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
@@ -266,7 +265,6 @@ export function LeadsTable({
   sortDirection,
   setSortDirection
 }: LeadsTableProps) {
-  const { users } = useUsersApi();
   const { toast } = useToast();
   // Removed local sortConfig - using unified sort from props
   const [leadsToDelete, setLeadsToDelete] = useState<Lead[]>([]);
@@ -494,8 +492,7 @@ Por favor, confirmar asistencia.`;
   };
 
   const renderCellContent = (lead: Lead, columnKey: string) => {
-    // Use assignedToName directly from API instead of looking up users
-    const assignedUser = users.find(u => u.id === lead.assignedTo);
+    // Use assignedToName directly from API response - no need for user lookup
 
     // Manejar columnas dinámicas de additionalInfo
     if (columnKey.startsWith('additionalInfo.')) {

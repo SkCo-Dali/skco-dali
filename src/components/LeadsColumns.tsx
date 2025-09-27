@@ -3,7 +3,6 @@ import { useState, useEffect } from "react";
 import { Lead } from "@/types/crm";
 import { LeadCard } from "@/components/LeadCard";
 import { Badge } from "@/components/ui/badge";
-import { useUsersApi } from "@/hooks/useUsersApi";
 
 interface LeadsColumnsProps {
   leads: Lead[];
@@ -14,7 +13,7 @@ interface LeadsColumnsProps {
 }
 
 export function LeadsColumns({ leads, onLeadClick, onLeadUpdate, onSendEmail, groupBy = "stage" }: LeadsColumnsProps) {
-  const { users } = useUsersApi();
+  // No need for users API - assignedToName comes directly from API response
 
   const priorityLabels = {
     'low': 'Baja',
@@ -84,9 +83,8 @@ export function LeadsColumns({ leads, onLeadClick, onLeadUpdate, onSendEmail, gr
           break;
         case 'assignedTo':
           key = lead.assignedTo;
-          // Use assignedToName directly from API or fallback to user lookup
-          const user = users.find(u => u.id === lead.assignedTo);
-          label = lead.assignedToName || user?.name || (lead.assignedTo ? `Usuario ${lead.assignedTo}` : 'Sin asignar');
+          // Use assignedToName directly from API response
+          label = lead.assignedToName || (lead.assignedTo ? `Usuario ${lead.assignedTo}` : 'Sin asignar');
           break;
         case 'campaign':
           key = lead.campaign;

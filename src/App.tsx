@@ -8,6 +8,7 @@ import { ThemeProvider } from "@/contexts/ThemeContext";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { NotificationProvider } from "@/contexts/NotificationContext";
 import { SimpleConversationProvider } from "@/contexts/SimpleConversationContext";
+import { AssignableUsersProvider } from "@/contexts/AssignableUsersContext";
 import { AppContent } from "@/components/AppContent";
 import "./App.css";
 
@@ -18,15 +19,17 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <ThemeProvider>
         <AuthProvider>
-          <SimpleConversationProvider>
-            <NotificationProvider>
-              <Router>
-                <AppContent />
-                <Toaster />
-                <SonnerToaster />
-              </Router>
-            </NotificationProvider>
-          </SimpleConversationProvider>
+          <AssignableUsersProvider>
+            <SimpleConversationProvider>
+              <NotificationProvider>
+                <Router>
+                  <AppContent />
+                  <Toaster />
+                  <SonnerToaster />
+                </Router>
+              </NotificationProvider>
+            </SimpleConversationProvider>
+          </AssignableUsersProvider>
         </AuthProvider>
       </ThemeProvider>
     </QueryClientProvider>

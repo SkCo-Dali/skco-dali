@@ -15,7 +15,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Calendar, MessageSquare, Phone, Mail, UserCheck, Clock, Tag, Building2, Globe, CreditCard, AlertCircle, History, UserPlus, Users, X, ChevronDown, Brain } from 'lucide-react';
 import { CustomFieldSelect } from '@/components/ui/custom-field-select';
-import { useUsersApi } from '@/hooks/useUsersApi';
+import { useAssignableUsers } from '@/contexts/AssignableUsersContext';
 import { useInteractionsApi } from '@/hooks/useInteractionsApi';
 import { useLeadAssignments } from '@/hooks/useLeadAssignments';
 import { useLeadsApi } from '@/hooks/useLeadsApi';
@@ -192,7 +192,7 @@ export function LeadDetail({ lead, isOpen, onClose, onSave, onOpenMassEmail }: L
   const [result, setResult] = useState('');
   const [managementNotes, setManagementNotes] = useState('');
   
-  const { users } = useUsersApi();
+  const { users } = useAssignableUsers();
   const { interactions, clientHistory, loading: interactionsLoading, loadLeadInteractions, loadClientHistory, createInteractionFromLead } = useInteractionsApi();
   const { updateExistingLead } = useLeadsApi();
   const { getLeadHistory } = useLeadAssignments();
@@ -517,8 +517,8 @@ export function LeadDetail({ lead, isOpen, onClose, onSave, onOpenMassEmail }: L
   };
 
   // Use assignedToName directly from API or fallback to user lookup
-  const assignedUser = users.find(user => user.id === editedLead.assignedTo);
-  const assignedUserName = editedLead.assignedToName || assignedUser?.name || 'Sin asignar';
+  const assignedUser = users.find(user => user.Id === editedLead.assignedTo);
+  const assignedUserName = editedLead.assignedToName || assignedUser?.Name || 'Sin asignar';
 
   // Add error boundary check
   if (!lead || !lead.id) {

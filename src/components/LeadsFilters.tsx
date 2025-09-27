@@ -8,7 +8,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { useUsersApi } from "@/hooks/useUsersApi";
+import { useAssignableUsers } from "@/contexts/AssignableUsersContext";
 import { useIsMobile, useIsMedium } from "@/hooks/use-mobile";
 import { FilterX, Search, Calendar as CalendarIcon } from "lucide-react";
 import { format } from "date-fns";
@@ -81,7 +81,7 @@ export function LeadsFilters({
   duplicateCount = 0,
   showClearButton = true
 }: LeadsFiltersProps) {
-  const { users } = useUsersApi();
+  const { users } = useAssignableUsers();
   const isMobile = useIsMobile();
   const isMedium = useIsMedium();
   const isSmallScreen = isMobile || isMedium;
@@ -149,7 +149,7 @@ export function LeadsFilters({
   );
 
   const filteredUsers = users.filter(user => 
-    user.name.toLowerCase().includes(userSearch.toLowerCase())
+    user.Name.toLowerCase().includes(userSearch.toLowerCase())
   );
 
   const filteredSources = uniqueSources.filter(source => 
@@ -259,14 +259,14 @@ export function LeadsFilters({
                   </div>
                   <ScrollArea className="h-32">
                     {filteredUsers.map((user) => (
-                      <div key={user.id} className="flex items-center space-x-2 px-2 py-1">
-                        <Checkbox
-                          id={`user-${user.id}`}
-                          checked={Array.isArray(filterAssignedTo) ? filterAssignedTo.includes(user.id) : filterAssignedTo === user.id}
-                          onCheckedChange={() => setFilterAssignedTo(handleMultiSelectValue(filterAssignedTo, user.id))}
-                        />
-                        <label htmlFor={`user-${user.id}`} className="text-sm cursor-pointer flex-1">
-                          {user.name}
+                       <div key={user.Id} className="flex items-center space-x-2 px-2 py-1">
+                         <Checkbox
+                           id={`user-${user.Id}`}
+                           checked={Array.isArray(filterAssignedTo) ? filterAssignedTo.includes(user.Id) : filterAssignedTo === user.Id}
+                           onCheckedChange={() => setFilterAssignedTo(handleMultiSelectValue(filterAssignedTo, user.Id))}
+                         />
+                         <label htmlFor={`user-${user.Id}`} className="text-sm cursor-pointer flex-1">
+                           {user.Name}
                         </label>
                       </div>
                     ))}

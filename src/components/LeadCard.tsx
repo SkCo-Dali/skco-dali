@@ -12,10 +12,8 @@ import {
 import { User, Mail, Edit, Trash2, MoreVertical, CircleUserRound, Smartphone, Users, Calendar } from "lucide-react";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
-import { useUsersApi } from "@/hooks/useUsersApi";
-import { MdOutlineCampaign } from "react-icons/md";
-import { useLeadDeletion } from "@/hooks/useLeadDeletion";
 import { LeadDeleteConfirmDialog } from "@/components/LeadDeleteConfirmDialog";
+import { useLeadDeletion } from "@/hooks/useLeadDeletion";
 import { useToast } from '@/hooks/use-toast';
 
 interface LeadCardProps {
@@ -55,10 +53,8 @@ export function LeadCard({
   onOpenProfiler,
   onLeadUpdate
 }: LeadCardProps) {
-  const { users } = useUsersApi();
-  // Use assignedToName directly from API or fallback to user lookup
-  const assignedUser = users.find(u => u.id === lead.assignedTo);
-  const assignedUserName = lead.assignedToName || assignedUser?.name || 'Sin asignar';
+  // Use assignedToName directly from API response - no need for user lookup
+  const assignedUserName = lead.assignedToName || 'Sin asignar';
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const { toast } = useToast();
   
