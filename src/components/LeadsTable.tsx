@@ -71,7 +71,7 @@ const defaultColumns: ColumnConfig[] = [
   { key: 'email', label: 'Email', visible: true, sortable: true },
   { key: 'phone', label: 'Teléfono', visible: true, sortable: false },
   { key: 'stage', label: 'Etapa', visible: true, sortable: true },
-  { key: 'assignedTo', label: 'Asignado a', visible: true, sortable: true },
+  { key: 'assignedToName', label: 'Asignado a', visible: true, sortable: true },
   { key: 'alternateEmail', label: 'Email Alternativo', visible: false, sortable: true },
   { key: 'lastGestorName', label: 'Últ Gestor Asignado', visible: false, sortable: true },
   { key: 'lastGestorInteractionAt', label: 'Últ Fecha de Interaccion Gestor', visible: false, sortable: true },
@@ -217,7 +217,7 @@ function SortableHeader({
           </div>
         )}
         {/* Use ServerSideColumnFilter for dropdown fields that need server-side distinct values */}
-        {['email', 'campaign', 'stage', 'assignedTo', 'source', 'product', 'priority'].includes(column.key) ? (
+        {['email', 'campaign', 'stage', 'assignedToName', 'source', 'product', 'priority'].includes(column.key) ? (
           <ServerSideColumnFilter
             field={column.key}
             label={column.label}
@@ -341,7 +341,8 @@ export function LeadsTable({
       'stage': 'Stage',
       'priority': 'Priority',
       'value': 'Value',
-      'assignedTo': 'AssignedToName',
+      'assignedTo': 'AssignedTo',
+      'assignedToName': 'AssignedToName',
       'createdAt': 'CreatedAt',
       'updatedAt': 'UpdatedAt',
       'nextFollowUp': 'NextFollowUp',
