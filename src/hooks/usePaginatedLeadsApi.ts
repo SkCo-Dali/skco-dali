@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { Lead, LeadStatus } from '@/types/crm';
 import { getReassignableLeadsPaginated, getDistinctValues } from '@/utils/leadAssignmentApiClient';
 import { LeadsApiParams, LeadsApiFilters, PaginatedLead, FilterCondition } from '@/types/paginatedLeadsTypes';
@@ -47,6 +47,10 @@ export const usePaginatedLeadsApi = () => {
   });
 
   const { user } = useAuth();
+
+  // Evitar solicitudes duplicadas con los mismos parámetros
+  const lastRequestKeyRef = useRef<string | null>(null);
+  const inFlightRef = useRef<boolean>(false);
 
   // Función para mapear PaginatedLead a Lead
   const mapPaginatedLeadToLead = (paginatedLead: PaginatedLead): Lead => {
@@ -221,24 +225,36 @@ export const usePaginatedLeadsApi = () => {
       return;
     }
 
+    // Construir parámetros actuales
+    const currentFilters = newFilters ? { ...filters, ...newFilters } : filters;
+    const currentPage = page || state.pagination.page;
+
+    const apiParams: LeadsApiParams = {
+      page: currentPage,
+      page_size: state.pagination.pageSize,
+      sort_by: mapColumnNameToApi(currentFilters.sortBy),
+      sort_dir: currentFilters.sortDirection,
+      filters: convertFiltersToApiFormat(currentFilters),
+    };
+
+    const requestKey = JSON.stringify(apiParams);
+
+    // Prevenir llamadas duplicadas
+    if (inFlightRef.current) {
+      console.log('⏳ Skipping paginated leads load: request already in flight');
+      return;
+    }
+    if (lastRequestKeyRef.current === requestKey) {
+      console.log('🛑 Skipping paginated leads load: params unchanged');
+      return;
+    }
+
+    inFlightRef.current = true;
     setState(prev => ({ ...prev, loading: true, error: null }));
 
     try {
-      const currentFilters = newFilters ? { ...filters, ...newFilters } : filters;
-      const currentPage = page || state.pagination.page;
-
-      const apiParams: LeadsApiParams = {
-        page: currentPage,
-        page_size: state.pagination.pageSize,
-        sort_by: mapColumnNameToApi(currentFilters.sortBy),
-        sort_dir: currentFilters.sortDirection,
-        filters: convertFiltersToApiFormat(currentFilters),
-      };
-
       console.log('🚀 Loading paginated leads with params:', apiParams);
-
       const response = await getReassignableLeadsPaginated(apiParams);
-      
       const mappedLeads = response.items.map(mapPaginatedLeadToLead);
 
       setState(prev => ({
@@ -253,9 +269,13 @@ export const usePaginatedLeadsApi = () => {
         },
       }));
 
+      // Persistir filtros si venían nuevos
       if (newFilters) {
         setFilters(prev => ({ ...prev, ...newFilters }));
       }
+
+      // Marcar como completada esta request con esta combinación de parámetros
+      lastRequestKeyRef.current = requestKey;
 
       console.log('✅ Paginated leads loaded successfully:', {
         leadsCount: mappedLeads.length,
@@ -268,6 +288,10 @@ export const usePaginatedLeadsApi = () => {
       console.error('❌ Error loading paginated leads:', err);
       const errorMessage = err instanceof Error ? err.message : 'Error al cargar leads';
       setState(prev => ({ ...prev, error: errorMessage, loading: false }));
+      // Permitir reintento en caso de error
+      lastRequestKeyRef.current = null;
+    } finally {
+      inFlightRef.current = false;
     }
   }, [user?.id, filters, state.pagination.page, state.pagination.pageSize, convertFiltersToApiFormat]);
 
