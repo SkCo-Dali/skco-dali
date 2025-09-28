@@ -44,13 +44,13 @@ export function AreasTab() {
     try {
       setLoading(true);
       
-      // Get access token
+      // Get access token - usar idToken para backend APIs
       const tokenData = await getAccessToken();
-      if (!tokenData?.accessToken) {
-        throw new Error('No access token available');
+      if (!tokenData?.idToken) {
+        throw new Error('No se pudo obtener el token de identificación');
       }
       
-      const data = await powerbiService.getAreas({}, tokenData.accessToken);
+      const data = await powerbiService.getAreas({}, tokenData.idToken);
       setAreas(data);
     } catch (error) {
       console.error('Error fetching areas:', error);
@@ -89,17 +89,17 @@ export function AreasTab() {
     try {
       setSaving(true);
       
-      // Get access token
+      // Get access token - usar idToken para backend APIs
       const tokenData = await getAccessToken();
-      if (!tokenData?.accessToken) {
-        throw new Error('No access token available');
+      if (!tokenData?.idToken) {
+        throw new Error('No se pudo obtener el token de identificación');
       }
       
       if (editingArea) {
         await powerbiService.updateArea(editingArea.id, {
           name: formData.name,
           isActive: formData.isActive
-        }, tokenData.accessToken);
+        }, tokenData.idToken);
         toast({
           title: "Éxito",
           description: "Área actualizada correctamente"
@@ -108,7 +108,7 @@ export function AreasTab() {
         await powerbiService.createArea({
           name: formData.name,
           isActive: formData.isActive
-        }, tokenData.accessToken);
+        }, tokenData.idToken);
         toast({
           title: "Éxito",
           description: "Área creada correctamente"
@@ -136,13 +136,13 @@ export function AreasTab() {
     }
 
     try {
-      // Get access token
+      // Get access token - usar idToken para backend APIs
       const tokenData = await getAccessToken();
-      if (!tokenData?.accessToken) {
-        throw new Error('No access token available');
+      if (!tokenData?.idToken) {
+        throw new Error('No se pudo obtener el token de identificación');
       }
 
-      await powerbiService.deleteArea(area.id, tokenData.accessToken);
+      await powerbiService.deleteArea(area.id, tokenData.idToken);
       toast({
         title: "Éxito",
         description: "Área eliminada correctamente"
@@ -160,15 +160,15 @@ export function AreasTab() {
 
   const handleToggleStatus = async (area: Area) => {
     try {
-      // Get access token
+      // Get access token - usar idToken para backend APIs
       const tokenData = await getAccessToken();
-      if (!tokenData?.accessToken) {
-        throw new Error('No access token available');
+      if (!tokenData?.idToken) {
+        throw new Error('No se pudo obtener el token de identificación');
       }
 
       await powerbiService.updateArea(area.id, {
         isActive: !area.isActive
-      }, tokenData.accessToken);
+      }, tokenData.idToken);
       toast({
         title: "Éxito",
         description: `Área ${!area.isActive ? 'activada' : 'desactivada'} correctamente`
