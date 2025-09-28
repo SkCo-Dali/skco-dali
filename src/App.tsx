@@ -19,17 +19,17 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <ThemeProvider>
         <AuthProvider>
-          <AssignableUsersProvider>
-            <SimpleConversationProvider>
-              <NotificationProvider>
+          <NotificationProvider>
+            <AssignableUsersProvider>
+              <SimpleConversationProvider>
                 <Router>
                   <AppContent />
                   <Toaster />
                   <SonnerToaster />
                 </Router>
-              </NotificationProvider>
-            </SimpleConversationProvider>
-          </AssignableUsersProvider>
+              </SimpleConversationProvider>
+            </AssignableUsersProvider>
+          </NotificationProvider>
         </AuthProvider>
       </ThemeProvider>
     </QueryClientProvider>

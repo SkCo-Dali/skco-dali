@@ -161,7 +161,11 @@ export default function Leads() {
   const setSearchTerm = (term: string) => handleSearchChange(term);
   const setSortBy = (sort: string) => handleSortChange(sort, sortDirection);
   const setSortDirection = (direction: 'asc' | 'desc') => handleSortChange(sortBy, direction);
-  const setCurrentPage = (page: number) => setPage(page);
+  const setCurrentPage = (page: number) => {
+    console.log(`📞 setCurrentPage called with page: ${page}, current: ${currentPage}`);
+    console.trace('setCurrentPage call stack');
+    setPage(page);
+  };
   const setLeadsPerPage = (size: number) => setPageSize(size);
   
   // Variables placeholder para componentes que las requieren (se actualizarán gradualmente)
@@ -272,6 +276,8 @@ export default function Leads() {
   }, [createNewLead, handleLeadUpdate]);
 
   const handleSortedLeadsChange = useCallback((sorted: Lead[]) => {
+    console.log(`📊 handleSortedLeadsChange called with ${sorted.length} leads`);
+    console.trace('handleSortedLeadsChange call stack');
     setSortedLeads(sorted);
     setCurrentPage(1);
   }, [setCurrentPage]);
