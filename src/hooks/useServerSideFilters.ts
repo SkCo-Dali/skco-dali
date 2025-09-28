@@ -148,6 +148,34 @@ export function useDistinctValues(field: string, currentFilters: LeadsApiFilters
   const debounceRef = useRef<NodeJS.Timeout>();
   const abortControllerRef = useRef<AbortController | null>(null);
 
+  // Map UI column names to API column names
+  const mapColumnNameToApi = (uiColumn: string): string => {
+    const mapping: Record<string, string> = {
+      'name': 'Name',
+      'email': 'Email',
+      'phone': 'Phone',
+      'company': 'Company',
+      'source': 'Source',
+      'campaign': 'Campaign',
+      'product': 'Product',
+      'stage': 'Stage',
+      'priority': 'Priority',
+      'value': 'Value',
+      'assignedTo': 'AssignedTo',
+      'createdAt': 'CreatedAt',
+      'updatedAt': 'UpdatedAt',
+      'nextFollowUp': 'NextFollowUp',
+      'notes': 'Notes',
+      'tags': 'Tags',
+      'alternateEmail': 'AlternateEmail',
+      'lastGestorName': 'LastGestorName',
+      'lastGestorInteractionAt': 'LastGestorInteractionAt',
+      'lastGestorInteractionStage': 'LastGestorInteractionStage',
+      'lastGestorInteractionDescription': 'LastGestorInteractionDescription',
+    };
+    return mapping[uiColumn] || uiColumn;
+  };
+
   const fetchValues = useCallback(async (search?: string) => {
     // Cancelar request anterior si existe
     if (abortControllerRef.current) {
@@ -159,8 +187,9 @@ export function useDistinctValues(field: string, currentFilters: LeadsApiFilters
     setError(null);
 
     try {
+      const apiField = mapColumnNameToApi(field);
       const result = await getDistinctValues({
-        field,
+        field: apiField,
         filters: currentFilters,
         search
       });
