@@ -161,7 +161,7 @@ export function useDistinctValues(field: string, currentFilters: LeadsApiFilters
       'stage': 'Stage',
       'priority': 'Priority',
       'value': 'Value',
-      'assignedTo': 'AssignedTo',
+      'assignedTo': 'AssignedToName',
       'createdAt': 'CreatedAt',
       'updatedAt': 'UpdatedAt',
       'nextFollowUp': 'NextFollowUp',
