@@ -7,6 +7,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Lead } from "@/types/crm";
 import { TextFilter, TextFilterCondition } from "@/components/TextFilter";
 import { DateFilter } from "@/components/DateFilter";
+import { useDistinctValues } from "@/hooks/useServerSideFilters";
 
 interface ColumnFilterProps {
   column: string;
@@ -17,7 +18,11 @@ interface ColumnFilterProps {
   onClearFilter?: (column: string) => void;
   currentFilters: string[];
   currentTextFilters: TextFilterCondition[];
+  // Entire table filters to build server-side distinct queries
+  tableColumnFilters?: Record<string, string[]>;
+  tableTextFilters?: Record<string, TextFilterCondition[]>;
 }
+
 
 export function ColumnFilter({ 
   column, 
@@ -27,7 +32,9 @@ export function ColumnFilter({
   onSortChange,
   onClearFilter,
   currentFilters,
-  currentTextFilters 
+  currentTextFilters,
+  tableColumnFilters = {},
+  tableTextFilters = {}
 }: ColumnFilterProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<'values' | 'text'>('values');
