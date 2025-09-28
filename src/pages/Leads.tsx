@@ -162,8 +162,11 @@ export default function Leads() {
   const setSortBy = (sort: string) => handleSortChange(sort, sortDirection);
   const setSortDirection = (direction: 'asc' | 'desc') => handleSortChange(sortBy, direction);
   const setCurrentPage = (page: number) => {
+    if (page === currentPage) {
+      // Avoid redundant pagination updates
+      return;
+    }
     console.log(`📞 setCurrentPage called with page: ${page}, current: ${currentPage}`);
-    console.trace('setCurrentPage call stack');
     setPage(page);
   };
   const setLeadsPerPage = (size: number) => setPageSize(size);
@@ -276,11 +279,11 @@ export default function Leads() {
   }, [createNewLead, handleLeadUpdate]);
 
   const handleSortedLeadsChange = useCallback((sorted: Lead[]) => {
-    console.log(`📊 handleSortedLeadsChange called with ${sorted.length} leads`);
-    console.trace('handleSortedLeadsChange call stack');
     setSortedLeads(sorted);
-    setCurrentPage(1);
-  }, [setCurrentPage]);
+    if (currentPage !== 1) {
+      setCurrentPage(1);
+    }
+  }, [currentPage, setCurrentPage]);
 
   const handleSendEmailToLead = useCallback((lead: Lead) => {
     setSelectedLeadForEmail(lead);
