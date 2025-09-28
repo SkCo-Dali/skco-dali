@@ -95,6 +95,10 @@ export function EditableLeadCell({ lead, field, onUpdate }: EditableLeadCellProp
             
             console.log(`✅ Lead ${lead.id} reassigned successfully, refreshing leads list...`);
             
+            // Actualizar el lead localmente para mostrar cambio inmediato
+            lead.assignedTo = assignedToValue;
+            lead.assignedToName = assignedName;
+            
             toast({
               title: "Éxito",
               description: `Lead reasignado exitosamente a ${assignedName}`,
@@ -113,6 +117,10 @@ export function EditableLeadCell({ lead, field, onUpdate }: EditableLeadCellProp
             const assignedName = assignedUser?.Name || 'Usuario desconocido';
             
             console.log(`✅ Lead ${lead.id} assigned successfully to ${assignedName}`);
+            
+            // Actualizar el lead localmente para mostrar cambio inmediato
+            lead.assignedTo = assignedToValue;
+            lead.assignedToName = assignedName;
             
             toast({
               title: "Éxito",

@@ -119,6 +119,7 @@ export default function Leads() {
   } = useLeadsApi();
 
   const handleLeadUpdate = useCallback(() => {
+    console.log('🔄 handleLeadUpdate called - refreshing leads...');
     refreshLeads();
     toast({
       title: "Éxito",

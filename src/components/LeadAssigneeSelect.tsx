@@ -79,19 +79,6 @@ export function LeadAssigneeSelect({ value, displayName, users, loading = false,
               {!query.trim() ? (
                 <ScrollArea className="h-48 pr-2">
                   <ul className="space-y-1">
-                    {users.length > 0 && (
-                      <li>
-                        <button
-                          type="button"
-                          className="w-full text-left px-2 py-1.5 rounded hover:bg-gray-100 text-xs flex items-center"
-                          onClick={() => handlePick("unassigned")}
-                        >
-                          <User className="h-3.5 w-3.5 mr-2" /> Sin asignar
-                          {value === "" && <Check className="h-3.5 w-3.5 ml-auto" />}
-                        </button>
-                      </li>
-                    )}
-
                     {users.map(u => (
                       <li key={u.Id}>
                         <button
@@ -113,19 +100,6 @@ export function LeadAssigneeSelect({ value, displayName, users, loading = false,
               ) : (
                 <ScrollArea className="h-48 pr-2">
                   <ul className="space-y-1">
-                    {showUnassigned && (
-                      <li>
-                        <button
-                          type="button"
-                          className="w-full text-left px-2 py-1.5 rounded hover:bg-gray-100 text-xs flex items-center"
-                          onClick={() => handlePick("unassigned")}
-                        >
-                          <User className="h-3.5 w-3.5 mr-2" /> Sin asignar
-                          {value === "" && <Check className="h-3.5 w-3.5 ml-auto" />}
-                        </button>
-                      </li>
-                    )}
-
                     {filtered.map(u => (
                       <li key={u.Id}>
                         <button
