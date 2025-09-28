@@ -295,26 +295,30 @@ export function LeadsTable({
     const apiFilters: LeadsApiFilters = {};
 
     // Convert column filters (dropdown selections)
-    Object.entries(columnFilters).forEach(([column, values]) => {
-      if (values.length > 0) {
-        // Map UI column names to API column names
-        const apiColumn = mapColumnNameToApi(column);
-        apiFilters[apiColumn] = {
-          op: 'in',
-          values
-        };
-      }
-    });
+    if (columnFilters) {
+      Object.entries(columnFilters).forEach(([column, values]) => {
+        if (values && values.length > 0) {
+          // Map UI column names to API column names
+          const apiColumn = mapColumnNameToApi(column);
+          apiFilters[apiColumn] = {
+            op: 'in',
+            values
+          };
+        }
+      });
+    }
 
     // Convert text filters
-    Object.entries(textFilters).forEach(([column, conditions]) => {
-      if (conditions.length > 0) {
-        const apiColumn = mapColumnNameToApi(column);
-        // Take the first condition for simplicity
-        const condition = conditions[0];
-        apiFilters[apiColumn] = convertTextConditionToApi(condition);
-      }
-    });
+    if (textFilters) {
+      Object.entries(textFilters).forEach(([column, conditions]) => {
+        if (conditions && conditions.length > 0) {
+          const apiColumn = mapColumnNameToApi(column);
+          // Take the first condition for simplicity
+          const condition = conditions[0];
+          apiFilters[apiColumn] = convertTextConditionToApi(condition);
+        }
+      });
+    }
 
     return apiFilters;
   }, [columnFilters, textFilters]);
