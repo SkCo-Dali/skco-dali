@@ -18,24 +18,44 @@ import {
   X
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
+import { checkEffectiveAccess } from '@/services/powerbiApiService';
+import { usePowerBIReport } from '@/hooks/usePowerBIReport';
 import { powerbiService } from '@/services/powerbiService';
-import { EffectiveReport, ReportPage, EmbedInfo } from '@/types/powerbi';
+import { EffectiveReport, ReportPage } from '@/types/powerbi';
 import { toast } from '@/hooks/use-toast';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 
 export default function ReportViewer() {
   const { reportId } = useParams();
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, getAccessToken } = useAuth();
   
   const [report, setReport] = useState<EffectiveReport | null>(null);
   const [pages, setPages] = useState<ReportPage[]>([]);
   const [activePage, setActivePage] = useState<string>('');
-  const [embedInfo, setEmbedInfo] = useState<EmbedInfo | null>(null);
   const [loading, setLoading] = useState(true);
   const [hasAccess, setHasAccess] = useState<boolean | null>(null);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [accessToken, setAccessToken] = useState<string>('');
+
+  // Power BI hook for embedding (only initialize when we have access and token)
+  const powerBIHook = usePowerBIReport({
+    reportId: reportId || '',
+    workspaceId: report?.workspaceId || '',
+    token: accessToken,
+    onError: (error) => {
+      console.error('Power BI Error:', error);
+      toast({
+        title: "Error en el reporte",
+        description: "Ha ocurrido un error al cargar el reporte Power BI",
+        variant: "destructive"
+      });
+    }
+  });
+
+  // Only use Power BI hook if we have access and all required data
+  const shouldUsePowerBI = hasAccess && accessToken && report?.workspaceId && reportId;
 
   // Fetch report data and validate access
   useEffect(() => {
@@ -51,11 +71,25 @@ export default function ReportViewer() {
     try {
       setLoading(true);
 
-      // First check if user has access to this report
-      const accessCheck = await powerbiService.checkReportAccess(reportId!);
-      setHasAccess(accessCheck);
+      // Get access token first
+      const tokenData = await getAccessToken();
+      if (!tokenData?.accessToken) {
+        toast({
+          title: "Error de autenticación",
+          description: "No se pudo obtener el token de acceso",
+          variant: "destructive"
+        });
+        navigate('/informes');
+        return;
+      }
 
-      if (!accessCheck) {
+      setAccessToken(tokenData.accessToken);
+
+      // Check if user has access to this report using real API
+      const hasAccessResult = await checkEffectiveAccess(reportId!, tokenData.accessToken);
+      setHasAccess(hasAccessResult);
+
+      if (!hasAccessResult) {
         toast({
           title: "Acceso denegado",
           description: "No tienes permisos para ver este reporte",
@@ -64,7 +98,7 @@ export default function ReportViewer() {
         return;
       }
 
-      // Get report details from user's effective reports
+      // Get report details from mock service (until backend API is ready)
       const myReports = await powerbiService.getMyReports();
       const reportDetails = myReports.find(r => r.reportId === reportId);
       
@@ -80,19 +114,12 @@ export default function ReportViewer() {
 
       setReport(reportDetails);
 
-      // Get report pages
+      // Get report pages (from mock service for now)
       const pagesData = await powerbiService.getReportPages(reportId!, reportDetails.workspaceId);
       setPages(pagesData);
       if (pagesData.length > 0) {
         setActivePage(pagesData[0].id);
       }
-
-      // Try to get embed info
-      const embedData = await powerbiService.getEmbedInfo(reportId!);
-      setEmbedInfo(embedData);
-
-      // Log audit event for viewing the report
-      await logAuditEvent('view');
 
     } catch (error) {
       console.error('Error fetching report data:', error);
@@ -106,36 +133,10 @@ export default function ReportViewer() {
     }
   };
 
-  // Log audit events
-  const logAuditEvent = async (action: 'view' | 'refresh' | 'page_change' | 'fullscreen' | 'export', extra?: any) => {
-    if (!report || !user) return;
-
-    try {
-      await powerbiService.logAudit({
-        reportId: report.reportId,
-        reportName: report.reportName,
-        userId: user.id,
-        userName: user.name,
-        userEmail: user.email,
-        action,
-        source: 'portal',
-        extra: extra ? JSON.stringify(extra) : undefined
-      });
-    } catch (error) {
-      console.error('Error logging audit event:', error);
-    }
-  };
-
   // Handle page change
   const handlePageChange = async (pageId: string, pageName: string) => {
     setActivePage(pageId);
     setSidebarOpen(false);
-    
-    await logAuditEvent('page_change', { 
-      previousPage: activePage, 
-      newPage: pageId,
-      pageName
-    });
     
     toast({
       title: "Página cambiada",
@@ -145,7 +146,9 @@ export default function ReportViewer() {
 
   // Handle refresh
   const handleRefresh = async () => {
-    await logAuditEvent('refresh');
+    if (shouldUsePowerBI) {
+      await powerBIHook.refreshReport();
+    }
     
     toast({
       title: "Reporte actualizado",
@@ -155,49 +158,47 @@ export default function ReportViewer() {
 
   // Handle fullscreen toggle
   const handleFullscreen = async () => {
-    const newFullscreenState = !isFullscreen;
-    setIsFullscreen(newFullscreenState);
-    
-    await logAuditEvent('fullscreen', { 
-      action: newFullscreenState ? 'enter' : 'exit' 
-    });
-
-    if (newFullscreenState) {
-      // Request fullscreen API if available
-      if (document.documentElement.requestFullscreen) {
-        try {
-          await document.documentElement.requestFullscreen();
-        } catch (error) {
-          console.log('Fullscreen API not available or denied');
-        }
-      }
-      
-      toast({
-        title: "Pantalla completa activada",
-        description: "Presiona ESC para salir",
-      });
+    if (shouldUsePowerBI) {
+      await powerBIHook.toggleFullscreen();
     } else {
-      // Exit fullscreen API if available
-      if (document.exitFullscreen) {
-        try {
-          await document.exitFullscreen();
-        } catch (error) {
-          console.log('Exit fullscreen API not available');
+      // Fallback for non-Power BI reports
+      const newFullscreenState = !isFullscreen;
+      setIsFullscreen(newFullscreenState);
+
+      if (newFullscreenState) {
+        if (document.documentElement.requestFullscreen) {
+          try {
+            await document.documentElement.requestFullscreen();
+          } catch (error) {
+            console.log('Fullscreen API not available or denied');
+          }
         }
+        
+        toast({
+          title: "Pantalla completa activada",
+          description: "Presiona ESC para salir",
+        });
+      } else {
+        if (document.exitFullscreen) {
+          try {
+            await document.exitFullscreen();
+          } catch (error) {
+            console.log('Exit fullscreen API not available');
+          }
+        }
+        
+        toast({
+          title: "Pantalla completa desactivada",
+        });
       }
-      
-      toast({
-        title: "Pantalla completa desactivada",
-      });
     }
   };
 
   // Handle export
   const handleExport = async () => {
-    await logAuditEvent('export', { 
-      format: 'pdf',
-      activePage 
-    });
+    if (shouldUsePowerBI) {
+      await powerBIHook.exportReport();
+    }
     
     toast({
       title: "Exportación iniciada",
@@ -403,45 +404,82 @@ export default function ReportViewer() {
           <Card className="w-full h-full">
             <CardContent className="p-0 h-full">
               <div className="w-full h-full">
-                {embedInfo && embedInfo.embedUrl ? (
-                  // TODO: Replace with actual Power BI embedded component
-                  <iframe
-                    title={`${report.reportName} - ${pages.find(p => p.id === activePage)?.displayName || 'Vista Principal'}`}
-                    width="100%"
-                    height="100%"
-                    src={`${embedInfo.embedUrl}&pageId=${activePage}&uid=${encodeURIComponent(user?.email || '')}`}
-                    frameBorder="0"
-                    allowFullScreen={true}
-                    allow="fullscreen"
-                    className="rounded-lg"
-                  />
-                ) : report.webUrl ? (
-                  // Placeholder with web URL option
+                {shouldUsePowerBI ? (
+                  // Real Power BI embedded report
+                  <div className="w-full h-full">
+                    {powerBIHook.status === 'loading' && (
+                      <div className="w-full h-full flex items-center justify-center bg-muted/20 rounded-lg">
+                        <div className="text-center">
+                          <Loader2 className="h-8 w-8 animate-spin text-primary mx-auto mb-4" />
+                          <p className="text-muted-foreground">Cargando reporte Power BI...</p>
+                        </div>
+                      </div>
+                    )}
+                    
+                    {powerBIHook.status === 'error' && (
+                      <div className="w-full h-full flex items-center justify-center bg-muted/20 rounded-lg border-2 border-dashed border-destructive/20">
+                        <div className="text-center">
+                          <AlertCircle className="h-16 w-16 mx-auto mb-4 text-destructive" />
+                          <h3 className="text-lg font-medium mb-2">Error al cargar el reporte</h3>
+                          <p className="text-muted-foreground mb-4">
+                            {powerBIHook.error?.message || 'Ha ocurrido un error inesperado'}
+                          </p>
+                          <Button onClick={powerBIHook.reinitialize} variant="outline">
+                            <RefreshCw className="h-4 w-4 mr-2" />
+                            Reintentar
+                          </Button>
+                        </div>
+                      </div>
+                    )}
+
+                    {powerBIHook.status === 'expired' && (
+                      <div className="w-full h-full flex items-center justify-center bg-muted/20 rounded-lg border-2 border-dashed border-muted-foreground/20">
+                        <div className="text-center">
+                          <AlertCircle className="h-16 w-16 mx-auto mb-4 text-muted-foreground" />
+                          <h3 className="text-lg font-medium mb-2">Sesión expirada</h3>
+                          <p className="text-muted-foreground mb-4">
+                            La sesión de Power BI ha expirado. Recarga la página para continuar.
+                          </p>
+                          <Button onClick={() => window.location.reload()} variant="outline">
+                            <RefreshCw className="h-4 w-4 mr-2" />
+                            Recargar página
+                          </Button>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Power BI Container */}
+                    <div 
+                      ref={powerBIHook.containerRef} 
+                      className="w-full h-full rounded-lg overflow-hidden"
+                      style={{ 
+                        minHeight: '600px',
+                        display: powerBIHook.status === 'ready' ? 'block' : 'none'
+                      }}
+                    />
+                  </div>
+                ) : report?.webUrl ? (
+                  // Placeholder with web URL option (fallback)
                   <div className="w-full h-full bg-muted/20 rounded-lg flex items-center justify-center border-2 border-dashed border-muted-foreground/20">
                     <div className="text-center">
                       <FileBarChart className="h-16 w-16 mx-auto mb-4 text-muted-foreground" />
-                      <h3 className="text-lg font-medium mb-2">Próximamente integración Embedded</h3>
+                      <h3 className="text-lg font-medium mb-2">Configurando conexión</h3>
                       <p className="text-muted-foreground mb-4 max-w-md">
-                        Por ahora, puedes abrir el reporte en una nueva pestaña. 
-                        La integración de Power BI Embedded estará disponible pronto.
+                        Estableciendo conexión con Power BI. Si el problema persiste, 
+                        puedes abrir el reporte en una nueva pestaña.
                       </p>
                       <Button
                         onClick={() => window.open(report.webUrl, '_blank')}
                         className="mb-4"
                       >
                         <ExternalLink className="h-4 w-4 mr-2" />
-                        Abrir en nueva pestaña (temporal)
+                        Abrir en nueva pestaña
                       </Button>
                       {activePage && (
                         <div className="text-sm text-muted-foreground">
                           Página activa: {pages.find(p => p.id === activePage)?.displayName}
                         </div>
                       )}
-                      <div className="text-xs text-muted-foreground mt-4 space-y-1">
-                        <p>Report ID: {report.reportId}</p>
-                        <p>Workspace: {report.workspaceId}</p>
-                        <p>Usuario: {user?.email}</p>
-                      </div>
                     </div>
                   </div>
                 ) : (
