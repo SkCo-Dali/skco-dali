@@ -6,7 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
 import { X, Plus, Search, Users } from 'lucide-react';
-import { PowerBIReport } from './PowerBIReportsAdmin';
+import { Report } from '@/types/powerbi';
 import { User } from '@/types/crm';
 
 interface ManageReportAssignmentsDialogProps {

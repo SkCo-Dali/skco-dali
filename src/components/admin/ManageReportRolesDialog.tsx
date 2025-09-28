@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { X, Plus } from 'lucide-react';
-import { PowerBIReport } from './PowerBIReportsAdmin';
+import { Report } from '@/types/powerbi';
 import { roles } from '@/utils/userRoleUtils';
 
 interface ManageReportRolesDialogProps {

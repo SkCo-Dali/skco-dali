@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
-import { PowerBIReport } from './PowerBIReportsAdmin';
+import { Report } from '@/types/powerbi';
 
 interface CreateReportDialogProps {
   open: boolean;
