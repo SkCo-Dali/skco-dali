@@ -304,7 +304,7 @@ export const usePaginatedLeadsApi = () => {
       const response = await getDistinctValues({
         field: apiField,
         search,
-        limit: 100,
+        // No limit - get all values from database
         filters: convertFiltersToApiFormat(filters),
       });
       return response.values;
