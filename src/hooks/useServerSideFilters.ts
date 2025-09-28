@@ -143,6 +143,7 @@ export function useDistinctValues(field: string, currentFilters: LeadsApiFilters
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
+  const [hasInitialized, setHasInitialized] = useState(false);
   
   const debounceRef = useRef<NodeJS.Timeout>();
   const abortControllerRef = useRef<AbortController | null>(null);
@@ -176,13 +177,18 @@ export function useDistinctValues(field: string, currentFilters: LeadsApiFilters
     }
   }, [field, currentFilters]);
 
-  // Efecto para cargar valores iniciales
-  useEffect(() => {
-    fetchValues();
-  }, [fetchValues]);
+  // Función para inicializar manualmente
+  const initialize = useCallback(() => {
+    if (!hasInitialized) {
+      setHasInitialized(true);
+      fetchValues();
+    }
+  }, [hasInitialized, fetchValues]);
 
-  // Efecto para manejar debounce en búsqueda
+  // Efecto para manejar debounce en búsqueda solo después de inicializar
   useEffect(() => {
+    if (!hasInitialized) return;
+
     if (debounceRef.current) {
       clearTimeout(debounceRef.current);
     }
@@ -196,7 +202,7 @@ export function useDistinctValues(field: string, currentFilters: LeadsApiFilters
         clearTimeout(debounceRef.current);
       }
     };
-  }, [searchTerm, fetchValues]);
+  }, [searchTerm, fetchValues, hasInitialized]);
 
   // Cleanup al desmontar
   useEffect(() => {
@@ -216,6 +222,8 @@ export function useDistinctValues(field: string, currentFilters: LeadsApiFilters
     error,
     searchTerm,
     setSearchTerm,
+    initialize,
+    hasInitialized,
     refetch: () => fetchValues(searchTerm || undefined)
   };
 }

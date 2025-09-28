@@ -32,7 +32,9 @@ export function ServerSideColumnFilter({
     loading,
     error,
     searchTerm,
-    setSearchTerm
+    setSearchTerm,
+    initialize,
+    hasInitialized
   } = useDistinctValues(field, currentFilters);
 
   // Obtener valores actualmente seleccionados del filtro
@@ -86,6 +88,13 @@ export function ServerSideColumnFilter({
     onFilterChange(field, selectedValues);
     setIsOpen(false);
   };
+
+  // Inicializar valores cuando se abre el popover por primera vez
+  useEffect(() => {
+    if (isOpen && !hasInitialized) {
+      initialize();
+    }
+  }, [isOpen, hasInitialized, initialize]);
 
   const isAllSelected = filteredValues.length > 0 && 
     filteredValues.every(value => selectedValues.includes(value));
