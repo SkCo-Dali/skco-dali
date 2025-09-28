@@ -49,14 +49,10 @@ export function ServerSideColumnFilter({
     setSelectedValues(currentSelectedValues);
   }, [currentSelectedValues]);
 
-  // Valores filtrados por búsqueda local (además de la búsqueda server-side)
+  // Los valores ya vienen filtrados del servidor, no necesitamos filtro local adicional
   const filteredValues = useMemo(() => {
-    const stringValues = uniqueValues.map(v => String(v || ''));
-    if (!searchTerm) return stringValues;
-    return stringValues.filter(value => 
-      value && value.toLowerCase().includes(searchTerm.toLowerCase())
-    );
-  }, [uniqueValues, searchTerm]);
+    return uniqueValues.map(v => String(v || ''));
+  }, [uniqueValues]);
 
   const handleSelectAll = (checked: boolean) => {
     if (checked) {
