@@ -12,7 +12,7 @@ import { User } from '@/types/crm';
 interface ManageReportAssignmentsDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  report: PowerBIReport;
+  report: Report;
   onUpdateAssignments: (assignedUsers: string[]) => void;
 }
 
@@ -30,7 +30,7 @@ export function ManageReportAssignmentsDialog({
 
   useEffect(() => {
     if (report) {
-      setAssignedUsers(report.assignedUsers || []);
+      setAssignedUsers([]); // TODO: Fetch from access management API
       fetchAvailableUsers();
     }
   }, [report]);

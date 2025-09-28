@@ -11,7 +11,7 @@ import { roles } from '@/utils/userRoleUtils';
 interface ManageReportRolesDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  report: PowerBIReport;
+  report: Report;
   onUpdateRoles: (roles: string[]) => void;
 }
 
@@ -26,7 +26,7 @@ export function ManageReportRolesDialog({
 
   useEffect(() => {
     if (report) {
-      setReportRoles(report.roles || []);
+      setReportRoles([]); // TODO: Fetch from roles management API
     }
   }, [report]);
 

@@ -10,18 +10,18 @@ import { Report } from '@/types/powerbi';
 interface EditReportDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  report: PowerBIReport;
-  onEditReport: (report: PowerBIReport) => void;
+  report: Report;
+  onEditReport: (report: Report) => void;
 }
 
 export function EditReportDialog({ open, onOpenChange, report, onEditReport }: EditReportDialogProps) {
   const [formData, setFormData] = useState({
     name: '',
     description: '',
-    reportId: '',
+    pbiReportId: '',
     workspaceId: '',
     isActive: true,
-    requiresRLS: false
+    hasRowLevelSecurity: false
   });
 
   useEffect(() => {
@@ -29,10 +29,10 @@ export function EditReportDialog({ open, onOpenChange, report, onEditReport }: E
       setFormData({
         name: report.name,
         description: report.description || '',
-        reportId: report.reportId,
+        pbiReportId: report.pbiReportId || '',
         workspaceId: report.workspaceId || '',
         isActive: report.isActive,
-        requiresRLS: report.requiresRLS
+        hasRowLevelSecurity: report.hasRowLevelSecurity
       });
     }
   }, [report]);
@@ -40,17 +40,13 @@ export function EditReportDialog({ open, onOpenChange, report, onEditReport }: E
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!formData.name.trim() || !formData.reportId.trim() || !formData.workspaceId.trim()) {
+    if (!formData.name.trim() || !formData.pbiReportId.trim() || !formData.workspaceId.trim()) {
       return;
     }
 
-    // Build embed URL automatically
-    const embedUrl = `https://app.powerbi.com/reportEmbed?reportId=${formData.reportId}&groupId=${formData.workspaceId}`;
-
     onEditReport({
       ...report,
-      ...formData,
-      embedUrl
+      ...formData
     });
   };
 
@@ -75,11 +71,11 @@ export function EditReportDialog({ open, onOpenChange, report, onEditReport }: E
             </div>
             
             <div className="space-y-2">
-              <Label htmlFor="reportId">Report ID *</Label>
+              <Label htmlFor="pbiReportId">Power BI Report ID *</Label>
               <Input
-                id="reportId"
-                value={formData.reportId}
-                onChange={(e) => setFormData(prev => ({ ...prev, reportId: e.target.value }))}
+                id="pbiReportId"
+                value={formData.pbiReportId}
+                onChange={(e) => setFormData(prev => ({ ...prev, pbiReportId: e.target.value }))}
                 placeholder="GUID del reporte en Power BI"
                 required
               />
@@ -124,15 +120,15 @@ export function EditReportDialog({ open, onOpenChange, report, onEditReport }: E
 
           <div className="flex items-center justify-between p-4 border rounded-xl">
             <div className="space-y-1">
-              <Label htmlFor="requiresRLS">Requiere Row Level Security</Label>
+              <Label htmlFor="hasRowLevelSecurity">Requiere Row Level Security</Label>
               <p className="text-sm text-muted-foreground">
                 El reporte utiliza RLS para filtrar datos por usuario
               </p>
             </div>
             <Switch
-              id="requiresRLS"
-              checked={formData.requiresRLS}
-              onCheckedChange={(checked) => setFormData(prev => ({ ...prev, requiresRLS: checked }))}
+              id="hasRowLevelSecurity"
+              checked={formData.hasRowLevelSecurity}
+              onCheckedChange={(checked) => setFormData(prev => ({ ...prev, hasRowLevelSecurity: checked }))}
             />
           </div>
 
