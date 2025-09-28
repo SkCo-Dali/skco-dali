@@ -42,7 +42,7 @@ interface InformesState {
 }
 
 export default function Informes() {
-  const { user } = useAuth();
+  const { user, getAccessToken } = useAuth();
   const navigate = useNavigate();
   const hasAdminRole = useHasRole('admin', 'seguridad');
   
@@ -65,15 +65,21 @@ export default function Informes() {
     try {
       setState(prev => ({ ...prev, loading: true }));
       
+      // Get access token
+      const tokenData = await getAccessToken();
+      if (!tokenData?.accessToken) {
+        throw new Error('No access token available');
+      }
+      
       const [reportsData, areasData, workspacesData, favoritesData] = await Promise.all([
         powerbiService.getMyReports({
           search: state.searchTerm || undefined,
           areaId: state.selectedArea || undefined,
           workspaceId: state.selectedWorkspace || undefined
-        }),
-        powerbiService.getAreas(),
-        powerbiService.getWorkspaces(),
-        powerbiService.getFavorites()
+        }, tokenData.accessToken),
+        powerbiService.getAreas({}, tokenData.accessToken),
+        powerbiService.getWorkspaces({}, tokenData.accessToken),
+        powerbiService.getFavorites({}, tokenData.accessToken)
       ]);
 
       // Update isFavorite flag on reports
@@ -150,7 +156,13 @@ export default function Informes() {
   // Handle favorite toggle
   const handleFavoriteToggle = async (reportId: string) => {
     try {
-      const newIsFavorite = await powerbiService.toggleFavorite(reportId);
+      // Get access token
+      const tokenData = await getAccessToken();
+      if (!tokenData?.accessToken) {
+        throw new Error('No access token available');
+      }
+
+      const newIsFavorite = await powerbiService.toggleFavorite(reportId, tokenData.accessToken);
       
       setState(prev => ({
         ...prev,

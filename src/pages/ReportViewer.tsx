@@ -98,8 +98,8 @@ export default function ReportViewer() {
         return;
       }
 
-      // Get report details from mock service (until backend API is ready)
-      const myReports = await powerbiService.getMyReports();
+      // Get report details from API
+      const myReports = await powerbiService.getMyReports({}, tokenData.accessToken);
       const reportDetails = myReports.find(r => r.reportId === reportId);
       
       if (!reportDetails) {
@@ -114,8 +114,8 @@ export default function ReportViewer() {
 
       setReport(reportDetails);
 
-      // Get report pages (from mock service for now)
-      const pagesData = await powerbiService.getReportPages(reportId!, reportDetails.workspaceId);
+      // Get report pages
+      const pagesData = await powerbiService.getReportPages(reportId!, reportDetails.workspaceId, tokenData.accessToken);
       setPages(pagesData);
       if (pagesData.length > 0) {
         setActivePage(pagesData[0].id);

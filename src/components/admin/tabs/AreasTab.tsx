@@ -41,7 +41,14 @@ export function AreasTab() {
   const fetchAreas = async () => {
     try {
       setLoading(true);
-      const data = await powerbiService.getAllAreas();
+      
+      // Get access token
+      const tokenData = await getAccessToken();
+      if (!tokenData?.accessToken) {
+        throw new Error('No access token available');
+      }
+      
+      const data = await powerbiService.getAreas({}, tokenData.accessToken);
       setAreas(data);
     } catch (error) {
       console.error('Error fetching areas:', error);
