@@ -25,6 +25,7 @@ export interface PaginatedLead {
   Priority: string;
   Value: string;
   AssignedTo: string;
+  AssignedToName: string | null;
   CreatedAt: string;
   UpdatedAt: string;
   NextFollowUp: string | null;

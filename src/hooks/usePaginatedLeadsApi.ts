@@ -97,7 +97,7 @@ export const usePaginatedLeadsApi = () => {
       priority: paginatedLead.Priority,
       value: parseFloat(paginatedLead.Value) || 0,
       assignedTo: paginatedLead.AssignedTo,
-      assignedToName: paginatedLead.LastGestorName, // Usar nombre del último gestor
+      assignedToName: paginatedLead.AssignedToName, // Usar nombre del usuario asignado
       createdBy: paginatedLead.CreatedBy,
       createdAt: paginatedLead.CreatedAt,
       updatedAt: paginatedLead.UpdatedAt,
