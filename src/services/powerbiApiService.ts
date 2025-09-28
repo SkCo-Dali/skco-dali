@@ -198,19 +198,37 @@ export async function getMyReports(token: string, params?: {
 }
 
 export async function checkEffectiveAccess(reportId: string, token: string): Promise<boolean> {
-  const response = await fetch(`${ENV.CRM_API_BASE_URL}/api/reports/effective/check?report_id=${reportId}`, {
+  const url = `${ENV.CRM_API_BASE_URL}/api/reports/effective/check?report_id=${reportId}`;
+  const headers = {
+    'Authorization': `Bearer ${token}`
+  };
+
+  console.log('🔄 [PowerBI API] checkEffectiveAccess Request:', {
+    url,
     method: 'GET',
-    headers: {
-      'Authorization': `Bearer ${token}`
-    },
+    headers: { Authorization: `Bearer ${token.substring(0, 20)}...` },
+    reportId
+  });
+
+  const response = await fetch(url, {
+    method: 'GET',
+    headers,
+  });
+
+  console.log('📡 [PowerBI API] checkEffectiveAccess Response:', {
+    status: response.status,
+    statusText: response.statusText,
+    ok: response.ok
   });
 
   if (!response.ok) {
     const errorText = await response.text();
+    console.error('❌ [PowerBI API] checkEffectiveAccess Error:', errorText);
     throw new Error(`Failed to check access: ${errorText}`);
   }
 
   const data: EffectiveAccessResponse = await response.json();
+  console.log('✅ [PowerBI API] checkEffectiveAccess Success:', data);
   return data.hasAccess;
 }
 
@@ -226,19 +244,39 @@ export async function getEffectiveReportUsers(reportId: string, token: string, p
   if (params?.page) searchParams.set('page', params.page.toString());
   if (params?.pageSize) searchParams.set('page_size', params.pageSize.toString());
 
-  const response = await fetch(`${ENV.CRM_API_BASE_URL}/api/reports/effective/reports/${reportId}/users?${searchParams}`, {
+  const url = `${ENV.CRM_API_BASE_URL}/api/reports/effective/reports/${reportId}/users?${searchParams}`;
+  const headers = {
+    'Authorization': `Bearer ${token}`
+  };
+
+  console.log('🔄 [PowerBI API] getEffectiveReportUsers Request:', {
+    url,
     method: 'GET',
-    headers: {
-      'Authorization': `Bearer ${token}`
-    },
+    headers: { Authorization: `Bearer ${token.substring(0, 20)}...` },
+    reportId,
+    params
+  });
+
+  const response = await fetch(url, {
+    method: 'GET',
+    headers,
+  });
+
+  console.log('📡 [PowerBI API] getEffectiveReportUsers Response:', {
+    status: response.status,
+    statusText: response.statusText,
+    ok: response.ok
   });
 
   if (!response.ok) {
     const errorText = await response.text();
+    console.error('❌ [PowerBI API] getEffectiveReportUsers Error:', errorText);
     throw new Error(`Failed to fetch effective report users: ${errorText}`);
   }
 
-  return response.json();
+  const result = await response.json();
+  console.log('✅ [PowerBI API] getEffectiveReportUsers Success:', result);
+  return result;
 }
 
 // Favorites API Functions
@@ -258,67 +296,143 @@ export async function getFavorites(token: string, params?: {
   if (params?.page) searchParams.set('page', params.page.toString());
   if (params?.pageSize) searchParams.set('page_size', params.pageSize.toString());
 
-  const response = await fetch(`${ENV.CRM_API_BASE_URL}/api/reports/favorites?${searchParams}`, {
+  const url = `${ENV.CRM_API_BASE_URL}/api/reports/favorites?${searchParams}`;
+  const headers = {
+    'Authorization': `Bearer ${token}`
+  };
+
+  console.log('🔄 [PowerBI API] getFavorites Request:', {
+    url,
     method: 'GET',
-    headers: {
-      'Authorization': `Bearer ${token}`
-    },
+    headers: { Authorization: `Bearer ${token.substring(0, 20)}...` },
+    params
+  });
+
+  const response = await fetch(url, {
+    method: 'GET',
+    headers,
+  });
+
+  console.log('📡 [PowerBI API] getFavorites Response:', {
+    status: response.status,
+    statusText: response.statusText,
+    ok: response.ok
   });
 
   if (!response.ok) {
     const errorText = await response.text();
+    console.error('❌ [PowerBI API] getFavorites Error:', errorText);
     throw new Error(`Failed to fetch favorites: ${errorText}`);
   }
 
-  return response.json();
+  const result = await response.json();
+  console.log('✅ [PowerBI API] getFavorites Success:', result);
+  return result;
 }
 
 export async function addFavorite(reportId: string, token: string): Promise<FavoriteResponse> {
-  const response = await fetch(`${ENV.CRM_API_BASE_URL}/api/reports/favorites`, {
+  const url = `${ENV.CRM_API_BASE_URL}/api/reports/favorites`;
+  const headers = {
+    'Content-Type': 'application/json',
+    'Authorization': `Bearer ${token}`
+  };
+  const body = JSON.stringify({ reportId });
+
+  console.log('🔄 [PowerBI API] addFavorite Request:', {
+    url,
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${token}`
-    },
-    body: JSON.stringify({ reportId }),
+    headers: { ...headers, Authorization: `Bearer ${token.substring(0, 20)}...` },
+    body: { reportId }
+  });
+
+  const response = await fetch(url, {
+    method: 'POST',
+    headers,
+    body,
+  });
+
+  console.log('📡 [PowerBI API] addFavorite Response:', {
+    status: response.status,
+    statusText: response.statusText,
+    ok: response.ok
   });
 
   if (!response.ok) {
     const errorText = await response.text();
+    console.error('❌ [PowerBI API] addFavorite Error:', errorText);
     throw new Error(`Failed to add favorite: ${errorText}`);
   }
 
-  return response.json();
+  const result = await response.json();
+  console.log('✅ [PowerBI API] addFavorite Success:', result);
+  return result;
 }
 
 export async function removeFavorite(reportId: string, token: string): Promise<void> {
-  const response = await fetch(`${ENV.CRM_API_BASE_URL}/api/reports/favorites/${reportId}`, {
+  const url = `${ENV.CRM_API_BASE_URL}/api/reports/favorites/${reportId}`;
+  const headers = {
+    'Authorization': `Bearer ${token}`
+  };
+
+  console.log('🔄 [PowerBI API] removeFavorite Request:', {
+    url,
     method: 'DELETE',
-    headers: {
-      'Authorization': `Bearer ${token}`
-    },
+    headers: { Authorization: `Bearer ${token.substring(0, 20)}...` },
+    reportId
+  });
+
+  const response = await fetch(url, {
+    method: 'DELETE',
+    headers,
+  });
+
+  console.log('📡 [PowerBI API] removeFavorite Response:', {
+    status: response.status,
+    statusText: response.statusText,
+    ok: response.ok
   });
 
   if (!response.ok) {
     const errorText = await response.text();
+    console.error('❌ [PowerBI API] removeFavorite Error:', errorText);
     throw new Error(`Failed to remove favorite: ${errorText}`);
   }
+
+  console.log('✅ [PowerBI API] removeFavorite Success');
 }
 
 export async function checkFavorite(reportId: string, token: string): Promise<boolean> {
-  const response = await fetch(`${ENV.CRM_API_BASE_URL}/api/reports/favorites/check?report_id=${reportId}`, {
+  const url = `${ENV.CRM_API_BASE_URL}/api/reports/favorites/check?report_id=${reportId}`;
+  const headers = {
+    'Authorization': `Bearer ${token}`
+  };
+
+  console.log('🔄 [PowerBI API] checkFavorite Request:', {
+    url,
     method: 'GET',
-    headers: {
-      'Authorization': `Bearer ${token}`
-    },
+    headers: { Authorization: `Bearer ${token.substring(0, 20)}...` },
+    reportId
+  });
+
+  const response = await fetch(url, {
+    method: 'GET',
+    headers,
+  });
+
+  console.log('📡 [PowerBI API] checkFavorite Response:', {
+    status: response.status,
+    statusText: response.statusText,
+    ok: response.ok
   });
 
   if (!response.ok) {
     const errorText = await response.text();
+    console.error('❌ [PowerBI API] checkFavorite Error:', errorText);
     throw new Error(`Failed to check favorite: ${errorText}`);
   }
 
   const data = await response.json();
+  console.log('✅ [PowerBI API] checkFavorite Success:', data);
   return data.isFavorite;
 }
 
@@ -336,19 +450,38 @@ export async function auditReportEvent(
     extra: extra ? JSON.stringify(extra) : undefined
   };
 
-  const response = await fetch(`${ENV.CRM_API_BASE_URL}/api/reports/audit`, {
+  const url = `${ENV.CRM_API_BASE_URL}/api/reports/audit`;
+  const headers = {
+    'Content-Type': 'application/json',
+    'Authorization': `Bearer ${token}`
+  };
+  const body = JSON.stringify(auditData);
+
+  console.log('🔄 [PowerBI API] auditReportEvent Request:', {
+    url,
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${token}`
-    },
-    body: JSON.stringify(auditData),
+    headers: { ...headers, Authorization: `Bearer ${token.substring(0, 20)}...` },
+    body: auditData
+  });
+
+  const response = await fetch(url, {
+    method: 'POST',
+    headers,
+    body,
+  });
+
+  console.log('📡 [PowerBI API] auditReportEvent Response:', {
+    status: response.status,
+    statusText: response.statusText,
+    ok: response.ok
   });
 
   if (!response.ok) {
     const errorText = await response.text();
-    console.warn(`Failed to log audit event: ${errorText}`);
+    console.warn('⚠️ [PowerBI API] auditReportEvent Warning:', errorText);
     // Don't throw error for audit logging failures - just log warning
+  } else {
+    console.log('✅ [PowerBI API] auditReportEvent Success');
   }
 }
 
@@ -368,19 +501,39 @@ export async function getReportAudit(reportId: string, token: string, params?: {
   if (params?.page) searchParams.set('page', params.page.toString());
   if (params?.pageSize) searchParams.set('page_size', params.pageSize.toString());
 
-  const response = await fetch(`${ENV.CRM_API_BASE_URL}/api/reports/audit/report/${reportId}?${searchParams}`, {
+  const url = `${ENV.CRM_API_BASE_URL}/api/reports/audit/report/${reportId}?${searchParams}`;
+  const headers = {
+    'Authorization': `Bearer ${token}`
+  };
+
+  console.log('🔄 [PowerBI API] getReportAudit Request:', {
+    url,
     method: 'GET',
-    headers: {
-      'Authorization': `Bearer ${token}`
-    },
+    headers: { Authorization: `Bearer ${token.substring(0, 20)}...` },
+    reportId,
+    params
+  });
+
+  const response = await fetch(url, {
+    method: 'GET',
+    headers,
+  });
+
+  console.log('📡 [PowerBI API] getReportAudit Response:', {
+    status: response.status,
+    statusText: response.statusText,
+    ok: response.ok
   });
 
   if (!response.ok) {
     const errorText = await response.text();
+    console.error('❌ [PowerBI API] getReportAudit Error:', errorText);
     throw new Error(`Failed to fetch report audit: ${errorText}`);
   }
 
-  return response.json();
+  const result = await response.json();
+  console.log('✅ [PowerBI API] getReportAudit Success:', result);
+  return result;
 }
 
 // Metadata CRUD API Functions
@@ -554,37 +707,76 @@ export async function getWorkspaces(token: string, params?: {
   if (params?.page) searchParams.set('page', params.page.toString());
   if (params?.pageSize) searchParams.set('page_size', params.pageSize.toString());
 
-  const response = await fetch(`${ENV.CRM_API_BASE_URL}/api/reports/workspaces?${searchParams}`, {
+  const url = `${ENV.CRM_API_BASE_URL}/api/reports/workspaces?${searchParams}`;
+  const headers = {
+    'Authorization': `Bearer ${token}`
+  };
+
+  console.log('🔄 [PowerBI API] getWorkspaces Request:', {
+    url,
     method: 'GET',
-    headers: {
-      'Authorization': `Bearer ${token}`
-    },
+    headers: { Authorization: `Bearer ${token.substring(0, 20)}...` },
+    params
+  });
+
+  const response = await fetch(url, {
+    method: 'GET',
+    headers,
+  });
+
+  console.log('📡 [PowerBI API] getWorkspaces Response:', {
+    status: response.status,
+    statusText: response.statusText,
+    ok: response.ok
   });
 
   if (!response.ok) {
     const errorText = await response.text();
+    console.error('❌ [PowerBI API] getWorkspaces Error:', errorText);
     throw new Error(`Failed to fetch workspaces: ${errorText}`);
   }
 
-  return response.json();
+  const result = await response.json();
+  console.log('✅ [PowerBI API] getWorkspaces Success:', result);
+  return result;
 }
 
 export async function createWorkspace(data: Omit<Workspace, 'id' | 'createdAt' | 'updatedAt'>, token: string): Promise<Workspace> {
-  const response = await fetch(`${ENV.CRM_API_BASE_URL}/api/reports/workspaces`, {
+  const url = `${ENV.CRM_API_BASE_URL}/api/reports/workspaces`;
+  const headers = {
+    'Content-Type': 'application/json',
+    'Authorization': `Bearer ${token}`
+  };
+  const body = JSON.stringify(data);
+
+  console.log('🔄 [PowerBI API] createWorkspace Request:', {
+    url,
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${token}`
-    },
-    body: JSON.stringify(data),
+    headers: { ...headers, Authorization: `Bearer ${token.substring(0, 20)}...` },
+    body: data
+  });
+
+  const response = await fetch(url, {
+    method: 'POST',
+    headers,
+    body,
+  });
+
+  console.log('📡 [PowerBI API] createWorkspace Response:', {
+    status: response.status,
+    statusText: response.statusText,
+    ok: response.ok
   });
 
   if (!response.ok) {
     const errorText = await response.text();
+    console.error('❌ [PowerBI API] createWorkspace Error:', errorText);
     throw new Error(`Failed to create workspace: ${errorText}`);
   }
 
-  return response.json();
+  const result = await response.json();
+  console.log('✅ [PowerBI API] createWorkspace Success:', result);
+  return result;
 }
 
 export async function updateWorkspace(id: string, data: Partial<Workspace>, token: string): Promise<Workspace> {
