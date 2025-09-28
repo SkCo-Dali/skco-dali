@@ -10,6 +10,7 @@ import { Switch } from '@/components/ui/switch';
 import { powerbiService } from '@/services/powerbiService';
 import { Area } from '@/types/powerbi';
 import { toast } from '@/hooks/use-toast';
+import { useAuth } from '@/contexts/AuthContext';
 import { z } from 'zod';
 
 // Validation schema
@@ -23,6 +24,7 @@ interface AreaFormData {
 }
 
 export function AreasTab() {
+  const { getAccessToken } = useAuth();
   const [areas, setAreas] = useState<Area[]>([]);
   const [loading, setLoading] = useState(true);
   const [showDialog, setShowDialog] = useState(false);
