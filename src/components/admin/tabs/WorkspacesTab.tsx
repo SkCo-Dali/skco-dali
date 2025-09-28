@@ -12,6 +12,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { powerbiService } from '@/services/powerbiService';
 import { Area, Workspace } from '@/types/powerbi';
 import { toast } from '@/hooks/use-toast';
+import { useAuth } from '@/contexts/AuthContext';
 import { z } from 'zod';
 
 // Validation schema
@@ -31,6 +32,7 @@ interface WorkspaceFormData {
 }
 
 export function WorkspacesTab() {
+  const { getAccessToken } = useAuth();
   const [workspaces, setWorkspaces] = useState<Workspace[]>([]);
   const [areas, setAreas] = useState<Area[]>([]);
   const [loading, setLoading] = useState(true);
@@ -58,13 +60,24 @@ export function WorkspacesTab() {
   const fetchData = async () => {
     try {
       setLoading(true);
+      
+      console.log('🔐 === INICIANDO fetchData para WorkspacesTab ===');
+      
+      // Get access token - usar idToken para backend APIs
+      const tokenData = await getAccessToken();
+      if (!tokenData?.idToken) {
+        throw new Error('No se pudo obtener el token de identificación');
+      }
+      
+      console.log('🔍 Token obtenido:', tokenData.idToken.substring(0, 50) + '...');
+      
       const [areasData] = await Promise.all([
-        powerbiService.getAllAreas()
+        powerbiService.getAreas({}, tokenData.idToken)
       ]);
       setAreas(areasData);
       await fetchWorkspaces();
     } catch (error) {
-      console.error('Error fetching data:', error);
+      console.error('❌ Error fetching data:', error);
       toast({
         title: "Error",
         description: "No se pudieron cargar los datos",
@@ -77,11 +90,25 @@ export function WorkspacesTab() {
 
   const fetchWorkspaces = async () => {
     try {
-      const areaId = selectedAreaFilter === 'all' ? undefined : selectedAreaFilter;
-      const data = await powerbiService.getAllWorkspaces(areaId);
+      console.log('🔐 === INICIANDO fetchWorkspaces ===');
+      
+      // Get access token - usar idToken para backend APIs
+      const tokenData = await getAccessToken();
+      if (!tokenData?.idToken) {
+        throw new Error('No se pudo obtener el token de identificación');
+      }
+      
+      console.log('🔍 Token obtenido para workspaces:', tokenData.idToken.substring(0, 50) + '...');
+      console.log('🔍 Filtro de área seleccionado:', selectedAreaFilter);
+      
+      const params = selectedAreaFilter === 'all' ? {} : { areaId: selectedAreaFilter };
+      console.log('📋 Parámetros para getWorkspaces:', params);
+      
+      const data = await powerbiService.getWorkspaces(params, tokenData.idToken);
+      console.log('✅ Workspaces obtenidos:', data.length);
       setWorkspaces(data);
     } catch (error) {
-      console.error('Error fetching workspaces:', error);
+      console.error('❌ Error fetching workspaces:', error);
     }
   };
 
@@ -115,6 +142,20 @@ export function WorkspacesTab() {
     try {
       setSaving(true);
       
+      console.log('🔐 === INICIANDO handleSave Workspace ===');
+      
+      // Get access token - usar idToken para backend APIs
+      const tokenData = await getAccessToken();
+      if (!tokenData?.idToken) {
+        throw new Error('No se pudo obtener el token de identificación');
+      }
+      
+      console.log('🔍 Token obtenido para save:', tokenData.idToken.substring(0, 50) + '...');
+      console.log('📝 Datos del formulario:', {
+        ...formData,
+        editingWorkspace: editingWorkspace?.id
+      });
+      
       if (editingWorkspace) {
         await powerbiService.updateWorkspace(editingWorkspace.id, {
           name: formData.name,
@@ -122,7 +163,7 @@ export function WorkspacesTab() {
           areaId: formData.areaId,
           pbiWorkspaceId: formData.pbiWorkspaceId,
           isActive: formData.isActive
-        });
+        }, tokenData.idToken);
         toast({
           title: "Éxito",
           description: "Workspace actualizado correctamente"
@@ -134,7 +175,7 @@ export function WorkspacesTab() {
           areaId: formData.areaId,
           pbiWorkspaceId: formData.pbiWorkspaceId,
           isActive: formData.isActive
-        });
+        }, tokenData.idToken);
         toast({
           title: "Éxito",
           description: "Workspace creado correctamente"
@@ -145,7 +186,7 @@ export function WorkspacesTab() {
       handleCloseDialog();
       
     } catch (error) {
-      console.error('Error saving workspace:', error);
+      console.error('❌ Error saving workspace:', error);
       toast({
         title: "Error",
         description: "No se pudo guardar el workspace",
@@ -162,14 +203,25 @@ export function WorkspacesTab() {
     }
 
     try {
-      await powerbiService.deleteWorkspace(workspace.id);
+      console.log('🔐 === INICIANDO handleDelete Workspace ===');
+      
+      // Get access token - usar idToken para backend APIs
+      const tokenData = await getAccessToken();
+      if (!tokenData?.idToken) {
+        throw new Error('No se pudo obtener el token de identificación');
+      }
+      
+      console.log('🔍 Token obtenido para delete:', tokenData.idToken.substring(0, 50) + '...');
+      console.log('🗑️ Eliminando workspace:', workspace.id, workspace.name);
+
+      await powerbiService.deleteWorkspace(workspace.id, tokenData.idToken);
       toast({
         title: "Éxito",
         description: "Workspace eliminado correctamente"
       });
       await fetchWorkspaces();
     } catch (error) {
-      console.error('Error deleting workspace:', error);
+      console.error('❌ Error deleting workspace:', error);
       toast({
         title: "Error",
         description: "No se pudo eliminar el workspace",
@@ -180,16 +232,27 @@ export function WorkspacesTab() {
 
   const handleToggleStatus = async (workspace: Workspace) => {
     try {
+      console.log('🔐 === INICIANDO handleToggleStatus Workspace ===');
+      
+      // Get access token - usar idToken para backend APIs
+      const tokenData = await getAccessToken();
+      if (!tokenData?.idToken) {
+        throw new Error('No se pudo obtener el token de identificación');
+      }
+      
+      console.log('🔍 Token obtenido para toggle:', tokenData.idToken.substring(0, 50) + '...');
+      console.log('🔄 Cambiando estado de workspace:', workspace.id, 'de', workspace.isActive, 'a', !workspace.isActive);
+
       await powerbiService.updateWorkspace(workspace.id, {
         isActive: !workspace.isActive
-      });
+      }, tokenData.idToken);
       toast({
         title: "Éxito",
         description: `Workspace ${!workspace.isActive ? 'activado' : 'desactivado'} correctamente`
       });
       await fetchWorkspaces();
     } catch (error) {
-      console.error('Error toggling workspace status:', error);
+      console.error('❌ Error toggling workspace status:', error);
       toast({
         title: "Error",
         description: "No se pudo actualizar el estado del workspace",
