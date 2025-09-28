@@ -827,69 +827,148 @@ export async function getReports(token: string, params?: {
   if (params?.page) searchParams.set('page', params.page.toString());
   if (params?.pageSize) searchParams.set('page_size', params.pageSize.toString());
 
-  const response = await fetch(`${ENV.CRM_API_BASE_URL}/api/reports/reports?${searchParams}`, {
+  const url = `${ENV.CRM_API_BASE_URL}/api/reports/reports?${searchParams}`;
+  const headers = {
+    'Authorization': `Bearer ${token}`
+  };
+
+  console.log('🔄 [PowerBI API] getReports Request:', {
+    url,
     method: 'GET',
-    headers: {
-      'Authorization': `Bearer ${token}`
-    },
+    headers: { Authorization: `Bearer ${token.substring(0, 20)}...` },
+    params
+  });
+
+  const response = await fetch(url, {
+    method: 'GET',
+    headers,
+  });
+
+  console.log('📡 [PowerBI API] getReports Response:', {
+    status: response.status,
+    statusText: response.statusText,
+    ok: response.ok
   });
 
   if (!response.ok) {
     const errorText = await response.text();
+    console.error('❌ [PowerBI API] getReports Error:', errorText);
     throw new Error(`Failed to fetch reports: ${errorText}`);
   }
 
-  return response.json();
+  const result = await response.json();
+  console.log('✅ [PowerBI API] getReports Success:', result);
+  return result;
 }
 
 export async function createReport(data: Omit<Report, 'id' | 'createdAt' | 'updatedAt'>, token: string): Promise<Report> {
-  const response = await fetch(`${ENV.CRM_API_BASE_URL}/api/reports/reports`, {
+  const url = `${ENV.CRM_API_BASE_URL}/api/reports/reports`;
+  const headers = {
+    'Content-Type': 'application/json',
+    'Authorization': `Bearer ${token}`
+  };
+  const body = JSON.stringify(data);
+
+  console.log('🔄 [PowerBI API] createReport Request:', {
+    url,
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${token}`
-    },
-    body: JSON.stringify(data),
+    headers: { ...headers, Authorization: `Bearer ${token.substring(0, 20)}...` },
+    body: data
+  });
+
+  const response = await fetch(url, {
+    method: 'POST',
+    headers,
+    body,
+  });
+
+  console.log('📡 [PowerBI API] createReport Response:', {
+    status: response.status,
+    statusText: response.statusText,
+    ok: response.ok
   });
 
   if (!response.ok) {
     const errorText = await response.text();
+    console.error('❌ [PowerBI API] createReport Error:', errorText);
     throw new Error(`Failed to create report: ${errorText}`);
   }
 
-  return response.json();
+  const result = await response.json();
+  console.log('✅ [PowerBI API] createReport Success:', result);
+  return result;
 }
 
 export async function updateReport(id: string, data: Partial<Report>, token: string): Promise<Report> {
-  const response = await fetch(`${ENV.CRM_API_BASE_URL}/api/reports/reports/${id}`, {
+  const url = `${ENV.CRM_API_BASE_URL}/api/reports/reports/${id}`;
+  const headers = {
+    'Content-Type': 'application/json',
+    'Authorization': `Bearer ${token}`
+  };
+  const body = JSON.stringify(data);
+
+  console.log('🔄 [PowerBI API] updateReport Request:', {
+    url,
     method: 'PUT',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${token}`
-    },
-    body: JSON.stringify(data),
+    headers: { ...headers, Authorization: `Bearer ${token.substring(0, 20)}...` },
+    body: data,
+    id
+  });
+
+  const response = await fetch(url, {
+    method: 'PUT',
+    headers,
+    body,
+  });
+
+  console.log('📡 [PowerBI API] updateReport Response:', {
+    status: response.status,
+    statusText: response.statusText,
+    ok: response.ok
   });
 
   if (!response.ok) {
     const errorText = await response.text();
+    console.error('❌ [PowerBI API] updateReport Error:', errorText);
     throw new Error(`Failed to update report: ${errorText}`);
   }
 
-  return response.json();
+  const result = await response.json();
+  console.log('✅ [PowerBI API] updateReport Success:', result);
+  return result;
 }
 
 export async function deleteReport(id: string, token: string): Promise<void> {
-  const response = await fetch(`${ENV.CRM_API_BASE_URL}/api/reports/reports/${id}`, {
+  const url = `${ENV.CRM_API_BASE_URL}/api/reports/reports/${id}`;
+  const headers = {
+    'Authorization': `Bearer ${token}`
+  };
+
+  console.log('🔄 [PowerBI API] deleteReport Request:', {
+    url,
     method: 'DELETE',
-    headers: {
-      'Authorization': `Bearer ${token}`
-    },
+    headers: { Authorization: `Bearer ${token.substring(0, 20)}...` },
+    id
+  });
+
+  const response = await fetch(url, {
+    method: 'DELETE',
+    headers,
+  });
+
+  console.log('📡 [PowerBI API] deleteReport Response:', {
+    status: response.status,
+    statusText: response.statusText,
+    ok: response.ok
   });
 
   if (!response.ok) {
     const errorText = await response.text();
+    console.error('❌ [PowerBI API] deleteReport Error:', errorText);
     throw new Error(`Failed to delete report: ${errorText}`);
   }
+
+  console.log('✅ [PowerBI API] deleteReport Success');
 }
 
 // Access Management API Functions

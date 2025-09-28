@@ -80,8 +80,8 @@ export function ReportsTab() {
       
       console.log('📡 [ReportsTab] Cargando áreas y workspaces...');
       const [areasData, workspacesData] = await Promise.all([
-        powerbiService.getAllAreas(tokenData.idToken),
-        powerbiService.getAllWorkspaces(tokenData.idToken)
+        powerbiService.getAllAreas({}, tokenData.idToken),
+        powerbiService.getAllWorkspaces({}, tokenData.idToken)
       ]);
       
       console.log('✅ [ReportsTab] Datos cargados:', { areas: areasData.length, workspaces: workspacesData.length });
