@@ -12,6 +12,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { powerbiService } from '@/services/powerbiService';
 import { Area, Workspace, Report } from '@/types/powerbi';
 import { toast } from '@/hooks/use-toast';
+import { useAuth } from '@/contexts/AuthContext';
 import { z } from 'zod';
 
 // Validation schema
@@ -39,6 +40,7 @@ interface ReportFormData {
 }
 
 export function ReportsTab() {
+  const { getAccessToken } = useAuth();
   const [reports, setReports] = useState<Report[]>([]);
   const [areas, setAreas] = useState<Area[]>([]);
   const [workspaces, setWorkspaces] = useState<Workspace[]>([]);
@@ -73,15 +75,21 @@ export function ReportsTab() {
   const fetchData = async () => {
     try {
       setLoading(true);
+      console.log('🔐 [ReportsTab] Obteniendo token para cargar datos iniciales...');
+      const tokenData = await getAccessToken();
+      
+      console.log('📡 [ReportsTab] Cargando áreas y workspaces...');
       const [areasData, workspacesData] = await Promise.all([
-        powerbiService.getAllAreas(),
-        powerbiService.getAllWorkspaces()
+        powerbiService.getAllAreas(tokenData.idToken),
+        powerbiService.getAllWorkspaces(tokenData.idToken)
       ]);
+      
+      console.log('✅ [ReportsTab] Datos cargados:', { areas: areasData.length, workspaces: workspacesData.length });
       setAreas(areasData);
       setWorkspaces(workspacesData);
       await fetchReports();
     } catch (error) {
-      console.error('Error fetching data:', error);
+      console.error('❌ [ReportsTab] Error fetching data:', error);
       toast({
         title: "Error",
         description: "No se pudieron cargar los datos",
@@ -94,11 +102,17 @@ export function ReportsTab() {
 
   const fetchReports = async () => {
     try {
+      console.log('🔐 [ReportsTab] Obteniendo token para cargar reportes...');
+      const tokenData = await getAccessToken();
+      
       const workspaceId = selectedWorkspaceFilter === 'all' ? undefined : selectedWorkspaceFilter;
-      const data = await powerbiService.getReports({ workspaceId });
+      console.log('📡 [ReportsTab] Cargando reportes con filtros:', { workspaceId });
+      
+      const data = await powerbiService.getReports({ workspaceId }, tokenData.idToken);
+      console.log('✅ [ReportsTab] Reportes cargados:', data.length);
       setReports(data);
     } catch (error) {
-      console.error('Error fetching reports:', error);
+      console.error('❌ [ReportsTab] Error fetching reports:', error);
     }
   };
 
@@ -134,37 +148,34 @@ export function ReportsTab() {
     
     try {
       setSaving(true);
+      console.log('🔐 [ReportsTab] Obteniendo token para guardar reporte...');
+      const tokenData = await getAccessToken();
+      
+      const reportData = {
+        name: formData.name,
+        description: formData.description,
+        workspaceId: formData.workspaceId,
+        hasRowLevelSecurity: formData.hasRowLevelSecurity,
+        requireUserRole: formData.requireUserRole,
+        isActive: formData.isActive,
+        pbiWorkspaceId: formData.pbiWorkspaceId,
+        pbiReportId: formData.pbiReportId,
+        datasetId: formData.datasetId,
+        webUrl: formData.webUrl
+      };
       
       if (editingReport) {
-        await powerbiService.updateReport(editingReport.id, {
-          name: formData.name,
-          description: formData.description,
-          workspaceId: formData.workspaceId,
-          hasRowLevelSecurity: formData.hasRowLevelSecurity,
-          requireUserRole: formData.requireUserRole,
-          isActive: formData.isActive,
-          pbiWorkspaceId: formData.pbiWorkspaceId,
-          pbiReportId: formData.pbiReportId,
-          datasetId: formData.datasetId,
-          webUrl: formData.webUrl
-        });
+        console.log('📡 [ReportsTab] Actualizando reporte:', { id: editingReport.id, data: reportData });
+        await powerbiService.updateReport(editingReport.id, reportData, tokenData.idToken);
+        console.log('✅ [ReportsTab] Reporte actualizado exitosamente');
         toast({
           title: "Éxito",
           description: "Reporte actualizado correctamente"
         });
       } else {
-        await powerbiService.createReport({
-          name: formData.name,
-          description: formData.description,
-          workspaceId: formData.workspaceId,
-          hasRowLevelSecurity: formData.hasRowLevelSecurity,
-          requireUserRole: formData.requireUserRole,
-          isActive: formData.isActive,
-          pbiWorkspaceId: formData.pbiWorkspaceId,
-          pbiReportId: formData.pbiReportId,
-          datasetId: formData.datasetId,
-          webUrl: formData.webUrl
-        });
+        console.log('📡 [ReportsTab] Creando nuevo reporte:', reportData);
+        await powerbiService.createReport(reportData, tokenData.idToken);
+        console.log('✅ [ReportsTab] Reporte creado exitosamente');
         toast({
           title: "Éxito",
           description: "Reporte creado correctamente"
@@ -175,7 +186,7 @@ export function ReportsTab() {
       handleCloseDialog();
       
     } catch (error) {
-      console.error('Error saving report:', error);
+      console.error('❌ [ReportsTab] Error saving report:', error);
       toast({
         title: "Error",
         description: "No se pudo guardar el reporte",
@@ -192,14 +203,20 @@ export function ReportsTab() {
     }
 
     try {
-      await powerbiService.deleteReport(report.id);
+      console.log('🔐 [ReportsTab] Obteniendo token para eliminar reporte...');
+      const tokenData = await getAccessToken();
+      
+      console.log('📡 [ReportsTab] Eliminando reporte:', { id: report.id, name: report.name });
+      await powerbiService.deleteReport(report.id, tokenData.idToken);
+      console.log('✅ [ReportsTab] Reporte eliminado exitosamente');
+      
       toast({
         title: "Éxito",
         description: "Reporte eliminado correctamente"
       });
       await fetchReports();
     } catch (error) {
-      console.error('Error deleting report:', error);
+      console.error('❌ [ReportsTab] Error deleting report:', error);
       toast({
         title: "Error",
         description: "No se pudo eliminar el reporte",
@@ -210,16 +227,24 @@ export function ReportsTab() {
 
   const handleToggleStatus = async (report: Report) => {
     try {
+      console.log('🔐 [ReportsTab] Obteniendo token para cambiar estado del reporte...');
+      const tokenData = await getAccessToken();
+      
+      const newStatus = !report.isActive;
+      console.log('📡 [ReportsTab] Cambiando estado del reporte:', { id: report.id, name: report.name, newStatus });
+      
       await powerbiService.updateReport(report.id, {
-        isActive: !report.isActive
-      });
+        isActive: newStatus
+      }, tokenData.idToken);
+      
+      console.log('✅ [ReportsTab] Estado del reporte actualizado exitosamente');
       toast({
         title: "Éxito",
-        description: `Reporte ${!report.isActive ? 'activado' : 'desactivado'} correctamente`
+        description: `Reporte ${newStatus ? 'activado' : 'desactivado'} correctamente`
       });
       await fetchReports();
     } catch (error) {
-      console.error('Error toggling report status:', error);
+      console.error('❌ [ReportsTab] Error toggling report status:', error);
       toast({
         title: "Error",
         description: "No se pudo actualizar el estado del reporte",
