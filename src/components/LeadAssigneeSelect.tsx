@@ -51,11 +51,11 @@ export function LeadAssigneeSelect({ value, displayName, users, loading = false,
           {displayName || "Sin asignar"}
         </div>
       </PopoverTrigger>
-      <PopoverContent
-        align="start"
-        className="bg-white z-50 p-2 w-72"
-        onOpenAutoFocus={(e) => e.preventDefault()}
-      >
+        <PopoverContent
+          align="start"
+          className="bg-background border border-border shadow-lg z-50 p-3 w-80"
+          onOpenAutoFocus={(e) => e.preventDefault()}
+        >
         <div className="space-y-2" onKeyDownCapture={(e) => e.stopPropagation()}>
           <Input
             ref={inputRef}
