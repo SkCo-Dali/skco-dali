@@ -73,37 +73,77 @@ export interface AccessRevokeRequest {
 
 // Power BI Embed API Functions
 export async function fetchEmbedInfo(input: EmbedInfoRequest, token: string): Promise<EmbedInfoResponse> {
-  const response = await fetch(`${ENV.CRM_API_BASE_URL}/api/pbi/embed-info`, {
+  const url = `${ENV.CRM_API_BASE_URL}/api/pbi/embed-info`;
+  const headers = {
+    'Content-Type': 'application/json',
+    'Authorization': `Bearer ${token}`
+  };
+  const body = JSON.stringify(input);
+
+  console.log('🔄 [PowerBI API] fetchEmbedInfo Request:', {
+    url,
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${token}`
-    },
-    body: JSON.stringify(input),
+    headers: { ...headers, Authorization: `Bearer ${token.substring(0, 20)}...` },
+    body: input
+  });
+
+  const response = await fetch(url, {
+    method: 'POST',
+    headers,
+    body,
+  });
+
+  console.log('📡 [PowerBI API] fetchEmbedInfo Response:', {
+    status: response.status,
+    statusText: response.statusText,
+    ok: response.ok
   });
 
   if (!response.ok) {
     const errorText = await response.text();
+    console.error('❌ [PowerBI API] fetchEmbedInfo Error:', errorText);
     throw new Error(`Failed to fetch embed info: ${errorText}`);
   }
 
-  return response.json();
+  const result = await response.json();
+  console.log('✅ [PowerBI API] fetchEmbedInfo Success:', result);
+  return result;
 }
 
 export async function fetchReportPages(reportId: string, workspaceId: string, token: string): Promise<ReportPage[]> {
-  const response = await fetch(`${ENV.CRM_API_BASE_URL}/api/pbi/reports/${reportId}/pages?workspace_id=${workspaceId}`, {
+  const url = `${ENV.CRM_API_BASE_URL}/api/pbi/reports/${reportId}/pages?workspace_id=${workspaceId}`;
+  const headers = {
+    'Authorization': `Bearer ${token}`
+  };
+
+  console.log('🔄 [PowerBI API] fetchReportPages Request:', {
+    url,
     method: 'GET',
-    headers: {
-      'Authorization': `Bearer ${token}`
-    },
+    headers: { Authorization: `Bearer ${token.substring(0, 20)}...` },
+    reportId,
+    workspaceId
+  });
+
+  const response = await fetch(url, {
+    method: 'GET',
+    headers,
+  });
+
+  console.log('📡 [PowerBI API] fetchReportPages Response:', {
+    status: response.status,
+    statusText: response.statusText,
+    ok: response.ok
   });
 
   if (!response.ok) {
     const errorText = await response.text();
+    console.error('❌ [PowerBI API] fetchReportPages Error:', errorText);
     throw new Error(`Failed to fetch report pages: ${errorText}`);
   }
 
-  return response.json();
+  const result = await response.json();
+  console.log('✅ [PowerBI API] fetchReportPages Success:', result);
+  return result;
 }
 
 // Effective Access API Functions
@@ -123,19 +163,38 @@ export async function getMyReports(token: string, params?: {
   if (params?.page) searchParams.set('page', params.page.toString());
   if (params?.pageSize) searchParams.set('page_size', params.pageSize.toString());
 
-  const response = await fetch(`${ENV.CRM_API_BASE_URL}/api/reports/effective/my-reports?${searchParams}`, {
+  const url = `${ENV.CRM_API_BASE_URL}/api/reports/effective/my-reports?${searchParams}`;
+  const headers = {
+    'Authorization': `Bearer ${token}`
+  };
+
+  console.log('🔄 [PowerBI API] getMyReports Request:', {
+    url,
     method: 'GET',
-    headers: {
-      'Authorization': `Bearer ${token}`
-    },
+    headers: { Authorization: `Bearer ${token.substring(0, 20)}...` },
+    params
+  });
+
+  const response = await fetch(url, {
+    method: 'GET',
+    headers,
+  });
+
+  console.log('📡 [PowerBI API] getMyReports Response:', {
+    status: response.status,
+    statusText: response.statusText,
+    ok: response.ok
   });
 
   if (!response.ok) {
     const errorText = await response.text();
+    console.error('❌ [PowerBI API] getMyReports Error:', errorText);
     throw new Error(`Failed to fetch my reports: ${errorText}`);
   }
 
-  return response.json();
+  const result = await response.json();
+  console.log('✅ [PowerBI API] getMyReports Success:', result);
+  return result;
 }
 
 export async function checkEffectiveAccess(reportId: string, token: string): Promise<boolean> {
@@ -337,69 +396,148 @@ export async function getAreas(token: string, params?: {
   if (params?.page) searchParams.set('page', params.page.toString());
   if (params?.pageSize) searchParams.set('page_size', params.pageSize.toString());
 
-  const response = await fetch(`${ENV.CRM_API_BASE_URL}/api/reports/areas?${searchParams}`, {
+  const url = `${ENV.CRM_API_BASE_URL}/api/reports/areas?${searchParams}`;
+  const headers = {
+    'Authorization': `Bearer ${token}`
+  };
+
+  console.log('🔄 [PowerBI API] getAreas Request:', {
+    url,
     method: 'GET',
-    headers: {
-      'Authorization': `Bearer ${token}`
-    },
+    headers: { Authorization: `Bearer ${token.substring(0, 20)}...` },
+    params
+  });
+
+  const response = await fetch(url, {
+    method: 'GET',
+    headers,
+  });
+
+  console.log('📡 [PowerBI API] getAreas Response:', {
+    status: response.status,
+    statusText: response.statusText,
+    ok: response.ok
   });
 
   if (!response.ok) {
     const errorText = await response.text();
+    console.error('❌ [PowerBI API] getAreas Error:', errorText);
     throw new Error(`Failed to fetch areas: ${errorText}`);
   }
 
-  return response.json();
+  const result = await response.json();
+  console.log('✅ [PowerBI API] getAreas Success:', result);
+  return result;
 }
 
 export async function createArea(data: Omit<Area, 'id'>, token: string): Promise<Area> {
-  const response = await fetch(`${ENV.CRM_API_BASE_URL}/api/reports/areas`, {
+  const url = `${ENV.CRM_API_BASE_URL}/api/reports/areas`;
+  const headers = {
+    'Content-Type': 'application/json',
+    'Authorization': `Bearer ${token}`
+  };
+  const body = JSON.stringify(data);
+
+  console.log('🔄 [PowerBI API] createArea Request:', {
+    url,
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${token}`
-    },
-    body: JSON.stringify(data),
+    headers: { ...headers, Authorization: `Bearer ${token.substring(0, 20)}...` },
+    body: data
+  });
+
+  const response = await fetch(url, {
+    method: 'POST',
+    headers,
+    body,
+  });
+
+  console.log('📡 [PowerBI API] createArea Response:', {
+    status: response.status,
+    statusText: response.statusText,
+    ok: response.ok
   });
 
   if (!response.ok) {
     const errorText = await response.text();
+    console.error('❌ [PowerBI API] createArea Error:', errorText);
     throw new Error(`Failed to create area: ${errorText}`);
   }
 
-  return response.json();
+  const result = await response.json();
+  console.log('✅ [PowerBI API] createArea Success:', result);
+  return result;
 }
 
 export async function updateArea(id: string, data: Partial<Area>, token: string): Promise<Area> {
-  const response = await fetch(`${ENV.CRM_API_BASE_URL}/api/reports/areas/${id}`, {
+  const url = `${ENV.CRM_API_BASE_URL}/api/reports/areas/${id}`;
+  const headers = {
+    'Content-Type': 'application/json',
+    'Authorization': `Bearer ${token}`
+  };
+  const body = JSON.stringify(data);
+
+  console.log('🔄 [PowerBI API] updateArea Request:', {
+    url,
     method: 'PUT',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${token}`
-    },
-    body: JSON.stringify(data),
+    headers: { ...headers, Authorization: `Bearer ${token.substring(0, 20)}...` },
+    body: data,
+    id
+  });
+
+  const response = await fetch(url, {
+    method: 'PUT',
+    headers,
+    body,
+  });
+
+  console.log('📡 [PowerBI API] updateArea Response:', {
+    status: response.status,
+    statusText: response.statusText,
+    ok: response.ok
   });
 
   if (!response.ok) {
     const errorText = await response.text();
+    console.error('❌ [PowerBI API] updateArea Error:', errorText);
     throw new Error(`Failed to update area: ${errorText}`);
   }
 
-  return response.json();
+  const result = await response.json();
+  console.log('✅ [PowerBI API] updateArea Success:', result);
+  return result;
 }
 
 export async function deleteArea(id: string, token: string): Promise<void> {
-  const response = await fetch(`${ENV.CRM_API_BASE_URL}/api/reports/areas/${id}`, {
+  const url = `${ENV.CRM_API_BASE_URL}/api/reports/areas/${id}`;
+  const headers = {
+    'Authorization': `Bearer ${token}`
+  };
+
+  console.log('🔄 [PowerBI API] deleteArea Request:', {
+    url,
     method: 'DELETE',
-    headers: {
-      'Authorization': `Bearer ${token}`
-    },
+    headers: { Authorization: `Bearer ${token.substring(0, 20)}...` },
+    id
+  });
+
+  const response = await fetch(url, {
+    method: 'DELETE',
+    headers,
+  });
+
+  console.log('📡 [PowerBI API] deleteArea Response:', {
+    status: response.status,
+    statusText: response.statusText,
+    ok: response.ok
   });
 
   if (!response.ok) {
     const errorText = await response.text();
+    console.error('❌ [PowerBI API] deleteArea Error:', errorText);
     throw new Error(`Failed to delete area: ${errorText}`);
   }
+
+  console.log('✅ [PowerBI API] deleteArea Success');
 }
 
 export async function getWorkspaces(token: string, params?: {
