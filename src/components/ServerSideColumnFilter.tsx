@@ -39,7 +39,7 @@ export function ServerSideColumnFilter({
   const currentSelectedValues = useMemo(() => {
     const filter = currentFilters[field];
     if (filter && filter.op === 'in' && filter.values) {
-      return filter.values;
+      return filter.values.map(v => String(v || ''));
     }
     return [];
   }, [currentFilters, field]);
@@ -51,7 +51,7 @@ export function ServerSideColumnFilter({
 
   // Valores filtrados por búsqueda local (además de la búsqueda server-side)
   const filteredValues = useMemo(() => {
-    const stringValues = uniqueValues.map(v => v || '');
+    const stringValues = uniqueValues.map(v => String(v || ''));
     if (!searchTerm) return stringValues;
     return stringValues.filter(value => 
       value && value.toLowerCase().includes(searchTerm.toLowerCase())
@@ -60,7 +60,7 @@ export function ServerSideColumnFilter({
 
   const handleSelectAll = (checked: boolean) => {
     if (checked) {
-      setSelectedValues(filteredValues);
+      setSelectedValues([...filteredValues]);
     } else {
       setSelectedValues([]);
     }

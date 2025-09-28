@@ -77,9 +77,9 @@ export function ServerSideTextFilter({
   const currentFilter = currentFilters[field];
   
   const [operator, setOperator] = useState<FilterOperator>(currentFilter?.op || 'contains');
-  const [value, setValue] = useState(currentFilter?.value || '');
-  const [fromValue, setFromValue] = useState(currentFilter?.from || '');
-  const [toValue, setToValue] = useState(currentFilter?.to || '');
+  const [value, setValue] = useState<string>(String(currentFilter?.value || ''));
+  const [fromValue, setFromValue] = useState<string>(String(currentFilter?.from || ''));
+  const [toValue, setToValue] = useState<string>(String(currentFilter?.to || ''));
 
   // Determinar si necesita entrada de valor
   const needsValue = !['isnull', 'notnull'].includes(operator);
@@ -102,16 +102,16 @@ export function ServerSideTextFilter({
   const handleApply = () => {
     if (!needsValue) {
       // Para isnull/notnull
-      onFilterChange(field, operator);
+      onFilterChange(field, operator as string);
     } else if (needsRange) {
       // Para between
       if (fromValue && toValue) {
-        onFilterChange(field, operator, undefined, fromValue, toValue);
+        onFilterChange(field, operator as string, undefined, fromValue, toValue);
       }
     } else {
       // Para otros operadores
       if (value) {
-        onFilterChange(field, operator, value);
+        onFilterChange(field, operator as string, value);
       }
     }
     onClose?.();
@@ -155,7 +155,7 @@ export function ServerSideTextFilter({
               type={inputType}
               placeholder={getPlaceholder()}
               value={value}
-              onChange={(e) => setValue(e.target.value)}
+              onChange={(e) => setValue(String(e.target.value))}
               className="h-8 text-sm"
             />
           </div>
@@ -170,14 +170,14 @@ export function ServerSideTextFilter({
                 type={inputType}
                 placeholder="Desde"
                 value={fromValue}
-                onChange={(e) => setFromValue(e.target.value)}
+                onChange={(e) => setFromValue(String(e.target.value))}
                 className="h-8 text-sm flex-1"
               />
               <Input
                 type={inputType}
                 placeholder="Hasta"
                 value={toValue}
-                onChange={(e) => setToValue(e.target.value)}
+                onChange={(e) => setToValue(String(e.target.value))}
                 className="h-8 text-sm flex-1"
               />
             </div>
