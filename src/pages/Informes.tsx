@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -43,6 +43,7 @@ interface InformesState {
 
 export default function Informes() {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const hasAdminRole = useHasRole('admin', 'seguridad');
   
   const [state, setState] = useState<InformesState>({
@@ -387,12 +388,12 @@ export default function Informes() {
                             </td>
                             <td className="p-4">
                               <div className="flex items-center space-x-2">
-                                <Button
-                                  size="sm"
-                                  onClick={() => handleReportSelect(report)}
-                                >
-                                  Ver Informe
-                                </Button>
+                        <Button
+                          size="sm"
+                          onClick={() => navigate(`/informes/${report.reportId}`)}
+                        >
+                          Ver Informe
+                        </Button>
                                 <Button
                                   size="sm"
                                   variant="outline"
@@ -479,7 +480,7 @@ export default function Informes() {
                         <Button 
                           size="sm" 
                           className="w-full"
-                          onClick={() => handleReportSelect(report)}
+                          onClick={() => navigate(`/informes/${report.reportId}`)}
                         >
                           Ver Informe
                         </Button>
