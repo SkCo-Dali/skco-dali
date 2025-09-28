@@ -72,6 +72,11 @@ const defaultColumns: ColumnConfig[] = [
   { key: 'phone', label: 'Teléfono', visible: true, sortable: false },
   { key: 'stage', label: 'Etapa', visible: true, sortable: true },
   { key: 'assignedTo', label: 'Asignado a', visible: true, sortable: true },
+  { key: 'alternateEmail', label: 'Email Alternativo', visible: false, sortable: true },
+  { key: 'lastGestorName', label: 'Últ Gestor Asignado', visible: false, sortable: true },
+  { key: 'lastGestorInteractionAt', label: 'Últ Fecha de Interaccion Gestor', visible: false, sortable: true },
+  { key: 'lastGestorInteractionStage', label: 'Últ Estado Gestor', visible: false, sortable: true },
+  { key: 'lastGestorInteractionDescription', label: 'Últ Descripción Gestor', visible: false, sortable: true },
   { key: 'documentType', label: 'Tipo documento', visible: false, sortable: true },
   { key: 'documentNumber', label: 'Número documento', visible: false, sortable: true },
   { key: 'product', label: 'Producto', visible: false, sortable: true },
@@ -342,6 +347,11 @@ export function LeadsTable({
       'nextFollowUp': 'NextFollowUp',
       'notes': 'Notes',
       'tags': 'Tags',
+      'alternateEmail': 'AlternateEmail',
+      'lastGestorName': 'LastGestorName',
+      'lastGestorInteractionAt': 'LastGestorInteractionAt',
+      'lastGestorInteractionStage': 'LastGestorInteractionStage',
+      'lastGestorInteractionDescription': 'LastGestorInteractionDescription',
     };
     return mapping[uiColumn] || uiColumn;
   }
@@ -796,6 +806,24 @@ Por favor, confirmar asistencia.`;
       case 'gender':
       case 'preferredContactChannel':
       case 'documentType':
+      case 'alternateEmail':
+        return <span className="text-center text-gray-700 text-xs">{lead[columnKey] || '-'}</span>;
+      case 'lastGestorName':
+        return <span className="text-center text-gray-700 text-xs">{lead.lastGestorName || '-'}</span>;
+      case 'lastGestorInteractionAt':
+        return (
+          <span className="text-center text-gray-700 text-xs">
+            {lead.lastGestorInteractionAt ? formatBogotaDate(lead.lastGestorInteractionAt) : '-'}
+          </span>
+        );
+      case 'lastGestorInteractionStage':
+        return <span className="text-center text-gray-700 text-xs">{lead.lastGestorInteractionStage || '-'}</span>;
+      case 'lastGestorInteractionDescription':
+        return (
+          <span className="text-center text-gray-700 text-xs max-w-[200px] truncate" title={lead.lastGestorInteractionDescription || ''}>
+            {lead.lastGestorInteractionDescription || '-'}
+          </span>
+        );
       default:
         return <span className="text-center text-gray-700 text-xs">{lead[columnKey] || '-'}</span>;
     }

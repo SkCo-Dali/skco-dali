@@ -241,6 +241,11 @@ export interface Lead {
   tags?: string[];
   nextFollowUp?: string; // Changed to string for consistency
   campaignOwnerName?: string;
+  alternateEmail?: string; // Email Alternativo
+  lastGestorName?: string; // Últ Gestor Asignado
+  lastGestorInteractionAt?: string; // Últ Fecha de Interaccion Gestor
+  lastGestorInteractionStage?: string; // Últ Estado Gestor
+  lastGestorInteractionDescription?: string; // Últ Descripción Gestor
   interactions?: Interaction[];
   [key: string]: any;
 }

@@ -16,6 +16,7 @@ export interface ApiLead {
   Priority: string;
   Value: number;
   AssignedTo: string;
+  AssignedToName?: string; // Added from API response
   CreatedAt: string;
   UpdatedAt: string;
   NextFollowUp?: string;
@@ -27,6 +28,11 @@ export interface ApiLead {
   Age?: number;
   Gender?: string;
   PreferredContactChannel?: string;
+  AlternateEmail?: string; // Email Alternativo
+  LastGestorName?: string; // Últ Gestor Asignado
+  LastGestorInteractionAt?: string; // Últ Fecha de Interaccion Gestor
+  LastGestorInteractionStage?: string; // Últ Estado Gestor
+  LastGestorInteractionDescription?: string; // Últ Descripción Gestor
 }
 
 export interface CreateLeadRequest {

@@ -145,6 +145,7 @@ export const mapApiLeadToLead = (apiLead: ApiLead): Lead => {
       priority: (API_TO_FRONTEND_PRIORITY_MAP[apiLead.Priority] || 'medium') as Lead['priority'],
       value: apiLead.Value || 0,
       assignedTo: apiLead.AssignedTo,
+      assignedToName: apiLead.AssignedToName,
       createdBy: apiLead.CreatedBy || '1', // Add createdBy with fallback
       status: 'New' as Lead['status'],
       portfolio: parseArrayField(apiLead.SelectedPortfolios)[0] || 'Portfolio A',
@@ -157,6 +158,11 @@ export const mapApiLeadToLead = (apiLead: ApiLead): Lead => {
       gender: (apiLead.Gender as any) || 'Prefiero no decir',
       campaignOwnerName: apiLead.CampaignOwnerName || '',
       preferredContactChannel: (apiLead.PreferredContactChannel as Lead['preferredContactChannel']) || 'Correo',
+      alternateEmail: apiLead.AlternateEmail || '',
+      lastGestorName: apiLead.LastGestorName || '',
+      lastGestorInteractionAt: apiLead.LastGestorInteractionAt || '',
+      lastGestorInteractionStage: apiLead.LastGestorInteractionStage || '',
+      lastGestorInteractionDescription: apiLead.LastGestorInteractionDescription || '',
       interactions: []
     };
     
