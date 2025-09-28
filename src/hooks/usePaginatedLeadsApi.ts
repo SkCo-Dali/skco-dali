@@ -219,11 +219,13 @@ export const usePaginatedLeadsApi = () => {
   };
 
   // Cargar leads con paginación
-  const loadLeads = useCallback(async (page?: number, newFilters?: Partial<LeadsFiltersState>) => {
+  const loadLeads = useCallback(async (page?: number, newFilters?: Partial<LeadsFiltersState>, source?: string) => {
     if (!user?.id) {
       console.log('❌ No user ID available for loading paginated leads');
       return;
     }
+
+    console.log(`📣 loadLeads called by: ${source || 'unknown'}`);
 
     // Construir parámetros actuales
     const currentFilters = newFilters ? { ...filters, ...newFilters } : filters;
@@ -316,7 +318,7 @@ export const usePaginatedLeadsApi = () => {
   const updateFilters = useCallback((newFilters: Partial<LeadsFiltersState>) => {
     // Reiniciar a la primera página cuando cambian los filtros
     // Solo loadLeads maneja setFilters para evitar bucles infinitos
-    loadLeads(1, newFilters);
+    loadLeads(1, newFilters, 'updateFilters');
   }, [loadLeads]);
 
   const setPage = useCallback((page: number) => {
@@ -324,7 +326,7 @@ export const usePaginatedLeadsApi = () => {
       ...prev,
       pagination: { ...prev.pagination, page }
     }));
-    loadLeads(page);
+    loadLeads(page, undefined, 'setPage');
   }, [loadLeads]);
 
   const setPageSize = useCallback((pageSize: number) => {
@@ -332,12 +334,12 @@ export const usePaginatedLeadsApi = () => {
       ...prev,
       pagination: { ...prev.pagination, pageSize, page: 1 }
     }));
-    loadLeads(1);
+    loadLeads(1, undefined, 'setPageSize');
   }, [loadLeads]);
 
   // Cargar leads inicialmente
   useEffect(() => {
-    loadLeads();
+    loadLeads(undefined, undefined, 'initial');
   }, [user?.id, user?.role]);
 
   return {
@@ -348,6 +350,6 @@ export const usePaginatedLeadsApi = () => {
     setPageSize,
     loadLeads,
     getUniqueValues,
-    refreshLeads: () => loadLeads(),
+    refreshLeads: () => loadLeads(undefined, undefined, 'refreshLeads'),
   };
 };

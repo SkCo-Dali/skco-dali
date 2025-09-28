@@ -18,6 +18,8 @@ export const useSmartTokenRefresh = () => {
   const retryCountRef = useRef(0);
   const lastRefreshRef = useRef<number>(Date.now());
   const hasShownWarningRef = useRef<boolean>(false);
+  const currentIntervalMsRef = useRef<number | null>(null);
+  const startedRef = useRef<boolean>(false);
 
   const { isRecentlyActive } = useUserActivity({
     onActivity: () => {
