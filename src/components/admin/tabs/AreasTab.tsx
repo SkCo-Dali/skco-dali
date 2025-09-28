@@ -89,11 +89,17 @@ export function AreasTab() {
     try {
       setSaving(true);
       
+      // Get access token
+      const tokenData = await getAccessToken();
+      if (!tokenData?.accessToken) {
+        throw new Error('No access token available');
+      }
+      
       if (editingArea) {
         await powerbiService.updateArea(editingArea.id, {
           name: formData.name,
           isActive: formData.isActive
-        });
+        }, tokenData.accessToken);
         toast({
           title: "Éxito",
           description: "Área actualizada correctamente"
@@ -102,7 +108,7 @@ export function AreasTab() {
         await powerbiService.createArea({
           name: formData.name,
           isActive: formData.isActive
-        });
+        }, tokenData.accessToken);
         toast({
           title: "Éxito",
           description: "Área creada correctamente"
@@ -130,7 +136,13 @@ export function AreasTab() {
     }
 
     try {
-      await powerbiService.deleteArea(area.id);
+      // Get access token
+      const tokenData = await getAccessToken();
+      if (!tokenData?.accessToken) {
+        throw new Error('No access token available');
+      }
+
+      await powerbiService.deleteArea(area.id, tokenData.accessToken);
       toast({
         title: "Éxito",
         description: "Área eliminada correctamente"
@@ -148,9 +160,15 @@ export function AreasTab() {
 
   const handleToggleStatus = async (area: Area) => {
     try {
+      // Get access token
+      const tokenData = await getAccessToken();
+      if (!tokenData?.accessToken) {
+        throw new Error('No access token available');
+      }
+
       await powerbiService.updateArea(area.id, {
         isActive: !area.isActive
-      });
+      }, tokenData.accessToken);
       toast({
         title: "Éxito",
         description: `Área ${!area.isActive ? 'activada' : 'desactivada'} correctamente`
