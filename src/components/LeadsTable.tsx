@@ -323,8 +323,8 @@ export function LeadsTable({
     return apiFilters;
   }, [columnFilters, textFilters]);
 
-  // Map UI column names to API column names
-  const mapColumnNameToApi = (uiColumn: string): string => {
+  // Map UI column names to API column names (use function declaration to avoid TDZ)
+  function mapColumnNameToApi(uiColumn: string): string {
     const mapping: Record<string, string> = {
       'name': 'Name',
       'email': 'Email',
@@ -344,10 +344,10 @@ export function LeadsTable({
       'tags': 'Tags',
     };
     return mapping[uiColumn] || uiColumn;
-  };
+  }
 
-  // Convert text condition to API format
-  const convertTextConditionToApi = (condition: TextFilterCondition): any => {
+  // Convert text condition to API format (function declaration to avoid TDZ)
+  function convertTextConditionToApi(condition: TextFilterCondition): any {
     const operatorMapping: Record<string, string> = {
       'equals': 'eq',
       'not_equals': 'neq',
@@ -369,7 +369,7 @@ export function LeadsTable({
       op: operatorMapping[condition.operator] as any,
       value: condition.value
     };
-  };
+  }
   
   // Los leads ya vienen completamente filtrados desde el hook unificado del padre
   // Solo necesitamos aplicar ordenamiento local en la tabla si es necesario
