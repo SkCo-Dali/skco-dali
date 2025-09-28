@@ -280,10 +280,9 @@ export default function Leads() {
 
   const handleSortedLeadsChange = useCallback((sorted: Lead[]) => {
     setSortedLeads(sorted);
-    if (currentPage !== 1) {
-      setCurrentPage(1);
-    }
-  }, [currentPage, setCurrentPage]);
+    // No resetear la página automáticamente - esto causaba que la paginación 
+    // se reseteara cada vez que cambiaban los datos por navegación de páginas
+  }, []);
 
   const handleSendEmailToLead = useCallback((lead: Lead) => {
     setSelectedLeadForEmail(lead);
