@@ -1,216 +1,229 @@
-
-import { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Loader2, FileBarChart, AlertCircle } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
+import { 
+  Search, 
+  Filter, 
+  Grid3X3, 
+  List, 
+  Star, 
+  FileBarChart,
+  ArrowLeft,
+  ExternalLink,
+  Shield,
+  Users,
+  Settings,
+  Loader2,
+  AlertCircle
+} from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useAuth } from '@/contexts/AuthContext';
+import { useHasRole } from '@/hooks/useRequireRole';
+import { powerbiService } from '@/services/powerbiService';
+import { EffectiveReport, Area, Workspace } from '@/types/powerbi';
 import { toast } from '@/hooks/use-toast';
-import { InformesSearch } from '@/components/InformesSearch';
-import { InformesViewControls } from '@/components/InformesViewControls';
-import { InformesTable } from '@/components/InformesTable';
 
-interface PowerBIReport {
-  id: string;
-  name: string;
-  description?: string;
-  embedUrl: string;
-  reportId: string;
-  workspaceId?: string;
-  isAssigned: boolean;
-  requiresRLS: boolean;
-  roles?: string[];
+// Component state types
+interface InformesState {
+  reports: EffectiveReport[];
+  areas: Area[];
+  workspaces: Workspace[];
+  favorites: string[];
+  loading: boolean;
+  selectedReport: EffectiveReport | null;
+  embedToken: string | null;
+  searchTerm: string;
+  selectedArea: string;
+  selectedWorkspace: string;
+  viewMode: 'grid' | 'table';
 }
 
 export default function Informes() {
   const { user } = useAuth();
-  const [reports, setReports] = useState<PowerBIReport[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [selectedReport, setSelectedReport] = useState<PowerBIReport | null>(null);
-  const [embedToken, setEmbedToken] = useState<string | null>(null);
-  const [loadingEmbed, setLoadingEmbed] = useState(false);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [viewMode, setViewMode] = useState<"grid" | "table">("grid");
+  const hasAdminRole = useHasRole('admin', 'seguridad');
+  
+  const [state, setState] = useState<InformesState>({
+    reports: [],
+    areas: [],
+    workspaces: [],
+    favorites: [],
+    loading: true,
+    selectedReport: null,
+    embedToken: null,
+    searchTerm: '',
+    selectedArea: '',
+    selectedWorkspace: '',
+    viewMode: 'grid'
+  });
 
-  /**
-   * CONFIGURACIÓN DE REPORTES POWER BI
-   * ===================================
-   * 
-   * Para agregar un nuevo reporte, simplemente añade un objeto al array con:
-   * 
-   * - id: Identificador único del reporte
-   * - name: Nombre descriptivo que verá el usuario
-   * - description: Descripción del reporte (opcional)
-   * - embedUrl: URL completa de embed de Power BI (obtén esto de tu workspace de Power BI)
-   * - reportId: ID del reporte de Power BI
-   * - workspaceId: ID del workspace donde está el reporte (opcional)
-   * - isAssigned: true/false - si está asignado a usuarios
-   * - requiresRLS: true/false - si requiere Row Level Security
-   * - roles: Array de roles que pueden acceder al reporte
-   * 
-   * IMPORTANTE: El usuario autenticado se pasa automáticamente como parámetro UID
-   * para que Power BI aplique las reglas de Row Level Security correspondientes.
-   */
-  const fetchReportsFromAPI = async (): Promise<PowerBIReport[]> => {
+  // Fetch initial data
+  const fetchData = async () => {
     try {
-      // TODO: Replace with actual API call to get reports from admin system
-      // const response = await fetch('/api/powerbi/user-reports', {
-      //   headers: {
-      //     'Authorization': `Bearer ${token}`,
-      //     'Content-Type': 'application/json'
-      //   }
-      // });
-      // return await response.json();
+      setState(prev => ({ ...prev, loading: true }));
       
-      // Mock data that would come from the admin system
-      return [
-        {
-          id: '1',
-          name: 'Estado Pólizas',
-          description: 'Reporte de estado de pólizas asignadas',
-          embedUrl: '', // Configured by admin
-          reportId: '', // Configured by admin
-          workspaceId: '', // Configured by admin
-          isAssigned: true,
-          requiresRLS: true,
-          roles: ['PolicyViewer']
-        },
-        {
-          id: '2', 
-          name: 'CRM DALI',
-          description: 'Dashboard principal del CRM',
-          embedUrl: 'https://app.powerbi.com/reportEmbed?reportId=0c9aca2e-0a09-49cf-9e06-fbfe7fb62cf9&groupId=9988790d-a5c3-459b-97cb-ee8103957bbc',
-          reportId: '0c9aca2e-0a09-49cf-9e06-fbfe7fb62cf9',
-          workspaceId: '9988790d-a5c3-459b-97cb-ee8103957bbc',
-          isAssigned: true,
-          requiresRLS: true,
-          roles: ['CRMUser']
-        },
-        {
-          id: '3',
-          name: 'Transacciones Por Portafolios',
-          description: 'Análisis de transacciones por portafolios',
-          embedUrl: '', // Configured by admin
-          reportId: '', // Configured by admin  
-          workspaceId: '', // Configured by admin
-          isAssigned: true,
-          requiresRLS: true,
-          roles: ['PortfolioAnalyst']
-        },
-        {
-          id: '4',
-          name: 'Consulta Clientes Ley 2300',
-          description: 'Consulta especializada Ley 2300',
-          embedUrl: '', // Configured by admin
-          reportId: '', // Configured by admin
-          workspaceId: '', // Configured by admin
-          isAssigned: false,
-          requiresRLS: true,
-          roles: ['LegalConsultant']
-        }
-      ];
+      const [reportsData, areasData, workspacesData, favoritesData] = await Promise.all([
+        powerbiService.getMyReports({
+          search: state.searchTerm || undefined,
+          areaId: state.selectedArea || undefined,
+          workspaceId: state.selectedWorkspace || undefined
+        }),
+        powerbiService.getAreas(),
+        powerbiService.getWorkspaces(),
+        powerbiService.getFavorites()
+      ]);
+
+      // Update isFavorite flag on reports
+      const reportsWithFavorites = reportsData.map(report => ({
+        ...report,
+        isFavorite: favoritesData.includes(report.reportId)
+      }));
+
+      setState(prev => ({
+        ...prev,
+        reports: reportsWithFavorites,
+        areas: areasData,
+        workspaces: workspacesData,
+        favorites: favoritesData,
+        loading: false
+      }));
+      
     } catch (error) {
-      console.error('Error fetching reports:', error);
-      return [];
+      console.error('Error fetching data:', error);
+      toast({
+        title: "Error",
+        description: "No se pudieron cargar los informes",
+        variant: "destructive"
+      });
+      setState(prev => ({ ...prev, loading: false }));
     }
   };
 
   useEffect(() => {
-    fetchUserReports();
-  }, [user]);
+    fetchData();
+  }, [state.searchTerm, state.selectedArea, state.selectedWorkspace]);
 
-  const fetchUserReports = async () => {
+  // Handle report selection
+  const handleReportSelect = async (report: EffectiveReport) => {
     try {
-      setLoading(true);
+      // Check access before proceeding
+      const hasAccess = await powerbiService.checkReportAccess(report.reportId);
+      if (!hasAccess) {
+        toast({
+          title: "Acceso denegado",
+          description: "No tienes permisos para ver este reporte",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      setState(prev => ({ ...prev, selectedReport: report }));
       
-      // Get reports from admin-configured system
-      const allReports = await fetchReportsFromAPI();
-      
-      // Filter reports based on user assignment and roles
-      const assignedReports = allReports.filter(report => {
-        // Check if report is active and assigned to user
-        if (!report.isAssigned) return false;
-        
-        // TODO: Check if user is specifically assigned to this report
-        // This would come from the admin assignment system
-        // const userAssignments = await checkUserReportAssignments(user?.email, report.id);
-        // if (!userAssignments.isAssigned) return false;
-        
-        // If RLS is required, check user roles (placeholder logic)
-        if (report.requiresRLS && report.roles) {
-          // TODO: Replace with actual user role check
-          // return user?.roles?.some(role => report.roles?.includes(role));
-          return true; // For now, allow all assigned reports
-        }
-        
-        return true;
+      // Log audit event
+      await powerbiService.logAudit({
+        reportId: report.reportId,
+        reportName: report.reportName,
+        userId: user?.id || '',
+        userName: user?.name,
+        userEmail: user?.email,
+        action: 'view',
+        source: 'portal'
       });
-      
-      setReports(assignedReports);
+
+      // TODO: Try to get embed token
+      const embedInfo = await powerbiService.getEmbedInfo(report.reportId);
+      setState(prev => ({ ...prev, embedToken: embedInfo?.accessToken || null }));
       
     } catch (error) {
-      console.error('Error fetching reports:', error);
+      console.error('Error selecting report:', error);
       toast({
         title: "Error",
-        description: "No se pudieron cargar los informes disponibles",
+        description: "Error al abrir el reporte",
         variant: "destructive"
       });
-    } finally {
-      setLoading(false);
     }
   };
 
-  const handleReportSelect = async (report: PowerBIReport) => {
+  // Handle favorite toggle
+  const handleFavoriteToggle = async (reportId: string) => {
     try {
-      setLoadingEmbed(true);
-      setSelectedReport(report);
+      const newIsFavorite = await powerbiService.toggleFavorite(reportId);
       
-      // TODO: Get embed token for the specific report with RLS
-      // const tokenResponse = await fetch('/api/powerbi/embed-token', {
-      //   method: 'POST',
-      //   headers: {
-      //     'Content-Type': 'application/json'
-      //   },
-      //   body: JSON.stringify({
-      //     reportId: report.id,
-      //     userId: user?.email,
-      //     roles: user?.powerBIRoles || []
-      //   })
-      // });
-      // const tokenData = await tokenResponse.json();
-      // setEmbedToken(tokenData.token);
-      
-      // Mock embed token for now
-      setEmbedToken('mock-embed-token');
+      setState(prev => ({
+        ...prev,
+        reports: prev.reports.map(report =>
+          report.reportId === reportId 
+            ? { ...report, isFavorite: newIsFavorite }
+            : report
+        ),
+        favorites: newIsFavorite 
+          ? [...prev.favorites, reportId]
+          : prev.favorites.filter(id => id !== reportId)
+      }));
+
+      toast({
+        title: "Éxito",
+        description: newIsFavorite ? "Agregado a favoritos" : "Removido de favoritos"
+      });
       
     } catch (error) {
-      console.error('Error getting embed token:', error);
+      console.error('Error toggling favorite:', error);
       toast({
         title: "Error",
-        description: "No se pudo cargar el informe seleccionado",
+        description: "Error al actualizar favorito",
         variant: "destructive"
       });
-    } finally {
-      setLoadingEmbed(false);
     }
   };
 
+  // Handle back to list
   const handleBackToList = () => {
-    setSelectedReport(null);
-    setEmbedToken(null);
+    setState(prev => ({ 
+      ...prev, 
+      selectedReport: null, 
+      embedToken: null 
+    }));
   };
 
-  // Filter reports based on search term
-  const filteredReports = reports.filter(report =>
-    report.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    (report.description && report.description.toLowerCase().includes(searchTerm.toLowerCase()))
-  );
+  // Handle search change
+  const handleSearchChange = (term: string) => {
+    setState(prev => ({ ...prev, searchTerm: term }));
+  };
 
-  if (loading) {
+  // Handle filter changes
+  const handleAreaChange = (areaId: string) => {
+    setState(prev => ({ 
+      ...prev, 
+      selectedArea: areaId === 'all' ? '' : areaId,
+      selectedWorkspace: '' // Reset workspace when area changes
+    }));
+  };
+
+  const handleWorkspaceChange = (workspaceId: string) => {
+    setState(prev => ({ 
+      ...prev, 
+      selectedWorkspace: workspaceId === 'all' ? '' : workspaceId 
+    }));
+  };
+
+  const handleViewModeChange = (mode: 'grid' | 'table') => {
+    setState(prev => ({ ...prev, viewMode: mode }));
+  };
+
+  // Filter workspaces by selected area
+  const filteredWorkspaces = state.selectedArea 
+    ? state.workspaces.filter(w => w.areaId === state.selectedArea)
+    : state.workspaces;
+
+  if (state.loading) {
     return (
-      <div className="min-h-screen pt-16">
-        <div className="p-4">
+      <div className="min-h-screen pt-0">
+        <div className="px-4 py-4">
           <div className="flex items-center justify-center py-12">
-            <Loader2 className="h-8 w-8 animate-spin text-[#00c73d]" />
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            <span className="ml-2">Cargando informes...</span>
           </div>
         </div>
       </div>
@@ -220,100 +233,256 @@ export default function Informes() {
   return (
     <div className="min-h-screen pt-0">
       <div className="px-4 py-4">
-        <div className="flex items-center justify-between mb-4">
+        {/* Header */}
+        <div className="flex items-center justify-between mb-6">
           <div>
-            <h1 className="text-3xl font-bold mb-1 tracking-tight text-[#00c73d]">
+            <h1 className="text-xl md:text-2xl lg:text-3xl font-bold mb-1 tracking-tight text-primary">
               Informes Power BI
             </h1>
-            <p className="text-muted-foreground">
-              Accede a los informes asignados a tu perfil
-              {user?.role === 'admin' && (
-                <> • <a href="/admin/reports" className="text-[#00c73d] hover:underline">Administrar reportes</a></>
+            <p className="text-sm md:text-base text-muted-foreground">
+              Accede a los reportes asignados a tu perfil
+              {hasAdminRole && (
+                <> • <Link to="/admin/reports" className="text-primary hover:underline">Administrar reportes</Link></>
               )}
             </p>
           </div>
           
-          {selectedReport && (
+          {state.selectedReport && (
             <Button 
               onClick={handleBackToList}
               variant="outline"
-              className="text-[#00c73d] border-[#00c73d] hover:bg-[#00c73d] hover:text-white"
+              size="sm"
             >
-              Volver a la lista
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Volver
             </Button>
           )}
         </div>
 
-        {!selectedReport ? (
+        {!state.selectedReport ? (
           <>
-            {/* Search and view controls */}
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
-              <InformesSearch 
-                searchTerm={searchTerm}
-                onSearchChange={setSearchTerm}
-              />
-              
-              <InformesViewControls
-                viewMode={viewMode}
-                onViewModeChange={setViewMode}
-              />
+            {/* Filters and Search */}
+            <div className="flex flex-col space-y-4 mb-6">
+              {/* Search */}
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+                <Input
+                  placeholder="Buscar informes por nombre, descripción o workspace..."
+                  value={state.searchTerm}
+                  onChange={(e) => handleSearchChange(e.target.value)}
+                  className="pl-10"
+                />
+              </div>
+
+              {/* Filters */}
+              <div className="flex flex-col sm:flex-row gap-4">
+                <Select value={state.selectedArea || 'all'} onValueChange={handleAreaChange}>
+                  <SelectTrigger className="w-full sm:w-48">
+                    <SelectValue placeholder="Todas las áreas" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Todas las áreas</SelectItem>
+                    {state.areas.map((area) => (
+                      <SelectItem key={area.id} value={area.id}>
+                        {area.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+
+                <Select 
+                  value={state.selectedWorkspace || 'all'} 
+                  onValueChange={handleWorkspaceChange}
+                  disabled={!state.selectedArea}
+                >
+                  <SelectTrigger className="w-full sm:w-48">
+                    <SelectValue placeholder="Todos los workspaces" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Todos los workspaces</SelectItem>
+                    {filteredWorkspaces.map((workspace) => (
+                      <SelectItem key={workspace.id} value={workspace.id}>
+                        {workspace.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+
+                <div className="flex items-center space-x-2 ml-auto">
+                  <Button
+                    variant={state.viewMode === 'grid' ? 'default' : 'outline'}
+                    size="sm"
+                    onClick={() => handleViewModeChange('grid')}
+                  >
+                    <Grid3X3 className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    variant={state.viewMode === 'table' ? 'default' : 'outline'}
+                    size="sm"
+                    onClick={() => handleViewModeChange('table')}
+                  >
+                    <List className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
             </div>
 
-            {/* Reports list view */}
-            {viewMode === "table" ? (
-              <InformesTable 
-                reports={filteredReports}
-                onReportSelect={handleReportSelect}
-              />
+            {/* Reports Grid/Table */}
+            {state.viewMode === 'table' ? (
+              // Table view
+              <div className="border rounded-lg">
+                <div className="overflow-x-auto">
+                  <table className="w-full">
+                    <thead className="border-b bg-muted/50">
+                      <tr>
+                        <th className="text-left p-4 font-medium">Nombre</th>
+                        <th className="text-left p-4 font-medium">Workspace</th>
+                        <th className="text-left p-4 font-medium">Área</th>
+                        <th className="text-left p-4 font-medium">Estado</th>
+                        <th className="text-left p-4 font-medium">Acciones</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {state.reports.length === 0 ? (
+                        <tr>
+                          <td colSpan={5} className="text-center py-12">
+                            <AlertCircle className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
+                            <h3 className="text-lg font-medium mb-2">
+                              {state.searchTerm ? 'No se encontraron informes' : 'No hay informes disponibles'}
+                            </h3>
+                            <p className="text-muted-foreground">
+                              {state.searchTerm 
+                                ? `No hay informes que coincidan con "${state.searchTerm}"`
+                                : 'No tienes informes asignados en este momento.'
+                              }
+                            </p>
+                          </td>
+                        </tr>
+                      ) : (
+                        state.reports.map((report) => (
+                          <tr key={report.reportId} className="border-b hover:bg-muted/50">
+                            <td className="p-4">
+                              <div className="flex items-center space-x-3">
+                                <FileBarChart className="h-5 w-5 text-primary" />
+                                <div>
+                                  <div className="font-medium">{report.reportName}</div>
+                                  <div className="text-sm text-muted-foreground">
+                                    {report.source === 'workspace' ? 'Acceso por workspace' : 'Acceso directo'}
+                                  </div>
+                                </div>
+                              </div>
+                            </td>
+                            <td className="p-4">{report.workspaceName}</td>
+                            <td className="p-4">{report.areaName}</td>
+                            <td className="p-4">
+                              <div className="flex items-center space-x-2">
+                                <Badge variant="default">Asignado</Badge>
+                                {report.hasRowLevelSecurity && (
+                                  <Badge variant="outline">RLS</Badge>
+                                )}
+                                {report.isFavorite && (
+                                  <Star className="h-4 w-4 text-yellow-500 fill-current" />
+                                )}
+                              </div>
+                            </td>
+                            <td className="p-4">
+                              <div className="flex items-center space-x-2">
+                                <Button
+                                  size="sm"
+                                  onClick={() => handleReportSelect(report)}
+                                >
+                                  Ver Informe
+                                </Button>
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  onClick={() => handleFavoriteToggle(report.reportId)}
+                                >
+                                  <Star className={`h-4 w-4 ${report.isFavorite ? 'text-yellow-500 fill-current' : ''}`} />
+                                </Button>
+                              </div>
+                            </td>
+                          </tr>
+                        ))
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                {filteredReports.length === 0 ? (
+              // Grid view
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                {state.reports.length === 0 ? (
                   <div className="col-span-full">
                     <Card className="p-8 text-center">
-                      <AlertCircle className="h-12 w-12 mx-auto mb-4 text-gray-400" />
+                      <AlertCircle className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
                       <h3 className="text-lg font-medium mb-2">
-                        {searchTerm ? 'No se encontraron informes' : 'No hay informes disponibles'}
+                        {state.searchTerm ? 'No se encontraron informes' : 'No hay informes disponibles'}
                       </h3>
-                      <p className="text-gray-500">
-                        {searchTerm 
-                          ? `No hay informes que coincidan con "${searchTerm}"`
-                          : 'No tienes informes asignados en este momento. Contacta al administrador para solicitar acceso.'
+                      <p className="text-muted-foreground">
+                        {state.searchTerm 
+                          ? `No hay informes que coincidan con "${state.searchTerm}"`
+                          : 'No tienes informes asignados en este momento.'
                         }
                       </p>
                     </Card>
                   </div>
                 ) : (
-                  filteredReports.map((report) => (
+                  state.reports.map((report) => (
                     <Card 
-                      key={report.id} 
-                      className="cursor-pointer hover:shadow-lg transition-shadow border-l-4 border-l-[#00c73d]"
-                      onClick={() => handleReportSelect(report)}
+                      key={report.reportId} 
+                      className="cursor-pointer hover:shadow-lg transition-shadow border-l-4 border-l-primary"
                     >
                       <CardHeader className="pb-3">
-                        <div className="flex items-center space-x-3">
-                          <div className="p-2 bg-[#00c73d]/10 rounded-xl">
-                            <FileBarChart className="h-6 w-6 text-[#00c73d]" />
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center space-x-3">
+                            <div className="p-2 bg-primary/10 rounded-xl">
+                              <FileBarChart className="h-5 w-5 text-primary" />
+                            </div>
+                            <div className="flex-1">
+                              <CardTitle className="text-lg">{report.reportName}</CardTitle>
+                              <CardDescription className="text-sm">
+                                {report.workspaceName}
+                              </CardDescription>
+                            </div>
                           </div>
-                          <div className="flex-1">
-                            <CardTitle className="text-lg">{report.name}</CardTitle>
-                          </div>
-                        </div>
-                      </CardHeader>
-                      <CardContent className='pb-4'>
-                        <p className="text-sm text-gray-600">
-                          {report.description || 'Informe de Power BI'}
-                        </p>
-                        <div className="mt-3 flex justify-between items-center">
-                          <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full">
-                            Asignado
-                          </span>
-                          <Button 
-                            size="sm" 
-                            className="bg-[#00c73d] hover:bg-[#00c73d]/90"
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleFavoriteToggle(report.reportId);
+                            }}
                           >
-                            Ver Informe
+                            <Star className={`h-4 w-4 ${report.isFavorite ? 'text-yellow-500 fill-current' : 'text-muted-foreground'}`} />
                           </Button>
                         </div>
+                      </CardHeader>
+                      
+                      <CardContent className="pb-4">
+                        <p className="text-sm text-muted-foreground mb-3">
+                          Área: {report.areaName}
+                        </p>
+                        
+                        <div className="flex items-center justify-between mb-3">
+                          <div className="flex items-center space-x-2">
+                            <Badge variant="default" className="text-xs">Asignado</Badge>
+                            {report.hasRowLevelSecurity && (
+                              <Badge variant="outline" className="text-xs">RLS</Badge>
+                            )}
+                          </div>
+                          <span className="text-xs text-muted-foreground">
+                            {report.source === 'workspace' ? 'Por workspace' : 'Directo'}
+                          </span>
+                        </div>
+
+                        <Button 
+                          size="sm" 
+                          className="w-full"
+                          onClick={() => handleReportSelect(report)}
+                        >
+                          Ver Informe
+                        </Button>
                       </CardContent>
                     </Card>
                   ))
@@ -322,52 +491,78 @@ export default function Informes() {
             )}
           </>
         ) : (
-          // Report embed view
+          // Report viewer
           <Card className="w-full">
             <CardHeader>
-              <CardTitle className="flex items-center space-x-2">
-                <FileBarChart className="h-5 w-5 text-[#00c73d]" />
-                <span>{selectedReport.name}</span>
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              {loadingEmbed ? (
-                <div className="flex items-center justify-center py-12">
-                  <Loader2 className="h-8 w-8 animate-spin text-[#00c73d]" />
-                  <span className="ml-2">Cargando informe...</span>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-3">
+                  <div className="p-2 bg-primary/10 rounded-xl">
+                    <FileBarChart className="h-5 w-5 text-primary" />
+                  </div>
+                  <div>
+                    <CardTitle>{state.selectedReport.reportName}</CardTitle>
+                    <CardDescription>
+                      {state.selectedReport.workspaceName} • {state.selectedReport.areaName}
+                    </CardDescription>
+                  </div>
                 </div>
-              ) : (
-                <div className="w-full" style={{ height: '600px' }}>
-                  {selectedReport.embedUrl ? (
-                    <iframe
-                      title={`Power BI Report - ${selectedReport.name}`}
-                      width="100%"
-                      height="100%"
-                      src={`${selectedReport.embedUrl}&autoAuth=true&filterPaneEnabled=true&navContentPaneEnabled=true&uid=${encodeURIComponent(user?.email || '')}`}
-                      frameBorder="0"
-                      allowFullScreen={true}
-                      allow="fullscreen"
-                      className="rounded-xl"
-                    />
-                  ) : (
-                    <div className="w-full h-full bg-gray-100 rounded-xl flex items-center justify-center border-2 border-dashed border-gray-300">
-                      <div className="text-center">
-                        <FileBarChart className="h-16 w-16 mx-auto mb-4 text-gray-400" />
-                        <h3 className="text-lg font-medium mb-2">Configuración Pendiente</h3>
-                        <p className="text-gray-500 mb-4">
-                          La URL de embed para este informe no ha sido configurada.
-                        </p>
-                        <p className="text-sm text-gray-400">
-                          Report ID: {selectedReport.reportId || 'No configurado'}
-                        </p>
-                        <p className="text-sm text-gray-400">
-                          Workspace ID: {selectedReport.workspaceId || 'No configurado'}
-                        </p>
-                      </div>
-                    </div>
+                
+                <div className="flex items-center space-x-2">
+                  {state.selectedReport.hasRowLevelSecurity && (
+                    <Badge variant="outline">RLS Activado</Badge>
+                  )}
+                  {state.selectedReport.webUrl && (
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => window.open(state.selectedReport?.webUrl, '_blank')}
+                    >
+                      <ExternalLink className="h-4 w-4 mr-2" />
+                      Abrir en Power BI
+                    </Button>
                   )}
                 </div>
-              )}
+              </div>
+            </CardHeader>
+            
+            <CardContent>
+              <div className="w-full" style={{ height: '600px' }}>
+                {state.selectedReport.webUrl ? (
+                  <div className="w-full h-full bg-muted/20 rounded-xl flex items-center justify-center border-2 border-dashed border-muted-foreground/20">
+                    <div className="text-center">
+                      <FileBarChart className="h-16 w-16 mx-auto mb-4 text-muted-foreground" />
+                      <h3 className="text-lg font-medium mb-2">Próximamente integración Embedded</h3>
+                      <p className="text-muted-foreground mb-4">
+                        Por ahora, puedes abrir el reporte en una nueva pestaña usando el botón de arriba.
+                      </p>
+                      <Button
+                        onClick={() => window.open(state.selectedReport?.webUrl, '_blank')}
+                        className="mb-2"
+                      >
+                        <ExternalLink className="h-4 w-4 mr-2" />
+                        Abrir en nueva pestaña (temporal)
+                      </Button>
+                      <div className="text-xs text-muted-foreground mt-4">
+                        <p>Report ID: {state.selectedReport.reportId}</p>
+                        <p>Workspace: {state.selectedReport.workspaceId}</p>
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="w-full h-full bg-muted/20 rounded-xl flex items-center justify-center border-2 border-dashed border-muted-foreground/20">
+                    <div className="text-center">
+                      <AlertCircle className="h-16 w-16 mx-auto mb-4 text-muted-foreground" />
+                      <h3 className="text-lg font-medium mb-2">Configuración Pendiente</h3>
+                      <p className="text-muted-foreground mb-4">
+                        La URL de este informe no ha sido configurada.
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        Contacta al administrador para completar la configuración.
+                      </p>
+                    </div>
+                  </div>
+                )}
+              </div>
             </CardContent>
           </Card>
         )}

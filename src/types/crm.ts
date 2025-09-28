@@ -1,4 +1,4 @@
-export type UserRole = 'admin' | 'manager' | 'agent' | 'viewer' | 'supervisor' | 'analista' | 'gestor' | 'fp' | 'seguridad' | 'director' | 'promotor' | 'aliado' | 'socio';
+export type UserRole = 'admin' | 'manager' | 'agent' | 'viewer' | 'supervisor' | 'analista' | 'gestor' | 'fp' | 'seguridad' | 'director' | 'promotor' | 'aliado' | 'socio' | 'ais';
 
 export interface User {
   id: string;
@@ -195,7 +195,8 @@ export const getRoleDisplayName = (role: UserRole): string => {
     director: 'Director',
     promotor: 'Promotor',
     aliado: 'Aliado',
-    socio: 'Socio'
+    socio: 'Socio',
+    ais: 'AIS'
   };
   return roleDisplayMap[role] || role;
 };
