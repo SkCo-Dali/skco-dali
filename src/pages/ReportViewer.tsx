@@ -99,7 +99,7 @@ export default function ReportViewer() {
       }
 
       // Get report details from API
-      const myReports = await powerbiService.getMyReports({}, tokenData.accessToken);
+      const myReports = await powerbiService.getMyReports({}, tokenData.idToken);
       const reportDetails = myReports.find(r => r.reportId === reportId);
       
       if (!reportDetails) {
@@ -115,7 +115,7 @@ export default function ReportViewer() {
       setReport(reportDetails);
 
       // Get report pages
-      const pagesData = await powerbiService.getReportPages(reportId!, reportDetails.workspaceId, tokenData.accessToken);
+      const pagesData = await powerbiService.getReportPages(reportId!, reportDetails.workspaceId, tokenData.idToken);
       setPages(pagesData);
       if (pagesData.length > 0) {
         setActivePage(pagesData[0].id);
