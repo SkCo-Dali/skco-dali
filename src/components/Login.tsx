@@ -14,7 +14,7 @@ export function Login({ onLogin }: LoginProps) {
     <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: "#ededed" }}>
       <div className="w-full max-w-2xl">
         {/* Logo y header */}
-        <div className="text-center mb-6">
+        <div className="text-center mb-4">
           {/* Video principal más grande y completo */}
           <div className="w-full max-w-2xl h-64 mx-auto mb-4 rounded-xl overflow-hidden shadow-lg bg-black">
             <video 
