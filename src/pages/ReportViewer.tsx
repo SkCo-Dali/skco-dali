@@ -86,10 +86,12 @@ export default function ReportViewer() {
       }
 
       setIdToken(tokenData.idToken);
+      console.log('🔑 Token obtenido correctamente');
 
       // Check if user has access to this report using internal ID (using idToken for Reports APIs)
       const hasAccessResult = await checkEffectiveAccess(reportId!, tokenData.idToken);
       setHasAccess(hasAccessResult);
+      console.log('✅ Verificación de acceso:', hasAccessResult);
 
       if (!hasAccessResult) {
         toast({
@@ -115,26 +117,44 @@ export default function ReportViewer() {
       }
 
       setReport(reportDetails);
+      console.log('📄 Detalles del reporte (efectivo):', reportDetails);
 
       // Get full report details including Power BI IDs
       const fullReportDetail = await powerbiService.getReportById(reportId!, tokenData.idToken);
       setReportDetail(fullReportDetail);
+      console.log('📊 Detalle completo del reporte:', {
+        internalId: fullReportDetail.id,
+        pbiReportId: fullReportDetail.pbiReportId,
+        pbiWorkspaceId: fullReportDetail.pbiWorkspaceId,
+        datasetId: fullReportDetail.datasetId,
+        webUrl: fullReportDetail.webUrl
+      });
+
+      // Validate Power BI configuration
+      if (!fullReportDetail.pbiReportId || !fullReportDetail.pbiWorkspaceId) {
+        console.warn('⚠️ Faltan IDs de Power BI:', {
+          pbiReportId: fullReportDetail.pbiReportId || 'FALTA',
+          pbiWorkspaceId: fullReportDetail.pbiWorkspaceId || 'FALTA'
+        });
+        return; // Will show "Configuración Pendiente" screen
+      }
 
       // Get report pages using Power BI IDs
-      if (fullReportDetail.pbiReportId && fullReportDetail.pbiWorkspaceId) {
-        const pagesData = await powerbiService.getReportPages(
-          fullReportDetail.pbiReportId, 
-          fullReportDetail.pbiWorkspaceId, 
-          tokenData.idToken
-        );
-        setPages(pagesData);
-        if (pagesData.length > 0) {
-          setActivePage(pagesData[0].id);
-        }
+      console.log('📑 Obteniendo páginas del reporte...');
+      const pagesData = await powerbiService.getReportPages(
+        fullReportDetail.pbiReportId, 
+        fullReportDetail.pbiWorkspaceId, 
+        tokenData.idToken
+      );
+      setPages(pagesData);
+      console.log('📑 Páginas obtenidas:', pagesData.length);
+      
+      if (pagesData.length > 0) {
+        setActivePage(pagesData[0].id);
       }
 
     } catch (error) {
-      console.error('Error fetching report data:', error);
+      console.error('❌ Error fetching report data:', error);
       toast({
         title: "Error",
         description: "No se pudo cargar el reporte",
@@ -470,41 +490,33 @@ export default function ReportViewer() {
                       }}
                     />
                   </div>
-                ) : report?.webUrl ? (
-                  // Placeholder with web URL option (fallback)
-                  <div className="w-full h-full bg-muted/20 rounded-lg flex items-center justify-center border-2 border-dashed border-muted-foreground/20">
-                    <div className="text-center">
-                      <FileBarChart className="h-16 w-16 mx-auto mb-4 text-muted-foreground" />
-                      <h3 className="text-lg font-medium mb-2">Configurando conexión</h3>
-                      <p className="text-muted-foreground mb-4 max-w-md">
-                        Estableciendo conexión con Power BI. Si el problema persiste, 
-                        puedes abrir el reporte en una nueva pestaña.
-                      </p>
-                      <Button
-                        onClick={() => window.open(report.webUrl, '_blank')}
-                        className="mb-4"
-                      >
-                        <ExternalLink className="h-4 w-4 mr-2" />
-                        Abrir en nueva pestaña
-                      </Button>
-                      {activePage && (
-                        <div className="text-sm text-muted-foreground">
-                          Página activa: {pages.find(p => p.id === activePage)?.displayName}
-                        </div>
-                      )}
-                    </div>
-                  </div>
                 ) : (
-                  // No URL available
+                  // Missing Power BI configuration
                   <div className="w-full h-full bg-muted/20 rounded-lg flex items-center justify-center border-2 border-dashed border-muted-foreground/20">
-                    <div className="text-center">
+                    <div className="text-center max-w-md">
                       <AlertCircle className="h-16 w-16 mx-auto mb-4 text-muted-foreground" />
                       <h3 className="text-lg font-medium mb-2">Configuración Pendiente</h3>
                       <p className="text-muted-foreground mb-4">
-                        La URL de este informe no ha sido configurada.
+                        Este reporte no tiene configurados los identificadores de Power BI necesarios para mostrarlo.
                       </p>
+                      
+                      <div className="text-left bg-muted/50 rounded-lg p-4 mb-4">
+                        <p className="text-sm font-medium mb-2">Campos requeridos:</p>
+                        <ul className="text-sm text-muted-foreground space-y-1">
+                          <li className="flex items-center">
+                            {reportDetail?.pbiReportId ? '✅' : '❌'} ID del Reporte Power BI (pbiReportId)
+                          </li>
+                          <li className="flex items-center">
+                            {reportDetail?.pbiWorkspaceId ? '✅' : '❌'} ID del Workspace Power BI (pbiWorkspaceId)
+                          </li>
+                          <li className="flex items-center text-muted-foreground/70">
+                            ℹ️ URL Web (opcional, solo para botón "Abrir en Power BI")
+                          </li>
+                        </ul>
+                      </div>
+                      
                       <p className="text-sm text-muted-foreground">
-                        Contacta al administrador para completar la configuración.
+                        Contacta al administrador para completar la configuración en el módulo de administración de reportes.
                       </p>
                     </div>
                   </div>
