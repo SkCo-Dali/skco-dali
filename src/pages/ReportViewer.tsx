@@ -85,8 +85,8 @@ export default function ReportViewer() {
 
       setAccessToken(tokenData.accessToken);
 
-      // Check if user has access to this report using real API (using idToken for Reports APIs)
-      const hasAccessResult = await checkEffectiveAccess(reportId!, tokenData.idToken);
+      // Check if user has access to this report using real API (using accessToken for Reports APIs)
+      const hasAccessResult = await checkEffectiveAccess(reportId!, tokenData.accessToken);
       setHasAccess(hasAccessResult);
 
       if (!hasAccessResult) {
