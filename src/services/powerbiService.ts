@@ -44,6 +44,13 @@ class PowerBIService {
   }, token?: string): Promise<EffectiveReport[]> {
     if (!token) throw new Error('Token is required');
     
+    console.log('🔧 PowerBIService.getMyReports called with:', {
+      hasToken: !!token,
+      tokenLength: token?.length,
+      tokenPreview: token?.substring(0, 50) + '...',
+      params
+    });
+    
     const response = await getMyReports(token, {
       onlyActive: true,
       ...params

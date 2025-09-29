@@ -67,6 +67,13 @@ export default function Informes() {
       
       // Get ID token for Reports APIs
       const tokenData = await getAccessToken();
+      console.log('🔑 Token data received:', { 
+        hasIdToken: !!tokenData?.idToken, 
+        hasAccessToken: !!tokenData?.accessToken,
+        idTokenLength: tokenData?.idToken?.length,
+        idTokenPreview: tokenData?.idToken?.substring(0, 50) + '...'
+      });
+      
       if (!tokenData?.idToken) {
         throw new Error('No ID token available');
       }
