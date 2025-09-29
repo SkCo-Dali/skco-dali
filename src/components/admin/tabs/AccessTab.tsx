@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { Users, UserPlus, UserMinus, Search, Eye, Shield } from 'lucide-react';
+import React, { useState, useEffect, useCallback } from 'react';
+import { Users, UserPlus, UserMinus, Search, Eye, Shield, Loader2 } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -12,6 +12,18 @@ import { Area, Workspace, Report, UserAccess } from '@/types/powerbi';
 import { toast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
 import { ENV } from '@/config/environment';
+
+// User type for search results
+interface SearchUser {
+  Id: string;
+  Name: string;
+  PreferredName?: string;
+  Email: string;
+  Role: string;
+  IsActive: boolean;
+  CreatedAt: string;
+  UpdatedAt: string;
+}
 
 // Helper function to make API calls
 const apiCall = async (endpoint: string, options: RequestInit = {}) => {
@@ -36,7 +48,7 @@ export function AccessTab() {
   const [areas, setAreas] = useState<Area[]>([]);
   const [workspaces, setWorkspaces] = useState<Workspace[]>([]);
   const [reports, setReports] = useState<Report[]>([]);
-  const [users, setUsers] = useState<any[]>([]);
+  const [foundUsers, setFoundUsers] = useState<SearchUser[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('workspace');
   
@@ -58,9 +70,14 @@ export function AccessTab() {
   const [effectiveAccessReport, setEffectiveAccessReport] = useState<string>('');
   const [effectiveAccess, setEffectiveAccess] = useState<UserAccess[]>([]);
   
-  // Grant access form
+  // User search state
   const [selectedUser, setSelectedUser] = useState<string>('');
   const [userSearch, setUserSearch] = useState<string>('');
+  const [userSearchLoading, setUserSearchLoading] = useState(false);
+  const [userSearchError, setUserSearchError] = useState<string | null>(null);
+  const [userSearchSkip, setUserSearchSkip] = useState(0);
+  const [hasMoreUsers, setHasMoreUsers] = useState(false);
+  const [loadingMoreUsers, setLoadingMoreUsers] = useState(false);
 
   useEffect(() => {
     fetchInitialData();
@@ -112,7 +129,7 @@ export function AccessTab() {
     if (userSearch && userSearch.length > 2) {
       searchUsers();
     } else {
-      setUsers([]);
+      setFoundUsers([]);
     }
   }, [userSearch]);
 
@@ -345,35 +362,117 @@ export function AccessTab() {
     }
   };
 
-  const searchUsers = async () => {
-    try {
-      console.log('🔐 === INICIANDO searchUsers ===');
-      console.log('🔍 Búsqueda de usuario:', userSearch);
-      
-      const tokens = await getAccessToken();
-      if (!tokens) {
-        console.error('❌ No se pudo obtener token de autenticación');
-        throw new Error('No se pudo obtener token de autenticación');
+  // Debounced user search with proper API implementation
+  const searchUsers = useCallback(
+    async (searchTerm: string = userSearch, skip: number = 0, reset: boolean = true) => {
+      if (!searchTerm || searchTerm.length < 2) {
+        setFoundUsers([]);
+        setHasMoreUsers(false);
+        return;
       }
-      
-      console.log('🔑 Token obtenido para user search:', tokens.idToken.substring(0, 50) + '...');
-      
-      const endpoint = `${ENV.CRM_API_BASE_URL}/api/users?search=${encodeURIComponent(userSearch)}&page=1&page_size=20`;
-      console.log('📡 === DETALLES DE LA LLAMADA API ===');
-      console.log('🌐 Endpoint: GET', endpoint);
-      console.log('🔐 Authorization Header: Bearer ' + tokens.idToken.substring(0, 50) + '...');
-      console.log('📊 Method: GET');
-      console.log('📦 Body: N/A (GET request)');
-      
-      const usersResponse = await apiCall(endpoint, {
-        headers: { 'Authorization': `Bearer ${tokens.idToken}` }
-      });
-      
-      console.log('✅ Usuarios encontrados:', usersResponse);
-      setUsers(usersResponse.items || usersResponse);
-    } catch (error) {
-      console.error('❌ Error searching users:', error);
-      setUsers([]);
+
+      try {
+        if (reset) {
+          setUserSearchLoading(true);
+          setUserSearchError(null);
+          setUserSearchSkip(0);
+        } else {
+          setLoadingMoreUsers(true);
+        }
+
+        console.log('🔐 === INICIANDO searchUsers ===');
+        console.log('🔍 Búsqueda de usuario:', searchTerm);
+        console.log('📄 Skip:', skip);
+        
+        const tokens = await getAccessToken();
+        if (!tokens) {
+          console.error('❌ No se pudo obtener token de autenticación');
+          throw new Error('No se pudo obtener token de autenticación');
+        }
+        
+        console.log('🔑 Token obtenido para user search:', tokens.idToken.substring(0, 50) + '...');
+        
+        // Determine search parameters based on input
+        const isEmailSearch = searchTerm.includes('@');
+        const searchParams = new URLSearchParams({
+          is_active: 'true',
+          skip: skip.toString(),
+          limit: '20'
+        });
+        
+        if (isEmailSearch) {
+          searchParams.append('email', searchTerm.trim());
+        } else {
+          searchParams.append('name', searchTerm.trim());
+        }
+        
+        const endpoint = `${ENV.CRM_API_BASE_URL}/api/users/list?${searchParams.toString()}`;
+        console.log('📡 === DETALLES DE LA LLAMADA API ===');
+        console.log('🌐 Endpoint: GET', endpoint);
+        console.log('🔐 Authorization Header: Bearer ' + tokens.idToken.substring(0, 50) + '...');
+        console.log('📊 Method: GET');
+        console.log('📦 Body: N/A (GET request)');
+        
+        const usersResponse = await apiCall(endpoint, {
+          headers: { 'Authorization': `Bearer ${tokens.idToken}` }
+        });
+        
+        console.log('✅ Usuarios encontrados:', usersResponse);
+        
+        const newUsers = Array.isArray(usersResponse) ? usersResponse : (usersResponse.items || []);
+        
+        if (reset) {
+          setFoundUsers(newUsers);
+        } else {
+          setFoundUsers(prev => [...prev, ...newUsers]);
+        }
+        
+        // Check if there are more users (if we got 20, there might be more)
+        setHasMoreUsers(newUsers.length === 20);
+        setUserSearchSkip(skip + newUsers.length);
+        
+      } catch (error: any) {
+        console.error('❌ Error searching users:', error);
+        const errorMessage = error.message.includes('detail') ? 
+          JSON.parse(error.message.split(': ')[1]).detail : 
+          'Error al buscar usuarios';
+        
+        setUserSearchError(errorMessage);
+        toast({
+          title: "Error",
+          description: errorMessage,
+          variant: "destructive"
+        });
+        
+        if (reset) {
+          setFoundUsers([]);
+        }
+      } finally {
+        setUserSearchLoading(false);
+        setLoadingMoreUsers(false);
+      }
+    },
+    [getAccessToken, userSearch]
+  );
+
+  // Debounced search effect
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (userSearch && userSearch.length >= 2) {
+        searchUsers(userSearch, 0, true);
+      } else {
+        setFoundUsers([]);
+        setHasMoreUsers(false);
+        setUserSearchError(null);
+      }
+    }, 300);
+
+    return () => clearTimeout(timer);
+  }, [userSearch, searchUsers]);
+
+  const loadMoreUsers = () => {
+    if (hasMoreUsers && !loadingMoreUsers) {
+      searchUsers(userSearch, userSearchSkip, false);
     }
   };
 
@@ -396,8 +495,7 @@ export function AccessTab() {
       const endpoint = `${ENV.CRM_API_BASE_URL}/api/reports/workspaces/${selectedWorkspace}/access/grant`;
       const body = { 
         userId: selectedUser, 
-        accessLevel: "view", 
-        expiresAt: "2025-12-31T23:59:59Z" 
+        accessLevel: "view"
       };
       
       console.log('📡 === DETALLES DE LA LLAMADA API ===');
@@ -421,11 +519,15 @@ export function AccessTab() {
       setShowGrantWorkspaceDialog(false);
       setSelectedUser('');
       setUserSearch('');
+      setFoundUsers([]);
     } catch (error: any) {
       console.error('❌ Error granting workspace access:', error);
+      const errorMessage = error.message.includes('detail') ? 
+        JSON.parse(error.message.split(': ')[1]).detail : 
+        error.message || "No se pudo conceder el acceso";
       toast({
         title: "Error",
-        description: error.message || "No se pudo conceder el acceso",
+        description: errorMessage,
         variant: "destructive"
       });
     }
@@ -499,8 +601,7 @@ export function AccessTab() {
       const endpoint = `${ENV.CRM_API_BASE_URL}/api/reports/reports/${selectedReport}/access/grant`;
       const body = { 
         userId: selectedUser, 
-        accessLevel: "view", 
-        expiresAt: "2025-12-31T23:59:59Z" 
+        accessLevel: "view"
       };
       
       console.log('📡 === DETALLES DE LA LLAMADA API ===');
@@ -524,11 +625,15 @@ export function AccessTab() {
       setShowGrantReportDialog(false);
       setSelectedUser('');
       setUserSearch('');
+      setFoundUsers([]);
     } catch (error: any) {
       console.error('❌ Error granting report access:', error);
+      const errorMessage = error.message.includes('detail') ? 
+        JSON.parse(error.message.split(': ')[1]).detail : 
+        error.message || "No se pudo conceder el acceso";
       toast({
         title: "Error",
-        description: error.message || "No se pudo conceder el acceso",
+        description: errorMessage,
         variant: "destructive"
       });
     }
@@ -883,35 +988,70 @@ export function AccessTab() {
           <div className="space-y-4">
             <div>
               <Label htmlFor="user-search">Buscar Usuario</Label>
-              <Input
-                id="user-search"
-                placeholder="Buscar por nombre o email..."
-                value={userSearch}
-                onChange={(e) => setUserSearch(e.target.value)}
-              />
+              <div className="relative">
+                <Input
+                  id="user-search"
+                  placeholder="Buscar por nombre o email..."
+                  value={userSearch}
+                  onChange={(e) => setUserSearch(e.target.value)}
+                />
+                {userSearchLoading && (
+                  <Loader2 className="h-4 w-4 animate-spin absolute right-3 top-3" />
+                )}
+              </div>
+              {userSearchError && (
+                <p className="text-sm text-destructive mt-1">{userSearchError}</p>
+              )}
             </div>
 
-            {users.length > 0 && (
+            {foundUsers.length > 0 && (
               <div>
-                <Label>Usuarios Encontrados</Label>
+                <Label>Usuarios Encontrados ({foundUsers.length})</Label>
                 <Select value={selectedUser} onValueChange={setSelectedUser}>
                   <SelectTrigger>
                     <SelectValue placeholder="Seleccionar usuario" />
                   </SelectTrigger>
                   <SelectContent>
-                    {users.map((user) => (
-                      <SelectItem key={user.id || user.userId} value={user.id || user.userId}>
-                        {user.name || user.userName} ({user.email})
+                    {foundUsers.map((user) => (
+                      <SelectItem key={user.Id} value={user.Id}>
+                        {user.PreferredName || user.Name} · {user.Email}
                       </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
+                {hasMoreUsers && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={loadMoreUsers}
+                    disabled={loadingMoreUsers}
+                    className="mt-2 w-full"
+                  >
+                    {loadingMoreUsers ? (
+                      <>
+                        <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                        Cargando...
+                      </>
+                    ) : (
+                      'Cargar más usuarios'
+                    )}
+                  </Button>
+                )}
               </div>
+            )}
+
+            {userSearch.length >= 2 && !userSearchLoading && foundUsers.length === 0 && !userSearchError && (
+              <p className="text-sm text-muted-foreground">No se encontraron usuarios</p>
             )}
           </div>
 
           <DialogFooter>
-            <Button variant="outline" onClick={() => setShowGrantWorkspaceDialog(false)}>
+            <Button variant="outline" onClick={() => {
+              setShowGrantWorkspaceDialog(false);
+              setSelectedUser('');
+              setUserSearch('');
+              setFoundUsers([]);
+            }}>
               Cancelar
             </Button>
             <Button onClick={handleGrantWorkspaceAccess} disabled={!selectedUser}>
@@ -934,35 +1074,70 @@ export function AccessTab() {
           <div className="space-y-4">
             <div>
               <Label htmlFor="user-search-report">Buscar Usuario</Label>
-              <Input
-                id="user-search-report"
-                placeholder="Buscar por nombre o email..."
-                value={userSearch}
-                onChange={(e) => setUserSearch(e.target.value)}
-              />
+              <div className="relative">
+                <Input
+                  id="user-search-report"
+                  placeholder="Buscar por nombre o email..."
+                  value={userSearch}
+                  onChange={(e) => setUserSearch(e.target.value)}
+                />
+                {userSearchLoading && (
+                  <Loader2 className="h-4 w-4 animate-spin absolute right-3 top-3" />
+                )}
+              </div>
+              {userSearchError && (
+                <p className="text-sm text-destructive mt-1">{userSearchError}</p>
+              )}
             </div>
 
-            {users.length > 0 && (
+            {foundUsers.length > 0 && (
               <div>
-                <Label>Usuarios Encontrados</Label>
+                <Label>Usuarios Encontrados ({foundUsers.length})</Label>
                 <Select value={selectedUser} onValueChange={setSelectedUser}>
                   <SelectTrigger>
                     <SelectValue placeholder="Seleccionar usuario" />
                   </SelectTrigger>
                   <SelectContent>
-                    {users.map((user) => (
-                      <SelectItem key={user.id || user.userId} value={user.id || user.userId}>
-                        {user.name || user.userName} ({user.email})
+                    {foundUsers.map((user) => (
+                      <SelectItem key={user.Id} value={user.Id}>
+                        {user.PreferredName || user.Name} · {user.Email}
                       </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
+                {hasMoreUsers && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={loadMoreUsers}
+                    disabled={loadingMoreUsers}
+                    className="mt-2 w-full"
+                  >
+                    {loadingMoreUsers ? (
+                      <>
+                        <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                        Cargando...
+                      </>
+                    ) : (
+                      'Cargar más usuarios'
+                    )}
+                  </Button>
+                )}
               </div>
+            )}
+
+            {userSearch.length >= 2 && !userSearchLoading && foundUsers.length === 0 && !userSearchError && (
+              <p className="text-sm text-muted-foreground">No se encontraron usuarios</p>
             )}
           </div>
 
           <DialogFooter>
-            <Button variant="outline" onClick={() => setShowGrantReportDialog(false)}>
+            <Button variant="outline" onClick={() => {
+              setShowGrantReportDialog(false);
+              setSelectedUser('');
+              setUserSearch('');
+              setFoundUsers([]);
+            }}>
               Cancelar
             </Button>
             <Button onClick={handleGrantReportAccess} disabled={!selectedUser}>
