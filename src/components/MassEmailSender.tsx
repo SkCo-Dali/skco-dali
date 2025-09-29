@@ -225,6 +225,7 @@ export function MassEmailSender({ filteredLeads, onClose }: MassEmailSenderProps
               leads={leadsToShow}
               template={template}
               replaceDynamicFields={replaceDynamicFields}
+              alternateEmail={alternateEmail}
             />
             
             <div className="flex justify-between items-center pt-4 border-t">

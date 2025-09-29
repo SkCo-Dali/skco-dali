@@ -9,13 +9,15 @@ interface EmailPreviewProps {
   template: EmailTemplate;
   replaceDynamicFields: (template: string, lead: Lead) => string;
   maxPreviews?: number;
+  alternateEmail?: string;
 }
 
 export function EmailPreview({ 
   leads, 
   template, 
   replaceDynamicFields, 
-  maxPreviews = 1 
+  maxPreviews = 1,
+  alternateEmail 
 }: EmailPreviewProps) {
   const previewLeads = leads.slice(0, maxPreviews);
 
@@ -52,6 +54,11 @@ export function EmailPreview({
           {previewLeads.map((lead, index) => {
             const processedSubject = replaceDynamicFields(template.subject, lead);
             const processedContent = replaceDynamicFields(template.htmlContent, lead);
+            
+            // Para envíos individuales, mostrar el email alternativo si está especificado
+            const displayEmail = (leads.length === 1 && alternateEmail?.trim()) 
+              ? alternateEmail.trim() 
+              : lead.email;
 
             return (
               <Card key={lead.id} className="border-l-4 border-l-primary">
@@ -59,7 +66,12 @@ export function EmailPreview({
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="font-medium">{lead.name}</p>
-                      <p className="text-sm text-muted-foreground">{lead.email}</p>
+                      <p className="text-sm text-muted-foreground">{displayEmail}</p>
+                      {leads.length === 1 && alternateEmail?.trim() && alternateEmail !== lead.email && (
+                        <p className="text-xs text-blue-600 mt-1">
+                          Email alternativo especificado
+                        </p>
+                      )}
                     </div>
                     <Badge variant="outline">#{index + 1}</Badge>
                   </div>
