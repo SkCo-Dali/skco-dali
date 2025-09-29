@@ -410,16 +410,15 @@ export function AccessTab() {
   }, [getAccessToken, usersLoaded]);
 
   // Client-side filtering of users
-  const searchUsers = useCallback(() => {
+  const getFilteredUsers = useCallback(() => {
     if (!userSearch || userSearch.length < 2) {
-      setFoundUsers([]);
-      return;
+      return allUsers;
     }
 
     const searchTerm = userSearch.toLowerCase().trim();
     const isEmailSearch = searchTerm.includes('@');
     
-    const filtered = allUsers.filter(user => {
+    return allUsers.filter(user => {
       if (isEmailSearch) {
         return user.Email?.toLowerCase().includes(searchTerm);
       } else {
@@ -427,24 +426,12 @@ export function AccessTab() {
         return name.toLowerCase().includes(searchTerm);
       }
     });
-    
-    setFoundUsers(filtered);
-    setHasMoreUsers(false); // No pagination needed for client-side filtering
   }, [userSearch, allUsers]);
 
   // Load all users on component mount
   useEffect(() => {
     fetchAllUsers();
   }, [fetchAllUsers]);
-
-  // Debounced search effect for client-side filtering
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      searchUsers();
-    }, 300);
-
-    return () => clearTimeout(timer);
-  }, [userSearch, searchUsers]);
 
   const loadMoreUsers = () => {
     // Not needed anymore since we're doing client-side filtering
@@ -962,44 +949,42 @@ export function AccessTab() {
 
           <div className="space-y-4">
             <div>
-              <Label htmlFor="user-search">Buscar Usuario</Label>
-              <div className="relative">
-                <Input
-                  id="user-search"
-                  placeholder="Buscar por nombre o email..."
-                  value={userSearch}
-                  onChange={(e) => setUserSearch(e.target.value)}
-                />
-                {userSearchLoading && (
-                  <Loader2 className="h-4 w-4 animate-spin absolute right-3 top-3" />
-                )}
-              </div>
-              {userSearchError && (
-                <p className="text-sm text-destructive mt-1">{userSearchError}</p>
-              )}
-            </div>
-
-            {foundUsers.length > 0 && (
-              <div>
-                <Label>Usuarios Encontrados ({foundUsers.length})</Label>
+              <Label htmlFor="user-select">Seleccionar Usuario</Label>
+              {userSearchLoading ? (
+                <div className="flex items-center justify-center py-4">
+                  <Loader2 className="h-6 w-6 animate-spin" />
+                  <span className="ml-2">Cargando usuarios...</span>
+                </div>
+              ) : userSearchError ? (
+                <div className="text-sm text-destructive mt-1">{userSearchError}</div>
+              ) : (
                 <Select value={selectedUser} onValueChange={setSelectedUser}>
                   <SelectTrigger>
                     <SelectValue placeholder="Seleccionar usuario" />
                   </SelectTrigger>
                   <SelectContent>
-                    {foundUsers.map((user) => (
+                    <div className="p-2">
+                      <Input
+                        placeholder="Buscar usuario..."
+                        value={userSearch}
+                        onChange={(e) => setUserSearch(e.target.value)}
+                        className="mb-2"
+                      />
+                    </div>
+                    {getFilteredUsers().map((user) => (
                       <SelectItem key={user.Id} value={user.Id}>
                         {user.PreferredName || user.Name} · {user.Email}
                       </SelectItem>
                     ))}
+                    {getFilteredUsers().length === 0 && userSearch && (
+                      <div className="p-2 text-sm text-muted-foreground">
+                        No se encontraron usuarios
+                      </div>
+                    )}
                   </SelectContent>
                 </Select>
-              </div>
-            )}
-
-            {userSearch.length >= 2 && !userSearchLoading && foundUsers.length === 0 && !userSearchError && (
-              <p className="text-sm text-muted-foreground">No se encontraron usuarios</p>
-            )}
+              )}
+            </div>
           </div>
 
           <DialogFooter>
@@ -1030,44 +1015,42 @@ export function AccessTab() {
 
           <div className="space-y-4">
             <div>
-              <Label htmlFor="user-search-report">Buscar Usuario</Label>
-              <div className="relative">
-                <Input
-                  id="user-search-report"
-                  placeholder="Buscar por nombre o email..."
-                  value={userSearch}
-                  onChange={(e) => setUserSearch(e.target.value)}
-                />
-                {userSearchLoading && (
-                  <Loader2 className="h-4 w-4 animate-spin absolute right-3 top-3" />
-                )}
-              </div>
-              {userSearchError && (
-                <p className="text-sm text-destructive mt-1">{userSearchError}</p>
-              )}
-            </div>
-
-            {foundUsers.length > 0 && (
-              <div>
-                <Label>Usuarios Encontrados ({foundUsers.length})</Label>
+              <Label htmlFor="user-select-report">Seleccionar Usuario</Label>
+              {userSearchLoading ? (
+                <div className="flex items-center justify-center py-4">
+                  <Loader2 className="h-6 w-6 animate-spin" />
+                  <span className="ml-2">Cargando usuarios...</span>
+                </div>
+              ) : userSearchError ? (
+                <div className="text-sm text-destructive mt-1">{userSearchError}</div>
+              ) : (
                 <Select value={selectedUser} onValueChange={setSelectedUser}>
                   <SelectTrigger>
                     <SelectValue placeholder="Seleccionar usuario" />
                   </SelectTrigger>
                   <SelectContent>
-                    {foundUsers.map((user) => (
+                    <div className="p-2">
+                      <Input
+                        placeholder="Buscar usuario..."
+                        value={userSearch}
+                        onChange={(e) => setUserSearch(e.target.value)}
+                        className="mb-2"
+                      />
+                    </div>
+                    {getFilteredUsers().map((user) => (
                       <SelectItem key={user.Id} value={user.Id}>
                         {user.PreferredName || user.Name} · {user.Email}
                       </SelectItem>
                     ))}
+                    {getFilteredUsers().length === 0 && userSearch && (
+                      <div className="p-2 text-sm text-muted-foreground">
+                        No se encontraron usuarios
+                      </div>
+                    )}
                   </SelectContent>
                 </Select>
-              </div>
-            )}
-
-            {userSearch.length >= 2 && !userSearchLoading && foundUsers.length === 0 && !userSearchError && (
-              <p className="text-sm text-muted-foreground">No se encontraron usuarios</p>
-            )}
+              )}
+            </div>
           </div>
 
           <DialogFooter>
