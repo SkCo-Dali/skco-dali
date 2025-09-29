@@ -48,7 +48,7 @@ export function EmailPreview({
         </p>
       </CardHeader>
       <CardContent>
-        <div className="space-y-4">
+        <div className="space-y-4 pb-4">
           {previewLeads.map((lead, index) => {
             const processedSubject = replaceDynamicFields(template.subject, lead);
             const processedContent = replaceDynamicFields(template.htmlContent, lead);
