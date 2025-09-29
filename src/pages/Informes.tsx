@@ -65,17 +65,17 @@ export default function Informes() {
     try {
       setState(prev => ({ ...prev, loading: true }));
       
-      // Get access token for Reports APIs
+      // Get ID token for Reports APIs
       const tokenData = await getAccessToken();
       console.log('🔑 Token data received:', { 
         hasIdToken: !!tokenData?.idToken, 
         hasAccessToken: !!tokenData?.accessToken,
-        accessTokenLength: tokenData?.accessToken?.length,
-        accessTokenPreview: tokenData?.accessToken?.substring(0, 50) + '...'
+        idTokenLength: tokenData?.idToken?.length,
+        idTokenPreview: tokenData?.idToken?.substring(0, 50) + '...'
       });
       
-      if (!tokenData?.accessToken) {
-        throw new Error('No access token available');
+      if (!tokenData?.idToken) {
+        throw new Error('No ID token available');
       }
       
       const [reportsData, areasData, workspacesData, favoritesData] = await Promise.all([
@@ -83,10 +83,10 @@ export default function Informes() {
           search: state.searchTerm || undefined,
           areaId: state.selectedArea || undefined,
           workspaceId: state.selectedWorkspace || undefined
-        }, tokenData.accessToken),
-        powerbiService.getAreas({}, tokenData.accessToken),
-        powerbiService.getWorkspaces({}, tokenData.accessToken),
-        powerbiService.getFavorites({}, tokenData.accessToken)
+        }, tokenData.idToken),
+        powerbiService.getAreas({}, tokenData.idToken),
+        powerbiService.getWorkspaces({}, tokenData.idToken),
+        powerbiService.getFavorites({}, tokenData.idToken)
       ]);
 
       // Update isFavorite flag on reports
