@@ -45,7 +45,7 @@ export function EmailPreview({
             {leads.length} de {leads.length} leads
           </Badge>
         </CardTitle>
-        <p className="text-sm text-muted-foreground">
+        <p className="text-sm text-muted-foreground pb-4">
           Mostrando una vista previa del correo que se enviaría
         </p>
       </CardHeader>
