@@ -11,6 +11,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Area, Workspace, Report, UserAccess } from '@/types/powerbi';
 import { toast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
+import { ENV } from '@/config/environment';
 
 // Helper function to make API calls
 const apiCall = async (endpoint: string, options: RequestInit = {}) => {
@@ -138,10 +139,10 @@ export function AccessTab() {
       console.log('📦 Body: N/A (GET requests)');
       
       const [areasResponse, workspacesResponse] = await Promise.all([
-        apiCall('/api/reports/areas?only_active=true&search=&page=1&page_size=1000', {
+        apiCall(`${ENV.CRM_API_BASE_URL}/api/reports/areas?only_active=true&search=&page=1&page_size=1000`, {
           headers: { 'Authorization': `Bearer ${tokens.idToken}` }
         }),
-        apiCall('/api/reports/workspaces?only_active=true&search=&page=1&page_size=1000', {
+        apiCall(`${ENV.CRM_API_BASE_URL}/api/reports/workspaces?only_active=true&search=&page=1&page_size=1000`, {
           headers: { 'Authorization': `Bearer ${tokens.idToken}` }
         })
       ]);
@@ -177,7 +178,7 @@ export function AccessTab() {
       
       console.log('🔑 Token obtenido para workspaces by area:', tokens.idToken.substring(0, 50) + '...');
       
-      const endpoint = `/api/reports/workspaces?only_active=true&area_id=${areaId}&search=&page=1&page_size=1000`;
+      const endpoint = `${ENV.CRM_API_BASE_URL}/api/reports/workspaces?only_active=true&area_id=${areaId}&search=&page=1&page_size=1000`;
       console.log('📡 === DETALLES DE LA LLAMADA API ===');
       console.log('🌐 Endpoint: GET', endpoint);
       console.log('🔐 Authorization Header: Bearer ' + tokens.idToken.substring(0, 50) + '...');
@@ -220,7 +221,7 @@ export function AccessTab() {
       
       console.log('🔑 Token obtenido para reports by workspace:', tokens.idToken.substring(0, 50) + '...');
       
-      const endpoint = `/api/reports/reports?only_active=true&workspace_id=${workspaceId}&search=&page=1&page_size=1000`;
+      const endpoint = `${ENV.CRM_API_BASE_URL}/api/reports/reports?only_active=true&workspace_id=${workspaceId}&search=&page=1&page_size=1000`;
       console.log('📡 === DETALLES DE LA LLAMADA API ===');
       console.log('🌐 Endpoint: GET', endpoint);
       console.log('🔐 Authorization Header: Bearer ' + tokens.idToken.substring(0, 50) + '...');
@@ -261,7 +262,7 @@ export function AccessTab() {
       
       console.log('🔑 Token obtenido para workspace access:', tokens.idToken.substring(0, 50) + '...');
       
-      const endpoint = `/api/reports/workspaces/${selectedWorkspace}/access?status=&search=&page=1&page_size=50`;
+      const endpoint = `${ENV.CRM_API_BASE_URL}/api/reports/workspaces/${selectedWorkspace}/access?status=&search=&page=1&page_size=50`;
       console.log('📡 === DETALLES DE LA LLAMADA API ===');
       console.log('🌐 Endpoint: GET', endpoint);
       console.log('🔐 Authorization Header: Bearer ' + tokens.idToken.substring(0, 50) + '...');
@@ -293,7 +294,7 @@ export function AccessTab() {
       
       console.log('🔑 Token obtenido para report access:', tokens.idToken.substring(0, 50) + '...');
       
-      const endpoint = `/api/reports/reports/${selectedReport}/access?status=&search=&page=1&page_size=50`;
+      const endpoint = `${ENV.CRM_API_BASE_URL}/api/reports/reports/${selectedReport}/access?status=&search=&page=1&page_size=50`;
       console.log('📡 === DETALLES DE LA LLAMADA API ===');
       console.log('🌐 Endpoint: GET', endpoint);
       console.log('🔐 Authorization Header: Bearer ' + tokens.idToken.substring(0, 50) + '...');
@@ -325,7 +326,7 @@ export function AccessTab() {
       
       console.log('🔑 Token obtenido para effective access:', tokens.idToken.substring(0, 50) + '...');
       
-      const endpoint = `/api/reports/effective/reports/${effectiveAccessReport}/users?only_active_users=true&search=&page=1&page_size=50`;
+      const endpoint = `${ENV.CRM_API_BASE_URL}/api/reports/effective/reports/${effectiveAccessReport}/users?only_active_users=true&search=&page=1&page_size=50`;
       console.log('📡 === DETALLES DE LA LLAMADA API ===');
       console.log('🌐 Endpoint: GET', endpoint);
       console.log('🔐 Authorization Header: Bearer ' + tokens.idToken.substring(0, 50) + '...');
@@ -357,7 +358,7 @@ export function AccessTab() {
       
       console.log('🔑 Token obtenido para user search:', tokens.idToken.substring(0, 50) + '...');
       
-      const endpoint = `/api/users?search=${encodeURIComponent(userSearch)}&page=1&page_size=20`;
+      const endpoint = `${ENV.CRM_API_BASE_URL}/api/users?search=${encodeURIComponent(userSearch)}&page=1&page_size=20`;
       console.log('📡 === DETALLES DE LA LLAMADA API ===');
       console.log('🌐 Endpoint: GET', endpoint);
       console.log('🔐 Authorization Header: Bearer ' + tokens.idToken.substring(0, 50) + '...');
@@ -392,7 +393,7 @@ export function AccessTab() {
       
       console.log('🔑 Token obtenido para grant workspace access:', tokens.idToken.substring(0, 50) + '...');
       
-      const endpoint = `/api/reports/workspaces/${selectedWorkspace}/access/grant`;
+      const endpoint = `${ENV.CRM_API_BASE_URL}/api/reports/workspaces/${selectedWorkspace}/access/grant`;
       const body = { 
         userId: selectedUser, 
         accessLevel: "view", 
@@ -448,7 +449,7 @@ export function AccessTab() {
       
       console.log('🔑 Token obtenido para revoke workspace access:', tokens.idToken.substring(0, 50) + '...');
       
-      const endpoint = `/api/reports/workspaces/${selectedWorkspace}/access/revoke`;
+      const endpoint = `${ENV.CRM_API_BASE_URL}/api/reports/workspaces/${selectedWorkspace}/access/revoke`;
       const body = { userId };
       
       console.log('📡 === DETALLES DE LA LLAMADA API ===');
@@ -495,7 +496,7 @@ export function AccessTab() {
       
       console.log('🔑 Token obtenido para grant report access:', tokens.idToken.substring(0, 50) + '...');
       
-      const endpoint = `/api/reports/reports/${selectedReport}/access/grant`;
+      const endpoint = `${ENV.CRM_API_BASE_URL}/api/reports/reports/${selectedReport}/access/grant`;
       const body = { 
         userId: selectedUser, 
         accessLevel: "view", 
@@ -551,7 +552,7 @@ export function AccessTab() {
       
       console.log('🔑 Token obtenido para revoke report access:', tokens.idToken.substring(0, 50) + '...');
       
-      const endpoint = `/api/reports/reports/${selectedReport}/access/revoke`;
+      const endpoint = `${ENV.CRM_API_BASE_URL}/api/reports/reports/${selectedReport}/access/revoke`;
       const body = { userId };
       
       console.log('📡 === DETALLES DE LA LLAMADA API ===');
