@@ -58,6 +58,7 @@ const DEFAULT_COLUMNS: ColumnConfig[] = [
   { key: 'name', label: 'Nombre', visible: true, sortable: true },
   { key: 'campaign', label: 'Campaña', visible: true, sortable: true },
   { key: 'email', label: 'Email', visible: true, sortable: true },
+  { key: 'alternateEmail', label: 'Email Alternativo', visible: true, sortable: true },
   { key: 'phone', label: 'Teléfono', visible: true, sortable: false },
   { key: 'stage', label: 'Estado', visible: true, sortable: true },
   { key: 'assignedToName', label: 'Asignado a', visible: true, sortable: true },
