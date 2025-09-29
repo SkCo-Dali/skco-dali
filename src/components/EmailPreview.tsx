@@ -61,7 +61,7 @@ export function EmailPreview({
               : lead.email;
 
             return (
-              <Card key={lead.id} className="border-l-4 border-l-primary">
+              <Card key={lead.id} className="border-l-4 border-l-primary pb-4">
                 <CardHeader className="pb-2">
                   <div className="flex items-center justify-between">
                     <div>
