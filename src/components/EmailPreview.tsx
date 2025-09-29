@@ -35,7 +35,7 @@ export function EmailPreview({
   }
 
   return (
-    <Card>
+    <Card className="border-l-4 border-l-primary pb-4">
       <CardHeader>
         <CardTitle className="flex items-center justify-between">
           Previsualización de Emails
