@@ -37,13 +37,13 @@ export default function ReportViewer() {
   const [hasAccess, setHasAccess] = useState<boolean | null>(null);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [accessToken, setAccessToken] = useState<string>('');
+  const [idToken, setIdToken] = useState<string>('');
 
   // Power BI hook for embedding (only initialize when we have access and token)
   const powerBIHook = usePowerBIReport({
     reportId: reportId || '',
     workspaceId: report?.workspaceId || '',
-    token: accessToken,
+    token: idToken,
     onError: (error) => {
       console.error('Power BI Error:', error);
       toast({
@@ -55,7 +55,7 @@ export default function ReportViewer() {
   });
 
   // Only use Power BI hook if we have access and all required data
-  const shouldUsePowerBI = hasAccess && accessToken && report?.workspaceId && reportId;
+  const shouldUsePowerBI = hasAccess && idToken && report?.workspaceId && reportId;
 
   // Fetch report data and validate access
   useEffect(() => {
@@ -73,7 +73,7 @@ export default function ReportViewer() {
 
       // Get access token first
       const tokenData = await getAccessToken();
-      if (!tokenData?.accessToken) {
+      if (!tokenData?.idToken) {
         toast({
           title: "Error de autenticación",
           description: "No se pudo obtener el token de acceso",
@@ -83,7 +83,7 @@ export default function ReportViewer() {
         return;
       }
 
-      setAccessToken(tokenData.accessToken);
+      setIdToken(tokenData.idToken);
 
       // Check if user has access to this report using real API (using idToken for Reports APIs)
       const hasAccessResult = await checkEffectiveAccess(reportId!, tokenData.idToken);
