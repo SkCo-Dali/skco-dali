@@ -134,8 +134,18 @@ export function WorkspacesTab() {
       
       console.log('🔍 Token obtenido para PBI workspaces:', tokenData.idToken.substring(0, 50) + '...');
       
+      // Construir URL completa del API
+      const baseUrl = import.meta.env.VITE_CRM_API_BASE_URL || 'https://skcodalilmdev.azurewebsites.net';
+      const apiUrl = `${baseUrl}/api/pbi/workspaces`;
+      
+      console.log('📡 Llamando al API:', {
+        url: apiUrl,
+        method: 'GET',
+        headers: { Authorization: `Bearer ${tokenData.idToken.substring(0, 20)}...` }
+      });
+      
       // Make API call to Power BI workspaces endpoint
-      const response = await fetch('/api/pbi/workspaces', {
+      const response = await fetch(apiUrl, {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${tokenData.idToken}`,
@@ -143,15 +153,44 @@ export function WorkspacesTab() {
         }
       });
       
-      console.log('📡 API Response status:', response.status);
+      console.log('📡 API Response:', {
+        status: response.status,
+        statusText: response.statusText,
+        ok: response.ok,
+        contentType: response.headers.get('content-type')
+      });
       
       if (!response.ok) {
+        const errorText = await response.text();
+        console.error('❌ API Error Response:', errorText);
         throw new Error(`API Error: ${response.status} ${response.statusText}`);
       }
       
-      const pbiWorkspaces: PowerBIWorkspace[] = await response.json();
-      console.log('✅ Power BI Workspaces obtenidos:', pbiWorkspaces.length);
-      setPowerBIWorkspaces(pbiWorkspaces);
+      const responseText = await response.text();
+      console.log('📦 Raw Response:', responseText.substring(0, 500) + '...');
+      
+      let pbiWorkspaces: PowerBIWorkspace[];
+      try {
+        pbiWorkspaces = JSON.parse(responseText);
+        
+        // Verificar si la respuesta es un array directamente o está envuelta en un objeto
+        if (Array.isArray(pbiWorkspaces)) {
+          console.log('✅ Power BI Workspaces obtenidos (array directo):', pbiWorkspaces.length);
+        } else if (pbiWorkspaces && typeof pbiWorkspaces === 'object' && 'items' in pbiWorkspaces) {
+          // Si la respuesta tiene un formato paginado
+          pbiWorkspaces = (pbiWorkspaces as any).items;
+          console.log('✅ Power BI Workspaces obtenidos (formato paginado):', pbiWorkspaces.length);
+        } else {
+          console.error('❌ Formato de respuesta inesperado:', pbiWorkspaces);
+          throw new Error('Formato de respuesta inesperado del API');
+        }
+        
+        setPowerBIWorkspaces(pbiWorkspaces);
+      } catch (parseError) {
+        console.error('❌ Error parsing JSON:', parseError);
+        console.error('❌ Response was:', responseText);
+        throw new Error('Error al procesar la respuesta del API');
+      }
     } catch (error) {
       console.error('❌ Error fetching Power BI workspaces:', error);
       toast({
