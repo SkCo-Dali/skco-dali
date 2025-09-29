@@ -134,22 +134,52 @@ export function WorkspacesTab() {
       
       console.log('🔍 Token obtenido para PBI workspaces:', tokenData.idToken.substring(0, 50) + '...');
       
+      // Use the same base URL pattern as other Power BI API calls
+      const endpoint = `${import.meta.env.VITE_CRM_API_BASE_URL || 'https://crm-api-skandia.azurewebsites.net'}/api/pbi/workspaces`;
+      const headers = {
+        'Authorization': `Bearer ${tokenData.idToken}`,
+        'Content-Type': 'application/json'
+      };
+      
+      console.log('📡 === DETALLES DE LA LLAMADA API ===');
+      console.log('🌐 Endpoint:', endpoint);
+      console.log('🔑 Headers:', { 
+        ...headers, 
+        Authorization: `Bearer ${tokenData.idToken.substring(0, 30)}...` 
+      });
+      console.log('📋 Method: GET');
+      console.log('📦 Body: (none)');
+      
       // Make API call to Power BI workspaces endpoint
-      const response = await fetch('/api/pbi/workspaces', {
+      const response = await fetch(endpoint, {
         method: 'GET',
-        headers: {
-          'Authorization': `Bearer ${tokenData.idToken}`,
-          'Content-Type': 'application/json'
-        }
+        headers: headers
       });
       
-      console.log('📡 API Response status:', response.status);
+      console.log('📡 === DETALLES DE LA RESPUESTA ===');
+      console.log('🔢 Status:', response.status);
+      console.log('📄 Status Text:', response.statusText);
+      console.log('🏷️ Headers:', Object.fromEntries(response.headers.entries()));
+      
+      const responseText = await response.text();
+      console.log('📝 Response Body (first 500 chars):', responseText.substring(0, 500));
+      console.log('📝 Response Body type:', typeof responseText);
+      console.log('📝 Response Body length:', responseText.length);
       
       if (!response.ok) {
+        console.error('❌ API Error Response:', responseText);
         throw new Error(`API Error: ${response.status} ${response.statusText}`);
       }
       
-      const pbiWorkspaces: PowerBIWorkspace[] = await response.json();
+      let pbiWorkspaces: PowerBIWorkspace[];
+      try {
+        pbiWorkspaces = JSON.parse(responseText);
+        console.log('✅ JSON Parse successful');
+      } catch (parseError) {
+        console.error('❌ JSON Parse Error:', parseError);
+        console.error('❌ Response was not valid JSON:', responseText.substring(0, 200));
+        throw new Error('El servidor no devolvió una respuesta JSON válida');
+      }
       console.log('✅ Power BI Workspaces obtenidos:', pbiWorkspaces.length);
       setPowerBIWorkspaces(pbiWorkspaces);
     } catch (error) {
