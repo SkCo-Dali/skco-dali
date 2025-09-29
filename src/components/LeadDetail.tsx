@@ -573,7 +573,7 @@ Notas adicionales: ${lead.notes || 'Ninguna'}`;
             </DialogHeader>
 
             <Tabs defaultValue="general" className="w-full px-6">
-              <TabsList className="grid w-full grid-cols-3 bg-gray-100 rounded-full px-0 py-0 my-0 pt-0">
+              <TabsList className="grid w-full grid-cols-3 bg-gray-100 rounded-full px-0 py-0 my-0">
                 <TabsTrigger value="general" className="w-full h-full data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#00C73D] data-[state=active]:to-[#A3E40B] data-[state=active]:text-white rounded-full px-4 py-2 mt-0 text-sm font-medium transition-all duration-200">General</TabsTrigger>
                 <TabsTrigger value="management"className="w-full h-full data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#00C73D] data-[state=active]:to-[#A3E40B] data-[state=active]:text-white rounded-full px-4 py-2 mt-0 text-sm font-medium transition-all duration-200" >Gestión</TabsTrigger>
                   <TabsTrigger value="history"className="w-full h-full data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#00C73D] data-[state=active]:to-[#A3E40B] data-[state=active]:text-white rounded-full px-4 py-2 mt-0 text-sm font-medium transition-all duration-200" >Asignación</TabsTrigger>
@@ -588,6 +588,7 @@ Notas adicionales: ${lead.notes || 'Ninguna'}`;
                       Información General
                     </CardTitle>
                  
+                     <div className="grid grid-cols-2 gap-2">
                       <div className="space-y-0 border-2 border-[#3d4b5c26] shadow-md rounded-md p-2.5">
                         <Label className="p-0 text-sm text-gray-500 font-normal">Nombre completo</Label>
                         <Input
@@ -596,7 +597,15 @@ Notas adicionales: ${lead.notes || 'Ninguna'}`;
                           className="border-0 border-b border-gray-200 rounded-none px-0 py-0 m-0 text-base font-medium bg-transparent leading-none h-auto min-h-0 focus:border-gray-400 focus:shadow-none focus:ring-0"
                         />
                       </div>
-
+                       <div className="space-y-0 border-2 border-[#3d4b5c26] shadow-md rounded-md p-2.5">
+                           <Label className="p-0 text-sm text-gray-500 font-normal">Teléfono</Label>
+                           <Input
+                             value={editedLead.phone || ''}
+                             onChange={(e) => handlePhoneChange(e.target.value)}
+                             className="border-0 border-b border-gray-200 rounded-none px-0 py-0 m-0 text-base font-medium bg-transparent leading-none h-auto min-h-0 focus:border-gray-400 focus:shadow-none focus:ring-0"
+                           />
+                         </div>
+                     </div>
                       <div className="grid grid-cols-2 gap-2">
                          <div className="space-y-0 border-2 border-[#3d4b5c26] shadow-md rounded-md p-2.5">
                            <Label className="p-0 text-sm text-gray-500 font-normal">Email</Label>
@@ -611,12 +620,16 @@ Notas adicionales: ${lead.notes || 'Ninguna'}`;
                            )}
                          </div>
                          <div className="space-y-0 border-2 border-[#3d4b5c26] shadow-md rounded-md p-2.5">
-                           <Label className="p-0 text-sm text-gray-500 font-normal">Teléfono</Label>
+                           <Label className="p-0 text-sm text-gray-500 font-normal">Email Alternativo</Label>
                            <Input
-                             value={editedLead.phone || ''}
-                             onChange={(e) => handlePhoneChange(e.target.value)}
-                             className="border-0 border-b border-gray-200 rounded-none px-0 py-0 m-0 text-base font-medium bg-transparent leading-none h-auto min-h-0 focus:border-gray-400 focus:shadow-none focus:ring-0"
+                             type="email"
+                             value={(editedLead.alternateEmail || '').toLowerCase()}
+                             onChange={(e) => handleEmailChange(e.target.value)}
+                             className={`border-0 border-b border-gray-200 rounded-none px-0 py-0 m-0 text-base font-medium bg-transparent leading-none h-auto min-h-0 focus:border-gray-400 focus:shadow-none focus:ring-0 ${editedLead.alternateEmail && !isValidEmail(editedLead.alternateEmail) ? 'border-red-500' : ''}`}
                            />
+                           {editedLead.alternateEmail && !isValidEmail(editedLead.alternateEmail) && (
+                             <p className="text-red-500 text-xs mt-1">Formato de correo inválido</p>
+                           )}
                          </div>
                       </div>
 
