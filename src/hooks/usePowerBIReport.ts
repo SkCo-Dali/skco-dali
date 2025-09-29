@@ -6,14 +6,16 @@ import { fetchEmbedInfo, auditReportEvent } from '@/services/powerbiApiService';
 type PowerBIStatus = 'idle' | 'loading' | 'ready' | 'error' | 'no-access' | 'expired';
 
 interface UsePowerBIReportOptions {
-  reportId: string;
-  workspaceId: string;
+  reportId: string; // Power BI Report ID (for embedding)
+  workspaceId: string; // Power BI Workspace ID (for embedding)
+  internalReportId?: string; // Internal Report ID (for audit logging)
   token: string;
   onError?: (error: any) => void;
 }
 
 export function usePowerBIReport(options: UsePowerBIReportOptions) {
-  const { reportId, workspaceId, token, onError } = options;
+  const { reportId, workspaceId, internalReportId, token, onError } = options;
+  const auditReportId = internalReportId || reportId; // Use internal ID for audit, fallback to Power BI ID
   
   const containerRef = useRef<HTMLDivElement | null>(null);
   const [status, setStatus] = useState<PowerBIStatus>('idle');
@@ -79,7 +81,7 @@ export function usePowerBIReport(options: UsePowerBIReportOptions) {
         
         // Log audit event for viewing the report
         try {
-          await auditReportEvent(token, reportId, 'view');
+          await auditReportEvent(token, auditReportId, 'view');
         } catch (auditError) {
           console.warn('Failed to log view event:', auditError);
         }
@@ -95,7 +97,7 @@ export function usePowerBIReport(options: UsePowerBIReportOptions) {
         const pageName = newPage?.displayName || newPage?.name || 'Unknown Page';
         
         try {
-          await auditReportEvent(token, reportId, 'page_change', { 
+          await auditReportEvent(token, auditReportId, 'page_change', { 
             page: pageName,
             pageId: newPage?.name
           });
@@ -132,7 +134,7 @@ export function usePowerBIReport(options: UsePowerBIReportOptions) {
     if (report && status === 'ready') {
       try {
         await report.refresh();
-        await auditReportEvent(token, reportId, 'refresh');
+        await auditReportEvent(token, auditReportId, 'refresh');
       } catch (err) {
         console.error('Failed to refresh report:', err);
         onError?.(err);
@@ -149,7 +151,7 @@ export function usePowerBIReport(options: UsePowerBIReportOptions) {
         } else {
           await document.exitFullscreen();
         }
-        await auditReportEvent(token, reportId, 'fullscreen');
+        await auditReportEvent(token, auditReportId, 'fullscreen');
       }
     } catch (err) {
       console.error('Failed to toggle fullscreen:', err);
@@ -160,7 +162,7 @@ export function usePowerBIReport(options: UsePowerBIReportOptions) {
   // Handle export
   const exportReport = async () => {
     try {
-      await auditReportEvent(token, reportId, 'export');
+      await auditReportEvent(token, auditReportId, 'export');
       // Note: Actual export functionality would require additional Power BI API calls
       console.log('Export functionality would be implemented here');
     } catch (err) {

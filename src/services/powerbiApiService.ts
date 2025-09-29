@@ -861,6 +861,41 @@ export async function getReports(token: string, params?: {
   return result;
 }
 
+export async function getReportById(reportId: string, token: string): Promise<Report> {
+  const url = `${ENV.CRM_API_BASE_URL}/api/reports/reports/${reportId}`;
+  const headers = {
+    'Authorization': `Bearer ${token}`
+  };
+
+  console.log('🔄 [PowerBI API] getReportById Request:', {
+    url,
+    method: 'GET',
+    headers: { Authorization: `Bearer ${token.substring(0, 20)}...` },
+    reportId
+  });
+
+  const response = await fetch(url, {
+    method: 'GET',
+    headers,
+  });
+
+  console.log('📡 [PowerBI API] getReportById Response:', {
+    status: response.status,
+    statusText: response.statusText,
+    ok: response.ok
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    console.error('❌ [PowerBI API] getReportById Error:', errorText);
+    throw new Error(`Failed to fetch report: ${errorText}`);
+  }
+
+  const result = await response.json();
+  console.log('✅ [PowerBI API] getReportById Success:', result);
+  return result;
+}
+
 export async function createReport(data: Omit<Report, 'id' | 'createdAt' | 'updatedAt'>, token: string): Promise<Report> {
   const url = `${ENV.CRM_API_BASE_URL}/api/reports/reports`;
   const headers = {

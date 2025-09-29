@@ -21,7 +21,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { checkEffectiveAccess } from '@/services/powerbiApiService';
 import { usePowerBIReport } from '@/hooks/usePowerBIReport';
 import { powerbiService } from '@/services/powerbiService';
-import { EffectiveReport, ReportPage } from '@/types/powerbi';
+import { EffectiveReport, ReportPage, Report } from '@/types/powerbi';
 import { toast } from '@/hooks/use-toast';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 
@@ -31,6 +31,7 @@ export default function ReportViewer() {
   const { user, getAccessToken } = useAuth();
   
   const [report, setReport] = useState<EffectiveReport | null>(null);
+  const [reportDetail, setReportDetail] = useState<Report | null>(null);
   const [pages, setPages] = useState<ReportPage[]>([]);
   const [activePage, setActivePage] = useState<string>('');
   const [loading, setLoading] = useState(true);
@@ -41,8 +42,9 @@ export default function ReportViewer() {
 
   // Power BI hook for embedding (only initialize when we have access and token)
   const powerBIHook = usePowerBIReport({
-    reportId: reportId || '',
-    workspaceId: report?.workspaceId || '',
+    reportId: reportDetail?.pbiReportId || '',
+    workspaceId: reportDetail?.pbiWorkspaceId || '',
+    internalReportId: reportId, // Use internal ID for audit logging
     token: idToken,
     onError: (error) => {
       console.error('Power BI Error:', error);
@@ -55,7 +57,7 @@ export default function ReportViewer() {
   });
 
   // Only use Power BI hook if we have access and all required data
-  const shouldUsePowerBI = hasAccess && idToken && report?.workspaceId && reportId;
+  const shouldUsePowerBI = hasAccess && idToken && reportDetail?.pbiReportId && reportDetail?.pbiWorkspaceId;
 
   // Fetch report data and validate access
   useEffect(() => {
@@ -85,7 +87,7 @@ export default function ReportViewer() {
 
       setIdToken(tokenData.idToken);
 
-      // Check if user has access to this report using real API (using idToken for Reports APIs)
+      // Check if user has access to this report using internal ID (using idToken for Reports APIs)
       const hasAccessResult = await checkEffectiveAccess(reportId!, tokenData.idToken);
       setHasAccess(hasAccessResult);
 
@@ -98,7 +100,7 @@ export default function ReportViewer() {
         return;
       }
 
-      // Get report details from API
+      // Get report details from API - this gives us both internal and Power BI IDs
       const myReports = await powerbiService.getMyReports({}, tokenData.idToken);
       const reportDetails = myReports.find(r => r.reportId === reportId);
       
@@ -114,11 +116,21 @@ export default function ReportViewer() {
 
       setReport(reportDetails);
 
-      // Get report pages
-      const pagesData = await powerbiService.getReportPages(reportId!, reportDetails.workspaceId, tokenData.idToken);
-      setPages(pagesData);
-      if (pagesData.length > 0) {
-        setActivePage(pagesData[0].id);
+      // Get full report details including Power BI IDs
+      const fullReportDetail = await powerbiService.getReportById(reportId!, tokenData.idToken);
+      setReportDetail(fullReportDetail);
+
+      // Get report pages using Power BI IDs
+      if (fullReportDetail.pbiReportId && fullReportDetail.pbiWorkspaceId) {
+        const pagesData = await powerbiService.getReportPages(
+          fullReportDetail.pbiReportId, 
+          fullReportDetail.pbiWorkspaceId, 
+          tokenData.idToken
+        );
+        setPages(pagesData);
+        if (pagesData.length > 0) {
+          setActivePage(pagesData[0].id);
+        }
       }
 
     } catch (error) {
