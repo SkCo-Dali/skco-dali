@@ -8,10 +8,27 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { powerbiService } from '@/services/powerbiService';
 import { Area, Workspace, Report, UserAccess } from '@/types/powerbi';
 import { toast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
+
+// Helper function to make API calls
+const apiCall = async (endpoint: string, options: RequestInit = {}) => {
+  const response = await fetch(endpoint, {
+    headers: {
+      'Content-Type': 'application/json',
+      ...options.headers,
+    },
+    ...options,
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(`API Error ${response.status}: ${errorText}`);
+  }
+
+  return response.json();
+};
 
 export function AccessTab() {
   const { getAccessToken } = useAuth();
@@ -28,18 +45,22 @@ export function AccessTab() {
   const [showGrantWorkspaceDialog, setShowGrantWorkspaceDialog] = useState(false);
   
   // Report access
+  const [selectedArea, setSelectedArea] = useState<string>('');
+  const [selectedReportWorkspace, setSelectedReportWorkspace] = useState<string>('');
   const [selectedReport, setSelectedReport] = useState<string>('');
   const [reportAccess, setReportAccess] = useState<UserAccess[]>([]);
   const [showGrantReportDialog, setShowGrantReportDialog] = useState(false);
   
   // Effective access
+  const [effectiveAccessArea, setEffectiveAccessArea] = useState<string>('');
+  const [effectiveAccessWorkspace, setEffectiveAccessWorkspace] = useState<string>('');
   const [effectiveAccessReport, setEffectiveAccessReport] = useState<string>('');
   const [effectiveAccess, setEffectiveAccess] = useState<UserAccess[]>([]);
   
   // Grant access form
   const [selectedUser, setSelectedUser] = useState<string>('');
   const [userSearch, setUserSearch] = useState<string>('');
-  
+
   useEffect(() => {
     fetchInitialData();
   }, []);
@@ -51,10 +72,34 @@ export function AccessTab() {
   }, [selectedWorkspace]);
 
   useEffect(() => {
+    if (selectedArea) {
+      fetchWorkspacesByArea(selectedArea);
+    }
+  }, [selectedArea]);
+
+  useEffect(() => {
+    if (selectedReportWorkspace) {
+      fetchReportsByWorkspace(selectedReportWorkspace);
+    }
+  }, [selectedReportWorkspace]);
+
+  useEffect(() => {
     if (selectedReport) {
       fetchReportAccess();
     }
   }, [selectedReport]);
+
+  useEffect(() => {
+    if (effectiveAccessArea) {
+      fetchWorkspacesByArea(effectiveAccessArea, 'effective');
+    }
+  }, [effectiveAccessArea]);
+
+  useEffect(() => {
+    if (effectiveAccessWorkspace) {
+      fetchReportsByWorkspace(effectiveAccessWorkspace, 'effective');
+    }
+  }, [effectiveAccessWorkspace]);
 
   useEffect(() => {
     if (effectiveAccessReport) {
@@ -63,7 +108,7 @@ export function AccessTab() {
   }, [effectiveAccessReport]);
 
   useEffect(() => {
-    if (userSearch) {
+    if (userSearch && userSearch.length > 2) {
       searchUsers();
     } else {
       setUsers([]);
@@ -85,25 +130,28 @@ export function AccessTab() {
       
       // Log the API calls details
       console.log('📡 === DETALLES DE LAS LLAMADAS API INICIALES ===');
-      console.log('🌐 Endpoints: GET /api/pbi/areas, GET /api/pbi/workspaces, GET /api/pbi/reports');
+      console.log('🌐 Endpoints:');
+      console.log('  - GET /api/reports/areas?only_active=true&search=&page=1&page_size=1000');
+      console.log('  - GET /api/reports/workspaces?only_active=true&search=&page=1&page_size=1000');
       console.log('🔐 Authorization Header: Bearer ' + tokens.idToken.substring(0, 50) + '...');
-      console.log('📊 Method: GET (x3)');
+      console.log('📊 Method: GET (x2)');
       console.log('📦 Body: N/A (GET requests)');
       
-      const [areasData, workspacesData, reportsData] = await Promise.all([
-        powerbiService.getAllAreas(tokens.idToken),
-        powerbiService.getAllWorkspaces(tokens.idToken),
-        powerbiService.getReports({}, tokens.idToken)
+      const [areasResponse, workspacesResponse] = await Promise.all([
+        apiCall('/api/reports/areas?only_active=true&search=&page=1&page_size=1000', {
+          headers: { 'Authorization': `Bearer ${tokens.idToken}` }
+        }),
+        apiCall('/api/reports/workspaces?only_active=true&search=&page=1&page_size=1000', {
+          headers: { 'Authorization': `Bearer ${tokens.idToken}` }
+        })
       ]);
       
       console.log('✅ Datos iniciales obtenidos:');
-      console.log('  - Areas:', areasData);
-      console.log('  - Workspaces:', workspacesData);
-      console.log('  - Reportes:', reportsData);
+      console.log('  - Areas:', areasResponse);
+      console.log('  - Workspaces:', workspacesResponse);
       
-      setAreas(areasData.filter(a => a.isActive));
-      setWorkspaces(workspacesData.filter(w => w.isActive));
-      setReports(reportsData.filter(r => r.isActive));
+      setAreas(areasResponse.items || areasResponse);
+      setWorkspaces(workspacesResponse.items || workspacesResponse);
     } catch (error) {
       console.error('❌ Error fetching initial data:', error);
       toast({
@@ -113,6 +161,90 @@ export function AccessTab() {
       });
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchWorkspacesByArea = async (areaId: string, context: string = 'default') => {
+    try {
+      console.log(`🔐 === INICIANDO fetchWorkspacesByArea (${context}) ===`);
+      console.log('🔍 Area seleccionada:', areaId);
+      
+      const tokens = await getAccessToken();
+      if (!tokens) {
+        console.error('❌ No se pudo obtener token de autenticación');
+        throw new Error('No se pudo obtener token de autenticación');
+      }
+      
+      console.log('🔑 Token obtenido para workspaces by area:', tokens.idToken.substring(0, 50) + '...');
+      
+      const endpoint = `/api/reports/workspaces?only_active=true&area_id=${areaId}&search=&page=1&page_size=1000`;
+      console.log('📡 === DETALLES DE LA LLAMADA API ===');
+      console.log('🌐 Endpoint: GET', endpoint);
+      console.log('🔐 Authorization Header: Bearer ' + tokens.idToken.substring(0, 50) + '...');
+      console.log('📊 Method: GET');
+      console.log('📦 Body: N/A (GET request)');
+      
+      const workspacesResponse = await apiCall(endpoint, {
+        headers: { 'Authorization': `Bearer ${tokens.idToken}` }
+      });
+      
+      console.log('✅ Workspaces por área obtenidos:', workspacesResponse);
+      
+      const workspacesList = workspacesResponse.items || workspacesResponse;
+      if (context === 'effective') {
+        // Reset dependent selections
+        setEffectiveAccessWorkspace('');
+        setEffectiveAccessReport('');
+        setEffectiveAccess([]);
+      } else {
+        setSelectedReportWorkspace('');
+        setSelectedReport('');
+        setReportAccess([]);
+        setReports([]);
+      }
+    } catch (error) {
+      console.error(`❌ Error fetching workspaces by area (${context}):`, error);
+    }
+  };
+
+  const fetchReportsByWorkspace = async (workspaceId: string, context: string = 'default') => {
+    try {
+      console.log(`🔐 === INICIANDO fetchReportsByWorkspace (${context}) ===`);
+      console.log('🔍 Workspace seleccionado:', workspaceId);
+      
+      const tokens = await getAccessToken();
+      if (!tokens) {
+        console.error('❌ No se pudo obtener token de autenticación');
+        throw new Error('No se pudo obtener token de autenticación');
+      }
+      
+      console.log('🔑 Token obtenido para reports by workspace:', tokens.idToken.substring(0, 50) + '...');
+      
+      const endpoint = `/api/reports/reports?only_active=true&workspace_id=${workspaceId}&search=&page=1&page_size=1000`;
+      console.log('📡 === DETALLES DE LA LLAMADA API ===');
+      console.log('🌐 Endpoint: GET', endpoint);
+      console.log('🔐 Authorization Header: Bearer ' + tokens.idToken.substring(0, 50) + '...');
+      console.log('📊 Method: GET');
+      console.log('📦 Body: N/A (GET request)');
+      
+      const reportsResponse = await apiCall(endpoint, {
+        headers: { 'Authorization': `Bearer ${tokens.idToken}` }
+      });
+      
+      console.log('✅ Reportes por workspace obtenidos:', reportsResponse);
+      
+      const reportsList = reportsResponse.items || reportsResponse;
+      setReports(reportsList);
+      
+      if (context === 'effective') {
+        setEffectiveAccessReport('');
+        setEffectiveAccess([]);
+      } else {
+        setSelectedReport('');
+        setReportAccess([]);
+      }
+    } catch (error) {
+      console.error(`❌ Error fetching reports by workspace (${context}):`, error);
     }
   };
 
@@ -129,19 +261,22 @@ export function AccessTab() {
       
       console.log('🔑 Token obtenido para workspace access:', tokens.idToken.substring(0, 50) + '...');
       
-      // Log the API call details
+      const endpoint = `/api/reports/workspaces/${selectedWorkspace}/access?status=&search=&page=1&page_size=50`;
       console.log('📡 === DETALLES DE LA LLAMADA API ===');
-      console.log('🌐 Endpoint: GET /api/pbi/workspaces/' + selectedWorkspace + '/access');
+      console.log('🌐 Endpoint: GET', endpoint);
       console.log('🔐 Authorization Header: Bearer ' + tokens.idToken.substring(0, 50) + '...');
       console.log('📊 Method: GET');
       console.log('📦 Body: N/A (GET request)');
       
-      const access = await powerbiService.getWorkspaceAccess(selectedWorkspace, {}, tokens.idToken);
+      const accessResponse = await apiCall(endpoint, {
+        headers: { 'Authorization': `Bearer ${tokens.idToken}` }
+      });
       
-      console.log('✅ Workspace access obtenido:', access);
-      setWorkspaceAccess(access);
+      console.log('✅ Workspace access obtenido:', accessResponse);
+      setWorkspaceAccess(accessResponse.items || accessResponse);
     } catch (error) {
       console.error('❌ Error fetching workspace access:', error);
+      setWorkspaceAccess([]);
     }
   };
 
@@ -158,19 +293,22 @@ export function AccessTab() {
       
       console.log('🔑 Token obtenido para report access:', tokens.idToken.substring(0, 50) + '...');
       
-      // Log the API call details
+      const endpoint = `/api/reports/reports/${selectedReport}/access?status=&search=&page=1&page_size=50`;
       console.log('📡 === DETALLES DE LA LLAMADA API ===');
-      console.log('🌐 Endpoint: GET /api/pbi/reports/' + selectedReport + '/access');
+      console.log('🌐 Endpoint: GET', endpoint);
       console.log('🔐 Authorization Header: Bearer ' + tokens.idToken.substring(0, 50) + '...');
       console.log('📊 Method: GET');
       console.log('📦 Body: N/A (GET request)');
       
-      const access = await powerbiService.getReportAccess(selectedReport, {}, tokens.idToken);
+      const accessResponse = await apiCall(endpoint, {
+        headers: { 'Authorization': `Bearer ${tokens.idToken}` }
+      });
       
-      console.log('✅ Report access obtenido:', access);
-      setReportAccess(access);
+      console.log('✅ Report access obtenido:', accessResponse);
+      setReportAccess(accessResponse.items || accessResponse);
     } catch (error) {
       console.error('❌ Error fetching report access:', error);
+      setReportAccess([]);
     }
   };
 
@@ -187,19 +325,22 @@ export function AccessTab() {
       
       console.log('🔑 Token obtenido para effective access:', tokens.idToken.substring(0, 50) + '...');
       
-      // Log the API call details
+      const endpoint = `/api/reports/effective/reports/${effectiveAccessReport}/users?only_active_users=true&search=&page=1&page_size=50`;
       console.log('📡 === DETALLES DE LA LLAMADA API ===');
-      console.log('🌐 Endpoint: GET /api/pbi/reports/' + effectiveAccessReport + '/users');
+      console.log('🌐 Endpoint: GET', endpoint);
       console.log('🔐 Authorization Header: Bearer ' + tokens.idToken.substring(0, 50) + '...');
       console.log('📊 Method: GET');
       console.log('📦 Body: N/A (GET request)');
       
-      const access = await powerbiService.getEffectiveReportUsers(effectiveAccessReport, {}, tokens.idToken);
+      const accessResponse = await apiCall(endpoint, {
+        headers: { 'Authorization': `Bearer ${tokens.idToken}` }
+      });
       
-      console.log('✅ Effective access obtenido:', access);
-      setEffectiveAccess(access);
+      console.log('✅ Effective access obtenido:', accessResponse);
+      setEffectiveAccess(accessResponse.items || accessResponse);
     } catch (error) {
       console.error('❌ Error fetching effective access:', error);
+      setEffectiveAccess([]);
     }
   };
 
@@ -216,19 +357,22 @@ export function AccessTab() {
       
       console.log('🔑 Token obtenido para user search:', tokens.idToken.substring(0, 50) + '...');
       
-      // Log the API call details
+      const endpoint = `/api/users?search=${encodeURIComponent(userSearch)}&page=1&page_size=20`;
       console.log('📡 === DETALLES DE LA LLAMADA API ===');
-      console.log('🌐 Endpoint: GET /api/users');
+      console.log('🌐 Endpoint: GET', endpoint);
       console.log('🔐 Authorization Header: Bearer ' + tokens.idToken.substring(0, 50) + '...');
       console.log('📊 Method: GET');
-      console.log('📦 Query params: search=' + userSearch);
+      console.log('📦 Body: N/A (GET request)');
       
-      const usersData = await powerbiService.getUsers(userSearch, tokens.idToken);
+      const usersResponse = await apiCall(endpoint, {
+        headers: { 'Authorization': `Bearer ${tokens.idToken}` }
+      });
       
-      console.log('✅ Usuarios encontrados:', usersData);
-      setUsers(usersData);
+      console.log('✅ Usuarios encontrados:', usersResponse);
+      setUsers(usersResponse.items || usersResponse);
     } catch (error) {
       console.error('❌ Error searching users:', error);
+      setUsers([]);
     }
   };
 
@@ -248,14 +392,24 @@ export function AccessTab() {
       
       console.log('🔑 Token obtenido para grant workspace access:', tokens.idToken.substring(0, 50) + '...');
       
-      // Log the API call details
+      const endpoint = `/api/reports/workspaces/${selectedWorkspace}/access/grant`;
+      const body = { 
+        userId: selectedUser, 
+        accessLevel: "view", 
+        expiresAt: "2025-12-31T23:59:59Z" 
+      };
+      
       console.log('📡 === DETALLES DE LA LLAMADA API ===');
-      console.log('🌐 Endpoint: POST /api/pbi/workspaces/' + selectedWorkspace + '/access');
+      console.log('🌐 Endpoint: POST', endpoint);
       console.log('🔐 Authorization Header: Bearer ' + tokens.idToken.substring(0, 50) + '...');
       console.log('📊 Method: POST');
-      console.log('📦 Body:', { userId: selectedUser });
+      console.log('📦 Body:', body);
       
-      await powerbiService.grantWorkspaceAccess(selectedWorkspace, selectedUser, undefined, tokens.idToken);
+      await apiCall(endpoint, {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${tokens.idToken}` },
+        body: JSON.stringify(body)
+      });
       
       console.log('✅ Acceso a workspace concedido correctamente');
       toast({
@@ -294,14 +448,20 @@ export function AccessTab() {
       
       console.log('🔑 Token obtenido para revoke workspace access:', tokens.idToken.substring(0, 50) + '...');
       
-      // Log the API call details
-      console.log('📡 === DETALLES DE LA LLAMADA API ===');
-      console.log('🌐 Endpoint: DELETE /api/pbi/workspaces/' + selectedWorkspace + '/access/' + userId);
-      console.log('🔐 Authorization Header: Bearer ' + tokens.idToken.substring(0, 50) + '...');
-      console.log('📊 Method: DELETE');
-      console.log('📦 Body: N/A (DELETE request)');
+      const endpoint = `/api/reports/workspaces/${selectedWorkspace}/access/revoke`;
+      const body = { userId };
       
-      await powerbiService.revokeWorkspaceAccess(selectedWorkspace, userId, tokens.idToken);
+      console.log('📡 === DETALLES DE LA LLAMADA API ===');
+      console.log('🌐 Endpoint: POST', endpoint);
+      console.log('🔐 Authorization Header: Bearer ' + tokens.idToken.substring(0, 50) + '...');
+      console.log('📊 Method: POST');
+      console.log('📦 Body:', body);
+      
+      await apiCall(endpoint, {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${tokens.idToken}` },
+        body: JSON.stringify(body)
+      });
       
       console.log('✅ Acceso a workspace revocado correctamente');
       toast({
@@ -335,14 +495,24 @@ export function AccessTab() {
       
       console.log('🔑 Token obtenido para grant report access:', tokens.idToken.substring(0, 50) + '...');
       
-      // Log the API call details
+      const endpoint = `/api/reports/reports/${selectedReport}/access/grant`;
+      const body = { 
+        userId: selectedUser, 
+        accessLevel: "view", 
+        expiresAt: "2025-12-31T23:59:59Z" 
+      };
+      
       console.log('📡 === DETALLES DE LA LLAMADA API ===');
-      console.log('🌐 Endpoint: POST /api/pbi/reports/' + selectedReport + '/access');
+      console.log('🌐 Endpoint: POST', endpoint);
       console.log('🔐 Authorization Header: Bearer ' + tokens.idToken.substring(0, 50) + '...');
       console.log('📊 Method: POST');
-      console.log('📦 Body:', { userId: selectedUser });
+      console.log('📦 Body:', body);
       
-      await powerbiService.grantReportAccess(selectedReport, selectedUser, undefined, tokens.idToken);
+      await apiCall(endpoint, {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${tokens.idToken}` },
+        body: JSON.stringify(body)
+      });
       
       console.log('✅ Acceso a reporte concedido correctamente');
       toast({
@@ -381,14 +551,20 @@ export function AccessTab() {
       
       console.log('🔑 Token obtenido para revoke report access:', tokens.idToken.substring(0, 50) + '...');
       
-      // Log the API call details
-      console.log('📡 === DETALLES DE LA LLAMADA API ===');
-      console.log('🌐 Endpoint: DELETE /api/pbi/reports/' + selectedReport + '/access/' + userId);
-      console.log('🔐 Authorization Header: Bearer ' + tokens.idToken.substring(0, 50) + '...');
-      console.log('📊 Method: DELETE');
-      console.log('📦 Body: N/A (DELETE request)');
+      const endpoint = `/api/reports/reports/${selectedReport}/access/revoke`;
+      const body = { userId };
       
-      await powerbiService.revokeReportAccess(selectedReport, userId, tokens.idToken);
+      console.log('📡 === DETALLES DE LA LLAMADA API ===');
+      console.log('🌐 Endpoint: POST', endpoint);
+      console.log('🔐 Authorization Header: Bearer ' + tokens.idToken.substring(0, 50) + '...');
+      console.log('📊 Method: POST');
+      console.log('📦 Body:', body);
+      
+      await apiCall(endpoint, {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${tokens.idToken}` },
+        body: JSON.stringify(body)
+      });
       
       console.log('✅ Acceso a reporte revocado correctamente');
       toast({
@@ -458,7 +634,6 @@ export function AccessTab() {
                 </SelectContent>
               </Select>
             </div>
-            
             {selectedWorkspace && (
               <Button onClick={() => setShowGrantWorkspaceDialog(true)}>
                 <UserPlus className="h-4 w-4 mr-2" />
@@ -467,47 +642,42 @@ export function AccessTab() {
             )}
           </div>
 
-          {selectedWorkspace ? (
+          {selectedWorkspace && (
             <Card>
               <CardHeader>
-                <CardTitle className="flex items-center space-x-2">
-                  <Users className="h-5 w-5" />
-                  <span>Usuarios con acceso a {getWorkspaceName(selectedWorkspace)}</span>
+                <CardTitle className="flex items-center">
+                  <Shield className="h-5 w-5 mr-2" />
+                  Usuarios con Acceso: {getWorkspaceName(selectedWorkspace)}
                 </CardTitle>
                 <CardDescription>
-                  {workspaceAccess.length} usuario(s) con acceso
+                  Lista de usuarios que tienen acceso directo al workspace
                 </CardDescription>
               </CardHeader>
               <CardContent>
                 {workspaceAccess.length === 0 ? (
-                  <div className="text-center py-8">
-                    <Users className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
-                    <p className="text-muted-foreground">
-                      No hay usuarios con acceso a este workspace
-                    </p>
-                  </div>
+                  <p className="text-muted-foreground">No hay usuarios con acceso directo</p>
                 ) : (
-                  <div className="space-y-3">
+                  <div className="space-y-2">
                     {workspaceAccess.map((access) => (
                       <div key={access.userId} className="flex items-center justify-between p-3 border rounded-lg">
-                        <div>
-                          <p className="font-medium">{access.userName}</p>
-                          <p className="text-sm text-muted-foreground">{access.userEmail}</p>
-                          <div className="flex items-center space-x-2 mt-1">
-                            <Badge variant="outline">{access.accessLevel}</Badge>
-                            <span className="text-xs text-muted-foreground">
-                              Concedido: {new Date(access.grantedAt).toLocaleDateString()}
-                            </span>
+                        <div className="flex items-center space-x-4">
+                          <div>
+                            <p className="font-medium">{access.userName || access.userEmail}</p>
+                            <p className="text-sm text-muted-foreground">{access.userEmail}</p>
                           </div>
+                          <Badge variant="outline">{access.accessLevel}</Badge>
+                          {access.expiresAt && (
+                            <Badge variant="secondary">
+                              Expira: {new Date(access.expiresAt).toLocaleDateString()}
+                            </Badge>
+                          )}
                         </div>
                         <Button
+                          variant="destructive"
                           size="sm"
-                          variant="outline"
-                          onClick={() => handleRevokeWorkspaceAccess(access.userId, access.userName!)}
-                          className="text-destructive hover:text-destructive"
+                          onClick={() => handleRevokeWorkspaceAccess(access.userId, access.userName || access.userEmail || '')}
                         >
-                          <UserMinus className="h-4 w-4 mr-1" />
-                          Revocar
+                          <UserMinus className="h-4 w-4" />
                         </Button>
                       </div>
                     ))}
@@ -515,34 +685,53 @@ export function AccessTab() {
                 )}
               </CardContent>
             </Card>
-          ) : (
-            <Card className="p-8 text-center">
-              <Shield className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
-              <p className="text-muted-foreground">
-                Selecciona un workspace para ver y gestionar los accesos
-              </p>
-            </Card>
           )}
         </TabsContent>
 
         {/* Report Access Tab */}
         <TabsContent value="report" className="space-y-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-4">
-              <Select value={selectedReport} onValueChange={setSelectedReport}>
-                <SelectTrigger className="w-64">
-                  <SelectValue placeholder="Seleccionar reporte" />
-                </SelectTrigger>
-                <SelectContent>
-                  {reports.map((report) => (
-                    <SelectItem key={report.id} value={report.id}>
-                      {report.name}
+          <div className="grid grid-cols-4 gap-4">
+            <Select value={selectedArea} onValueChange={setSelectedArea}>
+              <SelectTrigger>
+                <SelectValue placeholder="Seleccionar área" />
+              </SelectTrigger>
+              <SelectContent>
+                {areas.map((area) => (
+                  <SelectItem key={area.id} value={area.id}>
+                    {area.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+
+            <Select value={selectedReportWorkspace} onValueChange={setSelectedReportWorkspace} disabled={!selectedArea}>
+              <SelectTrigger>
+                <SelectValue placeholder="Seleccionar workspace" />
+              </SelectTrigger>
+              <SelectContent>
+                {workspaces
+                  .filter(w => w.areaId === selectedArea)
+                  .map((workspace) => (
+                    <SelectItem key={workspace.id} value={workspace.id}>
+                      {workspace.name}
                     </SelectItem>
                   ))}
-                </SelectContent>
-              </Select>
-            </div>
-            
+              </SelectContent>
+            </Select>
+
+            <Select value={selectedReport} onValueChange={setSelectedReport} disabled={!selectedReportWorkspace}>
+              <SelectTrigger>
+                <SelectValue placeholder="Seleccionar reporte" />
+              </SelectTrigger>
+              <SelectContent>
+                {reports.map((report) => (
+                  <SelectItem key={report.id} value={report.id}>
+                    {report.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+
             {selectedReport && (
               <Button onClick={() => setShowGrantReportDialog(true)}>
                 <UserPlus className="h-4 w-4 mr-2" />
@@ -551,47 +740,42 @@ export function AccessTab() {
             )}
           </div>
 
-          {selectedReport ? (
+          {selectedReport && (
             <Card>
               <CardHeader>
-                <CardTitle className="flex items-center space-x-2">
-                  <Users className="h-5 w-5" />
-                  <span>Usuarios con acceso directo a {getReportName(selectedReport)}</span>
+                <CardTitle className="flex items-center">
+                  <Eye className="h-5 w-5 mr-2" />
+                  Usuarios con Acceso: {getReportName(selectedReport)}
                 </CardTitle>
                 <CardDescription>
-                  {reportAccess.length} usuario(s) con acceso directo
+                  Lista de usuarios que tienen acceso directo al reporte
                 </CardDescription>
               </CardHeader>
               <CardContent>
                 {reportAccess.length === 0 ? (
-                  <div className="text-center py-8">
-                    <Users className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
-                    <p className="text-muted-foreground">
-                      No hay usuarios con acceso directo a este reporte
-                    </p>
-                  </div>
+                  <p className="text-muted-foreground">No hay usuarios con acceso directo</p>
                 ) : (
-                  <div className="space-y-3">
+                  <div className="space-y-2">
                     {reportAccess.map((access) => (
                       <div key={access.userId} className="flex items-center justify-between p-3 border rounded-lg">
-                        <div>
-                          <p className="font-medium">{access.userName}</p>
-                          <p className="text-sm text-muted-foreground">{access.userEmail}</p>
-                          <div className="flex items-center space-x-2 mt-1">
-                            <Badge variant="outline">{access.accessLevel}</Badge>
-                            <span className="text-xs text-muted-foreground">
-                              Concedido: {new Date(access.grantedAt).toLocaleDateString()}
-                            </span>
+                        <div className="flex items-center space-x-4">
+                          <div>
+                            <p className="font-medium">{access.userName || access.userEmail}</p>
+                            <p className="text-sm text-muted-foreground">{access.userEmail}</p>
                           </div>
+                          <Badge variant="outline">{access.accessLevel}</Badge>
+                          {access.expiresAt && (
+                            <Badge variant="secondary">
+                              Expira: {new Date(access.expiresAt).toLocaleDateString()}
+                            </Badge>
+                          )}
                         </div>
                         <Button
+                          variant="destructive"
                           size="sm"
-                          variant="outline"
-                          onClick={() => handleRevokeReportAccess(access.userId, access.userName!)}
-                          className="text-destructive hover:text-destructive"
+                          onClick={() => handleRevokeReportAccess(access.userId, access.userName || access.userEmail || '')}
                         >
-                          <UserMinus className="h-4 w-4 mr-1" />
-                          Revocar
+                          <UserMinus className="h-4 w-4" />
                         </Button>
                       </div>
                     ))}
@@ -599,21 +783,42 @@ export function AccessTab() {
                 )}
               </CardContent>
             </Card>
-          ) : (
-            <Card className="p-8 text-center">
-              <Shield className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
-              <p className="text-muted-foreground">
-                Selecciona un reporte para ver y gestionar los accesos directos
-              </p>
-            </Card>
           )}
         </TabsContent>
 
         {/* Effective Access Tab */}
         <TabsContent value="effective" className="space-y-4">
-          <div className="flex items-center space-x-4">
-            <Select value={effectiveAccessReport} onValueChange={setEffectiveAccessReport}>
-              <SelectTrigger className="w-64">
+          <div className="grid grid-cols-3 gap-4">
+            <Select value={effectiveAccessArea} onValueChange={setEffectiveAccessArea}>
+              <SelectTrigger>
+                <SelectValue placeholder="Seleccionar área" />
+              </SelectTrigger>
+              <SelectContent>
+                {areas.map((area) => (
+                  <SelectItem key={area.id} value={area.id}>
+                    {area.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+
+            <Select value={effectiveAccessWorkspace} onValueChange={setEffectiveAccessWorkspace} disabled={!effectiveAccessArea}>
+              <SelectTrigger>
+                <SelectValue placeholder="Seleccionar workspace" />
+              </SelectTrigger>
+              <SelectContent>
+                {workspaces
+                  .filter(w => w.areaId === effectiveAccessArea)
+                  .map((workspace) => (
+                    <SelectItem key={workspace.id} value={workspace.id}>
+                      {workspace.name}
+                    </SelectItem>
+                  ))}
+              </SelectContent>
+            </Select>
+
+            <Select value={effectiveAccessReport} onValueChange={setEffectiveAccessReport} disabled={!effectiveAccessWorkspace}>
+              <SelectTrigger>
                 <SelectValue placeholder="Seleccionar reporte" />
               </SelectTrigger>
               <SelectContent>
@@ -626,51 +831,39 @@ export function AccessTab() {
             </Select>
           </div>
 
-          {effectiveAccessReport ? (
+          {effectiveAccessReport && (
             <Card>
               <CardHeader>
-                <CardTitle className="flex items-center space-x-2">
-                  <Eye className="h-5 w-5" />
-                  <span>Acceso efectivo a {getReportName(effectiveAccessReport)}</span>
+                <CardTitle className="flex items-center">
+                  <Users className="h-5 w-5 mr-2" />
+                  Acceso Efectivo: {getReportName(effectiveAccessReport)}
                 </CardTitle>
                 <CardDescription>
-                  Usuarios que pueden acceder al reporte (por workspace + acceso directo)
+                  Todos los usuarios que pueden acceder al reporte (por workspace + acceso directo)
                 </CardDescription>
               </CardHeader>
               <CardContent>
                 {effectiveAccess.length === 0 ? (
-                  <div className="text-center py-8">
-                    <Users className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
-                    <p className="text-muted-foreground">
-                      No hay usuarios con acceso efectivo a este reporte
-                    </p>
-                  </div>
+                  <p className="text-muted-foreground">No hay usuarios con acceso</p>
                 ) : (
-                  <div className="space-y-3">
-                    {effectiveAccess.map((access, index) => (
-                      <div key={`${access.userId}-${index}`} className="flex items-center justify-between p-3 border rounded-lg">
-                        <div>
-                          <p className="font-medium">{access.userName}</p>
-                          <p className="text-sm text-muted-foreground">{access.userEmail}</p>
-                          <div className="flex items-center space-x-2 mt-1">
-                            <Badge variant="outline">{access.accessLevel}</Badge>
-                            <Badge variant="secondary">
-                              {access.grantedBy === 'workspace' ? 'Via Workspace' : 'Directo'}
-                            </Badge>
+                  <div className="space-y-2">
+                    {effectiveAccess.map((access) => (
+                      <div key={access.userId} className="flex items-center justify-between p-3 border rounded-lg">
+                        <div className="flex items-center space-x-4">
+                          <div>
+                            <p className="font-medium">{access.userName || access.userEmail}</p>
+                            <p className="text-sm text-muted-foreground">{access.userEmail}</p>
                           </div>
+                          <Badge variant="outline">{access.accessLevel}</Badge>
+                          <Badge variant={(access as any).source === 'workspace' ? 'default' : 'secondary'}>
+                            {(access as any).source === 'workspace' ? 'Por Workspace' : 'Directo'}
+                          </Badge>
                         </div>
                       </div>
                     ))}
                   </div>
                 )}
               </CardContent>
-            </Card>
-          ) : (
-            <Card className="p-8 text-center">
-              <Eye className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
-              <p className="text-muted-foreground">
-                Selecciona un reporte para ver todos los usuarios que tienen acceso
-              </p>
             </Card>
           )}
         </TabsContent>
@@ -682,36 +875,32 @@ export function AccessTab() {
           <DialogHeader>
             <DialogTitle>Conceder Acceso al Workspace</DialogTitle>
             <DialogDescription>
-              Concede acceso al workspace "{getWorkspaceName(selectedWorkspace)}"
+              Busca y selecciona un usuario para concederle acceso al workspace seleccionado.
             </DialogDescription>
           </DialogHeader>
-          
+
           <div className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="userSearch">Buscar Usuario</Label>
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-                <Input
-                  id="userSearch"
-                  value={userSearch}
-                  onChange={(e) => setUserSearch(e.target.value)}
-                  placeholder="Buscar por nombre o email..."
-                  className="pl-10"
-                />
-              </div>
+            <div>
+              <Label htmlFor="user-search">Buscar Usuario</Label>
+              <Input
+                id="user-search"
+                placeholder="Buscar por nombre o email..."
+                value={userSearch}
+                onChange={(e) => setUserSearch(e.target.value)}
+              />
             </div>
-            
+
             {users.length > 0 && (
-              <div className="space-y-2">
-                <Label>Seleccionar Usuario</Label>
+              <div>
+                <Label>Usuarios Encontrados</Label>
                 <Select value={selectedUser} onValueChange={setSelectedUser}>
                   <SelectTrigger>
                     <SelectValue placeholder="Seleccionar usuario" />
                   </SelectTrigger>
                   <SelectContent>
                     {users.map((user) => (
-                      <SelectItem key={user.id} value={user.id}>
-                        {user.name} ({user.email})
+                      <SelectItem key={user.id || user.userId} value={user.id || user.userId}>
+                        {user.name || user.userName} ({user.email})
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -719,7 +908,7 @@ export function AccessTab() {
               </div>
             )}
           </div>
-          
+
           <DialogFooter>
             <Button variant="outline" onClick={() => setShowGrantWorkspaceDialog(false)}>
               Cancelar
@@ -737,36 +926,32 @@ export function AccessTab() {
           <DialogHeader>
             <DialogTitle>Conceder Acceso al Reporte</DialogTitle>
             <DialogDescription>
-              Concede acceso directo al reporte "{getReportName(selectedReport)}"
+              Busca y selecciona un usuario para concederle acceso al reporte seleccionado.
             </DialogDescription>
           </DialogHeader>
-          
+
           <div className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="userSearch">Buscar Usuario</Label>
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-                <Input
-                  id="userSearch"
-                  value={userSearch}
-                  onChange={(e) => setUserSearch(e.target.value)}
-                  placeholder="Buscar por nombre o email..."
-                  className="pl-10"
-                />
-              </div>
+            <div>
+              <Label htmlFor="user-search-report">Buscar Usuario</Label>
+              <Input
+                id="user-search-report"
+                placeholder="Buscar por nombre o email..."
+                value={userSearch}
+                onChange={(e) => setUserSearch(e.target.value)}
+              />
             </div>
-            
+
             {users.length > 0 && (
-              <div className="space-y-2">
-                <Label>Seleccionar Usuario</Label>
+              <div>
+                <Label>Usuarios Encontrados</Label>
                 <Select value={selectedUser} onValueChange={setSelectedUser}>
                   <SelectTrigger>
                     <SelectValue placeholder="Seleccionar usuario" />
                   </SelectTrigger>
                   <SelectContent>
                     {users.map((user) => (
-                      <SelectItem key={user.id} value={user.id}>
-                        {user.name} ({user.email})
+                      <SelectItem key={user.id || user.userId} value={user.id || user.userId}>
+                        {user.name || user.userName} ({user.email})
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -774,7 +959,7 @@ export function AccessTab() {
               </div>
             )}
           </div>
-          
+
           <DialogFooter>
             <Button variant="outline" onClick={() => setShowGrantReportDialog(false)}>
               Cancelar
