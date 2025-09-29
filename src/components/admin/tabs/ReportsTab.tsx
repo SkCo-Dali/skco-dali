@@ -15,6 +15,14 @@ import { toast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
 import { z } from 'zod';
 
+// Power BI Report interface for API responses
+interface PowerBIReport {
+  id: string;
+  name: string;
+  datasetId: string;
+  webUrl: string;
+}
+
 // Validation schema
 const reportSchema = z.object({
   name: z.string().trim().min(1, "El nombre es requerido").max(100, "El nombre no puede exceder 100 caracteres"),
@@ -63,6 +71,10 @@ export function ReportsTab() {
   });
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
   const [saving, setSaving] = useState(false);
+  
+  // Power BI Reports state
+  const [pbiReports, setPbiReports] = useState<PowerBIReport[]>([]);
+  const [loadingPbiReports, setLoadingPbiReports] = useState(false);
 
   useEffect(() => {
     fetchData();
@@ -253,6 +265,83 @@ export function ReportsTab() {
     }
   };
 
+  // Fetch Power BI reports when workspace changes
+  const fetchPowerBIReports = async (pbiWorkspaceId: string) => {
+    if (!pbiWorkspaceId) {
+      setPbiReports([]);
+      return;
+    }
+
+    try {
+      setLoadingPbiReports(true);
+      console.log('🔐 [ReportsTab] Obteniendo token para cargar reportes de Power BI...');
+      const tokenData = await getAccessToken();
+      
+      // Construir URL completa del API
+      const baseUrl = import.meta.env.VITE_CRM_API_BASE_URL || 'https://skcodalilmdev.azurewebsites.net';
+      const apiUrl = `${baseUrl}/api/pbi/workspaces/${pbiWorkspaceId}/reports`;
+      
+      console.log('📡 [ReportsTab] Cargando reportes de Power BI:', { pbiWorkspaceId, apiUrl });
+      
+      const response = await fetch(apiUrl, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${tokenData.idToken}`,
+          'Content-Type': 'application/json'
+        }
+      });
+      
+      if (!response.ok) {
+        throw new Error(`API Error: ${response.status} ${response.statusText}`);
+      }
+      
+      const pbiReportsData: PowerBIReport[] = await response.json();
+      console.log('✅ [ReportsTab] Reportes de Power BI cargados:', pbiReportsData.length);
+      setPbiReports(pbiReportsData);
+    } catch (error) {
+      console.error('❌ [ReportsTab] Error fetching Power BI reports:', error);
+      toast({
+        title: "Error",
+        description: "No se pudieron cargar los reportes de Power BI",
+        variant: "destructive"
+      });
+      setPbiReports([]);
+    } finally {
+      setLoadingPbiReports(false);
+    }
+  };
+
+  const handleWorkspaceChange = (workspaceId: string) => {
+    const selectedWorkspace = workspaces.find(w => w.id === workspaceId);
+    const newFormData = {
+      ...formData,
+      workspaceId,
+      pbiWorkspaceId: selectedWorkspace?.pbiWorkspaceId || '',
+      pbiReportId: '', // Reset report selection
+      datasetId: '', // Reset dependent fields
+      webUrl: ''
+    };
+    
+    setFormData(newFormData);
+    
+    // Fetch Power BI reports if workspace has pbiWorkspaceId
+    if (selectedWorkspace?.pbiWorkspaceId) {
+      fetchPowerBIReports(selectedWorkspace.pbiWorkspaceId);
+    } else {
+      setPbiReports([]);
+    }
+  };
+
+  const handlePbiReportChange = (reportId: string) => {
+    const selectedReport = pbiReports.find(r => r.id === reportId);
+    setFormData(prev => ({
+      ...prev,
+      pbiReportId: reportId,
+      datasetId: selectedReport?.datasetId || '',
+      webUrl: selectedReport?.webUrl || ''
+    }));
+  };
+
   const handleOpenDialog = (report?: Report) => {
     if (report) {
       setEditingReport(report);
@@ -268,6 +357,11 @@ export function ReportsTab() {
         datasetId: report.datasetId || '',
         webUrl: report.webUrl || ''
       });
+      
+      // Load Power BI reports if editing and workspace has pbiWorkspaceId
+      if (report.pbiWorkspaceId) {
+        fetchPowerBIReports(report.pbiWorkspaceId);
+      }
     } else {
       setEditingReport(null);
       setFormData({
@@ -282,6 +376,7 @@ export function ReportsTab() {
         datasetId: '',
         webUrl: ''
       });
+      setPbiReports([]);
     }
     setFormErrors({});
     setShowDialog(true);
@@ -524,7 +619,7 @@ export function ReportsTab() {
                   <Label htmlFor="workspaceId">Workspace *</Label>
                   <Select 
                     value={formData.workspaceId} 
-                    onValueChange={(value) => setFormData(prev => ({ ...prev, workspaceId: value }))}
+                    onValueChange={handleWorkspaceChange}
                   >
                     <SelectTrigger className={formErrors.workspaceId ? 'border-destructive' : ''}>
                       <SelectValue placeholder="Seleccionar workspace" />
@@ -569,9 +664,10 @@ export function ReportsTab() {
                   <Input
                     id="pbiWorkspaceId"
                     value={formData.pbiWorkspaceId}
-                    onChange={(e) => setFormData(prev => ({ ...prev, pbiWorkspaceId: e.target.value }))}
-                    placeholder="9988790d-a5c3-459b-97cb-ee8103957bbc"
-                    className={formErrors.pbiWorkspaceId ? 'border-destructive' : ''}
+                    placeholder="Se rellena automáticamente al seleccionar workspace"
+                    className={`bg-muted ${formErrors.pbiWorkspaceId ? 'border-destructive' : ''}`}
+                    disabled
+                    readOnly
                   />
                   {formErrors.pbiWorkspaceId && (
                     <p className="text-sm text-destructive">{formErrors.pbiWorkspaceId}</p>
@@ -580,45 +676,32 @@ export function ReportsTab() {
                 
                 <div className="space-y-2">
                   <Label htmlFor="pbiReportId">Power BI Report ID</Label>
-                  <Input
-                    id="pbiReportId"
-                    value={formData.pbiReportId}
-                    onChange={(e) => setFormData(prev => ({ ...prev, pbiReportId: e.target.value }))}
-                    placeholder="0c9aca2e-0a09-49cf-9e06-fbfe7fb62cf9"
-                    className={formErrors.pbiReportId ? 'border-destructive' : ''}
-                  />
+                  <Select 
+                    value={formData.pbiReportId} 
+                    onValueChange={handlePbiReportChange}
+                    disabled={!formData.pbiWorkspaceId || loadingPbiReports}
+                  >
+                    <SelectTrigger className={formErrors.pbiReportId ? 'border-destructive' : ''}>
+                      <SelectValue placeholder={
+                        loadingPbiReports 
+                          ? "Cargando reportes..." 
+                          : !formData.pbiWorkspaceId 
+                            ? "Selecciona un workspace primero"
+                            : pbiReports.length === 0
+                              ? "No hay reportes disponibles"
+                              : "Seleccionar reporte"
+                      } />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {pbiReports.map((report) => (
+                        <SelectItem key={report.id} value={report.id}>
+                          {report.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                   {formErrors.pbiReportId && (
                     <p className="text-sm text-destructive">{formErrors.pbiReportId}</p>
-                  )}
-                </div>
-              </div>
-              
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="datasetId">Dataset ID</Label>
-                  <Input
-                    id="datasetId"
-                    value={formData.datasetId}
-                    onChange={(e) => setFormData(prev => ({ ...prev, datasetId: e.target.value }))}
-                    placeholder="dataset-123"
-                    className={formErrors.datasetId ? 'border-destructive' : ''}
-                  />
-                  {formErrors.datasetId && (
-                    <p className="text-sm text-destructive">{formErrors.datasetId}</p>
-                  )}
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="webUrl">Web URL</Label>
-                  <Input
-                    id="webUrl"
-                    value={formData.webUrl}
-                    onChange={(e) => setFormData(prev => ({ ...prev, webUrl: e.target.value }))}
-                    placeholder="https://app.powerbi.com/groups/..."
-                    className={formErrors.webUrl ? 'border-destructive' : ''}
-                  />
-                  {formErrors.webUrl && (
-                    <p className="text-sm text-destructive">{formErrors.webUrl}</p>
                   )}
                 </div>
               </div>
