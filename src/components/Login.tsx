@@ -29,7 +29,7 @@ export function Login({ onLogin }: LoginProps) {
         </div>
 
         {/* Card de login */}
-        <Card className="shadow-xl border-0">
+        <Card className="shadow-xl border-0 py-4">
           <CardHeader className="space-y-1 text-center pb-4">
             <CardDescription>
              <div>
