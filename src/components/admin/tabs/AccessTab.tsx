@@ -132,17 +132,17 @@ export function AccessTab() {
       // Log the API calls details
       console.log('📡 === DETALLES DE LAS LLAMADAS API INICIALES ===');
       console.log('🌐 Endpoints:');
-      console.log('  - GET /api/reports/areas?only_active=true&search=&page=1&page_size=1000');
-      console.log('  - GET /api/reports/workspaces?only_active=true&search=&page=1&page_size=1000');
+      console.log('  - GET /api/reports/areas?only_active=true&search=&page=1&page_size=200');
+      console.log('  - GET /api/reports/workspaces?only_active=true&search=&page=1&page_size=200');
       console.log('🔐 Authorization Header: Bearer ' + tokens.idToken.substring(0, 50) + '...');
       console.log('📊 Method: GET (x2)');
       console.log('📦 Body: N/A (GET requests)');
       
       const [areasResponse, workspacesResponse] = await Promise.all([
-        apiCall(`${ENV.CRM_API_BASE_URL}/api/reports/areas?only_active=true&search=&page=1&page_size=1000`, {
+        apiCall(`${ENV.CRM_API_BASE_URL}/api/reports/areas?only_active=true&search=&page=1&page_size=200`, {
           headers: { 'Authorization': `Bearer ${tokens.idToken}` }
         }),
-        apiCall(`${ENV.CRM_API_BASE_URL}/api/reports/workspaces?only_active=true&search=&page=1&page_size=1000`, {
+        apiCall(`${ENV.CRM_API_BASE_URL}/api/reports/workspaces?only_active=true&search=&page=1&page_size=200`, {
           headers: { 'Authorization': `Bearer ${tokens.idToken}` }
         })
       ]);
@@ -178,7 +178,7 @@ export function AccessTab() {
       
       console.log('🔑 Token obtenido para workspaces by area:', tokens.idToken.substring(0, 50) + '...');
       
-      const endpoint = `${ENV.CRM_API_BASE_URL}/api/reports/workspaces?only_active=true&area_id=${areaId}&search=&page=1&page_size=1000`;
+      const endpoint = `${ENV.CRM_API_BASE_URL}/api/reports/workspaces?only_active=true&area_id=${areaId}&search=&page=1&page_size=200`;
       console.log('📡 === DETALLES DE LA LLAMADA API ===');
       console.log('🌐 Endpoint: GET', endpoint);
       console.log('🔐 Authorization Header: Bearer ' + tokens.idToken.substring(0, 50) + '...');
@@ -221,7 +221,7 @@ export function AccessTab() {
       
       console.log('🔑 Token obtenido para reports by workspace:', tokens.idToken.substring(0, 50) + '...');
       
-      const endpoint = `${ENV.CRM_API_BASE_URL}/api/reports/reports?only_active=true&workspace_id=${workspaceId}&search=&page=1&page_size=1000`;
+      const endpoint = `${ENV.CRM_API_BASE_URL}/api/reports/reports?only_active=true&workspace_id=${workspaceId}&search=&page=1&page_size=200`;
       console.log('📡 === DETALLES DE LA LLAMADA API ===');
       console.log('🌐 Endpoint: GET', endpoint);
       console.log('🔐 Authorization Header: Bearer ' + tokens.idToken.substring(0, 50) + '...');
