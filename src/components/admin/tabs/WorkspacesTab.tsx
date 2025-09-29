@@ -31,11 +31,20 @@ interface WorkspaceFormData {
   isActive: boolean;
 }
 
+interface PowerBIWorkspace {
+  id: string;
+  name: string;
+  isOnDedicatedCapacity: boolean;
+  capacityId: string;
+}
+
 export function WorkspacesTab() {
   const { getAccessToken } = useAuth();
   const [workspaces, setWorkspaces] = useState<Workspace[]>([]);
   const [areas, setAreas] = useState<Area[]>([]);
+  const [powerBIWorkspaces, setPowerBIWorkspaces] = useState<PowerBIWorkspace[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadingPBIWorkspaces, setLoadingPBIWorkspaces] = useState(false);
   const [selectedAreaFilter, setSelectedAreaFilter] = useState<string>('all');
   const [showDialog, setShowDialog] = useState(false);
   const [editingWorkspace, setEditingWorkspace] = useState<Workspace | null>(null);
@@ -109,6 +118,49 @@ export function WorkspacesTab() {
       setWorkspaces(data);
     } catch (error) {
       console.error('❌ Error fetching workspaces:', error);
+    }
+  };
+
+  const fetchPowerBIWorkspaces = async () => {
+    try {
+      setLoadingPBIWorkspaces(true);
+      console.log('🔐 === INICIANDO fetchPowerBIWorkspaces ===');
+      
+      // Get access token - usar idToken para backend APIs
+      const tokenData = await getAccessToken();
+      if (!tokenData?.idToken) {
+        throw new Error('No se pudo obtener el token de identificación');
+      }
+      
+      console.log('🔍 Token obtenido para PBI workspaces:', tokenData.idToken.substring(0, 50) + '...');
+      
+      // Make API call to Power BI workspaces endpoint
+      const response = await fetch('/api/pbi/workspaces', {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${tokenData.idToken}`,
+          'Content-Type': 'application/json'
+        }
+      });
+      
+      console.log('📡 API Response status:', response.status);
+      
+      if (!response.ok) {
+        throw new Error(`API Error: ${response.status} ${response.statusText}`);
+      }
+      
+      const pbiWorkspaces: PowerBIWorkspace[] = await response.json();
+      console.log('✅ Power BI Workspaces obtenidos:', pbiWorkspaces.length);
+      setPowerBIWorkspaces(pbiWorkspaces);
+    } catch (error) {
+      console.error('❌ Error fetching Power BI workspaces:', error);
+      toast({
+        title: "Error",
+        description: "No se pudieron cargar los workspaces de Power BI",
+        variant: "destructive"
+      });
+    } finally {
+      setLoadingPBIWorkspaces(false);
     }
   };
 
@@ -282,6 +334,8 @@ export function WorkspacesTab() {
       });
     }
     setFormErrors({});
+    // Fetch Power BI workspaces when dialog opens
+    fetchPowerBIWorkspaces();
     setShowDialog(true);
   };
 
@@ -508,19 +562,32 @@ export function WorkspacesTab() {
             </div>
             
             <div className="space-y-2">
-              <Label htmlFor="pbiWorkspaceId">Power BI Workspace ID</Label>
-              <Input
-                id="pbiWorkspaceId"
-                value={formData.pbiWorkspaceId}
-                onChange={(e) => setFormData(prev => ({ ...prev, pbiWorkspaceId: e.target.value }))}
-                placeholder="Ej: 9988790d-a5c3-459b-97cb-ee8103957bbc"
-                className={formErrors.pbiWorkspaceId ? 'border-destructive' : ''}
-              />
+              <Label htmlFor="pbiWorkspaceId">Power BI Workspace</Label>
+              <Select 
+                value={formData.pbiWorkspaceId} 
+                onValueChange={(value) => setFormData(prev => ({ ...prev, pbiWorkspaceId: value }))}
+                disabled={loadingPBIWorkspaces}
+              >
+                <SelectTrigger className={formErrors.pbiWorkspaceId ? 'border-destructive' : ''}>
+                  <SelectValue placeholder={
+                    loadingPBIWorkspaces 
+                      ? "Cargando workspaces..." 
+                      : "Seleccionar workspace de Power BI"
+                  } />
+                </SelectTrigger>
+                <SelectContent>
+                  {powerBIWorkspaces.map((pbiWorkspace) => (
+                    <SelectItem key={pbiWorkspace.id} value={pbiWorkspace.id}>
+                      {pbiWorkspace.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
               {formErrors.pbiWorkspaceId && (
                 <p className="text-sm text-destructive">{formErrors.pbiWorkspaceId}</p>
               )}
               <p className="text-xs text-muted-foreground">
-                ID del workspace en Power BI (se puede agregar después)
+                Selecciona el workspace de Power BI asociado (opcional)
               </p>
             </div>
             
