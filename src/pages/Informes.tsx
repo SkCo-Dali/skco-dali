@@ -65,10 +65,10 @@ export default function Informes() {
     try {
       setState(prev => ({ ...prev, loading: true }));
       
-      // Get access token
+      // Get ID token for Reports APIs
       const tokenData = await getAccessToken();
-      if (!tokenData?.accessToken) {
-        throw new Error('No access token available');
+      if (!tokenData?.idToken) {
+        throw new Error('No ID token available');
       }
       
       const [reportsData, areasData, workspacesData, favoritesData] = await Promise.all([
@@ -76,10 +76,10 @@ export default function Informes() {
           search: state.searchTerm || undefined,
           areaId: state.selectedArea || undefined,
           workspaceId: state.selectedWorkspace || undefined
-        }, tokenData.accessToken),
-        powerbiService.getAreas({}, tokenData.accessToken),
-        powerbiService.getWorkspaces({}, tokenData.accessToken),
-        powerbiService.getFavorites({}, tokenData.accessToken)
+        }, tokenData.idToken),
+        powerbiService.getAreas({}, tokenData.idToken),
+        powerbiService.getWorkspaces({}, tokenData.idToken),
+        powerbiService.getFavorites({}, tokenData.idToken)
       ]);
 
       // Update isFavorite flag on reports
@@ -115,14 +115,14 @@ export default function Informes() {
   // Handle report selection
   const handleReportSelect = async (report: EffectiveReport) => {
     try {
-      // Get access token
+      // Get ID token for Reports APIs
       const tokenData = await getAccessToken();
-      if (!tokenData?.accessToken) {
-        throw new Error('No access token available');
+      if (!tokenData?.idToken) {
+        throw new Error('No ID token available');
       }
 
       // Check access before proceeding
-      const hasAccess = await powerbiService.checkReportAccess(report.reportId, tokenData.accessToken);
+      const hasAccess = await powerbiService.checkReportAccess(report.reportId, tokenData.idToken);
       if (!hasAccess) {
         toast({
           title: "Acceso denegado",
@@ -162,13 +162,13 @@ export default function Informes() {
   // Handle favorite toggle
   const handleFavoriteToggle = async (reportId: string) => {
     try {
-      // Get access token
+      // Get ID token for Reports APIs  
       const tokenData = await getAccessToken();
-      if (!tokenData?.accessToken) {
-        throw new Error('No access token available');
+      if (!tokenData?.idToken) {
+        throw new Error('No ID token available');
       }
 
-      const newIsFavorite = await powerbiService.toggleFavorite(reportId, tokenData.accessToken);
+      const newIsFavorite = await powerbiService.toggleFavorite(reportId, tokenData.idToken);
       
       setState(prev => ({
         ...prev,
