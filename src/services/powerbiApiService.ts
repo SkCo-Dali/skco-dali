@@ -741,6 +741,40 @@ export async function getWorkspaces(token: string, params?: {
   return result;
 }
 
+export async function getWorkspaceById(workspaceId: string, token: string): Promise<Workspace> {
+  const url = `${ENV.CRM_API_BASE_URL}/api/reports/workspaces/${workspaceId}`;
+  const headers = {
+    'Authorization': `Bearer ${token}`
+  };
+
+  console.log('🔄 [PowerBI API] getWorkspaceById Request:', {
+    url,
+    method: 'GET',
+    headers: { ...headers, Authorization: `Bearer ${token.substring(0, 20)}...` }
+  });
+
+  const response = await fetch(url, {
+    method: 'GET',
+    headers,
+  });
+
+  console.log('📡 [PowerBI API] getWorkspaceById Response:', {
+    status: response.status,
+    statusText: response.statusText,
+    ok: response.ok
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    console.error('❌ [PowerBI API] getWorkspaceById Error:', errorText);
+    throw new Error(`Failed to fetch workspace: ${errorText}`);
+  }
+
+  const result = await response.json();
+  console.log('✅ [PowerBI API] getWorkspaceById Success:', result);
+  return result;
+}
+
 export async function createWorkspace(data: Omit<Workspace, 'id' | 'createdAt' | 'updatedAt'>, token: string): Promise<Workspace> {
   const url = `${ENV.CRM_API_BASE_URL}/api/reports/workspaces`;
   const headers = {

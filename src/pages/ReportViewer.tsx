@@ -120,19 +120,48 @@ export default function ReportViewer() {
       console.log('📄 Detalles del reporte (efectivo):', reportDetails);
 
       // Get full report details including Power BI IDs
-      const fullReportDetail = await powerbiService.getReportById(reportId!, tokenData.idToken);
-      setReportDetail(fullReportDetail);
+      let fullReportDetail = await powerbiService.getReportById(reportId!, tokenData.idToken);
       console.log('📊 Detalle completo del reporte:', {
         internalId: fullReportDetail.id,
+        workspaceId: fullReportDetail.workspaceId,
         pbiReportId: fullReportDetail.pbiReportId,
         pbiWorkspaceId: fullReportDetail.pbiWorkspaceId,
         datasetId: fullReportDetail.datasetId,
         webUrl: fullReportDetail.webUrl
       });
 
+      // If pbiWorkspaceId is missing, try to get it from the workspace
+      if (!fullReportDetail.pbiWorkspaceId && fullReportDetail.workspaceId) {
+        console.log('⚠️ pbiWorkspaceId faltante, obteniendo desde workspace...');
+        try {
+          const workspace = await powerbiService.getWorkspaceById(
+            fullReportDetail.workspaceId, 
+            tokenData.idToken
+          );
+          console.log('📦 Workspace obtenido:', {
+            id: workspace.id,
+            name: workspace.name,
+            pbiWorkspaceId: workspace.pbiWorkspaceId
+          });
+
+          if (workspace.pbiWorkspaceId) {
+            // Update the report detail with the resolved pbiWorkspaceId
+            fullReportDetail = {
+              ...fullReportDetail,
+              pbiWorkspaceId: workspace.pbiWorkspaceId
+            };
+            console.log('✅ pbiWorkspaceId resuelto desde workspace:', workspace.pbiWorkspaceId);
+          }
+        } catch (error) {
+          console.error('❌ Error obteniendo workspace:', error);
+        }
+      }
+
+      setReportDetail(fullReportDetail);
+
       // Validate Power BI configuration
       if (!fullReportDetail.pbiReportId || !fullReportDetail.pbiWorkspaceId) {
-        console.warn('⚠️ Faltan IDs de Power BI:', {
+        console.warn('⚠️ Faltan IDs de Power BI después de resolución:', {
           pbiReportId: fullReportDetail.pbiReportId || 'FALTA',
           pbiWorkspaceId: fullReportDetail.pbiWorkspaceId || 'FALTA'
         });

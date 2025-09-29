@@ -8,6 +8,7 @@ import {
   fetchReportPages,
   getAreas,
   getWorkspaces,
+  getWorkspaceById,
   getReports,
   getReportById,
   createArea,
@@ -129,6 +130,11 @@ class PowerBIService {
     if (!token) throw new Error('Token is required');
     const response = await getWorkspaces(token, { onlyActive: true, ...params });
     return response.items;
+  }
+
+  async getWorkspaceById(workspaceId: string, token?: string): Promise<Workspace> {
+    if (!token) throw new Error('Token is required');
+    return getWorkspaceById(workspaceId, token);
   }
 
   async getReports(params?: any, token?: string): Promise<Report[]> {
