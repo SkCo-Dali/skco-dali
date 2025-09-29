@@ -72,18 +72,40 @@ export function AccessTab() {
 
   const fetchInitialData = async () => {
     try {
+      console.log('🔐 === INICIANDO fetchInitialData ===');
       setLoading(true);
+      
+      const tokens = await getAccessToken();
+      if (!tokens) {
+        console.error('❌ No se pudo obtener token de autenticación para fetchInitialData');
+        throw new Error('No se pudo obtener token de autenticación');
+      }
+      
+      console.log('🔑 Token obtenido para fetchInitialData:', tokens.idToken.substring(0, 50) + '...');
+      
+      // Log the API calls details
+      console.log('📡 === DETALLES DE LAS LLAMADAS API INICIALES ===');
+      console.log('🌐 Endpoints: GET /api/pbi/areas, GET /api/pbi/workspaces, GET /api/pbi/reports');
+      console.log('🔐 Authorization Header: Bearer ' + tokens.idToken.substring(0, 50) + '...');
+      console.log('📊 Method: GET (x3)');
+      console.log('📦 Body: N/A (GET requests)');
+      
       const [areasData, workspacesData, reportsData] = await Promise.all([
-        powerbiService.getAllAreas(),
-        powerbiService.getAllWorkspaces(),
-        powerbiService.getReports()
+        powerbiService.getAllAreas(tokens.idToken),
+        powerbiService.getAllWorkspaces(tokens.idToken),
+        powerbiService.getReports({}, tokens.idToken)
       ]);
+      
+      console.log('✅ Datos iniciales obtenidos:');
+      console.log('  - Areas:', areasData);
+      console.log('  - Workspaces:', workspacesData);
+      console.log('  - Reportes:', reportsData);
       
       setAreas(areasData.filter(a => a.isActive));
       setWorkspaces(workspacesData.filter(w => w.isActive));
       setReports(reportsData.filter(r => r.isActive));
     } catch (error) {
-      console.error('Error fetching initial data:', error);
+      console.error('❌ Error fetching initial data:', error);
       toast({
         title: "Error",
         description: "No se pudieron cargar los datos",
