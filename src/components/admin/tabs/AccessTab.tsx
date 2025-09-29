@@ -125,14 +125,6 @@ export function AccessTab() {
     }
   }, [effectiveAccessReport]);
 
-  useEffect(() => {
-    if (userSearch && userSearch.length > 2) {
-      searchUsers();
-    } else {
-      setFoundUsers([]);
-    }
-  }, [userSearch]);
-
   const fetchInitialData = async () => {
     try {
       console.log('🔐 === INICIANDO fetchInitialData ===');
@@ -362,118 +354,101 @@ export function AccessTab() {
     }
   };
 
-  // Debounced user search with proper API implementation
-  const searchUsers = useCallback(
-    async (searchTerm: string = userSearch, skip: number = 0, reset: boolean = true) => {
-      if (!searchTerm || searchTerm.length < 2) {
-        setFoundUsers([]);
-        setHasMoreUsers(false);
-        return;
+  // Fetch all users once and implement client-side filtering
+  const [allUsers, setAllUsers] = useState<SearchUser[]>([]);
+  const [usersLoaded, setUsersLoaded] = useState(false);
+
+  const fetchAllUsers = useCallback(async () => {
+    if (usersLoaded) return;
+    
+    try {
+      setUserSearchLoading(true);
+      setUserSearchError(null);
+
+      console.log('🔐 === INICIANDO fetchAllUsers ===');
+      
+      const tokens = await getAccessToken();
+      if (!tokens) {
+        console.error('❌ No se pudo obtener token de autenticación');
+        throw new Error('No se pudo obtener token de autenticación');
       }
+      
+      console.log('🔑 Token obtenido para fetch all users:', tokens.idToken.substring(0, 50) + '...');
+      
+      const endpoint = `${ENV.CRM_API_BASE_URL}/api/users/list`;
+      console.log('📡 === DETALLES DE LA LLAMADA API ===');
+      console.log('🌐 Endpoint: GET', endpoint);
+      console.log('🔐 Authorization Header: Bearer ' + tokens.idToken.substring(0, 50) + '...');
+      console.log('📊 Method: GET');
+      console.log('📦 Body: N/A (GET request)');
+      
+      const usersResponse = await apiCall(endpoint, {
+        headers: { 'Authorization': `Bearer ${tokens.idToken}` }
+      });
+      
+      console.log('✅ Todos los usuarios obtenidos:', usersResponse);
+      
+      const users = Array.isArray(usersResponse) ? usersResponse : (usersResponse.items || []);
+      setAllUsers(users);
+      setUsersLoaded(true);
+      
+    } catch (error: any) {
+      console.error('❌ Error fetching all users:', error);
+      const errorMessage = error.message.includes('detail') ? 
+        JSON.parse(error.message.split(': ')[1]).detail : 
+        'Error al cargar usuarios';
+      
+      setUserSearchError(errorMessage);
+      toast({
+        title: "Error",
+        description: errorMessage,
+        variant: "destructive"
+      });
+    } finally {
+      setUserSearchLoading(false);
+    }
+  }, [getAccessToken, usersLoaded]);
 
-      try {
-        if (reset) {
-          setUserSearchLoading(true);
-          setUserSearchError(null);
-          setUserSearchSkip(0);
-        } else {
-          setLoadingMoreUsers(true);
-        }
+  // Client-side filtering of users
+  const searchUsers = useCallback(() => {
+    if (!userSearch || userSearch.length < 2) {
+      setFoundUsers([]);
+      return;
+    }
 
-        console.log('🔐 === INICIANDO searchUsers ===');
-        console.log('🔍 Búsqueda de usuario:', searchTerm);
-        console.log('📄 Skip:', skip);
-        
-        const tokens = await getAccessToken();
-        if (!tokens) {
-          console.error('❌ No se pudo obtener token de autenticación');
-          throw new Error('No se pudo obtener token de autenticación');
-        }
-        
-        console.log('🔑 Token obtenido para user search:', tokens.idToken.substring(0, 50) + '...');
-        
-        // Determine search parameters based on input
-        const isEmailSearch = searchTerm.includes('@');
-        const searchParams = new URLSearchParams({
-          is_active: 'true',
-          skip: skip.toString(),
-          limit: '20'
-        });
-        
-        if (isEmailSearch) {
-          searchParams.append('email', searchTerm.trim());
-        } else {
-          searchParams.append('name', searchTerm.trim());
-        }
-        
-        const endpoint = `${ENV.CRM_API_BASE_URL}/api/users/list?${searchParams.toString()}`;
-        console.log('📡 === DETALLES DE LA LLAMADA API ===');
-        console.log('🌐 Endpoint: GET', endpoint);
-        console.log('🔐 Authorization Header: Bearer ' + tokens.idToken.substring(0, 50) + '...');
-        console.log('📊 Method: GET');
-        console.log('📦 Body: N/A (GET request)');
-        
-        const usersResponse = await apiCall(endpoint, {
-          headers: { 'Authorization': `Bearer ${tokens.idToken}` }
-        });
-        
-        console.log('✅ Usuarios encontrados:', usersResponse);
-        
-        const newUsers = Array.isArray(usersResponse) ? usersResponse : (usersResponse.items || []);
-        
-        if (reset) {
-          setFoundUsers(newUsers);
-        } else {
-          setFoundUsers(prev => [...prev, ...newUsers]);
-        }
-        
-        // Check if there are more users (if we got 20, there might be more)
-        setHasMoreUsers(newUsers.length === 20);
-        setUserSearchSkip(skip + newUsers.length);
-        
-      } catch (error: any) {
-        console.error('❌ Error searching users:', error);
-        const errorMessage = error.message.includes('detail') ? 
-          JSON.parse(error.message.split(': ')[1]).detail : 
-          'Error al buscar usuarios';
-        
-        setUserSearchError(errorMessage);
-        toast({
-          title: "Error",
-          description: errorMessage,
-          variant: "destructive"
-        });
-        
-        if (reset) {
-          setFoundUsers([]);
-        }
-      } finally {
-        setUserSearchLoading(false);
-        setLoadingMoreUsers(false);
+    const searchTerm = userSearch.toLowerCase().trim();
+    const isEmailSearch = searchTerm.includes('@');
+    
+    const filtered = allUsers.filter(user => {
+      if (isEmailSearch) {
+        return user.Email?.toLowerCase().includes(searchTerm);
+      } else {
+        const name = user.PreferredName || user.Name || '';
+        return name.toLowerCase().includes(searchTerm);
       }
-    },
-    [getAccessToken, userSearch]
-  );
+    });
+    
+    setFoundUsers(filtered);
+    setHasMoreUsers(false); // No pagination needed for client-side filtering
+  }, [userSearch, allUsers]);
 
-  // Debounced search effect
+  // Load all users on component mount
+  useEffect(() => {
+    fetchAllUsers();
+  }, [fetchAllUsers]);
+
+  // Debounced search effect for client-side filtering
   useEffect(() => {
     const timer = setTimeout(() => {
-      if (userSearch && userSearch.length >= 2) {
-        searchUsers(userSearch, 0, true);
-      } else {
-        setFoundUsers([]);
-        setHasMoreUsers(false);
-        setUserSearchError(null);
-      }
+      searchUsers();
     }, 300);
 
     return () => clearTimeout(timer);
   }, [userSearch, searchUsers]);
 
   const loadMoreUsers = () => {
-    if (hasMoreUsers && !loadingMoreUsers) {
-      searchUsers(userSearch, userSearchSkip, false);
-    }
+    // Not needed anymore since we're doing client-side filtering
+    return;
   };
 
   const handleGrantWorkspaceAccess = async () => {
@@ -1019,24 +994,6 @@ export function AccessTab() {
                     ))}
                   </SelectContent>
                 </Select>
-                {hasMoreUsers && (
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={loadMoreUsers}
-                    disabled={loadingMoreUsers}
-                    className="mt-2 w-full"
-                  >
-                    {loadingMoreUsers ? (
-                      <>
-                        <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                        Cargando...
-                      </>
-                    ) : (
-                      'Cargar más usuarios'
-                    )}
-                  </Button>
-                )}
               </div>
             )}
 
@@ -1105,24 +1062,6 @@ export function AccessTab() {
                     ))}
                   </SelectContent>
                 </Select>
-                {hasMoreUsers && (
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={loadMoreUsers}
-                    disabled={loadingMoreUsers}
-                    className="mt-2 w-full"
-                  >
-                    {loadingMoreUsers ? (
-                      <>
-                        <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                        Cargando...
-                      </>
-                    ) : (
-                      'Cargar más usuarios'
-                    )}
-                  </Button>
-                )}
               </div>
             )}
 
