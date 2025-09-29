@@ -30,7 +30,7 @@ export function Login({ onLogin }: LoginProps) {
 
         {/* Card de login */}
         <Card className="shadow-xl border-0 py-4">
-          <CardHeader className="space-y-1 text-center pb-4">
+          <CardHeader className="space-y-1 text-center pb-4 pt-0">
             <CardDescription>
              <div>
             <h1 className="sk-h2" style={{ color: '#3f3f3f' }}>Dali</h1>
