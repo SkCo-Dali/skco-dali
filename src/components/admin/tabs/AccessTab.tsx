@@ -11,8 +11,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { powerbiService } from '@/services/powerbiService';
 import { Area, Workspace, Report, UserAccess } from '@/types/powerbi';
 import { toast } from '@/hooks/use-toast';
+import { useAuth } from '@/contexts/AuthContext';
 
 export function AccessTab() {
+  const { getAccessToken } = useAuth();
   const [areas, setAreas] = useState<Area[]>([]);
   const [workspaces, setWorkspaces] = useState<Workspace[]>([]);
   const [reports, setReports] = useState<Report[]>([]);
@@ -94,37 +96,117 @@ export function AccessTab() {
 
   const fetchWorkspaceAccess = async () => {
     try {
-      const access = await powerbiService.getWorkspaceAccess(selectedWorkspace);
+      console.log('🔐 === INICIANDO fetchWorkspaceAccess ===');
+      console.log('🔍 Workspace seleccionado:', selectedWorkspace);
+      
+      const tokens = await getAccessToken();
+      if (!tokens) {
+        console.error('❌ No se pudo obtener token de autenticación');
+        throw new Error('No se pudo obtener token de autenticación');
+      }
+      
+      console.log('🔑 Token obtenido para workspace access:', tokens.idToken.substring(0, 50) + '...');
+      
+      // Log the API call details
+      console.log('📡 === DETALLES DE LA LLAMADA API ===');
+      console.log('🌐 Endpoint: GET /api/pbi/workspaces/' + selectedWorkspace + '/access');
+      console.log('🔐 Authorization Header: Bearer ' + tokens.idToken.substring(0, 50) + '...');
+      console.log('📊 Method: GET');
+      console.log('📦 Body: N/A (GET request)');
+      
+      const access = await powerbiService.getWorkspaceAccess(selectedWorkspace, {}, tokens.idToken);
+      
+      console.log('✅ Workspace access obtenido:', access);
       setWorkspaceAccess(access);
     } catch (error) {
-      console.error('Error fetching workspace access:', error);
+      console.error('❌ Error fetching workspace access:', error);
     }
   };
 
   const fetchReportAccess = async () => {
     try {
-      const access = await powerbiService.getReportAccess(selectedReport);
+      console.log('🔐 === INICIANDO fetchReportAccess ===');
+      console.log('🔍 Reporte seleccionado:', selectedReport);
+      
+      const tokens = await getAccessToken();
+      if (!tokens) {
+        console.error('❌ No se pudo obtener token de autenticación');
+        throw new Error('No se pudo obtener token de autenticación');
+      }
+      
+      console.log('🔑 Token obtenido para report access:', tokens.idToken.substring(0, 50) + '...');
+      
+      // Log the API call details
+      console.log('📡 === DETALLES DE LA LLAMADA API ===');
+      console.log('🌐 Endpoint: GET /api/pbi/reports/' + selectedReport + '/access');
+      console.log('🔐 Authorization Header: Bearer ' + tokens.idToken.substring(0, 50) + '...');
+      console.log('📊 Method: GET');
+      console.log('📦 Body: N/A (GET request)');
+      
+      const access = await powerbiService.getReportAccess(selectedReport, {}, tokens.idToken);
+      
+      console.log('✅ Report access obtenido:', access);
       setReportAccess(access);
     } catch (error) {
-      console.error('Error fetching report access:', error);
+      console.error('❌ Error fetching report access:', error);
     }
   };
 
   const fetchEffectiveAccess = async () => {
     try {
-      const access = await powerbiService.getEffectiveReportAccess(effectiveAccessReport);
+      console.log('🔐 === INICIANDO fetchEffectiveAccess ===');
+      console.log('🔍 Reporte para acceso efectivo:', effectiveAccessReport);
+      
+      const tokens = await getAccessToken();
+      if (!tokens) {
+        console.error('❌ No se pudo obtener token de autenticación');
+        throw new Error('No se pudo obtener token de autenticación');
+      }
+      
+      console.log('🔑 Token obtenido para effective access:', tokens.idToken.substring(0, 50) + '...');
+      
+      // Log the API call details
+      console.log('📡 === DETALLES DE LA LLAMADA API ===');
+      console.log('🌐 Endpoint: GET /api/pbi/reports/' + effectiveAccessReport + '/users');
+      console.log('🔐 Authorization Header: Bearer ' + tokens.idToken.substring(0, 50) + '...');
+      console.log('📊 Method: GET');
+      console.log('📦 Body: N/A (GET request)');
+      
+      const access = await powerbiService.getEffectiveReportUsers(effectiveAccessReport, {}, tokens.idToken);
+      
+      console.log('✅ Effective access obtenido:', access);
       setEffectiveAccess(access);
     } catch (error) {
-      console.error('Error fetching effective access:', error);
+      console.error('❌ Error fetching effective access:', error);
     }
   };
 
   const searchUsers = async () => {
     try {
-      const usersData = await powerbiService.getUsers(userSearch);
+      console.log('🔐 === INICIANDO searchUsers ===');
+      console.log('🔍 Búsqueda de usuario:', userSearch);
+      
+      const tokens = await getAccessToken();
+      if (!tokens) {
+        console.error('❌ No se pudo obtener token de autenticación');
+        throw new Error('No se pudo obtener token de autenticación');
+      }
+      
+      console.log('🔑 Token obtenido para user search:', tokens.idToken.substring(0, 50) + '...');
+      
+      // Log the API call details
+      console.log('📡 === DETALLES DE LA LLAMADA API ===');
+      console.log('🌐 Endpoint: GET /api/users');
+      console.log('🔐 Authorization Header: Bearer ' + tokens.idToken.substring(0, 50) + '...');
+      console.log('📊 Method: GET');
+      console.log('📦 Query params: search=' + userSearch);
+      
+      const usersData = await powerbiService.getUsers(userSearch, tokens.idToken);
+      
+      console.log('✅ Usuarios encontrados:', usersData);
       setUsers(usersData);
     } catch (error) {
-      console.error('Error searching users:', error);
+      console.error('❌ Error searching users:', error);
     }
   };
 
@@ -132,7 +214,28 @@ export function AccessTab() {
     if (!selectedWorkspace || !selectedUser) return;
     
     try {
-      await powerbiService.grantWorkspaceAccess(selectedWorkspace, selectedUser);
+      console.log('🔐 === INICIANDO handleGrantWorkspaceAccess ===');
+      console.log('🔍 Workspace:', selectedWorkspace);
+      console.log('🔍 Usuario:', selectedUser);
+      
+      const tokens = await getAccessToken();
+      if (!tokens) {
+        console.error('❌ No se pudo obtener token de autenticación');
+        throw new Error('No se pudo obtener token de autenticación');
+      }
+      
+      console.log('🔑 Token obtenido para grant workspace access:', tokens.idToken.substring(0, 50) + '...');
+      
+      // Log the API call details
+      console.log('📡 === DETALLES DE LA LLAMADA API ===');
+      console.log('🌐 Endpoint: POST /api/pbi/workspaces/' + selectedWorkspace + '/access');
+      console.log('🔐 Authorization Header: Bearer ' + tokens.idToken.substring(0, 50) + '...');
+      console.log('📊 Method: POST');
+      console.log('📦 Body:', { userId: selectedUser });
+      
+      await powerbiService.grantWorkspaceAccess(selectedWorkspace, selectedUser, undefined, tokens.idToken);
+      
+      console.log('✅ Acceso a workspace concedido correctamente');
       toast({
         title: "Éxito",
         description: "Acceso concedido correctamente"
@@ -142,6 +245,7 @@ export function AccessTab() {
       setSelectedUser('');
       setUserSearch('');
     } catch (error: any) {
+      console.error('❌ Error granting workspace access:', error);
       toast({
         title: "Error",
         description: error.message || "No se pudo conceder el acceso",
@@ -156,13 +260,35 @@ export function AccessTab() {
     }
 
     try {
-      await powerbiService.revokeWorkspaceAccess(selectedWorkspace, userId);
+      console.log('🔐 === INICIANDO handleRevokeWorkspaceAccess ===');
+      console.log('🔍 Workspace:', selectedWorkspace);
+      console.log('🔍 Usuario:', userId, userName);
+      
+      const tokens = await getAccessToken();
+      if (!tokens) {
+        console.error('❌ No se pudo obtener token de autenticación');
+        throw new Error('No se pudo obtener token de autenticación');
+      }
+      
+      console.log('🔑 Token obtenido para revoke workspace access:', tokens.idToken.substring(0, 50) + '...');
+      
+      // Log the API call details
+      console.log('📡 === DETALLES DE LA LLAMADA API ===');
+      console.log('🌐 Endpoint: DELETE /api/pbi/workspaces/' + selectedWorkspace + '/access/' + userId);
+      console.log('🔐 Authorization Header: Bearer ' + tokens.idToken.substring(0, 50) + '...');
+      console.log('📊 Method: DELETE');
+      console.log('📦 Body: N/A (DELETE request)');
+      
+      await powerbiService.revokeWorkspaceAccess(selectedWorkspace, userId, tokens.idToken);
+      
+      console.log('✅ Acceso a workspace revocado correctamente');
       toast({
         title: "Éxito",
         description: "Acceso revocado correctamente"
       });
       await fetchWorkspaceAccess();
     } catch (error) {
+      console.error('❌ Error revoking workspace access:', error);
       toast({
         title: "Error",
         description: "No se pudo revocar el acceso",
@@ -175,7 +301,28 @@ export function AccessTab() {
     if (!selectedReport || !selectedUser) return;
     
     try {
-      await powerbiService.grantReportAccess(selectedReport, selectedUser);
+      console.log('🔐 === INICIANDO handleGrantReportAccess ===');
+      console.log('🔍 Reporte:', selectedReport);
+      console.log('🔍 Usuario:', selectedUser);
+      
+      const tokens = await getAccessToken();
+      if (!tokens) {
+        console.error('❌ No se pudo obtener token de autenticación');
+        throw new Error('No se pudo obtener token de autenticación');
+      }
+      
+      console.log('🔑 Token obtenido para grant report access:', tokens.idToken.substring(0, 50) + '...');
+      
+      // Log the API call details
+      console.log('📡 === DETALLES DE LA LLAMADA API ===');
+      console.log('🌐 Endpoint: POST /api/pbi/reports/' + selectedReport + '/access');
+      console.log('🔐 Authorization Header: Bearer ' + tokens.idToken.substring(0, 50) + '...');
+      console.log('📊 Method: POST');
+      console.log('📦 Body:', { userId: selectedUser });
+      
+      await powerbiService.grantReportAccess(selectedReport, selectedUser, undefined, tokens.idToken);
+      
+      console.log('✅ Acceso a reporte concedido correctamente');
       toast({
         title: "Éxito",
         description: "Acceso concedido correctamente"
@@ -185,6 +332,7 @@ export function AccessTab() {
       setSelectedUser('');
       setUserSearch('');
     } catch (error: any) {
+      console.error('❌ Error granting report access:', error);
       toast({
         title: "Error",
         description: error.message || "No se pudo conceder el acceso",
@@ -199,13 +347,35 @@ export function AccessTab() {
     }
 
     try {
-      await powerbiService.revokeReportAccess(selectedReport, userId);
+      console.log('🔐 === INICIANDO handleRevokeReportAccess ===');
+      console.log('🔍 Reporte:', selectedReport);
+      console.log('🔍 Usuario:', userId, userName);
+      
+      const tokens = await getAccessToken();
+      if (!tokens) {
+        console.error('❌ No se pudo obtener token de autenticación');
+        throw new Error('No se pudo obtener token de autenticación');
+      }
+      
+      console.log('🔑 Token obtenido para revoke report access:', tokens.idToken.substring(0, 50) + '...');
+      
+      // Log the API call details
+      console.log('📡 === DETALLES DE LA LLAMADA API ===');
+      console.log('🌐 Endpoint: DELETE /api/pbi/reports/' + selectedReport + '/access/' + userId);
+      console.log('🔐 Authorization Header: Bearer ' + tokens.idToken.substring(0, 50) + '...');
+      console.log('📊 Method: DELETE');
+      console.log('📦 Body: N/A (DELETE request)');
+      
+      await powerbiService.revokeReportAccess(selectedReport, userId, tokens.idToken);
+      
+      console.log('✅ Acceso a reporte revocado correctamente');
       toast({
         title: "Éxito",
         description: "Acceso revocado correctamente"
       });
       await fetchReportAccess();
     } catch (error) {
+      console.error('❌ Error revoking report access:', error);
       toast({
         title: "Error",
         description: "No se pudo revocar el acceso",
