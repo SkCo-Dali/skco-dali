@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -29,6 +29,7 @@ export default function ReportViewer() {
   const { reportId } = useParams();
   const navigate = useNavigate();
   const { user, getAccessToken } = useAuth();
+  const [searchParams] = useSearchParams();
   
   const [report, setReport] = useState<EffectiveReport | null>(null);
   const [reportDetail, setReportDetail] = useState<Report | null>(null);
@@ -39,18 +40,23 @@ export default function ReportViewer() {
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [idToken, setIdToken] = useState<string>('');
+  
+  // Diagnostic mode: skip RLS if ?no_rls=1
+  const skipRls = searchParams.get('no_rls') === '1';
 
   // Power BI hook for embedding (only initialize when we have access and token)
   const powerBIHook = usePowerBIReport({
     reportId: reportDetail?.pbiReportId || '',
     workspaceId: reportDetail?.pbiWorkspaceId || '',
     internalReportId: reportId, // Use internal ID for audit logging
+    datasetId: reportDetail?.datasetId,
     token: idToken,
+    skipRls,
     onError: (error) => {
       console.error('Power BI Error:', error);
       toast({
         title: "Error en el reporte",
-        description: "Ha ocurrido un error al cargar el reporte Power BI",
+        description: error?.message || "Ha ocurrido un error al cargar el reporte Power BI",
         variant: "destructive"
       });
     }
@@ -372,6 +378,12 @@ export default function ReportViewer() {
                   RLS
                 </Badge>
               )}
+              {skipRls && (
+                <Badge variant="destructive">
+                  <AlertCircle className="h-3 w-3 mr-1" />
+                  Diagnóstico: Sin RLS
+                </Badge>
+              )}
 
               {/* Action buttons */}
               <Button size="sm" variant="outline" onClick={handleRefresh}>
@@ -478,14 +490,43 @@ export default function ReportViewer() {
                     )}
                     
                     {powerBIHook.status === 'error' && (
-                      <div className="w-full h-full flex items-center justify-center bg-muted/20 rounded-lg border-2 border-dashed border-destructive/20">
-                        <div className="text-center">
+                      <div className="w-full h-full flex items-center justify-center bg-muted/20 rounded-lg border-2 border-dashed border-destructive/20 p-6">
+                        <div className="text-center max-w-2xl">
                           <AlertCircle className="h-16 w-16 mx-auto mb-4 text-destructive" />
-                          <h3 className="text-lg font-medium mb-2">Error al cargar el reporte</h3>
-                          <p className="text-muted-foreground mb-4">
-                            {powerBIHook.error?.message || 'Ha ocurrido un error inesperado'}
+                          <h3 className="text-lg font-semibold mb-2">No fue posible cargar el modelo del informe</h3>
+                          
+                          {/* Error message */}
+                          <p className="text-sm text-muted-foreground mb-3">
+                            {powerBIHook.error?.detailedMessage || powerBIHook.error?.message || 'Ha ocurrido un error inesperado'}
                           </p>
-                          <Button onClick={powerBIHook.reinitialize} variant="outline">
+                          
+                          {/* Technical details card */}
+                          <div className="bg-muted/50 rounded-lg p-4 mb-4 text-left">
+                            <p className="text-xs font-semibold mb-2 text-muted-foreground">Detalles técnicos:</p>
+                            <div className="space-y-1 text-xs font-mono">
+                              {powerBIHook.error?.requestId && (
+                                <p><span className="text-muted-foreground">Request ID:</span> {powerBIHook.error.requestId}</p>
+                              )}
+                              {powerBIHook.error?.errorCode && (
+                                <p><span className="text-muted-foreground">Error Code:</span> {powerBIHook.error.errorCode}</p>
+                              )}
+                              <p><span className="text-muted-foreground">Modo:</span> {powerBIHook.error?.diagnosticMode || 'Desconocido'}</p>
+                              {powerBIHook.error?.timestamp && (
+                                <p><span className="text-muted-foreground">Timestamp:</span> {powerBIHook.error.timestamp}</p>
+                              )}
+                            </div>
+                          </div>
+                          
+                          {/* Diagnostic tip */}
+                          {!skipRls && (
+                            <div className="bg-amber-500/10 border border-amber-500/20 rounded-lg p-3 mb-4">
+                              <p className="text-xs text-amber-700 dark:text-amber-400">
+                                💡 <strong>Diagnóstico:</strong> Intenta agregar <code className="bg-amber-500/20 px-1 rounded">?no_rls=1</code> a la URL para probar sin RLS
+                              </p>
+                            </div>
+                          )}
+                          
+                          <Button onClick={powerBIHook.reinitialize} variant="outline" size="sm">
                             <RefreshCw className="h-4 w-4 mr-2" />
                             Reintentar
                           </Button>

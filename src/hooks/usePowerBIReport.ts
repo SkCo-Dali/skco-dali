@@ -9,12 +9,14 @@ interface UsePowerBIReportOptions {
   reportId: string; // Power BI Report ID (for embedding)
   workspaceId: string; // Power BI Workspace ID (for embedding)
   internalReportId?: string; // Internal Report ID (for audit logging)
+  datasetId?: string; // Dataset ID (for diagnostics)
   token: string;
+  skipRls?: boolean; // Skip RLS for diagnostics (use with ?no_rls=1)
   onError?: (error: any) => void;
 }
 
 export function usePowerBIReport(options: UsePowerBIReportOptions) {
-  const { reportId, workspaceId, internalReportId, token, onError } = options;
+  const { reportId, workspaceId, internalReportId, datasetId, token, skipRls, onError } = options;
   const auditReportId = internalReportId || reportId; // Use internal ID for audit, fallback to Power BI ID
   
   const containerRef = useRef<HTMLDivElement | null>(null);
@@ -29,8 +31,29 @@ export function usePowerBIReport(options: UsePowerBIReportOptions) {
       setStatus('loading');
       setError(null);
 
+      // Log diagnostic information before attempting embed
+      console.log('🔧 [Power BI Diagnostics] Embed Payload:', {
+        pbiReportId: reportId,
+        pbiWorkspaceId: workspaceId,
+        datasetId: datasetId || 'NO DISPONIBLE',
+        internalReportId: internalReportId || 'NO DISPONIBLE',
+        skipRls: skipRls ? 'SÍ (modo diagnóstico)' : 'NO (con RLS)',
+        rlsMode: skipRls ? '⚠️ SIN RLS (diagnóstico)' : '✅ CON RLS (normal)'
+      });
+
       // 1. Fetch embed information
-      const embedInfo = await fetchEmbedInfo({ reportId, workspaceId }, token);
+      const embedInfo = await fetchEmbedInfo({ 
+        reportId, 
+        workspaceId,
+        skipRls 
+      }, token);
+      
+      console.log('✅ [Power BI Diagnostics] Embed Info recibida:', {
+        embedUrl: embedInfo.embedUrl,
+        datasetId: embedInfo.datasetId,
+        rlsApplied: embedInfo.rlsApplied,
+        expiresAt: embedInfo.expiresAt
+      });
 
       // 2. Configure embed settings
       const config: IEmbedConfiguration = {
@@ -107,11 +130,31 @@ export function usePowerBIReport(options: UsePowerBIReportOptions) {
       });
 
       embeddedReport.on('error', (event: any) => {
-        console.error('Power BI embed error:', event);
+        console.error('❌ [Power BI Error] Embed error event:', event);
         const errorDetails = event?.detail;
-        setError(errorDetails || event);
+        
+        // Extract detailed error information
+        const errorInfo = {
+          message: errorDetails?.message || 'Error desconocido',
+          detailedMessage: errorDetails?.detailedMessage,
+          errorCode: errorDetails?.errorCode,
+          level: errorDetails?.level,
+          technicalDetails: errorDetails?.technicalDetails,
+          requestId: errorDetails?.technicalDetails?.requestId,
+          timestamp: new Date().toISOString(),
+          diagnosticMode: skipRls ? 'Sin RLS (diagnóstico)' : 'Con RLS (normal)'
+        };
+        
+        console.error('❌ [Power BI Error] Detalles completos:', errorInfo);
+        console.error('❌ [Power BI Error] Payload usado:', {
+          pbiReportId: reportId,
+          pbiWorkspaceId: workspaceId,
+          datasetId: datasetId
+        });
+        
+        setError(errorInfo);
         setStatus('error');
-        onError?.(errorDetails || event);
+        onError?.(errorInfo);
       });
 
       // 7. Set up token refresh timer (45 minutes)

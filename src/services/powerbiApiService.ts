@@ -5,6 +5,7 @@ import { EffectiveReport, Area, Workspace, Report, ReportPage, UserAccess, Audit
 export interface EmbedInfoRequest {
   reportId: string;
   workspaceId: string;
+  skipRls?: boolean;
 }
 
 export interface EmbedInfoResponse {
@@ -78,13 +79,21 @@ export async function fetchEmbedInfo(input: EmbedInfoRequest, token: string): Pr
     'Content-Type': 'application/json',
     'Authorization': `Bearer ${token}`
   };
-  const body = JSON.stringify(input);
+  
+  // Build request body with optional skipRls flag
+  const requestBody = {
+    reportId: input.reportId,
+    workspaceId: input.workspaceId,
+    ...(input.skipRls && { skipRls: true })
+  };
+  
+  const body = JSON.stringify(requestBody);
 
   console.log('🔄 [PowerBI API] fetchEmbedInfo Request:', {
     url,
     method: 'POST',
     headers: { ...headers, Authorization: `Bearer ${token.substring(0, 20)}...` },
-    body: input
+    body: requestBody
   });
 
   const response = await fetch(url, {
