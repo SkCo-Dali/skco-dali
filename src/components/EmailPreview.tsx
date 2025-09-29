@@ -37,7 +37,7 @@ export function EmailPreview({
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="flex items-center justify-between pb-4">
+        <CardTitle className="flex items-center justify-between">
           Previsualización de Emails
           <Badge variant="secondary">
             {leads.length} de {leads.length} leads
@@ -48,13 +48,13 @@ export function EmailPreview({
         </p>
       </CardHeader>
       <CardContent>
-        <div className="space-y-4 pb-4">
+        <div className="space-y-4">
           {previewLeads.map((lead, index) => {
             const processedSubject = replaceDynamicFields(template.subject, lead);
             const processedContent = replaceDynamicFields(template.htmlContent, lead);
 
             return (
-              <Card key={lead.id} className="border-l-4 border-l-primary">
+              <Card key={lead.id} className="border-l-4 border-l-primary pb-4">
                 <CardHeader className="pb-2">
                   <div className="flex items-center justify-between">
                     <div>
