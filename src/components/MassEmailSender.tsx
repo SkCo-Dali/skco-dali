@@ -64,6 +64,9 @@ export function MassEmailSender({ filteredLeads, onClose }: MassEmailSenderProps
 
   // Estado para mostrar/ocultar mensaje de info
   const [showInfoMessage, setShowInfoMessage] = useState(true);
+  
+  // Estado para email alternativo en envíos individuales
+  const [alternateEmail, setAlternateEmail] = useState('');
 
   // Filtrar leads que tengan email válido y limitar a 20
   const validLeads = filteredLeads.filter(lead => lead.email && lead.email.trim() !== '');
@@ -107,7 +110,7 @@ export function MassEmailSender({ filteredLeads, onClose }: MassEmailSenderProps
   const handleConfirmSend = async () => {
     setShowConfirmation(false);
     
-    const success = await sendMassEmail(leadsToShow, template);
+    const success = await sendMassEmail(leadsToShow, template, alternateEmail);
     if (success) {
       // Cambiar a la pestaña de historial para ver los resultados
       setActiveTab('logs');
@@ -185,6 +188,9 @@ export function MassEmailSender({ filteredLeads, onClose }: MassEmailSenderProps
               template={template}
               onTemplateChange={setTemplate}
               dynamicFields={dynamicFields}
+              isIndividual={validLeads.length === 1}
+              alternateEmail={alternateEmail}
+              onAlternateEmailChange={setAlternateEmail}
             />
             
             <div className="flex justify-between items-center pt-4 border-t">
