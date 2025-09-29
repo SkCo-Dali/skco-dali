@@ -115,8 +115,14 @@ export default function Informes() {
   // Handle report selection
   const handleReportSelect = async (report: EffectiveReport) => {
     try {
+      // Get access token
+      const tokenData = await getAccessToken();
+      if (!tokenData?.accessToken) {
+        throw new Error('No access token available');
+      }
+
       // Check access before proceeding
-      const hasAccess = await powerbiService.checkReportAccess(report.reportId);
+      const hasAccess = await powerbiService.checkReportAccess(report.reportId, tokenData.accessToken);
       if (!hasAccess) {
         toast({
           title: "Acceso denegado",
