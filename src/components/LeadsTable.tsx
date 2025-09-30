@@ -249,7 +249,8 @@ function SortableHeader({
         {column.sortable && renderSortIcon(column.key)}
         {/* X button to clear filters - positioned after column name */}
         {((columnFilters[column.key] && columnFilters[column.key].length > 0) || 
-          (textFilters[column.key] && textFilters[column.key].length > 0)) && (
+          (textFilters[column.key] && textFilters[column.key].length > 0) ||
+          (columnFilters[`${column.key}End`] && columnFilters[`${column.key}End`].length > 0)) && (
           <Button
             variant="ghost"
             size="sm"

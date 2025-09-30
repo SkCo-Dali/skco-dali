@@ -395,6 +395,9 @@ export default function Leads() {
   const clearColumnFilter = useCallback((column: string) => {
     const newColumnFilters = { ...filters.columnFilters };
     delete newColumnFilters[column];
+    // Also clear the End variant for date columns
+    delete newColumnFilters[`${column}End`];
+    
     const newTextFilters = { ...filters.textFilters };
     delete newTextFilters[column];
     
@@ -406,6 +409,7 @@ export default function Leads() {
 
   const hasFiltersForColumn = useCallback((column: string) => {
     return (filters.columnFilters[column] && filters.columnFilters[column].length > 0) ||
+           (filters.columnFilters[`${column}End`] && filters.columnFilters[`${column}End`].length > 0) ||
            (filters.textFilters[column] && filters.textFilters[column].length > 0);
   }, [filters.columnFilters, filters.textFilters]);
 
