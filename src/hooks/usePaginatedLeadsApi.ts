@@ -243,9 +243,14 @@ export const usePaginatedLeadsApi = () => {
     const currentFilters = newFilters ? { ...filters, ...newFilters } : filters;
     const currentPage = page || state.pagination.page;
 
+    // Si hay búsqueda, obtener más leads para filtrar client-side
+    const effectivePageSize = currentFilters.searchTerm 
+      ? 1000 // Obtener muchos leads cuando hay búsqueda
+      : state.pagination.pageSize;
+
     const apiParams: LeadsApiParams = {
-      page: currentPage,
-      page_size: state.pagination.pageSize,
+      page: currentFilters.searchTerm ? 1 : currentPage, // Siempre página 1 con búsqueda
+      page_size: effectivePageSize,
       sort_by: mapColumnNameToApi(currentFilters.sortBy),
       sort_dir: currentFilters.sortDirection,
       filters: convertFiltersToApiFormat(currentFilters),
@@ -273,20 +278,33 @@ export const usePaginatedLeadsApi = () => {
 
       // Aplicar filtro de búsqueda client-side para buscar en múltiples campos
       if (currentFilters.searchTerm) {
-        mappedLeads = applyClientSearchFilter(mappedLeads, currentFilters.searchTerm);
+        const filteredLeads = applyClientSearchFilter(mappedLeads, currentFilters.searchTerm);
+        console.log(`🔍 Search filter applied: ${mappedLeads.length} leads → ${filteredLeads.length} matches`);
+        
+        setState(prev => ({
+          ...prev,
+          leads: filteredLeads,
+          loading: false,
+          pagination: {
+            page: 1,
+            pageSize: state.pagination.pageSize,
+            total: filteredLeads.length,
+            totalPages: Math.ceil(filteredLeads.length / state.pagination.pageSize),
+          },
+        }));
+      } else {
+        setState(prev => ({
+          ...prev,
+          leads: mappedLeads,
+          loading: false,
+          pagination: {
+            page: response.page,
+            pageSize: response.page_size,
+            total: response.total,
+            totalPages: response.total_pages,
+          },
+        }));
       }
-
-      setState(prev => ({
-        ...prev,
-        leads: mappedLeads,
-        loading: false,
-        pagination: {
-          page: response.page,
-          pageSize: response.page_size,
-          total: response.total,
-          totalPages: response.total_pages,
-        },
-      }));
 
       // Persistir filtros si venían nuevos
       if (newFilters) {
