@@ -248,9 +248,15 @@ function SortableHeader({
         </span>
         {column.sortable && renderSortIcon(column.key)}
         {/* X button to clear filters - positioned after column name */}
-        {((columnFilters[column.key] && columnFilters[column.key].length > 0) || 
-          (textFilters[column.key] && textFilters[column.key].length > 0) ||
-          (columnFilters[`${column.key}End`] && columnFilters[`${column.key}End`].length > 0)) && (
+        {(() => {
+          // Para lastInteraction, también buscar en updatedAt (debido al mapeo interno)
+          const effectiveKey = column.key === 'lastInteraction' ? 'updatedAt' : column.key;
+          return ((columnFilters[column.key] && columnFilters[column.key].length > 0) || 
+            (columnFilters[effectiveKey] && columnFilters[effectiveKey].length > 0) ||
+            (textFilters[column.key] && textFilters[column.key].length > 0) ||
+            (columnFilters[`${column.key}End`] && columnFilters[`${column.key}End`].length > 0) ||
+            (columnFilters[`${effectiveKey}End`] && columnFilters[`${effectiveKey}End`].length > 0));
+        })() && (
           <Button
             variant="ghost"
             size="sm"

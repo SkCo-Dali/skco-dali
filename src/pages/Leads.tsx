@@ -394,12 +394,16 @@ export default function Leads() {
 
   const clearColumnFilter = useCallback((column: string) => {
     const newColumnFilters = { ...filters.columnFilters };
+    const effectiveKey = column === 'lastInteraction' ? 'updatedAt' : column;
+    
     delete newColumnFilters[column];
-    // Also clear the End variant for date columns
+    delete newColumnFilters[effectiveKey];
     delete newColumnFilters[`${column}End`];
+    delete newColumnFilters[`${effectiveKey}End`];
     
     const newTextFilters = { ...filters.textFilters };
     delete newTextFilters[column];
+    delete newTextFilters[effectiveKey];
     
     updateFilters({
       columnFilters: newColumnFilters,
@@ -408,9 +412,13 @@ export default function Leads() {
   }, [updateFilters, filters.columnFilters, filters.textFilters]);
 
   const hasFiltersForColumn = useCallback((column: string) => {
+    const effectiveKey = column === 'lastInteraction' ? 'updatedAt' : column;
     return (filters.columnFilters[column] && filters.columnFilters[column].length > 0) ||
+           (filters.columnFilters[effectiveKey] && filters.columnFilters[effectiveKey].length > 0) ||
            (filters.columnFilters[`${column}End`] && filters.columnFilters[`${column}End`].length > 0) ||
-           (filters.textFilters[column] && filters.textFilters[column].length > 0);
+           (filters.columnFilters[`${effectiveKey}End`] && filters.columnFilters[`${effectiveKey}End`].length > 0) ||
+           (filters.textFilters[column] && filters.textFilters[column].length > 0) ||
+           (filters.textFilters[effectiveKey] && filters.textFilters[effectiveKey].length > 0);
   }, [filters.columnFilters, filters.textFilters]);
 
   const handleLeadClick = useCallback((lead: Lead) => {
