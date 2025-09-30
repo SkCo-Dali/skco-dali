@@ -9,7 +9,7 @@ const companies = [
 ];
 
 const sources: Lead['source'][] = ['Hubspot', 'web', 'social', 'referral', 'cold-call', 'event', 'campaign', 'DaliLM', 'DaliAI'];
-const stages: Lead['stage'][] = ['Nuevo', 'Asignado', 'Localizado: Prospecto de venta FP', 'Localizado: Prospecto de venta AD', 'Contrato Creado', 'Localizado: No interesado'];
+const stages: Lead['stage'][] = ['Nuevo', 'Asignado', 'Localizado: Prospecto de venta FP', 'Localizado: Prospecto de venta AD', 'Localizado: Prospecto de venta - Pendiente','Contrato Creado', 'Localizado: No interesado'];
 const priorities: Lead['priority'][] = ['low', 'medium', 'high', 'urgent'];
 
 export function generateSampleLeads(): Lead[] {
@@ -89,7 +89,7 @@ function getCampaignForLead(index: number): string {
 }
 
 function getStageForLead(index: number): Lead['stage'] {
-  const stagePattern = ['Nuevo', 'Asignado', 'Localizado: Prospecto de venta FP', 'Localizado: Prospecto de venta AD', 'Contrato Creado', 'Localizado: No interesado'];
+  const stagePattern = ['Nuevo', 'Asignado', 'Localizado: Prospecto de venta FP', 'Localizado: Prospecto de venta AD', 'Localizado: Prospecto de venta - Pendiente','Contrato Creado', 'Localizado: No interesado'];
   return stagePattern[(index - 1) % stagePattern.length] as Lead['stage'];
 }
 
