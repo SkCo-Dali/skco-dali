@@ -1221,7 +1221,7 @@ Notas adicionales: ${lead.notes || 'Ninguna'}`;
                   <div className="space-y-4">
                     {assignmentHistory.map((entry, index) => (
                       <Card key={index}>
-                        <CardContent className="pt-4">
+                        <CardContent className="pt-4 pb-4">
                           <div className="flex items-start justify-between">
                             <div>
                               <h4 className="font-medium">Reasignación</h4>
