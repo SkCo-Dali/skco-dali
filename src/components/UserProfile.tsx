@@ -28,7 +28,7 @@ export function UserProfile() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button className="relative h-8 w-8 rounded-full">
+        <Button className="relative !h-8 !w-8 rounded-full">
           <Avatar className="h-10 w-10">
             <AvatarImage src={user.avatar} alt={user.name} />
             <AvatarFallback className="bg-[#00C73D] text-white">
