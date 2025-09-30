@@ -264,7 +264,8 @@ export function DateFilter({
         });
     }
     
-    onFilterChange(column, finalFilters);
+    const targetColumn = column === 'lastInteraction' ? 'updatedAt' : column;
+    onFilterChange(targetColumn, finalFilters);
     setIsOpen(false);
   };
 

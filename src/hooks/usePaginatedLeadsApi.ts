@@ -129,11 +129,19 @@ export const usePaginatedLeadsApi = () => {
     // Extraer filtros de fecha especiales antes del procesamiento
     const createdAtFrom = uiFilters.columnFilters.createdAt?.[0];
     const createdAtTo = uiFilters.columnFilters.createdAtEnd?.[0];
+    const updatedAtFrom = uiFilters.columnFilters.updatedAt?.[0];
+    const updatedAtTo = uiFilters.columnFilters.updatedAtEnd?.[0];
+    const nextFollowUpFrom = uiFilters.columnFilters.nextFollowUp?.[0];
+    const nextFollowUpTo = uiFilters.columnFilters.nextFollowUpEnd?.[0];
 
-    // Convertir filtros de columna
+    // Convertir filtros de columna (excepto fechas especiales)
     Object.entries(uiFilters.columnFilters).forEach(([column, values]) => {
       // Saltar filtros de fecha especiales, los manejaremos después
-      if (column === 'createdAt' || column === 'createdAtEnd') {
+      if (
+        column === 'createdAt' || column === 'createdAtEnd' ||
+        column === 'updatedAt' || column === 'updatedAtEnd' ||
+        column === 'nextFollowUp' || column === 'nextFollowUpEnd'
+      ) {
         return;
       }
       
@@ -155,26 +163,35 @@ export const usePaginatedLeadsApi = () => {
       }
     });
 
+    // Helper para asignar filtros de fecha
+    const applyDateFilter = (
+      field: 'CreatedAt' | 'UpdatedAt' | 'NextFollowUp',
+      from?: string,
+      to?: string
+    ) => {
+      if (from && to) {
+        apiFilters[field] = {
+          op: 'between',
+          from,
+          to,
+        } as any;
+      } else if (from) {
+        apiFilters[field] = {
+          op: 'gte',
+          value: from,
+        } as any;
+      } else if (to) {
+        apiFilters[field] = {
+          op: 'lte',
+          value: to,
+        } as any;
+      }
+    };
+
     // Manejar filtros de fecha combinados
-    if (createdAtFrom && createdAtTo) {
-      // Si hay ambos filtros, usar between
-      apiFilters['CreatedAt'] = {
-        op: 'between',
-        values: [createdAtFrom, createdAtTo]
-      };
-    } else if (createdAtFrom) {
-      // Solo filtro "desde"
-      apiFilters['CreatedAt'] = {
-        op: 'gte',
-        value: createdAtFrom
-      };
-    } else if (createdAtTo) {
-      // Solo filtro "hasta"
-      apiFilters['CreatedAt'] = {
-        op: 'lte',
-        value: createdAtTo
-      };
-    }
+    applyDateFilter('CreatedAt', createdAtFrom, createdAtTo);
+    applyDateFilter('UpdatedAt', updatedAtFrom, updatedAtTo);
+    applyDateFilter('NextFollowUp', nextFollowUpFrom, nextFollowUpTo);
 
     // Convertir filtros de texto
     Object.entries(uiFilters.textFilters).forEach(([column, conditions]) => {

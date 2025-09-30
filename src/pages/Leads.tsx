@@ -306,12 +306,81 @@ export default function Leads() {
   }, [updateFilters]);
 
   const handleColumnFilterChange = useCallback((column: string, selectedValues: string[]) => {
-    updateFilters({
-      columnFilters: {
-        ...filters.columnFilters,
-        [column]: selectedValues
-      }
-    });
+    const dateColumns = new Set(['createdAt', 'updatedAt', 'nextFollowUp', 'lastInteraction']);
+    const normCol = column === 'lastInteraction' ? 'updatedAt' : column;
+
+    if (dateColumns.has(normCol)) {
+      const parseRange = (values: string[]) => {
+        let from: string | undefined;
+        let to: string | undefined;
+
+        const custom = values.find(v => v.startsWith('custom:'));
+        if (custom) {
+          try {
+            const payload = JSON.parse(custom.replace('custom:', ''));
+            from = payload.startDate || undefined;
+            to = payload.endDate || payload.startDate || undefined;
+          } catch {}
+        }
+
+        const dayRegex = /^\d{4}-\d{2}-\d{2}$/;
+        const days = values.filter(v => dayRegex.test(v)).sort();
+        if (days.length > 0) {
+          from = from ? (from < days[0] ? from : days[0]) : days[0];
+          to = to ? (to > days[days.length - 1] ? to : days[days.length - 1]) : days[days.length - 1];
+        }
+
+        const yearRe = /^year:(\d{4})$/;
+        values.forEach(v => {
+          const m = v.match(yearRe);
+          if (m) {
+            const y = m[1];
+            const yFrom = `${y}-01-01`;
+            const yTo = `${y}-12-31`;
+            from = from ? (from < yFrom ? from : yFrom) : yFrom;
+            to = to ? (to > yTo ? to : yTo) : yTo;
+          }
+        });
+
+        const monthRe = /^month:(\d{4})-(\d{2})$/;
+        values.forEach(v => {
+          const m = v.match(monthRe);
+          if (m) {
+            const y = m[1];
+            const mm = m[2];
+            const mFrom = `${y}-${mm}-01`;
+            const thirtyOne = ['01','03','05','07','08','10','12'];
+            const thirty = ['04','06','09','11'];
+            let last = '30';
+            if (thirtyOne.includes(mm)) last = '31';
+            else if (thirty.includes(mm)) last = '30';
+            else last = '28';
+            const mTo = `${y}-${mm}-${last}`;
+            from = from ? (from < mFrom ? from : mFrom) : mFrom;
+            to = to ? (to > mTo ? to : mTo) : mTo;
+          }
+        });
+
+        return { from, to };
+      };
+
+      const { from, to } = parseRange(selectedValues);
+
+      updateFilters({
+        columnFilters: {
+          ...filters.columnFilters,
+          [normCol]: from ? [from] : [],
+          [`${normCol}End`]: to ? [to] : []
+        }
+      });
+    } else {
+      updateFilters({
+        columnFilters: {
+          ...filters.columnFilters,
+          [normCol]: selectedValues
+        }
+      });
+    }
   }, [updateFilters, filters.columnFilters]);
 
   const handleTextFilterChange = useCallback((column: string, conditions: any[]) => {
