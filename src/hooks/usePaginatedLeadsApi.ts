@@ -243,9 +243,9 @@ export const usePaginatedLeadsApi = () => {
     const currentFilters = newFilters ? { ...filters, ...newFilters } : filters;
     const currentPage = page || state.pagination.page;
 
-    // Si hay búsqueda, obtener más leads para filtrar client-side
+    // Si hay búsqueda, obtener más leads para filtrar client-side (máximo 200 por limitación del servidor)
     const effectivePageSize = currentFilters.searchTerm 
-      ? 1000 // Obtener muchos leads cuando hay búsqueda
+      ? 200 // Límite máximo del servidor
       : state.pagination.pageSize;
 
     const apiParams: LeadsApiParams = {
