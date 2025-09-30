@@ -137,7 +137,20 @@ export const usePaginatedLeadsApi = () => {
         // Mapear nombres de columnas de UI a API si es necesario
         const apiColumn = mapColumnNameToApi(column);
         
-        if (values.length === 1) {
+        // Manejar filtros de fecha especiales
+        if (column === 'createdAt') {
+          // Filtro de fecha "desde" (mayor o igual)
+          apiFilters[apiColumn] = {
+            op: 'gte',
+            value: values[0]
+          };
+        } else if (column === 'createdAtEnd') {
+          // Filtro de fecha "hasta" (menor o igual)
+          apiFilters['CreatedAt'] = {
+            op: 'lte',
+            value: values[0]
+          };
+        } else if (values.length === 1) {
           apiFilters[apiColumn] = {
             op: 'eq',
             value: values[0]

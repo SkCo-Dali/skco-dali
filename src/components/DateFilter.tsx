@@ -169,13 +169,14 @@ export function DateFilter({
     
     dates.forEach(date => {
       const year = date.getFullYear().toString();
-      const month = format(date, 'MMMM', { locale: es });
-      const day = format(date, 'dd', { locale: es });
+      const monthNum = String(date.getMonth() + 1).padStart(2, '0'); // Usar número del mes
+      const monthName = format(date, 'MMMM', { locale: es }); // Nombre para mostrar
+      const day = String(date.getDate()).padStart(2, '0');
       
       if (!grouped[year]) grouped[year] = {};
-      if (!grouped[year][month]) grouped[year][month] = {};
-      if (!grouped[year][month][day]) grouped[year][month][day] = [];
-      grouped[year][month][day].push(date);
+      if (!grouped[year][monthNum]) grouped[year][monthNum] = {};
+      if (!grouped[year][monthNum][day]) grouped[year][monthNum][day] = [];
+      grouped[year][monthNum][day].push(date);
     });
 
     return grouped;
@@ -205,11 +206,11 @@ export function DateFilter({
     }
   };
 
-  const handleMonthChange = (year: string, month: string, checked: boolean) => {
+  const handleMonthChange = (year: string, monthNum: string, checked: boolean) => {
     if (checked) {
-      setSelectedSpecificDates(prev => [...prev, `month:${year}-${month}`]);
+      setSelectedSpecificDates(prev => [...prev, `month:${year}-${monthNum}`]);
     } else {
-      setSelectedSpecificDates(prev => prev.filter(d => d !== `month:${year}-${month}`));
+      setSelectedSpecificDates(prev => prev.filter(d => d !== `month:${year}-${monthNum}`));
     }
   };
 
@@ -250,9 +251,17 @@ export function DateFilter({
     } else if (activeTab === 'specific') {
       finalFilters = selectedSpecificDates;
     } else if (activeTab === 'custom') {
+      // Convertir condiciones custom a formato ISO para el API
       finalFilters = customConditions
         .filter(condition => condition.startDate || (condition.operator === 'equals' && condition.startDate))
-        .map(condition => `custom:${JSON.stringify(condition)}`);
+        .map(condition => {
+          const formattedCondition = {
+            ...condition,
+            startDate: condition.startDate ? format(condition.startDate, 'yyyy-MM-dd') : undefined,
+            endDate: condition.endDate ? format(condition.endDate, 'yyyy-MM-dd') : undefined,
+          };
+          return `custom:${JSON.stringify(formattedCondition)}`;
+        });
     }
     
     onFilterChange(column, finalFilters);
@@ -394,35 +403,38 @@ export function DateFilter({
                              <span className="text-xs text-gray-600">{year}</span>
                            </CollapsibleTrigger>
                          </div>
-                         <CollapsibleContent className="ml-4">
-                           {Object.entries(months).map(([month, days]) => (
-                             <Collapsible key={month}>
-                               <div className="flex items-center space-x-2 p-1 hover:bg-gray-50 w-full">
-                                 <Checkbox
-                                   checked={selectedSpecificDates.includes(`month:${year}-${month}`)}
-                                   onCheckedChange={(checked) => handleMonthChange(year, month, checked as boolean)}
-                                 />
-                                 <CollapsibleTrigger className="flex items-center space-x-2 flex-1 text-left">
-                                   <ChevronDown className="h-3 w-3" />
-                                   <span className="text-xs text-gray-500">{month}</span>
-                                 </CollapsibleTrigger>
-                               </div>
-                               <CollapsibleContent className="ml-4">
-                                 {Object.entries(days).map(([day, dates]) => (
-                                   <div key={day} className="flex items-center space-x-2 p-1 hover:bg-gray-50">
-                                     <Checkbox
-                                       checked={selectedSpecificDates.includes(`${year}-${month}-${day}`)}
-                                       onCheckedChange={(checked) => handleSpecificDateChange(`${year}-${month}-${day}`, checked as boolean)}
-                                     />
-                                     <label className="text-xs text-gray-600 cursor-pointer flex-1 select-none">
-                                       {day} ({dates.length})
-                                     </label>
-                                   </div>
-                                 ))}
-                               </CollapsibleContent>
-                             </Collapsible>
-                           ))}
-                         </CollapsibleContent>
+                          <CollapsibleContent className="ml-4">
+                            {Object.entries(months).map(([monthNum, days]) => {
+                              const monthName = format(new Date(parseInt(year), parseInt(monthNum) - 1, 1), 'MMMM', { locale: es });
+                              return (
+                                <Collapsible key={monthNum}>
+                                  <div className="flex items-center space-x-2 p-1 hover:bg-gray-50 w-full">
+                                    <Checkbox
+                                      checked={selectedSpecificDates.includes(`month:${year}-${monthNum}`)}
+                                      onCheckedChange={(checked) => handleMonthChange(year, monthNum, checked as boolean)}
+                                    />
+                                    <CollapsibleTrigger className="flex items-center space-x-2 flex-1 text-left">
+                                      <ChevronDown className="h-3 w-3" />
+                                      <span className="text-xs text-gray-500">{monthName}</span>
+                                    </CollapsibleTrigger>
+                                  </div>
+                                  <CollapsibleContent className="ml-4">
+                                    {Object.entries(days).map(([day, dates]) => (
+                                      <div key={day} className="flex items-center space-x-2 p-1 hover:bg-gray-50">
+                                        <Checkbox
+                                          checked={selectedSpecificDates.includes(`${year}-${monthNum}-${day}`)}
+                                          onCheckedChange={(checked) => handleSpecificDateChange(`${year}-${monthNum}-${day}`, checked as boolean)}
+                                        />
+                                        <label className="text-xs text-gray-600 cursor-pointer flex-1 select-none">
+                                          {day} ({dates.length})
+                                        </label>
+                                      </div>
+                                    ))}
+                                  </CollapsibleContent>
+                                </Collapsible>
+                              );
+                            })}
+                          </CollapsibleContent>
                        </Collapsible>
                      ))}
                 </CollapsibleContent>

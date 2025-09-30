@@ -263,14 +263,35 @@ export default function Leads() {
   const filterAssignedTo = filters.columnFilters.assignedTo?.length > 0 ? filters.columnFilters.assignedTo : "all";
   const filterSource = filters.columnFilters.source?.length > 0 ? filters.columnFilters.source : "all";
   const filterCampaign = filters.columnFilters.campaign?.length > 0 ? filters.columnFilters.campaign : "all";
-  const filterDateFrom = "";
-  const setFilterDateFrom = () => {};
-  const filterDateTo = "";
-  const setFilterDateTo = () => {};
+  
+  // Filtros de fecha
+  const filterDateFrom = filters.columnFilters.createdAt?.[0] || "";
+  const setFilterDateFrom = useCallback((date: string) => {
+    updateFilters({
+      columnFilters: {
+        ...filters.columnFilters,
+        createdAt: date ? [date] : []
+      }
+    });
+  }, [updateFilters, filters.columnFilters]);
+  
+  const filterDateTo = filters.columnFilters.createdAtEnd?.[0] || "";
+  const setFilterDateTo = useCallback((date: string) => {
+    updateFilters({
+      columnFilters: {
+        ...filters.columnFilters,
+        createdAtEnd: date ? [date] : []
+      }
+    });
+  }, [updateFilters, filters.columnFilters]);
+  
+  // Filtros de valor (placeholder)
   const filterValueMin = "";
   const setFilterValueMin = () => {};
   const filterValueMax = "";
   const setFilterValueMax = () => {};
+  
+  // Filtro de duplicados (placeholder)
   const filterDuplicates = "all";
   const setFilterDuplicates = () => {};
   const duplicateCount = 0;
