@@ -18,6 +18,7 @@ import Gamification from "@/pages/Gamification";
 import Index from "@/pages/Index";
 import Comisiones from "@/pages/Comisiones";
 import MotorComisiones from "@/pages/MotorComisiones";
+import VoiceInsights from "@/pages/VoiceInsights";
 import NotFound from "@/pages/NotFound";
 import PowerBIReportsAdmin from "@/components/admin/PowerBIReportsAdmin";
 import { useAuth } from "@/contexts/AuthContext";
@@ -84,6 +85,7 @@ export function AppContent() {
               <Route path="/index" element={<Index />} />
               <Route path="/comisiones" element={<Comisiones />} />
               <Route path="/motor-comisiones" element={<MotorComisiones />} />
+              <Route path="/voice-insights" element={<VoiceInsights />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </main>
