@@ -14,9 +14,19 @@ interface EmailComposerProps {
   template: EmailTemplate;
   onTemplateChange: (template: EmailTemplate) => void;
   dynamicFields: DynamicField[];
+  isIndividual?: boolean;
+  alternateEmail?: string;
+  onAlternateEmailChange?: (email: string) => void;
 }
 
-export function EmailComposer({ template, onTemplateChange, dynamicFields }: EmailComposerProps) {
+export function EmailComposer({ 
+  template, 
+  onTemplateChange, 
+  dynamicFields, 
+  isIndividual = false,
+  alternateEmail = '',
+  onAlternateEmailChange
+}: EmailComposerProps) {
   const [showFieldsList, setShowFieldsList] = useState(false);
 
   const insertDynamicField = (field: DynamicField, targetField: 'subject' | 'htmlContent' | 'plainContent') => {
@@ -97,6 +107,23 @@ export function EmailComposer({ template, onTemplateChange, dynamicFields }: Ema
                 Haz clic en un campo para insertarlo en el contenido del email
               </p>
             </Card>
+          )}
+
+          {isIndividual && (
+            <div>
+              <Label htmlFor="alternateEmail">Email Alternativo (Opcional)</Label>
+              <Input
+                id="alternateEmail"
+                value={alternateEmail}
+                onChange={(e) => onAlternateEmailChange?.(e.target.value)}
+                placeholder="Ej: correo.adicional@ejemplo.com"
+                className="mt-2"
+                type="email"
+              />
+              <p className="text-sm text-muted-foreground mt-1">
+                Si se especifica, se enviará a este email en lugar del email principal del lead
+              </p>
+            </div>
           )}
 
           <div>

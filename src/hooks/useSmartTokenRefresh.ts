@@ -18,6 +18,8 @@ export const useSmartTokenRefresh = () => {
   const retryCountRef = useRef(0);
   const lastRefreshRef = useRef<number>(Date.now());
   const hasShownWarningRef = useRef<boolean>(false);
+  const currentIntervalMsRef = useRef<number | null>(null);
+  const startedRef = useRef<boolean>(false);
 
   const { isRecentlyActive } = useUserActivity({
     onActivity: () => {
@@ -93,6 +95,12 @@ export const useSmartTokenRefresh = () => {
     const isUserActive = isRecentlyActive(ACTIVITY_THRESHOLD);
     const refreshInterval = isUserActive ? ACTIVE_REFRESH_INTERVAL : IDLE_REFRESH_INTERVAL;
     
+    // Prevenir reprogramación si ya hay una con el mismo intervalo
+    if (currentIntervalMsRef.current === refreshInterval) {
+      return;
+    }
+    currentIntervalMsRef.current = refreshInterval;
+    
     console.log(`⏰ SmartTokenRefresh: Programando próxima renovación en ${refreshInterval / 60000} minutos (usuario ${isUserActive ? 'activo' : 'inactivo'})`);
     
     intervalRef.current = setInterval(() => {
@@ -113,6 +121,12 @@ export const useSmartTokenRefresh = () => {
   }, [isRecentlyActive, refreshToken, showSessionWarning]);
 
   const startSmartRefresh = useCallback(() => {
+    if (startedRef.current) {
+      console.log('⏸️ SmartTokenRefresh: Ya iniciado, saltando');
+      return;
+    }
+    
+    startedRef.current = true;
     console.log('🟢 SmartTokenRefresh: Iniciando sistema inteligente de renovación');
     
     // Ejecutar renovación inmediata
@@ -137,15 +151,11 @@ export const useSmartTokenRefresh = () => {
     
     retryCountRef.current = 0;
     hasShownWarningRef.current = false;
+    currentIntervalMsRef.current = null;
+    startedRef.current = false;
   }, []);
 
-  // Reprogramar cuando cambie el estado de actividad del usuario
-  useEffect(() => {
-    if (isAuthenticated && isInitialized) {
-      scheduleNextRefresh();
-    }
-  }, [isAuthenticated, isInitialized, scheduleNextRefresh]);
-
+  // Controlar el ciclo de vida del refresh
   useEffect(() => {
     if (isAuthenticated && isInitialized) {
       startSmartRefresh();
@@ -156,7 +166,7 @@ export const useSmartTokenRefresh = () => {
     return () => {
       stopSmartRefresh();
     };
-  }, [isAuthenticated, isInitialized, startSmartRefresh, stopSmartRefresh]);
+  }, [isAuthenticated, isInitialized]);
 
   return {
     refreshToken: () => refreshToken(true),

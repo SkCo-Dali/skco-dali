@@ -1,4 +1,5 @@
 import { ReassignLeadRequest, ReassignLeadResponse, LeadAssignmentHistory, ReassignableLead } from '@/types/leadAssignmentTypes';
+import { LeadsApiParams, PaginatedLeadsResponse, DistinctValuesParams, DistinctValuesResponse } from '@/types/paginatedLeadsTypes';
 import { ENV } from '@/config/environment';
 
 const API_BASE_URL = ENV.CRM_API_BASE_URL;
@@ -89,11 +90,75 @@ export const getUserAssignmentHistory = async (userId: string): Promise<LeadAssi
   return makeRequest<LeadAssignmentHistory[]>(`/api/lead-assignments/user/${userId}/history`);
 };
 
-// 4. Obtener leads reasignables
-export const getReassignableLeads = async (): Promise<ReassignableLead[]> => {
-  const result = await makeRequest<ReassignableLead[]>('/api/lead-assignments');
+// 4. Obtener leads reasignables (nueva API paginada)
+export const getReassignableLeadsPaginated = async (params: LeadsApiParams): Promise<PaginatedLeadsResponse> => {
+  const qs = new URLSearchParams();
+  qs.set("page", String(params.page ?? 1));
+  qs.set("page_size", String(params.page_size ?? 50));
+  if (params.sort_by) qs.set("sort_by", params.sort_by);
+  if (params.sort_dir) qs.set("sort_dir", params.sort_dir);
+  if (params.filters) qs.set("filters", JSON.stringify(params.filters));
+  
+  const endpoint = `/api/lead-assignments/reassignable?${qs.toString()}`;
+  console.log('📡 Fetching paginated leads from:', endpoint);
+  
+  const result = await makeRequest<PaginatedLeadsResponse>(endpoint);
+  
+  console.log('📊 Paginated leads response:', {
+    totalItems: result.total,
+    totalPages: result.total_pages,
+    currentPage: result.page,
+    pageSize: result.page_size,
+    itemsInPage: result.items.length
+  });
   
   return result;
+};
+
+// 5. Obtener valores únicos para filtros
+export const getDistinctValues = async (params: DistinctValuesParams): Promise<DistinctValuesResponse> => {
+  const qs = new URLSearchParams();
+  qs.set("field", params.field);
+  if (params.search) qs.set("search", params.search);
+  if (params.limit) qs.set("limit", String(params.limit));
+  if (params.filters) qs.set("filters", JSON.stringify(params.filters));
+  
+  const endpoint = `/api/lead-assignments/distinct?${qs.toString()}`;
+  console.log('📡 Fetching distinct values from:', endpoint);
+  
+  const result = await makeRequest<DistinctValuesResponse>(endpoint);
+  
+  console.log('📊 Distinct values response:', {
+    field: result.field,
+    valuesCount: result.values.length
+  });
+  
+  return result;
+};
+
+// Mantener la función anterior para compatibilidad (deprecated)
+export const getReassignableLeads = async (): Promise<ReassignableLead[]> => {
+  console.warn('⚠️ getReassignableLeads is deprecated, use getReassignableLeadsPaginated instead');
+  const result = await getReassignableLeadsPaginated({ page: 1, page_size: 1000 });
+  
+  // Mapear PaginatedLead a ReassignableLead para compatibilidad
+  return result.items.map(item => ({
+    id: item.Id,
+    name: item.Name,
+    email: item.Email,
+    phone: item.Phone,
+    document_number: parseInt(item.DocumentNumber),
+    company: item.Company,
+    source: item.Source,
+    campaign: item.Campaign,
+    stage: item.Stage,
+    priority: item.Priority,
+    value: parseFloat(item.Value),
+    assigned_to: item.AssignedTo,
+    created_at: item.CreatedAt,
+    updated_at: item.UpdatedAt,
+    additional_info: item.AdditionalInfo ? JSON.parse(item.AdditionalInfo) : null
+  }));
 };
 
 // Interface for assignable users

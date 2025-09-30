@@ -9,6 +9,7 @@ import Leads from "@/pages/Leads";
 import Tasks from "@/pages/Tasks";
 import Reports from "@/pages/Reports";
 import Informes from "@/pages/Informes";
+import ReportViewer from "@/pages/ReportViewer";
 import Users from "@/pages/Users";
 import { Opportunities } from "@/pages/Opportunities";
 import { OpportunityDetails } from "@/pages/OpportunityDetails";
@@ -71,6 +72,7 @@ export function AppContent() {
               <Route path="/tasks" element={<Tasks />} />
               <Route path="/reports" element={<Reports />} />
               <Route path="/informes" element={<Informes />} />
+              <Route path="/informes/:reportId" element={<ReportViewer />} />
               <Route path="/users" element={<Users />} />
               <Route path="/oportunidades" element={<Opportunities />} />
               <Route path="/oportunidades/:id" element={<OpportunityDetails />} />

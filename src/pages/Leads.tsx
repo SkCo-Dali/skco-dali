@@ -17,8 +17,6 @@ import { MassWhatsAppSender } from "@/components/MassWhatsAppSender";
 import { WhatsAppPropioButton } from "@/components/WhatsAppPropioButton";
 import { LeadsTableColumnSelector } from "@/components/LeadsTableColumnSelector";
 import { LeadsActionsButton } from "@/components/LeadsActionsButton";
-import { useUnifiedLeadsFilters } from "@/hooks/useUnifiedLeadsFilters";
-import { useLeadsPagination } from "@/hooks/useLeadsPagination";
 import { useLeadsApi } from "@/hooks/useLeadsApi";
 import { useIsMobile, useIsMedium } from "@/hooks/use-mobile";
 import { ColumnConfig } from "@/components/LeadsTableColumnSelector";
@@ -54,11 +52,13 @@ import {
 import { useLeadDeletion } from "@/hooks/useLeadDeletion";
 import { LeadDeleteConfirmDialog } from "@/components/LeadDeleteConfirmDialog";
 import { FaWhatsapp } from "react-icons/fa";
+import { TextFilterCondition } from "@/components/TextFilter";
 
 const DEFAULT_COLUMNS: ColumnConfig[] = [
   { key: 'name', label: 'Nombre', visible: true, sortable: true },
   { key: 'campaign', label: 'Campaña', visible: true, sortable: true },
   { key: 'email', label: 'Email', visible: true, sortable: true },
+  { key: 'alternateEmail', label: 'Email Alternativo', visible: true, sortable: true },
   { key: 'phone', label: 'Teléfono', visible: true, sortable: false },
   { key: 'stage', label: 'Estado', visible: true, sortable: true },
   { key: 'assignedToName', label: 'Asignado a', visible: true, sortable: true },
@@ -109,11 +109,18 @@ export default function Leads() {
     leads: leadsData,
     loading: isLoading,
     error,
+    pagination,
+    filters,
+    updateFilters,
+    setPage,
+    setPageSize,
+    getUniqueValues,
     refreshLeads,
     createNewLead
   } = useLeadsApi();
 
   const handleLeadUpdate = useCallback(() => {
+    console.log('🔄 handleLeadUpdate called - refreshing leads...');
     refreshLeads();
     toast({
       title: "Éxito",
@@ -131,56 +138,108 @@ export default function Leads() {
     onLeadDeleted: handleLeadUpdate
   });
 
-  const {
-    filteredLeads,
-    searchTerm,
-    setSearchTerm,
-    filterStage,
-    setFilterStage,
-    filterPriority,
-    setFilterPriority,
-    filterAssignedTo,
-    setFilterAssignedTo,
-    filterSource,
-    setFilterSource,
-    filterCampaign,
-    setFilterCampaign,
-    filterDateFrom,
-    setFilterDateFrom,
-    filterDateTo,
-    setFilterDateTo,
-    filterValueMin,
-    setFilterValueMin,
-    filterValueMax,
-    setFilterValueMax,
-    filterDuplicates,
-    setFilterDuplicates,
-    sortBy,
-    setSortBy,
-    sortDirection,
-    setSortDirection,
-    columnFilters,
-    textFilters,
-    handleColumnFilterChange,
-    handleTextFilterChange,
-    clearColumnFilter,
-    hasFiltersForColumn,
-    clearFilters,
-    uniqueStages,
-    uniqueSources,
-    uniqueCampaigns,
-    uniqueAssignedTo,
-    duplicateCount
-  } = useUnifiedLeadsFilters(leadsData);
+  // Los leads ya vienen filtrados y paginados del servidor
+  const filteredLeads = leadsData;
 
-  const {
-    currentPage,
-    leadsPerPage,
-    setCurrentPage,
-    setLeadsPerPage,
-    paginatedLeads,
-    totalPages
-  } = useLeadsPagination(filteredLeads);
+  // Variables auxiliares para compatibilidad con componentes existentes
+  const searchTerm = filters.searchTerm;
+  const columnFilters = filters.columnFilters;
+  const textFilters = filters.textFilters;
+  const sortBy = filters.sortBy;
+  const sortDirection = filters.sortDirection;
+  
+  // Variables de paginación
+  const currentPage = pagination.page;
+  const totalPages = pagination.totalPages;
+  const leadsPerPage = pagination.pageSize;
+  const paginatedLeads = filteredLeads; // Ya vienen paginados del servidor
+  
+  // Función para manejar cambios de ordenamiento
+  const handleSortChange = useCallback((newSortBy: string, newSortDirection: 'asc' | 'desc') => {
+    updateFilters({ sortBy: newSortBy, sortDirection: newSortDirection });
+  }, [updateFilters]);
+  
+  // Funciones auxiliares para compatibilidad
+  const setSearchTerm = (term: string) => handleSearchChange(term);
+  const setSortBy = (sort: string) => handleSortChange(sort, sortDirection);
+  const setSortDirection = (direction: 'asc' | 'desc') => handleSortChange(sortBy, direction);
+  const setCurrentPage = (page: number) => {
+    if (page === currentPage) {
+      // Avoid redundant pagination updates
+      return;
+    }
+    console.log(`📞 setCurrentPage called with page: ${page}, current: ${currentPage}`);
+    setPage(page);
+  };
+  const setLeadsPerPage = (size: number) => setPageSize(size);
+  
+  // Variables placeholder para componentes que las requieren (se actualizarán gradualmente)
+  const filterStage = "all";
+  const setFilterStage = () => {};
+  const filterPriority = "all";
+  const setFilterPriority = () => {};
+  const filterAssignedTo = "all";
+  const setFilterAssignedTo = () => {};
+  const filterSource = "all";
+  const setFilterSource = () => {};
+  const filterCampaign = "all";
+  const setFilterCampaign = () => {};
+  const filterDateFrom = "";
+  const setFilterDateFrom = () => {};
+  const filterDateTo = "";
+  const setFilterDateTo = () => {};
+  const filterValueMin = "";
+  const setFilterValueMin = () => {};
+  const filterValueMax = "";
+  const setFilterValueMax = () => {};
+  const filterDuplicates = "all";
+  const setFilterDuplicates = () => {};
+  const clearFilters = () => {};
+  const uniqueStages: string[] = [];
+  const uniqueSources: string[] = [];
+  const uniqueCampaigns: string[] = [];
+  const uniqueAssignedTo: string[] = [];
+  const duplicateCount = 0;
+
+  // Handlers para filtros
+  const handleSearchChange = useCallback((search: string) => {
+    updateFilters({ searchTerm: search });
+  }, [updateFilters]);
+
+  const handleColumnFilterChange = useCallback((column: string, selectedValues: string[]) => {
+    updateFilters({
+      columnFilters: {
+        ...filters.columnFilters,
+        [column]: selectedValues
+      }
+    });
+  }, [updateFilters, filters.columnFilters]);
+
+  const handleTextFilterChange = useCallback((column: string, conditions: any[]) => {
+    updateFilters({
+      textFilters: {
+        ...filters.textFilters,
+        [column]: conditions
+      }
+    });
+  }, [updateFilters, filters.textFilters]);
+
+  const clearColumnFilter = useCallback((column: string) => {
+    const newColumnFilters = { ...filters.columnFilters };
+    delete newColumnFilters[column];
+    const newTextFilters = { ...filters.textFilters };
+    delete newTextFilters[column];
+    
+    updateFilters({
+      columnFilters: newColumnFilters,
+      textFilters: newTextFilters
+    });
+  }, [updateFilters, filters.columnFilters, filters.textFilters]);
+
+  const hasFiltersForColumn = useCallback((column: string) => {
+    return (filters.columnFilters[column] && filters.columnFilters[column].length > 0) ||
+           (filters.textFilters[column] && filters.textFilters[column].length > 0);
+  }, [filters.columnFilters, filters.textFilters]);
 
   const handleLeadClick = useCallback((lead: Lead) => {
     setSelectedLead(lead);
@@ -223,8 +282,9 @@ export default function Leads() {
 
   const handleSortedLeadsChange = useCallback((sorted: Lead[]) => {
     setSortedLeads(sorted);
-    setCurrentPage(1);
-  }, [setCurrentPage]);
+    // No resetear la página automáticamente - esto causaba que la paginación 
+    // se reseteara cada vez que cambiaban los datos por navegación de páginas
+  }, []);
 
   const handleSendEmailToLead = useCallback((lead: Lead) => {
     setSelectedLeadForEmail(lead);

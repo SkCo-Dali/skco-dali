@@ -4,13 +4,13 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 
-import { Lead, User } from "@/types/crm";
-import { useUsersApi } from "@/hooks/useUsersApi";
+import { Lead } from "@/types/crm";
+import { useAssignableUsers } from "@/contexts/AssignableUsersContext";
 import { useLeadAssignments } from "@/hooks/useLeadAssignments";
 import { changeLeadStage } from "@/utils/leadsApiClient";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
-import { getAssignableUsers, AssignableUser } from "@/utils/leadAssignmentApiClient";
+import { AssignableUser } from "@/utils/leadAssignmentApiClient";
 import { Search } from "lucide-react";
 import { LeadAssigneeSelect } from "@/components/LeadAssigneeSelect";
 
@@ -51,40 +51,13 @@ const priorityLabels = {
 };
 
 export function EditableLeadCell({ lead, field, onUpdate }: EditableLeadCellProps) {
-  const { users } = useUsersApi();
+  const { users: assignableUsers, loading: loadingAssignableUsers } = useAssignableUsers();
   const { user } = useAuth();
   const { toast } = useToast();
   const { handleReassignLead } = useLeadAssignments();
   const [isUpdating, setIsUpdating] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [editValue, setEditValue] = useState('');
-  const [assignableUsers, setAssignableUsers] = useState<AssignableUser[]>([]);
-  const [loadingAssignableUsers, setLoadingAssignableUsers] = useState(false);
-  // Load assignable users when component mounts
-  useEffect(() => {
-    const loadAssignableUsers = async () => {
-      if (field !== 'assignedTo' && field !== 'assignedToName') return;
-      
-      setLoadingAssignableUsers(true);
-      try {
-        console.log('🔄 Loading assignable users for lead reassignment...');
-        const users = await getAssignableUsers();
-        console.log('✅ Assignable users loaded:', users.length);
-        setAssignableUsers(users);
-      } catch (error) {
-        console.error('❌ Error loading assignable users:', error);
-        toast({
-          title: "Error",
-          description: "Error al cargar usuarios asignables",
-          variant: "destructive"
-        });
-      } finally {
-        setLoadingAssignableUsers(false);
-      }
-    };
-
-    loadAssignableUsers();
-  }, [field, toast]);
 
   const handleValueChange = async (newValue: string) => {
     if (!user) {
@@ -117,10 +90,14 @@ export function EditableLeadCell({ lead, field, onUpdate }: EditableLeadCellProp
           const success = await handleReassignLead(lead.id, assignedToValue);
           
           if (success) {
-            const assignedUser = users.find(u => u.id === assignedToValue);
-            const assignedName = assignedUser?.name || 'Usuario desconocido';
+            const assignedUser = assignableUsers.find(u => u.Id === assignedToValue);
+            const assignedName = assignedUser?.Name || 'Usuario desconocido';
             
             console.log(`✅ Lead ${lead.id} reassigned successfully, refreshing leads list...`);
+            
+            // Actualizar el lead localmente para mostrar cambio inmediato
+            lead.assignedTo = assignedToValue;
+            lead.assignedToName = assignedName;
             
             toast({
               title: "Éxito",
@@ -140,6 +117,10 @@ export function EditableLeadCell({ lead, field, onUpdate }: EditableLeadCellProp
             const assignedName = assignedUser?.Name || 'Usuario desconocido';
             
             console.log(`✅ Lead ${lead.id} assigned successfully to ${assignedName}`);
+            
+            // Actualizar el lead localmente para mostrar cambio inmediato
+            lead.assignedTo = assignedToValue;
+            lead.assignedToName = assignedName;
             
             toast({
               title: "Éxito",
@@ -269,9 +250,8 @@ export function EditableLeadCell({ lead, field, onUpdate }: EditableLeadCellProp
   }
 
   if (field === 'assignedTo' || field === 'assignedToName') {
-    // Use assignedToName directly from API, fallback to user lookup for editing
-    const assignedUser = users.find(u => u.id === lead.assignedTo);
-    const displayName = lead.assignedToName || assignedUser?.name || 'Sin asignar';
+    // Use assignedToName directly from API response - no need for user lookup
+    const displayName = lead.assignedToName || 'Sin asignar';
 
     return (
       <LeadAssigneeSelect

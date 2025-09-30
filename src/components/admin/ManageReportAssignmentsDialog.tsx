@@ -6,13 +6,13 @@ import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
 import { X, Plus, Search, Users } from 'lucide-react';
-import { PowerBIReport } from './PowerBIReportsAdmin';
+import { Report } from '@/types/powerbi';
 import { User } from '@/types/crm';
 
 interface ManageReportAssignmentsDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  report: PowerBIReport;
+  report: Report;
   onUpdateAssignments: (assignedUsers: string[]) => void;
 }
 
@@ -30,7 +30,7 @@ export function ManageReportAssignmentsDialog({
 
   useEffect(() => {
     if (report) {
-      setAssignedUsers(report.assignedUsers || []);
+      setAssignedUsers([]); // TODO: Fetch from access management API
       fetchAvailableUsers();
     }
   }, [report]);

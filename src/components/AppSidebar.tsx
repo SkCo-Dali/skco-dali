@@ -155,9 +155,6 @@ export function AppSidebar({ onTemplateSelect }: AppSidebarProps) {
           <SidebarContent className="flex-1 flex flex-col justify-between pt-4">
             <div>
               <SidebarGroup>
-                {showText && (
-                  <SidebarGroupLabel className="text-black/80">Menú Principal</SidebarGroupLabel>
-                )}
                 <SidebarGroupContent>
                   <SidebarMenu>
                     {menuItems.map((item) => (

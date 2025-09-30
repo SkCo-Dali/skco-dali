@@ -14,7 +14,7 @@ export function Login({ onLogin }: LoginProps) {
     <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: "#ededed" }}>
       <div className="w-full max-w-2xl">
         {/* Logo y header */}
-        <div className="text-center mb-8">
+        <div className="text-center mb-4">
           {/* Video principal más grande y completo */}
           <div className="w-full max-w-2xl h-64 mx-auto mb-4 rounded-xl overflow-hidden shadow-lg bg-black">
             <video 
@@ -29,8 +29,8 @@ export function Login({ onLogin }: LoginProps) {
         </div>
 
         {/* Card de login */}
-        <Card className="shadow-xl border-0">
-          <CardHeader className="space-y-1 text-center pb-4">
+        <Card className="shadow-xl border-0 py-4">
+          <CardHeader className="space-y-1 text-center pb-4 pt-0">
             <CardDescription>
              <div>
             <h1 className="sk-h2" style={{ color: '#3f3f3f' }}>Dali</h1>
@@ -59,7 +59,7 @@ export function Login({ onLogin }: LoginProps) {
         </Card>
 
         {/* Footer */}
-        <div className="text-center text-sm text-gray-500">
+        <div className="text-center text-sm text-gray-500 pt-4">
           <p>¿Necesitas ayuda? Contacta a tu administrador de sistema</p>
           <p className="mt-2">© 2025 Skandia Colombia. Todos los derechos reservados.</p>
         </div>

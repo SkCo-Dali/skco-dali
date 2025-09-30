@@ -41,16 +41,22 @@ export function useMassEmail() {
 
   const generateEmailRecipients = useCallback((
     leads: Lead[], 
-    template: EmailTemplate
+    template: EmailTemplate,
+    alternateEmail?: string
   ): EmailRecipient[] => {
     return leads.map(lead => {
       const processedHtmlContent = replaceDynamicFields(template.htmlContent, lead);
       const processedPlainContent = replaceDynamicFields(template.plainContent, lead);
       
+      // Para envíos individuales, usar el email alternativo si está especificado
+      const targetEmail = (leads.length === 1 && alternateEmail?.trim()) 
+        ? alternateEmail.trim() 
+        : lead.email || '';
+      
       return {
         LeadId: lead.id,
         Campaign: lead.campaign || 'Sin campaña',
-        to: lead.email || '',
+        to: targetEmail,
         subject: replaceDynamicFields(template.subject, lead),
         html_content: processedHtmlContent, // Enviar el HTML correctamente procesado
         plain_content: processedPlainContent || convertHtmlToPlain(processedHtmlContent) // Usar plain o convertir HTML
@@ -95,7 +101,8 @@ export function useMassEmail() {
 
   const sendMassEmail = useCallback(async (
     leads: Lead[], 
-    template: EmailTemplate
+    template: EmailTemplate,
+    alternateEmail?: string
   ): Promise<boolean> => {
     console.log('📧 === INICIANDO ENVÍO DE CORREOS MASIVOS ===');
     
@@ -145,7 +152,7 @@ export function useMassEmail() {
         accessToken: accessToken
       });
 
-      const recipients = generateEmailRecipients(leads, template);
+      const recipients = generateEmailRecipients(leads, template, alternateEmail);
       console.log('📧 Recipients generados:', recipients.length);
       
       // Payload simplificado - solo recipients

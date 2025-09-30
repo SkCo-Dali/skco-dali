@@ -9,13 +9,15 @@ interface EmailPreviewProps {
   template: EmailTemplate;
   replaceDynamicFields: (template: string, lead: Lead) => string;
   maxPreviews?: number;
+  alternateEmail?: string;
 }
 
 export function EmailPreview({ 
   leads, 
   template, 
   replaceDynamicFields, 
-  maxPreviews = 1 
+  maxPreviews = 1,
+  alternateEmail 
 }: EmailPreviewProps) {
   const previewLeads = leads.slice(0, maxPreviews);
 
@@ -35,7 +37,7 @@ export function EmailPreview({
   }
 
   return (
-    <Card>
+    <Card className="border-l-4 border-l-primary pb-4">
       <CardHeader>
         <CardTitle className="flex items-center justify-between">
           Previsualización de Emails
@@ -43,23 +45,33 @@ export function EmailPreview({
             {leads.length} de {leads.length} leads
           </Badge>
         </CardTitle>
-        <p className="text-sm text-muted-foreground">
+        <p className="text-sm text-muted-foreground pb-4">
           Mostrando una vista previa del correo que se enviaría
         </p>
       </CardHeader>
       <CardContent>
-        <div className="space-y-4">
+        <div className="space-y-4 pb-4">
           {previewLeads.map((lead, index) => {
             const processedSubject = replaceDynamicFields(template.subject, lead);
             const processedContent = replaceDynamicFields(template.htmlContent, lead);
+            
+            // Para envíos individuales, mostrar el email alternativo si está especificado
+            const displayEmail = (leads.length === 1 && alternateEmail?.trim()) 
+              ? alternateEmail.trim() 
+              : lead.email;
 
             return (
-              <Card key={lead.id} className="border-l-4 border-l-primary">
+              <Card key={lead.id} className="border-l-4 border-l-primary pb-4">
                 <CardHeader className="pb-2">
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="font-medium">{lead.name}</p>
-                      <p className="text-sm text-muted-foreground">{lead.email}</p>
+                      <p className="text-sm text-muted-foreground">{displayEmail}</p>
+                      {leads.length === 1 && alternateEmail?.trim() && alternateEmail !== lead.email && (
+                        <p className="text-xs text-blue-600 mt-1">
+                          Email alternativo especificado
+                        </p>
+                      )}
                     </div>
                     <Badge variant="outline">#{index + 1}</Badge>
                   </div>

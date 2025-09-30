@@ -28,7 +28,7 @@ export function LeadAssigneeSelect({ value, displayName, users, loading = false,
   }, [open]);
 
   const filtered = useMemo(() => {
-    if (!query.trim()) return [] as AssignableUser[];
+    if (!query.trim()) return users; // Cambio: mostrar todos los usuarios si no hay búsqueda
     const q = query.toLowerCase();
     return users.filter(u =>
       u.Name.toLowerCase().includes(q) ||
@@ -51,11 +51,11 @@ export function LeadAssigneeSelect({ value, displayName, users, loading = false,
           {displayName || "Sin asignar"}
         </div>
       </PopoverTrigger>
-      <PopoverContent
-        align="start"
-        className="bg-white z-50 p-2 w-72"
-        onOpenAutoFocus={(e) => e.preventDefault()}
-      >
+        <PopoverContent
+          align="start"
+          className="bg-background border border-border shadow-lg z-50 p-3 w-80"
+          onOpenAutoFocus={(e) => e.preventDefault()}
+        >
         <div className="space-y-2" onKeyDownCapture={(e) => e.stopPropagation()}>
           <Input
             ref={inputRef}
@@ -77,23 +77,29 @@ export function LeadAssigneeSelect({ value, displayName, users, loading = false,
           ) : (
             <>
               {!query.trim() ? (
-                <div className="py-4 text-center text-xs text-gray-500">Empieza a escribir para ver opciones</div>
-              ) : (
                 <ScrollArea className="h-48 pr-2">
                   <ul className="space-y-1">
-                    {showUnassigned && (
-                      <li>
+                    {users.map(u => (
+                      <li key={u.Id}>
                         <button
                           type="button"
                           className="w-full text-left px-2 py-1.5 rounded hover:bg-gray-100 text-xs flex items-center"
-                          onClick={() => handlePick("unassigned")}
+                          onClick={() => handlePick(u.Id)}
                         >
-                          <User className="h-3.5 w-3.5 mr-2" /> Sin asignar
-                          {value === "" && <Check className="h-3.5 w-3.5 ml-auto" />}
+                          <User className="h-3.5 w-3.5 mr-2" /> {u.Name} <span className="ml-1 text-[10px] text-gray-500">({u.Role})</span>
+                          {value === u.Id && <Check className="h-3.5 w-3.5 ml-auto" />}
                         </button>
                       </li>
-                    )}
+                    ))}
 
+                    {users.length === 0 && (
+                      <li className="px-2 py-2 text-center text-xs text-gray-500">No hay usuarios disponibles</li>
+                    )}
+                  </ul>
+                </ScrollArea>
+              ) : (
+                <ScrollArea className="h-48 pr-2">
+                  <ul className="space-y-1">
                     {filtered.map(u => (
                       <li key={u.Id}>
                         <button
