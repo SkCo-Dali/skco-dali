@@ -1,6 +1,11 @@
 import { useState, useMemo } from "react";
 import { Lead } from "@/types/crm";
 import { TextFilterCondition } from "@/components/TextFilter";
+import { startOfDay, endOfDay, startOfWeek, endOfWeek, startOfMonth, endOfMonth, 
+         startOfQuarter, endOfQuarter, startOfYear, endOfYear, subDays, subWeeks, 
+         subMonths, subQuarters, subYears, addDays, addWeeks, addMonths, addQuarters, 
+         addYears, isWithinInterval, isSameDay, isAfter, isBefore } from "date-fns";
+import { convertToBogotaTime } from "@/utils/dateUtils";
 
 export function useUnifiedLeadsFilters(leads: Lead[]) {
   // Estado para filtros generales
@@ -23,6 +28,33 @@ export function useUnifiedLeadsFilters(leads: Lead[]) {
   const [textFilters, setTextFilters] = useState<Record<string, TextFilterCondition[]>>({});
 
   // Identificar leads duplicados por email, teléfono o número de documento
+  // Helper function to clean product field for consistent filtering
+  const cleanProductField = (value: any): string => {
+    if (typeof value === 'string') {
+      // Clean all JSON-like characters and escape sequences
+      let cleaned = value
+        .replace(/\\"/g, '"')          // Remove escape sequences
+        .replace(/[\[\]"'\\]/g, '')    // Remove all brackets and quotes
+        .replace(/,+/g, ',')           // Replace multiple commas with single comma
+        .replace(/^,|,$/g, '')         // Remove leading/trailing commas
+        .trim();
+      
+      // Split by comma and rejoin with hyphens
+      if (cleaned.includes(',')) {
+        return cleaned
+          .split(',')
+          .map(item => item.trim())
+          .filter(item => item && item !== '')
+          .join(' - ');
+      }
+      
+      return cleaned;
+    }
+    if (Array.isArray(value)) return value.filter(item => item && item.trim()).join(' - ');
+    if (value === null || value === undefined) return '';
+    return String(value);
+  };
+
   const duplicateIdentifiers = useMemo(() => {
     const emailCounts = leads.reduce((acc, lead) => {
       if (lead.email) {
@@ -56,6 +88,174 @@ export function useUnifiedLeadsFilters(leads: Lead[]) {
       documents: duplicateDocuments
     };
   }, [leads]);
+
+  // Función para aplicar filtros de fecha por rangos
+  const applyDateRangeFilter = (lead: Lead, column: string, selectedRanges: string[]) => {
+    if (selectedRanges.length === 0) return true;
+
+    // Map lastInteraction column to updatedAt field
+    const dateField = column === 'lastInteraction' ? 'updatedAt' : column;
+    const dateValue = lead[dateField as keyof Lead] as string;
+    if (!dateValue) return false;
+
+    try {
+      // Parse the lead date directly without timezone conversion
+      const leadDate = new Date(dateValue);
+      if (isNaN(leadDate.getTime())) return false; // Check for invalid date
+      
+      // Use current local time for range calculations
+      const now = new Date();
+
+      return selectedRanges.some(rangeId => {
+        // Handle custom date conditions
+        if (rangeId.startsWith('custom:')) {
+          const conditionStr = rangeId.replace('custom:', '');
+          try {
+            const condition = JSON.parse(conditionStr);
+            const startDate = condition.startDate ? new Date(condition.startDate) : null;
+            const endDate = condition.endDate ? new Date(condition.endDate) : null;
+
+            switch (condition.operator) {
+              case 'equals':
+                return startDate && isSameDay(leadDate, startDate);
+              case 'after':
+                return startDate && isAfter(leadDate, startDate);
+              case 'before':
+                return startDate && isBefore(leadDate, startDate);
+              case 'between':
+                return startDate && endDate && 
+                       isWithinInterval(leadDate, { start: startDate, end: endDate });
+              default:
+                return false;
+            }
+          } catch {
+            return false;
+          }
+        }
+
+        // Handle specific date selections
+        
+        // Handle year selection (year:2025)
+        if (rangeId.startsWith('year:')) {
+          const year = parseInt(rangeId.replace('year:', ''));
+          return leadDate.getFullYear() === year;
+        }
+        
+        // Handle month selection (month:2025-septiembre)
+        if (rangeId.startsWith('month:')) {
+          const monthStr = rangeId.replace('month:', '');
+          const [year, month] = monthStr.split('-');
+          const monthIndex = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio',
+             'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre']
+            .indexOf(month);
+          if (monthIndex === -1) return false;
+          
+          return leadDate.getFullYear() === parseInt(year) && 
+                 leadDate.getMonth() === monthIndex;
+        }
+        
+        // Handle specific day selection (2025-septiembre-15)
+        if (rangeId.includes('-')) {
+          const [year, month, day] = rangeId.split('-');
+          const monthIndex = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio',
+             'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre']
+            .indexOf(month);
+          if (monthIndex === -1) return false;
+          
+          const targetDate = new Date(parseInt(year), monthIndex, parseInt(day));
+          return isSameDay(leadDate, targetDate);
+        }
+
+         // Handle predefined ranges
+        let start: Date, end: Date;
+        
+        try {
+          switch (rangeId) {
+            case 'today':
+              start = startOfDay(now);
+              end = endOfDay(now);
+              break;
+            case 'yesterday':
+              const yesterday = subDays(now, 1);
+              start = startOfDay(yesterday);
+              end = endOfDay(yesterday);
+              break;
+            case 'this-week':
+              start = startOfWeek(now, { weekStartsOn: 1 });
+              end = endOfWeek(now, { weekStartsOn: 1 });
+              break;
+            case 'last-week':
+              const lastWeek = subWeeks(now, 1);
+              start = startOfWeek(lastWeek, { weekStartsOn: 1 });
+              end = endOfWeek(lastWeek, { weekStartsOn: 1 });
+              break;
+            case 'next-week':
+              const nextWeek = addWeeks(now, 1);
+              start = startOfWeek(nextWeek, { weekStartsOn: 1 });
+              end = endOfWeek(nextWeek, { weekStartsOn: 1 });
+              break;
+            case 'this-month':
+              start = startOfMonth(now);
+              end = endOfMonth(now);
+              break;
+            case 'last-month':
+              const lastMonth = subMonths(now, 1);
+              start = startOfMonth(lastMonth);
+              end = endOfMonth(lastMonth);
+              break;
+            case 'next-month':
+              const nextMonth = addMonths(now, 1);
+              start = startOfMonth(nextMonth);
+              end = endOfMonth(nextMonth);
+              break;
+            case 'this-quarter':
+              start = startOfQuarter(now);
+              end = endOfQuarter(now);
+              break;
+            case 'last-quarter':
+              const lastQuarter = subQuarters(now, 1);
+              start = startOfQuarter(lastQuarter);
+              end = endOfQuarter(lastQuarter);
+              break;
+            case 'next-quarter':
+              const nextQuarter = addQuarters(now, 1);
+              start = startOfQuarter(nextQuarter);
+              end = endOfQuarter(nextQuarter);
+              break;
+            case 'this-year':
+              start = startOfYear(now);
+              end = endOfYear(now);
+              break;
+            case 'last-year':
+              const lastYear = subYears(now, 1);
+              start = startOfYear(lastYear);
+              end = endOfYear(lastYear);
+              break;
+            case 'next-year':
+              const nextYear = addYears(now, 1);
+              start = startOfYear(nextYear);
+              end = endOfYear(nextYear);
+              break;
+            default:
+              return false;
+          }
+          
+          // Verify dates are valid before comparing
+          if (isNaN(start.getTime()) || isNaN(end.getTime())) {
+            return false;
+          }
+
+          return isWithinInterval(leadDate, { start, end });
+        } catch (error) {
+          console.error('Date range filter error:', error, { rangeId, leadDate, start, end });
+          return false;
+        }
+      });
+    } catch (error) {
+      console.error('Error in date filter:', error);
+      return false;
+    }
+  };
 
   // Función para aplicar filtros de texto en columnas específicas
   const applyTextFilter = (lead: Lead, column: string, conditions: TextFilterCondition[]) => {
@@ -140,9 +340,11 @@ export function useUnifiedLeadsFilters(leads: Lead[]) {
         matchesMultiFilter(filterSource, lead.source) &&
         matchesMultiFilter(filterCampaign, lead.campaign || "");
 
-      // Filtros de fecha
-      const dateFromFilter = !filterDateFrom || new Date(lead.createdAt) >= new Date(filterDateFrom);
-      const dateToFilter = !filterDateTo || new Date(lead.createdAt) <= new Date(filterDateTo);
+      // Filtros de fecha directa sin conversión de zona horaria
+      const leadCreatedDate = new Date(lead.createdAt);
+      
+      const dateFromFilter = !filterDateFrom || leadCreatedDate >= startOfDay(new Date(filterDateFrom));
+      const dateToFilter = !filterDateTo || leadCreatedDate <= endOfDay(new Date(filterDateTo));
       
       // Filtros de valor
       const valueMinFilter = !filterValueMin || lead.value >= parseInt(filterValueMin);
@@ -170,6 +372,12 @@ export function useUnifiedLeadsFilters(leads: Lead[]) {
       const matchesColumnFilters = Object.entries(columnFilters).every(([column, selectedValues]) => {
         if (selectedValues.length === 0) return true;
         
+        // Check if this is a date column and handle date ranges
+        const isDateColumn = column === 'createdAt' || column === 'updatedAt' || column === 'nextFollowUp' || column === 'lastInteraction';
+        if (isDateColumn) {
+          return applyDateRangeFilter(lead, column, selectedValues);
+        }
+        
         let leadValue: any;
         
         // Manejar columnas dinámicas de additionalInfo
@@ -180,7 +388,13 @@ export function useUnifiedLeadsFilters(leads: Lead[]) {
           leadValue = lead[column as keyof Lead];
         }
         
-        const stringValue = leadValue === null || leadValue === undefined ? "" : String(leadValue);
+        // Apply product field cleaning for consistent comparison
+        let stringValue: string;
+        if (column === 'product') {
+          stringValue = cleanProductField(leadValue);
+        } else {
+          stringValue = leadValue === null || leadValue === undefined ? "" : String(leadValue);
+        }
         
         return selectedValues.includes(stringValue);
       });
@@ -226,20 +440,52 @@ export function useUnifiedLeadsFilters(leads: Lead[]) {
     return [...filteredLeads].sort((a, b) => {
       let result = 0;
       
-      switch (sortBy) {
-        case "name":
-          result = a.name.localeCompare(b.name);
-          break;
-        case "value":
-          result = b.value - a.value;
-          break;
-        case "created":
-          result = new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
-          break;
-        case "updated":
-        default:
-          result = new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();
-          break;
+      // Get values from both leads for comparison
+      let aValue: any, bValue: any;
+      
+      // Handle special date field mappings
+      if (sortBy === 'lastInteraction') {
+        aValue = a.updatedAt;
+        bValue = b.updatedAt;
+      } else if (sortBy === 'created') {
+        aValue = a.createdAt;
+        bValue = b.createdAt;
+      } else if (sortBy === 'updated') {
+        aValue = a.updatedAt;
+        bValue = b.updatedAt;
+      } else if (sortBy?.startsWith('additionalInfo.')) {
+        // Handle dynamic additionalInfo columns
+        const key = sortBy.replace('additionalInfo.', '');
+        aValue = a.additionalInfo?.[key] || '';
+        bValue = b.additionalInfo?.[key] || '';
+      } else {
+        // Handle all other columns dynamically
+        aValue = a[sortBy as keyof Lead];
+        bValue = b[sortBy as keyof Lead];
+      }
+      
+      // Handle null/undefined values
+      if (aValue == null && bValue == null) return 0;
+      if (aValue == null) return 1;
+      if (bValue == null) return -1;
+      
+      // Date comparison directa sin conversión de zona horaria
+      if (sortBy === 'createdAt' || sortBy === 'updatedAt' || sortBy === 'nextFollowUp' || sortBy === 'lastInteraction') {
+        const aDate = new Date(aValue);
+        const bDate = new Date(bValue);
+        result = bDate.getTime() - aDate.getTime(); // Most recent first by default
+      }
+      // Numeric comparison
+      else if (sortBy === 'value' || sortBy === 'age' || sortBy === 'documentNumber') {
+        const aNum = Number(aValue) || 0;
+        const bNum = Number(bValue) || 0;
+        result = bNum - aNum; // Higher values first by default
+      }
+      // String comparison (case-insensitive)
+      else {
+        const aStr = String(aValue).toLowerCase();
+        const bStr = String(bValue).toLowerCase();
+        result = aStr.localeCompare(bStr);
       }
       
       return sortDirection === 'asc' ? result : -result;

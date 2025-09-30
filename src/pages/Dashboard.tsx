@@ -14,7 +14,7 @@ export default function Dashboard() {
         <DashboardHeader />
         
         {user ? (
-          <div className="mt-6">
+          <div className="mt-4">
             <DashboardOverview leads={leads} loading={loading} />
           </div>
         ) : (

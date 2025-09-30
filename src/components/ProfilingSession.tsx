@@ -146,7 +146,7 @@ export const ProfilingSession: React.FC<ProfilingSessionProps> = ({
     return (
       <div className="min-h-[600px] flex flex-col m-0">
         {/* Contenedor superior con fondo verde */}
-        <div className="flex-1 bg-gradient-to-r from-green-500 to-green-600 flex flex-col items-center justify-center p-6 text-white text-center relative">
+        <div className="flex-1 bg-gradient-to-r from-green-500 to-green-600 flex flex-col items-center justify-center p-4 text-white text-center relative">
           <Button 
             variant="ghost" 
             size="sm" 
@@ -158,7 +158,7 @@ export const ProfilingSession: React.FC<ProfilingSessionProps> = ({
           
           <div className="w-32 h-32 bg-green-400 rounded-full mb-8 opacity-50"></div>
           
-          <h2 className="text-3xl font-bold mb-6">
+          <h2 className="text-3xl font-bold mb-4">
             Te entendemos perfectamente
           </h2>
           
@@ -170,7 +170,7 @@ export const ProfilingSession: React.FC<ProfilingSessionProps> = ({
         {/* Contenedor inferior con fondo blanco */}
         <div className="bg-white flex items-center justify-center p-8">
           <Button 
-            className="bg-green-500 hover:bg-green-600 text-white px-8 py-4 text-md font-medium rounded-full"
+            className="bg-green-500 hover:bg-green-600 text-white px-5 py-4 text-md font-medium rounded-full"
             onClick={handleContinueFromConfirmation}
           >
             {getConfirmationbutton()}
@@ -181,9 +181,9 @@ export const ProfilingSession: React.FC<ProfilingSessionProps> = ({
   }
 
   return (
-    <div className="min-h-[600px] bg-gray-50 p-6 m-0">
+    <div className="min-h-[600px] bg-gray-50 p-4 m-0">
       {/* Header */}
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-4">
           <Button 
             variant="ghost" 
@@ -205,7 +205,7 @@ export const ProfilingSession: React.FC<ProfilingSessionProps> = ({
         {/* Left Column - Advisor Guide */}
         <div className="space-y-6">
           <Card className="bg-green-100 border-green-200">
-            <CardContent className="p-6">
+            <CardContent className="p-4">
               <div className="flex items-start gap-3 mb-4">
                 <span className="text-2xl">💬</span>
                 <h3 className="text-md font-semibold text-gray-900">Guía del asesor:</h3>
@@ -253,7 +253,7 @@ export const ProfilingSession: React.FC<ProfilingSessionProps> = ({
               {answers.map((answer) => (
                 <label
                   key={answer.id}
-                  className="flex items-center gap-4 p-4 bg-white rounded-lg border-2 border-gray-200 hover:border-green-300 cursor-pointer transition-colors"
+                  className="flex items-center gap-4 p-4 bg-white rounded-xl border-2 border-gray-200 hover:border-green-300 cursor-pointer transition-colors"
                 >
                   <input
                     type="radio"

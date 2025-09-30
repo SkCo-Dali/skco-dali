@@ -1,11 +1,10 @@
-import { useState, useEffect } from "react"; 
+import { useState, useEffect, useMemo } from "react";
 import { Lead } from "@/types/crm";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Checkbox } from "@/components/ui/checkbox";
 import { User, ChevronUp, ChevronDown, MoreVertical, Edit, Calendar, User as UserIcon, MessageCircle, Trash2, Mail, GripVertical } from "lucide-react";
 import { formatBogotaDate } from "@/utils/dateUtils";
-import { useUsersApi } from "@/hooks/useUsersApi";
 import { ColumnConfig } from "@/components/LeadsTableColumnSelector";
 import { EditableLeadCell } from "@/components/EditableLeadCell";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
@@ -15,7 +14,9 @@ import { useLeadDeletion } from "@/hooks/useLeadDeletion";
 import { LeadDeleteConfirmDialog } from "@/components/LeadDeleteConfirmDialog";
 import { useToast } from '@/hooks/use-toast';
 import { ColumnFilter } from "@/components/ColumnFilter";
+import { ServerSideColumnFilter } from "@/components/ServerSideColumnFilter";
 import { TextFilterCondition } from "@/components/TextFilter";
+import { LeadsApiFilters } from "@/types/paginatedLeadsTypes";
 import {
   DndContext,
   DragEndEvent,
@@ -68,15 +69,21 @@ const defaultColumns: ColumnConfig[] = [
   { key: 'name', label: 'Nombre', visible: true, sortable: true },
   { key: 'campaign', label: 'Campaña', visible: true, sortable: true },
   { key: 'email', label: 'Email', visible: true, sortable: true },
+  { key: 'alternateEmail', label: 'Email Alternativo', visible: true, sortable: true },
   { key: 'phone', label: 'Teléfono', visible: true, sortable: false },
   { key: 'stage', label: 'Etapa', visible: true, sortable: true },
-  { key: 'assignedTo', label: 'Asignado a', visible: true, sortable: true },
+  { key: 'assignedToName', label: 'Asignado a', visible: true, sortable: true },
+  { key: 'lastGestorName', label: 'Últ Gestor Asignado', visible: false, sortable: true },
+  { key: 'lastGestorInteractionAt', label: 'Últ Fecha de Interaccion Gestor', visible: false, sortable: true },
+  { key: 'lastGestorInteractionStage', label: 'Últ Estado Gestor', visible: false, sortable: true },
+  { key: 'lastGestorInteractionDescription', label: 'Últ Descripción Gestor', visible: false, sortable: true },
   { key: 'documentType', label: 'Tipo documento', visible: false, sortable: true },
   { key: 'documentNumber', label: 'Número documento', visible: false, sortable: true },
   { key: 'product', label: 'Producto', visible: false, sortable: true },
   { key: 'source', label: 'Fuente', visible: false, sortable: true },
+  { key: 'tags', label: 'Tags', visible: false, sortable: true },  
   { key: 'createdAt', label: 'Fecha creación', visible: true, sortable: true },
-  { key: 'lastInteraction', label: 'Últ. interacción', visible: false, sortable: true },
+  { key: 'lastInteraction', label: 'Últ. interacción', visible: true, sortable: true },
   { key: 'nextFollowUp', label: 'Próximo seguimiento', visible: true, sortable: true },
   { key: 'priority', label: 'Prioridad', visible: false, sortable: true },
   { key: 'age', label: 'Edad', visible: false, sortable: true },
@@ -88,6 +95,33 @@ const defaultColumns: ColumnConfig[] = [
 
 const capitalizeWords = (text: string) => {
   return text.toLowerCase().replace(/\b\w/g, l => l.toUpperCase());
+};
+
+// Helper function to clean product field
+const cleanProductField = (value: any): string => {
+  if (typeof value === 'string') {
+    // Clean all JSON-like characters and escape sequences
+    let cleaned = value
+      .replace(/\\"/g, '"')          // Remove escape sequences
+      .replace(/[\[\]"'\\]/g, '')    // Remove all brackets and quotes
+      .replace(/,+/g, ',')           // Replace multiple commas with single comma
+      .replace(/^,|,$/g, '')         // Remove leading/trailing commas
+      .trim();
+    
+    // Split by comma and rejoin with hyphens
+    if (cleaned.includes(',')) {
+      return cleaned
+        .split(',')
+        .map(item => item.trim())
+        .filter(item => item && item !== '')
+        .join(' - ');
+    }
+    
+    return cleaned;
+  }
+  if (Array.isArray(value)) return value.filter(item => item && item.trim()).join(' - ');
+  if (value === null || value === undefined) return '';
+  return String(value);
 };
 
 // Función para cargar configuración de columnas desde sessionStorage
@@ -129,6 +163,8 @@ interface SortableHeaderProps {
   onTextFilterChange: (column: string, filters: TextFilterCondition[]) => void;
   onClearFilter: (column: string) => void;
   isNameColumn?: boolean;
+  // Server-side filters for distinct API calls
+  currentApiFilters?: LeadsApiFilters;
 }
 
 function SortableHeader({ 
@@ -142,7 +178,8 @@ function SortableHeader({
   onColumnFilterChange,
   onTextFilterChange,
   onClearFilter,
-  isNameColumn = false
+  isNameColumn = false,
+  currentApiFilters = {}
 }: SortableHeaderProps) {
   const {
     attributes,
@@ -179,15 +216,30 @@ function SortableHeader({
             <GripVertical className="h-3 w-3 text-gray-400" />
           </div>
         )}
-        <ColumnFilter
-          column={column.key}
-          data={leads}
-          onFilterChange={onColumnFilterChange}
-          onTextFilterChange={onTextFilterChange}
-          onSortChange={onSort}
-          currentFilters={columnFilters[column.key] || []}
-          currentTextFilters={textFilters[column.key] || []}
-        />
+        {/* Use ServerSideColumnFilter for dropdown fields that need server-side distinct values */}
+        {['email', 'campaign', 'stage', 'assignedToName', 'source', 'product', 'priority'].includes(column.key) ? (
+          <ServerSideColumnFilter
+            field={column.key}
+            label={column.label}
+            currentFilters={currentApiFilters}
+            onFilterChange={(field: string, values: string[]) => {
+              onColumnFilterChange(field, values);
+            }}
+            onClearFilter={onClearFilter}
+          />
+        ) : (
+          <ColumnFilter
+            column={column.key}
+            data={leads}
+            onFilterChange={onColumnFilterChange}
+            onTextFilterChange={onTextFilterChange}
+            onSortChange={onSort}
+            currentFilters={columnFilters[column.key] || []}
+            currentTextFilters={textFilters[column.key] || []}
+            tableColumnFilters={columnFilters}
+            tableTextFilters={textFilters}
+          />
+        )}
         <span 
           className={`${column.sortable ? 'cursor-pointer hover:text-green-600' : ''}`}
           onClick={(e) => onColumnHeaderClick(column.key, column.sortable, e)}
@@ -238,11 +290,97 @@ export function LeadsTable({
   sortDirection,
   setSortDirection
 }: LeadsTableProps) {
-  const { users } = useUsersApi();
   const { toast } = useToast();
   // Removed local sortConfig - using unified sort from props
   const [leadsToDelete, setLeadsToDelete] = useState<Lead[]>([]);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  
+  // Convert UI filters to API format for server-side filtering
+  const convertFiltersToApiFormat = useMemo((): LeadsApiFilters => {
+    const apiFilters: LeadsApiFilters = {};
+
+    // Convert column filters (dropdown selections)
+    if (columnFilters) {
+      Object.entries(columnFilters).forEach(([column, values]) => {
+        if (values && values.length > 0) {
+          // Map UI column names to API column names
+          const apiColumn = mapColumnNameToApi(column);
+          apiFilters[apiColumn] = {
+            op: 'in',
+            values
+          };
+        }
+      });
+    }
+
+    // Convert text filters
+    if (textFilters) {
+      Object.entries(textFilters).forEach(([column, conditions]) => {
+        if (conditions && conditions.length > 0) {
+          const apiColumn = mapColumnNameToApi(column);
+          // Take the first condition for simplicity
+          const condition = conditions[0];
+          apiFilters[apiColumn] = convertTextConditionToApi(condition);
+        }
+      });
+    }
+
+    return apiFilters;
+  }, [columnFilters, textFilters]);
+
+  // Map UI column names to API column names (use function declaration to avoid TDZ)
+  function mapColumnNameToApi(uiColumn: string): string {
+    const mapping: Record<string, string> = {
+      'name': 'Name',
+      'email': 'Email',
+      'phone': 'Phone',
+      'company': 'Company',
+      'source': 'Source',
+      'campaign': 'Campaign',
+      'product': 'Product',
+      'stage': 'Stage',
+      'priority': 'Priority',
+      'value': 'Value',
+      'assignedTo': 'AssignedTo',
+      'assignedToName': 'AssignedToName',
+      'createdAt': 'CreatedAt',
+      'updatedAt': 'UpdatedAt',
+      'nextFollowUp': 'NextFollowUp',
+      'notes': 'Notes',
+      'tags': 'Tags',
+      'alternateEmail': 'AlternateEmail',
+      'lastGestorName': 'LastGestorName',
+      'lastGestorInteractionAt': 'LastGestorInteractionAt',
+      'lastGestorInteractionStage': 'LastGestorInteractionStage',
+      'lastGestorInteractionDescription': 'LastGestorInteractionDescription',
+    };
+    return mapping[uiColumn] || uiColumn;
+  }
+
+  // Convert text condition to API format (function declaration to avoid TDZ)
+  function convertTextConditionToApi(condition: TextFilterCondition): any {
+    const operatorMapping: Record<string, string> = {
+      'equals': 'eq',
+      'not_equals': 'neq',
+      'contains': 'contains',
+      'not_contains': 'ncontains',
+      'starts_with': 'startswith',
+      'ends_with': 'endswith',
+      'is_empty': 'isnull',
+      'is_not_empty': 'notnull',
+      'greater_than': 'gt',
+      'less_than': 'lt',
+      'greater_equal': 'gte',
+      'less_equal': 'lte',
+      'after': 'gt',
+      'before': 'lt',
+    };
+
+    return {
+      op: operatorMapping[condition.operator] as any,
+      value: condition.value
+    };
+  }
   
   // Los leads ya vienen completamente filtrados desde el hook unificado del padre
   // Solo necesitamos aplicar ordenamiento local en la tabla si es necesario
@@ -466,8 +604,7 @@ Por favor, confirmar asistencia.`;
   };
 
   const renderCellContent = (lead: Lead, columnKey: string) => {
-    // Use assignedToName directly from API instead of looking up users
-    const assignedUser = users.find(u => u.id === lead.assignedTo);
+    // Use assignedToName directly from API response - no need for user lookup
 
     // Manejar columnas dinámicas de additionalInfo
     if (columnKey.startsWith('additionalInfo.')) {
@@ -565,7 +702,7 @@ Por favor, confirmar asistencia.`;
       case 'product':
         return (
           <span className="text-gray-700 text-xs text-center">
-            {lead.product || '-'}
+            {cleanProductField(lead.product) || '-'}
           </span>
         );
       case 'campaign':
@@ -631,11 +768,63 @@ Por favor, confirmar asistencia.`;
           <span className="text-gray-700 text-xs text-center">
             {lead.nextFollowUp ? formatBogotaDate(lead.nextFollowUp) : '-'}
           </span>
+             );
+      case 'tags':
+        return (
+          <div className="flex flex-wrap gap-1 justify-center max-w-[200px]">
+            {lead.tags && lead.tags.length > 0 ? (
+              lead.tags.map((tag, index) => (
+                <span
+                  key={index}
+                  className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-primary/10 text-primary border border-primary/20"
+                >
+                  {tag}
+                </span>
+              ))
+            ) : (
+              <span className="text-gray-400 text-xs">-</span>
+            )}
+          </div>
+        );
+      case 'tags':
+        return (
+          <div className="flex flex-wrap gap-1 justify-center max-w-[200px]">
+            {lead.tags && lead.tags.length > 0 ? (
+              lead.tags.map((tag, index) => (
+                <span
+                  key={index}
+                  className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-primary/10 text-primary border border-primary/20"
+                >
+                  {tag}
+                </span>
+              ))
+            ) : (
+              <span className="text-gray-400 text-xs">-</span>
+            )}
+          </div>
         );
       case 'age':
       case 'gender':
       case 'preferredContactChannel':
       case 'documentType':
+      case 'alternateEmail':
+        return <span className="text-center text-gray-700 text-xs">{lead[columnKey] || '-'}</span>;
+      case 'lastGestorName':
+        return <span className="text-center text-gray-700 text-xs">{lead.lastGestorName || '-'}</span>;
+      case 'lastGestorInteractionAt':
+        return (
+          <span className="text-center text-gray-700 text-xs">
+            {lead.lastGestorInteractionAt ? formatBogotaDate(lead.lastGestorInteractionAt) : '-'}
+          </span>
+        );
+      case 'lastGestorInteractionStage':
+        return <span className="text-center text-gray-700 text-xs">{lead.lastGestorInteractionStage || '-'}</span>;
+      case 'lastGestorInteractionDescription':
+        return (
+          <span className="text-center text-gray-700 text-xs max-w-[200px] truncate" title={lead.lastGestorInteractionDescription || ''}>
+            {lead.lastGestorInteractionDescription || '-'}
+          </span>
+        );
       default:
         return <span className="text-center text-gray-700 text-xs">{lead[columnKey] || '-'}</span>;
     }
@@ -677,33 +866,35 @@ Por favor, confirmar asistencia.`;
                          onSort={handleSort}
                          onColumnHeaderClick={handleColumnHeaderClick}
                          renderSortIcon={renderSortIcon}
-                  leads={leads}
-                  columnFilters={columnFilters || {}}
-                  textFilters={textFilters || {}}
-                  onColumnFilterChange={onColumnFilterChange || (() => {})}
-                  onTextFilterChange={onTextFilterChange || (() => {})}
-                  onClearFilter={onClearColumnFilter || (() => {})}
+                         leads={leads}
+                         columnFilters={columnFilters || {}}
+                         textFilters={textFilters || {}}
+                         onColumnFilterChange={onColumnFilterChange || (() => {})}
+                         onTextFilterChange={onTextFilterChange || (() => {})}
+                         onClearFilter={onClearColumnFilter || (() => {})}
                          isNameColumn={true}
+                         currentApiFilters={convertFiltersToApiFormat}
                        />
                      )}
                     
-                    <SortableContext items={otherColumns.map(col => col.key)} strategy={horizontalListSortingStrategy}>
-                       {otherColumns.map((column) => (
-                         <SortableHeader
-                           key={column.key}
-                           column={column}
-                           onSort={handleSort}
-                           onColumnHeaderClick={handleColumnHeaderClick}
-                           renderSortIcon={renderSortIcon}
+                     <SortableContext items={otherColumns.map(col => col.key)} strategy={horizontalListSortingStrategy}>
+                        {otherColumns.map((column) => (
+                          <SortableHeader
+                            key={column.key}
+                            column={column}
+                            onSort={handleSort}
+                            onColumnHeaderClick={handleColumnHeaderClick}
+                            renderSortIcon={renderSortIcon}
                             leads={leads}
                             columnFilters={columnFilters || {}}
                             textFilters={textFilters || {}}
                             onColumnFilterChange={onColumnFilterChange || (() => {})}
                             onTextFilterChange={onTextFilterChange || (() => {})}
                             onClearFilter={onClearColumnFilter || (() => {})}
+                            currentApiFilters={convertFiltersToApiFormat}
                           />
                         ))}
-                    </SortableContext>
+                     </SortableContext>
                   </TableRow>
                 </TableHeader>
                 <TableBody>

@@ -186,7 +186,7 @@
   }
 
   .sk-pagination-container {
-    @apply flex items-center justify-between gap-4 bg-white border border-gray-200 rounded-lg px-4 py-3 shadow-sm;
+    @apply flex items-center justify-between gap-4 bg-white border border-gray-200 rounded-xl px-4 py-3 shadow-sm;
     min-width: 400px;
   }
 
@@ -291,6 +291,12 @@
     overflow: visible;
   }
 
+  /* Evitar doble contenedor con overflow en el Table de shadcn dentro de LeadsTable
+     para que position: sticky del header funcione respecto al scroll wrapper externo */
+  .leads-table-inner-scroll > div {
+    overflow: visible !important;
+  }
+
   /* SCROLLBAR PERSONALIZADO - WEBKIT */
   .leads-table-scroll-wrapper::-webkit-scrollbar {
     width: 12px !important;
@@ -356,6 +362,13 @@
     background: #fafafa !important;
   }
 
+  .leads-table-header-sticky th {
+    position: sticky !important;
+    top: 0 !important;
+    z-index: 15 !important;
+    background: #fafafa !important;
+  }
+
   .leads-table-header-sticky .leads-name-column-sticky {
     z-index: 20 !important;
     background: #fafafa !important;
@@ -388,6 +401,10 @@
   }
 
   .dark .leads-table-header-sticky {
+    background: #374151 !important;
+  }
+
+  .dark .leads-table-header-sticky th {
     background: #374151 !important;
   }
 

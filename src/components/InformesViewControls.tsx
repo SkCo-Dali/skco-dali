@@ -9,7 +9,7 @@ interface InformesViewControlsProps {
 
 export function InformesViewControls({ viewMode, onViewModeChange }: InformesViewControlsProps) {
   return (
-    <div className="flex items-center space-x-1 bg-muted rounded-lg p-1">
+    <div className="flex items-center space-x-1 bg-muted rounded-xl p-1">
       <Button
         variant={viewMode === "grid" ? "default" : "ghost"}
         size="sm"

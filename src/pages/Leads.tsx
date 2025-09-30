@@ -1,6 +1,7 @@
 import React, { useState, useCallback, useMemo, useRef } from "react";
 import { useToast } from '@/hooks/use-toast';
-import { Lead } from "@/types/crm";
+import { Lead, getRolePermissions } from "@/types/crm";
+import { useAuth } from '@/contexts/AuthContext';
 import { LeadsSearch } from "@/components/LeadsSearch";
 import { LeadsFilters } from "@/components/LeadsFilters";
 import { LeadsStats } from "@/components/LeadsStats";
@@ -13,10 +14,9 @@ import { LeadsUpload } from "@/components/LeadsUpload";
 import { LeadCreateDialog, LeadCreateDialogRef } from "@/components/LeadCreateDialog";
 import { MassEmailSender } from "@/components/MassEmailSender";
 import { MassWhatsAppSender } from "@/components/MassWhatsAppSender";
+import { WhatsAppPropioButton } from "@/components/WhatsAppPropioButton";
 import { LeadsTableColumnSelector } from "@/components/LeadsTableColumnSelector";
 import { LeadsActionsButton } from "@/components/LeadsActionsButton";
-import { useUnifiedLeadsFilters } from "@/hooks/useUnifiedLeadsFilters";
-import { useLeadsPagination } from "@/hooks/useLeadsPagination";
 import { useLeadsApi } from "@/hooks/useLeadsApi";
 import { useIsMobile, useIsMedium } from "@/hooks/use-mobile";
 import { ColumnConfig } from "@/components/LeadsTableColumnSelector";
@@ -52,11 +52,13 @@ import {
 import { useLeadDeletion } from "@/hooks/useLeadDeletion";
 import { LeadDeleteConfirmDialog } from "@/components/LeadDeleteConfirmDialog";
 import { FaWhatsapp } from "react-icons/fa";
+import { TextFilterCondition } from "@/components/TextFilter";
 
 const DEFAULT_COLUMNS: ColumnConfig[] = [
   { key: 'name', label: 'Nombre', visible: true, sortable: true },
   { key: 'campaign', label: 'Campaña', visible: true, sortable: true },
   { key: 'email', label: 'Email', visible: true, sortable: true },
+  { key: 'alternateEmail', label: 'Email Alternativo', visible: true, sortable: true },
   { key: 'phone', label: 'Teléfono', visible: true, sortable: false },
   { key: 'stage', label: 'Estado', visible: true, sortable: true },
   { key: 'assignedToName', label: 'Asignado a', visible: true, sortable: true },
@@ -67,16 +69,24 @@ const DEFAULT_COLUMNS: ColumnConfig[] = [
   { key: 'priority', label: 'Prioridad', visible: false, sortable: true },
   { key: 'source', label: 'Fuente', visible: false, sortable: true },
   { key: 'value', label: 'Valor', visible: false, sortable: true },
+  { key: 'tags', label: 'Tags', visible: false, sortable: true },
   { key: 'createdAt', label: 'Fecha de Creación', visible: true, sortable: true },
   { key: 'lastInteraction', label: 'Fecha de Última Interacción', visible: true, sortable: true },
-  { key: 'nextFollowUp', label: 'Próximo seguimiento', visible: false, sortable: true },
+  { key: 'nextFollowUp', label: 'Próximo seguimiento', visible: true, sortable: true },
   { key: 'age', label: 'Edad', visible: false, sortable: true },
   { key: 'gender', label: 'Género', visible: false, sortable: true },
   { key: 'preferredContactChannel', label: 'Medio de Contacto Preferido', visible: false, sortable: true },
 ];
 
 export default function Leads() {
-  const [viewMode, setViewMode] = useState<"table" | "columns">("table");
+  const isMobile = useIsMobile();
+  const isMedium = useIsMedium();
+  const isSmallScreen = isMobile || isMedium;
+  
+  // Set default view mode based on screen size
+  const [viewMode, setViewMode] = useState<"table" | "columns">(
+    isSmallScreen ? "columns" : "table"
+  );
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
   const [showBulkAssign, setShowBulkAssign] = useState(false);
   const [showUpload, setShowUpload] = useState(false);
@@ -91,19 +101,26 @@ export default function Leads() {
   const leadCreateDialogRef = useRef<{ openDialog: () => void }>(null);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 
-  const isMobile = useIsMobile();
-  const isMedium = useIsMedium();
-  const isSmallScreen = isMobile || isMedium;
+  
+  const { user } = useAuth();
+  const userPermissions = user ? getRolePermissions(user.role) : null;
 
   const {
     leads: leadsData,
     loading: isLoading,
     error,
+    pagination,
+    filters,
+    updateFilters,
+    setPage,
+    setPageSize,
+    getUniqueValues,
     refreshLeads,
     createNewLead
   } = useLeadsApi();
 
   const handleLeadUpdate = useCallback(() => {
+    console.log('🔄 handleLeadUpdate called - refreshing leads...');
     refreshLeads();
     toast({
       title: "Éxito",
@@ -121,56 +138,108 @@ export default function Leads() {
     onLeadDeleted: handleLeadUpdate
   });
 
-  const {
-    filteredLeads,
-    searchTerm,
-    setSearchTerm,
-    filterStage,
-    setFilterStage,
-    filterPriority,
-    setFilterPriority,
-    filterAssignedTo,
-    setFilterAssignedTo,
-    filterSource,
-    setFilterSource,
-    filterCampaign,
-    setFilterCampaign,
-    filterDateFrom,
-    setFilterDateFrom,
-    filterDateTo,
-    setFilterDateTo,
-    filterValueMin,
-    setFilterValueMin,
-    filterValueMax,
-    setFilterValueMax,
-    filterDuplicates,
-    setFilterDuplicates,
-    sortBy,
-    setSortBy,
-    sortDirection,
-    setSortDirection,
-    columnFilters,
-    textFilters,
-    handleColumnFilterChange,
-    handleTextFilterChange,
-    clearColumnFilter,
-    hasFiltersForColumn,
-    clearFilters,
-    uniqueStages,
-    uniqueSources,
-    uniqueCampaigns,
-    uniqueAssignedTo,
-    duplicateCount
-  } = useUnifiedLeadsFilters(leadsData);
+  // Los leads ya vienen filtrados y paginados del servidor
+  const filteredLeads = leadsData;
 
-  const {
-    currentPage,
-    leadsPerPage,
-    setCurrentPage,
-    setLeadsPerPage,
-    paginatedLeads,
-    totalPages
-  } = useLeadsPagination(filteredLeads);
+  // Variables auxiliares para compatibilidad con componentes existentes
+  const searchTerm = filters.searchTerm;
+  const columnFilters = filters.columnFilters;
+  const textFilters = filters.textFilters;
+  const sortBy = filters.sortBy;
+  const sortDirection = filters.sortDirection;
+  
+  // Variables de paginación
+  const currentPage = pagination.page;
+  const totalPages = pagination.totalPages;
+  const leadsPerPage = pagination.pageSize;
+  const paginatedLeads = filteredLeads; // Ya vienen paginados del servidor
+  
+  // Función para manejar cambios de ordenamiento
+  const handleSortChange = useCallback((newSortBy: string, newSortDirection: 'asc' | 'desc') => {
+    updateFilters({ sortBy: newSortBy, sortDirection: newSortDirection });
+  }, [updateFilters]);
+  
+  // Funciones auxiliares para compatibilidad
+  const setSearchTerm = (term: string) => handleSearchChange(term);
+  const setSortBy = (sort: string) => handleSortChange(sort, sortDirection);
+  const setSortDirection = (direction: 'asc' | 'desc') => handleSortChange(sortBy, direction);
+  const setCurrentPage = (page: number) => {
+    if (page === currentPage) {
+      // Avoid redundant pagination updates
+      return;
+    }
+    console.log(`📞 setCurrentPage called with page: ${page}, current: ${currentPage}`);
+    setPage(page);
+  };
+  const setLeadsPerPage = (size: number) => setPageSize(size);
+  
+  // Variables placeholder para componentes que las requieren (se actualizarán gradualmente)
+  const filterStage = "all";
+  const setFilterStage = () => {};
+  const filterPriority = "all";
+  const setFilterPriority = () => {};
+  const filterAssignedTo = "all";
+  const setFilterAssignedTo = () => {};
+  const filterSource = "all";
+  const setFilterSource = () => {};
+  const filterCampaign = "all";
+  const setFilterCampaign = () => {};
+  const filterDateFrom = "";
+  const setFilterDateFrom = () => {};
+  const filterDateTo = "";
+  const setFilterDateTo = () => {};
+  const filterValueMin = "";
+  const setFilterValueMin = () => {};
+  const filterValueMax = "";
+  const setFilterValueMax = () => {};
+  const filterDuplicates = "all";
+  const setFilterDuplicates = () => {};
+  const clearFilters = () => {};
+  const uniqueStages: string[] = [];
+  const uniqueSources: string[] = [];
+  const uniqueCampaigns: string[] = [];
+  const uniqueAssignedTo: string[] = [];
+  const duplicateCount = 0;
+
+  // Handlers para filtros
+  const handleSearchChange = useCallback((search: string) => {
+    updateFilters({ searchTerm: search });
+  }, [updateFilters]);
+
+  const handleColumnFilterChange = useCallback((column: string, selectedValues: string[]) => {
+    updateFilters({
+      columnFilters: {
+        ...filters.columnFilters,
+        [column]: selectedValues
+      }
+    });
+  }, [updateFilters, filters.columnFilters]);
+
+  const handleTextFilterChange = useCallback((column: string, conditions: any[]) => {
+    updateFilters({
+      textFilters: {
+        ...filters.textFilters,
+        [column]: conditions
+      }
+    });
+  }, [updateFilters, filters.textFilters]);
+
+  const clearColumnFilter = useCallback((column: string) => {
+    const newColumnFilters = { ...filters.columnFilters };
+    delete newColumnFilters[column];
+    const newTextFilters = { ...filters.textFilters };
+    delete newTextFilters[column];
+    
+    updateFilters({
+      columnFilters: newColumnFilters,
+      textFilters: newTextFilters
+    });
+  }, [updateFilters, filters.columnFilters, filters.textFilters]);
+
+  const hasFiltersForColumn = useCallback((column: string) => {
+    return (filters.columnFilters[column] && filters.columnFilters[column].length > 0) ||
+           (filters.textFilters[column] && filters.textFilters[column].length > 0);
+  }, [filters.columnFilters, filters.textFilters]);
 
   const handleLeadClick = useCallback((lead: Lead) => {
     setSelectedLead(lead);
@@ -213,8 +282,9 @@ export default function Leads() {
 
   const handleSortedLeadsChange = useCallback((sorted: Lead[]) => {
     setSortedLeads(sorted);
-    setCurrentPage(1);
-  }, [setCurrentPage]);
+    // No resetear la página automáticamente - esto causaba que la paginación 
+    // se reseteara cada vez que cambiaban los datos por navegación de páginas
+  }, []);
 
   const handleSendEmailToLead = useCallback((lead: Lead) => {
     setSelectedLeadForEmail(lead);
@@ -363,7 +433,7 @@ export default function Leads() {
 
   if (error) {
     return (
-      <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto px-4 py-5">
         <div className="text-center text-red-600">
           Error al cargar los leads: {error}
         </div>
@@ -373,23 +443,11 @@ export default function Leads() {
 
   return (
     <>
-      <div className="w-full max-w-full px-4 py-6 space-y-6">
+      <div className="w-full max-w-full px-4 py-4 space-y-6">
             <div className="flex flex-col lg:flex-row gap-6">
           <div className="flex-1 space-y-6">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 pt-0">
               <h1 className="text-3xl font-bold mb-1 tracking-tight text-[#00c73d]">Gestión de Leads</h1>
-              
-              {isSmallScreen && (
-                <LeadsActionsButton
-                  onCreateLead={handleCreateLead}
-                  onBulkAssign={handleBulkAssign}
-                  onMassEmail={handleMassEmail}
-                  onMassWhatsApp={handleMassWhatsApp}
-                  onDeleteLeads={handleDeleteSelectedLeads}
-                  selectedLeadsCount={selectedLeads.length}
-                  isDeleting={isDeleting}
-                />
-              )}
             </div>
 
             {/* KPI Cards and Stage Summary */}
@@ -398,20 +456,25 @@ export default function Leads() {
             <div className="flex flex-col lg:flex-row gap-4 items-center">
               {!isSmallScreen && (
                 <div className="flex flex-1 items-center gap-2">
-                  <Button
-                    className="gap-1 w-8 h-8 bg-primary"
-                    onClick={handleCreateLead}
-                    size="icon"
-                  >
-                    <Plus className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    className="gap-1 w-8 h-8 bg-primary"
-                    onClick={handleBulkAssign}
-                    size="icon"
-                  >
-                    <Users className="h-4 w-4" />
-                  </Button>
+                  {userPermissions?.canCreate && (
+                    <Button
+                      className="gap-1 w-8 h-8 bg-primary"
+                      onClick={handleCreateLead}
+                      size="icon"
+                    >
+                      <Plus className="h-4 w-4" />
+                    </Button>
+                  )}
+                  {userPermissions?.canBulkAssignLeads && (
+                    <Button
+                      className="gap-1 w-8 h-8 bg-primary"
+                      onClick={handleBulkAssign}
+                      size="icon"
+                    >
+                      <Users className="h-4 w-4" />
+                    </Button>
+                  )}
+                  {userPermissions?.canSendEmail && (
                   <Button
                     className="gap-1 w-8 h-8 bg-primary"
                     onClick={handleMassEmail}
@@ -419,21 +482,26 @@ export default function Leads() {
                   >
                     <Mail className="h-4 w-4" />
                   </Button>
-                  {/*<Button
-                    className="gap-1 w-8 h-8 bg-[#00c73d]"
-                    onClick={handleMassWhatsApp}
-                    size="icon"
-                  >
-                    <FaWhatsapp className="h-4 w-4" />
-                  </Button>*/}
-                  <Button
-                    className="gap-1 w-8 h-8 bg-red-600 hover:bg-red-700"
-                    onClick={handleDeleteSelectedLeads}
-                    size="icon"
-                    disabled={isDeleting}
-                  >
-                    <Trash className="h-4 w-4" />
-                  </Button>
+                  )}
+                  {userPermissions?.canSendmassiveWhatsApp && user?.email && (
+                    <WhatsAppPropioButton
+                      leads={selectedLeads.length > 0 ? 
+                        filteredLeads.filter(lead => selectedLeads.includes(lead.id)) : 
+                        filteredLeads
+                      }
+                      userEmail={user.email}
+                    />
+                  )}
+                  {userPermissions?.canDelete && (
+                    <Button
+                      className="gap-1 w-8 h-8 bg-red-600 hover:bg-red-700"
+                      onClick={handleDeleteSelectedLeads}
+                      size="icon"
+                      disabled={isDeleting}
+                    >
+                      <Trash className="h-4 w-4" />
+                    </Button>
+                  )}
                   <LeadsSearch 
                     searchTerm={searchTerm} 
                     onSearchChange={setSearchTerm} 
@@ -443,6 +511,23 @@ export default function Leads() {
 
               {isSmallScreen && (
                 <div className="flex w-full items-center gap-2">
+                  {userPermissions && user?.email && (
+                    <LeadsActionsButton
+                      onCreateLead={handleCreateLead}
+                      onBulkAssign={handleBulkAssign}
+                      onMassEmail={handleMassEmail}
+                      onMassWhatsApp={handleMassWhatsApp}
+                      onDeleteLeads={handleDeleteSelectedLeads}
+                      selectedLeadsCount={selectedLeads.length}
+                      isDeleting={isDeleting}
+                      permissions={userPermissions}
+                      leads={selectedLeads.length > 0 ? 
+                        filteredLeads.filter(lead => selectedLeads.includes(lead.id)) : 
+                        filteredLeads
+                      }
+                      userEmail={user.email}
+                    />
+                  )}
                   <div className="flex-1">
                     <LeadsSearch 
                       searchTerm={searchTerm} 
@@ -694,19 +779,19 @@ export default function Leads() {
                     </div>
                   )}
                   
-                  {/*<Button
+                  <Button
                     className="gap-1 w-8 h-8 bg-secondary"
                     onClick={handleViewModeToggle}
                     size="icon"
                   >
                     {getViewModeIcon()}
-                  </Button>*/}
+                  </Button>
                 </div>
               )}
             </div>
 
             {isLoading ? (
-              <div className="flex justify-center items-center py-8">
+              <div className="flex justify-center items-center py-5">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900" />
               </div>
             ) : (
@@ -735,14 +820,16 @@ export default function Leads() {
               setSortDirection={setSortDirection}
             />
 
-                <LeadsPagination
-                  currentPage={currentPage}
-                  totalPages={totalPages}
-                  totalLeads={filteredLeads.length}
-                  leadsPerPage={leadsPerPage}
-                  onPageChange={setCurrentPage}
-                  onLeadsPerPageChange={setLeadsPerPage}
-                />
+                {viewMode === 'table' && (
+                  <LeadsPagination
+                    currentPage={currentPage}
+                    totalPages={totalPages}
+                    totalLeads={filteredLeads.length}
+                    leadsPerPage={leadsPerPage}
+                    onPageChange={setCurrentPage}
+                    onLeadsPerPageChange={setLeadsPerPage}
+                  />
+                )}
               </>
             )}
           </div>
@@ -760,7 +847,7 @@ export default function Leads() {
           />
         )}
 
-        {showBulkAssign && (
+        {showBulkAssign && userPermissions?.canBulkAssignLeads && (
           <Dialog open={showBulkAssign} onOpenChange={setShowBulkAssign}>
             <DialogContent className="max-w-2xl">
               <LeadsBulkAssignment
@@ -778,7 +865,7 @@ export default function Leads() {
           </Dialog>
         )}
 
-        {showUpload && (
+        {showUpload && userPermissions?.canUploadLeads && (
           <LeadsUpload
             onLeadsUploaded={() => {
               handleLeadUpdate();

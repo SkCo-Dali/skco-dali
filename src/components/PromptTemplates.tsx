@@ -288,13 +288,13 @@ export const PromptTemplates: React.FC<PromptTemplatesProps> = ({ onSelectTempla
 
       <ScrollArea className="flex-1 p-4">
         {isLoading ? (
-          <div className="text-center py-8 text-gray-500 dark:text-gray-400">
+          <div className="text-center py-5 text-gray-500 dark:text-gray-400">
             Cargando plantillas...
           </div>
         ) : (
           <div className="grid gap-3">
             {filteredTemplates.length === 0 ? (
-              <div className="text-center py-8 text-gray-500 dark:text-gray-400">
+              <div className="text-center py-5 text-gray-500 dark:text-gray-400">
                 No se encontraron plantillas
               </div>
             ) : (

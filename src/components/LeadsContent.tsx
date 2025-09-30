@@ -6,6 +6,7 @@ import { LeadsTable } from "./LeadsTable";
 import { ColumnConfig } from "./LeadsTableColumnSelector";
 import { LeadProfiler } from "./LeadProfiler";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
 
 interface LeadsContentProps {
   viewMode: 'table' | 'columns';
@@ -57,6 +58,9 @@ export function LeadsContent({
 }: LeadsContentProps) {
   const [selectedLeadForProfiler, setSelectedLeadForProfiler] = useState<Lead | null>(null);
   const [isProfilerOpen, setIsProfilerOpen] = useState(false);
+  const [expandedColumns, setExpandedColumns] = useState<Set<string>>(new Set());
+  
+  const LEADS_PER_COLUMN = 20;
 
   const handleOpenProfiler = (lead: Lead) => {
     setSelectedLeadForProfiler(lead);
@@ -66,6 +70,20 @@ export function LeadsContent({
   const handleCloseProfiler = () => {
     setIsProfilerOpen(false);
     setSelectedLeadForProfiler(null);
+  };
+
+  const handleLoadMore = (columnKey: string) => {
+    setExpandedColumns(prev => new Set([...prev, columnKey]));
+  };
+
+  const getVisibleLeads = (groupLeads: Lead[], columnKey: string) => {
+    const isExpanded = expandedColumns.has(columnKey);
+    return isExpanded ? groupLeads : groupLeads.slice(0, LEADS_PER_COLUMN);
+  };
+
+  const hasMoreLeads = (groupLeads: Lead[], columnKey: string) => {
+    const isExpanded = expandedColumns.has(columnKey);
+    return !isExpanded && groupLeads.length > LEADS_PER_COLUMN;
   };
 
   if (viewMode === 'table') {
@@ -164,7 +182,7 @@ export function LeadsContent({
               {/* Contenedor de tarjetas con scroll */}
               <div className="bg-gray-50 border-l border-r border-b border-gray-200 rounded-b-lg min-h-[500px] max-h-[600px] overflow-y-auto p-3">
                 <div className="space-y-4">
-                  {groupLeads.map((lead) => (
+                  {getVisibleLeads(groupLeads, group).map((lead) => (
                     <LeadCard
                       key={lead.id}
                       lead={lead}
@@ -176,8 +194,20 @@ export function LeadsContent({
                     />
                   ))}
                   {groupLeads.length === 0 && (
-                    <div className="text-center text-gray-500 py-8">
+                    <div className="text-center text-gray-500 py-5">
                       <p className="text-sm">No hay leads en esta etapa</p>
+                    </div>
+                  )}
+                  {hasMoreLeads(groupLeads, group) && (
+                    <div className="text-center pt-4">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleLoadMore(group)}
+                        className="text-xs"
+                      >
+                        Ver más ({groupLeads.length - LEADS_PER_COLUMN} más)
+                      </Button>
                     </div>
                   )}
                 </div>

@@ -304,7 +304,7 @@ export const SimpleChatInterface = forwardRef<any, {}>((props, ref) => {
   return (
     <>
       {/* CONTENEDOR PRINCIPAL: usa toda la altura disponible del padre */}
-      <div className="h-auto w-full flex flex-col min-h-0 bg-background m-6 shadow-md border rounded-md">
+      <div className="h-auto w-full flex flex-col min-h-0 bg-background m-4 shadow-md border rounded-md">
 
         {/* MENSAJES — ÚNICO LUGAR CON SCROLL */}
         <div
@@ -314,7 +314,7 @@ export const SimpleChatInterface = forwardRef<any, {}>((props, ref) => {
           style={{ WebkitOverflowScrolling: 'touch' }}
         >
           {messages.length === 0 ? (
-            <div className="flex flex-col items-center justify-center h-full w-full px-4 py-6">
+            <div className="flex flex-col items-center justify-center h-full w-full px-4 py-4">
               <div className={`${isMobile ? 'w-12 h-12' : 'w-16 h-16'} rounded-full mx-auto mb-4 bg-green-100 p-2 overflow-hidden`}>
                 <img
                   src="https://aistudiojarvis0534199251.blob.core.windows.net/skandia-icons/DaliLogo.gif"
@@ -408,7 +408,7 @@ export const SimpleChatInterface = forwardRef<any, {}>((props, ref) => {
 
       {showTemplatesModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-lg w-full max-w-4xl h-[80vh] overflow-hidden">
+          <div className="bg-white rounded-xl w-full max-w-4xl h-[80vh] overflow-hidden">
             <PromptTemplates
               onSelectTemplate={(c) => { setShowTemplatesModal(false); setInputMessage(c); }}
               onClose={() => setShowTemplatesModal(false)}

@@ -27,7 +27,7 @@ export const DynamicBanner: React.FC<DynamicBannerProps> = ({ onClose, onBannerA
 
   if (isLoading) {
     return (
-      <div className="bg-gradient-to-r from-skandia-green to-green-600 text-white rounded-lg px-3 py-2 sm:px-4">
+      <div className="bg-gradient-to-r from-skandia-green to-green-600 text-white rounded-xl px-3 py-2 sm:px-4">
         <div className="flex items-center justify-center">
           <div className="animate-pulse">
             <div className="h-4 bg-white bg-opacity-30 rounded w-32 sm:w-48"></div>
@@ -59,7 +59,7 @@ export const DynamicBanner: React.FC<DynamicBannerProps> = ({ onClose, onBannerA
 
   return (
     <div 
-      className="rounded-lg px-3 py-2 sm:px-4 shadow-sm transition-all duration-500 max-w-2xl mx-auto"
+      className="rounded-xl px-3 py-2 sm:px-4 shadow-sm transition-all duration-500 max-w-2xl mx-auto"
       style={{ 
         backgroundColor: currentBanner.backgroundColor,
         color: currentBanner.textColor

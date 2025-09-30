@@ -425,7 +425,7 @@ export const PersonalityManager: React.FC<PersonalityManagerProps> = ({
               Las conversaciones con tu personalidad pueden potencialmente revelar todos los archivos cargados o parte de ellos.
             </p>
             
-            <div className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-6 text-center">
+            <div className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-xl p-4 text-center">
               <Upload className="w-8 h-8 mx-auto mb-2 text-gray-400" />
               <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
                 Arrastra archivos aquí o

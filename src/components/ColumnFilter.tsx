@@ -6,6 +6,8 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Lead } from "@/types/crm";
 import { TextFilter, TextFilterCondition } from "@/components/TextFilter";
+import { DateFilter } from "@/components/DateFilter";
+import { useDistinctValues } from "@/hooks/useServerSideFilters";
 
 interface ColumnFilterProps {
   column: string;
@@ -16,7 +18,11 @@ interface ColumnFilterProps {
   onClearFilter?: (column: string) => void;
   currentFilters: string[];
   currentTextFilters: TextFilterCondition[];
+  // Entire table filters to build server-side distinct queries
+  tableColumnFilters?: Record<string, string[]>;
+  tableTextFilters?: Record<string, TextFilterCondition[]>;
 }
+
 
 export function ColumnFilter({ 
   column, 
@@ -26,17 +32,52 @@ export function ColumnFilter({
   onSortChange,
   onClearFilter,
   currentFilters,
-  currentTextFilters 
+  currentTextFilters,
+  tableColumnFilters = {},
+  tableTextFilters = {}
 }: ColumnFilterProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<'values' | 'text'>('values');
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedValues, setSelectedValues] = useState<string[]>(currentFilters);
 
+  // Helper function to clean product field for filters
+  const cleanProductField = (value: any): string => {
+    if (typeof value === 'string') {
+      // Clean all JSON-like characters and escape sequences
+      let cleaned = value
+        .replace(/\\"/g, '"')          // Remove escape sequences
+        .replace(/[\[\]"'\\]/g, '')    // Remove all brackets and quotes
+        .replace(/,+/g, ',')           // Replace multiple commas with single comma
+        .replace(/^,|,$/g, '')         // Remove leading/trailing commas
+        .trim();
+      
+      // Split by comma and rejoin with hyphens
+      if (cleaned.includes(',')) {
+        return cleaned
+          .split(',')
+          .map(item => item.trim())
+          .filter(item => item && item !== '')
+          .join(' - ');
+      }
+      
+      return cleaned;
+    }
+    if (Array.isArray(value)) return value.filter(item => item && item.trim()).join(' - ');
+    if (value === null || value === undefined) return '';
+    return String(value);
+  };
+
   const uniqueValues = useMemo(() => {
     const values = data.map(lead => {
       const value = lead[column as keyof Lead];
       if (value === null || value === undefined) return "";
+      
+      // Apply product field cleaning if it's the product column
+      if (column === 'product') {
+        return cleanProductField(value);
+      }
+      
       return String(value);
     }).filter(Boolean);
     
@@ -103,6 +144,24 @@ export function ColumnFilter({
 
   const hasActiveFilters = currentFilters.length > 0 || currentTextFilters.length > 0;
 
+  // Check if this is a date column
+  const isDateColumn = column === 'createdAt' || column === 'updatedAt' || column === 'nextFollowUp' || column === 'lastInteraction';
+
+  // If it's a date column, use the DateFilter component
+  if (isDateColumn) {
+    return (
+      <div className="flex items-center gap-1">
+        <DateFilter
+          column={column}
+          data={data}
+          onFilterChange={onFilterChange}
+          onClearFilter={onClearFilter}
+          currentFilters={currentFilters}
+        />
+      </div>
+    );
+  }
+
   return (
     <div className="flex items-center gap-1">
       <Popover open={isOpen} onOpenChange={setIsOpen}>
@@ -128,7 +187,7 @@ export function ColumnFilter({
         <div className="p-4" onClick={(e) => e.stopPropagation()}>
           {/* Header con tabs */}
           <div className="flex mb-4">
-            <div className="flex bg-gray-100 rounded-lg p-1">
+            <div className="flex bg-gray-100 rounded-xl p-1">
               <button 
                 onClick={(e) => {
                   e.stopPropagation();

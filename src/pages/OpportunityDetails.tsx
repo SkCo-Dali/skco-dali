@@ -1,5 +1,6 @@
 import React from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { createPortal } from 'react-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -10,17 +11,20 @@ import {
   ArrowLeft, 
   Users, 
   TrendingUp, 
-  Calendar, 
-  Target, 
-  Mail, 
-  MessageCircle, 
-  Phone,
   Heart,
-  RefreshCw 
+  RefreshCw,
+  Mail,
+  MessageSquare,
+  GraduationCap,
+  Lightbulb,
+  Info
 } from 'lucide-react';
 import { IOpportunity, OPPORTUNITY_TYPE_LABELS, PRIORITY_COLORS } from '@/types/opportunities';
-import { opportunitiesService } from '@/services/mock/opportunitiesService';
+import { opportunitiesService } from '@/services/opportunitiesService';
 import { useToast } from '@/hooks/use-toast';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { MassEmailSender } from '@/components/MassEmailSender';
+import { Lead } from '@/types/crm';
 
 export const OpportunityDetails: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -30,19 +34,19 @@ export const OpportunityDetails: React.FC = () => {
   const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState<string | null>(null);
   const [isFavorite, setIsFavorite] = React.useState(false);
+  const [loadingLeads, setLoadingLeads] = React.useState(false);
+  const [showEmailSender, setShowEmailSender] = React.useState(false);
+  const [loadedLeads, setLoadedLeads] = React.useState<Lead[]>([]);
 
   const loadOpportunity = React.useCallback(async () => {
     if (!id) return;
-    
     try {
       setLoading(true);
       setError(null);
-      
       const opportunityData = await opportunitiesService.getOpportunityById(id);
-      
       if (opportunityData) {
         setOpportunity(opportunityData);
-        setIsFavorite(opportunitiesService.isFavorite(id));
+        setIsFavorite(opportunityData.isFavorite);
       } else {
         setError('Oportunidad no encontrada');
       }
@@ -58,30 +62,78 @@ export const OpportunityDetails: React.FC = () => {
     loadOpportunity();
   }, [loadOpportunity]);
 
+  // Bloquea scroll y permite cerrar con Escape cuando el modal está abierto
+  React.useEffect(() => {
+    if (!showEmailSender) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setShowEmailSender(false);
+    };
+    document.addEventListener('keydown', onKey);
+    return () => {
+      document.body.style.overflow = prev;
+      document.removeEventListener('keydown', onKey);
+    };
+  }, [showEmailSender]);
+
   const handleBack = () => {
     navigate('/oportunidades');
   };
 
-  const handleFavoriteToggle = () => {
+  const handleFavoriteToggle = async () => {
     if (!opportunity) return;
     
-    const newFavoriteState = opportunitiesService.toggleFavorite(opportunity.id);
-    setIsFavorite(newFavoriteState);
-    
-    toast({
-      title: newFavoriteState ? "Agregado a favoritas" : "Removido de favoritas",
-      description: opportunity.title,
-      duration: 2000,
-    });
+    try {
+      const newFavoriteState = await opportunitiesService.toggleFavorite(opportunity.id);
+      setIsFavorite(newFavoriteState);
+      toast({
+        title: newFavoriteState ? "Agregado a favoritas" : "Removido de favoritas",
+        description: opportunity.title,
+        duration: 2000,
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "No se pudo actualizar el estado de favorito",
+        variant: "destructive",
+        duration: 3000,
+      });
+    }
   };
 
   const handleRetry = () => {
     loadOpportunity();
   };
 
+  const handleLoadAsLeads = async () => {
+    if (!opportunity) return;
+    try {
+      setLoadingLeads(true);
+      const leads = await opportunitiesService.loadAsLeads(opportunity.id);
+      setLoadedLeads(leads);
+      setShowEmailSender(true);
+      toast({
+        title: "Leads cargados exitosamente",
+        description: `Se cargaron ${leads.length} clientes como leads`,
+        duration: 3000,
+      });
+    } catch (error) {
+      console.error('Error loading leads:', error);
+      toast({
+        title: "Error al cargar leads",
+        description: "No se pudieron cargar los clientes como leads",
+        variant: "destructive",
+        duration: 5000,
+      });
+    } finally {
+      setLoadingLeads(false);
+    }
+  };
+
   if (loading) {
     return (
-      <div className="container mx-auto px-4 py-8 space-y-6">
+      <div className="container mx-auto px-4 py-5 space-y-6">
         <div className="flex items-center gap-4">
           <Skeleton className="h-10 w-10 rounded-full" />
           <Skeleton className="h-8 w-32" />
@@ -119,14 +171,13 @@ export const OpportunityDetails: React.FC = () => {
 
   if (error || !opportunity) {
     return (
-      <div className="container mx-auto px-4 py-8">
-        <div className="flex items-center gap-4 mb-6">
+      <div className="container mx-auto px-4 py-5">
+        <div className="flex items-center gap-4 mb-4">
           <Button variant="ghost" size="icon" onClick={handleBack}>
             <ArrowLeft className="h-4 w-4" />
           </Button>
           <h1 className="text-2xl font-bold">Detalles de Oportunidad</h1>
         </div>
-        
         <Alert variant="destructive">
           <AlertDescription className="flex items-center justify-between">
             <span>{error}</span>
@@ -152,7 +203,7 @@ export const OpportunityDetails: React.FC = () => {
   };
 
   return (
-    <div className="container mx-auto px-4 py-8 space-y-6">
+    <div className="container mx-auto px-4 py-5 space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
@@ -164,7 +215,6 @@ export const OpportunityDetails: React.FC = () => {
             <p className="text-muted-foreground">Información completa de la oportunidad comercial</p>
           </div>
         </div>
-        
         <Button
           variant="ghost"
           size="icon"
@@ -181,217 +231,224 @@ export const OpportunityDetails: React.FC = () => {
         {/* Main Content */}
         <div className="lg:col-span-2 space-y-6">
           {/* Opportunity Info */}
-          <Card>
-            <CardHeader>
-              <div className="flex items-start gap-4">
-                <div className="text-3xl w-12 h-12 flex items-center justify-center rounded-full bg-primary/10">
-                  {opportunity.icon}
+          <Card className="overflow-hidden border-0 shadow-lg bg-gradient-to-br from-background via-background to-muted/20">
+            <CardHeader className="pb-6">
+              <div className="flex items-start gap-6">
+                {/* Icono */}
+                <div className="relative">
+                  <div className="w-24 h-24 rounded-2xl bg-gradient-to-br from-primary/20 via-primary/10 to-primary/5 flex items-center justify-center shadow-lg border border-primary/20">
+                    <span className="text-5xl filter drop-shadow-sm">{opportunity.icon}</span>
+                  </div>
+                  <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-green-500 rounded-full flex items-center justify-center shadow-md">
+                    <div className="w-2 h-2 bg-white rounded-full"></div>
+                  </div>
                 </div>
-                <div className="flex-1">
-                  <CardTitle className="text-xl mb-2">{opportunity.title}</CardTitle>
-                  <p className="text-muted-foreground">{opportunity.subtitle}</p>
-                </div>
-              </div>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              <div className="space-y-4">
-                <h3 className="font-semibold text-lg">Descripción</h3>
-                <p className="text-muted-foreground leading-relaxed">{opportunity.description}</p>
-              </div>
-
-              {/* Tags */}
-              <div className="space-y-2">
-                <h4 className="font-medium">Clasificación</h4>
-                <div className="flex flex-wrap gap-2">
-                  <Badge 
-                    variant="outline" 
-                    className={getPriorityColor(opportunity.priority)}
-                  >
-                    Prioridad {opportunity.priority.toUpperCase()}
-                  </Badge>
-                  <Badge variant="secondary">
-                    {OPPORTUNITY_TYPE_LABELS[opportunity.type]}
-                  </Badge>
-                  {opportunity.tags.map((tag, index) => (
-                    <Badge key={index} variant="outline">
-                      {tag}
+                {/* Título */}
+                <div className="flex-1 space-y-3">
+                  <div>
+                    <CardTitle className="text-2xl font-bold mb-2 bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text">
+                      {opportunity.title}
+                    </CardTitle>
+                    <p className="text-muted-foreground text-lg font-medium">{opportunity.subtitle}</p>
+                  </div>
+                  {/* Badges */}
+                  <div className="flex flex-wrap gap-3">
+                    <Badge 
+                      variant="outline" 
+                      className={`${getPriorityColor(opportunity.priority)} font-semibold px-3 py-1`}
+                    >
+                      Prioridad {opportunity.priority.toUpperCase()}
                     </Badge>
-                  ))}
-                </div>
-              </div>
-
-              {/* Metrics */}
-              {opportunity.metrics && (
-                <div className="space-y-4">
-                  <h4 className="font-medium">Métricas Proyectadas</h4>
-                  <div className="grid grid-cols-3 gap-4">
-                    <div className="text-center p-3 bg-muted/50 rounded-lg">
-                      <div className="text-xl font-bold text-primary">{opportunity.metrics.conversionRate}%</div>
-                      <div className="text-sm text-muted-foreground">Conversión</div>
-                    </div>
-                    <div className="text-center p-3 bg-muted/50 rounded-lg">
-                      <div className="text-xl font-bold text-blue-600">{opportunity.metrics.ctrEstimated}%</div>
-                      <div className="text-sm text-muted-foreground">CTR Estimado</div>
-                    </div>
-                    <div className="text-center p-3 bg-muted/50 rounded-lg">
-                      <div className="text-xl font-bold text-green-600">${opportunity.metrics.estimatedSales.toLocaleString()}</div>
-                      <div className="text-sm text-muted-foreground">Ventas Est.</div>
-                    </div>
+                    <Badge variant="secondary" className="bg-blue-50 text-blue-700 border-blue-200 font-medium px-3 py-1">
+                      {OPPORTUNITY_TYPE_LABELS[opportunity.type]}
+                    </Badge>
+                    {opportunity.tags.map((tag, index) => (
+                      <Badge key={index} variant="outline" className="bg-muted/30 hover:bg-muted/50 transition-colors px-3 py-1">
+                        {tag}
+                      </Badge>
+                    ))}
                   </div>
                 </div>
-              )}
-            </CardContent>
-          </Card>
-
-          {/* Strategy */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Estrategia Sugerida</CardTitle>
+              </div>
             </CardHeader>
-            <CardContent className="space-y-4">
-              {/* Email Strategy */}
+            <CardContent className="space-y-8">
+              {/* Descripción */}
               <div className="space-y-3">
-                <div className="flex items-center gap-2">
-                  <Mail className="h-4 w-4 text-blue-500" />
-                  <h4 className="font-medium">Email</h4>
-                </div>
-                <div className="pl-6 space-y-2">
-                  <div>
-                    <span className="font-medium">Asunto: </span>
-                    <span className="text-muted-foreground">{opportunity.strategy.email.subject}</span>
-                  </div>
-                  <div>
-                    <span className="font-medium">Mensaje: </span>
-                    <p className="text-muted-foreground mt-1">{opportunity.strategy.email.body}</p>
-                  </div>
-                </div>
+                <h3 className="font-semibold text-lg flex items-center gap-2">
+                  <div className="w-1 h-5 bg-primary rounded-full"></div>
+                  Descripción
+                </h3>
+                <p className="text-muted-foreground leading-relaxed text-lg pl-3 border-l-2 border-muted">
+                  {opportunity.description}
+                </p>
               </div>
-
-              {/* WhatsApp Strategy */}
-              <div className="space-y-3">
-                <div className="flex items-center gap-2">
-                  <MessageCircle className="h-4 w-4 text-green-500" />
-                  <h4 className="font-medium">WhatsApp</h4>
-                </div>
-                <div className="pl-6 space-y-2">
-                  <div>
-                    <span className="font-medium">Template: </span>
-                    <span className="text-muted-foreground">{opportunity.strategy.whatsapp.template}</span>
+              {/* Datos Clave */}
+              <TooltipProvider>
+                <div className="space-y-4">
+                  <h3 className="font-semibold text-lg flex items-center gap-2">
+                    <div className="w-1 h-5 bg-primary rounded-full"></div>
+                    Datos Clave
+                  </h3>
+                  <div className={`grid gap-6 p-4 ${opportunity.metrics ? 'grid-cols-2' : 'grid-cols-1'}`}>
+                    {/* Clientes Impactables - siempre visible */}
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <div className="relative group cursor-help">
+                          <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-blue-600/10 rounded-2xl blur-xl group-hover:blur-lg transition-all duration-300"></div>
+                          <div className="relative bg-white/60 backdrop-blur-sm border border-blue-200/50 rounded-2xl p-4 text-center hover:shadow-xl hover:shadow-blue-500/20 transition-all duration-300 group-hover:-translate-y-1 group-hover:bg-white/80">
+                            <div className="flex items-center justify-center w-10 h-10 bg-blue-100 rounded-xl mx-auto mb-2 group-hover:bg-blue-200 transition-colors relative">
+                              <Users className="h-5 w-5 text-blue-600" />
+                              <Info className="h-3 w-3 text-blue-500 absolute -top-1 -right-1 opacity-60" />
+                            </div>
+                            <div className="text-2xl font-bold text-blue-700 mb-1">
+                              {formatCustomerCount(opportunity.customerCount)}
+                            </div>
+                            <div className="text-xs font-medium text-blue-600">Clientes Impactables</div>
+                          </div>
+                        </div>
+                      </TooltipTrigger>
+                      <TooltipContent className="max-w-xs">
+                        <p className="text-sm">Número estimado de clientes que cumplen las condiciones para recibir la oferta</p>
+                      </TooltipContent>
+                    </Tooltip>
+                    
+                    {/* Comisiones Potenciales - solo si hay metrics */}
+                    {opportunity.metrics && (
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <div className="relative group cursor-help">
+                            <div className="absolute inset-0 bg-gradient-to-r from-green-500/10 to-green-600/10 rounded-2xl blur-xl group-hover:blur-lg transition-all duration-300"></div>
+                            <div className="relative bg-white/60 backdrop-blur-sm border border-green-200/50 rounded-2xl p-4 text-center hover:shadow-xl hover:shadow-green-500/20 transition-all duration-300 group-hover:-translate-y-1 group-hover:bg-white/80">
+                              <div className="flex items-center justify-center w-10 h-10 bg-green-100 rounded-xl mx-auto mb-2 group-hover:bg-green-200 transition-colors relative">
+                                <TrendingUp className="h-5 w-5 text-green-600" />
+                                <Info className="h-3 w-3 text-green-500 absolute -top-1 -right-1 opacity-60" />
+                              </div>
+                              <div className="text-2xl font-bold text-green-700 mb-1">
+                                ${opportunity.metrics.estimatedSales.toLocaleString()}
+                              </div>
+                              <div className="text-xs font-medium text-green-600">Comisiones Potenciales</div>
+                            </div>
+                          </div>
+                        </TooltipTrigger>
+                        <TooltipContent className="max-w-xs">
+                          <p className="text-sm">Monto máximo de comisiones que podrías generar con esta oportunidad</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    )}
                   </div>
-                  <div>
-                    <span className="font-medium">Mensaje: </span>
-                    <p className="text-muted-foreground mt-1">{opportunity.strategy.whatsapp.message}</p>
-                  </div>
                 </div>
-              </div>
-
-              {/* Call Strategy */}
-              <div className="space-y-3">
-                <div className="flex items-center gap-2">
-                  <Phone className="h-4 w-4 text-orange-500" />
-                  <h4 className="font-medium">Llamada</h4>
-                </div>
-                <div className="pl-6">
-                  <span className="font-medium">Script: </span>
-                  <p className="text-muted-foreground mt-1">{opportunity.strategy.call.script}</p>
-                </div>
-              </div>
+              </TooltipProvider>
             </CardContent>
           </Card>
         </div>
 
         {/* Sidebar */}
         <div className="space-y-6">
-          {/* Key Stats */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <TrendingUp className="h-5 w-5" />
-                Información Clave
+          <Card className="shadow-lg border-0 bg-gradient-to-br from-background to-muted/30">
+            <CardHeader className="pb-4">
+              <CardTitle className="flex items-center gap-3 text-lg">
+                <div className="p-2 rounded-lg bg-primary/10">
+                  <Lightbulb className="h-5 w-5 text-primary" />
+                </div>
+                ¿Qué puedo hacer?
               </CardTitle>
+              <p className="text-sm text-muted-foreground">Acciones disponibles para esta oportunidad</p>
             </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="flex items-center justify-between">
-                <span className="text-muted-foreground">Score de Impacto</span>
-                <span className="font-bold text-primary">{opportunity.score}/100</span>
-              </div>
-              <Progress value={opportunity.score} className="h-2" />
-              
-              <div className="flex items-center justify-between">
-                <span className="text-muted-foreground">Clientes Impactables</span>
-                <div className="flex items-center gap-1">
-                  <Users className="h-4 w-4 text-muted-foreground" />
-                  <span className="font-medium">{formatCustomerCount(opportunity.customerCount)}</span>
+            <CardContent className="space-y-4 pb-6">
+              <div className="relative">
+                <Button 
+                  variant="default" 
+                  className="w-full justify-start h-auto py-3 px-4 text-left bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 shadow-md hover:shadow-lg transition-all duration-200 group"
+                  size="lg"
+                  onClick={handleLoadAsLeads}
+                  disabled={loadingLeads}
+                >
+                  <div className="flex items-center gap-3 w-full min-w-0">
+                    <div className="flex-shrink-0 p-2 bg-white/20 rounded-lg group-hover:bg-white/30 transition-colors">
+                      <Mail className="h-4 w-4" />
+                    </div>
+                    <div className="flex flex-col items-start min-w-0 flex-1">
+                      <span className="font-semibold text-sm leading-tight">
+                        {loadingLeads ? 'Cargando leads...' : 'Cargar como leads y enviar correo masivo'}
+                      </span>
+                      <span className="text-xs opacity-90 mt-0.5">Acción recomendada</span>
+                    </div>
+                  </div>
+                </Button>
+                <div className="absolute -top-2 -right-2">
+                  <div className="bg-yellow-400 text-yellow-900 text-xs font-bold px-2 py-1 rounded-full shadow-sm">
+                    PRINCIPAL
+                  </div>
                 </div>
               </div>
 
-              <div className="space-y-2">
-                <span className="text-muted-foreground">Producto Sugerido</span>
-                <Badge variant="outline" className="w-full justify-center">
-                  {opportunity.suggestedProduct}
-                </Badge>
-              </div>
-
-              {opportunity.segment && (
-                <div className="space-y-2">
-                  <span className="text-muted-foreground">Segmento</span>
-                  <Badge variant="secondary" className="w-full justify-center">
-                    {opportunity.segment}
-                  </Badge>
+              <Button 
+                variant="outline" 
+                className="w-full justify-start h-auto py-3 px-3 text-left border-2 hover:bg-green-50 hover:border-green-200 hover:text-green-700 transition-all duration-200 group"
+                size="lg"
+              >
+                <div className="flex items-center gap-2 w-full min-w-0">
+                  <div className="flex-shrink-0 p-2 bg-green-100 rounded-lg group-hover:bg-green-200 transition-colors">
+                    <MessageSquare className="h-4 w-4 text-green-600" />
+                  </div>
+                  <div className="flex flex-col items-start min-w-0 flex-1">
+                    <span className="text-xs leading-tight font-medium">Cargar como leads y enviar WhatsApp masivo</span>
+                    <span className="text-xs text-muted-foreground mt-0.5">Mensajería directa</span>
+                  </div>
                 </div>
-              )}
-            </CardContent>
-          </Card>
+              </Button>
 
-          {/* Timeline */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Calendar className="h-5 w-5" />
-                Timeline
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <span className="text-muted-foreground">Ventana de Tiempo</span>
-                <div className="text-sm">
-                  <div>Inicio: {new Date(opportunity.timeWindow.start).toLocaleDateString('es-ES')}</div>
-                  <div>Fin: {new Date(opportunity.timeWindow.end).toLocaleDateString('es-ES')}</div>
+              <Button 
+                variant="secondary" 
+                className="w-full justify-start h-auto py-3 px-4 text-left bg-blue-50 hover:bg-blue-100 border border-blue-200 hover:border-blue-300 text-blue-700 hover:text-blue-800 transition-all duration-200 group"
+                size="lg"
+              >
+                <div className="flex items-center gap-3 w-full min-w-0">
+                  <div className="flex-shrink-0 p-2 bg-blue-100 rounded-lg group-hover:bg-blue-200 transition-colors">
+                    <GraduationCap className="h-4 w-4 text-blue-600" />
+                  </div>
+                  <div className="flex flex-col items-start min-w-0 flex-1">
+                    <span className="font-medium text-sm leading-tight">Aprende a pedir esta base en Chat Dali</span>
+                    <span className="text-xs text-blue-600 mt-0.5">Guía interactiva</span>
+                  </div>
                 </div>
-              </div>
-
-              {opportunity.expiresAt && (
-                <div className="space-y-2">
-                  <span className="text-muted-foreground">Vencimiento</span>
-                  <Badge variant="outline" className="w-full justify-center text-orange-600 border-orange-200">
-                    {new Date(opportunity.expiresAt).toLocaleDateString('es-ES')}
-                  </Badge>
-                </div>
-              )}
-
-              <div className="space-y-2">
-                <span className="text-muted-foreground">Creado</span>
-                <div className="text-sm">
-                  {new Date(opportunity.createdAt).toLocaleDateString('es-ES')}
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Trigger */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Target className="h-5 w-5" />
-                Disparador
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-muted-foreground text-sm">{opportunity.trigger}</p>
+              </Button>
             </CardContent>
           </Card>
         </div>
       </div>
+
+      {/* Email Sender Modal via Portal */}
+      {showEmailSender &&
+        createPortal(
+          <div
+            className="fixed inset-0 z-[9999] flex items-center justify-center p-4"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="mass-email-title"
+            onClick={() => {
+              setShowEmailSender(false);
+              handleBack();
+            }}
+          >
+            <div className="absolute inset-0 bg-black/70" />
+            <div
+              className="relative w-full max-w-6xl max-h-[90vh] overflow-auto rounded-xl bg-background shadow-2xl ring-1 ring-black/10 p-4"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <h2 id="mass-email-title" className="sr-only">Envío masivo de correos</h2>
+              <MassEmailSender
+                filteredLeads={loadedLeads}
+                onClose={() => {
+                  setShowEmailSender(false);
+                  handleBack();
+                }}
+              />
+            </div>
+          </div>,
+          document.body
+        )
+      }
     </div>
   );
 };

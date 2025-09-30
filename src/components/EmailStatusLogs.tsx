@@ -108,7 +108,7 @@ export function EmailStatusLogs({ logs, isLoading, onRefresh }: EmailStatusLogsP
             </div>
 
             {/* Tabla de logs */}
-            <div className="border rounded-lg">
+            <div className="border rounded-xl">
               <Table>
                 <TableHeader>
                   <TableRow>
@@ -123,7 +123,7 @@ export function EmailStatusLogs({ logs, isLoading, onRefresh }: EmailStatusLogsP
                 <TableBody>
                   {isLoading ? (
                     <TableRow>
-                      <TableCell colSpan={7} className="text-center py-8">
+                      <TableCell colSpan={7} className="text-center py-5">
                         <div className="flex items-center justify-center">
                           <RefreshCw className="h-4 w-4 animate-spin mr-2" />
                           Cargando...
@@ -132,7 +132,7 @@ export function EmailStatusLogs({ logs, isLoading, onRefresh }: EmailStatusLogsP
                     </TableRow>
                   ) : filteredLogs.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
+                      <TableCell colSpan={7} className="text-center py-5 text-muted-foreground">
                         No se encontraron registros de correos
                       </TableCell>
                     </TableRow>

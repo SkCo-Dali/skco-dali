@@ -13,7 +13,7 @@ export function LeadsStats({ filteredLeads, currentPage, totalPages }: LeadsStat
   const averageValue = filteredLeads.length > 0 ? Math.round(totalValue / filteredLeads.length) : 0;
 
   return (
-    <div className="flex flex-wrap gap-2 mb-6">
+    <div className="flex flex-wrap gap-2 mb-4">
       <Badge variant="outline" className="text-sm">
         Total: {filteredLeads.length} leads
       </Badge>

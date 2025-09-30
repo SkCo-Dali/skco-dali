@@ -111,9 +111,9 @@ export const ConversationHistoryModal: React.FC<ConversationHistoryModalProps> =
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-4xl w-full h-[85vh] p-0 gap-0 flex flex-col">
-        <DialogHeader className="p-6 pb-4 border-b bg-gradient-to-r from-gray-50 to-slate-50 flex-shrink-0">
+        <DialogHeader className="p-4 pb-4 border-b bg-gradient-to-r from-gray-50 to-slate-50 flex-shrink-0">
           <div className="flex items-center gap-3">
-            <div className="p-2 bg-green-100 rounded-lg">
+            <div className="p-2 bg-green-100 rounded-xl">
               <MessageSquare className="h-6 w-6 text-green-600" />
             </div>
             <div>

@@ -188,6 +188,7 @@ export function TaskEditDialog({ task, open, onOpenChange, onTaskUpdated }: Task
                   selected={dueDate}
                   onSelect={(date) => date && setDueDate(date)}
                   initialFocus
+                  className="p-3 pointer-events-auto"
                 />
               </PopoverContent>
             </Popover>

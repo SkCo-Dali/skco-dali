@@ -1,11 +1,11 @@
 import React from 'react';
-import { Heart, Users, ArrowRight } from 'lucide-react';
+import { Heart, Users, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
-import { Progress } from '@/components/ui/progress';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { IOpportunity, OPPORTUNITY_TYPE_LABELS, PRIORITY_COLORS } from '@/types/opportunities';
-import { opportunitiesService } from '@/services/mock/opportunitiesService';
+import { opportunitiesService } from '@/services/opportunitiesService';
 import { useToast } from '@/hooks/use-toast';
 import { formatBogotaDate } from '@/utils/dateUtils';
 
@@ -22,24 +22,35 @@ export const OpportunityCard: React.FC<OpportunityCardProps> = ({
 }) => {
   const { toast } = useToast();
   const [isFavorite, setIsFavorite] = React.useState(
-    opportunitiesService.isFavorite(opportunity.id)
+    opportunity.isFavorite
   );
 
-  const handleFavoriteToggle = (e: React.MouseEvent) => {
+  const handleFavoriteToggle = async (e: React.MouseEvent) => {
     e.stopPropagation();
-    const newFavoriteState = opportunitiesService.toggleFavorite(opportunity.id);
-    setIsFavorite(newFavoriteState);
-    onFavoriteChange?.(opportunity.id, newFavoriteState);
-    
-    toast({
-      title: newFavoriteState ? "Agregado a favoritas" : "Removido de favoritas",
-      description: opportunity.title,
-      duration: 2000,
-    });
+    try {
+      const newFavoriteState = await opportunitiesService.toggleFavorite(opportunity.id);
+      setIsFavorite(newFavoriteState);
+      onFavoriteChange?.(opportunity.id, newFavoriteState);
+      
+      toast({
+        title: newFavoriteState ? "Agregado a favoritas" : "Removido de favoritas",
+        description: opportunity.title,
+        duration: 2000,
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "No se pudo actualizar el estado de favorito",
+        variant: "destructive",
+        duration: 3000,
+      });
+    }
   };
 
   const handleViewDetails = () => {
-    onViewDetails(opportunity);
+    if (opportunity.isActive) {
+      onViewDetails(opportunity);
+    }
   };
 
   const formatCustomerCount = (count: number) => {
@@ -54,87 +65,125 @@ export const OpportunityCard: React.FC<OpportunityCardProps> = ({
   };
 
   return (
-    <Card className="group hover:shadow-lg transition-all duration-300 hover:-translate-y-1 cursor-pointer border-border/50 hover:border-primary/20">
-      <CardHeader className="pb-3">
-        <div className="flex items-start justify-between">
-          <div className="flex items-center gap-3">
-            <div className="text-2xl w-10 h-10 flex items-center justify-center rounded-full bg-primary/10">
-              {opportunity.icon}
-            </div>
-            <div className="flex-1">
-              <h3 className="font-semibold text-base line-clamp-2 group-hover:text-primary transition-colors">
-                {opportunity.title}
-              </h3>
-            </div>
-          </div>
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={handleFavoriteToggle}
-            className="h-8 w-8 shrink-0 hover:bg-red-50 hover:text-red-500"
+    <TooltipProvider>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <Card 
+            className={`group transition-all duration-300 shadow-md border-0 h-fit w-full max-w-[280px] relative ${
+              opportunity.isActive 
+                ? 'hover:shadow-xl hover:-translate-y-1 hover:shadow-lg bg-white cursor-pointer' 
+                : 'bg-gray-50 opacity-75 cursor-not-allowed'
+            }`}
+            onClick={handleViewDetails}
           >
-            <Heart 
-              className={`h-4 w-4 ${isFavorite ? 'fill-red-500 text-red-500' : 'text-muted-foreground'}`} 
-            />
-          </Button>
-        </div>
-        
-        <p className="text-sm text-muted-foreground line-clamp-2 mt-2">
-          {opportunity.subtitle}
-        </p>
-      </CardHeader>
+            {/* Inactive overlay */}
+            {!opportunity.isActive && (
+              <div className="absolute inset-0 z-10 flex items-center justify-center bg-black/20 rounded-lg">
+                <div className="bg-red-600 text-white px-3 py-2 rounded-lg shadow-lg text-center transform -rotate-12">
+                  <div className="flex items-center gap-1 mb-1">
+                    <X className="h-4 w-4" />
+                    <span className="font-bold text-sm">Ya fue aprovechada</span>
+                  </div>
+                  <div className="text-xs opacity-90">
+                    Regresa pronto para nuevos Leads
+                  </div>
+                </div>
+              </div>
+            )}
 
-      <CardContent className="space-y-4">
-        {/* Tags */}
-        <div className="flex flex-wrap gap-1.5">
-          <Badge 
-            variant="outline" 
-            className={`text-xs px-2 py-0.5 ${getPriorityColor(opportunity.priority)}`}
-          >
-            {opportunity.priority.toUpperCase()}
-          </Badge>
-          <Badge variant="secondary" className="text-xs px-2 py-0.5">
-            {OPPORTUNITY_TYPE_LABELS[opportunity.type]}
-          </Badge>
-          {/* Time Window (if applicable) */}
-        {opportunity.expiresAt && (
-          <Badge className="text-xs px-2 py-0.5 text-orange-600 bg-orange-50">
-            Vence {formatBogotaDate(opportunity.expiresAt)}
-          </Badge>
-      )}
-        </div>
+            {/* Top section with favorite button */}
+            <div className="flex justify-end p-2">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={handleFavoriteToggle}
+                className="h-6 w-6 shrink-0 hover:bg-red-50 hover:text-red-500"
+                disabled={!opportunity.isActive}
+              >
+                <Heart 
+                  className={`h-3 w-3 ${isFavorite ? 'fill-red-500 text-red-500' : 'text-muted-foreground'}`} 
+                />
+              </Button>
+            </div>
 
-        {/* Customer Count */}
-        <div className="flex items-center gap-2 text-sm">
-          <Users className="h-4 w-4 text-muted-foreground" />
-          <span className="font-medium">{formatCustomerCount(opportunity.customerCount)}</span>
-          <span className="text-muted-foreground">clientes impactables</span>
-        </div>
+            <CardContent className={`px-3 pb-3 pt-1 text-center space-y-2.5 ${!opportunity.isActive ? 'grayscale' : ''}`}>
+              {/* Large emoji as "product image" */}
+              <div className="flex justify-center">
+                <div className={`text-6xl w-20 h-20 flex items-center justify-center rounded-2xl ${
+                  opportunity.isActive 
+                    ? 'bg-gradient-to-br from-primary/10 to-primary/5' 
+                    : 'bg-gray-100'
+                }`}>
+                  {opportunity.icon}
+                </div>
+              </div>
 
-        {/* Score Bar */}
-        <div className="space-y-2">
-          <div className="flex justify-between items-center">
-            <span className="text-sm font-medium">Score de Impacto</span>
-            <span className="text-sm font-bold text-primary">{opportunity.score}/100</span>
-          </div>
-          <Progress 
-            value={opportunity.score} 
-            className="h-2"
-          />
-        </div>
+              {/* Title - centered */}
+              <div>
+                <h3 className={`font-bold text-sm line-clamp-2 transition-colors text-center ${
+                  opportunity.isActive 
+                    ? 'group-hover:text-primary' 
+                    : 'text-gray-500'
+                }`}>
+                  {opportunity.title}
+                </h3>
+              </div>
 
-      </CardContent>
+              {/* Priority and Type Badges */}
+              <div className="flex flex-wrap gap-1 justify-center">
+                <Badge 
+                  variant="outline" 
+                  className={`text-xs px-1.5 py-0.5 font-semibold ${getPriorityColor(opportunity.priority)}`}
+                >
+                  {opportunity.priority.toUpperCase()}
+                </Badge>
+                <Badge variant="secondary" className="text-xs px-1.5 py-0.5 font-medium bg-blue-50 text-blue-700 border-blue-200">
+                  {OPPORTUNITY_TYPE_LABELS[opportunity.type]}
+                </Badge>
+              </div>
 
-      <CardFooter>
-        <Button 
-          onClick={handleViewDetails}
-          className="w-full group/btn"
-          variant="outline"
-        >
-          Ver detalles
-          <ArrowRight className="h-4 w-4 ml-2 group-hover/btn:translate-x-1 transition-transform" />
-        </Button>
-      </CardFooter>
-    </Card>
+              {/* Customer Count */}
+              <div className="flex items-center justify-center gap-1.5 text-xs">
+                <div className="p-1 bg-blue-50 rounded">
+                  <Users className="h-3 w-3 text-blue-600" />
+                </div>
+                <div>
+                  <span className="font-bold text-blue-700">{formatCustomerCount(opportunity.customerCount)}</span>
+                  <span className="text-muted-foreground ml-1">clientes</span>
+                </div>
+              </div>
+
+              {/* Expiration Date */}
+              {opportunity.expiresAt && (
+                <div className="flex justify-center">
+                  <Badge className="text-xs px-1.5 py-0.5 text-orange-600 bg-orange-50 border-orange-200">
+                    Vence {formatBogotaDate(opportunity.expiresAt)}
+                  </Badge>
+                </div>
+              )}
+
+              {/* Action Button */}
+              <Button 
+                variant={opportunity.isActive ? "default" : "secondary"}
+                size="sm" 
+                className={`w-full h-8 text-xs font-medium mt-4 ${
+                  opportunity.isActive 
+                    ? 'bg-primary hover:bg-primary/90 text-white' 
+                    : 'bg-gray-200 text-gray-500 cursor-not-allowed hover:bg-gray-200'
+                }`}
+                disabled={!opportunity.isActive}
+              >
+                {opportunity.isActive ? 'Ver oportunidad →' : 'No disponible'}
+              </Button>
+            </CardContent>
+          </Card>
+        </TooltipTrigger>
+        {opportunity.subtitle && (
+          <TooltipContent>
+            <p className="max-w-xs text-sm">{opportunity.subtitle}</p>
+          </TooltipContent>
+        )}
+      </Tooltip>
+    </TooltipProvider>
   );
 };

@@ -9,12 +9,15 @@ import Leads from "@/pages/Leads";
 import Tasks from "@/pages/Tasks";
 import Reports from "@/pages/Reports";
 import Informes from "@/pages/Informes";
+import ReportViewer from "@/pages/ReportViewer";
 import Users from "@/pages/Users";
 import { Opportunities } from "@/pages/Opportunities";
 import { OpportunityDetails } from "@/pages/OpportunityDetails";
 import ChatDali from "@/pages/ChatDali";
 import Gamification from "@/pages/Gamification";
 import Index from "@/pages/Index";
+import Comisiones from "@/pages/Comisiones";
+import MotorComisiones from "@/pages/MotorComisiones";
 import NotFound from "@/pages/NotFound";
 import PowerBIReportsAdmin from "@/components/admin/PowerBIReportsAdmin";
 import { useAuth } from "@/contexts/AuthContext";
@@ -69,6 +72,7 @@ export function AppContent() {
               <Route path="/tasks" element={<Tasks />} />
               <Route path="/reports" element={<Reports />} />
               <Route path="/informes" element={<Informes />} />
+              <Route path="/informes/:reportId" element={<ReportViewer />} />
               <Route path="/users" element={<Users />} />
               <Route path="/oportunidades" element={<Opportunities />} />
               <Route path="/oportunidades/:id" element={<OpportunityDetails />} />
@@ -78,6 +82,8 @@ export function AppContent() {
               <Route path="/Chat" element={<ChatDali ref={chatDaliRef} />} />
               <Route path="/gamification" element={<Gamification />} />
               <Route path="/index" element={<Index />} />
+              <Route path="/comisiones" element={<Comisiones />} />
+              <Route path="/motor-comisiones" element={<MotorComisiones />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </main>

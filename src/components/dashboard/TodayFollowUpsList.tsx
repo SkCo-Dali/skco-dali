@@ -45,7 +45,7 @@ export function TodayFollowUpsList({ leads }: TodayFollowUpsListProps) {
           </p>
         ) : (
           todayFollowUps.slice(0, 5).map((lead) => (
-            <div key={lead.id} className="flex items-center justify-between p-3 rounded-lg border bg-card hover:bg-accent/50 transition-colors">
+            <div key={lead.id} className="flex items-center justify-between p-3 rounded-xl border bg-card hover:bg-accent/50 transition-colors">
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 mb-1">
                   <User className="h-3 w-3 text-muted-foreground" />

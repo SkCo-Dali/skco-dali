@@ -12,10 +12,8 @@ import {
 import { User, Mail, Edit, Trash2, MoreVertical, CircleUserRound, Smartphone, Users, Calendar } from "lucide-react";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
-import { useUsersApi } from "@/hooks/useUsersApi";
-import { MdOutlineCampaign } from "react-icons/md";
-import { useLeadDeletion } from "@/hooks/useLeadDeletion";
 import { LeadDeleteConfirmDialog } from "@/components/LeadDeleteConfirmDialog";
+import { useLeadDeletion } from "@/hooks/useLeadDeletion";
 import { useToast } from '@/hooks/use-toast';
 
 interface LeadCardProps {
@@ -34,13 +32,15 @@ const stageColors = {
   'Asignado': 'bg-yellow-100 text-yellow-800',
   'Localizado: No interesado': 'bg-red-100 text-red-800',
   'Localizado: Prospecto de venta FP': 'bg-green-100 text-green-800',
-  'Localizado: Prospecto de venta AD': 'bg-purple-100 text-purple-800',
+  'Localizado: Prospecto de venta AD': 'bg-green-100 text-green-800',
+  'Localizado: Prospecto de venta - Pendiente': 'bg-green-100 text-green-800',
   'Localizado: Volver a llamar': 'bg-orange-100 text-orange-800',
   'Localizado: No vuelve a contestar': 'bg-gray-100 text-gray-800',
   'No localizado: No contesta': 'bg-gray-100 text-gray-800',
   'No localizado: Número equivocado': 'bg-red-100 text-red-800',
   'Contrato Creado': 'bg-green-100 text-green-800',
-  'Registro de Venta (fondeado)': 'bg-green-100 text-green-800'
+  'Registro de Venta (fondeado)': 'bg-green-100 text-green-800',
+  'Repetido': 'bg-red-100 text-red-800'
 };
 
 export function LeadCard({ 
@@ -53,10 +53,8 @@ export function LeadCard({
   onOpenProfiler,
   onLeadUpdate
 }: LeadCardProps) {
-  const { users } = useUsersApi();
-  // Use assignedToName directly from API or fallback to user lookup
-  const assignedUser = users.find(u => u.id === lead.assignedTo);
-  const assignedUserName = lead.assignedToName || assignedUser?.name || 'Sin asignar';
+  // Use assignedToName directly from API response - no need for user lookup
+  const assignedUserName = lead.assignedToName || 'Sin asignar';
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const { toast } = useToast();
   

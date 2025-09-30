@@ -14,7 +14,7 @@ export function GamificationStats({ stats }: GamificationStatsProps) {
           <CardTitle className="text-sm font-medium">Participantes</CardTitle>
           <Users className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
-        <CardContent>
+        <CardContent className="pb-4">
           <div className="text-2xl font-bold">{stats.totalUsers}</div>
           <p className="text-xs text-muted-foreground">
             Total de asesores activos

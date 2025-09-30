@@ -38,6 +38,8 @@ const allMenuItems = [
   { title: "Gamificación", url: "/gamification", iconClass: "", page: "gamification", customIcon: "https://skcoblobresources.blob.core.windows.net/digital-assets/icons/icon-skandia/sk_trofeo_p.svg" },
   { title: "Dashboard", url: "/reports", iconClass: "", page: "reports", customIcon: "https://skcoblobresources.blob.core.windows.net/digital-assets/icons/icon-skandia/sk_grafica_1_n.svg" },
   { title: "Informes", url: "/informes", iconClass: "", page: "informes", customIcon: "https://skcoblobresources.blob.core.windows.net/digital-assets/icons/icon-skandia/sk_chart_2_p.svg" },
+  { title: "Comisiones", url: "/comisiones", iconClass: "", page: "comisiones", customIcon: "https://skcoblobresources.blob.core.windows.net/digital-assets/icons/icon-skandia/sk_moneda_p.svg" },
+  { title: "Motor Comisiones", url: "/motor-comisiones", iconClass: "", page: "motor-comisiones", customIcon: "https://skcoblobresources.blob.core.windows.net/digital-assets/icons/icon-skandia/sk_engranajes_p.svg" },
   { title: "Calendario", url: "/calendar", iconClass: "", page: "calendar", customIcon: "https://skcoblobresources.blob.core.windows.net/digital-assets/icons/icon-skandia/sk_calendario_p.svg" },
   { title: "Tareas", url: "/tasks", iconClass: "", page: "tasks", customIcon: "https://skcoblobresources.blob.core.windows.net/digital-assets/icons/icon-skandia/sk_puntos_p.svg" },
 ];
@@ -153,9 +155,6 @@ export function AppSidebar({ onTemplateSelect }: AppSidebarProps) {
           <SidebarContent className="flex-1 flex flex-col justify-between pt-4">
             <div>
               <SidebarGroup>
-                {showText && (
-                  <SidebarGroupLabel className="text-black/80">Menú Principal</SidebarGroupLabel>
-                )}
                 <SidebarGroupContent>
                   <SidebarMenu>
                     {menuItems.map((item) => (
@@ -238,7 +237,7 @@ export function AppSidebar({ onTemplateSelect }: AppSidebarProps) {
             </div>
 
             {showLogo && (
-              <div className="flex justify-center mt-4 mb-6">
+              <div className="flex justify-center mt-4 mb-4">
                 <img
                   src="https://aistudiojarvis0534199251.blob.core.windows.net/skandia-icons/DALILM.png"
                   alt="Logo Skandia"
@@ -259,7 +258,7 @@ export function AppSidebar({ onTemplateSelect }: AppSidebarProps) {
       {/* Modal para las plantillas */}
       {showTemplatesModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
-          <div className="bg-white rounded-lg w-[90vw] max-w-4xl h-[80vh] overflow-hidden">
+          <div className="bg-white rounded-xl w-[90vw] max-w-4xl h-[80vh] overflow-hidden">
             <PromptTemplates
               onSelectTemplate={handleSelectTemplate}
               onClose={() => setShowTemplatesModal(false)}

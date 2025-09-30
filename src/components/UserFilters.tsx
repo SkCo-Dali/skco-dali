@@ -33,7 +33,7 @@ export function UserFilters({ searchTerm, setSearchTerm, roleFilter, setRoleFilt
                 placeholder="Buscar por nombre o email..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10"
+                className="!pl-10"
               />
             </div>
           </div>

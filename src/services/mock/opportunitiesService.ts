@@ -147,7 +147,10 @@ export class OpportunitiesService {
       totalOpportunities: this.opportunities.length,
       totalCustomers,
       favoritesCount: favorites.length,
-      avgScore: Math.round(avgScore * 10) / 10
+      avgScore: Math.round(avgScore * 10) / 10,
+      totalCommissionPotential: this.opportunities.reduce((sum, opp) => 
+        sum + (opp.metrics?.estimatedSales || 0), 0
+      ),
     };
   }
 

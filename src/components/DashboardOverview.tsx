@@ -96,7 +96,7 @@ export function DashboardOverview({ leads, loading }: DashboardOverviewProps) {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           {[...Array(4)].map((_, i) => (
             <div key={i} className="animate-pulse">
-              <div className="bg-muted h-32 rounded-lg"></div>
+              <div className="bg-muted h-32 rounded-xl"></div>
             </div>
           ))}
         </div>
@@ -106,7 +106,7 @@ export function DashboardOverview({ leads, loading }: DashboardOverviewProps) {
 
   if (!kpis || !user) {
     return (
-      <div className="text-center py-8">
+      <div className="text-center py-5">
         <p className="text-muted-foreground">No se pudieron cargar los datos del dashboard</p>
       </div>
     );
@@ -161,7 +161,7 @@ export function DashboardOverview({ leads, loading }: DashboardOverviewProps) {
         />
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
         <KPICard
           title="Leads Convertidos"
           value={kpis.convertedLeads.toString()}
@@ -189,7 +189,7 @@ export function DashboardOverview({ leads, loading }: DashboardOverviewProps) {
       </div>
 
       {/* Today's Activities Section */}
-      <div className="mt-8">
+      <div className="mt-4">
         <h3 className="text-xl font-semibold mb-4">Actividades de Hoy</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           <TodayFollowUpsList leads={userLeads} />

@@ -86,7 +86,7 @@ export function InformesTable({ reports, onReportSelect }: InformesTableProps) {
   };
 
   return (
-    <div className="border rounded-lg">
+    <div className="border rounded-xl">
       <Table>
         <TableHeader>
           <TableRow>
@@ -129,7 +129,7 @@ export function InformesTable({ reports, onReportSelect }: InformesTableProps) {
             >
               <TableCell>
                 <div className="flex items-center space-x-3">
-                  <div className="p-2 bg-[#00C73D]/10 rounded-lg">
+                  <div className="p-2 bg-[#00C73D]/10 rounded-xl">
                     <FileBarChart className="h-4 w-4 text-[#00C73D]" />
                   </div>
                   <div className="font-medium">{report.name}</div>

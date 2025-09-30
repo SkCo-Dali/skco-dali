@@ -4,13 +4,14 @@ import { PublicClientApplication, InteractionRequiredAuthError, AccountInfo } fr
 import { msalConfig, loginRequest } from '@/authConfig';
 
 import { useToast } from '@/hooks/use-toast';
-import SecureTokenManager from '@/utils/secureTokenManager';
-import { TokenHeartbeatManager } from '@/components/TokenHeartbeatManager';
+import { SmartSessionManager } from '@/components/SmartSessionManager';
+import { SecureTokenManager } from '@/utils/secureTokenManager';
+import { useSessionManager } from '@/hooks/useSessionManager';
 
 interface AuthContextType {
   user: User | null;
-  login: (user: User) => void;
-  logout: () => void;
+  login: (userData: User) => Promise<void>;
+  logout: () => Promise<void>;
   loading: boolean;
   isAuthenticated: boolean;
   getAccessToken: () => Promise<{ idToken: string; accessToken: string } | null>;
@@ -19,6 +20,8 @@ interface AuthContextType {
   signInWithAzure: () => Promise<{ error: any }>;
   accessToken: string | null;
   signOut: () => Promise<void>;
+  sessionState: any;
+  isSessionActive: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -45,6 +48,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
   
   const { toast } = useToast();
 
+  // Session management
+  const { sessionState, isSessionActive, startSession, endSession } = useSessionManager();
 
   useEffect(() => {
     const initializeMsal = async () => {
@@ -87,13 +92,28 @@ export function AuthProvider({ children }: AuthProviderProps) {
     initializeMsal();
   }, []);
 
-
-  const login = (userData: User) => {
+  const login = async (userData: User) => {
     setUser(userData);
     sessionStorage.setItem('skandia-crm-user', JSON.stringify(userData));
+    
+    // Start session after successful login
+    try {
+      await startSession();
+      console.log('Session started successfully');
+    } catch (error) {
+      console.error('Failed to start session:', error);
+    }
   };
 
   const logout = async () => {
+    // End session first
+    try {
+      await endSession();
+      console.log('Session ended successfully');
+    } catch (error) {
+      console.error('Failed to end session:', error);
+    }
+    
     setUser(null);
     setAccessToken(null);
     
@@ -269,11 +289,13 @@ export function AuthProvider({ children }: AuthProviderProps) {
     signInWithAzure,
     accessToken,
     signOut,
+    sessionState,
+    isSessionActive,
   };
 
   return (
     <AuthContext.Provider value={value}>
-      <TokenHeartbeatManager />
+      <SmartSessionManager />
       {children}
     </AuthContext.Provider>
   );

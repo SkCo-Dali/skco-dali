@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { Plus, Trash2 } from "lucide-react";
 import { Lead } from "@/types/crm";
-import { useUsersApi } from "@/hooks/useUsersApi";
+import { useAssignableUsers } from "@/contexts/AssignableUsersContext";
 import { useToast } from "@/hooks/use-toast";
 import { bulkAssignLeads, changeLeadStage } from "@/utils/leadsApiClient";
 
@@ -27,11 +27,11 @@ export function LeadsBulkAssignment({ leads, onLeadsAssigned }: LeadsBulkAssignm
   const [assignmentType, setAssignmentType] = useState<"equitable" | "specific">("equitable");
   const [userAssignments, setUserAssignments] = useState<UserAssignment[]>([]);
   const [isAssigning, setIsAssigning] = useState(false);
-  const { users } = useUsersApi();
+  const { users } = useAssignableUsers();
   const { toast } = useToast();
 
   // Filtrar solo usuarios con rol de gestor
-  const gestorUsers = users.filter(user => user.role === 'gestor');
+  const gestorUsers = users.filter(user => user.Role === 'gestor');
 
   // Obtener campañas únicas
   const uniqueCampaigns = Array.from(new Set(leads.map(lead => lead.campaign).filter(Boolean)));
@@ -56,8 +56,8 @@ export function LeadsBulkAssignment({ leads, onLeadsAssigned }: LeadsBulkAssignm
     if (gestorUsers.length > 0) {
       console.log('Initializing user assignments for', gestorUsers.length, 'gestors');
       setUserAssignments(gestorUsers.map(user => ({
-        userId: user.id,
-        userName: user.name,
+        userId: user.Id,
+        userName: user.Name,
         quantity: 0
       })));
     }
@@ -68,8 +68,8 @@ export function LeadsBulkAssignment({ leads, onLeadsAssigned }: LeadsBulkAssignm
     if (gestorUsers.length > 0) {
       console.log('Resetting assignments for campaign change');
       setUserAssignments(gestorUsers.map(user => ({
-        userId: user.id,
-        userName: user.name,
+        userId: user.Id,
+        userName: user.Name,
         quantity: 0
       })));
     }
@@ -88,8 +88,8 @@ export function LeadsBulkAssignment({ leads, onLeadsAssigned }: LeadsBulkAssignm
     console.log('Distributing equitably:', { totalLeads, baseQuantity, remainder });
 
     const newAssignments = gestorUsers.map((user, index) => ({
-      userId: user.id,
-      userName: user.name,
+      userId: user.Id,
+      userName: user.Name,
       quantity: baseQuantity + (index < remainder ? 1 : 0)
     }));
 
@@ -117,16 +117,16 @@ export function LeadsBulkAssignment({ leads, onLeadsAssigned }: LeadsBulkAssignm
   const addUserAssignment = () => {
     console.log('Adding user assignment');
     const availableUsers = gestorUsers.filter(user => 
-      !userAssignments.some(assignment => assignment.userId === user.id)
+      !userAssignments.some(assignment => assignment.userId === user.Id)
     );
     
     if (availableUsers.length > 0) {
       const newUser = availableUsers[0];
-      console.log('Adding user:', newUser.name);
+      console.log('Adding user:', newUser.Name);
       setUserAssignments(prev => {
         const updated = [...prev, {
-          userId: newUser.id,
-          userName: newUser.name,
+          userId: newUser.Id,
+          userName: newUser.Name,
           quantity: 0
         }];
         console.log('Updated assignments after add:', updated);
@@ -223,8 +223,8 @@ export function LeadsBulkAssignment({ leads, onLeadsAssigned }: LeadsBulkAssignm
       setAssignmentType("equitable");
       if (gestorUsers.length > 0) {
         setUserAssignments(gestorUsers.map(user => ({
-          userId: user.id,
-          userName: user.name,
+          userId: user.Id,
+          userName: user.Name,
           quantity: 0
         })));
       }
@@ -277,7 +277,7 @@ export function LeadsBulkAssignment({ leads, onLeadsAssigned }: LeadsBulkAssignm
         </div>
 
         {/* Información de leads disponibles */}
-        <div className="p-4 bg-blue-50 rounded-lg">
+        <div className="p-4 bg-blue-50 rounded-xl">
           <p className="text-sm text-blue-800">
             <strong>Leads nuevos disponibles:</strong> {filteredLeads.length}
           </p>
@@ -338,7 +338,7 @@ export function LeadsBulkAssignment({ leads, onLeadsAssigned }: LeadsBulkAssignm
 
           <div className="space-y-3 max-h-60 overflow-y-auto">
             {userAssignments.map((assignment) => (
-              <div key={assignment.userId} className="flex items-center gap-3 p-3 border rounded-lg">
+              <div key={assignment.userId} className="flex items-center gap-3 p-3 border rounded-xl">
                 <div className="flex-1">
                   <p className="font-medium">{assignment.userName}</p>
                 </div>
@@ -375,7 +375,7 @@ export function LeadsBulkAssignment({ leads, onLeadsAssigned }: LeadsBulkAssignm
           </div>
 
           {/* Resumen */}
-          <div className="p-3 bg-gray-50 rounded-lg">
+          <div className="p-3 bg-gray-50 rounded-xl">
             <div className="flex justify-between text-sm">
               <span>Total a asignar:</span>
               <span className="font-medium">{getTotalAssigned()}</span>

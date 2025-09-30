@@ -35,6 +35,8 @@ export interface IOpportunity {
     estimatedSales: number;
   };
   isHighlighted: boolean;
+  isFavorite: boolean;
+  isActive: boolean;
   createdAt: string;
   expiresAt?: string;
 }
@@ -89,6 +91,7 @@ export interface OpportunityStats {
   totalCustomers: number;
   favoritesCount: number;
   avgScore: number;
+  totalCommissionPotential: number;
 }
 
 export const OPPORTUNITY_TYPE_LABELS: Record<OpportunityType, string> = {

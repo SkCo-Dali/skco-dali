@@ -1,4 +1,4 @@
-export type UserRole = 'admin' | 'manager' | 'agent' | 'viewer' | 'supervisor' | 'analista' | 'gestor' | 'fp' | 'seguridad' | 'director' | 'promotor' | 'aliado' | 'socio';
+export type UserRole = 'admin' | 'manager' | 'agent' | 'viewer' | 'supervisor' | 'analista' | 'gestor' | 'fp' | 'seguridad' | 'director' | 'promotor' | 'aliado' | 'socio' | 'ais';
 
 export interface User {
   id: string;
@@ -34,6 +34,9 @@ export interface RolePermissions {
   canBulkAssignLeads?: boolean;
   canAccessUserManagement?: boolean;
   canAssignRoles?: boolean;
+  canSendEmail?: boolean;
+  canSendWhatsApp?: boolean;
+  canSendmassiveWhatsApp?: boolean;
   accessiblePages: string[];
 }
 
@@ -55,7 +58,10 @@ export const getRolePermissions = (role: UserRole): RolePermissions => {
         canBulkAssignLeads: true,
         canAccessUserManagement: true,
         canAssignRoles: true,
-        accessiblePages: ['dashboard', 'leads', 'ChatDali','opportunities','gamification', 'reports', 'informes', 'users', 'settings','index']
+        canSendEmail: true,
+        canSendWhatsApp: true,
+        canSendmassiveWhatsApp: true,
+        accessiblePages: ['dashboard', 'leads', 'ChatDali','opportunities','gamification', 'reports', 'informes', 'users', 'settings','index', 'comisiones', 'motor-comisiones']
       };
     case 'manager':
     case 'supervisor':
@@ -71,11 +77,13 @@ export const getRolePermissions = (role: UserRole): RolePermissions => {
         canBulkAssignLeads: true,
         canAccessUserManagement: false,
         canAssignRoles: false,
+        canSendEmail: true,
+        canSendWhatsApp: true,
+        canSendmassiveWhatsApp: false,
         accessiblePages: ['leads', 'ChatDali', 'reports']
       };
     case 'agent':
     case 'gestor':
-    case 'fp':
     case 'promotor':
     case 'aliado':
     case 'socio':
@@ -92,13 +100,16 @@ export const getRolePermissions = (role: UserRole): RolePermissions => {
         canBulkAssignLeads: true,
         canAccessUserManagement: false,
         canAssignRoles: false,
+        canSendEmail: true,
+        canSendWhatsApp: true,
+        canSendmassiveWhatsApp: false,
         accessiblePages: ['leads', 'ChatDali']
       };
-    case 'analista':
+    case 'fp':
       return {
-        canCreate: false,
-        canEdit: false,
-        canDelete: false,
+        canCreate: true,
+        canEdit: true,
+        canDelete: true,
         canAssign: false,
         canViewAll: false,
         canManageUsers: false,
@@ -107,8 +118,29 @@ export const getRolePermissions = (role: UserRole): RolePermissions => {
         canBulkAssignLeads: false,
         canAccessUserManagement: false,
         canAssignRoles: false,
-        accessiblePages: ['leads', 'ChatDali', 'reports']
-      }; 
+        canSendEmail: true,
+        canSendWhatsApp: true,
+        canSendmassiveWhatsApp: false,
+        accessiblePages: ['leads', 'ChatDali']
+      };
+    case 'analista':
+      return {
+        canCreate: false,
+        canEdit: false,
+        canDelete: false,
+        canAssign: false,
+        canViewAll: true,
+        canManageUsers: false,
+        canAccessReports: true,
+        canUploadLeads: false,
+        canBulkAssignLeads: false,
+        canAccessUserManagement: false,
+        canAssignRoles: false,
+        canSendEmail: false,
+        canSendWhatsApp: false,
+        canSendmassiveWhatsApp: false,
+        accessiblePages: ['leads', 'reports']
+      };
     case 'viewer':
     case 'seguridad':
       return {
@@ -123,6 +155,9 @@ export const getRolePermissions = (role: UserRole): RolePermissions => {
         canBulkAssignLeads: false,
         canAccessUserManagement: false,
         canAssignRoles: false,
+        canSendEmail: true,
+        canSendWhatsApp: true,
+        canSendmassiveWhatsApp: false,
         accessiblePages: ['leads', 'ChatDali']
       };
     default:
@@ -138,6 +173,9 @@ export const getRolePermissions = (role: UserRole): RolePermissions => {
         canBulkAssignLeads: false,
         canAccessUserManagement: false,
         canAssignRoles: false,
+        canSendEmail: false,
+        canSendWhatsApp: false,
+        canSendmassiveWhatsApp: false,
         accessiblePages: ['dashboard']
       };
   }
@@ -157,7 +195,8 @@ export const getRoleDisplayName = (role: UserRole): string => {
     director: 'Director',
     promotor: 'Promotor',
     aliado: 'Aliado',
-    socio: 'Socio'
+    socio: 'Socio',
+    ais: 'AIS'
   };
   return roleDisplayMap[role] || role;
 };
@@ -203,6 +242,11 @@ export interface Lead {
   tags?: string[];
   nextFollowUp?: string; // Changed to string for consistency
   campaignOwnerName?: string;
+  alternateEmail?: string; // Email Alternativo
+  lastGestorName?: string; // Últ Gestor Asignado
+  lastGestorInteractionAt?: string; // Últ Fecha de Interaccion Gestor
+  lastGestorInteractionStage?: string; // Últ Estado Gestor
+  lastGestorInteractionDescription?: string; // Últ Descripción Gestor
   interactions?: Interaction[];
   [key: string]: any;
 }

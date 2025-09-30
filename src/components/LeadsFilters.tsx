@@ -6,9 +6,13 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { useUsersApi } from "@/hooks/useUsersApi";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { useAssignableUsers } from "@/contexts/AssignableUsersContext";
 import { useIsMobile, useIsMedium } from "@/hooks/use-mobile";
-import { FilterX, Search } from "lucide-react";
+import { FilterX, Search, Calendar as CalendarIcon } from "lucide-react";
+import { format } from "date-fns";
+import { cn } from "@/lib/utils";
 
 interface LeadsFiltersProps {
   searchTerm: string;
@@ -77,7 +81,7 @@ export function LeadsFilters({
   duplicateCount = 0,
   showClearButton = true
 }: LeadsFiltersProps) {
-  const { users } = useUsersApi();
+  const { users } = useAssignableUsers();
   const isMobile = useIsMobile();
   const isMedium = useIsMedium();
   const isSmallScreen = isMobile || isMedium;
@@ -145,7 +149,7 @@ export function LeadsFilters({
   );
 
   const filteredUsers = users.filter(user => 
-    user.name.toLowerCase().includes(userSearch.toLowerCase())
+    user.Name.toLowerCase().includes(userSearch.toLowerCase())
   );
 
   const filteredSources = uniqueSources.filter(source => 
@@ -249,20 +253,20 @@ export function LeadsFilters({
                         placeholder="Buscar usuario..."
                         value={userSearch}
                         onChange={(e) => setUserSearch(e.target.value)}
-                        className="pl-8 h-6 text-xs"
+                        className="pl-2 h-6 text-xs"
                       />
                     </div>
                   </div>
                   <ScrollArea className="h-32">
                     {filteredUsers.map((user) => (
-                      <div key={user.id} className="flex items-center space-x-2 px-2 py-1">
-                        <Checkbox
-                          id={`user-${user.id}`}
-                          checked={Array.isArray(filterAssignedTo) ? filterAssignedTo.includes(user.id) : filterAssignedTo === user.id}
-                          onCheckedChange={() => setFilterAssignedTo(handleMultiSelectValue(filterAssignedTo, user.id))}
-                        />
-                        <label htmlFor={`user-${user.id}`} className="text-sm cursor-pointer flex-1">
-                          {user.name}
+                       <div key={user.Id} className="flex items-center space-x-2 px-2 py-1">
+                         <Checkbox
+                           id={`user-${user.Id}`}
+                           checked={Array.isArray(filterAssignedTo) ? filterAssignedTo.includes(user.Id) : filterAssignedTo === user.Id}
+                           onCheckedChange={() => setFilterAssignedTo(handleMultiSelectValue(filterAssignedTo, user.Id))}
+                         />
+                         <label htmlFor={`user-${user.Id}`} className="text-sm cursor-pointer flex-1">
+                           {user.Name}
                         </label>
                       </div>
                     ))}
@@ -296,7 +300,7 @@ export function LeadsFilters({
                         placeholder="Buscar fuente..."
                         value={sourceSearch}
                         onChange={(e) => setSourceSearch(e.target.value)}
-                        className="pl-8 h-6 text-xs"
+                        className="pl-2 h-6 text-xs"
                       />
                     </div>
                   </div>
@@ -343,7 +347,7 @@ export function LeadsFilters({
                         placeholder="Buscar campaña..."
                         value={campaignSearch}
                         onChange={(e) => setCampaignSearch(e.target.value)}
-                        className="pl-8 h-6 text-xs"
+                        className="pl-2 h-6 text-xs"
                       />
                     </div>
                   </div>
@@ -428,25 +432,87 @@ export function LeadsFilters({
           <div className="space-y-3 pt-3 border-t">
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-1">
-                <Label htmlFor="date-from" className="text-sm">Fecha desde</Label>
-                <Input
-                  type="date"
-                  value={filterDateFrom}
-                  onChange={(e) => setFilterDateFrom(e.target.value)}
-                  className="h-8 text-sm"
-                  placeholder="mm/dd/aaaa"
-                />
+                <Label className="text-sm">Fecha desde</Label>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className={cn(
+                        "w-full h-8 justify-start text-left font-normal text-sm",
+                        !filterDateFrom && "text-muted-foreground"
+                      )}
+                    >
+                      <CalendarIcon className="mr-2 h-4 w-4" />
+                      {filterDateFrom ? (() => {
+                        const [year, month, day] = filterDateFrom.split('-');
+                        return `${day}/${month}/${year}`;
+                      })() : "Seleccionar fecha"}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <Calendar
+                      mode="single"
+                      selected={filterDateFrom ? (() => {
+                        const [year, month, day] = filterDateFrom.split('-');
+                        return new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
+                      })() : undefined}
+                      onSelect={(date) => {
+                        if (date) {
+                          const year = date.getFullYear();
+                          const month = String(date.getMonth() + 1).padStart(2, '0');
+                          const day = String(date.getDate()).padStart(2, '0');
+                          setFilterDateFrom(`${year}-${month}-${day}`);
+                        } else {
+                          setFilterDateFrom("");
+                        }
+                      }}
+                      initialFocus
+                      className={cn("p-3 pointer-events-auto")}
+                    />
+                  </PopoverContent>
+                </Popover>
               </div>
 
               <div className="space-y-1">
-                <Label htmlFor="date-to" className="text-sm">Fecha hasta</Label>
-                <Input
-                  type="date"
-                  value={filterDateTo}
-                  onChange={(e) => setFilterDateTo(e.target.value)}
-                  className="h-8 text-sm"
-                  placeholder="mm/dd/aaaa"
-                />
+                <Label className="text-sm">Fecha hasta</Label>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className={cn(
+                        "w-full h-8 justify-start text-left font-normal text-sm",
+                        !filterDateTo && "text-muted-foreground"
+                      )}
+                    >
+                      <CalendarIcon className="mr-2 h-4 w-4" />
+                      {filterDateTo ? (() => {
+                        const [year, month, day] = filterDateTo.split('-');
+                        return `${day}/${month}/${year}`;
+                      })() : "Seleccionar fecha"}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <Calendar
+                      mode="single"
+                      selected={filterDateTo ? (() => {
+                        const [year, month, day] = filterDateTo.split('-');
+                        return new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
+                      })() : undefined}
+                      onSelect={(date) => {
+                        if (date) {
+                          const year = date.getFullYear();
+                          const month = String(date.getMonth() + 1).padStart(2, '0');
+                          const day = String(date.getDate()).padStart(2, '0');
+                          setFilterDateTo(`${year}-${month}-${day}`);
+                        } else {
+                          setFilterDateTo("");
+                        }
+                      }}
+                      initialFocus
+                      className={cn("p-3 pointer-events-auto")}
+                    />
+                  </PopoverContent>
+                </Popover>
               </div>
             </div>
 

@@ -1,16 +1,15 @@
-
 import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { UserAssigneeSelect } from "@/components/UserAssigneeSelect";
 import { Lead, User } from "@/types/crm";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
-import { getAssignableUsers, AssignableUser } from "@/utils/leadAssignmentApiClient";
+import { getAllUsers } from "@/utils/userApiClient";
 import { useLeadAssignments } from "@/hooks/useLeadAssignments";
-import { UserCheck, X } from "lucide-react";
+import { UserCheck } from "lucide-react";
 
 interface LeadReassignDialogProps {
   lead: Lead | null;
@@ -23,12 +22,13 @@ export function LeadReassignDialog({ lead, isOpen, onClose, onSuccess }: LeadRea
   const [selectedUserId, setSelectedUserId] = useState<string>("");
   const [reason, setReason] = useState<string>("No informa");
   const [notes, setNotes] = useState<string>("Sin info");
-  const [assignableUsers, setAssignableUsers] = useState<AssignableUser[]>([]);
+  const [assignableUsers, setAssignableUsers] = useState<User[]>([]);
   const [loadingUsers, setLoadingUsers] = useState(false);
   
   const { toast } = useToast();
   const { user: currentUser } = useAuth();
   const { loading: reassignLoading, handleReassignLead } = useLeadAssignments();
+
 
   useEffect(() => {
     const fetchAssignableUsers = async () => {
@@ -37,10 +37,12 @@ export function LeadReassignDialog({ lead, isOpen, onClose, onSuccess }: LeadRea
       setLoadingUsers(true);
       try {
         console.log('🔄 Cargando usuarios asignables para reasignación desde API...');
-        const users = await getAssignableUsers();
+        const users = await getAllUsers();
         
-        // Filtrar el usuario actual al que ya está asignado el lead
-        const filteredUsers = users.filter(user => user.Id !== lead?.assignedTo);
+        // Filtrar solo usuarios activos y que no sea el usuario actual asignado
+        const filteredUsers = users.filter(user => 
+          user.isActive && user.id !== lead?.assignedTo
+        );
         
         console.log('✅ Usuarios asignables cargados para reasignación:', filteredUsers.length);
         setAssignableUsers(filteredUsers);
@@ -48,7 +50,7 @@ export function LeadReassignDialog({ lead, isOpen, onClose, onSuccess }: LeadRea
         console.error('❌ Error cargando usuarios asignables:', error);
         toast({
           title: "Error",
-          description: "No se pudieron cargar los usuarios disponibles",
+          description: "Error al cargar usuarios asignables",
           variant: "destructive"
         });
       } finally {
@@ -83,7 +85,8 @@ export function LeadReassignDialog({ lead, isOpen, onClose, onSuccess }: LeadRea
         lead.id,
         selectedUserId,
         reason.trim(),
-        notes.trim()
+        notes.trim(),
+        lead.stage
       );
 
       if (success) {
@@ -126,7 +129,7 @@ export function LeadReassignDialog({ lead, isOpen, onClose, onSuccess }: LeadRea
 
         <div className="space-y-4">
           {lead && (
-            <div className="p-3 bg-gray-50 rounded-lg">
+            <div className="p-3 bg-gray-50 rounded-xl">
               <p className="font-medium">{lead.name}</p>
               <p className="text-sm text-gray-600">{lead.email}</p>
             </div>
@@ -134,24 +137,13 @@ export function LeadReassignDialog({ lead, isOpen, onClose, onSuccess }: LeadRea
 
           <div>
             <Label htmlFor="newUser">Nuevo Usuario Asignado</Label>
-            <Select 
-              value={selectedUserId} 
-              onValueChange={setSelectedUserId}
-              disabled={loadingUsers || reassignLoading}
-            >
-              <SelectTrigger>
-                <SelectValue
-                  placeholder={loadingUsers ? "Cargando usuarios..." : "Seleccionar usuario"}
-                />
-              </SelectTrigger>
-              <SelectContent>
-                {assignableUsers.map((user) => (
-                  <SelectItem key={user.Id} value={user.Id}>
-                    {user.Name} ({user.Email}) - {user.Role}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <UserAssigneeSelect
+              value={selectedUserId}
+              users={assignableUsers}
+              loading={loadingUsers}
+              onSelect={setSelectedUserId}
+              placeholder={loadingUsers ? "Cargando usuarios..." : "Seleccionar usuario"}
+            />
           </div>
 
           <div>

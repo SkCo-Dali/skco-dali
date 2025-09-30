@@ -5,51 +5,47 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
-import { PowerBIReport } from './PowerBIReportsAdmin';
+import { Report } from '@/types/powerbi';
 
 interface CreateReportDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onCreateReport: (report: Omit<PowerBIReport, 'id' | 'createdAt' | 'updatedAt'>) => void;
+  onCreateReport: (report: Omit<Report, 'id' | 'createdAt' | 'updatedAt'>) => void;
 }
 
 export function CreateReportDialog({ open, onOpenChange, onCreateReport }: CreateReportDialogProps) {
   const [formData, setFormData] = useState({
     name: '',
     description: '',
-    reportId: '',
+    pbiReportId: '',
     workspaceId: '',
     isActive: true,
-    requiresRLS: false,
-    roles: [] as string[],
-    assignedUsers: [] as string[]
+    hasRowLevelSecurity: false,
+    pbiWorkspaceId: '',
+    datasetId: '',
+    webUrl: ''
   });
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!formData.name.trim() || !formData.reportId.trim() || !formData.workspaceId.trim()) {
+    if (!formData.name.trim() || !formData.pbiReportId.trim() || !formData.workspaceId.trim()) {
       return;
     }
 
-    // Build embed URL automatically
-    const embedUrl = `https://app.powerbi.com/reportEmbed?reportId=${formData.reportId}&groupId=${formData.workspaceId}`;
-
-    onCreateReport({
-      ...formData,
-      embedUrl
-    });
+    onCreateReport(formData);
     
     // Reset form
     setFormData({
       name: '',
       description: '',
-      reportId: '',
+      pbiReportId: '',
       workspaceId: '',
       isActive: true,
-      requiresRLS: false,
-      roles: [],
-      assignedUsers: []
+      hasRowLevelSecurity: false,
+      pbiWorkspaceId: '',
+      datasetId: '',
+      webUrl: ''
     });
   };
 
@@ -74,11 +70,11 @@ export function CreateReportDialog({ open, onOpenChange, onCreateReport }: Creat
             </div>
             
             <div className="space-y-2">
-              <Label htmlFor="reportId">Report ID *</Label>
+              <Label htmlFor="pbiReportId">Power BI Report ID *</Label>
               <Input
-                id="reportId"
-                value={formData.reportId}
-                onChange={(e) => setFormData(prev => ({ ...prev, reportId: e.target.value }))}
+                id="pbiReportId"
+                value={formData.pbiReportId}
+                onChange={(e) => setFormData(prev => ({ ...prev, pbiReportId: e.target.value }))}
                 placeholder="GUID del reporte en Power BI"
                 required
               />
@@ -107,7 +103,7 @@ export function CreateReportDialog({ open, onOpenChange, onCreateReport }: Creat
             />
           </div>
 
-          <div className="flex items-center justify-between p-4 border rounded-lg">
+          <div className="flex items-center justify-between p-4 border rounded-xl">
             <div className="space-y-1">
               <Label htmlFor="isActive">Reporte Activo</Label>
               <p className="text-sm text-muted-foreground">
@@ -121,17 +117,17 @@ export function CreateReportDialog({ open, onOpenChange, onCreateReport }: Creat
             />
           </div>
 
-          <div className="flex items-center justify-between p-4 border rounded-lg">
+          <div className="flex items-center justify-between p-4 border rounded-xl">
             <div className="space-y-1">
-              <Label htmlFor="requiresRLS">Requiere Row Level Security</Label>
+              <Label htmlFor="hasRowLevelSecurity">Requiere Row Level Security</Label>
               <p className="text-sm text-muted-foreground">
                 El reporte utiliza RLS para filtrar datos por usuario
               </p>
             </div>
             <Switch
-              id="requiresRLS"
-              checked={formData.requiresRLS}
-              onCheckedChange={(checked) => setFormData(prev => ({ ...prev, requiresRLS: checked }))}
+              id="hasRowLevelSecurity"
+              checked={formData.hasRowLevelSecurity}
+              onCheckedChange={(checked) => setFormData(prev => ({ ...prev, hasRowLevelSecurity: checked }))}
             />
           </div>
 
