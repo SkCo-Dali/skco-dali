@@ -126,15 +126,10 @@ export const usePaginatedLeadsApi = () => {
   const convertFiltersToApiFormat = useCallback((uiFilters: LeadsFiltersState): LeadsApiFilters => {
     const apiFilters: LeadsApiFilters = {};
 
-    // Convertir búsqueda global a filtros específicos de campos
-    if (uiFilters.searchTerm) {
-      // La búsqueda global se puede implementar como múltiples filtros OR
-      // Por ahora, usaremos contains en el campo Name
-      apiFilters.Name = {
-        op: 'contains',
-        value: uiFilters.searchTerm
-      };
-    }
+    // Convertir búsqueda global a filtros en múltiples campos
+    // La API no soporta OR nativo, así que aplicaremos el filtro client-side después
+    // Solo enviamos el término de búsqueda si hay otros filtros específicos
+    // De lo contrario, la búsqueda se aplicará en el resultado completo
 
     // Convertir filtros de columna
     Object.entries(uiFilters.columnFilters).forEach(([column, values]) => {
@@ -169,6 +164,22 @@ export const usePaginatedLeadsApi = () => {
     return apiFilters;
   }, []);
 
+  // Aplicar filtro de búsqueda client-side en múltiples campos
+  const applyClientSearchFilter = useCallback((leads: Lead[], searchTerm: string): Lead[] => {
+    if (!searchTerm) return leads;
+    
+    const searchLower = searchTerm.toLowerCase();
+    return leads.filter(lead => {
+      return (
+        lead.name?.toLowerCase().includes(searchLower) ||
+        lead.email?.toLowerCase().includes(searchLower) ||
+        lead.phone?.toLowerCase().includes(searchLower) ||
+        lead.documentNumber?.toString().includes(searchLower) ||
+        lead.campaign?.toLowerCase().includes(searchLower)
+      );
+    });
+  }, []);
+
   // Mapear nombres de columnas de UI a nombres de API
   const mapColumnNameToApi = (uiColumn: string): string => {
     const mapping: Record<string, string> = {
@@ -188,6 +199,7 @@ export const usePaginatedLeadsApi = () => {
       'nextFollowUp': 'NextFollowUp',
       'notes': 'Notes',
       'tags': 'Tags',
+      'documentNumber': 'DocumentNumber',
     };
     
     return mapping[uiColumn] || uiColumn;
@@ -257,7 +269,12 @@ export const usePaginatedLeadsApi = () => {
     try {
       console.log('🚀 Loading paginated leads with params:', apiParams);
       const response = await getReassignableLeadsPaginated(apiParams);
-      const mappedLeads = response.items.map(mapPaginatedLeadToLead);
+      let mappedLeads = response.items.map(mapPaginatedLeadToLead);
+
+      // Aplicar filtro de búsqueda client-side para buscar en múltiples campos
+      if (currentFilters.searchTerm) {
+        mappedLeads = applyClientSearchFilter(mappedLeads, currentFilters.searchTerm);
+      }
 
       setState(prev => ({
         ...prev,
