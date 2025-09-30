@@ -169,21 +169,34 @@ export const usePaginatedLeadsApi = () => {
       from?: string,
       to?: string
     ) => {
-      if (from && to) {
+      // Normalize boundaries to cover full days when UI provides date-only values
+      const normalizeFromStartOfDay = (d?: string) => {
+        if (!d) return undefined;
+        return d.length === 10 ? `${d}T00:00:00` : d;
+      };
+      const normalizeToEndOfDay = (d?: string) => {
+        if (!d) return undefined;
+        return d.length === 10 ? `${d}T23:59:59` : d;
+      };
+
+      const fromNormalized = normalizeFromStartOfDay(from);
+      const toNormalized = normalizeToEndOfDay(to);
+
+      if (fromNormalized && toNormalized) {
         apiFilters[field] = {
           op: 'between',
-          from,
-          to,
+          from: fromNormalized,
+          to: toNormalized,
         } as any;
-      } else if (from) {
+      } else if (fromNormalized) {
         apiFilters[field] = {
           op: 'gte',
-          value: from,
+          value: fromNormalized,
         } as any;
-      } else if (to) {
+      } else if (toNormalized) {
         apiFilters[field] = {
           op: 'lte',
-          value: to,
+          value: toNormalized,
         } as any;
       }
     };
