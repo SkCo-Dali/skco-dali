@@ -1151,7 +1151,7 @@ Notas adicionales: ${lead.notes || 'Ninguna'}`;
                           <div className="space-y-4">
                             {interactions.map((interaction) => (
                               <Card key={interaction.Id}>
-                                <CardContent className="pt-4">
+                                <CardContent className="pt-4 pb-4">
                                   <div className="flex items-start justify-between">
                                     <div className="flex items-start gap-3">
                                       <div className="p-2 rounded-full bg-blue-100 text-blue-600">
