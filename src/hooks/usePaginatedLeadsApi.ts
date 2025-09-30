@@ -126,31 +126,22 @@ export const usePaginatedLeadsApi = () => {
   const convertFiltersToApiFormat = useCallback((uiFilters: LeadsFiltersState): LeadsApiFilters => {
     const apiFilters: LeadsApiFilters = {};
 
-    // Convertir búsqueda global a filtros en múltiples campos
-    // La API no soporta OR nativo, así que aplicaremos el filtro client-side después
-    // Solo enviamos el término de búsqueda si hay otros filtros específicos
-    // De lo contrario, la búsqueda se aplicará en el resultado completo
+    // Extraer filtros de fecha especiales antes del procesamiento
+    const createdAtFrom = uiFilters.columnFilters.createdAt?.[0];
+    const createdAtTo = uiFilters.columnFilters.createdAtEnd?.[0];
 
     // Convertir filtros de columna
     Object.entries(uiFilters.columnFilters).forEach(([column, values]) => {
+      // Saltar filtros de fecha especiales, los manejaremos después
+      if (column === 'createdAt' || column === 'createdAtEnd') {
+        return;
+      }
+      
       if (values.length > 0) {
-        // Mapear nombres de columnas de UI a API si es necesario
+        // Mapear nombres de columnas de UI a API
         const apiColumn = mapColumnNameToApi(column);
         
-        // Manejar filtros de fecha especiales
-        if (column === 'createdAt') {
-          // Filtro de fecha "desde" (mayor o igual)
-          apiFilters[apiColumn] = {
-            op: 'gte',
-            value: values[0]
-          };
-        } else if (column === 'createdAtEnd') {
-          // Filtro de fecha "hasta" (menor o igual)
-          apiFilters['CreatedAt'] = {
-            op: 'lte',
-            value: values[0]
-          };
-        } else if (values.length === 1) {
+        if (values.length === 1) {
           apiFilters[apiColumn] = {
             op: 'eq',
             value: values[0]
@@ -163,6 +154,27 @@ export const usePaginatedLeadsApi = () => {
         }
       }
     });
+
+    // Manejar filtros de fecha combinados
+    if (createdAtFrom && createdAtTo) {
+      // Si hay ambos filtros, usar between
+      apiFilters['CreatedAt'] = {
+        op: 'between',
+        values: [createdAtFrom, createdAtTo]
+      };
+    } else if (createdAtFrom) {
+      // Solo filtro "desde"
+      apiFilters['CreatedAt'] = {
+        op: 'gte',
+        value: createdAtFrom
+      };
+    } else if (createdAtTo) {
+      // Solo filtro "hasta"
+      apiFilters['CreatedAt'] = {
+        op: 'lte',
+        value: createdAtTo
+      };
+    }
 
     // Convertir filtros de texto
     Object.entries(uiFilters.textFilters).forEach(([column, conditions]) => {

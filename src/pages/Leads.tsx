@@ -255,6 +255,10 @@ export default function Leads() {
       columnFilters: {},
       textFilters: {},
     });
+    setUniqueStages([]);
+    setUniqueSources([]);
+    setUniqueCampaigns([]);
+    setUniqueAssignedTo([]);
   }, [updateFilters]);
 
   // Variables de compatibilidad para filtros (valores actuales)
