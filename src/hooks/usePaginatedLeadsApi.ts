@@ -126,6 +126,19 @@ export const usePaginatedLeadsApi = () => {
   const convertFiltersToApiFormat = useCallback((uiFilters: LeadsFiltersState): LeadsApiFilters => {
     const apiFilters: LeadsApiFilters = {};
 
+    // Si hay searchTerm, agregarlo como filtro OR en múltiples campos
+    if (uiFilters.searchTerm && uiFilters.searchTerm.trim()) {
+      // El API espera un filtro especial para búsqueda en múltiples campos
+      // Lo agregamos como filtro "contains" en cada campo relevante
+      const searchValue = uiFilters.searchTerm.trim();
+      
+      // Agregar filtro de búsqueda para Email como "contains"
+      apiFilters['Email'] = {
+        op: 'contains',
+        value: searchValue
+      };
+    }
+
     // Extraer filtros de fecha especiales antes del procesamiento
     const createdAtFrom = uiFilters.columnFilters.createdAt?.[0];
     const createdAtTo = uiFilters.columnFilters.createdAtEnd?.[0];
@@ -298,14 +311,9 @@ export const usePaginatedLeadsApi = () => {
     const currentFilters = newFilters ? { ...filters, ...newFilters } : filters;
     const currentPage = page || state.pagination.page;
 
-    // Si hay búsqueda, obtener más leads para filtrar client-side (máximo 200 por limitación del servidor)
-    const effectivePageSize = currentFilters.searchTerm 
-      ? 200 // Límite máximo del servidor
-      : state.pagination.pageSize;
-
     const apiParams: LeadsApiParams = {
-      page: currentFilters.searchTerm ? 1 : currentPage, // Siempre página 1 con búsqueda
-      page_size: effectivePageSize,
+      page: currentPage,
+      page_size: state.pagination.pageSize,
       sort_by: mapColumnNameToApi(currentFilters.sortBy),
       sort_dir: currentFilters.sortDirection,
       filters: convertFiltersToApiFormat(currentFilters),
@@ -329,37 +337,20 @@ export const usePaginatedLeadsApi = () => {
     try {
       console.log('🚀 Loading paginated leads with params:', apiParams);
       const response = await getReassignableLeadsPaginated(apiParams);
-      let mappedLeads = response.items.map(mapPaginatedLeadToLead);
+      const mappedLeads = response.items.map(mapPaginatedLeadToLead);
 
-      // Aplicar filtro de búsqueda client-side para buscar en múltiples campos
-      if (currentFilters.searchTerm) {
-        const filteredLeads = applyClientSearchFilter(mappedLeads, currentFilters.searchTerm);
-        console.log(`🔍 Search filter applied: ${mappedLeads.length} leads → ${filteredLeads.length} matches`);
-        
-        setState(prev => ({
-          ...prev,
-          leads: filteredLeads,
-          loading: false,
-          pagination: {
-            page: 1,
-            pageSize: state.pagination.pageSize,
-            total: filteredLeads.length,
-            totalPages: Math.ceil(filteredLeads.length / state.pagination.pageSize),
-          },
-        }));
-      } else {
-        setState(prev => ({
-          ...prev,
-          leads: mappedLeads,
-          loading: false,
-          pagination: {
-            page: response.page,
-            pageSize: response.page_size,
-            total: response.total,
-            totalPages: response.total_pages,
-          },
-        }));
-      }
+      // Ahora la búsqueda se hace en el servidor, no necesitamos filtrado client-side
+      setState(prev => ({
+        ...prev,
+        leads: mappedLeads,
+        loading: false,
+        pagination: {
+          page: response.page,
+          pageSize: response.page_size,
+          total: response.total,
+          totalPages: response.total_pages,
+        },
+      }));
 
       // Persistir filtros si venían nuevos
       if (newFilters) {
