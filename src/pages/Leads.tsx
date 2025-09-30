@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useMemo, useRef } from "react";
+import React, { useState, useCallback, useMemo, useRef, useEffect } from "react";
 import { useToast } from '@/hooks/use-toast';
 import { Lead, getRolePermissions } from "@/types/crm";
 import { useAuth } from '@/contexts/AuthContext';
@@ -173,32 +173,131 @@ export default function Leads() {
   };
   const setLeadsPerPage = (size: number) => setPageSize(size);
   
-  // Variables placeholder para componentes que las requieren (se actualizarán gradualmente)
-  const filterStage = "all";
-  const setFilterStage = () => {};
-  const filterPriority = "all";
-  const setFilterPriority = () => {};
-  const filterAssignedTo = "all";
-  const setFilterAssignedTo = () => {};
-  const filterSource = "all";
-  const setFilterSource = () => {};
-  const filterCampaign = "all";
-  const setFilterCampaign = () => {};
-  const filterDateFrom = "";
-  const setFilterDateFrom = () => {};
-  const filterDateTo = "";
-  const setFilterDateTo = () => {};
+  // Estados para filtros
+  const [uniqueStages, setUniqueStages] = useState<string[]>([]);
+  const [uniqueSources, setUniqueSources] = useState<string[]>([]);
+  const [uniqueCampaigns, setUniqueCampaigns] = useState<string[]>([]);
+  const [uniqueAssignedTo, setUniqueAssignedTo] = useState<string[]>([]);
+
+  // Cargar valores únicos para filtros
+  useEffect(() => {
+    const loadUniqueValues = async () => {
+      const [stages, sources, campaigns, assignedTo] = await Promise.all([
+        getUniqueValues('stage'),
+        getUniqueValues('source'),
+        getUniqueValues('campaign'),
+        getUniqueValues('assignedTo'),
+      ]);
+      
+      setUniqueStages(stages.filter(Boolean) as string[]);
+      setUniqueSources(sources.filter(Boolean) as string[]);
+      setUniqueCampaigns(campaigns.filter(Boolean) as string[]);
+      setUniqueAssignedTo(assignedTo.filter(Boolean) as string[]);
+    };
+    
+    loadUniqueValues();
+  }, [getUniqueValues]);
+
+  // Handlers para filtros generales
+  const setFilterStage = useCallback((stage: string | string[]) => {
+    const stageArray = stage === "all" ? [] : (Array.isArray(stage) ? stage : [stage]);
+    updateFilters({
+      columnFilters: {
+        ...filters.columnFilters,
+        stage: stageArray
+      }
+    });
+  }, [updateFilters, filters.columnFilters]);
+
+  const setFilterPriority = useCallback((priority: string | string[]) => {
+    const priorityArray = priority === "all" ? [] : (Array.isArray(priority) ? priority : [priority]);
+    updateFilters({
+      columnFilters: {
+        ...filters.columnFilters,
+        priority: priorityArray
+      }
+    });
+  }, [updateFilters, filters.columnFilters]);
+
+  const setFilterAssignedTo = useCallback((assignedTo: string | string[]) => {
+    const assignedToArray = assignedTo === "all" ? [] : (Array.isArray(assignedTo) ? assignedTo : [assignedTo]);
+    updateFilters({
+      columnFilters: {
+        ...filters.columnFilters,
+        assignedTo: assignedToArray
+      }
+    });
+  }, [updateFilters, filters.columnFilters]);
+
+  const setFilterSource = useCallback((source: string | string[]) => {
+    const sourceArray = source === "all" ? [] : (Array.isArray(source) ? source : [source]);
+    updateFilters({
+      columnFilters: {
+        ...filters.columnFilters,
+        source: sourceArray
+      }
+    });
+  }, [updateFilters, filters.columnFilters]);
+
+  const setFilterCampaign = useCallback((campaign: string | string[]) => {
+    const campaignArray = campaign === "all" ? [] : (Array.isArray(campaign) ? campaign : [campaign]);
+    updateFilters({
+      columnFilters: {
+        ...filters.columnFilters,
+        campaign: campaignArray
+      }
+    });
+  }, [updateFilters, filters.columnFilters]);
+
+  const clearFilters = useCallback(() => {
+    updateFilters({
+      searchTerm: '',
+      columnFilters: {},
+      textFilters: {},
+    });
+    setUniqueStages([]);
+    setUniqueSources([]);
+    setUniqueCampaigns([]);
+    setUniqueAssignedTo([]);
+  }, [updateFilters]);
+
+  // Variables de compatibilidad para filtros (valores actuales)
+  const filterStage = filters.columnFilters.stage?.length > 0 ? filters.columnFilters.stage : "all";
+  const filterPriority = filters.columnFilters.priority?.length > 0 ? filters.columnFilters.priority : "all";
+  const filterAssignedTo = filters.columnFilters.assignedTo?.length > 0 ? filters.columnFilters.assignedTo : "all";
+  const filterSource = filters.columnFilters.source?.length > 0 ? filters.columnFilters.source : "all";
+  const filterCampaign = filters.columnFilters.campaign?.length > 0 ? filters.columnFilters.campaign : "all";
+  
+  // Filtros de fecha
+  const filterDateFrom = filters.columnFilters.createdAt?.[0] || "";
+  const setFilterDateFrom = useCallback((date: string) => {
+    updateFilters({
+      columnFilters: {
+        ...filters.columnFilters,
+        createdAt: date ? [date] : []
+      }
+    });
+  }, [updateFilters, filters.columnFilters]);
+  
+  const filterDateTo = filters.columnFilters.createdAtEnd?.[0] || "";
+  const setFilterDateTo = useCallback((date: string) => {
+    updateFilters({
+      columnFilters: {
+        ...filters.columnFilters,
+        createdAtEnd: date ? [date] : []
+      }
+    });
+  }, [updateFilters, filters.columnFilters]);
+  
+  // Filtros de valor (placeholder)
   const filterValueMin = "";
   const setFilterValueMin = () => {};
   const filterValueMax = "";
   const setFilterValueMax = () => {};
+  
+  // Filtro de duplicados (placeholder)
   const filterDuplicates = "all";
   const setFilterDuplicates = () => {};
-  const clearFilters = () => {};
-  const uniqueStages: string[] = [];
-  const uniqueSources: string[] = [];
-  const uniqueCampaigns: string[] = [];
-  const uniqueAssignedTo: string[] = [];
   const duplicateCount = 0;
 
   // Handlers para filtros
@@ -207,12 +306,81 @@ export default function Leads() {
   }, [updateFilters]);
 
   const handleColumnFilterChange = useCallback((column: string, selectedValues: string[]) => {
-    updateFilters({
-      columnFilters: {
-        ...filters.columnFilters,
-        [column]: selectedValues
-      }
-    });
+    const dateColumns = new Set(['createdAt', 'updatedAt', 'nextFollowUp', 'lastInteraction']);
+    const normCol = column === 'lastInteraction' ? 'updatedAt' : column;
+
+    if (dateColumns.has(normCol)) {
+      const parseRange = (values: string[]) => {
+        let from: string | undefined;
+        let to: string | undefined;
+
+        const custom = values.find(v => v.startsWith('custom:'));
+        if (custom) {
+          try {
+            const payload = JSON.parse(custom.replace('custom:', ''));
+            from = payload.startDate || undefined;
+            to = payload.endDate || payload.startDate || undefined;
+          } catch {}
+        }
+
+        const dayRegex = /^\d{4}-\d{2}-\d{2}$/;
+        const days = values.filter(v => dayRegex.test(v)).sort();
+        if (days.length > 0) {
+          from = from ? (from < days[0] ? from : days[0]) : days[0];
+          to = to ? (to > days[days.length - 1] ? to : days[days.length - 1]) : days[days.length - 1];
+        }
+
+        const yearRe = /^year:(\d{4})$/;
+        values.forEach(v => {
+          const m = v.match(yearRe);
+          if (m) {
+            const y = m[1];
+            const yFrom = `${y}-01-01`;
+            const yTo = `${y}-12-31`;
+            from = from ? (from < yFrom ? from : yFrom) : yFrom;
+            to = to ? (to > yTo ? to : yTo) : yTo;
+          }
+        });
+
+        const monthRe = /^month:(\d{4})-(\d{2})$/;
+        values.forEach(v => {
+          const m = v.match(monthRe);
+          if (m) {
+            const y = m[1];
+            const mm = m[2];
+            const mFrom = `${y}-${mm}-01`;
+            const thirtyOne = ['01','03','05','07','08','10','12'];
+            const thirty = ['04','06','09','11'];
+            let last = '30';
+            if (thirtyOne.includes(mm)) last = '31';
+            else if (thirty.includes(mm)) last = '30';
+            else last = '28';
+            const mTo = `${y}-${mm}-${last}`;
+            from = from ? (from < mFrom ? from : mFrom) : mFrom;
+            to = to ? (to > mTo ? to : mTo) : mTo;
+          }
+        });
+
+        return { from, to };
+      };
+
+      const { from, to } = parseRange(selectedValues);
+
+      updateFilters({
+        columnFilters: {
+          ...filters.columnFilters,
+          [normCol]: from ? [from] : [],
+          [`${normCol}End`]: to ? [to] : []
+        }
+      });
+    } else {
+      updateFilters({
+        columnFilters: {
+          ...filters.columnFilters,
+          [normCol]: selectedValues
+        }
+      });
+    }
   }, [updateFilters, filters.columnFilters]);
 
   const handleTextFilterChange = useCallback((column: string, conditions: any[]) => {
@@ -226,9 +394,16 @@ export default function Leads() {
 
   const clearColumnFilter = useCallback((column: string) => {
     const newColumnFilters = { ...filters.columnFilters };
+    const effectiveKey = column === 'lastInteraction' ? 'updatedAt' : column;
+    
     delete newColumnFilters[column];
+    delete newColumnFilters[effectiveKey];
+    delete newColumnFilters[`${column}End`];
+    delete newColumnFilters[`${effectiveKey}End`];
+    
     const newTextFilters = { ...filters.textFilters };
     delete newTextFilters[column];
+    delete newTextFilters[effectiveKey];
     
     updateFilters({
       columnFilters: newColumnFilters,
@@ -237,8 +412,13 @@ export default function Leads() {
   }, [updateFilters, filters.columnFilters, filters.textFilters]);
 
   const hasFiltersForColumn = useCallback((column: string) => {
+    const effectiveKey = column === 'lastInteraction' ? 'updatedAt' : column;
     return (filters.columnFilters[column] && filters.columnFilters[column].length > 0) ||
-           (filters.textFilters[column] && filters.textFilters[column].length > 0);
+           (filters.columnFilters[effectiveKey] && filters.columnFilters[effectiveKey].length > 0) ||
+           (filters.columnFilters[`${column}End`] && filters.columnFilters[`${column}End`].length > 0) ||
+           (filters.columnFilters[`${effectiveKey}End`] && filters.columnFilters[`${effectiveKey}End`].length > 0) ||
+           (filters.textFilters[column] && filters.textFilters[column].length > 0) ||
+           (filters.textFilters[effectiveKey] && filters.textFilters[effectiveKey].length > 0);
   }, [filters.columnFilters, filters.textFilters]);
 
   const handleLeadClick = useCallback((lead: Lead) => {

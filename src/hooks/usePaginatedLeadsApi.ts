@@ -126,20 +126,27 @@ export const usePaginatedLeadsApi = () => {
   const convertFiltersToApiFormat = useCallback((uiFilters: LeadsFiltersState): LeadsApiFilters => {
     const apiFilters: LeadsApiFilters = {};
 
-    // Convertir búsqueda global a filtros específicos de campos
-    if (uiFilters.searchTerm) {
-      // La búsqueda global se puede implementar como múltiples filtros OR
-      // Por ahora, usaremos contains en el campo Name
-      apiFilters.Name = {
-        op: 'contains',
-        value: uiFilters.searchTerm
-      };
-    }
+    // Extraer filtros de fecha especiales antes del procesamiento
+    const createdAtFrom = uiFilters.columnFilters.createdAt?.[0];
+    const createdAtTo = uiFilters.columnFilters.createdAtEnd?.[0];
+    const updatedAtFrom = uiFilters.columnFilters.updatedAt?.[0];
+    const updatedAtTo = uiFilters.columnFilters.updatedAtEnd?.[0];
+    const nextFollowUpFrom = uiFilters.columnFilters.nextFollowUp?.[0];
+    const nextFollowUpTo = uiFilters.columnFilters.nextFollowUpEnd?.[0];
 
-    // Convertir filtros de columna
+    // Convertir filtros de columna (excepto fechas especiales)
     Object.entries(uiFilters.columnFilters).forEach(([column, values]) => {
+      // Saltar filtros de fecha especiales, los manejaremos después
+      if (
+        column === 'createdAt' || column === 'createdAtEnd' ||
+        column === 'updatedAt' || column === 'updatedAtEnd' ||
+        column === 'nextFollowUp' || column === 'nextFollowUpEnd'
+      ) {
+        return;
+      }
+      
       if (values.length > 0) {
-        // Mapear nombres de columnas de UI a API si es necesario
+        // Mapear nombres de columnas de UI a API
         const apiColumn = mapColumnNameToApi(column);
         
         if (values.length === 1) {
@@ -156,6 +163,49 @@ export const usePaginatedLeadsApi = () => {
       }
     });
 
+    // Helper para asignar filtros de fecha
+    const applyDateFilter = (
+      field: 'CreatedAt' | 'UpdatedAt' | 'NextFollowUp',
+      from?: string,
+      to?: string
+    ) => {
+      // Normalize boundaries to cover full days when UI provides date-only values
+      const normalizeFromStartOfDay = (d?: string) => {
+        if (!d) return undefined;
+        return d.length === 10 ? `${d}T00:00:00` : d;
+      };
+      const normalizeToEndOfDay = (d?: string) => {
+        if (!d) return undefined;
+        return d.length === 10 ? `${d}T23:59:59` : d;
+      };
+
+      const fromNormalized = normalizeFromStartOfDay(from);
+      const toNormalized = normalizeToEndOfDay(to);
+
+      if (fromNormalized && toNormalized) {
+        apiFilters[field] = {
+          op: 'between',
+          from: fromNormalized,
+          to: toNormalized,
+        } as any;
+      } else if (fromNormalized) {
+        apiFilters[field] = {
+          op: 'gte',
+          value: fromNormalized,
+        } as any;
+      } else if (toNormalized) {
+        apiFilters[field] = {
+          op: 'lte',
+          value: toNormalized,
+        } as any;
+      }
+    };
+
+    // Manejar filtros de fecha combinados
+    applyDateFilter('CreatedAt', createdAtFrom, createdAtTo);
+    applyDateFilter('UpdatedAt', updatedAtFrom, updatedAtTo);
+    applyDateFilter('NextFollowUp', nextFollowUpFrom, nextFollowUpTo);
+
     // Convertir filtros de texto
     Object.entries(uiFilters.textFilters).forEach(([column, conditions]) => {
       if (conditions.length > 0) {
@@ -167,6 +217,22 @@ export const usePaginatedLeadsApi = () => {
     });
 
     return apiFilters;
+  }, []);
+
+  // Aplicar filtro de búsqueda client-side en múltiples campos
+  const applyClientSearchFilter = useCallback((leads: Lead[], searchTerm: string): Lead[] => {
+    if (!searchTerm) return leads;
+    
+    const searchLower = searchTerm.toLowerCase();
+    return leads.filter(lead => {
+      return (
+        lead.name?.toLowerCase().includes(searchLower) ||
+        lead.email?.toLowerCase().includes(searchLower) ||
+        lead.phone?.toLowerCase().includes(searchLower) ||
+        lead.documentNumber?.toString().includes(searchLower) ||
+        lead.campaign?.toLowerCase().includes(searchLower)
+      );
+    });
   }, []);
 
   // Mapear nombres de columnas de UI a nombres de API
@@ -188,6 +254,7 @@ export const usePaginatedLeadsApi = () => {
       'nextFollowUp': 'NextFollowUp',
       'notes': 'Notes',
       'tags': 'Tags',
+      'documentNumber': 'DocumentNumber',
     };
     
     return mapping[uiColumn] || uiColumn;
@@ -231,9 +298,14 @@ export const usePaginatedLeadsApi = () => {
     const currentFilters = newFilters ? { ...filters, ...newFilters } : filters;
     const currentPage = page || state.pagination.page;
 
+    // Si hay búsqueda, obtener más leads para filtrar client-side (máximo 200 por limitación del servidor)
+    const effectivePageSize = currentFilters.searchTerm 
+      ? 200 // Límite máximo del servidor
+      : state.pagination.pageSize;
+
     const apiParams: LeadsApiParams = {
-      page: currentPage,
-      page_size: state.pagination.pageSize,
+      page: currentFilters.searchTerm ? 1 : currentPage, // Siempre página 1 con búsqueda
+      page_size: effectivePageSize,
       sort_by: mapColumnNameToApi(currentFilters.sortBy),
       sort_dir: currentFilters.sortDirection,
       filters: convertFiltersToApiFormat(currentFilters),
@@ -257,19 +329,37 @@ export const usePaginatedLeadsApi = () => {
     try {
       console.log('🚀 Loading paginated leads with params:', apiParams);
       const response = await getReassignableLeadsPaginated(apiParams);
-      const mappedLeads = response.items.map(mapPaginatedLeadToLead);
+      let mappedLeads = response.items.map(mapPaginatedLeadToLead);
 
-      setState(prev => ({
-        ...prev,
-        leads: mappedLeads,
-        loading: false,
-        pagination: {
-          page: response.page,
-          pageSize: response.page_size,
-          total: response.total,
-          totalPages: response.total_pages,
-        },
-      }));
+      // Aplicar filtro de búsqueda client-side para buscar en múltiples campos
+      if (currentFilters.searchTerm) {
+        const filteredLeads = applyClientSearchFilter(mappedLeads, currentFilters.searchTerm);
+        console.log(`🔍 Search filter applied: ${mappedLeads.length} leads → ${filteredLeads.length} matches`);
+        
+        setState(prev => ({
+          ...prev,
+          leads: filteredLeads,
+          loading: false,
+          pagination: {
+            page: 1,
+            pageSize: state.pagination.pageSize,
+            total: filteredLeads.length,
+            totalPages: Math.ceil(filteredLeads.length / state.pagination.pageSize),
+          },
+        }));
+      } else {
+        setState(prev => ({
+          ...prev,
+          leads: mappedLeads,
+          loading: false,
+          pagination: {
+            page: response.page,
+            pageSize: response.page_size,
+            total: response.total,
+            totalPages: response.total_pages,
+          },
+        }));
+      }
 
       // Persistir filtros si venían nuevos
       if (newFilters) {

@@ -1123,13 +1123,26 @@ Notas adicionales: ${lead.notes || 'Ninguna'}`;
                                         {interaction.Type === 'meeting' && <Calendar className="h-3 w-3" />}
                                       </div>
                                       <div className="flex-1">
-                                        <h5 className="text-sm font-medium">{interaction.Description || 'Sin título'}</h5>
-                                        <div className="flex items-center gap-3 mt-1 text-xs text-muted-foreground">
+                                        <div className="flex items-center justify-between mb-1">
+                                          <h5 className="text-sm font-medium">{interaction.Description || 'Sin título'}</h5>
+                                          {interaction.UserName && (
+                                            <Badge variant="outline" className="text-xs">
+                                              {interaction.UserName}
+                                            </Badge>
+                                          )}
+                                        </div>
+                                        <div className="flex items-center gap-2 mt-1 text-xs text-muted-foreground flex-wrap">
                                           <span>Tipo: {interaction.Type}</span>
                                           <span>•</span>
-                                          <span>Etapa: {interaction.Stage}</span>
+                                          <span>Estado: {interaction.Stage}</span>
+                                          {interaction.Outcome && (
+                                            <>
+                                              <span>•</span>
+                                              <span>Resultado: {interaction.Outcome}</span>
+                                            </>
+                                          )}
                                           <span>•</span>
-                                           <span>{formatBogotaDistanceToNow(interaction.CreatedAt)}</span>
+                                          <span>{formatBogotaDistanceToNow(interaction.CreatedAt)}</span>
                                         </div>
                                       </div>
                                     </div>
@@ -1151,19 +1164,34 @@ Notas adicionales: ${lead.notes || 'Ninguna'}`;
                           <div className="space-y-4">
                             {interactions.map((interaction) => (
                               <Card key={interaction.Id}>
-                                <CardContent className="pt-4">
+                                <CardContent className="pt-4 pb-4">
                                   <div className="flex items-start justify-between">
-                                    <div className="flex items-start gap-3">
+                                    <div className="flex items-start gap-3 flex-1">
                                       <div className="p-2 rounded-full bg-blue-100 text-blue-600">
                                         {interaction.Type === 'email' && <Mail className="h-4 w-4" />}
                                         {interaction.Type === 'phone' && <Phone className="h-4 w-4" />}
                                         {interaction.Type === 'whatsapp' && <MessageSquare className="h-4 w-4" />}
                                         {interaction.Type === 'meeting' && <Calendar className="h-4 w-4" />}
                                       </div>
-                                      <div>
-                                        <h4 className="font-medium">{interaction.Description || 'Sin título'}</h4>
-                                        <div className="flex items-center gap-4 mt-2 text-xs text-muted-foreground">
+                                      <div className="flex-1">
+                                        <div className="flex items-center justify-between mb-2">
+                                          <h4 className="font-medium">{interaction.Description || 'Sin título'}</h4>
+                                          {interaction.UserName && (
+                                            <Badge variant="outline" className="text-xs">
+                                              {interaction.UserName}
+                                            </Badge>
+                                          )}
+                                        </div>
+                                        <div className="flex items-center gap-3 mt-2 text-xs text-muted-foreground flex-wrap">
                                           <span>Tipo: {interaction.Type}</span>
+                                          <span>•</span>
+                                          <span>Estado: {interaction.Stage}</span>
+                                          {interaction.Outcome && (
+                                            <>
+                                              <span>•</span>
+                                              <span>Resultado: {interaction.Outcome}</span>
+                                            </>
+                                          )}
                                           <span>•</span>
                                           <span>{formatBogotaDistanceToNow(interaction.CreatedAt)}</span>
                                         </div>
@@ -1221,7 +1249,7 @@ Notas adicionales: ${lead.notes || 'Ninguna'}`;
                   <div className="space-y-4">
                     {assignmentHistory.map((entry, index) => (
                       <Card key={index}>
-                        <CardContent className="pt-4">
+                        <CardContent className="pt-4 pb-4">
                           <div className="flex items-start justify-between">
                             <div>
                               <h4 className="font-medium">Reasignación</h4>

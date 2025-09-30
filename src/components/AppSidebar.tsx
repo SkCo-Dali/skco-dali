@@ -42,6 +42,7 @@ const allMenuItems = [
   { title: "Motor Comisiones", url: "/motor-comisiones", iconClass: "", page: "motor-comisiones", customIcon: "https://skcoblobresources.blob.core.windows.net/digital-assets/icons/icon-skandia/sk_engranajes_p.svg" },
   { title: "Calendario", url: "/calendar", iconClass: "", page: "calendar", customIcon: "https://skcoblobresources.blob.core.windows.net/digital-assets/icons/icon-skandia/sk_calendario_p.svg" },
   { title: "Tareas", url: "/tasks", iconClass: "", page: "tasks", customIcon: "https://skcoblobresources.blob.core.windows.net/digital-assets/icons/icon-skandia/sk_puntos_p.svg" },
+  { title: "Sami Voice Insights", url: "/voice-insights", iconClass: "", page: "voice-insights", customIcon: "https://skcoblobresources.blob.core.windows.net/digital-assets/icons/icon-skandia/sk_globo_p.svg" },
 ];
 
 const allAdminItems = [
