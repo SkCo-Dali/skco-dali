@@ -119,6 +119,7 @@ export const FRONTEND_TO_API_STAGE_MAP: Record<string, string> = {
   'Localizado: No interesado': 'Localizado: No interesado',
   'Localizado: Prospecto de venta FP': 'Localizado: Prospecto de venta FP',
   'Localizado: Prospecto de venta AD': 'Localizado: Prospecto de venta AD',
+  'Localizado: Prospecto de venta - Pendiente': 'Localizado: Prospecto de venta - Pendiente',
   'Localizado: Volver a llamar': 'Localizado: Volver a llamar',
   'Localizado: No vuelve a contestar': 'Localizado: No vuelve a contestar',
   'No localizado: No contesta': 'No localizado: No contesta',
