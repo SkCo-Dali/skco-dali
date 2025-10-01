@@ -454,6 +454,5 @@ export const usePaginatedLeadsApi = () => {
     loadLeads,
     getUniqueValues,
     refreshLeads: () => loadLeads(undefined, undefined, 'refreshLeads'),
-    apiFilters: convertFiltersToApiFormat(filters),
   };
 };

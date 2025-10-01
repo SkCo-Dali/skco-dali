@@ -18,7 +18,6 @@ import { WhatsAppPropioButton } from "@/components/WhatsAppPropioButton";
 import { LeadsTableColumnSelector } from "@/components/LeadsTableColumnSelector";
 import { LeadsActionsButton } from "@/components/LeadsActionsButton";
 import { useLeadsApi } from "@/hooks/useLeadsApi";
-import { useLeadsKPICounts } from "@/hooks/useLeadsKPICounts";
 import { useIsMobile, useIsMedium } from "@/hooks/use-mobile";
 import { ColumnConfig } from "@/components/LeadsTableColumnSelector";
 import { Button } from "@/components/ui/button";
@@ -117,12 +116,8 @@ export default function Leads() {
     setPageSize,
     getUniqueValues,
     refreshLeads,
-    createNewLead,
-    apiFilters
+    createNewLead
   } = useLeadsApi();
-
-  // Obtener conteos reales de KPIs usando la API
-  const kpiCounts = useLeadsKPICounts(apiFilters);
 
   const handleLeadUpdate = useCallback(() => {
     console.log('🔄 handleLeadUpdate called - refreshing leads...');
@@ -650,11 +645,7 @@ export default function Leads() {
             {/* KPI Cards and Stage Summary */}
             <AllLeadsKPICards 
               leads={filteredLeads}
-              totalLeads={kpiCounts.totalLeads}
-              newLeads={kpiCounts.newLeads}
-              contratoCreado={kpiCounts.contratoCreado}
-              registroVenta={kpiCounts.registroVenta}
-              loading={kpiCounts.loading}
+              totalLeads={pagination.total}
             />
 
             <div className="flex flex-col lg:flex-row gap-4 items-center">

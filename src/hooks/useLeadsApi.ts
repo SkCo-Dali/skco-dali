@@ -154,7 +154,6 @@ export const useLeadsApi = () => {
     createNewLead,
     updateExistingLead,
     deleteExistingLead,
-    refreshLeads: paginatedApi.refreshLeads,
-    apiFilters: paginatedApi.apiFilters
+    refreshLeads: paginatedApi.refreshLeads
   };
 };
