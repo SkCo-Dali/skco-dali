@@ -96,10 +96,27 @@ export function LeadsBulkAssignment({ leads, onLeadsAssigned }: LeadsBulkAssignm
   };
 
   // Cargar todos los leads con stage="Nuevo" usando llamadas paginadas
+  // SOLO si no hay leads seleccionados
   useEffect(() => {
     const loadAllNewLeads = async () => {
+      // Si hay leads seleccionados, usarlos directamente
+      if (leads.length > 0) {
+        console.log(`✅ Using ${leads.length} selected leads`);
+        // Filtrar solo los que están en estado Nuevo
+        const newLeads = leads.filter(lead => 
+          lead.stage?.toLowerCase() === 'nuevo' || 
+          lead.stage?.toLowerCase() === 'new' || 
+          lead.stage === 'Nuevo' || 
+          lead.stage === 'new'
+        );
+        setAllNewLeads(newLeads);
+        setIsLoadingLeads(false);
+        return;
+      }
+
+      // Si NO hay selección, cargar todos los leads nuevos del API
       setIsLoadingLeads(true);
-      console.log('🔄 Starting to load all leads with stage="Nuevo"...');
+      console.log('🔄 No selection detected. Loading all leads with stage="Nuevo"...');
       
       try {
         const allLeads: Lead[] = [];
@@ -143,7 +160,7 @@ export function LeadsBulkAssignment({ leads, onLeadsAssigned }: LeadsBulkAssignm
     };
 
     loadAllNewLeads();
-  }, []);
+  }, [leads]);
 
   // Obtener campañas únicas de los leads cargados
   const uniqueCampaigns = Array.from(new Set(allNewLeads.map(lead => lead.campaign).filter(Boolean)));
