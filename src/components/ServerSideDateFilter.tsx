@@ -59,8 +59,8 @@ export function ServerSideDateFilter({
 
   // Obtener valores actualmente seleccionados del filtro
   const currentSelectedDates = useMemo(() => {
-    const filter = currentFilters[field];
-    const fieldEnd = `${field}End`;
+    const filter = currentFilters[apiField];
+    const fieldEnd = `${apiField}End`;
     const filterEnd = currentFilters[fieldEnd];
     
     if (filter && filterEnd) {
@@ -68,7 +68,7 @@ export function ServerSideDateFilter({
       return [String(filter), String(filterEnd)];
     }
     return [];
-  }, [currentFilters, field]);
+  }, [currentFilters, apiField]);
 
   // Actualizar valores seleccionados cuando cambian los filtros externos
   useEffect(() => {
@@ -130,7 +130,7 @@ export function ServerSideDateFilter({
   const handleClear = () => {
     setSelectedDates([]);
     setCustomCondition({ type: 'custom' });
-    onFilterChange(field, []);
+    onFilterChange(apiField, []);
   };
 
   const handleCancel = () => {
@@ -145,18 +145,18 @@ export function ServerSideDateFilter({
       const sortedDates = selectedDates.sort();
       const minDate = sortedDates[0];
       const maxDate = sortedDates[sortedDates.length - 1];
-      onFilterChange(field, [minDate, maxDate]);
+      onFilterChange(apiField, [minDate, maxDate]);
     } else if (activeTab === 'custom' && (customCondition.from || customCondition.to)) {
       // Para rango personalizado
       const from = customCondition.from ? format(customCondition.from, 'yyyy-MM-dd') : undefined;
       const to = customCondition.to ? format(customCondition.to, 'yyyy-MM-dd') : undefined;
       
       if (from && to) {
-        onFilterChange(field, [from, to]);
+        onFilterChange(apiField, [from, to]);
       } else if (from) {
-        onFilterChange(field, [from, from]);
+        onFilterChange(apiField, [from, from]);
       } else if (to) {
-        onFilterChange(field, [to, to]);
+        onFilterChange(apiField, [to, to]);
       }
     }
     setIsOpen(false);
