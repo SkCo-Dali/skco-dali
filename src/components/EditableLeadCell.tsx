@@ -76,6 +76,9 @@ export function EditableLeadCell({ lead, field, onUpdate }: EditableLeadCellProp
         await changeLeadStage(lead.id, newValue);
         console.log(`✅ Lead ${lead.id} stage changed successfully`);
         
+        // Actualizar el lead localmente para mostrar cambio inmediato
+        lead.stage = newValue;
+        
         toast({
           title: "Éxito",
           description: `Etapa del lead actualizada a '${newValue}'`,
