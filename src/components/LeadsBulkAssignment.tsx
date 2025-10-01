@@ -5,12 +5,14 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
-import { Plus, Trash2 } from "lucide-react";
-import { Lead } from "@/types/crm";
+import { Plus, Trash2, Loader2 } from "lucide-react";
+import { Lead, LeadStatus } from "@/types/crm";
 import { useAssignableUsers } from "@/contexts/AssignableUsersContext";
 import { useToast } from "@/hooks/use-toast";
 import { useLeadAssignments } from "@/hooks/useLeadAssignments";
 import { bulkAssignLeads } from "@/utils/leadsApiClient";
+import { getReassignableLeadsPaginated } from "@/utils/leadAssignmentApiClient";
+import { PaginatedLead } from "@/types/paginatedLeadsTypes";
 
 interface LeadsBulkAssignmentProps {
   leads: Lead[];
@@ -28,6 +30,8 @@ export function LeadsBulkAssignment({ leads, onLeadsAssigned }: LeadsBulkAssignm
   const [assignmentType, setAssignmentType] = useState<"equitable" | "specific">("equitable");
   const [userAssignments, setUserAssignments] = useState<UserAssignment[]>([]);
   const [isAssigning, setIsAssigning] = useState(false);
+  const [allNewLeads, setAllNewLeads] = useState<Lead[]>([]);
+  const [isLoadingLeads, setIsLoadingLeads] = useState(false);
   const { users } = useAssignableUsers();
   const { toast } = useToast();
   const { handleReassignLead } = useLeadAssignments();
@@ -35,19 +39,119 @@ export function LeadsBulkAssignment({ leads, onLeadsAssigned }: LeadsBulkAssignm
   // Filtrar solo usuarios con rol de gestor
   const gestorUsers = users.filter(user => user.Role === 'gestor');
 
-  // Obtener campañas únicas
-  const uniqueCampaigns = Array.from(new Set(leads.map(lead => lead.campaign).filter(Boolean)));
+  // Mapear PaginatedLead a Lead
+  const mapPaginatedLeadToLead = (paginatedLead: PaginatedLead): Lead => {
+    let tags: string[] = [];
+    let portfolios: string[] = [];
+    let additionalInfo: any = null;
 
-  // Filtrar leads nuevos por campaña
-  const filteredLeads = leads.filter(lead => {
-    const isNewStage = lead.stage?.toLowerCase() === 'nuevo' || 
-                      lead.stage?.toLowerCase() === 'new' || 
-                      lead.stage === 'Nuevo' || 
-                      lead.stage === 'new';
-    
+    try {
+      if (paginatedLead.Tags) tags = JSON.parse(paginatedLead.Tags);
+    } catch { tags = []; }
+
+    try {
+      if (paginatedLead.SelectedPortfolios) portfolios = JSON.parse(paginatedLead.SelectedPortfolios);
+    } catch { portfolios = []; }
+
+    try {
+      if (paginatedLead.AdditionalInfo) additionalInfo = JSON.parse(paginatedLead.AdditionalInfo);
+    } catch { additionalInfo = null; }
+
+    return {
+      id: paginatedLead.Id,
+      name: paginatedLead.Name,
+      email: paginatedLead.Email,
+      phone: paginatedLead.Phone,
+      documentNumber: parseInt(paginatedLead.DocumentNumber) || 0,
+      company: paginatedLead.Company,
+      source: paginatedLead.Source,
+      campaign: paginatedLead.Campaign,
+      product: paginatedLead.Product,
+      stage: paginatedLead.Stage,
+      priority: paginatedLead.Priority,
+      value: parseFloat(paginatedLead.Value) || 0,
+      assignedTo: paginatedLead.AssignedTo,
+      assignedToName: paginatedLead.AssignedToName,
+      createdBy: paginatedLead.CreatedBy,
+      createdAt: paginatedLead.CreatedAt,
+      updatedAt: paginatedLead.UpdatedAt,
+      nextFollowUp: paginatedLead.NextFollowUp,
+      notes: paginatedLead.Notes,
+      tags,
+      documentType: paginatedLead.DocumentType,
+      portfolios,
+      campaignOwnerName: paginatedLead.CampaignOwnerName,
+      age: paginatedLead.Age ? parseInt(paginatedLead.Age) : undefined,
+      gender: paginatedLead.Gender,
+      preferredContactChannel: paginatedLead.PreferredContactChannel,
+      status: 'New' as LeadStatus,
+      portfolio: portfolios[0] || 'Portfolio A',
+      ...additionalInfo,
+      lastGestorUserId: paginatedLead.LastGestorUserId,
+      lastGestorName: paginatedLead.LastGestorName,
+      lastGestorInteractionAt: paginatedLead.LastGestorInteractionAt,
+      lastGestorInteractionStage: paginatedLead.LastGestorInteractionStage,
+      lastGestorInteractionDescription: paginatedLead.LastGestorInteractionDescription,
+    };
+  };
+
+  // Cargar todos los leads con stage="Nuevo" usando llamadas paginadas
+  useEffect(() => {
+    const loadAllNewLeads = async () => {
+      setIsLoadingLeads(true);
+      console.log('🔄 Starting to load all leads with stage="Nuevo"...');
+      
+      try {
+        const allLeads: Lead[] = [];
+        let currentPage = 1;
+        let totalPages = 1;
+        const pageSize = 100;
+
+        // Hacer llamadas paginadas hasta obtener todos los leads
+        while (currentPage <= totalPages) {
+          console.log(`📡 Fetching page ${currentPage} of ${totalPages}...`);
+          
+          const response = await getReassignableLeadsPaginated({
+            page: currentPage,
+            page_size: pageSize,
+            filters: {
+              Stage: { op: 'eq', value: 'Nuevo' }
+            }
+          });
+
+          const mappedLeads = response.items.map(mapPaginatedLeadToLead);
+          allLeads.push(...mappedLeads);
+          
+          totalPages = response.total_pages;
+          currentPage++;
+
+          console.log(`✅ Loaded ${mappedLeads.length} leads from page ${currentPage - 1}`);
+        }
+
+        console.log(`✅ Total leads loaded: ${allLeads.length}`);
+        setAllNewLeads(allLeads);
+      } catch (error) {
+        console.error('❌ Error loading new leads:', error);
+        toast({
+          title: "Error",
+          description: "Error al cargar leads nuevos",
+          variant: "destructive",
+        });
+      } finally {
+        setIsLoadingLeads(false);
+      }
+    };
+
+    loadAllNewLeads();
+  }, []);
+
+  // Obtener campañas únicas de los leads cargados
+  const uniqueCampaigns = Array.from(new Set(allNewLeads.map(lead => lead.campaign).filter(Boolean)));
+
+  // Filtrar leads por campaña seleccionada
+  const filteredLeads = allNewLeads.filter(lead => {
     const matchesCampaign = selectedCampaign === "all" || lead.campaign === selectedCampaign;
-    
-    return isNewStage && matchesCampaign;
+    return matchesCampaign;
   });
 
   console.log('Filtered leads for assignment:', filteredLeads.length);
@@ -288,7 +392,13 @@ export function LeadsBulkAssignment({ leads, onLeadsAssigned }: LeadsBulkAssignm
         <DialogTitle>Asignación Masiva de Leads</DialogTitle>
       </DialogHeader>
       
-      <div className="space-y-6">
+      {isLoadingLeads ? (
+        <div className="flex flex-col items-center justify-center py-12 space-y-4">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          <p className="text-sm text-muted-foreground">Cargando todos los leads nuevos...</p>
+        </div>
+      ) : (
+        <div className="space-y-6">
         {/* Filtro de campaña */}
         <div>
           <Label>Filtrar por campaña</Label>
@@ -434,7 +544,8 @@ export function LeadsBulkAssignment({ leads, onLeadsAssigned }: LeadsBulkAssignm
             {isAssigning ? 'Asignando...' : 'Asignar Leads'}
           </Button>
         </div>
-      </div>
+        </div>
+      )}
     </>
   );
 }
