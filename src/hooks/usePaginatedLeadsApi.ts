@@ -302,7 +302,7 @@ export const usePaginatedLeadsApi = () => {
   };
 
   // Cargar leads con paginación
-  const loadLeads = useCallback(async (page?: number, newFilters?: Partial<LeadsFiltersState>, source?: string) => {
+  const loadLeads = useCallback(async (page?: number, newFilters?: Partial<LeadsFiltersState>, source?: string, pageSizeOverride?: number) => {
     if (!user?.id) {
       console.log('❌ No user ID available for loading paginated leads');
       return;
@@ -334,7 +334,7 @@ export const usePaginatedLeadsApi = () => {
 
     const apiParams: LeadsApiParams = {
       page: currentPage,
-      page_size: state.pagination.pageSize,
+      page_size: pageSizeOverride ?? state.pagination.pageSize,
       sort_by: mapColumnNameToApi(currentFilters.sortBy),
       sort_dir: currentFilters.sortDirection,
       filters: filtersForApi,
@@ -437,7 +437,7 @@ export const usePaginatedLeadsApi = () => {
       ...prev,
       pagination: { ...prev.pagination, pageSize, page: 1 }
     }));
-    loadLeads(1, undefined, 'setPageSize');
+    loadLeads(1, undefined, 'setPageSize', pageSize);
   }, [loadLeads]);
 
   // Cargar leads inicialmente

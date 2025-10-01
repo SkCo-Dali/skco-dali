@@ -1016,7 +1016,7 @@ export default function Leads() {
                   <LeadsPagination
                     currentPage={currentPage}
                     totalPages={totalPages}
-                    totalLeads={filteredLeads.length}
+                    totalLeads={pagination.total}
                     leadsPerPage={leadsPerPage}
                     onPageChange={setCurrentPage}
                     onLeadsPerPageChange={setLeadsPerPage}
