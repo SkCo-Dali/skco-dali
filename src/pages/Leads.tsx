@@ -1023,6 +1023,7 @@ export default function Leads() {
               setSortBy={setSortBy}
               sortDirection={sortDirection}
               setSortDirection={setSortDirection}
+              apiFilters={apiFilters}
             />
 
                 {viewMode === 'table' && (
