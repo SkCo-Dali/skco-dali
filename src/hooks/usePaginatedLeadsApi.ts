@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { Lead, LeadStatus } from '@/types/crm';
 import { getReassignableLeadsPaginated, getDistinctValues } from '@/utils/leadAssignmentApiClient';
+import { getDuplicateLeads } from '@/utils/leadsApiClient';
 import { LeadsApiParams, LeadsApiFilters, PaginatedLead, FilterCondition } from '@/types/paginatedLeadsTypes';
 import { useAuth } from '@/contexts/AuthContext';
 import { TextFilterCondition } from '@/components/TextFilter';
@@ -313,12 +314,30 @@ export const usePaginatedLeadsApi = () => {
     const currentFilters = newFilters ? { ...filters, ...newFilters } : filters;
     const currentPage = page || state.pagination.page;
 
+    // Construir filtros de API y, si aplica, limitar a IDs duplicados
+    let filtersForApi = convertFiltersToApiFormat(currentFilters);
+
+    if (currentFilters.duplicateFilter === 'duplicates') {
+      try {
+        const dupLeads = await getDuplicateLeads();
+        const dupIds = dupLeads.map(l => l.id).filter(Boolean);
+        if (dupIds.length > 0) {
+          (filtersForApi as any)['Id'] = { op: 'in', values: dupIds.slice(0, 500) } as any;
+        } else {
+          // Si no hay duplicados, forzamos un resultado vacío
+          (filtersForApi as any)['Id'] = { op: 'eq', value: '__no_matches__' } as any;
+        }
+      } catch (e) {
+        console.error('❌ Error fetching duplicate leads list:', e);
+      }
+    }
+
     const apiParams: LeadsApiParams = {
       page: currentPage,
       page_size: state.pagination.pageSize,
       sort_by: mapColumnNameToApi(currentFilters.sortBy),
       sort_dir: currentFilters.sortDirection,
-      filters: convertFiltersToApiFormat(currentFilters),
+      filters: filtersForApi,
       duplicate_filter: currentFilters.duplicateFilter,
     };
 
