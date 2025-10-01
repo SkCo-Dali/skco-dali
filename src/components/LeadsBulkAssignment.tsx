@@ -9,7 +9,7 @@ import { Plus, Trash2 } from "lucide-react";
 import { Lead } from "@/types/crm";
 import { useAssignableUsers } from "@/contexts/AssignableUsersContext";
 import { useToast } from "@/hooks/use-toast";
-import { bulkAssignLeads, changeLeadStage } from "@/utils/leadsApiClient";
+import { useLeadAssignments } from "@/hooks/useLeadAssignments";
 
 interface LeadsBulkAssignmentProps {
   leads: Lead[];
@@ -29,6 +29,7 @@ export function LeadsBulkAssignment({ leads, onLeadsAssigned }: LeadsBulkAssignm
   const [isAssigning, setIsAssigning] = useState(false);
   const { users } = useAssignableUsers();
   const { toast } = useToast();
+  const { handleReassignLead } = useLeadAssignments();
 
   // Filtrar solo usuarios con rol de gestor
   const gestorUsers = users.filter(user => user.Role === 'gestor');
@@ -178,43 +179,52 @@ export function LeadsBulkAssignment({ leads, onLeadsAssigned }: LeadsBulkAssignm
     setIsAssigning(true);
 
     try {
-      // Crear lista de leads para asignar
+      // Crear lista de leads para asignar con histórico
       let leadIndex = 0;
-      const assignmentPromises: Promise<void>[] = [];
-      const stageChangePromises: Promise<void>[] = [];
+      const assignmentPromises: Promise<boolean>[] = [];
 
       for (const assignment of userAssignments) {
         if (assignment.quantity > 0) {
           // Tomar los leads necesarios para este usuario
           const leadsToAssign = filteredLeads.slice(leadIndex, leadIndex + assignment.quantity);
-          const leadIds = leadsToAssign.map(lead => lead.id);
           
-          console.log(`Assigning ${leadIds.length} leads to user ${assignment.userName}:`, leadIds);
+          console.log(`Assigning ${leadsToAssign.length} leads to user ${assignment.userName}`);
           
-          // Asignar leads a este usuario
-          if (leadIds.length > 0) {
-            assignmentPromises.push(bulkAssignLeads(leadIds, assignment.userId));
-            
-            // Cambiar el estado de cada lead de "Nuevo" a "Asignado"
-            leadIds.forEach(leadId => {
-              stageChangePromises.push(changeLeadStage(leadId, "Asignado"));
-            });
-          }
+          // Asignar cada lead individualmente para mantener histórico
+          leadsToAssign.forEach(lead => {
+            assignmentPromises.push(
+              handleReassignLead(
+                lead.id,
+                assignment.userId,
+                "Asignación masiva",
+                `Asignado masivamente a ${assignment.userName}`,
+                lead.stage
+              )
+            );
+          });
           
           leadIndex += assignment.quantity;
         }
       }
 
-      // Ejecutar todas las asignaciones
-      await Promise.all(assignmentPromises);
+      // Ejecutar todas las asignaciones con histórico
+      const results = await Promise.all(assignmentPromises);
       
-      // Ejecutar todos los cambios de estado
-      await Promise.all(stageChangePromises);
+      // Verificar si todas fueron exitosas
+      const successCount = results.filter(success => success).length;
       
-      toast({
-        title: "Éxito",
-        description: `${totalAssigned} leads asignados exitosamente y cambiados a estado Asignado`,
-      });
+      if (successCount === totalAssigned) {
+        toast({
+          title: "Éxito",
+          description: `${totalAssigned} leads asignados exitosamente con histórico guardado`,
+        });
+      } else {
+        toast({
+          title: "Asignación parcial",
+          description: `${successCount} de ${totalAssigned} leads asignados exitosamente`,
+          variant: "destructive",
+        });
+      }
       
       onLeadsAssigned();
       
