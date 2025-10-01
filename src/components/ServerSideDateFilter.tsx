@@ -278,17 +278,19 @@ export function ServerSideDateFilter({
                                     </CollapsibleTrigger>
                                   </div>
                                   <CollapsibleContent className="ml-4">
-                                    {Object.entries(days).map(([day, dates]) => (
-                                      <div key={day} className="flex items-center space-x-2 p-1 hover:bg-gray-50">
-                                        <Checkbox
-                                          checked={selectedDates.includes(`${year}-${monthNum}-${day}`)}
-                                          onCheckedChange={(checked) => handleDateToggle(`${year}-${monthNum}-${day}`, checked as boolean)}
-                                        />
-                                        <label className="text-xs text-gray-600 cursor-pointer flex-1 select-none">
-                                          {day} ({dates.length})
-                                        </label>
-                                      </div>
-                                    ))}
+                                    {Object.entries(days)
+                                      .sort(([dayA], [dayB]) => parseInt(dayA) - parseInt(dayB))
+                                      .map(([day, dates]) => (
+                                        <div key={day} className="flex items-center space-x-2 p-1 hover:bg-gray-50">
+                                          <Checkbox
+                                            checked={selectedDates.includes(`${year}-${monthNum}-${day}`)}
+                                            onCheckedChange={(checked) => handleDateToggle(`${year}-${monthNum}-${day}`, checked as boolean)}
+                                          />
+                                          <label className="text-xs text-gray-600 cursor-pointer flex-1 select-none">
+                                            {day}
+                                          </label>
+                                        </div>
+                                      ))}
                                   </CollapsibleContent>
                                 </Collapsible>
                               );
