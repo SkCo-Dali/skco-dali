@@ -266,7 +266,9 @@ export function ServerSideDateFilter({
                             </CollapsibleTrigger>
                           </div>
                           <CollapsibleContent className="ml-4">
-                            {Object.entries(months).map(([monthNum, days]) => {
+                            {Object.entries(months)
+                              .sort(([monthA], [monthB]) => parseInt(monthA) - parseInt(monthB))
+                              .map(([monthNum, days]) => {
                               const monthName = format(new Date(parseInt(year), parseInt(monthNum) - 1, 1), 'MMMM', { locale: es });
                               return (
                                 <Collapsible key={monthNum}>
