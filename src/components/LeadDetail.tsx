@@ -1142,7 +1142,7 @@ Notas adicionales: ${lead.notes || 'Ninguna'}`;
                                             </>
                                           )}
                                           <span>•</span>
-                                          <span>{formatBogotaDistanceToNow(interaction.CreatedAt)}</span>
+                                          <span>{formatBogotaDateTime(interaction.CreatedAt, "dd/MM/yyyy hh:mm a")}</span>
                                         </div>
                                       </div>
                                     </div>
@@ -1193,7 +1193,7 @@ Notas adicionales: ${lead.notes || 'Ninguna'}`;
                                             </>
                                           )}
                                           <span>•</span>
-                                          <span>{formatBogotaDistanceToNow(interaction.CreatedAt)}</span>
+                                          <span>{formatBogotaDateTime(interaction.CreatedAt, "dd/MM/yyyy hh:mm a")}</span>
                                         </div>
                                       </div>
                                     </div>
