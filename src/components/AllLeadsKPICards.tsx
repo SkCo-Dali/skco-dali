@@ -3,24 +3,46 @@ import { Lead } from "@/types/crm";
 import { KPICard } from "@/components/KPICard";
 import { LeadsStageCard } from "./LeadsStageCard";
 import { Users, TrendingUp, DollarSign, CheckCircle } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface AllLeadsKPICardsProps {
   leads: Lead[];
+  totalLeads?: number;
+  newLeads?: number;
+  contratoCreado?: number;
+  registroVenta?: number;
+  loading?: boolean;
 }
 
-export function AllLeadsKPICards({ leads }: AllLeadsKPICardsProps) {
-  const totalLeads = leads.length;
+export function AllLeadsKPICards({ 
+  leads, 
+  totalLeads: realTotalLeads,
+  newLeads: realNewLeads,
+  contratoCreado: realContratoCreado,
+  registroVenta: realRegistroVenta,
+  loading = false
+}: AllLeadsKPICardsProps) {
+  // Usar valores reales si están disponibles, sino calcular desde el array local
+  const totalLeads = realTotalLeads ?? leads.length;
+  const newLeads = realNewLeads ?? leads.filter(lead => lead.stage === "Nuevo").length;
+  const contratoCreado = realContratoCreado ?? leads.filter(lead => lead.stage === "Contrato Creado").length;
+  const registroVenta = realRegistroVenta ?? leads.filter(lead => lead.stage === "Registro de Venta (fondeado)").length;
   
-  // Contar leads nuevos
-  const newLeads = leads.filter(lead => lead.stage === "Nuevo").length;
-  
-  // Contar leads en estado "Contrato Creado"
-  const contratoCreado = leads.filter(lead => lead.stage === "Contrato Creado").length;
   const contratoCreadoPercentage = totalLeads > 0 ? ((contratoCreado / totalLeads) * 100).toFixed(1) : '0';
-  
-  // Contar leads en estado "Registro de Venta (fondeado)"
-  const registroVenta = leads.filter(lead => lead.stage === "Registro de Venta (fondeado)").length;
   const registroVentaPercentage = totalLeads > 0 ? ((registroVenta / totalLeads) * 100).toFixed(1) : '0';
+
+  if (loading) {
+    return (
+      <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-6 gap-4 mb-4">
+        {[1, 2, 3, 4].map((i) => (
+          <Skeleton key={i} className="h-[120px]" />
+        ))}
+        <div className="lg:col-span-2">
+          <Skeleton className="h-[120px]" />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-6 gap-4 mb-4">
