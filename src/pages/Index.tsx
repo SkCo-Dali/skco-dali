@@ -9,7 +9,7 @@ const Index = () => {
   const { user } = useAuth();
 
   return (
-    <div className="min-h-screen pt-14 md:pt-16">
+    <div className="w-full max-w-full px-4 py-4 space-y-6">
       <div className="p-3 md:p-4 max-w-7xl mx-auto">
         <DashboardHeader />
         
