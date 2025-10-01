@@ -1125,9 +1125,11 @@ Notas adicionales: ${lead.notes || 'Ninguna'}`;
                                       <div className="flex-1">
                                         <div className="flex items-center justify-between mb-1">
                                           <h5 className="text-sm font-medium">{interaction.Description || 'Sin título'}</h5>
-                                          <Badge variant="outline" className="text-xs">
-                                            {interaction.UserName || `Usuario: ${interaction.UserId.substring(0, 8)}`}
-                                          </Badge>
+                                          {interaction.UserName && (
+                                            <Badge variant="outline" className="text-xs">
+                                              {interaction.UserName}
+                                            </Badge>
+                                          )}
                                         </div>
                                         <div className="flex items-center gap-2 mt-1 text-xs text-muted-foreground flex-wrap">
                                           <span>Tipo: {interaction.Type}</span>
@@ -1174,9 +1176,11 @@ Notas adicionales: ${lead.notes || 'Ninguna'}`;
                                       <div className="flex-1">
                                         <div className="flex items-center justify-between mb-2">
                                           <h4 className="font-medium">{interaction.Description || 'Sin título'}</h4>
-                                          <Badge variant="outline" className="text-xs">
-                                            {interaction.UserName || `Usuario: ${interaction.UserId.substring(0, 8)}`}
-                                          </Badge>
+                                          {interaction.UserName && (
+                                            <Badge variant="outline" className="text-xs">
+                                              {interaction.UserName}
+                                            </Badge>
+                                          )}
                                         </div>
                                         <div className="flex items-center gap-3 mt-2 text-xs text-muted-foreground flex-wrap">
                                           <span>Tipo: {interaction.Type}</span>
