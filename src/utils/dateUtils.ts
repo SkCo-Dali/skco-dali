@@ -2,17 +2,21 @@
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { formatDistanceToNow } from 'date-fns';
+import { toZonedTime, formatInTimeZone } from 'date-fns-tz';
+
+// Zona horaria de Bogotá (UTC-5)
+const BOGOTA_TIMEZONE = 'America/Bogota';
 
 export const convertToBogotaTime = (dateTimeString: string): Date => {
-  // Simply create a Date object - JavaScript Date already handles timezone conversion
-  // The input should be in ISO format which is UTC
-  return new Date(dateTimeString);
+  // Convertir el string UTC a la zona horaria de Bogotá (UTC-5)
+  const utcDate = new Date(dateTimeString);
+  return toZonedTime(utcDate, BOGOTA_TIMEZONE);
 };
 
 // Formatear fecha y hora en zona horaria de Bogotá
 export const formatBogotaDateTime = (dateTimeString: string, formatPattern: string = "dd/MM/yyyy HH:mm"): string => {
-  const bogotaDate = convertToBogotaTime(dateTimeString);
-  return format(bogotaDate, formatPattern, { locale: es });
+  // Usar formatInTimeZone para garantizar el formateo correcto en zona horaria de Bogotá
+  return formatInTimeZone(new Date(dateTimeString), BOGOTA_TIMEZONE, formatPattern, { locale: es });
 };
 
 // Formatear solo fecha en zona horaria de Bogotá
@@ -27,12 +31,7 @@ export const formatBogotaTime = (dateTimeString: string): string => {
 
 // Formatear hora con AM/PM en zona horaria de Bogotá
 export const formatBogotaTimeAmPm = (dateTimeString: string): string => {
-  const bogotaDate = convertToBogotaTime(dateTimeString);
-  return bogotaDate.toLocaleTimeString('es-CO', { 
-    hour: '2-digit', 
-    minute: '2-digit',
-    hour12: true
-  });
+  return formatInTimeZone(new Date(dateTimeString), BOGOTA_TIMEZONE, 'hh:mm a', { locale: es });
 };
 
 // Formatear distancia relativa al tiempo actual (hace X tiempo) en zona horaria de Bogotá
