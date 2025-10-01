@@ -231,14 +231,6 @@ export const usePaginatedLeadsApi = () => {
       }
     });
 
-    // Agregar filtro de duplicados si está activo
-    if (uiFilters.duplicateFilter && uiFilters.duplicateFilter !== 'all') {
-      apiFilters['_duplicate_filter'] = {
-        op: 'eq' as any,
-        value: uiFilters.duplicateFilter
-      };
-    }
-
     return apiFilters;
   }, []);
 
@@ -327,6 +319,7 @@ export const usePaginatedLeadsApi = () => {
       sort_by: mapColumnNameToApi(currentFilters.sortBy),
       sort_dir: currentFilters.sortDirection,
       filters: convertFiltersToApiFormat(currentFilters),
+      duplicate_filter: currentFilters.duplicateFilter,
     };
 
     const requestKey = JSON.stringify(apiParams);
