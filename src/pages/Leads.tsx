@@ -1059,7 +1059,7 @@ export default function Leads() {
               <LeadsBulkAssignment
                 leads={selectedLeads.length > 0 
                   ? filteredLeads.filter(lead => selectedLeads.includes(lead.id))
-                  : filteredLeads
+                  : []
                 }
                 onLeadsAssigned={() => {
                   handleLeadUpdate();
