@@ -86,7 +86,8 @@ export function LeadReassignDialog({ lead, isOpen, onClose, onSuccess }: LeadRea
         selectedUserId,
         reason.trim(),
         notes.trim(),
-        lead.stage
+        lead.stage,
+        lead.assignedTo // Pasar el usuario que actualmente tiene el lead asignado
       );
 
       if (success) {

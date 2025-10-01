@@ -26,7 +26,8 @@ export const useLeadAssignments = () => {
     toUserId: string, 
     reason: string = "No informa", 
     notes: string = "Sin info",
-    currentStage?: string
+    currentStage?: string,
+    fromUserId?: string // Nuevo parámetro opcional para especificar el usuario origen
   ): Promise<boolean> => {
     if (!user?.id) {
       toast({
@@ -37,13 +38,13 @@ export const useLeadAssignments = () => {
       return false;
     }
 
-    // Obtener el UUID almacenado durante la autenticación
+    // Si no se proporciona fromUserId explícitamente, usar el usuario autenticado (para asignaciones masivas)
     const authenticatedUserUUID = localStorage.getItem('authenticated-user-uuid');
-    const fromUserId = authenticatedUserUUID || user.id;
+    const sourceUserId = fromUserId || authenticatedUserUUID || user.id;
 
     console.log('🔄 Starting lead reassignment...');
     console.log('📋 Lead ID:', leadId);
-    console.log('👤 From User ID:', fromUserId);
+    console.log('👤 From User ID:', sourceUserId);
     console.log('🎯 To User ID:', toUserId);
 
     setLoading(true);
@@ -55,9 +56,9 @@ export const useLeadAssignments = () => {
       
       const request: ReassignLeadRequest = {
         lead_id: leadId,
-        from_user_id: fromUserId,
+        from_user_id: sourceUserId,
         to_user_id: toUserId,
-        assigned_by: fromUserId,
+        assigned_by: authenticatedUserUUID || user.id, // El que hace la reasignación
         reason,
         notes,
         ...(shouldChangeToAssigned && { new_stage: 'asignado' })
