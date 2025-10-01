@@ -45,6 +45,9 @@ export function ServerSideDateFilter({
   const [customCondition, setCustomCondition] = useState<DateRangeCondition>({ type: 'custom' });
   const [isDateTreeOpen, setIsDateTreeOpen] = useState(true);
   
+  // Map lastInteraction to updatedAt for API calls
+  const apiField = field === 'lastInteraction' ? 'updatedAt' : field;
+  
   // Usar el hook para obtener valores únicos de fechas
   const {
     values: uniqueDates,
@@ -52,7 +55,7 @@ export function ServerSideDateFilter({
     error,
     initialize,
     hasInitialized
-  } = useDistinctValues(field, currentFilters);
+  } = useDistinctValues(apiField, currentFilters);
 
   // Obtener valores actualmente seleccionados del filtro
   const currentSelectedDates = useMemo(() => {
