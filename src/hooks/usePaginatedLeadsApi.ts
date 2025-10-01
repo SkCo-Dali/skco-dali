@@ -448,6 +448,7 @@ export const usePaginatedLeadsApi = () => {
   return {
     ...state,
     filters,
+    apiFilters: convertFiltersToApiFormat(filters),
     updateFilters,
     setPage,
     setPageSize,
