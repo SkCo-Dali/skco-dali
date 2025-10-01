@@ -145,6 +145,7 @@ export const useLeadsApi = () => {
     error: paginatedApi.error,
     pagination: paginatedApi.pagination,
     filters: paginatedApi.filters,
+    apiFilters: paginatedApi.apiFilters,
     updateFilters: paginatedApi.updateFilters,
     setPage: paginatedApi.setPage,
     setPageSize: paginatedApi.setPageSize,

@@ -107,8 +107,13 @@ export function LeadsFilters({
       if (value.length === 1) {
         // Si solo hay un valor seleccionado, mostrar el nombre completo
         if (options) {
-          const option = options.find(opt => opt.id === value[0] || opt.value === value[0] || opt === value[0]);
-          return option?.name || option?.label || value[0];
+          const option = options.find(opt => 
+            opt.id === value[0] || 
+            opt.Id === value[0] || 
+            opt.value === value[0] || 
+            opt === value[0]
+          );
+          return option?.name || option?.Name || option?.label || value[0];
         }
         return value[0];
       } else {
@@ -118,8 +123,13 @@ export function LeadsFilters({
     } else {
       // Valor único (no array)
       if (options) {
-        const option = options.find(opt => opt.id === value || opt.value === value || opt === value);
-        return option?.name || option?.label || value;
+        const option = options.find(opt => 
+          opt.id === value || 
+          opt.Id === value || 
+          opt.value === value || 
+          opt === value
+        );
+        return option?.name || option?.Name || option?.label || value;
       }
       return value;
     }

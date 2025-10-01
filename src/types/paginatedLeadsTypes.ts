@@ -53,6 +53,7 @@ export interface LeadsApiParams {
   sort_by?: string;
   sort_dir?: 'asc' | 'desc';
   filters?: LeadsApiFilters;
+  duplicate_filter?: 'all' | 'duplicates' | 'unique';
 }
 
 export interface LeadsApiFilters {

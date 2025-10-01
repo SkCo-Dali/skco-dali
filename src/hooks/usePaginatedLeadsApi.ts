@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { Lead, LeadStatus } from '@/types/crm';
 import { getReassignableLeadsPaginated, getDistinctValues } from '@/utils/leadAssignmentApiClient';
+import { getDuplicateLeads } from '@/utils/leadsApiClient';
 import { LeadsApiParams, LeadsApiFilters, PaginatedLead, FilterCondition } from '@/types/paginatedLeadsTypes';
 import { useAuth } from '@/contexts/AuthContext';
 import { TextFilterCondition } from '@/components/TextFilter';
@@ -23,6 +24,7 @@ export interface LeadsFiltersState {
   textFilters: Record<string, TextFilterCondition[]>;
   sortBy: string;
   sortDirection: 'asc' | 'desc';
+  duplicateFilter?: 'all' | 'duplicates' | 'unique';
 }
 
 export const usePaginatedLeadsApi = () => {
@@ -44,6 +46,7 @@ export const usePaginatedLeadsApi = () => {
     textFilters: {},
     sortBy: 'UpdatedAt',
     sortDirection: 'desc',
+    duplicateFilter: 'all',
   });
 
   const { user } = useAuth();
@@ -299,7 +302,7 @@ export const usePaginatedLeadsApi = () => {
   };
 
   // Cargar leads con paginación
-  const loadLeads = useCallback(async (page?: number, newFilters?: Partial<LeadsFiltersState>, source?: string) => {
+  const loadLeads = useCallback(async (page?: number, newFilters?: Partial<LeadsFiltersState>, source?: string, pageSizeOverride?: number) => {
     if (!user?.id) {
       console.log('❌ No user ID available for loading paginated leads');
       return;
@@ -311,12 +314,31 @@ export const usePaginatedLeadsApi = () => {
     const currentFilters = newFilters ? { ...filters, ...newFilters } : filters;
     const currentPage = page || state.pagination.page;
 
+    // Construir filtros de API y, si aplica, limitar a IDs duplicados
+    let filtersForApi = convertFiltersToApiFormat(currentFilters);
+
+    if (currentFilters.duplicateFilter === 'duplicates') {
+      try {
+        const dupLeads = await getDuplicateLeads();
+        const dupIds = dupLeads.map(l => l.id).filter(Boolean);
+        if (dupIds.length > 0) {
+          (filtersForApi as any)['Id'] = { op: 'in', values: dupIds.slice(0, 500) } as any;
+        } else {
+          // Si no hay duplicados, forzamos un resultado vacío
+          (filtersForApi as any)['Id'] = { op: 'eq', value: '__no_matches__' } as any;
+        }
+      } catch (e) {
+        console.error('❌ Error fetching duplicate leads list:', e);
+      }
+    }
+
     const apiParams: LeadsApiParams = {
       page: currentPage,
-      page_size: state.pagination.pageSize,
+      page_size: pageSizeOverride ?? state.pagination.pageSize,
       sort_by: mapColumnNameToApi(currentFilters.sortBy),
       sort_dir: currentFilters.sortDirection,
-      filters: convertFiltersToApiFormat(currentFilters),
+      filters: filtersForApi,
+      duplicate_filter: currentFilters.duplicateFilter,
     };
 
     const requestKey = JSON.stringify(apiParams);
@@ -415,7 +437,7 @@ export const usePaginatedLeadsApi = () => {
       ...prev,
       pagination: { ...prev.pagination, pageSize, page: 1 }
     }));
-    loadLeads(1, undefined, 'setPageSize');
+    loadLeads(1, undefined, 'setPageSize', pageSize);
   }, [loadLeads]);
 
   // Cargar leads inicialmente
@@ -426,6 +448,7 @@ export const usePaginatedLeadsApi = () => {
   return {
     ...state,
     filters,
+    apiFilters: convertFiltersToApiFormat(filters),
     updateFilters,
     setPage,
     setPageSize,

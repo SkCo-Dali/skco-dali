@@ -18,6 +18,7 @@ import { WhatsAppPropioButton } from "@/components/WhatsAppPropioButton";
 import { LeadsTableColumnSelector } from "@/components/LeadsTableColumnSelector";
 import { LeadsActionsButton } from "@/components/LeadsActionsButton";
 import { useLeadsApi } from "@/hooks/useLeadsApi";
+import { useLeadsKPICounts } from "@/hooks/useLeadsKPICounts";
 import { useIsMobile, useIsMedium } from "@/hooks/use-mobile";
 import { ColumnConfig } from "@/components/LeadsTableColumnSelector";
 import { Button } from "@/components/ui/button";
@@ -111,6 +112,7 @@ export default function Leads() {
     error,
     pagination,
     filters,
+    apiFilters,
     updateFilters,
     setPage,
     setPageSize,
@@ -118,6 +120,9 @@ export default function Leads() {
     refreshLeads,
     createNewLead
   } = useLeadsApi();
+
+  // Obtener conteos reales de KPIs
+  const kpiCounts = useLeadsKPICounts(apiFilters);
 
   const handleLeadUpdate = useCallback(() => {
     console.log('🔄 handleLeadUpdate called - refreshing leads...');
@@ -254,6 +259,7 @@ export default function Leads() {
       searchTerm: '',
       columnFilters: {},
       textFilters: {},
+      duplicateFilter: 'all',
     });
     setUniqueStages([]);
     setUniqueSources([]);
@@ -295,10 +301,21 @@ export default function Leads() {
   const filterValueMax = "";
   const setFilterValueMax = () => {};
   
-  // Filtro de duplicados (placeholder)
-  const filterDuplicates = "all";
-  const setFilterDuplicates = () => {};
-  const duplicateCount = 0;
+  // Filtro de duplicados
+  const filterDuplicates = filters.duplicateFilter || "all";
+  const setFilterDuplicates = useCallback((value: string) => {
+    updateFilters({
+      duplicateFilter: value as 'all' | 'duplicates' | 'unique'
+    });
+  }, [updateFilters]);
+  
+  // Calcular el conteo de duplicados si el filtro está activo
+  const duplicateCount = useMemo(() => {
+    if (filterDuplicates === 'duplicates') {
+      return pagination.total;
+    }
+    return 0;
+  }, [filterDuplicates, pagination.total]);
 
   // Handlers para filtros
   const handleSearchChange = useCallback((search: string) => {
@@ -631,7 +648,15 @@ export default function Leads() {
             </div>
 
             {/* KPI Cards and Stage Summary */}
-            <AllLeadsKPICards leads={filteredLeads} />
+            <AllLeadsKPICards 
+              leads={filteredLeads}
+              totalLeads={kpiCounts.totalLeads}
+              newLeadsCount={kpiCounts.newLeads}
+              contratoCreadoCount={kpiCounts.contratoCreado}
+              registroVentaCount={kpiCounts.registroVenta}
+              stageCounts={kpiCounts.stageCounts}
+              loading={kpiCounts.loading}
+            />
 
             <div className="flex flex-col lg:flex-row gap-4 items-center">
               {!isSmallScreen && (
@@ -1004,7 +1029,7 @@ export default function Leads() {
                   <LeadsPagination
                     currentPage={currentPage}
                     totalPages={totalPages}
-                    totalLeads={filteredLeads.length}
+                    totalLeads={pagination.total}
                     leadsPerPage={leadsPerPage}
                     onPageChange={setCurrentPage}
                     onLeadsPerPageChange={setLeadsPerPage}
