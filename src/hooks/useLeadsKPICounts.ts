@@ -7,8 +7,24 @@ interface KPICountsResult {
   newLeads: number;
   contratoCreado: number;
   registroVenta: number;
+  stageCounts: Record<string, number>;
   loading: boolean;
 }
+
+// Todos los stages posibles en el sistema
+const ALL_STAGES = [
+  'Nuevo',
+  'Asignado',
+  'Localizado: Prospecto de venta FP',
+  'Localizado: Prospecto de venta AD',
+  'Localizado: Prospecto de venta - Pendiente',
+  'Localizado: No interesado',
+  'No localizado: No contesta',
+  'No localizado: Número equivocado',
+  'Contrato Creado',
+  'Registro de Venta (fondeado)',
+  'Repetido'
+];
 
 /**
  * Hook para obtener conteos reales de KPIs desde el API
@@ -20,6 +36,7 @@ export const useLeadsKPICounts = (baseFilters: LeadsApiFilters): KPICountsResult
     newLeads: 0,
     contratoCreado: 0,
     registroVenta: 0,
+    stageCounts: {},
     loading: true,
   });
 
@@ -28,8 +45,8 @@ export const useLeadsKPICounts = (baseFilters: LeadsApiFilters): KPICountsResult
       setCounts(prev => ({ ...prev, loading: true }));
 
       try {
-        // Hacer 4 llamadas en paralelo para obtener cada conteo
-        const [totalResponse, newLeadsResponse, contratoCreadoResponse, registroVentaResponse] = await Promise.all([
+        // Crear promesas para todos los conteos necesarios
+        const promises = [
           // Total de leads (sin filtro de stage)
           getReassignableLeadsPaginated({
             page: 1,
@@ -71,13 +88,38 @@ export const useLeadsKPICounts = (baseFilters: LeadsApiFilters): KPICountsResult
               Stage: { op: 'eq', value: 'Registro de Venta (fondeado)' },
             },
           }),
-        ]);
+        ];
+
+        // Agregar promesas para cada stage
+        const stagePromises = ALL_STAGES.map(stage =>
+          getReassignableLeadsPaginated({
+            page: 1,
+            page_size: 1,
+            sort_by: 'UpdatedAt',
+            sort_dir: 'desc',
+            filters: {
+              ...baseFilters,
+              Stage: { op: 'eq', value: stage },
+            },
+          })
+        );
+
+        // Ejecutar todas las promesas en paralelo
+        const [totalResponse, newLeadsResponse, contratoCreadoResponse, registroVentaResponse, ...stageResponses] = 
+          await Promise.all([...promises, ...stagePromises]);
+
+        // Construir objeto de conteos por stage
+        const stageCounts: Record<string, number> = {};
+        ALL_STAGES.forEach((stage, index) => {
+          stageCounts[stage] = stageResponses[index].total;
+        });
 
         setCounts({
           totalLeads: totalResponse.total,
           newLeads: newLeadsResponse.total,
           contratoCreado: contratoCreadoResponse.total,
           registroVenta: registroVentaResponse.total,
+          stageCounts,
           loading: false,
         });
       } catch (error) {

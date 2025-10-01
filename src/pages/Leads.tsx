@@ -654,6 +654,7 @@ export default function Leads() {
               newLeadsCount={kpiCounts.newLeads}
               contratoCreadoCount={kpiCounts.contratoCreado}
               registroVentaCount={kpiCounts.registroVenta}
+              stageCounts={kpiCounts.stageCounts}
               loading={kpiCounts.loading}
             />
 

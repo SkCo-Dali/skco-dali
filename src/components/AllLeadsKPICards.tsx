@@ -11,6 +11,7 @@ interface AllLeadsKPICardsProps {
   newLeadsCount?: number;
   contratoCreadoCount?: number;
   registroVentaCount?: number;
+  stageCounts?: Record<string, number>;
   loading?: boolean;
 }
 
@@ -20,6 +21,7 @@ export function AllLeadsKPICards({
   newLeadsCount,
   contratoCreadoCount,
   registroVentaCount,
+  stageCounts,
   loading = false
 }: AllLeadsKPICardsProps) {
   // Usar valor real del total si está disponible (de pagination.total), sino calcular desde el array local
@@ -83,7 +85,12 @@ export function AllLeadsKPICards({
       />
       
       <div className="lg:col-span-2">
-        <LeadsStageCard leads={leads} />
+        <LeadsStageCard 
+          leads={leads}
+          stageCounts={stageCounts}
+          totalLeads={totalLeads}
+          loading={loading}
+        />
       </div>
     </div>
   );
