@@ -1,9 +1,8 @@
 import { useState, useEffect, useMemo } from "react";
-import { Calendar, Filter } from "lucide-react";
+import { Calendar, Filter, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Calendar as CalendarComponent } from "@/components/ui/calendar";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useDistinctValues } from "@/hooks/useServerSideFilters";
@@ -44,6 +43,7 @@ export function ServerSideDateFilter({
   const [activeTab, setActiveTab] = useState<'specific' | 'custom'>('specific');
   const [selectedDates, setSelectedDates] = useState<string[]>([]);
   const [customCondition, setCustomCondition] = useState<DateRangeCondition>({ type: 'custom' });
+  const [isDateTreeOpen, setIsDateTreeOpen] = useState(true);
   
   // Usar el hook para obtener valores únicos de fechas
   const {
@@ -84,14 +84,14 @@ export function ServerSideDateFilter({
       try {
         const date = parseISO(String(dateStr));
         const year = format(date, 'yyyy');
-        const month = format(date, 'MMMM', { locale: es });
-        const day = format(date, 'd');
+        const monthNum = String(date.getMonth() + 1).padStart(2, '0'); // Número del mes
+        const day = String(date.getDate()).padStart(2, '0');
         
         if (!grouped[year]) grouped[year] = {};
-        if (!grouped[year][month]) grouped[year][month] = {};
-        if (!grouped[year][month][day]) grouped[year][month][day] = [];
+        if (!grouped[year][monthNum]) grouped[year][monthNum] = {};
+        if (!grouped[year][monthNum][day]) grouped[year][monthNum][day] = [];
         
-        grouped[year][month][day].push(String(dateStr));
+        grouped[year][monthNum][day].push(String(dateStr));
       } catch (e) {
         console.error('Error parsing date:', dateStr, e);
       }
@@ -108,19 +108,19 @@ export function ServerSideDateFilter({
     }
   };
 
-  const handleSelectAllInGroup = (dates: string[], checked: boolean) => {
+  const handleYearChange = (year: string, checked: boolean) => {
     if (checked) {
-      setSelectedDates(prev => {
-        const newDates = [...prev];
-        dates.forEach(date => {
-          if (!newDates.includes(date)) {
-            newDates.push(date);
-          }
-        });
-        return newDates;
-      });
+      setSelectedDates(prev => [...prev, `year:${year}`]);
     } else {
-      setSelectedDates(prev => prev.filter(d => !dates.includes(d)));
+      setSelectedDates(prev => prev.filter(d => d !== `year:${year}`));
+    }
+  };
+
+  const handleMonthChange = (year: string, monthNum: string, checked: boolean) => {
+    if (checked) {
+      setSelectedDates(prev => [...prev, `month:${year}-${monthNum}`]);
+    } else {
+      setSelectedDates(prev => prev.filter(d => d !== `month:${year}-${monthNum}`));
     }
   };
 
@@ -208,92 +208,128 @@ export function ServerSideDateFilter({
             )}
 
             {!loading && !error && (
-              <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as 'specific' | 'custom')}>
-                <TabsList className="grid w-full grid-cols-2">
-                  <TabsTrigger value="specific">Fechas específicas</TabsTrigger>
-                  <TabsTrigger value="custom">Rango personalizado</TabsTrigger>
-                </TabsList>
-
-                <TabsContent value="specific" className="mt-4">
-                  <ScrollArea className="h-80">
-                    <div className="space-y-2">
-                      {Object.entries(groupedDates).map(([year, months]) => (
-                        <div key={year} className="mb-4">
-                          <h4 className="font-semibold text-sm mb-2">{year}</h4>
-                          {Object.entries(months).map(([month, days]) => {
-                            const allDatesInMonth = Object.values(days).flat();
-                            const allSelected = allDatesInMonth.every(d => selectedDates.includes(d));
-                            const someSelected = allDatesInMonth.some(d => selectedDates.includes(d));
-
-                            return (
-                              <div key={`${year}-${month}`} className="ml-4 mb-3">
-                                <div className="flex items-center space-x-2 mb-2">
-                                  <Checkbox
-                                    checked={allSelected}
-                                    onCheckedChange={(checked) => {
-                                      handleSelectAllInGroup(allDatesInMonth, checked as boolean);
-                                    }}
-                                    className={someSelected && !allSelected ? "data-[state=indeterminate]:bg-primary" : ""}
-                                  />
-                                  <label className="text-sm font-medium capitalize cursor-pointer">
-                                    {month}
-                                  </label>
-                                </div>
-                                <div className="ml-6 space-y-1">
-                                  {Object.entries(days).map(([day, dates]) => (
-                                    <div key={`${year}-${month}-${day}`} className="flex items-center space-x-2">
-                                      <Checkbox
-                                        checked={dates.some(d => selectedDates.includes(d))}
-                                        onCheckedChange={(checked) => {
-                                          dates.forEach(d => handleDateToggle(d, checked as boolean));
-                                        }}
-                                      />
-                                      <label className="text-sm text-gray-700 cursor-pointer">
-                                        Día {day} ({dates.length} registro{dates.length > 1 ? 's' : ''})
-                                      </label>
-                                    </div>
-                                  ))}
-                                </div>
-                              </div>
-                            );
-                          })}
-                        </div>
-                      ))}
-                      {Object.keys(groupedDates).length === 0 && (
-                        <div className="text-center py-4 text-sm text-gray-500">
-                          No se encontraron fechas
-                        </div>
-                      )}
-                    </div>
-                  </ScrollArea>
-                </TabsContent>
-
-                <TabsContent value="custom" className="mt-4">
-                  <div className="space-y-4">
-                    <div>
-                      <label className="text-sm font-medium mb-2 block">Desde:</label>
-                      <CalendarComponent
-                        mode="single"
-                        selected={customCondition.from}
-                        onSelect={(date) => setCustomCondition(prev => ({ ...prev, from: date }))}
-                        locale={es}
-                        className="rounded-md border"
-                      />
-                    </div>
-                    <div>
-                      <label className="text-sm font-medium mb-2 block">Hasta:</label>
-                      <CalendarComponent
-                        mode="single"
-                        selected={customCondition.to}
-                        onSelect={(date) => setCustomCondition(prev => ({ ...prev, to: date }))}
-                        locale={es}
-                        className="rounded-md border"
-                      />
-                    </div>
-                  </div>
-                </TabsContent>
-              </Tabs>
+              <div className="flex mb-4">
+                <div className="flex bg-gray-100 rounded-xl p-1">
+                  <button 
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setActiveTab('specific');
+                    }}
+                    className={`px-3 py-1 text-xs font-medium rounded-md ${
+                      activeTab === 'specific' 
+                        ? 'text-white bg-green-500' 
+                        : 'text-gray-600 hover:bg-gray-200'
+                    }`}
+                  >
+                    Específicas
+                  </button>
+                  <button 
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setActiveTab('custom');
+                    }}
+                    className={`px-3 py-1 text-xs font-medium rounded-md ${
+                      activeTab === 'custom' 
+                        ? 'text-white bg-green-500' 
+                        : 'text-gray-600 hover:bg-gray-200'
+                    }`}
+                  >
+                    Rango
+                  </button>
+                </div>
+              </div>
             )}
+
+            <div className="max-h-80 overflow-y-auto space-y-2">
+              {!loading && !error && activeTab === 'specific' && (
+                <Collapsible open={isDateTreeOpen} onOpenChange={setIsDateTreeOpen}>
+                  <CollapsibleTrigger className="flex items-center space-x-2 p-2 hover:bg-gray-50 w-full text-left border-b">
+                    <ChevronDown className={`h-4 w-4 transition-transform ${isDateTreeOpen ? '' : '-rotate-90'}`} />
+                    <span className="text-sm font-medium text-gray-700">Fechas Específicas</span>
+                  </CollapsibleTrigger>
+                  <CollapsibleContent className="ml-2">
+                    {Object.entries(groupedDates)
+                      .sort(([a], [b]) => parseInt(b) - parseInt(a))
+                      .map(([year, months]) => (
+                        <Collapsible key={year}>
+                          <div className="flex items-center space-x-2 p-1 hover:bg-gray-50 w-full">
+                            <Checkbox
+                              checked={selectedDates.includes(`year:${year}`)}
+                              onCheckedChange={(checked) => handleYearChange(year, checked as boolean)}
+                            />
+                            <CollapsibleTrigger className="flex items-center space-x-2 flex-1 text-left">
+                              <ChevronDown className="h-3 w-3" />
+                              <span className="text-xs text-gray-600">{year}</span>
+                            </CollapsibleTrigger>
+                          </div>
+                          <CollapsibleContent className="ml-4">
+                            {Object.entries(months).map(([monthNum, days]) => {
+                              const monthName = format(new Date(parseInt(year), parseInt(monthNum) - 1, 1), 'MMMM', { locale: es });
+                              return (
+                                <Collapsible key={monthNum}>
+                                  <div className="flex items-center space-x-2 p-1 hover:bg-gray-50 w-full">
+                                    <Checkbox
+                                      checked={selectedDates.includes(`month:${year}-${monthNum}`)}
+                                      onCheckedChange={(checked) => handleMonthChange(year, monthNum, checked as boolean)}
+                                    />
+                                    <CollapsibleTrigger className="flex items-center space-x-2 flex-1 text-left">
+                                      <ChevronDown className="h-3 w-3" />
+                                      <span className="text-xs text-gray-500">{monthName}</span>
+                                    </CollapsibleTrigger>
+                                  </div>
+                                  <CollapsibleContent className="ml-4">
+                                    {Object.entries(days).map(([day, dates]) => (
+                                      <div key={day} className="flex items-center space-x-2 p-1 hover:bg-gray-50">
+                                        <Checkbox
+                                          checked={selectedDates.includes(`${year}-${monthNum}-${day}`)}
+                                          onCheckedChange={(checked) => handleDateToggle(`${year}-${monthNum}-${day}`, checked as boolean)}
+                                        />
+                                        <label className="text-xs text-gray-600 cursor-pointer flex-1 select-none">
+                                          {day} ({dates.length})
+                                        </label>
+                                      </div>
+                                    ))}
+                                  </CollapsibleContent>
+                                </Collapsible>
+                              );
+                            })}
+                          </CollapsibleContent>
+                        </Collapsible>
+                      ))}
+                    {Object.keys(groupedDates).length === 0 && (
+                      <div className="text-center py-4 text-sm text-gray-500">
+                        No se encontraron fechas
+                      </div>
+                    )}
+                  </CollapsibleContent>
+                </Collapsible>
+              )}
+
+              {!loading && !error && activeTab === 'custom' && (
+                <div className="space-y-4">
+                  <div>
+                    <label className="text-sm font-medium mb-2 block">Desde:</label>
+                    <CalendarComponent
+                      mode="single"
+                      selected={customCondition.from}
+                      onSelect={(date) => setCustomCondition(prev => ({ ...prev, from: date }))}
+                      locale={es}
+                      className="rounded-md border"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium mb-2 block">Hasta:</label>
+                    <CalendarComponent
+                      mode="single"
+                      selected={customCondition.to}
+                      onSelect={(date) => setCustomCondition(prev => ({ ...prev, to: date }))}
+                      locale={es}
+                      className="rounded-md border"
+                    />
+                  </div>
+                </div>
+              )}
+            </div>
 
             <div className="flex justify-between mt-4 pt-4 border-t">
               <Button
