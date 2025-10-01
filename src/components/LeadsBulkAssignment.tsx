@@ -344,7 +344,8 @@ export function LeadsBulkAssignment({ leads, onLeadsAssigned }: LeadsBulkAssignm
             toUserId,
             "Asignación masiva",
             `Asignado masivamente a ${toUserName}`,
-            lead.stage
+            lead.stage,
+            lead.assignedTo  // from_user_id: usuario actual del lead
           )
         );
       });
