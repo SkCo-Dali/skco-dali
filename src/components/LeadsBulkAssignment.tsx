@@ -10,6 +10,7 @@ import { Lead } from "@/types/crm";
 import { useAssignableUsers } from "@/contexts/AssignableUsersContext";
 import { useToast } from "@/hooks/use-toast";
 import { useLeadAssignments } from "@/hooks/useLeadAssignments";
+import { bulkAssignLeads } from "@/utils/leadsApiClient";
 
 interface LeadsBulkAssignmentProps {
   leads: Lead[];
@@ -179,36 +180,56 @@ export function LeadsBulkAssignment({ leads, onLeadsAssigned }: LeadsBulkAssignm
     setIsAssigning(true);
 
     try {
-      // Crear lista de leads para asignar con histórico
+      // Paso 1: Asignación masiva real usando bulk-assign
       let leadIndex = 0;
-      const assignmentPromises: Promise<boolean>[] = [];
+      const bulkAssignPromises: Promise<void>[] = [];
+      const historicPromises: Promise<boolean>[] = [];
+      const allLeadsToAssign: Array<{ lead: Lead; toUserId: string; toUserName: string }> = [];
 
       for (const assignment of userAssignments) {
         if (assignment.quantity > 0) {
           // Tomar los leads necesarios para este usuario
           const leadsToAssign = filteredLeads.slice(leadIndex, leadIndex + assignment.quantity);
+          const leadIds = leadsToAssign.map(lead => lead.id);
           
-          console.log(`Assigning ${leadsToAssign.length} leads to user ${assignment.userName}`);
+          console.log(`Assigning ${leadIds.length} leads to user ${assignment.userName}`);
           
-          // Asignar cada lead individualmente para mantener histórico
+          // Guardar info para el histórico
           leadsToAssign.forEach(lead => {
-            assignmentPromises.push(
-              handleReassignLead(
-                lead.id,
-                assignment.userId,
-                "Asignación masiva",
-                `Asignado masivamente a ${assignment.userName}`,
-                lead.stage
-              )
-            );
+            allLeadsToAssign.push({
+              lead,
+              toUserId: assignment.userId,
+              toUserName: assignment.userName
+            });
           });
+          
+          // Llamar a bulk-assign para hacer la asignación real
+          if (leadIds.length > 0) {
+            bulkAssignPromises.push(bulkAssignLeads(leadIds, assignment.userId));
+          }
           
           leadIndex += assignment.quantity;
         }
       }
 
-      // Ejecutar todas las asignaciones con histórico
-      const results = await Promise.all(assignmentPromises);
+      // Ejecutar todas las asignaciones masivas
+      await Promise.all(bulkAssignPromises);
+      
+      // Paso 2: Guardar histórico de cada asignación
+      allLeadsToAssign.forEach(({ lead, toUserId, toUserName }) => {
+        historicPromises.push(
+          handleReassignLead(
+            lead.id,
+            toUserId,
+            "Asignación masiva",
+            `Asignado masivamente a ${toUserName}`,
+            lead.stage
+          )
+        );
+      });
+
+      // Ejecutar todas las guardadas de histórico
+      const results = await Promise.all(historicPromises);
       
       // Verificar si todas fueron exitosas
       const successCount = results.filter(success => success).length;
@@ -221,7 +242,7 @@ export function LeadsBulkAssignment({ leads, onLeadsAssigned }: LeadsBulkAssignm
       } else {
         toast({
           title: "Asignación parcial",
-          description: `${successCount} de ${totalAssigned} leads asignados exitosamente`,
+          description: `${successCount} de ${totalAssigned} leads con histórico guardado`,
           variant: "destructive",
         });
       }
