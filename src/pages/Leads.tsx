@@ -254,6 +254,7 @@ export default function Leads() {
       searchTerm: '',
       columnFilters: {},
       textFilters: {},
+      duplicateFilter: 'all',
     });
     setUniqueStages([]);
     setUniqueSources([]);
@@ -295,10 +296,21 @@ export default function Leads() {
   const filterValueMax = "";
   const setFilterValueMax = () => {};
   
-  // Filtro de duplicados (placeholder)
-  const filterDuplicates = "all";
-  const setFilterDuplicates = () => {};
-  const duplicateCount = 0;
+  // Filtro de duplicados
+  const filterDuplicates = filters.duplicateFilter || "all";
+  const setFilterDuplicates = useCallback((value: string) => {
+    updateFilters({
+      duplicateFilter: value as 'all' | 'duplicates' | 'unique'
+    });
+  }, [updateFilters]);
+  
+  // Calcular el conteo de duplicados si el filtro está activo
+  const duplicateCount = useMemo(() => {
+    if (filterDuplicates === 'duplicates') {
+      return pagination.total;
+    }
+    return 0;
+  }, [filterDuplicates, pagination.total]);
 
   // Handlers para filtros
   const handleSearchChange = useCallback((search: string) => {

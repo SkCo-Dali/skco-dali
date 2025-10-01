@@ -23,6 +23,7 @@ export interface LeadsFiltersState {
   textFilters: Record<string, TextFilterCondition[]>;
   sortBy: string;
   sortDirection: 'asc' | 'desc';
+  duplicateFilter?: 'all' | 'duplicates' | 'unique';
 }
 
 export const usePaginatedLeadsApi = () => {
@@ -44,6 +45,7 @@ export const usePaginatedLeadsApi = () => {
     textFilters: {},
     sortBy: 'UpdatedAt',
     sortDirection: 'desc',
+    duplicateFilter: 'all',
   });
 
   const { user } = useAuth();
@@ -228,6 +230,14 @@ export const usePaginatedLeadsApi = () => {
         apiFilters[apiColumn] = convertTextConditionToApi(condition);
       }
     });
+
+    // Agregar filtro de duplicados si está activo
+    if (uiFilters.duplicateFilter && uiFilters.duplicateFilter !== 'all') {
+      apiFilters['_duplicate_filter'] = {
+        op: 'eq' as any,
+        value: uiFilters.duplicateFilter
+      };
+    }
 
     return apiFilters;
   }, []);
