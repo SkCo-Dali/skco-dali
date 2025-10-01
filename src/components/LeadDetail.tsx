@@ -21,7 +21,7 @@ import { useLeadAssignments } from '@/hooks/useLeadAssignments';
 import { useLeadsApi } from '@/hooks/useLeadsApi';
 import { useProfilingApi } from '@/hooks/useProfilingApi';
 import { useToast } from '@/hooks/use-toast';
-import { formatBogotaDistanceToNow } from '@/utils/dateUtils';
+import { formatBogotaDistanceToNow, formatBogotaDateTime } from '@/utils/dateUtils';
 import { LeadReassignDialog } from './LeadReassignDialog';
 import { LeadProfiler } from './LeadProfiler';
 import ProfileResults from './ProfileResults';
@@ -1268,7 +1268,7 @@ Notas adicionales: ${lead.notes || 'Ninguna'}`;
                             </div>
                             <div className="text-right">
                                <p className="text-xs text-muted-foreground">
-                                 {formatBogotaDistanceToNow(entry.assigned_at)}
+                                 {formatBogotaDateTime(entry.assigned_at, "dd/MM/yyyy hh:mm a")}
                                </p>
                               <p className="text-xs text-muted-foreground">
                                 Por: {entry.assigned_by_name || 'Sistema'}
