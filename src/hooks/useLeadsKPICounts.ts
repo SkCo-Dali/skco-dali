@@ -45,15 +45,18 @@ export const useLeadsKPICounts = (baseFilters: LeadsApiFilters): KPICountsResult
       setCounts(prev => ({ ...prev, loading: true }));
 
       try {
+        // Crear filtros sin el filtro de Stage para el total absoluto
+        const { Stage, ...filtersWithoutStage } = baseFilters;
+        
         // Crear promesas para todos los conteos necesarios
         const promises = [
-          // Total de leads (sin filtro de stage)
+          // Total de leads (SIN filtro de stage - total absoluto)
           getReassignableLeadsPaginated({
             page: 1,
             page_size: 1,
             sort_by: 'UpdatedAt',
             sort_dir: 'desc',
-            filters: baseFilters,
+            filters: filtersWithoutStage,
           }),
           // Leads nuevos
           getReassignableLeadsPaginated({
