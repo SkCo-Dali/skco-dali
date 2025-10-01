@@ -9,8 +9,8 @@ const Index = () => {
   const { user } = useAuth();
 
   return (
-    <div className="w-full max-w-full px-4 py-4 space-y-6">
-      <div className="p-3 md:p-4 max-w-7xl mx-auto">
+    
+      <div className="w-full max-w-full px-4 py-4 space-y-6">
         <DashboardHeader />
         
         {user ? (
@@ -26,7 +26,7 @@ const Index = () => {
           </div>
         )}
       </div>
-    </div>
+  
   );
 };
 
