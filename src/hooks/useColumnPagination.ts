@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Lead } from '@/types/crm';
-import { getReassignableLeadsPaginated } from '@/utils/leadAssignmentApiClient';
+import { getReassignableLeadsPaginated, getDistinctValues } from '@/utils/leadAssignmentApiClient';
 import { LeadsApiFilters, PaginatedLead } from '@/types/paginatedLeadsTypes';
 
 interface ColumnState {
@@ -17,6 +17,8 @@ interface UseColumnPaginationProps {
   pageSize?: number;
   enabled: boolean;
 }
+
+const NULL_KEY = '__NULL__';
 
 // Función para mapear PaginatedLead a Lead
 const mapPaginatedLeadToLead = (paginatedLead: PaginatedLead): Lead => {
@@ -131,37 +133,38 @@ export function useColumnPagination({
     }
 
     try {
-      // Obtener todos los leads sin paginación para extraer valores únicos
-      const response = await getReassignableLeadsPaginated({
-        page: 1,
-        page_size: 1000, // Obtener suficientes para capturar todos los valores únicos
+      let field = '';
+      switch (groupBy) {
+        case 'source':
+          field = 'Source';
+          break;
+        case 'assignedTo':
+          field = 'AssignedTo';
+          break;
+        case 'campaign':
+          field = 'Campaign';
+          break;
+      }
+
+      const resp = await getDistinctValues({
+        field,
         filters: baseFilters,
-        sort_by: 'UpdatedAt',
-        sort_dir: 'desc'
       });
 
-      const uniqueValues = new Set<string>();
-      
-      response.items.forEach(lead => {
-        let value = '';
-        switch (groupBy) {
-          case 'source':
-            value = lead.Source;
-            break;
-          case 'assignedTo':
-            // Usar assignedToName si está disponible, sino el ID
-            value = lead.AssignedToName || lead.AssignedTo || 'Sin asignar';
-            break;
-          case 'campaign':
-            value = lead.Campaign;
-            break;
-        }
-        if (value && value.trim()) {
-          uniqueValues.add(value.trim());
+      const uniqueKeys = new Set<string>();
+      (resp.values || []).forEach((val) => {
+        if (val === null || (typeof val === 'string' && val.trim() === '')) {
+          uniqueKeys.add(NULL_KEY);
+        } else {
+          uniqueKeys.add(String(val).trim());
         }
       });
 
-      return Array.from(uniqueValues).sort();
+      return Array.from(uniqueKeys).sort((a, b) => {
+        if (a === NULL_KEY) return 1;
+        if (b === NULL_KEY) return -1;
+        return a.localeCompare(b, 'es', { sensitivity: 'base' });
+      });
     } catch (error) {
       console.error('Error getting dynamic columns:', error);
       return [];
@@ -177,8 +180,7 @@ export function useColumnPagination({
     // Obtener columnas estáticas o dinámicas
     const staticCols = getStaticColumns();
     const columnKeys = staticCols !== null ? staticCols : await getDynamicColumns();
-    
-    setAllColumnKeys(columnKeys);
+    // setAllColumnKeys moved after data fetch to allow filtering by totals
 
     const initialColumns: Record<string, ColumnState> = {};
     
@@ -192,12 +194,23 @@ export function useColumnPagination({
       } else if (groupBy === 'priority') {
         filters['Priority'] = { op: 'eq', value: key };
       } else if (groupBy === 'source') {
-        filters['Source'] = { op: 'eq', value: key };
+        if (key === NULL_KEY) {
+          (filters as any)['Source'] = { op: 'isnull' };
+        } else {
+          filters['Source'] = { op: 'eq', value: key };
+        }
       } else if (groupBy === 'assignedTo') {
-        // Para assignedTo, buscar por el nombre o ID
-        filters['AssignedToName'] = { op: 'eq', value: key };
+        if (key === NULL_KEY) {
+          (filters as any)['AssignedTo'] = { op: 'isnull' };
+        } else {
+          filters['AssignedTo'] = { op: 'eq', value: key };
+        }
       } else if (groupBy === 'campaign') {
-        filters['Campaign'] = { op: 'eq', value: key };
+        if (key === NULL_KEY) {
+          (filters as any)['Campaign'] = { op: 'isnull' };
+        } else {
+          filters['Campaign'] = { op: 'eq', value: key };
+        }
       }
 
       try {
@@ -229,7 +242,23 @@ export function useColumnPagination({
     });
 
     await Promise.all(promises);
-    setColumns(initialColumns);
+
+    // Cuando se agrupa por etapa, ocultar columnas con total = 0
+    let finalKeys = columnKeys;
+    if (groupBy === 'stage') {
+      finalKeys = columnKeys.filter((k) => (initialColumns[k]?.total || 0) > 0);
+    }
+
+    const filteredColumns =
+      groupBy === 'stage'
+        ? finalKeys.reduce((acc, k) => {
+            acc[k] = initialColumns[k];
+            return acc;
+          }, {} as Record<string, ColumnState>)
+        : initialColumns;
+
+    setAllColumnKeys(finalKeys);
+    setColumns(filteredColumns);
     setIsInitializing(false);
   }, [enabled, groupBy, baseFilters, pageSize, getStaticColumns, getDynamicColumns]);
 
@@ -251,11 +280,23 @@ export function useColumnPagination({
     } else if (groupBy === 'priority') {
       filters['Priority'] = { op: 'eq', value: columnKey };
     } else if (groupBy === 'source') {
-      filters['Source'] = { op: 'eq', value: columnKey };
+      if (columnKey === NULL_KEY) {
+        (filters as any)['Source'] = { op: 'isnull' };
+      } else {
+        filters['Source'] = { op: 'eq', value: columnKey };
+      }
     } else if (groupBy === 'assignedTo') {
-      filters['AssignedToName'] = { op: 'eq', value: columnKey };
+      if (columnKey === NULL_KEY) {
+        (filters as any)['AssignedTo'] = { op: 'isnull' };
+      } else {
+        filters['AssignedTo'] = { op: 'eq', value: columnKey };
+      }
     } else if (groupBy === 'campaign') {
-      filters['Campaign'] = { op: 'eq', value: columnKey };
+      if (columnKey === NULL_KEY) {
+        (filters as any)['Campaign'] = { op: 'isnull' };
+      } else {
+        filters['Campaign'] = { op: 'eq', value: columnKey };
+      }
     }
 
     try {

@@ -147,7 +147,7 @@ export function LeadsContent({
     return (
       <>
         <div className="space-y-6">
-          <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 max-h-[350px] overflow-y-auto">
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 max-h-[500px] overflow-y-auto">
             {allColumnKeys.map((columnKey) => {
               const columnState = columnData[columnKey];
               if (!columnState) return null;

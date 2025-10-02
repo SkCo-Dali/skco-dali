@@ -322,13 +322,24 @@ export const usePaginatedLeadsApi = () => {
         const dupLeads = await getDuplicateLeads();
         const dupIds = dupLeads.map(l => l.id).filter(Boolean);
         if (dupIds.length > 0) {
-          (filtersForApi as any)['Id'] = { op: 'in', values: dupIds.slice(0, 500) } as any;
+          (filtersForApi as any)['Id'] = { op: 'in', values: dupIds } as any;
         } else {
           // Si no hay duplicados, forzamos un resultado vacío
           (filtersForApi as any)['Id'] = { op: 'eq', value: '__no_matches__' } as any;
         }
       } catch (e) {
         console.error('❌ Error fetching duplicate leads list:', e);
+      }
+    } else if (currentFilters.duplicateFilter === 'unique') {
+      // Para filtro "unique", excluir IDs duplicados usando operador 'nin'
+      try {
+        const dupLeads = await getDuplicateLeads();
+        const dupIds = dupLeads.map(l => l.id).filter(Boolean);
+        if (dupIds.length > 0) {
+          (filtersForApi as any)['Id'] = { op: 'nin', values: dupIds } as any;
+        }
+      } catch (e) {
+        console.error('❌ Error fetching duplicate leads for unique filter:', e);
       }
     }
 

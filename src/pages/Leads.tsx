@@ -122,7 +122,10 @@ export default function Leads() {
   } = useLeadsApi();
 
   // Obtener conteos reales de KPIs
-  const kpiCounts = useLeadsKPICounts(apiFilters);
+  const kpiCounts = useLeadsKPICounts({ 
+    apiFilters, 
+    duplicateFilter: filters.duplicateFilter 
+  });
 
   const handleLeadUpdate = useCallback(() => {
     console.log('🔄 handleLeadUpdate called - refreshing leads...');
@@ -309,13 +312,8 @@ export default function Leads() {
     });
   }, [updateFilters]);
   
-  // Calcular el conteo de duplicados si el filtro está activo
-  const duplicateCount = useMemo(() => {
-    if (filterDuplicates === 'duplicates') {
-      return pagination.total;
-    }
-    return 0;
-  }, [filterDuplicates, pagination.total]);
+  // Usar el conteo de duplicados de las KPI cards (que considera filtros activos)
+  const duplicateCount = filterDuplicates === 'duplicates' ? kpiCounts.totalLeads : 0;
 
   // Handlers para filtros
   const handleSearchChange = useCallback((search: string) => {

@@ -74,7 +74,7 @@ export type FilterOperator =
   // Numérico/Fecha
   | 'gt' | 'gte' | 'lt' | 'lte' | 'between'
   // Lista
-  | 'in';
+  | 'in' | 'nin';
 
 export interface DistinctValuesResponse {
   field: string;
