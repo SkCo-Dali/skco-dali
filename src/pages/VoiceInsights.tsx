@@ -14,6 +14,7 @@ const VoiceInsights = () => {
   const [showWarning, setShowWarning] = useState(false);
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
   const [isProcessingFile, setIsProcessingFile] = useState(false);
+  const [contextNote, setContextNote] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   
@@ -69,6 +70,7 @@ const VoiceInsights = () => {
     setRecordingTime(0);
     setHasRecording(false);
     setShowWarning(false);
+    setContextNote("");
     await toggleRecording();
   };
 
@@ -98,6 +100,7 @@ const VoiceInsights = () => {
 
     setUploadedFile(file);
     setHasRecording(false); // Si hay una grabación, la reemplazamos con el archivo
+    setContextNote("");
     toast.success(`Archivo "${file.name}" cargado correctamente`);
   };
 
@@ -117,6 +120,9 @@ const VoiceInsights = () => {
         
         if (transcribedText && transcribedText.trim()) {
           console.log('Transcripción del archivo:', transcribedText);
+          if (contextNote.trim()) {
+            console.log('Contexto proporcionado:', contextNote);
+          }
         }
         
         toast.success(
@@ -126,6 +132,7 @@ const VoiceInsights = () => {
         
         // Reset states
         setUploadedFile(null);
+        setContextNote("");
         if (fileInputRef.current) {
           fileInputRef.current.value = '';
         }
@@ -136,6 +143,9 @@ const VoiceInsights = () => {
         setIsProcessingFile(false);
       }
     } else {
+      if (contextNote.trim()) {
+        console.log('Contexto proporcionado:', contextNote);
+      }
       toast.success(
         "✅ Grabación enviada. En pocos minutos, recibirás en tu correo un resumen completo del análisis realizado por Sami, incluyendo sugerencias personalizadas de productos.",
         { duration: 6000 }
@@ -143,6 +153,7 @@ const VoiceInsights = () => {
       // Reset states
       setHasRecording(false);
       setRecordingTime(0);
+      setContextNote("");
     }
   };
 
@@ -290,6 +301,26 @@ const VoiceInsights = () => {
                   Se ha alcanzado el tiempo máximo de grabación (2 horas).
                 </AlertDescription>
               </Alert>
+            )}
+
+            {/* Context Note */}
+            {(hasRecording || uploadedFile) && !isRecording && (
+              <div className="flex flex-col space-y-2 animate-fade-in">
+                <label htmlFor="context-note" className="text-sm font-medium text-foreground">
+                  Contexto adicional (opcional)
+                </label>
+                <textarea
+                  id="context-note"
+                  value={contextNote}
+                  onChange={(e) => setContextNote(e.target.value)}
+                  placeholder="Ej: Esta es una conversación con un cliente interesado en seguros de vida..."
+                  className="w-full min-h-[80px] p-3 rounded-lg border-2 border-border bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent resize-none text-sm"
+                  maxLength={500}
+                />
+                <p className="text-xs text-muted-foreground text-right">
+                  {contextNote.length}/500 caracteres
+                </p>
+              </div>
             )}
 
             {/* Analyze Button */}
