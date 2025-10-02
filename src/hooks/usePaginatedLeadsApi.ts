@@ -141,14 +141,17 @@ export const usePaginatedLeadsApi = () => {
     // Si hay searchTerm, agregarlo como filtro OR en múltiples campos
     if (uiFilters.searchTerm && uiFilters.searchTerm.trim()) {
       // El API espera un filtro especial para búsqueda en múltiples campos
-      // Lo agregamos como filtro "contains" en cada campo relevante
+      // Agregamos filtros "contains" para Name, Email, Phone y Campaign
       const searchValue = uiFilters.searchTerm.trim();
       
-      // Agregar filtro de búsqueda para Email como "contains"
-      apiFilters['Email'] = {
-        op: 'contains',
-        value: searchValue
-      };
+      // El API puede no soportar OR directamente, así que agregamos un campo especial
+      // o procesamos client-side. Por ahora, agregamos searchQuery como campo especial.
+      // Si el backend no soporta esto, tendremos que filtrar client-side
+      apiFilters['searchQuery'] = {
+        op: 'multi_contains',
+        value: searchValue,
+        fields: ['Name', 'Email', 'Phone', 'Campaign']
+      } as any;
     }
 
     // Extraer filtros de fecha especiales antes del procesamiento
@@ -254,7 +257,6 @@ export const usePaginatedLeadsApi = () => {
         lead.name?.toLowerCase().includes(searchLower) ||
         lead.email?.toLowerCase().includes(searchLower) ||
         lead.phone?.toLowerCase().includes(searchLower) ||
-        lead.documentNumber?.toString().includes(searchLower) ||
         lead.campaign?.toLowerCase().includes(searchLower)
       );
     });
@@ -420,16 +422,20 @@ export const usePaginatedLeadsApi = () => {
 
       const mappedLeads = items.map(mapPaginatedLeadToLead);
 
-      // Ahora la búsqueda se hace en el servidor, no necesitamos filtrado client-side
+      // Aplicar búsqueda client-side si hay searchTerm (por si el backend no soporta multi_contains)
+      const finalLeads = currentFilters.searchTerm 
+        ? applyClientSearchFilter(mappedLeads, currentFilters.searchTerm)
+        : mappedLeads;
+
       setState(prev => ({
         ...prev,
-        leads: mappedLeads,
+        leads: finalLeads,
         loading: false,
         pagination: {
           page: pageNum,
           pageSize: pageSizeNum,
-          total: totalNum,
-          totalPages: totalPagesNum,
+          total: currentFilters.searchTerm ? finalLeads.length : totalNum,
+          totalPages: currentFilters.searchTerm ? Math.ceil(finalLeads.length / pageSizeNum) : totalPagesNum,
         },
       }));
 
