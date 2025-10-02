@@ -312,23 +312,8 @@ export default function Leads() {
     });
   }, [updateFilters]);
   
-  // Obtener el conteo real de duplicados del sistema
-  const [duplicateCount, setDuplicateCount] = useState(0);
-  
-  useEffect(() => {
-    const fetchDuplicateCount = async () => {
-      try {
-        const { getDuplicateLeads } = await import('@/utils/leadsApiClient');
-        const duplicates = await getDuplicateLeads();
-        setDuplicateCount(duplicates.length);
-      } catch (error) {
-        console.error('Error fetching duplicate count:', error);
-        setDuplicateCount(0);
-      }
-    };
-    
-    fetchDuplicateCount();
-  }, []);
+  // Usar el conteo de duplicados de las KPI cards (que considera filtros activos)
+  const duplicateCount = filterDuplicates === 'duplicates' ? kpiCounts.totalLeads : 0;
 
   // Handlers para filtros
   const handleSearchChange = useCallback((search: string) => {
