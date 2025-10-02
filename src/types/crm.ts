@@ -32,6 +32,7 @@ export interface RolePermissions {
   canAccessReports: boolean;
   canUploadLeads?: boolean;
   canBulkAssignLeads?: boolean;
+  canBulkUpdateStage?: boolean;
   canAccessUserManagement?: boolean;
   canAssignRoles?: boolean;
   canSendEmail?: boolean;
@@ -56,6 +57,7 @@ export const getRolePermissions = (role: UserRole): RolePermissions => {
         canAccessReports: true,
         canUploadLeads: true,
         canBulkAssignLeads: true,
+        canBulkUpdateStage: true,
         canAccessUserManagement: true,
         canAssignRoles: true,
         canSendEmail: true,
@@ -75,6 +77,7 @@ export const getRolePermissions = (role: UserRole): RolePermissions => {
         canAccessReports: true,
         canUploadLeads: true,
         canBulkAssignLeads: true,
+        canBulkUpdateStage: true,
         canAccessUserManagement: false,
         canAssignRoles: false,
         canSendEmail: true,
@@ -98,6 +101,7 @@ export const getRolePermissions = (role: UserRole): RolePermissions => {
         canAccessReports: false,
         canUploadLeads: false,
         canBulkAssignLeads: true,
+        canBulkUpdateStage: false,
         canAccessUserManagement: false,
         canAssignRoles: false,
         canSendEmail: true,
@@ -116,6 +120,7 @@ export const getRolePermissions = (role: UserRole): RolePermissions => {
         canAccessReports: false,
         canUploadLeads: false,
         canBulkAssignLeads: false,
+        canBulkUpdateStage: false,
         canAccessUserManagement: false,
         canAssignRoles: false,
         canSendEmail: true,
@@ -134,6 +139,7 @@ export const getRolePermissions = (role: UserRole): RolePermissions => {
         canAccessReports: true,
         canUploadLeads: false,
         canBulkAssignLeads: false,
+        canBulkUpdateStage: false,
         canAccessUserManagement: false,
         canAssignRoles: false,
         canSendEmail: false,
@@ -153,6 +159,7 @@ export const getRolePermissions = (role: UserRole): RolePermissions => {
         canAccessReports: false,
         canUploadLeads: false,
         canBulkAssignLeads: false,
+        canBulkUpdateStage: false,
         canAccessUserManagement: false,
         canAssignRoles: false,
         canSendEmail: true,
@@ -171,6 +178,7 @@ export const getRolePermissions = (role: UserRole): RolePermissions => {
         canAccessReports: false,
         canUploadLeads: false,
         canBulkAssignLeads: false,
+        canBulkUpdateStage: false,
         canAccessUserManagement: false,
         canAssignRoles: false,
         canSendEmail: false,
