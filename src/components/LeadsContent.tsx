@@ -120,7 +120,7 @@ export function LeadsContent({
 
   const getStageLabel = (stage: string) => {
     const stageLabels: { [key: string]: string } = {
-      'Contacto': 'Contacto',
+      'Nuevo': 'Nuevo',
       'Calificado': 'Calificado', 
       'En seguimiento': 'En seguimiento',
       'Propuesta enviada': 'Propuesta enviada',
