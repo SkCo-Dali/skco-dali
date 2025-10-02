@@ -554,8 +554,8 @@ export default function Leads() {
           description: `${success} lead${success > 1 ? 's' : ''} actualizado${success > 1 ? 's' : ''} exitosamente${failed > 0 ? `. ${failed} fallaron.` : ''}`,
         });
         
-        // Refrescar la lista de leads
-        handleLeadUpdate();
+        // Refrescar la lista de leads inmediatamente
+        await refreshLeads();
         
         // Limpiar selección
         setSelectedLeads([]);
