@@ -180,8 +180,7 @@ export function useColumnPagination({
     // Obtener columnas estáticas o dinámicas
     const staticCols = getStaticColumns();
     const columnKeys = staticCols !== null ? staticCols : await getDynamicColumns();
-    
-    setAllColumnKeys(columnKeys);
+    // setAllColumnKeys moved after data fetch to allow filtering by totals
 
     const initialColumns: Record<string, ColumnState> = {};
     
@@ -243,7 +242,23 @@ export function useColumnPagination({
     });
 
     await Promise.all(promises);
-    setColumns(initialColumns);
+
+    // Cuando se agrupa por etapa, ocultar columnas con total = 0
+    let finalKeys = columnKeys;
+    if (groupBy === 'stage') {
+      finalKeys = columnKeys.filter((k) => (initialColumns[k]?.total || 0) > 0);
+    }
+
+    const filteredColumns =
+      groupBy === 'stage'
+        ? finalKeys.reduce((acc, k) => {
+            acc[k] = initialColumns[k];
+            return acc;
+          }, {} as Record<string, ColumnState>)
+        : initialColumns;
+
+    setAllColumnKeys(finalKeys);
+    setColumns(filteredColumns);
     setIsInitializing(false);
   }, [enabled, groupBy, baseFilters, pageSize, getStaticColumns, getDynamicColumns]);
 
