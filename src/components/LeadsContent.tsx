@@ -119,18 +119,8 @@ export function LeadsContent({
   }
 
   const getLabel = (columnKey: string) => {
-    const NULL_KEY = '__NULL__';
-    if (groupBy === 'assignedTo') {
-      if (columnKey === NULL_KEY) return 'Sin asignar';
-      const first = columnData[columnKey]?.leads?.[0];
-      return first?.assignedToName || 'Sin asignar';
-    }
-    if (groupBy === 'source') {
-      return columnKey === NULL_KEY ? 'Sin fuente' : columnKey;
-    }
-    if (groupBy === 'campaign') {
-      return columnKey === NULL_KEY ? 'Sin campaña' : columnKey;
-    }
+    // Para columnas estáticas (stage, priority) que ya vienen bien formateadas
+    // y para columnas dinámicas (source, assignedTo, campaign) que vienen del API
     return columnKey;
   };
 
@@ -157,7 +147,7 @@ export function LeadsContent({
     return (
       <>
         <div className="space-y-6">
-          <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 max-h-[350px] overflow-y-auto">
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 max-h-[500px] overflow-y-auto">
             {allColumnKeys.map((columnKey) => {
               const columnState = columnData[columnKey];
               if (!columnState) return null;
