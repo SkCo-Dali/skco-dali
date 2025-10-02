@@ -331,16 +331,12 @@ export const usePaginatedLeadsApi = () => {
         console.error('❌ Error fetching duplicate leads list:', e);
       }
     } else if (currentFilters.duplicateFilter === 'unique') {
-      // Para filtro "unique", excluir los IDs duplicados
+      // Para filtro "unique", excluir IDs duplicados usando operador 'nin'
       try {
         const dupLeads = await getDuplicateLeads();
         const dupIds = dupLeads.map(l => l.id).filter(Boolean);
         if (dupIds.length > 0) {
-          // Usar operador 'neq' con múltiples valores (esto necesita ser soportado por el backend)
-          // Como alternativa, podemos hacer que el filtro unique funcione obteniendo TODOS los leads
-          // y filtrando en el cliente, pero eso no es eficiente
-          // Por ahora, vamos a usar un enfoque diferente: obtener todos y filtrar duplicados
-          console.warn('⚠️ Filtro "unique" requiere procesamiento adicional en el backend');
+          (filtersForApi as any)['Id'] = { op: 'nin', values: dupIds } as any;
         }
       } catch (e) {
         console.error('❌ Error fetching duplicate leads for unique filter:', e);

@@ -69,7 +69,16 @@ export const useLeadsKPICounts = (params: UseLeadsKPICountsParams): KPICountsRes
             console.error('❌ Error fetching duplicate leads for KPI counts:', e);
           }
         } else if (duplicateFilter === 'unique') {
-          console.warn('⚠️ Filtro "unique" requiere procesamiento adicional en el backend');
+          // Para 'unique', excluir IDs duplicados usando operador 'nin'
+          try {
+            const dupLeads = await getDuplicateLeads();
+            const dupIds = dupLeads.map(l => l.id).filter(Boolean);
+            if (dupIds.length > 0) {
+              (effectiveFilters as any)['Id'] = { op: 'nin', values: dupIds };
+            }
+          } catch (e) {
+            console.error('❌ Error fetching duplicate leads for KPI unique filter:', e);
+          }
         }
 
         // Crear filtros sin el filtro de Stage para el total absoluto
