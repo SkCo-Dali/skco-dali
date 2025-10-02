@@ -415,7 +415,7 @@ export function LeadsFilters({
               </Select>
             </div>
 
-            {/* Filtro de duplicados */}
+            {/* Filtro de duplicados 
             <div className="space-y-1">
               <Label htmlFor="duplicates-filter" className="text-sm">
                 Duplicados
@@ -434,7 +434,7 @@ export function LeadsFilters({
                   <SelectItem value="duplicates">Solo duplicados</SelectItem>
                 </SelectContent>
               </Select>
-            </div>
+            </div>*/}
           </div>
 
           {/* Sección de filtros de fecha y valor en grid separado */}
