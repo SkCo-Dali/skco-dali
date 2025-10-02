@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { Lead } from "@/types/crm";
 import { LeadCard } from "@/components/LeadCard";
 import { Badge } from "@/components/ui/badge";
+import { API_TO_FRONTEND_STAGE_MAP, API_TO_FRONTEND_PRIORITY_MAP } from "@/types/leadsApiTypes";
 
 interface LeadsColumnsProps {
   leads: Lead[];
@@ -65,37 +66,77 @@ export function LeadsColumns({ leads, onLeadClick, onLeadUpdate, onSendEmail, gr
   };
 
   const groupLeads = () => {
+    // Helpers para normalizar valores según el API real
+    const stageMap = API_TO_FRONTEND_STAGE_MAP;
+    const canonicalStages = Object.values(stageMap);
+    const normalize = (s?: string | null) => (s ?? '').trim();
+
+    const findCanonicalStage = (raw?: string | null): string => {
+      const s = normalize(raw);
+      if (!s) return 'Sin etapa';
+      // Match exacto
+      if (canonicalStages.includes(s)) return s;
+      // Match case-insensitive
+      const ci = canonicalStages.find(cs => cs.toLowerCase() === s.toLowerCase());
+      if (ci) return ci;
+      // Aliases conocidos (por si llegan en inglés u otras variantes)
+      const aliases: Record<string, string> = {
+        'new': 'Nuevo',
+        'assigned': 'Asignado',
+        'contract created': 'Contrato Creado',
+        'funded sale record': 'Registro de Venta (fondeado)'
+      };
+      const alias = aliases[s.toLowerCase()];
+      if (alias) return alias;
+      // Si no coincide con nada conocido, usar el valor limpio
+      return s;
+    };
+
+    const mapPriority = (raw?: string | null): { key: string; label: string } => {
+      const p = normalize(raw);
+      const frontend = (API_TO_FRONTEND_PRIORITY_MAP as Record<string, string>)[p] || p.toLowerCase();
+      const key = frontend || 'sin-prioridad';
+      const label = priorityLabels[frontend] || (p || 'Sin prioridad');
+      return { key, label };
+    };
+
     const grouped = leads.reduce((acc, lead) => {
       let key = '';
       let label = '';
 
       switch (groupBy) {
-        case 'stage':
-          // Usar el stage directamente del API, normalizado
-          key = lead.stage || 'Sin etapa';
-          label = lead.stage || 'Sin etapa';
+        case 'stage': {
+          const canonical = findCanonicalStage(lead.stage);
+          key = canonical;
+          label = canonical;
           break;
-        case 'priority':
-          // Normalizar a minúsculas para comparación
-          const normalizedPriority = (lead.priority || '').toLowerCase();
-          key = normalizedPriority || 'sin-prioridad';
-          label = priorityLabels[normalizedPriority] || lead.priority || 'Sin prioridad';
+        }
+        case 'priority': {
+          const mapped = mapPriority(lead.priority);
+          key = mapped.key;
+          label = mapped.label;
           break;
-        case 'source':
-          // Normalizar a minúsculas para comparación
-          const normalizedSource = (lead.source || '').toLowerCase();
+        }
+        case 'source': {
+          const s = normalize(lead.source);
+          const normalizedSource = s.toLowerCase();
           key = normalizedSource || 'sin-fuente';
-          label = sourceLabels[normalizedSource] || lead.source || 'Sin fuente';
+          label = sourceLabels[normalizedSource] || s || 'Sin fuente';
           break;
-        case 'assignedTo':
-          // Usar assignedTo como key y assignedToName como label
-          key = lead.assignedTo || 'sin-asignar';
-          label = lead.assignedToName || (lead.assignedTo ? `Usuario ${lead.assignedTo}` : 'Sin asignar');
+        }
+        case 'assignedTo': {
+          const id = normalize(lead.assignedTo);
+          const name = normalize(lead.assignedToName);
+          key = id || 'sin-asignar';
+          label = name || (id ? `Usuario ${id}` : 'Sin asignar');
           break;
-        case 'campaign':
-          key = lead.campaign || 'sin-campana';
-          label = lead.campaign || 'Sin campaña';
+        }
+        case 'campaign': {
+          const c = normalize(lead.campaign);
+          key = c || 'sin-campana';
+          label = c || 'Sin campaña';
           break;
+        }
         default:
           key = 'all';
           label = 'Todos';
@@ -110,7 +151,6 @@ export function LeadsColumns({ leads, onLeadClick, onLeadUpdate, onSendEmail, gr
 
     return grouped;
   };
-
   const groupedLeads = groupLeads();
 
   return (
