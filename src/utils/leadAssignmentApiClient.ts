@@ -101,6 +101,9 @@ export const getReassignableLeadsPaginated = async (params: LeadsApiParams): Pro
   if (params.duplicate_filter && params.duplicate_filter !== 'all') {
     qs.set("duplicate_filter", params.duplicate_filter);
   }
+  if (params.search && params.search.trim()) {
+    qs.set("search", params.search.trim());
+  }
   
   const endpoint = `/api/lead-assignments/reassignable?${qs.toString()}`;
   console.log('📡 Fetching paginated leads from:', endpoint);

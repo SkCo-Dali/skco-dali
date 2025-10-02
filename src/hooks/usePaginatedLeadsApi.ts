@@ -412,11 +412,14 @@ export const usePaginatedLeadsApi = () => {
 
       const mappedLeads = items.map(mapPaginatedLeadToLead);
 
-      // El backend maneja la búsqueda multi-campo con el parámetro 'search'
-      // No necesitamos filtrado client-side que rompería la paginación
+      // Fallback: aplicar búsqueda client-side en Name, Email, Phone, Campaign
+      const finalLeads = currentFilters.searchTerm
+        ? applyClientSearchFilter(mappedLeads, currentFilters.searchTerm)
+        : mappedLeads;
+
       setState(prev => ({
         ...prev,
-        leads: mappedLeads,
+        leads: finalLeads,
         loading: false,
         pagination: {
           page: pageNum,

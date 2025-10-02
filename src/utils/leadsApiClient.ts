@@ -434,6 +434,7 @@ export const getDuplicateLeadsPaginated = async (params?: {
   sort_by?: string;
   sort_dir?: 'asc' | 'desc';
   filters?: Record<string, any>;
+  search?: string;
 }): Promise<any> => {
   const queryParams = new URLSearchParams();
   
@@ -442,6 +443,7 @@ export const getDuplicateLeadsPaginated = async (params?: {
   if (params?.sort_by) queryParams.set('sort_by', params.sort_by);
   if (params?.sort_dir) queryParams.set('sort_dir', params.sort_dir);
   if (params?.filters) queryParams.set('filters', JSON.stringify(params.filters));
+  if (params?.search && params.search.trim()) queryParams.set('search', params.search.trim());
 
   const endpoint = `${API_BASE_URL}/duplicates?${queryParams.toString()}`;
 
