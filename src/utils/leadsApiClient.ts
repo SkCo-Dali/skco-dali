@@ -419,16 +419,42 @@ export const getDuplicateLeadsPaginated = async (params?: {
   const endpoint = `${API_BASE_URL}/duplicates?${queryParams.toString()}`;
 
   try {
+    console.log('🔍 Fetching duplicates from:', endpoint);
     const headers = await getAuthHeaders();
     const response = await fetch(endpoint, { headers });
     
+    console.log('📥 Duplicates API response status:', response.status);
+    
     if (!response.ok) {
-      throw new Error(`Error al obtener duplicados paginados: ${response.statusText}`);
+      const errorText = await response.text();
+      console.error('❌ Duplicates API error:', errorText);
+      throw new Error(`Error al obtener duplicados paginados: ${response.status} - ${response.statusText}`);
     }
     
     const result = await response.json();
+    console.log('✅ Duplicates API result:', result);
+    
+    // Validar que tenga la estructura esperada
+    if (!result || typeof result !== 'object') {
+      console.error('❌ Invalid response structure:', result);
+      throw new Error('Respuesta inválida de la API de duplicados');
+    }
+    
+    // Si no tiene items, crear estructura vacía
+    if (!result.items) {
+      console.warn('⚠️ Response missing items array, returning empty structure');
+      return {
+        items: [],
+        page: params?.page || 1,
+        page_size: params?.page_size || 50,
+        total: 0,
+        total_pages: 0
+      };
+    }
+    
     return result;
   } catch (error) {
+    console.error('💥 Error in getDuplicateLeadsPaginated:', error);
     throw error;
   }
 };
