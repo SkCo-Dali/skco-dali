@@ -53,9 +53,12 @@ export function LeadsBulkStatusUpdate({
   const handleConfirm = async () => {
     if (!selectedStage) return;
     
-    await onConfirm(selectedStage);
-    setSelectedStage("");
-    onClose();
+    try {
+      await onConfirm(selectedStage);
+      setSelectedStage("");
+    } catch (error) {
+      console.error('Error en actualización masiva:', error);
+    }
   };
 
   const handleClose = () => {

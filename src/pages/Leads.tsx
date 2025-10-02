@@ -549,16 +549,17 @@ export default function Leads() {
       const { success, failed } = await bulkChangeLeadStage(selectedLeads, newStage);
       
       if (success > 0) {
+        // Refrescar la lista de leads inmediatamente
+        await refreshLeads();
+        
         toast({
           title: "Actualización completada",
           description: `${success} lead${success > 1 ? 's' : ''} actualizado${success > 1 ? 's' : ''} exitosamente${failed > 0 ? `. ${failed} fallaron.` : ''}`,
         });
         
-        // Refrescar la lista de leads inmediatamente
-        await refreshLeads();
-        
-        // Limpiar selección
+        // Limpiar selección y cerrar modal
         setSelectedLeads([]);
+        setShowBulkStatusUpdate(false);
       } else {
         toast({
           title: "Error",
