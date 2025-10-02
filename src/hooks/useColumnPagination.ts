@@ -104,17 +104,21 @@ export function useColumnPagination({
       case 'stage':
         return [
           'Nuevo',
-          'Calificado',
-          'En seguimiento',
-          'Propuesta enviada',
-          'Negociación',
-          'Contrato Creado',
-          'Registro de Venta (fondeado)',
-          'Ganado',
-          'Perdido'
+  'Asignado', 
+  'Localizado: No interesado',
+  'Localizado: Prospecto de venta FP',
+  'Localizado: Prospecto de venta AD',
+  'Localizado: Prospecto de venta - Pendiente',
+  'Localizado: Volver a llamar',
+  'Localizado: No vuelve a contestar',
+  'No localizado: No contesta',
+  'No localizado: Número equivocado',
+  'Contrato Creado',
+  'Registro de Venta (fondeado)',
+  'Repetido'
         ];
       case 'priority':
-        return ['low', 'medium', 'high', 'urgent'];
+        return ['Baja', 'Media', 'Alta', 'Urgente'];
       case 'source':
         return ['Hubspot', 'DaliLM', 'DaliAI', 'web', 'social', 'referral', 'cold-call', 'event', 'campaign'];
       default:

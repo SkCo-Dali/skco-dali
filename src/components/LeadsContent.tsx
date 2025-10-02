@@ -121,14 +121,18 @@ export function LeadsContent({
   const getStageLabel = (stage: string) => {
     const stageLabels: { [key: string]: string } = {
       'Nuevo': 'Nuevo',
-      'Calificado': 'Calificado', 
-      'En seguimiento': 'En seguimiento',
-      'Propuesta enviada': 'Propuesta enviada',
-      'Negociación': 'Negociación',
-      'Contrato Creado': 'Contrato Creado',
-      'Registro de Venta (fondeado)': 'Registro de Venta',
-      'Ganado': 'Ganado',
-      'Perdido': 'Perdido'
+  'Asignado': 'Asignado', 
+  'Localizado: No interesado': 'Localizado: No interesado',
+  'Localizado: Prospecto de venta FP': 'Localizado: Prospecto de venta FP',
+  'Localizado: Prospecto de venta AD': 'Localizado: Prospecto de venta AD',
+  'Localizado: Prospecto de venta - Pendiente': 'Localizado: Prospecto de venta - Pendiente',
+  'Localizado: Volver a llamar': 'Localizado: Volver a llamar',
+  'Localizado: No vuelve a contestar': 'Localizado: No vuelve a contestar',
+  'No localizado: No contesta': 'No localizado: No contesta',
+  'No localizado: Número equivocado': 'No localizado: Número equivocado',
+  'Contrato Creado': 'Contrato Creado',
+  'Registro de Venta (fondeado)': 'Registro de Venta (fondeado)',
+  'Repetido': 'Repetido'
     };
     return stageLabels[stage] || stage;
   };
