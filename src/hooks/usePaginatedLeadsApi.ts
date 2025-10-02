@@ -513,6 +513,10 @@ export const usePaginatedLeadsApi = () => {
     setPageSize,
     loadLeads,
     getUniqueValues,
-    refreshLeads: () => loadLeads(undefined, undefined, 'refreshLeads'),
+    refreshLeads: () => {
+      // Forzar recarga aunque los parámetros no cambien
+      lastRequestKeyRef.current = null;
+      return loadLeads(undefined, undefined, 'refreshLeads');
+    },
   };
 };
