@@ -155,46 +155,46 @@ const VoiceInsights = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20 py-8 px-4">
-      <div className="max-w-4xl mx-auto space-y-8">
+    <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20 py-4 px-4 flex items-center">
+      <div className="max-w-4xl mx-auto w-full space-y-4">
         {/* Header */}
-        <div className="text-center space-y-3">
-          <h1 className="text-4xl md:text-5xl font-bold text-foreground">
+        <div className="text-center space-y-1">
+          <h1 className="text-3xl md:text-4xl font-bold text-foreground">
             Sami Voice Insights
           </h1>
-          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+          <p className="text-sm text-muted-foreground max-w-2xl mx-auto">
             Graba, analiza y recibe recomendaciones personalizadas en minutos.
           </p>
         </div>
 
         {/* Main Card */}
-        <Card className="p-8 md:p-12 shadow-xl border-2">
-          <div className="space-y-8">
+        <Card className="p-4 md:p-6 shadow-xl border-2">
+          <div className="space-y-4">
             {/* Recording Button */}
-            <div className="flex flex-col items-center space-y-6">
+            <div className="flex flex-col items-center space-y-3">
               <Button
                 size="lg"
                 onClick={isRecording ? handleStopRecording : handleStartRecording}
                 disabled={isProcessing || !!uploadedFile}
-                className={`h-32 w-32 rounded-full text-lg font-semibold shadow-2xl transform transition-all duration-300 hover:scale-105 ${
+                className={`h-24 w-24 rounded-full text-lg font-semibold shadow-2xl transform transition-all duration-300 hover:scale-105 ${
                   isRecording
                     ? "bg-destructive hover:bg-destructive/90"
                     : "gradient-skandia hover:opacity-90"
                 }`}
               >
                 {isRecording ? (
-                  <MicOff className="h-12 w-12" />
+                  <MicOff className="h-10 w-10" />
                 ) : (
-                  <Mic className="h-12 w-12" />
+                  <Mic className="h-10 w-10" />
                 )}
               </Button>
 
-              <div className="text-center space-y-2">
-                <p className="text-2xl font-bold text-foreground">
+              <div className="text-center space-y-1">
+                <p className="text-lg font-bold text-foreground">
                   {isRecording ? "Detener grabación" : "Iniciar grabación"}
                 </p>
                 {!isRecording && !hasRecording && !uploadedFile && (
-                  <p className="text-sm text-muted-foreground">
+                  <p className="text-xs text-muted-foreground">
                     Presiona el botón para comenzar
                   </p>
                 )}
@@ -203,16 +203,16 @@ const VoiceInsights = () => {
 
             {/* Divider */}
             {!isRecording && !hasRecording && !uploadedFile && (
-              <div className="flex items-center space-x-4 my-6">
+              <div className="flex items-center space-x-4 my-3">
                 <div className="flex-1 h-px bg-border" />
-                <span className="text-sm text-muted-foreground font-medium">o</span>
+                <span className="text-xs text-muted-foreground font-medium">o</span>
                 <div className="flex-1 h-px bg-border" />
               </div>
             )}
 
             {/* Upload Button */}
             {!isRecording && !hasRecording && !uploadedFile && (
-              <div className="flex flex-col items-center space-y-4">
+              <div className="flex flex-col items-center space-y-2">
                 <input
                   ref={fileInputRef}
                   type="file"
@@ -225,12 +225,12 @@ const VoiceInsights = () => {
                   onClick={() => fileInputRef.current?.click()}
                   disabled={isProcessing || isRecording}
                   variant="outline"
-                  className="h-16 px-8 text-lg font-semibold border-2 hover:bg-muted/50 shadow-lg transform transition-all duration-300 hover:scale-105"
+                  className="h-12 px-6 text-base font-semibold border-2 hover:bg-muted/50 shadow-lg transform transition-all duration-300 hover:scale-105"
                 >
-                  <Upload className="h-6 w-6 mr-3" />
+                  <Upload className="h-5 w-5 mr-2" />
                   Subir archivo de audio
                 </Button>
-                <p className="text-sm text-muted-foreground text-center max-w-md">
+                <p className="text-xs text-muted-foreground text-center max-w-md">
                   Formatos soportados: MP3, WAV, WEBM, OGG, M4A • Máximo 25MB
                 </p>
               </div>
@@ -238,8 +238,8 @@ const VoiceInsights = () => {
 
             {/* Uploaded File Info */}
             {uploadedFile && !isRecording && (
-              <div className="flex flex-col items-center space-y-4 animate-fade-in">
-                <Card className="p-4 w-full max-w-md bg-muted/30 border-2">
+              <div className="flex flex-col items-center space-y-2 animate-fade-in">
+                <Card className="p-3 w-full max-w-md bg-muted/30 border-2">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-3 flex-1 min-w-0">
                       <div className="bg-primary/10 p-2 rounded-lg">
@@ -269,14 +269,14 @@ const VoiceInsights = () => {
 
             {/* Timer */}
             {isRecording && (
-              <div className="flex flex-col items-center space-y-4 animate-fade-in">
-                <div className="flex items-center space-x-3 bg-muted/50 px-8 py-4 rounded-2xl">
-                  <div className="h-3 w-3 rounded-full bg-destructive animate-pulse" />
-                  <span className="text-4xl font-mono font-bold text-foreground">
+              <div className="flex flex-col items-center space-y-2 animate-fade-in">
+                <div className="flex items-center space-x-2 bg-muted/50 px-6 py-3 rounded-2xl">
+                  <div className="h-2 w-2 rounded-full bg-destructive animate-pulse" />
+                  <span className="text-2xl font-mono font-bold text-foreground">
                     {formatTime(recordingTime)}
                   </span>
                 </div>
-                <p className="text-sm text-muted-foreground">
+                <p className="text-xs text-muted-foreground">
                   Tiempo máximo: {formatTime(MAX_RECORDING_TIME)}
                 </p>
               </div>
@@ -294,17 +294,17 @@ const VoiceInsights = () => {
 
             {/* Analyze Button */}
             {(hasRecording || uploadedFile) && !isRecording && (
-              <div className="flex flex-col items-center space-y-4 animate-fade-in">
+              <div className="flex flex-col items-center space-y-2 animate-fade-in">
                 <Button
                   size="lg"
                   onClick={handleAnalyze}
                   disabled={isProcessingFile}
-                  className="h-16 px-8 text-lg font-semibold gradient-skandia hover:opacity-90 shadow-xl transform transition-all duration-300 hover:scale-105"
+                  className="h-12 px-6 text-base font-semibold gradient-skandia hover:opacity-90 shadow-xl transform transition-all duration-300 hover:scale-105"
                 >
-                  <Brain className="h-6 w-6 mr-3" />
+                  <Brain className="h-5 w-5 mr-2" />
                   {isProcessingFile ? "Procesando..." : "Analizar con Sami Voice Insights"}
                 </Button>
-                <p className="text-sm text-muted-foreground text-center max-w-md">
+                <p className="text-xs text-muted-foreground text-center max-w-md">
                   Envía tu {uploadedFile ? "archivo" : "grabación"} para recibir un análisis detallado con
                   recomendaciones personalizadas
                 </p>
@@ -314,15 +314,15 @@ const VoiceInsights = () => {
         </Card>
 
         {/* Info Section */}
-        <Card className="p-6 bg-muted/30 border">
-          <div className="space-y-3">
+        <Card className="p-4 bg-muted/30 border">
+          <div className="space-y-2">
             <div className="flex items-center space-x-2">
-              <Info className="h-5 w-5 text-primary" />
-              <h3 className="text-lg font-semibold text-foreground">
+              <Info className="h-4 w-4 text-primary" />
+              <h3 className="text-base font-semibold text-foreground">
                 ¿Qué es Sami Voice Insights?
               </h3>
             </div>
-            <p className="text-muted-foreground leading-relaxed">
+            <p className="text-sm text-muted-foreground leading-relaxed">
               Es una herramienta que transforma tus conversaciones con clientes
               en diagnósticos inteligentes con recomendaciones de productos
               Skandia, todo en cuestión de minutos.
