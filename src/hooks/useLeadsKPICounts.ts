@@ -66,8 +66,8 @@ export const useLeadsKPICounts = (params: UseLeadsKPICountsParams): KPICountsRes
             return total;
           };
           
-          // Crear filtros sin el filtro de Stage para el total absoluto
-          const { Stage, ...filtersWithoutStage } = baseFilters;
+          // Crear filtros con todos los filtros activos (incluido Stage)
+          const filtersWithoutStage = baseFilters;
           
           // Total de duplicados
           console.log('📥 Fetching total duplicates...');
@@ -156,12 +156,12 @@ export const useLeadsKPICounts = (params: UseLeadsKPICountsParams): KPICountsRes
           }
         }
 
-        // Crear filtros sin el filtro de Stage para el total absoluto
-        const { Stage, ...filtersWithoutStage } = effectiveFilters;
+        // Crear filtros con todos los filtros activos (incluido Stage)
+        const filtersWithoutStage = effectiveFilters;
         
         // Crear promesas para todos los conteos necesarios
         const promises = [
-          // Total de leads (SIN filtro de stage - total absoluto)
+          // Total de leads (con todos los filtros activos)
           getReassignableLeadsPaginated({
             page: 1,
             page_size: 1,
