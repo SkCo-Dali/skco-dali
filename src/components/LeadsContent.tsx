@@ -118,23 +118,10 @@ export function LeadsContent({
     );
   }
 
-  const getStageLabel = (stage: string) => {
-    const stageLabels: { [key: string]: string } = {
-      'Nuevo': 'Nuevo',
-  'Asignado': 'Asignado', 
-  'Localizado: No interesado': 'Localizado: No interesado',
-  'Localizado: Prospecto de venta FP': 'Localizado: Prospecto de venta FP',
-  'Localizado: Prospecto de venta AD': 'Localizado: Prospecto de venta AD',
-  'Localizado: Prospecto de venta - Pendiente': 'Localizado: Prospecto de venta - Pendiente',
-  'Localizado: Volver a llamar': 'Localizado: Volver a llamar',
-  'Localizado: No vuelve a contestar': 'Localizado: No vuelve a contestar',
-  'No localizado: No contesta': 'No localizado: No contesta',
-  'No localizado: Número equivocado': 'No localizado: Número equivocado',
-  'Contrato Creado': 'Contrato Creado',
-  'Registro de Venta (fondeado)': 'Registro de Venta (fondeado)',
-  'Repetido': 'Repetido'
-    };
-    return stageLabels[stage] || stage;
+  const getLabel = (columnKey: string) => {
+    // Para columnas estáticas (stage, priority) que ya vienen bien formateadas
+    // y para columnas dinámicas (source, assignedTo, campaign) que vienen del API
+    return columnKey;
   };
 
   if (viewMode === 'columns') {
@@ -172,7 +159,7 @@ export function LeadsContent({
                     <div className="flex items-center gap-2">
                       <div className="w-3 h-3 rounded-full bg-green-500"></div>
                       <h3 className="font-semibold text-sm text-gray-800">
-                        {groupBy === 'stage' ? getStageLabel(columnKey) : columnKey}
+                        {getLabel(columnKey)}
                       </h3>
                       <span className="text-xs bg-white px-2 py-1 rounded-full text-gray-600 font-medium">
                         ({columnState.total})

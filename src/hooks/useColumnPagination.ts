@@ -98,8 +98,8 @@ export function useColumnPagination({
   const [allColumnKeys, setAllColumnKeys] = useState<string[]>([]);
   const [isInitializing, setIsInitializing] = useState(false);
 
-  // Definir todas las columnas posibles según el groupBy
-  const getAllPossibleColumns = useCallback(() => {
+  // Definir todas las columnas posibles según el groupBy (solo para fijos)
+  const getStaticColumns = useCallback(() => {
     switch (groupBy) {
       case 'stage':
         return [
@@ -119,19 +119,65 @@ export function useColumnPagination({
         ];
       case 'priority':
         return ['Baja', 'Media', 'Alta', 'Urgente'];
-      case 'source':
-        return ['Hubspot', 'DaliLM', 'DaliAI', 'web', 'social', 'referral', 'cold-call', 'event', 'campaign'];
       default:
-        return [];
+        return null; // Para columnas dinámicas
     }
   }, [groupBy]);
+
+  // Obtener columnas dinámicas desde el API
+  const getDynamicColumns = useCallback(async (): Promise<string[]> => {
+    if (!['source', 'assignedTo', 'campaign'].includes(groupBy)) {
+      return [];
+    }
+
+    try {
+      // Obtener todos los leads sin paginación para extraer valores únicos
+      const response = await getReassignableLeadsPaginated({
+        page: 1,
+        page_size: 1000, // Obtener suficientes para capturar todos los valores únicos
+        filters: baseFilters,
+        sort_by: 'UpdatedAt',
+        sort_dir: 'desc'
+      });
+
+      const uniqueValues = new Set<string>();
+      
+      response.items.forEach(lead => {
+        let value = '';
+        switch (groupBy) {
+          case 'source':
+            value = lead.Source;
+            break;
+          case 'assignedTo':
+            // Usar assignedToName si está disponible, sino el ID
+            value = lead.AssignedToName || lead.AssignedTo || 'Sin asignar';
+            break;
+          case 'campaign':
+            value = lead.Campaign;
+            break;
+        }
+        if (value && value.trim()) {
+          uniqueValues.add(value.trim());
+        }
+      });
+
+      return Array.from(uniqueValues).sort();
+    } catch (error) {
+      console.error('Error getting dynamic columns:', error);
+      return [];
+    }
+  }, [groupBy, baseFilters]);
 
   // Inicializar columnas
   const initializeColumns = useCallback(async () => {
     if (!enabled) return;
 
     setIsInitializing(true);
-    const columnKeys = getAllPossibleColumns();
+    
+    // Obtener columnas estáticas o dinámicas
+    const staticCols = getStaticColumns();
+    const columnKeys = staticCols !== null ? staticCols : await getDynamicColumns();
+    
     setAllColumnKeys(columnKeys);
 
     const initialColumns: Record<string, ColumnState> = {};
@@ -147,6 +193,11 @@ export function useColumnPagination({
         filters['Priority'] = { op: 'eq', value: key };
       } else if (groupBy === 'source') {
         filters['Source'] = { op: 'eq', value: key };
+      } else if (groupBy === 'assignedTo') {
+        // Para assignedTo, buscar por el nombre o ID
+        filters['AssignedToName'] = { op: 'eq', value: key };
+      } else if (groupBy === 'campaign') {
+        filters['Campaign'] = { op: 'eq', value: key };
       }
 
       try {
@@ -180,7 +231,7 @@ export function useColumnPagination({
     await Promise.all(promises);
     setColumns(initialColumns);
     setIsInitializing(false);
-  }, [enabled, groupBy, baseFilters, pageSize, getAllPossibleColumns]);
+  }, [enabled, groupBy, baseFilters, pageSize, getStaticColumns, getDynamicColumns]);
 
   // Cargar más leads para una columna específica
   const loadMore = useCallback(async (columnKey: string) => {
@@ -201,6 +252,10 @@ export function useColumnPagination({
       filters['Priority'] = { op: 'eq', value: columnKey };
     } else if (groupBy === 'source') {
       filters['Source'] = { op: 'eq', value: columnKey };
+    } else if (groupBy === 'assignedTo') {
+      filters['AssignedToName'] = { op: 'eq', value: columnKey };
+    } else if (groupBy === 'campaign') {
+      filters['Campaign'] = { op: 'eq', value: columnKey };
     }
 
     try {
