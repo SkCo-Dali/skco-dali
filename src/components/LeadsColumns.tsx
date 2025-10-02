@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { Lead } from "@/types/crm";
 import { LeadCard } from "@/components/LeadCard";
 import { Badge } from "@/components/ui/badge";
+import { API_TO_FRONTEND_STAGE_MAP, API_TO_FRONTEND_PRIORITY_MAP } from "@/types/leadsApiTypes";
 
 interface LeadsColumnsProps {
   leads: Lead[];
@@ -15,23 +16,12 @@ interface LeadsColumnsProps {
 export function LeadsColumns({ leads, onLeadClick, onLeadUpdate, onSendEmail, groupBy = "stage" }: LeadsColumnsProps) {
   // No need for users API - assignedToName comes directly from API response
 
-  const priorityLabels = {
+  // Labels solo para priority (ya que está fijo)
+  const priorityLabels: Record<string, string> = {
     'low': 'Baja',
     'medium': 'Media',
     'high': 'Alta',
     'urgent': 'Urgente'
-  };
-
-  const sourceLabels = {
-    'Hubspot': 'Hubspot',
-    'DaliLM': 'DaliLM',
-    'DaliAI': 'DaliAI',
-    'web': 'Sitio web',
-    'social': 'Redes sociales',
-    'referral': 'Referido',
-    'cold-call': 'Llamada fría',
-    'event': 'Evento',
-    'campaign': 'Campaña'
   };
 
   const handleEdit = (lead: Lead) => {
@@ -64,32 +54,77 @@ export function LeadsColumns({ leads, onLeadClick, onLeadUpdate, onSendEmail, gr
   };
 
   const groupLeads = () => {
+    // Helpers para normalizar valores según el API real
+    const stageMap = API_TO_FRONTEND_STAGE_MAP;
+    const canonicalStages = Object.values(stageMap);
+    const normalize = (s?: string | null) => (s ?? '').trim();
+
+    const findCanonicalStage = (raw?: string | null): string => {
+      const s = normalize(raw);
+      if (!s) return 'Sin etapa';
+      // Match exacto
+      if (canonicalStages.includes(s)) return s;
+      // Match case-insensitive
+      const ci = canonicalStages.find(cs => cs.toLowerCase() === s.toLowerCase());
+      if (ci) return ci;
+      // Aliases conocidos (por si llegan en inglés u otras variantes)
+      const aliases: Record<string, string> = {
+        'new': 'Nuevo',
+        'assigned': 'Asignado',
+        'contract created': 'Contrato Creado',
+        'funded sale record': 'Registro de Venta (fondeado)'
+      };
+      const alias = aliases[s.toLowerCase()];
+      if (alias) return alias;
+      // Si no coincide con nada conocido, usar el valor limpio
+      return s;
+    };
+
+    const mapPriority = (raw?: string | null): { key: string; label: string } => {
+      const p = normalize(raw);
+      const frontend = (API_TO_FRONTEND_PRIORITY_MAP as Record<string, string>)[p] || p.toLowerCase();
+      const key = frontend || 'sin-prioridad';
+      const label = priorityLabels[frontend] || (p || 'Sin prioridad');
+      return { key, label };
+    };
+
     const grouped = leads.reduce((acc, lead) => {
       let key = '';
       let label = '';
 
       switch (groupBy) {
-        case 'stage':
-          key = lead.stage;
-          label = lead.stage;
+        case 'stage': {
+          const canonical = findCanonicalStage(lead.stage);
+          key = canonical;
+          label = canonical;
           break;
-        case 'priority':
-          key = lead.priority;
-          label = priorityLabels[lead.priority as keyof typeof priorityLabels] || lead.priority;
+        }
+        case 'priority': {
+          const mapped = mapPriority(lead.priority);
+          key = mapped.key;
+          label = mapped.label;
           break;
-        case 'source':
-          key = lead.source;
-          label = sourceLabels[lead.source as keyof typeof sourceLabels] || lead.source;
+        }
+        case 'source': {
+          // Agrupación dinámica - usar el valor directo del API
+          const s = normalize(lead.source);
+          key = s || 'sin-fuente';
+          label = s || 'Sin fuente';
           break;
-        case 'assignedTo':
-          key = lead.assignedTo;
-          // Use assignedToName directly from API response
-          label = lead.assignedToName || (lead.assignedTo ? `Usuario ${lead.assignedTo}` : 'Sin asignar');
+        }
+        case 'assignedTo': {
+          const id = normalize(lead.assignedTo);
+          const name = normalize(lead.assignedToName);
+          key = id || 'sin-asignar';
+          label = name || (id ? `Usuario ${id}` : 'Sin asignar');
           break;
-        case 'campaign':
-          key = lead.campaign;
-          label = lead.campaign || 'Sin campaña';
+        }
+        case 'campaign': {
+          const c = normalize(lead.campaign);
+          key = c || 'sin-campana';
+          label = c || 'Sin campaña';
           break;
+        }
         default:
           key = 'all';
           label = 'Todos';
@@ -104,7 +139,6 @@ export function LeadsColumns({ leads, onLeadClick, onLeadUpdate, onSendEmail, gr
 
     return grouped;
   };
-
   const groupedLeads = groupLeads();
 
   return (

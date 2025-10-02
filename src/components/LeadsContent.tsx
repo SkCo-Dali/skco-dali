@@ -118,19 +118,10 @@ export function LeadsContent({
     );
   }
 
-  const getStageLabel = (stage: string) => {
-    const stageLabels: { [key: string]: string } = {
-      'Contacto': 'Contacto',
-      'Calificado': 'Calificado', 
-      'En seguimiento': 'En seguimiento',
-      'Propuesta enviada': 'Propuesta enviada',
-      'Negociación': 'Negociación',
-      'Contrato Creado': 'Contrato Creado',
-      'Registro de Venta (fondeado)': 'Registro de Venta',
-      'Ganado': 'Ganado',
-      'Perdido': 'Perdido'
-    };
-    return stageLabels[stage] || stage;
+  const getLabel = (columnKey: string) => {
+    // Para columnas estáticas (stage, priority) que ya vienen bien formateadas
+    // y para columnas dinámicas (source, assignedTo, campaign) que vienen del API
+    return columnKey;
   };
 
   if (viewMode === 'columns') {
@@ -168,7 +159,7 @@ export function LeadsContent({
                     <div className="flex items-center gap-2">
                       <div className="w-3 h-3 rounded-full bg-green-500"></div>
                       <h3 className="font-semibold text-sm text-gray-800">
-                        {groupBy === 'stage' ? getStageLabel(columnKey) : columnKey}
+                        {getLabel(columnKey)}
                       </h3>
                       <span className="text-xs bg-white px-2 py-1 rounded-full text-gray-600 font-medium">
                         ({columnState.total})
