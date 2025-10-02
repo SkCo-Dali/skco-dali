@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { getReassignableLeadsPaginated } from '@/utils/leadAssignmentApiClient';
 import { LeadsApiParams, LeadsApiFilters } from '@/types/paginatedLeadsTypes';
+import { getDuplicateLeads } from '@/utils/leadsApiClient';
 
 interface KPICountsResult {
   totalLeads: number;
@@ -9,6 +10,11 @@ interface KPICountsResult {
   registroVenta: number;
   stageCounts: Record<string, number>;
   loading: boolean;
+}
+
+interface UseLeadsKPICountsParams {
+  apiFilters: LeadsApiFilters;
+  duplicateFilter?: 'all' | 'duplicates' | 'unique';
 }
 
 // Todos los stages posibles en el sistema
@@ -30,7 +36,8 @@ const ALL_STAGES = [
  * Hook para obtener conteos reales de KPIs desde el API
  * Hace llamadas eficientes con page_size=1 para obtener solo el total
  */
-export const useLeadsKPICounts = (baseFilters: LeadsApiFilters): KPICountsResult => {
+export const useLeadsKPICounts = (params: UseLeadsKPICountsParams): KPICountsResult => {
+  const { apiFilters: baseFilters, duplicateFilter = 'all' } = params;
   const [counts, setCounts] = useState<KPICountsResult>({
     totalLeads: 0,
     newLeads: 0,
@@ -45,8 +52,28 @@ export const useLeadsKPICounts = (baseFilters: LeadsApiFilters): KPICountsResult
       setCounts(prev => ({ ...prev, loading: true }));
 
       try {
+        // Aplicar filtro de duplicados si está activo
+        let effectiveFilters = { ...baseFilters };
+        
+        if (duplicateFilter === 'duplicates') {
+          try {
+            const dupLeads = await getDuplicateLeads();
+            const dupIds = dupLeads.map(l => l.id).filter(Boolean);
+            if (dupIds.length > 0) {
+              (effectiveFilters as any)['Id'] = { op: 'in', values: dupIds };
+            } else {
+              // Si no hay duplicados, forzamos un resultado vacío
+              (effectiveFilters as any)['Id'] = { op: 'eq', value: '__no_matches__' };
+            }
+          } catch (e) {
+            console.error('❌ Error fetching duplicate leads for KPI counts:', e);
+          }
+        } else if (duplicateFilter === 'unique') {
+          console.warn('⚠️ Filtro "unique" requiere procesamiento adicional en el backend');
+        }
+
         // Crear filtros sin el filtro de Stage para el total absoluto
-        const { Stage, ...filtersWithoutStage } = baseFilters;
+        const { Stage, ...filtersWithoutStage } = effectiveFilters;
         
         // Crear promesas para todos los conteos necesarios
         const promises = [
@@ -65,7 +92,7 @@ export const useLeadsKPICounts = (baseFilters: LeadsApiFilters): KPICountsResult
             sort_by: 'UpdatedAt',
             sort_dir: 'desc',
             filters: {
-              ...baseFilters,
+              ...effectiveFilters,
               Stage: { op: 'eq', value: 'Nuevo' },
             },
           }),
@@ -76,7 +103,7 @@ export const useLeadsKPICounts = (baseFilters: LeadsApiFilters): KPICountsResult
             sort_by: 'UpdatedAt',
             sort_dir: 'desc',
             filters: {
-              ...baseFilters,
+              ...effectiveFilters,
               Stage: { op: 'eq', value: 'Contrato Creado' },
             },
           }),
@@ -87,7 +114,7 @@ export const useLeadsKPICounts = (baseFilters: LeadsApiFilters): KPICountsResult
             sort_by: 'UpdatedAt',
             sort_dir: 'desc',
             filters: {
-              ...baseFilters,
+              ...effectiveFilters,
               Stage: { op: 'eq', value: 'Registro de Venta (fondeado)' },
             },
           }),
@@ -101,7 +128,7 @@ export const useLeadsKPICounts = (baseFilters: LeadsApiFilters): KPICountsResult
             sort_by: 'UpdatedAt',
             sort_dir: 'desc',
             filters: {
-              ...baseFilters,
+              ...effectiveFilters,
               Stage: { op: 'eq', value: stage },
             },
           })
@@ -132,7 +159,7 @@ export const useLeadsKPICounts = (baseFilters: LeadsApiFilters): KPICountsResult
     };
 
     fetchCounts();
-  }, [JSON.stringify(baseFilters)]); // Usar JSON.stringify para comparar objetos
+  }, [JSON.stringify(baseFilters), duplicateFilter]); // Incluir duplicateFilter en dependencias
 
   return counts;
 };

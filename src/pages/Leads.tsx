@@ -122,7 +122,10 @@ export default function Leads() {
   } = useLeadsApi();
 
   // Obtener conteos reales de KPIs
-  const kpiCounts = useLeadsKPICounts(apiFilters);
+  const kpiCounts = useLeadsKPICounts({ 
+    apiFilters, 
+    duplicateFilter: filters.duplicateFilter 
+  });
 
   const handleLeadUpdate = useCallback(() => {
     console.log('🔄 handleLeadUpdate called - refreshing leads...');
