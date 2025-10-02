@@ -64,6 +64,7 @@ export interface LeadsApiParams {
   sort_dir?: 'asc' | 'desc';
   filters?: LeadsApiFilters;
   duplicate_filter?: 'all' | 'duplicates' | 'unique';
+  search?: string; // Búsqueda multi-campo en Name, Email, Phone, Campaign
 }
 
 export interface LeadsApiFilters {

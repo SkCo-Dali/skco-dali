@@ -138,21 +138,8 @@ export const usePaginatedLeadsApi = () => {
   const convertFiltersToApiFormat = useCallback((uiFilters: LeadsFiltersState): LeadsApiFilters => {
     const apiFilters: LeadsApiFilters = {};
 
-    // Si hay searchTerm, agregarlo como filtro OR en múltiples campos
-    if (uiFilters.searchTerm && uiFilters.searchTerm.trim()) {
-      // El API espera un filtro especial para búsqueda en múltiples campos
-      // Agregamos filtros "contains" para Name, Email, Phone y Campaign
-      const searchValue = uiFilters.searchTerm.trim();
-      
-      // El API puede no soportar OR directamente, así que agregamos un campo especial
-      // o procesamos client-side. Por ahora, agregamos searchQuery como campo especial.
-      // Si el backend no soporta esto, tendremos que filtrar client-side
-      apiFilters['searchQuery'] = {
-        op: 'multi_contains',
-        value: searchValue,
-        fields: ['Name', 'Email', 'Phone', 'Campaign']
-      } as any;
-    }
+    // IMPORTANTE: No incluimos searchTerm aquí porque se maneja por separado
+    // en los params de la API como un parámetro de búsqueda global
 
     // Extraer filtros de fecha especiales antes del procesamiento
     const createdAtFrom = uiFilters.columnFilters.createdAt?.[0];
@@ -371,6 +358,7 @@ export const usePaginatedLeadsApi = () => {
           sort_by: mapColumnNameToApi(currentFilters.sortBy),
           sort_dir: currentFilters.sortDirection,
           filters: Object.keys(filtersForApi).length > 0 ? filtersForApi : undefined,
+          search: currentFilters.searchTerm || undefined,
         };
         console.log('🚀 Loading duplicate leads with params:', apiParams);
         response = await getDuplicateLeadsPaginated(apiParams);
@@ -393,6 +381,7 @@ export const usePaginatedLeadsApi = () => {
           sort_by: mapColumnNameToApi(currentFilters.sortBy),
           sort_dir: currentFilters.sortDirection,
           filters: filtersForApi,
+          search: currentFilters.searchTerm || undefined,
         };
         console.log('🚀 Loading unique leads with params:', apiParams);
         response = await getReassignableLeadsPaginated(apiParams);
@@ -404,6 +393,7 @@ export const usePaginatedLeadsApi = () => {
           sort_by: mapColumnNameToApi(currentFilters.sortBy),
           sort_dir: currentFilters.sortDirection,
           filters: filtersForApi,
+          search: currentFilters.searchTerm || undefined,
         };
         console.log('🚀 Loading all leads with params:', apiParams);
         response = await getReassignableLeadsPaginated(apiParams);
@@ -422,20 +412,17 @@ export const usePaginatedLeadsApi = () => {
 
       const mappedLeads = items.map(mapPaginatedLeadToLead);
 
-      // Aplicar búsqueda client-side si hay searchTerm (por si el backend no soporta multi_contains)
-      const finalLeads = currentFilters.searchTerm 
-        ? applyClientSearchFilter(mappedLeads, currentFilters.searchTerm)
-        : mappedLeads;
-
+      // El backend maneja la búsqueda multi-campo con el parámetro 'search'
+      // No necesitamos filtrado client-side que rompería la paginación
       setState(prev => ({
         ...prev,
-        leads: finalLeads,
+        leads: mappedLeads,
         loading: false,
         pagination: {
           page: pageNum,
           pageSize: pageSizeNum,
-          total: currentFilters.searchTerm ? finalLeads.length : totalNum,
-          totalPages: currentFilters.searchTerm ? Math.ceil(finalLeads.length / pageSizeNum) : totalPagesNum,
+          total: totalNum,
+          totalPages: totalPagesNum,
         },
       }));
 
