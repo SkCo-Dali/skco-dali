@@ -389,7 +389,18 @@ export const usePaginatedLeadsApi = () => {
         response = await getReassignableLeadsPaginated(apiParams);
       }
       
-      const mappedLeads = response.items.map(mapPaginatedLeadToLead);
+      // Normalizar respuesta por si el backend usa claves alternativas
+      const items = Array.isArray((response as any).items)
+        ? (response as any).items
+        : Array.isArray((response as any).data)
+        ? (response as any).data
+        : [];
+      const pageNum = (response as any).page ?? (response as any).page_number ?? 1;
+      const pageSizeNum = (response as any).page_size ?? (response as any).pageSize ?? items.length;
+      const totalNum = (response as any).total ?? (response as any).count ?? items.length;
+      const totalPagesNum = (response as any).total_pages ?? (response as any).totalPages ?? Math.ceil((totalNum || 0) / (pageSizeNum || 1));
+
+      const mappedLeads = items.map(mapPaginatedLeadToLead);
 
       // Ahora la búsqueda se hace en el servidor, no necesitamos filtrado client-side
       setState(prev => ({
@@ -397,10 +408,10 @@ export const usePaginatedLeadsApi = () => {
         leads: mappedLeads,
         loading: false,
         pagination: {
-          page: response.page,
-          pageSize: response.page_size,
-          total: response.total,
-          totalPages: response.total_pages,
+          page: pageNum,
+          pageSize: pageSizeNum,
+          total: totalNum,
+          totalPages: totalPagesNum,
         },
       }));
 
@@ -414,9 +425,9 @@ export const usePaginatedLeadsApi = () => {
 
       console.log('✅ Paginated leads loaded successfully:', {
         leadsCount: mappedLeads.length,
-        total: response.total,
-        page: response.page,
-        totalPages: response.total_pages,
+        total: totalNum,
+        page: pageNum,
+        totalPages: totalPagesNum,
       });
 
     } catch (err) {
