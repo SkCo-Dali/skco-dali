@@ -413,14 +413,9 @@ export const usePaginatedLeadsApi = () => {
 
       const mappedLeads = items.map(mapPaginatedLeadToLead);
 
-      // Fallback: aplicar búsqueda client-side en Name, Email, Phone, Campaign
-      const finalLeads = currentFilters.searchTerm
-        ? applyClientSearchFilter(mappedLeads, currentFilters.searchTerm)
-        : mappedLeads;
-
       setState(prev => ({
         ...prev,
-        leads: finalLeads,
+        leads: mappedLeads,
         loading: false,
         pagination: {
           page: pageNum,
