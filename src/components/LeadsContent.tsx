@@ -29,6 +29,7 @@ interface LeadsContentProps {
   onTextFilterChange?: (column: string, filters: any[]) => void;
   onClearColumnFilter?: (column: string) => void;
   hasFiltersForColumn?: (column: string) => boolean;
+  searchTerm?: string; // Término de búsqueda principal
   // Props para ordenamiento
   sortBy?: string;
   setSortBy?: (sort: string) => void;
@@ -56,6 +57,7 @@ export function LeadsContent({
   onTextFilterChange,
   onClearColumnFilter,
   hasFiltersForColumn,
+  searchTerm,
   sortBy,
   setSortBy,
   sortDirection,
@@ -103,6 +105,7 @@ export function LeadsContent({
           onTextFilterChange={onTextFilterChange}
           onClearColumnFilter={onClearColumnFilter}
           hasFiltersForColumn={hasFiltersForColumn}
+          searchTerm={searchTerm}
           sortBy={sortBy}
           setSortBy={setSortBy}
           sortDirection={sortDirection}

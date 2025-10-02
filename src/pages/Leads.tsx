@@ -1084,6 +1084,7 @@ export default function Leads() {
               onTextFilterChange={handleTextFilterChange}
               onClearColumnFilter={clearColumnFilter}
               hasFiltersForColumn={hasFiltersForColumn}
+              searchTerm={searchTerm}
               sortBy={sortBy}
               setSortBy={setSortBy}
               sortDirection={sortDirection}
