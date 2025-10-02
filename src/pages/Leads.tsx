@@ -129,7 +129,8 @@ export default function Leads() {
   // Obtener conteos reales de KPIs
   const kpiCounts = useLeadsKPICounts({ 
     apiFilters, 
-    duplicateFilter: filters.duplicateFilter 
+    duplicateFilter: filters.duplicateFilter,
+    searchTerm: filters.searchTerm
   });
 
   const handleLeadUpdate = useCallback(() => {

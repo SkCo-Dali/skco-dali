@@ -15,6 +15,7 @@ interface KPICountsResult {
 interface UseLeadsKPICountsParams {
   apiFilters: LeadsApiFilters;
   duplicateFilter?: 'all' | 'duplicates' | 'unique';
+  searchTerm?: string;
 }
 
 // Todos los stages posibles en el sistema
@@ -37,7 +38,7 @@ const ALL_STAGES = [
  * Hace llamadas eficientes con page_size=1 para obtener solo el total
  */
 export const useLeadsKPICounts = (params: UseLeadsKPICountsParams): KPICountsResult => {
-  const { apiFilters: baseFilters, duplicateFilter = 'all' } = params;
+  const { apiFilters: baseFilters, duplicateFilter = 'all', searchTerm } = params;
   const [counts, setCounts] = useState<KPICountsResult>({
     totalLeads: 0,
     newLeads: 0,
@@ -73,7 +74,8 @@ export const useLeadsKPICounts = (params: UseLeadsKPICountsParams): KPICountsRes
           const totalDuplicatesResult = await getDuplicateLeadsPaginated({
             page: 1,
             page_size: 1,
-            filters: Object.keys(filtersWithoutStage).length > 0 ? filtersWithoutStage : undefined
+            filters: Object.keys(filtersWithoutStage).length > 0 ? filtersWithoutStage : undefined,
+            search: searchTerm || undefined
           });
           const totalCount = normalizeResponse(totalDuplicatesResult);
           
@@ -83,7 +85,8 @@ export const useLeadsKPICounts = (params: UseLeadsKPICountsParams): KPICountsRes
           const newDuplicatesResult = await getDuplicateLeadsPaginated({
             page: 1,
             page_size: 1,
-            filters: newLeadFilters
+            filters: newLeadFilters,
+            search: searchTerm || undefined
           });
           const newCount = normalizeResponse(newDuplicatesResult);
           
@@ -93,7 +96,8 @@ export const useLeadsKPICounts = (params: UseLeadsKPICountsParams): KPICountsRes
           const contratoDuplicatesResult = await getDuplicateLeadsPaginated({
             page: 1,
             page_size: 1,
-            filters: contratoFilters
+            filters: contratoFilters,
+            search: searchTerm || undefined
           });
           const contratoCount = normalizeResponse(contratoDuplicatesResult);
           
@@ -103,7 +107,8 @@ export const useLeadsKPICounts = (params: UseLeadsKPICountsParams): KPICountsRes
           const registroDuplicatesResult = await getDuplicateLeadsPaginated({
             page: 1,
             page_size: 1,
-            filters: registroFilters
+            filters: registroFilters,
+            search: searchTerm || undefined
           });
           const registroCount = normalizeResponse(registroDuplicatesResult);
           
@@ -163,6 +168,7 @@ export const useLeadsKPICounts = (params: UseLeadsKPICountsParams): KPICountsRes
             sort_by: 'UpdatedAt',
             sort_dir: 'desc',
             filters: filtersWithoutStage,
+            search: searchTerm || undefined,
           }),
           // Leads nuevos
           getReassignableLeadsPaginated({
@@ -174,6 +180,7 @@ export const useLeadsKPICounts = (params: UseLeadsKPICountsParams): KPICountsRes
               ...effectiveFilters,
               Stage: { op: 'eq', value: 'Nuevo' },
             },
+            search: searchTerm || undefined,
           }),
           // Contratos creados
           getReassignableLeadsPaginated({
@@ -185,6 +192,7 @@ export const useLeadsKPICounts = (params: UseLeadsKPICountsParams): KPICountsRes
               ...effectiveFilters,
               Stage: { op: 'eq', value: 'Contrato Creado' },
             },
+            search: searchTerm || undefined,
           }),
           // Ventas registradas
           getReassignableLeadsPaginated({
@@ -196,6 +204,7 @@ export const useLeadsKPICounts = (params: UseLeadsKPICountsParams): KPICountsRes
               ...effectiveFilters,
               Stage: { op: 'eq', value: 'Registro de Venta (fondeado)' },
             },
+            search: searchTerm || undefined,
           }),
         ];
 
@@ -210,6 +219,7 @@ export const useLeadsKPICounts = (params: UseLeadsKPICountsParams): KPICountsRes
               ...effectiveFilters,
               Stage: { op: 'eq', value: stage },
             },
+            search: searchTerm || undefined,
           })
         );
 
@@ -238,7 +248,7 @@ export const useLeadsKPICounts = (params: UseLeadsKPICountsParams): KPICountsRes
     };
 
     fetchCounts();
-  }, [JSON.stringify(baseFilters), duplicateFilter]); // Incluir duplicateFilter en dependencias
+  }, [JSON.stringify(baseFilters), duplicateFilter, searchTerm]); // Incluir duplicateFilter y searchTerm en dependencias
 
   return counts;
 };
