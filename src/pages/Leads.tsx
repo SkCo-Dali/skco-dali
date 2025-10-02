@@ -309,13 +309,23 @@ export default function Leads() {
     });
   }, [updateFilters]);
   
-  // Calcular el conteo de duplicados si el filtro está activo
-  const duplicateCount = useMemo(() => {
-    if (filterDuplicates === 'duplicates') {
-      return pagination.total;
-    }
-    return 0;
-  }, [filterDuplicates, pagination.total]);
+  // Obtener el conteo real de duplicados del sistema
+  const [duplicateCount, setDuplicateCount] = useState(0);
+  
+  useEffect(() => {
+    const fetchDuplicateCount = async () => {
+      try {
+        const { getDuplicateLeads } = await import('@/utils/leadsApiClient');
+        const duplicates = await getDuplicateLeads();
+        setDuplicateCount(duplicates.length);
+      } catch (error) {
+        console.error('Error fetching duplicate count:', error);
+        setDuplicateCount(0);
+      }
+    };
+    
+    fetchDuplicateCount();
+  }, []);
 
   // Handlers para filtros
   const handleSearchChange = useCallback((search: string) => {
