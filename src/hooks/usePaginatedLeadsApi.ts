@@ -122,6 +122,15 @@ export const usePaginatedLeadsApi = () => {
       lastGestorInteractionAt: paginatedLead.LastGestorInteractionAt,
       lastGestorInteractionStage: paginatedLead.LastGestorInteractionStage,
       lastGestorInteractionDescription: paginatedLead.LastGestorInteractionDescription,
+      // Banderas y claves de duplicados (nueva API)
+      isDuplicate: paginatedLead.IsDuplicate ?? false,
+      isDupByEmail: paginatedLead.IsDupByEmail ?? false,
+      isDupByDocumentNumber: paginatedLead.IsDupByDocumentNumber ?? false,
+      isDupByPhone: paginatedLead.IsDupByPhone ?? false,
+      duplicateEmailKey: paginatedLead.DuplicateEmailKey ?? null,
+      duplicateDocumentNumberKey: paginatedLead.DuplicateDocumentNumberKey ?? null,
+      duplicatePhoneKey: paginatedLead.DuplicatePhoneKey ?? null,
+      duplicateBy: paginatedLead.DuplicateBy ?? [],
     };
   };
 
@@ -265,14 +274,23 @@ export const usePaginatedLeadsApi = () => {
       'priority': 'Priority',
       'value': 'Value',
       'assignedTo': 'AssignedTo',
+      'assignedToName': 'AssignedToName',
       'createdAt': 'CreatedAt',
       'updatedAt': 'UpdatedAt',
       'nextFollowUp': 'NextFollowUp',
       'notes': 'Notes',
       'tags': 'Tags',
       'documentNumber': 'DocumentNumber',
+      'documentType': 'DocumentType',
+      // Campos de duplicados (nueva API)
+      'isDuplicate': 'IsDuplicate',
+      'isDupByEmail': 'IsDupByEmail',
+      'isDupByDocumentNumber': 'IsDupByDocumentNumber',
+      'isDupByPhone': 'IsDupByPhone',
+      'duplicateEmailKey': 'DuplicateEmailKey',
+      'duplicateDocumentNumberKey': 'DuplicateDocumentNumberKey',
+      'duplicatePhoneKey': 'DuplicatePhoneKey',
     };
-    
     return mapping[uiColumn] || uiColumn;
   };
 
