@@ -195,11 +195,20 @@ export function useDistinctValues(field: string, currentFilters: LeadsApiFilters
       // Si no, usar el globalSearchTerm para filtrar los valores por la búsqueda principal
       const effectiveSearch = search || globalSearchTerm;
       
-      const result = await getDistinctValues({
+      let result = await getDistinctValues({
         field: apiField,
         filters: currentFilters,
         search: effectiveSearch
       });
+
+      // Fallback: si no hay resultados y había búsqueda global, reintentar sin "search"
+      if ((result.values?.length ?? 0) === 0 && effectiveSearch) {
+        console.warn(`[distinct] 0 resultados para ${apiField} con search="${effectiveSearch}". Reintentando sin search...`);
+        result = await getDistinctValues({
+          field: apiField,
+          filters: currentFilters
+        });
+      }
       
       setValues(result.values || []);
     } catch (err) {
