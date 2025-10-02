@@ -62,6 +62,7 @@ jobs:
           VITE_AZURE_CLIENT_ID: ${{ vars.AZURE_CLIENT_ID }}
           VITE_AZURE_TENANT_ID: ${{ vars.AZURE_TENANT_ID }}
           VITE_AZURE_AUTHORITY: ${{ vars.AZURE_AUTHORITY }}
+          VITE_ENTRA_TENANT_NAME: ${{ vars.ENTRA_TENANT_NAME }}
 
   close_pull_request_job:
     if: github.event_name == 'pull_request' && github.event.action == 'closed'
