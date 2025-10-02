@@ -76,6 +76,9 @@ export function EditableLeadCell({ lead, field, onUpdate }: EditableLeadCellProp
         await changeLeadStage(lead.id, newValue);
         console.log(`✅ Lead ${lead.id} stage changed successfully`);
         
+        // Actualizar el lead localmente para mostrar cambio inmediato
+        lead.stage = newValue;
+        
         toast({
           title: "Éxito",
           description: `Etapa del lead actualizada a '${newValue}'`,
@@ -87,7 +90,14 @@ export function EditableLeadCell({ lead, field, onUpdate }: EditableLeadCellProp
         if (lead.assignedTo && assignedToValue && lead.assignedTo !== assignedToValue) {
           console.log(`🔄 Reassigning lead ${lead.id} from ${lead.assignedTo} to ${assignedToValue}`);
           
-          const success = await handleReassignLead(lead.id, assignedToValue);
+          const success = await handleReassignLead(
+            lead.id, 
+            assignedToValue,
+            "Reasignación desde tabla",
+            "Reasignado mediante dropdown de tabla",
+            lead.stage,
+            lead.assignedTo // Usuario que actualmente tiene el lead
+          );
           
           if (success) {
             const assignedUser = assignableUsers.find(u => u.Id === assignedToValue);
@@ -110,7 +120,14 @@ export function EditableLeadCell({ lead, field, onUpdate }: EditableLeadCellProp
         } else {
           console.log(`🔄 Simple assignment change for lead ${lead.id} to ${assignedToValue}`);
           
-          const success = await handleReassignLead(lead.id, assignedToValue);
+          const success = await handleReassignLead(
+            lead.id, 
+            assignedToValue,
+            "Asignación inicial desde tabla",
+            "Asignado mediante dropdown de tabla",
+            lead.stage,
+            lead.assignedTo || undefined // Usuario que actualmente tiene el lead (puede ser vacío en asignación inicial)
+          );
           
           if (success) {
             const assignedUser = assignableUsers.find(u => u.Id === assignedToValue);

@@ -1023,6 +1023,7 @@ export default function Leads() {
               setSortBy={setSortBy}
               sortDirection={sortDirection}
               setSortDirection={setSortDirection}
+              apiFilters={apiFilters}
             />
 
                 {viewMode === 'table' && (
@@ -1058,7 +1059,7 @@ export default function Leads() {
               <LeadsBulkAssignment
                 leads={selectedLeads.length > 0 
                   ? filteredLeads.filter(lead => selectedLeads.includes(lead.id))
-                  : filteredLeads
+                  : []
                 }
                 onLeadsAssigned={() => {
                   handleLeadUpdate();

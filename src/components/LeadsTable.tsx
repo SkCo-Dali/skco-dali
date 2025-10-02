@@ -15,6 +15,7 @@ import { LeadDeleteConfirmDialog } from "@/components/LeadDeleteConfirmDialog";
 import { useToast } from '@/hooks/use-toast';
 import { ColumnFilter } from "@/components/ColumnFilter";
 import { ServerSideColumnFilter } from "@/components/ServerSideColumnFilter";
+import { ServerSideDateFilter } from "@/components/ServerSideDateFilter";
 import { TextFilterCondition } from "@/components/TextFilter";
 import { LeadsApiFilters } from "@/types/paginatedLeadsTypes";
 import {
@@ -219,6 +220,16 @@ function SortableHeader({
         {/* Use ServerSideColumnFilter for dropdown fields that need server-side distinct values */}
         {['email', 'campaign', 'stage', 'assignedToName', 'source', 'product', 'priority'].includes(column.key) ? (
           <ServerSideColumnFilter
+            field={column.key}
+            label={column.label}
+            currentFilters={currentApiFilters}
+            onFilterChange={(field: string, values: string[]) => {
+              onColumnFilterChange(field, values);
+            }}
+            onClearFilter={onClearFilter}
+          />
+        ) : ['createdAt', 'updatedAt', 'nextFollowUp', 'lastInteraction'].includes(column.key) ? (
+          <ServerSideDateFilter
             field={column.key}
             label={column.label}
             currentFilters={currentApiFilters}
