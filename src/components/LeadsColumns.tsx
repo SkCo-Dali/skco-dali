@@ -16,24 +16,12 @@ interface LeadsColumnsProps {
 export function LeadsColumns({ leads, onLeadClick, onLeadUpdate, onSendEmail, groupBy = "stage" }: LeadsColumnsProps) {
   // No need for users API - assignedToName comes directly from API response
 
-  // Normalizar labels a minúsculas para comparación case-insensitive
+  // Labels solo para priority (ya que está fijo)
   const priorityLabels: Record<string, string> = {
     'low': 'Baja',
     'medium': 'Media',
     'high': 'Alta',
     'urgent': 'Urgente'
-  };
-
-  const sourceLabels: Record<string, string> = {
-    'hubspot': 'Hubspot',
-    'dalilm': 'DaliLM',
-    'daliai': 'DaliAI',
-    'web': 'Sitio web',
-    'social': 'Redes sociales',
-    'referral': 'Referido',
-    'cold-call': 'Llamada fría',
-    'event': 'Evento',
-    'campaign': 'Campaña'
   };
 
   const handleEdit = (lead: Lead) => {
@@ -118,10 +106,10 @@ export function LeadsColumns({ leads, onLeadClick, onLeadUpdate, onSendEmail, gr
           break;
         }
         case 'source': {
+          // Agrupación dinámica - usar el valor directo del API
           const s = normalize(lead.source);
-          const normalizedSource = s.toLowerCase();
-          key = normalizedSource || 'sin-fuente';
-          label = sourceLabels[normalizedSource] || s || 'Sin fuente';
+          key = s || 'sin-fuente';
+          label = s || 'Sin fuente';
           break;
         }
         case 'assignedTo': {
