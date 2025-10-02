@@ -221,7 +221,7 @@ function SortableHeader({
           </div>
         )}
         {/* Use ServerSideColumnFilter for dropdown fields that need server-side distinct values */}
-        {['email', 'campaign', 'stage', 'assignedToName', 'source', 'product', 'priority'].includes(column.key) ? (
+        {['name', 'email', 'campaign', 'stage', 'assignedToName', 'source', 'product', 'priority'].includes(column.key) ? (
           <ServerSideColumnFilter
             field={column.key}
             label={column.label}
