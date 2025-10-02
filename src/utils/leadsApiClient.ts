@@ -440,19 +440,32 @@ export const getDuplicateLeadsPaginated = async (params?: {
       throw new Error('Respuesta inválida de la API de duplicados');
     }
     
-    // Si no tiene items, crear estructura vacía
-    if (!result.items) {
-      console.warn('⚠️ Response missing items array, returning empty structure');
-      return {
-        items: [],
-        page: params?.page || 1,
-        page_size: params?.page_size || 50,
-        total: 0,
-        total_pages: 0
-      };
+    // Normalizar respuesta - asegurar que tenga todos los campos necesarios
+    const normalizedResult = {
+      items: Array.isArray(result.items) ? result.items : [],
+      page: result.page ?? params?.page ?? 1,
+      page_size: result.page_size ?? params?.page_size ?? 50,
+      total: result.total ?? result.count ?? 0,
+      total_pages: result.total_pages ?? result.totalPages ?? Math.ceil((result.total || 0) / (result.page_size || params?.page_size || 50))
+    };
+    
+    // Advertir si items está vacío pero hay un total > 0
+    if (normalizedResult.items.length === 0 && normalizedResult.total > 0) {
+      console.warn('⚠️ Response has total > 0 but items array is empty:', {
+        total: normalizedResult.total,
+        page: normalizedResult.page,
+        page_size: normalizedResult.page_size
+      });
     }
     
-    return result;
+    console.log('✅ Normalized duplicates response:', {
+      itemsCount: normalizedResult.items.length,
+      total: normalizedResult.total,
+      page: normalizedResult.page,
+      totalPages: normalizedResult.total_pages
+    });
+    
+    return normalizedResult;
   } catch (error) {
     console.error('💥 Error in getDuplicateLeadsPaginated:', error);
     throw error;

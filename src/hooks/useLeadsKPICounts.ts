@@ -56,42 +56,59 @@ export const useLeadsKPICounts = (params: UseLeadsKPICountsParams): KPICountsRes
         if (duplicateFilter === 'duplicates') {
           // Para 'duplicates', usar la API de duplicados paginada
           console.log('🔍 Usando API de duplicados para KPI counts');
+          console.log('📊 Base filters:', baseFilters);
+          
+          // Función helper para normalizar respuesta
+          const normalizeResponse = (response: any) => {
+            const total = response?.total ?? response?.count ?? 0;
+            console.log('📈 Normalized response - total:', total, 'raw:', response);
+            return total;
+          };
           
           // Crear filtros sin el filtro de Stage para el total absoluto
           const { Stage, ...filtersWithoutStage } = baseFilters;
           
           // Total de duplicados
+          console.log('📥 Fetching total duplicates...');
           const totalDuplicatesResult = await getDuplicateLeadsPaginated({
             page: 1,
             page_size: 1,
             filters: Object.keys(filtersWithoutStage).length > 0 ? filtersWithoutStage : undefined
           });
+          const totalCount = normalizeResponse(totalDuplicatesResult);
           
           // Nuevos duplicados
+          console.log('📥 Fetching new duplicates...');
           const newLeadFilters = { ...baseFilters, Stage: { op: 'eq', value: 'Nuevo' } };
           const newDuplicatesResult = await getDuplicateLeadsPaginated({
             page: 1,
             page_size: 1,
             filters: newLeadFilters
           });
+          const newCount = normalizeResponse(newDuplicatesResult);
           
           // Contrato creado duplicados
+          console.log('📥 Fetching contrato creado duplicates...');
           const contratoFilters = { ...baseFilters, Stage: { op: 'eq', value: 'Contrato Creado' } };
           const contratoDuplicatesResult = await getDuplicateLeadsPaginated({
             page: 1,
             page_size: 1,
             filters: contratoFilters
           });
+          const contratoCount = normalizeResponse(contratoDuplicatesResult);
           
           // Registro venta duplicados
+          console.log('📥 Fetching registro venta duplicates...');
           const registroFilters = { ...baseFilters, Stage: { op: 'eq', value: 'Registro de Venta (fondeado)' } };
           const registroDuplicatesResult = await getDuplicateLeadsPaginated({
             page: 1,
             page_size: 1,
             filters: registroFilters
           });
+          const registroCount = normalizeResponse(registroDuplicatesResult);
           
           // Counts por stage
+          console.log('📥 Fetching stage counts...');
           const stageCounts: Record<string, number> = {};
           await Promise.all(
             ALL_STAGES.map(async (stage) => {
@@ -102,19 +119,27 @@ export const useLeadsKPICounts = (params: UseLeadsKPICountsParams): KPICountsRes
                   page_size: 1,
                   filters: stageFilters
                 });
-                stageCounts[stage] = result.total || 0;
+                stageCounts[stage] = normalizeResponse(result);
               } catch (err) {
-                console.error(`Error fetching duplicate count for stage ${stage}:`, err);
+                console.error(`❌ Error fetching duplicate count for stage ${stage}:`, err);
                 stageCounts[stage] = 0;
               }
             })
           );
           
+          console.log('✅ KPI Counts calculated:', {
+            totalLeads: totalCount,
+            newLeads: newCount,
+            contratoCreado: contratoCount,
+            registroVenta: registroCount,
+            stageCounts
+          });
+          
           setCounts({
-            totalLeads: totalDuplicatesResult.total || 0,
-            newLeads: newDuplicatesResult.total || 0,
-            contratoCreado: contratoDuplicatesResult.total || 0,
-            registroVenta: registroDuplicatesResult.total || 0,
+            totalLeads: totalCount,
+            newLeads: newCount,
+            contratoCreado: contratoCount,
+            registroVenta: registroCount,
             stageCounts,
             loading: false
           });
