@@ -330,7 +330,8 @@ export const usePaginatedLeadsApi = () => {
       sortBy: currentFilters.sortBy,
       sortDir: currentFilters.sortDirection,
       filters: filtersForApi,
-      duplicateFilter: currentFilters.duplicateFilter
+      duplicateFilter: currentFilters.duplicateFilter,
+      search: currentFilters.searchTerm || ''
     });
 
     // Prevenir llamadas duplicadas
