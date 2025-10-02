@@ -107,25 +107,13 @@ export const useLeadsKPICounts = (params: UseLeadsKPICountsParams): KPICountsRes
           });
           const registroCount = normalizeResponse(registroDuplicatesResult);
           
-          // Counts por stage
-          console.log('📥 Fetching stage counts...');
-          const stageCounts: Record<string, number> = {};
-          await Promise.all(
-            ALL_STAGES.map(async (stage) => {
-              try {
-                const stageFilters = { ...baseFilters, Stage: { op: 'eq', value: stage } };
-                const result = await getDuplicateLeadsPaginated({
-                  page: 1,
-                  page_size: 1,
-                  filters: stageFilters
-                });
-                stageCounts[stage] = normalizeResponse(result);
-              } catch (err) {
-                console.error(`❌ Error fetching duplicate count for stage ${stage}:`, err);
-                stageCounts[stage] = 0;
-              }
-            })
-          );
+          // Para duplicados, no calculamos stageCounts individuales para mejorar performance
+          // Solo usamos los 4 KPIs principales que ya tenemos
+          const stageCounts: Record<string, number> = {
+            'Nuevo': newCount,
+            'Contrato Creado': contratoCount,
+            'Registro de Venta (fondeado)': registroCount
+          };
           
           console.log('✅ KPI Counts calculated:', {
             totalLeads: totalCount,
