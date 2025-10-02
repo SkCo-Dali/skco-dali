@@ -432,7 +432,6 @@ export function LeadsFilters({
                 <SelectContent className="bg-white z-50">
                   <SelectItem value="all">Todos</SelectItem>
                   <SelectItem value="duplicates">Solo duplicados</SelectItem>
-                  <SelectItem value="unique">Solo únicos</SelectItem>
                 </SelectContent>
               </Select>
             </div>
