@@ -378,7 +378,7 @@ export const exportLeads = async (filters?: {
   }
 };
 
-// API 11: Validar duplicados
+// API 11: Validar duplicados (legacy - sin paginación)
 export const getDuplicateLeads = async (): Promise<Lead[]> => {
   const endpoint = `${API_BASE_URL}/duplicates`;
 
@@ -395,6 +395,39 @@ export const getDuplicateLeads = async (): Promise<Lead[]> => {
     const mappedLeads = apiLeads.map(mapApiLeadToLead);
     
     return mappedLeads;
+  } catch (error) {
+    throw error;
+  }
+};
+
+// API 11b: Obtener duplicados con paginación (nueva API)
+export const getDuplicateLeadsPaginated = async (params?: {
+  page?: number;
+  page_size?: number;
+  sort_by?: string;
+  sort_dir?: 'asc' | 'desc';
+  filters?: Record<string, any>;
+}): Promise<any> => {
+  const queryParams = new URLSearchParams();
+  
+  if (params?.page) queryParams.set('page', params.page.toString());
+  if (params?.page_size) queryParams.set('page_size', params.page_size.toString());
+  if (params?.sort_by) queryParams.set('sort_by', params.sort_by);
+  if (params?.sort_dir) queryParams.set('sort_dir', params.sort_dir);
+  if (params?.filters) queryParams.set('filters', JSON.stringify(params.filters));
+
+  const endpoint = `${API_BASE_URL}/duplicates?${queryParams.toString()}`;
+
+  try {
+    const headers = await getAuthHeaders();
+    const response = await fetch(endpoint, { headers });
+    
+    if (!response.ok) {
+      throw new Error(`Error al obtener duplicados paginados: ${response.statusText}`);
+    }
+    
+    const result = await response.json();
+    return result;
   } catch (error) {
     throw error;
   }

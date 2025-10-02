@@ -45,6 +45,16 @@ export interface PaginatedLead {
   LastGestorInteractionAt: string | null;
   LastGestorInteractionStage: string | null;
   LastGestorInteractionDescription: string | null;
+  
+  // Campos de duplicados
+  IsDuplicate?: boolean;
+  IsDupByEmail?: boolean;
+  IsDupByDocumentNumber?: boolean;
+  IsDupByPhone?: boolean;
+  DuplicateEmailKey?: string | null;
+  DuplicateDocumentNumberKey?: string | null;
+  DuplicatePhoneKey?: string | null;
+  DuplicateBy?: string[];
 }
 
 export interface LeadsApiParams {

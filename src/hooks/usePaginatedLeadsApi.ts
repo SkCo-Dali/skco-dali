@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { Lead, LeadStatus } from '@/types/crm';
 import { getReassignableLeadsPaginated, getDistinctValues } from '@/utils/leadAssignmentApiClient';
-import { getDuplicateLeads } from '@/utils/leadsApiClient';
+import { getDuplicateLeads, getDuplicateLeadsPaginated } from '@/utils/leadsApiClient';
 import { LeadsApiParams, LeadsApiFilters, PaginatedLead, FilterCondition } from '@/types/paginatedLeadsTypes';
 import { useAuth } from '@/contexts/AuthContext';
 import { TextFilterCondition } from '@/components/TextFilter';
@@ -314,45 +314,17 @@ export const usePaginatedLeadsApi = () => {
     const currentFilters = newFilters ? { ...filters, ...newFilters } : filters;
     const currentPage = page || state.pagination.page;
 
-    // Construir filtros de API y, si aplica, limitar a IDs duplicados
+    // Construir filtros de API
     let filtersForApi = convertFiltersToApiFormat(currentFilters);
 
-    if (currentFilters.duplicateFilter === 'duplicates') {
-      try {
-        const dupLeads = await getDuplicateLeads();
-        const dupIds = dupLeads.map(l => l.id).filter(Boolean);
-        if (dupIds.length > 0) {
-          (filtersForApi as any)['Id'] = { op: 'in', values: dupIds } as any;
-        } else {
-          // Si no hay duplicados, forzamos un resultado vacío
-          (filtersForApi as any)['Id'] = { op: 'eq', value: '__no_matches__' } as any;
-        }
-      } catch (e) {
-        console.error('❌ Error fetching duplicate leads list:', e);
-      }
-    } else if (currentFilters.duplicateFilter === 'unique') {
-      // Para filtro "unique", excluir IDs duplicados usando operador 'nin'
-      try {
-        const dupLeads = await getDuplicateLeads();
-        const dupIds = dupLeads.map(l => l.id).filter(Boolean);
-        if (dupIds.length > 0) {
-          (filtersForApi as any)['Id'] = { op: 'nin', values: dupIds } as any;
-        }
-      } catch (e) {
-        console.error('❌ Error fetching duplicate leads for unique filter:', e);
-      }
-    }
-
-    const apiParams: LeadsApiParams = {
+    const requestKey = JSON.stringify({
       page: currentPage,
-      page_size: pageSizeOverride ?? state.pagination.pageSize,
-      sort_by: mapColumnNameToApi(currentFilters.sortBy),
-      sort_dir: currentFilters.sortDirection,
+      pageSize: pageSizeOverride ?? state.pagination.pageSize,
+      sortBy: currentFilters.sortBy,
+      sortDir: currentFilters.sortDirection,
       filters: filtersForApi,
-      duplicate_filter: currentFilters.duplicateFilter,
-    };
-
-    const requestKey = JSON.stringify(apiParams);
+      duplicateFilter: currentFilters.duplicateFilter
+    });
 
     // Prevenir llamadas duplicadas
     if (inFlightRef.current) {
@@ -368,8 +340,55 @@ export const usePaginatedLeadsApi = () => {
     setState(prev => ({ ...prev, loading: true, error: null }));
 
     try {
-      console.log('🚀 Loading paginated leads with params:', apiParams);
-      const response = await getReassignableLeadsPaginated(apiParams);
+      let response;
+      
+      if (currentFilters.duplicateFilter === 'duplicates') {
+        // Usar API de duplicados con paginación
+        console.log('🔍 Usando API de duplicados con paginación');
+        const apiParams = {
+          page: currentPage,
+          page_size: pageSizeOverride ?? state.pagination.pageSize,
+          sort_by: mapColumnNameToApi(currentFilters.sortBy),
+          sort_dir: currentFilters.sortDirection,
+          filters: Object.keys(filtersForApi).length > 0 ? filtersForApi : undefined,
+        };
+        console.log('🚀 Loading duplicate leads with params:', apiParams);
+        response = await getDuplicateLeadsPaginated(apiParams);
+      } else if (currentFilters.duplicateFilter === 'unique') {
+        // Para filtro 'unique', obtener IDs duplicados y excluirlos
+        console.log('🔍 Filtrando leads únicos (excluyendo duplicados)');
+        try {
+          const dupLeads = await getDuplicateLeads();
+          const dupIds = dupLeads.map(l => l.id).filter(Boolean);
+          if (dupIds.length > 0) {
+            (filtersForApi as any)['Id'] = { op: 'nin', values: dupIds } as any;
+          }
+        } catch (e) {
+          console.error('❌ Error fetching duplicate leads for unique filter:', e);
+        }
+        
+        const apiParams: LeadsApiParams = {
+          page: currentPage,
+          page_size: pageSizeOverride ?? state.pagination.pageSize,
+          sort_by: mapColumnNameToApi(currentFilters.sortBy),
+          sort_dir: currentFilters.sortDirection,
+          filters: filtersForApi,
+        };
+        console.log('🚀 Loading unique leads with params:', apiParams);
+        response = await getReassignableLeadsPaginated(apiParams);
+      } else {
+        // Sin filtro de duplicados, usar API normal
+        const apiParams: LeadsApiParams = {
+          page: currentPage,
+          page_size: pageSizeOverride ?? state.pagination.pageSize,
+          sort_by: mapColumnNameToApi(currentFilters.sortBy),
+          sort_dir: currentFilters.sortDirection,
+          filters: filtersForApi,
+        };
+        console.log('🚀 Loading all leads with params:', apiParams);
+        response = await getReassignableLeadsPaginated(apiParams);
+      }
+      
       const mappedLeads = response.items.map(mapPaginatedLeadToLead);
 
       // Ahora la búsqueda se hace en el servidor, no necesitamos filtrado client-side

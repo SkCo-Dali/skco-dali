@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { getReassignableLeadsPaginated } from '@/utils/leadAssignmentApiClient';
 import { LeadsApiParams, LeadsApiFilters } from '@/types/paginatedLeadsTypes';
-import { getDuplicateLeads } from '@/utils/leadsApiClient';
+import { getDuplicateLeads, getDuplicateLeadsPaginated } from '@/utils/leadsApiClient';
 
 interface KPICountsResult {
   totalLeads: number;
@@ -52,23 +52,80 @@ export const useLeadsKPICounts = (params: UseLeadsKPICountsParams): KPICountsRes
       setCounts(prev => ({ ...prev, loading: true }));
 
       try {
-        // Aplicar filtro de duplicados si está activo
+        // Manejar filtro de duplicados
+        if (duplicateFilter === 'duplicates') {
+          // Para 'duplicates', usar la API de duplicados paginada
+          console.log('🔍 Usando API de duplicados para KPI counts');
+          
+          // Crear filtros sin el filtro de Stage para el total absoluto
+          const { Stage, ...filtersWithoutStage } = baseFilters;
+          
+          // Total de duplicados
+          const totalDuplicatesResult = await getDuplicateLeadsPaginated({
+            page: 1,
+            page_size: 1,
+            filters: Object.keys(filtersWithoutStage).length > 0 ? filtersWithoutStage : undefined
+          });
+          
+          // Nuevos duplicados
+          const newLeadFilters = { ...baseFilters, Stage: { op: 'eq', value: 'Nuevo' } };
+          const newDuplicatesResult = await getDuplicateLeadsPaginated({
+            page: 1,
+            page_size: 1,
+            filters: newLeadFilters
+          });
+          
+          // Contrato creado duplicados
+          const contratoFilters = { ...baseFilters, Stage: { op: 'eq', value: 'Contrato Creado' } };
+          const contratoDuplicatesResult = await getDuplicateLeadsPaginated({
+            page: 1,
+            page_size: 1,
+            filters: contratoFilters
+          });
+          
+          // Registro venta duplicados
+          const registroFilters = { ...baseFilters, Stage: { op: 'eq', value: 'Registro de Venta (fondeado)' } };
+          const registroDuplicatesResult = await getDuplicateLeadsPaginated({
+            page: 1,
+            page_size: 1,
+            filters: registroFilters
+          });
+          
+          // Counts por stage
+          const stageCounts: Record<string, number> = {};
+          await Promise.all(
+            ALL_STAGES.map(async (stage) => {
+              try {
+                const stageFilters = { ...baseFilters, Stage: { op: 'eq', value: stage } };
+                const result = await getDuplicateLeadsPaginated({
+                  page: 1,
+                  page_size: 1,
+                  filters: stageFilters
+                });
+                stageCounts[stage] = result.total || 0;
+              } catch (err) {
+                console.error(`Error fetching duplicate count for stage ${stage}:`, err);
+                stageCounts[stage] = 0;
+              }
+            })
+          );
+          
+          setCounts({
+            totalLeads: totalDuplicatesResult.total || 0,
+            newLeads: newDuplicatesResult.total || 0,
+            contratoCreado: contratoDuplicatesResult.total || 0,
+            registroVenta: registroDuplicatesResult.total || 0,
+            stageCounts,
+            loading: false
+          });
+          
+          return;
+        }
+        
+        // Para 'all' o 'unique', usar la API normal con filtros
         let effectiveFilters = { ...baseFilters };
         
-        if (duplicateFilter === 'duplicates') {
-          try {
-            const dupLeads = await getDuplicateLeads();
-            const dupIds = dupLeads.map(l => l.id).filter(Boolean);
-            if (dupIds.length > 0) {
-              (effectiveFilters as any)['Id'] = { op: 'in', values: dupIds };
-            } else {
-              // Si no hay duplicados, forzamos un resultado vacío
-              (effectiveFilters as any)['Id'] = { op: 'eq', value: '__no_matches__' };
-            }
-          } catch (e) {
-            console.error('❌ Error fetching duplicate leads for KPI counts:', e);
-          }
-        } else if (duplicateFilter === 'unique') {
+        if (duplicateFilter === 'unique') {
           // Para 'unique', excluir IDs duplicados usando operador 'nin'
           try {
             const dupLeads = await getDuplicateLeads();
