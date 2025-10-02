@@ -48,12 +48,15 @@ import {
   MoreVertical,
   Group,
   Trash,
-  MessageSquare
+  MessageSquare,
+  CheckCircle2
 } from "lucide-react";
 import { useLeadDeletion } from "@/hooks/useLeadDeletion";
 import { LeadDeleteConfirmDialog } from "@/components/LeadDeleteConfirmDialog";
+import { LeadsBulkStatusUpdate } from "@/components/LeadsBulkStatusUpdate";
 import { FaWhatsapp } from "react-icons/fa";
 import { TextFilterCondition } from "@/components/TextFilter";
+import { bulkChangeLeadStage } from "@/utils/leadsApiClient";
 
 const DEFAULT_COLUMNS: ColumnConfig[] = [
   { key: 'name', label: 'Nombre', visible: true, sortable: true },
@@ -101,6 +104,8 @@ export default function Leads() {
   const [selectedLeads, setSelectedLeads] = useState<string[]>([]);
   const leadCreateDialogRef = useRef<{ openDialog: () => void }>(null);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [showBulkStatusUpdate, setShowBulkStatusUpdate] = useState(false);
+  const [isBulkUpdating, setIsBulkUpdating] = useState(false);
 
   
   const { user } = useAuth();
@@ -528,6 +533,51 @@ export default function Leads() {
     return { total, newLeads, contacted, qualified };
   }, [leadsData]);
 
+  const handleBulkStatusUpdate = async (newStage: string) => {
+    if (selectedLeads.length === 0) {
+      toast({
+        title: "Error",
+        description: "No hay leads seleccionados",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setIsBulkUpdating(true);
+    
+    try {
+      const { success, failed } = await bulkChangeLeadStage(selectedLeads, newStage);
+      
+      if (success > 0) {
+        toast({
+          title: "Actualización completada",
+          description: `${success} lead${success > 1 ? 's' : ''} actualizado${success > 1 ? 's' : ''} exitosamente${failed > 0 ? `. ${failed} fallaron.` : ''}`,
+        });
+        
+        // Refrescar la lista de leads
+        handleLeadUpdate();
+        
+        // Limpiar selección
+        setSelectedLeads([]);
+      } else {
+        toast({
+          title: "Error",
+          description: "No se pudo actualizar ningún lead",
+          variant: "destructive"
+        });
+      }
+    } catch (error) {
+      console.error('Error al actualizar leads:', error);
+      toast({
+        title: "Error",
+        description: "Ocurrió un error al actualizar los leads",
+        variant: "destructive"
+      });
+    } finally {
+      setIsBulkUpdating(false);
+    }
+  };
+
   const handleDeleteSelectedLeads = () => {
     const leadsToDelete = selectedLeads.length > 0 
       ? filteredLeads.filter(lead => selectedLeads.includes(lead.id))
@@ -664,24 +714,38 @@ export default function Leads() {
                       className="gap-1 w-8 h-8 bg-primary"
                       onClick={handleCreateLead}
                       size="icon"
+                      title="Crear Lead"
                     >
                       <Plus className="h-4 w-4" />
                     </Button>
                   )}
                   {userPermissions?.canBulkAssignLeads && (
-                    <Button
-                      className="gap-1 w-8 h-8 bg-primary"
-                      onClick={handleBulkAssign}
-                      size="icon"
-                    >
-                      <Users className="h-4 w-4" />
-                    </Button>
+                    <>
+                      <Button
+                        className="gap-1 w-8 h-8 bg-primary"
+                        onClick={handleBulkAssign}
+                        size="icon"
+                        title="Asignación Masiva"
+                      >
+                        <Users className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        className="gap-1 w-8 h-8 bg-primary"
+                        onClick={() => setShowBulkStatusUpdate(true)}
+                        size="icon"
+                        disabled={selectedLeads.length === 0}
+                        title="Actualizar Estado Masivamente"
+                      >
+                        <CheckCircle2 className="h-4 w-4" />
+                      </Button>
+                    </>
                   )}
                   {userPermissions?.canSendEmail && (
                   <Button
                     className="gap-1 w-8 h-8 bg-primary"
                     onClick={handleMassEmail}
                     size="icon"
+                    title="Enviar Email Masivo"
                   >
                     <Mail className="h-4 w-4" />
                   </Button>
@@ -701,6 +765,7 @@ export default function Leads() {
                       onClick={handleDeleteSelectedLeads}
                       size="icon"
                       disabled={isDeleting}
+                      title="Eliminar Leads"
                     >
                       <Trash className="h-4 w-4" />
                     </Button>
@@ -1115,6 +1180,14 @@ export default function Leads() {
             />
           </DialogContent>
         </Dialog>
+
+        <LeadsBulkStatusUpdate
+          isOpen={showBulkStatusUpdate}
+          onClose={() => setShowBulkStatusUpdate(false)}
+          onConfirm={handleBulkStatusUpdate}
+          selectedCount={selectedLeads.length}
+          isLoading={isBulkUpdating}
+        />
 
         <LeadDeleteConfirmDialog
           isOpen={showDeleteDialog}

@@ -213,6 +213,33 @@ export const changeLeadStage = async (leadId: string, stage: string): Promise<vo
   }
 };
 
+// API: Cambiar stage de múltiples leads
+export const bulkChangeLeadStage = async (leadIds: string[], stage: string): Promise<{ success: number; failed: number }> => {
+  let success = 0;
+  let failed = 0;
+
+  try {
+    // Ejecutar cambios en paralelo con Promise.allSettled para no fallar todo si uno falla
+    const results = await Promise.allSettled(
+      leadIds.map(leadId => changeLeadStage(leadId, stage))
+    );
+
+    results.forEach(result => {
+      if (result.status === 'fulfilled') {
+        success++;
+      } else {
+        failed++;
+        console.error('Error al cambiar stage del lead:', result.reason);
+      }
+    });
+
+    return { success, failed };
+  } catch (error) {
+    console.error('Error en bulkChangeLeadStage:', error);
+    throw error;
+  }
+};
+
 // API 6: Eliminar Lead (soft delete)
 export const deleteLead = async (leadId: string): Promise<void> => {
   const endpoint = `${API_BASE_URL}/${leadId}`;
