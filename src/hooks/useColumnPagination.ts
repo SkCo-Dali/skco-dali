@@ -103,7 +103,7 @@ export function useColumnPagination({
     switch (groupBy) {
       case 'stage':
         return [
-          'Contacto',
+          'Nuevo',
           'Calificado',
           'En seguimiento',
           'Propuesta enviada',
