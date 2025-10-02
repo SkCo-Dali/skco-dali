@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { Lead, LeadStatus } from '@/types/crm';
 import { getReassignableLeadsPaginated, getDistinctValues } from '@/utils/leadAssignmentApiClient';
 import { getDuplicateLeads, getDuplicateLeadsPaginated } from '@/utils/leadsApiClient';
@@ -496,10 +496,15 @@ export const usePaginatedLeadsApi = () => {
     loadLeads(undefined, undefined, 'initial');
   }, [user?.id, user?.role]);
 
+  // Memoizar apiFilters para que solo cambie cuando filters cambie
+  const apiFilters = useMemo(() => {
+    return convertFiltersToApiFormat(filters);
+  }, [filters, convertFiltersToApiFormat]);
+
   return {
     ...state,
     filters,
-    apiFilters: convertFiltersToApiFormat(filters),
+    apiFilters,
     updateFilters,
     setPage,
     setPageSize,
