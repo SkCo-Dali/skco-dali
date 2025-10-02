@@ -15,17 +15,18 @@ interface LeadsColumnsProps {
 export function LeadsColumns({ leads, onLeadClick, onLeadUpdate, onSendEmail, groupBy = "stage" }: LeadsColumnsProps) {
   // No need for users API - assignedToName comes directly from API response
 
-  const priorityLabels = {
+  // Normalizar labels a minúsculas para comparación case-insensitive
+  const priorityLabels: Record<string, string> = {
     'low': 'Baja',
     'medium': 'Media',
     'high': 'Alta',
     'urgent': 'Urgente'
   };
 
-  const sourceLabels = {
-    'Hubspot': 'Hubspot',
-    'DaliLM': 'DaliLM',
-    'DaliAI': 'DaliAI',
+  const sourceLabels: Record<string, string> = {
+    'hubspot': 'Hubspot',
+    'dalilm': 'DaliLM',
+    'daliai': 'DaliAI',
     'web': 'Sitio web',
     'social': 'Redes sociales',
     'referral': 'Referido',
@@ -70,24 +71,29 @@ export function LeadsColumns({ leads, onLeadClick, onLeadUpdate, onSendEmail, gr
 
       switch (groupBy) {
         case 'stage':
-          key = lead.stage;
-          label = lead.stage;
+          // Usar el stage directamente del API, normalizado
+          key = lead.stage || 'Sin etapa';
+          label = lead.stage || 'Sin etapa';
           break;
         case 'priority':
-          key = lead.priority;
-          label = priorityLabels[lead.priority as keyof typeof priorityLabels] || lead.priority;
+          // Normalizar a minúsculas para comparación
+          const normalizedPriority = (lead.priority || '').toLowerCase();
+          key = normalizedPriority || 'sin-prioridad';
+          label = priorityLabels[normalizedPriority] || lead.priority || 'Sin prioridad';
           break;
         case 'source':
-          key = lead.source;
-          label = sourceLabels[lead.source as keyof typeof sourceLabels] || lead.source;
+          // Normalizar a minúsculas para comparación
+          const normalizedSource = (lead.source || '').toLowerCase();
+          key = normalizedSource || 'sin-fuente';
+          label = sourceLabels[normalizedSource] || lead.source || 'Sin fuente';
           break;
         case 'assignedTo':
-          key = lead.assignedTo;
-          // Use assignedToName directly from API response
+          // Usar assignedTo como key y assignedToName como label
+          key = lead.assignedTo || 'sin-asignar';
           label = lead.assignedToName || (lead.assignedTo ? `Usuario ${lead.assignedTo}` : 'Sin asignar');
           break;
         case 'campaign':
-          key = lead.campaign;
+          key = lead.campaign || 'sin-campana';
           label = lead.campaign || 'Sin campaña';
           break;
         default:
