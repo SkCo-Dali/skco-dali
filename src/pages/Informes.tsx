@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Input } from '@/components/ui/input';
+import { InformesSearch } from '@/components/InformesSearch';
 import { 
   Search, 
   Filter, 
@@ -331,15 +331,10 @@ export default function Informes() {
             {/* Filters and Search */}
             <div className="flex flex-col space-y-4 mb-6">
               {/* Search */}
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-                <Input
-                  placeholder="Buscar informes por nombre, descripción o workspace..."
-                  value={state.searchTerm}
-                  onChange={(e) => handleSearchChange(e.target.value)}
-                  className="pl-10"
-                />
-              </div>
+              <InformesSearch 
+                searchTerm={state.searchTerm}
+                onSearchChange={handleSearchChange}
+              />
 
               {/* Filters */}
               <div className="flex flex-col sm:flex-row gap-4">
