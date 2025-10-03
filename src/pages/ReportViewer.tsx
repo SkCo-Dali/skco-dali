@@ -13,17 +13,14 @@ import {
   Loader2,
   AlertCircle,
   Shield,
-  Eye,
-  Menu,
-  X
+  Eye
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { checkEffectiveAccess } from '@/services/powerbiApiService';
 import { usePowerBIReport } from '@/hooks/usePowerBIReport';
 import { powerbiService } from '@/services/powerbiService';
-import { EffectiveReport, ReportPage, Report } from '@/types/powerbi';
+import { EffectiveReport, Report } from '@/types/powerbi';
 import { toast } from '@/hooks/use-toast';
-import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 
 export default function ReportViewer() {
   const { reportId } = useParams();
@@ -33,12 +30,9 @@ export default function ReportViewer() {
   
   const [report, setReport] = useState<EffectiveReport | null>(null);
   const [reportDetail, setReportDetail] = useState<Report | null>(null);
-  const [pages, setPages] = useState<ReportPage[]>([]);
-  const [activePage, setActivePage] = useState<string>('');
   const [loading, setLoading] = useState(true);
   const [hasAccess, setHasAccess] = useState<boolean | null>(null);
   const [isFullscreen, setIsFullscreen] = useState(false);
-  const [sidebarOpen, setSidebarOpen] = useState(false);
   const [idToken, setIdToken] = useState<string>('');
   
   // Diagnostic mode: skip RLS if ?no_rls=1
@@ -174,24 +168,6 @@ export default function ReportViewer() {
         return; // Will show "Configuración Pendiente" screen
       }
 
-      // Get report pages using Power BI IDs
-      console.log('📑 Obteniendo páginas del reporte...');
-      const pagesData = await powerbiService.getReportPages(
-        fullReportDetail.pbiReportId, 
-        fullReportDetail.pbiWorkspaceId, 
-        tokenData.idToken
-      );
-      
-      // Filter out hidden pages (visibility = 1)
-      const visiblePages = pagesData.filter(page => page.visibility !== 1);
-      console.log('📑 Páginas totales:', pagesData.length, '| Visibles:', visiblePages.length, '| Ocultas:', pagesData.length - visiblePages.length);
-      
-      setPages(visiblePages);
-      
-      if (visiblePages.length > 0) {
-        setActivePage(visiblePages[0].id);
-      }
-
     } catch (error) {
       console.error('❌ Error fetching report data:', error);
       toast({
@@ -202,22 +178,6 @@ export default function ReportViewer() {
     } finally {
       setLoading(false);
     }
-  };
-
-  // Handle page change
-  const handlePageChange = async (pageId: string, pageName: string) => {
-    setActivePage(pageId);
-    setSidebarOpen(false);
-    
-    // Change page in Power BI embedded report
-    if (shouldUsePowerBI && powerBIHook.report) {
-      await powerBIHook.changePage(pageId);
-    }
-    
-    toast({
-      title: "Página cambiada",
-      description: `Navegando a: ${pageName}`,
-    });
   };
 
   // Handle refresh
@@ -420,67 +380,12 @@ export default function ReportViewer() {
                   Abrir en Power BI
                 </Button>
               )}
-
-              {/* Mobile pages menu */}
-              {pages.length > 0 && (
-                <Sheet open={sidebarOpen} onOpenChange={setSidebarOpen}>
-                  <SheetTrigger asChild>
-                    <Button size="sm" variant="outline" className="md:hidden">
-                      <Menu className="h-4 w-4" />
-                    </Button>
-                  </SheetTrigger>
-                  <SheetContent side="left" className="w-80">
-                    <div className="py-4">
-                      <h3 className="font-semibold mb-4">Páginas del Reporte</h3>
-                      <div className="space-y-2">
-                        {pages.map((page) => (
-                          <Button
-                            key={page.id}
-                            variant={activePage === page.id ? 'default' : 'ghost'}
-                            className="w-full justify-start"
-                            onClick={() => handlePageChange(page.id, page.displayName)}
-                          >
-                            {page.displayName}
-                            {activePage === page.id && (
-                              <div className="ml-auto w-2 h-2 bg-primary rounded-full" />
-                            )}
-                          </Button>
-                        ))}
-                      </div>
-                    </div>
-                  </SheetContent>
-                </Sheet>
-              )}
             </div>
           </div>
         </div>
       </div>
 
       <div className="flex h-[calc(100vh-80px)]">
-        {/* Sidebar for pages (desktop) */}
-        {pages.length > 0 && !isFullscreen && (
-          <div className="hidden md:block w-64 border-r bg-muted/20">
-            <div className="p-4">
-              <h3 className="font-semibold mb-4">Páginas del Reporte</h3>
-              <div className="space-y-2">
-                {pages.map((page) => (
-                  <Button
-                    key={page.id}
-                    variant={activePage === page.id ? 'default' : 'ghost'}
-                    className="w-full justify-start"
-                    onClick={() => handlePageChange(page.id, page.displayName)}
-                  >
-                    {page.displayName}
-                    {activePage === page.id && (
-                      <div className="ml-auto w-2 h-2 bg-primary rounded-full" />
-                    )}
-                  </Button>
-                ))}
-              </div>
-            </div>
-          </div>
-        )}
-
         {/* Main content area */}
         <div className="flex-1 p-4">
           <Card className="w-full h-full">

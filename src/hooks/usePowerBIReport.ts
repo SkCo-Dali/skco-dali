@@ -65,7 +65,7 @@ export function usePowerBIReport(options: UsePowerBIReportOptions) {
         settings: {
           panes: {
             filters: { visible: false },
-            pageNavigation: { visible: false }
+            pageNavigation: { visible: true }
           },
           bars: {
             statusBar: { visible: false }
