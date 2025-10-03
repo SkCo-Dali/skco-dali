@@ -522,18 +522,24 @@ export function AccessTab() {
       console.log('🔑 Token obtenido para revoke workspace access:', tokens.idToken.substring(0, 50) + '...');
       
       const endpoint = `${ENV.CRM_API_BASE_URL}/api/reports/workspaces/${selectedWorkspace}/access/revoke`;
-      const body = { userId };
+      const requestBody = { userId };
+      const bodyString = JSON.stringify(requestBody);
       
-      console.log('📡 === DETALLES DE LA LLAMADA API ===');
+      console.log('📡 === DETALLES DE LA LLAMADA API - REVOKE WORKSPACE ACCESS ===');
       console.log('🌐 Endpoint: POST', endpoint);
       console.log('🔐 Authorization Header: Bearer ' + tokens.idToken.substring(0, 50) + '...');
       console.log('📊 Method: POST');
-      console.log('📦 Body:', body);
+      console.log('📦 Body Object:', requestBody);
+      console.log('📦 Body Stringified:', bodyString);
+      console.log('📋 Content-Type: application/json');
       
       await apiCall(endpoint, {
         method: 'POST',
-        headers: { 'Authorization': `Bearer ${tokens.idToken}` },
-        body: JSON.stringify(body)
+        headers: { 
+          'Authorization': `Bearer ${tokens.idToken}`,
+          'Content-Type': 'application/json'
+        },
+        body: bodyString
       });
       
       console.log('✅ Acceso a workspace revocado correctamente');
@@ -636,18 +642,24 @@ export function AccessTab() {
       console.log('🔑 Token obtenido para revoke report access:', tokens.idToken.substring(0, 50) + '...');
       
       const endpoint = `${ENV.CRM_API_BASE_URL}/api/reports/reports/${selectedReport}/access/revoke`;
-      const body = { userId };
+      const requestBody = { userId };
+      const bodyString = JSON.stringify(requestBody);
       
-      console.log('📡 === DETALLES DE LA LLAMADA API ===');
+      console.log('📡 === DETALLES DE LA LLAMADA API - REVOKE REPORT ACCESS ===');
       console.log('🌐 Endpoint: POST', endpoint);
       console.log('🔐 Authorization Header: Bearer ' + tokens.idToken.substring(0, 50) + '...');
       console.log('📊 Method: POST');
-      console.log('📦 Body:', body);
+      console.log('📦 Body Object:', requestBody);
+      console.log('📦 Body Stringified:', bodyString);
+      console.log('📋 Content-Type: application/json');
       
       await apiCall(endpoint, {
         method: 'POST',
-        headers: { 'Authorization': `Bearer ${tokens.idToken}` },
-        body: JSON.stringify(body)
+        headers: { 
+          'Authorization': `Bearer ${tokens.idToken}`,
+          'Content-Type': 'application/json'
+        },
+        body: bodyString
       });
       
       console.log('✅ Acceso a reporte revocado correctamente');
