@@ -202,6 +202,25 @@ export function usePowerBIReport(options: UsePowerBIReportOptions) {
     }
   };
 
+  // Handle page change
+  const changePage = async (pageName: string) => {
+    if (report && status === 'ready') {
+      try {
+        const pages = await report.getPages();
+        const page = pages.find((p: any) => p.name === pageName);
+        if (page) {
+          await page.setActive();
+          console.log('✅ Página cambiada a:', pageName);
+        } else {
+          console.warn('⚠️ Página no encontrada:', pageName);
+        }
+      } catch (err) {
+        console.error('❌ Error cambiando página:', err);
+        onError?.(err);
+      }
+    }
+  };
+
   // Handle export
   const exportReport = async () => {
     try {
@@ -257,6 +276,7 @@ export function usePowerBIReport(options: UsePowerBIReportOptions) {
     refreshReport,
     toggleFullscreen,
     exportReport,
+    changePage,
     reinitialize: initializePowerBI
   };
 }

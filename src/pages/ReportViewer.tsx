@@ -205,6 +205,11 @@ export default function ReportViewer() {
     setActivePage(pageId);
     setSidebarOpen(false);
     
+    // Change page in Power BI embedded report
+    if (shouldUsePowerBI && powerBIHook.report) {
+      await powerBIHook.changePage(pageId);
+    }
+    
     toast({
       title: "Página cambiada",
       description: `Navegando a: ${pageName}`,
