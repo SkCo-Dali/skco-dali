@@ -68,6 +68,7 @@ export function CreateReportDialog({ open, onOpenChange, onCreateReport, workspa
   }, [formData.pbiReportId, formData.datasetId]);
 
   const fetchPowerBIReports = async (workspaceId: string) => {
+    console.log('📡 Iniciando carga de reportes para workspace:', workspaceId);
     setLoadingReports(true);
     try {
       const tokens = await instance.acquireTokenSilent({
@@ -75,22 +76,29 @@ export function CreateReportDialog({ open, onOpenChange, onCreateReport, workspa
         account: accounts[0]
       });
 
-      const response = await fetch(
-        `${ENV.CRM_API_BASE_URL}/api/pbi/workspaces/${workspaceId}/reports`,
-        {
-          headers: {
-            'Authorization': `Bearer ${tokens.idToken}`,
-            'Content-Type': 'application/json'
-          }
-        }
-      );
+      const endpoint = `${ENV.CRM_API_BASE_URL}/api/pbi/workspaces/${workspaceId}/reports`;
+      console.log('📡 Llamando a:', endpoint);
 
-      if (!response.ok) throw new Error('Error al obtener reportes de Power BI');
+      const response = await fetch(endpoint, {
+        headers: {
+          'Authorization': `Bearer ${tokens.idToken}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      console.log('📡 Response status:', response.status, response.statusText);
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('❌ Error response:', errorText);
+        throw new Error('Error al obtener reportes de Power BI');
+      }
 
       const data: PowerBIReport[] = await response.json();
+      console.log('✅ Reportes obtenidos:', data);
       setPbiReports(data);
     } catch (error) {
-      console.error('Error fetching Power BI reports:', error);
+      console.error('❌ Error fetching Power BI reports:', error);
       setPbiReports([]);
     } finally {
       setLoadingReports(false);
@@ -135,6 +143,11 @@ export function CreateReportDialog({ open, onOpenChange, onCreateReport, workspa
 
   const handleWorkspaceChange = (workspaceId: string) => {
     const selectedWorkspace = workspaces.find(w => w.id === workspaceId);
+    console.log('🔧 Workspace seleccionado:', {
+      workspaceId,
+      selectedWorkspace,
+      pbiWorkspaceId: selectedWorkspace?.pbiWorkspaceId
+    });
     setFormData(prev => ({
       ...prev,
       workspaceId,
