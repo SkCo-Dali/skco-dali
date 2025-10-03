@@ -45,6 +45,16 @@ export interface PaginatedLead {
   LastGestorInteractionAt: string | null;
   LastGestorInteractionStage: string | null;
   LastGestorInteractionDescription: string | null;
+  
+  // Campos de duplicados
+  IsDuplicate?: boolean;
+  IsDupByEmail?: boolean;
+  IsDupByDocumentNumber?: boolean;
+  IsDupByPhone?: boolean;
+  DuplicateEmailKey?: string | null;
+  DuplicateDocumentNumberKey?: string | null;
+  DuplicatePhoneKey?: string | null;
+  DuplicateBy?: string[];
 }
 
 export interface LeadsApiParams {
@@ -54,6 +64,7 @@ export interface LeadsApiParams {
   sort_dir?: 'asc' | 'desc';
   filters?: LeadsApiFilters;
   duplicate_filter?: 'all' | 'duplicates' | 'unique';
+  search?: string; // Búsqueda multi-campo en Name, Email, Phone, Campaign
 }
 
 export interface LeadsApiFilters {

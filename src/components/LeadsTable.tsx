@@ -53,6 +53,7 @@ interface LeadsTableProps {
   onTextFilterChange?: (column: string, filters: any[]) => void;
   onClearColumnFilter?: (column: string) => void;
   hasFiltersForColumn?: (column: string) => boolean;
+  searchTerm?: string; // Término de búsqueda principal
   // Props para ordenamiento desde el hook unificado
   sortBy?: string;
   setSortBy?: (sort: string) => void;
@@ -164,6 +165,7 @@ interface SortableHeaderProps {
   onTextFilterChange: (column: string, filters: TextFilterCondition[]) => void;
   onClearFilter: (column: string) => void;
   isNameColumn?: boolean;
+  searchTerm?: string; // Término de búsqueda principal
   // Server-side filters for distinct API calls
   currentApiFilters?: LeadsApiFilters;
 }
@@ -180,6 +182,7 @@ function SortableHeader({
   onTextFilterChange,
   onClearFilter,
   isNameColumn = false,
+  searchTerm,
   currentApiFilters = {}
 }: SortableHeaderProps) {
   const {
@@ -218,11 +221,12 @@ function SortableHeader({
           </div>
         )}
         {/* Use ServerSideColumnFilter for dropdown fields that need server-side distinct values */}
-        {['email', 'campaign', 'stage', 'assignedToName', 'source', 'product', 'priority'].includes(column.key) ? (
+        {['name', 'email', 'campaign', 'stage', 'assignedToName', 'source', 'product', 'priority'].includes(column.key) ? (
           <ServerSideColumnFilter
             field={column.key}
             label={column.label}
             currentFilters={currentApiFilters}
+            searchTerm={searchTerm}
             onFilterChange={(field: string, values: string[]) => {
               onColumnFilterChange(field, values);
             }}
@@ -303,6 +307,7 @@ export function LeadsTable({
   onTextFilterChange,
   onClearColumnFilter,
   hasFiltersForColumn,
+  searchTerm,
   sortBy,
   setSortBy,
   sortDirection,
@@ -927,6 +932,7 @@ Por favor, confirmar asistencia.`;
                          onTextFilterChange={onTextFilterChange || (() => {})}
                          onClearFilter={onClearColumnFilter || (() => {})}
                          isNameColumn={true}
+                         searchTerm={searchTerm}
                          currentApiFilters={convertFiltersToApiFormat}
                        />
                      )}
@@ -945,6 +951,7 @@ Por favor, confirmar asistencia.`;
                             onColumnFilterChange={onColumnFilterChange || (() => {})}
                             onTextFilterChange={onTextFilterChange || (() => {})}
                             onClearFilter={onClearColumnFilter || (() => {})}
+                            searchTerm={searchTerm}
                             currentApiFilters={convertFiltersToApiFormat}
                           />
                         ))}

@@ -138,7 +138,7 @@ export function useServerSideFilters({
 }
 
 // Hook específico para obtener valores únicos con debounce
-export function useDistinctValues(field: string, currentFilters: LeadsApiFilters) {
+export function useDistinctValues(field: string, currentFilters: LeadsApiFilters, globalSearchTerm?: string) {
   const [values, setValues] = useState<(string | null)[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -189,10 +189,16 @@ export function useDistinctValues(field: string, currentFilters: LeadsApiFilters
 
     try {
       const apiField = mapColumnNameToApi(field);
+      
+      // Combinar el search local del filtro con el globalSearchTerm
+      // Si hay search local (del campo de búsqueda dentro del filtro), usar ese
+      // Si no, usar el globalSearchTerm para filtrar los valores por la búsqueda principal
+      const effectiveSearch = search || globalSearchTerm;
+      
       const result = await getDistinctValues({
         field: apiField,
         filters: currentFilters,
-        search
+        search: effectiveSearch
       });
       
       setValues(result.values || []);
@@ -205,15 +211,15 @@ export function useDistinctValues(field: string, currentFilters: LeadsApiFilters
       setLoading(false);
       abortControllerRef.current = null;
     }
-  }, [field, currentFilters]);
+  }, [field, currentFilters, globalSearchTerm]);
 
   // Función para inicializar manualmente
   const initialize = useCallback(() => {
     if (!hasInitialized) {
       setHasInitialized(true);
-      fetchValues();
+      fetchValues(globalSearchTerm);
     }
-  }, [hasInitialized, fetchValues]);
+  }, [hasInitialized, fetchValues, globalSearchTerm]);
 
   // Efecto para manejar debounce en búsqueda solo después de inicializar
   useEffect(() => {
