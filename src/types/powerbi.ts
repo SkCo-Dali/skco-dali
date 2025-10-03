@@ -53,6 +53,7 @@ export interface ReportPage {
   name: string;
   displayName: string;
   order: number;
+  visibility?: number; // 0 = visible, 1 = hidden
 }
 
 export interface PowerBIWorkspace {

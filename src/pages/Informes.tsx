@@ -25,6 +25,7 @@ import { useHasRole } from '@/hooks/useRequireRole';
 import { powerbiService } from '@/services/powerbiService';
 import { EffectiveReport, Area, Workspace } from '@/types/powerbi';
 import { toast } from '@/hooks/use-toast';
+import { ENV } from '@/config/environment';
 
 // Component state types
 interface InformesState {
@@ -78,16 +79,56 @@ export default function Informes() {
         throw new Error('No ID token available');
       }
       
+      // Build filters only when they have valid non-empty values
+      const filters: {
+        search?: string;
+        areaId?: string;
+        workspaceId?: string;
+      } = {};
+      
+      if (state.searchTerm && state.searchTerm.trim()) {
+        filters.search = state.searchTerm.trim();
+      }
+      if (state.selectedArea && state.selectedArea !== 'all') {
+        filters.areaId = state.selectedArea;
+      }
+      if (state.selectedWorkspace && state.selectedWorkspace !== 'all') {
+        filters.workspaceId = state.selectedWorkspace;
+      }
+
+      // Log detallado del llamado al API
+      console.log('═══════════════════════════════════════════════════');
+      console.log('🔍 LLAMADO AL API DE REPORTES');
+      console.log('═══════════════════════════════════════════════════');
+      console.log('📍 Método:', 'GET');
+      console.log('🌐 URL Base:', `${ENV.CRM_API_BASE_URL}/api/reports/effective/my-reports`);
+      console.log('📋 Filtros aplicados:', JSON.stringify(filters, null, 2));
+      
+      // Construir query params para mostrar URL completa
+      const queryParams = new URLSearchParams();
+      queryParams.set('only_active', 'true');
+      if (filters.search) queryParams.set('search', filters.search);
+      if (filters.areaId) queryParams.set('area_id', filters.areaId);
+      if (filters.workspaceId) queryParams.set('workspace_id', filters.workspaceId);
+      
+      console.log('🔗 URL Completa:', `${ENV.CRM_API_BASE_URL}/api/reports/effective/my-reports?${queryParams.toString()}`);
+      console.log('🔑 Token (preview):', tokenData.idToken.substring(0, 50) + '...');
+      console.log('📤 Body:', 'N/A (GET request)');
+      console.log('═══════════════════════════════════════════════════');
+
       const [reportsData, areasData, workspacesData, favoritesData] = await Promise.all([
-        powerbiService.getMyReports({
-          search: state.searchTerm || undefined,
-          areaId: state.selectedArea || undefined,
-          workspaceId: state.selectedWorkspace || undefined
-        }, tokenData.idToken),
+        powerbiService.getMyReports(filters, tokenData.idToken),
         powerbiService.getAreas({}, tokenData.idToken),
         powerbiService.getWorkspaces({}, tokenData.idToken),
         powerbiService.getFavorites({}, tokenData.idToken)
       ]);
+      
+      console.log('✅ RESPUESTA DEL API DE REPORTES RECIBIDA');
+      console.log('📊 Total de reportes:', reportsData.length);
+      console.log('📊 Total de áreas:', areasData.length);
+      console.log('📊 Total de workspaces:', workspacesData.length);
+      console.log('📊 Total de favoritos:', favoritesData.length);
+      console.log('═══════════════════════════════════════════════════');
 
       // Update isFavorite flag on reports
       const reportsWithFavorites = reportsData.map(report => ({

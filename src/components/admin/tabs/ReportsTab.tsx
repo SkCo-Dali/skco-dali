@@ -9,6 +9,7 @@ import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
+import { CreateReportDialog } from '@/components/admin/CreateReportDialog';
 import { powerbiService } from '@/services/powerbiService';
 import { Area, Workspace, Report } from '@/types/powerbi';
 import { toast } from '@/hooks/use-toast';
@@ -55,7 +56,8 @@ export function ReportsTab() {
   const [loading, setLoading] = useState(true);
   const [selectedAreaFilter, setSelectedAreaFilter] = useState<string>('all');
   const [selectedWorkspaceFilter, setSelectedWorkspaceFilter] = useState<string>('all');
-  const [showDialog, setShowDialog] = useState(false);
+  const [showCreateDialog, setShowCreateDialog] = useState(false);
+  const [showEditDialog, setShowEditDialog] = useState(false);
   const [editingReport, setEditingReport] = useState<Report | null>(null);
   const [formData, setFormData] = useState<ReportFormData>({
     name: '',
@@ -71,6 +73,7 @@ export function ReportsTab() {
   });
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
   const [saving, setSaving] = useState(false);
+  const [currentIdToken, setCurrentIdToken] = useState<string>('');
   
   // Power BI Reports state
   const [pbiReports, setPbiReports] = useState<PowerBIReport[]>([]);
@@ -342,7 +345,7 @@ export function ReportsTab() {
     }));
   };
 
-  const handleOpenDialog = (report?: Report) => {
+  const handleOpenDialog = async (report?: Report) => {
     if (report) {
       setEditingReport(report);
       setFormData({
@@ -362,28 +365,18 @@ export function ReportsTab() {
       if (report.pbiWorkspaceId) {
         fetchPowerBIReports(report.pbiWorkspaceId);
       }
+      setFormErrors({});
+      setShowEditDialog(true);
     } else {
-      setEditingReport(null);
-      setFormData({
-        name: '',
-        description: '',
-        workspaceId: '',
-        hasRowLevelSecurity: false,
-        requireUserRole: false,
-        isActive: true,
-        pbiWorkspaceId: '',
-        pbiReportId: '',
-        datasetId: '',
-        webUrl: ''
-      });
-      setPbiReports([]);
+      console.log('🔐 [ReportsTab] Obteniendo token para diálogo de creación...');
+      const tokenData = await getAccessToken();
+      setCurrentIdToken(tokenData.idToken);
+      setShowCreateDialog(true);
     }
-    setFormErrors({});
-    setShowDialog(true);
   };
 
   const handleCloseDialog = () => {
-    setShowDialog(false);
+    setShowEditDialog(false);
     setEditingReport(null);
     setFormData({
       name: '',
@@ -398,6 +391,28 @@ export function ReportsTab() {
       webUrl: ''
     });
     setFormErrors({});
+  };
+
+  const handleCreateReport = async (reportData: Omit<Report, 'id' | 'createdAt' | 'updatedAt'>) => {
+    try {
+      const tokenData = await getAccessToken();
+      await powerbiService.createReport(reportData, tokenData.idToken);
+      
+      toast({
+        title: "Reporte creado",
+        description: "El reporte se ha creado correctamente"
+      });
+      
+      setShowCreateDialog(false);
+      await fetchReports();
+    } catch (error) {
+      console.error('Error creating report:', error);
+      toast({
+        title: "Error",
+        description: "No se pudo crear el reporte",
+        variant: "destructive"
+      });
+    }
   };
 
   const getWorkspaceName = (workspaceId: string) => {
@@ -580,8 +595,19 @@ export function ReportsTab() {
         )}
       </div>
 
-      {/* Create/Edit Dialog */}
-      <Dialog open={showDialog} onOpenChange={setShowDialog}>
+      {/* Create Dialog */}
+      {showCreateDialog && currentIdToken && (
+        <CreateReportDialog
+          open={showCreateDialog}
+          onOpenChange={setShowCreateDialog}
+          onCreateReport={handleCreateReport}
+          workspaces={workspaces}
+          idToken={currentIdToken}
+        />
+      )}
+
+      {/* Edit Dialog */}
+      <Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>
         <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>
