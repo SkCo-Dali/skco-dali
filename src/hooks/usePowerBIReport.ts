@@ -64,11 +64,12 @@ export function usePowerBIReport(options: UsePowerBIReportOptions) {
         tokenType: powerbi.models.TokenType.Embed,
         settings: {
           panes: {
-            filters: { visible: false },
+            filters: { visible: true },
             pageNavigation: { visible: true }
           },
           bars: {
-            statusBar: { visible: false }
+            statusBar: { visible: true },
+            actionBar: { visible: true }
           },
           visualRenderedEvents: true,
           layoutType: models.LayoutType.Custom,
