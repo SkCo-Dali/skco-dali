@@ -619,18 +619,18 @@ Notas adicionales: ${lead.notes || 'Ninguna'}`;
                              <p className="text-red-500 text-xs mt-1">Formato de correo inválido</p>
                            )}
                          </div>
-                         <div className="space-y-0 border-2 border-[#3d4b5c26] shadow-md rounded-md p-2.5">
-                           <Label className="p-0 text-sm text-gray-500 font-normal">Email Alternativo</Label>
-                           <Input
-                             type="email"
-                             value={(editedLead.alternateEmail || '').toLowerCase()}
-                             onChange={(e) => handleEmailChange(e.target.value)}
-                             className={`border-0 border-b border-gray-200 rounded-none px-0 py-0 m-0 text-base font-medium bg-transparent leading-none h-auto min-h-0 focus:border-gray-400 focus:shadow-none focus:ring-0 ${editedLead.alternateEmail && !isValidEmail(editedLead.alternateEmail) ? 'border-red-500' : ''}`}
-                           />
-                           {editedLead.alternateEmail && !isValidEmail(editedLead.alternateEmail) && (
-                             <p className="text-red-500 text-xs mt-1">Formato de correo inválido</p>
-                           )}
-                         </div>
+                          <div className="space-y-0 border-2 border-[#3d4b5c26] shadow-md rounded-md p-2.5">
+                            <Label className="p-0 text-sm text-gray-500 font-normal">Email Alternativo</Label>
+                            <Input
+                              type="email"
+                              value={(editedLead.alternateEmail || '').toLowerCase()}
+                              onChange={(e) => handleGeneralChange('alternateEmail', e.target.value.toLowerCase())}
+                              className={`border-0 border-b border-gray-200 rounded-none px-0 py-0 m-0 text-base font-medium bg-transparent leading-none h-auto min-h-0 focus:border-gray-400 focus:shadow-none focus:ring-0 ${editedLead.alternateEmail && !isValidEmail(editedLead.alternateEmail) ? 'border-red-500' : ''}`}
+                            />
+                            {editedLead.alternateEmail && !isValidEmail(editedLead.alternateEmail) && (
+                              <p className="text-red-500 text-xs mt-1">Formato de correo inválido</p>
+                            )}
+                          </div>
                       </div>
 
                       <div className="grid grid-cols-2 gap-2">
