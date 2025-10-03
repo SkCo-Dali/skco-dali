@@ -47,7 +47,7 @@ export const ENV = {
   ENABLE_DOMAIN_VALIDATION: import.meta.env.VITE_ENABLE_DOMAIN_VALIDATION !== 'false',
   
   // Required Scopes
-  REQUIRED_SCOPES: (import.meta.env.VITE_REQUIRED_SCOPES || 'User.Read.All,Mail.Send,Mail.Read,offline_access').split(','),
+  REQUIRED_SCOPES: (import.meta.env.VITE_REQUIRED_SCOPES || 'User.Read,Mail.Send,Mail.Read,offline_access').split(','),
 } as const;
 
 // Validation function to ensure critical environment variables are set
