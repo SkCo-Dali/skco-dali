@@ -722,7 +722,6 @@ export default function Leads() {
                     </Button>
                   )}
                   {userPermissions?.canBulkAssignLeads && (
-                    <>
                       <Button
                         className="gap-1 w-8 h-8 bg-primary"
                         onClick={handleBulkAssign}
@@ -731,6 +730,8 @@ export default function Leads() {
                       >
                         <Users className="h-4 w-4" />
                       </Button>
+                       )}
+                     {userPermissions?.canBulkUpdateStage && (
                       <Button
                         className="gap-1 w-8 h-8 bg-primary"
                         onClick={() => setShowBulkStatusUpdate(true)}
@@ -740,7 +741,6 @@ export default function Leads() {
                       >
                         <CheckCircle2 className="h-4 w-4" />
                       </Button>
-                    </>
                   )}
                   {userPermissions?.canSendEmail && (
                   <Button
