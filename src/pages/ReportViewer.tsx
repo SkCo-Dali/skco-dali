@@ -9,7 +9,6 @@ import {
   ExternalLink,
   RefreshCw,
   Maximize,
-  Download,
   Loader2,
   AlertCircle,
   Shield,
@@ -230,17 +229,6 @@ export default function ReportViewer() {
     }
   };
 
-  // Handle export
-  const handleExport = async () => {
-    if (shouldUsePowerBI) {
-      await powerBIHook.exportReport();
-    }
-    
-    toast({
-      title: "Exportación iniciada",
-      description: "El reporte se está preparando para descarga",
-    });
-  };
 
   // Handle ESC key for fullscreen exit
   useEffect(() => {
@@ -363,11 +351,6 @@ export default function ReportViewer() {
               <Button size="sm" variant="outline" onClick={handleFullscreen}>
                 <Maximize className="h-4 w-4 mr-2" />
                 {isFullscreen ? 'Salir' : 'Pantalla completa'}
-              </Button>
-              
-              <Button size="sm" variant="outline" onClick={handleExport}>
-                <Download className="h-4 w-4 mr-2" />
-                Exportar
               </Button>
 
               {report.webUrl && (
