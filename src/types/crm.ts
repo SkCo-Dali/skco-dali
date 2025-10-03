@@ -290,6 +290,7 @@ export const LeadDefaultProperties: string[] = [
     'tags',
     'nextFollowUp',
     'campaignOwnerName',
+    'alternateEmail',
     'interactions',
 ]
 

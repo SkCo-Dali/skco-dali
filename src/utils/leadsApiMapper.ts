@@ -212,7 +212,8 @@ export const mapLeadToCreateRequest = (lead: Partial<Lead>, userId: string): Cre
     CampaignOwnerName: lead.campaignOwnerName || '',
     Age: lead.age || 0,
     Gender: lead.gender || 'Prefiero no decir',
-    PreferredContactChannel: lead.preferredContactChannel || 'Correo'
+    PreferredContactChannel: lead.preferredContactChannel || 'Correo',
+    AlternateEmail: lead.alternateEmail || ''
   };
   
   console.log('✅ Mapped create request:', JSON.stringify(createRequest, null, 2));
@@ -257,7 +258,8 @@ export const mapLeadToUpdateRequest = (lead: Lead, userId: string): UpdateLeadRe
     CampaignOwnerName: lead.campaignOwnerName || '',
     Age: lead.age,
     Gender: lead.gender,
-    PreferredContactChannel: lead.preferredContactChannel || 'Correo'
+    PreferredContactChannel: lead.preferredContactChannel || 'Correo',
+    AlternateEmail: lead.alternateEmail || ''
   };
   
   console.log('✅ Mapped update request:', JSON.stringify(updateRequest, null, 2));
@@ -310,6 +312,7 @@ export const mapLeadToApiFormat = (lead: Lead): any => {
     Age: lead.age,
     Gender: lead.gender,
     CampaignOwnerName: lead.campaignOwnerName,
-    PreferredContactChannel: lead.preferredContactChannel
+    PreferredContactChannel: lead.preferredContactChannel,
+    AlternateEmail: lead.alternateEmail || ''
   };
 };
