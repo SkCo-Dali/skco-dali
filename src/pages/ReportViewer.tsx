@@ -181,11 +181,15 @@ export default function ReportViewer() {
         fullReportDetail.pbiWorkspaceId, 
         tokenData.idToken
       );
-      setPages(pagesData);
-      console.log('📑 Páginas obtenidas:', pagesData.length);
       
-      if (pagesData.length > 0) {
-        setActivePage(pagesData[0].id);
+      // Filter out hidden pages (visibility = 1)
+      const visiblePages = pagesData.filter(page => page.visibility !== 1);
+      console.log('📑 Páginas totales:', pagesData.length, '| Visibles:', visiblePages.length, '| Ocultas:', pagesData.length - visiblePages.length);
+      
+      setPages(visiblePages);
+      
+      if (visiblePages.length > 0) {
+        setActivePage(visiblePages[0].id);
       }
 
     } catch (error) {
