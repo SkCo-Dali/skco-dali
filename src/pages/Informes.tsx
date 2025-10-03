@@ -17,7 +17,10 @@ import {
   Users,
   Settings,
   Loader2,
-  AlertCircle
+  AlertCircle,
+  ArrowUpDown,
+  ArrowUp,
+  ArrowDown
 } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useAuth } from '@/contexts/AuthContext';
@@ -40,6 +43,9 @@ interface InformesState {
   selectedArea: string;
   selectedWorkspace: string;
   viewMode: 'grid' | 'table';
+  showOnlyFavorites: boolean;
+  sortColumn: 'name' | 'workspace' | 'area' | 'status' | null;
+  sortDirection: 'asc' | 'desc';
 }
 
 export default function Informes() {
@@ -58,7 +64,10 @@ export default function Informes() {
     searchTerm: '',
     selectedArea: '',
     selectedWorkspace: '',
-    viewMode: 'grid'
+    viewMode: 'grid',
+    showOnlyFavorites: false,
+    sortColumn: null,
+    sortDirection: 'asc'
   });
 
   // Fetch initial data
@@ -279,10 +288,74 @@ export default function Informes() {
     setState(prev => ({ ...prev, viewMode: mode }));
   };
 
+  const handleFavoritesFilterToggle = () => {
+    setState(prev => ({ ...prev, showOnlyFavorites: !prev.showOnlyFavorites }));
+  };
+
+  const handleSort = (column: 'name' | 'workspace' | 'area' | 'status') => {
+    setState(prev => {
+      const newDirection = prev.sortColumn === column && prev.sortDirection === 'asc' ? 'desc' : 'asc';
+      return {
+        ...prev,
+        sortColumn: column,
+        sortDirection: newDirection
+      };
+    });
+  };
+
   // Filter workspaces by selected area
   const filteredWorkspaces = state.selectedArea 
     ? state.workspaces.filter(w => w.areaId === state.selectedArea)
     : state.workspaces;
+
+  // Get sorted and filtered reports
+  const getDisplayedReports = () => {
+    let filtered = [...state.reports];
+
+    // Apply favorites filter
+    if (state.showOnlyFavorites) {
+      filtered = filtered.filter(report => report.isFavorite);
+    }
+
+    // Apply sorting
+    if (state.sortColumn) {
+      filtered.sort((a, b) => {
+        let aValue: string | boolean;
+        let bValue: string | boolean;
+
+        switch (state.sortColumn) {
+          case 'name':
+            aValue = a.reportName.toLowerCase();
+            bValue = b.reportName.toLowerCase();
+            break;
+          case 'workspace':
+            aValue = a.workspaceName.toLowerCase();
+            bValue = b.workspaceName.toLowerCase();
+            break;
+          case 'area':
+            aValue = a.areaName.toLowerCase();
+            bValue = b.areaName.toLowerCase();
+            break;
+          case 'status':
+            aValue = a.hasRowLevelSecurity ? 'rls' : 'normal';
+            bValue = b.hasRowLevelSecurity ? 'rls' : 'normal';
+            break;
+          default:
+            return 0;
+        }
+
+        if (typeof aValue === 'string' && typeof bValue === 'string') {
+          const comparison = aValue.localeCompare(bValue);
+          return state.sortDirection === 'asc' ? comparison : -comparison;
+        }
+        return 0;
+      });
+    }
+
+    return filtered;
+  };
+
+  const displayedReports = getDisplayedReports();
 
   if (state.loading) {
     return (
@@ -372,6 +445,14 @@ export default function Informes() {
 
                 <div className="flex items-center space-x-2 ml-auto">
                   <Button
+                    variant={state.showOnlyFavorites ? 'default' : 'outline'}
+                    size="sm"
+                    onClick={handleFavoritesFilterToggle}
+                  >
+                    <Star className={`h-4 w-4 mr-2 ${state.showOnlyFavorites ? 'fill-current' : ''}`} />
+                    Favoritos
+                  </Button>
+                  <Button
                     variant={state.viewMode === 'grid' ? 'default' : 'outline'}
                     size="sm"
                     onClick={() => handleViewModeChange('grid')}
@@ -397,31 +478,94 @@ export default function Informes() {
                   <table className="w-full">
                     <thead className="border-b bg-muted/50">
                       <tr>
-                        <th className="text-left p-4 font-medium">Nombre</th>
-                        <th className="text-left p-4 font-medium">Workspace</th>
-                        <th className="text-left p-4 font-medium">Área</th>
-                        <th className="text-left p-4 font-medium">Estado</th>
+                        <th 
+                          className="text-left p-4 font-medium cursor-pointer hover:bg-muted select-none"
+                          onClick={() => handleSort('name')}
+                        >
+                          <div className="flex items-center">
+                            Nombre
+                            {state.sortColumn === 'name' ? (
+                              state.sortDirection === 'asc' ? 
+                                <ArrowUp className="h-4 w-4 ml-1" /> : 
+                                <ArrowDown className="h-4 w-4 ml-1" />
+                            ) : (
+                              <ArrowUpDown className="h-4 w-4 ml-1 opacity-30" />
+                            )}
+                          </div>
+                        </th>
+                        <th 
+                          className="text-left p-4 font-medium cursor-pointer hover:bg-muted select-none"
+                          onClick={() => handleSort('workspace')}
+                        >
+                          <div className="flex items-center">
+                            Workspace
+                            {state.sortColumn === 'workspace' ? (
+                              state.sortDirection === 'asc' ? 
+                                <ArrowUp className="h-4 w-4 ml-1" /> : 
+                                <ArrowDown className="h-4 w-4 ml-1" />
+                            ) : (
+                              <ArrowUpDown className="h-4 w-4 ml-1 opacity-30" />
+                            )}
+                          </div>
+                        </th>
+                        <th 
+                          className="text-left p-4 font-medium cursor-pointer hover:bg-muted select-none"
+                          onClick={() => handleSort('area')}
+                        >
+                          <div className="flex items-center">
+                            Área
+                            {state.sortColumn === 'area' ? (
+                              state.sortDirection === 'asc' ? 
+                                <ArrowUp className="h-4 w-4 ml-1" /> : 
+                                <ArrowDown className="h-4 w-4 ml-1" />
+                            ) : (
+                              <ArrowUpDown className="h-4 w-4 ml-1 opacity-30" />
+                            )}
+                          </div>
+                        </th>
+                        <th 
+                          className="text-left p-4 font-medium cursor-pointer hover:bg-muted select-none"
+                          onClick={() => handleSort('status')}
+                        >
+                          <div className="flex items-center">
+                            Estado
+                            {state.sortColumn === 'status' ? (
+                              state.sortDirection === 'asc' ? 
+                                <ArrowUp className="h-4 w-4 ml-1" /> : 
+                                <ArrowDown className="h-4 w-4 ml-1" />
+                            ) : (
+                              <ArrowUpDown className="h-4 w-4 ml-1 opacity-30" />
+                            )}
+                          </div>
+                        </th>
                         <th className="text-left p-4 font-medium">Acciones</th>
                       </tr>
                     </thead>
                     <tbody>
-                      {state.reports.length === 0 ? (
+                      {displayedReports.length === 0 ? (
                         <tr>
                           <td colSpan={5} className="text-center py-12">
                             <AlertCircle className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
                             <h3 className="text-lg font-medium mb-2">
-                              {state.searchTerm ? 'No se encontraron informes' : 'No hay informes disponibles'}
+                              {state.showOnlyFavorites 
+                                ? 'No tienes informes favoritos' 
+                                : state.searchTerm 
+                                  ? 'No se encontraron informes' 
+                                  : 'No hay informes disponibles'
+                              }
                             </h3>
                             <p className="text-muted-foreground">
-                              {state.searchTerm 
-                                ? `No hay informes que coincidan con "${state.searchTerm}"`
-                                : 'No tienes informes asignados en este momento.'
+                              {state.showOnlyFavorites 
+                                ? 'Marca informes como favoritos para verlos aquí.'
+                                : state.searchTerm 
+                                  ? `No hay informes que coincidan con "${state.searchTerm}"`
+                                  : 'No tienes informes asignados en este momento.'
                               }
                             </p>
                           </td>
                         </tr>
                       ) : (
-                        state.reports.map((report) => (
+                        displayedReports.map((report) => (
                           <tr key={report.reportId} className="border-b hover:bg-muted/50">
                             <td className="p-4">
                               <div className="flex items-center space-x-3">
@@ -474,23 +618,30 @@ export default function Informes() {
             ) : (
               // Grid view
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                {state.reports.length === 0 ? (
+                {displayedReports.length === 0 ? (
                   <div className="col-span-full">
                     <Card className="p-8 text-center">
                       <AlertCircle className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
                       <h3 className="text-lg font-medium mb-2">
-                        {state.searchTerm ? 'No se encontraron informes' : 'No hay informes disponibles'}
+                        {state.showOnlyFavorites 
+                          ? 'No tienes informes favoritos' 
+                          : state.searchTerm 
+                            ? 'No se encontraron informes' 
+                            : 'No hay informes disponibles'
+                        }
                       </h3>
                       <p className="text-muted-foreground">
-                        {state.searchTerm 
-                          ? `No hay informes que coincidan con "${state.searchTerm}"`
-                          : 'No tienes informes asignados en este momento.'
+                        {state.showOnlyFavorites 
+                          ? 'Marca informes como favoritos para verlos aquí.'
+                          : state.searchTerm 
+                            ? `No hay informes que coincidan con "${state.searchTerm}"`
+                            : 'No tienes informes asignados en este momento.'
                         }
                       </p>
                     </Card>
                   </div>
                 ) : (
-                  state.reports.map((report) => (
+                  displayedReports.map((report) => (
                     <Card 
                       key={report.reportId} 
                       className="cursor-pointer hover:shadow-lg transition-shadow border-l-4 border-l-primary"
