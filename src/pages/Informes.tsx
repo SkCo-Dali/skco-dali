@@ -78,12 +78,27 @@ export default function Informes() {
         throw new Error('No ID token available');
       }
       
+      // Build filters only when they have valid non-empty values
+      const filters: {
+        search?: string;
+        areaId?: string;
+        workspaceId?: string;
+      } = {};
+      
+      if (state.searchTerm && state.searchTerm.trim()) {
+        filters.search = state.searchTerm.trim();
+      }
+      if (state.selectedArea && state.selectedArea !== 'all') {
+        filters.areaId = state.selectedArea;
+      }
+      if (state.selectedWorkspace && state.selectedWorkspace !== 'all') {
+        filters.workspaceId = state.selectedWorkspace;
+      }
+
+      console.log('🔍 Fetching reports with filters:', filters);
+
       const [reportsData, areasData, workspacesData, favoritesData] = await Promise.all([
-        powerbiService.getMyReports({
-          search: state.searchTerm || undefined,
-          areaId: state.selectedArea || undefined,
-          workspaceId: state.selectedWorkspace || undefined
-        }, tokenData.idToken),
+        powerbiService.getMyReports(filters, tokenData.idToken),
         powerbiService.getAreas({}, tokenData.idToken),
         powerbiService.getWorkspaces({}, tokenData.idToken),
         powerbiService.getFavorites({}, tokenData.idToken)
