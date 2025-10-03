@@ -271,7 +271,7 @@ export function AccessTab() {
       
       console.log('🔑 Token obtenido para workspace access:', tokens.idToken.substring(0, 50) + '...');
       
-      const endpoint = `${ENV.CRM_API_BASE_URL}/api/reports/workspaces/${selectedWorkspace}/access?status=&search=&page=1&page_size=50`;
+      const endpoint = `${ENV.CRM_API_BASE_URL}/api/reports/workspaces/${selectedWorkspace}/access?status=active&search=&page=1&page_size=50`;
       console.log('📡 === DETALLES DE LA LLAMADA API ===');
       console.log('🌐 Endpoint: GET', endpoint);
       console.log('🔐 Authorization Header: Bearer ' + tokens.idToken.substring(0, 50) + '...');
@@ -303,7 +303,7 @@ export function AccessTab() {
       
       console.log('🔑 Token obtenido para report access:', tokens.idToken.substring(0, 50) + '...');
       
-      const endpoint = `${ENV.CRM_API_BASE_URL}/api/reports/reports/${selectedReport}/access?status=&search=&page=1&page_size=50`;
+      const endpoint = `${ENV.CRM_API_BASE_URL}/api/reports/reports/${selectedReport}/access?status=active&search=&page=1&page_size=50`;
       console.log('📡 === DETALLES DE LA LLAMADA API ===');
       console.log('🌐 Endpoint: GET', endpoint);
       console.log('🔐 Authorization Header: Bearer ' + tokens.idToken.substring(0, 50) + '...');
