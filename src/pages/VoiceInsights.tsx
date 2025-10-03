@@ -426,7 +426,7 @@ const VoiceInsights = () => {
             )}
 
             {/* Lead Form */}
-            {!isRecording && (
+            {(isRecording || hasRecording || uploadedFile) && (
               <div className="space-y-4 animate-fade-in border-t pt-4">
                 <h3 className="text-lg font-semibold text-foreground">Información del Lead</h3>
                 
