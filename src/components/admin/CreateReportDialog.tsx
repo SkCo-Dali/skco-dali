@@ -6,6 +6,10 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Check, ChevronsUpDown } from 'lucide-react';
+import { cn } from '@/lib/utils';
 import { Report, Workspace } from '@/types/powerbi';
 import { ENV } from '@/config/environment';
 
@@ -46,6 +50,7 @@ export function CreateReportDialog({ open, onOpenChange, onCreateReport, workspa
   const [datasetInfo, setDatasetInfo] = useState<DatasetInfo | null>(null);
   const [loadingReports, setLoadingReports] = useState(false);
   const [loadingDataset, setLoadingDataset] = useState(false);
+  const [reportSelectorOpen, setReportSelectorOpen] = useState(false);
 
   // Fetch Power BI reports when workspace changes
   useEffect(() => {
@@ -90,7 +95,9 @@ export function CreateReportDialog({ open, onOpenChange, onCreateReport, workspa
 
       const data: PowerBIReport[] = await response.json();
       console.log('✅ Reportes obtenidos:', data);
-      setPbiReports(data);
+      // Sort reports alphabetically by name
+      const sortedReports = data.sort((a, b) => a.name.localeCompare(b.name));
+      setPbiReports(sortedReports);
     } catch (error) {
       console.error('❌ Error fetching Power BI reports:', error);
       setPbiReports([]);
@@ -227,22 +234,50 @@ export function CreateReportDialog({ open, onOpenChange, onCreateReport, workspa
           {formData.pbiWorkspaceId && (
             <div className="space-y-2">
               <Label htmlFor="pbiReport">Reporte de Power BI *</Label>
-              <Select 
-                value={formData.pbiReportId} 
-                onValueChange={handlePbiReportChange}
-                disabled={loadingReports}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder={loadingReports ? "Cargando reportes..." : "Selecciona un reporte"} />
-                </SelectTrigger>
-                <SelectContent>
-                  {pbiReports.map(report => (
-                    <SelectItem key={report.id} value={report.id}>
-                      {report.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <Popover open={reportSelectorOpen} onOpenChange={setReportSelectorOpen}>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    role="combobox"
+                    aria-expanded={reportSelectorOpen}
+                    className="w-full justify-between"
+                    disabled={loadingReports}
+                  >
+                    {formData.pbiReportId
+                      ? pbiReports.find((report) => report.id === formData.pbiReportId)?.name
+                      : loadingReports ? "Cargando reportes..." : "Selecciona un reporte"}
+                    <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-full p-0" align="start">
+                  <Command>
+                    <CommandInput placeholder="Buscar reporte..." />
+                    <CommandList>
+                      <CommandEmpty>No se encontraron reportes.</CommandEmpty>
+                      <CommandGroup>
+                        {pbiReports.map((report) => (
+                          <CommandItem
+                            key={report.id}
+                            value={report.name}
+                            onSelect={() => {
+                              handlePbiReportChange(report.id);
+                              setReportSelectorOpen(false);
+                            }}
+                          >
+                            <Check
+                              className={cn(
+                                "mr-2 h-4 w-4",
+                                formData.pbiReportId === report.id ? "opacity-100" : "opacity-0"
+                              )}
+                            />
+                            {report.name}
+                          </CommandItem>
+                        ))}
+                      </CommandGroup>
+                    </CommandList>
+                  </Command>
+                </PopoverContent>
+              </Popover>
             </div>
           )}
 
