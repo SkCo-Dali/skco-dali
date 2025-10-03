@@ -11,8 +11,10 @@ import { powerbiService } from '@/services/powerbiService';
 import { AuditEvent, Report } from '@/types/powerbi';
 import { toast } from '@/hooks/use-toast';
 import { DateRange } from 'react-day-picker';
+import { useAuth } from '@/contexts/AuthContext';
 
 export function AuditTab() {
+  const { getAccessToken } = useAuth();
   const [auditEvents, setAuditEvents] = useState<AuditEvent[]>([]);
   const [reports, setReports] = useState<Report[]>([]);
   const [loading, setLoading] = useState(true);
@@ -33,8 +35,9 @@ export function AuditTab() {
   const fetchData = async () => {
     try {
       setLoading(true);
+      const tokenData = await getAccessToken();
       const [reportsData] = await Promise.all([
-        powerbiService.getReports()
+        powerbiService.getReports({}, tokenData.idToken)
       ]);
       
       setReports(reportsData.filter(r => r.isActive));
@@ -53,6 +56,7 @@ export function AuditTab() {
 
   const fetchAuditEvents = async () => {
     try {
+      const tokenData = await getAccessToken();
       const filter = {
         reportId: selectedReport === 'all' ? undefined : selectedReport,
         action: selectedAction === 'all' ? undefined : selectedAction,
@@ -61,7 +65,7 @@ export function AuditTab() {
         to: dateRange?.to?.toISOString()
       };
 
-      const events = await powerbiService.getAuditEvents(filter);
+      const events = await powerbiService.getAuditEvents(filter, tokenData.idToken);
       setAuditEvents(events);
     } catch (error) {
       console.error('Error fetching audit events:', error);
