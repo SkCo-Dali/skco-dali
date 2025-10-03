@@ -8,7 +8,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Badge } from '@/components/ui/badge';
 import { Report, Workspace } from '@/types/powerbi';
 import { ENV } from '@/config/environment';
-import { useMsal } from '@azure/msal-react';
 
 interface PowerBIReport {
   id: string;
@@ -27,10 +26,10 @@ interface CreateReportDialogProps {
   onOpenChange: (open: boolean) => void;
   onCreateReport: (report: Omit<Report, 'id' | 'createdAt' | 'updatedAt'>) => void;
   workspaces: Workspace[];
+  idToken: string;
 }
 
-export function CreateReportDialog({ open, onOpenChange, onCreateReport, workspaces }: CreateReportDialogProps) {
-  const { instance, accounts } = useMsal();
+export function CreateReportDialog({ open, onOpenChange, onCreateReport, workspaces, idToken }: CreateReportDialogProps) {
   const [formData, setFormData] = useState({
     name: '',
     description: '',
@@ -71,17 +70,12 @@ export function CreateReportDialog({ open, onOpenChange, onCreateReport, workspa
     console.log('📡 Iniciando carga de reportes para workspace:', workspaceId);
     setLoadingReports(true);
     try {
-      const tokens = await instance.acquireTokenSilent({
-        scopes: ['User.Read'],
-        account: accounts[0]
-      });
-
       const endpoint = `${ENV.CRM_API_BASE_URL}/api/pbi/workspaces/${workspaceId}/reports`;
       console.log('📡 Llamando a:', endpoint);
 
       const response = await fetch(endpoint, {
         headers: {
-          'Authorization': `Bearer ${tokens.idToken}`,
+          'Authorization': `Bearer ${idToken}`,
           'Content-Type': 'application/json'
         }
       });
@@ -108,16 +102,11 @@ export function CreateReportDialog({ open, onOpenChange, onCreateReport, workspa
   const fetchDatasetInfo = async (workspaceId: string, datasetId: string) => {
     setLoadingDataset(true);
     try {
-      const tokens = await instance.acquireTokenSilent({
-        scopes: ['User.Read'],
-        account: accounts[0]
-      });
-
       const response = await fetch(
         `${ENV.CRM_API_BASE_URL}/api/pbi/workspaces/${workspaceId}/datasets/${datasetId}`,
         {
           headers: {
-            'Authorization': `Bearer ${tokens.idToken}`,
+            'Authorization': `Bearer ${idToken}`,
             'Content-Type': 'application/json'
           }
         }

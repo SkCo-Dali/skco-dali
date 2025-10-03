@@ -73,6 +73,7 @@ export function ReportsTab() {
   });
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
   const [saving, setSaving] = useState(false);
+  const [currentIdToken, setCurrentIdToken] = useState<string>('');
   
   // Power BI Reports state
   const [pbiReports, setPbiReports] = useState<PowerBIReport[]>([]);
@@ -344,7 +345,7 @@ export function ReportsTab() {
     }));
   };
 
-  const handleOpenDialog = (report?: Report) => {
+  const handleOpenDialog = async (report?: Report) => {
     if (report) {
       setEditingReport(report);
       setFormData({
@@ -367,6 +368,9 @@ export function ReportsTab() {
       setFormErrors({});
       setShowEditDialog(true);
     } else {
+      console.log('🔐 [ReportsTab] Obteniendo token para diálogo de creación...');
+      const tokenData = await getAccessToken();
+      setCurrentIdToken(tokenData.idToken);
       setShowCreateDialog(true);
     }
   };
@@ -592,12 +596,15 @@ export function ReportsTab() {
       </div>
 
       {/* Create Dialog */}
-      <CreateReportDialog
-        open={showCreateDialog}
-        onOpenChange={setShowCreateDialog}
-        onCreateReport={handleCreateReport}
-        workspaces={workspaces}
-      />
+      {showCreateDialog && currentIdToken && (
+        <CreateReportDialog
+          open={showCreateDialog}
+          onOpenChange={setShowCreateDialog}
+          onCreateReport={handleCreateReport}
+          workspaces={workspaces}
+          idToken={currentIdToken}
+        />
+      )}
 
       {/* Edit Dialog */}
       <Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>
