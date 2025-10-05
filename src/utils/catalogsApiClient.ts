@@ -1,4 +1,5 @@
 import { ENV } from '@/config/environment';
+import { SecureTokenManager } from '@/utils/secureTokenManager';
 import {
   Catalog,
   CatalogField,
@@ -21,9 +22,15 @@ async function fetchWithAuth(
   endpoint: string,
   options: FetchOptions = {}
 ): Promise<Response> {
-  const token = localStorage.getItem('access_token');
+  console.log('🔑 [Catalogs API] fetchWithAuth called for endpoint:', endpoint);
+  
+  const tokenData = SecureTokenManager.getToken();
+  const token = tokenData?.token;
+  
+  console.log('🔑 [Catalogs API] Token check:', token ? '✅ Token exists' : '❌ NO TOKEN FOUND');
   
   if (!token) {
+    console.error('❌ [Catalogs API] No access token found in SecureTokenManager');
     throw new Error('No access token found');
   }
 
@@ -44,6 +51,10 @@ async function fetchWithAuth(
     }
   }
 
+  console.log('🌐 [Catalogs API] Making request to:', url);
+  console.log('📦 [Catalogs API] Request method:', fetchOptions.method || 'GET');
+  console.log('📦 [Catalogs API] Request body:', fetchOptions.body || 'No body');
+
   const response = await fetch(url, {
     ...fetchOptions,
     headers: {
@@ -54,13 +65,22 @@ async function fetchWithAuth(
     },
   });
 
+  console.log('📥 [Catalogs API] Response status:', response.status, response.statusText);
+
   if (!response.ok) {
     const errorText = await response.text();
-    console.error('API Error:', errorText);
+    console.error('❌ [Catalogs API] Error response:', errorText);
     throw new Error(`API Error: ${response.status} - ${errorText}`);
   }
 
-  return response;
+  const data = await response.json();
+  console.log('✅ [Catalogs API] Success response:', data);
+
+  return new Response(JSON.stringify(data), {
+    status: response.status,
+    statusText: response.statusText,
+    headers: response.headers,
+  });
 }
 
 // ============== CATALOGS ENDPOINTS ==============

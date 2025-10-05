@@ -12,18 +12,21 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
-import { CreateCatalogRequest } from "@/types/catalogsApi";
+import { CreateCatalogRequest, CreateCatalogFieldRequest } from "@/types/catalogsApi";
+import { CatalogFieldsList } from "./CatalogFieldsList";
 
 interface CreateCatalogDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onCreateCatalog: (data: CreateCatalogRequest) => Promise<any>;
+  onCreateField?: (catalogId: string, data: CreateCatalogFieldRequest) => Promise<any>;
 }
 
 export function CreateCatalogDialog({
   open,
   onOpenChange,
   onCreateCatalog,
+  onCreateField,
 }: CreateCatalogDialogProps) {
   const [formData, setFormData] = useState<CreateCatalogRequest>({
     name: "",
@@ -31,6 +34,7 @@ export function CreateCatalogDialog({
     source_path: "",
     is_active: true,
   });
+  const [fields, setFields] = useState<CreateCatalogFieldRequest[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const resetForm = () => {
@@ -40,6 +44,7 @@ export function CreateCatalogDialog({
       source_path: "",
       is_active: true,
     });
+    setFields([]);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -49,9 +54,30 @@ export function CreateCatalogDialog({
       return;
     }
 
+    // Validate fields if any
+    const invalidFields = fields.filter(f => !f.field_name.trim() || !f.field_type);
+    if (invalidFields.length > 0) {
+      console.error("Some fields are missing required data");
+      return;
+    }
+
     setIsSubmitting(true);
     try {
-      await onCreateCatalog(formData);
+      const catalog = await onCreateCatalog(formData);
+      
+      // Create fields if any were added and we have the callback
+      if (catalog && fields.length > 0 && onCreateField) {
+        console.log('Creating fields for catalog:', catalog.id);
+        for (const field of fields) {
+          try {
+            await onCreateField(catalog.id, field);
+          } catch (error) {
+            console.error('Error creating field:', error);
+            // Continue with other fields even if one fails
+          }
+        }
+      }
+      
       onOpenChange(false);
       resetForm();
     } catch (error) {
@@ -77,11 +103,11 @@ export function CreateCatalogDialog({
         </DialogHeader>
 
         <form onSubmit={handleSubmit}>
-          <div className="space-y-4 py-4">
+          <div className="space-y-4 py-4 max-h-[60vh] overflow-y-auto">
             {/* Name */}
             <div className="space-y-2">
               <Label htmlFor="name">
-                Name <span className="text-destructive">*</span>
+                Catalog Name <span className="text-destructive">*</span>
               </Label>
               <Input
                 id="name"
@@ -120,16 +146,16 @@ export function CreateCatalogDialog({
                 }
               />
               <p className="text-xs text-muted-foreground">
-                Reference path to the dataset in Storage/Databricks
+                Path to the dataset in Storage/Databricks
               </p>
             </div>
 
-            {/* Active Status */}
+            {/* Active */}
             <div className="flex items-center justify-between">
               <div className="space-y-0.5">
-                <Label htmlFor="is_active">Active Status</Label>
+                <Label htmlFor="is_active">Active</Label>
                 <p className="text-xs text-muted-foreground">
-                  Set catalog as active immediately
+                  Enable this catalog for use in rules
                 </p>
               </div>
               <Switch
@@ -139,6 +165,11 @@ export function CreateCatalogDialog({
                   setFormData({ ...formData, is_active: checked })
                 }
               />
+            </div>
+
+            {/* Fields Section */}
+            <div className="border-t pt-4 mt-4">
+              <CatalogFieldsList fields={fields} onFieldsChange={setFields} />
             </div>
           </div>
 
@@ -151,7 +182,10 @@ export function CreateCatalogDialog({
             >
               Cancel
             </Button>
-            <Button type="submit" disabled={isSubmitting || !formData.name.trim()}>
+            <Button
+              type="submit"
+              disabled={isSubmitting || !formData.name.trim()}
+            >
               {isSubmitting ? "Creating..." : "Create Catalog"}
             </Button>
           </DialogFooter>

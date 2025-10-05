@@ -95,10 +95,17 @@ export default function Catalogs() {
         </div>
       </div>
 
-      <CreateCatalogDialog 
+      <CreateCatalogDialog
         open={isCreateDialogOpen}
         onOpenChange={setIsCreateDialogOpen}
         onCreateCatalog={createCatalog}
+        onCreateField={async (catalogId, fieldData) => {
+          const { useCatalogFields } = await import('@/hooks/useCatalogs');
+          // Note: This is a simplified version. In production, you might want to
+          // handle this differently or use a callback passed from parent
+          const { createField } = useCatalogFields(catalogId);
+          return createField(fieldData);
+        }}
       />
     </div>
   );
