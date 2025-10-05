@@ -60,7 +60,9 @@ export function CatalogFieldsList({ fields, onFieldsChange }: CatalogFieldsListP
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <Label className="text-base">Fields (Optional)</Label>
+        <Label className="text-base">
+          Fields <span className="text-destructive">*</span>
+        </Label>
         <Button type="button" variant="outline" size="sm" onClick={addField}>
           Add Field
         </Button>
@@ -68,7 +70,7 @@ export function CatalogFieldsList({ fields, onFieldsChange }: CatalogFieldsListP
 
       {fields.length === 0 && (
         <p className="text-sm text-muted-foreground">
-          No fields added yet. You can add fields now or later.
+          At least one field is required. Click "Add Field" to start.
         </p>
       )}
 
@@ -127,7 +129,9 @@ export function CatalogFieldsList({ fields, onFieldsChange }: CatalogFieldsListP
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor={`display_name_${index}`}>Display Name</Label>
+              <Label htmlFor={`display_name_${index}`}>
+                Display Name <span className="text-destructive">*</span>
+              </Label>
               <Input
                 id={`display_name_${index}`}
                 placeholder="e.g., Nro de Póliza"
@@ -135,6 +139,7 @@ export function CatalogFieldsList({ fields, onFieldsChange }: CatalogFieldsListP
                 onChange={(e) =>
                   updateField(index, { display_name: e.target.value })
                 }
+                required
               />
             </div>
 
@@ -152,7 +157,9 @@ export function CatalogFieldsList({ fields, onFieldsChange }: CatalogFieldsListP
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor={`description_${index}`}>Description</Label>
+            <Label htmlFor={`description_${index}`}>
+              Description <span className="text-destructive">*</span>
+            </Label>
             <Textarea
               id={`description_${index}`}
               placeholder="Field description"
@@ -161,6 +168,7 @@ export function CatalogFieldsList({ fields, onFieldsChange }: CatalogFieldsListP
                 updateField(index, { description: e.target.value })
               }
               rows={2}
+              required
             />
           </div>
 

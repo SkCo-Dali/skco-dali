@@ -34,7 +34,17 @@ export function CreateCatalogDialog({
     source_path: "",
     is_active: true,
   });
-  const [fields, setFields] = useState<CreateCatalogFieldRequest[]>([]);
+  const [fields, setFields] = useState<CreateCatalogFieldRequest[]>([
+    {
+      field_name: "",
+      field_type: "string",
+      display_name: "",
+      description: "",
+      is_filterable: false,
+      is_visible: true,
+      example_value: "",
+    },
+  ]);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const resetForm = () => {
@@ -44,7 +54,17 @@ export function CreateCatalogDialog({
       source_path: "",
       is_active: true,
     });
-    setFields([]);
+    setFields([
+      {
+        field_name: "",
+        field_type: "string",
+        display_name: "",
+        description: "",
+        is_filterable: false,
+        is_visible: true,
+        example_value: "",
+      },
+    ]);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -54,10 +74,21 @@ export function CreateCatalogDialog({
       return;
     }
 
-    // Validate fields if any
-    const invalidFields = fields.filter(f => !f.field_name.trim() || !f.field_type);
+    // Validate that at least one field exists
+    if (fields.length === 0) {
+      console.error("At least one field is required");
+      return;
+    }
+
+    // Validate required fields
+    const invalidFields = fields.filter(
+      f => !f.field_name.trim() || 
+           !f.field_type || 
+           !f.display_name?.trim() || 
+           !f.description?.trim()
+    );
     if (invalidFields.length > 0) {
-      console.error("Some fields are missing required data");
+      console.error("All fields must have: Field Name, Field Type, Display Name, and Description");
       return;
     }
 
@@ -184,7 +215,12 @@ export function CreateCatalogDialog({
             </Button>
             <Button
               type="submit"
-              disabled={isSubmitting || !formData.name.trim()}
+              disabled={
+                isSubmitting || 
+                !formData.name.trim() || 
+                fields.length === 0 ||
+                fields.some(f => !f.field_name.trim() || !f.field_type || !f.display_name?.trim() || !f.description?.trim())
+              }
             >
               {isSubmitting ? "Creating..." : "Create Catalog"}
             </Button>
