@@ -100,11 +100,17 @@ export default function Catalogs() {
         onOpenChange={setIsCreateDialogOpen}
         onCreateCatalog={createCatalog}
         onCreateField={async (catalogId, fieldData) => {
-          const { useCatalogFields } = await import('@/hooks/useCatalogs');
-          // Note: This is a simplified version. In production, you might want to
-          // handle this differently or use a callback passed from parent
-          const { createField } = useCatalogFields(catalogId);
-          return createField(fieldData);
+          console.log('🔹 [Catalogs Page] onCreateField called with:', { catalogId, fieldData });
+          try {
+            // Import the API client directly (not the hook)
+            const { createCatalogField } = await import('@/utils/catalogsApiClient');
+            const result = await createCatalogField(catalogId, fieldData);
+            console.log('✅ [Catalogs Page] Field created successfully:', result);
+            return result;
+          } catch (error) {
+            console.error('❌ [Catalogs Page] Error creating field:', error);
+            throw error;
+          }
         }}
       />
     </div>
