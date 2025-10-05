@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,20 +10,12 @@ import { Switch } from "@/components/ui/switch";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Plus, X, Search } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useCatalogs, useCatalogFields } from "@/hooks/useCatalogs";
 
 interface CreateRuleDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }
-
-const CATALOG_OPTIONS = [
-  'Pólizas',
-  'Productos',
-  'Agentes',
-  'Canales',
-  'Comisiones',
-  'Ventas'
-];
 
 const OWNER_FIELD_OPTIONS = [
   'Agente',
@@ -52,17 +44,6 @@ const PAYMENT_SCHEDULE_OPTIONS = [
   'Weekly'
 ];
 
-const FIELD_OPTIONS = [
-  'Agente Disco-Invitation Date',
-  'Agente Email',
-  'Agente First Name',
-  'Agente Full Name',
-  'Agente Id Agencia',
-  'Agente Id Agente',
-  'Agente Id Aliado',
-  'Agente Id Promotor'
-];
-
 const CONDITION_OPTIONS = [
   'Equal',
   'Not Equal',
@@ -70,6 +51,16 @@ const CONDITION_OPTIONS = [
   'Less Than',
   'Contains',
   'Starts With'
+];
+
+const MATH_OPERATORS = [
+  { symbol: '%', label: '%' },
+  { symbol: '*', label: '×' },
+  { symbol: '/', label: '÷' },
+  { symbol: '+', label: '+' },
+  { symbol: '-', label: '-' },
+  { symbol: '(', label: '(' },
+  { symbol: ')', label: ')' },
 ];
 
 interface ConditionRow {
@@ -81,16 +72,21 @@ interface ConditionRow {
 
 export function CreateRuleDialog({ open, onOpenChange }: CreateRuleDialogProps) {
   const { toast } = useToast();
+  const formulaRef = useRef<HTMLTextAreaElement>(null);
+  
+  // Fetch catalogs
+  const { catalogs, loading: catalogsLoading } = useCatalogs();
+  
   const [formData, setFormData] = useState({
     // Information tab
     name: '',
     description: '',
-    catalog: '',
     ownerField: '',
     dateField: '',
     goalIncentive: false,
     
     // Rule tab
+    catalog: '',
     formula: '',
     conditions: [] as ConditionRow[],
     
@@ -105,6 +101,12 @@ export function CreateRuleDialog({ open, onOpenChange }: CreateRuleDialogProps) 
 
   const [activeTab, setActiveTab] = useState('information');
   const [fieldSearch, setFieldSearch] = useState('');
+
+  // Fetch catalog fields when catalog is selected
+  const { fields: catalogFields, loading: fieldsLoading } = useCatalogFields(formData.catalog || '');
+  
+  // Filter active catalogs
+  const activeCatalogs = catalogs.filter(c => c.is_active);
 
   const addCondition = () => {
     const newCondition: ConditionRow = {
@@ -136,15 +138,64 @@ export function CreateRuleDialog({ open, onOpenChange }: CreateRuleDialogProps) 
   };
 
   const insertField = (field: string) => {
+    const textarea = formulaRef.current;
+    if (!textarea) return;
+
+    const start = textarea.selectionStart;
+    const end = textarea.selectionEnd;
+    const currentFormula = formData.formula;
+    
+    // Insert field at cursor position
+    const newFormula = currentFormula.substring(0, start) + field + currentFormula.substring(end);
+    
     setFormData(prev => ({
       ...prev,
-      formula: prev.formula + ` ${field}`
+      formula: newFormula
     }));
+
+    // Set cursor position after the inserted field
+    setTimeout(() => {
+      textarea.focus();
+      textarea.setSelectionRange(start + field.length, start + field.length);
+    }, 0);
   };
 
-  const filteredFields = FIELD_OPTIONS.filter(field =>
-    field.toLowerCase().includes(fieldSearch.toLowerCase())
-  );
+  const insertOperator = (operator: string) => {
+    const textarea = formulaRef.current;
+    if (!textarea) return;
+
+    const start = textarea.selectionStart;
+    const end = textarea.selectionEnd;
+    const currentFormula = formData.formula;
+    
+    // Insert operator at cursor position
+    const newFormula = currentFormula.substring(0, start) + operator + currentFormula.substring(end);
+    
+    setFormData(prev => ({
+      ...prev,
+      formula: newFormula
+    }));
+
+    // Set cursor position after the inserted operator
+    setTimeout(() => {
+      textarea.focus();
+      textarea.setSelectionRange(start + operator.length, start + operator.length);
+    }, 0);
+  };
+
+  const handleFormulaChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const value = e.target.value;
+    // Only allow numbers, spaces, operators and dots
+    const validChars = /^[0-9\s%*/()+.\-]*$/;
+    
+    if (validChars.test(value)) {
+      setFormData(prev => ({ ...prev, formula: value }));
+    }
+  };
+
+  const filteredFields = catalogFields
+    .filter(field => field.field_name.toLowerCase().includes(fieldSearch.toLowerCase()))
+    .map(field => field.field_name);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -171,10 +222,10 @@ export function CreateRuleDialog({ open, onOpenChange }: CreateRuleDialogProps) 
     setFormData({
       name: '',
       description: '',
-      catalog: '',
       ownerField: '',
       dateField: '',
       goalIncentive: false,
+      catalog: '',
       formula: '',
       conditions: [],
       incentiveStatus: '',
@@ -190,10 +241,10 @@ export function CreateRuleDialog({ open, onOpenChange }: CreateRuleDialogProps) 
     setFormData({
       name: '',
       description: '',
-      catalog: '',
       ownerField: '',
       dateField: '',
       goalIncentive: false,
+      catalog: '',
       formula: '',
       conditions: [],
       incentiveStatus: '',
@@ -246,28 +297,6 @@ export function CreateRuleDialog({ open, onOpenChange }: CreateRuleDialogProps) 
                   placeholder="No se difiere la comisión esta se paga el 100% con la prima 1"
                   rows={3}
                 />
-              </div>
-
-              <div>
-                <Label htmlFor="rule-catalog">
-                  Catalog * 
-                  <span className="ml-1 text-xs text-muted-foreground cursor-help">ⓘ</span>
-                </Label>
-                <Select
-                  value={formData.catalog}
-                  onValueChange={(value) => setFormData(prev => ({ ...prev, catalog: value }))}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select a catalog" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {CATALOG_OPTIONS.map((catalog) => (
-                      <SelectItem key={catalog} value={catalog}>
-                        {catalog}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
               </div>
 
               <div>
@@ -326,18 +355,56 @@ export function CreateRuleDialog({ open, onOpenChange }: CreateRuleDialogProps) 
 
             {/* Rule Tab */}
             <TabsContent value="rule" className="space-y-4 mt-4">
+              <div>
+                <Label htmlFor="rule-catalog">
+                  Catalog * 
+                  <span className="ml-1 text-xs text-muted-foreground cursor-help">ⓘ</span>
+                </Label>
+                <Select
+                  value={formData.catalog}
+                  onValueChange={(value) => setFormData(prev => ({ ...prev, catalog: value }))}
+                  disabled={catalogsLoading}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder={catalogsLoading ? "Loading catalogs..." : "Select a catalog"} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {activeCatalogs.map((catalog) => (
+                      <SelectItem key={catalog.id} value={catalog.id}>
+                        {catalog.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
               <div className="grid grid-cols-2 gap-6">
                 {/* Formula Section */}
                 <div>
                   <Label htmlFor="rule-formula">Formula</Label>
                   <Textarea
+                    ref={formulaRef}
                     id="rule-formula"
                     value={formData.formula}
-                    onChange={(e) => setFormData(prev => ({ ...prev, formula: e.target.value }))}
-                    placeholder="2 / 100 * record.ValorBase"
+                    onChange={handleFormulaChange}
+                    placeholder="1.30 / 100 * record.ValorBase * 25 / 100"
                     rows={4}
                     className="font-mono text-sm"
                   />
+                  <div className="flex gap-1 mt-2">
+                    {MATH_OPERATORS.map((op) => (
+                      <Button
+                        key={op.symbol}
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => insertOperator(op.symbol)}
+                        className="px-3 py-1 h-8 text-sm"
+                      >
+                        {op.label}
+                      </Button>
+                    ))}
+                  </div>
                 </div>
 
                 {/* Click to insert fields */}
@@ -353,17 +420,31 @@ export function CreateRuleDialog({ open, onOpenChange }: CreateRuleDialogProps) 
                         className="pl-8"
                       />
                     </div>
-                    <div className="max-h-32 overflow-y-auto space-y-1">
-                      {filteredFields.map((field) => (
-                        <button
-                          key={field}
-                          type="button"
-                          onClick={() => insertField(field)}
-                          className="w-full text-left px-2 py-1 text-xs bg-blue-100 hover:bg-blue-200 rounded border"
-                        >
-                          {field}
-                        </button>
-                      ))}
+                    <div className="max-h-40 overflow-y-auto space-y-1 border rounded-md p-2">
+                      {fieldsLoading ? (
+                        <div className="text-xs text-muted-foreground text-center py-4">
+                          Loading fields...
+                        </div>
+                      ) : !formData.catalog ? (
+                        <div className="text-xs text-muted-foreground text-center py-4">
+                          Select a catalog to view fields
+                        </div>
+                      ) : filteredFields.length === 0 ? (
+                        <div className="text-xs text-muted-foreground text-center py-4">
+                          No fields found
+                        </div>
+                      ) : (
+                        filteredFields.map((field) => (
+                          <button
+                            key={field}
+                            type="button"
+                            onClick={() => insertField(`record.${field}`)}
+                            className="w-full text-left px-3 py-2 text-sm bg-primary/10 hover:bg-primary/20 rounded border border-primary/20 transition-colors"
+                          >
+                            {field}
+                          </button>
+                        ))
+                      )}
                     </div>
                   </div>
                 </div>
