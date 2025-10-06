@@ -97,18 +97,53 @@ export const getCommissionRules = async (
 ): Promise<ApiCommissionRulesListResponse> => {
   const queryString = params ? buildQueryString(params) : '';
   const url = `${API_BASE_URL}/api/commission-plans/${planId}/rules${queryString}`;
+  const headers = getAuthHeaders() as Record<string, string>;
+  
+  // Log detailed request information
+  console.log('🔵 [GET RULES] Request Details:', {
+    url,
+    method: 'GET',
+    planId,
+    queryParams: params,
+    queryString,
+    headers: {
+      ...headers,
+      'Authorization': headers.Authorization ? `Bearer ${headers.Authorization.substring(7, 20)}...` : 'NOT SET'
+    }
+  });
+  
+  logSecure.httpRequest('GET', url, headers, null);
   
   const response = await fetchWithRetry(url, {
     method: 'GET',
-    headers: getAuthHeaders(),
+    headers,
   });
+
+  console.log('🔵 [GET RULES] Response Status:', response.status);
 
   if (!response.ok) {
     const errorData = await response.json().catch(() => ({ detail: 'Unknown error' }));
+    console.error('🔴 [GET RULES] Error Response:', {
+      status: response.status,
+      statusText: response.statusText,
+      errorData,
+      url
+    });
+    logSecure.httpResponse(response.status, url, errorData);
     throw new Error(errorData.detail || `Failed to fetch rules: ${response.status}`);
   }
 
-  return response.json();
+  const responseData = await response.json();
+  console.log('🟢 [GET RULES] Success Response:', {
+    total: responseData.total,
+    page: responseData.page,
+    page_size: responseData.page_size,
+    itemsCount: responseData.items?.length || 0,
+    items: responseData.items
+  });
+  logSecure.httpResponse(response.status, url, responseData);
+
+  return responseData;
 };
 
 /**
