@@ -6,10 +6,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Calendar } from "@/components/ui/calendar";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { DatePicker } from "@/components/ui/date-picker";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { CalendarIcon, Plus } from "lucide-react";
+import { Plus } from "lucide-react";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { CommissionPlan, AssignmentType, ROLES_LIST } from "@/data/commissionPlans";
@@ -134,57 +133,21 @@ export function EditCommissionPlanDialog({ plan, open, onOpenChange, onUpdatePla
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <Label>Start Date *</Label>
-                      <Popover>
-                        <PopoverTrigger asChild>
-                          <Button
-                            variant="outline"
-                            className={cn(
-                              "w-full justify-start text-left font-normal",
-                              !formData.startDate && "text-muted-foreground"
-                            )}
-                          >
-                            <CalendarIcon className="mr-2 h-4 w-4" />
-                            {formData.startDate ? format(formData.startDate, "dd/MM/yyyy") : "Pick a date"}
-                          </Button>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-auto p-0" align="start">
-                          <Calendar
-                            mode="single"
-                            selected={formData.startDate}
-                            onSelect={(date) => setFormData(prev => ({ ...prev, startDate: date }))}
-                            initialFocus
-                            className="p-3 pointer-events-auto"
-                          />
-                        </PopoverContent>
-                      </Popover>
+                      <DatePicker
+                        date={formData.startDate}
+                        onDateChange={(date) => setFormData(prev => ({ ...prev, startDate: date }))}
+                        placeholder="dd/MM/yyyy"
+                      />
                     </div>
 
                     <div>
                       <Label>End Date *</Label>
-                      <Popover>
-                        <PopoverTrigger asChild>
-                          <Button
-                            variant="outline"
-                            className={cn(
-                              "w-full justify-start text-left font-normal",
-                              !formData.endDate && "text-muted-foreground"
-                            )}
-                          >
-                            <CalendarIcon className="mr-2 h-4 w-4" />
-                            {formData.endDate ? format(formData.endDate, "dd/MM/yyyy") : "Pick a date"}
-                          </Button>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-auto p-0" align="start">
-                          <Calendar
-                            mode="single"
-                            selected={formData.endDate}
-                            onSelect={(date) => setFormData(prev => ({ ...prev, endDate: date }))}
-                            initialFocus
-                            disabled={(date) => formData.startDate ? date < formData.startDate : false}
-                            className="p-3 pointer-events-auto"
-                          />
-                        </PopoverContent>
-                      </Popover>
+                      <DatePicker
+                        date={formData.endDate}
+                        onDateChange={(date) => setFormData(prev => ({ ...prev, endDate: date }))}
+                        placeholder="dd/MM/yyyy"
+                        disabled={(date) => formData.startDate ? date < formData.startDate : false}
+                      />
                     </div>
                   </div>
 
