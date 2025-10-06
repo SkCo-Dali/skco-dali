@@ -12,6 +12,12 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { Plus, X, Search } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useCatalogs, useCatalogFields } from "@/hooks/useCatalogs";
+import { listCatalogFieldValues } from "@/utils/catalogsApiClient";
+import { CatalogFieldValue } from "@/types/catalogsApi";
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from "@/components/ui/command";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Check, ChevronsUpDown } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 interface CreateRuleDialogProps {
   open: boolean;
@@ -77,6 +83,7 @@ const MATH_OPERATORS = [
 interface ConditionRow {
   id: string;
   field: string;
+  fieldId?: string;
   fieldType?: string;
   condition: string;
   value: string;
@@ -113,6 +120,9 @@ export function CreateRuleDialog({ open, onOpenChange }: CreateRuleDialogProps) 
 
   const [activeTab, setActiveTab] = useState('information');
   const [fieldSearch, setFieldSearch] = useState('');
+  const [fieldValues, setFieldValues] = useState<Record<string, CatalogFieldValue[]>>({});
+  const [loadingFieldValues, setLoadingFieldValues] = useState<Record<string, boolean>>({});
+  const [openValuePopovers, setOpenValuePopovers] = useState<Record<string, boolean>>({});
 
   // Fetch catalog fields when catalog is selected
   const { fields: catalogFields, loading: fieldsLoading } = useCatalogFields(formData.catalog || '');
@@ -146,21 +156,57 @@ export function CreateRuleDialog({ open, onOpenChange }: CreateRuleDialogProps) 
       conditions: prev.conditions.map(c => {
         if (c.id !== id) return c;
         
-        // If updating the field, also update the fieldType
+        // If updating the field, also update the fieldType and fieldId
         if (field === 'field') {
           const selectedField = catalogFields.find(f => f.display_name === value);
+          if (selectedField && formData.catalog) {
+            // Load field values
+            loadFieldValues(formData.catalog, selectedField.id);
+          }
           return { 
             ...c, 
-            [field]: value, 
+            field: value,
+            fieldId: selectedField?.id,
             fieldType: selectedField?.field_type,
-            // Reset condition when field changes
-            condition: ''
+            value: '', // Reset value when field changes
+            condition: '' // Reset condition when field changes
           };
         }
         
         return { ...c, [field]: value };
       })
     }));
+  };
+
+  // Load field values from API
+  const loadFieldValues = async (catalogId: string, fieldId: string) => {
+    const key = `${catalogId}-${fieldId}`;
+    
+    // Skip if already loading or already loaded
+    if (loadingFieldValues[key] || fieldValues[key]) return;
+    
+    setLoadingFieldValues(prev => ({ ...prev, [key]: true }));
+    
+    try {
+      const response = await listCatalogFieldValues(catalogId, fieldId, {
+        is_active: true,
+        page: 1,
+        page_size: 100,
+        order_by: 'sort_index',
+        order_dir: 'asc'
+      });
+      
+      setFieldValues(prev => ({ ...prev, [key]: response.items }));
+    } catch (error) {
+      console.error('Error loading field values:', error);
+      toast({
+        title: "Error",
+        description: "Failed to load field values",
+        variant: "destructive"
+      });
+    } finally {
+      setLoadingFieldValues(prev => ({ ...prev, [key]: false }));
+    }
   };
 
   // Helper function to get condition options based on field type
@@ -599,18 +645,65 @@ export function CreateRuleDialog({ open, onOpenChange }: CreateRuleDialogProps) 
                       </div>
 
                       <div className="col-span-3">
-                        <Select
-                          value={condition.value}
-                          onValueChange={(value) => updateCondition(condition.id, 'value', value)}
+                        <Popover 
+                          open={openValuePopovers[condition.id]} 
+                          onOpenChange={(open) => setOpenValuePopovers(prev => ({ ...prev, [condition.id]: open }))}
                         >
-                          <SelectTrigger>
-                            <SelectValue placeholder="Value" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="OMPEV">OMPEV</SelectItem>
-                            <SelectItem value="Intermediario">Intermediario</SelectItem>
-                          </SelectContent>
-                        </Select>
+                          <PopoverTrigger asChild>
+                            <Button
+                              variant="outline"
+                              role="combobox"
+                              className={cn(
+                                "w-full justify-between",
+                                !condition.value && "text-muted-foreground"
+                              )}
+                            >
+                              {condition.value || "Value"}
+                              <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                            </Button>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-full p-0" align="start">
+                            <Command>
+                              <CommandInput 
+                                placeholder="Search or type value..." 
+                                value={condition.value}
+                                onValueChange={(value) => updateCondition(condition.id, 'value', value)}
+                              />
+                              <CommandEmpty>
+                                {loadingFieldValues[`${formData.catalog}-${condition.fieldId}`] 
+                                  ? "Loading values..." 
+                                  : "No values found. Type to enter custom value."}
+                              </CommandEmpty>
+                              {condition.fieldId && formData.catalog && (
+                                <CommandGroup>
+                                  {(fieldValues[`${formData.catalog}-${condition.fieldId}`] || []).map((fieldValue) => (
+                                    <CommandItem
+                                      key={fieldValue.id}
+                                      value={fieldValue.value}
+                                      onSelect={(value) => {
+                                        updateCondition(condition.id, 'value', value);
+                                        setOpenValuePopovers(prev => ({ ...prev, [condition.id]: false }));
+                                      }}
+                                    >
+                                      <Check
+                                        className={cn(
+                                          "mr-2 h-4 w-4",
+                                          condition.value === fieldValue.value ? "opacity-100" : "opacity-0"
+                                        )}
+                                      />
+                                      <div className="flex flex-col">
+                                        <span>{fieldValue.label}</span>
+                                        {fieldValue.description && (
+                                          <span className="text-xs text-muted-foreground">{fieldValue.description}</span>
+                                        )}
+                                      </div>
+                                    </CommandItem>
+                                  ))}
+                                </CommandGroup>
+                              )}
+                            </Command>
+                          </PopoverContent>
+                        </Popover>
                       </div>
 
                       <div className="col-span-1">

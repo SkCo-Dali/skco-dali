@@ -5,6 +5,7 @@ import {
   CatalogField,
   CatalogsListResponse,
   CatalogFieldsListResponse,
+  CatalogFieldValuesListResponse,
   CreateCatalogRequest,
   UpdateCatalogRequest,
   CreateCatalogFieldRequest,
@@ -229,5 +230,23 @@ export async function deleteCatalogField(
   const response = await fetchWithAuth(`/api/catalogs/${catalogId}/fields/${fieldId}`, {
     method: 'DELETE',
   });
+  return response.json();
+}
+
+// ============== CATALOG FIELD VALUES ENDPOINTS ==============
+
+export async function listCatalogFieldValues(
+  catalogId: string,
+  fieldId: string,
+  params?: {
+    q?: string;
+    is_active?: boolean;
+    page?: number;
+    page_size?: number;
+    order_by?: 'sort_index' | 'value';
+    order_dir?: 'asc' | 'desc';
+  }
+): Promise<import('@/types/catalogsApi').CatalogFieldValuesListResponse> {
+  const response = await fetchWithAuth(`/api/catalogs/${catalogId}/fields/${fieldId}/values`, { params });
   return response.json();
 }

@@ -85,6 +85,27 @@ export interface UpdateCatalogFieldRequest {
   example_value?: string;
 }
 
+export interface CatalogFieldValue {
+  id: string;
+  field_id: string;
+  value: string;
+  label: string;
+  description?: string | null;
+  is_active: boolean;
+  sort_index: number;
+  created_at: string;
+  updated_at?: string | null;
+  created_by?: string | null;
+  updated_by?: string | null;
+}
+
+export interface CatalogFieldValuesListResponse {
+  items: CatalogFieldValue[];
+  page: number;
+  page_size: number;
+  total: number;
+}
+
 export interface DeleteResponse {
   deleted: boolean;
   id: string;
