@@ -228,6 +228,13 @@ export const mapLeadToUpdateRequest = (lead: Lead, userId: string): UpdateLeadRe
   console.log('🔄 Mapping lead to update request...');
   console.log('👤 User ID from context:', userId);
   
+  // Log específico para AlternateEmail ANTES del mapeo
+  console.log('📧 BEFORE MAPPING - lead.alternateEmail:', lead.alternateEmail);
+  console.log('📧 BEFORE MAPPING - Type:', typeof lead.alternateEmail);
+  console.log('📧 BEFORE MAPPING - Is null?:', lead.alternateEmail === null);
+  console.log('📧 BEFORE MAPPING - Is undefined?:', lead.alternateEmail === undefined);
+  console.log('📧 BEFORE MAPPING - Is empty string?:', lead.alternateEmail === '');
+  
   // Obtener el UUID almacenado durante la autenticación
   const authenticatedUserUUID = localStorage.getItem('authenticated-user-uuid');
   console.log('🔑 UUID almacenado en localStorage para update:', authenticatedUserUUID);
@@ -261,6 +268,10 @@ export const mapLeadToUpdateRequest = (lead: Lead, userId: string): UpdateLeadRe
     PreferredContactChannel: lead.preferredContactChannel || 'Correo',
     AlternateEmail: lead.alternateEmail || ''
   };
+  
+  // Log específico para AlternateEmail DESPUÉS del mapeo
+  console.log('📧 AFTER MAPPING - AlternateEmail in request:', updateRequest.AlternateEmail);
+  console.log('📧 AFTER MAPPING - Type:', typeof updateRequest.AlternateEmail);
   
   console.log('✅ Mapped update request:', JSON.stringify(updateRequest, null, 2));
   
