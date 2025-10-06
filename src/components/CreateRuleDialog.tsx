@@ -557,39 +557,26 @@ export function CreateRuleDialog({ open, onOpenChange }: CreateRuleDialogProps) 
                       )}
                       
                       <div className="col-span-4">
-                        <TooltipProvider>
-                          <Select
-                            value={condition.field}
-                            onValueChange={(value) => updateCondition(condition.id, 'field', value)}
-                            disabled={fieldsLoading || !formData.catalog}
-                          >
-                            <SelectTrigger>
-                              <SelectValue placeholder={!formData.catalog ? "Select catalog first" : "Field"} />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {catalogFields.map((field) => (
-                                <Tooltip key={field.id}>
-                                  <TooltipTrigger asChild>
-                                    <div>
-                                      <SelectItem value={field.display_name}>
-                                        {field.display_name}
-                                      </SelectItem>
-                                    </div>
-                                  </TooltipTrigger>
-                                  {field.description && (
-                                    <TooltipContent 
-                                      side="right" 
-                                      className="max-w-xs z-[100]"
-                                      sideOffset={5}
-                                    >
-                                      <p className="text-xs">{field.description}</p>
-                                    </TooltipContent>
-                                  )}
-                                </Tooltip>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                        </TooltipProvider>
+                        <Select
+                          value={condition.field}
+                          onValueChange={(value) => updateCondition(condition.id, 'field', value)}
+                          disabled={fieldsLoading || !formData.catalog}
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder={!formData.catalog ? "Select catalog first" : "Field"} />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {catalogFields.map((field) => (
+                              <SelectItem 
+                                key={field.id} 
+                                value={field.display_name}
+                                title={field.description || undefined}
+                              >
+                                {field.display_name}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
                       </div>
 
                       <div className="col-span-3">
