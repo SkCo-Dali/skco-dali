@@ -34,21 +34,16 @@ export function EditCommissionPlanDialog({ plan, open, onOpenChange, onUpdatePla
   const [selectedRuleToEdit, setSelectedRuleToEdit] = useState<CommissionRule | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
-    name: '',
-    description: '',
+    name: "",
+    description: "",
     startDate: undefined as Date | undefined,
     endDate: undefined as Date | undefined,
-    assignmentType: 'all_users' as AssignmentType,
-    assignmentValue: ''
+    assignmentType: "all_users" as AssignmentType,
+    assignmentValue: "",
   });
 
   // Fetch rules from API
-  const { 
-    rules: uiRules, 
-    loading: rulesLoading, 
-    error: rulesError,
-    fetchRules 
-  } = useCommissionRules(plan.id);
+  const { rules: uiRules, loading: rulesLoading, error: rulesError, fetchRules } = useCommissionRules(plan.id);
 
   useEffect(() => {
     if (plan) {
@@ -58,7 +53,7 @@ export function EditCommissionPlanDialog({ plan, open, onOpenChange, onUpdatePla
         startDate: new Date(plan.startDate),
         endDate: new Date(plan.endDate),
         assignmentType: plan.assignmentType,
-        assignmentValue: plan.assignmentValue || ''
+        assignmentValue: plan.assignmentValue || "",
       });
     }
   }, [plan]);
@@ -69,10 +64,10 @@ export function EditCommissionPlanDialog({ plan, open, onOpenChange, onUpdatePla
       const updatedData: Partial<CommissionPlan> = {
         name: formData.name,
         description: formData.description,
-        startDate: formData.startDate ? format(formData.startDate, 'yyyy-MM-dd') : undefined,
-        endDate: formData.endDate ? format(formData.endDate, 'yyyy-MM-dd') : undefined,
+        startDate: formData.startDate ? format(formData.startDate, "yyyy-MM-dd") : undefined,
+        endDate: formData.endDate ? format(formData.endDate, "yyyy-MM-dd") : undefined,
         assignmentType: formData.assignmentType,
-        assignmentValue: formData.assignmentType !== 'all_users' ? formData.assignmentValue : undefined,
+        assignmentValue: formData.assignmentType !== "all_users" ? formData.assignmentValue : undefined,
       };
 
       const result = await onUpdatePlan(plan.id, updatedData);
@@ -80,7 +75,7 @@ export function EditCommissionPlanDialog({ plan, open, onOpenChange, onUpdatePla
         onOpenChange(false);
       }
     } catch (error) {
-      console.error('Error updating plan:', error);
+      console.error("Error updating plan:", error);
     } finally {
       setIsLoading(false);
     }
@@ -89,7 +84,7 @@ export function EditCommissionPlanDialog({ plan, open, onOpenChange, onUpdatePla
   const handleSendForApproval = () => {
     toast({
       title: "Sent for Approval",
-      description: "Commission plan sent for approval."
+      description: "Commission plan sent for approval.",
     });
     onOpenChange(false);
   };
@@ -97,7 +92,7 @@ export function EditCommissionPlanDialog({ plan, open, onOpenChange, onUpdatePla
   const handlePublishAndCalculate = () => {
     toast({
       title: "Published",
-      description: "Commission plan published and calculation started."
+      description: "Commission plan published and calculation started.",
     });
     onOpenChange(false);
   };
@@ -113,16 +108,16 @@ export function EditCommissionPlanDialog({ plan, open, onOpenChange, onUpdatePla
           <DialogHeader>
             <DialogTitle>Compensation Plan Editor</DialogTitle>
           </DialogHeader>
-          
+
           <div className="flex-1 overflow-hidden">
             <Tabs defaultValue="information" className="h-full flex flex-col">
               <TabsList className="grid w-full grid-cols-2">
                 <TabsTrigger value="information">Information</TabsTrigger>
                 <TabsTrigger value="history">History</TabsTrigger>
               </TabsList>
-              
+
               <TabsContent value="information" className="flex-1 overflow-hidden mt-4">
-                <div className="grid grid-cols-3 gap-4 h-[calc(90vh-280px)]">
+                <div className="grid grid-cols-1 gap-4 h-[calc(90vh-280px)]">
                   {/* Section 1: General Information (Red box) */}
                   <div className="col-span-2 flex flex-col">
                     <h3 className="text-sm font-semibold mb-2 text-muted-foreground">General Information</h3>
@@ -133,7 +128,7 @@ export function EditCommissionPlanDialog({ plan, open, onOpenChange, onUpdatePla
                           <Input
                             id="name"
                             value={formData.name}
-                            onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+                            onChange={(e) => setFormData((prev) => ({ ...prev, name: e.target.value }))}
                             placeholder="Enter plan name"
                           />
                         </div>
@@ -143,7 +138,7 @@ export function EditCommissionPlanDialog({ plan, open, onOpenChange, onUpdatePla
                           <Textarea
                             id="description"
                             value={formData.description}
-                            onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
+                            onChange={(e) => setFormData((prev) => ({ ...prev, description: e.target.value }))}
                             placeholder="Enter plan description"
                             rows={3}
                           />
@@ -154,7 +149,7 @@ export function EditCommissionPlanDialog({ plan, open, onOpenChange, onUpdatePla
                             <Label>Start Date *</Label>
                             <DatePicker
                               date={formData.startDate}
-                              onDateChange={(date) => setFormData(prev => ({ ...prev, startDate: date }))}
+                              onDateChange={(date) => setFormData((prev) => ({ ...prev, startDate: date }))}
                               placeholder="dd/MM/yyyy"
                             />
                           </div>
@@ -163,9 +158,9 @@ export function EditCommissionPlanDialog({ plan, open, onOpenChange, onUpdatePla
                             <Label>End Date *</Label>
                             <DatePicker
                               date={formData.endDate}
-                              onDateChange={(date) => setFormData(prev => ({ ...prev, endDate: date }))}
+                              onDateChange={(date) => setFormData((prev) => ({ ...prev, endDate: date }))}
                               placeholder="dd/MM/yyyy"
-                              disabled={(date) => formData.startDate ? date < formData.startDate : false}
+                              disabled={(date) => (formData.startDate ? date < formData.startDate : false)}
                             />
                           </div>
                         </div>
@@ -174,11 +169,13 @@ export function EditCommissionPlanDialog({ plan, open, onOpenChange, onUpdatePla
                           <Label>Assignee *</Label>
                           <RadioGroup
                             value={formData.assignmentType}
-                            onValueChange={(value) => setFormData(prev => ({ 
-                              ...prev, 
-                              assignmentType: value as AssignmentType,
-                              assignmentValue: value === 'all_users' ? '' : prev.assignmentValue
-                            }))}
+                            onValueChange={(value) =>
+                              setFormData((prev) => ({
+                                ...prev,
+                                assignmentType: value as AssignmentType,
+                                assignmentValue: value === "all_users" ? "" : prev.assignmentValue,
+                              }))
+                            }
                             className="mt-2"
                           >
                             <div className="flex items-center space-x-2">
@@ -199,11 +196,11 @@ export function EditCommissionPlanDialog({ plan, open, onOpenChange, onUpdatePla
                             </div>
                           </RadioGroup>
 
-                          {formData.assignmentType === 'role' && (
+                          {formData.assignmentType === "role" && (
                             <div className="mt-3">
                               <Select
                                 value={formData.assignmentValue}
-                                onValueChange={(value) => setFormData(prev => ({ ...prev, assignmentValue: value }))}
+                                onValueChange={(value) => setFormData((prev) => ({ ...prev, assignmentValue: value }))}
                               >
                                 <SelectTrigger>
                                   <SelectValue placeholder="Select a role" />
@@ -219,11 +216,11 @@ export function EditCommissionPlanDialog({ plan, open, onOpenChange, onUpdatePla
                             </div>
                           )}
 
-                          {(formData.assignmentType === 'user' || formData.assignmentType === 'team') && (
+                          {(formData.assignmentType === "user" || formData.assignmentType === "team") && (
                             <div className="mt-3">
                               <Input
                                 value={formData.assignmentValue}
-                                onChange={(e) => setFormData(prev => ({ ...prev, assignmentValue: e.target.value }))}
+                                onChange={(e) => setFormData((prev) => ({ ...prev, assignmentValue: e.target.value }))}
                                 placeholder={`Enter ${formData.assignmentType} name`}
                               />
                             </div>
@@ -233,26 +230,11 @@ export function EditCommissionPlanDialog({ plan, open, onOpenChange, onUpdatePla
                     </ScrollArea>
                   </div>
 
-                  {/* Section 2: Rule Details (Blue box) */}
-                  <div className="flex flex-col">
-                    <h3 className="text-sm font-semibold mb-2 text-muted-foreground">Rule Details</h3>
-                    <ScrollArea className="flex-1 border rounded-md p-4">
-                      <div className="space-y-3 pr-4">
-                        <div>
-                          <h4 className="text-xs font-medium text-muted-foreground mb-1">Information</h4>
-                          <p className="text-sm text-muted-foreground">
-                            Select a rule from the table below to view its details here.
-                          </p>
-                        </div>
-                      </div>
-                    </ScrollArea>
-                  </div>
-
                   {/* Section 3: Rules Table (Yellow box) */}
                   <div className="col-span-3 flex flex-col">
                     <div className="flex items-center justify-between mb-2">
                       <h3 className="text-sm font-semibold text-muted-foreground">Rules</h3>
-                      <Button 
+                      <Button
                         onClick={() => setIsCreateRuleOpen(true)}
                         size="sm"
                         className="bg-primary hover:bg-primary/90"
@@ -262,7 +244,7 @@ export function EditCommissionPlanDialog({ plan, open, onOpenChange, onUpdatePla
                         Create
                       </Button>
                     </div>
-                    
+
                     {rulesLoading ? (
                       <div className="flex items-center justify-center py-8 border rounded-md">
                         <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
@@ -279,21 +261,21 @@ export function EditCommissionPlanDialog({ plan, open, onOpenChange, onUpdatePla
                     ) : (
                       <ScrollArea className="flex-1 border rounded-md">
                         <div className="min-w-max">
-                          <CommissionRulesTable 
-                            rules={uiRules} 
+                          <CommissionRulesTable
+                            rules={uiRules}
                             planId={plan.id}
                             onRuleDeleted={() => {
                               fetchRules();
                               toast({
                                 title: "Rule deleted",
-                                description: "The rule has been successfully deleted."
+                                description: "The rule has been successfully deleted.",
                               });
                             }}
                             onRuleUpdated={() => {
                               fetchRules();
                               toast({
                                 title: "Rule updated",
-                                description: "The rule has been successfully updated."
+                                description: "The rule has been successfully updated.",
                               });
                             }}
                           />
@@ -303,25 +285,19 @@ export function EditCommissionPlanDialog({ plan, open, onOpenChange, onUpdatePla
                   </div>
                 </div>
               </TabsContent>
-              
+
               <TabsContent value="history" className="flex-1 overflow-y-auto mt-4">
-                <div className="text-center py-8 text-muted-foreground">
-                  History functionality coming soon.
-                </div>
+                <div className="text-center py-8 text-muted-foreground">History functionality coming soon.</div>
               </TabsContent>
             </Tabs>
           </div>
 
           {/* Action Buttons */}
           <div className="flex flex-wrap gap-2 pt-4 border-t">
-            <Button 
-              onClick={handlePublishAndCalculate}
-              className="bg-primary hover:bg-primary/90"
-              disabled={isLoading}
-            >
+            <Button onClick={handlePublishAndCalculate} className="bg-primary hover:bg-primary/90" disabled={isLoading}>
               Publish & Calculate
             </Button>
-            <Button 
+            <Button
               onClick={handleSaveAsDraft}
               variant="outline"
               className="bg-primary/10 hover:bg-primary/20 text-primary border-primary"
@@ -329,7 +305,7 @@ export function EditCommissionPlanDialog({ plan, open, onOpenChange, onUpdatePla
             >
               {isLoading ? "Saving..." : "Save as Draft"}
             </Button>
-            <Button 
+            <Button
               onClick={handleSendForApproval}
               variant="outline"
               className="bg-primary/10 hover:bg-primary/20 text-primary border-primary"
@@ -337,18 +313,14 @@ export function EditCommissionPlanDialog({ plan, open, onOpenChange, onUpdatePla
             >
               Ready to Approve
             </Button>
-            <Button 
-              onClick={handleCancel}
-              variant="outline"
-              disabled={isLoading}
-            >
+            <Button onClick={handleCancel} variant="outline" disabled={isLoading}>
               Cancel
             </Button>
           </div>
         </DialogContent>
       </Dialog>
 
-      <CreateRuleDialog 
+      <CreateRuleDialog
         planId={plan.id}
         open={isCreateRuleOpen}
         onOpenChange={setIsCreateRuleOpen}
@@ -356,12 +328,12 @@ export function EditCommissionPlanDialog({ plan, open, onOpenChange, onUpdatePla
           fetchRules();
           toast({
             title: "Rule created",
-            description: "The rule has been successfully created."
+            description: "The rule has been successfully created.",
           });
         }}
       />
 
-      <EditRuleDialog 
+      <EditRuleDialog
         rule={selectedRuleToEdit}
         planId={plan.id}
         open={isEditRuleOpen}
@@ -375,7 +347,7 @@ export function EditCommissionPlanDialog({ plan, open, onOpenChange, onUpdatePla
           setSelectedRuleToEdit(null);
           toast({
             title: "Rule updated",
-            description: "The rule has been successfully updated."
+            description: "The rule has been successfully updated.",
           });
         }}
       />
