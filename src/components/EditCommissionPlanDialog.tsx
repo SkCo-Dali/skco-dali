@@ -231,7 +231,7 @@ export function EditCommissionPlanDialog({ plan, open, onOpenChange, onUpdatePla
 
                   {/* Section 3: Rules Table (Yellow box) */}
                   <div className="col-span-3 flex flex-col">
-                    <div className="flex items-center justify-between mb-2">
+                    <div className="mt-4 flex items-center justify-between mb-2">
                       <h3 className="text-sm font-semibold text-muted-foreground">Rules</h3>
                       <Button
                         onClick={() => setIsCreateRuleOpen(true)}
