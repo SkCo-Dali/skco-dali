@@ -1,5 +1,6 @@
 import { ENV } from '@/config/environment';
 import { SecureTokenManager } from './secureTokenManager';
+import { logSecure } from './secureLogger';
 import {
   ApiCommissionRule, 
   ApiCommissionRulesListResponse, 
@@ -119,19 +120,47 @@ export const createCommissionRule = async (
   ruleData: CreateCommissionRuleRequest
 ): Promise<ApiCommissionRule> => {
   const url = `${API_BASE_URL}/api/commission-plans/${planId}/rules`;
+  const headers = getAuthHeaders() as Record<string, string>;
+  
+  // Log detailed request information
+  console.log('🔵 [CREATE RULE] Request Details:', {
+    url,
+    method: 'POST',
+    planId,
+    body: ruleData,
+    headers: {
+      ...headers,
+      'Authorization': headers.Authorization ? `Bearer ${headers.Authorization.substring(7, 20)}...` : 'NOT SET'
+    }
+  });
+  
+  logSecure.httpRequest('POST', url, headers, ruleData);
   
   const response = await fetchWithRetry(url, {
     method: 'POST',
-    headers: getAuthHeaders(),
+    headers,
     body: JSON.stringify(ruleData),
   });
 
+  console.log('🔵 [CREATE RULE] Response Status:', response.status);
+
   if (!response.ok) {
     const errorData = await response.json().catch(() => ({ detail: 'Unknown error' }));
+    console.error('🔴 [CREATE RULE] Error Response:', {
+      status: response.status,
+      statusText: response.statusText,
+      errorData,
+      url
+    });
+    logSecure.httpResponse(response.status, url, errorData);
     throw new Error(errorData.detail || `Failed to create rule: ${response.status}`);
   }
 
-  return response.json();
+  const responseData = await response.json();
+  console.log('🟢 [CREATE RULE] Success Response:', responseData);
+  logSecure.httpResponse(response.status, url, responseData);
+
+  return responseData;
 };
 
 /**
