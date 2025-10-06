@@ -117,155 +117,179 @@ export function EditCommissionPlanDialog({ plan, open, onOpenChange, onUpdatePla
                 <TabsTrigger value="history">History</TabsTrigger>
               </TabsList>
               
-              <TabsContent value="information" className="flex-1 overflow-y-auto space-y-6 mt-4">
-                <div className="space-y-4">
-                  <div>
-                    <Label htmlFor="name">Name *</Label>
-                    <Input
-                      id="name"
-                      value={formData.name}
-                      onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
-                      placeholder="Enter plan name"
-                    />
-                  </div>
+              <TabsContent value="information" className="flex-1 overflow-hidden mt-4">
+                <div className="grid grid-cols-3 gap-4 h-[calc(90vh-280px)]">
+                  {/* Section 1: General Information (Red box) */}
+                  <div className="col-span-2 flex flex-col">
+                    <h3 className="text-sm font-semibold mb-2 text-muted-foreground">General Information</h3>
+                    <ScrollArea className="flex-1 border rounded-md p-4">
+                      <div className="space-y-4 pr-4">
+                        <div>
+                          <Label htmlFor="name">Name *</Label>
+                          <Input
+                            id="name"
+                            value={formData.name}
+                            onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+                            placeholder="Enter plan name"
+                          />
+                        </div>
 
-                  <div>
-                    <Label htmlFor="description">Description</Label>
-                    <Textarea
-                      id="description"
-                      value={formData.description}
-                      onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
-                      placeholder="Enter plan description"
-                      rows={3}
-                    />
-                  </div>
+                        <div>
+                          <Label htmlFor="description">Description</Label>
+                          <Textarea
+                            id="description"
+                            value={formData.description}
+                            onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
+                            placeholder="Enter plan description"
+                            rows={3}
+                          />
+                        </div>
 
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <Label>Start Date *</Label>
-                      <DatePicker
-                        date={formData.startDate}
-                        onDateChange={(date) => setFormData(prev => ({ ...prev, startDate: date }))}
-                        placeholder="dd/MM/yyyy"
-                      />
-                    </div>
+                        <div className="grid grid-cols-2 gap-4">
+                          <div>
+                            <Label>Start Date *</Label>
+                            <DatePicker
+                              date={formData.startDate}
+                              onDateChange={(date) => setFormData(prev => ({ ...prev, startDate: date }))}
+                              placeholder="dd/MM/yyyy"
+                            />
+                          </div>
 
-                    <div>
-                      <Label>End Date *</Label>
-                      <DatePicker
-                        date={formData.endDate}
-                        onDateChange={(date) => setFormData(prev => ({ ...prev, endDate: date }))}
-                        placeholder="dd/MM/yyyy"
-                        disabled={(date) => formData.startDate ? date < formData.startDate : false}
-                      />
-                    </div>
-                  </div>
+                          <div>
+                            <Label>End Date *</Label>
+                            <DatePicker
+                              date={formData.endDate}
+                              onDateChange={(date) => setFormData(prev => ({ ...prev, endDate: date }))}
+                              placeholder="dd/MM/yyyy"
+                              disabled={(date) => formData.startDate ? date < formData.startDate : false}
+                            />
+                          </div>
+                        </div>
 
-                  <div>
-                    <Label>Assignee *</Label>
-                    <RadioGroup
-                      value={formData.assignmentType}
-                      onValueChange={(value) => setFormData(prev => ({ 
-                        ...prev, 
-                        assignmentType: value as AssignmentType,
-                        assignmentValue: value === 'all_users' ? '' : prev.assignmentValue
-                      }))}
-                      className="mt-2"
-                    >
-                      <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="all_users" id="edit_all_users" />
-                        <Label htmlFor="edit_all_users">All Users</Label>
+                        <div>
+                          <Label>Assignee *</Label>
+                          <RadioGroup
+                            value={formData.assignmentType}
+                            onValueChange={(value) => setFormData(prev => ({ 
+                              ...prev, 
+                              assignmentType: value as AssignmentType,
+                              assignmentValue: value === 'all_users' ? '' : prev.assignmentValue
+                            }))}
+                            className="mt-2"
+                          >
+                            <div className="flex items-center space-x-2">
+                              <RadioGroupItem value="all_users" id="edit_all_users" />
+                              <Label htmlFor="edit_all_users">All Users</Label>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                              <RadioGroupItem value="user" id="edit_user" />
+                              <Label htmlFor="edit_user">User</Label>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                              <RadioGroupItem value="role" id="edit_role" />
+                              <Label htmlFor="edit_role">Role</Label>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                              <RadioGroupItem value="team" id="edit_team" />
+                              <Label htmlFor="edit_team">Team</Label>
+                            </div>
+                          </RadioGroup>
+
+                          {formData.assignmentType === 'role' && (
+                            <div className="mt-3">
+                              <Select
+                                value={formData.assignmentValue}
+                                onValueChange={(value) => setFormData(prev => ({ ...prev, assignmentValue: value }))}
+                              >
+                                <SelectTrigger>
+                                  <SelectValue placeholder="Select a role" />
+                                </SelectTrigger>
+                                <SelectContent className="bg-background border shadow-md max-h-[200px] overflow-y-auto">
+                                  {ROLES_LIST.map((role) => (
+                                    <SelectItem key={role} value={role}>
+                                      {role}
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                            </div>
+                          )}
+
+                          {(formData.assignmentType === 'user' || formData.assignmentType === 'team') && (
+                            <div className="mt-3">
+                              <Input
+                                value={formData.assignmentValue}
+                                onChange={(e) => setFormData(prev => ({ ...prev, assignmentValue: e.target.value }))}
+                                placeholder={`Enter ${formData.assignmentType} name`}
+                              />
+                            </div>
+                          )}
+                        </div>
                       </div>
-                      <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="user" id="edit_user" />
-                        <Label htmlFor="edit_user">User</Label>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="role" id="edit_role" />
-                        <Label htmlFor="edit_role">Role</Label>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="team" id="edit_team" />
-                        <Label htmlFor="edit_team">Team</Label>
-                      </div>
-                    </RadioGroup>
-
-                    {formData.assignmentType === 'role' && (
-                      <div className="mt-3">
-                        <Select
-                          value={formData.assignmentValue}
-                          onValueChange={(value) => setFormData(prev => ({ ...prev, assignmentValue: value }))}
-                        >
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select a role" />
-                          </SelectTrigger>
-                          <SelectContent className="bg-background border shadow-md max-h-[200px] overflow-y-auto">
-                            {ROLES_LIST.map((role) => (
-                              <SelectItem key={role} value={role}>
-                                {role}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
-                    )}
-
-                    {(formData.assignmentType === 'user' || formData.assignmentType === 'team') && (
-                      <div className="mt-3">
-                        <Input
-                          value={formData.assignmentValue}
-                          onChange={(e) => setFormData(prev => ({ ...prev, assignmentValue: e.target.value }))}
-                          placeholder={`Enter ${formData.assignmentType} name`}
-                        />
-                      </div>
-                    )}
-                  </div>
-                </div>
-
-                {/* Rules Section */}
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <h3 className="text-lg font-semibold">Rules</h3>
-                    <Button 
-                      onClick={() => setIsCreateRuleOpen(true)}
-                      size="sm"
-                      className="bg-primary hover:bg-primary/90"
-                      disabled={rulesLoading}
-                    >
-                      <Plus className="h-4 w-4 mr-2" />
-                      Create
-                    </Button>
-                  </div>
-                  
-                  {rulesLoading ? (
-                    <div className="flex items-center justify-center py-8">
-                      <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
-                      <span className="ml-2 text-muted-foreground">Loading rules...</span>
-                    </div>
-                  ) : rulesError ? (
-                    <div className="text-center py-8 text-destructive">
-                      Error loading rules: {rulesError}
-                    </div>
-                  ) : uiRules.length === 0 ? (
-                    <div className="text-center py-8 text-muted-foreground">
-                      No rules created yet. Click "Create" to add your first rule.
-                    </div>
-                  ) : (
-                    <ScrollArea className="h-[300px] border rounded-md">
-                      <CommissionRulesTable 
-                        rules={uiRules} 
-                        planId={plan.id}
-                        onRuleDeleted={() => {
-                          // Refresh the rules list
-                          fetchRules();
-                          toast({
-                            title: "Rule deleted",
-                            description: "The rule has been successfully deleted."
-                          });
-                        }}
-                      />
                     </ScrollArea>
-                  )}
+                  </div>
+
+                  {/* Section 2: Rule Details (Blue box) */}
+                  <div className="flex flex-col">
+                    <h3 className="text-sm font-semibold mb-2 text-muted-foreground">Rule Details</h3>
+                    <ScrollArea className="flex-1 border rounded-md p-4">
+                      <div className="space-y-3 pr-4">
+                        <div>
+                          <h4 className="text-xs font-medium text-muted-foreground mb-1">Information</h4>
+                          <p className="text-sm text-muted-foreground">
+                            Select a rule from the table below to view its details here.
+                          </p>
+                        </div>
+                      </div>
+                    </ScrollArea>
+                  </div>
+
+                  {/* Section 3: Rules Table (Yellow box) */}
+                  <div className="col-span-3 flex flex-col">
+                    <div className="flex items-center justify-between mb-2">
+                      <h3 className="text-sm font-semibold text-muted-foreground">Rules</h3>
+                      <Button 
+                        onClick={() => setIsCreateRuleOpen(true)}
+                        size="sm"
+                        className="bg-primary hover:bg-primary/90"
+                        disabled={rulesLoading}
+                      >
+                        <Plus className="h-4 w-4 mr-2" />
+                        Create
+                      </Button>
+                    </div>
+                    
+                    {rulesLoading ? (
+                      <div className="flex items-center justify-center py-8 border rounded-md">
+                        <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+                        <span className="ml-2 text-muted-foreground">Loading rules...</span>
+                      </div>
+                    ) : rulesError ? (
+                      <div className="text-center py-8 border rounded-md text-destructive">
+                        Error loading rules: {rulesError}
+                      </div>
+                    ) : uiRules.length === 0 ? (
+                      <div className="text-center py-8 border rounded-md text-muted-foreground">
+                        No rules created yet. Click "Create" to add your first rule.
+                      </div>
+                    ) : (
+                      <ScrollArea className="flex-1 border rounded-md">
+                        <div className="min-w-max">
+                          <CommissionRulesTable 
+                            rules={uiRules} 
+                            planId={plan.id}
+                            onRuleDeleted={() => {
+                              fetchRules();
+                              toast({
+                                title: "Rule deleted",
+                                description: "The rule has been successfully deleted."
+                              });
+                            }}
+                          />
+                        </div>
+                      </ScrollArea>
+                    )}
+                  </div>
                 </div>
               </TabsContent>
               
