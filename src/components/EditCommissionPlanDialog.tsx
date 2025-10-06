@@ -8,6 +8,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { DatePicker } from "@/components/ui/date-picker";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { Plus, Loader2 } from "lucide-react";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
@@ -250,18 +251,20 @@ export function EditCommissionPlanDialog({ plan, open, onOpenChange, onUpdatePla
                       No rules created yet. Click "Create" to add your first rule.
                     </div>
                   ) : (
-                    <CommissionRulesTable 
-                      rules={uiRules} 
-                      planId={plan.id}
-                      onRuleDeleted={() => {
-                        // Refresh the rules list
-                        fetchRules();
-                        toast({
-                          title: "Rule deleted",
-                          description: "The rule has been successfully deleted."
-                        });
-                      }}
-                    />
+                    <ScrollArea className="h-[300px] border rounded-md">
+                      <CommissionRulesTable 
+                        rules={uiRules} 
+                        planId={plan.id}
+                        onRuleDeleted={() => {
+                          // Refresh the rules list
+                          fetchRules();
+                          toast({
+                            title: "Rule deleted",
+                            description: "The rule has been successfully deleted."
+                          });
+                        }}
+                      />
+                    </ScrollArea>
                   )}
                 </div>
               </TabsContent>
