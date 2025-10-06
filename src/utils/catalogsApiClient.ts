@@ -12,6 +12,35 @@ import {
   DeleteResponse,
 } from '@/types/catalogsApi';
 
+function normalizeFieldTypeForApi(type?: string): string {
+  if (!type) return 'string';
+  const t = String(type).toLowerCase();
+  switch (t) {
+    case 'double':
+      return 'float';
+    case 'bigint':
+      return 'integer';
+    case 'int':
+    case 'integer':
+      return 'int';
+    case 'datetime':
+      return 'datetime';
+    case 'decimal':
+      return 'decimal';
+    case 'date':
+      return 'date';
+    case 'string':
+      return 'string';
+    case 'bool':
+    case 'boolean':
+      return 'boolean';
+    case 'float':
+      return 'float';
+    default:
+      return t;
+  }
+}
+
 const API_BASE_URL = ENV.CRM_API_BASE_URL;
 
 interface FetchOptions extends RequestInit {
@@ -173,9 +202,13 @@ export async function createCatalogField(
   catalogId: string,
   data: CreateCatalogFieldRequest
 ): Promise<CatalogField> {
+  const payload = {
+    ...data,
+    field_type: normalizeFieldTypeForApi((data as any).field_type),
+  };
   const response = await fetchWithAuth(`/api/catalogs/${catalogId}/fields`, {
     method: 'POST',
-    body: JSON.stringify(data),
+    body: JSON.stringify(payload),
   });
   return response.json();
 }
@@ -185,9 +218,12 @@ export async function updateCatalogField(
   fieldId: string,
   data: UpdateCatalogFieldRequest
 ): Promise<CatalogField> {
+  const payload = (data as any)?.field_type
+    ? { ...data, field_type: normalizeFieldTypeForApi((data as any).field_type as string) }
+    : data;
   const response = await fetchWithAuth(`/api/catalogs/${catalogId}/fields/${fieldId}`, {
     method: 'PUT',
-    body: JSON.stringify(data),
+    body: JSON.stringify(payload),
   });
   return response.json();
 }
