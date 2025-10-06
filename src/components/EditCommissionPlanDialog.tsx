@@ -121,111 +121,114 @@ export function EditCommissionPlanDialog({ plan, open, onOpenChange, onUpdatePla
                   {/* Section 1: General Information (Red box) */}
                   <div className="col-span-2 flex flex-col">
                     <h3 className="text-sm font-semibold mb-2 text-muted-foreground">General Information</h3>
-                    <div className="space-y-4 pr-4">
-                      <div>
-                        <Label htmlFor="name">Name *</Label>
-                        <Input
-                          id="name"
-                          value={formData.name}
-                          onChange={(e) => setFormData((prev) => ({ ...prev, name: e.target.value }))}
-                          placeholder="Enter plan name"
-                        />
-                      </div>
-
-                      <div>
-                        <Label htmlFor="description">Description</Label>
-                        <Textarea
-                          id="description"
-                          value={formData.description}
-                          onChange={(e) => setFormData((prev) => ({ ...prev, description: e.target.value }))}
-                          placeholder="Enter plan description"
-                          rows={3}
-                        />
-                      </div>
-
-                      <div className="grid grid-cols-2 gap-4">
+                    <ScrollArea className="flex-1 border rounded-md p-4">
+                      <div className="space-y-4 pr-4">
                         <div>
-                          <Label>Start Date *</Label>
-                          <DatePicker
-                            date={formData.startDate}
-                            onDateChange={(date) => setFormData((prev) => ({ ...prev, startDate: date }))}
-                            placeholder="dd/MM/yyyy"
+                          <Label htmlFor="name">Nombre*</Label>
+                          <Input
+                            id="name"
+                            value={formData.name}
+                            onChange={(e) => setFormData((prev) => ({ ...prev, name: e.target.value }))}
+                            placeholder="Enter plan name"
+                            className="w-full"
                           />
                         </div>
 
                         <div>
-                          <Label>End Date *</Label>
-                          <DatePicker
-                            date={formData.endDate}
-                            onDateChange={(date) => setFormData((prev) => ({ ...prev, endDate: date }))}
-                            placeholder="dd/MM/yyyy"
-                            disabled={(date) => (formData.startDate ? date < formData.startDate : false)}
+                          <Label htmlFor="description">Description</Label>
+                          <Textarea
+                            id="description"
+                            value={formData.description}
+                            onChange={(e) => setFormData((prev) => ({ ...prev, description: e.target.value }))}
+                            placeholder="Enter plan description"
+                            rows={3}
                           />
                         </div>
-                      </div>
 
-                      <div>
-                        <Label>Assignee *</Label>
-                        <RadioGroup
-                          value={formData.assignmentType}
-                          onValueChange={(value) =>
-                            setFormData((prev) => ({
-                              ...prev,
-                              assignmentType: value as AssignmentType,
-                              assignmentValue: value === "all_users" ? "" : prev.assignmentValue,
-                            }))
-                          }
-                          className="mt-2"
-                        >
-                          <div className="flex items-center space-x-2">
-                            <RadioGroupItem value="all_users" id="edit_all_users" />
-                            <Label htmlFor="edit_all_users">All Users</Label>
-                          </div>
-                          <div className="flex items-center space-x-2">
-                            <RadioGroupItem value="user" id="edit_user" />
-                            <Label htmlFor="edit_user">User</Label>
-                          </div>
-                          <div className="flex items-center space-x-2">
-                            <RadioGroupItem value="role" id="edit_role" />
-                            <Label htmlFor="edit_role">Role</Label>
-                          </div>
-                          <div className="flex items-center space-x-2">
-                            <RadioGroupItem value="team" id="edit_team" />
-                            <Label htmlFor="edit_team">Team</Label>
-                          </div>
-                        </RadioGroup>
-
-                        {formData.assignmentType === "role" && (
-                          <div className="mt-3">
-                            <Select
-                              value={formData.assignmentValue}
-                              onValueChange={(value) => setFormData((prev) => ({ ...prev, assignmentValue: value }))}
-                            >
-                              <SelectTrigger>
-                                <SelectValue placeholder="Select a role" />
-                              </SelectTrigger>
-                              <SelectContent className="bg-background border shadow-md max-h-[200px] overflow-y-auto">
-                                {ROLES_LIST.map((role) => (
-                                  <SelectItem key={role} value={role}>
-                                    {role}
-                                  </SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
-                          </div>
-                        )}
-
-                        {(formData.assignmentType === "user" || formData.assignmentType === "team") && (
-                          <div className="mt-3">
-                            <Input
-                              value={formData.assignmentValue}
-                              onChange={(e) => setFormData((prev) => ({ ...prev, assignmentValue: e.target.value }))}
-                              placeholder={`Enter ${formData.assignmentType} name`}
+                        <div className="grid grid-cols-2 gap-4">
+                          <div>
+                            <Label>Start Date *</Label>
+                            <DatePicker
+                              date={formData.startDate}
+                              onDateChange={(date) => setFormData((prev) => ({ ...prev, startDate: date }))}
+                              placeholder="dd/MM/yyyy"
                             />
                           </div>
-                        )}
+
+                          <div>
+                            <Label>End Date *</Label>
+                            <DatePicker
+                              date={formData.endDate}
+                              onDateChange={(date) => setFormData((prev) => ({ ...prev, endDate: date }))}
+                              placeholder="dd/MM/yyyy"
+                              disabled={(date) => (formData.startDate ? date < formData.startDate : false)}
+                            />
+                          </div>
+                        </div>
+
+                        <div>
+                          <Label>Assignee *</Label>
+                          <RadioGroup
+                            value={formData.assignmentType}
+                            onValueChange={(value) =>
+                              setFormData((prev) => ({
+                                ...prev,
+                                assignmentType: value as AssignmentType,
+                                assignmentValue: value === "all_users" ? "" : prev.assignmentValue,
+                              }))
+                            }
+                            className="mt-2"
+                          >
+                            <div className="flex items-center space-x-2">
+                              <RadioGroupItem value="all_users" id="edit_all_users" />
+                              <Label htmlFor="edit_all_users">All Users</Label>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                              <RadioGroupItem value="user" id="edit_user" />
+                              <Label htmlFor="edit_user">User</Label>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                              <RadioGroupItem value="role" id="edit_role" />
+                              <Label htmlFor="edit_role">Role</Label>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                              <RadioGroupItem value="team" id="edit_team" />
+                              <Label htmlFor="edit_team">Team</Label>
+                            </div>
+                          </RadioGroup>
+
+                          {formData.assignmentType === "role" && (
+                            <div className="mt-3">
+                              <Select
+                                value={formData.assignmentValue}
+                                onValueChange={(value) => setFormData((prev) => ({ ...prev, assignmentValue: value }))}
+                              >
+                                <SelectTrigger>
+                                  <SelectValue placeholder="Select a role" />
+                                </SelectTrigger>
+                                <SelectContent className="bg-background border shadow-md max-h-[200px] overflow-y-auto">
+                                  {ROLES_LIST.map((role) => (
+                                    <SelectItem key={role} value={role}>
+                                      {role}
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                            </div>
+                          )}
+
+                          {(formData.assignmentType === "user" || formData.assignmentType === "team") && (
+                            <div className="mt-3">
+                              <Input
+                                value={formData.assignmentValue}
+                                onChange={(e) => setFormData((prev) => ({ ...prev, assignmentValue: e.target.value }))}
+                                placeholder={`Enter ${formData.assignmentType} name`}
+                              />
+                            </div>
+                          )}
+                        </div>
                       </div>
-                    </div>
+                    </ScrollArea>
                   </div>
 
                   {/* Section 3: Rules Table (Yellow box) */}
