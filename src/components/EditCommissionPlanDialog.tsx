@@ -8,13 +8,14 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { DatePicker } from "@/components/ui/date-picker";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Plus } from "lucide-react";
+import { Plus, Loader2 } from "lucide-react";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { CommissionPlan, AssignmentType, ROLES_LIST } from "@/data/commissionPlans";
 import { useToast } from "@/hooks/use-toast";
 import { CommissionRulesTable } from "@/components/CommissionRulesTable";
 import { CreateRuleDialog } from "@/components/CreateRuleDialog";
+import { useCommissionRules } from "@/hooks/useCommissionRules";
 
 interface EditCommissionPlanDialogProps {
   plan: CommissionPlan;
@@ -35,6 +36,14 @@ export function EditCommissionPlanDialog({ plan, open, onOpenChange, onUpdatePla
     assignmentType: 'all_users' as AssignmentType,
     assignmentValue: ''
   });
+
+  // Fetch rules from API
+  const { 
+    rules: uiRules, 
+    loading: rulesLoading, 
+    error: rulesError,
+    fetchRules 
+  } = useCommissionRules(plan.id);
 
   useEffect(() => {
     if (plan) {
@@ -95,7 +104,7 @@ export function EditCommissionPlanDialog({ plan, open, onOpenChange, onUpdatePla
   return (
     <>
       <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className="sm:max-w-[900px] max-h-[90vh] overflow-hidden">
+        <DialogContent className="sm:max-w-[1200px] max-h-[90vh] overflow-hidden">
           <DialogHeader>
             <DialogTitle>Compensation Plan Editor</DialogTitle>
           </DialogHeader>
@@ -220,20 +229,40 @@ export function EditCommissionPlanDialog({ plan, open, onOpenChange, onUpdatePla
                       onClick={() => setIsCreateRuleOpen(true)}
                       size="sm"
                       className="bg-primary hover:bg-primary/90"
+                      disabled={rulesLoading}
                     >
                       <Plus className="h-4 w-4 mr-2" />
                       Create
                     </Button>
                   </div>
                   
-                  <CommissionRulesTable 
-                    rules={plan.rules} 
-                    planId={plan.id}
-                    onRuleDeleted={() => {
-                      // Refresh the plan data
-                      window.location.reload();
-                    }}
-                  />
+                  {rulesLoading ? (
+                    <div className="flex items-center justify-center py-8">
+                      <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+                      <span className="ml-2 text-muted-foreground">Loading rules...</span>
+                    </div>
+                  ) : rulesError ? (
+                    <div className="text-center py-8 text-destructive">
+                      Error loading rules: {rulesError}
+                    </div>
+                  ) : uiRules.length === 0 ? (
+                    <div className="text-center py-8 text-muted-foreground">
+                      No rules created yet. Click "Create" to add your first rule.
+                    </div>
+                  ) : (
+                    <CommissionRulesTable 
+                      rules={uiRules} 
+                      planId={plan.id}
+                      onRuleDeleted={() => {
+                        // Refresh the rules list
+                        fetchRules();
+                        toast({
+                          title: "Rule deleted",
+                          description: "The rule has been successfully deleted."
+                        });
+                      }}
+                    />
+                  )}
                 </div>
               </TabsContent>
               
@@ -286,8 +315,12 @@ export function EditCommissionPlanDialog({ plan, open, onOpenChange, onUpdatePla
         open={isCreateRuleOpen}
         onOpenChange={setIsCreateRuleOpen}
         onRuleCreated={() => {
-          // Refresh the plan data to show new rule
-          window.location.reload();
+          // Refresh the rules list
+          fetchRules();
+          toast({
+            title: "Rule created",
+            description: "The rule has been successfully created."
+          });
         }}
       />
     </>
