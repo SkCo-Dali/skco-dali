@@ -117,7 +117,7 @@ export function EditCommissionPlanDialog({ plan, open, onOpenChange, onUpdatePla
               </TabsList>
 
               <TabsContent value="information" className="flex-1 overflow-hidden mt-4">
-                <div className="grid grid-cols-1 h-[calc(90vh-280px)] w-full">
+                <div className="grid grid-cols-1 h-[calc(90vh-280px)] w-full overflow-y-auto">
                   {/* Section 1: General Information (Red box) */}
                   <div className="col-span-2 flex flex-col">
                     <h3 className="text-sm font-semibold mb-2 text-muted-foreground">General Information</h3>

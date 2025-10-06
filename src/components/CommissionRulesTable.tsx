@@ -152,7 +152,7 @@ export function CommissionRulesTable({ rules, planId, onRuleDeleted, onRuleUpdat
       </div>
 
       {/* Rule Details Panel */}
-      <div className="lg:col-span-2">
+      <div className="lg:col-span-1">
         <Card>
           <CardHeader>
             <CardTitle className="text-lg">Rule Details</CardTitle>
