@@ -1,15 +1,13 @@
 // API types for Catalogs - matching the API response structure
 
 export type CatalogFieldType = 
-  | "string" 
   | "int" 
-  | "integer" 
+  | "bigint" 
   | "decimal" 
-  | "float" 
+  | "double" 
+  | "string" 
   | "date" 
-  | "datetime" 
-  | "boolean" 
-  | "bool";
+  | "datetime";
 
 export interface Catalog {
   id: string;

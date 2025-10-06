@@ -20,15 +20,13 @@ interface CatalogFieldsListProps {
 }
 
 const FIELD_TYPES: CatalogFieldType[] = [
-  "string",
   "int",
-  "integer",
+  "bigint",
   "decimal",
-  "float",
+  "double",
+  "string",
   "date",
   "datetime",
-  "boolean",
-  "bool",
 ];
 
 export function CatalogFieldsList({ fields, onFieldsChange }: CatalogFieldsListProps) {
