@@ -259,7 +259,7 @@ export function EditCommissionPlanDialog({ plan, open, onOpenChange, onUpdatePla
                       </div>
                     ) : (
                       <ScrollArea className="flex-1 border rounded-md">
-                        <div className="min-w-max">
+                        <div className="w-full">
                           <CommissionRulesTable
                             rules={uiRules}
                             planId={plan.id}
