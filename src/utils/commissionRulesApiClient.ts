@@ -219,21 +219,80 @@ export const getCommissionRuleById = async (ruleId: string): Promise<ApiCommissi
 };
 
 /**
+ * PUT /api/commission-rules/{ruleId}
+ * Update an existing rule
+ */
+export const updateCommissionRule = async (
+  ruleId: string,
+  ruleData: Partial<CreateCommissionRuleRequest>
+): Promise<ApiCommissionRule> => {
+  const url = `${API_BASE_URL}/api/commission-rules/${ruleId}`;
+  const headers = getAuthHeaders() as Record<string, string>;
+  
+  console.log('🔵 [UPDATE RULE] Request Details:', {
+    url,
+    method: 'PUT',
+    ruleId,
+    body: ruleData,
+    headers: {
+      ...headers,
+      'Authorization': headers.Authorization ? `Bearer ${headers.Authorization.substring(7, 20)}...` : 'NOT SET'
+    }
+  });
+  
+  logSecure.httpRequest('PUT', url, headers, ruleData);
+  
+  const response = await fetchWithRetry(url, {
+    method: 'PUT',
+    headers,
+    body: JSON.stringify(ruleData),
+  });
+
+  console.log('🔵 [UPDATE RULE] Response Status:', response.status);
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({ detail: 'Unknown error' }));
+    console.error('🔴 [UPDATE RULE] Error Response:', {
+      status: response.status,
+      statusText: response.statusText,
+      errorData,
+      url
+    });
+    logSecure.httpResponse(response.status, url, errorData);
+    throw new Error(errorData.detail || `Failed to update rule: ${response.status}`);
+  }
+
+  const responseData = await response.json();
+  console.log('🟢 [UPDATE RULE] Success Response:', responseData);
+  logSecure.httpResponse(response.status, url, responseData);
+
+  return responseData;
+};
+
+/**
  * DELETE /api/commission-rules/{ruleId}
  * Delete a specific rule by ID
  */
 export const deleteCommissionRule = async (ruleId: string): Promise<DeleteCommissionRuleResponse> => {
   const url = `${API_BASE_URL}/api/commission-rules/${ruleId}`;
+  const headers = getAuthHeaders();
+  
+  console.log('🔵 [DELETE RULE] Request:', { url, ruleId });
   
   const response = await fetchWithRetry(url, {
     method: 'DELETE',
-    headers: getAuthHeaders(),
+    headers,
   });
+
+  console.log('🔵 [DELETE RULE] Response Status:', response.status);
 
   if (!response.ok) {
     const errorData = await response.json().catch(() => ({ detail: 'Unknown error' }));
+    console.error('🔴 [DELETE RULE] Error:', { status: response.status, errorData });
     throw new Error(errorData.detail || `Failed to delete rule: ${response.status}`);
   }
 
-  return response.json();
+  const responseData = await response.json();
+  console.log('🟢 [DELETE RULE] Success:', responseData);
+  return responseData;
 };

@@ -16,19 +16,22 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { EditRuleDialog } from "@/components/EditRuleDialog";
 
 interface CommissionRulesTableProps {
   rules: CommissionRule[];
   planId?: string;
   onRuleDeleted?: () => void;
+  onRuleUpdated?: () => void;
 }
 
-export function CommissionRulesTable({ rules, planId, onRuleDeleted }: CommissionRulesTableProps) {
+export function CommissionRulesTable({ rules, planId, onRuleDeleted, onRuleUpdated }: CommissionRulesTableProps) {
   const { toast } = useToast();
   const [selectedRule, setSelectedRule] = useState<CommissionRule | null>(
     rules.length > 0 ? rules[0] : null
   );
   const [ruleToDelete, setRuleToDelete] = useState<CommissionRule | null>(null);
+  const [ruleToEdit, setRuleToEdit] = useState<CommissionRule | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
 
   const handleDeleteRule = async () => {
@@ -114,7 +117,10 @@ export function CommissionRulesTable({ rules, planId, onRuleDeleted }: Commissio
                 <TableRow 
                   key={rule.id}
                   className={selectedRule?.id === rule.id ? "bg-muted/50" : "cursor-pointer hover:bg-muted/30"}
-                  onClick={() => setSelectedRule(rule)}
+                  onClick={() => {
+                    setSelectedRule(rule);
+                    setRuleToEdit(rule);
+                  }}
                 >
                   <TableCell className="font-medium">
                     {index + 1}
@@ -253,6 +259,21 @@ export function CommissionRulesTable({ rules, planId, onRuleDeleted }: Commissio
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {ruleToEdit && planId && (
+        <EditRuleDialog 
+          rule={ruleToEdit}
+          planId={planId}
+          open={!!ruleToEdit}
+          onOpenChange={(open) => {
+            if (!open) setRuleToEdit(null);
+          }}
+          onRuleUpdated={() => {
+            setRuleToEdit(null);
+            onRuleUpdated?.();
+          }}
+        />
+      )}
     </div>
   );
 }

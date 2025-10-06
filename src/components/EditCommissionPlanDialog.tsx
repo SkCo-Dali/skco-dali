@@ -16,7 +16,9 @@ import { CommissionPlan, AssignmentType, ROLES_LIST } from "@/data/commissionPla
 import { useToast } from "@/hooks/use-toast";
 import { CommissionRulesTable } from "@/components/CommissionRulesTable";
 import { CreateRuleDialog } from "@/components/CreateRuleDialog";
+import { EditRuleDialog } from "@/components/EditRuleDialog";
 import { useCommissionRules } from "@/hooks/useCommissionRules";
+import { CommissionRule } from "@/data/commissionPlans";
 
 interface EditCommissionPlanDialogProps {
   plan: CommissionPlan;
@@ -28,6 +30,8 @@ interface EditCommissionPlanDialogProps {
 export function EditCommissionPlanDialog({ plan, open, onOpenChange, onUpdatePlan }: EditCommissionPlanDialogProps) {
   const { toast } = useToast();
   const [isCreateRuleOpen, setIsCreateRuleOpen] = useState(false);
+  const [isEditRuleOpen, setIsEditRuleOpen] = useState(false);
+  const [selectedRuleToEdit, setSelectedRuleToEdit] = useState<CommissionRule | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
@@ -285,6 +289,13 @@ export function EditCommissionPlanDialog({ plan, open, onOpenChange, onUpdatePla
                                 description: "The rule has been successfully deleted."
                               });
                             }}
+                            onRuleUpdated={() => {
+                              fetchRules();
+                              toast({
+                                title: "Rule updated",
+                                description: "The rule has been successfully updated."
+                              });
+                            }}
                           />
                         </div>
                       </ScrollArea>
@@ -342,11 +353,29 @@ export function EditCommissionPlanDialog({ plan, open, onOpenChange, onUpdatePla
         open={isCreateRuleOpen}
         onOpenChange={setIsCreateRuleOpen}
         onRuleCreated={() => {
-          // Refresh the rules list
           fetchRules();
           toast({
             title: "Rule created",
             description: "The rule has been successfully created."
+          });
+        }}
+      />
+
+      <EditRuleDialog 
+        rule={selectedRuleToEdit}
+        planId={plan.id}
+        open={isEditRuleOpen}
+        onOpenChange={(open) => {
+          setIsEditRuleOpen(open);
+          if (!open) setSelectedRuleToEdit(null);
+        }}
+        onRuleUpdated={() => {
+          fetchRules();
+          setIsEditRuleOpen(false);
+          setSelectedRuleToEdit(null);
+          toast({
+            title: "Rule updated",
+            description: "The rule has been successfully updated."
           });
         }}
       />
