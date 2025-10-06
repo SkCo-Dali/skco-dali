@@ -237,11 +237,25 @@ export function CreateRuleDialog({ open, onOpenChange }: CreateRuleDialogProps) 
 
   const handleFormulaChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const value = e.target.value;
-    // Only allow numbers, spaces, operators, dots, and field references (letters for 'record.')
-    const validChars = /^[0-9a-zA-Z\s%*/()+.\-]*$/;
+    // Only allow numbers, spaces, operators, dots, and the word "record" (for field references)
+    // Valid pattern: numbers, spaces, operators (% * / + - ( )), dots, and "record" word only
+    const validChars = /^[0-9\s%*/()+.\-]*$|^[0-9\s%*/()+.\-recod]*$/;
     
-    if (validChars.test(value)) {
-      setFormData(prev => ({ ...prev, formula: value }));
+    // More strict validation: check if any alphabetic characters exist
+    // If they do, they should only be part of "record." pattern
+    const hasLetters = /[a-zA-Z]/.test(value);
+    
+    if (hasLetters) {
+      // If there are letters, validate they're only in "record.fieldname" format
+      const validPattern = /^[0-9\s%*/()+.\-]*(record\.[a-zA-Z_][a-zA-Z0-9_]*[0-9\s%*/()+.\-]*)*$/;
+      if (validPattern.test(value)) {
+        setFormData(prev => ({ ...prev, formula: value }));
+      }
+    } else {
+      // No letters, just validate basic characters
+      if (/^[0-9\s%*/()+.\-]*$/.test(value)) {
+        setFormData(prev => ({ ...prev, formula: value }));
+      }
     }
   };
 
@@ -543,31 +557,39 @@ export function CreateRuleDialog({ open, onOpenChange }: CreateRuleDialogProps) 
                       )}
                       
                       <div className="col-span-4">
-                        <Select
-                          value={condition.field}
-                          onValueChange={(value) => updateCondition(condition.id, 'field', value)}
-                          disabled={fieldsLoading || !formData.catalog}
-                        >
-                          <SelectTrigger>
-                            <SelectValue placeholder={!formData.catalog ? "Select catalog first" : "Field"} />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {catalogFields.map((field) => (
-                              <SelectItem 
-                                key={field.id} 
-                                value={field.display_name}
-                                title={field.description || field.display_name}
-                              >
-                                <div className="flex flex-col">
-                                  <span>{field.display_name}</span>
+                        <TooltipProvider>
+                          <Select
+                            value={condition.field}
+                            onValueChange={(value) => updateCondition(condition.id, 'field', value)}
+                            disabled={fieldsLoading || !formData.catalog}
+                          >
+                            <SelectTrigger>
+                              <SelectValue placeholder={!formData.catalog ? "Select catalog first" : "Field"} />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {catalogFields.map((field) => (
+                                <Tooltip key={field.id}>
+                                  <TooltipTrigger asChild>
+                                    <div>
+                                      <SelectItem value={field.display_name}>
+                                        {field.display_name}
+                                      </SelectItem>
+                                    </div>
+                                  </TooltipTrigger>
                                   {field.description && (
-                                    <span className="text-xs text-muted-foreground">{field.description}</span>
+                                    <TooltipContent 
+                                      side="right" 
+                                      className="max-w-xs z-[100]"
+                                      sideOffset={5}
+                                    >
+                                      <p className="text-xs">{field.description}</p>
+                                    </TooltipContent>
                                   )}
-                                </div>
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
+                                </Tooltip>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </TooltipProvider>
                       </div>
 
                       <div className="col-span-3">
