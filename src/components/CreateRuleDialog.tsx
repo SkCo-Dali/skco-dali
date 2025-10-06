@@ -14,7 +14,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useCatalogs, useCatalogFields } from "@/hooks/useCatalogs";
 import { listCatalogFieldValues } from "@/utils/catalogsApiClient";
 import { CatalogFieldValue } from "@/types/catalogsApi";
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from "@/components/ui/command";
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Check, ChevronsUpDown } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -677,38 +677,40 @@ export function CreateRuleDialog({ open, onOpenChange }: CreateRuleDialogProps) 
                                   }
                                 }}
                               />
-                              <CommandEmpty>
-                                {loadingFieldValues[`${formData.catalog}-${condition.fieldId}`] 
-                                  ? "Loading values..." 
-                                  : "Type a value and press Enter"}
-                              </CommandEmpty>
-                              {condition.fieldId && formData.catalog && (
-                                <CommandGroup>
-                                  {(fieldValues[`${formData.catalog}-${condition.fieldId}`] || []).map((fieldValue) => (
-                                    <CommandItem
-                                      key={fieldValue.id}
-                                      value={fieldValue.value}
-                                      onSelect={(value) => {
-                                        updateCondition(condition.id, 'value', value);
-                                        setOpenValuePopovers(prev => ({ ...prev, [condition.id]: false }));
-                                      }}
-                                    >
-                                      <Check
-                                        className={cn(
-                                          "mr-2 h-4 w-4",
-                                          condition.value === fieldValue.value ? "opacity-100" : "opacity-0"
-                                        )}
-                                      />
-                                      <div className="flex flex-col">
-                                        <span>{fieldValue.label}</span>
-                                        {fieldValue.description && (
-                                          <span className="text-xs text-muted-foreground">{fieldValue.description}</span>
-                                        )}
-                                      </div>
-                                    </CommandItem>
-                                  ))}
-                                </CommandGroup>
-                              )}
+                              <CommandList>
+                                <CommandEmpty>
+                                  {loadingFieldValues[`${formData.catalog}-${condition.fieldId}`] 
+                                    ? "Loading values..." 
+                                    : "Type a value and press Enter"}
+                                </CommandEmpty>
+                                {condition.fieldId && formData.catalog && (
+                                  <CommandGroup>
+                                    {(fieldValues[`${formData.catalog}-${condition.fieldId}`] || []).map((fieldValue) => (
+                                      <CommandItem
+                                        key={fieldValue.id}
+                                        value={fieldValue.value}
+                                        onSelect={(value) => {
+                                          updateCondition(condition.id, 'value', value);
+                                          setOpenValuePopovers(prev => ({ ...prev, [condition.id]: false }));
+                                        }}
+                                      >
+                                        <Check
+                                          className={cn(
+                                            "mr-2 h-4 w-4",
+                                            condition.value === fieldValue.value ? "opacity-100" : "opacity-0"
+                                          )}
+                                        />
+                                        <div className="flex flex-col">
+                                          <span>{fieldValue.label}</span>
+                                          {fieldValue.description && (
+                                            <span className="text-xs text-muted-foreground">{fieldValue.description}</span>
+                                          )}
+                                        </div>
+                                      </CommandItem>
+                                    ))}
+                                  </CommandGroup>
+                                )}
+                              </CommandList>
                             </Command>
                           </PopoverContent>
                         </Popover>
