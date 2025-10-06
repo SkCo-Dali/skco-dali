@@ -27,39 +27,37 @@ interface CommissionRulesTableProps {
 
 export function CommissionRulesTable({ rules, planId, onRuleDeleted, onRuleUpdated }: CommissionRulesTableProps) {
   const { toast } = useToast();
-  const [selectedRule, setSelectedRule] = useState<CommissionRule | null>(
-    rules.length > 0 ? rules[0] : null
-  );
+  const [selectedRule, setSelectedRule] = useState<CommissionRule | null>(rules.length > 0 ? rules[0] : null);
   const [ruleToDelete, setRuleToDelete] = useState<CommissionRule | null>(null);
   const [ruleToEdit, setRuleToEdit] = useState<CommissionRule | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
 
   const handleDeleteRule = async () => {
     if (!ruleToDelete || !planId) return;
-    
+
     setIsDeleting(true);
-    
+
     try {
       const response = await fetch(
-        `${import.meta.env.VITE_CRM_API_BASE_URL || 'https://skcodalilmdev.azurewebsites.net'}/api/commission-rules/${ruleToDelete.id}`,
+        `${import.meta.env.VITE_CRM_API_BASE_URL || "https://skcodalilmdev.azurewebsites.net"}/api/commission-rules/${ruleToDelete.id}`,
         {
-          method: 'DELETE',
+          method: "DELETE",
           headers: {
-            'Authorization': `Bearer ${localStorage.getItem('authToken') || ''}`,
-            'Content-Type': 'application/json',
-            'Accept': 'application/json'
-          }
-        }
+            Authorization: `Bearer ${localStorage.getItem("authToken") || ""}`,
+            "Content-Type": "application/json",
+            Accept: "application/json",
+          },
+        },
       );
 
       if (!response.ok) {
-        const errorData = await response.json().catch(() => ({ detail: 'Unknown error' }));
+        const errorData = await response.json().catch(() => ({ detail: "Unknown error" }));
         throw new Error(errorData.detail || `Failed to delete rule: ${response.status}`);
       }
 
       toast({
-        title: 'Success',
-        description: 'Rule deleted successfully'
+        title: "Success",
+        description: "Rule deleted successfully",
       });
 
       setRuleToDelete(null);
@@ -68,19 +66,19 @@ export function CommissionRulesTable({ rules, planId, onRuleDeleted, onRuleUpdat
       }
       onRuleDeleted?.();
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Failed to delete rule';
-      
-      if (errorMessage.includes('dependencias') || errorMessage.includes('dependencies')) {
+      const errorMessage = err instanceof Error ? err.message : "Failed to delete rule";
+
+      if (errorMessage.includes("dependencias") || errorMessage.includes("dependencies")) {
         toast({
-          title: 'Cannot Delete Rule',
-          description: 'This rule has associated conditions, incentives, or payments. Please remove them first.',
-          variant: 'destructive'
+          title: "Cannot Delete Rule",
+          description: "This rule has associated conditions, incentives, or payments. Please remove them first.",
+          variant: "destructive",
         });
       } else {
         toast({
-          title: 'Error',
+          title: "Error",
           description: errorMessage,
-          variant: 'destructive'
+          variant: "destructive",
         });
       }
     } finally {
@@ -89,15 +87,11 @@ export function CommissionRulesTable({ rules, planId, onRuleDeleted, onRuleUpdat
   };
 
   if (rules.length === 0) {
-    return (
-      <div className="text-center py-8 text-muted-foreground">
-        No rules defined for this commission plan yet.
-      </div>
-    );
+    return <div className="text-center py-8 text-muted-foreground">No rules defined for this commission plan yet.</div>;
   }
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <div className="grid grid-cols-1 lg:grid-cols-2">
       {/* Rules Table */}
       <div className="lg:col-span-2">
         <div className="rounded-md border">
@@ -114,7 +108,7 @@ export function CommissionRulesTable({ rules, planId, onRuleDeleted, onRuleUpdat
             </TableHeader>
             <TableBody>
               {rules.map((rule, index) => (
-                <TableRow 
+                <TableRow
                   key={rule.id}
                   className={selectedRule?.id === rule.id ? "bg-muted/50" : "cursor-pointer hover:bg-muted/30"}
                   onClick={() => {
@@ -122,16 +116,10 @@ export function CommissionRulesTable({ rules, planId, onRuleDeleted, onRuleUpdat
                     setRuleToEdit(rule);
                   }}
                 >
-                  <TableCell className="font-medium">
-                    {index + 1}
-                  </TableCell>
-                  <TableCell className="font-medium">
-                    {rule.name}
-                  </TableCell>
+                  <TableCell className="font-medium">{index + 1}</TableCell>
+                  <TableCell className="font-medium">{rule.name}</TableCell>
                   <TableCell className="max-w-xs">
-                    <code className="text-xs bg-muted px-2 py-1 rounded">
-                      {rule.formula}
-                    </code>
+                    <code className="text-xs bg-muted px-2 py-1 rounded">{rule.formula}</code>
                   </TableCell>
                   <TableCell className="max-w-xs">
                     <div className="truncate text-sm" title={rule.conditions}>
@@ -139,9 +127,7 @@ export function CommissionRulesTable({ rules, planId, onRuleDeleted, onRuleUpdat
                     </div>
                   </TableCell>
                   <TableCell>
-                    <Badge variant="outline">
-                      {rule.catalog}
-                    </Badge>
+                    <Badge variant="outline">{rule.catalog}</Badge>
                   </TableCell>
                   {planId && (
                     <TableCell>
@@ -199,14 +185,14 @@ export function CommissionRulesTable({ rules, planId, onRuleDeleted, onRuleUpdat
                         {selectedRule.catalog}
                       </Badge>
                     </div>
-                    
+
                     {selectedRule.owner && (
                       <div>
                         <span className="font-medium">Owner:</span>
                         <p className="text-muted-foreground mt-1">{selectedRule.owner}</p>
                       </div>
                     )}
-                    
+
                     {selectedRule.dataField && (
                       <div>
                         <span className="font-medium">Data Field:</span>
@@ -218,22 +204,16 @@ export function CommissionRulesTable({ rules, planId, onRuleDeleted, onRuleUpdat
 
                 <div>
                   <h4 className="font-semibold mb-2">Formula</h4>
-                  <code className="text-xs bg-muted p-2 rounded block break-words">
-                    {selectedRule.formula}
-                  </code>
+                  <code className="text-xs bg-muted p-2 rounded block break-words">{selectedRule.formula}</code>
                 </div>
 
                 <div>
                   <h4 className="font-semibold mb-2">Conditions</h4>
-                  <p className="text-sm text-muted-foreground break-words">
-                    {selectedRule.conditions}
-                  </p>
+                  <p className="text-sm text-muted-foreground break-words">{selectedRule.conditions}</p>
                 </div>
               </div>
             ) : (
-              <div className="text-center py-4 text-muted-foreground">
-                Select a rule to view details
-              </div>
+              <div className="text-center py-4 text-muted-foreground">Select a rule to view details</div>
             )}
           </CardContent>
         </Card>
@@ -261,7 +241,7 @@ export function CommissionRulesTable({ rules, planId, onRuleDeleted, onRuleUpdat
       </AlertDialog>
 
       {ruleToEdit && planId && (
-        <EditRuleDialog 
+        <EditRuleDialog
           rule={ruleToEdit}
           planId={planId}
           open={!!ruleToEdit}
