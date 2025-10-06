@@ -17,11 +17,10 @@ function normalizeFieldTypeForApi(type?: string): string {
   const t = String(type).toLowerCase();
   switch (t) {
     case 'double':
-      return 'float';
+      return 'double';
     case 'bigint':
-      return 'integer';
+      return 'bigint';
     case 'int':
-    case 'integer':
       return 'int';
     case 'datetime':
       return 'datetime';
@@ -31,11 +30,6 @@ function normalizeFieldTypeForApi(type?: string): string {
       return 'date';
     case 'string':
       return 'string';
-    case 'bool':
-    case 'boolean':
-      return 'boolean';
-    case 'float':
-      return 'float';
     default:
       return t;
   }
