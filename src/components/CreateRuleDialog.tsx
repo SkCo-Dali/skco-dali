@@ -44,13 +44,23 @@ const PAYMENT_SCHEDULE_OPTIONS = [
   'Weekly'
 ];
 
-const CONDITION_OPTIONS = [
+const NUMERIC_CONDITION_OPTIONS = [
   'Equal',
   'Not Equal',
   'Greater Than',
+  'Greater Than Or Equal',
   'Less Than',
+  'Less Than Or Equal'
+];
+
+const STRING_CONDITION_OPTIONS = [
+  'Equal',
+  'Not Equal',
   'Contains',
-  'Starts With'
+  'Not Contains',
+  'Begins With',
+  'Ends With',
+  'Is One Of'
 ];
 
 const MATH_OPERATORS = [
@@ -66,6 +76,7 @@ const MATH_OPERATORS = [
 interface ConditionRow {
   id: string;
   field: string;
+  fieldType?: string;
   condition: string;
   value: string;
 }
@@ -131,10 +142,44 @@ export function CreateRuleDialog({ open, onOpenChange }: CreateRuleDialogProps) 
   const updateCondition = (id: string, field: keyof ConditionRow, value: string) => {
     setFormData(prev => ({
       ...prev,
-      conditions: prev.conditions.map(c =>
-        c.id === id ? { ...c, [field]: value } : c
-      )
+      conditions: prev.conditions.map(c => {
+        if (c.id !== id) return c;
+        
+        // If updating the field, also update the fieldType
+        if (field === 'field') {
+          const selectedField = catalogFields.find(f => f.display_name === value);
+          return { 
+            ...c, 
+            [field]: value, 
+            fieldType: selectedField?.field_type,
+            // Reset condition when field changes
+            condition: ''
+          };
+        }
+        
+        return { ...c, [field]: value };
+      })
     }));
+  };
+
+  // Helper function to get condition options based on field type
+  const getConditionOptions = (fieldType?: string) => {
+    if (!fieldType) return [];
+    
+    const normalizedType = fieldType.toLowerCase();
+    
+    // Check if it's a numeric or date type
+    if (['numeric', 'int', 'integer', 'decimal', 'money', 'date', 'datetime'].includes(normalizedType)) {
+      return NUMERIC_CONDITION_OPTIONS;
+    }
+    
+    // Check if it's a string type
+    if (['nvarchar', 'varchar', 'string'].includes(normalizedType)) {
+      return STRING_CONDITION_OPTIONS;
+    }
+    
+    // Default to string options for unknown types
+    return STRING_CONDITION_OPTIONS;
   };
 
   const insertField = (field: string) => {
@@ -477,13 +522,17 @@ export function CreateRuleDialog({ open, onOpenChange }: CreateRuleDialogProps) 
                         <Select
                           value={condition.field}
                           onValueChange={(value) => updateCondition(condition.id, 'field', value)}
+                          disabled={fieldsLoading || !formData.catalog}
                         >
                           <SelectTrigger>
-                            <SelectValue placeholder="Field" />
+                            <SelectValue placeholder={!formData.catalog ? "Select catalog first" : "Field"} />
                           </SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="Producto">Producto</SelectItem>
-                            <SelectItem value="Canal Descripción">Canal Descripción</SelectItem>
+                            {catalogFields.map((field) => (
+                              <SelectItem key={field.id} value={field.display_name}>
+                                {field.display_name}
+                              </SelectItem>
+                            ))}
                           </SelectContent>
                         </Select>
                       </div>
@@ -492,12 +541,13 @@ export function CreateRuleDialog({ open, onOpenChange }: CreateRuleDialogProps) 
                         <Select
                           value={condition.condition}
                           onValueChange={(value) => updateCondition(condition.id, 'condition', value)}
+                          disabled={!condition.field}
                         >
                           <SelectTrigger>
                             <SelectValue placeholder="Condition" />
                           </SelectTrigger>
                           <SelectContent>
-                            {CONDITION_OPTIONS.map((cond) => (
+                            {getConditionOptions(condition.fieldType).map((cond) => (
                               <SelectItem key={cond} value={cond}>
                                 {cond}
                               </SelectItem>
