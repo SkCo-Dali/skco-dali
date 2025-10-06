@@ -511,7 +511,7 @@ export function CreateRuleDialog({ open, onOpenChange }: CreateRuleDialogProps) 
                                     onClick={() => insertField(`record.${field.field_name}`)}
                                     className="w-full text-left px-3 py-2 text-sm bg-primary/10 hover:bg-primary/20 rounded border border-primary/20 transition-colors"
                                   >
-                                    {field.field_name}
+                                    {field.display_name || field.field_name}
                                   </button>
                                 </TooltipTrigger>
                                 {field.description && (
