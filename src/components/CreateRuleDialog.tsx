@@ -187,8 +187,8 @@ export function CreateRuleDialog({ open, onOpenChange }: CreateRuleDialogProps) 
     const textarea = formulaRef.current;
     if (!textarea) return;
 
-    const start = textarea.selectionStart || 0;
-    const end = textarea.selectionEnd || 0;
+    const start = textarea.selectionStart ?? 0;
+    const end = textarea.selectionEnd ?? 0;
     const currentFormula = formData.formula;
     
     // Insert field at cursor position
@@ -200,19 +200,21 @@ export function CreateRuleDialog({ open, onOpenChange }: CreateRuleDialogProps) 
     }));
 
     // Restore focus and set cursor position after the inserted field
-    requestAnimationFrame(() => {
-      textarea.focus();
-      const newPosition = start + field.length;
-      textarea.setSelectionRange(newPosition, newPosition);
-    });
+    setTimeout(() => {
+      if (textarea) {
+        textarea.focus();
+        const newPosition = start + field.length;
+        textarea.setSelectionRange(newPosition, newPosition);
+      }
+    }, 0);
   };
 
   const insertOperator = (operator: string) => {
     const textarea = formulaRef.current;
     if (!textarea) return;
 
-    const start = textarea.selectionStart || 0;
-    const end = textarea.selectionEnd || 0;
+    const start = textarea.selectionStart ?? 0;
+    const end = textarea.selectionEnd ?? 0;
     const currentFormula = formData.formula;
     
     // Insert operator at cursor position
@@ -224,17 +226,19 @@ export function CreateRuleDialog({ open, onOpenChange }: CreateRuleDialogProps) 
     }));
 
     // Restore focus and set cursor position after the inserted operator
-    requestAnimationFrame(() => {
-      textarea.focus();
-      const newPosition = start + operator.length;
-      textarea.setSelectionRange(newPosition, newPosition);
-    });
+    setTimeout(() => {
+      if (textarea) {
+        textarea.focus();
+        const newPosition = start + operator.length;
+        textarea.setSelectionRange(newPosition, newPosition);
+      }
+    }, 0);
   };
 
   const handleFormulaChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const value = e.target.value;
-    // Only allow numbers, spaces, operators and dots
-    const validChars = /^[0-9\s%*/()+.\-]*$/;
+    // Only allow numbers, spaces, operators, dots, and field references (letters for 'record.')
+    const validChars = /^[0-9a-zA-Z\s%*/()+.\-]*$/;
     
     if (validChars.test(value)) {
       setFormData(prev => ({ ...prev, formula: value }));
@@ -305,7 +309,7 @@ export function CreateRuleDialog({ open, onOpenChange }: CreateRuleDialogProps) 
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
+      <DialogContent className="sm:max-w-[800px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Create Commission Rule</DialogTitle>
           <DialogDescription>
@@ -497,7 +501,12 @@ export function CreateRuleDialog({ open, onOpenChange }: CreateRuleDialogProps) 
                                   </button>
                                 </TooltipTrigger>
                                 {field.description && (
-                                  <TooltipContent side="right" className="max-w-xs">
+                                  <TooltipContent 
+                                    side="left" 
+                                    align="start"
+                                    className="max-w-xs z-[100]"
+                                    sideOffset={5}
+                                  >
                                     <p className="text-xs">{field.description}</p>
                                   </TooltipContent>
                                 )}
@@ -543,22 +552,20 @@ export function CreateRuleDialog({ open, onOpenChange }: CreateRuleDialogProps) 
                             <SelectValue placeholder={!formData.catalog ? "Select catalog first" : "Field"} />
                           </SelectTrigger>
                           <SelectContent>
-                            <TooltipProvider>
-                              {catalogFields.map((field) => (
-                                <Tooltip key={field.id}>
-                                  <TooltipTrigger asChild>
-                                    <SelectItem value={field.display_name}>
-                                      {field.display_name}
-                                    </SelectItem>
-                                  </TooltipTrigger>
+                            {catalogFields.map((field) => (
+                              <SelectItem 
+                                key={field.id} 
+                                value={field.display_name}
+                                title={field.description || field.display_name}
+                              >
+                                <div className="flex flex-col">
+                                  <span>{field.display_name}</span>
                                   {field.description && (
-                                    <TooltipContent side="right" className="max-w-xs">
-                                      <p className="text-xs">{field.description}</p>
-                                    </TooltipContent>
+                                    <span className="text-xs text-muted-foreground">{field.description}</span>
                                   )}
-                                </Tooltip>
-                              ))}
-                            </TooltipProvider>
+                                </div>
+                              </SelectItem>
+                            ))}
                           </SelectContent>
                         </Select>
                       </div>
