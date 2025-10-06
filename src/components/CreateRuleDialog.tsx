@@ -663,16 +663,24 @@ export function CreateRuleDialog({ open, onOpenChange }: CreateRuleDialogProps) 
                             </Button>
                           </PopoverTrigger>
                           <PopoverContent className="w-full p-0" align="start">
-                            <Command>
+                            <Command shouldFilter={false}>
                               <CommandInput 
                                 placeholder="Search or type value..." 
-                                value={condition.value}
-                                onValueChange={(value) => updateCondition(condition.id, 'value', value)}
+                                onKeyDown={(e) => {
+                                  if (e.key === 'Enter') {
+                                    e.preventDefault();
+                                    const inputValue = (e.target as HTMLInputElement).value;
+                                    if (inputValue) {
+                                      updateCondition(condition.id, 'value', inputValue);
+                                      setOpenValuePopovers(prev => ({ ...prev, [condition.id]: false }));
+                                    }
+                                  }
+                                }}
                               />
                               <CommandEmpty>
                                 {loadingFieldValues[`${formData.catalog}-${condition.fieldId}`] 
                                   ? "Loading values..." 
-                                  : "No values found. Type to enter custom value."}
+                                  : "Type a value and press Enter"}
                               </CommandEmpty>
                               {condition.fieldId && formData.catalog && (
                                 <CommandGroup>
