@@ -19,6 +19,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { X } from "lucide-react";
 import { CreateCatalogFieldRequest, CatalogFieldType } from "@/types/catalogsApi";
 
 interface CreateCatalogFieldDialogProps {
@@ -44,19 +45,8 @@ export function CreateCatalogFieldDialog({
   onOpenChange,
   onCreateField,
 }: CreateCatalogFieldDialogProps) {
-  const [formData, setFormData] = useState<CreateCatalogFieldRequest>({
-    field_name: "",
-    field_type: "string",
-    display_name: "",
-    description: "",
-    is_filterable: false,
-    is_visible: true,
-    example_value: "",
-  });
-  const [isSubmitting, setIsSubmitting] = useState(false);
-
-  const resetForm = () => {
-    setFormData({
+  const [fields, setFields] = useState<CreateCatalogFieldRequest[]>([
+    {
       field_name: "",
       field_type: "string",
       display_name: "",
@@ -64,23 +54,77 @@ export function CreateCatalogFieldDialog({
       is_filterable: false,
       is_visible: true,
       example_value: "",
-    });
+    },
+  ]);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const resetForm = () => {
+    setFields([
+      {
+        field_name: "",
+        field_type: "string",
+        display_name: "",
+        description: "",
+        is_filterable: false,
+        is_visible: true,
+        example_value: "",
+      },
+    ]);
+  };
+
+  const addField = () => {
+    setFields([
+      ...fields,
+      {
+        field_name: "",
+        field_type: "string",
+        display_name: "",
+        description: "",
+        is_filterable: false,
+        is_visible: true,
+        example_value: "",
+      },
+    ]);
+  };
+
+  const removeField = (index: number) => {
+    if (fields.length > 1) {
+      setFields(fields.filter((_, i) => i !== index));
+    }
+  };
+
+  const updateField = (index: number, updates: Partial<CreateCatalogFieldRequest>) => {
+    const newFields = [...fields];
+    newFields[index] = { ...newFields[index], ...updates };
+    setFields(newFields);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!formData.field_name.trim() || !formData.field_type) {
+    // Validate all fields
+    const isValid = fields.every(
+      (field) =>
+        field.field_name.trim() &&
+        field.display_name?.trim() &&
+        field.description?.trim() &&
+        field.field_type
+    );
+
+    if (!isValid) {
       return;
     }
 
     setIsSubmitting(true);
     try {
-      await onCreateField(formData);
+      // Create all fields sequentially
+      for (const field of fields) {
+        await onCreateField(field);
+      }
       onOpenChange(false);
       resetForm();
     } catch (error) {
-      console.error("Error creating field:", error);
+      console.error("Error creating fields:", error);
     } finally {
       setIsSubmitting(false);
     }
@@ -93,135 +137,160 @@ export function CreateCatalogFieldDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[600px]">
+      <DialogContent className="sm:max-w-[700px] max-h-[85vh]">
         <DialogHeader>
-          <DialogTitle>Add New Field</DialogTitle>
+          <DialogTitle>Add New Fields</DialogTitle>
           <DialogDescription>
-            Define a new field for this catalog
+            Define one or more fields for this catalog
           </DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit}>
           <div className="space-y-4 py-4 max-h-[60vh] overflow-y-auto">
-            {/* Field Name */}
-            <div className="space-y-2">
-              <Label htmlFor="field_name">
-                Field Name <span className="text-destructive">*</span>
+            <div className="flex items-center justify-between mb-4">
+              <Label className="text-base">
+                Fields <span className="text-destructive">*</span>
               </Label>
-              <Input
-                id="field_name"
-                placeholder="e.g., PolizaNumber"
-                value={formData.field_name}
-                onChange={(e) =>
-                  setFormData({ ...formData, field_name: e.target.value })
-                }
-                required
-              />
-              <p className="text-xs text-muted-foreground">
-                Technical name as it appears in the dataset
-              </p>
+              <Button type="button" variant="outline" size="sm" onClick={addField}>
+                Add Another Field
+              </Button>
             </div>
 
-            {/* Field Type */}
-            <div className="space-y-2">
-              <Label htmlFor="field_type">
-                Field Type <span className="text-destructive">*</span>
-              </Label>
-              <Select
-                value={formData.field_type}
-                onValueChange={(value: CatalogFieldType) =>
-                  setFormData({ ...formData, field_type: value })
-                }
+            {fields.map((field, index) => (
+              <div
+                key={index}
+                className="border rounded-lg p-4 space-y-3 relative"
               >
-                <SelectTrigger id="field_type">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {FIELD_TYPES.map((type) => (
-                    <SelectItem key={type} value={type}>
-                      {type}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+                {fields.length > 1 && (
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className="absolute top-2 right-2"
+                    onClick={() => removeField(index)}
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                )}
 
-            {/* Display Name */}
-            <div className="space-y-2">
-              <Label htmlFor="display_name">Display Name</Label>
-              <Input
-                id="display_name"
-                placeholder="e.g., Nro de Póliza"
-                value={formData.display_name}
-                onChange={(e) =>
-                  setFormData({ ...formData, display_name: e.target.value })
-                }
-              />
-              <p className="text-xs text-muted-foreground">
-                User-friendly label for UI
-              </p>
-            </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="space-y-2">
+                    <Label htmlFor={`field_name_${index}`}>
+                      Field Name <span className="text-destructive">*</span>
+                    </Label>
+                    <Input
+                      id={`field_name_${index}`}
+                      placeholder="e.g., PolizaNumber"
+                      value={field.field_name}
+                      onChange={(e) =>
+                        updateField(index, { field_name: e.target.value })
+                      }
+                      required
+                    />
+                    <p className="text-xs text-muted-foreground">
+                      Technical name as it appears in the dataset
+                    </p>
+                  </div>
 
-            {/* Description */}
-            <div className="space-y-2">
-              <Label htmlFor="description">Description</Label>
-              <Textarea
-                id="description"
-                placeholder="e.g., Identificador visible de la póliza"
-                value={formData.description}
-                onChange={(e) =>
-                  setFormData({ ...formData, description: e.target.value })
-                }
-                rows={2}
-              />
-            </div>
+                  <div className="space-y-2">
+                    <Label htmlFor={`field_type_${index}`}>
+                      Field Type <span className="text-destructive">*</span>
+                    </Label>
+                    <Select
+                      value={field.field_type}
+                      onValueChange={(value: CatalogFieldType) =>
+                        updateField(index, { field_type: value })
+                      }
+                    >
+                      <SelectTrigger id={`field_type_${index}`}>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {FIELD_TYPES.map((type) => (
+                          <SelectItem key={type} value={type}>
+                            {type}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
 
-            {/* Example Value */}
-            <div className="space-y-2">
-              <Label htmlFor="example_value">Example Value</Label>
-              <Input
-                id="example_value"
-                placeholder="e.g., 2025-ABC-000123"
-                value={formData.example_value}
-                onChange={(e) =>
-                  setFormData({ ...formData, example_value: e.target.value })
-                }
-              />
-            </div>
+                  <div className="space-y-2">
+                    <Label htmlFor={`display_name_${index}`}>
+                      Display Name <span className="text-destructive">*</span>
+                    </Label>
+                    <Input
+                      id={`display_name_${index}`}
+                      placeholder="e.g., Nro de Póliza"
+                      value={field.display_name}
+                      onChange={(e) =>
+                        updateField(index, { display_name: e.target.value })
+                      }
+                      required
+                    />
+                    <p className="text-xs text-muted-foreground">
+                      User-friendly label for UI
+                    </p>
+                  </div>
 
-            {/* Filterable */}
-            <div className="flex items-center justify-between">
-              <div className="space-y-0.5">
-                <Label htmlFor="is_filterable">Filterable</Label>
-                <p className="text-xs text-muted-foreground">
-                  Can this field be used in filters?
-                </p>
+                  <div className="space-y-2">
+                    <Label htmlFor={`example_value_${index}`}>Example Value</Label>
+                    <Input
+                      id={`example_value_${index}`}
+                      placeholder="e.g., 2025-ABC-000123"
+                      value={field.example_value}
+                      onChange={(e) =>
+                        updateField(index, { example_value: e.target.value })
+                      }
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor={`description_${index}`}>
+                    Description <span className="text-destructive">*</span>
+                  </Label>
+                  <Textarea
+                    id={`description_${index}`}
+                    placeholder="e.g., Identificador visible de la póliza"
+                    value={field.description}
+                    onChange={(e) =>
+                      updateField(index, { description: e.target.value })
+                    }
+                    rows={2}
+                    required
+                  />
+                </div>
+
+                <div className="flex gap-4">
+                  <div className="flex items-center space-x-2">
+                    <Switch
+                      id={`is_filterable_${index}`}
+                      checked={field.is_filterable}
+                      onCheckedChange={(checked) =>
+                        updateField(index, { is_filterable: checked })
+                      }
+                    />
+                    <Label htmlFor={`is_filterable_${index}`} className="text-sm">
+                      Filterable
+                    </Label>
+                  </div>
+
+                  <div className="flex items-center space-x-2">
+                    <Switch
+                      id={`is_visible_${index}`}
+                      checked={field.is_visible}
+                      onCheckedChange={(checked) =>
+                        updateField(index, { is_visible: checked })
+                      }
+                    />
+                    <Label htmlFor={`is_visible_${index}`} className="text-sm">
+                      Visible
+                    </Label>
+                  </div>
+                </div>
               </div>
-              <Switch
-                id="is_filterable"
-                checked={formData.is_filterable}
-                onCheckedChange={(checked) =>
-                  setFormData({ ...formData, is_filterable: checked })
-                }
-              />
-            </div>
-
-            {/* Visible */}
-            <div className="flex items-center justify-between">
-              <div className="space-y-0.5">
-                <Label htmlFor="is_visible">Visible</Label>
-                <p className="text-xs text-muted-foreground">
-                  Should this field be visible in the UI?
-                </p>
-              </div>
-              <Switch
-                id="is_visible"
-                checked={formData.is_visible}
-                onCheckedChange={(checked) =>
-                  setFormData({ ...formData, is_visible: checked })
-                }
-              />
-            </div>
+            ))}
           </div>
 
           <DialogFooter>
@@ -235,9 +304,17 @@ export function CreateCatalogFieldDialog({
             </Button>
             <Button
               type="submit"
-              disabled={isSubmitting || !formData.field_name.trim()}
+              disabled={
+                isSubmitting ||
+                fields.some(
+                  (f) =>
+                    !f.field_name.trim() ||
+                    !f.display_name?.trim() ||
+                    !f.description?.trim()
+                )
+              }
             >
-              {isSubmitting ? "Creating..." : "Create Field"}
+              {isSubmitting ? "Creating..." : `Create ${fields.length} Field${fields.length > 1 ? 's' : ''}`}
             </Button>
           </DialogFooter>
         </form>
