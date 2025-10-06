@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Switch } from "@/components/ui/switch";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Plus, X, Search } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useCatalogs, useCatalogFields } from "@/hooks/useCatalogs";
@@ -186,8 +187,8 @@ export function CreateRuleDialog({ open, onOpenChange }: CreateRuleDialogProps) 
     const textarea = formulaRef.current;
     if (!textarea) return;
 
-    const start = textarea.selectionStart;
-    const end = textarea.selectionEnd;
+    const start = textarea.selectionStart || 0;
+    const end = textarea.selectionEnd || 0;
     const currentFormula = formData.formula;
     
     // Insert field at cursor position
@@ -198,19 +199,20 @@ export function CreateRuleDialog({ open, onOpenChange }: CreateRuleDialogProps) 
       formula: newFormula
     }));
 
-    // Set cursor position after the inserted field
-    setTimeout(() => {
+    // Restore focus and set cursor position after the inserted field
+    requestAnimationFrame(() => {
       textarea.focus();
-      textarea.setSelectionRange(start + field.length, start + field.length);
-    }, 0);
+      const newPosition = start + field.length;
+      textarea.setSelectionRange(newPosition, newPosition);
+    });
   };
 
   const insertOperator = (operator: string) => {
     const textarea = formulaRef.current;
     if (!textarea) return;
 
-    const start = textarea.selectionStart;
-    const end = textarea.selectionEnd;
+    const start = textarea.selectionStart || 0;
+    const end = textarea.selectionEnd || 0;
     const currentFormula = formData.formula;
     
     // Insert operator at cursor position
@@ -221,11 +223,12 @@ export function CreateRuleDialog({ open, onOpenChange }: CreateRuleDialogProps) 
       formula: newFormula
     }));
 
-    // Set cursor position after the inserted operator
-    setTimeout(() => {
+    // Restore focus and set cursor position after the inserted operator
+    requestAnimationFrame(() => {
       textarea.focus();
-      textarea.setSelectionRange(start + operator.length, start + operator.length);
-    }, 0);
+      const newPosition = start + operator.length;
+      textarea.setSelectionRange(newPosition, newPosition);
+    });
   };
 
   const handleFormulaChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -479,16 +482,28 @@ export function CreateRuleDialog({ open, onOpenChange }: CreateRuleDialogProps) 
                           No fields found
                         </div>
                       ) : (
-                        filteredFields.map((field) => (
-                          <button
-                            key={field}
-                            type="button"
-                            onClick={() => insertField(`record.${field}`)}
-                            className="w-full text-left px-3 py-2 text-sm bg-primary/10 hover:bg-primary/20 rounded border border-primary/20 transition-colors"
-                          >
-                            {field}
-                          </button>
-                        ))
+                        <TooltipProvider>
+                          {catalogFields
+                            .filter(field => field.field_name.toLowerCase().includes(fieldSearch.toLowerCase()))
+                            .map((field) => (
+                              <Tooltip key={field.id}>
+                                <TooltipTrigger asChild>
+                                  <button
+                                    type="button"
+                                    onClick={() => insertField(`record.${field.field_name}`)}
+                                    className="w-full text-left px-3 py-2 text-sm bg-primary/10 hover:bg-primary/20 rounded border border-primary/20 transition-colors"
+                                  >
+                                    {field.field_name}
+                                  </button>
+                                </TooltipTrigger>
+                                {field.description && (
+                                  <TooltipContent side="right" className="max-w-xs">
+                                    <p className="text-xs">{field.description}</p>
+                                  </TooltipContent>
+                                )}
+                              </Tooltip>
+                            ))}
+                        </TooltipProvider>
                       )}
                     </div>
                   </div>
@@ -528,11 +543,22 @@ export function CreateRuleDialog({ open, onOpenChange }: CreateRuleDialogProps) 
                             <SelectValue placeholder={!formData.catalog ? "Select catalog first" : "Field"} />
                           </SelectTrigger>
                           <SelectContent>
-                            {catalogFields.map((field) => (
-                              <SelectItem key={field.id} value={field.display_name}>
-                                {field.display_name}
-                              </SelectItem>
-                            ))}
+                            <TooltipProvider>
+                              {catalogFields.map((field) => (
+                                <Tooltip key={field.id}>
+                                  <TooltipTrigger asChild>
+                                    <SelectItem value={field.display_name}>
+                                      {field.display_name}
+                                    </SelectItem>
+                                  </TooltipTrigger>
+                                  {field.description && (
+                                    <TooltipContent side="right" className="max-w-xs">
+                                      <p className="text-xs">{field.description}</p>
+                                    </TooltipContent>
+                                  )}
+                                </Tooltip>
+                              ))}
+                            </TooltipProvider>
                           </SelectContent>
                         </Select>
                       </div>
