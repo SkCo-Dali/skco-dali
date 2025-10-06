@@ -226,7 +226,14 @@ export function EditCommissionPlanDialog({ plan, open, onOpenChange, onUpdatePla
                     </Button>
                   </div>
                   
-                  <CommissionRulesTable rules={plan.rules} />
+                  <CommissionRulesTable 
+                    rules={plan.rules} 
+                    planId={plan.id}
+                    onRuleDeleted={() => {
+                      // Refresh the plan data
+                      window.location.reload();
+                    }}
+                  />
                 </div>
               </TabsContent>
               
@@ -275,8 +282,13 @@ export function EditCommissionPlanDialog({ plan, open, onOpenChange, onUpdatePla
       </Dialog>
 
       <CreateRuleDialog 
+        planId={plan.id}
         open={isCreateRuleOpen}
         onOpenChange={setIsCreateRuleOpen}
+        onRuleCreated={() => {
+          // Refresh the plan data to show new rule
+          window.location.reload();
+        }}
       />
     </>
   );

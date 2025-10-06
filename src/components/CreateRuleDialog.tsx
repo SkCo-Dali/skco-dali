@@ -18,10 +18,14 @@ import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, Command
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Check, ChevronsUpDown } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { SecureTokenManager } from "@/utils/secureTokenManager";
+import { ENV } from "@/config/environment";
 
 interface CreateRuleDialogProps {
+  planId: string;
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  onRuleCreated?: () => void;
 }
 
 const OWNER_FIELD_OPTIONS = [
@@ -89,9 +93,10 @@ interface ConditionRow {
   value: string;
 }
 
-export function CreateRuleDialog({ open, onOpenChange }: CreateRuleDialogProps) {
+export function CreateRuleDialog({ planId, open, onOpenChange, onRuleCreated }: CreateRuleDialogProps) {
   const { toast } = useToast();
   const formulaRef = useRef<HTMLTextAreaElement>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   
   // Fetch catalogs
   const { catalogs, loading: catalogsLoading } = useCatalogs();
@@ -309,42 +314,67 @@ export function CreateRuleDialog({ open, onOpenChange }: CreateRuleDialogProps) 
     .filter(field => field.field_name.toLowerCase().includes(fieldSearch.toLowerCase()))
     .map(field => field.field_name);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!formData.name || !formData.formula || formData.conditions.length === 0 || !formData.catalog) {
+    if (!formData.name || !formData.formula || !formData.catalog) {
       toast({
         title: "Validation Error",
-        description: "Please fill in all required fields.",
+        description: "Please fill in all required fields (Name, Formula, Catalog)",
         variant: "destructive"
       });
       return;
     }
 
-    // Here you would typically save the rule
-    console.log('Creating rule:', formData);
+    setIsSubmitting(true);
     
-    toast({
-      title: "Success",
-      description: "Commission rule created successfully."
-    });
-    
-    onOpenChange(false);
-    // Reset form
-    setFormData({
-      name: '',
-      description: '',
-      ownerField: '',
-      dateField: '',
-      goalIncentive: false,
-      catalog: '',
-      formula: '',
-      conditions: [],
-      incentiveStatus: '',
-      applyCommissionsGenerated: false,
-      paymentSchedule: '',
-      paymentPeriodBasedOn: ''
-    });
+    try {
+      const tokenData = SecureTokenManager.getToken();
+      const token = tokenData?.token || '';
+      
+      const response = await fetch(
+        `${ENV.CRM_API_BASE_URL}/api/commission-plans/${planId}/rules`, 
+        {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          },
+          body: JSON.stringify({
+            name: formData.name,
+            description: formData.description,
+            formula: formData.formula,
+            catalog: formData.catalog,
+            date_field: formData.dateField,
+            owner_name: formData.ownerField,
+            is_active: true
+          })
+        }
+      );
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ detail: 'Unknown error' }));
+        throw new Error(errorData.detail || `Failed to create rule: ${response.status}`);
+      }
+
+      toast({
+        title: "Success",
+        description: `Rule "${formData.name}" has been created successfully.`
+      });
+      
+      handleCancel();
+      onRuleCreated?.();
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to create rule';
+      toast({
+        title: "Error",
+        description: errorMessage,
+        variant: "destructive"
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleCancel = () => {
@@ -837,11 +867,11 @@ export function CreateRuleDialog({ open, onOpenChange }: CreateRuleDialogProps) 
             </TabsContent>
 
             <DialogFooter className="gap-2 mt-6">
-              <Button type="button" variant="outline" onClick={handleCancel}>
+              <Button type="button" variant="outline" onClick={handleCancel} disabled={isSubmitting}>
                 Cancel
               </Button>
-              <Button type="submit" className="bg-green-600 hover:bg-green-700 text-white">
-                Save
+              <Button type="submit" className="bg-green-600 hover:bg-green-700 text-white" disabled={isSubmitting}>
+                {isSubmitting ? "Creating..." : "Save"}
               </Button>
             </DialogFooter>
           </form>

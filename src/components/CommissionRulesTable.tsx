@@ -3,15 +3,87 @@ import { CommissionRule } from "@/data/commissionPlans";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Trash2 } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 interface CommissionRulesTableProps {
   rules: CommissionRule[];
+  planId?: string;
+  onRuleDeleted?: () => void;
 }
 
-export function CommissionRulesTable({ rules }: CommissionRulesTableProps) {
+export function CommissionRulesTable({ rules, planId, onRuleDeleted }: CommissionRulesTableProps) {
+  const { toast } = useToast();
   const [selectedRule, setSelectedRule] = useState<CommissionRule | null>(
     rules.length > 0 ? rules[0] : null
   );
+  const [ruleToDelete, setRuleToDelete] = useState<CommissionRule | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  const handleDeleteRule = async () => {
+    if (!ruleToDelete || !planId) return;
+    
+    setIsDeleting(true);
+    
+    try {
+      const response = await fetch(
+        `${import.meta.env.VITE_CRM_API_BASE_URL || 'https://skcodalilmdev.azurewebsites.net'}/api/commission-rules/${ruleToDelete.id}`,
+        {
+          method: 'DELETE',
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('authToken') || ''}`,
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          }
+        }
+      );
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ detail: 'Unknown error' }));
+        throw new Error(errorData.detail || `Failed to delete rule: ${response.status}`);
+      }
+
+      toast({
+        title: 'Success',
+        description: 'Rule deleted successfully'
+      });
+
+      setRuleToDelete(null);
+      if (selectedRule?.id === ruleToDelete.id) {
+        setSelectedRule(null);
+      }
+      onRuleDeleted?.();
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to delete rule';
+      
+      if (errorMessage.includes('dependencias') || errorMessage.includes('dependencies')) {
+        toast({
+          title: 'Cannot Delete Rule',
+          description: 'This rule has associated conditions, incentives, or payments. Please remove them first.',
+          variant: 'destructive'
+        });
+      } else {
+        toast({
+          title: 'Error',
+          description: errorMessage,
+          variant: 'destructive'
+        });
+      }
+    } finally {
+      setIsDeleting(false);
+    }
+  };
 
   if (rules.length === 0) {
     return (
@@ -34,6 +106,7 @@ export function CommissionRulesTable({ rules }: CommissionRulesTableProps) {
                 <TableHead>Formula</TableHead>
                 <TableHead>Conditions</TableHead>
                 <TableHead>Catalog</TableHead>
+                {planId && <TableHead className="w-20">Actions</TableHead>}
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -64,6 +137,21 @@ export function CommissionRulesTable({ rules }: CommissionRulesTableProps) {
                       {rule.catalog}
                     </Badge>
                   </TableCell>
+                  {planId && (
+                    <TableCell>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setRuleToDelete(rule);
+                        }}
+                        className="h-8 w-8 p-0"
+                      >
+                        <Trash2 className="h-4 w-4 text-destructive" />
+                      </Button>
+                    </TableCell>
+                  )}
                 </TableRow>
               ))}
             </TableBody>
@@ -144,6 +232,27 @@ export function CommissionRulesTable({ rules }: CommissionRulesTableProps) {
           </CardContent>
         </Card>
       </div>
+
+      <AlertDialog open={!!ruleToDelete} onOpenChange={() => setRuleToDelete(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Rule</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete the rule "{ruleToDelete?.name}"? This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDeleteRule}
+              disabled={isDeleting}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {isDeleting ? "Deleting..." : "Delete"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
