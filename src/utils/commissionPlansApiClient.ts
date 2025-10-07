@@ -20,11 +20,21 @@ const getAuthHeaders = async (): Promise<Record<string, string>> => {
     const { SecureTokenManager } = await import('@/utils/secureTokenManager');
     const tokenData = SecureTokenManager.getToken();
     
+    console.log('[Commission Plans API] 🔑 Token data retrieved:', {
+      hasToken: !!tokenData?.token,
+      tokenPreview: tokenData?.token ? `${tokenData.token.substring(0, 20)}...${tokenData.token.substring(tokenData.token.length - 20)}` : 'NO TOKEN',
+      expiresAt: tokenData?.expiresAt ? new Date(tokenData.expiresAt).toISOString() : 'N/A',
+      isExpired: tokenData ? tokenData.expiresAt < Date.now() : 'N/A'
+    });
+    
     if (tokenData && tokenData.token) {
       headers['Authorization'] = `Bearer ${tokenData.token}`;
+      console.log('[Commission Plans API] ✅ Authorization header set');
+    } else {
+      console.warn('[Commission Plans API] ⚠️ NO TOKEN AVAILABLE - Authorization header NOT set');
     }
   } catch (error) {
-    console.warn('Could not get access token for API request:', error);
+    console.error('[Commission Plans API] ❌ Error getting access token:', error);
   }
 
   return headers;
@@ -65,17 +75,34 @@ const fetchWithRetry = async (url: string, options?: RequestInit, retries = 3): 
 // 1. List all Commission Plans
 export const getCommissionPlans = async (): Promise<ApiCommissionPlansListResponse> => {
   try {
-    console.log('[Commission Plans API] Fetching all commission plans...');
+    console.log('[Commission Plans API] 📡 Fetching all commission plans from:', API_BASE_URL);
     const headers = await getAuthHeaders();
+    
+    console.log('[Commission Plans API] 📤 Request headers:', {
+      ...headers,
+      Authorization: headers.Authorization ? `Bearer ${headers.Authorization.substring(7, 27)}...` : 'NOT SET'
+    });
     
     const response = await fetchWithRetry(API_BASE_URL, { headers });
     
+    console.log('[Commission Plans API] 📥 Response received:', {
+      status: response.status,
+      statusText: response.statusText,
+      ok: response.ok
+    });
+    
     if (!response.ok) {
-      throw new Error(`Error fetching commission plans: ${response.statusText}`);
+      const errorText = await response.text();
+      console.error('[Commission Plans API] ❌ Error response:', {
+        status: response.status,
+        statusText: response.statusText,
+        body: errorText
+      });
+      throw new Error(`Error fetching commission plans: ${response.statusText} - ${errorText}`);
     }
     
     const result: ApiCommissionPlansListResponse = await response.json();
-    console.log('[Commission Plans API] Successfully fetched commission plans:', result);
+    console.log('[Commission Plans API] ✅ Successfully fetched commission plans:', result);
     
     return result;
   } catch (error) {
