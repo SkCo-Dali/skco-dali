@@ -90,6 +90,7 @@ export const usePaginatedLeadsApi = () => {
       id: paginatedLead.Id,
       name: paginatedLead.Name,
       email: paginatedLead.Email,
+      alternateEmail: paginatedLead.AlternateEmail || '',
       phone: paginatedLead.Phone,
       documentNumber: parseInt(paginatedLead.DocumentNumber) || 0,
       company: paginatedLead.Company,
@@ -243,6 +244,7 @@ export const usePaginatedLeadsApi = () => {
       return (
         lead.name?.toLowerCase().includes(searchLower) ||
         lead.email?.toLowerCase().includes(searchLower) ||
+        lead.alternateEmail?.toLowerCase().includes(searchLower) ||
         lead.phone?.toLowerCase().includes(searchLower) ||
         lead.campaign?.toLowerCase().includes(searchLower)
       );
@@ -271,6 +273,7 @@ export const usePaginatedLeadsApi = () => {
       'tags': 'Tags',
       'documentNumber': 'DocumentNumber',
       'documentType': 'DocumentType',
+      'alternateEmail': 'AlternateEmail',
       // Campos de duplicados (nueva API)
       'isDuplicate': 'IsDuplicate',
       'isDupByEmail': 'IsDupByEmail',
