@@ -72,7 +72,7 @@ export function MicrosoftAuth() {
         prompt: 'select_account'
       });
       
-      if (!response || !response.account || !response.accessToken) {
+      if (!response /*|| !response.account*/ || !response.accessToken) {
         throw new Error('Respuesta de autenticación incompleta');
       }
       
@@ -90,11 +90,11 @@ export function MicrosoftAuth() {
         throw new Error('El email no pertenece a un dominio autorizado para acceder a la aplicación');
       }
 
-      // Almacenar idToken para uso con el backend
+      // Almacenar accessToken para uso con el backend
       SecureTokenManager.storeToken({
-        token: response.idToken,
+        token: response.idToken || response.accessToken,
         expiresAt: response.expiresOn.getTime(),
-        refreshToken: response.account.homeAccountId || '',
+        refreshToken: response?.account?.homeAccountId || '',
       });
       
       // Paso 4: Obtener foto del perfil (opcional, no crítico)

@@ -8,6 +8,7 @@ export const ENV = {
   AZURE_AUTHORITY: import.meta.env.VITE_AZURE_AUTHORITY || 'https://login.microsoftonline.com/08271f42-81ef-45d6-81ac-49776c4be615',
   AUTH_LOG_LEVEL: import.meta.env.VITE_AUTH_LOG_LEVEL || 1, // 0 = Error, 1 = Warning, 2 = Info, 3 = Verbose, 4 = Trace
   PII_LOGGING_ENABLED: import.meta.env.VITE_PII_LOGGING_ENABLED === 'true' || false,
+  USER_INFO_URL: import.meta.env.VITE_USER_INFO_URL || 'https://graph.microsoft.com/v1.0/me',
   
   // Microsoft Graph API
   GRAPH_API_BASE_URL: import.meta.env.VITE_GRAPH_API_BASE_URL || 'https://graph.microsoft.com/v1.0',
