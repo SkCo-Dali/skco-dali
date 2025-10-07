@@ -17,7 +17,10 @@ import ChatDali from "@/pages/ChatDali";
 import Gamification from "@/pages/Gamification";
 import Index from "@/pages/Index";
 import Comisiones from "@/pages/Comisiones";
-import MotorComisiones from "@/pages/MotorComisiones";
+import MotorComisionesIndex from "@/pages/MotorComisionesIndex";
+import CompensationPlans from "@/pages/CompensationPlans";
+import Catalogs from "@/pages/Catalogs";
+import VoiceInsights from "@/pages/VoiceInsights";
 import NotFound from "@/pages/NotFound";
 import PowerBIReportsAdmin from "@/components/admin/PowerBIReportsAdmin";
 import { useAuth } from "@/contexts/AuthContext";
@@ -83,7 +86,10 @@ export function AppContent() {
               <Route path="/gamification" element={<Gamification />} />
               <Route path="/index" element={<Index />} />
               <Route path="/comisiones" element={<Comisiones />} />
-              <Route path="/motor-comisiones" element={<MotorComisiones />} />
+              <Route path="/motor-comisiones" element={<MotorComisionesIndex />} />
+              <Route path="/motor-comisiones/compensation-plans" element={<CompensationPlans />} />
+              <Route path="/motor-comisiones/catalogs" element={<Catalogs />} />
+              <Route path="/voice-insights" element={<VoiceInsights />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </main>

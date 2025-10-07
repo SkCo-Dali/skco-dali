@@ -7,6 +7,9 @@ import { ColumnConfig } from "./LeadsTableColumnSelector";
 import { LeadProfiler } from "./LeadProfiler";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import { useColumnPagination } from "@/hooks/useColumnPagination";
+import { LeadsApiFilters } from "@/types/paginatedLeadsTypes";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface LeadsContentProps {
   viewMode: 'table' | 'columns';
@@ -26,11 +29,14 @@ interface LeadsContentProps {
   onTextFilterChange?: (column: string, filters: any[]) => void;
   onClearColumnFilter?: (column: string) => void;
   hasFiltersForColumn?: (column: string) => boolean;
+  searchTerm?: string; // Término de búsqueda principal
   // Props para ordenamiento
   sortBy?: string;
   setSortBy?: (sort: string) => void;
   sortDirection?: 'asc' | 'desc';
   setSortDirection?: (direction: 'asc' | 'desc') => void;
+  // Para paginación por columna
+  apiFilters?: LeadsApiFilters;
 }
 
 export function LeadsContent({
@@ -51,16 +57,23 @@ export function LeadsContent({
   onTextFilterChange,
   onClearColumnFilter,
   hasFiltersForColumn,
+  searchTerm,
   sortBy,
   setSortBy,
   sortDirection,
-  setSortDirection
+  setSortDirection,
+  apiFilters = {}
 }: LeadsContentProps) {
   const [selectedLeadForProfiler, setSelectedLeadForProfiler] = useState<Lead | null>(null);
   const [isProfilerOpen, setIsProfilerOpen] = useState(false);
-  const [expandedColumns, setExpandedColumns] = useState<Set<string>>(new Set());
-  
-  const LEADS_PER_COLUMN = 20;
+
+  // Hook para paginación por columna
+  const { columns: columnData, allColumnKeys, isInitializing, loadMore } = useColumnPagination({
+    groupBy,
+    baseFilters: apiFilters,
+    pageSize: 20,
+    enabled: viewMode === 'columns'
+  });
 
   const handleOpenProfiler = (lead: Lead) => {
     setSelectedLeadForProfiler(lead);
@@ -70,20 +83,6 @@ export function LeadsContent({
   const handleCloseProfiler = () => {
     setIsProfilerOpen(false);
     setSelectedLeadForProfiler(null);
-  };
-
-  const handleLoadMore = (columnKey: string) => {
-    setExpandedColumns(prev => new Set([...prev, columnKey]));
-  };
-
-  const getVisibleLeads = (groupLeads: Lead[], columnKey: string) => {
-    const isExpanded = expandedColumns.has(columnKey);
-    return isExpanded ? groupLeads : groupLeads.slice(0, LEADS_PER_COLUMN);
-  };
-
-  const hasMoreLeads = (groupLeads: Lead[], columnKey: string) => {
-    const isExpanded = expandedColumns.has(columnKey);
-    return !isExpanded && groupLeads.length > LEADS_PER_COLUMN;
   };
 
   if (viewMode === 'table') {
@@ -106,6 +105,7 @@ export function LeadsContent({
           onTextFilterChange={onTextFilterChange}
           onClearColumnFilter={onClearColumnFilter}
           hasFiltersForColumn={hasFiltersForColumn}
+          searchTerm={searchTerm}
           sortBy={sortBy}
           setSortBy={setSortBy}
           sortDirection={sortDirection}
@@ -121,112 +121,106 @@ export function LeadsContent({
     );
   }
 
-  // Para la vista de columnas, usar todos los leads para crear los grupos
-  const groupedLeads = leads.reduce((acc: { [key: string]: Lead[] }, lead) => {
-    const key = lead[groupBy as keyof Lead] as string || 'undefined';
-    if (!acc[key]) {
-      acc[key] = [];
-    }
-    acc[key].push(lead);
-    return acc;
-  }, {});
-
-  // Definir el orden de las columnas según la etapa
-  const stageOrder = ['new', 'contacted', 'qualified', 'proposal', 'negotiation', 'won', 'lost'];
-  const sortedGroups = Object.entries(groupedLeads).sort(([a], [b]) => {
-    if (groupBy === 'stage') {
-      const aIndex = stageOrder.indexOf(a);
-      const bIndex = stageOrder.indexOf(b);
-      return (aIndex === -1 ? 999 : aIndex) - (bIndex === -1 ? 999 : bIndex);
-    }
-    return a.localeCompare(b);
-  });
-
-  const getStageLabel = (stage: string) => {
-    const stageLabels: { [key: string]: string } = {
-      'new': 'En gestión',
-      'contacted': 'En asesoría', 
-      'qualified': 'Vinculando',
-      'proposal': 'Propuesta',
-      'negotiation': 'Negociación',
-      'won': 'Ganado',
-      'lost': 'Perdido'
-    };
-    return stageLabels[stage] || stage;
+  const getLabel = (columnKey: string) => {
+    // Para columnas estáticas (stage, priority) que ya vienen bien formateadas
+    // y para columnas dinámicas (source, assignedTo, campaign) que vienen del API
+    return columnKey;
   };
 
-  const getStageCount = (groupLeads: Lead[]) => {
-    return groupLeads.length;
-  };
-
-  if (viewMode === 'columns')
-  return (
-    <>
-      <div className="space-y-6">
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 max-h-[350px] overflow-y-auto">
-          {sortedGroups.map(([group, groupLeads]) => (
-            <div key={group} className="space-y-0">
-              {/* Header de la columna estilo Kanban */}
-              <div className="bg-[#CAF9CB] rounded-t-lg px-4 py-3 flex items-center justify-between border-b border-gray-200">
-                <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 rounded-full bg-green-500"></div>
-                  <h3 className="font-semibold text-sm text-gray-800">
-                    {groupBy === 'stage' ? getStageLabel(group) : group === 'undefined' ? 'Sin grupo' : group}
-                  </h3>
-                  <span className="text-xs bg-white px-2 py-1 rounded-full text-gray-600 font-medium">
-                    ({getStageCount(groupLeads)})
-                  </span>
+  if (viewMode === 'columns') {
+    if (isInitializing) {
+      return (
+        <div className="space-y-6">
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
+            {[1, 2, 3, 4].map((i) => (
+              <div key={i} className="space-y-0">
+                <Skeleton className="h-14 w-full rounded-t-lg" />
+                <div className="border-l border-r border-b border-gray-200 rounded-b-lg p-3 space-y-4">
+                  <Skeleton className="h-32 w-full" />
+                  <Skeleton className="h-32 w-full" />
+                  <Skeleton className="h-32 w-full" />
                 </div>
               </div>
-              
-              {/* Contenedor de tarjetas con scroll */}
-              <div className="bg-gray-50 border-l border-r border-b border-gray-200 rounded-b-lg min-h-[500px] max-h-[600px] overflow-y-auto p-3">
-                <div className="space-y-4">
-                  {getVisibleLeads(groupLeads, group).map((lead) => (
-                    <LeadCard
-                      key={lead.id}
-                      lead={lead}
-                      onClick={() => onLeadClick(lead)}
-                      onEdit={onLeadClick}
-                      onSendEmail={onSendEmail}
-                      onOpenProfiler={handleOpenProfiler}
-                      onLeadUpdate={onLeadUpdate}
-                    />
-                  ))}
-                  {groupLeads.length === 0 && (
-                    <div className="text-center text-gray-500 py-5">
-                      <p className="text-sm">No hay leads en esta etapa</p>
-                    </div>
-                  )}
-                  {hasMoreLeads(groupLeads, group) && (
-                    <div className="text-center pt-4">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handleLoadMore(group)}
-                        className="text-xs"
-                      >
-                        Ver más ({groupLeads.length - LEADS_PER_COLUMN} más)
-                      </Button>
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
-      </div>
+      );
+    }
 
-      <Dialog open={isProfilerOpen} onOpenChange={setIsProfilerOpen}>
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>
-              Sesión de Prospección: {selectedLeadForProfiler?.name}
-            </DialogTitle>
-          </DialogHeader>
-          <LeadProfiler selectedLead={selectedLeadForProfiler} />
-        </DialogContent>
-      </Dialog>
-    </>
-  );
+    return (
+      <>
+        <div className="space-y-6">
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 max-h-[500px] overflow-y-auto">
+            {allColumnKeys.map((columnKey) => {
+              const columnState = columnData[columnKey];
+              if (!columnState) return null;
+
+              return (
+                <div key={columnKey} className="space-y-0">
+                  {/* Header de la columna estilo Kanban */}
+                  <div className="bg-[#CAF9CB] rounded-t-lg px-4 py-3 flex items-center justify-between border-b border-gray-200">
+                    <div className="flex items-center gap-2">
+                      <div className="w-3 h-3 rounded-full bg-green-500"></div>
+                      <h3 className="font-semibold text-sm text-gray-800">
+                        {getLabel(columnKey)}
+                      </h3>
+                      <span className="text-xs bg-white px-2 py-1 rounded-full text-gray-600 font-medium">
+                        ({columnState.total})
+                      </span>
+                    </div>
+                  </div>
+                  
+                  {/* Contenedor de tarjetas con scroll */}
+                  <div className="bg-gray-50 border-l border-r border-b border-gray-200 rounded-b-lg min-h-[500px] max-h-[600px] overflow-y-auto p-3">
+                    <div className="space-y-4">
+                      {columnState.leads.map((lead) => (
+                        <LeadCard
+                          key={lead.id}
+                          lead={lead}
+                          onClick={() => onLeadClick(lead)}
+                          onEdit={onLeadClick}
+                          onSendEmail={onSendEmail}
+                          onOpenProfiler={handleOpenProfiler}
+                          onLeadUpdate={onLeadUpdate}
+                        />
+                      ))}
+                      {columnState.leads.length === 0 && (
+                        <div className="text-center text-gray-500 py-5">
+                          <p className="text-sm">No hay leads en esta etapa</p>
+                        </div>
+                      )}
+                      {columnState.hasMore && (
+                        <div className="text-center pt-4">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => loadMore(columnKey)}
+                            disabled={columnState.loading}
+                            className="text-xs"
+                          >
+                            {columnState.loading ? 'Cargando...' : `Cargar más (${columnState.total - columnState.leads.length} más)`}
+                          </Button>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        <Dialog open={isProfilerOpen} onOpenChange={setIsProfilerOpen}>
+          <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle>
+                Sesión de Prospección: {selectedLeadForProfiler?.name}
+              </DialogTitle>
+            </DialogHeader>
+            <LeadProfiler selectedLead={selectedLeadForProfiler} />
+          </DialogContent>
+        </Dialog>
+      </>
+    );
+  }
 }

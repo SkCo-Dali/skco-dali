@@ -21,7 +21,7 @@ import { useLeadAssignments } from '@/hooks/useLeadAssignments';
 import { useLeadsApi } from '@/hooks/useLeadsApi';
 import { useProfilingApi } from '@/hooks/useProfilingApi';
 import { useToast } from '@/hooks/use-toast';
-import { formatBogotaDistanceToNow } from '@/utils/dateUtils';
+import { formatBogotaDistanceToNow, formatBogotaDateTime } from '@/utils/dateUtils';
 import { LeadReassignDialog } from './LeadReassignDialog';
 import { LeadProfiler } from './LeadProfiler';
 import ProfileResults from './ProfileResults';
@@ -33,7 +33,7 @@ interface LeadDetailProps {
   lead: Lead;
   isOpen: boolean;
   onClose: () => void;
-  onSave: (lead: Lead) => void;
+  onSave: (lead?: Lead) => void;
   onOpenMassEmail?: (lead: Lead) => void;
 }
 
@@ -619,18 +619,18 @@ Notas adicionales: ${lead.notes || 'Ninguna'}`;
                              <p className="text-red-500 text-xs mt-1">Formato de correo inválido</p>
                            )}
                          </div>
-                         <div className="space-y-0 border-2 border-[#3d4b5c26] shadow-md rounded-md p-2.5">
-                           <Label className="p-0 text-sm text-gray-500 font-normal">Email Alternativo</Label>
-                           <Input
-                             type="email"
-                             value={(editedLead.alternateEmail || '').toLowerCase()}
-                             onChange={(e) => handleEmailChange(e.target.value)}
-                             className={`border-0 border-b border-gray-200 rounded-none px-0 py-0 m-0 text-base font-medium bg-transparent leading-none h-auto min-h-0 focus:border-gray-400 focus:shadow-none focus:ring-0 ${editedLead.alternateEmail && !isValidEmail(editedLead.alternateEmail) ? 'border-red-500' : ''}`}
-                           />
-                           {editedLead.alternateEmail && !isValidEmail(editedLead.alternateEmail) && (
-                             <p className="text-red-500 text-xs mt-1">Formato de correo inválido</p>
-                           )}
-                         </div>
+                          <div className="space-y-0 border-2 border-[#3d4b5c26] shadow-md rounded-md p-2.5">
+                            <Label className="p-0 text-sm text-gray-500 font-normal">Email Alternativo</Label>
+                            <Input
+                              type="email"
+                              value={(editedLead.alternateEmail || '').toLowerCase()}
+                              onChange={(e) => handleGeneralChange('alternateEmail', e.target.value.toLowerCase())}
+                              className={`border-0 border-b border-gray-200 rounded-none px-0 py-0 m-0 text-base font-medium bg-transparent leading-none h-auto min-h-0 focus:border-gray-400 focus:shadow-none focus:ring-0 ${editedLead.alternateEmail && !isValidEmail(editedLead.alternateEmail) ? 'border-red-500' : ''}`}
+                            />
+                            {editedLead.alternateEmail && !isValidEmail(editedLead.alternateEmail) && (
+                              <p className="text-red-500 text-xs mt-1">Formato de correo inválido</p>
+                            )}
+                          </div>
                       </div>
 
                       <div className="grid grid-cols-2 gap-2">
@@ -1123,13 +1123,26 @@ Notas adicionales: ${lead.notes || 'Ninguna'}`;
                                         {interaction.Type === 'meeting' && <Calendar className="h-3 w-3" />}
                                       </div>
                                       <div className="flex-1">
-                                        <h5 className="text-sm font-medium">{interaction.Description || 'Sin título'}</h5>
-                                        <div className="flex items-center gap-3 mt-1 text-xs text-muted-foreground">
+                                        <div className="flex items-center justify-between mb-1">
+                                          <h5 className="text-sm font-medium">{interaction.Description || 'Sin título'}</h5>
+                                          {interaction.UserName && (
+                                            <Badge variant="outline" className="text-xs">
+                                              {interaction.UserName}
+                                            </Badge>
+                                          )}
+                                        </div>
+                                        <div className="flex items-center gap-2 mt-1 text-xs text-muted-foreground flex-wrap">
                                           <span>Tipo: {interaction.Type}</span>
                                           <span>•</span>
-                                          <span>Etapa: {interaction.Stage}</span>
+                                          <span>Estado: {interaction.Stage}</span>
+                                          {interaction.Outcome && (
+                                            <>
+                                              <span>•</span>
+                                              <span>Resultado: {interaction.Outcome}</span>
+                                            </>
+                                          )}
                                           <span>•</span>
-                                           <span>{formatBogotaDistanceToNow(interaction.CreatedAt)}</span>
+                                          <span>{formatBogotaDateTime(interaction.CreatedAt, "dd/MM/yyyy hh:mm a")}</span>
                                         </div>
                                       </div>
                                     </div>
@@ -1151,21 +1164,36 @@ Notas adicionales: ${lead.notes || 'Ninguna'}`;
                           <div className="space-y-4">
                             {interactions.map((interaction) => (
                               <Card key={interaction.Id}>
-                                <CardContent className="pt-4">
+                                <CardContent className="pt-4 pb-4">
                                   <div className="flex items-start justify-between">
-                                    <div className="flex items-start gap-3">
+                                    <div className="flex items-start gap-3 flex-1">
                                       <div className="p-2 rounded-full bg-blue-100 text-blue-600">
                                         {interaction.Type === 'email' && <Mail className="h-4 w-4" />}
                                         {interaction.Type === 'phone' && <Phone className="h-4 w-4" />}
                                         {interaction.Type === 'whatsapp' && <MessageSquare className="h-4 w-4" />}
                                         {interaction.Type === 'meeting' && <Calendar className="h-4 w-4" />}
                                       </div>
-                                      <div>
-                                        <h4 className="font-medium">{interaction.Description || 'Sin título'}</h4>
-                                        <div className="flex items-center gap-4 mt-2 text-xs text-muted-foreground">
+                                      <div className="flex-1">
+                                        <div className="flex items-center justify-between mb-2">
+                                          <h4 className="font-medium">{interaction.Description || 'Sin título'}</h4>
+                                          {interaction.UserName && (
+                                            <Badge variant="outline" className="text-xs">
+                                              {interaction.UserName}
+                                            </Badge>
+                                          )}
+                                        </div>
+                                        <div className="flex items-center gap-3 mt-2 text-xs text-muted-foreground flex-wrap">
                                           <span>Tipo: {interaction.Type}</span>
                                           <span>•</span>
-                                          <span>{formatBogotaDistanceToNow(interaction.CreatedAt)}</span>
+                                          <span>Estado: {interaction.Stage}</span>
+                                          {interaction.Outcome && (
+                                            <>
+                                              <span>•</span>
+                                              <span>Resultado: {interaction.Outcome}</span>
+                                            </>
+                                          )}
+                                          <span>•</span>
+                                          <span>{formatBogotaDateTime(interaction.CreatedAt, "dd/MM/yyyy hh:mm a")}</span>
                                         </div>
                                       </div>
                                     </div>
@@ -1221,7 +1249,7 @@ Notas adicionales: ${lead.notes || 'Ninguna'}`;
                   <div className="space-y-4">
                     {assignmentHistory.map((entry, index) => (
                       <Card key={index}>
-                        <CardContent className="pt-4">
+                        <CardContent className="pt-4 pb-4">
                           <div className="flex items-start justify-between">
                             <div>
                               <h4 className="font-medium">Reasignación</h4>
@@ -1240,7 +1268,7 @@ Notas adicionales: ${lead.notes || 'Ninguna'}`;
                             </div>
                             <div className="text-right">
                                <p className="text-xs text-muted-foreground">
-                                 {formatBogotaDistanceToNow(entry.assigned_at)}
+                                 {formatBogotaDateTime(entry.assigned_at, "dd/MM/yyyy hh:mm a")}
                                </p>
                               <p className="text-xs text-muted-foreground">
                                 Por: {entry.assigned_by_name || 'Sistema'}

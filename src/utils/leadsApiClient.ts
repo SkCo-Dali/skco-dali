@@ -174,18 +174,37 @@ export const updateLead = async (leadId: string, leadData: UpdateLeadRequest): P
 
   try {
     const headers = await getAuthHeaders();
+    
+    // Logs detallados para debugging
+    console.log('🔄 UPDATE LEAD API CALL');
+    console.log('📍 Endpoint:', endpoint);
+    console.log('🆔 Lead ID:', leadId);
+    console.log('🔑 Headers:', {
+      ...headers,
+      'Authorization': headers.Authorization ? `Bearer ${headers.Authorization.substring(7, 20)}...` : 'NOT SET'
+    });
+    console.log('📄 Body data:', JSON.stringify(leadData, null, 2));
+    console.log('📧 AlternateEmail field:', leadData.AlternateEmail);
+    
     const response = await fetch(endpoint, {
       method: 'PUT',
       headers,
       body: JSON.stringify(leadData),
     });
 
+    console.log('📥 Response status:', response.status);
+    console.log('📥 Response statusText:', response.statusText);
+
     if (!response.ok) {
+      const errorData = await response.json().catch(() => ({ detail: 'Unknown error' }));
+      console.error('❌ UPDATE LEAD Error Response:', errorData);
       throw new Error(`Error al actualizar lead: ${response.statusText}`);
     }
     
-    await response.json();
+    const responseData = await response.json();
+    console.log('✅ UPDATE LEAD Success:', responseData);
   } catch (error) {
+    console.error('💥 UPDATE LEAD ERROR:', error);
     throw error;
   }
 };
@@ -209,6 +228,33 @@ export const changeLeadStage = async (leadId: string, stage: string): Promise<vo
     
     await response.json();
   } catch (error) {
+    throw error;
+  }
+};
+
+// API: Cambiar stage de múltiples leads
+export const bulkChangeLeadStage = async (leadIds: string[], stage: string): Promise<{ success: number; failed: number }> => {
+  let success = 0;
+  let failed = 0;
+
+  try {
+    // Ejecutar cambios en paralelo con Promise.allSettled para no fallar todo si uno falla
+    const results = await Promise.allSettled(
+      leadIds.map(leadId => changeLeadStage(leadId, stage))
+    );
+
+    results.forEach(result => {
+      if (result.status === 'fulfilled') {
+        success++;
+      } else {
+        failed++;
+        console.error('Error al cambiar stage del lead:', result.reason);
+      }
+    });
+
+    return { success, failed };
+  } catch (error) {
+    console.error('Error en bulkChangeLeadStage:', error);
     throw error;
   }
 };
@@ -378,7 +424,7 @@ export const exportLeads = async (filters?: {
   }
 };
 
-// API 11: Validar duplicados
+// API 11: Validar duplicados (legacy - sin paginación)
 export const getDuplicateLeads = async (): Promise<Lead[]> => {
   const endpoint = `${API_BASE_URL}/duplicates`;
 
@@ -396,6 +442,80 @@ export const getDuplicateLeads = async (): Promise<Lead[]> => {
     
     return mappedLeads;
   } catch (error) {
+    throw error;
+  }
+};
+
+// API 11b: Obtener duplicados con paginación (nueva API)
+export const getDuplicateLeadsPaginated = async (params?: {
+  page?: number;
+  page_size?: number;
+  sort_by?: string;
+  sort_dir?: 'asc' | 'desc';
+  filters?: Record<string, any>;
+  search?: string;
+}): Promise<any> => {
+  const queryParams = new URLSearchParams();
+  
+  if (params?.page) queryParams.set('page', params.page.toString());
+  if (params?.page_size) queryParams.set('page_size', params.page_size.toString());
+  if (params?.sort_by) queryParams.set('sort_by', params.sort_by);
+  if (params?.sort_dir) queryParams.set('sort_dir', params.sort_dir);
+  if (params?.filters) queryParams.set('filters', JSON.stringify(params.filters));
+  if (params?.search && params.search.trim()) queryParams.set('search', params.search.trim());
+
+  const endpoint = `${API_BASE_URL}/duplicates?${queryParams.toString()}`;
+
+  try {
+    console.log('🔍 Fetching duplicates from:', endpoint);
+    const headers = await getAuthHeaders();
+    const response = await fetch(endpoint, { headers });
+    
+    console.log('📥 Duplicates API response status:', response.status);
+    
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('❌ Duplicates API error:', errorText);
+      throw new Error(`Error al obtener duplicados paginados: ${response.status} - ${response.statusText}`);
+    }
+    
+    const result = await response.json();
+    console.log('✅ Duplicates API result:', result);
+    
+    // Validar que tenga la estructura esperada
+    if (!result || typeof result !== 'object') {
+      console.error('❌ Invalid response structure:', result);
+      throw new Error('Respuesta inválida de la API de duplicados');
+    }
+    
+    // Normalizar respuesta - asegurar que tenga todos los campos necesarios
+    const normalizedResult = {
+      items: Array.isArray(result.items) ? result.items : [],
+      page: result.page ?? params?.page ?? 1,
+      page_size: result.page_size ?? params?.page_size ?? 50,
+      total: result.total ?? result.count ?? 0,
+      total_pages: result.total_pages ?? result.totalPages ?? Math.ceil((result.total || 0) / (result.page_size || params?.page_size || 50))
+    };
+    
+    // Advertir si items está vacío pero hay un total > 0
+    if (normalizedResult.items.length === 0 && normalizedResult.total > 0) {
+      console.warn('⚠️ Response has total > 0 but items array is empty:', {
+        total: normalizedResult.total,
+        page: normalizedResult.page,
+        page_size: normalizedResult.page_size
+      });
+    }
+    
+    console.log('✅ Normalized duplicates response:', {
+      itemsCount: normalizedResult.items.length,
+      total: normalizedResult.total,
+      page: normalizedResult.page,
+      totalPages: normalizedResult.total_pages
+    });
+    
+    return normalizedResult;
+  } catch (error) {
+    console.error('💥 Error in getDuplicateLeadsPaginated:', error);
     throw error;
   }
 };

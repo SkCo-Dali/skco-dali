@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useMemo, useRef } from "react";
+import React, { useState, useCallback, useMemo, useRef, useEffect } from "react";
 import { useToast } from '@/hooks/use-toast';
 import { Lead, getRolePermissions } from "@/types/crm";
 import { useAuth } from '@/contexts/AuthContext';
@@ -18,6 +18,7 @@ import { WhatsAppPropioButton } from "@/components/WhatsAppPropioButton";
 import { LeadsTableColumnSelector } from "@/components/LeadsTableColumnSelector";
 import { LeadsActionsButton } from "@/components/LeadsActionsButton";
 import { useLeadsApi } from "@/hooks/useLeadsApi";
+import { useLeadsKPICounts } from "@/hooks/useLeadsKPICounts";
 import { useIsMobile, useIsMedium } from "@/hooks/use-mobile";
 import { ColumnConfig } from "@/components/LeadsTableColumnSelector";
 import { Button } from "@/components/ui/button";
@@ -47,12 +48,15 @@ import {
   MoreVertical,
   Group,
   Trash,
-  MessageSquare
+  MessageSquare,
+  CheckCircle2
 } from "lucide-react";
 import { useLeadDeletion } from "@/hooks/useLeadDeletion";
 import { LeadDeleteConfirmDialog } from "@/components/LeadDeleteConfirmDialog";
+import { LeadsBulkStatusUpdate } from "@/components/LeadsBulkStatusUpdate";
 import { FaWhatsapp } from "react-icons/fa";
 import { TextFilterCondition } from "@/components/TextFilter";
+import { bulkChangeLeadStage } from "@/utils/leadsApiClient";
 
 const DEFAULT_COLUMNS: ColumnConfig[] = [
   { key: 'name', label: 'Nombre', visible: true, sortable: true },
@@ -100,6 +104,8 @@ export default function Leads() {
   const [selectedLeads, setSelectedLeads] = useState<string[]>([]);
   const leadCreateDialogRef = useRef<{ openDialog: () => void }>(null);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [showBulkStatusUpdate, setShowBulkStatusUpdate] = useState(false);
+  const [isBulkUpdating, setIsBulkUpdating] = useState(false);
 
   
   const { user } = useAuth();
@@ -111,6 +117,7 @@ export default function Leads() {
     error,
     pagination,
     filters,
+    apiFilters,
     updateFilters,
     setPage,
     setPageSize,
@@ -119,9 +126,25 @@ export default function Leads() {
     createNewLead
   } = useLeadsApi();
 
-  const handleLeadUpdate = useCallback(() => {
+  // Obtener conteos reales de KPIs
+  const kpiCounts = useLeadsKPICounts({ 
+    apiFilters, 
+    duplicateFilter: filters.duplicateFilter,
+    searchTerm: filters.searchTerm
+  });
+
+  const handleLeadUpdate = useCallback((updatedLead?: Lead) => {
     console.log('🔄 handleLeadUpdate called - refreshing leads...');
+    
+    // Si se proporciona un lead actualizado, actualizar el selectedLead inmediatamente
+    if (updatedLead) {
+      console.log('🔄 Updating selectedLead with new data:', updatedLead);
+      setSelectedLead(updatedLead);
+    }
+    
+    // Luego refrescar la lista de leads desde el API
     refreshLeads();
+    
     toast({
       title: "Éxito",
       description: "Lead actualizado exitosamente"
@@ -173,33 +196,139 @@ export default function Leads() {
   };
   const setLeadsPerPage = (size: number) => setPageSize(size);
   
-  // Variables placeholder para componentes que las requieren (se actualizarán gradualmente)
-  const filterStage = "all";
-  const setFilterStage = () => {};
-  const filterPriority = "all";
-  const setFilterPriority = () => {};
-  const filterAssignedTo = "all";
-  const setFilterAssignedTo = () => {};
-  const filterSource = "all";
-  const setFilterSource = () => {};
-  const filterCampaign = "all";
-  const setFilterCampaign = () => {};
-  const filterDateFrom = "";
-  const setFilterDateFrom = () => {};
-  const filterDateTo = "";
-  const setFilterDateTo = () => {};
+  // Estados para filtros
+  const [uniqueStages, setUniqueStages] = useState<string[]>([]);
+  const [uniqueSources, setUniqueSources] = useState<string[]>([]);
+  const [uniqueCampaigns, setUniqueCampaigns] = useState<string[]>([]);
+  const [uniqueAssignedTo, setUniqueAssignedTo] = useState<string[]>([]);
+
+  // Cargar valores únicos para filtros
+  useEffect(() => {
+    const loadUniqueValues = async () => {
+      const [stages, sources, campaigns, assignedTo] = await Promise.all([
+        getUniqueValues('stage'),
+        getUniqueValues('source'),
+        getUniqueValues('campaign'),
+        getUniqueValues('assignedTo'),
+      ]);
+      
+      setUniqueStages(stages.filter(Boolean) as string[]);
+      setUniqueSources(sources.filter(Boolean) as string[]);
+      setUniqueCampaigns(campaigns.filter(Boolean) as string[]);
+      setUniqueAssignedTo(assignedTo.filter(Boolean) as string[]);
+    };
+    
+    loadUniqueValues();
+  }, [getUniqueValues]);
+
+  // Handlers para filtros generales
+  const setFilterStage = useCallback((stage: string | string[]) => {
+    const stageArray = stage === "all" ? [] : (Array.isArray(stage) ? stage : [stage]);
+    updateFilters({
+      columnFilters: {
+        ...filters.columnFilters,
+        stage: stageArray
+      }
+    });
+  }, [updateFilters, filters.columnFilters]);
+
+  const setFilterPriority = useCallback((priority: string | string[]) => {
+    const priorityArray = priority === "all" ? [] : (Array.isArray(priority) ? priority : [priority]);
+    updateFilters({
+      columnFilters: {
+        ...filters.columnFilters,
+        priority: priorityArray
+      }
+    });
+  }, [updateFilters, filters.columnFilters]);
+
+  const setFilterAssignedTo = useCallback((assignedTo: string | string[]) => {
+    const assignedToArray = assignedTo === "all" ? [] : (Array.isArray(assignedTo) ? assignedTo : [assignedTo]);
+    updateFilters({
+      columnFilters: {
+        ...filters.columnFilters,
+        assignedTo: assignedToArray
+      }
+    });
+  }, [updateFilters, filters.columnFilters]);
+
+  const setFilterSource = useCallback((source: string | string[]) => {
+    const sourceArray = source === "all" ? [] : (Array.isArray(source) ? source : [source]);
+    updateFilters({
+      columnFilters: {
+        ...filters.columnFilters,
+        source: sourceArray
+      }
+    });
+  }, [updateFilters, filters.columnFilters]);
+
+  const setFilterCampaign = useCallback((campaign: string | string[]) => {
+    const campaignArray = campaign === "all" ? [] : (Array.isArray(campaign) ? campaign : [campaign]);
+    updateFilters({
+      columnFilters: {
+        ...filters.columnFilters,
+        campaign: campaignArray
+      }
+    });
+  }, [updateFilters, filters.columnFilters]);
+
+  const clearFilters = useCallback(() => {
+    updateFilters({
+      searchTerm: '',
+      columnFilters: {},
+      textFilters: {},
+      duplicateFilter: 'all',
+    });
+    setUniqueStages([]);
+    setUniqueSources([]);
+    setUniqueCampaigns([]);
+    setUniqueAssignedTo([]);
+  }, [updateFilters]);
+
+  // Variables de compatibilidad para filtros (valores actuales)
+  const filterStage = filters.columnFilters.stage?.length > 0 ? filters.columnFilters.stage : "all";
+  const filterPriority = filters.columnFilters.priority?.length > 0 ? filters.columnFilters.priority : "all";
+  const filterAssignedTo = filters.columnFilters.assignedTo?.length > 0 ? filters.columnFilters.assignedTo : "all";
+  const filterSource = filters.columnFilters.source?.length > 0 ? filters.columnFilters.source : "all";
+  const filterCampaign = filters.columnFilters.campaign?.length > 0 ? filters.columnFilters.campaign : "all";
+  
+  // Filtros de fecha
+  const filterDateFrom = filters.columnFilters.createdAt?.[0] || "";
+  const setFilterDateFrom = useCallback((date: string) => {
+    updateFilters({
+      columnFilters: {
+        ...filters.columnFilters,
+        createdAt: date ? [date] : []
+      }
+    });
+  }, [updateFilters, filters.columnFilters]);
+  
+  const filterDateTo = filters.columnFilters.createdAtEnd?.[0] || "";
+  const setFilterDateTo = useCallback((date: string) => {
+    updateFilters({
+      columnFilters: {
+        ...filters.columnFilters,
+        createdAtEnd: date ? [date] : []
+      }
+    });
+  }, [updateFilters, filters.columnFilters]);
+  
+  // Filtros de valor (placeholder)
   const filterValueMin = "";
   const setFilterValueMin = () => {};
   const filterValueMax = "";
   const setFilterValueMax = () => {};
-  const filterDuplicates = "all";
-  const setFilterDuplicates = () => {};
-  const clearFilters = () => {};
-  const uniqueStages: string[] = [];
-  const uniqueSources: string[] = [];
-  const uniqueCampaigns: string[] = [];
-  const uniqueAssignedTo: string[] = [];
-  const duplicateCount = 0;
+  
+  // Filtro de duplicados
+  const filterDuplicates = filters.duplicateFilter || "all";
+  const setFilterDuplicates = useCallback((value: string) => {
+    updateFilters({
+      duplicateFilter: value as 'all' | 'duplicates' | 'unique'
+    });
+  }, [updateFilters]);
+  
+  // Usar el conteo de duplicados de las KPI cards (que considera filtros activos)
+  const duplicateCount = filterDuplicates === 'duplicates' ? kpiCounts.totalLeads : 0;
 
   // Handlers para filtros
   const handleSearchChange = useCallback((search: string) => {
@@ -207,12 +336,81 @@ export default function Leads() {
   }, [updateFilters]);
 
   const handleColumnFilterChange = useCallback((column: string, selectedValues: string[]) => {
-    updateFilters({
-      columnFilters: {
-        ...filters.columnFilters,
-        [column]: selectedValues
-      }
-    });
+    const dateColumns = new Set(['createdAt', 'updatedAt', 'nextFollowUp', 'lastInteraction']);
+    const normCol = column === 'lastInteraction' ? 'updatedAt' : column;
+
+    if (dateColumns.has(normCol)) {
+      const parseRange = (values: string[]) => {
+        let from: string | undefined;
+        let to: string | undefined;
+
+        const custom = values.find(v => v.startsWith('custom:'));
+        if (custom) {
+          try {
+            const payload = JSON.parse(custom.replace('custom:', ''));
+            from = payload.startDate || undefined;
+            to = payload.endDate || payload.startDate || undefined;
+          } catch {}
+        }
+
+        const dayRegex = /^\d{4}-\d{2}-\d{2}$/;
+        const days = values.filter(v => dayRegex.test(v)).sort();
+        if (days.length > 0) {
+          from = from ? (from < days[0] ? from : days[0]) : days[0];
+          to = to ? (to > days[days.length - 1] ? to : days[days.length - 1]) : days[days.length - 1];
+        }
+
+        const yearRe = /^year:(\d{4})$/;
+        values.forEach(v => {
+          const m = v.match(yearRe);
+          if (m) {
+            const y = m[1];
+            const yFrom = `${y}-01-01`;
+            const yTo = `${y}-12-31`;
+            from = from ? (from < yFrom ? from : yFrom) : yFrom;
+            to = to ? (to > yTo ? to : yTo) : yTo;
+          }
+        });
+
+        const monthRe = /^month:(\d{4})-(\d{2})$/;
+        values.forEach(v => {
+          const m = v.match(monthRe);
+          if (m) {
+            const y = m[1];
+            const mm = m[2];
+            const mFrom = `${y}-${mm}-01`;
+            const thirtyOne = ['01','03','05','07','08','10','12'];
+            const thirty = ['04','06','09','11'];
+            let last = '30';
+            if (thirtyOne.includes(mm)) last = '31';
+            else if (thirty.includes(mm)) last = '30';
+            else last = '28';
+            const mTo = `${y}-${mm}-${last}`;
+            from = from ? (from < mFrom ? from : mFrom) : mFrom;
+            to = to ? (to > mTo ? to : mTo) : mTo;
+          }
+        });
+
+        return { from, to };
+      };
+
+      const { from, to } = parseRange(selectedValues);
+
+      updateFilters({
+        columnFilters: {
+          ...filters.columnFilters,
+          [normCol]: from ? [from] : [],
+          [`${normCol}End`]: to ? [to] : []
+        }
+      });
+    } else {
+      updateFilters({
+        columnFilters: {
+          ...filters.columnFilters,
+          [normCol]: selectedValues
+        }
+      });
+    }
   }, [updateFilters, filters.columnFilters]);
 
   const handleTextFilterChange = useCallback((column: string, conditions: any[]) => {
@@ -226,9 +424,16 @@ export default function Leads() {
 
   const clearColumnFilter = useCallback((column: string) => {
     const newColumnFilters = { ...filters.columnFilters };
+    const effectiveKey = column === 'lastInteraction' ? 'updatedAt' : column;
+    
     delete newColumnFilters[column];
+    delete newColumnFilters[effectiveKey];
+    delete newColumnFilters[`${column}End`];
+    delete newColumnFilters[`${effectiveKey}End`];
+    
     const newTextFilters = { ...filters.textFilters };
     delete newTextFilters[column];
+    delete newTextFilters[effectiveKey];
     
     updateFilters({
       columnFilters: newColumnFilters,
@@ -237,8 +442,13 @@ export default function Leads() {
   }, [updateFilters, filters.columnFilters, filters.textFilters]);
 
   const hasFiltersForColumn = useCallback((column: string) => {
+    const effectiveKey = column === 'lastInteraction' ? 'updatedAt' : column;
     return (filters.columnFilters[column] && filters.columnFilters[column].length > 0) ||
-           (filters.textFilters[column] && filters.textFilters[column].length > 0);
+           (filters.columnFilters[effectiveKey] && filters.columnFilters[effectiveKey].length > 0) ||
+           (filters.columnFilters[`${column}End`] && filters.columnFilters[`${column}End`].length > 0) ||
+           (filters.columnFilters[`${effectiveKey}End`] && filters.columnFilters[`${effectiveKey}End`].length > 0) ||
+           (filters.textFilters[column] && filters.textFilters[column].length > 0) ||
+           (filters.textFilters[effectiveKey] && filters.textFilters[effectiveKey].length > 0);
   }, [filters.columnFilters, filters.textFilters]);
 
   const handleLeadClick = useCallback((lead: Lead) => {
@@ -332,6 +542,52 @@ export default function Leads() {
 
     return { total, newLeads, contacted, qualified };
   }, [leadsData]);
+
+  const handleBulkStatusUpdate = async (newStage: string) => {
+    if (selectedLeads.length === 0) {
+      toast({
+        title: "Error",
+        description: "No hay leads seleccionados",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setIsBulkUpdating(true);
+    
+    try {
+      const { success, failed } = await bulkChangeLeadStage(selectedLeads, newStage);
+      
+      if (success > 0) {
+        // Refrescar la lista de leads inmediatamente
+        await refreshLeads();
+        
+        toast({
+          title: "Actualización completada",
+          description: `${success} lead${success > 1 ? 's' : ''} actualizado${success > 1 ? 's' : ''} exitosamente${failed > 0 ? `. ${failed} fallaron.` : ''}`,
+        });
+        
+        // Limpiar selección y cerrar modal
+        setSelectedLeads([]);
+        setShowBulkStatusUpdate(false);
+      } else {
+        toast({
+          title: "Error",
+          description: "No se pudo actualizar ningún lead",
+          variant: "destructive"
+        });
+      }
+    } catch (error) {
+      console.error('Error al actualizar leads:', error);
+      toast({
+        title: "Error",
+        description: "Ocurrió un error al actualizar los leads",
+        variant: "destructive"
+      });
+    } finally {
+      setIsBulkUpdating(false);
+    }
+  };
 
   const handleDeleteSelectedLeads = () => {
     const leadsToDelete = selectedLeads.length > 0 
@@ -451,7 +707,15 @@ export default function Leads() {
             </div>
 
             {/* KPI Cards and Stage Summary */}
-            <AllLeadsKPICards leads={filteredLeads} />
+            <AllLeadsKPICards 
+              leads={filteredLeads}
+              totalLeads={kpiCounts.totalLeads}
+              newLeadsCount={kpiCounts.newLeads}
+              contratoCreadoCount={kpiCounts.contratoCreado}
+              registroVentaCount={kpiCounts.registroVenta}
+              stageCounts={kpiCounts.stageCounts}
+              loading={kpiCounts.loading}
+            />
 
             <div className="flex flex-col lg:flex-row gap-4 items-center">
               {!isSmallScreen && (
@@ -461,24 +725,38 @@ export default function Leads() {
                       className="gap-1 w-8 h-8 bg-primary"
                       onClick={handleCreateLead}
                       size="icon"
+                      title="Crear Lead"
                     >
                       <Plus className="h-4 w-4" />
                     </Button>
                   )}
                   {userPermissions?.canBulkAssignLeads && (
-                    <Button
-                      className="gap-1 w-8 h-8 bg-primary"
-                      onClick={handleBulkAssign}
-                      size="icon"
-                    >
-                      <Users className="h-4 w-4" />
-                    </Button>
+                      <Button
+                        className="gap-1 w-8 h-8 bg-primary"
+                        onClick={handleBulkAssign}
+                        size="icon"
+                        title="Asignación Masiva"
+                      >
+                        <Users className="h-4 w-4" />
+                      </Button>
+                       )}
+                     {userPermissions?.canBulkUpdateStage && (
+                      <Button
+                        className="gap-1 w-8 h-8 bg-primary"
+                        onClick={() => setShowBulkStatusUpdate(true)}
+                        size="icon"
+                        disabled={selectedLeads.length === 0}
+                        title="Actualizar Estado Masivamente"
+                      >
+                        <CheckCircle2 className="h-4 w-4" />
+                      </Button>
                   )}
                   {userPermissions?.canSendEmail && (
                   <Button
                     className="gap-1 w-8 h-8 bg-primary"
                     onClick={handleMassEmail}
                     size="icon"
+                    title="Enviar Email Masivo"
                   >
                     <Mail className="h-4 w-4" />
                   </Button>
@@ -498,6 +776,7 @@ export default function Leads() {
                       onClick={handleDeleteSelectedLeads}
                       size="icon"
                       disabled={isDeleting}
+                      title="Eliminar Leads"
                     >
                       <Trash className="h-4 w-4" />
                     </Button>
@@ -814,17 +1093,19 @@ export default function Leads() {
               onTextFilterChange={handleTextFilterChange}
               onClearColumnFilter={clearColumnFilter}
               hasFiltersForColumn={hasFiltersForColumn}
+              searchTerm={searchTerm}
               sortBy={sortBy}
               setSortBy={setSortBy}
               sortDirection={sortDirection}
               setSortDirection={setSortDirection}
+              apiFilters={apiFilters}
             />
 
                 {viewMode === 'table' && (
                   <LeadsPagination
                     currentPage={currentPage}
                     totalPages={totalPages}
-                    totalLeads={filteredLeads.length}
+                    totalLeads={pagination.total}
                     leadsPerPage={leadsPerPage}
                     onPageChange={setCurrentPage}
                     onLeadsPerPageChange={setLeadsPerPage}
@@ -853,7 +1134,7 @@ export default function Leads() {
               <LeadsBulkAssignment
                 leads={selectedLeads.length > 0 
                   ? filteredLeads.filter(lead => selectedLeads.includes(lead.id))
-                  : filteredLeads
+                  : []
                 }
                 onLeadsAssigned={() => {
                   handleLeadUpdate();
@@ -911,6 +1192,14 @@ export default function Leads() {
             />
           </DialogContent>
         </Dialog>
+
+        <LeadsBulkStatusUpdate
+          isOpen={showBulkStatusUpdate}
+          onClose={() => setShowBulkStatusUpdate(false)}
+          onConfirm={handleBulkStatusUpdate}
+          selectedCount={selectedLeads.length}
+          isLoading={isBulkUpdating}
+        />
 
         <LeadDeleteConfirmDialog
           isOpen={showDeleteDialog}

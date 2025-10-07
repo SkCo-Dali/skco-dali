@@ -57,6 +57,7 @@ export interface CreateLeadRequest {
   Age: number;
   Gender: string;
   PreferredContactChannel: string;
+  AlternateEmail?: string;
 }
 
 export interface UpdateLeadRequest {
@@ -82,6 +83,7 @@ export interface UpdateLeadRequest {
   Age?: number;
   Gender?: string;
   PreferredContactChannel?: string;
+  AlternateEmail?: string;
 }
 
 export interface CreateLeadResponse {
@@ -119,6 +121,7 @@ export const FRONTEND_TO_API_STAGE_MAP: Record<string, string> = {
   'Localizado: No interesado': 'Localizado: No interesado',
   'Localizado: Prospecto de venta FP': 'Localizado: Prospecto de venta FP',
   'Localizado: Prospecto de venta AD': 'Localizado: Prospecto de venta AD',
+  'Localizado: Prospecto de venta - Pendiente': 'Localizado: Prospecto de venta - Pendiente',  
   'Localizado: Volver a llamar': 'Localizado: Volver a llamar',
   'Localizado: No vuelve a contestar': 'Localizado: No vuelve a contestar',
   'No localizado: No contesta': 'No localizado: No contesta',
@@ -134,6 +137,7 @@ export const API_TO_FRONTEND_STAGE_MAP: Record<string, string> = {
   'Localizado: No interesado': 'Localizado: No interesado',
   'Localizado: Prospecto de venta FP': 'Localizado: Prospecto de venta FP',
   'Localizado: Prospecto de venta AD': 'Localizado: Prospecto de venta AD',
+  'Localizado: Prospecto de venta - Pendiente': 'Localizado: Prospecto de venta - Pendiente',  
   'Localizado: Volver a llamar': 'Localizado: Volver a llamar',
   'Localizado: No vuelve a contestar': 'Localizado: No vuelve a contestar',
   'No localizado: No contesta': 'No localizado: No contesta',

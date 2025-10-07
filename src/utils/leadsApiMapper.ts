@@ -212,7 +212,8 @@ export const mapLeadToCreateRequest = (lead: Partial<Lead>, userId: string): Cre
     CampaignOwnerName: lead.campaignOwnerName || '',
     Age: lead.age || 0,
     Gender: lead.gender || 'Prefiero no decir',
-    PreferredContactChannel: lead.preferredContactChannel || 'Correo'
+    PreferredContactChannel: lead.preferredContactChannel || 'Correo',
+    AlternateEmail: lead.alternateEmail || ''
   };
   
   console.log('✅ Mapped create request:', JSON.stringify(createRequest, null, 2));
@@ -226,6 +227,13 @@ export const mapLeadToCreateRequest = (lead: Partial<Lead>, userId: string): Cre
 export const mapLeadToUpdateRequest = (lead: Lead, userId: string): UpdateLeadRequest => {
   console.log('🔄 Mapping lead to update request...');
   console.log('👤 User ID from context:', userId);
+  
+  // Log específico para AlternateEmail ANTES del mapeo
+  console.log('📧 BEFORE MAPPING - lead.alternateEmail:', lead.alternateEmail);
+  console.log('📧 BEFORE MAPPING - Type:', typeof lead.alternateEmail);
+  console.log('📧 BEFORE MAPPING - Is null?:', lead.alternateEmail === null);
+  console.log('📧 BEFORE MAPPING - Is undefined?:', lead.alternateEmail === undefined);
+  console.log('📧 BEFORE MAPPING - Is empty string?:', lead.alternateEmail === '');
   
   // Obtener el UUID almacenado durante la autenticación
   const authenticatedUserUUID = localStorage.getItem('authenticated-user-uuid');
@@ -257,8 +265,13 @@ export const mapLeadToUpdateRequest = (lead: Lead, userId: string): UpdateLeadRe
     CampaignOwnerName: lead.campaignOwnerName || '',
     Age: lead.age,
     Gender: lead.gender,
-    PreferredContactChannel: lead.preferredContactChannel || 'Correo'
+    PreferredContactChannel: lead.preferredContactChannel || 'Correo',
+    AlternateEmail: lead.alternateEmail || ''
   };
+  
+  // Log específico para AlternateEmail DESPUÉS del mapeo
+  console.log('📧 AFTER MAPPING - AlternateEmail in request:', updateRequest.AlternateEmail);
+  console.log('📧 AFTER MAPPING - Type:', typeof updateRequest.AlternateEmail);
   
   console.log('✅ Mapped update request:', JSON.stringify(updateRequest, null, 2));
   
@@ -310,6 +323,7 @@ export const mapLeadToApiFormat = (lead: Lead): any => {
     Age: lead.age,
     Gender: lead.gender,
     CampaignOwnerName: lead.campaignOwnerName,
-    PreferredContactChannel: lead.preferredContactChannel
+    PreferredContactChannel: lead.preferredContactChannel,
+    AlternateEmail: lead.alternateEmail || ''
   };
 };

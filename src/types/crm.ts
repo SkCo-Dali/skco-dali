@@ -32,6 +32,7 @@ export interface RolePermissions {
   canAccessReports: boolean;
   canUploadLeads?: boolean;
   canBulkAssignLeads?: boolean;
+  canBulkUpdateStage?: boolean;
   canAccessUserManagement?: boolean;
   canAssignRoles?: boolean;
   canSendEmail?: boolean;
@@ -56,12 +57,13 @@ export const getRolePermissions = (role: UserRole): RolePermissions => {
         canAccessReports: true,
         canUploadLeads: true,
         canBulkAssignLeads: true,
+        canBulkUpdateStage: true,
         canAccessUserManagement: true,
         canAssignRoles: true,
         canSendEmail: true,
         canSendWhatsApp: true,
         canSendmassiveWhatsApp: true,
-        accessiblePages: ['dashboard', 'leads', 'ChatDali','opportunities','gamification', 'reports', 'informes', 'users', 'settings','index', 'comisiones', 'motor-comisiones']
+        accessiblePages: ['dashboard', 'leads', 'ChatDali','opportunities','gamification', 'reports', 'informes', 'users', 'settings','index', 'comisiones', 'motor-comisiones', 'voice-insights', 'calendar', 'tasks']
       };
     case 'manager':
     case 'supervisor':
@@ -75,12 +77,13 @@ export const getRolePermissions = (role: UserRole): RolePermissions => {
         canAccessReports: true,
         canUploadLeads: true,
         canBulkAssignLeads: true,
+        canBulkUpdateStage: true,
         canAccessUserManagement: false,
         canAssignRoles: false,
         canSendEmail: true,
         canSendWhatsApp: true,
         canSendmassiveWhatsApp: false,
-        accessiblePages: ['leads', 'ChatDali', 'reports']
+        accessiblePages: ['leads', 'ChatDali', 'reports','informes']
       };
     case 'agent':
     case 'gestor':
@@ -98,12 +101,13 @@ export const getRolePermissions = (role: UserRole): RolePermissions => {
         canAccessReports: false,
         canUploadLeads: false,
         canBulkAssignLeads: true,
+        canBulkUpdateStage: false,
         canAccessUserManagement: false,
         canAssignRoles: false,
         canSendEmail: true,
         canSendWhatsApp: true,
         canSendmassiveWhatsApp: false,
-        accessiblePages: ['leads', 'ChatDali']
+        accessiblePages: ['leads', 'ChatDali','informes']
       };
     case 'fp':
       return {
@@ -116,12 +120,13 @@ export const getRolePermissions = (role: UserRole): RolePermissions => {
         canAccessReports: false,
         canUploadLeads: false,
         canBulkAssignLeads: false,
+        canBulkUpdateStage: false,
         canAccessUserManagement: false,
         canAssignRoles: false,
         canSendEmail: true,
         canSendWhatsApp: true,
         canSendmassiveWhatsApp: false,
-        accessiblePages: ['leads', 'ChatDali']
+        accessiblePages: ['leads', 'ChatDali','informes']
       };
     case 'analista':
       return {
@@ -134,12 +139,13 @@ export const getRolePermissions = (role: UserRole): RolePermissions => {
         canAccessReports: true,
         canUploadLeads: false,
         canBulkAssignLeads: false,
+        canBulkUpdateStage: false,
         canAccessUserManagement: false,
         canAssignRoles: false,
         canSendEmail: false,
         canSendWhatsApp: false,
         canSendmassiveWhatsApp: false,
-        accessiblePages: ['leads', 'reports']
+        accessiblePages: ['leads', 'reports','informes']
       };
     case 'viewer':
     case 'seguridad':
@@ -153,12 +159,13 @@ export const getRolePermissions = (role: UserRole): RolePermissions => {
         canAccessReports: false,
         canUploadLeads: false,
         canBulkAssignLeads: false,
+        canBulkUpdateStage: false,
         canAccessUserManagement: false,
         canAssignRoles: false,
         canSendEmail: true,
         canSendWhatsApp: true,
         canSendmassiveWhatsApp: false,
-        accessiblePages: ['leads', 'ChatDali']
+        accessiblePages: ['leads', 'ChatDali','informes']
       };
     default:
       return {
@@ -171,6 +178,7 @@ export const getRolePermissions = (role: UserRole): RolePermissions => {
         canAccessReports: false,
         canUploadLeads: false,
         canBulkAssignLeads: false,
+        canBulkUpdateStage: false,
         canAccessUserManagement: false,
         canAssignRoles: false,
         canSendEmail: false,
@@ -282,6 +290,7 @@ export const LeadDefaultProperties: string[] = [
     'tags',
     'nextFollowUp',
     'campaignOwnerName',
+    'alternateEmail',
     'interactions',
 ]
 

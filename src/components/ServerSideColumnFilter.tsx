@@ -12,6 +12,7 @@ interface ServerSideColumnFilterProps {
   field: string;
   label: string;
   currentFilters: LeadsApiFilters;
+  searchTerm?: string; // Término de búsqueda principal para filtrar valores distintos
   onFilterChange: (field: string, values: string[]) => void;
   onClearFilter?: (field: string) => void;
 }
@@ -20,6 +21,7 @@ export function ServerSideColumnFilter({
   field, 
   label,
   currentFilters,
+  searchTerm: globalSearchTerm,
   onFilterChange, 
   onClearFilter 
 }: ServerSideColumnFilterProps) {
@@ -35,7 +37,7 @@ export function ServerSideColumnFilter({
     setSearchTerm,
     initialize,
     hasInitialized
-  } = useDistinctValues(field, currentFilters);
+  } = useDistinctValues(field, currentFilters, globalSearchTerm);
 
   // Obtener valores actualmente seleccionados del filtro
   const currentSelectedValues = useMemo(() => {

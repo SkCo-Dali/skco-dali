@@ -45,7 +45,8 @@ serve(async (req) => {
     } catch (parseError) {
       clearTimeout(timeoutId);
       console.error('❌ Error parsing request body:', parseError);
-      throw new Error(`Invalid JSON in request body: ${parseError.message}`);
+      const errorMessage = parseError instanceof Error ? parseError.message : String(parseError);
+      throw new Error(`Invalid JSON in request body: ${errorMessage}`);
     }
     
     const { App, pregunta, EntraToken, IdConversacion } = requestBody;
@@ -154,7 +155,8 @@ serve(async (req) => {
       console.log('📄 Raw response preview (first 500 chars):', responseText.substring(0, 500));
     } catch (textError) {
       console.error('❌ Error reading response text:', textError);
-      throw new Error(`Could not read API response: ${textError.message}`);
+      const errorMessage = textError instanceof Error ? textError.message : String(textError);
+      throw new Error(`Could not read API response: ${errorMessage}`);
     }
     
     let data;
@@ -185,20 +187,21 @@ serve(async (req) => {
     
   } catch (error) {
     console.error('❌ === AZURE AGENT PROXY ERROR ===');
-    console.error('❌ Error type:', error.constructor.name);
-    console.error('❌ Error message:', error.message);
-    console.error('❌ Error stack:', error.stack);
+    const errorObj = error instanceof Error ? error : new Error(String(error));
+    console.error('❌ Error type:', errorObj.constructor.name);
+    console.error('❌ Error message:', errorObj.message);
+    console.error('❌ Error stack:', errorObj.stack);
     
     // Check if it's a timeout or abort error
-    if (error.name === 'AbortError') {
+    if (errorObj.name === 'AbortError') {
       console.error('⏰ Request was aborted due to timeout');
     }
     
     const errorResponse = {
-      error: error.message,
+      error: errorObj.message,
       details: 'Error in Azure Agent Proxy function for Maestro API',
       timestamp: new Date().toISOString(),
-      errorType: error.constructor.name
+      errorType: errorObj.constructor.name
     };
     
     console.log('⚠️ Returning error response:', errorResponse);

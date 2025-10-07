@@ -64,11 +64,12 @@ export function usePowerBIReport(options: UsePowerBIReportOptions) {
         tokenType: powerbi.models.TokenType.Embed,
         settings: {
           panes: {
-            filters: { visible: false },
-            pageNavigation: { visible: false }
+            filters: { visible: true },
+            pageNavigation: { visible: true }
           },
           bars: {
-            statusBar: { visible: false }
+            statusBar: { visible: true },
+            actionBar: { visible: true }
           },
           visualRenderedEvents: true,
           layoutType: models.LayoutType.Custom,
@@ -202,6 +203,25 @@ export function usePowerBIReport(options: UsePowerBIReportOptions) {
     }
   };
 
+  // Handle page change
+  const changePage = async (pageName: string) => {
+    if (report && status === 'ready') {
+      try {
+        const pages = await report.getPages();
+        const page = pages.find((p: any) => p.name === pageName);
+        if (page) {
+          await page.setActive();
+          console.log('✅ Página cambiada a:', pageName);
+        } else {
+          console.warn('⚠️ Página no encontrada:', pageName);
+        }
+      } catch (err) {
+        console.error('❌ Error cambiando página:', err);
+        onError?.(err);
+      }
+    }
+  };
+
   // Handle export
   const exportReport = async () => {
     try {
@@ -257,6 +277,7 @@ export function usePowerBIReport(options: UsePowerBIReportOptions) {
     refreshReport,
     toggleFullscreen,
     exportReport,
+    changePage,
     reinitialize: initializePowerBI
   };
 }

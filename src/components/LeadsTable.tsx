@@ -15,6 +15,7 @@ import { LeadDeleteConfirmDialog } from "@/components/LeadDeleteConfirmDialog";
 import { useToast } from '@/hooks/use-toast';
 import { ColumnFilter } from "@/components/ColumnFilter";
 import { ServerSideColumnFilter } from "@/components/ServerSideColumnFilter";
+import { ServerSideDateFilter } from "@/components/ServerSideDateFilter";
 import { TextFilterCondition } from "@/components/TextFilter";
 import { LeadsApiFilters } from "@/types/paginatedLeadsTypes";
 import {
@@ -52,6 +53,7 @@ interface LeadsTableProps {
   onTextFilterChange?: (column: string, filters: any[]) => void;
   onClearColumnFilter?: (column: string) => void;
   hasFiltersForColumn?: (column: string) => boolean;
+  searchTerm?: string; // Término de búsqueda principal
   // Props para ordenamiento desde el hook unificado
   sortBy?: string;
   setSortBy?: (sort: string) => void;
@@ -163,6 +165,7 @@ interface SortableHeaderProps {
   onTextFilterChange: (column: string, filters: TextFilterCondition[]) => void;
   onClearFilter: (column: string) => void;
   isNameColumn?: boolean;
+  searchTerm?: string; // Término de búsqueda principal
   // Server-side filters for distinct API calls
   currentApiFilters?: LeadsApiFilters;
 }
@@ -179,6 +182,7 @@ function SortableHeader({
   onTextFilterChange,
   onClearFilter,
   isNameColumn = false,
+  searchTerm,
   currentApiFilters = {}
 }: SortableHeaderProps) {
   const {
@@ -217,8 +221,19 @@ function SortableHeader({
           </div>
         )}
         {/* Use ServerSideColumnFilter for dropdown fields that need server-side distinct values */}
-        {['email', 'campaign', 'stage', 'assignedToName', 'source', 'product', 'priority'].includes(column.key) ? (
+        {['name', 'email', 'campaign', 'stage', 'assignedToName', 'source', 'product', 'priority'].includes(column.key) ? (
           <ServerSideColumnFilter
+            field={column.key}
+            label={column.label}
+            currentFilters={currentApiFilters}
+            searchTerm={searchTerm}
+            onFilterChange={(field: string, values: string[]) => {
+              onColumnFilterChange(field, values);
+            }}
+            onClearFilter={onClearFilter}
+          />
+        ) : ['createdAt', 'updatedAt', 'nextFollowUp', 'lastInteraction'].includes(column.key) ? (
+          <ServerSideDateFilter
             field={column.key}
             label={column.label}
             currentFilters={currentApiFilters}
@@ -248,8 +263,15 @@ function SortableHeader({
         </span>
         {column.sortable && renderSortIcon(column.key)}
         {/* X button to clear filters - positioned after column name */}
-        {((columnFilters[column.key] && columnFilters[column.key].length > 0) || 
-          (textFilters[column.key] && textFilters[column.key].length > 0)) && (
+        {(() => {
+          // Para lastInteraction, también buscar en updatedAt (debido al mapeo interno)
+          const effectiveKey = column.key === 'lastInteraction' ? 'updatedAt' : column.key;
+          return ((columnFilters[column.key] && columnFilters[column.key].length > 0) || 
+            (columnFilters[effectiveKey] && columnFilters[effectiveKey].length > 0) ||
+            (textFilters[column.key] && textFilters[column.key].length > 0) ||
+            (columnFilters[`${column.key}End`] && columnFilters[`${column.key}End`].length > 0) ||
+            (columnFilters[`${effectiveKey}End`] && columnFilters[`${effectiveKey}End`].length > 0));
+        })() && (
           <Button
             variant="ghost"
             size="sm"
@@ -285,6 +307,7 @@ export function LeadsTable({
   onTextFilterChange,
   onClearColumnFilter,
   hasFiltersForColumn,
+  searchTerm,
   sortBy,
   setSortBy,
   sortDirection,
@@ -299,17 +322,54 @@ export function LeadsTable({
   const convertFiltersToApiFormat = useMemo((): LeadsApiFilters => {
     const apiFilters: LeadsApiFilters = {};
 
-    // Convert column filters (dropdown selections)
+    // Special handling for date columns: createdAt, updatedAt/lastInteraction, nextFollowUp
+    const createdAtFrom = columnFilters?.createdAt?.[0];
+    const createdAtTo = columnFilters?.createdAtEnd?.[0];
+    const updatedAtFrom = (columnFilters?.updatedAt || columnFilters?.lastInteraction)?.[0];
+    const updatedAtTo = (columnFilters?.updatedAtEnd || columnFilters?.lastInteractionEnd)?.[0];
+    const nextFollowUpFrom = columnFilters?.nextFollowUp?.[0];
+    const nextFollowUpTo = columnFilters?.nextFollowUpEnd?.[0];
+
+    const normalizeToEndOfDay = (d?: string) => {
+      if (!d) return undefined;
+      return d.length === 10 ? `${d}T23:59:59` : d;
+    };
+
+    const applyDateFilter = (
+      field: 'CreatedAt' | 'UpdatedAt' | 'NextFollowUp',
+      from?: string,
+      to?: string
+    ) => {
+      const toNorm = normalizeToEndOfDay(to);
+      if (from && toNorm) {
+        (apiFilters as any)[field] = { op: 'between', from, to: toNorm };
+      } else if (from) {
+        (apiFilters as any)[field] = { op: 'gte', value: from };
+      } else if (toNorm) {
+        (apiFilters as any)[field] = { op: 'lte', value: toNorm };
+      }
+    };
+
+    applyDateFilter('CreatedAt', createdAtFrom, createdAtTo);
+    applyDateFilter('UpdatedAt', updatedAtFrom, updatedAtTo);
+    applyDateFilter('NextFollowUp', nextFollowUpFrom, nextFollowUpTo);
+
+    // Convert non-date column filters (dropdown selections)
     if (columnFilters) {
       Object.entries(columnFilters).forEach(([column, values]) => {
-        if (values && values.length > 0) {
-          // Map UI column names to API column names
-          const apiColumn = mapColumnNameToApi(column);
-          apiFilters[apiColumn] = {
-            op: 'in',
-            values
-          };
+        if (!values || values.length === 0) return;
+        // Skip special date keys handled above
+        if ([
+          'createdAt','createdAtEnd',
+          'updatedAt','updatedAtEnd','lastInteraction','lastInteractionEnd',
+          'nextFollowUp','nextFollowUpEnd'
+        ].includes(column)) {
+          return;
         }
+        const apiColumn = mapColumnNameToApi(column);
+        (apiFilters as any)[apiColumn] = values.length === 1
+          ? { op: 'eq', value: values[0] }
+          : { op: 'in', values };
       });
     }
 
@@ -318,9 +378,8 @@ export function LeadsTable({
       Object.entries(textFilters).forEach(([column, conditions]) => {
         if (conditions && conditions.length > 0) {
           const apiColumn = mapColumnNameToApi(column);
-          // Take the first condition for simplicity
           const condition = conditions[0];
-          apiFilters[apiColumn] = convertTextConditionToApi(condition);
+          (apiFilters as any)[apiColumn] = convertTextConditionToApi(condition);
         }
       });
     }
@@ -873,6 +932,7 @@ Por favor, confirmar asistencia.`;
                          onTextFilterChange={onTextFilterChange || (() => {})}
                          onClearFilter={onClearColumnFilter || (() => {})}
                          isNameColumn={true}
+                         searchTerm={searchTerm}
                          currentApiFilters={convertFiltersToApiFormat}
                        />
                      )}
@@ -891,6 +951,7 @@ Por favor, confirmar asistencia.`;
                             onColumnFilterChange={onColumnFilterChange || (() => {})}
                             onTextFilterChange={onTextFilterChange || (() => {})}
                             onClearFilter={onClearColumnFilter || (() => {})}
+                            searchTerm={searchTerm}
                             currentApiFilters={convertFiltersToApiFormat}
                           />
                         ))}

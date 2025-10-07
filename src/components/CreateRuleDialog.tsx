@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -8,22 +8,25 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Switch } from "@/components/ui/switch";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Plus, X, Search } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useCatalogs, useCatalogFields } from "@/hooks/useCatalogs";
+import { listCatalogFieldValues } from "@/utils/catalogsApiClient";
+import { CatalogFieldValue } from "@/types/catalogsApi";
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Check, ChevronsUpDown } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { SecureTokenManager } from "@/utils/secureTokenManager";
+import { ENV } from "@/config/environment";
 
 interface CreateRuleDialogProps {
+  planId: string;
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  onRuleCreated?: () => void;
 }
-
-const CATALOG_OPTIONS = [
-  'Pólizas',
-  'Productos',
-  'Agentes',
-  'Canales',
-  'Comisiones',
-  'Ventas'
-];
 
 const OWNER_FIELD_OPTIONS = [
   'Agente',
@@ -52,45 +55,62 @@ const PAYMENT_SCHEDULE_OPTIONS = [
   'Weekly'
 ];
 
-const FIELD_OPTIONS = [
-  'Agente Disco-Invitation Date',
-  'Agente Email',
-  'Agente First Name',
-  'Agente Full Name',
-  'Agente Id Agencia',
-  'Agente Id Agente',
-  'Agente Id Aliado',
-  'Agente Id Promotor'
-];
-
-const CONDITION_OPTIONS = [
+const NUMERIC_CONDITION_OPTIONS = [
   'Equal',
   'Not Equal',
   'Greater Than',
+  'Greater Than Or Equal',
   'Less Than',
+  'Less Than Or Equal'
+];
+
+const STRING_CONDITION_OPTIONS = [
+  'Equal',
+  'Not Equal',
   'Contains',
-  'Starts With'
+  'Not Contains',
+  'Begins With',
+  'Ends With',
+  'Is One Of'
+];
+
+const MATH_OPERATORS = [
+  { symbol: '%', label: '%' },
+  { symbol: '*', label: '×' },
+  { symbol: '/', label: '÷' },
+  { symbol: '+', label: '+' },
+  { symbol: '-', label: '-' },
+  { symbol: '(', label: '(' },
+  { symbol: ')', label: ')' },
 ];
 
 interface ConditionRow {
   id: string;
   field: string;
+  fieldId?: string;
+  fieldType?: string;
   condition: string;
   value: string;
 }
 
-export function CreateRuleDialog({ open, onOpenChange }: CreateRuleDialogProps) {
+export function CreateRuleDialog({ planId, open, onOpenChange, onRuleCreated }: CreateRuleDialogProps) {
   const { toast } = useToast();
+  const formulaRef = useRef<HTMLTextAreaElement>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  
+  // Fetch catalogs
+  const { catalogs, loading: catalogsLoading } = useCatalogs();
+  
   const [formData, setFormData] = useState({
     // Information tab
     name: '',
     description: '',
-    catalog: '',
     ownerField: '',
     dateField: '',
     goalIncentive: false,
     
     // Rule tab
+    catalog: '',
     formula: '',
     conditions: [] as ConditionRow[],
     
@@ -105,6 +125,15 @@ export function CreateRuleDialog({ open, onOpenChange }: CreateRuleDialogProps) 
 
   const [activeTab, setActiveTab] = useState('information');
   const [fieldSearch, setFieldSearch] = useState('');
+  const [fieldValues, setFieldValues] = useState<Record<string, CatalogFieldValue[]>>({});
+  const [loadingFieldValues, setLoadingFieldValues] = useState<Record<string, boolean>>({});
+  const [openValuePopovers, setOpenValuePopovers] = useState<Record<string, boolean>>({});
+
+  // Fetch catalog fields when catalog is selected
+  const { fields: catalogFields, loading: fieldsLoading } = useCatalogFields(formData.catalog || '');
+  
+  // Filter active catalogs
+  const activeCatalogs = catalogs.filter(c => c.is_active);
 
   const addCondition = () => {
     const newCondition: ConditionRow = {
@@ -129,59 +158,223 @@ export function CreateRuleDialog({ open, onOpenChange }: CreateRuleDialogProps) 
   const updateCondition = (id: string, field: keyof ConditionRow, value: string) => {
     setFormData(prev => ({
       ...prev,
-      conditions: prev.conditions.map(c =>
-        c.id === id ? { ...c, [field]: value } : c
-      )
+      conditions: prev.conditions.map(c => {
+        if (c.id !== id) return c;
+        
+        // If updating the field, also update the fieldType and fieldId
+        if (field === 'field') {
+          const selectedField = catalogFields.find(f => f.display_name === value);
+          if (selectedField && formData.catalog) {
+            // Load field values
+            loadFieldValues(formData.catalog, selectedField.id);
+          }
+          return { 
+            ...c, 
+            field: value,
+            fieldId: selectedField?.id,
+            fieldType: selectedField?.field_type,
+            value: '', // Reset value when field changes
+            condition: '' // Reset condition when field changes
+          };
+        }
+        
+        return { ...c, [field]: value };
+      })
     }));
+  };
+
+  // Load field values from API
+  const loadFieldValues = async (catalogId: string, fieldId: string) => {
+    const key = `${catalogId}-${fieldId}`;
+    
+    // Skip if already loading or already loaded
+    if (loadingFieldValues[key] || fieldValues[key]) return;
+    
+    setLoadingFieldValues(prev => ({ ...prev, [key]: true }));
+    
+    try {
+      const response = await listCatalogFieldValues(catalogId, fieldId, {
+        is_active: true,
+        page: 1,
+        page_size: 100,
+        order_by: 'sort_index',
+        order_dir: 'asc'
+      });
+      
+      setFieldValues(prev => ({ ...prev, [key]: response.items }));
+    } catch (error) {
+      console.error('Error loading field values:', error);
+      toast({
+        title: "Error",
+        description: "Failed to load field values",
+        variant: "destructive"
+      });
+    } finally {
+      setLoadingFieldValues(prev => ({ ...prev, [key]: false }));
+    }
+  };
+
+  // Helper function to get condition options based on field type
+  const getConditionOptions = (fieldType?: string) => {
+    if (!fieldType) return [];
+    
+    const normalizedType = fieldType.toLowerCase();
+    
+    // Check if it's a numeric or date type
+    if (['numeric', 'int', 'integer', 'decimal', 'money', 'date', 'datetime'].includes(normalizedType)) {
+      return NUMERIC_CONDITION_OPTIONS;
+    }
+    
+    // Check if it's a string type
+    if (['nvarchar', 'varchar', 'string'].includes(normalizedType)) {
+      return STRING_CONDITION_OPTIONS;
+    }
+    
+    // Default to string options for unknown types
+    return STRING_CONDITION_OPTIONS;
   };
 
   const insertField = (field: string) => {
+    const textarea = formulaRef.current;
+    if (!textarea) return;
+
+    const start = textarea.selectionStart ?? 0;
+    const end = textarea.selectionEnd ?? 0;
+    const currentFormula = formData.formula;
+    
+    // Insert field at cursor position
+    const newFormula = currentFormula.substring(0, start) + field + currentFormula.substring(end);
+    
     setFormData(prev => ({
       ...prev,
-      formula: prev.formula + ` ${field}`
+      formula: newFormula
     }));
+
+    // Restore focus and set cursor position after the inserted field
+    setTimeout(() => {
+      if (textarea) {
+        textarea.focus();
+        const newPosition = start + field.length;
+        textarea.setSelectionRange(newPosition, newPosition);
+      }
+    }, 0);
   };
 
-  const filteredFields = FIELD_OPTIONS.filter(field =>
-    field.toLowerCase().includes(fieldSearch.toLowerCase())
-  );
+  const insertOperator = (operator: string) => {
+    const textarea = formulaRef.current;
+    if (!textarea) return;
 
-  const handleSubmit = (e: React.FormEvent) => {
+    const start = textarea.selectionStart ?? 0;
+    const end = textarea.selectionEnd ?? 0;
+    const currentFormula = formData.formula;
+    
+    // Insert operator at cursor position
+    const newFormula = currentFormula.substring(0, start) + operator + currentFormula.substring(end);
+    
+    setFormData(prev => ({
+      ...prev,
+      formula: newFormula
+    }));
+
+    // Restore focus and set cursor position after the inserted operator
+    setTimeout(() => {
+      if (textarea) {
+        textarea.focus();
+        const newPosition = start + operator.length;
+        textarea.setSelectionRange(newPosition, newPosition);
+      }
+    }, 0);
+  };
+
+  const handleFormulaChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const value = e.target.value;
+    // Only allow numbers, spaces, operators, dots, and the word "record" (for field references)
+    // Valid pattern: numbers, spaces, operators (% * / + - ( )), dots, and "record" word only
+    const validChars = /^[0-9\s%*/()+.\-]*$|^[0-9\s%*/()+.\-recod]*$/;
+    
+    // More strict validation: check if any alphabetic characters exist
+    // If they do, they should only be part of "record." pattern
+    const hasLetters = /[a-zA-Z]/.test(value);
+    
+    if (hasLetters) {
+      // If there are letters, validate they're only in "record.fieldname" format
+      const validPattern = /^[0-9\s%*/()+.\-]*(record\.[a-zA-Z_][a-zA-Z0-9_]*[0-9\s%*/()+.\-]*)*$/;
+      if (validPattern.test(value)) {
+        setFormData(prev => ({ ...prev, formula: value }));
+      }
+    } else {
+      // No letters, just validate basic characters
+      if (/^[0-9\s%*/()+.\-]*$/.test(value)) {
+        setFormData(prev => ({ ...prev, formula: value }));
+      }
+    }
+  };
+
+  const filteredFields = catalogFields
+    .filter(field => field.field_name.toLowerCase().includes(fieldSearch.toLowerCase()))
+    .map(field => field.field_name);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!formData.name || !formData.formula || formData.conditions.length === 0 || !formData.catalog) {
+    if (!formData.name || !formData.formula || !formData.catalog) {
       toast({
         title: "Validation Error",
-        description: "Please fill in all required fields.",
+        description: "Please fill in all required fields (Name, Formula, Catalog)",
         variant: "destructive"
       });
       return;
     }
 
-    // Here you would typically save the rule
-    console.log('Creating rule:', formData);
+    setIsSubmitting(true);
     
-    toast({
-      title: "Success",
-      description: "Commission rule created successfully."
-    });
-    
-    onOpenChange(false);
-    // Reset form
-    setFormData({
-      name: '',
-      description: '',
-      catalog: '',
-      ownerField: '',
-      dateField: '',
-      goalIncentive: false,
-      formula: '',
-      conditions: [],
-      incentiveStatus: '',
-      applyCommissionsGenerated: false,
-      paymentSchedule: '',
-      paymentPeriodBasedOn: ''
-    });
+    try {
+      const tokenData = SecureTokenManager.getToken();
+      const token = tokenData?.token || '';
+      
+      const response = await fetch(
+        `${ENV.CRM_API_BASE_URL}/api/commission-plans/${planId}/rules`, 
+        {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          },
+          body: JSON.stringify({
+            name: formData.name,
+            description: formData.description,
+            formula: formData.formula,
+            catalog: formData.catalog,
+            date_field: formData.dateField,
+            owner_name: formData.ownerField,
+            is_active: true
+          })
+        }
+      );
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ detail: 'Unknown error' }));
+        throw new Error(errorData.detail || `Failed to create rule: ${response.status}`);
+      }
+
+      toast({
+        title: "Success",
+        description: `Rule "${formData.name}" has been created successfully.`
+      });
+      
+      handleCancel();
+      onRuleCreated?.();
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to create rule';
+      toast({
+        title: "Error",
+        description: errorMessage,
+        variant: "destructive"
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleCancel = () => {
@@ -190,10 +383,10 @@ export function CreateRuleDialog({ open, onOpenChange }: CreateRuleDialogProps) 
     setFormData({
       name: '',
       description: '',
-      catalog: '',
       ownerField: '',
       dateField: '',
       goalIncentive: false,
+      catalog: '',
       formula: '',
       conditions: [],
       incentiveStatus: '',
@@ -206,7 +399,7 @@ export function CreateRuleDialog({ open, onOpenChange }: CreateRuleDialogProps) 
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
+      <DialogContent className="sm:max-w-[800px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Create Commission Rule</DialogTitle>
           <DialogDescription>
@@ -246,28 +439,6 @@ export function CreateRuleDialog({ open, onOpenChange }: CreateRuleDialogProps) 
                   placeholder="No se difiere la comisión esta se paga el 100% con la prima 1"
                   rows={3}
                 />
-              </div>
-
-              <div>
-                <Label htmlFor="rule-catalog">
-                  Catalog * 
-                  <span className="ml-1 text-xs text-muted-foreground cursor-help">ⓘ</span>
-                </Label>
-                <Select
-                  value={formData.catalog}
-                  onValueChange={(value) => setFormData(prev => ({ ...prev, catalog: value }))}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select a catalog" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {CATALOG_OPTIONS.map((catalog) => (
-                      <SelectItem key={catalog} value={catalog}>
-                        {catalog}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
               </div>
 
               <div>
@@ -326,18 +497,56 @@ export function CreateRuleDialog({ open, onOpenChange }: CreateRuleDialogProps) 
 
             {/* Rule Tab */}
             <TabsContent value="rule" className="space-y-4 mt-4">
+              <div>
+                <Label htmlFor="rule-catalog">
+                  Catalog * 
+                  <span className="ml-1 text-xs text-muted-foreground cursor-help">ⓘ</span>
+                </Label>
+                <Select
+                  value={formData.catalog}
+                  onValueChange={(value) => setFormData(prev => ({ ...prev, catalog: value }))}
+                  disabled={catalogsLoading}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder={catalogsLoading ? "Loading catalogs..." : "Select a catalog"} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {activeCatalogs.map((catalog) => (
+                      <SelectItem key={catalog.id} value={catalog.id}>
+                        {catalog.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
               <div className="grid grid-cols-2 gap-6">
                 {/* Formula Section */}
                 <div>
                   <Label htmlFor="rule-formula">Formula</Label>
                   <Textarea
+                    ref={formulaRef}
                     id="rule-formula"
                     value={formData.formula}
-                    onChange={(e) => setFormData(prev => ({ ...prev, formula: e.target.value }))}
-                    placeholder="2 / 100 * record.ValorBase"
+                    onChange={handleFormulaChange}
+                    placeholder="1.30 / 100 * record.ValorBase * 25 / 100"
                     rows={4}
                     className="font-mono text-sm"
                   />
+                  <div className="flex gap-1 mt-2">
+                    {MATH_OPERATORS.map((op) => (
+                      <Button
+                        key={op.symbol}
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => insertOperator(op.symbol)}
+                        className="px-3 py-1 h-8 text-sm"
+                      >
+                        {op.label}
+                      </Button>
+                    ))}
+                  </div>
                 </div>
 
                 {/* Click to insert fields */}
@@ -353,17 +562,48 @@ export function CreateRuleDialog({ open, onOpenChange }: CreateRuleDialogProps) 
                         className="pl-8"
                       />
                     </div>
-                    <div className="max-h-32 overflow-y-auto space-y-1">
-                      {filteredFields.map((field) => (
-                        <button
-                          key={field}
-                          type="button"
-                          onClick={() => insertField(field)}
-                          className="w-full text-left px-2 py-1 text-xs bg-blue-100 hover:bg-blue-200 rounded border"
-                        >
-                          {field}
-                        </button>
-                      ))}
+                    <div className="max-h-40 overflow-y-auto space-y-1 border rounded-md p-2">
+                      {fieldsLoading ? (
+                        <div className="text-xs text-muted-foreground text-center py-4">
+                          Loading fields...
+                        </div>
+                      ) : !formData.catalog ? (
+                        <div className="text-xs text-muted-foreground text-center py-4">
+                          Select a catalog to view fields
+                        </div>
+                      ) : filteredFields.length === 0 ? (
+                        <div className="text-xs text-muted-foreground text-center py-4">
+                          No fields found
+                        </div>
+                      ) : (
+                        <TooltipProvider>
+                          {catalogFields
+                            .filter(field => field.field_name.toLowerCase().includes(fieldSearch.toLowerCase()))
+                            .map((field) => (
+                              <Tooltip key={field.id}>
+                                <TooltipTrigger asChild>
+                                  <button
+                                    type="button"
+                                    onClick={() => insertField(`record.${field.field_name}`)}
+                                    className="w-full text-left px-3 py-2 text-sm bg-primary/10 hover:bg-primary/20 rounded border border-primary/20 transition-colors"
+                                  >
+                                    {field.display_name || field.field_name}
+                                  </button>
+                                </TooltipTrigger>
+                                {field.description && (
+                                  <TooltipContent 
+                                    side="left" 
+                                    align="start"
+                                    className="max-w-xs z-[100]"
+                                    sideOffset={5}
+                                  >
+                                    <p className="text-xs">{field.description}</p>
+                                  </TooltipContent>
+                                )}
+                              </Tooltip>
+                            ))}
+                        </TooltipProvider>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -396,13 +636,21 @@ export function CreateRuleDialog({ open, onOpenChange }: CreateRuleDialogProps) 
                         <Select
                           value={condition.field}
                           onValueChange={(value) => updateCondition(condition.id, 'field', value)}
+                          disabled={fieldsLoading || !formData.catalog}
                         >
                           <SelectTrigger>
-                            <SelectValue placeholder="Field" />
+                            <SelectValue placeholder={!formData.catalog ? "Select catalog first" : "Field"} />
                           </SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="Producto">Producto</SelectItem>
-                            <SelectItem value="Canal Descripción">Canal Descripción</SelectItem>
+                            {catalogFields.map((field) => (
+                              <SelectItem 
+                                key={field.id} 
+                                value={field.display_name}
+                                title={field.description || undefined}
+                              >
+                                {field.display_name}
+                              </SelectItem>
+                            ))}
                           </SelectContent>
                         </Select>
                       </div>
@@ -411,12 +659,13 @@ export function CreateRuleDialog({ open, onOpenChange }: CreateRuleDialogProps) 
                         <Select
                           value={condition.condition}
                           onValueChange={(value) => updateCondition(condition.id, 'condition', value)}
+                          disabled={!condition.field}
                         >
                           <SelectTrigger>
                             <SelectValue placeholder="Condition" />
                           </SelectTrigger>
                           <SelectContent>
-                            {CONDITION_OPTIONS.map((cond) => (
+                            {getConditionOptions(condition.fieldType).map((cond) => (
                               <SelectItem key={cond} value={cond}>
                                 {cond}
                               </SelectItem>
@@ -426,18 +675,75 @@ export function CreateRuleDialog({ open, onOpenChange }: CreateRuleDialogProps) 
                       </div>
 
                       <div className="col-span-3">
-                        <Select
-                          value={condition.value}
-                          onValueChange={(value) => updateCondition(condition.id, 'value', value)}
+                        <Popover 
+                          open={openValuePopovers[condition.id]} 
+                          onOpenChange={(open) => setOpenValuePopovers(prev => ({ ...prev, [condition.id]: open }))}
                         >
-                          <SelectTrigger>
-                            <SelectValue placeholder="Value" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="OMPEV">OMPEV</SelectItem>
-                            <SelectItem value="Intermediario">Intermediario</SelectItem>
-                          </SelectContent>
-                        </Select>
+                          <PopoverTrigger asChild>
+                            <Button
+                              variant="outline"
+                              role="combobox"
+                              className={cn(
+                                "w-full justify-between",
+                                !condition.value && "text-muted-foreground"
+                              )}
+                            >
+                              {condition.value || "Value"}
+                              <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                            </Button>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-full p-0" align="start">
+                            <Command shouldFilter={false}>
+                              <CommandInput 
+                                placeholder="Search or type value..." 
+                                onKeyDown={(e) => {
+                                  if (e.key === 'Enter') {
+                                    e.preventDefault();
+                                    const inputValue = (e.target as HTMLInputElement).value;
+                                    if (inputValue) {
+                                      updateCondition(condition.id, 'value', inputValue);
+                                      setOpenValuePopovers(prev => ({ ...prev, [condition.id]: false }));
+                                    }
+                                  }
+                                }}
+                              />
+                              <CommandList>
+                                <CommandEmpty>
+                                  {loadingFieldValues[`${formData.catalog}-${condition.fieldId}`] 
+                                    ? "Loading values..." 
+                                    : "Type a value and press Enter"}
+                                </CommandEmpty>
+                                {condition.fieldId && formData.catalog && (
+                                  <CommandGroup>
+                                    {(fieldValues[`${formData.catalog}-${condition.fieldId}`] || []).map((fieldValue) => (
+                                      <CommandItem
+                                        key={fieldValue.id}
+                                        value={fieldValue.value}
+                                        onSelect={(value) => {
+                                          updateCondition(condition.id, 'value', value);
+                                          setOpenValuePopovers(prev => ({ ...prev, [condition.id]: false }));
+                                        }}
+                                      >
+                                        <Check
+                                          className={cn(
+                                            "mr-2 h-4 w-4",
+                                            condition.value === fieldValue.value ? "opacity-100" : "opacity-0"
+                                          )}
+                                        />
+                                        <div className="flex flex-col">
+                                          <span>{fieldValue.label}</span>
+                                          {fieldValue.description && (
+                                            <span className="text-xs text-muted-foreground">{fieldValue.description}</span>
+                                          )}
+                                        </div>
+                                      </CommandItem>
+                                    ))}
+                                  </CommandGroup>
+                                )}
+                              </CommandList>
+                            </Command>
+                          </PopoverContent>
+                        </Popover>
                       </div>
 
                       <div className="col-span-1">
@@ -561,11 +867,11 @@ export function CreateRuleDialog({ open, onOpenChange }: CreateRuleDialogProps) 
             </TabsContent>
 
             <DialogFooter className="gap-2 mt-6">
-              <Button type="button" variant="outline" onClick={handleCancel}>
+              <Button type="button" variant="outline" onClick={handleCancel} disabled={isSubmitting}>
                 Cancel
               </Button>
-              <Button type="submit" className="bg-green-600 hover:bg-green-700 text-white">
-                Save
+              <Button type="submit" className="bg-green-600 hover:bg-green-700 text-white" disabled={isSubmitting}>
+                {isSubmitting ? "Creating..." : "Save"}
               </Button>
             </DialogFooter>
           </form>
