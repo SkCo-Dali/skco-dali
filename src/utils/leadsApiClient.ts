@@ -174,18 +174,37 @@ export const updateLead = async (leadId: string, leadData: UpdateLeadRequest): P
 
   try {
     const headers = await getAuthHeaders();
+    
+    // Logs detallados para debugging
+    console.log('🔄 UPDATE LEAD API CALL');
+    console.log('📍 Endpoint:', endpoint);
+    console.log('🆔 Lead ID:', leadId);
+    console.log('🔑 Headers:', {
+      ...headers,
+      'Authorization': headers.Authorization ? `Bearer ${headers.Authorization.substring(7, 20)}...` : 'NOT SET'
+    });
+    console.log('📄 Body data:', JSON.stringify(leadData, null, 2));
+    console.log('📧 AlternateEmail field:', leadData.AlternateEmail);
+    
     const response = await fetch(endpoint, {
       method: 'PUT',
       headers,
       body: JSON.stringify(leadData),
     });
 
+    console.log('📥 Response status:', response.status);
+    console.log('📥 Response statusText:', response.statusText);
+
     if (!response.ok) {
+      const errorData = await response.json().catch(() => ({ detail: 'Unknown error' }));
+      console.error('❌ UPDATE LEAD Error Response:', errorData);
       throw new Error(`Error al actualizar lead: ${response.statusText}`);
     }
     
-    await response.json();
+    const responseData = await response.json();
+    console.log('✅ UPDATE LEAD Success:', responseData);
   } catch (error) {
+    console.error('💥 UPDATE LEAD ERROR:', error);
     throw error;
   }
 };

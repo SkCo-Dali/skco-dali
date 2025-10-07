@@ -57,6 +57,7 @@ export interface CreateLeadRequest {
   Age: number;
   Gender: string;
   PreferredContactChannel: string;
+  AlternateEmail?: string;
 }
 
 export interface UpdateLeadRequest {
@@ -82,6 +83,7 @@ export interface UpdateLeadRequest {
   Age?: number;
   Gender?: string;
   PreferredContactChannel?: string;
+  AlternateEmail?: string;
 }
 
 export interface CreateLeadResponse {

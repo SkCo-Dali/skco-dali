@@ -18,14 +18,16 @@ import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, Command
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Check, ChevronsUpDown } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { SecureTokenManager } from "@/utils/secureTokenManager";
-import { ENV } from "@/config/environment";
+import { CommissionRule } from "@/data/commissionPlans";
+import { useConditionRules } from "@/hooks/useConditionRules";
+import { CreateConditionRuleRequest } from "@/types/conditionRulesApi";
 
-interface CreateRuleDialogProps {
+interface EditRuleDialogProps {
+  rule: CommissionRule | null;
   planId: string;
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onRuleCreated?: () => void;
+  onRuleUpdated?: () => void;
 }
 
 const OWNER_FIELD_OPTIONS = [
@@ -93,7 +95,7 @@ interface ConditionRow {
   value: string;
 }
 
-export function CreateRuleDialog({ planId, open, onOpenChange, onRuleCreated }: CreateRuleDialogProps) {
+export function EditRuleDialog({ rule, planId, open, onOpenChange, onRuleUpdated }: EditRuleDialogProps) {
   const { toast } = useToast();
   const formulaRef = useRef<HTMLTextAreaElement>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -134,6 +136,27 @@ export function CreateRuleDialog({ planId, open, onOpenChange, onRuleCreated }: 
   
   // Filter active catalogs
   const activeCatalogs = catalogs.filter(c => c.is_active);
+
+  // Load rule data when it changes
+  useEffect(() => {
+    if (rule && open) {
+      setFormData({
+        name: rule.name || '',
+        description: rule.description || '',
+        ownerField: rule.owner || '',
+        dateField: rule.dataField || '',
+        goalIncentive: false,
+        catalog: rule.catalog || '',
+        formula: rule.formula || '',
+        conditions: [],
+        incentiveStatus: '',
+        applyCommissionsGenerated: false,
+        paymentSchedule: '',
+        paymentPeriodBasedOn: ''
+      });
+      setActiveTab('information');
+    }
+  }, [rule, open]);
 
   const addCondition = () => {
     const newCondition: ConditionRow = {
@@ -242,7 +265,6 @@ export function CreateRuleDialog({ planId, open, onOpenChange, onRuleCreated }: 
     const end = textarea.selectionEnd ?? 0;
     const currentFormula = formData.formula;
     
-    // Insert field at cursor position
     const newFormula = currentFormula.substring(0, start) + field + currentFormula.substring(end);
     
     setFormData(prev => ({
@@ -250,7 +272,6 @@ export function CreateRuleDialog({ planId, open, onOpenChange, onRuleCreated }: 
       formula: newFormula
     }));
 
-    // Restore focus and set cursor position after the inserted field
     setTimeout(() => {
       if (textarea) {
         textarea.focus();
@@ -268,7 +289,6 @@ export function CreateRuleDialog({ planId, open, onOpenChange, onRuleCreated }: 
     const end = textarea.selectionEnd ?? 0;
     const currentFormula = formData.formula;
     
-    // Insert operator at cursor position
     const newFormula = currentFormula.substring(0, start) + operator + currentFormula.substring(end);
     
     setFormData(prev => ({
@@ -276,7 +296,6 @@ export function CreateRuleDialog({ planId, open, onOpenChange, onRuleCreated }: 
       formula: newFormula
     }));
 
-    // Restore focus and set cursor position after the inserted operator
     setTimeout(() => {
       if (textarea) {
         textarea.focus();
@@ -288,22 +307,14 @@ export function CreateRuleDialog({ planId, open, onOpenChange, onRuleCreated }: 
 
   const handleFormulaChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const value = e.target.value;
-    // Only allow numbers, spaces, operators, dots, and the word "record" (for field references)
-    // Valid pattern: numbers, spaces, operators (% * / + - ( )), dots, and "record" word only
-    const validChars = /^[0-9\s%*/()+.\-]*$|^[0-9\s%*/()+.\-recod]*$/;
-    
-    // More strict validation: check if any alphabetic characters exist
-    // If they do, they should only be part of "record." pattern
     const hasLetters = /[a-zA-Z]/.test(value);
     
     if (hasLetters) {
-      // If there are letters, validate they're only in "record.fieldname" format
       const validPattern = /^[0-9\s%*/()+.\-]*(record\.[a-zA-Z_][a-zA-Z0-9_]*[0-9\s%*/()+.\-]*)*$/;
       if (validPattern.test(value)) {
         setFormData(prev => ({ ...prev, formula: value }));
       }
     } else {
-      // No letters, just validate basic characters
       if (/^[0-9\s%*/()+.\-]*$/.test(value)) {
         setFormData(prev => ({ ...prev, formula: value }));
       }
@@ -317,7 +328,7 @@ export function CreateRuleDialog({ planId, open, onOpenChange, onRuleCreated }: 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!formData.name || !formData.formula || !formData.catalog) {
+    if (!rule || !formData.name || !formData.formula || !formData.catalog) {
       toast({
         title: "Validation Error",
         description: "Please fill in all required fields (Name, Formula, Catalog)",
@@ -329,44 +340,29 @@ export function CreateRuleDialog({ planId, open, onOpenChange, onRuleCreated }: 
     setIsSubmitting(true);
     
     try {
-      const tokenData = SecureTokenManager.getToken();
-      const token = tokenData?.token || '';
+      const { updateCommissionRule } = await import('@/utils/commissionRulesApiClient');
       
-      const response = await fetch(
-        `${ENV.CRM_API_BASE_URL}/api/commission-plans/${planId}/rules`, 
-        {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json',
-            'Accept': 'application/json'
-          },
-          body: JSON.stringify({
-            name: formData.name,
-            description: formData.description,
-            formula: formData.formula,
-            catalog: formData.catalog,
-            date_field: formData.dateField,
-            owner_name: formData.ownerField,
-            is_active: true
-          })
-        }
-      );
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({ detail: 'Unknown error' }));
-        throw new Error(errorData.detail || `Failed to create rule: ${response.status}`);
-      }
-
-      toast({
-        title: "Success",
-        description: `Rule "${formData.name}" has been created successfully.`
+      const updatedRule = await updateCommissionRule(rule.id, {
+        name: formData.name,
+        description: formData.description,
+        formula: formData.formula,
+        catalog: formData.catalog,
+        date_field: formData.dateField,
+        owner_name: formData.ownerField,
+        is_active: true
       });
-      
-      handleCancel();
-      onRuleCreated?.();
+
+      if (updatedRule) {
+        toast({
+          title: "Success",
+          description: `Rule "${formData.name}" has been updated successfully.`
+        });
+        
+        handleCancel();
+        onRuleUpdated?.();
+      }
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Failed to create rule';
+      const errorMessage = err instanceof Error ? err.message : 'Failed to update rule';
       toast({
         title: "Error",
         description: errorMessage,
@@ -379,7 +375,6 @@ export function CreateRuleDialog({ planId, open, onOpenChange, onRuleCreated }: 
 
   const handleCancel = () => {
     onOpenChange(false);
-    // Reset form
     setFormData({
       name: '',
       description: '',
@@ -397,13 +392,15 @@ export function CreateRuleDialog({ planId, open, onOpenChange, onRuleCreated }: 
     setActiveTab('information');
   };
 
+  if (!rule) return null;
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[800px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Create Commission Rule</DialogTitle>
+          <DialogTitle>Edit Commission Rule</DialogTitle>
           <DialogDescription>
-            Define a new rule for the commission plan with its formula and conditions.
+            Update the rule details, formula and conditions.
           </DialogDescription>
         </DialogHeader>
         
@@ -425,7 +422,7 @@ export function CreateRuleDialog({ planId, open, onOpenChange, onRuleCreated }: 
                   id="rule-name"
                   value={formData.name}
                   onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
-                  placeholder="AIS_FRONT1_OMPEV_MASTER"
+                  placeholder="Enter rule name"
                   required
                 />
               </div>
@@ -436,16 +433,13 @@ export function CreateRuleDialog({ planId, open, onOpenChange, onRuleCreated }: 
                   id="rule-description"
                   value={formData.description}
                   onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
-                  placeholder="No se difiere la comisión esta se paga el 100% con la prima 1"
+                  placeholder="Enter rule description"
                   rows={3}
                 />
               </div>
 
               <div>
-                <Label htmlFor="rule-owner-field">
-                  Owner Field * 
-                  <span className="ml-1 text-xs text-muted-foreground cursor-help">ⓘ</span>
-                </Label>
+                <Label htmlFor="rule-owner-field">Owner Field *</Label>
                 <Select
                   value={formData.ownerField}
                   onValueChange={(value) => setFormData(prev => ({ ...prev, ownerField: value }))}
@@ -464,10 +458,7 @@ export function CreateRuleDialog({ planId, open, onOpenChange, onRuleCreated }: 
               </div>
 
               <div>
-                <Label htmlFor="rule-date-field">
-                  Date Field * 
-                  <span className="ml-1 text-xs text-muted-foreground cursor-help">ⓘ</span>
-                </Label>
+                <Label htmlFor="rule-date-field">Date Field *</Label>
                 <Select
                   value={formData.dateField}
                   onValueChange={(value) => setFormData(prev => ({ ...prev, dateField: value }))}
@@ -871,7 +862,7 @@ export function CreateRuleDialog({ planId, open, onOpenChange, onRuleCreated }: 
                 Cancel
               </Button>
               <Button type="submit" className="bg-green-600 hover:bg-green-700 text-white" disabled={isSubmitting}>
-                {isSubmitting ? "Creating..." : "Save"}
+                {isSubmitting ? "Updating..." : "Update Rule"}
               </Button>
             </DialogFooter>
           </form>

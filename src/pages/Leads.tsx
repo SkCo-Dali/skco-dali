@@ -133,9 +133,18 @@ export default function Leads() {
     searchTerm: filters.searchTerm
   });
 
-  const handleLeadUpdate = useCallback(() => {
+  const handleLeadUpdate = useCallback((updatedLead?: Lead) => {
     console.log('🔄 handleLeadUpdate called - refreshing leads...');
+    
+    // Si se proporciona un lead actualizado, actualizar el selectedLead inmediatamente
+    if (updatedLead) {
+      console.log('🔄 Updating selectedLead with new data:', updatedLead);
+      setSelectedLead(updatedLead);
+    }
+    
+    // Luego refrescar la lista de leads desde el API
     refreshLeads();
+    
     toast({
       title: "Éxito",
       description: "Lead actualizado exitosamente"
