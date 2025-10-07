@@ -33,7 +33,7 @@ interface LeadDetailProps {
   lead: Lead;
   isOpen: boolean;
   onClose: () => void;
-  onSave: (lead: Lead) => void;
+  onSave: (lead?: Lead) => void;
   onOpenMassEmail?: (lead: Lead) => void;
 }
 
