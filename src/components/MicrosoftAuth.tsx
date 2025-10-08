@@ -141,7 +141,7 @@ export function MicrosoftAuth() {
     <Button
       onClick={handleMicrosoftLogin}
       disabled={isLoading}
-      className="w-full h-12 bg-[#00c73c] hover:bg-[#d1ffb3] text-white"
+      className="w-full h-12 bg-[#3f3f3f] hover:bg-[#9f9f9f] text-white"
     >
       {isLoading ? (
         <div className="flex items-center space-x-2">
