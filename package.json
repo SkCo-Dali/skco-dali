@@ -61,6 +61,7 @@
     "input-otp": "^1.2.4",
     "lucide-react": "^0.525.0",
     "luxon": "^3.6.1",
+    "markdown-it-attrs-es5": "^2.0.2",
     "next-themes": "^0.3.0",
     "powerbi-client": "^2.23.1",
     "react": "^18.3.1",
