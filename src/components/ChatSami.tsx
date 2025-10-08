@@ -184,11 +184,25 @@ export default function ChatSami({ defaultOpen = false }: ChatSamiProps) {
           },
         });
 
+        const store = window.WebChat.createStore({}, ({ dispatch }) => (next: any) => (action: any) => {
+          if (action.type === "DIRECT_LINE/CONNECT_FULFILLED") {
+            dispatch({
+              type: "WEB_CHAT/SEND_EVENT",
+              payload: {
+                name: "startConversation",
+                value: { locale },
+              },
+            });
+          }
+          return next(action);
+        });
+
         window.WebChat.renderWebChat(
           {
             directLine,
             locale,
             styleOptions,
+            store,
           },
           containerRef.current,
         );
