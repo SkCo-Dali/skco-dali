@@ -11,14 +11,13 @@ export default defineConfig(({ mode }) => ({
   },
   plugins: [
     react(),
-    mode === 'development' &&
-    componentTagger(),
+    mode === 'development' && componentTagger(),
   ].filter(Boolean),
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
-      // Workaround para markdown-it-attrs-es5
-      'markdown-it-attrs-es5': 'markdown-it-attrs-es5/dist/markdown-it-attrs.browser.js',
+      // Shim para markdown-it-attrs-es5 que rompe la resolución en Vite
+      'markdown-it-attrs-es5': path.resolve(__dirname, './src/shims/markdown-it-attrs-es5.ts'),
     },
   },
   optimizeDeps: {
