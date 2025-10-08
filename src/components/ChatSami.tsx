@@ -1,10 +1,5 @@
-import React, { useEffect, useRef, useState } from "react";
-
-declare global {
-  interface Window {
-    WebChat: any;
-  }
-}
+import React, { useEffect, useState, useMemo } from "react";
+import ReactWebChat, { createDirectLine } from "botframework-webchat";
 
 type ChatSamiProps = {
   /** Opcional: forzar oculto inicialmente */
@@ -13,9 +8,7 @@ type ChatSamiProps = {
 
 export default function ChatSami({ defaultOpen = false }: ChatSamiProps) {
   const [open, setOpen] = useState(defaultOpen);
-  const [webchatReady, setWebchatReady] = useState(false);
-  const containerRef = useRef<HTMLDivElement>(null);
-  const scriptLoadedRef = useRef(false);
+  const [directLine, setDirectLine] = useState<any>(null);
 
   // tiny CSS-in-JS para animaciones y layout (evita tocar CSS global)
   const styles: Record<string, React.CSSProperties> = {
@@ -77,68 +70,47 @@ export default function ChatSami({ defaultOpen = false }: ChatSamiProps) {
     },
   };
 
+  const styleOptions = useMemo(() => ({
+    hideUploadButton: true,
+    rootHeight: "100%",
+    rootWidth: "100%",
+    backgroundColor: "White",
+    sendBoxButtonColor: "#00c83c",
+    sendBoxBorderTop: "solid 2px #00c83c",
+    bubbleBackground: "rgba(0, 200, 60, .3)",
+    bubbleBorderRadius: 10,
+    bubbleFromUserBackground: "#DADADA",
+    bubbleFromUserBorderRadius: 10,
+    bubbleNubOffset: "bottom" as const,
+    bubbleNubSize: 5,
+    bubbleFromUserNubOffset: "top" as const,
+    bubbleFromUserNubSize: 5,
+    suggestedActionBackground: "white",
+    suggestedActionBorderWidth: 1,
+    suggestedActionBorderColor: "#00c83c",
+    suggestedActionDisabledBackground: "white",
+    suggestedActionBorderRadius: 10,
+    suggestedActionDisabledBorderColor: "#00c83c",
+    suggestedActionLayout: "flow" as const,
+    suggestedActionTextColor: "#00c83c",
+    botAvatarInitials: "SS",
+    avatarBorderRadius: "50%",
+    avatarSize: 30,
+    botAvatarBackgroundColor: "white",
+    botAvatarImage:
+      "https://storage.googleapis.com/m-infra.appspot.com/public/res/skandia/20201218-9SaE0VZGz9ZNkjs6SO9fJnFVpRu1-U2SVE-.gif",
+  }), []);
+
   const openIcon =
     "data:image/svg+xml,%3Csvg id='Capa_1' xmlns='http://www.w3.org/2000/svg' viewBox='0 0 65 65'%3E%3Cstyle%3E.st1%7Bfill:%2300c83c;stroke:%2300c83c;stroke-width:2;stroke-linecap:round;stroke-miterlimit:10%7D%3C/style%3E%3Ccircle cx='32.5' cy='32.5' r='25' fill='%23ffffff'/%3E%3Cpath class='st1' d='M23.5 41.5l9-9 9-9M23.5 23.5l9 9 9 9'/%3E%3C/svg%3E";
   const closeIconGIF = "https://skcoblobresources.blob.core.windows.net/digital-assets/animations/sk-sami-contigo.gif";
 
-  // Carga el script de WebChat solo una vez
+  // Inicializa DirectLine cuando el panel se abre por primera vez
   useEffect(() => {
-    if (scriptLoadedRef.current) return;
-
-    const script = document.createElement("script");
-    script.src = "https://cdn.botframework.com/botframework-webchat/latest/webchat.js";
-    script.async = true;
-    script.crossOrigin = "anonymous";
-    script.onload = () => {
-      scriptLoadedRef.current = true;
-      setWebchatReady(true);
-    };
-    script.onerror = () => {
-      console.error("No se pudo cargar BotFramework WebChat.");
-    };
-    document.body.appendChild(script);
-  }, []);
-
-  // Inicializa WebChat cuando el panel se abre por primera vez
-  useEffect(() => {
-    if (!open || !webchatReady || !containerRef.current || !window.WebChat) return;
-
-    let disposed = false;
+    if (!open || directLine) return;
 
     (async function start() {
       try {
-        const styleOptions = {
-          hideUploadButton: true,
-          rootHeight: "100%",
-          rootWidth: "100%",
-          backgroundColor: "White",
-          sendBoxButtonColor: "#00c83c",
-          sendBoxBorderTop: "solid 2px #00c83c",
-          bubbleBackground: "rgba(0, 200, 60, .3)",
-          bubbleBorderRadius: 10,
-          bubbleFromUserBackground: "#DADADA",
-          bubbleFromUserBorderRadius: 10,
-          bubbleNubOffset: "bottom",
-          bubbleNubSize: 5,
-          bubbleFromUserNubOffset: "top",
-          bubbleFromUserNubSize: 5,
-          suggestedActionBackground: "white",
-          suggestedActionBorderWidth: 1,
-          suggestedActionBorderColor: "#00c83c",
-          suggestedActionDisabledBackground: "white",
-          suggestedActionBorderRadius: 10,
-          suggestedActionDisabledBorderColor: "#00c83c",
-          suggestedActionLayout: "flow",
-          suggestedActionTextColor: "#00c83c",
-          botAvatarInitials: "SS",
-          avatarBorderRadius: "50%",
-          avatarSize: 30,
-          botAvatarBackgroundColor: "white",
-          botAvatarImage:
-            "https://storage.googleapis.com/m-infra.appspot.com/public/res/skandia/20201218-9SaE0VZGz9ZNkjs6SO9fJnFVpRu1-U2SVE-.gif",
-        };
-
-        // === Token y Direct Line según tu HTML ===
         const tokenEndpointURL = new URL(
           "https://6fec394b8c1befd4922c16d793ecb3.0c.environment.api.powerplatform.com/powervirtualagents/botsbyschema/cra2e_maestro/directline/token?api-version=2022-03-01-preview",
         );
@@ -160,47 +132,17 @@ export default function ChatSami({ defaultOpen = false }: ChatSamiProps) {
             .then(({ token }) => token),
         ]);
 
-        if (disposed) return;
-
-        const directLine = window.WebChat.createDirectLine({
+        const dl = createDirectLine({
           domain: new URL("v3/directline", directLineURL).toString(),
           token,
         });
 
-        const subscription = directLine.connectionStatus$.subscribe({
-          next(value: number) {
-            // 2 = Online
-            if (value === 2) {
-              directLine
-                .postActivity({
-                  localTimezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-                  locale,
-                  name: "startConversation",
-                  type: "event",
-                })
-                .subscribe();
-              subscription.unsubscribe();
-            }
-          },
-        });
-
-        window.WebChat.renderWebChat(
-          {
-            directLine,
-            locale,
-            styleOptions,
-          },
-          containerRef.current,
-        );
+        setDirectLine(dl);
       } catch (err) {
         console.error("Error iniciando WebChat:", err);
       }
     })();
-
-    return () => {
-      disposed = true;
-    };
-  }, [open, webchatReady]);
+  }, [open, directLine]);
 
   return (
     <>
@@ -224,7 +166,15 @@ export default function ChatSami({ defaultOpen = false }: ChatSamiProps) {
         aria-modal="true"
       >
         <button style={styles.chatHeader} onClick={() => setOpen(false)} aria-label="Cerrar chat" />
-        <div ref={containerRef} style={styles.webchatHost} />
+        <div style={styles.webchatHost}>
+          {directLine && (
+            <ReactWebChat
+              directLine={directLine}
+              locale={document.documentElement.lang || navigator.language || "es"}
+              styleOptions={styleOptions}
+            />
+          )}
+        </div>
       </div>
     </>
   );
