@@ -22,8 +22,9 @@ export default function ChatSami({ defaultOpen = false }: ChatSamiProps) {
     chatButton: {
       position: "fixed",
       bottom: 20,
-      left: "50%",
-      transform: "translateX(-50%)",
+      right: 20,
+      left: "auto",
+      transform: "none",
       background: "none",
       border: "none",
       width: 60,
@@ -35,9 +36,9 @@ export default function ChatSami({ defaultOpen = false }: ChatSamiProps) {
     },
     chatContainerBase: {
       position: "fixed",
-      top: "50%",
-      left: "50%",
-      transform: "translate(-50%, -50%) scale(0.8)",
+      bottom: 100,
+      right: 20,
+      transform: "scale(0.9)",
       width: 400,
       height: 500,
       background: "white",
@@ -52,7 +53,7 @@ export default function ChatSami({ defaultOpen = false }: ChatSamiProps) {
       border: "1px solid rgba(0,0,0,0.06)",
     },
     chatContainerShow: {
-      transform: "translate(-50%, -50%) scale(1)",
+      transform: "scale(1)",
       opacity: 1,
     },
     chatHeader: {
@@ -78,16 +79,14 @@ export default function ChatSami({ defaultOpen = false }: ChatSamiProps) {
 
   const openIcon =
     "data:image/svg+xml,%3Csvg id='Capa_1' xmlns='http://www.w3.org/2000/svg' viewBox='0 0 65 65'%3E%3Cstyle%3E.st1%7Bfill:%2300c83c;stroke:%2300c83c;stroke-width:2;stroke-linecap:round;stroke-miterlimit:10%7D%3C/style%3E%3Ccircle cx='32.5' cy='32.5' r='25' fill='%23ffffff'/%3E%3Cpath class='st1' d='M23.5 41.5l9-9 9-9M23.5 23.5l9 9 9 9'/%3E%3C/svg%3E";
-  const closeIconGIF =
-    "https://storage.googleapis.com/m-infra.appspot.com/public/res/skandia/20210310-ANN5rrQJevgqT6vS8FqeNuvsmb33-GKI70-.gif";
+  const closeIconGIF = "https://skcoblobresources.blob.core.windows.net/digital-assets/animations/sk-sami-contigo.gif";
 
   // Carga el script de WebChat solo una vez
   useEffect(() => {
     if (scriptLoadedRef.current) return;
 
     const script = document.createElement("script");
-    script.src =
-      "https://cdn.botframework.com/botframework-webchat/latest/webchat.js";
+    script.src = "https://cdn.botframework.com/botframework-webchat/latest/webchat.js";
     script.async = true;
     script.crossOrigin = "anonymous";
     script.onload = () => {
@@ -141,19 +140,13 @@ export default function ChatSami({ defaultOpen = false }: ChatSamiProps) {
 
         // === Token y Direct Line según tu HTML ===
         const tokenEndpointURL = new URL(
-          "https://a1c50ad050aeef36bc04f8ed77c933.05.environment.api.powerplatform.com/powervirtualagents/botsbyschema/cr939_superSami/directline/token?api-version=2022-03-01-preview"
+          "https://a1c50ad050aeef36bc04f8ed77c933.05.environment.api.powerplatform.com/powervirtualagents/botsbyschema/cr939_superSami/directline/token?api-version=2022-03-01-preview",
         );
-        const locale =
-          document.documentElement.lang || navigator.language || "es";
+        const locale = document.documentElement.lang || navigator.language || "es";
         const apiVersion = tokenEndpointURL.searchParams.get("api-version");
 
         const [directLineURL, token] = await Promise.all([
-          fetch(
-            new URL(
-              `/powervirtualagents/regionalchannelsettings?api-version=${apiVersion}`,
-              tokenEndpointURL
-            )
-          )
+          fetch(new URL(`/powervirtualagents/regionalchannelsettings?api-version=${apiVersion}`, tokenEndpointURL))
             .then((r) => {
               if (!r.ok) throw new Error("No se pudo obtener regionalchannelsettings");
               return r.json();
@@ -197,7 +190,7 @@ export default function ChatSami({ defaultOpen = false }: ChatSamiProps) {
             locale,
             styleOptions,
           },
-          containerRef.current
+          containerRef.current,
         );
       } catch (err) {
         console.error("Error iniciando WebChat:", err);
@@ -212,11 +205,7 @@ export default function ChatSami({ defaultOpen = false }: ChatSamiProps) {
   return (
     <>
       {/* Botón flotante */}
-      <button
-        aria-label="Abrir chat"
-        style={styles.chatButton}
-        onClick={() => setOpen((o) => !o)}
-      >
+      <button aria-label="Abrir chat" style={styles.chatButton} onClick={() => setOpen((o) => !o)}>
         <img
           alt="Chatbot"
           src={open ? openIcon : closeIconGIF}
@@ -234,11 +223,7 @@ export default function ChatSami({ defaultOpen = false }: ChatSamiProps) {
         role="dialog"
         aria-modal="true"
       >
-        <button
-          style={styles.chatHeader}
-          onClick={() => setOpen(false)}
-          aria-label="Cerrar chat"
-        />
+        <button style={styles.chatHeader} onClick={() => setOpen(false)} aria-label="Cerrar chat" />
         <div ref={containerRef} style={styles.webchatHost} />
       </div>
     </>
