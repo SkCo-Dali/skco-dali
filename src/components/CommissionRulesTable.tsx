@@ -93,7 +93,7 @@ export function CommissionRulesTable({ rules, planId, onRuleDeleted, onRuleUpdat
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3">
       {/* Rules Table */}
-      <div className="lg:col-span-2 mr-6">
+      <div className="max-h-80 lg:col-span-2 mr-6">
         <div className="rounded-md border">
           <Table>
             <TableHeader>
