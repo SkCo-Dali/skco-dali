@@ -40,7 +40,7 @@ export function Login({ onLogin }: LoginProps) {
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
-            <div className="space-y-4">
+            <div className="flex justify-center space-y-4">
               {/* Autenticación real con Microsoft */}
               <MicrosoftAuth />
             </div>
