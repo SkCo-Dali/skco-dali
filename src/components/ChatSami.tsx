@@ -140,7 +140,7 @@ export default function ChatSami({ defaultOpen = false }: ChatSamiProps) {
 
         // === Token y Direct Line según tu HTML ===
         const tokenEndpointURL = new URL(
-          "https://a1c50ad050aeef36bc04f8ed77c933.05.environment.api.powerplatform.com/powervirtualagents/botsbyschema/cr939_superSami/directline/token?api-version=2022-03-01-preview",
+          "https://6fec394b8c1befd4922c16d793ecb3.0c.environment.api.powerplatform.com/copilotstudio/dataverse-backed/authenticated/bots/cra2e_maestro/conversations?api-version=2022-03-01-preview",
         );
         const locale = document.documentElement.lang || navigator.language || "es";
         const apiVersion = tokenEndpointURL.searchParams.get("api-version");
