@@ -35,7 +35,9 @@ export function Login({ onLogin }: LoginProps) {
                 <h1 className="sk-h2" style={{ color: "#3f3f3f" }}>
                   Dali
                 </h1>
-                <p className="text-gray-600 mt-2"></p>
+                <p className="text-gray-600 mt-2">
+                  Lo mejor de la IA y Data al alcance de tus manos para tu Gestión Comercial
+                </p>
               </div>
             </CardDescription>
           </CardHeader>
