@@ -140,7 +140,7 @@ export default function ChatSami({ defaultOpen = false }: ChatSamiProps) {
 
         // === Token y Direct Line según tu HTML ===
         const tokenEndpointURL = new URL(
-          "https://6fec394b8c1befd4922c16d793ecb3.0c.environment.api.powerplatform.com/copilotstudio/dataverse-backed/authenticated/bots/cra2e_maestro/conversations?api-version=2022-03-01-preview",
+          "https://6fec394b8c1befd4922c16d793ecb3.0c.environment.api.powerplatform.com/powervirtualagents/botsbyschema/cra2e_maestro/directline/token?api-version=2022-03-01-preview",
         );
         const locale = document.documentElement.lang || navigator.language || "es";
         const apiVersion = tokenEndpointURL.searchParams.get("api-version");
@@ -184,25 +184,11 @@ export default function ChatSami({ defaultOpen = false }: ChatSamiProps) {
           },
         });
 
-        const store = window.WebChat.createStore({}, ({ dispatch }) => (next: any) => (action: any) => {
-          if (action.type === "DIRECT_LINE/CONNECT_FULFILLED") {
-            dispatch({
-              type: "WEB_CHAT/SEND_EVENT",
-              payload: {
-                name: "startConversation",
-                value: { locale },
-              },
-            });
-          }
-          return next(action);
-        });
-
         window.WebChat.renderWebChat(
           {
             directLine,
             locale,
             styleOptions,
-            store,
           },
           containerRef.current,
         );
