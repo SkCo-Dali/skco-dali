@@ -116,18 +116,20 @@ export function CommissionRulesTable({ rules, planId, onRuleDeleted, onRuleUpdat
                     setRuleToEdit(rule);
                   }}
                 >
-                  <TableCell className="font-medium">{index + 1}</TableCell>
-                  <TableCell className="font-medium">{rule.name}</TableCell>
-                  <TableCell className="max-w-xs">
-                    <code className="text-xs bg-muted px-2 py-1 rounded">{rule.formula}</code>
+                  <TableCell className="font-medium text-center">{index + 1}</TableCell>
+                  <TableCell className="font-medium text-wrap">{rule.name}</TableCell>
+                  <TableCell className="max-w-xs text-center">
+                    <code className="text-center text-xs bg-muted px-2 py-1 rounded">{rule.formula}</code>
                   </TableCell>
-                  <TableCell className="max-w-xs">
+                  <TableCell className="max-w-xs text-center">
                     <div className="truncate text-sm" title={rule.conditions}>
                       {rule.conditions}
                     </div>
                   </TableCell>
                   <TableCell>
-                    <Badge variant="outline">{rule.catalog}</Badge>
+                    <Badge variant="outline" className="flex justify-center">
+                      {rule.catalog}
+                    </Badge>
                   </TableCell>
                   {planId && (
                     <TableCell>
