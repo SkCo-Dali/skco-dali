@@ -17,6 +17,11 @@ export default defineConfig(({ mode }) => ({
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
+      // Workaround para markdown-it-attrs-es5
+      'markdown-it-attrs-es5': 'markdown-it-attrs-es5/dist/markdown-it-attrs.browser.js',
     },
+  },
+  optimizeDeps: {
+    exclude: ['markdown-it-attrs-es5'],
   },
 }));
