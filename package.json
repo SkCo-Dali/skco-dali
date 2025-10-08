@@ -51,6 +51,7 @@
     "@types/luxon": "^3.6.2",
     "@types/uuid": "^10.0.0",
     "@vitejs/plugin-react": "^4.7.0",
+    "abort-controller": "^3.0.0",
     "botframework-webchat": "^4.18.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
