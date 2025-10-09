@@ -4,7 +4,20 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { TrendingUp, TrendingDown, Users, DollarSign } from "lucide-react";
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, BarChart, Bar } from "recharts";
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  PieChart,
+  Pie,
+  Cell,
+  BarChart,
+  Bar,
+} from "recharts";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cn } from "@/lib/utils";
 
@@ -21,12 +34,12 @@ export function CommissionsResumenTab({
   selectedMonth,
   onMonthChange,
   selectedYear,
-  onYearChange
+  onYearChange,
 }: CommissionsResumenTabProps) {
   // Filtrar comisiones del mes actual
   const currentMonthCommissions = React.useMemo(() => {
-    const [year, month] = selectedMonth.split('-');
-    return commissions.filter(c => c.year === parseInt(year) && c.month === parseInt(month));
+    const [year, month] = selectedMonth.split("-");
+    return commissions.filter((c) => c.year === parseInt(year) && c.month === parseInt(month));
   }, [commissions, selectedMonth]);
 
   // Calcular KPIs
@@ -37,26 +50,26 @@ export function CommissionsResumenTab({
 
   // Datos para gráfico anual
   const yearlyData = React.useMemo(() => {
-    const months = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
+    const months = ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"];
     return months.map((month, index) => ({
       name: month,
-      value: Math.random() * 10000000 + 4000000 // Mock data
+      value: Math.random() * 10000000 + 4000000, // Mock data
     }));
   }, []);
 
   // Datos para gráfico de dona
   const clientTypeData = [
-    { name: 'Clientes actuales', value: 85, color: '#0095d9' },
-    { name: 'Clientes nuevos', value: 15, color: '#00c73d' }
+    { name: "Clientes actuales", value: 85, color: "#0095d9" },
+    { name: "Clientes nuevos", value: 15, color: "#00c73d" },
   ];
 
   // Datos para gráfico de barras del equipo
   const teamData = [
-    { name: 'Cristina Ruiz', value: 5500000 },
-    { name: 'Juan Pérez', value: 10000000 },
-    { name: 'Rosa López', value: 5500000 },
-    { name: 'Camila Álvarez', value: 5500000 },
-    { name: 'Daniel Gómez', value: 10000000 }
+    { name: "Cristina Ruiz", value: 5500000 },
+    { name: "Juan Pérez", value: 10000000 },
+    { name: "Rosa López", value: 5500000 },
+    { name: "Camila Álvarez", value: 5500000 },
+    { name: "Daniel Gómez", value: 10000000 },
   ];
 
   return (
@@ -94,7 +107,7 @@ export function CommissionsResumenTab({
         <div className="space-y-4">
           {/* Comisiones del mes */}
           <Card>
-            <CardContent className="pt-6">
+            <CardContent className="pt-2 pb-2">
               <div className="space-y-2">
                 <p className="text-sm text-muted-foreground">Tus comisiones del mes</p>
                 <div className="flex items-end justify-between">
@@ -119,8 +132,10 @@ export function CommissionsResumenTab({
                   </Badge>
                 </div>
                 <p className="text-xs text-muted-foreground flex items-center gap-1">
-                  Tasa de conversión: {conversionRate}% 
-                  <span className="inline-flex items-center justify-center w-4 h-4 rounded-full bg-muted text-muted-foreground text-xs">i</span>
+                  Tasa de conversión: {conversionRate}%
+                  <span className="inline-flex items-center justify-center w-4 h-4 rounded-full bg-muted text-muted-foreground text-xs">
+                    i
+                  </span>
                 </p>
               </div>
             </CardContent>
@@ -205,20 +220,18 @@ export function CommissionsResumenTab({
                     {clientTypeData.map((item) => (
                       <div key={item.name} className="flex items-center gap-2">
                         <div className="w-3 h-3 rounded-full" style={{ backgroundColor: item.color }} />
-                        <span className="text-sm">{item.value}% {item.name}</span>
+                        <span className="text-sm">
+                          {item.value}% {item.name}
+                        </span>
                       </div>
                     ))}
                   </div>
                 </TabsContent>
                 <TabsContent value="tipo-comision">
-                  <div className="h-[250px] flex items-center justify-center text-muted-foreground">
-                    Próximamente
-                  </div>
+                  <div className="h-[250px] flex items-center justify-center text-muted-foreground">Próximamente</div>
                 </TabsContent>
                 <TabsContent value="producto">
-                  <div className="h-[250px] flex items-center justify-center text-muted-foreground">
-                    Próximamente
-                  </div>
+                  <div className="h-[250px] flex items-center justify-center text-muted-foreground">Próximamente</div>
                 </TabsContent>
               </Tabs>
             </CardHeader>
