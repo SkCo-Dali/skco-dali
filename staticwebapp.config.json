@@ -32,7 +32,7 @@
       "serve": "/index.html",
       "statusCode": 200
     }
-  ],
+},
   "globalHeaders": {
     "X-Content-Type-Options": "nosniff",
     "X-Frame-Options": "DENY",
