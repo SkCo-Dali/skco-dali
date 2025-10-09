@@ -1,5 +1,5 @@
-import React, { useEffect, useState, useMemo } from "react";
-import ReactWebChat, { createDirectLine } from "botframework-webchat";
+import React, { useEffect, useMemo, useState } from "react";
+import ReactWebChat, { createDirectLine, createStore } from "botframework-webchat";
 
 type ChatSamiProps = {
   /** Opcional: forzar oculto inicialmente */
@@ -8,9 +8,9 @@ type ChatSamiProps = {
 
 export default function ChatSami({ defaultOpen = false }: ChatSamiProps) {
   const [open, setOpen] = useState(defaultOpen);
-  const [directLine, setDirectLine] = useState<any>(null);
+  const [directLine, setDirectLine] = useState<ReturnType<typeof createDirectLine> | null>(null);
 
-  // tiny CSS-in-JS para animaciones y layout (evita tocar CSS global)
+  // ======== Estilo (igual al tuyo) ========
   const styles: Record<string, React.CSSProperties> = {
     chatButton: {
       position: "fixed",
@@ -70,67 +70,110 @@ export default function ChatSami({ defaultOpen = false }: ChatSamiProps) {
     },
   };
 
-  const styleOptions = useMemo(() => ({
-    hideUploadButton: true,
-    rootHeight: "100%",
-    rootWidth: "100%",
-    backgroundColor: "White",
-    sendBoxButtonColor: "#00c83c",
-    sendBoxBorderTop: "solid 2px #00c83c",
-    bubbleBackground: "rgba(0, 200, 60, .3)",
-    bubbleBorderRadius: 10,
-    bubbleFromUserBackground: "#DADADA",
-    bubbleFromUserBorderRadius: 10,
-    bubbleNubOffset: "bottom" as const,
-    bubbleNubSize: 5,
-    bubbleFromUserNubOffset: "top" as const,
-    bubbleFromUserNubSize: 5,
-    suggestedActionBackground: "white",
-    suggestedActionBorderWidth: 1,
-    suggestedActionBorderColor: "#00c83c",
-    suggestedActionDisabledBackground: "white",
-    suggestedActionBorderRadius: 10,
-    suggestedActionDisabledBorderColor: "#00c83c",
-    suggestedActionLayout: "flow" as const,
-    suggestedActionTextColor: "#00c83c",
-    botAvatarInitials: "SS",
-    avatarBorderRadius: "50%",
-    avatarSize: 30,
-    botAvatarBackgroundColor: "white",
-    botAvatarImage:
-      "https://storage.googleapis.com/m-infra.appspot.com/public/res/skandia/20201218-9SaE0VZGz9ZNkjs6SO9fJnFVpRu1-U2SVE-.gif",
-  }), []);
+  const styleOptions = useMemo(
+    () => ({
+      hideUploadButton: true,
+      rootHeight: "100%",
+      rootWidth: "100%",
+      backgroundColor: "White",
+      sendBoxButtonColor: "#00c83c",
+      sendBoxBorderTop: "solid 2px #00c83c",
+      bubbleBackground: "rgba(0, 200, 60, .3)",
+      bubbleBorderRadius: 10,
+      bubbleFromUserBackground: "#DADADA",
+      bubbleFromUserBorderRadius: 10,
+      bubbleNubOffset: "bottom" as const,
+      bubbleNubSize: 5,
+      bubbleFromUserNubOffset: "top" as const,
+      bubbleFromUserNubSize: 5,
+      suggestedActionBackground: "white",
+      suggestedActionBorderWidth: 1,
+      suggestedActionBorderColor: "#00c83c",
+      suggestedActionDisabledBackground: "white",
+      suggestedActionBorderRadius: 10,
+      suggestedActionDisabledBorderColor: "#00c83c",
+      suggestedActionLayout: "flow" as const,
+      suggestedActionTextColor: "#00c83c",
+      botAvatarInitials: "SS",
+      avatarBorderRadius: "50%",
+      avatarSize: 30,
+      botAvatarBackgroundColor: "white",
+      botAvatarImage:
+        "https://storage.googleapis.com/m-infra.appspot.com/public/res/skandia/20201218-9SaE0VZGz9ZNkjs6SO9fJnFVpRu1-U2SVE-.gif",
+    }),
+    [],
+  );
+
+  const locale = useMemo(
+    () => (typeof document !== "undefined" ? document.documentElement.lang || navigator.language || "es" : "es"),
+    [],
+  );
+
+  // ======== Store: auto-saludo al conectar ========
+  const store = useMemo(
+    () =>
+      createStore({}, ({ dispatch }) => (next) => (action) => {
+        if (action.type === "DIRECT_LINE/CONNECT_FULFILLED") {
+          // Evento estándar para PVA/Copilot Studio
+          dispatch({
+            type: "WEB_CHAT/SEND_EVENT",
+            payload: {
+              name: "startConversation",
+              value: { locale, source: "Informes.tsx" }, // opcional, tu contexto
+            },
+          });
+
+          // Fallback por si tu bot no maneja startConversation
+          setTimeout(() => {
+            dispatch({
+              type: "WEB_CHAT/SEND_MESSAGE",
+              payload: { text: "hola" },
+            });
+          }, 800);
+        }
+        return next(action);
+      }),
+    [locale],
+  );
 
   const openIcon =
     "data:image/svg+xml,%3Csvg id='Capa_1' xmlns='http://www.w3.org/2000/svg' viewBox='0 0 65 65'%3E%3Cstyle%3E.st1%7Bfill:%2300c83c;stroke:%2300c83c;stroke-width:2;stroke-linecap:round;stroke-miterlimit:10%7D%3C/style%3E%3Ccircle cx='32.5' cy='32.5' r='25' fill='%23ffffff'/%3E%3Cpath class='st1' d='M23.5 41.5l9-9 9-9M23.5 23.5l9 9 9 9'/%3E%3C/svg%3E";
   const closeIconGIF = "https://skcoblobresources.blob.core.windows.net/digital-assets/animations/sk-sami-contigo.gif";
 
-  // Inicializa DirectLine cuando el panel se abre por primera vez
+  // ======== Inicializa Direct Line en el primer open ========
   useEffect(() => {
     if (!open || directLine) return;
 
-    (async function start() {
+    let disposed = false;
+
+    (async () => {
       try {
         const tokenEndpointURL = new URL(
           "https://6fec394b8c1befd4922c16d793ecb3.0c.environment.api.powerplatform.com/powervirtualagents/botsbyschema/cra2e_maestro/directline/token?api-version=2022-03-01-preview",
         );
-        const locale = document.documentElement.lang || navigator.language || "es";
-        const apiVersion = tokenEndpointURL.searchParams.get("api-version");
+        const apiVersion = tokenEndpointURL.searchParams.get("api-version") || "2022-03-01-preview";
 
         const [directLineURL, token] = await Promise.all([
-          fetch(new URL(`/powervirtualagents/regionalchannelsettings?api-version=${apiVersion}`, tokenEndpointURL))
+          fetch(
+            new URL(
+              `/powervirtualagents/regionalchannelsettings?api-version=${apiVersion}`,
+              tokenEndpointURL,
+            ).toString(),
+          )
             .then((r) => {
-              if (!r.ok) throw new Error("No se pudo obtener regionalchannelsettings");
+              if (!r.ok) throw new Error(`regionalchannelsettings ${r.status}`);
               return r.json();
             })
             .then(({ channelUrlsById: { directline } }) => directline),
-          fetch(tokenEndpointURL)
+          fetch(tokenEndpointURL.toString())
             .then((r) => {
-              if (!r.ok) throw new Error("No se pudo obtener el token de Direct Line");
+              if (!r.ok) throw new Error(`token ${r.status}`);
               return r.json();
             })
             .then(({ token }) => token),
         ]);
+
+        if (disposed) return;
 
         const dl = createDirectLine({
           domain: new URL("v3/directline", directLineURL).toString(),
@@ -142,6 +185,10 @@ export default function ChatSami({ defaultOpen = false }: ChatSamiProps) {
         console.error("Error iniciando WebChat:", err);
       }
     })();
+
+    return () => {
+      disposed = true;
+    };
   }, [open, directLine]);
 
   return (
@@ -170,7 +217,10 @@ export default function ChatSami({ defaultOpen = false }: ChatSamiProps) {
           {directLine && (
             <ReactWebChat
               directLine={directLine}
-              locale={document.documentElement.lang || navigator.language || "es"}
+              store={store} // 👈 auto-saludo aquí
+              locale={locale}
+              userID="web-user" // opcional para trazas
+              username="Invitado" // opcional
               styleOptions={styleOptions}
             />
           )}
