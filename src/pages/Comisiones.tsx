@@ -1,31 +1,61 @@
 import React from "react";
 import { mockCommissions } from "@/data/commissions";
-import { CommissionsKPICards } from "@/components/CommissionsKPICards";
-import { CommissionsCharts } from "@/components/CommissionsCharts";
 import { CommissionsTable } from "@/components/CommissionsTable";
+import { CommissionsResumenTab } from "@/components/CommissionsResumenTab";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { PieChart, FileText, Receipt } from "lucide-react";
 
 export default function Comisiones() {
+  const [selectedMonth, setSelectedMonth] = React.useState("2024-09");
+  const [selectedYear, setSelectedYear] = React.useState("2025");
+
   return (
     <div className="w-full max-w-full px-4 py-4 space-y-6">
-      <div className="flex flex-col lg:flex-row gap-6">
-        <div className="flex-1 space-y-6">
-          {/* Header */}
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 pt-0">
-            <h1 className="text-3xl font-bold mb-1 tracking-tight text-[#00c73d]">
-              Comisiones
-            </h1>
-          </div>
+      <Tabs defaultValue="resumen" className="w-full">
+        <TabsList className="grid w-full max-w-2xl grid-cols-3 h-12 bg-muted/50">
+          <TabsTrigger 
+            value="resumen" 
+            className="data-[state=active]:bg-[#00c73d] data-[state=active]:text-white flex items-center gap-2"
+          >
+            <PieChart className="h-4 w-4" />
+            Resumen
+          </TabsTrigger>
+          <TabsTrigger 
+            value="detalle"
+            className="data-[state=active]:bg-[#00c73d] data-[state=active]:text-white flex items-center gap-2"
+          >
+            <FileText className="h-4 w-4" />
+            Detalle de comisiones
+          </TabsTrigger>
+          <TabsTrigger 
+            value="facturacion"
+            className="data-[state=active]:bg-[#00c73d] data-[state=active]:text-white flex items-center gap-2"
+          >
+            <Receipt className="h-4 w-4" />
+            Facturación y Covers
+          </TabsTrigger>
+        </TabsList>
 
-          {/* KPI Cards */}
-          <CommissionsKPICards commissions={mockCommissions} />
+        <TabsContent value="resumen" className="mt-6">
+          <CommissionsResumenTab 
+            commissions={mockCommissions}
+            selectedMonth={selectedMonth}
+            onMonthChange={setSelectedMonth}
+            selectedYear={selectedYear}
+            onYearChange={setSelectedYear}
+          />
+        </TabsContent>
 
-          {/* Charts */}
-          <CommissionsCharts commissions={mockCommissions} />
-
-          {/* Table */}
+        <TabsContent value="detalle" className="mt-6">
           <CommissionsTable commissions={mockCommissions} />
-        </div>
-      </div>
+        </TabsContent>
+
+        <TabsContent value="facturacion" className="mt-6">
+          <div className="flex items-center justify-center h-64 text-muted-foreground">
+            Próximamente
+          </div>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }
