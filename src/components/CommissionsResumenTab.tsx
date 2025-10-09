@@ -121,7 +121,7 @@ export function CommissionsResumenTab({
           </Card>
 
           {/* Nuevos clientes */}
-          <Card>
+          <Card className="max-h-[106px]">
             <CardContent className="pt-3 pb-3">
               <div className="space-y-2">
                 <p className="text-sm text-muted-foreground">Nuevos clientes que hiciste</p>
