@@ -84,7 +84,7 @@ export function TeamBars({ data }: { name: string; value: number }[]) {
         </div>
       </div>
 
-      {/* Barra de progreso inferior (estética) */}
+      {/* Progreso custom */}
       <div className="h-2 rounded-full bg-muted">
         <div className="h-2 rounded-full bg-[#00c73d] transition-all" style={{ width: `${progress}%` }} />
       </div>
