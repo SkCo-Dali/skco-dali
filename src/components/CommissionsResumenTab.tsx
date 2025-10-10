@@ -41,7 +41,7 @@ function CustomTopLabel(props: any) {
   );
 }
 
-export function TeamBars({ data }: { data: { name: string; value: number }[] }) {
+export function TeamBars({ data }: { name: string; value: number }[]) {
   const scrollRef = React.useRef<HTMLDivElement | null>(null);
   const [progress, setProgress] = React.useState(0);
 
@@ -58,11 +58,14 @@ export function TeamBars({ data }: { data: { name: string; value: number }[] }) 
   }, []);
 
   // Asegura barras “anchas” si hay muchos miembros
-  const minInnerWidth = Math.max(560, data.length * 140); // ~140px por persona
+  const minInnerWidth = Math.max(560, data.length * 140);
 
   return (
     <div className="space-y-2">
-      <div ref={scrollRef} className="overflow-x-auto">
+      <div
+        ref={scrollRef}
+        className="overflow-x-auto [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+      >
         <div style={{ minWidth: minInnerWidth }}>
           <ResponsiveContainer width="100%" height={220}>
             <BarChart data={data} margin={{ top: 10, right: 8, left: 8, bottom: 24 }} barSize={64} barCategoryGap={24}>
