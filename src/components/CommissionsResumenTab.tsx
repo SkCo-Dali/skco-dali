@@ -18,9 +18,80 @@ import {
   BarChart,
   Bar,
   Legend,
+  LabelList,
 } from "recharts";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
+/* ====================== */
+/*  Helpers para TeamBars */
+/* ====================== */
+function formatMillions(n: number) {
+  if (n >= 1_000_000) return `$${Math.round(n / 1_000_000)}M`;
+  if (n >= 1_000) return `$${Math.round(n / 1_000)}K`;
+  return `$${n}`;
+}
+
+function CustomTopLabel(props: any) {
+  const { x, y, width, value } = props;
+  const cx = x + width / 2;
+  return (
+    <text x={cx} y={y - 6} textAnchor="middle" className="fill-foreground" fontSize={12} fontWeight={700}>
+      {formatMillions(value)}
+    </text>
+  );
+}
+
+export function TeamBars({ data }: { data: { name: string; value: number }[] }) {
+  const scrollRef = React.useRef<HTMLDivElement | null>(null);
+  const [progress, setProgress] = React.useState(0);
+
+  React.useEffect(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    const onScroll = () => {
+      const pct = el.scrollWidth <= el.clientWidth ? 100 : (el.scrollLeft / (el.scrollWidth - el.clientWidth)) * 100;
+      setProgress(pct);
+    };
+    onScroll();
+    el.addEventListener("scroll", onScroll, { passive: true });
+    return () => el.removeEventListener("scroll", onScroll);
+  }, []);
+
+  // Asegura barras “anchas” si hay muchos miembros
+  const minInnerWidth = Math.max(560, data.length * 140); // ~140px por persona
+
+  return (
+    <div className="space-y-2">
+      <div ref={scrollRef} className="overflow-x-auto">
+        <div style={{ minWidth: minInnerWidth }}>
+          <ResponsiveContainer width="100%" height={220}>
+            <BarChart data={data} margin={{ top: 10, right: 8, left: 8, bottom: 24 }} barSize={64} barCategoryGap={24}>
+              {/* Ejes minimalistas */}
+              <XAxis dataKey="name" tick={{ fontSize: 12 }} axisLine={false} tickLine={false} interval={0} />
+              <YAxis hide />
+              <Tooltip
+                cursor={{ fill: "rgba(0,0,0,0.03)" }}
+                formatter={(v: number) => [`$${v.toLocaleString()}`, "Promedio"]}
+              />
+              <Bar dataKey="value" fill="#D9F99D" stroke="#A3E635" strokeWidth={1} radius={[8, 8, 0, 0]}>
+                <LabelList dataKey="value" content={<CustomTopLabel />} />
+              </Bar>
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+      </div>
+
+      {/* Barra de progreso inferior (estética) */}
+      <div className="h-2 rounded-full bg-muted">
+        <div className="h-2 rounded-full bg-[#00c73d] transition-all" style={{ width: `${progress}%` }} />
+      </div>
+    </div>
+  );
+}
+
+/* ===================================== */
+/*  Componente principal de tu pantalla  */
+/* ===================================== */
 interface CommissionsResumenTabProps {
   commissions: Commission[];
   selectedMonth: string;
@@ -45,7 +116,6 @@ export function CommissionsResumenTab({
   // KPIs
   const monthTotal = currentMonthCommissions.reduce((sum, c) => sum + c.commissionValue, 0);
   const newClients = 3; // Mock data
-  const currentClients = 125; // Mock data
   const conversionRate = 3; // Mock data
 
   // Datos para gráfico anual
@@ -57,16 +127,14 @@ export function CommissionsResumenTab({
     }));
   }, []);
 
-  // Datos para gráfico de dona
+  // Donut (como tu imagen)
   const clientTypeData = [
     { name: "Seguro Crea Patrimonio", value: 40, color: "#0EA5E9" },
     { name: "Seguro Crea Ahorro", value: 30, color: "#22C55E" },
     { name: "Enfermedades graves", value: 30, color: "#5EEAD4" },
   ];
-
   const totalClientType = React.useMemo(() => clientTypeData.reduce((acc, x) => acc + x.value, 0), [clientTypeData]);
 
-  // Leyenda custom para el donut (• 30% Nombre)
   function ClientTypeLegend({ payload = [] as any[] }) {
     return (
       <ul className="space-y-1">
@@ -87,13 +155,13 @@ export function CommissionsResumenTab({
     );
   }
 
-  // Datos para gráfico de barras del equipo
+  // Equipo
   const teamData = [
-    { name: "Cristina Ruiz", value: 5500000 },
-    { name: "Juan Pérez", value: 10000000 },
-    { name: "Rosa López", value: 5500000 },
-    { name: "Camila Álvarez", value: 5500000 },
-    { name: "Daniel Gómez", value: 10000000 },
+    { name: "Cristina Ruiz", value: 5_500_000 },
+    { name: "Juan Pérez", value: 10_000_000 },
+    { name: "Rosa López", value: 5_500_000 },
+    { name: "Camila Álvarez", value: 5_500_000 },
+    { name: "Daniel Gómez", value: 10_000_000 },
   ];
 
   return (
@@ -147,10 +215,10 @@ export function CommissionsResumenTab({
             <CardContent className="pt-3 pb-3">
               <div className="space-y-2">
                 <p className="text-sm text-muted-foreground">Nuevos clientes que hiciste</p>
-                <p className="text-3xl font-bold">{newClients}</p>
+                <p className="text-3xl font-bold">3</p>
 
                 <p className="text-xs text-muted-foreground flex items-center gap-1">
-                  Tasa de conversión: {conversionRate}%
+                  Tasa de conversión: 3%
                   <span
                     className="inline-flex items-center justify-center w-4 h-4 rounded-full bg-muted text-muted-foreground text-[10px] leading-none"
                     aria-label="Más info"
@@ -183,7 +251,7 @@ export function CommissionsResumenTab({
               </div>
             </CardHeader>
             <CardContent>
-              <p className="text-2xl font-bold mb-4">${(25000000).toLocaleString()}</p>
+              <p className="text-2xl font-bold mb-4">${(25_000_000).toLocaleString()}</p>
               <ResponsiveContainer width="100%" height={200}>
                 <LineChart data={yearlyData}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
@@ -199,17 +267,16 @@ export function CommissionsResumenTab({
 
         {/* Columna derecha */}
         <div className="lg:col-span-2 space-y-4">
-          {/* Gráfico de dona */}
+          {/* Donut estilo tarjeta con leyenda a la derecha */}
           <Card className="relative overflow-hidden min-h-[300px]">
-            <CardHeader className="pt-2">
+            <CardHeader>
               <Tabs defaultValue="tipo-comision" className="w-full">
                 <TabsList className="grid w-full grid-cols-2">
                   <TabsTrigger value="tipo-comision">Tipo de comisión</TabsTrigger>
                   <TabsTrigger value="producto">Producto</TabsTrigger>
                 </TabsList>
 
-                <TabsContent value="tipo-comision" className="mt-0">
-                  {/* reservamos altura estable para que no “corte” el gráfico */}
+                <TabsContent value="tipo-comision" className="mt-6">
                   <div className="h-[230px]">
                     <ResponsiveContainer width="100%" height="100%">
                       <PieChart margin={{ left: 8, right: 8, top: 0, bottom: 0 }}>
@@ -217,10 +284,10 @@ export function CommissionsResumenTab({
                           data={clientTypeData}
                           dataKey="value"
                           nameKey="name"
-                          cx="42%" // antes 35%: lo movemos a la derecha
+                          cx="42%"
                           cy="50%"
-                          innerRadius={56} // antes 60
-                          outerRadius={84} // antes 90: un toque más compacto
+                          innerRadius={56}
+                          outerRadius={84}
                           paddingAngle={3}
                           cornerRadius={6}
                         >
@@ -239,8 +306,7 @@ export function CommissionsResumenTab({
 
                         <Tooltip
                           formatter={(value: number, _name: string, { payload }: any) => {
-                            const total = clientTypeData.reduce((a, b) => a + b.value, 0);
-                            const pct = Math.round((payload.value / (total || 1)) * 100);
+                            const pct = Math.round((payload.value / (totalClientType || 1)) * 100);
                             return [`${value} (${pct}%)`, payload.name];
                           }}
                         />
@@ -256,7 +322,7 @@ export function CommissionsResumenTab({
             </CardHeader>
           </Card>
 
-          {/* Gráfico de equipo */}
+          {/* Gráfico de equipo con el look solicitado */}
           <Card>
             <CardHeader className="pb-3">
               <div className="flex items-center justify-between">
@@ -273,16 +339,8 @@ export function CommissionsResumenTab({
               </div>
             </CardHeader>
             <CardContent>
-              <p className="text-2xl font-bold mb-4">${(10000000).toLocaleString()}</p>
-              <ResponsiveContainer width="100%" height={250}>
-                <BarChart data={teamData} layout="horizontal">
-                  <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-                  <XAxis type="number" tick={{ fontSize: 10 }} />
-                  <YAxis type="category" dataKey="name" tick={{ fontSize: 10 }} width={100} />
-                  <Tooltip formatter={(value: number) => `$${value.toLocaleString()}`} />
-                  <Bar dataKey="value" fill="#b8e986" radius={[0, 4, 4, 0]} />
-                </BarChart>
-              </ResponsiveContainer>
+              <p className="text-2xl font-bold mb-4">${(10_000_000).toLocaleString()}</p>
+              <TeamBars data={teamData} />
             </CardContent>
           </Card>
         </div>
