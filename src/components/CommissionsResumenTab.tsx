@@ -41,7 +41,7 @@ function CustomTopLabel(props: any) {
   );
 }
 
-export function TeamBars({ data }: { name: string; value: number }[]) {
+export function TeamBars({ data }: { data: { name: string; value: number }[] }) {
   const scrollRef = React.useRef<HTMLDivElement | null>(null);
   const [progress, setProgress] = React.useState(0);
 
