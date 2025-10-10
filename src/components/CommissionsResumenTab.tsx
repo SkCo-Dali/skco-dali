@@ -3,7 +3,7 @@ import { Commission } from "@/data/commissions";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { TrendingUp, TrendingDown, Users, DollarSign } from "lucide-react";
+import { TrendingUp, TrendingDown } from "lucide-react";
 import {
   LineChart,
   Line,
@@ -17,9 +17,9 @@ import {
   Cell,
   BarChart,
   Bar,
+  Legend,
 } from "recharts";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { cn } from "@/lib/utils";
 
 interface CommissionsResumenTabProps {
   commissions: Commission[];
@@ -42,7 +42,7 @@ export function CommissionsResumenTab({
     return commissions.filter((c) => c.year === parseInt(year) && c.month === parseInt(month));
   }, [commissions, selectedMonth]);
 
-  // Calcular KPIs
+  // KPIs
   const monthTotal = currentMonthCommissions.reduce((sum, c) => sum + c.commissionValue, 0);
   const newClients = 3; // Mock data
   const currentClients = 125; // Mock data
@@ -51,7 +51,7 @@ export function CommissionsResumenTab({
   // Datos para gráfico anual
   const yearlyData = React.useMemo(() => {
     const months = ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"];
-    return months.map((month, index) => ({
+    return months.map((month) => ({
       name: month,
       value: Math.random() * 10000000 + 4000000, // Mock data
     }));
@@ -59,9 +59,33 @@ export function CommissionsResumenTab({
 
   // Datos para gráfico de dona
   const clientTypeData = [
-    { name: "Clientes actuales", value: 85, color: "#0095d9" },
-    { name: "Clientes nuevos", value: 15, color: "#00c73d" },
+    { name: "Seguro Crea Patrimonio", value: 40, color: "#0EA5E9" },
+    { name: "Seguro Crea Ahorro", value: 30, color: "#22C55E" },
+    { name: "Enfermedades graves", value: 30, color: "#5EEAD4" },
   ];
+
+  const totalClientType = React.useMemo(() => clientTypeData.reduce((acc, x) => acc + x.value, 0), [clientTypeData]);
+
+  // Leyenda custom para el donut (• 30% Nombre)
+  function ClientTypeLegend({ payload = [] as any[] }) {
+    return (
+      <ul className="space-y-1">
+        {payload.map((entry, i) => {
+          const v = entry?.payload?.value ?? 0;
+          const pct = Math.round((v / (totalClientType || 1)) * 100);
+          return (
+            <li key={i} className="flex items-center gap-2 text-sm">
+              <span className="inline-block w-3 h-3 rounded-full" style={{ background: entry.color }} />
+              <span className="text-muted-foreground">
+                <strong className="text-foreground mr-1">{pct}%</strong>
+                {entry?.value}
+              </span>
+            </li>
+          );
+        })}
+      </ul>
+    );
+  }
 
   // Datos para gráfico de barras del equipo
   const teamData = [
@@ -142,19 +166,6 @@ export function CommissionsResumenTab({
             </Badge>
           </Card>
 
-          {/* Clientes actuales
-          <Card className="relative h-[118px]">
-            <CardContent className="pt-4 pb-4">
-              <div className="space-y-2">
-                <p className="text-sm text-muted-foreground">Tus clientes actuales</p>
-                <p className="text-3xl font-bold">{currentClients}</p>
-              </div>
-            </CardContent>
-            <Badge className="absolute right-4 top-1/2 -translate-y-1/2 inline-flex items-center gap-1 bg-[#fff4e5] text-[#ea580c] hover:bg-[#fff4e5] flex items-center gap-1">
-              -1% <TrendingDown className="h-3 w-3" /> 1 inactivo
-            </Badge>
-          </Card> */}
-
           {/* Gráfico anual */}
           <Card>
             <CardHeader className="pb-3">
@@ -196,35 +207,45 @@ export function CommissionsResumenTab({
                   <TabsTrigger value="tipo-comision">Tipo de comisión</TabsTrigger>
                   <TabsTrigger value="producto">Producto</TabsTrigger>
                 </TabsList>
+
+                {/* === Donut con leyenda a la derecha (como la imagen) === */}
                 <TabsContent value="tipo-comision" className="mt-6">
-                  <ResponsiveContainer width="100%" height="80%">
-                    <PieChart>
+                  <ResponsiveContainer width="100%" height={220}>
+                    <PieChart margin={{ left: 0, right: 0 }}>
                       <Pie
                         data={clientTypeData}
-                        cx="50%"
+                        dataKey="value"
+                        nameKey="name"
+                        cx="35%" // deja espacio a la derecha para la leyenda
                         cy="50%"
                         innerRadius={60}
-                        outerRadius={100}
-                        paddingAngle={2}
-                        dataKey="value"
+                        outerRadius={90}
+                        paddingAngle={3}
+                        cornerRadius={6}
                       >
                         {clientTypeData.map((entry, index) => (
                           <Cell key={`cell-${index}`} fill={entry.color} />
                         ))}
                       </Pie>
+
+                      <Legend
+                        layout="vertical"
+                        verticalAlign="middle"
+                        align="right"
+                        content={<ClientTypeLegend />}
+                        wrapperStyle={{ right: 0 }}
+                      />
+
+                      <Tooltip
+                        formatter={(value: number, _name: string, { payload }: any) => {
+                          const pct = Math.round((payload.value / (totalClientType || 1)) * 100);
+                          return [`${value} (${pct}%)`, payload.name];
+                        }}
+                      />
                     </PieChart>
                   </ResponsiveContainer>
-                  <div className="flex justify-center gap-6 mt-4">
-                    {clientTypeData.map((item) => (
-                      <div key={item.name} className="flex items-center gap-2">
-                        <div className="w-3 h-3 rounded-full" style={{ backgroundColor: item.color }} />
-                        <span className="text-sm">
-                          {item.value}% {item.name}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
                 </TabsContent>
+
                 <TabsContent value="producto">
                   <div className="h-[250px] flex items-center justify-center text-muted-foreground">Próximamente</div>
                 </TabsContent>
