@@ -104,7 +104,7 @@ export function CommissionsResumenTab({
 
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
         {/* KPI Cards - Columna izquierda */}
-        <div className="space-y-4">
+        <div className="space-y-4 col-span-2">
           {/* Comisiones del mes */}
           <Card className="relative h-[134.5px]">
             <CardContent className="pt-4 pb-4">
@@ -197,7 +197,7 @@ export function CommissionsResumenTab({
                   <TabsTrigger value="producto">Producto</TabsTrigger>
                 </TabsList>
                 <TabsContent value="tipo-comision" className="mt-6">
-                  <ResponsiveContainer width="100%" height={250}>
+                  <ResponsiveContainer width="100%" height="80%">
                     <PieChart>
                       <Pie
                         data={clientTypeData}
