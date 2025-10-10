@@ -106,18 +106,16 @@ export function CommissionsResumenTab({
         {/* KPI Cards - Columna izquierda */}
         <div className="space-y-4">
           {/* Comisiones del mes */}
-          <Card className="max-h-[118px]">
+          <Card className="relative max-h-[118px]">
             <CardContent className="pt-4 pb-4">
               <div className="space-y-2">
                 <p className="text-sm text-muted-foreground">Tus comisiones del mes</p>
-                <div className="flex items-end justify-between">
-                  <p className="text-3xl font-bold">${monthTotal.toLocaleString()}</p>
-                  <Badge className="inline-flex items-center align-middle bg-[#d4f4dd] text-[#00c73d] hover:bg-[#d4f4dd] flex items-center gap-1">
-                    5% <TrendingUp className="h-3 w-3" /> ¡Wow!
-                  </Badge>
-                </div>
+                <p className="text-3xl font-bold">${monthTotal.toLocaleString()}</p>
               </div>
             </CardContent>
+            <Badge className="absolute right-4 top-1/2 -translate-y-1/2 inline-flex items-center gap-1 bg-[#d4f4dd] text-[#00c73d] hover:bg-[#d4f4dd]">
+              5% <TrendingUp className="h-3 w-3" /> ¡Wow!
+            </Badge>
           </Card>
 
           {/* Nuevos clientes */}
