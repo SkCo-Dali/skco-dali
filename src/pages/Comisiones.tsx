@@ -12,7 +12,7 @@ export default function Comisiones() {
   return (
     <div className="w-full px-16 py-4 space-y-6">
       <Tabs defaultValue="resumen" className="w-full">
-        <TabsList className="grid w-full max-w-2xl grid-cols-3 h-12 bg-muted/50">
+        <TabsList className="grid w-full grid-cols-3 h-12 bg-muted/50">
           <TabsTrigger
             value="resumen"
             className="data-[state=active]:bg-[#00c73d] data-[state=active]:text-white flex items-center gap-2"
