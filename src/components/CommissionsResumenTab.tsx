@@ -102,11 +102,11 @@ export function CommissionsResumenTab({
         </Select>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
         {/* KPI Cards - Columna izquierda */}
         <div className="space-y-4">
           {/* Comisiones del mes */}
-          <Card className="relative h-[134px]">
+          <Card className="relative h-[134.5px]">
             <CardContent className="pt-4 pb-4">
               <div className="space-y-2">
                 <p className="text-sm text-muted-foreground">Tus comisiones del mes</p>
@@ -119,7 +119,7 @@ export function CommissionsResumenTab({
           </Card>
 
           {/* Nuevos clientes */}
-          <Card className="relative h-[134px]">
+          <Card className="relative h-[134.5px]">
             <CardContent className="pt-3 pb-3">
               <div className="space-y-2">
                 <p className="text-sm text-muted-foreground">Nuevos clientes que hiciste</p>
@@ -189,7 +189,7 @@ export function CommissionsResumenTab({
         {/* Columna derecha */}
         <div className="lg:col-span-2 space-y-4">
           {/* Gráfico de dona */}
-          <Card>
+          <Card className="relative h-[285px]">
             <CardHeader>
               <Tabs defaultValue="tipo-comision" className="w-full">
                 <TabsList className="grid w-full grid-cols-2">
