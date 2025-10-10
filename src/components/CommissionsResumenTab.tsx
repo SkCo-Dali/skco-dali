@@ -119,39 +119,40 @@ export function CommissionsResumenTab({
           </Card>
 
           {/* Nuevos clientes */}
-          <Card className="max-h-[118px]">
+          <Card className="relative max-h-[118px]">
             <CardContent className="pt-3 pb-3">
               <div className="space-y-2">
                 <p className="text-sm text-muted-foreground">Nuevos clientes que hiciste</p>
-                <div className="flex items-end justify-between">
-                  <p className="text-3xl font-bold">{newClients}</p>
-                  <Badge className="bg-[#ffe5e5] text-[#dc2626] hover:bg-[#ffe5e5] flex items-center gap-1">
-                    -5% <TrendingDown className="h-3 w-3" /> ¡Vamos!
-                  </Badge>
-                </div>
+                <p className="text-3xl font-bold">{newClients}</p>
+
                 <p className="text-xs text-muted-foreground flex items-center gap-1">
                   Tasa de conversión: {conversionRate}%
-                  <span className="inline-flex items-center justify-center w-4 h-4 rounded-full bg-muted text-muted-foreground text-xs">
+                  <span
+                    className="inline-flex items-center justify-center w-4 h-4 rounded-full bg-muted text-muted-foreground text-[10px] leading-none"
+                    aria-label="Más info"
+                    title="Porcentaje de leads que se convierten en clientes"
+                  >
                     i
                   </span>
                 </p>
               </div>
             </CardContent>
+            <Badge className="absolute right-4 top-1/2 -translate-y-1/2 inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs bg-[#ffe5e5] text-[#dc2626] hover:bg-[#ffe5e5]">
+              -5% <TrendingDown className="h-3 w-3" /> ¡Vamos!
+            </Badge>
           </Card>
 
           {/* Clientes actuales */}
-          <Card className="h-[118px]">
+          <Card className="relative h-[118px]">
             <CardContent className="pt-4 pb-4">
               <div className="space-y-2">
                 <p className="text-sm text-muted-foreground">Tus clientes actuales</p>
-                <div className="flex items-end justify-between">
-                  <p className="text-3xl font-bold">{currentClients}</p>
-                  <Badge className="bg-[#fff4e5] text-[#ea580c] hover:bg-[#fff4e5] flex items-center gap-1">
-                    -1% <TrendingDown className="h-3 w-3" /> 1 inactivo
-                  </Badge>
-                </div>
+                <p className="text-3xl font-bold">{currentClients}</p>
               </div>
             </CardContent>
+            <Badge className="absolute right-4 top-1/2 -translate-y-1/2 inline-flex items-center gap-1 bg-[#fff4e5] text-[#ea580c] hover:bg-[#fff4e5] flex items-center gap-1">
+              -1% <TrendingDown className="h-3 w-3" /> 1 inactivo
+            </Badge>
           </Card>
 
           {/* Gráfico anual */}
