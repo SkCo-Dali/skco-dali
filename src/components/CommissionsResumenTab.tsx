@@ -164,7 +164,10 @@ export function CommissionsResumenTab({
     { name: "Juan Pérez", value: 10_000_000 },
     { name: "Rosa López", value: 5_500_000 },
     { name: "Camila Álvarez", value: 5_500_000 },
-    { name: "Daniel Gómez", value: 10_000_000 },
+    { name: "Daniel Gómez", value: 12_000_000 },
+    { name: "Daniel Castro", value: 11_000_000 },
+    { name: "Carolina Rámirez", value: 9_000_000 },
+    { name: "Pablo Lara", value: 15_000_000 },
   ];
 
   return (
