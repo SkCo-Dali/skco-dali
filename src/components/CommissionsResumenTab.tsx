@@ -61,7 +61,7 @@ export function TeamBars({ data }: { data: { name: string; value: number }[] }) 
   const minInnerWidth = Math.max(560, data.length * 140);
 
   return (
-    <div className="overflow-x-auto [scrollbar-gutter:stable]">
+    <div className="overflow-x-auto scrollbar-thin scrollbar-thumb-[#00c73d] scrollbar-track-gray-200">
       <div style={{ minWidth: minInnerWidth }}>
         <ResponsiveContainer width="100%" height={220}>
           <BarChart data={data} margin={{ top: 10, right: 8, left: 8, bottom: 24 }} barSize={64} barCategoryGap={24}>
