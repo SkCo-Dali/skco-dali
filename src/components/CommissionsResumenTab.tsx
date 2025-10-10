@@ -142,7 +142,7 @@ export function CommissionsResumenTab({
             </Badge>
           </Card>
 
-          {/* Clientes actuales */}
+          {/* Clientes actuales
           <Card className="relative h-[118px]">
             <CardContent className="pt-4 pb-4">
               <div className="space-y-2">
@@ -153,7 +153,7 @@ export function CommissionsResumenTab({
             <Badge className="absolute right-4 top-1/2 -translate-y-1/2 inline-flex items-center gap-1 bg-[#fff4e5] text-[#ea580c] hover:bg-[#fff4e5] flex items-center gap-1">
               -1% <TrendingDown className="h-3 w-3" /> 1 inactivo
             </Badge>
-          </Card>
+          </Card> */}
 
           {/* Gráfico anual */}
           <Card>
