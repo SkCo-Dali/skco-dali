@@ -208,7 +208,7 @@ export function CommissionsResumenTab({
                   <TabsTrigger value="producto">Producto</TabsTrigger>
                 </TabsList>
 
-                <TabsContent value="tipo-comision" className="mt-6">
+                <TabsContent value="tipo-comision" className="mt-2">
                   {/* reservamos altura estable para que no “corte” el gráfico */}
                   <div className="h-[230px]">
                     <ResponsiveContainer width="100%" height="100%">
