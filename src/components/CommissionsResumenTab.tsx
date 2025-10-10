@@ -201,7 +201,7 @@ export function CommissionsResumenTab({
         <div className="lg:col-span-2 space-y-4">
           {/* Gráfico de dona */}
           <Card className="relative overflow-hidden min-h-[300px]">
-            <CardHeader className="mt-2">
+            <CardHeader className="pt-4">
               <Tabs defaultValue="tipo-comision" className="w-full">
                 <TabsList className="grid w-full grid-cols-2">
                   <TabsTrigger value="tipo-comision">Tipo de comisión</TabsTrigger>
