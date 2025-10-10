@@ -201,14 +201,14 @@ export function CommissionsResumenTab({
         <div className="lg:col-span-2 space-y-4">
           {/* Gráfico de dona */}
           <Card className="relative overflow-hidden min-h-[300px]">
-            <CardHeader className="pt-4">
+            <CardHeader className="pt-2">
               <Tabs defaultValue="tipo-comision" className="w-full">
                 <TabsList className="grid w-full grid-cols-2">
                   <TabsTrigger value="tipo-comision">Tipo de comisión</TabsTrigger>
                   <TabsTrigger value="producto">Producto</TabsTrigger>
                 </TabsList>
 
-                <TabsContent value="tipo-comision" className="mt-2">
+                <TabsContent value="tipo-comision" className="mt-0">
                   {/* reservamos altura estable para que no “corte” el gráfico */}
                   <div className="h-[230px]">
                     <ResponsiveContainer width="100%" height="100%">
