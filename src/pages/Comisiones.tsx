@@ -10,24 +10,24 @@ export default function Comisiones() {
   const [selectedYear, setSelectedYear] = React.useState("2025");
 
   return (
-    <div className="w-full max-w-full px-4 py-4 space-y-6">
+    <div className="w-full px-16 py-4 space-y-6">
       <Tabs defaultValue="resumen" className="w-full">
         <TabsList className="grid w-full max-w-2xl grid-cols-3 h-12 bg-muted/50">
-          <TabsTrigger 
-            value="resumen" 
+          <TabsTrigger
+            value="resumen"
             className="data-[state=active]:bg-[#00c73d] data-[state=active]:text-white flex items-center gap-2"
           >
             <PieChart className="h-4 w-4" />
             Resumen
           </TabsTrigger>
-          <TabsTrigger 
+          <TabsTrigger
             value="detalle"
             className="data-[state=active]:bg-[#00c73d] data-[state=active]:text-white flex items-center gap-2"
           >
             <FileText className="h-4 w-4" />
             Detalle de comisiones
           </TabsTrigger>
-          <TabsTrigger 
+          <TabsTrigger
             value="facturacion"
             className="data-[state=active]:bg-[#00c73d] data-[state=active]:text-white flex items-center gap-2"
           >
@@ -37,7 +37,7 @@ export default function Comisiones() {
         </TabsList>
 
         <TabsContent value="resumen" className="mt-6">
-          <CommissionsResumenTab 
+          <CommissionsResumenTab
             commissions={mockCommissions}
             selectedMonth={selectedMonth}
             onMonthChange={setSelectedMonth}
@@ -51,9 +51,7 @@ export default function Comisiones() {
         </TabsContent>
 
         <TabsContent value="facturacion" className="mt-6">
-          <div className="flex items-center justify-center h-64 text-muted-foreground">
-            Próximamente
-          </div>
+          <div className="flex items-center justify-center h-64 text-muted-foreground">Próximamente</div>
         </TabsContent>
       </Tabs>
     </div>
