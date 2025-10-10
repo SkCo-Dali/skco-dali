@@ -61,7 +61,16 @@ export function TeamBars({ data }: { data: { name: string; value: number }[] }) 
   const minInnerWidth = Math.max(560, data.length * 140);
 
   return (
-    <div className="overflow-x-auto scrollbar-thin scrollbar-thumb-[#00c73d] scrollbar-track-gray-200">
+    <div
+      className="overflow-x-auto [scrollbar-gutter:stable]
+    [&::-webkit-scrollbar]:h-2
+    [&::-webkit-scrollbar-track]:bg-gray-200
+    [&::-webkit-scrollbar-thumb]:bg-[#00c73d]
+    [&::-webkit-scrollbar-thumb]:rounded-full
+    [&::-webkit-scrollbar-thumb]:hover:bg-[#00b335]
+    [scrollbar-color:#00c73d_#e5e7eb]   /* Firefox: thumb _ track */
+  "
+    >
       <div style={{ minWidth: minInnerWidth }}>
         <ResponsiveContainer width="100%" height={220}>
           <BarChart data={data} margin={{ top: 10, right: 8, left: 8, bottom: 24 }} barSize={64} barCategoryGap={24}>
