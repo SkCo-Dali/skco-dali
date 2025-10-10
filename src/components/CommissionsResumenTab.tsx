@@ -106,7 +106,7 @@ export function CommissionsResumenTab({
         {/* KPI Cards - Columna izquierda */}
         <div className="space-y-4">
           {/* Comisiones del mes */}
-          <Card className="relative max-h-[134px]">
+          <Card className="relative h-[134px]">
             <CardContent className="pt-4 pb-4">
               <div className="space-y-2">
                 <p className="text-sm text-muted-foreground">Tus comisiones del mes</p>
@@ -119,7 +119,7 @@ export function CommissionsResumenTab({
           </Card>
 
           {/* Nuevos clientes */}
-          <Card className="relative max-h-[134px]">
+          <Card className="relative h-[134px]">
             <CardContent className="pt-3 pb-3">
               <div className="space-y-2">
                 <p className="text-sm text-muted-foreground">Nuevos clientes que hiciste</p>
@@ -191,12 +191,12 @@ export function CommissionsResumenTab({
           {/* Gráfico de dona */}
           <Card>
             <CardHeader>
-              <Tabs defaultValue="tipo-cliente" className="w-full">
+              <Tabs defaultValue="tipo-comision" className="w-full">
                 <TabsList className="grid w-full grid-cols-2">
                   <TabsTrigger value="tipo-comision">Tipo de comisión</TabsTrigger>
                   <TabsTrigger value="producto">Producto</TabsTrigger>
                 </TabsList>
-                <TabsContent value="tipo-cliente" className="mt-6">
+                <TabsContent value="tipo-comision" className="mt-6">
                   <ResponsiveContainer width="100%" height={250}>
                     <PieChart>
                       <Pie
@@ -224,9 +224,6 @@ export function CommissionsResumenTab({
                       </div>
                     ))}
                   </div>
-                </TabsContent>
-                <TabsContent value="tipo-comision">
-                  <div className="h-[250px] flex items-center justify-center text-muted-foreground">Próximamente</div>
                 </TabsContent>
                 <TabsContent value="producto">
                   <div className="h-[250px] flex items-center justify-center text-muted-foreground">Próximamente</div>
