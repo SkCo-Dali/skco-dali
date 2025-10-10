@@ -200,7 +200,7 @@ export function CommissionsResumenTab({
         {/* Columna derecha */}
         <div className="lg:col-span-2 space-y-4">
           {/* Gráfico de dona */}
-          <Card className="relative h-[285px]">
+          <Card className="relative overflow-hidden min-h-[300px]">
             <CardHeader>
               <Tabs defaultValue="tipo-comision" className="w-full">
                 <TabsList className="grid w-full grid-cols-2">
@@ -208,46 +208,49 @@ export function CommissionsResumenTab({
                   <TabsTrigger value="producto">Producto</TabsTrigger>
                 </TabsList>
 
-                {/* === Donut con leyenda a la derecha (como la imagen) === */}
                 <TabsContent value="tipo-comision" className="mt-6">
-                  <ResponsiveContainer width="100%" height={220}>
-                    <PieChart margin={{ left: 0, right: 0 }}>
-                      <Pie
-                        data={clientTypeData}
-                        dataKey="value"
-                        nameKey="name"
-                        cx="35%" // deja espacio a la derecha para la leyenda
-                        cy="50%"
-                        innerRadius={60}
-                        outerRadius={90}
-                        paddingAngle={3}
-                        cornerRadius={6}
-                      >
-                        {clientTypeData.map((entry, index) => (
-                          <Cell key={`cell-${index}`} fill={entry.color} />
-                        ))}
-                      </Pie>
+                  {/* reservamos altura estable para que no “corte” el gráfico */}
+                  <div className="h-[230px]">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <PieChart margin={{ left: 8, right: 8, top: 0, bottom: 0 }}>
+                        <Pie
+                          data={clientTypeData}
+                          dataKey="value"
+                          nameKey="name"
+                          cx="42%" // antes 35%: lo movemos a la derecha
+                          cy="50%"
+                          innerRadius={56} // antes 60
+                          outerRadius={84} // antes 90: un toque más compacto
+                          paddingAngle={3}
+                          cornerRadius={6}
+                        >
+                          {clientTypeData.map((entry, index) => (
+                            <Cell key={`cell-${index}`} fill={entry.color} />
+                          ))}
+                        </Pie>
 
-                      <Legend
-                        layout="vertical"
-                        verticalAlign="middle"
-                        align="right"
-                        content={<ClientTypeLegend />}
-                        wrapperStyle={{ right: 0 }}
-                      />
+                        <Legend
+                          layout="vertical"
+                          verticalAlign="middle"
+                          align="right"
+                          content={<ClientTypeLegend />}
+                          wrapperStyle={{ right: 0 }}
+                        />
 
-                      <Tooltip
-                        formatter={(value: number, _name: string, { payload }: any) => {
-                          const pct = Math.round((payload.value / (totalClientType || 1)) * 100);
-                          return [`${value} (${pct}%)`, payload.name];
-                        }}
-                      />
-                    </PieChart>
-                  </ResponsiveContainer>
+                        <Tooltip
+                          formatter={(value: number, _name: string, { payload }: any) => {
+                            const total = clientTypeData.reduce((a, b) => a + b.value, 0);
+                            const pct = Math.round((payload.value / (total || 1)) * 100);
+                            return [`${value} (${pct}%)`, payload.name];
+                          }}
+                        />
+                      </PieChart>
+                    </ResponsiveContainer>
+                  </div>
                 </TabsContent>
 
                 <TabsContent value="producto">
-                  <div className="h-[250px] flex items-center justify-center text-muted-foreground">Próximamente</div>
+                  <div className="h-[230px] flex items-center justify-center text-muted-foreground">Próximamente</div>
                 </TabsContent>
               </Tabs>
             </CardHeader>
