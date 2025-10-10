@@ -61,32 +61,21 @@ export function TeamBars({ data }: { data: { name: string; value: number }[] }) 
   const minInnerWidth = Math.max(560, data.length * 140);
 
   return (
-    <div className="space-y-2">
-      <div
-        ref={scrollRef}
-        className="overflow-x-auto [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
-      >
-        <div style={{ minWidth: minInnerWidth }}>
-          <ResponsiveContainer width="100%" height={220}>
-            <BarChart data={data} margin={{ top: 10, right: 8, left: 8, bottom: 24 }} barSize={64} barCategoryGap={24}>
-              {/* Ejes minimalistas */}
-              <XAxis dataKey="name" tick={{ fontSize: 12 }} axisLine={false} tickLine={false} interval={0} />
-              <YAxis hide />
-              <Tooltip
-                cursor={{ fill: "rgba(0,0,0,0.03)" }}
-                formatter={(v: number) => [`$${v.toLocaleString()}`, "Promedio"]}
-              />
-              <Bar dataKey="value" fill="#D9F99D" stroke="#A3E635" strokeWidth={1} radius={[8, 8, 0, 0]}>
-                <LabelList dataKey="value" content={<CustomTopLabel />} />
-              </Bar>
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
-      </div>
-
-      {/* Progreso custom */}
-      <div className="h-2 rounded-full bg-muted">
-        <div className="h-2 rounded-full bg-[#00c73d] transition-all" style={{ width: `${progress}%` }} />
+    <div className="overflow-x-auto [scrollbar-gutter:stable]">
+      <div style={{ minWidth: minInnerWidth }}>
+        <ResponsiveContainer width="100%" height={220}>
+          <BarChart data={data} margin={{ top: 10, right: 8, left: 8, bottom: 24 }} barSize={64} barCategoryGap={24}>
+            <XAxis dataKey="name" tick={{ fontSize: 12 }} axisLine={false} tickLine={false} interval={0} />
+            <YAxis hide />
+            <Tooltip
+              cursor={{ fill: "rgba(0,0,0,0.03)" }}
+              formatter={(v: number) => [`$${v.toLocaleString()}`, "Promedio"]}
+            />
+            <Bar dataKey="value" fill="#D9F99D" stroke="#A3E635" strokeWidth={1} radius={[8, 8, 0, 0]}>
+              <LabelList dataKey="value" content={<CustomTopLabel />} />
+            </Bar>
+          </BarChart>
+        </ResponsiveContainer>
       </div>
     </div>
   );
