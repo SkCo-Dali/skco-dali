@@ -106,7 +106,7 @@ export function CommissionsResumenTab({
         {/* KPI Cards - Columna izquierda */}
         <div className="space-y-4">
           {/* Comisiones del mes */}
-          <Card className="max-h-[118px]">
+          <Card className="max-h-[118px] flex items-center justify-between">
             <CardContent className="pt-4 pb-4">
               <div className="space-y-2">
                 <p className="text-sm text-muted-foreground">Tus comisiones del mes</p>
