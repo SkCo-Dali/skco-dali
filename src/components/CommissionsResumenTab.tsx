@@ -62,13 +62,18 @@ export function TeamBars({ data }: { data: { name: string; value: number }[] }) 
 
   return (
     <div
-      className="pb-2 overflow-x-auto [scrollbar-gutter:stable]
-    [&::-webkit-scrollbar]:h-2
+      className="
+    overflow-x-auto [scrollbar-gutter:stable]
+    mb-3                     
+    bg-white                
+    rounded-md px-1          
+    [&::-webkit-scrollbar]:h-3
     [&::-webkit-scrollbar-track]:bg-white
+    [&::-webkit-scrollbar-track]:rounded-full
     [&::-webkit-scrollbar-thumb]:bg-[#00c73d]
     [&::-webkit-scrollbar-thumb]:rounded-full
-    [&::-webkit-scrollbar-thumb]:hover:bg-[#00c73d]
-    [scrollbar-color:#00c73d_#e5e7eb]   /* Firefox: thumb _ track */
+    [&::-webkit-scrollbar-thumb]:hover:bg-[#00b335]
+    [scrollbar-color:#00c73d_white]  /* Firefox: thumb _ track */
   "
     >
       <div style={{ minWidth: minInnerWidth }}>
