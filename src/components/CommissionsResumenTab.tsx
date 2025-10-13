@@ -192,15 +192,6 @@ export function CommissionsResumenTab({
             </SelectContent>
           </Select>
         </div>
-        <Select value={selectedYear} onValueChange={onYearChange}>
-          <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder="Selecciona fecha" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="2025">2025</SelectItem>
-            <SelectItem value="2024">2024</SelectItem>
-          </SelectContent>
-        </Select>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
