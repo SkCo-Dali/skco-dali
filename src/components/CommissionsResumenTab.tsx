@@ -269,7 +269,7 @@ export function CommissionsResumenTab({
         <div className="lg:col-span-2 space-y-4">
           {/* Donut estilo tarjeta con leyenda a la derecha */}
           <Card className="relative overflow-hidden min-h-[300px]">
-            <CardHeader>
+            <CardHeader calssName="pt-2">
               <Tabs defaultValue="tipo-comision" className="w-full">
                 <TabsList className="grid w-full grid-cols-2">
                   <TabsTrigger value="tipo-comision">Tipo de comisión</TabsTrigger>
