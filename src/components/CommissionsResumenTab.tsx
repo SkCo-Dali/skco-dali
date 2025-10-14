@@ -268,7 +268,7 @@ export function CommissionsResumenTab({
         {/* Columna derecha */}
         <div className="lg:col-span-2 space-y-4">
           {/* Donut estilo tarjeta con leyenda a la derecha */}
-          <Card className="relative overflow-hidden min-h-[300px]">
+          <Card className="relative overflow-hidden min-h-[285px]">
             <CardHeader className="pt-2">
               <Tabs defaultValue="tipo-comision" className="w-full">
                 <TabsList className="grid w-full grid-cols-2">
