@@ -99,7 +99,7 @@ export function CommissionsTable({ commissions }: CommissionsTableProps) {
   return (
     <div className="w-full space-y-4">
       {/* Barra de búsqueda y controles */}
-      <div className="flex flex-wrap items-center gap-3 bg-[#fafafa] px-6 rounded-lg border">
+      <div className="flex flex-wrap items-center gap-3 bg-[#fafafa] px-4 pt-4 rounded-lg border">
         <div className="flex-1 min-w-[250px]">
           <div className="relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
@@ -147,130 +147,130 @@ export function CommissionsTable({ commissions }: CommissionsTableProps) {
         >
           <Download className="h-4 w-4" />
         </Button>
-      </div>
 
-      {/* Filtros expandibles */}
-      {showFilters && (
-        <div className="flex flex-wrap gap-3 bg-muted/50 p-4 rounded-lg border">
-          <Select value={filterProduct} onValueChange={setFilterProduct}>
-            <SelectTrigger className="w-[200px] bg-background">
-              <SelectValue placeholder="Filtrar por producto" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Todos los productos</SelectItem>
-              {productOptions.map((product) => (
-                <SelectItem key={product} value={product}>
-                  {PRODUCT_TYPE_LABELS[product]}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+        {/* Filtros expandibles */}
+        {showFilters && (
+          <div className="flex flex-wrap gap-3 bg-muted/50 p-4 rounded-lg border">
+            <Select value={filterProduct} onValueChange={setFilterProduct}>
+              <SelectTrigger className="w-[200px] bg-background">
+                <SelectValue placeholder="Filtrar por producto" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todos los productos</SelectItem>
+                {productOptions.map((product) => (
+                  <SelectItem key={product} value={product}>
+                    {PRODUCT_TYPE_LABELS[product]}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
 
-          <Select value={filterCommissionType} onValueChange={setFilterCommissionType}>
-            <SelectTrigger className="w-[200px] bg-background">
-              <SelectValue placeholder="Tipo de comisión" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Todos los tipos</SelectItem>
-              {commissionTypeOptions.map((type) => (
-                <SelectItem key={type} value={type}>
-                  {COMMISSION_TYPE_LABELS[type]}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+            <Select value={filterCommissionType} onValueChange={setFilterCommissionType}>
+              <SelectTrigger className="w-[200px] bg-background">
+                <SelectValue placeholder="Tipo de comisión" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todos los tipos</SelectItem>
+                {commissionTypeOptions.map((type) => (
+                  <SelectItem key={type} value={type}>
+                    {COMMISSION_TYPE_LABELS[type]}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
 
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => {
-              setFilterProduct("all");
-              setFilterCommissionType("all");
-            }}
-          >
-            Limpiar filtros
-          </Button>
-        </div>
-      )}
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => {
+                setFilterProduct("all");
+                setFilterCommissionType("all");
+              }}
+            >
+              Limpiar filtros
+            </Button>
+          </div>
+        )}
 
-      {/* Período */}
-      {periodRange && <div className="text-sm font-medium px-4">Periodo: {periodRange}</div>}
+        {/* Período */}
+        {periodRange && <div className="text-sm font-medium px-4">Periodo: {periodRange}</div>}
 
-      {/* Tabla */}
-      <div className="rounded-lg border bg-background overflow-hidden">
-        <Table>
-          <TableHeader>
-            <TableRow className="bg-muted/50">
-              <TableHead className="font-semibold">
-                <div className="flex items-center gap-1">
-                  Cliente
-                  <ArrowUpDown className="h-3 w-3 text-[#00C73D]" />
-                </div>
-              </TableHead>
-              <TableHead className="font-semibold">
-                <div className="flex items-center gap-1">
-                  No. Póliza/Contrato
-                  <ArrowUpDown className="h-3 w-3 text-[#00C73D]" />
-                </div>
-              </TableHead>
-              <TableHead className="font-semibold">
-                <div className="flex items-center gap-1">
-                  Producto
-                  <ArrowUpDown className="h-3 w-3 text-[#00C73D]" />
-                </div>
-              </TableHead>
-              <TableHead className="font-semibold">
-                <div className="flex items-center gap-1">
-                  Tipo de comisión
-                  <ArrowUpDown className="h-3 w-3 text-[#00C73D]" />
-                </div>
-              </TableHead>
-              <TableHead className="font-semibold text-right">
-                <div className="flex items-center justify-end gap-1">
-                  Valor comisión
-                  <ArrowUpDown className="h-3 w-3 text-[#00C73D]" />
-                </div>
-              </TableHead>
-              <TableHead className="font-semibold">
-                <div className="flex items-center gap-1">
-                  Asesor
-                  <ArrowUpDown className="h-3 w-3 text-[#00C73D]" />
-                </div>
-              </TableHead>
-              <TableHead className="font-semibold">
-                <div className="flex items-center gap-1">
-                  Periodo
-                  <ArrowUpDown className="h-3 w-3 text-[#00C73D]" />
-                </div>
-              </TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {paginatedCommissions.map((commission, index) => (
-              <TableRow key={commission.id} className={index % 2 === 0 ? "bg-[#FFFEF0]" : "bg-background"}>
-                <TableCell className="font-medium">{commission.clientName}</TableCell>
-                <TableCell className="font-mono text-sm">{commission.policyNumber}</TableCell>
-                <TableCell>{PRODUCT_TYPE_LABELS[commission.productType]}</TableCell>
-                <TableCell className="text-sm">{COMMISSION_TYPE_LABELS[commission.commissionType]}</TableCell>
-                <TableCell className="text-right font-semibold">
-                  ${commission.commissionValue.toLocaleString()}
-                </TableCell>
-                <TableCell>{commission.agentName}</TableCell>
-                <TableCell>{commission.period}</TableCell>
+        {/* Tabla */}
+        <div className="rounded-lg border bg-background overflow-hidden">
+          <Table>
+            <TableHeader>
+              <TableRow className="bg-muted/50">
+                <TableHead className="font-semibold">
+                  <div className="flex items-center gap-1">
+                    Cliente
+                    <ArrowUpDown className="h-3 w-3 text-[#00C73D]" />
+                  </div>
+                </TableHead>
+                <TableHead className="font-semibold">
+                  <div className="flex items-center gap-1">
+                    No. Póliza/Contrato
+                    <ArrowUpDown className="h-3 w-3 text-[#00C73D]" />
+                  </div>
+                </TableHead>
+                <TableHead className="font-semibold">
+                  <div className="flex items-center gap-1">
+                    Producto
+                    <ArrowUpDown className="h-3 w-3 text-[#00C73D]" />
+                  </div>
+                </TableHead>
+                <TableHead className="font-semibold">
+                  <div className="flex items-center gap-1">
+                    Tipo de comisión
+                    <ArrowUpDown className="h-3 w-3 text-[#00C73D]" />
+                  </div>
+                </TableHead>
+                <TableHead className="font-semibold text-right">
+                  <div className="flex items-center justify-end gap-1">
+                    Valor comisión
+                    <ArrowUpDown className="h-3 w-3 text-[#00C73D]" />
+                  </div>
+                </TableHead>
+                <TableHead className="font-semibold">
+                  <div className="flex items-center gap-1">
+                    Asesor
+                    <ArrowUpDown className="h-3 w-3 text-[#00C73D]" />
+                  </div>
+                </TableHead>
+                <TableHead className="font-semibold">
+                  <div className="flex items-center gap-1">
+                    Periodo
+                    <ArrowUpDown className="h-3 w-3 text-[#00C73D]" />
+                  </div>
+                </TableHead>
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+            </TableHeader>
+            <TableBody>
+              {paginatedCommissions.map((commission, index) => (
+                <TableRow key={commission.id} className={index % 2 === 0 ? "bg-[#FFFEF0]" : "bg-background"}>
+                  <TableCell className="font-medium">{commission.clientName}</TableCell>
+                  <TableCell className="font-mono text-sm">{commission.policyNumber}</TableCell>
+                  <TableCell>{PRODUCT_TYPE_LABELS[commission.productType]}</TableCell>
+                  <TableCell className="text-sm">{COMMISSION_TYPE_LABELS[commission.commissionType]}</TableCell>
+                  <TableCell className="text-right font-semibold">
+                    ${commission.commissionValue.toLocaleString()}
+                  </TableCell>
+                  <TableCell>{commission.agentName}</TableCell>
+                  <TableCell>{commission.period}</TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
 
-        {/* Paginación integrada */}
-        <CommissionsPagination
-          currentPage={currentPage}
-          totalPages={totalPages}
-          totalCommissions={totalCommissions}
-          itemsPerPage={itemsPerPage}
-          onPageChange={setCurrentPage}
-          onItemsPerPageChange={setItemsPerPage}
-        />
+          {/* Paginación integrada */}
+          <CommissionsPagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            totalCommissions={totalCommissions}
+            itemsPerPage={itemsPerPage}
+            onPageChange={setCurrentPage}
+            onItemsPerPageChange={setItemsPerPage}
+          />
+        </div>
       </div>
     </div>
   );
