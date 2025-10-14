@@ -235,7 +235,7 @@ export function CommissionsResumenTab({
           </Card>
 
           {/* Gráfico anual */}
-          <Card className="relative overflow-hidden h-[303px]">
+          <Card className="relative overflow-hidden h-[380px]">
             <CardHeader className="pb-3">
               <div className="flex items-center justify-between">
                 <CardTitle className="text-base font-medium">Total de comisiones anual</CardTitle>
@@ -250,7 +250,7 @@ export function CommissionsResumenTab({
                 </Select>
               </div>
             </CardHeader>
-            <CardContent>
+            <CardContent className="h-[250px]">
               <p className="text-2xl font-bold mb-4">${(25_000_000).toLocaleString()}</p>
               <ResponsiveContainer width="100%" height={200}>
                 <LineChart data={yearlyData}>
@@ -323,7 +323,7 @@ export function CommissionsResumenTab({
           </Card>
 
           {/* Gráfico de equipo con el look solicitado */}
-          <Card className="relative overflow-hidden h-[303px]">
+          <Card className="relative overflow-hidden h-[380px]">
             <CardHeader className="pb-3">
               <div className="flex items-center justify-between">
                 <CardTitle className="text-base font-medium">Comisiones promedio de tu equipo</CardTitle>
