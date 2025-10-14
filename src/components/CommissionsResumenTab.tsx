@@ -235,7 +235,7 @@ export function CommissionsResumenTab({
           </Card>
 
           {/* Gráfico anual */}
-          <Card>
+          <Card className="relative overflow-hidden min-h-[303px]">
             <CardHeader className="pb-3">
               <div className="flex items-center justify-between">
                 <CardTitle className="text-base font-medium">Total de comisiones anual</CardTitle>
@@ -323,7 +323,7 @@ export function CommissionsResumenTab({
           </Card>
 
           {/* Gráfico de equipo con el look solicitado */}
-          <Card>
+          <Card className="relative overflow-hidden min-h-[303px]">
             <CardHeader className="pb-3">
               <div className="flex items-center justify-between">
                 <CardTitle className="text-base font-medium">Comisiones promedio de tu equipo</CardTitle>
