@@ -22,15 +22,17 @@ export function CommissionsTable({ commissions }: CommissionsTableProps) {
 
   // Filtrar comisiones
   const filteredCommissions = useMemo(() => {
-    return commissions.filter(commission => {
+    return commissions.filter((commission) => {
       const matchesProduct = filterProduct === "all" || commission.productType === filterProduct;
-      const matchesCommissionType = filterCommissionType === "all" || commission.commissionType === filterCommissionType;
-      const matchesSearch = searchTerm === "" || 
+      const matchesCommissionType =
+        filterCommissionType === "all" || commission.commissionType === filterCommissionType;
+      const matchesSearch =
+        searchTerm === "" ||
         commission.clientName.toLowerCase().includes(searchTerm.toLowerCase()) ||
         commission.policyNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
         commission.agentName.toLowerCase().includes(searchTerm.toLowerCase()) ||
         PRODUCT_TYPE_LABELS[commission.productType].toLowerCase().includes(searchTerm.toLowerCase());
-      
+
       return matchesProduct && matchesCommissionType && matchesSearch;
     });
   }, [commissions, filterProduct, filterCommissionType, searchTerm]);
@@ -43,51 +45,61 @@ export function CommissionsTable({ commissions }: CommissionsTableProps) {
     totalPages,
     totalCommissions,
     itemsPerPage,
-    setItemsPerPage
+    setItemsPerPage,
   } = useCommissionsPagination(filteredCommissions, 10);
 
   // Calcular período de las comisiones mostradas
   const periodRange = useMemo(() => {
     if (filteredCommissions.length === 0) return "";
-    const dates = filteredCommissions.map(c => new Date(c.period));
-    const minDate = new Date(Math.min(...dates.map(d => d.getTime())));
-    const maxDate = new Date(Math.max(...dates.map(d => d.getTime())));
-    return `${minDate.toLocaleDateString('es-ES')} - ${maxDate.toLocaleDateString('es-ES')}`;
+    const dates = filteredCommissions.map((c) => new Date(c.period));
+    const minDate = new Date(Math.min(...dates.map((d) => d.getTime())));
+    const maxDate = new Date(Math.max(...dates.map((d) => d.getTime())));
+    return `${minDate.toLocaleDateString("es-ES")} - ${maxDate.toLocaleDateString("es-ES")}`;
   }, [filteredCommissions]);
 
   // Exportar a CSV
   const handleExportCSV = () => {
-    const headers = ['Cliente', 'No. Póliza/Contrato', 'Producto', 'Tipo de comisión', 'Valor comisión', 'Asesor', 'Período'];
+    const headers = [
+      "Cliente",
+      "No. Póliza/Contrato",
+      "Producto",
+      "Tipo de comisión",
+      "Valor comisión",
+      "Asesor",
+      "Período",
+    ];
     const csvContent = [
-      headers.join(','),
-      ...filteredCommissions.map(commission => [
-        commission.clientName,
-        commission.policyNumber,
-        PRODUCT_TYPE_LABELS[commission.productType],
-        COMMISSION_TYPE_LABELS[commission.commissionType],
-        commission.commissionValue,
-        commission.agentName,
-        commission.period
-      ].join(','))
-    ].join('\n');
+      headers.join(","),
+      ...filteredCommissions.map((commission) =>
+        [
+          commission.clientName,
+          commission.policyNumber,
+          PRODUCT_TYPE_LABELS[commission.productType],
+          COMMISSION_TYPE_LABELS[commission.commissionType],
+          commission.commissionValue,
+          commission.agentName,
+          commission.period,
+        ].join(","),
+      ),
+    ].join("\n");
 
-    const blob = new Blob([csvContent], { type: 'text/csv' });
+    const blob = new Blob([csvContent], { type: "text/csv" });
     const url = window.URL.createObjectURL(blob);
-    const a = document.createElement('a');
+    const a = document.createElement("a");
     a.href = url;
-    a.download = 'comisiones.csv';
+    a.download = "comisiones.csv";
     a.click();
     window.URL.revokeObjectURL(url);
   };
 
   // Obtener opciones únicas para filtros
-  const productOptions = Array.from(new Set(commissions.map(c => c.productType)));
-  const commissionTypeOptions = Array.from(new Set(commissions.map(c => c.commissionType)));
+  const productOptions = Array.from(new Set(commissions.map((c) => c.productType)));
+  const commissionTypeOptions = Array.from(new Set(commissions.map((c) => c.commissionType)));
 
   return (
     <div className="w-full space-y-4">
       {/* Barra de búsqueda y controles */}
-      <div className="flex flex-wrap items-center gap-3 bg-background p-4 rounded-lg border">
+      <div className="flex flex-wrap items-center gap-3 bg-[#fafafa] px-6 rounded-lg border">
         <div className="flex-1 min-w-[250px]">
           <div className="relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
@@ -102,37 +114,22 @@ export function CommissionsTable({ commissions }: CommissionsTableProps) {
 
         <Popover>
           <PopoverTrigger asChild>
-            <Button
-              variant="outline"
-              className={cn(
-                "justify-start text-left font-normal",
-                "hover:bg-accent"
-              )}
-            >
+            <Button variant="outline" className={cn("justify-start text-left font-normal", "hover:bg-accent")}>
               <Calendar className="mr-2 h-4 w-4" />
               Selecciona fecha
             </Button>
           </PopoverTrigger>
           <PopoverContent className="w-auto p-4" align="start">
-            <div className="text-sm text-muted-foreground">
-              Filtro de fecha próximamente
-            </div>
+            <div className="text-sm text-muted-foreground">Filtro de fecha próximamente</div>
           </PopoverContent>
         </Popover>
 
-        <Button
-          variant="outline"
-          onClick={() => setShowFilters(!showFilters)}
-          className="gap-2"
-        >
+        <Button variant="outline" onClick={() => setShowFilters(!showFilters)} className="gap-2">
           <Filter className="h-4 w-4" />
           Filtra
         </Button>
 
-        <Select 
-          value={itemsPerPage.toString()} 
-          onValueChange={(value) => setItemsPerPage(Number(value))}
-        >
+        <Select value={itemsPerPage.toString()} onValueChange={(value) => setItemsPerPage(Number(value))}>
           <SelectTrigger className="w-20">
             <SelectValue />
           </SelectTrigger>
@@ -161,21 +158,21 @@ export function CommissionsTable({ commissions }: CommissionsTableProps) {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">Todos los productos</SelectItem>
-              {productOptions.map(product => (
+              {productOptions.map((product) => (
                 <SelectItem key={product} value={product}>
                   {PRODUCT_TYPE_LABELS[product]}
                 </SelectItem>
               ))}
             </SelectContent>
           </Select>
-          
+
           <Select value={filterCommissionType} onValueChange={setFilterCommissionType}>
             <SelectTrigger className="w-[200px] bg-background">
               <SelectValue placeholder="Tipo de comisión" />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">Todos los tipos</SelectItem>
-              {commissionTypeOptions.map(type => (
+              {commissionTypeOptions.map((type) => (
                 <SelectItem key={type} value={type}>
                   {COMMISSION_TYPE_LABELS[type]}
                 </SelectItem>
@@ -197,11 +194,7 @@ export function CommissionsTable({ commissions }: CommissionsTableProps) {
       )}
 
       {/* Período */}
-      {periodRange && (
-        <div className="text-sm font-medium px-4">
-          Periodo: {periodRange}
-        </div>
-      )}
+      {periodRange && <div className="text-sm font-medium px-4">Periodo: {periodRange}</div>}
 
       {/* Tabla */}
       <div className="rounded-lg border bg-background overflow-hidden">
@@ -254,31 +247,16 @@ export function CommissionsTable({ commissions }: CommissionsTableProps) {
           </TableHeader>
           <TableBody>
             {paginatedCommissions.map((commission, index) => (
-              <TableRow 
-                key={commission.id}
-                className={index % 2 === 0 ? "bg-[#FFFEF0]" : "bg-background"}
-              >
-                <TableCell className="font-medium">
-                  {commission.clientName}
-                </TableCell>
-                <TableCell className="font-mono text-sm">
-                  {commission.policyNumber}
-                </TableCell>
-                <TableCell>
-                  {PRODUCT_TYPE_LABELS[commission.productType]}
-                </TableCell>
-                <TableCell className="text-sm">
-                  {COMMISSION_TYPE_LABELS[commission.commissionType]}
-                </TableCell>
+              <TableRow key={commission.id} className={index % 2 === 0 ? "bg-[#FFFEF0]" : "bg-background"}>
+                <TableCell className="font-medium">{commission.clientName}</TableCell>
+                <TableCell className="font-mono text-sm">{commission.policyNumber}</TableCell>
+                <TableCell>{PRODUCT_TYPE_LABELS[commission.productType]}</TableCell>
+                <TableCell className="text-sm">{COMMISSION_TYPE_LABELS[commission.commissionType]}</TableCell>
                 <TableCell className="text-right font-semibold">
                   ${commission.commissionValue.toLocaleString()}
                 </TableCell>
-                <TableCell>
-                  {commission.agentName}
-                </TableCell>
-                <TableCell>
-                  {commission.period}
-                </TableCell>
+                <TableCell>{commission.agentName}</TableCell>
+                <TableCell>{commission.period}</TableCell>
               </TableRow>
             ))}
           </TableBody>
