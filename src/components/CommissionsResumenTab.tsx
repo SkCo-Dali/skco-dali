@@ -252,8 +252,8 @@ export function CommissionsResumenTab({
             </CardHeader>
             <CardContent>
               <p className="text-2xl font-bold mb-4">${(25_000_000).toLocaleString()}</p>
-              <ResponsiveContainer width="100%" height={300}>
-                <LineChart data={yearlyData}>
+              <ResponsiveContainer width="100%" height={250}>
+                <LineChart data={yearlyData} height={250}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
                   <XAxis dataKey="name" tick={{ fontSize: 10 }} />
                   <YAxis tick={{ fontSize: 10 }} />
