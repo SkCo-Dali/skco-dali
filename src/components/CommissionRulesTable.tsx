@@ -114,7 +114,7 @@ export function CommissionRulesTable({ rules, planId, onRuleDeleted, onRuleUpdat
                 <TableHead className="w-[200px] text-[11px] uppercase tracking-wide text-muted-foreground">
                   Name
                 </TableHead>
-                <TableHead className="w-[280px] text-[11px] uppercase tracking-wide text-muted-foreground justify-center">
+                <TableHead className="w-[280px] text-[11px] uppercase tracking-wide text-muted-foreground text-center">
                   Formula
                 </TableHead>
                 <TableHead className="w-[260px] text-[11px] uppercase tracking-wide text-muted-foreground">
