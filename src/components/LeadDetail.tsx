@@ -466,6 +466,7 @@ export function LeadDetail({ lead, isOpen, onClose, onSave, onOpenMassEmail }: L
   // Función para guardar solo cambios de gestión
   const handleSaveManagement = async () => {
     console.log('🔄 Saving management changes...');
+    console.log('📊 Current editedLead state:', { stage: editedLead.stage, nextFollowUp: editedLead.nextFollowUp, priority: editedLead.priority });
     
     if (!contactMethod || !result || !managementNotes) {
       toast({
@@ -477,42 +478,40 @@ export function LeadDetail({ lead, isOpen, onClose, onSave, onOpenMassEmail }: L
     }
     
     try {
-      // 1. Crear interacción con datos de gestión (POST /api/interactions)
-      console.log('🔄 Creating interaction from management data...');
-      
       // Formatear la fecha del próximo seguimiento para el API
-      const formattedNextFollowUp = editedLead.nextFollowUp ? formatDateForAPI(editedLead.nextFollowUp) : '';
+      const formattedNextFollowUp = editedLead.nextFollowUp ? formatDateForAPI(editedLead.nextFollowUp) : null;
       
-      // Preparar el lead con datos de gestión para crear la interacción
-      const leadWithInteractionData = {
+      // Preparar el lead actualizado con TODOS los cambios de gestión
+      const leadToSave = {
         ...editedLead,
+        nextFollowUp: formattedNextFollowUp
+      };
+      
+      console.log('📝 Lead data to save:', { 
+        id: leadToSave.id, 
+        stage: leadToSave.stage, 
+        nextFollowUp: leadToSave.nextFollowUp,
+        priority: leadToSave.priority 
+      });
+      
+      // 1. Actualizar el lead primero (PUT /api/leads/{id})
+      console.log('🔄 Updating lead with management changes...');
+      await updateExistingLead(leadToSave);
+      
+      // 2. Crear interacción con datos de gestión (POST /api/interactions)
+      console.log('🔄 Creating interaction from management data...');
+      const leadWithInteractionData = {
+        ...leadToSave,
         type: contactMethod,
         outcome: result,
-        notes: managementNotes,
-        nextFollowUp: formattedNextFollowUp
+        notes: managementNotes
       };
       
       const interactionCreated = await createInteractionFromLead(leadWithInteractionData);
       
       if (!interactionCreated) {
-        toast({
-          title: "Error",
-          description: "No se pudo crear la interacción",
-          variant: "destructive",
-        });
-        return;
+        console.warn('⚠️ Interaction creation failed, but lead was updated');
       }
-      
-      // 2. Actualizar el lead con cambios de gestión (PUT /api/leads/{id})
-      console.log('🔄 Updating lead with management changes...');
-      
-      const leadToSave = {
-        ...editedLead,
-        nextFollowUp: editedLead.nextFollowUp ? formatDateForAPI(editedLead.nextFollowUp) : editedLead.nextFollowUp
-      };
-      
-      // Llamar directamente al API de actualización de lead (PUT /api/leads/{id})
-      await updateExistingLead(leadToSave);
       
       // Limpiar backup después de guardar exitosamente
       clearBackup();

@@ -127,7 +127,8 @@ export const FRONTEND_TO_API_STAGE_MAP: Record<string, string> = {
   'No localizado: No contesta': 'No localizado: No contesta',
   'No localizado: Número equivocado': 'No localizado: Número equivocado',
   'Contrato Creado': 'Contrato Creado',
-  'Registro de Venta (fondeado)': 'Registro de Venta (fondeado)'
+  'Registro de Venta (fondeado)': 'Registro de Venta (fondeado)',
+  'Repetido': 'Repetido'
 };
 
 export const API_TO_FRONTEND_STAGE_MAP: Record<string, string> = {
@@ -143,7 +144,8 @@ export const API_TO_FRONTEND_STAGE_MAP: Record<string, string> = {
   'No localizado: No contesta': 'No localizado: No contesta',
   'No localizado: Número equivocado': 'No localizado: Número equivocado',
   'Contrato Creado': 'Contrato Creado',
-  'Registro de Venta (fondeado)': 'Registro de Venta (fondeado)'
+  'Registro de Venta (fondeado)': 'Registro de Venta (fondeado)',
+  'Repetido': 'Repetido'
 };
 
 // Mapeo de prioridades entre frontend y API
