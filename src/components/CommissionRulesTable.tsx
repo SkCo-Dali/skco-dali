@@ -106,7 +106,7 @@ export function CommissionRulesTable({ rules, planId, onRuleDeleted, onRuleUpdat
   "
         >
           <Table className="min-w-[920px] table-fixed">
-            <TableHeader className="sticky top-0 z-10 bg-card/90 backdrop-blur supports-[backdrop-filter]:bg-card/70">
+            <TableHeader className="sticky top-0 z-10 bg-card/90 backdrop-blur supports-[backdrop-filter]:bg-card/70 [&>tr>th]:text-center">
               <TableRow>
                 <TableHead className="w-10 text-[11px] uppercase tracking-wide text-muted-foreground justify-center">
                   #
