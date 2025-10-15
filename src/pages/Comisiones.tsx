@@ -15,13 +15,10 @@ export default function Comisiones() {
     <div className="w-full px-16 py-4 space-y-6">
       {/* Category Slicer */}
       <div className="flex justify-center">
-        <CommissionsCategorySlicer 
-          selectedCategory={selectedCategory}
-          onCategoryChange={setSelectedCategory}
-        />
+        <CommissionsCategorySlicer selectedCategory={selectedCategory} onCategoryChange={setSelectedCategory} />
       </div>
 
-      <Tabs defaultValue="resumen" className="w-full">
+      <Tabs defaultValue="resumen" className="w-full mt-6">
         <TabsList className="grid w-full grid-cols-3 h-12 bg-muted/50">
           <TabsTrigger
             value="resumen"
@@ -58,10 +55,7 @@ export default function Comisiones() {
         </TabsContent>
 
         <TabsContent value="detalle" className="mt-6">
-          <CommissionsTable 
-            commissions={mockCommissions}
-            selectedCategory={selectedCategory}
-          />
+          <CommissionsTable commissions={mockCommissions} selectedCategory={selectedCategory} />
         </TabsContent>
 
         <TabsContent value="facturacion" className="mt-6">
