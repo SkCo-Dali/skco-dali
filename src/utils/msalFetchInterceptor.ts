@@ -15,27 +15,48 @@ const protectedEndpoints = [
 export const registerMsalFetchInterceptor = (instance: IPublicClientApplication) => {
     register({
         request: async function (url, config) {
-            // Example: Check if the URL is a protected API endpoint
-            if (protectedEndpoints.some(endpoint => url.startsWith(endpoint)) && instance.getAllAccounts().length > 0) {
-                console.log("🔐 [MSAL Fetch Interceptor] Intercepting request to protected endpoint:", url);
-                console.log("🔐 [MSAL Fetch Interceptor] Current config:", config);
+            // Normalize config to avoid undefined errors
+            let cfg: RequestInit & { headers?: HeadersInit } = config || {};
+
+            // Determine URL string for matching
+            const reqUrl = typeof url === 'string' ? url : (url as Request).url;
+
+            // Check if the URL is a protected API endpoint and there is an active account
+            if (protectedEndpoints.some(endpoint => reqUrl?.startsWith(endpoint)) && instance.getAllAccounts().length > 0) {
+                console.log("🔐 [MSAL Fetch Interceptor] Intercepting request to protected endpoint:", reqUrl);
+                console.log("🔐 [MSAL Fetch Interceptor] Current config:", cfg);
                 try {
-                    
-                    const account = instance.getActiveAccount()
-                    // const response = await instance.acquireTokenSilent(loginRequest);
-               
-                    if(config.headers) {
-                        config.headers.Authorization = `Bearer ${account.idToken}`;
-                    } else {
-                        config.headers = { Authorization: `Bearer ${account.idToken}` };
+                    const account = instance.getActiveAccount();
+
+                    // Try to get an access token; fall back to idToken if needed
+                    let bearerToken: string | undefined;
+                    if (account) {
+                        try {
+                            const tokenResp = await instance.acquireTokenSilent({ ...loginRequest, account });
+                            bearerToken = tokenResp.accessToken;
+                        } catch (e) {
+                            console.warn("MSAL acquireTokenSilent failed, falling back to idToken", e);
+                            bearerToken = account.idToken;
+                        }
                     }
-                    
+
+                    if (bearerToken) {
+                        // Ensure headers object exists and set Authorization header
+                        if (cfg.headers instanceof Headers) {
+                            cfg.headers.set('Authorization', `Bearer ${bearerToken}`);
+                        } else {
+                            cfg.headers = {
+                                ...(cfg.headers as Record<string, string> | undefined),
+                                Authorization: `Bearer ${bearerToken}`,
+                            };
+                        }
+                    }
                 } catch (error) {
                     console.error("Error acquiring token silently:", error);
                     // Handle token acquisition failure (e.g., redirect to login)
                 }
             }
-            return [url, config];
+            return [url, cfg];
         },
         requestError: function (error) {
             return Promise.reject(error);
