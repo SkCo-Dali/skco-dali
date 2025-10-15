@@ -105,7 +105,7 @@ export function CommissionRulesTable({ rules, planId, onRuleDeleted, onRuleUpdat
     [&::-webkit-scrollbar-thumb]:rounded-full
   "
         >
-          <Table className="min-w-[920px] table-fixed">
+          <Table className="min-w-[920px] table-fixed [&>tr>th]:text-center">
             <TableHeader className="sticky top-0 z-10 bg-card/90 backdrop-blur supports-[backdrop-filter]:bg-card/70 [&>tr>th]:text-center">
               <TableRow>
                 <TableHead className="w-10 text-[11px] uppercase tracking-wide text-muted-foreground justify-center">
