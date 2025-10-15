@@ -42,6 +42,9 @@ export const createInteraction = async (interaction: CreateInteractionRequest): 
 
   const response = await fetch(`${BASE_URL}/api/interactions`, {
     method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
     body: JSON.stringify(interaction),
   });
 
