@@ -7,6 +7,7 @@ import { useToast } from '@/hooks/use-toast';
 import { registerMsalFetchInterceptor } from '@/utils/msalFetchInterceptor';
 import { getUserRoleByEmail } from '@/utils/userApiUtils';
 import { getUserByEmail, createUser } from "@/utils/userApiClient";
+import { ENV } from '@/config/environment';
 
 interface AuthContextType {
     user: User | null;
@@ -168,11 +169,22 @@ export function AuthProvider({ children }: AuthProviderProps) {
     const getAccessToken = async (): Promise<{ accessToken: string; idToken: string } | null> => {
         try {
             const accounts = msalInstance.getAllAccounts();
-            if (accounts.length === 0) return null;
+            if (accounts.length === 0) {
+                console.warn('No hay cuentas disponibles para obtener token');
+                return null;
+            }
+            
+            console.log('🔑 Solicitando token con scopes:', ENV.REQUIRED_SCOPES);
             
             const response = await msalInstance.acquireTokenSilent({
-                scopes: ['User.Read'],
+                scopes: ENV.REQUIRED_SCOPES,
                 account: accounts[0]
+            });
+            
+            console.log('✅ Token obtenido exitosamente:', {
+                hasAccessToken: !!response.accessToken,
+                hasIdToken: !!response.idToken,
+                idTokenPreview: response.idToken.substring(0, 50) + '...'
             });
             
             const token = response.accessToken;
@@ -180,7 +192,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
             setAccessToken(token);
             return { accessToken: token, idToken: idToken };
         } catch (error) {
-            console.error('Error getting access token:', error);
+            console.error('❌ Error getting access token:', error);
             return null;
         }
     };
