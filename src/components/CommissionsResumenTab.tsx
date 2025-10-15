@@ -66,8 +66,8 @@ export function TeamBars({ data }: { data: { name: string; value: number }[] }) 
       className="
     overflow-x-auto [scrollbar-gutter:stable]
     mb-3                     
-    bg-gray-50                
-    rounded-md p-4      
+    bg-white                
+    rounded-md px-1      
     [&::-webkit-scrollbar]:h-3
     [&::-webkit-scrollbar-track]:bg-white
     [&::-webkit-scrollbar-track]:rounded-full
@@ -192,7 +192,7 @@ export function CommissionsResumenTab({
   ];
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 p-4 bg-gray-50">
       {/* Selector de mes */}
       <div className="flex justify-between items-center">
         <div className="flex items-center gap-2">
