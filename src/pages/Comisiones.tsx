@@ -9,16 +9,16 @@ import { CommissionsCategorySlicer, CommissionCategory } from "@/components/Comm
 export default function Comisiones() {
   const [selectedMonth, setSelectedMonth] = React.useState("2024-09");
   const [selectedYear, setSelectedYear] = React.useState("2025");
-  const [selectedCategory, setSelectedCategory] = React.useState<CommissionCategory>("all");
+  const [selectedCategory, setSelectedCategory] = React.useState<CommissionCategory>("pensiones");
 
   return (
     <div className="w-full px-16 py-4 space-y-6 mt-4">
       {/* Category Slicer */}
-      <div className="flex justify-center">
+      <div className="flex justify-left">
         <CommissionsCategorySlicer selectedCategory={selectedCategory} onCategoryChange={setSelectedCategory} />
       </div>
 
-      <Tabs defaultValue="resumen" className="w-full mt-6">
+      <Tabs defaultValue="resumen" className="w-full mt-4">
         <TabsList className="grid w-full grid-cols-3 h-12 bg-muted/50">
           <TabsTrigger
             value="resumen"
