@@ -545,10 +545,15 @@ export function LeadDetail({ lead, isOpen, onClose, onSave, onOpenMassEmail }: L
   };
 
   const handleReassignSuccess = (newUserId: string) => {
-    // Actualizar el lead local con el nuevo usuario asignado
+    // Buscar el nombre del nuevo usuario asignado
+    const newAssignedUser = users.find(user => user.Id === newUserId);
+    const newAssignedUserName = newAssignedUser?.Name || 'Sin asignar';
+    
+    // Actualizar el lead local con el nuevo usuario asignado y su nombre
     setEditedLead(prev => ({
       ...prev,
-      assignedTo: newUserId
+      assignedTo: newUserId,
+      assignedToName: newAssignedUserName
     }));
     
     setShowReassignDialog(false);
