@@ -28,7 +28,7 @@ export interface ApiLead {
   Age?: number;
   Gender?: string;
   PreferredContactChannel?: string;
-  AlternateEmail?: string; // Email Alternativo
+  AlternateEmail?: string | null; // Email Alternativo
   LastGestorName?: string; // Últ Gestor Asignado
   LastGestorInteractionAt?: string; // Últ Fecha de Interaccion Gestor
   LastGestorInteractionStage?: string; // Últ Estado Gestor
@@ -57,7 +57,7 @@ export interface CreateLeadRequest {
   Age: number;
   Gender: string;
   PreferredContactChannel: string;
-  AlternateEmail?: string;
+  AlternateEmail?: string | null;
 }
 
 export interface UpdateLeadRequest {
@@ -83,7 +83,7 @@ export interface UpdateLeadRequest {
   Age?: number;
   Gender?: string;
   PreferredContactChannel?: string;
-  AlternateEmail?: string;
+  AlternateEmail?: string | null;
 }
 
 export interface CreateLeadResponse {
