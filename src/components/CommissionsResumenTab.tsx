@@ -304,7 +304,7 @@ export function CommissionsResumenTab({
                   </TabsTrigger>
                 </TabsList>
 
-                <TabsContent value="tipo-comision" className="mt-0">
+                <TabsContent value="comision" className="mt-0">
                   <div className="h-[230px]">
                     <ResponsiveContainer width="100%" height="100%">
                       <PieChart margin={{ left: 8, right: 8, top: 0, bottom: 0 }}>
