@@ -108,18 +108,17 @@ export function CommissionRulesTable({ rules, planId, onRuleDeleted, onRuleUpdat
           <Table className="min-w-[920px] table-fixed">
             <TableHeader className="sticky top-0 z-10 bg-card/90 backdrop-blur supports-[backdrop-filter]:bg-card/70">
               <TableRow>
-                <TableHead className="w-10 text-[11px] uppercase tracking-wide text-muted-foreground">#</TableHead>
-                <TableHead className="w-[220px] text-[11px] uppercase tracking-wide text-muted-foreground">
+                <TableHead className="w-10 text-[11px] uppercase tracking-wide text-muted-foreground justify-center">
+                  #
+                </TableHead>
+                <TableHead className="w-[200px] text-[11px] uppercase tracking-wide text-muted-foreground">
                   Name
                 </TableHead>
-                <TableHead className="w-[280px] text-[11px] uppercase tracking-wide text-muted-foreground">
+                <TableHead className="w-[280px] text-[11px] uppercase tracking-wide text-muted-foreground justify-center">
                   Formula
                 </TableHead>
                 <TableHead className="w-[260px] text-[11px] uppercase tracking-wide text-muted-foreground">
                   Conditions
-                </TableHead>
-                <TableHead className="w-[220px] text-[11px] uppercase tracking-wide text-muted-foreground">
-                  Catalog
                 </TableHead>
                 {planId && (
                   <TableHead className="w-20 text-[11px] uppercase tracking-wide text-muted-foreground text-right">
@@ -171,17 +170,6 @@ export function CommissionRulesTable({ rules, planId, onRuleDeleted, onRuleUpdat
                     <TableCell className="py-2">
                       <div className="text-xs truncate" title={rule.conditions || ""}>
                         {rule.conditions || <span className="text-muted-foreground">—</span>}
-                      </div>
-                    </TableCell>
-
-                    {/* Catalog */}
-                    <TableCell className="py-2">
-                      <div className="flex justify-start">
-                        <Badge variant="outline" className="max-w-[28ch] truncate px-2 py-0.5">
-                          <span title={rule.catalog} className="truncate">
-                            {rule.catalog}
-                          </span>
-                        </Badge>
                       </div>
                     </TableCell>
 
