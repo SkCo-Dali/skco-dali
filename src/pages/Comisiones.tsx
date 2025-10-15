@@ -14,7 +14,7 @@ export default function Comisiones() {
   return (
     <div className="w-full px-16 py-4 space-y-6 mt-4">
       {/* Category Slicer */}
-      <div className="flex justify-center">
+      <div className="flex justify-left">
         <CommissionsCategorySlicer selectedCategory={selectedCategory} onCategoryChange={setSelectedCategory} />
       </div>
 
