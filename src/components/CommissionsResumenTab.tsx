@@ -66,8 +66,8 @@ export function TeamBars({ data }: { data: { name: string; value: number }[] }) 
       className="
     overflow-x-auto [scrollbar-gutter:stable]
     mb-3                     
-    bg-white                
-    rounded-md px-1          
+    bg-gray-50                
+    rounded-md p-4      
     [&::-webkit-scrollbar]:h-3
     [&::-webkit-scrollbar-track]:bg-white
     [&::-webkit-scrollbar-track]:rounded-full
@@ -119,14 +119,14 @@ export function CommissionsResumenTab({
   // Filtrar comisiones por categoría
   const filteredByCategory = React.useMemo(() => {
     if (selectedCategory === "all") return commissions;
-    
-    const categoryMap: Record<CommissionCategory, Commission['productType'][]> = {
-      pensiones: ['pensiones'],
-      fiduciaria: ['patrimonio', 'ahorro'],
-      seguros: ['seguros', 'enfermedades'],
-      all: []
+
+    const categoryMap: Record<CommissionCategory, Commission["productType"][]> = {
+      pensiones: ["pensiones"],
+      fiduciaria: ["patrimonio", "ahorro"],
+      seguros: ["seguros", "enfermedades"],
+      all: [],
     };
-    
+
     const allowedTypes = categoryMap[selectedCategory];
     return commissions.filter((c) => allowedTypes.includes(c.productType));
   }, [commissions, selectedCategory]);
