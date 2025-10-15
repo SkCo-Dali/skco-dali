@@ -175,9 +175,8 @@ export function CommissionRulesTable({ rules, planId, onRuleDeleted, onRuleUpdat
 
                     {/* Actions */}
                     {planId && (
-                      <TableCell className="py-2 text-right">
+                      <TableCell className="py-2 text-center">
                         <Button
-                          variant="ghost"
                           size="sm"
                           onClick={(e) => {
                             e.stopPropagation();
@@ -225,13 +224,6 @@ export function CommissionRulesTable({ rules, planId, onRuleDeleted, onRuleUpdat
                 <div>
                   <h4 className="font-semibold mb-2">Details</h4>
                   <div className="space-y-3 text-sm">
-                    <div>
-                      <span className="font-medium">Catalog:</span>
-                      <Badge variant="outline" className="ml-2">
-                        {selectedRule.catalog}
-                      </Badge>
-                    </div>
-
                     {selectedRule.owner && (
                       <div>
                         <span className="font-medium">Owner:</span>
