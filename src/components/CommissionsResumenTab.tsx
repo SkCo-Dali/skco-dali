@@ -288,7 +288,7 @@ export function CommissionsResumenTab({
           {/* Donut estilo tarjeta con leyenda a la derecha */}
           <Card className="relative overflow-hidden min-h-[285px]">
             <CardHeader className="pt-2">
-              <Tabs defaultValue="comision" className="w-full justify-items-center">
+              <Tabs defaultValue="comision" className="w-full">
                 <TabsList className="grid w-[336px] grid-cols-2 bg-gray-100 rounded-full px-0 py-0 my-0">
                   <TabsTrigger
                     value="comision"
