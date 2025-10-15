@@ -108,20 +108,20 @@ export function CommissionRulesTable({ rules, planId, onRuleDeleted, onRuleUpdat
           <Table className="min-w-[920px] table-fixed [&>tr>th]:text-center">
             <TableHeader className="sticky top-0 z-10 bg-card/90 backdrop-blur supports-[backdrop-filter]:bg-card/70 [&>tr>th]:text-center">
               <TableRow>
-                <TableHead className="w-10 text-[11px] uppercase tracking-wide text-muted-foreground justify-center">
+                <TableHead className="w-10 text-[11px] uppercase tracking-wide text-muted-foreground text-center">
                   #
                 </TableHead>
-                <TableHead className="w-[200px] text-[11px] uppercase tracking-wide text-muted-foreground">
+                <TableHead className="w-[200px] text-[11px] uppercase tracking-wide text-muted-foreground text-center">
                   Name
                 </TableHead>
                 <TableHead className="w-[280px] text-[11px] uppercase tracking-wide text-muted-foreground text-center">
                   Formula
                 </TableHead>
-                <TableHead className="w-[260px] text-[11px] uppercase tracking-wide text-muted-foreground">
+                <TableHead className="w-[260px] text-[11px] uppercase tracking-wide text-muted-foreground text-center">
                   Conditions
                 </TableHead>
                 {planId && (
-                  <TableHead className="w-20 text-[11px] uppercase tracking-wide text-muted-foreground text-right">
+                  <TableHead className="w-20 text-[11px] uppercase tracking-wide text-muted-foreground text-center">
                     Actions
                   </TableHead>
                 )}
@@ -199,7 +199,7 @@ export function CommissionRulesTable({ rules, planId, onRuleDeleted, onRuleUpdat
       </div>
 
       {/* Rule Details Panel */}
-      <div className="lg:col-span-1 overflow-y-auto">
+      <div className="lg:col-span-1 overflow-y-auto mr-2">
         <Card>
           <CardHeader>
             <CardTitle className="text-lg">Rule Details</CardTitle>
