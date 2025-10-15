@@ -43,7 +43,7 @@ export default function Comisiones() {
           </TabsTrigger>
         </TabsList>
 
-        <TabsContent value="resumen" className="border mt-2 px-6">
+        <TabsContent value="resumen" className="border rounded-md mt-0 mb-2 pb-2 px-2">
           <CommissionsResumenTab
             commissions={mockCommissions}
             selectedMonth={selectedMonth}
