@@ -288,19 +288,19 @@ export function CommissionsResumenTab({
           {/* Donut estilo tarjeta con leyenda a la derecha */}
           <Card className="relative overflow-hidden min-h-[285px]">
             <CardHeader className="pt-2">
-              <Tabs defaultValue="tipo-comision" className="w-full">
+              <Tabs defaultValue="comision" className="w-full">
                 <TabsList className="grid w-[336px] grid-cols-2 bg-gray-100 rounded-full px-0 py-0 my-0">
-                  <TabsTrigger
-                    value="producto"
-                    className="w-full h-full data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#00C73D] data-[state=active]:to-[#A3E40B] data-[state=active]:text-white rounded-full px-4 py-2 mt-0 text-sm font-medium transition-all duration-200"
-                  >
-                    Producto
-                  </TabsTrigger>
                   <TabsTrigger
                     value="comision"
                     className="w-full h-full data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#00C73D] data-[state=active]:to-[#A3E40B] data-[state=active]:text-white rounded-full px-4 py-2 mt-0 text-sm font-medium transition-all duration-200"
                   >
                     Comisión
+                  </TabsTrigger>
+                  <TabsTrigger
+                    value="producto"
+                    className="w-full h-full data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#00C73D] data-[state=active]:to-[#A3E40B] data-[state=active]:text-white rounded-full px-4 py-2 mt-0 text-sm font-medium transition-all duration-200"
+                  >
+                    Producto
                   </TabsTrigger>
                 </TabsList>
 
