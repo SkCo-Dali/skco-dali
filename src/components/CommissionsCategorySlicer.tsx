@@ -25,8 +25,8 @@ export function CommissionsCategorySlicer({ selectedCategory, onCategoryChange }
             "px-6 py-2 rounded-full text-sm font-medium transition-all",
             "border-2",
             selectedCategory === category.value
-              ? "w-full h-full data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#00C73D] data-[state=active]:to-[#A3E40B] data-[state=active]:text-white rounded-full px-4 py-2 mt-0 text-sm font-medium transition-all duration-200"
-              : "bg-background text-foreground border-border hover:border-[#00c73d] hover:bg-[#00c73d]/5",
+              ? "bg-[#00c73d] text-white border-[#00c73d] shadow-sm"
+              : "w-full h-full data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#00C73D] data-[state=active]:to-[#A3E40B] data-[state=active]:text-white rounded-full px-4 py-2 mt-0 text-sm font-medium transition-all duration-200",
           )}
         >
           {category.label}
