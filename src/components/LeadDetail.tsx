@@ -193,14 +193,15 @@ export function LeadDetail({ lead, isOpen, onClose, onSave, onOpenMassEmail }: L
   const [result, setResult] = useState('');
   const [managementNotes, setManagementNotes] = useState('');
 
-  // Form persistence para preservar datos entre cambios de pestañas
+  // Form persistence para preservar datos entre cambios de pestañas SOLO durante la sesión actual
   const formPersistenceKey = `lead_detail_${lead.id}`;
   
-  const { saveToStorage, restoreFromStorage, clearBackup } = useFormPersistence({
+  const { saveToStorage, clearBackup } = useFormPersistence({
     key: formPersistenceKey,
     data: editedLead,
     enabled: isOpen,
     autoSaveInterval: 5000, // Auto-guardar cada 5 segundos
+    onRestore: undefined // Desactivar restauración automática
   });
   
   const { users } = useAssignableUsers();
@@ -216,29 +217,24 @@ export function LeadDetail({ lead, isOpen, onClose, onSave, onOpenMassEmail }: L
   useEffect(() => {
     console.log('LeadDetail useEffect triggered with lead:', lead);
     
-    // Intentar restaurar datos guardados primero
-    const restoredData = restoreFromStorage();
+    // Limpiar cualquier backup previo para asegurar datos frescos
+    clearBackup();
     
-    if (restoredData && Object.keys(restoredData).length > 0) {
-      console.log('✅ Restored form data from storage');
-      setEditedLead(restoredData);
-    } else {
-      // Si no hay datos guardados, usar datos del lead
-      const safeLead = {
-        ...lead,
-        tags: ensureArray(lead.tags),
-        product: ensureString(lead.product),
-        portfolios: ensureArray(lead.portfolios)
-      };
-      setEditedLead(safeLead);
-    }
+    // Siempre iniciar con los datos actuales del lead
+    const safeLead = {
+      ...lead,
+      tags: ensureArray(lead.tags),
+      product: ensureString(lead.product),
+      portfolios: ensureArray(lead.portfolios)
+    };
+    setEditedLead(safeLead);
     
     setGeneralChanges(false);
     setManagementChanges(false);
     setContactMethod('');
     setResult('');
     setManagementNotes('');
-  }, [lead, restoreFromStorage]);
+  }, [lead, clearBackup]);
 
   useEffect(() => {
     if (isOpen && lead.id) {
@@ -252,7 +248,12 @@ export function LeadDetail({ lead, isOpen, onClose, onSave, onOpenMassEmail }: L
       // Verificar si el lead tiene un perfil existente
       checkExistingProfile();
     }
-  }, [isOpen, lead.id]);
+    
+    // Limpiar backup cuando se cierra el editor
+    if (!isOpen) {
+      clearBackup();
+    }
+  }, [isOpen, lead.id, clearBackup]);
 
   const loadAssignmentHistory = async () => {
     if (!lead.id) return;
