@@ -22,11 +22,10 @@ export function CommissionsCategorySlicer({ selectedCategory, onCategoryChange }
           key={category.value}
           onClick={() => onCategoryChange(category.value)}
           className={cn(
-            "w-full h-full data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#00C73D] data-[state=active]:to-[#A3E40B] data-[state=active]:text-white rounded-full px-4 py-2 mt-0 text-sm font-medium transition-all duration-200",
-            "border-2",
+            "w-full h-full rounded-full px-4 py-2 mt-0 text-sm font-medium transition-all duration-200",
             selectedCategory === category.value
-              ? "bg-[#00c73d] text-white border-[#00c73d] shadow-sm"
-              : "bg-background text-foreground border-border hover:border-[#00c73d] hover:bg-[#00c73d]/5",
+              ? "bg-gradient-to-r from-[#00C73D] to-[#A3E40B] text-white"
+              : "bg-background text-foreground hover:bg-[#00c73d]/5",
           )}
         >
           {category.label}
