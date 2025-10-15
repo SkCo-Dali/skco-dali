@@ -34,9 +34,10 @@ export function MicrosoftAuth() {
     setIsLoading(true);
     try {
       // Paso 1: Obtener token de MSAL
-      const response = await msalInstance.acquireTokenRedirect({
+      const response = await msalInstance.acquireTokenPopup({
         ...loginRequest
       });
+      
 
     //   if (!response /*|| !response.account*/ || !response.accessToken) {
     //     throw new Error("Respuesta de autenticación incompleta");
