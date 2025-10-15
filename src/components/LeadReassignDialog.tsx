@@ -15,7 +15,7 @@ interface LeadReassignDialogProps {
   lead: Lead | null;
   isOpen: boolean;
   onClose: () => void;
-  onSuccess?: () => void;
+  onSuccess?: (newUserId: string) => void;
 }
 
 export function LeadReassignDialog({ lead, isOpen, onClose, onSuccess }: LeadReassignDialogProps) {
@@ -101,8 +101,8 @@ export function LeadReassignDialog({ lead, isOpen, onClose, onSuccess }: LeadRea
         setReason("No informa");
         setNotes("Sin info");
         
-        // Llamar callback de éxito y cerrar modal
-        onSuccess?.();
+        // Llamar callback de éxito con el nuevo usuario asignado
+        onSuccess?.(selectedUserId);
         onClose();
       }
     } catch (error) {

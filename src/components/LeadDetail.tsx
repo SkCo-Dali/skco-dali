@@ -544,13 +544,18 @@ export function LeadDetail({ lead, isOpen, onClose, onSave, onOpenMassEmail }: L
     }
   };
 
-  const handleReassignSuccess = () => {
+  const handleReassignSuccess = (newUserId: string) => {
+    // Actualizar el lead local con el nuevo usuario asignado
+    setEditedLead(prev => ({
+      ...prev,
+      assignedTo: newUserId
+    }));
+    
     setShowReassignDialog(false);
     loadAssignmentHistory(); // Recargar historial después de reasignación
-    toast({
-      title: "Éxito",
-      description: "Lead reasignado exitosamente",
-    });
+    
+    // Refrescar la lista de leads en el componente padre
+    onSave();
   };
 
   // Use assignedToName directly from API or fallback to user lookup
