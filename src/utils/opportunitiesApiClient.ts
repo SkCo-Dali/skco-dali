@@ -9,18 +9,6 @@ const getAuthHeaders = async (): Promise<Record<string, string>> => {
     'Content-Type': 'application/json',
   };
 
-  try {
-    // Try to get access token from SecureTokenManager
-    const { SecureTokenManager } = await import('@/utils/secureTokenManager');
-    const tokenData = SecureTokenManager.getToken();
-    
-    if (tokenData && tokenData.token) {
-      headers['Authorization'] = `Bearer ${tokenData.token}`;
-    }
-  } catch (error) {
-    console.warn('Could not get access token for API request:', error);
-  }
-
   return headers;
 };
 

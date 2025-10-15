@@ -6,26 +6,6 @@ import { ENV } from '@/config/environment';
 
 const API_BASE_URL = `${ENV.CRM_API_BASE_URL}/api/users`;
 
-// Helper function to get authorization headers
-const getAuthHeaders = async (): Promise<Record<string, string>> => {
-  const headers: Record<string, string> = {
-    'Content-Type': 'application/json',
-  };
-
-  try {
-    // Try to get access token from SecureTokenManager
-    const { SecureTokenManager } = await import('@/utils/secureTokenManager');
-    const tokenData = SecureTokenManager.getToken();
-    
-    if (tokenData && tokenData.token) {
-      headers['Authorization'] = `Bearer ${tokenData.token}`;
-    }
-  } catch (error) {
-    console.warn('Could not get access token for API request:', error);
-  }
-
-  return headers;
-};
 
 // API 8: Obtener roles disponibles
 export const getAvailableRoles = async (): Promise<string[]> => {
@@ -37,8 +17,7 @@ export const getAvailableRoles = async (): Promise<string[]> => {
   console.log('📤 Parameters: none');
 
   try {
-    const headers = await getAuthHeaders();
-    const response = await fetch(endpoint, { headers });
+    const response = await fetch(endpoint);
     console.log('📥 Response status:', response.status);
     console.log('📥 Response ok:', response.ok);
     

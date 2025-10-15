@@ -25,6 +25,7 @@ import NotFound from "@/pages/NotFound";
 import PowerBIReportsAdmin from "@/components/admin/PowerBIReportsAdmin";
 import { useAuth } from "@/contexts/AuthContext";
 import { Login } from "@/components/Login";
+import { AuthenticatedTemplate, UnauthenticatedTemplate } from "@azure/msal-react";
 
 export function AppContent() {
   const { user, loading } = useAuth();
@@ -36,10 +37,6 @@ export function AppContent() {
         <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-gray-900" />
       </div>
     );
-  }
-
-  if (!user) {
-    return <Login onLogin={() => {}} />;
   }
 
   const handleBannerMessage = (automaticReply: string) => {
@@ -62,39 +59,46 @@ export function AppContent() {
   };
 
   return (
-    <SidebarProvider>
-      <div className="min-h-screen flex w-full">
-        <AppSidebar />
-        <div className="flex-1">
-          <Header onBannerMessage={handleBannerMessage} />
-          <main className="flex-1 pt-20">
-            <Routes>
-              <Route path="/" element={<Navigate to="/leads" replace />} />
-              <Route path="/dashboard" element={<Dashboard />} />
-              <Route path="/leads" element={<Leads />} />
-              <Route path="/tasks" element={<Tasks />} />
-              <Route path="/reports" element={<Reports />} />
-              <Route path="/informes" element={<Informes />} />
-              <Route path="/informes/:reportId" element={<ReportViewer />} />
-              <Route path="/users" element={<Users />} />
-              <Route path="/oportunidades" element={<Opportunities />} />
-              <Route path="/oportunidades/:id" element={<OpportunityDetails />} />
-              <Route path="/admin/users" element={<Users />} />
-              <Route path="/admin/reports" element={<PowerBIReportsAdmin />} />
-              <Route path="/chat" element={<ChatDali ref={chatDaliRef} />} />
-              <Route path="/Chat" element={<ChatDali ref={chatDaliRef} />} />
-              <Route path="/gamification" element={<Gamification />} />
-              <Route path="/index" element={<Index />} />
-              <Route path="/comisiones" element={<Comisiones />} />
-              <Route path="/motor-comisiones" element={<MotorComisionesIndex />} />
-              <Route path="/motor-comisiones/compensation-plans" element={<CompensationPlans />} />
-              <Route path="/motor-comisiones/catalogs" element={<Catalogs />} />
-              <Route path="/voice-insights" element={<VoiceInsights />} />
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </main>
-        </div>
-      </div>
-    </SidebarProvider>
+    <div className="App">
+        <UnauthenticatedTemplate>
+            <Login onLogin={() => {}} />
+        </UnauthenticatedTemplate>
+        <AuthenticatedTemplate>
+            <SidebarProvider>
+            <div className="min-h-screen flex w-full">
+                <AppSidebar />
+                <div className="flex-1">
+                <Header onBannerMessage={handleBannerMessage} />
+                <main className="flex-1 pt-20">
+                    <Routes>
+                    <Route path="/" element={<Navigate to="/leads" replace />} />
+                    <Route path="/dashboard" element={<Dashboard />} />
+                    <Route path="/leads" element={<Leads />} />
+                    <Route path="/tasks" element={<Tasks />} />
+                    <Route path="/reports" element={<Reports />} />
+                    <Route path="/informes" element={<Informes />} />
+                    <Route path="/informes/:reportId" element={<ReportViewer />} />
+                    <Route path="/users" element={<Users />} />
+                    <Route path="/oportunidades" element={<Opportunities />} />
+                    <Route path="/oportunidades/:id" element={<OpportunityDetails />} />
+                    <Route path="/admin/users" element={<Users />} />
+                    <Route path="/admin/reports" element={<PowerBIReportsAdmin />} />
+                    <Route path="/chat" element={<ChatDali ref={chatDaliRef} />} />
+                    <Route path="/Chat" element={<ChatDali ref={chatDaliRef} />} />
+                    <Route path="/gamification" element={<Gamification />} />
+                    <Route path="/index" element={<Index />} />
+                    <Route path="/comisiones" element={<Comisiones />} />
+                    <Route path="/motor-comisiones" element={<MotorComisionesIndex />} />
+                    <Route path="/motor-comisiones/compensation-plans" element={<CompensationPlans />} />
+                    <Route path="/motor-comisiones/catalogs" element={<Catalogs />} />
+                    <Route path="/voice-insights" element={<VoiceInsights />} />
+                    <Route path="*" element={<NotFound />} />
+                    </Routes>
+                </main>
+                </div>
+            </div>
+            </SidebarProvider>
+        </AuthenticatedTemplate>
+    </div>
   );
 }

@@ -5,11 +5,12 @@ import { loginRequest } from "@/authConfig";
 import { getUserByEmail, createUser } from "@/utils/userApiClient";
 import { TokenValidationService } from "@/services/tokenValidationService";
 import { getUserRoleByEmail } from "@/utils/userRoleService";
-import SecureTokenManager from "@/utils/secureTokenManager";
 
 export function MicrosoftAuth() {
   const { msalInstance, login } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
+
+ 
 
   const getUserPhoto = async (accessToken: string): Promise<string | null> => {
     try {
@@ -66,58 +67,51 @@ export function MicrosoftAuth() {
     setIsLoading(true);
     try {
       // Paso 1: Obtener token de MSAL
-      const response = await msalInstance.loginPopup({
-        ...loginRequest,
-        prompt: "select_account",
+      const response = await msalInstance.acquireTokenRedirect({
+        ...loginRequest
       });
 
-      if (!response /*|| !response.account*/ || !response.accessToken) {
-        throw new Error("Respuesta de autenticación incompleta");
-      }
+    //   if (!response /*|| !response.account*/ || !response.accessToken) {
+    //     throw new Error("Respuesta de autenticación incompleta");
+    //   }
 
-      // Paso 2: Validar token contra Microsoft Graph
-      const tokenValidation = await TokenValidationService.validateAccessToken(response.accessToken);
+    //   // Paso 2: Validar token contra Microsoft Graph
+    //   const tokenValidation = await TokenValidationService.validateAccessToken(response.accessToken);
 
-      if (!tokenValidation.isValid || !tokenValidation.userInfo) {
-        throw new Error(tokenValidation.error || "Token de acceso inválido");
-      }
+    //   if (!tokenValidation.isValid || !tokenValidation.userInfo) {
+    //     throw new Error(tokenValidation.error || "Token de acceso inválido");
+    //   }
 
-      const { userInfo } = tokenValidation;
+    //   const { userInfo } = tokenValidation;
 
-      // Paso 3: Validar dominio del email (ahora más flexible)
-      if (!TokenValidationService.validateEmailDomain(userInfo.email)) {
-        throw new Error("El email no pertenece a un dominio autorizado para acceder a la aplicación");
-      }
+    //   // Paso 3: Validar dominio del email (ahora más flexible)
+    //   if (!TokenValidationService.validateEmailDomain(userInfo.email)) {
+    //     throw new Error("El email no pertenece a un dominio autorizado para acceder a la aplicación");
+    //   }
 
-      // Almacenar accessToken para uso con el backend
-      SecureTokenManager.storeToken({
-        token: response.idToken || response.accessToken,
-        expiresAt: response.expiresOn.getTime(),
-        refreshToken: response?.account?.homeAccountId || "",
-      });
 
-      // Paso 4: Obtener foto del perfil (opcional, no crítico)
-      const userPhoto = await getUserPhoto(response.accessToken);
+    //   // Paso 4: Obtener foto del perfil (opcional, no crítico)
+    //   const userPhoto = await getUserPhoto(response.accessToken);
 
-      // Paso 5: Buscar o crear usuario en base de datos (CON VALIDACIÓN DE ESTADO ACTIVO)
-      const dbUser = await findOrCreateUser(userInfo.email, userInfo.name);
+    //   // Paso 5: Buscar o crear usuario en base de datos (CON VALIDACIÓN DE ESTADO ACTIVO)
+    //   const dbUser = await findOrCreateUser(userInfo.email, userInfo.name);
 
-      // Paso 6: Crear objeto de usuario final
-      const user = {
-        id: dbUser.id,
-        name: dbUser.name,
-        email: dbUser.email,
-        role: dbUser.role,
-        avatar: userPhoto,
-        zone: dbUser.zone || "Skandia",
-        team: dbUser.team || "Equipo Skandia",
-        jobTitle: userInfo.jobTitle || "Usuario",
-        isActive: dbUser.isActive,
-        createdAt: dbUser.createdAt || new Date().toISOString(),
-      };
+    //   // Paso 6: Crear objeto de usuario final
+    //   const user = {
+    //     id: dbUser.id,
+    //     name: dbUser.name,
+    //     email: dbUser.email,
+    //     role: dbUser.role,
+    //     avatar: userPhoto,
+    //     zone: dbUser.zone || "Skandia",
+    //     team: dbUser.team || "Equipo Skandia",
+    //     jobTitle: userInfo.jobTitle || "Usuario",
+    //     isActive: dbUser.isActive,
+    //     createdAt: dbUser.createdAt || new Date().toISOString(),
+    //   };
 
-      // Paso 7: Completar login
-      login(user);
+    //   // Paso 7: Completar login
+    //   login(user);
     } catch (error) {
       // Manejo específico de errores sin fallbacks inseguros
       let errorMessage = "Error durante la autenticación";

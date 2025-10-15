@@ -1,5 +1,4 @@
 import { ENV } from '@/config/environment';
-import { SecureTokenManager } from '@/utils/secureTokenManager';
 
 const API_BASE_URL = ENV.CRM_API_BASE_URL;
 
@@ -27,15 +26,10 @@ export class SessionService {
    * Iniciar sesión de app - POST /api/sessions
    */
   static async startSession(ipAddress?: string, userAgent?: string): Promise<SessionResponse> {
-    const tokenData = SecureTokenManager.getToken();
-    if (!tokenData?.token) {
-      throw new Error('No authentication token available');
-    }
 
     const response = await fetch(`${API_BASE_URL}/api/sessions`, {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${tokenData.token}`,
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
@@ -96,15 +90,10 @@ export class SessionService {
    * Listar mis sesiones - GET /api/sessions/me
    */
   static async getMySessions(): Promise<UserSession[]> {
-    const tokenData = SecureTokenManager.getToken();
-    if (!tokenData?.token) {
-      throw new Error('No authentication token available');
-    }
 
     const response = await fetch(`${API_BASE_URL}/api/sessions/me`, {
       method: 'GET',
       headers: {
-        'Authorization': `Bearer ${tokenData.token}`
       }
     });
 

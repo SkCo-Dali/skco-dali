@@ -40,52 +40,6 @@ class TemplatesService {
       'Content-Type': 'application/json',
     };
     
-    try {
-      // Get ID Token from SecureTokenManager for authentication
-      console.log('🔍 TemplatesService: Importing SecureTokenManager');
-      const { SecureTokenManager } = await import('@/utils/secureTokenManager');
-      
-      console.log('🔍 TemplatesService: Getting token from SecureTokenManager');
-      const tokenData = SecureTokenManager.getToken();
-      console.log('🔍 TemplatesService: Token data received:', tokenData ? 'Present' : 'Null');
-      
-      if (tokenData && tokenData.token) {
-        headers['Authorization'] = `Bearer ${tokenData.token}`;
-        console.log('🔍 TemplatesService: Added Authorization header');
-        
-        // Use override if provided, otherwise get user email from session storage
-        if (userIdOverride) {
-          headers['X-User-Id'] = userIdOverride;
-          console.log('🔍 TemplatesService: Using userIdOverride for X-User-Id:', userIdOverride);
-        } else {
-          // Get user email from session storage for X-User-Id header
-          console.log('🔍 TemplatesService: Getting user data from sessionStorage');
-          const userDataString = sessionStorage.getItem('skandia-crm-user');
-          console.log('🔍 TemplatesService: User data string from sessionStorage:', userDataString ? 'Present' : 'Null');
-          
-          if (userDataString) {
-            const userData = JSON.parse(userDataString);
-            console.log('🔍 TemplatesService: Parsed user data:', userData);
-            
-            if (userData.email) {
-              headers['X-User-Id'] = userData.email;
-              console.log('🔍 TemplatesService: Added X-User-Id header with email:', userData.email);
-            } else {
-              console.warn('🔍 TemplatesService: No email found in user data');
-            }
-          } else {
-            console.warn('🔍 TemplatesService: No user data found in sessionStorage');
-          }
-        }
-        
-        console.log('🔍 TemplatesService: Final headers:', headers);
-      } else {
-        console.warn('🔍 TemplatesService: No valid token found in SecureTokenManager');
-      }
-    } catch (error) {
-      console.error('🔍 TemplatesService: Error getting authentication token:', error);
-    }
-    
     return headers;
   }
 

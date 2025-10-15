@@ -86,13 +86,9 @@ export const SimpleMessage: React.FC<SimpleMessageProps> = ({ message }) => {
         totalTokens: currentConversation.totalTokens
       };
 
-      // Get auth headers
-      const { SecureTokenManager } = await import('@/utils/secureTokenManager');
-      const tokenData = SecureTokenManager.getToken();
+
       const headers: Record<string, string> = { 'Content-Type': 'application/json' };
-      if (tokenData && tokenData.token) {
-        headers['Authorization'] = `Bearer ${tokenData.token}`;
-      }
+
 
       const response = await fetch(`${ENV.AI_API_BASE_URL}/api/conversations/${currentConversation.id}?user_id=${encodeURIComponent(user.email)}`, {
         method: 'PUT',

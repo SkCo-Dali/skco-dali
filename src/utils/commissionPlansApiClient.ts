@@ -15,27 +15,6 @@ const getAuthHeaders = async (): Promise<Record<string, string>> => {
     'Content-Type': 'application/json',
   };
 
-  try {
-    // Try to get access token from SecureTokenManager
-    const { SecureTokenManager } = await import('@/utils/secureTokenManager');
-    const tokenData = SecureTokenManager.getToken();
-    
-    console.log('[Commission Plans API] 🔑 Token data retrieved:', {
-      hasToken: !!tokenData?.token,
-      tokenPreview: tokenData?.token ? `${tokenData.token.substring(0, 20)}...${tokenData.token.substring(tokenData.token.length - 20)}` : 'NO TOKEN',
-      expiresAt: tokenData?.expiresAt ? new Date(tokenData.expiresAt).toISOString() : 'N/A',
-      isExpired: tokenData ? tokenData.expiresAt < Date.now() : 'N/A'
-    });
-    
-    if (tokenData && tokenData.token) {
-      headers['Authorization'] = `Bearer ${tokenData.token}`;
-      console.log('[Commission Plans API] ✅ Authorization header set');
-    } else {
-      console.warn('[Commission Plans API] ⚠️ NO TOKEN AVAILABLE - Authorization header NOT set');
-    }
-  } catch (error) {
-    console.error('[Commission Plans API] ❌ Error getting access token:', error);
-  }
 
   return headers;
 };

@@ -1,5 +1,4 @@
 import { ENV } from '@/config/environment';
-import { SecureTokenManager } from './secureTokenManager';
 import { logSecure } from './secureLogger';
 import {
   ApiCommissionRule, 
@@ -13,10 +12,7 @@ const API_BASE_URL = ENV.CRM_API_BASE_URL;
 
 // Helper to get auth headers
 const getAuthHeaders = (): HeadersInit => {
-  const tokenData = SecureTokenManager.getToken();
-  const token = tokenData?.token || '';
   return {
-    'Authorization': `Bearer ${token}`,
     'Content-Type': 'application/json',
     'Accept': 'application/json'
   };

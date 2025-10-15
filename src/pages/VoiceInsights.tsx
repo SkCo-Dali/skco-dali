@@ -13,6 +13,7 @@ import { toast } from "sonner";
 import { useVoiceRecording } from "@/hooks/useVoiceRecording";
 import { transcribeAudio } from "@/utils/transcriptionApi";
 import { createLead } from "@/utils/leadsApiClient";
+import { useMsal } from "@azure/msal-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { Lead } from "@/types/crm";
 

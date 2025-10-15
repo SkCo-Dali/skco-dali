@@ -5,29 +5,6 @@ import { ENV } from '@/config/environment';
 const API_BASE_URL = ENV.CRM_API_BASE_URL;
 
 // Helper function to get authorization headers
-const getAuthHeaders = async (): Promise<Record<string, string>> => {
-  const headers: Record<string, string> = {
-    'Content-Type': 'application/json',
-  };
-
-  try {
-    // Import SecureTokenManager
-    const { SecureTokenManager } = await import('@/utils/secureTokenManager');
-    const tokenData = SecureTokenManager.getToken();
-    
-    if (tokenData?.token) {
-      headers['Authorization'] = `Bearer ${tokenData.token}`;
-      console.log('🔐 Using IdToken from SecureTokenManager for API request');
-    } else {
-      console.warn('⚠️ No IdToken found in SecureTokenManager');
-    }
-  } catch (error) {
-    console.warn('⚠️ Could not get IdToken for API request:', error);
-  }
-
-  console.log('📤 Request headers:', JSON.stringify(headers, null, 2));
-  return headers;
-};
 
 // Función helper para hacer requests HTTP
 const makeRequest = async <T>(
@@ -40,9 +17,8 @@ const makeRequest = async <T>(
     console.log('📡 Making API request to:', url);
     console.log('📡 Request method:', options.method || 'GET');
     
-    const authHeaders = await getAuthHeaders();
+
     const finalHeaders = {
-      ...authHeaders,
       ...options.headers,
     };
     
