@@ -93,61 +93,117 @@ export function CommissionRulesTable({ rules, planId, onRuleDeleted, onRuleUpdat
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3">
       {/* Rules Table */}
-      <div className="max-h-80 lg:col-span-2 mr-6">
-        <div className="rounded-md border">
-          <Table>
-            <TableHeader>
+      <div className="max-h-80 lg:col-span-2 mr-2">
+        <div
+          className="
+    relative rounded-lg border bg-card
+    overflow-x-auto mb-3
+    [scrollbar-gutter:stable]
+    [&::-webkit-scrollbar]:h-2
+    [&::-webkit-scrollbar-track]:bg-white
+    [&::-webkit-scrollbar-thumb]:bg-[#00c73d]
+    [&::-webkit-scrollbar-thumb]:rounded-full
+  "
+        >
+          <Table className="min-w-[920px] table-fixed">
+            <TableHeader className="sticky top-0 z-10 bg-card/90 backdrop-blur supports-[backdrop-filter]:bg-card/70">
               <TableRow>
-                <TableHead className="w-12">#</TableHead>
-                <TableHead>Name</TableHead>
-                <TableHead>Formula</TableHead>
-                <TableHead>Conditions</TableHead>
-                <TableHead>Catalog</TableHead>
-                {planId && <TableHead className="w-20">Actions</TableHead>}
+                <TableHead className="w-10 text-[11px] uppercase tracking-wide text-muted-foreground">#</TableHead>
+                <TableHead className="w-[220px] text-[11px] uppercase tracking-wide text-muted-foreground">
+                  Name
+                </TableHead>
+                <TableHead className="w-[280px] text-[11px] uppercase tracking-wide text-muted-foreground">
+                  Formula
+                </TableHead>
+                <TableHead className="w-[260px] text-[11px] uppercase tracking-wide text-muted-foreground">
+                  Conditions
+                </TableHead>
+                <TableHead className="w-[220px] text-[11px] uppercase tracking-wide text-muted-foreground">
+                  Catalog
+                </TableHead>
+                {planId && (
+                  <TableHead className="w-20 text-[11px] uppercase tracking-wide text-muted-foreground text-right">
+                    Actions
+                  </TableHead>
+                )}
               </TableRow>
             </TableHeader>
+
             <TableBody>
-              {rules.map((rule, index) => (
-                <TableRow
-                  key={rule.id}
-                  className={selectedRule?.id === rule.id ? "bg-muted/50" : "cursor-pointer hover:bg-muted/30"}
-                  onClick={() => {
-                    setSelectedRule(rule);
-                    setRuleToEdit(rule);
-                  }}
-                >
-                  <TableCell className="font-medium text-center">{index + 1}</TableCell>
-                  <TableCell className="font-medium text-wrap">{rule.name}</TableCell>
-                  <TableCell className="max-w-xs text-center">
-                    <code className="text-center text-xs bg-muted px-2 py-1 rounded">{rule.formula}</code>
-                  </TableCell>
-                  <TableCell className="max-w-xs text-center">
-                    <div className="truncate text-sm" title={rule.conditions}>
-                      {rule.conditions}
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <Badge variant="outline" className="flex justify-center">
-                      {rule.catalog}
-                    </Badge>
-                  </TableCell>
-                  {planId && (
-                    <TableCell>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setRuleToDelete(rule);
-                        }}
-                        className="h-8 w-8 p-0"
-                      >
-                        <Trash2 className="h-4 w-4 text-destructive" />
-                      </Button>
+              {rules.map((rule, index) => {
+                const selected = selectedRule?.id === rule.id;
+                return (
+                  <TableRow
+                    key={rule.id}
+                    className={[
+                      "cursor-pointer group",
+                      "even:bg-muted/10 hover:bg-muted/20 transition-colors",
+                      selected ? "bg-primary/5 ring-1 ring-primary/30" : "",
+                    ].join(" ")}
+                    onClick={() => {
+                      setSelectedRule(rule);
+                      setRuleToEdit(rule);
+                    }}
+                  >
+                    {/* # */}
+                    <TableCell className="py-2 text-xs text-center text-muted-foreground">{index + 1}</TableCell>
+
+                    {/* Name */}
+                    <TableCell className="py-2 text-sm">
+                      <div className="truncate" title={rule.name}>
+                        {rule.name}
+                      </div>
                     </TableCell>
-                  )}
-                </TableRow>
-              ))}
+
+                    {/* Formula */}
+                    <TableCell className="py-2">
+                      <div className="flex items-center justify-center">
+                        <code
+                          className="font-mono text-xs bg-muted/60 px-2 py-1 rounded border border-border inline-block max-w-[26ch] truncate"
+                          title={rule.formula}
+                        >
+                          {rule.formula}
+                        </code>
+                      </div>
+                    </TableCell>
+
+                    {/* Conditions */}
+                    <TableCell className="py-2">
+                      <div className="text-xs truncate" title={rule.conditions || ""}>
+                        {rule.conditions || <span className="text-muted-foreground">—</span>}
+                      </div>
+                    </TableCell>
+
+                    {/* Catalog */}
+                    <TableCell className="py-2">
+                      <div className="flex justify-start">
+                        <Badge variant="outline" className="max-w-[28ch] truncate px-2 py-0.5">
+                          <span title={rule.catalog} className="truncate">
+                            {rule.catalog}
+                          </span>
+                        </Badge>
+                      </div>
+                    </TableCell>
+
+                    {/* Actions */}
+                    {planId && (
+                      <TableCell className="py-2 text-right">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setRuleToDelete(rule);
+                          }}
+                          className="h-8 w-8 p-0"
+                        >
+                          <Trash2 className="h-4 w-4 text-destructive" />
+                        </Button>
+                      </TableCell>
+                    )}
+                  </TableRow>
+                );
+              })}
             </TableBody>
           </Table>
         </div>
