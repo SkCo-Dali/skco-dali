@@ -9,7 +9,7 @@ import { CommissionsCategorySlicer, CommissionCategory } from "@/components/Comm
 export default function Comisiones() {
   const [selectedMonth, setSelectedMonth] = React.useState("2024-09");
   const [selectedYear, setSelectedYear] = React.useState("2025");
-  const [selectedCategory, setSelectedCategory] = React.useState<CommissionCategory>("all");
+  const [selectedCategory, setSelectedCategory] = React.useState<CommissionCategory>("pensiones");
 
   return (
     <div className="w-full px-16 py-4 space-y-6 mt-4">
