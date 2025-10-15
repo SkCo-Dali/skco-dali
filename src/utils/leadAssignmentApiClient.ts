@@ -17,9 +17,10 @@ const makeRequest = async <T>(
     console.log('📡 Making API request to:', url);
     console.log('📡 Request method:', options.method || 'GET');
     
-
-    const finalHeaders = {
-      ...options.headers,
+    // Agregar Content-Type: application/json para peticiones con body
+    const finalHeaders: HeadersInit = {
+      'Content-Type': 'application/json',
+      ...(options.headers as Record<string, string> || {}),
     };
     
     console.log('📤 Final request headers:', JSON.stringify(finalHeaders, null, 2));
