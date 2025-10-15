@@ -177,6 +177,8 @@ export function CommissionRulesTable({ rules, planId, onRuleDeleted, onRuleUpdat
                     {planId && (
                       <TableCell className="py-2 text-center">
                         <Button
+                          variant="ghost"
+                          className="bg-transparent hover:bg-transparent focus:bg-transparent data-[state=open]:bg-transparent"
                           size="sm"
                           onClick={(e) => {
                             e.stopPropagation();
