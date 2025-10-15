@@ -26,46 +26,36 @@ export const AuthPage: React.FC = () => {
     console.log('Starting Azure sign in...');
 
     try {
-      const { error } = await signInWithAzure();
-
-      if (error) {
-        console.error('Sign in error:', error);
-        
-        // Mostrar mensaje más específico para usuarios inactivos
-        let errorMessage = error.message || "Error de autenticación con Microsoft";
-        if (error.message && error.message.includes('inactiva')) {
-          errorMessage = error.message;
-        }
-        
-        toast({
-          title: "Error al iniciar sesión",
-          description: errorMessage,
-          variant: "destructive",
-        });
-        setIsLoading(false);
-      } else {
-        console.log('Sign in successful');
-        toast({
-          title: "Inicio de sesión exitoso",
-          description: "Te damos la bienvenida a Dali AI",
-        });
-        // La redirección se manejará automáticamente por el useEffect
-        // pero agregamos un timeout como respaldo
-        setTimeout(() => {
-          if (user) {
-            navigate('/', { replace: true });
-          }
-          setIsLoading(false);
-        }, 1000);
-      }
-    } catch (error) {
-      console.error('Unexpected error during sign in:', error);
-      setIsLoading(false);
+      await signInWithAzure();
+      
+      console.log('Sign in successful');
       toast({
-        title: "Error inesperado",
-        description: "Ocurrió un error inesperado durante el inicio de sesión",
+        title: "Inicio de sesión exitoso",
+        description: "Te damos la bienvenida a Dali AI",
+      });
+      // La redirección se manejará automáticamente por el useEffect
+      // pero agregamos un timeout como respaldo
+      setTimeout(() => {
+        if (user) {
+          navigate('/', { replace: true });
+        }
+        setIsLoading(false);
+      }, 1000);
+    } catch (error) {
+      console.error('Sign in error:', error);
+      
+      // Mostrar mensaje más específico para usuarios inactivos
+      let errorMessage = "Error de autenticación con Microsoft";
+      if (error instanceof Error) {
+        errorMessage = error.message;
+      }
+      
+      toast({
+        title: "Error al iniciar sesión",
+        description: errorMessage,
         variant: "destructive",
       });
+      setIsLoading(false);
     }
   };
 

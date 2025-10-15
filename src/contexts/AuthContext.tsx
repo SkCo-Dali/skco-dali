@@ -14,8 +14,12 @@ interface AuthContextType {
     logout: () => Promise<void>;
     loading: boolean;
     isAuthenticated: boolean;
+    isInitialized: boolean;
     msalInstance: IPublicClientApplication;
     signOut: () => Promise<void>;
+    signInWithAzure: () => Promise<void>;
+    getAccessToken: () => Promise<{ accessToken: string; idToken: string } | null>;
+    accessToken: string | null;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -37,6 +41,8 @@ interface AuthProviderProps {
 export function AuthProvider({ children }: AuthProviderProps) {
     const [user, setUser] = useState<User | null>(null);
     const [loading, setLoading] = useState(false);
+    const [isInitialized, setIsInitialized] = useState(false);
+    const [accessToken, setAccessToken] = useState<string | null>(null);
     const { instance: msalInstance } = useMsal();
     const account = useAccount(msalInstance.getActiveAccount() || {});
     const isAuthenticated = useIsAuthenticated();
@@ -150,7 +156,34 @@ export function AuthProvider({ children }: AuthProviderProps) {
         await logout();
     };
 
+    const signInWithAzure = async (): Promise<void> => {
+        try {
+            await msalInstance.loginPopup();
+        } catch (error) {
+            console.error('Error during sign in:', error);
+            throw error;
+        }
+    };
 
+    const getAccessToken = async (): Promise<{ accessToken: string; idToken: string } | null> => {
+        try {
+            const accounts = msalInstance.getAllAccounts();
+            if (accounts.length === 0) return null;
+            
+            const response = await msalInstance.acquireTokenSilent({
+                scopes: ['User.Read'],
+                account: accounts[0]
+            });
+            
+            const token = response.accessToken;
+            const idToken = response.idToken;
+            setAccessToken(token);
+            return { accessToken: token, idToken: idToken };
+        } catch (error) {
+            console.error('Error getting access token:', error);
+            return null;
+        }
+    };
 
     const value = {
         user,
@@ -158,8 +191,12 @@ export function AuthProvider({ children }: AuthProviderProps) {
         logout,
         loading,
         isAuthenticated: useIsAuthenticated(),
+        isInitialized,
         msalInstance,
         signOut,
+        signInWithAzure,
+        getAccessToken,
+        accessToken,
     };
 
     return (

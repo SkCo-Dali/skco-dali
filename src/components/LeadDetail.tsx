@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Lead, User, Interaction, getRolePermissions } from '@/types/crm';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
@@ -28,6 +28,7 @@ import ProfileResults from './ProfileResults';
 import { FaWhatsapp } from "react-icons/fa";
 import { SkAccordion, SkAccordionItem, SkAccordionTrigger, SkAccordionContent } from '@/components/ui/sk-accordion';
 import { InputSanitizer } from '@/utils/inputSanitizer';
+import { useFormPersistence } from '@/hooks/useFormPersistence';
 
 interface LeadDetailProps {
   lead: Lead;
@@ -191,6 +192,16 @@ export function LeadDetail({ lead, isOpen, onClose, onSave, onOpenMassEmail }: L
   const [contactMethod, setContactMethod] = useState('');
   const [result, setResult] = useState('');
   const [managementNotes, setManagementNotes] = useState('');
+
+  // Form persistence para preservar datos entre cambios de pestañas
+  const formPersistenceKey = `lead_detail_${lead.id}`;
+  
+  const { saveToStorage, restoreFromStorage, clearBackup } = useFormPersistence({
+    key: formPersistenceKey,
+    data: editedLead,
+    enabled: isOpen,
+    autoSaveInterval: 5000, // Auto-guardar cada 5 segundos
+  });
   
   const { users } = useAssignableUsers();
   const { interactions, clientHistory, loading: interactionsLoading, loadLeadInteractions, loadClientHistory, createInteractionFromLead } = useInteractionsApi();
@@ -204,19 +215,30 @@ export function LeadDetail({ lead, isOpen, onClose, onSave, onOpenMassEmail }: L
 
   useEffect(() => {
     console.log('LeadDetail useEffect triggered with lead:', lead);
-    const safeLead = {
-      ...lead,
-      tags: ensureArray(lead.tags),
-      product: ensureString(lead.product),
-      portfolios: ensureArray(lead.portfolios)
-    };
-    setEditedLead(safeLead);
+    
+    // Intentar restaurar datos guardados primero
+    const restoredData = restoreFromStorage();
+    
+    if (restoredData && Object.keys(restoredData).length > 0) {
+      console.log('✅ Restored form data from storage');
+      setEditedLead(restoredData);
+    } else {
+      // Si no hay datos guardados, usar datos del lead
+      const safeLead = {
+        ...lead,
+        tags: ensureArray(lead.tags),
+        product: ensureString(lead.product),
+        portfolios: ensureArray(lead.portfolios)
+      };
+      setEditedLead(safeLead);
+    }
+    
     setGeneralChanges(false);
     setManagementChanges(false);
     setContactMethod('');
     setResult('');
     setManagementNotes('');
-  }, [lead]);
+  }, [lead, restoreFromStorage]);
 
   useEffect(() => {
     if (isOpen && lead.id) {
@@ -307,17 +329,25 @@ export function LeadDetail({ lead, isOpen, onClose, onSave, onOpenMassEmail }: L
     return lead.email || lead.phone || lead.documentNumber;
   };
 
-  // Función para manejar cambios en campos generales
-  const handleGeneralChange = (field: keyof Lead, value: any) => {
-    setEditedLead(prev => ({ ...prev, [field]: value }));
+  // Función para manejar cambios en campos generales con persistencia
+  const handleGeneralChange = useCallback((field: keyof Lead, value: any) => {
+    setEditedLead(prev => {
+      const updated = { ...prev, [field]: value };
+      saveToStorage(updated); // Auto-guardar en sessionStorage
+      return updated;
+    });
     setGeneralChanges(true);
-  };
+  }, [saveToStorage]);
 
-  // Función para manejar cambios en campos de gestión
-  const handleManagementChange = (field: keyof Lead, value: any) => {
-    setEditedLead(prev => ({ ...prev, [field]: value }));
+  // Función para manejar cambios en campos de gestión con persistencia
+  const handleManagementChange = useCallback((field: keyof Lead, value: any) => {
+    setEditedLead(prev => {
+      const updated = { ...prev, [field]: value };
+      saveToStorage(updated); // Auto-guardar en sessionStorage
+      return updated;
+    });
     setManagementChanges(true);
-  };
+  }, [saveToStorage]);
 
   // Funciones de validación para campos numéricos y email
   const handlePhoneChange = (value: string) => {
@@ -408,6 +438,9 @@ export function LeadDetail({ lead, isOpen, onClose, onSave, onOpenMassEmail }: L
       console.log('🔄 Calling updateExistingLead API...');
       await updateExistingLead(leadToSave);
       
+      // Limpiar backup después de guardar exitosamente
+      clearBackup();
+      
       // Notificar al componente padre para refrescar datos
       onSave(leadToSave);
       
@@ -479,6 +512,9 @@ export function LeadDetail({ lead, isOpen, onClose, onSave, onOpenMassEmail }: L
       
       // Llamar directamente al API de actualización de lead (PUT /api/leads/{id})
       await updateExistingLead(leadToSave);
+      
+      // Limpiar backup después de guardar exitosamente
+      clearBackup();
       
       // Notificar al componente padre para refrescar datos
       onSave(leadToSave);
