@@ -16,7 +16,7 @@ const CATEGORIES: { value: CommissionCategory; label: string }[] = [
 
 export function CommissionsCategorySlicer({ selectedCategory, onCategoryChange }: CommissionsCategorySlicerProps) {
   return (
-    <div className="flex items-center gap-3 flex-wrap">
+    <div className="grid w-full grid-cols-3 bg-gray-100 rounded-full px-0 py-0 my-0">
       {CATEGORIES.map((category) => (
         <button
           key={category.value}
@@ -26,7 +26,7 @@ export function CommissionsCategorySlicer({ selectedCategory, onCategoryChange }
             "border-2",
             selectedCategory === category.value
               ? "bg-[#00c73d] text-white border-[#00c73d] shadow-sm"
-              : "bg-background text-foreground border-border hover:border-[#00c73d] hover:bg-[#00c73d]/5"
+              : "bg-background text-foreground border-border hover:border-[#00c73d] hover:bg-[#00c73d]/5",
           )}
         >
           {category.label}
