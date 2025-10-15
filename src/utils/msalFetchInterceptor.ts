@@ -18,6 +18,7 @@ export const registerMsalFetchInterceptor = (instance: IPublicClientApplication)
             // Example: Check if the URL is a protected API endpoint
             if (protectedEndpoints.some(endpoint => url.startsWith(endpoint)) && instance.getAllAccounts().length > 0) {
                 console.log("🔐 [MSAL Fetch Interceptor] Intercepting request to protected endpoint:", url);
+                console.log("🔐 [MSAL Fetch Interceptor] Current config:", config);
                 try {
                     
                     const account = instance.getActiveAccount()
@@ -30,7 +31,6 @@ export const registerMsalFetchInterceptor = (instance: IPublicClientApplication)
                     }
                     
                 } catch (error) {
-                    debugger;
                     console.error("Error acquiring token silently:", error);
                     // Handle token acquisition failure (e.g., redirect to login)
                 }

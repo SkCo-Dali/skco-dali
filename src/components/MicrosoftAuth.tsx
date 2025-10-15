@@ -2,9 +2,6 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import { loginRequest } from "@/authConfig";
-import { getUserByEmail, createUser } from "@/utils/userApiClient";
-import { TokenValidationService } from "@/services/tokenValidationService";
-import { getUserRoleByEmail } from "@/utils/userRoleService";
 
 export function MicrosoftAuth() {
   const { msalInstance, login } = useAuth();
@@ -31,37 +28,7 @@ export function MicrosoftAuth() {
     }
   };
 
-  const findOrCreateUser = async (email: string, name: string) => {
-    try {
-      // Buscar usuario existente
-      let existingUser = await getUserByEmail(email);
-
-      if (existingUser) {
-        // Verificar si el usuario está activo
-        if (!existingUser.isActive) {
-          throw new Error("Tu cuenta está inactiva. Por favor contacta al administrador para activarla.");
-        }
-
-        sessionStorage.setItem("authenticated-user-uuid", existingUser.id);
-        return existingUser;
-      }
-
-      // Crear nuevo usuario con rol basado en email
-      const assignedRole = await getUserRoleByEmail(email);
-      const newUser = await createUser({
-        name,
-        email,
-        role: assignedRole,
-        isActive: true,
-      });
-
-      sessionStorage.setItem("authenticated-user-uuid", newUser.id);
-
-      return newUser;
-    } catch (error) {
-      throw error;
-    }
-  };
+  
 
   const handleMicrosoftLogin = async () => {
     setIsLoading(true);

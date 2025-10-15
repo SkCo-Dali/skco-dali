@@ -16,9 +16,7 @@ export function normalizarTelefonoColombia(telefono: string): PhoneValidationRes
   // Si no empieza con código de país, asumir Colombia (+57)
   if (!telefono.startsWith('+')) {
     // Si empieza con 57, asumir que ya tiene el código pero sin +
-    if (clean.startsWith('57')) {
-      clean = clean;
-    } else {
+    if (!clean.startsWith('57')) {
       // Agregar código de Colombia
       clean = '57' + clean;
     }
