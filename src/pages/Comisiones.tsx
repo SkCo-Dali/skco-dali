@@ -18,7 +18,7 @@ export default function Comisiones() {
         <CommissionsCategorySlicer selectedCategory={selectedCategory} onCategoryChange={setSelectedCategory} />
       </div>
 
-      <Tabs defaultValue="resumen" className="w-full mt-4">
+      <Tabs defaultValue="resumen" className="w-full mt-6">
         <TabsList className="grid w-full grid-cols-3 h-12 bg-muted/50">
           <TabsTrigger
             value="resumen"
