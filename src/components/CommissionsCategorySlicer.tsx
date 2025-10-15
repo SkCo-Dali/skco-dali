@@ -16,7 +16,7 @@ const CATEGORIES: { value: CommissionCategory; label: string }[] = [
 
 export function CommissionsCategorySlicer({ selectedCategory, onCategoryChange }: CommissionsCategorySlicerProps) {
   return (
-    <div className="grid w-[815px] grid-cols-3 bg-gray-100 rounded-full px-0 py-0 my-0">
+    <div className="grid w-[515px] grid-cols-3 bg-gray-100 rounded-full px-0 py-0 my-0">
       {CATEGORIES.map((category) => (
         <button
           key={category.value}
