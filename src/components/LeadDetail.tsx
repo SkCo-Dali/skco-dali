@@ -272,7 +272,8 @@ export function LeadDetail({ lead, isOpen, onClose, onSave, onOpenMassEmail }: L
   // Verificar si el lead tiene un perfil existente
   const checkExistingProfile = async () => {
     try {
-      const result = await checkClient(lead.email, lead.documentNumber?.toString());
+      // Pasar silent=true para no mostrar error si falla la verificación
+      const result = await checkClient(lead.email, lead.documentNumber?.toString(), true);
       if (result?.hasProfile && result?.profileId) {
         setHasExistingProfile(true);
         // Si tiene perfil y está completado, cargar los resultados
