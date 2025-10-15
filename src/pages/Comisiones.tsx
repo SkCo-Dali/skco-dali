@@ -22,14 +22,14 @@ export default function Comisiones() {
         <TabsList className="grid w-full grid-cols-3 h-14 bg-transparent border-b border-border gap-0 rounded-none p-0">
           <TabsTrigger
             value="resumen"
-            className="data-[state=active]:bg-transparent data-[state=active]:text-foreground data-[state=active]:border-b-2 data-[state=active]:border-[#00c73d] rounded-none flex items-center gap-2 h-full"
+            className="data-[state=active]:bg-[#00c73d] data-[state=active]:text-white rounded-lg flex items-center gap-2 h-full mx-2"
           >
             <PieChart className="h-4 w-4" />
             Resumen
           </TabsTrigger>
           <TabsTrigger
             value="detalle"
-            className="data-[state=active]:bg-transparent data-[state=active]:text-foreground data-[state=active]:border-b-2 data-[state=active]:border-[#00c73d] rounded-none flex items-center gap-2 h-full"
+            className="data-[state=active]:bg-[#00c73d] data-[state=active]:text-white rounded-lg flex items-center gap-2 h-full mx-2"
           >
             <FileText className="h-4 w-4" />
             Detalle de comisiones
