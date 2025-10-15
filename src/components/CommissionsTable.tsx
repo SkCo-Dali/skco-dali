@@ -1,5 +1,6 @@
 import React, { useState, useMemo } from "react";
 import { Commission, PRODUCT_TYPE_LABELS, COMMISSION_TYPE_LABELS } from "@/data/commissions";
+import { CommissionCategory } from "@/components/CommissionsCategorySlicer";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -12,17 +13,33 @@ import { cn } from "@/lib/utils";
 
 interface CommissionsTableProps {
   commissions: Commission[];
+  selectedCategory: CommissionCategory;
 }
 
-export function CommissionsTable({ commissions }: CommissionsTableProps) {
+export function CommissionsTable({ commissions, selectedCategory }: CommissionsTableProps) {
   const [filterProduct, setFilterProduct] = useState<string>("all");
   const [filterCommissionType, setFilterCommissionType] = useState<string>("all");
   const [searchTerm, setSearchTerm] = useState("");
   const [showFilters, setShowFilters] = useState(false);
 
-  // Filtrar comisiones
+  // Filtrar comisiones por categoría primero
+  const filteredByCategory = useMemo(() => {
+    if (selectedCategory === "all") return commissions;
+    
+    const categoryMap: Record<CommissionCategory, Commission['productType'][]> = {
+      pensiones: ['pensiones'],
+      fiduciaria: ['patrimonio', 'ahorro'],
+      seguros: ['seguros', 'enfermedades'],
+      all: []
+    };
+    
+    const allowedTypes = categoryMap[selectedCategory];
+    return commissions.filter((c) => allowedTypes.includes(c.productType));
+  }, [commissions, selectedCategory]);
+
+  // Filtrar comisiones con otros filtros
   const filteredCommissions = useMemo(() => {
-    return commissions.filter((commission) => {
+    return filteredByCategory.filter((commission) => {
       const matchesProduct = filterProduct === "all" || commission.productType === filterProduct;
       const matchesCommissionType =
         filterCommissionType === "all" || commission.commissionType === filterCommissionType;
@@ -35,7 +52,7 @@ export function CommissionsTable({ commissions }: CommissionsTableProps) {
 
       return matchesProduct && matchesCommissionType && matchesSearch;
     });
-  }, [commissions, filterProduct, filterCommissionType, searchTerm]);
+  }, [filteredByCategory, filterProduct, filterCommissionType, searchTerm]);
 
   // Usar hook de paginación
   const {

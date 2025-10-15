@@ -4,13 +4,23 @@ import { CommissionsTable } from "@/components/CommissionsTable";
 import { CommissionsResumenTab } from "@/components/CommissionsResumenTab";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { PieChart, FileText, Receipt } from "lucide-react";
+import { CommissionsCategorySlicer, CommissionCategory } from "@/components/CommissionsCategorySlicer";
 
 export default function Comisiones() {
   const [selectedMonth, setSelectedMonth] = React.useState("2024-09");
   const [selectedYear, setSelectedYear] = React.useState("2025");
+  const [selectedCategory, setSelectedCategory] = React.useState<CommissionCategory>("all");
 
   return (
     <div className="w-full px-16 py-4 space-y-6">
+      {/* Category Slicer */}
+      <div className="flex justify-center">
+        <CommissionsCategorySlicer 
+          selectedCategory={selectedCategory}
+          onCategoryChange={setSelectedCategory}
+        />
+      </div>
+
       <Tabs defaultValue="resumen" className="w-full">
         <TabsList className="grid w-full grid-cols-3 h-12 bg-muted/50">
           <TabsTrigger
@@ -43,11 +53,15 @@ export default function Comisiones() {
             onMonthChange={setSelectedMonth}
             selectedYear={selectedYear}
             onYearChange={setSelectedYear}
+            selectedCategory={selectedCategory}
           />
         </TabsContent>
 
         <TabsContent value="detalle" className="mt-6">
-          <CommissionsTable commissions={mockCommissions} />
+          <CommissionsTable 
+            commissions={mockCommissions}
+            selectedCategory={selectedCategory}
+          />
         </TabsContent>
 
         <TabsContent value="facturacion" className="mt-6">

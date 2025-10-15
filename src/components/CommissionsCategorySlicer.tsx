@@ -1,0 +1,37 @@
+import React from "react";
+import { cn } from "@/lib/utils";
+
+export type CommissionCategory = "pensiones" | "fiduciaria" | "seguros" | "all";
+
+interface CommissionsCategorySlicerProps {
+  selectedCategory: CommissionCategory;
+  onCategoryChange: (category: CommissionCategory) => void;
+}
+
+const CATEGORIES: { value: CommissionCategory; label: string }[] = [
+  { value: "pensiones", label: "Pensiones y Cesantías" },
+  { value: "fiduciaria", label: "Fiduciaria" },
+  { value: "seguros", label: "Seguros de Vida" },
+];
+
+export function CommissionsCategorySlicer({ selectedCategory, onCategoryChange }: CommissionsCategorySlicerProps) {
+  return (
+    <div className="flex items-center gap-3 flex-wrap">
+      {CATEGORIES.map((category) => (
+        <button
+          key={category.value}
+          onClick={() => onCategoryChange(category.value)}
+          className={cn(
+            "px-6 py-2 rounded-full text-sm font-medium transition-all",
+            "border-2",
+            selectedCategory === category.value
+              ? "bg-[#00c73d] text-white border-[#00c73d] shadow-sm"
+              : "bg-background text-foreground border-border hover:border-[#00c73d] hover:bg-[#00c73d]/5"
+          )}
+        >
+          {category.label}
+        </button>
+      ))}
+    </div>
+  );
+}

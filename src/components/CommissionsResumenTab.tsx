@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { TrendingUp, TrendingDown } from "lucide-react";
+import { CommissionCategory } from "@/components/CommissionsCategorySlicer";
 import {
   LineChart,
   Line,
@@ -104,6 +105,7 @@ interface CommissionsResumenTabProps {
   onMonthChange: (month: string) => void;
   selectedYear: string;
   onYearChange: (year: string) => void;
+  selectedCategory: CommissionCategory;
 }
 
 export function CommissionsResumenTab({
@@ -112,12 +114,28 @@ export function CommissionsResumenTab({
   onMonthChange,
   selectedYear,
   onYearChange,
+  selectedCategory,
 }: CommissionsResumenTabProps) {
+  // Filtrar comisiones por categoría
+  const filteredByCategory = React.useMemo(() => {
+    if (selectedCategory === "all") return commissions;
+    
+    const categoryMap: Record<CommissionCategory, Commission['productType'][]> = {
+      pensiones: ['pensiones'],
+      fiduciaria: ['patrimonio', 'ahorro'],
+      seguros: ['seguros', 'enfermedades'],
+      all: []
+    };
+    
+    const allowedTypes = categoryMap[selectedCategory];
+    return commissions.filter((c) => allowedTypes.includes(c.productType));
+  }, [commissions, selectedCategory]);
+
   // Filtrar comisiones del mes actual
   const currentMonthCommissions = React.useMemo(() => {
     const [year, month] = selectedMonth.split("-");
-    return commissions.filter((c) => c.year === parseInt(year) && c.month === parseInt(month));
-  }, [commissions, selectedMonth]);
+    return filteredByCategory.filter((c) => c.year === parseInt(year) && c.month === parseInt(month));
+  }, [filteredByCategory, selectedMonth]);
 
   // KPIs
   const monthTotal = currentMonthCommissions.reduce((sum, c) => sum + c.commissionValue, 0);
