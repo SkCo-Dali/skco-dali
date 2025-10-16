@@ -114,10 +114,10 @@ export function CommissionsTable({ commissions, selectedCategory }: CommissionsT
   const commissionTypeOptions = Array.from(new Set(commissions.map((c) => c.commissionType)));
 
   return (
-    <div className="border rounded-b-md mt-0 mb-2 pb-2 px-2">
+    <div className="border rounded-b-md mt-0 mb-2 p-4">
       <div className="w-full space-y-4 bg-[#fafafa] rounded-lg p-4">
         {/* Barra de búsqueda y controles */}
-        <div className="flex flex-wrap items-center gap-3 px-4 pt-4 pb-4">
+        <div className="flex flex-wrap items-center gap-3 pb-4">
           <div className="flex-1 min-w-[250px]">
             <div className="relative">
               <Input
