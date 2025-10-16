@@ -25,14 +25,14 @@ export function CommissionsTable({ commissions, selectedCategory }: CommissionsT
   // Filtrar comisiones por categoría primero
   const filteredByCategory = useMemo(() => {
     if (selectedCategory === "all") return commissions;
-    
-    const categoryMap: Record<CommissionCategory, Commission['productType'][]> = {
-      pensiones: ['pensiones'],
-      fiduciaria: ['patrimonio', 'ahorro'],
-      seguros: ['seguros', 'enfermedades'],
-      all: []
+
+    const categoryMap: Record<CommissionCategory, Commission["productType"][]> = {
+      pensiones: ["pensiones"],
+      fiduciaria: ["patrimonio", "ahorro"],
+      seguros: ["seguros", "enfermedades"],
+      all: [],
     };
-    
+
     const allowedTypes = categoryMap[selectedCategory];
     return commissions.filter((c) => allowedTypes.includes(c.productType));
   }, [commissions, selectedCategory]);
@@ -208,86 +208,86 @@ export function CommissionsTable({ commissions, selectedCategory }: CommissionsT
             </Button>
           </div>
         )}
+      </div>
 
-        {/* Período */}
-        {periodRange && <div className="text-sm font-medium px-4">Periodo: {periodRange}</div>}
+      {/* Período */}
+      {periodRange && <div className="text-sm font-medium px-4">Periodo: {periodRange}</div>}
 
-        {/* Tabla */}
-        <div className="rounded-lg border bg-background overflow-hidden">
-          <Table>
-            <TableHeader>
-              <TableRow className="bg-muted/50">
-                <TableHead className="font-semibold">
-                  <div className="flex items-center gap-1">
-                    Cliente
-                    <ArrowUpDown className="h-3 w-3 text-[#00C73D]" />
-                  </div>
-                </TableHead>
-                <TableHead className="font-semibold">
-                  <div className="flex items-center gap-1">
-                    No. Póliza/Contrato
-                    <ArrowUpDown className="h-3 w-3 text-[#00C73D]" />
-                  </div>
-                </TableHead>
-                <TableHead className="font-semibold">
-                  <div className="flex items-center gap-1">
-                    Producto
-                    <ArrowUpDown className="h-3 w-3 text-[#00C73D]" />
-                  </div>
-                </TableHead>
-                <TableHead className="font-semibold">
-                  <div className="flex items-center gap-1">
-                    Tipo de comisión
-                    <ArrowUpDown className="h-3 w-3 text-[#00C73D]" />
-                  </div>
-                </TableHead>
-                <TableHead className="font-semibold text-right">
-                  <div className="flex items-center justify-end gap-1">
-                    Valor comisión
-                    <ArrowUpDown className="h-3 w-3 text-[#00C73D]" />
-                  </div>
-                </TableHead>
-                <TableHead className="font-semibold">
-                  <div className="flex items-center gap-1">
-                    Asesor
-                    <ArrowUpDown className="h-3 w-3 text-[#00C73D]" />
-                  </div>
-                </TableHead>
-                <TableHead className="font-semibold">
-                  <div className="flex items-center gap-1">
-                    Periodo
-                    <ArrowUpDown className="h-3 w-3 text-[#00C73D]" />
-                  </div>
-                </TableHead>
+      {/* Tabla */}
+      <div className="rounded-lg border bg-background overflow-hidden">
+        <Table>
+          <TableHeader>
+            <TableRow className="bg-muted/50">
+              <TableHead className="font-semibold">
+                <div className="flex items-center gap-1">
+                  Cliente
+                  <ArrowUpDown className="h-3 w-3 text-[#00C73D]" />
+                </div>
+              </TableHead>
+              <TableHead className="font-semibold">
+                <div className="flex items-center gap-1">
+                  No. Póliza/Contrato
+                  <ArrowUpDown className="h-3 w-3 text-[#00C73D]" />
+                </div>
+              </TableHead>
+              <TableHead className="font-semibold">
+                <div className="flex items-center gap-1">
+                  Producto
+                  <ArrowUpDown className="h-3 w-3 text-[#00C73D]" />
+                </div>
+              </TableHead>
+              <TableHead className="font-semibold">
+                <div className="flex items-center gap-1">
+                  Tipo de comisión
+                  <ArrowUpDown className="h-3 w-3 text-[#00C73D]" />
+                </div>
+              </TableHead>
+              <TableHead className="font-semibold text-right">
+                <div className="flex items-center justify-end gap-1">
+                  Valor comisión
+                  <ArrowUpDown className="h-3 w-3 text-[#00C73D]" />
+                </div>
+              </TableHead>
+              <TableHead className="font-semibold">
+                <div className="flex items-center gap-1">
+                  Asesor
+                  <ArrowUpDown className="h-3 w-3 text-[#00C73D]" />
+                </div>
+              </TableHead>
+              <TableHead className="font-semibold">
+                <div className="flex items-center gap-1">
+                  Periodo
+                  <ArrowUpDown className="h-3 w-3 text-[#00C73D]" />
+                </div>
+              </TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {paginatedCommissions.map((commission, index) => (
+              <TableRow key={commission.id} className={index % 2 === 0 ? "bg-[#FFFEF0]" : "bg-background"}>
+                <TableCell className="font-medium">{commission.clientName}</TableCell>
+                <TableCell className="font-mono text-sm">{commission.policyNumber}</TableCell>
+                <TableCell>{PRODUCT_TYPE_LABELS[commission.productType]}</TableCell>
+                <TableCell className="text-sm">{COMMISSION_TYPE_LABELS[commission.commissionType]}</TableCell>
+                <TableCell className="text-right font-semibold">
+                  ${commission.commissionValue.toLocaleString()}
+                </TableCell>
+                <TableCell>{commission.agentName}</TableCell>
+                <TableCell>{commission.period}</TableCell>
               </TableRow>
-            </TableHeader>
-            <TableBody>
-              {paginatedCommissions.map((commission, index) => (
-                <TableRow key={commission.id} className={index % 2 === 0 ? "bg-[#FFFEF0]" : "bg-background"}>
-                  <TableCell className="font-medium">{commission.clientName}</TableCell>
-                  <TableCell className="font-mono text-sm">{commission.policyNumber}</TableCell>
-                  <TableCell>{PRODUCT_TYPE_LABELS[commission.productType]}</TableCell>
-                  <TableCell className="text-sm">{COMMISSION_TYPE_LABELS[commission.commissionType]}</TableCell>
-                  <TableCell className="text-right font-semibold">
-                    ${commission.commissionValue.toLocaleString()}
-                  </TableCell>
-                  <TableCell>{commission.agentName}</TableCell>
-                  <TableCell>{commission.period}</TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+            ))}
+          </TableBody>
+        </Table>
 
-          {/* Paginación integrada */}
-          <CommissionsPagination
-            currentPage={currentPage}
-            totalPages={totalPages}
-            totalCommissions={totalCommissions}
-            itemsPerPage={itemsPerPage}
-            onPageChange={setCurrentPage}
-            onItemsPerPageChange={setItemsPerPage}
-          />
-        </div>
+        {/* Paginación integrada */}
+        <CommissionsPagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          totalCommissions={totalCommissions}
+          itemsPerPage={itemsPerPage}
+          onPageChange={setCurrentPage}
+          onItemsPerPageChange={setItemsPerPage}
+        />
       </div>
     </div>
   );
