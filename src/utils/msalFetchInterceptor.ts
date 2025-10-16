@@ -23,8 +23,6 @@ export const registerMsalFetchInterceptor = (instance: IPublicClientApplication)
 
             // Check if the URL is a protected API endpoint and there is an active account
             if (protectedEndpoints.some(endpoint => reqUrl?.startsWith(endpoint)) && instance.getAllAccounts().length > 0) {
-                console.log("🔐 [MSAL Fetch Interceptor] Intercepting request to protected endpoint:", reqUrl);
-                console.log("🔐 [MSAL Fetch Interceptor] Current config:", cfg);
                 try {
                     const account = instance.getActiveAccount();
 

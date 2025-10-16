@@ -49,32 +49,26 @@ export function LeadsActionsButton({
   const [isWhatsAppOpen, setIsWhatsAppOpen] = useState(false);
 
   const handleCreateLead = () => {
-    console.log('LeadsActionsButton: handleCreateLead called');
     onCreateLead();
   };
 
   const handleBulkAssign = () => {
-    console.log('LeadsActionsButton: handleBulkAssign called');
     onBulkAssign();
   };
 
   const handleMassEmail = () => {
-    console.log('LeadsActionsButton: handleMassEmail called');
     onMassEmail();
   };
 
   const handleMassWhatsApp = () => {
-    console.log('LeadsActionsButton: handleMassWhatsApp called');
     onMassWhatsApp();
   };
 
   const handleWhatsAppPropio = () => {
-    console.log('LeadsActionsButton: handleWhatsAppPropio called');
     setIsWhatsAppOpen(true);
   };
 
   const handleDeleteLeads = () => {
-    console.log('LeadsActionsButton: handleDeleteLeads called');
     onDeleteLeads();
   };
 

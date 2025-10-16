@@ -79,9 +79,7 @@ export function LeadCard({
     if (lead.phone) {
       const cleanPhone = lead.phone.replace(/\D/g, '');
       window.open(`https://wa.me/${cleanPhone}`, '_blank');
-    } else {
-      console.log('No hay número de teléfono disponible para este lead');
-    }
+      }
   };
 
   const handleDeleteClick = () => {
