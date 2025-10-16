@@ -5,10 +5,10 @@ export const ENV = {
   AZURE_CLIENT_ID: import.meta.env.VITE_AZURE_CLIENT_ID || '0efa5aa7-89db-4916-bfe4-053728eef63d',
   AZURE_TENANT_ID: import.meta.env.VITE_AZURE_TENANT_ID || '08271f42-81ef-45d6-81ac-49776c4be615',
   ENTRA_TENANT_NAME: import.meta.env.VITE_ENTRA_TENANT_NAME || 'skcotest',
-  AZURE_AUTHORITY: import.meta.env.VITE_AZURE_AUTHORITY || 'https://skcotest.b2clogin.com/skcotest.onmicrosoft.com/b2c_1a_signup_signin_userinfo',
+  AZURE_AUTHORITY: import.meta.env.VITE_AZURE_AUTHORITY || 'https://skcotest.b2clogin.com/skcotest.onmicrosoft.com/B2C_1A_signin_Service_Dali',
   AUTH_LOG_LEVEL: import.meta.env.VITE_AUTH_LOG_LEVEL || 1, // 0 = Error, 1 = Warning, 2 = Info, 3 = Verbose, 4 = Trace
   PII_LOGGING_ENABLED: import.meta.env.VITE_PII_LOGGING_ENABLED === 'true' || false,
-  USER_INFO_URL: import.meta.env.VITE_USER_INFO_URL || 'https://skcotest.b2clogin.com/0db6dbc3-6908-4517-a7f2-81ea685a25e2/b2c_1a_signup_signin_userinfo/openid/v2.0/userinfo',
+  USER_INFO_URL: import.meta.env.VITE_USER_INFO_URL || 'https://skcotest.b2clogin.com/0db6dbc3-6908-4517-a7f2-81ea685a25e2/B2C_1A_signin_Service_Dali/openid/v2.0/userinfo',
   
   // Microsoft Graph API
   GRAPH_API_BASE_URL: import.meta.env.VITE_GRAPH_API_BASE_URL || 'https://graph.microsoft.com/v1.0',
