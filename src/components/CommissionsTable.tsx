@@ -114,12 +114,11 @@ export function CommissionsTable({ commissions, selectedCategory }: CommissionsT
   const commissionTypeOptions = Array.from(new Set(commissions.map((c) => c.commissionType)));
 
   return (
-    <div className="w-full space-y-4">
+    <div className="w-full space-y-4 bg-[#fafafa] rounded-lg">
       {/* Barra de búsqueda y controles */}
-      <div className="flex flex-wrap items-center gap-3 bg-[#fafafa] px-4 pt-4 rounded-lg border">
+      <div className="flex flex-wrap items-center gap-3 px-4 pt-2 pb-2">
         <div className="flex-1 min-w-[250px]">
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
             <Input
               placeholder="Busca por cliente, póliza, asesor, producto"
               value={searchTerm}
