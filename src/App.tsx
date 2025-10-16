@@ -1,5 +1,5 @@
 
-import React, { useEffect } from "react";
+import React from "react";
 import { BrowserRouter as Router } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
@@ -15,17 +15,18 @@ import "./App.css";
 import { IPublicClientApplication } from "@azure/msal-browser";
 
 const queryClient = new QueryClient();
+
 type AppProps = {
-    pca: IPublicClientApplication;
+    msalInstanceB2C: IPublicClientApplication;
+    msalInstanceB2E: IPublicClientApplication | null;
 };
 
-function App({ pca }: AppProps) {
-
+function App({ msalInstanceB2C, msalInstanceB2E }: AppProps) {
     return (
         <QueryClientProvider client={queryClient}>
             <ThemeProvider>
-                <MsalProvider instance={pca}>
-                    <AuthProvider>
+                <MsalProvider instance={msalInstanceB2C}>
+                    <AuthProvider msalInstanceB2E={msalInstanceB2E}>
                         <NotificationProvider>
                             <AssignableUsersProvider>
                                 <SimpleConversationProvider>
