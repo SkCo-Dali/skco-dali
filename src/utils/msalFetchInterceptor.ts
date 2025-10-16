@@ -9,8 +9,48 @@ const protectedEndpoints = [
     ENV.AI_API_BASE_URL,
     ENV.MAESTRO_API_BASE_URL,
     ENV.TEMPLATES_API_BASE_URL,
-    ENV.MARKET_DALI_API_BASE_URL       
+    ENV.MARKET_DALI_API_BASE_URL
 ];
+
+function decodeJwtPayload(token: string): Record<string, any> | null {
+    try {
+        const parts = token.split('.');
+        if (parts.length !== 3) {
+            console.warn('Invalid JWT token format');
+            return null;
+        }
+
+        const base64Url = parts[1];
+        const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+        const jsonPayload = decodeURIComponent(
+            atob(base64)
+                .split('')
+                .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+                .join('')
+        );
+
+        return JSON.parse(jsonPayload);
+    } catch (error) {
+        console.error('Error decoding JWT token:', error);
+        return null;
+    }
+}
+
+function extractIdpAccessToken(accessToken: string): string | null {
+    const payload = decodeJwtPayload(accessToken);
+    if (!payload) {
+        return null;
+    }
+
+    const idpToken = payload.idp_access_token;
+    if (typeof idpToken === 'string' && idpToken.length > 0) {
+        console.log('Successfully extracted idp_access_token from MSAL token');
+        return idpToken;
+    }
+
+    console.warn('idp_access_token claim not found in token');
+    return null;
+}
 
 export const registerMsalFetchInterceptor = (instance: IPublicClientApplication) => {
     register({
@@ -47,6 +87,28 @@ export const registerMsalFetchInterceptor = (instance: IPublicClientApplication)
                                 ...(cfg.headers as Record<string, string> | undefined),
                                 Authorization: `Bearer ${bearerToken}`,
                             };
+                        }
+
+                        // Check if the URL ends with /api/emails/send
+                        if (reqUrl?.endsWith('/api/emails/send')) {
+                            console.log('Detected /api/emails/send endpoint - extracting idp_access_token');
+
+                            const idpToken = extractIdpAccessToken(bearerToken);
+
+                            if (idpToken) {
+                                console.log('Adding X-Graph-Token header with idp_access_token');
+
+                                if (cfg.headers instanceof Headers) {
+                                    cfg.headers.set('X-Graph-Token', idpToken);
+                                } else {
+                                    cfg.headers = {
+                                        ...(cfg.headers as Record<string, string>),
+                                        'X-Graph-Token': idpToken,
+                                    };
+                                }
+                            } else {
+                                console.warn('Could not extract idp_access_token for /api/emails/send - request will continue without X-Graph-Token header');
+                            }
                         }
                     }
                 } catch (error) {
