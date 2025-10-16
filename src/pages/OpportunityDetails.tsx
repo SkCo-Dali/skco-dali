@@ -407,7 +407,7 @@ export const OpportunityDetails: React.FC = () => {
                   </div>
                 </Button>
                 <div className="absolute -top-2 -right-2">
-                  <div className="bg-secondary-400 text-yellow-900 text-xs font-bold px-2 py-1 rounded-full shadow-sm">
+                  <div className="bg-primary text-white text-xs font-bold px-2 py-1 rounded-full shadow-sm">
                     PROXIMAMENTE
                   </div>
                 </div>
@@ -429,7 +429,7 @@ export const OpportunityDetails: React.FC = () => {
                   </div>
                 </Button>
                 <div className="absolute -top-2 -right-2">
-                  <div className="bg-secondary-400 text-yellow-900 text-xs font-bold px-2 py-1 rounded-full shadow-sm">
+                  <div className="bg-primary text-white text-xs font-bold px-2 py-1 rounded-full shadow-sm">
                     PROXIMAMENTE
                   </div>
                 </div>
