@@ -158,9 +158,9 @@ export const OpportunityCard: React.FC<OpportunityCardProps> = ({ opportunity, o
                     </div>
                     <div>
                       <span className="font-bold text-blue-700">
-                        ${opportunity.metrics.estimatedSales.toLocaleString()}
+                        ${(opportunity.metrics.estimatedSales / 1_000_000).toFixed(1)}M
                       </span>
-                      <span className="text-muted-foreground ml-1">clientesP</span>
+                      <span className="text-muted-foreground ml-1">Comisión Potencial</span>
                     </div>
                   </div>
                 </div>
