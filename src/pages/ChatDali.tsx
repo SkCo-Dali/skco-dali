@@ -5,7 +5,6 @@ import { SidePanel } from "../components/SidePanel";
 import { ChatActionsButton } from "../components/ChatActionsButton";
 import { ThemeProvider } from "../contexts/ThemeContext";
 import { SettingsProvider } from "../contexts/SettingsContext";
-import { ProtectedRoute } from "../components/ProtectedRoute";
 import { useIsMobile, useIsMedium } from "../hooks/use-mobile";
 import { Header } from "../components/Header";
 import { ConversationHistoryModal } from "../components/ConversationHistoryModal";
@@ -156,13 +155,11 @@ IndexContent.displayName = 'IndexContent';
 
 const ChatDali = forwardRef<any, {}>((props, ref) => {
   return (
-    <ProtectedRoute>
       <ThemeProvider>
         <SettingsProvider>
           <IndexContent ref={ref} />
         </SettingsProvider>
       </ThemeProvider>
-    </ProtectedRoute>
   );
 });
 
