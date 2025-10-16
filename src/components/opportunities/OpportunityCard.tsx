@@ -145,7 +145,7 @@ export const OpportunityCard: React.FC<OpportunityCardProps> = ({ opportunity, o
                   </div>
                   <div>
                     <span className="font-bold text-blue-700">{formatCustomerCount(opportunity.customerCount)}</span>
-                    <span className="text-muted-foreground ml-1">clientesP</span>
+                    <span className="text-muted-foreground ml-1">Clientes</span>
                   </div>
                 </div>
               </div>
@@ -153,8 +153,8 @@ export const OpportunityCard: React.FC<OpportunityCardProps> = ({ opportunity, o
               {opportunity.metrics && (
                 <div className="flex items-center justify-center gap-3 text-xs">
                   <div className="flex items-center gap-1.5">
-                    <div className="p-1 bg-blue-50 rounded">
-                      <DollarSign className="h-3 w-3 text-blue-600" />
+                    <div className="p-1 bg-primary-50 rounded">
+                      <DollarSign className="h-3 w-3 text-primary-600" />
                     </div>
                     <div>
                       <span className="font-bold text-primary">
