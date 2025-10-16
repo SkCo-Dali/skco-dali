@@ -145,7 +145,7 @@ export const OpportunityCard: React.FC<OpportunityCardProps> = ({ opportunity, o
                   </div>
                   <div>
                     <span className="font-bold text-blue-700">{formatCustomerCount(opportunity.customerCount)}</span>
-                    <span className="text-muted-foreground ml-1">clientes</span>
+                    <span className="text-muted-foreground ml-1">clientesP</span>
                   </div>
                 </div>
               </div>
