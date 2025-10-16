@@ -113,7 +113,7 @@ export const getRolePermissions = (role: UserRole): RolePermissions => {
         canSendEmail: true,
         canSendWhatsApp: true,
         canSendmassiveWhatsApp: false,
-        accessiblePages: ["leads", "ChatDali", "reports", "informes"],
+        accessiblePages: ["leads", "ChatDali", "reports", "informes", "opportunities"],
       };
     case "agent":
     case "gestor":
@@ -137,7 +137,7 @@ export const getRolePermissions = (role: UserRole): RolePermissions => {
         canSendEmail: true,
         canSendWhatsApp: true,
         canSendmassiveWhatsApp: false,
-        accessiblePages: ["leads", "ChatDali", "informes"],
+        accessiblePages: ["leads", "ChatDali", "informes", "opportunities"],
       };
     case "fp":
       return {
@@ -156,7 +156,7 @@ export const getRolePermissions = (role: UserRole): RolePermissions => {
         canSendEmail: true,
         canSendWhatsApp: true,
         canSendmassiveWhatsApp: false,
-        accessiblePages: ["leads", "ChatDali", "informes"],
+        accessiblePages: ["leads", "ChatDali", "informes", "opportunities"],
       };
     case "analista":
       return {
@@ -175,7 +175,7 @@ export const getRolePermissions = (role: UserRole): RolePermissions => {
         canSendEmail: false,
         canSendWhatsApp: false,
         canSendmassiveWhatsApp: false,
-        accessiblePages: ["leads", "reports", "informes"],
+        accessiblePages: ["leads", "reports", "informes", "opportunities"],
       };
     case "viewer":
     case "seguridad":
@@ -195,7 +195,7 @@ export const getRolePermissions = (role: UserRole): RolePermissions => {
         canSendEmail: true,
         canSendWhatsApp: true,
         canSendmassiveWhatsApp: false,
-        accessiblePages: ["leads", "ChatDali", "informes"],
+        accessiblePages: ["leads", "ChatDali", "informes", "opportunities"],
       };
     default:
       return {

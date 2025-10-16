@@ -730,7 +730,7 @@ export default function Informes() {
           </Card>
         )}
       </div>
-      <ChatSami />
+      {/* Reports Grid/Table  <ChatSami />*/}
     </div>
   );
 }
