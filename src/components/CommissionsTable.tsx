@@ -116,7 +116,7 @@ export function CommissionsTable({ commissions, selectedCategory }: CommissionsT
   return (
     <div className="w-full space-y-4 bg-[#fafafa] rounded-lg">
       {/* Barra de búsqueda y controles */}
-      <div className="flex flex-wrap items-center gap-3 px-4 pt-2 pb-2">
+      <div className="flex flex-wrap items-center gap-3 px-4 pt-4 pb-4">
         <div className="flex-1 min-w-[250px]">
           <div className="relative">
             <Input
@@ -144,17 +144,6 @@ export function CommissionsTable({ commissions, selectedCategory }: CommissionsT
           <Filter className="h-4 w-4" />
           Filtra
         </Button>
-
-        <Select value={itemsPerPage.toString()} onValueChange={(value) => setItemsPerPage(Number(value))}>
-          <SelectTrigger className="w-20">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="10">10</SelectItem>
-            <SelectItem value="50">50</SelectItem>
-            <SelectItem value="100">100</SelectItem>
-          </SelectContent>
-        </Select>
 
         <Button
           onClick={handleExportCSV}
