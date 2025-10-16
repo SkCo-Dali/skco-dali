@@ -173,17 +173,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
                 return null;
             }
             
-            console.log('🔑 Solicitando token con scopes:', ENV.REQUIRED_SCOPES);
-            
             const response = await msalInstance.acquireTokenSilent({
                 scopes: ENV.REQUIRED_SCOPES,
                 account: accounts[0]
-            });
-            
-            console.log('✅ Token obtenido exitosamente:', {
-                hasAccessToken: !!response.accessToken,
-                hasIdToken: !!response.idToken,
-                idTokenPreview: response.idToken.substring(0, 50) + '...'
             });
             
             const token = response.accessToken;

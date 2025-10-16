@@ -87,14 +87,12 @@ export const SimpleConversationProvider: React.FC<{ children: React.ReactNode }>
         updatedAt: new Date()
       };
       
-      console.log('SimpleConversationContext: Conversation now has', updated.messages.length, 'messages');
       return updated;
     });
   };
 
   const createNewConversation = () => {
     const newId = Date.now().toString();
-    console.log('SimpleConversationContext: Creating new conversation with ID:', newId);
     
     const newConversation: Conversation = {
       id: newId,
@@ -108,7 +106,6 @@ export const SimpleConversationProvider: React.FC<{ children: React.ReactNode }>
     };
     
     setCurrentConversation(newConversation);
-    console.log('SimpleConversationContext: New conversation created');
   };
 
   const deleteConversation = async (id: string) => {
