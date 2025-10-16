@@ -137,28 +137,14 @@ export const OpportunityCard: React.FC<OpportunityCardProps> = ({ opportunity, o
                 </Badge>
               </div>
 
-              <div>
-                {/* Customer Count */}
-                <div className="flex items-center justify-center gap-1.5 text-xs">
-                  <div className="p-1 bg-blue-50 rounded">
-                    <Users className="h-3 w-3 text-blue-600" />
-                  </div>
-                  <div>
-                    <span className="font-bold text-blue-700">{formatCustomerCount(opportunity.customerCount)}</span>
-                    <span className="text-muted-foreground ml-1">clientes</span>
-                  </div>
+              {/* Customer Count */}
+              <div className="flex items-center justify-center gap-1.5 text-xs">
+                <div className="p-1 bg-blue-50 rounded">
+                  <Users className="h-3 w-3 text-blue-600" />
                 </div>
-                {/* Customer Count */}
-                <div className="flex items-center justify-center gap-1.5 text-xs">
-                  <div className="p-1 bg-blue-50 rounded">
-                    <Users className="h-3 w-3 text-blue-600" />
-                  </div>
-                  <div>
-                    <span className="font-bold text-blue-700">
-                      ${opportunity.metrics.estimatedSales.toLocaleString()}
-                    </span>
-                    <span className="text-muted-foreground ml-1">Comisión</span>
-                  </div>
+                <div>
+                  <span className="font-bold text-blue-700">{formatCustomerCount(opportunity.customerCount)}</span>
+                  <span className="text-muted-foreground ml-1">clientes</span>
                 </div>
               </div>
 
