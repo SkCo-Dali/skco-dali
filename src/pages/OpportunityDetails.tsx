@@ -1,30 +1,30 @@
-import React from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { createPortal } from 'react-dom';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Progress } from '@/components/ui/progress';
-import { Skeleton } from '@/components/ui/skeleton';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { 
-  ArrowLeft, 
-  Users, 
-  TrendingUp, 
+import React from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import { createPortal } from "react-dom";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Progress } from "@/components/ui/progress";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import {
+  ArrowLeft,
+  Users,
+  TrendingUp,
   Heart,
   RefreshCw,
   Mail,
   MessageSquare,
   GraduationCap,
   Lightbulb,
-  Info
-} from 'lucide-react';
-import { IOpportunity, OPPORTUNITY_TYPE_LABELS, PRIORITY_COLORS } from '@/types/opportunities';
-import { opportunitiesService } from '@/services/opportunitiesService';
-import { useToast } from '@/hooks/use-toast';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { MassEmailSender } from '@/components/MassEmailSender';
-import { Lead } from '@/types/crm';
+  Info,
+} from "lucide-react";
+import { IOpportunity, OPPORTUNITY_TYPE_LABELS, PRIORITY_COLORS } from "@/types/opportunities";
+import { opportunitiesService } from "@/services/opportunitiesService";
+import { useToast } from "@/hooks/use-toast";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { MassEmailSender } from "@/components/MassEmailSender";
+import { Lead } from "@/types/crm";
 
 export const OpportunityDetails: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -48,11 +48,11 @@ export const OpportunityDetails: React.FC = () => {
         setOpportunity(opportunityData);
         setIsFavorite(opportunityData.isFavorite);
       } else {
-        setError('Oportunidad no encontrada');
+        setError("Oportunidad no encontrada");
       }
     } catch (err) {
-      setError('Error al cargar la oportunidad');
-      console.error('Error loading opportunity:', err);
+      setError("Error al cargar la oportunidad");
+      console.error("Error loading opportunity:", err);
     } finally {
       setLoading(false);
     }
@@ -66,24 +66,24 @@ export const OpportunityDetails: React.FC = () => {
   React.useEffect(() => {
     if (!showEmailSender) return;
     const prev = document.body.style.overflow;
-    document.body.style.overflow = 'hidden';
+    document.body.style.overflow = "hidden";
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') setShowEmailSender(false);
+      if (e.key === "Escape") setShowEmailSender(false);
     };
-    document.addEventListener('keydown', onKey);
+    document.addEventListener("keydown", onKey);
     return () => {
       document.body.style.overflow = prev;
-      document.removeEventListener('keydown', onKey);
+      document.removeEventListener("keydown", onKey);
     };
   }, [showEmailSender]);
 
   const handleBack = () => {
-    navigate('/oportunidades');
+    navigate("/oportunidades");
   };
 
   const handleFavoriteToggle = async () => {
     if (!opportunity) return;
-    
+
     try {
       const newFavoriteState = await opportunitiesService.toggleFavorite(opportunity.id);
       setIsFavorite(newFavoriteState);
@@ -119,7 +119,7 @@ export const OpportunityDetails: React.FC = () => {
         duration: 3000,
       });
     } catch (error) {
-      console.error('Error loading leads:', error);
+      console.error("Error loading leads:", error);
       toast({
         title: "Error al cargar leads",
         description: "No se pudieron cargar los clientes como leads",
@@ -221,9 +221,7 @@ export const OpportunityDetails: React.FC = () => {
           onClick={handleFavoriteToggle}
           className="h-10 w-10 hover:bg-red-50 hover:text-red-500"
         >
-          <Heart 
-            className={`h-5 w-5 ${isFavorite ? 'fill-red-500 text-red-500' : 'text-muted-foreground'}`} 
-          />
+          <Heart className={`h-5 w-5 ${isFavorite ? "fill-red-500 text-red-500" : "text-muted-foreground"}`} />
         </Button>
       </div>
 
@@ -253,17 +251,24 @@ export const OpportunityDetails: React.FC = () => {
                   </div>
                   {/* Badges */}
                   <div className="flex flex-wrap gap-3">
-                    <Badge 
-                      variant="outline" 
+                    <Badge
+                      variant="outline"
                       className={`${getPriorityColor(opportunity.priority)} font-semibold px-3 py-1`}
                     >
                       Prioridad {opportunity.priority.toUpperCase()}
                     </Badge>
-                    <Badge variant="secondary" className="bg-blue-50 text-blue-700 border-blue-200 font-medium px-3 py-1">
+                    <Badge
+                      variant="secondary"
+                      className="bg-blue-50 text-blue-700 border-blue-200 font-medium px-3 py-1"
+                    >
                       {OPPORTUNITY_TYPE_LABELS[opportunity.type]}
                     </Badge>
                     {opportunity.tags.map((tag, index) => (
-                      <Badge key={index} variant="outline" className="bg-muted/30 hover:bg-muted/50 transition-colors px-3 py-1">
+                      <Badge
+                        key={index}
+                        variant="outline"
+                        className="bg-muted/30 hover:bg-muted/50 transition-colors px-3 py-1"
+                      >
                         {tag}
                       </Badge>
                     ))}
@@ -289,7 +294,7 @@ export const OpportunityDetails: React.FC = () => {
                     <div className="w-1 h-5 bg-primary rounded-full"></div>
                     Datos Clave
                   </h3>
-                  <div className={`grid gap-6 p-4 ${opportunity.metrics ? 'grid-cols-2' : 'grid-cols-1'}`}>
+                  <div className={`grid gap-6 p-4 ${opportunity.metrics ? "grid-cols-2" : "grid-cols-1"}`}>
                     {/* Clientes Impactables - siempre visible */}
                     <Tooltip>
                       <TooltipTrigger asChild>
@@ -308,10 +313,12 @@ export const OpportunityDetails: React.FC = () => {
                         </div>
                       </TooltipTrigger>
                       <TooltipContent className="max-w-xs">
-                        <p className="text-sm">Número estimado de clientes que cumplen las condiciones para recibir la oferta</p>
+                        <p className="text-sm">
+                          Número estimado de clientes que cumplen las condiciones para recibir la oferta
+                        </p>
                       </TooltipContent>
                     </Tooltip>
-                    
+
                     {/* Comisiones Potenciales - solo si hay metrics */}
                     {opportunity.metrics && (
                       <Tooltip>
@@ -356,8 +363,8 @@ export const OpportunityDetails: React.FC = () => {
             </CardHeader>
             <CardContent className="space-y-4 pb-6">
               <div className="relative">
-                <Button 
-                  variant="default" 
+                <Button
+                  variant="default"
                   className="w-full justify-start h-auto py-3 px-4 text-left bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 shadow-md hover:shadow-lg transition-all duration-200 group"
                   size="lg"
                   onClick={handleLoadAsLeads}
@@ -369,7 +376,7 @@ export const OpportunityDetails: React.FC = () => {
                     </div>
                     <div className="flex flex-col items-start min-w-0 flex-1">
                       <span className="font-semibold text-sm leading-tight">
-                        {loadingLeads ? 'Cargando leads...' : 'Cargar como leads y enviar correo masivo'}
+                        {loadingLeads ? "Cargando leads..." : "Cargar como leads y enviar correo masivo"}
                       </span>
                       <span className="text-xs opacity-90 mt-0.5">Acción recomendada</span>
                     </div>
@@ -381,38 +388,52 @@ export const OpportunityDetails: React.FC = () => {
                   </div>
                 </div>
               </div>
-
-              <Button 
-                variant="outline" 
-                className="w-full justify-start h-auto py-3 px-3 text-left border-2 hover:bg-green-50 hover:border-green-200 hover:text-green-700 transition-all duration-200 group"
-                size="lg"
-              >
-                <div className="flex items-center gap-2 w-full min-w-0">
-                  <div className="flex-shrink-0 p-2 bg-green-100 rounded-lg group-hover:bg-green-200 transition-colors">
-                    <MessageSquare className="h-4 w-4 text-green-600" />
+              <div className="relative">
+                <Button
+                  variant="outline"
+                  className="w-full justify-start h-auto py-3 px-3 text-left border-2 hover:bg-green-50 hover:border-green-200 hover:text-green-700 transition-all duration-200 group"
+                  size="lg"
+                >
+                  <div className="flex items-center gap-2 w-full min-w-0">
+                    <div className="flex-shrink-0 p-2 bg-green-100 rounded-lg group-hover:bg-green-200 transition-colors">
+                      <MessageSquare className="h-4 w-4 text-green-600" />
+                    </div>
+                    <div className="flex flex-col items-start min-w-0 flex-1">
+                      <span className="text-xs leading-tight font-medium">
+                        Cargar como leads y enviar WhatsApp masivo
+                      </span>
+                      <span className="text-xs text-muted-foreground mt-0.5">Mensajería directa</span>
+                    </div>
                   </div>
-                  <div className="flex flex-col items-start min-w-0 flex-1">
-                    <span className="text-xs leading-tight font-medium">Cargar como leads y enviar WhatsApp masivo</span>
-                    <span className="text-xs text-muted-foreground mt-0.5">Mensajería directa</span>
-                  </div>
-                </div>
-              </Button>
-
-              <Button 
-                variant="secondary" 
-                className="w-full justify-start h-auto py-3 px-4 text-left bg-blue-50 hover:bg-blue-100 border border-blue-200 hover:border-blue-300 text-blue-700 hover:text-blue-800 transition-all duration-200 group"
-                size="lg"
-              >
-                <div className="flex items-center gap-3 w-full min-w-0">
-                  <div className="flex-shrink-0 p-2 bg-blue-100 rounded-lg group-hover:bg-blue-200 transition-colors">
-                    <GraduationCap className="h-4 w-4 text-blue-600" />
-                  </div>
-                  <div className="flex flex-col items-start min-w-0 flex-1">
-                    <span className="font-medium text-sm leading-tight">Aprende a pedir esta base en Chat Dali</span>
-                    <span className="text-xs text-blue-600 mt-0.5">Guía interactiva</span>
+                </Button>
+                <div className="absolute -top-2 -right-2">
+                  <div className="bg-secondary-400 text-yellow-900 text-xs font-bold px-2 py-1 rounded-full shadow-sm">
+                    PROXIMAMENTE
                   </div>
                 </div>
-              </Button>
+              </div>
+              <div className="relative">
+                <Button
+                  variant="secondary"
+                  className="w-full justify-start h-auto py-3 px-4 text-left bg-blue-50 hover:bg-blue-100 border border-blue-200 hover:border-blue-300 text-blue-700 hover:text-blue-800 transition-all duration-200 group"
+                  size="lg"
+                >
+                  <div className="flex items-center gap-3 w-full min-w-0">
+                    <div className="flex-shrink-0 p-2 bg-blue-100 rounded-lg group-hover:bg-blue-200 transition-colors">
+                      <GraduationCap className="h-4 w-4 text-blue-600" />
+                    </div>
+                    <div className="flex flex-col items-start min-w-0 flex-1">
+                      <span className="font-medium text-sm leading-tight">Aprende a pedir esta base en Chat Dali</span>
+                      <span className="text-xs text-blue-600 mt-0.5">Guía interactiva</span>
+                    </div>
+                  </div>
+                </Button>
+                <div className="absolute -top-2 -right-2">
+                  <div className="bg-secondary-400 text-yellow-900 text-xs font-bold px-2 py-1 rounded-full shadow-sm">
+                    PROXIMAMENTE
+                  </div>
+                </div>
+              </div>
             </CardContent>
           </Card>
         </div>
@@ -436,7 +457,9 @@ export const OpportunityDetails: React.FC = () => {
               className="relative w-full max-w-6xl max-h-[90vh] overflow-auto rounded-xl bg-background shadow-2xl ring-1 ring-black/10 p-4"
               onClick={(e) => e.stopPropagation()}
             >
-              <h2 id="mass-email-title" className="sr-only">Envío masivo de correos</h2>
+              <h2 id="mass-email-title" className="sr-only">
+                Envío masivo de correos
+              </h2>
               <MassEmailSender
                 filteredLeads={loadedLeads}
                 onClose={() => {
@@ -446,9 +469,8 @@ export const OpportunityDetails: React.FC = () => {
               />
             </div>
           </div>,
-          document.body
-        )
-      }
+          document.body,
+        )}
     </div>
   );
 };
