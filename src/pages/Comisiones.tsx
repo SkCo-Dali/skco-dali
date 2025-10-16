@@ -54,7 +54,7 @@ export default function Comisiones() {
           />
         </TabsContent>
 
-        <TabsContent value="detalle" className="mt-6">
+        <TabsContent value="detalle" className="mt-0">
           <CommissionsTable commissions={mockCommissions} selectedCategory={selectedCategory} />
         </TabsContent>
 
