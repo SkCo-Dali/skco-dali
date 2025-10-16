@@ -114,168 +114,170 @@ export function CommissionsTable({ commissions, selectedCategory }: CommissionsT
   const commissionTypeOptions = Array.from(new Set(commissions.map((c) => c.commissionType)));
 
   return (
-    <div className="w-full space-y-4 bg-[#fafafa] rounded-lg">
-      {/* Barra de búsqueda y controles */}
-      <div className="flex flex-wrap items-center gap-3 px-4 pt-6 pb-4">
-        <div className="flex-1 min-w-[250px]">
-          <div className="relative">
-            <Input
-              placeholder="Busca por cliente, póliza, asesor, producto"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10 bg-background"
-            />
+    <div className="border rounded-b-md mt-0 mb-2 pb-2 px-2">
+      <div className="w-full space-y-4 bg-[#fafafa] rounded-lg p-4">
+        {/* Barra de búsqueda y controles */}
+        <div className="flex flex-wrap items-center gap-3 px-4 pt-4 pb-4">
+          <div className="flex-1 min-w-[250px]">
+            <div className="relative">
+              <Input
+                placeholder="Busca por cliente, póliza, asesor, producto"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-10 bg-background"
+              />
+            </div>
           </div>
+
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button variant="outline" className={cn("justify-start text-left font-normal", "hover:bg-accent")}>
+                <Calendar className="mr-2 h-4 w-4" />
+                Selecciona fecha
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-4" align="start">
+              <div className="text-sm text-muted-foreground">Filtro de fecha próximamente</div>
+            </PopoverContent>
+          </Popover>
+
+          <Button variant="outline" onClick={() => setShowFilters(!showFilters)} className="gap-2">
+            <Filter className="h-4 w-4" />
+            Filtra
+          </Button>
+
+          <Button
+            onClick={handleExportCSV}
+            size="icon"
+            className="bg-[#00C73D] hover:bg-[#00b835] text-white rounded-full h-10 w-10"
+          >
+            <Download className="h-4 w-4" />
+          </Button>
+
+          {/* Filtros expandibles */}
+          {showFilters && (
+            <div className="flex flex-wrap gap-3 bg-muted/50 p-4 rounded-lg border">
+              <Select value={filterProduct} onValueChange={setFilterProduct}>
+                <SelectTrigger className="w-[200px] bg-background">
+                  <SelectValue placeholder="Filtrar por producto" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Todos los productos</SelectItem>
+                  {productOptions.map((product) => (
+                    <SelectItem key={product} value={product}>
+                      {PRODUCT_TYPE_LABELS[product]}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+
+              <Select value={filterCommissionType} onValueChange={setFilterCommissionType}>
+                <SelectTrigger className="w-[200px] bg-background">
+                  <SelectValue placeholder="Tipo de comisión" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Todos los tipos</SelectItem>
+                  {commissionTypeOptions.map((type) => (
+                    <SelectItem key={type} value={type}>
+                      {COMMISSION_TYPE_LABELS[type]}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => {
+                  setFilterProduct("all");
+                  setFilterCommissionType("all");
+                }}
+              >
+                Limpiar filtros
+              </Button>
+            </div>
+          )}
         </div>
 
-        <Popover>
-          <PopoverTrigger asChild>
-            <Button variant="outline" className={cn("justify-start text-left font-normal", "hover:bg-accent")}>
-              <Calendar className="mr-2 h-4 w-4" />
-              Selecciona fecha
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent className="w-auto p-4" align="start">
-            <div className="text-sm text-muted-foreground">Filtro de fecha próximamente</div>
-          </PopoverContent>
-        </Popover>
+        {/* Período */}
+        {periodRange && <div className="text-sm font-medium px-4">Periodo: {periodRange}</div>}
 
-        <Button variant="outline" onClick={() => setShowFilters(!showFilters)} className="gap-2">
-          <Filter className="h-4 w-4" />
-          Filtra
-        </Button>
-
-        <Button
-          onClick={handleExportCSV}
-          size="icon"
-          className="bg-[#00C73D] hover:bg-[#00b835] text-white rounded-full h-10 w-10"
-        >
-          <Download className="h-4 w-4" />
-        </Button>
-
-        {/* Filtros expandibles */}
-        {showFilters && (
-          <div className="flex flex-wrap gap-3 bg-muted/50 p-4 rounded-lg border">
-            <Select value={filterProduct} onValueChange={setFilterProduct}>
-              <SelectTrigger className="w-[200px] bg-background">
-                <SelectValue placeholder="Filtrar por producto" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Todos los productos</SelectItem>
-                {productOptions.map((product) => (
-                  <SelectItem key={product} value={product}>
-                    {PRODUCT_TYPE_LABELS[product]}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-
-            <Select value={filterCommissionType} onValueChange={setFilterCommissionType}>
-              <SelectTrigger className="w-[200px] bg-background">
-                <SelectValue placeholder="Tipo de comisión" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Todos los tipos</SelectItem>
-                {commissionTypeOptions.map((type) => (
-                  <SelectItem key={type} value={type}>
-                    {COMMISSION_TYPE_LABELS[type]}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => {
-                setFilterProduct("all");
-                setFilterCommissionType("all");
-              }}
-            >
-              Limpiar filtros
-            </Button>
-          </div>
-        )}
-      </div>
-
-      {/* Período */}
-      {periodRange && <div className="text-sm font-medium px-4">Periodo: {periodRange}</div>}
-
-      {/* Tabla */}
-      <div className="rounded-lg border bg-background overflow-hidden">
-        <Table>
-          <TableHeader>
-            <TableRow className="bg-muted/50">
-              <TableHead className="font-semibold">
-                <div className="flex items-center gap-1">
-                  Cliente
-                  <ArrowUpDown className="h-3 w-3 text-[#00C73D]" />
-                </div>
-              </TableHead>
-              <TableHead className="font-semibold">
-                <div className="flex items-center gap-1">
-                  No. Póliza/Contrato
-                  <ArrowUpDown className="h-3 w-3 text-[#00C73D]" />
-                </div>
-              </TableHead>
-              <TableHead className="font-semibold">
-                <div className="flex items-center gap-1">
-                  Producto
-                  <ArrowUpDown className="h-3 w-3 text-[#00C73D]" />
-                </div>
-              </TableHead>
-              <TableHead className="font-semibold">
-                <div className="flex items-center gap-1">
-                  Tipo de comisión
-                  <ArrowUpDown className="h-3 w-3 text-[#00C73D]" />
-                </div>
-              </TableHead>
-              <TableHead className="font-semibold text-right">
-                <div className="flex items-center justify-end gap-1">
-                  Valor comisión
-                  <ArrowUpDown className="h-3 w-3 text-[#00C73D]" />
-                </div>
-              </TableHead>
-              <TableHead className="font-semibold">
-                <div className="flex items-center gap-1">
-                  Asesor
-                  <ArrowUpDown className="h-3 w-3 text-[#00C73D]" />
-                </div>
-              </TableHead>
-              <TableHead className="font-semibold">
-                <div className="flex items-center gap-1">
-                  Periodo
-                  <ArrowUpDown className="h-3 w-3 text-[#00C73D]" />
-                </div>
-              </TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {paginatedCommissions.map((commission, index) => (
-              <TableRow key={commission.id} className={index % 2 === 0 ? "bg-[#FFFEF0]" : "bg-background"}>
-                <TableCell className="font-medium">{commission.clientName}</TableCell>
-                <TableCell className="font-mono text-sm">{commission.policyNumber}</TableCell>
-                <TableCell>{PRODUCT_TYPE_LABELS[commission.productType]}</TableCell>
-                <TableCell className="text-sm">{COMMISSION_TYPE_LABELS[commission.commissionType]}</TableCell>
-                <TableCell className="text-right font-semibold">
-                  ${commission.commissionValue.toLocaleString()}
-                </TableCell>
-                <TableCell>{commission.agentName}</TableCell>
-                <TableCell>{commission.period}</TableCell>
+        {/* Tabla */}
+        <div className="rounded-lg border bg-background overflow-hidden">
+          <Table>
+            <TableHeader>
+              <TableRow className="bg-muted/50">
+                <TableHead className="font-semibold">
+                  <div className="flex items-center gap-1">
+                    Cliente
+                    <ArrowUpDown className="h-3 w-3 text-[#00C73D]" />
+                  </div>
+                </TableHead>
+                <TableHead className="font-semibold">
+                  <div className="flex items-center gap-1">
+                    No. Póliza/Contrato
+                    <ArrowUpDown className="h-3 w-3 text-[#00C73D]" />
+                  </div>
+                </TableHead>
+                <TableHead className="font-semibold">
+                  <div className="flex items-center gap-1">
+                    Producto
+                    <ArrowUpDown className="h-3 w-3 text-[#00C73D]" />
+                  </div>
+                </TableHead>
+                <TableHead className="font-semibold">
+                  <div className="flex items-center gap-1">
+                    Tipo de comisión
+                    <ArrowUpDown className="h-3 w-3 text-[#00C73D]" />
+                  </div>
+                </TableHead>
+                <TableHead className="font-semibold text-right">
+                  <div className="flex items-center justify-end gap-1">
+                    Valor comisión
+                    <ArrowUpDown className="h-3 w-3 text-[#00C73D]" />
+                  </div>
+                </TableHead>
+                <TableHead className="font-semibold">
+                  <div className="flex items-center gap-1">
+                    Asesor
+                    <ArrowUpDown className="h-3 w-3 text-[#00C73D]" />
+                  </div>
+                </TableHead>
+                <TableHead className="font-semibold">
+                  <div className="flex items-center gap-1">
+                    Periodo
+                    <ArrowUpDown className="h-3 w-3 text-[#00C73D]" />
+                  </div>
+                </TableHead>
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+            </TableHeader>
+            <TableBody>
+              {paginatedCommissions.map((commission, index) => (
+                <TableRow key={commission.id} className={index % 2 === 0 ? "bg-[#FFFEF0]" : "bg-background"}>
+                  <TableCell className="font-medium">{commission.clientName}</TableCell>
+                  <TableCell className="font-mono text-sm">{commission.policyNumber}</TableCell>
+                  <TableCell>{PRODUCT_TYPE_LABELS[commission.productType]}</TableCell>
+                  <TableCell className="text-sm">{COMMISSION_TYPE_LABELS[commission.commissionType]}</TableCell>
+                  <TableCell className="text-right font-semibold">
+                    ${commission.commissionValue.toLocaleString()}
+                  </TableCell>
+                  <TableCell>{commission.agentName}</TableCell>
+                  <TableCell>{commission.period}</TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
 
-        {/* Paginación integrada */}
-        <CommissionsPagination
-          currentPage={currentPage}
-          totalPages={totalPages}
-          totalCommissions={totalCommissions}
-          itemsPerPage={itemsPerPage}
-          onPageChange={setCurrentPage}
-          onItemsPerPageChange={setItemsPerPage}
-        />
+          {/* Paginación integrada */}
+          <CommissionsPagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            totalCommissions={totalCommissions}
+            itemsPerPage={itemsPerPage}
+            onPageChange={setCurrentPage}
+            onItemsPerPageChange={setItemsPerPage}
+          />
+        </div>
       </div>
     </div>
   );
