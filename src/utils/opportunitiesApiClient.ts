@@ -47,16 +47,10 @@ export const getOpportunitySummary = async (): Promise<ApiOpportunity[]> => {
   try {
     const headers = await getAuthHeaders();
     
-    console.log('🚀 GET OPPORTUNITIES API CALL');
-    console.log('📍 Endpoint:', endpoint);
-    console.log('🔑 Headers:', headers);
-    
     const response = await fetchWithRetry(endpoint, {
       method: 'GET',
       headers,
     });
-
-    console.log('📥 Response status:', response.status);
 
     if (!response.ok) {
       console.error('❌ API Error:', response.status, response.statusText);
@@ -64,7 +58,6 @@ export const getOpportunitySummary = async (): Promise<ApiOpportunity[]> => {
     }
 
     const result: ApiOpportunity[] = await response.json();
-    console.log('✅ API Response:', result);
     
     return result;
   } catch (error) {
@@ -80,16 +73,10 @@ export const loadLeadsFromOpportunity = async (opportunityId: number): Promise<L
   try {
     const headers = await getAuthHeaders();
     
-    console.log('🚀 LOAD LEADS FROM OPPORTUNITY API CALL');
-    console.log('📍 Endpoint:', endpoint);
-    console.log('🔑 Headers:', headers);
-    
     const response = await fetchWithRetry(endpoint, {
       method: 'POST',
       headers,
     });
-
-    console.log('📥 Response status:', response.status);
 
     if (!response.ok) {
       console.error('❌ API Error:', response.status, response.statusText);
@@ -97,7 +84,6 @@ export const loadLeadsFromOpportunity = async (opportunityId: number): Promise<L
     }
 
     const result: LoadLeadsFromOpportunityResponse[] = await response.json();
-    console.log('✅ API Response:', result);
     
     return result;
   } catch (error) {
@@ -117,18 +103,11 @@ export const updateOpportunityFavourite = async (opportunityId: number, isFavour
       is_favourite: isFavourite
     };
     
-    console.log('🚀 UPDATE OPPORTUNITY FAVOURITE API CALL');
-    console.log('📍 Endpoint:', endpoint);
-    console.log('🔑 Headers:', headers);
-    console.log('📝 Body:', requestBody);
-    
     const response = await fetchWithRetry(endpoint, {
       method: 'POST',
       headers,
       body: JSON.stringify(requestBody)
     });
-
-    console.log('📥 Response status:', response.status);
 
     if (!response.ok) {
       console.error('❌ API Error:', response.status, response.statusText);
@@ -136,7 +115,6 @@ export const updateOpportunityFavourite = async (opportunityId: number, isFavour
     }
 
     const result: UpdateFavouriteResponse = await response.json();
-    console.log('✅ API Response:', result);
     
     return result;
   } catch (error) {
