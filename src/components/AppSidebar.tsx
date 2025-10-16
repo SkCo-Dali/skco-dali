@@ -153,8 +153,6 @@ export function AppSidebar({ onTemplateSelect }: AppSidebarProps) {
   };
 
   const handleSelectTemplate = (content: string) => {
-    console.log("Template selected:", content);
-
     // Close the templates modal
     setShowTemplatesModal(false);
 

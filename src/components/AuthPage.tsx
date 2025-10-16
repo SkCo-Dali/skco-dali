@@ -16,19 +16,16 @@ export const AuthPage: React.FC = () => {
   // Redirigir si ya está autenticado
   useEffect(() => {
     if (!loading && user) {
-      console.log('User authenticated, redirecting to home:', user);
       navigate('/', { replace: true });
     }
   }, [user, loading, navigate]);
 
   const handleAzureSignIn = async () => {
     setIsLoading(true);
-    console.log('Starting Azure sign in...');
 
     try {
       await signInWithAzure();
       
-      console.log('Sign in successful');
       toast({
         title: "Inicio de sesión exitoso",
         description: "Te damos la bienvenida a Dali AI",

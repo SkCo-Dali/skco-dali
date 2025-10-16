@@ -40,19 +40,13 @@ export function AppContent() {
     }
 
     const handleBannerMessage = (automaticReply: string) => {
-        console.log('🟣🟣🟣 AppContent: Banner message received:', automaticReply);
         if (chatDaliRef.current && chatDaliRef.current.handleBannerMessage) {
-            console.log('🟢🟢🟢 AppContent: Forwarding to ChatDali');
             chatDaliRef.current.handleBannerMessage(automaticReply);
         } else {
-            console.log('🔴🔴🔴 AppContent: ChatDali ref not available, will retry...');
             // Reintentar después de un breve delay si ChatDali no está listo
             setTimeout(() => {
                 if (chatDaliRef.current && chatDaliRef.current.handleBannerMessage) {
-                    console.log('🟢🟢🟢 AppContent: Retry successful, forwarding to ChatDali');
                     chatDaliRef.current.handleBannerMessage(automaticReply);
-                } else {
-                    console.log('🔴🔴🔴 AppContent: Retry failed, ChatDali still not available');
                 }
             }, 1000);
         }

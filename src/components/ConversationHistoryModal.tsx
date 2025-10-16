@@ -28,7 +28,6 @@ export const ConversationHistoryModal: React.FC<ConversationHistoryModalProps> =
   // Load conversations when modal opens
   useEffect(() => {
     if (isOpen && conversations.length === 0) {
-      console.log('🏛️ Modal opened, loading conversations');
       loadConversationsList();
     }
   }, [isOpen, conversations.length, loadConversationsList]);
@@ -44,9 +43,7 @@ export const ConversationHistoryModal: React.FC<ConversationHistoryModalProps> =
   const handleLoadConversation = async (id: string) => {
     try {
       setLoadingConversationId(id);
-      console.log('📂 Loading conversation:', id);
       await loadConversation(id);
-      console.log('✅ Conversation loaded successfully');
       onClose();
     } catch (error) {
       console.error('❌ Error loading conversation:', error);
@@ -60,7 +57,6 @@ export const ConversationHistoryModal: React.FC<ConversationHistoryModalProps> =
     if (confirm('¿Estás seguro de que quieres eliminar esta conversación?')) {
       try {
         await deleteConversation(id);
-        console.log('🗑️ Conversation deleted successfully');
       } catch (error) {
         console.error('❌ Error deleting conversation:', error);
       }
@@ -71,8 +67,6 @@ export const ConversationHistoryModal: React.FC<ConversationHistoryModalProps> =
     if (!user?.email) return;
     
     try {
-      console.log('✏️ Updating conversation title:', id, newTitle);
-      
       // Find the conversation to update
       const conversation = conversations.find(c => c.id === id);
       if (!conversation) return;
@@ -85,8 +79,6 @@ export const ConversationHistoryModal: React.FC<ConversationHistoryModalProps> =
       
       // Reload conversations list to reflect changes
       await loadConversationsList();
-      
-      console.log('✅ Conversation title updated successfully');
     } catch (error) {
       console.error('❌ Error updating conversation title:', error);
     }
