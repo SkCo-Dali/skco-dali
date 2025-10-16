@@ -33,7 +33,7 @@ export const ENV = {
   MS_LOGIN_URL: import.meta.env.VITE_MS_LOGIN_URL || 'https://login.microsoftonline.com',
   
   // Redirect URLs
-  REDIRECT_URI: import.meta.env.VITE_REDIRECT_URI || window.location.origin + window.location.pathname,
+  REDIRECT_URI: import.meta.env.VITE_REDIRECT_URI || window.location.origin + '/login',
   
   // Application Settings
   APP_NAME: import.meta.env.VITE_APP_NAME || 'Skandia CRM',
