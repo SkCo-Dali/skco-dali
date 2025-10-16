@@ -148,20 +148,21 @@ export const OpportunityCard: React.FC<OpportunityCardProps> = ({ opportunity, o
                     <span className="text-muted-foreground ml-1">clientes</span>
                   </div>
                 </div>
-                {opportunity.potentialCommission && (
-                  <div className="flex items-center gap-1.5">
-                    <div className="p-1 bg-green-50 rounded">
-                      <DollarSign className="h-3 w-3 text-green-600" />
-                    </div>
-                    <div>
-                      <span className="font-bold text-green-700">
-                        ${opportunity.potentialCommission.toLocaleString("es-CO")}
-                      </span>
-                      <span className="text-muted-foreground ml-1">Comisiones</span>
-                    </div>
-                  </div>
-                )}
               </div>
+
+              {opportunity.potentialCommission && (
+                <div className="flex items-center gap-1.5">
+                  <div className="p-1 bg-green-50 rounded">
+                    <DollarSign className="h-3 w-3 text-green-600" />
+                  </div>
+                  <div>
+                    <span className="font-bold text-green-700">
+                      ${opportunity.potentialCommission.toLocaleString("es-CO")}
+                    </span>
+                    <span className="text-muted-foreground ml-1">Comisiones</span>
+                  </div>
+                </div>
+              )}
 
               {/* Expiration Date */}
               {opportunity.expiresAt && (
