@@ -140,12 +140,9 @@ export const OpportunityCard: React.FC<OpportunityCardProps> = ({ opportunity, o
               {/* Customer Count and Commission */}
               <div className="flex items-center justify-center gap-3 text-xs">
                 <div className="flex items-center gap-1.5">
-                  <div className="p-1 bg-blue-50 rounded">
-                    <Users className="h-3 w-3 text-blue-600" />
-                  </div>
                   <div>
                     <span className="font-bold text-blue-700">{formatCustomerCount(opportunity.customerCount)}</span>
-                    <span className="text-muted-foreground ml-1">Clientes</span>
+                    <span className="text-muted-foreground ml-1">Clientes Impactables</span>
                   </div>
                 </div>
               </div>
