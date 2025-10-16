@@ -216,7 +216,7 @@ export function CommissionsResumenTab({
         {/* KPI Cards - Columna izquierda */}
         <div className="space-y-4 col-span-2">
           {/* Comisiones del mes */}
-          <Card className="relative h-[134.5px]">
+          <Card className="relative h-[140px]">
             <CardContent className="pt-4 pb-4">
               <div className="space-y-2">
                 <p className="text-sm text-muted-foreground">Tus comisiones del mes</p>
@@ -229,7 +229,7 @@ export function CommissionsResumenTab({
           </Card>
 
           {/* Nuevos clientes */}
-          <Card className="relative h-[134.5px]">
+          <Card className="relative h-[140px]">
             <CardContent className="pt-3 pb-3">
               <div className="space-y-2">
                 <p className="text-sm text-muted-foreground">Nuevos clientes que hiciste</p>
@@ -288,8 +288,8 @@ export function CommissionsResumenTab({
           {/* Donut estilo tarjeta con leyenda a la derecha */}
           <Card className="relative overflow-hidden min-h-[285px]">
             <CardHeader className="pt-4">
-              <Tabs defaultValue="comision" className="w-full bg-transparent">
-                <TabsList className="grid w-full grid-cols-2 bg-gray-100 rounded-full px-6 py-0 my-0">
+              <Tabs defaultValue="comision" className="w-full px-6">
+                <TabsList className="grid w-full grid-cols-2 bg-gray-100 rounded-full px-0 py-0 my-0">
                   <TabsTrigger
                     value="comision"
                     className="w-full h-full data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#00C73D] data-[state=active]:to-[#A3E40B] data-[state=active]:text-white rounded-full px-4 py-2 mt-0 text-sm font-medium transition-all duration-200"
