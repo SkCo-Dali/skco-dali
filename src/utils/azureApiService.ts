@@ -11,24 +11,6 @@ interface AzureApiResponse {
   ipAddress?: string;
 }
 
-// Helper function to get Entra ID token
-const getEntraIdToken = async (): Promise<string | null> => {
-  try {
-    const { default: SecureTokenManager } = await import('@/utils/secureTokenManager');
-    const tokenData = SecureTokenManager.getToken();
-    
-    if (tokenData && tokenData.token) {
-      console.log('🔑 Entra ID token retrieved for API call');
-      return tokenData.token;
-    } else {
-      console.warn('⚠️ No Entra ID token available');
-      return null;
-    }
-  } catch (error) {
-    console.warn('⚠️ Could not get Entra ID token:', error);
-    return null;
-  }
-};
 
 // Helper function to wait for a specified number of milliseconds
 const sleep = (ms: number): Promise<void> => {
@@ -59,15 +41,6 @@ const makeApiCallWithRetry = async (
       const headers: Record<string, string> = {
         'Content-Type': 'application/json',
       };
-
-      // Add Entra ID token authorization header
-      const entraToken = await getEntraIdToken();
-      if (entraToken) {
-        headers['Authorization'] = `Bearer ${entraToken}`;
-        console.log('🔑 Authorization header added with Entra ID token');
-      } else {
-        console.warn('⚠️ No Entra ID token available for API authorization');
-      }
 
       const response = await fetch(`${ENV.MAESTRO_API_BASE_URL}/api/maestro`, {
         method: 'POST',
@@ -146,12 +119,10 @@ export const callAzureAgentApi = async (
   files: File[], 
   settings: AISettings,
   userEmail: string,
-  accessToken?: string | null,
   conversationId?: string
 ): Promise<AzureApiResponse> => {
   console.log('🚀 === AZURE API SERVICE: STARTING MAESTRO API CALL ===');
   console.log('📧 User email:', userEmail);
-  console.log('🔑 Access token present:', !!accessToken);
   console.log('🔗 Conversation ID:', conversationId);
   console.log('📝 Message provided:', !!message.trim());
   console.log('📎 Files count:', files.length);

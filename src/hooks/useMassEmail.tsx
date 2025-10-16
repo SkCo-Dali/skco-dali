@@ -14,7 +14,7 @@ import { createInteraction } from '@/utils/interactionsApiClient';
 import { ENV } from '@/config/environment';
 
 export function useMassEmail() {
-  const { user, getAccessToken } = useAuth();
+  const { user } = useAuth();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
   const [emailLogs, setEmailLogs] = useState<EmailLog[]>([]);
@@ -138,19 +138,7 @@ export function useMassEmail() {
     
     try {
       console.log('🔐 Obteniendo tokens de acceso...');
-      const tokens = await getAccessToken();
-      
-      if (!tokens || !tokens.idToken || !tokens.accessToken) {
-        console.log('❌ Tokens faltantes:', tokens);
-        throw new Error('No se pudieron obtener los tokens de acceso');
-      }
-      
-      const { idToken, accessToken } = tokens;
-
-      console.log('✅ Tokens completos obtenidos exitosamente:', {
-        idToken: idToken,
-        accessToken: accessToken
-      });
+    
 
       const recipients = generateEmailRecipients(leads, template, alternateEmail);
       console.log('📧 Recipients generados:', recipients.length);
@@ -162,23 +150,12 @@ export function useMassEmail() {
 
       const endpoint = `${ENV.CRM_API_BASE_URL}/api/emails/send`;
       
-      // LOG: Endpoint y body que se envía
-      console.log('📧 === DETALLES DE LA LLAMADA AL API ===');
-      console.log('📧 Endpoint:', endpoint);
-      console.log('📧 Method: POST');
-      console.log('📧 Headers completos que se enviarán:', {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${idToken}`,
-        'X-Graph-Token': accessToken
-      });
       console.log('📧 Payload enviado:', JSON.stringify(payload, null, 2));
 
       const response = await fetch(endpoint, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${idToken}`,
-          'X-Graph-Token': accessToken
         },
         body: JSON.stringify(payload)
       });
@@ -235,7 +212,7 @@ export function useMassEmail() {
     } finally {
       setIsLoading(false);
     }
-  }, [user, getAccessToken, generateEmailRecipients, createInteractionForEmailSent, toast]);
+  }, [user, generateEmailRecipients, createInteractionForEmailSent, toast]);
 
   const fetchEmailLogs = useCallback(async (
     campaign?: string,
@@ -247,13 +224,6 @@ export function useMassEmail() {
     setIsLoading(true);
     
     try {
-      // Obtener token de acceso
-      const tokens = await getAccessToken();
-      
-      if (!tokens || !tokens.idToken) {
-        throw new Error('No se pudieron obtener los tokens de acceso');
-      }
-
       // Construir parámetros sin userId
       const params = new URLSearchParams({
         ...(campaign && { campaign }),
@@ -267,9 +237,6 @@ export function useMassEmail() {
       console.log('📧 OBTENER LOGS DE CORREOS - API CALL');
       console.log('📧 Endpoint:', endpoint);
       console.log('📧 Method: GET');
-      console.log('📧 Headers:', {
-        'Authorization': `Bearer ${tokens.idToken}`
-      });
       console.log('📧 Params:', {
         ...(campaign && { campaign }),
         ...(status && { status }),
@@ -279,7 +246,6 @@ export function useMassEmail() {
       const response = await fetch(endpoint, {
         method: 'GET',
         headers: {
-          'Authorization': `Bearer ${tokens.idToken}`
         }
       });
 

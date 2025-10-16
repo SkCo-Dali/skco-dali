@@ -59,16 +59,12 @@ export const useBannerData = () => {
       return;
     }
 
-    console.log('🎌 useBannerData: Fetching banners for NEW user:', currentEmail);
-    console.log('🎌 useBannerData: Last fetched email was:', lastFetchedEmail.current);
-    
     setIsLoading(true);
     lastFetchedEmail.current = currentEmail;
 
     const fetchBanners = async () => {
       try {
         const apiResponse = await azureConversationService.getUserBanners(currentEmail);
-        console.log('🎌 useBannerData: Raw API response:', apiResponse);
         
         // Handle both single banner object and array of banners
         let bannersArray: ApiBannerResponse[];
@@ -79,23 +75,18 @@ export const useBannerData = () => {
           // If it's a single banner object, wrap it in an array
           bannersArray = [apiResponse as ApiBannerResponse];
         } else {
-          console.log('🎌 useBannerData: Unexpected API response format:', apiResponse);
           bannersArray = [];
         }
-        
-        console.log('🎌 useBannerData: Processed banners array:', bannersArray);
         
         // Sort by MessageOrder and transform
         const sortedBanners = bannersArray
           .sort((a, b) => a.MessageOrder - b.MessageOrder)
           .map(transformApiBanner);
         
-        console.log('🎌 useBannerData: Transformed and sorted banners:', sortedBanners);
         setBanners(sortedBanners);
         setCurrentBannerIndex(0);
         hasFetchedOnce.current = true;
       } catch (error) {
-        console.log('🎌 useBannerData: Error fetching banners (silently handled):', error);
         setBanners([]);
       } finally {
         setIsLoading(false);

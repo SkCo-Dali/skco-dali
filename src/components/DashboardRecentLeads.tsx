@@ -32,7 +32,6 @@ export function DashboardRecentLeads({ leads }: DashboardRecentLeadsProps) {
     .slice(0, 5);
 
   const handleLeadClick = (lead: Lead) => {
-    console.log('Lead clicked:', lead);
     // TODO: Implement lead detail view or modal
   };
 

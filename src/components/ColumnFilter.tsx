@@ -45,7 +45,7 @@ export function ColumnFilter({
   const cleanProductField = (value: any): string => {
     if (typeof value === 'string') {
       // Clean all JSON-like characters and escape sequences
-      let cleaned = value
+      const cleaned = value
         .replace(/\\"/g, '"')          // Remove escape sequences
         .replace(/[\[\]"'\\]/g, '')    // Remove all brackets and quotes
         .replace(/,+/g, ',')           // Replace multiple commas with single comma

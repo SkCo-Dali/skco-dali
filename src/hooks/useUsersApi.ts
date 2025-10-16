@@ -17,15 +17,12 @@ export const useUsersApi = () => {
     setError(null);
     
     try {
-      console.log('🔄 Loading users from API...');
       const fetchedUsers = await getAllUsers();
       setUsers(fetchedUsers);
-      console.log('✅ Users loaded successfully:', fetchedUsers.length);
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Error al cargar usuarios';
       console.error('❌ Error loading users:', errorMessage);
       setError(errorMessage);
-      // Fallback to empty array on error
       setUsers([]);
     } finally {
       setLoading(false);

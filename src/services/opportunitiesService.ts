@@ -37,8 +37,6 @@ class OpportunitiesService {
     const apiOpportunities = await getOpportunitySummary();
     let opportunities = apiOpportunities.map(mapApiOpportunityToOpportunity);
     
-    console.log('✅ Using real API data:', opportunities.length, 'opportunities');
-    
     // Apply filters
     if (filters) {
       opportunities = this.applyFilters(opportunities, filters);

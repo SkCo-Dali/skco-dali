@@ -15,7 +15,7 @@ interface LeadReassignDialogProps {
   lead: Lead | null;
   isOpen: boolean;
   onClose: () => void;
-  onSuccess?: () => void;
+  onSuccess?: (newUserId: string) => void;
 }
 
 export function LeadReassignDialog({ lead, isOpen, onClose, onSuccess }: LeadReassignDialogProps) {
@@ -36,7 +36,6 @@ export function LeadReassignDialog({ lead, isOpen, onClose, onSuccess }: LeadRea
       
       setLoadingUsers(true);
       try {
-        console.log('🔄 Cargando usuarios asignables para reasignación desde API...');
         const users = await getAllUsers();
         
         // Filtrar solo usuarios activos y que no sea el usuario actual asignado
@@ -44,7 +43,6 @@ export function LeadReassignDialog({ lead, isOpen, onClose, onSuccess }: LeadRea
           user.isActive && user.id !== lead?.assignedTo
         );
         
-        console.log('✅ Usuarios asignables cargados para reasignación:', filteredUsers.length);
         setAssignableUsers(filteredUsers);
       } catch (error) {
         console.error('❌ Error cargando usuarios asignables:', error);
@@ -101,8 +99,8 @@ export function LeadReassignDialog({ lead, isOpen, onClose, onSuccess }: LeadRea
         setReason("No informa");
         setNotes("Sin info");
         
-        // Llamar callback de éxito y cerrar modal
-        onSuccess?.();
+        // Llamar callback de éxito con el nuevo usuario asignado
+        onSuccess?.(selectedUserId);
         onClose();
       }
     } catch (error) {

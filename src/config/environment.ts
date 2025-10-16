@@ -2,12 +2,13 @@
 // Environment configuration - centralized management of all environment variables
 export const ENV = {
   // Azure/Microsoft Authentication
-  AZURE_CLIENT_ID: import.meta.env.VITE_AZURE_CLIENT_ID || '2cc89bfe-6192-40e2-80a8-fd218121c623',
+  AZURE_CLIENT_ID: import.meta.env.VITE_AZURE_CLIENT_ID || '0efa5aa7-89db-4916-bfe4-053728eef63d',
   AZURE_TENANT_ID: import.meta.env.VITE_AZURE_TENANT_ID || '08271f42-81ef-45d6-81ac-49776c4be615',
-  ENTRA_TENANT_NAME: import.meta.env.VITE_ENTRA_TENANT_NAME || 'fp.skandia.com.co',
-  AZURE_AUTHORITY: import.meta.env.VITE_AZURE_AUTHORITY || 'https://login.microsoftonline.com/08271f42-81ef-45d6-81ac-49776c4be615',
+  ENTRA_TENANT_NAME: import.meta.env.VITE_ENTRA_TENANT_NAME || 'skcotest',
+  AZURE_AUTHORITY: import.meta.env.VITE_AZURE_AUTHORITY || 'https://skcotest.b2clogin.com/skcotest.onmicrosoft.com/B2C_1A_signin_Service_Dali',
   AUTH_LOG_LEVEL: import.meta.env.VITE_AUTH_LOG_LEVEL || 1, // 0 = Error, 1 = Warning, 2 = Info, 3 = Verbose, 4 = Trace
   PII_LOGGING_ENABLED: import.meta.env.VITE_PII_LOGGING_ENABLED === 'true' || false,
+  USER_INFO_URL: import.meta.env.VITE_USER_INFO_URL || 'https://skcotest.b2clogin.com/0db6dbc3-6908-4517-a7f2-81ea685a25e2/B2C_1A_signin_Service_Dali/openid/v2.0/userinfo',
   
   // Microsoft Graph API
   GRAPH_API_BASE_URL: import.meta.env.VITE_GRAPH_API_BASE_URL || 'https://graph.microsoft.com/v1.0',
@@ -32,7 +33,7 @@ export const ENV = {
   MS_LOGIN_URL: import.meta.env.VITE_MS_LOGIN_URL || 'https://login.microsoftonline.com',
   
   // Redirect URLs
-  REDIRECT_URI: import.meta.env.VITE_REDIRECT_URI || window.location.origin + window.location.pathname,
+  REDIRECT_URI: import.meta.env.VITE_REDIRECT_URI || window.location.origin + '/login',
   
   // Application Settings
   APP_NAME: import.meta.env.VITE_APP_NAME || 'Skandia CRM',
@@ -47,7 +48,7 @@ export const ENV = {
   ENABLE_DOMAIN_VALIDATION: import.meta.env.VITE_ENABLE_DOMAIN_VALIDATION !== 'false',
   
   // Required Scopes
-  REQUIRED_SCOPES: (import.meta.env.VITE_REQUIRED_SCOPES || 'User.Read,Mail.Send,Mail.Read,offline_access').split(','),
+  REQUIRED_SCOPES: (import.meta.env.VITE_REQUIRED_SCOPES || '0efa5aa7-89db-4916-bfe4-053728eef63d,offline_access,openid').split(','),
 } as const;
 
 // Validation function to ensure critical environment variables are set

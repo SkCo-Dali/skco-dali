@@ -18,7 +18,6 @@ import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, Command
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Check, ChevronsUpDown } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { SecureTokenManager } from "@/utils/secureTokenManager";
 import { ENV } from "@/config/environment";
 
 interface CreateRuleDialogProps {
@@ -329,15 +328,12 @@ export function CreateRuleDialog({ planId, open, onOpenChange, onRuleCreated }: 
     setIsSubmitting(true);
     
     try {
-      const tokenData = SecureTokenManager.getToken();
-      const token = tokenData?.token || '';
       
       const response = await fetch(
         `${ENV.CRM_API_BASE_URL}/api/commission-plans/${planId}/rules`, 
         {
           method: 'POST',
           headers: {
-            'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json',
             'Accept': 'application/json'
           },

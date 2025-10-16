@@ -1,4 +1,18 @@
-export type UserRole = 'admin' | 'manager' | 'agent' | 'viewer' | 'supervisor' | 'analista' | 'gestor' | 'fp' | 'seguridad' | 'director' | 'promotor' | 'aliado' | 'socio' | 'ais';
+export type UserRole =
+  | "admin"
+  | "manager"
+  | "agent"
+  | "viewer"
+  | "supervisor"
+  | "analista"
+  | "gestor"
+  | "fp"
+  | "seguridad"
+  | "director"
+  | "promotor"
+  | "aliado"
+  | "socio"
+  | "ais";
 
 export interface User {
   id: string;
@@ -46,7 +60,7 @@ export type UserPermissions = RolePermissions;
 
 export const getRolePermissions = (role: UserRole): RolePermissions => {
   switch (role) {
-    case 'admin':
+    case "admin":
       return {
         canCreate: true,
         canEdit: true,
@@ -63,10 +77,26 @@ export const getRolePermissions = (role: UserRole): RolePermissions => {
         canSendEmail: true,
         canSendWhatsApp: true,
         canSendmassiveWhatsApp: true,
-        accessiblePages: ['dashboard', 'leads', 'ChatDali','opportunities','gamification', 'reports', 'informes', 'users', 'settings','index', 'comisiones', 'motor-comisiones', 'voice-insights', 'calendar', 'tasks']
+        accessiblePages: [
+          "dashboard",
+          "leads",
+          "ChatDali",
+          "opportunities",
+          "gamification",
+          "reports",
+          "informes",
+          "users",
+          "settings",
+          "index",
+          "comisiones",
+          "motor-comisiones",
+          "voice-insights",
+          "calendar",
+          "tasks",
+        ],
       };
-    case 'manager':
-    case 'supervisor':
+    case "manager":
+    case "supervisor":
       return {
         canCreate: true,
         canEdit: true,
@@ -83,14 +113,14 @@ export const getRolePermissions = (role: UserRole): RolePermissions => {
         canSendEmail: true,
         canSendWhatsApp: true,
         canSendmassiveWhatsApp: false,
-        accessiblePages: ['leads', 'ChatDali', 'reports','informes']
+        accessiblePages: ["leads", "ChatDali", "reports", "informes", "opportunities"],
       };
-    case 'agent':
-    case 'gestor':
-    case 'promotor':
-    case 'aliado':
-    case 'socio':
-    case 'director':
+    case "agent":
+    case "gestor":
+    case "promotor":
+    case "aliado":
+    case "socio":
+    case "director":
       return {
         canCreate: true,
         canEdit: true,
@@ -107,9 +137,9 @@ export const getRolePermissions = (role: UserRole): RolePermissions => {
         canSendEmail: true,
         canSendWhatsApp: true,
         canSendmassiveWhatsApp: false,
-        accessiblePages: ['leads', 'ChatDali','informes']
+        accessiblePages: ["leads", "ChatDali", "informes", "opportunities"],
       };
-    case 'fp':
+    case "fp":
       return {
         canCreate: true,
         canEdit: true,
@@ -126,9 +156,9 @@ export const getRolePermissions = (role: UserRole): RolePermissions => {
         canSendEmail: true,
         canSendWhatsApp: true,
         canSendmassiveWhatsApp: false,
-        accessiblePages: ['leads', 'ChatDali','informes']
+        accessiblePages: ["leads", "ChatDali", "informes", "opportunities"],
       };
-    case 'analista':
+    case "analista":
       return {
         canCreate: false,
         canEdit: false,
@@ -145,10 +175,10 @@ export const getRolePermissions = (role: UserRole): RolePermissions => {
         canSendEmail: false,
         canSendWhatsApp: false,
         canSendmassiveWhatsApp: false,
-        accessiblePages: ['leads', 'reports','informes']
+        accessiblePages: ["leads", "reports", "informes", "opportunities"],
       };
-    case 'viewer':
-    case 'seguridad':
+    case "viewer":
+    case "seguridad":
       return {
         canCreate: false,
         canEdit: false,
@@ -165,7 +195,7 @@ export const getRolePermissions = (role: UserRole): RolePermissions => {
         canSendEmail: true,
         canSendWhatsApp: true,
         canSendmassiveWhatsApp: false,
-        accessiblePages: ['leads', 'ChatDali','informes']
+        accessiblePages: ["leads", "ChatDali", "informes", "opportunities"],
       };
     default:
       return {
@@ -184,27 +214,27 @@ export const getRolePermissions = (role: UserRole): RolePermissions => {
         canSendEmail: false,
         canSendWhatsApp: false,
         canSendmassiveWhatsApp: false,
-        accessiblePages: ['dashboard']
+        accessiblePages: ["dashboard"],
       };
   }
 };
 
 export const getRoleDisplayName = (role: UserRole): string => {
   const roleDisplayMap: Record<UserRole, string> = {
-    admin: 'Administrador',
-    manager: 'Gerente',
-    agent: 'Agente',
-    viewer: 'Visualizador',
-    supervisor: 'Supervisor',
-    analista: 'Analista',
-    gestor: 'Gestor',
-    fp: 'FP',
-    seguridad: 'Seguridad',
-    director: 'Director',
-    promotor: 'Promotor',
-    aliado: 'Aliado',
-    socio: 'Socio',
-    ais: 'AIS'
+    admin: "Administrador",
+    manager: "Gerente",
+    agent: "Agente",
+    viewer: "Visualizador",
+    supervisor: "Supervisor",
+    analista: "Analista",
+    gestor: "Gestor",
+    fp: "FP",
+    seguridad: "Seguridad",
+    director: "Director",
+    promotor: "Promotor",
+    aliado: "Aliado",
+    socio: "Socio",
+    ais: "AIS",
   };
   return roleDisplayMap[role] || role;
 };
@@ -212,11 +242,11 @@ export const getRoleDisplayName = (role: UserRole): string => {
 export interface Interaction {
   id: string;
   leadId: string;
-  type: 'call' | 'email' | 'meeting' | 'note';
+  type: "call" | "email" | "meeting" | "note";
   description: string;
   date: string;
   userId: string;
-  outcome?: 'positive' | 'negative' | 'neutral';
+  outcome?: "positive" | "negative" | "neutral";
 }
 
 export interface Lead {
@@ -260,43 +290,56 @@ export interface Lead {
 }
 
 export const LeadDefaultProperties: string[] = [
-    'id',
-    'name',
-    'email',
-    'phone',
-    'status',
-    'source',
-    'priority',
-    'campaign',
-    'portfolio',
-    'product',
-    'createdAt',
-    'updatedAt',
-    'stage',
-    'assignedTo',
-    'assignedToName',
-    'createdBy',
-    'company',
-    'value',
-    'type',
-    'outcome',
-    'notes',
-    'documentType',
-    'documentNumber',
-    'age',
-    'gender',
-    'preferredContactChannel',
-    'portfolios',
-    'tags',
-    'nextFollowUp',
-    'campaignOwnerName',
-    'alternateEmail',
-    'interactions',
-]
+  "id",
+  "name",
+  "email",
+  "phone",
+  "status",
+  "source",
+  "priority",
+  "campaign",
+  "portfolio",
+  "product",
+  "createdAt",
+  "updatedAt",
+  "stage",
+  "assignedTo",
+  "assignedToName",
+  "createdBy",
+  "company",
+  "value",
+  "type",
+  "outcome",
+  "notes",
+  "documentType",
+  "documentNumber",
+  "age",
+  "gender",
+  "preferredContactChannel",
+  "portfolios",
+  "tags",
+  "nextFollowUp",
+  "campaignOwnerName",
+  "alternateEmail",
+  "interactions",
+];
 
-export type LeadStatus = 'New' | 'Contacted' | 'Qualified' | 'Lost' | 'Won';
-export type LeadSource = 'Web' | 'Referral' | 'Social Media' | 'Other' | 'campaign' | 'web' | 'Hubspot' | 'DaliLM' | 'DaliAI' | 'social' | 'referral' | 'cold-call' | 'event';
-export type Priority = 'High' | 'Medium' | 'Low' | 'high' | 'low' | 'medium' | 'urgent';
-export type Campaign = 'Campaign A' | 'Campaign B' | 'Campaign C' | string;
-export type Portfolio = 'Portfolio A' | 'Portfolio B' | 'Portfolio C' | string;
-export type Product = 'Product A' | 'Product B' | 'Product C' | string;
+export type LeadStatus = "New" | "Contacted" | "Qualified" | "Lost" | "Won";
+export type LeadSource =
+  | "Web"
+  | "Referral"
+  | "Social Media"
+  | "Other"
+  | "campaign"
+  | "web"
+  | "Hubspot"
+  | "DaliLM"
+  | "DaliAI"
+  | "social"
+  | "referral"
+  | "cold-call"
+  | "event";
+export type Priority = "High" | "Medium" | "Low" | "high" | "low" | "medium" | "urgent";
+export type Campaign = "Campaign A" | "Campaign B" | "Campaign C" | string;
+export type Portfolio = "Portfolio A" | "Portfolio B" | "Portfolio C" | string;
+export type Product = "Product A" | "Product B" | "Product C" | string;

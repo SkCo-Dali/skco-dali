@@ -40,7 +40,6 @@ const AutoAuthWrapper = ({ children, Component }) => {
       const { getUserByEmail, createUser } = require('../src/utils/userApiClient');
       const { TokenValidationService } = require('../src/services/tokenValidationService');
       const { getUserRoleByEmail } = require('../src/utils/userRoleService');
-      const SecureTokenManager = require('../src/utils/secureTokenManager').default;
 
       // Paso 1: Obtener token de MSAL
       const response = await msalInstance.loginPopup({
@@ -66,12 +65,6 @@ const AutoAuthWrapper = ({ children, Component }) => {
         throw new Error('El email no pertenece a un dominio autorizado');
       }
 
-      // Almacenar idToken para uso con el backend
-      SecureTokenManager.storeToken({
-        token: response.idToken,
-        expiresAt: response.expiresOn.getTime(),
-        refreshToken: response.account.homeAccountId || '',
-      });
       
       // Paso 4: Obtener foto del perfil
       const getUserPhoto = async (accessToken) => {

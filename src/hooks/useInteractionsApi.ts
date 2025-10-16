@@ -48,8 +48,16 @@ export const useInteractionsApi = () => {
         Type: lead.type,
         Description: lead.notes,
         Stage: lead.stage,
-        Outcome: "neutral" // Valor por defecto según el patrón requerido: positive|neutral|negative
+        Outcome: (() => {
+          const o = (lead.outcome || '').toLowerCase();
+          if (['contacto exitoso','agendado','interesado','venta','convertido'].includes(o)) return 'positive';
+          if (['no contesta','no interesado','rechazado','incorrecto','buzón','buzon'].includes(o)) return 'negative';
+          if (['reagendar','información enviada','informacion enviada','pendiente','seguimiento'].includes(o)) return 'neutral';
+          return 'neutral';
+        })()
       };
+      
+      console.log('📝 Creating interaction with data:', interactionData);
 
       await createInteraction(interactionData);
       

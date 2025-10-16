@@ -42,18 +42,12 @@ export const DynamicBanner: React.FC<DynamicBannerProps> = ({ onClose, onBannerA
   }
 
   const handleButtonClick = () => {
-    console.log('🔵 DynamicBanner: Button clicked for banner:', currentBanner.title);
-    
     if (onBannerAction && currentBanner.automaticReply) {
-      console.log('🟢 DynamicBanner: Calling onBannerAction with:', currentBanner.automaticReply);
       try {
         onBannerAction(currentBanner.automaticReply);
-        console.log('🟢 DynamicBanner: onBannerAction call completed successfully');
       } catch (error) {
         console.error('🔴 DynamicBanner: ERROR calling onBannerAction:', error);
       }
-    } else {
-      console.log('🔴 DynamicBanner: Cannot call onBannerAction - missing function or automaticReply');
     }
   };
 
