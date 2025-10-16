@@ -155,8 +155,9 @@ export const OpportunityCard: React.FC<OpportunityCardProps> = ({ opportunity, o
                     </div>
                     <div>
                       <span className="font-bold text-green-700">
-                        ${opportunity.potentialCommission.toLocaleString('es-CO')}
+                        ${opportunity.potentialCommission.toLocaleString("es-CO")}
                       </span>
+                      <span className="text-muted-foreground ml-1">Comisiones</span>
                     </div>
                   </div>
                 )}
