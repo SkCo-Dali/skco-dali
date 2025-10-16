@@ -1,5 +1,5 @@
 import React from "react";
-import { Heart, Users, X } from "lucide-react";
+import { Heart, Users, X, DollarSign } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
@@ -137,15 +137,29 @@ export const OpportunityCard: React.FC<OpportunityCardProps> = ({ opportunity, o
                 </Badge>
               </div>
 
-              {/* Customer Count */}
-              <div className="flex items-center justify-center gap-1.5 text-xs">
-                <div className="p-1 bg-blue-50 rounded">
-                  <Users className="h-3 w-3 text-blue-600" />
+              {/* Customer Count and Commission */}
+              <div className="flex items-center justify-center gap-3 text-xs">
+                <div className="flex items-center gap-1.5">
+                  <div className="p-1 bg-blue-50 rounded">
+                    <Users className="h-3 w-3 text-blue-600" />
+                  </div>
+                  <div>
+                    <span className="font-bold text-blue-700">{formatCustomerCount(opportunity.customerCount)}</span>
+                    <span className="text-muted-foreground ml-1">clientes</span>
+                  </div>
                 </div>
-                <div>
-                  <span className="font-bold text-blue-700">{formatCustomerCount(opportunity.customerCount)}</span>
-                  <span className="text-muted-foreground ml-1">clientes</span>
-                </div>
+                {opportunity.potentialCommission && (
+                  <div className="flex items-center gap-1.5">
+                    <div className="p-1 bg-green-50 rounded">
+                      <DollarSign className="h-3 w-3 text-green-600" />
+                    </div>
+                    <div>
+                      <span className="font-bold text-green-700">
+                        ${opportunity.potentialCommission.toLocaleString('es-CO')}
+                      </span>
+                    </div>
+                  </div>
+                )}
               </div>
 
               {/* Expiration Date */}
