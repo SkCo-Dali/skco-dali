@@ -36,10 +36,8 @@ export const AssignableUsersProvider: React.FC<AssignableUsersProviderProps> = (
     setError(null);
     
     try {
-      console.log('🔄 Loading assignable users from context...');
       const fetchedUsers = await getAssignableUsers();
       setUsers(fetchedUsers);
-      console.log('✅ Assignable users loaded successfully:', fetchedUsers.length);
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Error al cargar usuarios asignables';
       console.error('❌ Error loading assignable users:', errorMessage);

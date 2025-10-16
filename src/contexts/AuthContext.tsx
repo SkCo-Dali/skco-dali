@@ -56,7 +56,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
         registerMsalFetchInterceptor(msalInstance);
         
         if (account && !user) {
-            console.log('🟢🟢🟢 AuthProvider: Active account found:', account);
             setLoading(true);
             // Extraer información del usuario desde la cuenta activa
             const userEmail = account.username || account.idTokenClaims?.email as string || '';
