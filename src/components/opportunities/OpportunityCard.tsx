@@ -154,11 +154,11 @@ export const OpportunityCard: React.FC<OpportunityCardProps> = ({ opportunity, o
                 <div className="flex items-center justify-center gap-3 text-xs">
                   <div className="flex items-center gap-1.5">
                     <div className="p-1 bg-blue-50 rounded">
-                      <Users className="h-3 w-3 text-blue-600" />
+                      <DollarSign className="h-3 w-3 text-blue-600" />
                     </div>
                     <div>
-                      <span className="font-bold text-blue-700">
-                        ${(opportunity.metrics.estimatedSales / 1_000_000).toFixed(1)}M
+                      <span className="font-bold text-primary">
+                        ${(opportunity.metrics.estimatedSales / 1_000_000).toFixed(2)}M
                       </span>
                       <span className="text-muted-foreground ml-1">Comisión Potencial</span>
                     </div>
