@@ -153,7 +153,6 @@ export const OpportunityCard: React.FC<OpportunityCardProps> = ({ opportunity, o
               {opportunity.metrics && (
                 <div className="flex items-center justify-center gap-3 text-xs">
                   <div className="flex items-center gap-1.5">
-                    </div>
                     <div>
                       <span className="font-bold text-primary">
                         ${(opportunity.metrics.estimatedSales / 1_000_000).toFixed(2)}M
