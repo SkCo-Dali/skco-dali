@@ -116,7 +116,7 @@ export function CommissionsTable({ commissions, selectedCategory }: CommissionsT
   return (
     <div className="w-full space-y-4 bg-[#fafafa] rounded-lg">
       {/* Barra de búsqueda y controles */}
-      <div className="flex flex-wrap items-center gap-3 px-4 pt-4 pb-4">
+      <div className="flex flex-wrap items-center gap-3 px-4 pt-6 pb-4">
         <div className="flex-1 min-w-[250px]">
           <div className="relative">
             <Input
