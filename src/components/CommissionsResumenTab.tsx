@@ -287,67 +287,69 @@ export function CommissionsResumenTab({
         <div className="lg:col-span-2 space-y-4">
           {/* Donut estilo tarjeta con leyenda a la derecha */}
           <Card className="relative overflow-hidden min-h-[285px]">
-            <CardHeader className="pt-4 flex justify-center">
-              <Tabs defaultValue="comision" className="w-full">
-                <TabsList className="grid w-[336px] grid-cols-2 bg-gray-100 rounded-full px-0 py-0 my-0">
-                  <TabsTrigger
-                    value="comision"
-                    className="w-full h-full data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#00C73D] data-[state=active]:to-[#A3E40B] data-[state=active]:text-white rounded-full px-4 py-2 mt-0 text-sm font-medium transition-all duration-200"
-                  >
-                    Comisión
-                  </TabsTrigger>
-                  <TabsTrigger
-                    value="producto"
-                    className="w-full h-full data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#00C73D] data-[state=active]:to-[#A3E40B] data-[state=active]:text-white rounded-full px-4 py-2 mt-0 text-sm font-medium transition-all duration-200"
-                  >
-                    Producto
-                  </TabsTrigger>
-                </TabsList>
+            <div className="flex justify-center pt-4">
+              <CardHeader>
+                <Tabs defaultValue="comision" className="w-full">
+                  <TabsList className="grid w-[336px] grid-cols-2 bg-gray-100 rounded-full px-0 py-0 my-0">
+                    <TabsTrigger
+                      value="comision"
+                      className="w-full h-full data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#00C73D] data-[state=active]:to-[#A3E40B] data-[state=active]:text-white rounded-full px-4 py-2 mt-0 text-sm font-medium transition-all duration-200"
+                    >
+                      Comisión
+                    </TabsTrigger>
+                    <TabsTrigger
+                      value="producto"
+                      className="w-full h-full data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#00C73D] data-[state=active]:to-[#A3E40B] data-[state=active]:text-white rounded-full px-4 py-2 mt-0 text-sm font-medium transition-all duration-200"
+                    >
+                      Producto
+                    </TabsTrigger>
+                  </TabsList>
 
-                <TabsContent value="comision" className="mt-0">
-                  <div className="h-[230px]">
-                    <ResponsiveContainer width="100%" height="100%">
-                      <PieChart margin={{ left: 8, right: 8, top: 0, bottom: 0 }}>
-                        <Pie
-                          data={clientTypeData}
-                          dataKey="value"
-                          nameKey="name"
-                          cx="42%"
-                          cy="50%"
-                          innerRadius={56}
-                          outerRadius={84}
-                          paddingAngle={3}
-                          cornerRadius={6}
-                        >
-                          {clientTypeData.map((entry, index) => (
-                            <Cell key={`cell-${index}`} fill={entry.color} />
-                          ))}
-                        </Pie>
+                  <TabsContent value="comision" className="mt-0">
+                    <div className="h-[230px]">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <PieChart margin={{ left: 8, right: 8, top: 0, bottom: 0 }}>
+                          <Pie
+                            data={clientTypeData}
+                            dataKey="value"
+                            nameKey="name"
+                            cx="42%"
+                            cy="50%"
+                            innerRadius={56}
+                            outerRadius={84}
+                            paddingAngle={3}
+                            cornerRadius={6}
+                          >
+                            {clientTypeData.map((entry, index) => (
+                              <Cell key={`cell-${index}`} fill={entry.color} />
+                            ))}
+                          </Pie>
 
-                        <Legend
-                          layout="vertical"
-                          verticalAlign="middle"
-                          align="right"
-                          content={<ClientTypeLegend />}
-                          wrapperStyle={{ right: 0 }}
-                        />
+                          <Legend
+                            layout="vertical"
+                            verticalAlign="middle"
+                            align="right"
+                            content={<ClientTypeLegend />}
+                            wrapperStyle={{ right: 0 }}
+                          />
 
-                        <Tooltip
-                          formatter={(value: number, _name: string, { payload }: any) => {
-                            const pct = Math.round((payload.value / (totalClientType || 1)) * 100);
-                            return [`${value} (${pct}%)`, payload.name];
-                          }}
-                        />
-                      </PieChart>
-                    </ResponsiveContainer>
-                  </div>
-                </TabsContent>
+                          <Tooltip
+                            formatter={(value: number, _name: string, { payload }: any) => {
+                              const pct = Math.round((payload.value / (totalClientType || 1)) * 100);
+                              return [`${value} (${pct}%)`, payload.name];
+                            }}
+                          />
+                        </PieChart>
+                      </ResponsiveContainer>
+                    </div>
+                  </TabsContent>
 
-                <TabsContent value="producto">
-                  <div className="h-[230px] flex items-center justify-center text-muted-foreground">Próximamente</div>
-                </TabsContent>
-              </Tabs>
-            </CardHeader>
+                  <TabsContent value="producto">
+                    <div className="h-[230px] flex items-center justify-center text-muted-foreground">Próximamente</div>
+                  </TabsContent>
+                </Tabs>
+              </CardHeader>
+            </div>
           </Card>
 
           {/* Gráfico de equipo con el look solicitado */}
