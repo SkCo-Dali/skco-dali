@@ -75,7 +75,6 @@ import { loginRequest } from '../src/authConfig';
 import { getUserByEmail, createUser } from '../src/utils/userApiClient';
 import { TokenValidationService } from '../src/services/tokenValidationService';
 import { getUserRoleByEmail } from '../src/utils/userRoleService';
-import SecureTokenManager from '../src/utils/secureTokenManager';
 
 // Importar CSS
 import '../src/index.css';
@@ -118,13 +117,6 @@ const AutoAuthWrapper = ({ children, Component }) => {
         throw new Error('El email no pertenece a un dominio autorizado');
       }
 
-      // Almacenar idToken para uso con el backend
-      SecureTokenManager.storeToken({
-        token: response.idToken,
-        expiresAt: response.expiresOn.getTime(),
-        refreshToken: response.account.homeAccountId || '',
-      });
-      
       // Paso 4: Obtener foto del perfil
       const getUserPhoto = async (accessToken) => {
         try {

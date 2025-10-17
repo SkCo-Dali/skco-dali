@@ -28,7 +28,7 @@ export interface ApiLead {
   Age?: number;
   Gender?: string;
   PreferredContactChannel?: string;
-  AlternateEmail?: string; // Email Alternativo
+  AlternateEmail?: string | null; // Email Alternativo
   LastGestorName?: string; // Últ Gestor Asignado
   LastGestorInteractionAt?: string; // Últ Fecha de Interaccion Gestor
   LastGestorInteractionStage?: string; // Últ Estado Gestor
@@ -57,7 +57,7 @@ export interface CreateLeadRequest {
   Age: number;
   Gender: string;
   PreferredContactChannel: string;
-  AlternateEmail?: string;
+  AlternateEmail?: string | null;
 }
 
 export interface UpdateLeadRequest {
@@ -83,7 +83,7 @@ export interface UpdateLeadRequest {
   Age?: number;
   Gender?: string;
   PreferredContactChannel?: string;
-  AlternateEmail?: string;
+  AlternateEmail?: string | null;
 }
 
 export interface CreateLeadResponse {
@@ -127,7 +127,8 @@ export const FRONTEND_TO_API_STAGE_MAP: Record<string, string> = {
   'No localizado: No contesta': 'No localizado: No contesta',
   'No localizado: Número equivocado': 'No localizado: Número equivocado',
   'Contrato Creado': 'Contrato Creado',
-  'Registro de Venta (fondeado)': 'Registro de Venta (fondeado)'
+  'Registro de Venta (fondeado)': 'Registro de Venta (fondeado)',
+  'Repetido': 'Repetido'
 };
 
 export const API_TO_FRONTEND_STAGE_MAP: Record<string, string> = {
@@ -143,7 +144,8 @@ export const API_TO_FRONTEND_STAGE_MAP: Record<string, string> = {
   'No localizado: No contesta': 'No localizado: No contesta',
   'No localizado: Número equivocado': 'No localizado: Número equivocado',
   'Contrato Creado': 'Contrato Creado',
-  'Registro de Venta (fondeado)': 'Registro de Venta (fondeado)'
+  'Registro de Venta (fondeado)': 'Registro de Venta (fondeado)',
+  'Repetido': 'Repetido'
 };
 
 // Mapeo de prioridades entre frontend y API

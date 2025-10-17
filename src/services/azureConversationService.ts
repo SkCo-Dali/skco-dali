@@ -10,22 +10,6 @@ const getAuthHeaders = async (): Promise<Record<string, string>> => {
     'Content-Type': 'application/json',
   };
 
-  try {
-    // Get the Entra ID token from SecureTokenManager
-    const { default: SecureTokenManager } = await import('@/utils/secureTokenManager');
-    const tokenData = SecureTokenManager.getToken();
-    
-    if (tokenData && tokenData.token) {
-      // Use the Entra ID token (idToken) for authorization
-      headers['Authorization'] = `Bearer ${tokenData.token}`;
-      console.log('🔑 Authorization header added with Entra ID token');
-    } else {
-      console.warn('⚠️ No Entra ID token available for API authorization');
-    }
-  } catch (error) {
-    console.warn('⚠️ Could not get Entra ID token for API request:', error);
-  }
-
   return headers;
 };
 
@@ -407,10 +391,6 @@ export class AzureConversationService {
   // Obtener banners del usuario
   async getUserBanners(userEmail: string): Promise<any[]> {
     const endpoint = `${API_BASE_URL}/banner/${encodeURIComponent(userEmail)}`;
-    
-    console.log('🚀 AZURE API REQUEST - GET USER BANNERS');
-    console.log('📍 Endpoint:', endpoint);
-    console.log('👤 User Email:', userEmail);
 
     try {
       const headers = await getAuthHeaders();
@@ -419,13 +399,8 @@ export class AzureConversationService {
         headers
       });
 
-      console.log('📈 Response Status:', response.status);
-      console.log('📊 Response Headers:', Object.fromEntries(response.headers.entries()));
-      console.log('✅ Response OK:', response.ok);
-
       if (!response.ok) {
         if (response.status === 404) {
-          console.log('📭 No banners found for user (404)');
           return [];
         }
         const errorText = await response.text();
@@ -434,8 +409,6 @@ export class AzureConversationService {
       }
 
       const result = await response.json();
-      console.log('🎉 SUCCESS Response Body:', JSON.stringify(result, null, 2));
-      console.log('📊 Number of banners:', Array.isArray(result) ? result.length : 0);
 
       return Array.isArray(result) ? result : [];
     } catch (error) {

@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -17,7 +16,7 @@ export function Login({ onLogin }: LoginProps) {
         <div className="text-center mb-4">
           {/* Video principal más grande y completo */}
           <div className="w-full max-w-2xl h-64 mx-auto mb-4 rounded-xl overflow-hidden shadow-lg bg-black">
-            <video 
+            <video
               src="https://aistudiojarvis0534199251.blob.core.windows.net/skandia-icons/Dali_.mp4"
               autoPlay
               loop
@@ -32,28 +31,18 @@ export function Login({ onLogin }: LoginProps) {
         <Card className="shadow-xl border-0 py-4">
           <CardHeader className="space-y-1 text-center pb-4 pt-0">
             <CardDescription>
-             <div>
-            <h1 className="sk-h2" style={{ color: '#3f3f3f' }}>Dali</h1>
-            <p className="text-gray-600 mt-2">Tu copiloto en Skandia</p>
-          </div>
+              <div>
+                <h1 className="sk-h2" style={{ color: "#3f3f3f" }}>
+                  Dali
+                </h1>
+                <p className="text-gray-600 mt-2">IA y Data al alcance de tus manos para tu Gestión Comercial</p>
+              </div>
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
-            <div className="space-y-4">
+            <div className="flex justify-center space-y-4">
               {/* Autenticación real con Microsoft */}
               <MicrosoftAuth />
-            </div>
-
-            <div className="space-y-4 pt-4 border-t">
-              <div className="flex items-center space-x-2 text-sm text-gray-600">
-                <Shield className="h-4 w-4 text-[#00C73D]" />
-                <span>Autenticación segura con Entra ID</span>
-              </div>
-              
-              <div className="text-xs text-gray-500 leading-relaxed">
-                Al iniciar sesión, aceptas nuestros términos de servicio y política de privacidad. 
-                Tu información está protegida por los estándares de seguridad de Microsoft.
-              </div>
             </div>
           </CardContent>
         </Card>

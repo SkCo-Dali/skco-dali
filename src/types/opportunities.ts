@@ -7,6 +7,7 @@ export interface IOpportunity {
   priority: Priority;
   score: number;
   customerCount: number;
+  potentialCommission?: number;
   icon: string;
   tags: string[];
   segment?: string;

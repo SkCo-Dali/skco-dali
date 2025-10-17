@@ -44,7 +44,7 @@ export const SimpleChatInterface = forwardRef<any, {}>((props, ref) => {
   const [showScrollToBottom, setShowScrollToBottom] = useState(false);
 
   const { currentConversation, addMessage, createNewConversation } = useSimpleConversation();
-  const { user, accessToken } = useAuth();
+  const { user } = useAuth();
   const { aiSettings } = useSettings();
   const isMobile = useIsMobile();
 
@@ -164,10 +164,7 @@ export const SimpleChatInterface = forwardRef<any, {}>((props, ref) => {
           attachments: []
         };
 
-        const { SecureTokenManager } = await import('@/utils/secureTokenManager');
-        const tokenData = SecureTokenManager.getToken();
         const headers: Record<string, string> = { 'Content-Type': 'application/json' };
-        if (tokenData?.token) headers['Authorization'] = `Bearer ${tokenData.token}`;
 
         const res = await fetch(`${ENV.AI_API_BASE_URL}/api/conversations`, {
           method: 'POST',
@@ -201,10 +198,7 @@ export const SimpleChatInterface = forwardRef<any, {}>((props, ref) => {
           totalTokens: currentConversation.totalTokens
         };
 
-        const { SecureTokenManager: STMUpdate } = await import('@/utils/secureTokenManager');
-        const tokenData = STMUpdate.getToken();
         const headers: Record<string, string> = { 'Content-Type': 'application/json' };
-        if (tokenData?.token) headers['Authorization'] = `Bearer ${tokenData.token}`;
 
         const res = await fetch(
           `${ENV.AI_API_BASE_URL}/api/conversations/${currentConversation.id}?user_id=${encodeURIComponent(userEmail)}`,
@@ -217,7 +211,7 @@ export const SimpleChatInterface = forwardRef<any, {}>((props, ref) => {
       }
 
       // Llamada al agente
-      const response = await callAzureAgentApi('', [], aiSettings, userEmail, accessToken, currentConversation.id);
+      const response = await callAzureAgentApi('', [], aiSettings, userEmail, currentConversation.id);
 
       // Preparar respuesta del asistente
       let aiResponseContent = '';
@@ -270,10 +264,7 @@ export const SimpleChatInterface = forwardRef<any, {}>((props, ref) => {
         totalTokens: currentConversation.totalTokens
       };
 
-      const { SecureTokenManager: STMFinal } = await import('@/utils/secureTokenManager');
-      const finalToken = STMFinal.getToken();
       const finalHeaders: Record<string, string> = { 'Content-Type': 'application/json' };
-      if (finalToken?.token) finalHeaders['Authorization'] = `Bearer ${finalToken.token}`;
 
       const finalRes = await fetch(
         `${ENV.AI_API_BASE_URL}/api/conversations/${currentConversation.id}?user_id=${encodeURIComponent(userEmail)}`,

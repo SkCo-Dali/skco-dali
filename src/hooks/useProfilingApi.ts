@@ -83,13 +83,15 @@ export const useProfilingApi = () => {
   };
 
   // 1. Verificar cliente
-  const checkClient = async (email?: string, identificationNumber?: string): Promise<CheckClientResponse | null> => {
+  const checkClient = async (email?: string, identificationNumber?: string, silent = false): Promise<CheckClientResponse | null> => {
     if (!email && !identificationNumber) {
-      toast({
-        title: "Error",
-        description: "Se requiere email o número de identificación",
-        variant: "destructive",
-      });
+      if (!silent) {
+        toast({
+          title: "Error",
+          description: "Se requiere email o número de identificación",
+          variant: "destructive",
+        });
+      }
       return null;
     }
 
@@ -112,11 +114,13 @@ export const useProfilingApi = () => {
       return await response.json();
     } catch (error) {
       console.error('❌ Error checking client:', error);
-      toast({
-        title: "Error",
-        description: "No se pudo verificar el cliente",
-        variant: "destructive",
-      });
+      if (!silent) {
+        toast({
+          title: "Error",
+          description: "No se pudo verificar el cliente",
+          variant: "destructive",
+        });
+      }
       return null;
     } finally {
       setLoading(false);

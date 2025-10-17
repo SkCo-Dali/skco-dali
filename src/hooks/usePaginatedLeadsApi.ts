@@ -314,11 +314,8 @@ export const usePaginatedLeadsApi = () => {
   // Cargar leads con paginación
   const loadLeads = useCallback(async (page?: number, newFilters?: Partial<LeadsFiltersState>, source?: string, pageSizeOverride?: number) => {
     if (!user?.id) {
-      console.log('❌ No user ID available for loading paginated leads');
       return;
     }
-
-    console.log(`📣 loadLeads called by: ${source || 'unknown'}`);
 
     // Construir parámetros actuales
     const currentFilters = newFilters ? { ...filters, ...newFilters } : filters;
@@ -339,11 +336,9 @@ export const usePaginatedLeadsApi = () => {
 
     // Prevenir llamadas duplicadas
     if (inFlightRef.current) {
-      console.log('⏳ Skipping paginated leads load: request already in flight');
       return;
     }
     if (lastRequestKeyRef.current === requestKey) {
-      console.log('🛑 Skipping paginated leads load: params unchanged');
       return;
     }
 
@@ -355,7 +350,6 @@ export const usePaginatedLeadsApi = () => {
       
       if (currentFilters.duplicateFilter === 'duplicates') {
         // Usar API de duplicados con paginación
-        console.log('🔍 Usando API de duplicados con paginación');
         const apiParams = {
           page: currentPage,
           page_size: pageSizeOverride ?? state.pagination.pageSize,
@@ -364,11 +358,9 @@ export const usePaginatedLeadsApi = () => {
           filters: Object.keys(filtersForApi).length > 0 ? filtersForApi : undefined,
           search: currentFilters.searchTerm || undefined,
         };
-        console.log('🚀 Loading duplicate leads with params:', apiParams);
         response = await getDuplicateLeadsPaginated(apiParams);
       } else if (currentFilters.duplicateFilter === 'unique') {
         // Para filtro 'unique', obtener IDs duplicados y excluirlos
-        console.log('🔍 Filtrando leads únicos (excluyendo duplicados)');
         try {
           const dupLeads = await getDuplicateLeads();
           const dupIds = dupLeads.map(l => l.id).filter(Boolean);
@@ -387,7 +379,6 @@ export const usePaginatedLeadsApi = () => {
           filters: filtersForApi,
           search: currentFilters.searchTerm || undefined,
         };
-        console.log('🚀 Loading unique leads with params:', apiParams);
         response = await getReassignableLeadsPaginated(apiParams);
       } else {
         // Sin filtro de duplicados, usar API normal
@@ -399,7 +390,6 @@ export const usePaginatedLeadsApi = () => {
           filters: filtersForApi,
           search: currentFilters.searchTerm || undefined,
         };
-        console.log('🚀 Loading all leads with params:', apiParams);
         response = await getReassignableLeadsPaginated(apiParams);
       }
       
@@ -435,13 +425,6 @@ export const usePaginatedLeadsApi = () => {
 
       // Marcar como completada esta request con esta combinación de parámetros
       lastRequestKeyRef.current = requestKey;
-
-      console.log('✅ Paginated leads loaded successfully:', {
-        leadsCount: mappedLeads.length,
-        total: totalNum,
-        page: pageNum,
-        totalPages: totalPagesNum,
-      });
 
     } catch (err) {
       console.error('❌ Error loading paginated leads:', err);

@@ -845,23 +845,6 @@ Por favor, confirmar asistencia.`;
             )}
           </div>
         );
-      case 'tags':
-        return (
-          <div className="flex flex-wrap gap-1 justify-center max-w-[200px]">
-            {lead.tags && lead.tags.length > 0 ? (
-              lead.tags.map((tag, index) => (
-                <span
-                  key={index}
-                  className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-primary/10 text-primary border border-primary/20"
-                >
-                  {tag}
-                </span>
-              ))
-            ) : (
-              <span className="text-gray-400 text-xs">-</span>
-            )}
-          </div>
-        );
       case 'age':
       case 'gender':
       case 'preferredContactChannel':

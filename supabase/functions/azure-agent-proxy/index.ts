@@ -11,16 +11,8 @@ const corsHeaders = {
 const MAESTRO_API_URL = Deno.env.get('MAESTRO_API_BASE_URL') || 'API de Agente Maestro';
 
 serve(async (req) => {
-  console.log('🚀 === AZURE AGENT PROXY: REQUEST RECEIVED ===');
-  console.log('🔧 Method:', req.method);
-  console.log('🌐 URL:', req.url);
-  console.log('📤 Headers:', Object.fromEntries(req.headers.entries()));
-  console.log('🌍 Origin:', req.headers.get('origin'));
-  console.log('🔒 Authorization:', req.headers.get('authorization') ? 'Present' : 'Missing');
-  
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
-    console.log('✅ CORS preflight request handled');
     return new Response('ok', { 
       headers: corsHeaders,
       status: 200
@@ -28,8 +20,6 @@ serve(async (req) => {
   }
 
   try {
-    console.log('📋 Parsing request body...');
-    
     // Add timeout to request body parsing
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
@@ -37,9 +27,6 @@ serve(async (req) => {
     let requestBody;
     try {
       const bodyText = await req.text();
-      console.log('📄 Raw request body length:', bodyText.length);
-      console.log('📄 Raw request body preview:', bodyText.substring(0, 200));
-      
       requestBody = JSON.parse(bodyText);
       clearTimeout(timeoutId);
     } catch (parseError) {
@@ -51,15 +38,6 @@ serve(async (req) => {
     
     const { App, pregunta, EntraToken, IdConversacion } = requestBody;
     
-    console.log('📊 === REQUEST BODY ANALYSIS ===');
-    console.log('  - App:', App);
-    console.log('  - pregunta length:', pregunta?.length || 0);
-    console.log('  - pregunta preview:', pregunta?.substring(0, 50) + (pregunta?.length > 50 ? '...' : ''));
-    console.log('  - EntraToken present:', !!EntraToken);
-    console.log('  - EntraToken preview:', EntraToken ? EntraToken.substring(0, 20) + '...' : 'empty');
-    console.log('  - IdConversacion:', IdConversacion);
-    console.log('  - correo: NOW OBTAINED FROM AUTHORIZATION HEADER TOKEN');
-    
     // Validate required fields
     if (!App || !pregunta) {
       console.error('❌ Missing required fields');
@@ -67,15 +45,9 @@ serve(async (req) => {
     }
     
     // Make request to new Maestro API with extended timeout
-    console.log('🎯 === CALLING MAESTRO API FROM PROXY ===');
-    console.log('🌐 Target URL:', `${MAESTRO_API_URL}/api/maestro`);
-    console.log('🔧 Method: POST');
-    console.log('📤 Request body prepared for Maestro API (EntraToken now in header, correo from token)');
-    console.log('⏰ Starting API call...');
-    
     const apiController = new AbortController();
     const apiTimeoutId = setTimeout(() => {
-      console.log('⚠️ API call timeout - aborting request');
+      console.warn('⚠️ API call timeout - aborting request');
       apiController.abort();
     }, 60000); // 60 second timeout for API call
     
@@ -88,7 +60,6 @@ serve(async (req) => {
     // Add Authorization header if EntraToken is present
     if (EntraToken) {
       headers['Authorization'] = `Bearer ${EntraToken}`;
-      console.log('🔑 Authorization header added with EntraToken');
     } else {
       console.warn('⚠️ No EntraToken provided for API authorization');
     }
@@ -99,11 +70,6 @@ serve(async (req) => {
       pregunta,
       IdConversacion
     };
-
-    console.log('📋 MAESTRO API REQUEST BODY (without EntraToken and correo):');
-    console.log('  - App:', maestroRequestBody.App);
-    console.log('  - pregunta length:', maestroRequestBody.pregunta?.length || 0);
-    console.log('  - IdConversacion:', maestroRequestBody.IdConversacion);
     
     const azureResponse = await fetch(`${MAESTRO_API_URL}/api/maestro`, {
       method: 'POST',
@@ -113,16 +79,10 @@ serve(async (req) => {
     });
 
     clearTimeout(apiTimeoutId);
-    
-    console.log('📥 === MAESTRO API RESPONSE FROM PROXY ===');
-    console.log('📊 Response status:', azureResponse.status);
-    console.log('✅ Response ok:', azureResponse.ok);
-    console.log('📥 Response headers:', Object.fromEntries(azureResponse.headers.entries()));
-    console.log('🌐 Response type:', azureResponse.headers.get('content-type'));
 
     // Handle response with proper error checking
     if (!azureResponse.ok) {
-      console.error('❌ === MAESTRO API ERROR FROM PROXY ===');
+      console.error('❌ MAESTRO API ERROR FROM PROXY');
       console.error('❌ Status:', azureResponse.status);
       console.error('❌ Status Text:', azureResponse.statusText);
       
@@ -151,8 +111,6 @@ serve(async (req) => {
     let responseText;
     try {
       responseText = await azureResponse.text();
-      console.log('📄 Raw response length:', responseText.length, 'characters');
-      console.log('📄 Raw response preview (first 500 chars):', responseText.substring(0, 500));
     } catch (textError) {
       console.error('❌ Error reading response text:', textError);
       const errorMessage = textError instanceof Error ? textError.message : String(textError);
@@ -162,20 +120,9 @@ serve(async (req) => {
     let data;
     try {
       data = JSON.parse(responseText);
-      console.log('✅ Successfully parsed JSON response from Maestro API');
-      console.log('📊 Parsed response keys:', Object.keys(data || {}));
-      console.log('📊 Response structure analysis:');
-      console.log('  - Has respuesta:', !!(data && data.respuesta));
-      console.log('  - Has acciones_ejecutadas:', !!(data && data.acciones_ejecutadas));
-      console.log('  - Acciones count:', data?.acciones_ejecutadas?.length || 0);
     } catch (parseError) {
-      console.log('❌ Response is not JSON, treating as text:', parseError);
-      console.log('📄 Converting to text response format');
       data = { text: responseText };
     }
-
-    console.log('✅ === PROXY SUCCESS - RETURNING DATA ===');
-    console.log('📊 Final data keys being returned:', Object.keys(data || {}));
     
     return new Response(
       JSON.stringify(data),
@@ -186,7 +133,7 @@ serve(async (req) => {
     );
     
   } catch (error) {
-    console.error('❌ === AZURE AGENT PROXY ERROR ===');
+    console.error('❌ AZURE AGENT PROXY ERROR');
     const errorObj = error instanceof Error ? error : new Error(String(error));
     console.error('❌ Error type:', errorObj.constructor.name);
     console.error('❌ Error message:', errorObj.message);
@@ -203,8 +150,6 @@ serve(async (req) => {
       timestamp: new Date().toISOString(),
       errorType: errorObj.constructor.name
     };
-    
-    console.log('⚠️ Returning error response:', errorResponse);
     
     return new Response(
       JSON.stringify(errorResponse),

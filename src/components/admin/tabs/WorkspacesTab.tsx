@@ -252,7 +252,7 @@ export function WorkspacesTab() {
           name: formData.name,
           description: formData.description,
           areaId: formData.areaId,
-          pbiWorkspaceId: formData.pbiWorkspaceId,
+          pbiWorkspaceId: formData.pbiWorkspaceId || null,
           isActive: formData.isActive
         }, tokenData.idToken);
         toast({
@@ -264,7 +264,7 @@ export function WorkspacesTab() {
           name: formData.name,
           description: formData.description,
           areaId: formData.areaId,
-          pbiWorkspaceId: formData.pbiWorkspaceId,
+          pbiWorkspaceId: formData.pbiWorkspaceId || null,
           isActive: formData.isActive
         }, tokenData.idToken);
         toast({

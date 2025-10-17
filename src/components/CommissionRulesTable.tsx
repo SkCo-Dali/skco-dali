@@ -93,66 +93,112 @@ export function CommissionRulesTable({ rules, planId, onRuleDeleted, onRuleUpdat
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3">
       {/* Rules Table */}
-      <div className="lg:col-span-2 mr-6">
-        <div className="rounded-md border">
-          <Table>
-            <TableHeader>
+      <div className="max-h-80 lg:col-span-2 mr-2">
+        <div
+          className="
+    relative rounded-lg border bg-card
+    overflow-x-auto mb-3
+    [scrollbar-gutter:stable]
+    [&::-webkit-scrollbar]:h-2
+    [&::-webkit-scrollbar-track]:bg-white
+    [&::-webkit-scrollbar-thumb]:bg-[#00c73d]
+    [&::-webkit-scrollbar-thumb]:rounded-full
+  "
+        >
+          <Table className="min-w-[920px] table-fixed [&>tr>th]:text-center">
+            <TableHeader className="sticky top-0 z-10 bg-card/90 backdrop-blur supports-[backdrop-filter]:bg-card/70 [&>tr>th]:text-center">
               <TableRow>
-                <TableHead className="w-12">#</TableHead>
-                <TableHead>Name</TableHead>
-                <TableHead>Formula</TableHead>
-                <TableHead>Conditions</TableHead>
-                <TableHead>Catalog</TableHead>
-                {planId && <TableHead className="w-20">Actions</TableHead>}
+                <TableHead className="w-10 text-[11px] uppercase tracking-wide text-muted-foreground text-center">
+                  #
+                </TableHead>
+                <TableHead className="w-[200px] text-[11px] uppercase tracking-wide text-muted-foreground text-center">
+                  Name
+                </TableHead>
+                <TableHead className="w-[280px] text-[11px] uppercase tracking-wide text-muted-foreground text-center">
+                  Formula
+                </TableHead>
+                <TableHead className="w-[260px] text-[11px] uppercase tracking-wide text-muted-foreground text-center">
+                  Conditions
+                </TableHead>
+                {planId && (
+                  <TableHead className="w-20 text-[11px] uppercase tracking-wide text-muted-foreground text-center">
+                    Actions
+                  </TableHead>
+                )}
               </TableRow>
             </TableHeader>
+
             <TableBody>
-              {rules.map((rule, index) => (
-                <TableRow
-                  key={rule.id}
-                  className={selectedRule?.id === rule.id ? "bg-muted/50" : "cursor-pointer hover:bg-muted/30"}
-                  onClick={() => {
-                    setSelectedRule(rule);
-                    setRuleToEdit(rule);
-                  }}
-                >
-                  <TableCell className="font-medium">{index + 1}</TableCell>
-                  <TableCell className="font-medium">{rule.name}</TableCell>
-                  <TableCell className="max-w-xs">
-                    <code className="text-xs bg-muted px-2 py-1 rounded">{rule.formula}</code>
-                  </TableCell>
-                  <TableCell className="max-w-xs">
-                    <div className="truncate text-sm" title={rule.conditions}>
-                      {rule.conditions}
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <Badge variant="outline">{rule.catalog}</Badge>
-                  </TableCell>
-                  {planId && (
-                    <TableCell>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setRuleToDelete(rule);
-                        }}
-                        className="h-8 w-8 p-0"
-                      >
-                        <Trash2 className="h-4 w-4 text-destructive" />
-                      </Button>
+              {rules.map((rule, index) => {
+                const selected = selectedRule?.id === rule.id;
+                return (
+                  <TableRow
+                    key={rule.id}
+                    className={[
+                      "cursor-pointer group",
+                      "even:bg-muted/10 hover:bg-muted/20 transition-colors",
+                      selected ? "bg-primary/5 ring-1 ring-primary/30" : "",
+                    ].join(" ")}
+                    onClick={() => {
+                      setSelectedRule(rule);
+                      setRuleToEdit(rule);
+                    }}
+                  >
+                    {/* # */}
+                    <TableCell className="py-2 text-xs text-center text-muted-foreground">{index + 1}</TableCell>
+
+                    {/* Name */}
+                    <TableCell className="py-2 text-sm">
+                      <div className="truncate" title={rule.name}>
+                        {rule.name}
+                      </div>
                     </TableCell>
-                  )}
-                </TableRow>
-              ))}
+
+                    {/* Formula */}
+                    <TableCell className="py-2">
+                      <div className="flex items-center justify-center">
+                        <code
+                          className="font-mono text-xs bg-muted/60 px-2 py-1 rounded border border-border inline-block max-w-[26ch] truncate"
+                          title={rule.formula}
+                        >
+                          {rule.formula}
+                        </code>
+                      </div>
+                    </TableCell>
+
+                    {/* Conditions */}
+                    <TableCell className="py-2">
+                      <div className="text-xs truncate" title={rule.conditions || ""}>
+                        {rule.conditions || <span className="text-muted-foreground">—</span>}
+                      </div>
+                    </TableCell>
+
+                    {/* Actions */}
+                    {planId && (
+                      <TableCell className="py-2 text-center">
+                        <Button
+                          variant="ghost"
+                          className="h-8 w-8 p-0 bg-transparent hover:bg-transparent focus:bg-transparent data-[state=open]:bg-transparent"
+                          size="sm"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setRuleToDelete(rule);
+                          }}
+                        >
+                          <Trash2 className="h-4 w-4 text-destructive" />
+                        </Button>
+                      </TableCell>
+                    )}
+                  </TableRow>
+                );
+              })}
             </TableBody>
           </Table>
         </div>
       </div>
 
       {/* Rule Details Panel */}
-      <div className="lg:col-span-1">
+      <div className="lg:col-span-1 overflow-y-auto mr-2">
         <Card>
           <CardHeader>
             <CardTitle className="text-lg">Rule Details</CardTitle>
@@ -179,13 +225,6 @@ export function CommissionRulesTable({ rules, planId, onRuleDeleted, onRuleUpdat
                 <div>
                   <h4 className="font-semibold mb-2">Details</h4>
                   <div className="space-y-3 text-sm">
-                    <div>
-                      <span className="font-medium">Catalog:</span>
-                      <Badge variant="outline" className="ml-2">
-                        {selectedRule.catalog}
-                      </Badge>
-                    </div>
-
                     {selectedRule.owner && (
                       <div>
                         <span className="font-medium">Owner:</span>

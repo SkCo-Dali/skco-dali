@@ -1,302 +1,240 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { User } from '@/types/crm';
-import { PublicClientApplication, InteractionRequiredAuthError, AccountInfo } from '@azure/msal-browser';
-import { msalConfig, loginRequest } from '@/authConfig';
+import { IPublicClientApplication } from '@azure/msal-browser';
+import { useMsal, useAccount, useIsAuthenticated } from '@azure/msal-react';
 
 import { useToast } from '@/hooks/use-toast';
-import { SmartSessionManager } from '@/components/SmartSessionManager';
-import { SecureTokenManager } from '@/utils/secureTokenManager';
-import { useSessionManager } from '@/hooks/useSessionManager';
+import { registerMsalFetchInterceptor } from '@/utils/msalFetchInterceptor';
+import { getUserRoleByEmail } from '@/utils/userApiUtils';
+import { getUserByEmail, createUser } from "@/utils/userApiClient";
+import { ENV } from '@/config/environment';
+import { extractIdpAccessToken } from '@/utils/tokenUtils';
 
 interface AuthContextType {
-  user: User | null;
-  login: (userData: User) => Promise<void>;
-  logout: () => Promise<void>;
-  loading: boolean;
-  isAuthenticated: boolean;
-  getAccessToken: () => Promise<{ idToken: string; accessToken: string } | null>;
-  msalInstance: PublicClientApplication;
-  isInitialized: boolean;
-  signInWithAzure: () => Promise<{ error: any }>;
-  accessToken: string | null;
-  signOut: () => Promise<void>;
-  sessionState: any;
-  isSessionActive: boolean;
+    user: User | null;
+    login: (userData: User) => Promise<void>;
+    logout: () => Promise<void>;
+    loading: boolean;
+    isAuthenticated: boolean;
+    isInitialized: boolean;
+    msalInstance: IPublicClientApplication;
+    signOut: () => Promise<void>;
+    signInWithAzure: () => Promise<void>;
+    getAccessToken: () => Promise<{ accessToken: string; idToken: string } | null>;
+    accessToken: string | null;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-const msalInstance = new PublicClientApplication(msalConfig);
+
 
 export function useAuth() {
-  const context = useContext(AuthContext);
-  if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
-  }
-  return context;
+    const context = useContext(AuthContext);
+    if (context === undefined) {
+        throw new Error('useAuth must be used within an AuthProvider');
+    }
+    return context;
 }
 
 interface AuthProviderProps {
-  children: ReactNode;
+    children: ReactNode;
 }
 
 export function AuthProvider({ children }: AuthProviderProps) {
-  const [user, setUser] = useState<User | null>(null);
-  const [isInitialized, setIsInitialized] = useState(false);
-  const [loading, setLoading] = useState(true);
-  const [accessToken, setAccessToken] = useState<string | null>(null);
-  
-  const { toast } = useToast();
+    const [user, setUser] = useState<User | null>(null);
+    const [loading, setLoading] = useState(false);
+    const [isInitialized, setIsInitialized] = useState(false);
+    const [accessToken, setAccessToken] = useState<string | null>(null);
+    const { instance: msalInstance } = useMsal();
+    const account = useAccount(msalInstance.getActiveAccount() || {});
+    const isAuthenticated = useIsAuthenticated();
 
-  // Session management
-  const { sessionState, isSessionActive, startSession, endSession } = useSessionManager();
+    const { toast } = useToast();
 
-  useEffect(() => {
-    const initializeMsal = async () => {
-      try {
-        await msalInstance.initialize();
-        setIsInitialized(true);
 
-        // Limpiar tokens expirados al iniciar
-        SecureTokenManager.cleanupExpiredTokens();
 
-        const response = await msalInstance.handleRedirectPromise();
-        if (response) {
-          // Almacenar idToken de forma segura para el backend
-          if (response.idToken) {
-            const tokenData = {
-              token: response.idToken,
-              expiresAt: response.expiresOn ? response.expiresOn.getTime() : Date.now() + (3600 * 1000),
-              refreshToken: response.account?.homeAccountId
-            };
-            SecureTokenManager.storeToken(tokenData);
-          }
+    useEffect(() => {
+        registerMsalFetchInterceptor(msalInstance);
+
+        if (account && !user) {
+            setLoading(true);
+            // Extraer información del usuario desde la cuenta activa
+            const userEmail = account.username || account.idTokenClaims?.email as string || '';
+            const userName = account.name || userEmail;
+
+            getUserPhoto().then(photoUrl => {
+                // Fetch or create user in backend
+                findOrCreateUser(userEmail, userName).then((dbUser) => {
+                    const user = {
+                        id: dbUser.id,
+                        name: dbUser.name,
+                        email: dbUser.email,
+                        role: dbUser.role,
+                        avatar: photoUrl, // TODO: fetch actual photo if needed
+                        zone: dbUser.zone || "Skandia",
+                        team: dbUser.team || "Equipo Skandia",
+                        jobTitle: "Usuario",
+                        isActive: dbUser.isActive,
+                        createdAt: dbUser.createdAt || new Date().toISOString(),
+                    };
+                    login(user);
+                }).catch((error) => {
+                    console.error('Error during user retrieval/creation:', error);
+                    toast({
+                        title: "Authentication Error",
+                        description: error instanceof Error ? error.message : "An unknown error occurred during authentication.",
+                        variant: "destructive",
+                    });
+                    msalInstance.logoutPopup({
+                        mainWindowRedirectUri: window.location.origin
+                    });
+                }).finally(() => {
+                    setLoading(false);
+                });
+            });
+
+
         }
 
-        const accounts = msalInstance.getAllAccounts();
-        
-        if (accounts.length > 0) {
-          const savedUser = sessionStorage.getItem('skandia-crm-user');
-          if (savedUser) {
-            const userData = JSON.parse(savedUser);
-            setUser(userData);
-          }
+    }, [msalInstance, account, isAuthenticated]);
+    const findOrCreateUser = async (email: string, name: string) => {
+
+        // Buscar usuario existente
+        const existingUser = await getUserByEmail(email);
+
+        if (existingUser) {
+            // Verificar si el usuario está activo
+            if (!existingUser.isActive) {
+                throw new Error("Tu cuenta está inactiva. Por favor contacta al administrador para activarla.");
+            }
+
+            sessionStorage.setItem("authenticated-user-uuid", existingUser.id);
+            return existingUser;
         }
-      } catch (error) {
-        setIsInitialized(true);
-      } finally {
-        setLoading(false);
-      }
+
+        // Crear nuevo usuario con rol basado en email
+        const assignedRole = await getUserRoleByEmail(email);
+        const newUser = await createUser({
+            name,
+            email,
+            role: assignedRole,
+            isActive: true,
+        });
+
+        sessionStorage.setItem("authenticated-user-uuid", newUser.id);
+
+        return newUser;
     };
 
-    initializeMsal();
-  }, []);
+    const login = async (userData: User) => {
+        setUser(userData);
+        sessionStorage.setItem('skandia-crm-user', JSON.stringify(userData));
 
-  const login = async (userData: User) => {
-    setUser(userData);
-    sessionStorage.setItem('skandia-crm-user', JSON.stringify(userData));
-    
-    // Start session after successful login
-    try {
-      await startSession();
-      console.log('Session started successfully');
-    } catch (error) {
-      console.error('Failed to start session:', error);
-    }
-  };
+        // Start session after successful login
 
-  const logout = async () => {
-    // End session first
-    try {
-      await endSession();
-      console.log('Session ended successfully');
-    } catch (error) {
-      console.error('Failed to end session:', error);
-    }
-    
-    setUser(null);
-    setAccessToken(null);
-    
-    // Limpiar tokens de forma segura
-    SecureTokenManager.clearToken();
-    sessionStorage.removeItem('skandia-crm-user');
-    
-    if (!isInitialized) {
-      return;
-    }
+    };
 
-    try {
-      const accounts = msalInstance.getAllAccounts();
-      if (accounts.length > 0) {
-        await msalInstance.logoutPopup({
-          account: accounts[0],
-          mainWindowRedirectUri: window.location.origin
-        });
-      }
-    } catch (error) {
-      // Error silenciado para logout
-    }
-  };
+    const getUserPhoto = async (): Promise<string | null> => {
+        try {
+            const token = await getAccessToken();
+            if (!token) return null;
+            const graphToken = extractIdpAccessToken(token.accessToken);
 
-  const signInWithAzure = async (): Promise<{ error: any }> => {
-    try {
-      const response = await msalInstance.loginPopup(loginRequest);
-      
-      // Almacenar idToken para el backend
-      if (response.idToken) {
-        const tokenData = {
-          token: response.idToken,
-          expiresAt: response.expiresOn ? response.expiresOn.getTime() : Date.now() + (3600 * 1000),
-          refreshToken: response.account?.homeAccountId
-        };
-        SecureTokenManager.storeToken(tokenData);
-      }
-      
-      // Mantener accessToken para uso interno
-      if (response.accessToken) {
-        setAccessToken(response.accessToken);
-      }
-      
-      return { error: null };
-    } catch (error) {
-      return { error };
-    }
-  };
+            const photoResponse = await fetch("https://graph.microsoft.com/v1.0/me/photo/$value", {
+                headers: {
+                    Authorization: `Bearer ${graphToken}`
+                },
+            });
 
-  const signOut = async (): Promise<void> => {
-    await logout();
-  };
+            if (photoResponse.ok) {
+                const photoBlob = await photoResponse.blob();
+                return URL.createObjectURL(photoBlob);
+            }
 
-  const getAccessToken = async (): Promise<{ idToken: string; accessToken: string } | null> => {
-    console.log('🔐 === INICIANDO getAccessToken ===');
-    console.log('🔍 isInitialized:', isInitialized);
-    console.log('🔍 accessToken actual completo:', accessToken || 'null');
-    
-    if (!isInitialized) {
-      console.log('❌ MSAL no inicializado, retornando null');
-      return null;
-    }
+            return null;
+        } catch (error) {
+            return null;
+        }
+    };
 
-    try {
-      console.log('🔍 Verificando token almacenado...');
-      // Intentar obtener token almacenado de forma segura
-      const storedTokenData = SecureTokenManager.getToken();
-      console.log('🔍 Token almacenado obtenido:', storedTokenData ? 'Existe' : 'No existe');
-      
-      const accounts = msalInstance.getAllAccounts();
-      console.log('👥 Cuentas disponibles:', accounts.length);
-      
-      if (accounts.length === 0) {
-        console.log('🔄 No hay cuentas, iniciando login popup...');
-        const response = await msalInstance.loginPopup(loginRequest);
-        
-        // Almacenar idToken para el backend
-        const tokenData = {
-          token: response.idToken,
-          expiresAt: response.expiresOn ? response.expiresOn.getTime() : Date.now() + (3600 * 1000),
-          refreshToken: response.account?.homeAccountId
-        };
-        SecureTokenManager.storeToken(tokenData);
-        setAccessToken(response.accessToken);
-        
-        console.log('✅ Tokens obtenidos via login popup:', {
-          idToken: response.idToken || 'null',
-          accessToken: response.accessToken || 'null',
-          tokensAreDifferent: response.idToken !== response.accessToken
-        });
-        
-        return {
-          idToken: response.idToken || '',
-          accessToken: response.accessToken || ''
-        };
-      }
 
-      const account = accounts[0];
-      
-      // Intentar obtener tokens silenciosamente
-      try {
-        console.log('🔄 Intentando obtener tokens silenciosamente...');
-        const silentResponse = await msalInstance.acquireTokenSilent({
-          ...loginRequest,
-          account,
-        });
-        
-        // Almacenar idToken renovado para el backend
-        const newTokenData = {
-          token: silentResponse.idToken,
-          expiresAt: silentResponse.expiresOn ? silentResponse.expiresOn.getTime() : Date.now() + (3600 * 1000),
-          refreshToken: silentResponse.account?.homeAccountId
-        };
-        SecureTokenManager.storeToken(newTokenData);
-        
-        // Mantener accessToken para uso interno
-        setAccessToken(silentResponse.accessToken);
-        
-        console.log('✅ Tokens renovados silenciosamente:', {
-          idToken: silentResponse.idToken || 'null',
-          accessToken: silentResponse.accessToken || 'null',
-          tokensAreDifferent: silentResponse.idToken !== silentResponse.accessToken
-        });
-        
-        return {
-          idToken: silentResponse.idToken || '',
-          accessToken: silentResponse.accessToken || ''
-        };
-      } catch (silentError) {
-        console.log('❌ Error en token silencioso:', silentError);
-        console.log('🔄 Intentando popup para nuevo token...');
-        
-        // Si falla la renovación silenciosa, usar popup
-        const popupResponse = await msalInstance.acquireTokenPopup({
-          ...loginRequest,
-          account,
-        });
-        
-        const tokenData = {
-          token: popupResponse.idToken,
-          expiresAt: popupResponse.expiresOn ? popupResponse.expiresOn.getTime() : Date.now() + (3600 * 1000),
-          refreshToken: popupResponse.account?.homeAccountId
-        };
-        SecureTokenManager.storeToken(tokenData);
-        setAccessToken(popupResponse.accessToken);
-        
-        console.log('✅ Tokens obtenidos via popup:', {
-          idToken: popupResponse.idToken || 'null',
-          accessToken: popupResponse.accessToken || 'null',
-          tokensAreDifferent: popupResponse.idToken !== popupResponse.accessToken
-        });
-        
-        return {
-          idToken: popupResponse.idToken || '',
-          accessToken: popupResponse.accessToken || ''
-        };
-      }
-    } catch (error) {
-      console.log('❌ Error general en getAccessToken:', error);
-      return null;
-    }
-  };
+    const logout = async () => {
+        // End session first
 
-  const value = {
-    user,
-    login,
-    logout,
-    loading,
-    isAuthenticated: !!user,
-    getAccessToken,
-    msalInstance,
-    isInitialized,
-    signInWithAzure,
-    accessToken,
-    signOut,
-    sessionState,
-    isSessionActive,
-  };
+        setUser(null);
 
-  return (
-    <AuthContext.Provider value={value}>
-      <SmartSessionManager />
-      {children}
-    </AuthContext.Provider>
-  );
+        // Limpiar tokens de forma segura
+        sessionStorage.removeItem('skandia-crm-user');
+
+
+
+        try {
+            const accounts = msalInstance.getAllAccounts();
+            if (accounts.length > 0) {
+                await msalInstance.logoutPopup({
+                    account: accounts[0],
+                    mainWindowRedirectUri: window.location.origin
+                });
+            }
+        } catch (error) {
+            // Error silenciado para logout
+        }
+    };
+
+
+    const signOut = async (): Promise<void> => {
+        await logout();
+    };
+
+    const signInWithAzure = async (): Promise<void> => {
+        try {
+            await msalInstance.loginPopup();
+        } catch (error) {
+            console.error('Error during sign in:', error);
+            throw error;
+        }
+    };
+
+    const getAccessToken = async (): Promise<{ accessToken: string; idToken: string } | null> => {
+        try {
+            const accounts = msalInstance.getAllAccounts();
+            if (accounts.length === 0) {
+                console.warn('No hay cuentas disponibles para obtener token');
+                return null;
+            }
+
+            const response = await msalInstance.acquireTokenSilent({
+                scopes: ENV.REQUIRED_SCOPES,
+                account: accounts[0]
+            });
+
+            const token = response.accessToken;
+            const idToken = response.idToken;
+            setAccessToken(token);
+            return { accessToken: token, idToken: idToken };
+        } catch (error) {
+            console.error('❌ Error getting access token:', error);
+            return null;
+        }
+    };
+
+    const value = {
+        user,
+        login,
+        logout,
+        loading,
+        isAuthenticated: useIsAuthenticated(),
+        isInitialized,
+        msalInstance,
+        signOut,
+        signInWithAzure,
+        getAccessToken,
+        accessToken,
+    };
+
+    return (
+        <AuthContext.Provider value={value}>
+            {children}
+        </AuthContext.Provider>
+    );
 }

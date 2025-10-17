@@ -15,8 +15,6 @@ export const DataTable: React.FC<DataTableProps> = ({ data }) => {
   const rowsPerPage = 25;
 
   const tableData = React.useMemo(() => {
-    console.log('DataTable - Raw data received:', data);
-    
     if (Array.isArray(data)) {
       if (data.length === 0) return { headers: [], rows: [] };
       
@@ -24,16 +22,12 @@ export const DataTable: React.FC<DataTableProps> = ({ data }) => {
       if (typeof data[0] === 'object' && !Array.isArray(data[0])) {
         const headers = Object.keys(data[0]);
         const rows = data.map(item => headers.map(header => item[header]));
-        console.log('DataTable - Processed from object array:', { headers, rowCount: rows.length });
-        console.log('DataTable - Headers extracted:', headers);
         return { headers, rows };
       }
     }
     
     // Si ya tiene el formato { headers: [], rows: [] }, lo devolvemos tal como está
     if (data && typeof data === 'object' && 'headers' in data && 'rows' in data) {
-      console.log('DataTable - Using direct format with headers:', data.headers);
-      console.log('DataTable - Headers from direct format:', data.headers);
       return data;
     }
     
@@ -66,9 +60,6 @@ export const DataTable: React.FC<DataTableProps> = ({ data }) => {
     document.body.removeChild(link);
     window.URL.revokeObjectURL(url);
   };
-
-  console.log('DataTable - Final tableData for rendering:', tableData);
-  console.log('DataTable - Final headers that will be rendered:', tableData.headers);
 
   return (
     <div className="data-table-container">

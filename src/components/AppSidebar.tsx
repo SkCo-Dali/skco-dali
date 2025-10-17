@@ -1,4 +1,3 @@
-
 import { Link, useLocation } from "react-router-dom";
 import { UserProfile } from "@/components/UserProfile";
 import { useState } from "react";
@@ -31,22 +30,101 @@ interface AppSidebarProps {
 }
 
 const allMenuItems = [
-  { title: "Inicio", url: "/index", iconClass: "", page: "index", customIcon: "https://skcoblobresources.blob.core.windows.net/digital-assets/icons/icon-skandia/sk_casa_p.svg" },
-  { title: "Leads", url: "/leads", iconClass: "", page: "leads", customIcon: "https://skcoblobresources.blob.core.windows.net/digital-assets/icons/icon-skandia/sk_profile_1_p.svg" },
-  { title: "Market Dali", url: "/oportunidades", iconClass: "", page: "opportunities", customIcon: "https://skcoblobresources.blob.core.windows.net/digital-assets/icons/icon-skandia/sk_maletin_1_p.svg" },
-  { title: "Chat Dali", url: "/Chat", iconClass: "", page: "ChatDali", customIcon: "https://skcoblobresources.blob.core.windows.net/digital-assets/icons/icon-skandia/sk_globo_p.svg"},
-  { title: "Gamificación", url: "/gamification", iconClass: "", page: "gamification", customIcon: "https://skcoblobresources.blob.core.windows.net/digital-assets/icons/icon-skandia/sk_trofeo_p.svg" },
-  { title: "Dashboard", url: "/reports", iconClass: "", page: "reports", customIcon: "https://skcoblobresources.blob.core.windows.net/digital-assets/icons/icon-skandia/sk_grafica_1_n.svg" },
-  { title: "Informes", url: "/informes", iconClass: "", page: "informes", customIcon: "https://skcoblobresources.blob.core.windows.net/digital-assets/icons/icon-skandia/sk_chart_2_p.svg" },
-  { title: "Comisiones", url: "/comisiones", iconClass: "", page: "comisiones", customIcon: "https://skcoblobresources.blob.core.windows.net/digital-assets/icons/icon-skandia/sk_moneda_p.svg" },
-  { title: "Motor Comisiones", url: "/motor-comisiones", iconClass: "", page: "motor-comisiones", customIcon: "https://skcoblobresources.blob.core.windows.net/digital-assets/icons/icon-skandia/sk_engranajes_p.svg" },
-  { title: "Calendario", url: "/calendar", iconClass: "", page: "calendar", customIcon: "https://skcoblobresources.blob.core.windows.net/digital-assets/icons/icon-skandia/sk_calendario_p.svg" },
-  { title: "Tareas", url: "/tasks", iconClass: "", page: "tasks", customIcon: "https://skcoblobresources.blob.core.windows.net/digital-assets/icons/icon-skandia/sk_puntos_p.svg" },
-  { title: "Sami Voice Insights", url: "/voice-insights", iconClass: "", page: "voice-insights", customIcon: "https://skcoblobresources.blob.core.windows.net/digital-assets/icons/icon-skandia/sk_globo_p.svg" },
+  {
+    title: "Inicio",
+    url: "/index",
+    iconClass: "",
+    page: "index",
+    customIcon: "https://skcoblobresources.blob.core.windows.net/digital-assets/icons/icon-skandia/sk_casa_p.svg",
+  },
+  {
+    title: "Leads",
+    url: "/leads",
+    iconClass: "",
+    page: "leads",
+    customIcon: "https://skcoblobresources.blob.core.windows.net/digital-assets/icons/icon-skandia/sk_profile_1_p.svg",
+  },
+  {
+    title: "Market Dali",
+    url: "/oportunidades",
+    iconClass: "",
+    page: "opportunities",
+    customIcon: "https://skcoblobresources.blob.core.windows.net/digital-assets/icons/icon-skandia/sk_maletin_1_p.svg",
+  },
+  {
+    title: "Chat Dali",
+    url: "/Chat",
+    iconClass: "",
+    page: "ChatDali",
+    customIcon: "https://skcoblobresources.blob.core.windows.net/digital-assets/icons/icon-skandia/sk_globo_p.svg",
+  },
+  {
+    title: "Gamificación",
+    url: "/gamification",
+    iconClass: "",
+    page: "gamification",
+    customIcon: "https://skcoblobresources.blob.core.windows.net/digital-assets/icons/icon-skandia/sk_trofeo_p.svg",
+  },
+  {
+    title: "Dashboard",
+    url: "/reports",
+    iconClass: "",
+    page: "reports",
+    customIcon: "https://skcoblobresources.blob.core.windows.net/digital-assets/icons/icon-skandia/sk_grafica_1_n.svg",
+  },
+  {
+    title: "Informes",
+    url: "/informes",
+    iconClass: "",
+    page: "informes",
+    customIcon: "https://skcoblobresources.blob.core.windows.net/digital-assets/icons/icon-skandia/sk_chart_2_p.svg",
+  },
+  {
+    title: "Comisiones",
+    url: "/comisiones",
+    iconClass: "",
+    page: "comisiones",
+    customIcon: "https://skcoblobresources.blob.core.windows.net/digital-assets/icons/icon-skandia/sk_moneda_1_p.svg",
+  },
+  {
+    title: "Motor Comisiones",
+    url: "/motor-comisiones",
+    iconClass: "",
+    page: "motor-comisiones",
+    customIcon:
+      "https://skcoblobresources.blob.core.windows.net/digital-assets/icons/icon-skandia/sk_mano_engranaje_p.svg",
+  },
+  {
+    title: "Calendario",
+    url: "/calendar",
+    iconClass: "",
+    page: "calendar",
+    customIcon: "https://skcoblobresources.blob.core.windows.net/digital-assets/icons/icon-skandia/sk_calendario_p.svg",
+  },
+  {
+    title: "Tareas",
+    url: "/tasks",
+    iconClass: "",
+    page: "tasks",
+    customIcon: "https://skcoblobresources.blob.core.windows.net/digital-assets/icons/icon-skandia/sk_puntos_p.svg",
+  },
+  {
+    title: "Sami Voice Insights",
+    url: "/voice-insights",
+    iconClass: "",
+    page: "voice-insights",
+    customIcon: "https://skcoblobresources.blob.core.windows.net/digital-assets/icons/icon-skandia/sk_globo_p.svg",
+  },
 ];
 
 const allAdminItems = [
-  { title: "Gestión de Usuarios", url: "/admin/users", iconClass: "", page: "users", customIcon: "https://skcoblobresources.blob.core.windows.net/digital-assets/icons/icon-skandia/sk_grupo_1_p.svg" },
+  {
+    title: "Gestión de Usuarios",
+    url: "/admin/users",
+    iconClass: "",
+    page: "users",
+    customIcon: "https://skcoblobresources.blob.core.windows.net/digital-assets/icons/icon-skandia/sk_grupo_1_p.svg",
+  },
   { title: "Configuración", url: "/admin/settings", iconClass: "typcn typcn-cog", page: "settings" },
 ];
 
@@ -61,13 +139,9 @@ export function AppSidebar({ onTemplateSelect }: AppSidebarProps) {
 
   const permissions = user ? getRolePermissions(user.role) : null;
 
-  const menuItems = allMenuItems.filter(item =>
-    permissions?.accessiblePages.includes(item.page)
-  );
+  const menuItems = allMenuItems.filter((item) => permissions?.accessiblePages.includes(item.page));
 
-  const adminItems = allAdminItems.filter(item =>
-    permissions?.accessiblePages.includes(item.page)
-  );
+  const adminItems = allAdminItems.filter((item) => permissions?.accessiblePages.includes(item.page));
 
   const showText = isMobile ? openMobile : state === "expanded";
   const showLogo = isMobile ? openMobile : state === "expanded";
@@ -79,11 +153,9 @@ export function AppSidebar({ onTemplateSelect }: AppSidebarProps) {
   };
 
   const handleSelectTemplate = (content: string) => {
-    console.log('Template selected:', content);
-    
     // Close the templates modal
     setShowTemplatesModal(false);
-    
+
     // If we have a callback to send the template content, use it
     if (onTemplateSelect) {
       onTemplateSelect(content);
@@ -100,8 +172,8 @@ export function AppSidebar({ onTemplateSelect }: AppSidebarProps) {
                 isMobileDevice && openMobile
                   ? "justify-between"
                   : !isMobileDevice && state === "collapsed"
-                  ? "justify-center"
-                  : "justify-between"
+                    ? "justify-center"
+                    : "justify-between"
               }`}
             >
               {isMobileDevice && openMobile ? (
@@ -109,9 +181,7 @@ export function AppSidebar({ onTemplateSelect }: AppSidebarProps) {
                   <div className="flex items-center space-x-3">
                     <UserProfile />
                     <div className="text-accent">
-                      <div className="text-sm font-medium">
-                        Hola, {user?.name?.split(" ")[2] || "Usuario"}
-                      </div>
+                      <div className="text-sm font-medium">Hola, {user?.name?.split(" ")[2] || "Usuario"}</div>
                     </div>
                   </div>
                   <Button
@@ -120,7 +190,7 @@ export function AppSidebar({ onTemplateSelect }: AppSidebarProps) {
                     onClick={toggleSidebar}
                     className="text-primary hover:bg-transparent"
                   >
-                    <img 
+                    <img
                       src="https://skcoblobresources.blob.core.windows.net/digital-assets/icons/icon-skandia/sk_header_menu_resposive.svg"
                       alt="Menu"
                       className="h-5 w-5"
@@ -131,9 +201,7 @@ export function AppSidebar({ onTemplateSelect }: AppSidebarProps) {
                 <>
                   {showText && !isMobileDevice && (
                     <div className="text-accent">
-                      <div className="text-sm font-medium">
-                        Hola, {user?.name?.split(" ")[2] || "Usuario"}
-                      </div>
+                      <div className="text-sm font-medium">Hola, {user?.name?.split(" ")[2] || "Usuario"}</div>
                     </div>
                   )}
                   <Button
@@ -142,7 +210,7 @@ export function AppSidebar({ onTemplateSelect }: AppSidebarProps) {
                     onClick={toggleSidebar}
                     className="text-primary hover:bg-transparent flex-shrink-0 p-0 m-0"
                   >
-                    <img 
+                    <img
                       src="https://skcoblobresources.blob.core.windows.net/digital-assets/icons/icon-skandia/sk_header_menu_resposive.svg"
                       alt="Menu"
                       className="h-5 w-5 opacity-100"
@@ -176,11 +244,7 @@ export function AppSidebar({ onTemplateSelect }: AppSidebarProps) {
                             onClick={handleItemClick}
                           >
                             {item.customIcon ? (
-                              <img 
-                                src={item.customIcon} 
-                                alt={item.title}
-                                className="w-5 h-5"
-                              />
+                              <img src={item.customIcon} alt={item.title} className="w-5 h-5" />
                             ) : (
                               <i className={`${item.iconClass} text-lg`} aria-hidden="true" />
                             )}
@@ -195,9 +259,7 @@ export function AppSidebar({ onTemplateSelect }: AppSidebarProps) {
 
               {adminItems.length > 0 && (
                 <SidebarGroup>
-                  {showText && (
-                    <SidebarGroupLabel className="text-black/80">Administración</SidebarGroupLabel>
-                  )}
+                  {showText && <SidebarGroupLabel className="text-black/80">Administración</SidebarGroupLabel>}
                   <SidebarGroupContent>
                     <SidebarMenu>
                       {adminItems.map((item) => (
@@ -218,15 +280,11 @@ export function AppSidebar({ onTemplateSelect }: AppSidebarProps) {
                               onClick={handleItemClick}
                             >
                               {item.customIcon ? (
-                              <img 
-                                src={item.customIcon} 
-                                alt={item.title}
-                                className="w-5 h-5"
-                              />
-                            ) : (
-                              <i className={`${item.iconClass} text-lg`} aria-hidden="true" />
-                            )}
-                            {showText && <span>{item.title}</span>}
+                                <img src={item.customIcon} alt={item.title} className="w-5 h-5" />
+                              ) : (
+                                <i className={`${item.iconClass} text-lg`} aria-hidden="true" />
+                              )}
+                              {showText && <span>{item.title}</span>}
                             </Link>
                           </SidebarMenuButton>
                         </SidebarMenuItem>
@@ -251,19 +309,13 @@ export function AppSidebar({ onTemplateSelect }: AppSidebarProps) {
       </Sidebar>
 
       {/* Modal para el historial de conversaciones */}
-      <ConversationHistoryModal 
-        isOpen={showConversationModal}
-        onClose={() => setShowConversationModal(false)}
-      />
+      <ConversationHistoryModal isOpen={showConversationModal} onClose={() => setShowConversationModal(false)} />
 
       {/* Modal para las plantillas */}
       {showTemplatesModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
           <div className="bg-white rounded-xl w-[90vw] max-w-4xl h-[80vh] overflow-hidden">
-            <PromptTemplates
-              onSelectTemplate={handleSelectTemplate}
-              onClose={() => setShowTemplatesModal(false)}
-            />
+            <PromptTemplates onSelectTemplate={handleSelectTemplate} onClose={() => setShowTemplatesModal(false)} />
           </div>
         </div>
       )}

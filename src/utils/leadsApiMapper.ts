@@ -213,7 +213,7 @@ export const mapLeadToCreateRequest = (lead: Partial<Lead>, userId: string): Cre
     Age: lead.age || 0,
     Gender: lead.gender || 'Prefiero no decir',
     PreferredContactChannel: lead.preferredContactChannel || 'Correo',
-    AlternateEmail: lead.alternateEmail || ''
+    AlternateEmail: (typeof lead.alternateEmail === 'string' && lead.alternateEmail.trim() !== '') ? lead.alternateEmail.trim() : null
   };
   
   console.log('✅ Mapped create request:', JSON.stringify(createRequest, null, 2));
@@ -266,7 +266,7 @@ export const mapLeadToUpdateRequest = (lead: Lead, userId: string): UpdateLeadRe
     Age: lead.age,
     Gender: lead.gender,
     PreferredContactChannel: lead.preferredContactChannel || 'Correo',
-    AlternateEmail: lead.alternateEmail || ''
+    AlternateEmail: (typeof lead.alternateEmail === 'string' && lead.alternateEmail.trim() !== '') ? lead.alternateEmail.trim() : null
   };
   
   // Log específico para AlternateEmail DESPUÉS del mapeo

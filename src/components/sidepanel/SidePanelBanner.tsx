@@ -13,12 +13,6 @@ export const SidePanelBanner: React.FC<SidePanelBannerProps> = ({
   onBannerClose,
   onBannerAction
 }) => {
-  console.log('🟦🟦🟦 SidePanelBanner: Rendering with props:', {
-    showBanner,
-    onBannerClose: !!onBannerClose,
-    onBannerAction: !!onBannerAction
-  });
-
   if (!showBanner) return null;
 
   return (

@@ -72,9 +72,7 @@ export function EditableLeadCell({ lead, field, onUpdate }: EditableLeadCellProp
     setIsUpdating(true);
     try {
       if (field === 'stage') {
-        console.log(`🔄 Changing lead ${lead.id} stage to ${newValue}`);
         await changeLeadStage(lead.id, newValue);
-        console.log(`✅ Lead ${lead.id} stage changed successfully`);
         
         // Actualizar el lead localmente para mostrar cambio inmediato
         lead.stage = newValue;
@@ -88,8 +86,6 @@ export function EditableLeadCell({ lead, field, onUpdate }: EditableLeadCellProp
         const assignedToValue = newValue === 'unassigned' ? '' : newValue;
         
         if (lead.assignedTo && assignedToValue && lead.assignedTo !== assignedToValue) {
-          console.log(`🔄 Reassigning lead ${lead.id} from ${lead.assignedTo} to ${assignedToValue}`);
-          
           const success = await handleReassignLead(
             lead.id, 
             assignedToValue,
@@ -103,8 +99,6 @@ export function EditableLeadCell({ lead, field, onUpdate }: EditableLeadCellProp
             const assignedUser = assignableUsers.find(u => u.Id === assignedToValue);
             const assignedName = assignedUser?.Name || 'Usuario desconocido';
             
-            console.log(`✅ Lead ${lead.id} reassigned successfully, refreshing leads list...`);
-            
             // Actualizar el lead localmente para mostrar cambio inmediato
             lead.assignedTo = assignedToValue;
             lead.assignedToName = assignedName;
@@ -114,12 +108,9 @@ export function EditableLeadCell({ lead, field, onUpdate }: EditableLeadCellProp
               description: `Lead reasignado exitosamente a ${assignedName}`,
             });
 
-            console.log('🔄 Calling onUpdate to refresh leads list after reassignment...');
             onUpdate();
           }
         } else {
-          console.log(`🔄 Simple assignment change for lead ${lead.id} to ${assignedToValue}`);
-          
           const success = await handleReassignLead(
             lead.id, 
             assignedToValue,
@@ -132,8 +123,6 @@ export function EditableLeadCell({ lead, field, onUpdate }: EditableLeadCellProp
           if (success) {
             const assignedUser = assignableUsers.find(u => u.Id === assignedToValue);
             const assignedName = assignedUser?.Name || 'Usuario desconocido';
-            
-            console.log(`✅ Lead ${lead.id} assigned successfully to ${assignedName}`);
             
             // Actualizar el lead localmente para mostrar cambio inmediato
             lead.assignedTo = assignedToValue;
@@ -148,8 +137,6 @@ export function EditableLeadCell({ lead, field, onUpdate }: EditableLeadCellProp
           }
         }
       } else if (field === 'priority') {
-        console.log(`🔄 Changing lead ${lead.id} priority to ${newValue}`);
-        
         toast({
           title: "Información",
           description: `Funcionalidad de prioridad aún en desarrollo`,
@@ -185,8 +172,6 @@ export function EditableLeadCell({ lead, field, onUpdate }: EditableLeadCellProp
 
     setIsUpdating(true);
     try {
-      console.log(`🔄 Updating lead ${lead.id} ${field} to ${newValue}`);
-      
       toast({
         title: "Información",
         description: `Funcionalidad de edición de ${field} aún en desarrollo`,

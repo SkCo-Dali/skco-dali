@@ -258,7 +258,7 @@ export function EditCommissionPlanDialog({ plan, open, onOpenChange, onUpdatePla
                         No rules created yet. Click "Create" to add your first rule.
                       </div>
                     ) : (
-                      <ScrollArea className="flex-1 border rounded-md">
+                      <ScrollArea className="flex-1 rounded-md">
                         <div className="w-full">
                           <CommissionRulesTable
                             rules={uiRules}

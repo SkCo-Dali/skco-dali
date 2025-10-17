@@ -70,10 +70,6 @@ export function CreateCatalogDialog({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    console.log('🚀 [CreateCatalogDialog] handleSubmit started');
-    console.log('📋 [CreateCatalogDialog] Form data:', formData);
-    console.log('📋 [CreateCatalogDialog] Fields to create:', fields);
-    
     if (!formData.name.trim()) {
       console.error('❌ [CreateCatalogDialog] Catalog name is empty');
       return;
@@ -98,30 +94,24 @@ export function CreateCatalogDialog({
       return;
     }
 
-    console.log('✅ [CreateCatalogDialog] Validation passed, creating catalog...');
     setIsSubmitting(true);
     try {
       const catalog = await onCreateCatalog(formData);
-      console.log('✅ [CreateCatalogDialog] Catalog created:', catalog);
       
       // Create fields if any were added and we have the callback
       if (catalog && fields.length > 0) {
         if (!onCreateField) {
           console.error('❌ [CreateCatalogDialog] onCreateField callback is NOT defined!');
         } else {
-          console.log(`🔄 [CreateCatalogDialog] Creating ${fields.length} fields for catalog ${catalog.id}...`);
           for (let i = 0; i < fields.length; i++) {
             const field = fields[i];
-            console.log(`🔄 [CreateCatalogDialog] Creating field ${i + 1}/${fields.length}:`, field);
             try {
-              const createdField = await onCreateField(catalog.id, field);
-              console.log(`✅ [CreateCatalogDialog] Field ${i + 1}/${fields.length} created successfully:`, createdField);
+              await onCreateField(catalog.id, field);
             } catch (error) {
               console.error(`❌ [CreateCatalogDialog] Error creating field ${i + 1}/${fields.length}:`, error);
               // Continue with other fields even if one fails
             }
           }
-          console.log('✅ [CreateCatalogDialog] All fields processed');
         }
       } else {
         console.warn('⚠️ [CreateCatalogDialog] Skipping field creation:', {
@@ -131,7 +121,6 @@ export function CreateCatalogDialog({
         });
       }
       
-      console.log('✅ [CreateCatalogDialog] Process completed, closing dialog');
       onOpenChange(false);
       resetForm();
     } catch (error) {

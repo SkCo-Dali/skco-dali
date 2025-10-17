@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Lead, User, Interaction, getRolePermissions } from '@/types/crm';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
@@ -28,6 +28,7 @@ import ProfileResults from './ProfileResults';
 import { FaWhatsapp } from "react-icons/fa";
 import { SkAccordion, SkAccordionItem, SkAccordionTrigger, SkAccordionContent } from '@/components/ui/sk-accordion';
 import { InputSanitizer } from '@/utils/inputSanitizer';
+import { useFormPersistence } from '@/hooks/useFormPersistence';
 
 interface LeadDetailProps {
   lead: Lead;
@@ -191,6 +192,17 @@ export function LeadDetail({ lead, isOpen, onClose, onSave, onOpenMassEmail }: L
   const [contactMethod, setContactMethod] = useState('');
   const [result, setResult] = useState('');
   const [managementNotes, setManagementNotes] = useState('');
+
+  // Form persistence para preservar datos entre cambios de pestañas SOLO durante la sesión actual
+  const formPersistenceKey = `lead_detail_${lead.id}`;
+  
+  const { saveToStorage, clearBackup } = useFormPersistence({
+    key: formPersistenceKey,
+    data: editedLead,
+    enabled: isOpen,
+    autoSaveInterval: 5000, // Auto-guardar cada 5 segundos
+    onRestore: undefined // Desactivar restauración automática
+  });
   
   const { users } = useAssignableUsers();
   const { interactions, clientHistory, loading: interactionsLoading, loadLeadInteractions, loadClientHistory, createInteractionFromLead } = useInteractionsApi();
@@ -204,6 +216,11 @@ export function LeadDetail({ lead, isOpen, onClose, onSave, onOpenMassEmail }: L
 
   useEffect(() => {
     console.log('LeadDetail useEffect triggered with lead:', lead);
+    
+    // Limpiar cualquier backup previo para asegurar datos frescos
+    clearBackup();
+    
+    // Siempre iniciar con los datos actuales del lead
     const safeLead = {
       ...lead,
       tags: ensureArray(lead.tags),
@@ -211,12 +228,13 @@ export function LeadDetail({ lead, isOpen, onClose, onSave, onOpenMassEmail }: L
       portfolios: ensureArray(lead.portfolios)
     };
     setEditedLead(safeLead);
+    
     setGeneralChanges(false);
     setManagementChanges(false);
     setContactMethod('');
     setResult('');
     setManagementNotes('');
-  }, [lead]);
+  }, [lead, clearBackup]);
 
   useEffect(() => {
     if (isOpen && lead.id) {
@@ -230,7 +248,12 @@ export function LeadDetail({ lead, isOpen, onClose, onSave, onOpenMassEmail }: L
       // Verificar si el lead tiene un perfil existente
       checkExistingProfile();
     }
-  }, [isOpen, lead.id]);
+    
+    // Limpiar backup cuando se cierra el editor
+    if (!isOpen) {
+      clearBackup();
+    }
+  }, [isOpen, lead.id, clearBackup]);
 
   const loadAssignmentHistory = async () => {
     if (!lead.id) return;
@@ -249,7 +272,8 @@ export function LeadDetail({ lead, isOpen, onClose, onSave, onOpenMassEmail }: L
   // Verificar si el lead tiene un perfil existente
   const checkExistingProfile = async () => {
     try {
-      const result = await checkClient(lead.email, lead.documentNumber?.toString());
+      // Pasar silent=true para no mostrar error si falla la verificación
+      const result = await checkClient(lead.email, lead.documentNumber?.toString(), true);
       if (result?.hasProfile && result?.profileId) {
         setHasExistingProfile(true);
         // Si tiene perfil y está completado, cargar los resultados
@@ -307,17 +331,25 @@ export function LeadDetail({ lead, isOpen, onClose, onSave, onOpenMassEmail }: L
     return lead.email || lead.phone || lead.documentNumber;
   };
 
-  // Función para manejar cambios en campos generales
-  const handleGeneralChange = (field: keyof Lead, value: any) => {
-    setEditedLead(prev => ({ ...prev, [field]: value }));
+  // Función para manejar cambios en campos generales con persistencia
+  const handleGeneralChange = useCallback((field: keyof Lead, value: any) => {
+    setEditedLead(prev => {
+      const updated = { ...prev, [field]: value };
+      saveToStorage(updated); // Auto-guardar en sessionStorage
+      return updated;
+    });
     setGeneralChanges(true);
-  };
+  }, [saveToStorage]);
 
-  // Función para manejar cambios en campos de gestión
-  const handleManagementChange = (field: keyof Lead, value: any) => {
-    setEditedLead(prev => ({ ...prev, [field]: value }));
+  // Función para manejar cambios en campos de gestión con persistencia
+  const handleManagementChange = useCallback((field: keyof Lead, value: any) => {
+    setEditedLead(prev => {
+      const updated = { ...prev, [field]: value };
+      saveToStorage(updated); // Auto-guardar en sessionStorage
+      return updated;
+    });
     setManagementChanges(true);
-  };
+  }, [saveToStorage]);
 
   // Funciones de validación para campos numéricos y email
   const handlePhoneChange = (value: string) => {
@@ -408,6 +440,9 @@ export function LeadDetail({ lead, isOpen, onClose, onSave, onOpenMassEmail }: L
       console.log('🔄 Calling updateExistingLead API...');
       await updateExistingLead(leadToSave);
       
+      // Limpiar backup después de guardar exitosamente
+      clearBackup();
+      
       // Notificar al componente padre para refrescar datos
       onSave(leadToSave);
       
@@ -432,6 +467,7 @@ export function LeadDetail({ lead, isOpen, onClose, onSave, onOpenMassEmail }: L
   // Función para guardar solo cambios de gestión
   const handleSaveManagement = async () => {
     console.log('🔄 Saving management changes...');
+    console.log('📊 Current editedLead state:', { stage: editedLead.stage, nextFollowUp: editedLead.nextFollowUp, priority: editedLead.priority });
     
     if (!contactMethod || !result || !managementNotes) {
       toast({
@@ -443,42 +479,43 @@ export function LeadDetail({ lead, isOpen, onClose, onSave, onOpenMassEmail }: L
     }
     
     try {
-      // 1. Crear interacción con datos de gestión (POST /api/interactions)
-      console.log('🔄 Creating interaction from management data...');
-      
       // Formatear la fecha del próximo seguimiento para el API
-      const formattedNextFollowUp = editedLead.nextFollowUp ? formatDateForAPI(editedLead.nextFollowUp) : '';
+      const formattedNextFollowUp = editedLead.nextFollowUp ? formatDateForAPI(editedLead.nextFollowUp) : null;
       
-      // Preparar el lead con datos de gestión para crear la interacción
-      const leadWithInteractionData = {
+      // Preparar el lead actualizado con TODOS los cambios de gestión
+      const leadToSave = {
         ...editedLead,
+        nextFollowUp: formattedNextFollowUp
+      };
+      
+      console.log('📝 Lead data to save:', { 
+        id: leadToSave.id, 
+        stage: leadToSave.stage, 
+        nextFollowUp: leadToSave.nextFollowUp,
+        priority: leadToSave.priority 
+      });
+      
+      // 1. Actualizar el lead primero (PUT /api/leads/{id})
+      console.log('🔄 Updating lead with management changes...');
+      await updateExistingLead(leadToSave);
+      
+      // 2. Crear interacción con datos de gestión (POST /api/interactions)
+      console.log('🔄 Creating interaction from management data...');
+      const leadWithInteractionData = {
+        ...leadToSave,
         type: contactMethod,
         outcome: result,
-        notes: managementNotes,
-        nextFollowUp: formattedNextFollowUp
+        notes: managementNotes
       };
       
       const interactionCreated = await createInteractionFromLead(leadWithInteractionData);
       
       if (!interactionCreated) {
-        toast({
-          title: "Error",
-          description: "No se pudo crear la interacción",
-          variant: "destructive",
-        });
-        return;
+        console.warn('⚠️ Interaction creation failed, but lead was updated');
       }
       
-      // 2. Actualizar el lead con cambios de gestión (PUT /api/leads/{id})
-      console.log('🔄 Updating lead with management changes...');
-      
-      const leadToSave = {
-        ...editedLead,
-        nextFollowUp: editedLead.nextFollowUp ? formatDateForAPI(editedLead.nextFollowUp) : editedLead.nextFollowUp
-      };
-      
-      // Llamar directamente al API de actualización de lead (PUT /api/leads/{id})
-      await updateExistingLead(leadToSave);
+      // Limpiar backup después de guardar exitosamente
+      clearBackup();
       
       // Notificar al componente padre para refrescar datos
       onSave(leadToSave);
@@ -507,13 +544,23 @@ export function LeadDetail({ lead, isOpen, onClose, onSave, onOpenMassEmail }: L
     }
   };
 
-  const handleReassignSuccess = () => {
+  const handleReassignSuccess = (newUserId: string) => {
+    // Buscar el nombre del nuevo usuario asignado
+    const newAssignedUser = users.find(user => user.Id === newUserId);
+    const newAssignedUserName = newAssignedUser?.Name || 'Sin asignar';
+    
+    // Actualizar el lead local con el nuevo usuario asignado y su nombre
+    setEditedLead(prev => ({
+      ...prev,
+      assignedTo: newUserId,
+      assignedToName: newAssignedUserName
+    }));
+    
     setShowReassignDialog(false);
     loadAssignmentHistory(); // Recargar historial después de reasignación
-    toast({
-      title: "Éxito",
-      description: "Lead reasignado exitosamente",
-    });
+    
+    // Refrescar la lista de leads en el componente padre
+    onSave();
   };
 
   // Use assignedToName directly from API or fallback to user lookup

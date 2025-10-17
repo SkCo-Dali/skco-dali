@@ -1,18 +1,13 @@
-
-import { useState } from 'react';
-import { useToast } from '@/hooks/use-toast';
-import { useAuth } from '@/contexts/AuthContext';
-import { 
-  reassignLead, 
-  getLeadAssignmentHistory, 
-  getUserAssignmentHistory, 
-  getReassignableLeads 
-} from '@/utils/leadAssignmentApiClient';
-import { 
-  ReassignLeadRequest, 
-  LeadAssignmentHistory, 
-  ReassignableLead 
-} from '@/types/leadAssignmentTypes';
+import { useState } from "react";
+import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/contexts/AuthContext";
+import {
+  reassignLead,
+  getLeadAssignmentHistory,
+  getUserAssignmentHistory,
+  getReassignableLeads,
+} from "@/utils/leadAssignmentApiClient";
+import { ReassignLeadRequest, LeadAssignmentHistory, ReassignableLead } from "@/types/leadAssignmentTypes";
 
 export const useLeadAssignments = () => {
   const [loading, setLoading] = useState(false);
@@ -22,12 +17,12 @@ export const useLeadAssignments = () => {
 
   // Función para reasignar un lead
   const handleReassignLead = async (
-    leadId: string, 
-    toUserId: string, 
-    reason: string = "No informa", 
+    leadId: string,
+    toUserId: string,
+    reason: string = "No informa",
     notes: string = "Sin info",
     currentStage?: string,
-    fromUserId?: string // Nuevo parámetro opcional para especificar el usuario origen
+    fromUserId?: string, // Nuevo parámetro opcional para especificar el usuario origen
   ): Promise<boolean> => {
     if (!user?.id) {
       toast({
@@ -39,21 +34,16 @@ export const useLeadAssignments = () => {
     }
 
     // Si no se proporciona fromUserId explícitamente, usar el usuario autenticado (para asignaciones masivas)
-    const authenticatedUserUUID = localStorage.getItem('authenticated-user-uuid');
+    const authenticatedUserUUID = localStorage.getItem("authenticated-user-uuid");
     const sourceUserId = fromUserId || authenticatedUserUUID || user.id;
-
-    console.log('🔄 Starting lead reassignment...');
-    console.log('📋 Lead ID:', leadId);
-    console.log('👤 From User ID:', sourceUserId);
-    console.log('🎯 To User ID:', toUserId);
 
     setLoading(true);
     setError(null);
 
     try {
       // Si el lead está en estado "nuevo", automáticamente cambiar a "asignado"
-      const shouldChangeToAssigned = currentStage?.toLowerCase() === 'nuevo';
-      
+      const shouldChangeToAssigned = currentStage?.toLowerCase() === "nuevo";
+
       const request: ReassignLeadRequest = {
         lead_id: leadId,
         from_user_id: sourceUserId,
@@ -61,12 +51,12 @@ export const useLeadAssignments = () => {
         assigned_by: authenticatedUserUUID || user.id, // El que hace la reasignación
         reason,
         notes,
-        ...(shouldChangeToAssigned && { new_stage: 'asignado' })
+        ...(shouldChangeToAssigned && { new_stage: "asignado" }),
       };
 
       const response = await reassignLead(request);
-      
-      console.log('✅ Lead reassigned successfully:', response.message);
+
+      console.log("✅ Lead reassigned successfully:", response.message);
       toast({
         title: "Éxito",
         description: "Lead reasignado exitosamente",
@@ -74,8 +64,8 @@ export const useLeadAssignments = () => {
 
       return true;
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Error al reasignar lead';
-      console.error('❌ Error reassigning lead:', errorMessage);
+      const errorMessage = err instanceof Error ? err.message : "Error al reasignar lead";
+      console.error("❌ Error reassigning lead:", errorMessage);
       setError(errorMessage);
       toast({
         title: "Error",
@@ -96,11 +86,11 @@ export const useLeadAssignments = () => {
     try {
       console.log(`🔄 Getting lead assignment history for: ${leadId}`);
       const history = await getLeadAssignmentHistory(leadId);
-      console.log('✅ Lead history retrieved:', history.length, 'assignments');
+      console.log("✅ Lead history retrieved:", history.length, "assignments");
       return history;
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Error al obtener historial del lead';
-      console.error('❌ Error getting lead history:', errorMessage);
+      const errorMessage = err instanceof Error ? err.message : "Error al obtener historial del lead";
+      console.error("❌ Error getting lead history:", errorMessage);
       setError(errorMessage);
       toast({
         title: "Error",
@@ -115,8 +105,8 @@ export const useLeadAssignments = () => {
 
   // Función para obtener el historial de asignaciones de un usuario
   const getUserHistory = async (userId?: string): Promise<LeadAssignmentHistory[]> => {
-    const targetUserId = userId || localStorage.getItem('authenticated-user-uuid') || user?.id;
-    
+    const targetUserId = userId || localStorage.getItem("authenticated-user-uuid") || user?.id;
+
     if (!targetUserId) {
       toast({
         title: "Error",
@@ -132,11 +122,11 @@ export const useLeadAssignments = () => {
     try {
       console.log(`🔄 Getting user assignment history for: ${targetUserId}`);
       const history = await getUserAssignmentHistory(targetUserId);
-      console.log('✅ User history retrieved:', history.length, 'assignments');
+      console.log("✅ User history retrieved:", history.length, "assignments");
       return history;
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Error al obtener historial del usuario';
-      console.error('❌ Error getting user history:', errorMessage);
+      const errorMessage = err instanceof Error ? err.message : "Error al obtener historial del usuario";
+      console.error("❌ Error getting user history:", errorMessage);
       setError(errorMessage);
       toast({
         title: "Error",
@@ -151,8 +141,8 @@ export const useLeadAssignments = () => {
 
   // Función para obtener leads reasignables
   const getReassignableLeadsByUser = async (userId?: string): Promise<ReassignableLead[]> => {
-    const targetUserId = userId || localStorage.getItem('authenticated-user-uuid') || user?.id;
-    
+    const targetUserId = userId || localStorage.getItem("authenticated-user-uuid") || user?.id;
+
     if (!targetUserId) {
       toast({
         title: "Error",
@@ -168,11 +158,11 @@ export const useLeadAssignments = () => {
     try {
       console.log(`🔄 Getting reassignable leads`);
       const leads = await getReassignableLeads();
-      console.log('✅ Reassignable leads retrieved:', leads.length, 'leads');
+      console.log("✅ Reassignable leads retrieved:", leads.length, "leads");
       return leads;
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Error al obtener leads reasignables';
-      console.error('❌ Error getting reassignable leads:', errorMessage);
+      const errorMessage = err instanceof Error ? err.message : "Error al obtener leads reasignables";
+      console.error("❌ Error getting reassignable leads:", errorMessage);
       setError(errorMessage);
       toast({
         title: "Error",
@@ -191,6 +181,6 @@ export const useLeadAssignments = () => {
     handleReassignLead,
     getLeadHistory,
     getUserHistory,
-    getReassignableLeadsByUser
+    getReassignableLeadsByUser,
   };
 };

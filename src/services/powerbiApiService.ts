@@ -177,22 +177,9 @@ export async function getMyReports(token: string, params?: {
     'Authorization': `Bearer ${token}`
   };
 
-  console.log('🔄 [PowerBI API] getMyReports Request:', {
-    url,
-    method: 'GET',
-    headers: { Authorization: `Bearer ${token.substring(0, 20)}...` },
-    params
-  });
-
   const response = await fetch(url, {
     method: 'GET',
     headers,
-  });
-
-  console.log('📡 [PowerBI API] getMyReports Response:', {
-    status: response.status,
-    statusText: response.statusText,
-    ok: response.ok
   });
 
   if (!response.ok) {
@@ -202,7 +189,6 @@ export async function getMyReports(token: string, params?: {
   }
 
   const result = await response.json();
-  console.log('✅ [PowerBI API] getMyReports Success:', result);
   return result;
 }
 
@@ -310,22 +296,9 @@ export async function getFavorites(token: string, params?: {
     'Authorization': `Bearer ${token}`
   };
 
-  console.log('🔄 [PowerBI API] getFavorites Request:', {
-    url,
-    method: 'GET',
-    headers: { Authorization: `Bearer ${token.substring(0, 20)}...` },
-    params
-  });
-
   const response = await fetch(url, {
     method: 'GET',
     headers,
-  });
-
-  console.log('📡 [PowerBI API] getFavorites Response:', {
-    status: response.status,
-    statusText: response.statusText,
-    ok: response.ok
   });
 
   if (!response.ok) {
@@ -335,7 +308,6 @@ export async function getFavorites(token: string, params?: {
   }
 
   const result = await response.json();
-  console.log('✅ [PowerBI API] getFavorites Success:', result);
   return result;
 }
 
@@ -563,22 +535,9 @@ export async function getAreas(token: string, params?: {
     'Authorization': `Bearer ${token}`
   };
 
-  console.log('🔄 [PowerBI API] getAreas Request:', {
-    url,
-    method: 'GET',
-    headers: { Authorization: `Bearer ${token.substring(0, 20)}...` },
-    params
-  });
-
   const response = await fetch(url, {
     method: 'GET',
     headers,
-  });
-
-  console.log('📡 [PowerBI API] getAreas Response:', {
-    status: response.status,
-    statusText: response.statusText,
-    ok: response.ok
   });
 
   if (!response.ok) {
@@ -588,7 +547,6 @@ export async function getAreas(token: string, params?: {
   }
 
   const result = await response.json();
-  console.log('✅ [PowerBI API] getAreas Success:', result);
   return result;
 }
 
@@ -721,22 +679,9 @@ export async function getWorkspaces(token: string, params?: {
     'Authorization': `Bearer ${token}`
   };
 
-  console.log('🔄 [PowerBI API] getWorkspaces Request:', {
-    url,
-    method: 'GET',
-    headers: { Authorization: `Bearer ${token.substring(0, 20)}...` },
-    params
-  });
-
   const response = await fetch(url, {
     method: 'GET',
     headers,
-  });
-
-  console.log('📡 [PowerBI API] getWorkspaces Response:', {
-    status: response.status,
-    statusText: response.statusText,
-    ok: response.ok
   });
 
   if (!response.ok) {
@@ -746,7 +691,6 @@ export async function getWorkspaces(token: string, params?: {
   }
 
   const result = await response.json();
-  console.log('✅ [PowerBI API] getWorkspaces Success:', result);
   return result;
 }
 

@@ -1,5 +1,4 @@
 import { ENV } from '@/config/environment';
-import { SecureTokenManager } from '@/utils/secureTokenManager';
 import {
   Catalog,
   CatalogField,
@@ -48,15 +47,8 @@ async function fetchWithAuth(
 ): Promise<Response> {
   console.log('🔑 [Catalogs API] fetchWithAuth called for endpoint:', endpoint);
   
-  const tokenData = SecureTokenManager.getToken();
-  const token = tokenData?.token;
-  
-  console.log('🔑 [Catalogs API] Token check:', token ? '✅ Token exists' : '❌ NO TOKEN FOUND');
-  
-  if (!token) {
-    console.error('❌ [Catalogs API] No access token found in SecureTokenManager');
-    throw new Error('No access token found');
-  }
+
+
 
   const { params, ...fetchOptions } = options;
   
@@ -82,7 +74,6 @@ async function fetchWithAuth(
   const response = await fetch(url, {
     ...fetchOptions,
     headers: {
-      'Authorization': `Bearer ${token}`,
       'Content-Type': 'application/json',
       'Accept': 'application/json',
       ...fetchOptions.headers,

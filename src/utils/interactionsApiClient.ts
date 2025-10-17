@@ -2,26 +2,6 @@ import { ENV } from '@/config/environment';
 
 const BASE_URL = ENV.CRM_API_BASE_URL;
 
-// Helper function to get authorization headers
-const getAuthHeaders = async (): Promise<Record<string, string>> => {
-  const headers: Record<string, string> = {
-    'Content-Type': 'application/json',
-  };
-
-  try {
-    // Try to get access token from SecureTokenManager
-    const { SecureTokenManager } = await import('@/utils/secureTokenManager');
-    const tokenData = SecureTokenManager.getToken();
-    
-    if (tokenData && tokenData.token) {
-      headers['Authorization'] = `Bearer ${tokenData.token}`;
-    }
-  } catch (error) {
-    console.warn('Could not get access token for API request:', error);
-  }
-
-  return headers;
-};
 
 export interface CreateInteractionRequest {
   LeadId: string;
@@ -59,10 +39,12 @@ export interface ClientHistoryResponse {
 export const createInteraction = async (interaction: CreateInteractionRequest): Promise<any> => {
   console.log('🔄 Creating interaction via API...', interaction);
   
-  const headers = await getAuthHeaders();
+
   const response = await fetch(`${BASE_URL}/api/interactions`, {
     method: 'POST',
-    headers,
+    headers: {
+      'Content-Type': 'application/json',
+    },
     body: JSON.stringify(interaction),
   });
 
@@ -80,9 +62,8 @@ export const createInteraction = async (interaction: CreateInteractionRequest): 
 // Obtener interacciones por Lead
 export const getInteractionsByLead = async (leadId: string): Promise<InteractionResponse[]> => {
   console.log('🔄 Fetching interactions for lead:', leadId);
-  
-  const headers = await getAuthHeaders();
-  const response = await fetch(`${BASE_URL}/api/interactions/lead/${leadId}`, { headers });
+
+  const response = await fetch(`${BASE_URL}/api/interactions/lead/${leadId}`);
 
   if (!response.ok) {
     const errorText = await response.text();
@@ -98,9 +79,8 @@ export const getInteractionsByLead = async (leadId: string): Promise<Interaction
 // Obtener interacciones por Usuario
 export const getInteractionsByUser = async (userId: string): Promise<InteractionResponse[]> => {
   console.log('🔄 Fetching interactions for user:', userId);
-  
-  const headers = await getAuthHeaders();
-  const response = await fetch(`${BASE_URL}/api/interactions/user/${userId}`, { headers });
+
+  const response = await fetch(`${BASE_URL}/api/interactions/user/${userId}`);
 
   if (!response.ok) {
     const errorText = await response.text();
@@ -126,8 +106,7 @@ export const getClientHistory = async (params: {
   if (params.DocumentType) queryParams.append('DocumentType', params.DocumentType);
   if (params.DocumentNumber) queryParams.append('DocumentNumber', params.DocumentNumber);
 
-  const headers = await getAuthHeaders();
-  const response = await fetch(`${BASE_URL}/api/client-history?${queryParams.toString()}`, { headers });
+  const response = await fetch(`${BASE_URL}/api/client-history?${queryParams.toString()}`);
 
   if (!response.ok) {
     const errorText = await response.text();

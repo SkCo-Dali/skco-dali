@@ -1,211 +1,284 @@
 import React, { useState, useMemo } from "react";
 import { Commission, PRODUCT_TYPE_LABELS, COMMISSION_TYPE_LABELS } from "@/data/commissions";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { CommissionCategory } from "@/components/CommissionsCategorySlicer";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
-import { Download, Filter, Search } from "lucide-react";
+import { Download, Filter, Search, ArrowUpDown, Calendar } from "lucide-react";
+import { useCommissionsPagination } from "@/hooks/useCommissionsPagination";
+import { CommissionsPagination } from "@/components/CommissionsPagination";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { cn } from "@/lib/utils";
 
 interface CommissionsTableProps {
   commissions: Commission[];
+  selectedCategory: CommissionCategory;
 }
 
-export function CommissionsTable({ commissions }: CommissionsTableProps) {
+export function CommissionsTable({ commissions, selectedCategory }: CommissionsTableProps) {
   const [filterProduct, setFilterProduct] = useState<string>("all");
   const [filterCommissionType, setFilterCommissionType] = useState<string>("all");
   const [searchTerm, setSearchTerm] = useState("");
-  const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 10;
+  const [showFilters, setShowFilters] = useState(false);
 
-  // Filtrar comisiones
+  // Filtrar comisiones por categoría primero
+  const filteredByCategory = useMemo(() => {
+    if (selectedCategory === "all") return commissions;
+
+    const categoryMap: Record<CommissionCategory, Commission["productType"][]> = {
+      pensiones: ["pensiones"],
+      fiduciaria: ["patrimonio", "ahorro"],
+      seguros: ["seguros", "enfermedades"],
+      all: [],
+    };
+
+    const allowedTypes = categoryMap[selectedCategory];
+    return commissions.filter((c) => allowedTypes.includes(c.productType));
+  }, [commissions, selectedCategory]);
+
+  // Filtrar comisiones con otros filtros
   const filteredCommissions = useMemo(() => {
-    return commissions.filter(commission => {
+    return filteredByCategory.filter((commission) => {
       const matchesProduct = filterProduct === "all" || commission.productType === filterProduct;
-      const matchesCommissionType = filterCommissionType === "all" || commission.commissionType === filterCommissionType;
-      const matchesSearch = searchTerm === "" || 
+      const matchesCommissionType =
+        filterCommissionType === "all" || commission.commissionType === filterCommissionType;
+      const matchesSearch =
+        searchTerm === "" ||
         commission.clientName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        commission.policyNumber.toLowerCase().includes(searchTerm.toLowerCase());
-      
+        commission.policyNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        commission.agentName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        PRODUCT_TYPE_LABELS[commission.productType].toLowerCase().includes(searchTerm.toLowerCase());
+
       return matchesProduct && matchesCommissionType && matchesSearch;
     });
-  }, [commissions, filterProduct, filterCommissionType, searchTerm]);
+  }, [filteredByCategory, filterProduct, filterCommissionType, searchTerm]);
 
-  // Paginación
-  const totalPages = Math.ceil(filteredCommissions.length / itemsPerPage);
-  const paginatedCommissions = filteredCommissions.slice(
-    (currentPage - 1) * itemsPerPage,
-    currentPage * itemsPerPage
-  );
+  // Usar hook de paginación
+  const {
+    currentPage,
+    setCurrentPage,
+    paginatedCommissions,
+    totalPages,
+    totalCommissions,
+    itemsPerPage,
+    setItemsPerPage,
+  } = useCommissionsPagination(filteredCommissions, 10);
+
+  // Calcular período de las comisiones mostradas
+  const periodRange = useMemo(() => {
+    if (filteredCommissions.length === 0) return "";
+    const dates = filteredCommissions.map((c) => new Date(c.period));
+    const minDate = new Date(Math.min(...dates.map((d) => d.getTime())));
+    const maxDate = new Date(Math.max(...dates.map((d) => d.getTime())));
+    return `${minDate.toLocaleDateString("es-ES")} - ${maxDate.toLocaleDateString("es-ES")}`;
+  }, [filteredCommissions]);
 
   // Exportar a CSV
   const handleExportCSV = () => {
-    const headers = ['Cliente', 'No. Póliza', 'Producto', 'Tipo', 'Valor Comisión', 'Período'];
+    const headers = [
+      "Cliente",
+      "No. Póliza/Contrato",
+      "Producto",
+      "Tipo de comisión",
+      "Valor comisión",
+      "Asesor",
+      "Período",
+    ];
     const csvContent = [
-      headers.join(','),
-      ...filteredCommissions.map(commission => [
-        commission.clientName,
-        commission.policyNumber,
-        PRODUCT_TYPE_LABELS[commission.productType],
-        COMMISSION_TYPE_LABELS[commission.commissionType],
-        commission.commissionValue,
-        commission.period
-      ].join(','))
-    ].join('\n');
+      headers.join(","),
+      ...filteredCommissions.map((commission) =>
+        [
+          commission.clientName,
+          commission.policyNumber,
+          PRODUCT_TYPE_LABELS[commission.productType],
+          COMMISSION_TYPE_LABELS[commission.commissionType],
+          commission.commissionValue,
+          commission.agentName,
+          commission.period,
+        ].join(","),
+      ),
+    ].join("\n");
 
-    const blob = new Blob([csvContent], { type: 'text/csv' });
+    const blob = new Blob([csvContent], { type: "text/csv" });
     const url = window.URL.createObjectURL(blob);
-    const a = document.createElement('a');
+    const a = document.createElement("a");
     a.href = url;
-    a.download = 'comisiones.csv';
+    a.download = "comisiones.csv";
     a.click();
     window.URL.revokeObjectURL(url);
   };
 
   // Obtener opciones únicas para filtros
-  const productOptions = Array.from(new Set(commissions.map(c => c.productType)));
-  const commissionTypeOptions = Array.from(new Set(commissions.map(c => c.commissionType)));
-
-  const getBadgeVariant = (productType: Commission['productType']) => {
-    const variants = {
-      'patrimonio': 'default',
-      'ahorro': 'secondary',
-      'seguros': 'destructive',
-      'enfermedades': 'outline',
-      'pensiones': 'secondary'
-    } as const;
-    return variants[productType] || 'default';
-  };
+  const productOptions = Array.from(new Set(commissions.map((c) => c.productType)));
+  const commissionTypeOptions = Array.from(new Set(commissions.map((c) => c.commissionType)));
 
   return (
-    <Card>
-      <CardHeader>
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-          <CardTitle className="text-xl font-semibold">
-            Detalle de las Comisiones
-          </CardTitle>
-          <Button onClick={handleExportCSV} variant="outline" size="sm">
-            <Download className="h-4 w-4 mr-2" />
-            Exportar CSV
-          </Button>
-        </div>
-        
-        {/* Filtros */}
-        <div className="flex flex-col sm:flex-row gap-4 mt-4">
-          <div className="flex-1">
+    <div className="border rounded-b-md mt-0 mb-2 p-4">
+      <div className="w-full space-y-4 bg-[#fafafa] rounded-lg p-4">
+        {/* Barra de búsqueda y controles */}
+        <div className="flex flex-wrap items-center gap-3 pb-4">
+          <div className="flex-1 min-w-[250px]">
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
               <Input
-                placeholder="Buscar por cliente o póliza..."
+                placeholder="Busca por cliente, póliza, asesor, producto"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10"
+                className="pl-10 bg-background"
               />
             </div>
           </div>
-          
-          <Select value={filterProduct} onValueChange={setFilterProduct}>
-            <SelectTrigger className="w-full sm:w-[200px]">
-              <SelectValue placeholder="Filtrar por producto" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Todos los productos</SelectItem>
-              {productOptions.map(product => (
-                <SelectItem key={product} value={product}>
-                  {PRODUCT_TYPE_LABELS[product]}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          
-          <Select value={filterCommissionType} onValueChange={setFilterCommissionType}>
-            <SelectTrigger className="w-full sm:w-[200px]">
-              <SelectValue placeholder="Tipo de comisión" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Todos los tipos</SelectItem>
-              {commissionTypeOptions.map(type => (
-                <SelectItem key={type} value={type}>
-                  {COMMISSION_TYPE_LABELS[type]}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button variant="outline" className={cn("justify-start text-left font-normal", "hover:bg-accent")}>
+                <Calendar className="mr-2 h-4 w-4" />
+                Selecciona fecha
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-4" align="start">
+              <div className="text-sm text-muted-foreground">Filtro de fecha próximamente</div>
+            </PopoverContent>
+          </Popover>
+
+          <Button variant="outline" onClick={() => setShowFilters(!showFilters)} className="gap-2">
+            <Filter className="h-4 w-4" />
+            Filtra
+          </Button>
+
+          <Button
+            onClick={handleExportCSV}
+            size="icon"
+            className="bg-[#00C73D] hover:bg-[#00b835] text-white rounded-full h-10 w-10"
+          >
+            <Download className="h-4 w-4" />
+          </Button>
+
+          {/* Filtros expandibles */}
+          {showFilters && (
+            <div className="flex flex-wrap gap-3 bg-muted/50 p-4 rounded-lg border">
+              <Select value={filterProduct} onValueChange={setFilterProduct}>
+                <SelectTrigger className="w-[200px] bg-background">
+                  <SelectValue placeholder="Filtrar por producto" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Todos los productos</SelectItem>
+                  {productOptions.map((product) => (
+                    <SelectItem key={product} value={product}>
+                      {PRODUCT_TYPE_LABELS[product]}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+
+              <Select value={filterCommissionType} onValueChange={setFilterCommissionType}>
+                <SelectTrigger className="w-[200px] bg-background">
+                  <SelectValue placeholder="Tipo de comisión" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Todos los tipos</SelectItem>
+                  {commissionTypeOptions.map((type) => (
+                    <SelectItem key={type} value={type}>
+                      {COMMISSION_TYPE_LABELS[type]}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => {
+                  setFilterProduct("all");
+                  setFilterCommissionType("all");
+                }}
+              >
+                Limpiar filtros
+              </Button>
+            </div>
+          )}
         </div>
-      </CardHeader>
-      
-      <CardContent>
-        <div className="rounded-md border">
+
+        {/* Período */}
+        {periodRange && <div className="text-sm font-medium px-4">Periodo: {periodRange}</div>}
+
+        {/* Tabla */}
+        <div className="rounded-lg border bg-background overflow-hidden">
           <Table>
             <TableHeader>
-              <TableRow>
-                <TableHead>Cliente</TableHead>
-                <TableHead>No. Póliza</TableHead>
-                <TableHead>Producto</TableHead>
-                <TableHead>Tipo</TableHead>
-                <TableHead className="text-right">Valor Comisión</TableHead>
-                <TableHead>Período</TableHead>
+              <TableRow className="bg-muted/50">
+                <TableHead className="font-semibold">
+                  <div className="flex items-center gap-1">
+                    Cliente
+                    <ArrowUpDown className="h-3 w-3 text-[#00C73D]" />
+                  </div>
+                </TableHead>
+                <TableHead className="font-semibold">
+                  <div className="flex items-center gap-1">
+                    No. Póliza/Contrato
+                    <ArrowUpDown className="h-3 w-3 text-[#00C73D]" />
+                  </div>
+                </TableHead>
+                <TableHead className="font-semibold">
+                  <div className="flex items-center gap-1">
+                    Producto
+                    <ArrowUpDown className="h-3 w-3 text-[#00C73D]" />
+                  </div>
+                </TableHead>
+                <TableHead className="font-semibold">
+                  <div className="flex items-center gap-1">
+                    Tipo de comisión
+                    <ArrowUpDown className="h-3 w-3 text-[#00C73D]" />
+                  </div>
+                </TableHead>
+                <TableHead className="font-semibold text-right">
+                  <div className="flex items-center justify-end gap-1">
+                    Valor comisión
+                    <ArrowUpDown className="h-3 w-3 text-[#00C73D]" />
+                  </div>
+                </TableHead>
+                <TableHead className="font-semibold">
+                  <div className="flex items-center gap-1">
+                    Asesor
+                    <ArrowUpDown className="h-3 w-3 text-[#00C73D]" />
+                  </div>
+                </TableHead>
+                <TableHead className="font-semibold">
+                  <div className="flex items-center gap-1">
+                    Periodo
+                    <ArrowUpDown className="h-3 w-3 text-[#00C73D]" />
+                  </div>
+                </TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {paginatedCommissions.map((commission) => (
-                <TableRow key={commission.id}>
-                  <TableCell className="font-medium">
-                    {commission.clientName}
-                  </TableCell>
-                  <TableCell className="font-mono text-sm">
-                    {commission.policyNumber}
-                  </TableCell>
-                  <TableCell>
-                    <Badge variant={getBadgeVariant(commission.productType)}>
-                      {PRODUCT_TYPE_LABELS[commission.productType]}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>
-                    <span className="text-sm text-muted-foreground">
-                      {COMMISSION_TYPE_LABELS[commission.commissionType]}
-                    </span>
-                  </TableCell>
+              {paginatedCommissions.map((commission, index) => (
+                <TableRow key={commission.id} className={index % 2 === 0 ? "bg-[#FFFEF0]" : "bg-background"}>
+                  <TableCell className="font-medium">{commission.clientName}</TableCell>
+                  <TableCell className="font-mono text-sm">{commission.policyNumber}</TableCell>
+                  <TableCell>{PRODUCT_TYPE_LABELS[commission.productType]}</TableCell>
+                  <TableCell className="text-sm">{COMMISSION_TYPE_LABELS[commission.commissionType]}</TableCell>
                   <TableCell className="text-right font-semibold">
                     ${commission.commissionValue.toLocaleString()}
                   </TableCell>
-                  <TableCell>
-                    {commission.period}
-                  </TableCell>
+                  <TableCell>{commission.agentName}</TableCell>
+                  <TableCell>{commission.period}</TableCell>
                 </TableRow>
               ))}
             </TableBody>
           </Table>
-        </div>
 
-        {/* Paginación */}
-        {totalPages > 1 && (
-          <div className="flex items-center justify-between mt-4">
-            <div className="text-sm text-muted-foreground">
-              Mostrando {(currentPage - 1) * itemsPerPage + 1} a {Math.min(currentPage * itemsPerPage, filteredCommissions.length)} de {filteredCommissions.length} comisiones
-            </div>
-            <div className="flex gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
-                disabled={currentPage === 1}
-              >
-                Anterior
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
-                disabled={currentPage === totalPages}
-              >
-                Siguiente
-              </Button>
-            </div>
-          </div>
-        )}
-      </CardContent>
-    </Card>
+          {/* Paginación integrada */}
+          <CommissionsPagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            totalCommissions={totalCommissions}
+            itemsPerPage={itemsPerPage}
+            onPageChange={setCurrentPage}
+            onItemsPerPageChange={setItemsPerPage}
+          />
+        </div>
+      </div>
+    </div>
   );
 }

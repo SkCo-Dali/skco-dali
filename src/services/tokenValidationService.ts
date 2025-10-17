@@ -15,6 +15,7 @@ interface TokenValidationResult {
 
 export class TokenValidationService {
   private static readonly GRAPH_USER_ENDPOINT = `${ENV.GRAPH_API_BASE_URL}/me`;
+  private static readonly USER_INFO_ENDPOINT = `${ENV.USER_INFO_URL}`;
   private static readonly REQUIRED_SCOPES = ENV.REQUIRED_SCOPES;
 
   /**
@@ -29,7 +30,7 @@ export class TokenValidationService {
     }
 
     try {
-      const response = await fetch(this.GRAPH_USER_ENDPOINT, {
+      const response = await fetch(this.USER_INFO_ENDPOINT, {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${accessToken}`,
@@ -44,7 +45,7 @@ export class TokenValidationService {
         };
       }
 
-      const userData = await response.json();
+      const userData = await TokenValidationService.mapUserInfoResponse( response.json());
       
       // Validar que tenemos los campos mínimos requeridos
       if (!userData.mail && !userData.userPrincipalName) {
@@ -81,6 +82,7 @@ export class TokenValidationService {
       };
     }
   }
+
 
   /**
    * Valida que el token tenga los scopes requeridos
@@ -129,5 +131,26 @@ export class TokenValidationService {
     }
 
     return isValid;
+  }
+
+  static async mapUserInfoResponse(response: any): Promise<any> {
+    if (!response) return null;
+    //Validate if response is a promise
+    if (typeof response.then === 'function') {
+      response = await response;
+    }
+    let result = {
+    "displayName": response.displayName || response.name,
+    "givenName": response.givenName || response.given_name,
+    "jobTitle": response.jobTitle || "Desconocido",
+    "mail": response.mail || response.email,
+    "mobilePhone": null,
+    "officeLocation": null,
+    "preferredLanguage": null,
+    "surname": response.surname || response.family_name,
+    "userPrincipalName": response.userPrincipalName || response.email,
+    "id": response.id || response.sub
+};
+    return result;
   }
 }
