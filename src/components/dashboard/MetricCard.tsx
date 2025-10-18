@@ -25,7 +25,7 @@ export function MetricCard({ title, value, changePercent, changeLabel, variant =
         : "bg-muted text-muted-foreground border-border";
 
   return (
-    <Card className="relative">
+    <Card className="relative h-full">
       <CardContent className="pt-4 pb-4">
         <div className="space-y-2">
           <p className="text-sm text-muted-foreground">{title}</p>
