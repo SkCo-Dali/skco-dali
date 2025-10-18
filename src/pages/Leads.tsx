@@ -1,7 +1,7 @@
 import React, { useState, useCallback, useMemo, useRef, useEffect } from "react";
-import { useToast } from '@/hooks/use-toast';
+import { useToast } from "@/hooks/use-toast";
 import { Lead, getRolePermissions } from "@/types/crm";
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from "@/contexts/AuthContext";
 import { LeadsSearch } from "@/components/LeadsSearch";
 import { LeadsFilters } from "@/components/LeadsFilters";
 import { LeadsStats } from "@/components/LeadsStats";
@@ -29,27 +29,21 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { 
-  Upload, 
-  Plus, 
-  Mail, 
-  Filter, 
-  Users, 
-  ChevronDown, 
-  Table, 
+  Upload,
+  Plus,
+  Mail,
+  Filter,
+  Users,
+  ChevronDown,
+  Table,
   Columns,
   MoreVertical,
   Group,
   Trash,
   MessageSquare,
-  CheckCircle2
+  CheckCircle2,
 } from "lucide-react";
 import { useLeadDeletion } from "@/hooks/useLeadDeletion";
 import { LeadDeleteConfirmDialog } from "@/components/LeadDeleteConfirmDialog";
@@ -59,38 +53,41 @@ import { TextFilterCondition } from "@/components/TextFilter";
 import { bulkChangeLeadStage } from "@/utils/leadsApiClient";
 
 const DEFAULT_COLUMNS: ColumnConfig[] = [
-  { key: 'name', label: 'Nombre', visible: true, sortable: true },
-  { key: 'campaign', label: 'Campaña', visible: true, sortable: true },
-  { key: 'email', label: 'Email', visible: true, sortable: true },
-  { key: 'alternateEmail', label: 'Email Alternativo', visible: true, sortable: true },
-  { key: 'phone', label: 'Teléfono', visible: true, sortable: false },
-  { key: 'stage', label: 'Estado', visible: true, sortable: true },
-  { key: 'assignedToName', label: 'Asignado a', visible: true, sortable: true },
-  { key: 'documentType', label: 'Tipo de Documento', visible: false, sortable: true },
-  { key: 'documentNumber', label: 'Número de Documento', visible: false, sortable: true },
-  { key: 'company', label: 'Empresa', visible: false, sortable: true },
-  { key: 'product', label: 'Producto', visible: false, sortable: true },
-  { key: 'priority', label: 'Prioridad', visible: false, sortable: true },
-  { key: 'source', label: 'Fuente', visible: false, sortable: true },
-  { key: 'value', label: 'Valor', visible: false, sortable: true },
-  { key: 'tags', label: 'Tags', visible: false, sortable: true },
-  { key: 'createdAt', label: 'Fecha de Creación', visible: true, sortable: true },
-  { key: 'lastInteraction', label: 'Fecha de Última Interacción', visible: true, sortable: true },
-  { key: 'nextFollowUp', label: 'Próximo seguimiento', visible: true, sortable: true },
-  { key: 'age', label: 'Edad', visible: false, sortable: true },
-  { key: 'gender', label: 'Género', visible: false, sortable: true },
-  { key: 'preferredContactChannel', label: 'Medio de Contacto Preferido', visible: false, sortable: true },
+  { key: "name", label: "Nombre", visible: true, sortable: true },
+  { key: "campaign", label: "Campaña", visible: true, sortable: true },
+  { key: "email", label: "Email", visible: true, sortable: true },
+  { key: "alternateEmail", label: "Email Alternativo", visible: true, sortable: true },
+  { key: "phone", label: "Teléfono", visible: true, sortable: false },
+  { key: "stage", label: "Estado", visible: true, sortable: true },
+  { key: "assignedToName", label: "Asignado a", visible: true, sortable: true },
+  { key: "lastGestorName", label: "Últ Gestor Asignado", visible: false, sortable: true },
+  { key: "lastGestorInteractionAt", label: "Últ Fecha de Interaccion Gestor", visible: false, sortable: true },
+  { key: "lastGestorInteractionStage", label: "Últ Estado Gestor", visible: false, sortable: true },
+  { key: "lastGestorInteractionDescription", label: "Últ Descripción Gestor", visible: false, sortable: true },
+  { key: "documentType", label: "Tipo de Documento", visible: false, sortable: true },
+  { key: "documentNumber", label: "Número de Documento", visible: false, sortable: true },
+  { key: "company", label: "Empresa", visible: false, sortable: true },
+  { key: "product", label: "Producto", visible: false, sortable: true },
+  { key: "priority", label: "Prioridad", visible: false, sortable: true },
+  { key: "source", label: "Fuente", visible: false, sortable: true },
+  { Key: "campaignOwnerName", label: "Área", visible: false, sortable: true },
+  { key: "value", label: "Valor", visible: false, sortable: true },
+  { key: "tags", label: "Tags", visible: false, sortable: true },
+  { key: "createdAt", label: "Fecha de Creación", visible: true, sortable: true },
+  { key: "lastInteraction", label: "Fecha de Última Interacción", visible: true, sortable: true },
+  { key: "nextFollowUp", label: "Próximo seguimiento", visible: true, sortable: true },
+  { key: "age", label: "Edad", visible: false, sortable: true },
+  { key: "gender", label: "Género", visible: false, sortable: true },
+  { key: "preferredContactChannel", label: "Medio de Contacto Preferido", visible: false, sortable: true },
 ];
 
 export default function Leads() {
   const isMobile = useIsMobile();
   const isMedium = useIsMedium();
   const isSmallScreen = isMobile || isMedium;
-  
+
   // Set default view mode based on screen size
-  const [viewMode, setViewMode] = useState<"table" | "columns">(
-    isSmallScreen ? "columns" : "table"
-  );
+  const [viewMode, setViewMode] = useState<"table" | "columns">(isSmallScreen ? "columns" : "table");
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
   const [showBulkAssign, setShowBulkAssign] = useState(false);
   const [showUpload, setShowUpload] = useState(false);
@@ -107,7 +104,6 @@ export default function Leads() {
   const [showBulkStatusUpdate, setShowBulkStatusUpdate] = useState(false);
   const [isBulkUpdating, setIsBulkUpdating] = useState(false);
 
-  
   const { user } = useAuth();
   const userPermissions = user ? getRolePermissions(user.role) : null;
 
@@ -123,42 +119,41 @@ export default function Leads() {
     setPageSize,
     getUniqueValues,
     refreshLeads,
-    createNewLead
+    createNewLead,
   } = useLeadsApi();
 
   // Obtener conteos reales de KPIs
-  const kpiCounts = useLeadsKPICounts({ 
-    apiFilters, 
+  const kpiCounts = useLeadsKPICounts({
+    apiFilters,
     duplicateFilter: filters.duplicateFilter,
-    searchTerm: filters.searchTerm
+    searchTerm: filters.searchTerm,
   });
 
-  const handleLeadUpdate = useCallback((updatedLead?: Lead) => {
-    console.log('🔄 handleLeadUpdate called - refreshing leads...');
-    
-    // Si se proporciona un lead actualizado, actualizar el selectedLead inmediatamente
-    if (updatedLead) {
-      console.log('🔄 Updating selectedLead with new data:', updatedLead);
-      setSelectedLead(updatedLead);
-    }
-    
-    // Luego refrescar la lista de leads desde el API
-    refreshLeads();
-    
-    toast({
-      title: "Éxito",
-      description: "Lead actualizado exitosamente"
-    });
-  }, [refreshLeads]);
+  const handleLeadUpdate = useCallback(
+    (updatedLead?: Lead) => {
+      console.log("🔄 handleLeadUpdate called - refreshing leads...");
+
+      // Si se proporciona un lead actualizado, actualizar el selectedLead inmediatamente
+      if (updatedLead) {
+        console.log("🔄 Updating selectedLead with new data:", updatedLead);
+        setSelectedLead(updatedLead);
+      }
+
+      // Luego refrescar la lista de leads desde el API
+      refreshLeads();
+
+      toast({
+        title: "Éxito",
+        description: "Lead actualizado exitosamente",
+      });
+    },
+    [refreshLeads],
+  );
 
   const { toast } = useToast();
 
-  const { 
-    isDeleting, 
-    canDeleteLeads, 
-    deleteMultipleLeads 
-  } = useLeadDeletion({
-    onLeadDeleted: handleLeadUpdate
+  const { isDeleting, canDeleteLeads, deleteMultipleLeads } = useLeadDeletion({
+    onLeadDeleted: handleLeadUpdate,
   });
 
   // Los leads ya vienen filtrados y paginados del servidor
@@ -170,22 +165,25 @@ export default function Leads() {
   const textFilters = filters.textFilters;
   const sortBy = filters.sortBy;
   const sortDirection = filters.sortDirection;
-  
+
   // Variables de paginación
   const currentPage = pagination.page;
   const totalPages = pagination.totalPages;
   const leadsPerPage = pagination.pageSize;
   const paginatedLeads = filteredLeads; // Ya vienen paginados del servidor
-  
+
   // Función para manejar cambios de ordenamiento
-  const handleSortChange = useCallback((newSortBy: string, newSortDirection: 'asc' | 'desc') => {
-    updateFilters({ sortBy: newSortBy, sortDirection: newSortDirection });
-  }, [updateFilters]);
-  
+  const handleSortChange = useCallback(
+    (newSortBy: string, newSortDirection: "asc" | "desc") => {
+      updateFilters({ sortBy: newSortBy, sortDirection: newSortDirection });
+    },
+    [updateFilters],
+  );
+
   // Funciones auxiliares para compatibilidad
   const setSearchTerm = (term: string) => handleSearchChange(term);
   const setSortBy = (sort: string) => handleSortChange(sort, sortDirection);
-  const setSortDirection = (direction: 'asc' | 'desc') => handleSortChange(sortBy, direction);
+  const setSortDirection = (direction: "asc" | "desc") => handleSortChange(sortBy, direction);
   const setCurrentPage = (page: number) => {
     if (page === currentPage) {
       // Avoid redundant pagination updates
@@ -195,7 +193,7 @@ export default function Leads() {
     setPage(page);
   };
   const setLeadsPerPage = (size: number) => setPageSize(size);
-  
+
   // Estados para filtros
   const [uniqueStages, setUniqueStages] = useState<string[]>([]);
   const [uniqueSources, setUniqueSources] = useState<string[]>([]);
@@ -206,78 +204,93 @@ export default function Leads() {
   useEffect(() => {
     const loadUniqueValues = async () => {
       const [stages, sources, campaigns, assignedTo] = await Promise.all([
-        getUniqueValues('stage'),
-        getUniqueValues('source'),
-        getUniqueValues('campaign'),
-        getUniqueValues('assignedTo'),
+        getUniqueValues("stage"),
+        getUniqueValues("source"),
+        getUniqueValues("campaign"),
+        getUniqueValues("assignedTo"),
       ]);
-      
+
       setUniqueStages(stages.filter(Boolean) as string[]);
       setUniqueSources(sources.filter(Boolean) as string[]);
       setUniqueCampaigns(campaigns.filter(Boolean) as string[]);
       setUniqueAssignedTo(assignedTo.filter(Boolean) as string[]);
     };
-    
+
     loadUniqueValues();
   }, [getUniqueValues]);
 
   // Handlers para filtros generales
-  const setFilterStage = useCallback((stage: string | string[]) => {
-    const stageArray = stage === "all" ? [] : (Array.isArray(stage) ? stage : [stage]);
-    updateFilters({
-      columnFilters: {
-        ...filters.columnFilters,
-        stage: stageArray
-      }
-    });
-  }, [updateFilters, filters.columnFilters]);
+  const setFilterStage = useCallback(
+    (stage: string | string[]) => {
+      const stageArray = stage === "all" ? [] : Array.isArray(stage) ? stage : [stage];
+      updateFilters({
+        columnFilters: {
+          ...filters.columnFilters,
+          stage: stageArray,
+        },
+      });
+    },
+    [updateFilters, filters.columnFilters],
+  );
 
-  const setFilterPriority = useCallback((priority: string | string[]) => {
-    const priorityArray = priority === "all" ? [] : (Array.isArray(priority) ? priority : [priority]);
-    updateFilters({
-      columnFilters: {
-        ...filters.columnFilters,
-        priority: priorityArray
-      }
-    });
-  }, [updateFilters, filters.columnFilters]);
+  const setFilterPriority = useCallback(
+    (priority: string | string[]) => {
+      const priorityArray = priority === "all" ? [] : Array.isArray(priority) ? priority : [priority];
+      updateFilters({
+        columnFilters: {
+          ...filters.columnFilters,
+          priority: priorityArray,
+        },
+      });
+    },
+    [updateFilters, filters.columnFilters],
+  );
 
-  const setFilterAssignedTo = useCallback((assignedTo: string | string[]) => {
-    const assignedToArray = assignedTo === "all" ? [] : (Array.isArray(assignedTo) ? assignedTo : [assignedTo]);
-    updateFilters({
-      columnFilters: {
-        ...filters.columnFilters,
-        assignedTo: assignedToArray
-      }
-    });
-  }, [updateFilters, filters.columnFilters]);
+  const setFilterAssignedTo = useCallback(
+    (assignedTo: string | string[]) => {
+      const assignedToArray = assignedTo === "all" ? [] : Array.isArray(assignedTo) ? assignedTo : [assignedTo];
+      updateFilters({
+        columnFilters: {
+          ...filters.columnFilters,
+          assignedTo: assignedToArray,
+        },
+      });
+    },
+    [updateFilters, filters.columnFilters],
+  );
 
-  const setFilterSource = useCallback((source: string | string[]) => {
-    const sourceArray = source === "all" ? [] : (Array.isArray(source) ? source : [source]);
-    updateFilters({
-      columnFilters: {
-        ...filters.columnFilters,
-        source: sourceArray
-      }
-    });
-  }, [updateFilters, filters.columnFilters]);
+  const setFilterSource = useCallback(
+    (source: string | string[]) => {
+      const sourceArray = source === "all" ? [] : Array.isArray(source) ? source : [source];
+      updateFilters({
+        columnFilters: {
+          ...filters.columnFilters,
+          source: sourceArray,
+        },
+      });
+    },
+    [updateFilters, filters.columnFilters],
+  );
 
-  const setFilterCampaign = useCallback((campaign: string | string[]) => {
-    const campaignArray = campaign === "all" ? [] : (Array.isArray(campaign) ? campaign : [campaign]);
-    updateFilters({
-      columnFilters: {
-        ...filters.columnFilters,
-        campaign: campaignArray
-      }
-    });
-  }, [updateFilters, filters.columnFilters]);
+  const setFilterCampaign = useCallback(
+    (campaign: string | string[]) => {
+      const campaignArray = campaign === "all" ? [] : Array.isArray(campaign) ? campaign : [campaign];
+      updateFilters({
+        columnFilters: {
+          ...filters.columnFilters,
+          campaign: campaignArray,
+        },
+      });
+    },
+    [updateFilters, filters.columnFilters],
+  );
 
   const clearFilters = useCallback(() => {
     updateFilters({
-      searchTerm: '',
+      searchTerm: "",
       columnFilters: {},
       textFilters: {},
-      duplicateFilter: 'all',
+      duplicateFilter: "all",
     });
     setUniqueStages([]);
     setUniqueSources([]);
@@ -291,208 +304,237 @@ export default function Leads() {
   const filterAssignedTo = filters.columnFilters.assignedTo?.length > 0 ? filters.columnFilters.assignedTo : "all";
   const filterSource = filters.columnFilters.source?.length > 0 ? filters.columnFilters.source : "all";
   const filterCampaign = filters.columnFilters.campaign?.length > 0 ? filters.columnFilters.campaign : "all";
-  
+
   // Filtros de fecha
   const filterDateFrom = filters.columnFilters.createdAt?.[0] || "";
-  const setFilterDateFrom = useCallback((date: string) => {
-    updateFilters({
-      columnFilters: {
-        ...filters.columnFilters,
-        createdAt: date ? [date] : []
-      }
-    });
-  }, [updateFilters, filters.columnFilters]);
-  
+  const setFilterDateFrom = useCallback(
+    (date: string) => {
+      updateFilters({
+        columnFilters: {
+          ...filters.columnFilters,
+          createdAt: date ? [date] : [],
+        },
+      });
+    },
+    [updateFilters, filters.columnFilters],
+  );
+
   const filterDateTo = filters.columnFilters.createdAtEnd?.[0] || "";
-  const setFilterDateTo = useCallback((date: string) => {
-    updateFilters({
-      columnFilters: {
-        ...filters.columnFilters,
-        createdAtEnd: date ? [date] : []
-      }
-    });
-  }, [updateFilters, filters.columnFilters]);
-  
+  const setFilterDateTo = useCallback(
+    (date: string) => {
+      updateFilters({
+        columnFilters: {
+          ...filters.columnFilters,
+          createdAtEnd: date ? [date] : [],
+        },
+      });
+    },
+    [updateFilters, filters.columnFilters],
+  );
+
   // Filtros de valor (placeholder)
   const filterValueMin = "";
   const setFilterValueMin = () => {};
   const filterValueMax = "";
   const setFilterValueMax = () => {};
-  
+
   // Filtro de duplicados
   const filterDuplicates = filters.duplicateFilter || "all";
-  const setFilterDuplicates = useCallback((value: string) => {
-    updateFilters({
-      duplicateFilter: value as 'all' | 'duplicates' | 'unique'
-    });
-  }, [updateFilters]);
-  
+  const setFilterDuplicates = useCallback(
+    (value: string) => {
+      updateFilters({
+        duplicateFilter: value as "all" | "duplicates" | "unique",
+      });
+    },
+    [updateFilters],
+  );
+
   // Usar el conteo de duplicados de las KPI cards (que considera filtros activos)
-  const duplicateCount = filterDuplicates === 'duplicates' ? kpiCounts.totalLeads : 0;
+  const duplicateCount = filterDuplicates === "duplicates" ? kpiCounts.totalLeads : 0;
 
   // Handlers para filtros
-  const handleSearchChange = useCallback((search: string) => {
-    updateFilters({ searchTerm: search });
-  }, [updateFilters]);
+  const handleSearchChange = useCallback(
+    (search: string) => {
+      updateFilters({ searchTerm: search });
+    },
+    [updateFilters],
+  );
 
-  const handleColumnFilterChange = useCallback((column: string, selectedValues: string[]) => {
-    const dateColumns = new Set(['createdAt', 'updatedAt', 'nextFollowUp', 'lastInteraction']);
-    const normCol = column === 'lastInteraction' ? 'updatedAt' : column;
+  const handleColumnFilterChange = useCallback(
+    (column: string, selectedValues: string[]) => {
+      const dateColumns = new Set(["createdAt", "updatedAt", "nextFollowUp", "lastInteraction"]);
+      const normCol = column === "lastInteraction" ? "updatedAt" : column;
 
-    if (dateColumns.has(normCol)) {
-      const parseRange = (values: string[]) => {
-        let from: string | undefined;
-        let to: string | undefined;
+      if (dateColumns.has(normCol)) {
+        const parseRange = (values: string[]) => {
+          let from: string | undefined;
+          let to: string | undefined;
 
-        const custom = values.find(v => v.startsWith('custom:'));
-        if (custom) {
-          try {
-            const payload = JSON.parse(custom.replace('custom:', ''));
-            from = payload.startDate || undefined;
-            to = payload.endDate || payload.startDate || undefined;
-          } catch {}
-        }
-
-        const dayRegex = /^\d{4}-\d{2}-\d{2}$/;
-        const days = values.filter(v => dayRegex.test(v)).sort();
-        if (days.length > 0) {
-          from = from ? (from < days[0] ? from : days[0]) : days[0];
-          to = to ? (to > days[days.length - 1] ? to : days[days.length - 1]) : days[days.length - 1];
-        }
-
-        const yearRe = /^year:(\d{4})$/;
-        values.forEach(v => {
-          const m = v.match(yearRe);
-          if (m) {
-            const y = m[1];
-            const yFrom = `${y}-01-01`;
-            const yTo = `${y}-12-31`;
-            from = from ? (from < yFrom ? from : yFrom) : yFrom;
-            to = to ? (to > yTo ? to : yTo) : yTo;
+          const custom = values.find((v) => v.startsWith("custom:"));
+          if (custom) {
+            try {
+              const payload = JSON.parse(custom.replace("custom:", ""));
+              from = payload.startDate || undefined;
+              to = payload.endDate || payload.startDate || undefined;
+            } catch {}
           }
-        });
 
-        const monthRe = /^month:(\d{4})-(\d{2})$/;
-        values.forEach(v => {
-          const m = v.match(monthRe);
-          if (m) {
-            const y = m[1];
-            const mm = m[2];
-            const mFrom = `${y}-${mm}-01`;
-            const thirtyOne = ['01','03','05','07','08','10','12'];
-            const thirty = ['04','06','09','11'];
-            let last = '30';
-            if (thirtyOne.includes(mm)) last = '31';
-            else if (thirty.includes(mm)) last = '30';
-            else last = '28';
-            const mTo = `${y}-${mm}-${last}`;
-            from = from ? (from < mFrom ? from : mFrom) : mFrom;
-            to = to ? (to > mTo ? to : mTo) : mTo;
+          const dayRegex = /^\d{4}-\d{2}-\d{2}$/;
+          const days = values.filter((v) => dayRegex.test(v)).sort();
+          if (days.length > 0) {
+            from = from ? (from < days[0] ? from : days[0]) : days[0];
+            to = to ? (to > days[days.length - 1] ? to : days[days.length - 1]) : days[days.length - 1];
           }
+
+          const yearRe = /^year:(\d{4})$/;
+          values.forEach((v) => {
+            const m = v.match(yearRe);
+            if (m) {
+              const y = m[1];
+              const yFrom = `${y}-01-01`;
+              const yTo = `${y}-12-31`;
+              from = from ? (from < yFrom ? from : yFrom) : yFrom;
+              to = to ? (to > yTo ? to : yTo) : yTo;
+            }
+          });
+
+          const monthRe = /^month:(\d{4})-(\d{2})$/;
+          values.forEach((v) => {
+            const m = v.match(monthRe);
+            if (m) {
+              const y = m[1];
+              const mm = m[2];
+              const mFrom = `${y}-${mm}-01`;
+              const thirtyOne = ["01", "03", "05", "07", "08", "10", "12"];
+              const thirty = ["04", "06", "09", "11"];
+              let last = "30";
+              if (thirtyOne.includes(mm)) last = "31";
+              else if (thirty.includes(mm)) last = "30";
+              else last = "28";
+              const mTo = `${y}-${mm}-${last}`;
+              from = from ? (from < mFrom ? from : mFrom) : mFrom;
+              to = to ? (to > mTo ? to : mTo) : mTo;
+            }
+          });
+
+          return { from, to };
+        };
+
+        const { from, to } = parseRange(selectedValues);
+
+        updateFilters({
+          columnFilters: {
+            ...filters.columnFilters,
+            [normCol]: from ? [from] : [],
+            [`${normCol}End`]: to ? [to] : [],
+          },
         });
-
-        return { from, to };
-      };
-
-      const { from, to } = parseRange(selectedValues);
-
-      updateFilters({
-        columnFilters: {
-          ...filters.columnFilters,
-          [normCol]: from ? [from] : [],
-          [`${normCol}End`]: to ? [to] : []
-        }
-      });
-    } else {
-      updateFilters({
-        columnFilters: {
-          ...filters.columnFilters,
-          [normCol]: selectedValues
-        }
-      });
-    }
-  }, [updateFilters, filters.columnFilters]);
-
-  const handleTextFilterChange = useCallback((column: string, conditions: any[]) => {
-    updateFilters({
-      textFilters: {
-        ...filters.textFilters,
-        [column]: conditions
+      } else {
+        updateFilters({
+          columnFilters: {
+            ...filters.columnFilters,
+            [normCol]: selectedValues,
+          },
+        });
       }
-    });
-  }, [updateFilters, filters.textFilters]);
+    },
+    [updateFilters, filters.columnFilters],
+  );
 
-  const clearColumnFilter = useCallback((column: string) => {
-    const newColumnFilters = { ...filters.columnFilters };
-    const effectiveKey = column === 'lastInteraction' ? 'updatedAt' : column;
-    
-    delete newColumnFilters[column];
-    delete newColumnFilters[effectiveKey];
-    delete newColumnFilters[`${column}End`];
-    delete newColumnFilters[`${effectiveKey}End`];
-    
-    const newTextFilters = { ...filters.textFilters };
-    delete newTextFilters[column];
-    delete newTextFilters[effectiveKey];
-    
-    updateFilters({
-      columnFilters: newColumnFilters,
-      textFilters: newTextFilters
-    });
-  }, [updateFilters, filters.columnFilters, filters.textFilters]);
+  const handleTextFilterChange = useCallback(
+    (column: string, conditions: any[]) => {
+      updateFilters({
+        textFilters: {
+          ...filters.textFilters,
+          [column]: conditions,
+        },
+      });
+    },
+    [updateFilters, filters.textFilters],
+  );
 
-  const hasFiltersForColumn = useCallback((column: string) => {
-    const effectiveKey = column === 'lastInteraction' ? 'updatedAt' : column;
-    return (filters.columnFilters[column] && filters.columnFilters[column].length > 0) ||
-           (filters.columnFilters[effectiveKey] && filters.columnFilters[effectiveKey].length > 0) ||
-           (filters.columnFilters[`${column}End`] && filters.columnFilters[`${column}End`].length > 0) ||
-           (filters.columnFilters[`${effectiveKey}End`] && filters.columnFilters[`${effectiveKey}End`].length > 0) ||
-           (filters.textFilters[column] && filters.textFilters[column].length > 0) ||
-           (filters.textFilters[effectiveKey] && filters.textFilters[effectiveKey].length > 0);
-  }, [filters.columnFilters, filters.textFilters]);
+  const clearColumnFilter = useCallback(
+    (column: string) => {
+      const newColumnFilters = { ...filters.columnFilters };
+      const effectiveKey = column === "lastInteraction" ? "updatedAt" : column;
+
+      delete newColumnFilters[column];
+      delete newColumnFilters[effectiveKey];
+      delete newColumnFilters[`${column}End`];
+      delete newColumnFilters[`${effectiveKey}End`];
+
+      const newTextFilters = { ...filters.textFilters };
+      delete newTextFilters[column];
+      delete newTextFilters[effectiveKey];
+
+      updateFilters({
+        columnFilters: newColumnFilters,
+        textFilters: newTextFilters,
+      });
+    },
+    [updateFilters, filters.columnFilters, filters.textFilters],
+  );
+
+  const hasFiltersForColumn = useCallback(
+    (column: string) => {
+      const effectiveKey = column === "lastInteraction" ? "updatedAt" : column;
+      return (
+        (filters.columnFilters[column] && filters.columnFilters[column].length > 0) ||
+        (filters.columnFilters[effectiveKey] && filters.columnFilters[effectiveKey].length > 0) ||
+        (filters.columnFilters[`${column}End`] && filters.columnFilters[`${column}End`].length > 0) ||
+        (filters.columnFilters[`${effectiveKey}End`] && filters.columnFilters[`${effectiveKey}End`].length > 0) ||
+        (filters.textFilters[column] && filters.textFilters[column].length > 0) ||
+        (filters.textFilters[effectiveKey] && filters.textFilters[effectiveKey].length > 0)
+      );
+    },
+    [filters.columnFilters, filters.textFilters],
+  );
 
   const handleLeadClick = useCallback((lead: Lead) => {
     setSelectedLead(lead);
   }, []);
 
-  const handleLeadCreate = useCallback(async (leadData: Partial<Lead>) => {
-    console.log('🎬 === LEADS.TSX: handleLeadCreate called ===');
-    console.log('📋 Lead data received in Leads.tsx:', JSON.stringify(leadData, null, 2));
-    console.log('🔄 About to call createNewLead from useLeadsApi...');
-    console.log('📝 createNewLead function reference:', typeof createNewLead);
-    
-    try {
-      console.log('⚡ Calling createNewLead...');
-      const result = await createNewLead(leadData);
-      console.log('🎯 createNewLead result:', result);
-      if (result) {
-        console.log('✅ Lead created successfully, refreshing data...');
-        handleLeadUpdate();
-        toast({
-          title: "Éxito",
-          description: "Lead creado exitosamente"
-        });
-      } else {
-        console.error('❌ Failed to create lead - result is null/undefined');
+  const handleLeadCreate = useCallback(
+    async (leadData: Partial<Lead>) => {
+      console.log("🎬 === LEADS.TSX: handleLeadCreate called ===");
+      console.log("📋 Lead data received in Leads.tsx:", JSON.stringify(leadData, null, 2));
+      console.log("🔄 About to call createNewLead from useLeadsApi...");
+      console.log("📝 createNewLead function reference:", typeof createNewLead);
+
+      try {
+        console.log("⚡ Calling createNewLead...");
+        const result = await createNewLead(leadData);
+        console.log("🎯 createNewLead result:", result);
+        if (result) {
+          console.log("✅ Lead created successfully, refreshing data...");
+          handleLeadUpdate();
+          toast({
+            title: "Éxito",
+            description: "Lead creado exitosamente",
+          });
+        } else {
+          console.error("❌ Failed to create lead - result is null/undefined");
+          toast({
+            title: "Error",
+            description: "Error al crear el lead",
+            variant: "destructive",
+          });
+        }
+      } catch (error) {
+        console.error("💥 Exception in handleLeadCreate:", error);
         toast({
           title: "Error",
           description: "Error al crear el lead",
-          variant: "destructive"
+          variant: "destructive",
         });
       }
-    } catch (error) {
-      console.error('💥 Exception in handleLeadCreate:', error);
-      toast({
-        title: "Error",
-        description: "Error al crear el lead",
-        variant: "destructive"
-      });
-    }
-  }, [createNewLead, handleLeadUpdate]);
+    },
+    [createNewLead, handleLeadUpdate],
+  );
 
   const handleSortedLeadsChange = useCallback((sorted: Lead[]) => {
     setSortedLeads(sorted);
-    // No resetear la página automáticamente - esto causaba que la paginación 
+    // No resetear la página automáticamente - esto causaba que la paginación
     // se reseteara cada vez que cambiaban los datos por navegación de páginas
   }, []);
 
@@ -503,9 +545,9 @@ export default function Leads() {
 
   const handleLeadSelectionChange = useCallback((leadIds: string[], isSelected: boolean) => {
     if (isSelected) {
-      setSelectedLeads(prev => [...new Set([...prev, ...leadIds])]);
+      setSelectedLeads((prev) => [...new Set([...prev, ...leadIds])]);
     } else {
-      setSelectedLeads(prev => prev.filter(id => !leadIds.includes(id)));
+      setSelectedLeads((prev) => prev.filter((id) => !leadIds.includes(id)));
     }
   }, []);
 
@@ -536,9 +578,9 @@ export default function Leads() {
 
   const stats = useMemo(() => {
     const total = leadsData.length;
-    const newLeads = leadsData.filter(lead => lead.stage === "new").length;
-    const contacted = leadsData.filter(lead => lead.stage === "contacted").length;
-    const qualified = leadsData.filter(lead => lead.stage === "qualified").length;
+    const newLeads = leadsData.filter((lead) => lead.stage === "new").length;
+    const contacted = leadsData.filter((lead) => lead.stage === "contacted").length;
+    const qualified = leadsData.filter((lead) => lead.stage === "qualified").length;
 
     return { total, newLeads, contacted, qualified };
   }, [leadsData]);
@@ -548,25 +590,25 @@ export default function Leads() {
       toast({
         title: "Error",
         description: "No hay leads seleccionados",
-        variant: "destructive"
+        variant: "destructive",
       });
       return;
     }
 
     setIsBulkUpdating(true);
-    
+
     try {
       const { success, failed } = await bulkChangeLeadStage(selectedLeads, newStage);
-      
+
       if (success > 0) {
         // Refrescar la lista de leads inmediatamente
         await refreshLeads();
-        
+
         toast({
           title: "Actualización completada",
-          description: `${success} lead${success > 1 ? 's' : ''} actualizado${success > 1 ? 's' : ''} exitosamente${failed > 0 ? `. ${failed} fallaron.` : ''}`,
+          description: `${success} lead${success > 1 ? "s" : ""} actualizado${success > 1 ? "s" : ""} exitosamente${failed > 0 ? `. ${failed} fallaron.` : ""}`,
         });
-        
+
         // Limpiar selección y cerrar modal
         setSelectedLeads([]);
         setShowBulkStatusUpdate(false);
@@ -574,15 +616,15 @@ export default function Leads() {
         toast({
           title: "Error",
           description: "No se pudo actualizar ningún lead",
-          variant: "destructive"
+          variant: "destructive",
         });
       }
     } catch (error) {
-      console.error('Error al actualizar leads:', error);
+      console.error("Error al actualizar leads:", error);
       toast({
         title: "Error",
         description: "Ocurrió un error al actualizar los leads",
-        variant: "destructive"
+        variant: "destructive",
       });
     } finally {
       setIsBulkUpdating(false);
@@ -590,43 +632,43 @@ export default function Leads() {
   };
 
   const handleDeleteSelectedLeads = () => {
-    const leadsToDelete = selectedLeads.length > 0 
-      ? filteredLeads.filter(lead => selectedLeads.includes(lead.id))
-      : filteredLeads;
+    const leadsToDelete =
+      selectedLeads.length > 0 ? filteredLeads.filter((lead) => selectedLeads.includes(lead.id)) : filteredLeads;
 
     if (leadsToDelete.length === 0) {
       toast({
         title: "Información",
-        description: "No hay leads para eliminar"
+        description: "No hay leads para eliminar",
       });
       return;
     }
 
     const { canDelete, restrictedCount } = canDeleteLeads(leadsToDelete);
-    console.log('🗑️ Leads: Bulk delete validation:', { 
-      totalLeads: leadsToDelete.length, 
-      canDelete, 
+    console.log("🗑️ Leads: Bulk delete validation:", {
+      totalLeads: leadsToDelete.length,
+      canDelete,
       restrictedCount,
-      leadIds: leadsToDelete.map(l => l.id)
+      leadIds: leadsToDelete.map((l) => l.id),
     });
-    
+
     if (!canDelete) {
       if (restrictedCount === leadsToDelete.length) {
-        const message = "No tienes permisos para eliminar ninguno de los leads seleccionados. Solo puedes eliminar leads que hayas creado y tengas asignados.";
-        console.log('❌ Leads: All leads restricted:', message);
+        const message =
+          "No tienes permisos para eliminar ninguno de los leads seleccionados. Solo puedes eliminar leads que hayas creado y tengas asignados.";
+        console.log("❌ Leads: All leads restricted:", message);
         toast({
           title: "Permisos insuficientes",
           description: message,
-          variant: "destructive"
+          variant: "destructive",
         });
         return;
       } else {
         const message = `No puedes eliminar ${restrictedCount} de los ${leadsToDelete.length} leads seleccionados por falta de permisos. Solo puedes eliminar leads que hayas creado y tengas asignados.`;
-        console.log('❌ Leads: Some leads restricted:', message);
+        console.log("❌ Leads: Some leads restricted:", message);
         toast({
           title: "Permisos insuficientes",
           description: message,
-          variant: "destructive"
+          variant: "destructive",
         });
         return;
       }
@@ -636,13 +678,12 @@ export default function Leads() {
   };
 
   const handleConfirmDelete = async () => {
-    const leadsToDelete = selectedLeads.length > 0 
-      ? filteredLeads.filter(lead => selectedLeads.includes(lead.id))
-      : filteredLeads;
+    const leadsToDelete =
+      selectedLeads.length > 0 ? filteredLeads.filter((lead) => selectedLeads.includes(lead.id)) : filteredLeads;
 
-    const leadIds = leadsToDelete.map(lead => lead.id);
+    const leadIds = leadsToDelete.map((lead) => lead.id);
     const result = await deleteMultipleLeads(leadIds);
-    
+
     if (result.success) {
       setShowDeleteDialog(false);
       setSelectedLeads([]);
@@ -650,18 +691,18 @@ export default function Leads() {
   };
 
   const handleCreateLead = () => {
-    console.log('🚀 === LEADS.TSX: handleCreateLead button clicked ===');
-    console.log('🔄 About to open lead creation dialog...');
-    console.log('📞 Calling leadCreateDialogRef.current?.openDialog()');
+    console.log("🚀 === LEADS.TSX: handleCreateLead button clicked ===");
+    console.log("🔄 About to open lead creation dialog...");
+    console.log("📞 Calling leadCreateDialogRef.current?.openDialog()");
     leadCreateDialogRef.current?.openDialog();
-    console.log('✅ Dialog open command sent');
+    console.log("✅ Dialog open command sent");
   };
 
   const handleBulkAssign = () => {
     if (selectedLeads.length === 0) {
       toast({
         title: "Información",
-        description: "Se aplicará a todos los leads filtrados"
+        description: "Se aplicará a todos los leads filtrados",
       });
     }
     setShowBulkAssign(true);
@@ -670,8 +711,8 @@ export default function Leads() {
   const handleMassEmail = () => {
     if (selectedLeads.length === 0) {
       toast({
-        title: "Información", 
-        description: "Se aplicará a todos los leads filtrados"
+        title: "Información",
+        description: "Se aplicará a todos los leads filtrados",
       });
     }
     setShowMassEmail(true);
@@ -681,7 +722,7 @@ export default function Leads() {
     if (selectedLeads.length === 0) {
       toast({
         title: "Información",
-        description: "Se aplicará a todos los leads filtrados"
+        description: "Se aplicará a todos los leads filtrados",
       });
     }
     setShowMassWhatsApp(true);
@@ -690,9 +731,7 @@ export default function Leads() {
   if (error) {
     return (
       <div className="container mx-auto px-4 py-5">
-        <div className="text-center text-red-600">
-          Error al cargar los leads: {error}
-        </div>
+        <div className="text-center text-red-600">Error al cargar los leads: {error}</div>
       </div>
     );
   }
@@ -700,14 +739,14 @@ export default function Leads() {
   return (
     <>
       <div className="w-full max-w-full px-4 py-4 space-y-6">
-            <div className="flex flex-col lg:flex-row gap-6">
+        <div className="flex flex-col lg:flex-row gap-6">
           <div className="flex-1 space-y-6">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 pt-0">
               <h1 className="text-3xl font-bold mb-1 tracking-tight text-[#00c73d]">Gestión de Leads</h1>
             </div>
 
             {/* KPI Cards and Stage Summary */}
-            <AllLeadsKPICards 
+            <AllLeadsKPICards
               leads={filteredLeads}
               totalLeads={kpiCounts.totalLeads}
               newLeadsCount={kpiCounts.newLeads}
@@ -731,41 +770,42 @@ export default function Leads() {
                     </Button>
                   )}
                   {userPermissions?.canBulkAssignLeads && (
-                      <Button
-                        className="gap-1 w-8 h-8 bg-primary"
-                        onClick={handleBulkAssign}
-                        size="icon"
-                        title="Asignación Masiva"
-                      >
-                        <Users className="h-4 w-4" />
-                      </Button>
-                       )}
-                     {userPermissions?.canBulkUpdateStage && (
-                      <Button
-                        className="gap-1 w-8 h-8 bg-primary"
-                        onClick={() => setShowBulkStatusUpdate(true)}
-                        size="icon"
-                        disabled={selectedLeads.length === 0}
-                        title="Actualizar Estado Masivamente"
-                      >
-                        <CheckCircle2 className="h-4 w-4" />
-                      </Button>
+                    <Button
+                      className="gap-1 w-8 h-8 bg-primary"
+                      onClick={handleBulkAssign}
+                      size="icon"
+                      title="Asignación Masiva"
+                    >
+                      <Users className="h-4 w-4" />
+                    </Button>
+                  )}
+                  {userPermissions?.canBulkUpdateStage && (
+                    <Button
+                      className="gap-1 w-8 h-8 bg-primary"
+                      onClick={() => setShowBulkStatusUpdate(true)}
+                      size="icon"
+                      disabled={selectedLeads.length === 0}
+                      title="Actualizar Estado Masivamente"
+                    >
+                      <CheckCircle2 className="h-4 w-4" />
+                    </Button>
                   )}
                   {userPermissions?.canSendEmail && (
-                  <Button
-                    className="gap-1 w-8 h-8 bg-primary"
-                    onClick={handleMassEmail}
-                    size="icon"
-                    title="Enviar Email Masivo"
-                  >
-                    <Mail className="h-4 w-4" />
-                  </Button>
+                    <Button
+                      className="gap-1 w-8 h-8 bg-primary"
+                      onClick={handleMassEmail}
+                      size="icon"
+                      title="Enviar Email Masivo"
+                    >
+                      <Mail className="h-4 w-4" />
+                    </Button>
                   )}
                   {userPermissions?.canSendmassiveWhatsApp && user?.email && (
                     <WhatsAppPropioButton
-                      leads={selectedLeads.length > 0 ? 
-                        filteredLeads.filter(lead => selectedLeads.includes(lead.id)) : 
-                        filteredLeads
+                      leads={
+                        selectedLeads.length > 0
+                          ? filteredLeads.filter((lead) => selectedLeads.includes(lead.id))
+                          : filteredLeads
                       }
                       userEmail={user.email}
                     />
@@ -781,10 +821,7 @@ export default function Leads() {
                       <Trash className="h-4 w-4" />
                     </Button>
                   )}
-                  <LeadsSearch 
-                    searchTerm={searchTerm} 
-                    onSearchChange={setSearchTerm} 
-                  />
+                  <LeadsSearch searchTerm={searchTerm} onSearchChange={setSearchTerm} />
                 </div>
               )}
 
@@ -800,35 +837,36 @@ export default function Leads() {
                       selectedLeadsCount={selectedLeads.length}
                       isDeleting={isDeleting}
                       permissions={userPermissions}
-                      leads={selectedLeads.length > 0 ? 
-                        filteredLeads.filter(lead => selectedLeads.includes(lead.id)) : 
-                        filteredLeads
+                      leads={
+                        selectedLeads.length > 0
+                          ? filteredLeads.filter((lead) => selectedLeads.includes(lead.id))
+                          : filteredLeads
                       }
                       userEmail={user.email}
                     />
                   )}
                   <div className="flex-1">
-                    <LeadsSearch 
-                      searchTerm={searchTerm} 
-                      onSearchChange={setSearchTerm} 
-                    />
+                    <LeadsSearch searchTerm={searchTerm} onSearchChange={setSearchTerm} />
                   </div>
-                  
+
                   <div className="flex gap-2">
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
-                        <Button 
+                        <Button
                           className="text-[#3f3f3f] bg-white border border-gray-300 rounded-md hover:bg-white hover:border-gray-300"
                           size="sm"
-                          style={{ 
-                            width: '32px',
-                            height: '32px'
+                          style={{
+                            width: "32px",
+                            height: "32px",
                           }}
                         >
                           <Filter className="h-4 w-4 text-[#00c73d]" />
                         </Button>
                       </DropdownMenuTrigger>
-                      <DropdownMenuContent className="w-auto p-0 bg-white rounded-2xl shadow-lg border border-gray-200" align="end">
+                      <DropdownMenuContent
+                        className="w-auto p-0 bg-white rounded-2xl shadow-lg border border-gray-200"
+                        align="end"
+                      >
                         <LeadsFilters
                           searchTerm={searchTerm}
                           setSearchTerm={setSearchTerm}
@@ -863,48 +901,51 @@ export default function Leads() {
                         />
                       </DropdownMenuContent>
                     </DropdownMenu>
-                    
+
                     {viewMode === "columns" && (
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                          <Button 
-                            size="sm" 
+                          <Button
+                            size="sm"
                             className="text-[#3f3f3f] bg-white border border-gray-300 rounded-md hover:bg-white hover:border-gray-300"
-                            style={{ 
-                              width: '32px',
-                              height: '32px'
+                            style={{
+                              width: "32px",
+                              height: "32px",
                             }}
                           >
                             <Group className="h-4 w-4 text-[#00c73d]" />
                           </Button>
                         </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end" className="w-48 bg-white rounded-2xl shadow-lg border border-gray-200">
+                        <DropdownMenuContent
+                          align="end"
+                          className="w-48 bg-white rounded-2xl shadow-lg border border-gray-200"
+                        >
                           <div className="p-2">
-                            <DropdownMenuItem 
+                            <DropdownMenuItem
                               onClick={() => setGroupBy("stage")}
                               className={groupBy === "stage" ? "bg-[#00c73d]/10 text-[#00c73d]" : ""}
                             >
                               Etapa
                             </DropdownMenuItem>
-                            <DropdownMenuItem 
+                            <DropdownMenuItem
                               onClick={() => setGroupBy("priority")}
                               className={groupBy === "priority" ? "bg-[#00c73d]/10 text-[#00c73d]" : ""}
                             >
                               Prioridad
                             </DropdownMenuItem>
-                            <DropdownMenuItem 
+                            <DropdownMenuItem
                               onClick={() => setGroupBy("source")}
                               className={groupBy === "source" ? "bg-[#00c73d]/10 text-[#00c73d]" : ""}
                             >
                               Fuente
                             </DropdownMenuItem>
-                            <DropdownMenuItem 
+                            <DropdownMenuItem
                               onClick={() => setGroupBy("assignedTo")}
                               className={groupBy === "assignedTo" ? "bg-[#00c73d]/10 text-[#00c73d]" : ""}
                             >
                               Asesor asignado
                             </DropdownMenuItem>
-                            <DropdownMenuItem 
+                            <DropdownMenuItem
                               onClick={() => setGroupBy("campaign")}
                               className={groupBy === "campaign" ? "bg-[#00c73d]/10 text-[#00c73d]" : ""}
                             >
@@ -916,10 +957,12 @@ export default function Leads() {
                     )}
 
                     {viewMode === "table" && (
-                      <div style={{ 
-                        width: '32px',
-                        height: '32px'
-                      }}>
+                      <div
+                        style={{
+                          width: "32px",
+                          height: "32px",
+                        }}
+                      >
                         <LeadsTableColumnSelector
                           columns={columns}
                           leads={paginatedLeads}
@@ -928,35 +971,34 @@ export default function Leads() {
                         />
                       </div>
                     )}
-                    
-                    <Button
-                      className="gap-1 w-8 h-8 bg-secondary"
-                      onClick={handleViewModeToggle}
-                      size="icon"
-                    >
+
+                    <Button className="gap-1 w-8 h-8 bg-secondary" onClick={handleViewModeToggle} size="icon">
                       {getViewModeIcon()}
                     </Button>
                   </div>
                 </div>
               )}
-              
+
               {!isSmallScreen && (
                 <div className="flex gap-2">
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <Button 
+                      <Button
                         className="text-[#3f3f3f] bg-white border border-gray-300 rounded-md hover:bg-white hover:border-gray-300"
                         size="sm"
-                        style={{ 
-                          width: 'auto',
-                          height: '32px'
+                        style={{
+                          width: "auto",
+                          height: "32px",
                         }}
                       >
                         <Filter className="h-4 w-4 text-[#00c73d]" />
                         <span className="ml-1">Filtros</span>
                       </Button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent className="w-auto p-0 bg-white rounded-2xl shadow-lg border border-gray-200" align="end">
+                    <DropdownMenuContent
+                      className="w-auto p-0 bg-white rounded-2xl shadow-lg border border-gray-200"
+                      align="end"
+                    >
                       <LeadsFilters
                         searchTerm={searchTerm}
                         setSearchTerm={setSearchTerm}
@@ -991,49 +1033,52 @@ export default function Leads() {
                       />
                     </DropdownMenuContent>
                   </DropdownMenu>
-                  
+
                   {viewMode === "columns" && (
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
-                        <Button 
-                          size="sm" 
+                        <Button
+                          size="sm"
                           className="text-[#3f3f3f] bg-white border border-gray-300 rounded-md hover:bg-white hover:border-gray-300"
-                          style={{ 
-                            width: 'auto',
-                            height: '32px'
+                          style={{
+                            width: "auto",
+                            height: "32px",
                           }}
                         >
                           <Group className="h-4 w-4 text-[#00c73d]" />
                           <span className="ml-1">Agrupar por</span>
                         </Button>
                       </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end" className="w-48 bg-white rounded-2xl shadow-lg border border-gray-200">
+                      <DropdownMenuContent
+                        align="end"
+                        className="w-48 bg-white rounded-2xl shadow-lg border border-gray-200"
+                      >
                         <div className="p-2">
-                          <DropdownMenuItem 
+                          <DropdownMenuItem
                             onClick={() => setGroupBy("stage")}
                             className={groupBy === "stage" ? "bg-[#00c73d]/10 text-[#00c73d]" : ""}
                           >
                             Etapa
                           </DropdownMenuItem>
-                          <DropdownMenuItem 
+                          <DropdownMenuItem
                             onClick={() => setGroupBy("priority")}
                             className={groupBy === "priority" ? "bg-[#00c73d]/10 text-[#00c73d]" : ""}
                           >
                             Prioridad
                           </DropdownMenuItem>
-                          <DropdownMenuItem 
+                          <DropdownMenuItem
                             onClick={() => setGroupBy("source")}
                             className={groupBy === "source" ? "bg-[#00c73d]/10 text-[#00c73d]" : ""}
                           >
                             Fuente
                           </DropdownMenuItem>
-                          <DropdownMenuItem 
+                          <DropdownMenuItem
                             onClick={() => setGroupBy("assignedTo")}
                             className={groupBy === "assignedTo" ? "bg-[#00c73d]/10 text-[#00c73d]" : ""}
                           >
                             Asesor asignado
                           </DropdownMenuItem>
-                          <DropdownMenuItem 
+                          <DropdownMenuItem
                             onClick={() => setGroupBy("campaign")}
                             className={groupBy === "campaign" ? "bg-[#00c73d]/10 text-[#00c73d]" : ""}
                           >
@@ -1045,24 +1090,22 @@ export default function Leads() {
                   )}
 
                   {viewMode === "table" && (
-                    <div style={{ 
-                      width: 'auto',
-                      height: '32px'
-                    }}>
+                    <div
+                      style={{
+                        width: "auto",
+                        height: "32px",
+                      }}
+                    >
                       <LeadsTableColumnSelector
-                      leads={paginatedLeads}
+                        leads={paginatedLeads}
                         columns={columns}
                         onColumnsChange={setColumns}
                         showTextLabel={true}
                       />
                     </div>
                   )}
-                  
-                  <Button
-                    className="gap-1 w-8 h-8 bg-secondary"
-                    onClick={handleViewModeToggle}
-                    size="icon"
-                  >
+
+                  <Button className="gap-1 w-8 h-8 bg-secondary" onClick={handleViewModeToggle} size="icon">
                     {getViewModeIcon()}
                   </Button>
                 </div>
@@ -1075,33 +1118,33 @@ export default function Leads() {
               </div>
             ) : (
               <>
-            <LeadsContent
-              viewMode={viewMode}
-              leads={filteredLeads}
-              onLeadClick={handleLeadClick}
-              onLeadUpdate={handleLeadUpdate}
-              columns={columns}
-              paginatedLeads={paginatedLeads}
-              onSortedLeadsChange={handleSortedLeadsChange}
-              onSendEmail={handleSendEmailToLead}
-              groupBy={groupBy}
-              selectedLeads={selectedLeads}
-              onLeadSelectionChange={handleLeadSelectionChange}
-              columnFilters={columnFilters}
-              textFilters={textFilters}
-              onColumnFilterChange={handleColumnFilterChange}
-              onTextFilterChange={handleTextFilterChange}
-              onClearColumnFilter={clearColumnFilter}
-              hasFiltersForColumn={hasFiltersForColumn}
-              searchTerm={searchTerm}
-              sortBy={sortBy}
-              setSortBy={setSortBy}
-              sortDirection={sortDirection}
-              setSortDirection={setSortDirection}
-              apiFilters={apiFilters}
-            />
+                <LeadsContent
+                  viewMode={viewMode}
+                  leads={filteredLeads}
+                  onLeadClick={handleLeadClick}
+                  onLeadUpdate={handleLeadUpdate}
+                  columns={columns}
+                  paginatedLeads={paginatedLeads}
+                  onSortedLeadsChange={handleSortedLeadsChange}
+                  onSendEmail={handleSendEmailToLead}
+                  groupBy={groupBy}
+                  selectedLeads={selectedLeads}
+                  onLeadSelectionChange={handleLeadSelectionChange}
+                  columnFilters={columnFilters}
+                  textFilters={textFilters}
+                  onColumnFilterChange={handleColumnFilterChange}
+                  onTextFilterChange={handleTextFilterChange}
+                  onClearColumnFilter={clearColumnFilter}
+                  hasFiltersForColumn={hasFiltersForColumn}
+                  searchTerm={searchTerm}
+                  sortBy={sortBy}
+                  setSortBy={setSortBy}
+                  sortDirection={sortDirection}
+                  setSortDirection={setSortDirection}
+                  apiFilters={apiFilters}
+                />
 
-                {viewMode === 'table' && (
+                {viewMode === "table" && (
                   <LeadsPagination
                     currentPage={currentPage}
                     totalPages={totalPages}
@@ -1132,10 +1175,7 @@ export default function Leads() {
           <Dialog open={showBulkAssign} onOpenChange={setShowBulkAssign}>
             <DialogContent className="max-w-2xl">
               <LeadsBulkAssignment
-                leads={selectedLeads.length > 0 
-                  ? filteredLeads.filter(lead => selectedLeads.includes(lead.id))
-                  : []
-                }
+                leads={selectedLeads.length > 0 ? filteredLeads.filter((lead) => selectedLeads.includes(lead.id)) : []}
                 onLeadsAssigned={() => {
                   handleLeadUpdate();
                   setShowBulkAssign(false);
@@ -1155,19 +1195,23 @@ export default function Leads() {
           />
         )}
 
-        <Dialog open={showMassEmail} onOpenChange={(open) => {
-          setShowMassEmail(open);
-          if (!open) {
-            setSelectedLeadForEmail(null);
-          }
-        }}>
+        <Dialog
+          open={showMassEmail}
+          onOpenChange={(open) => {
+            setShowMassEmail(open);
+            if (!open) {
+              setSelectedLeadForEmail(null);
+            }
+          }}
+        >
           <DialogContent className="max-w-6xl max-h-[90vh] overflow-auto">
             <MassEmailSender
-              filteredLeads={selectedLeadForEmail 
-                ? [selectedLeadForEmail] 
-                : selectedLeads.length > 0 
-                  ? filteredLeads.filter(lead => selectedLeads.includes(lead.id))
-                  : filteredLeads
+              filteredLeads={
+                selectedLeadForEmail
+                  ? [selectedLeadForEmail]
+                  : selectedLeads.length > 0
+                    ? filteredLeads.filter((lead) => selectedLeads.includes(lead.id))
+                    : filteredLeads
               }
               onClose={() => {
                 setShowMassEmail(false);
@@ -1181,9 +1225,10 @@ export default function Leads() {
         <Dialog open={showMassWhatsApp} onOpenChange={setShowMassWhatsApp}>
           <DialogContent className="max-w-6xl max-h-[90vh] overflow-auto">
             <MassWhatsAppSender
-              filteredLeads={selectedLeads.length > 0 
-                ? filteredLeads.filter(lead => selectedLeads.includes(lead.id))
-                : filteredLeads
+              filteredLeads={
+                selectedLeads.length > 0
+                  ? filteredLeads.filter((lead) => selectedLeads.includes(lead.id))
+                  : filteredLeads
               }
               onClose={() => {
                 setShowMassWhatsApp(false);
@@ -1205,9 +1250,8 @@ export default function Leads() {
           isOpen={showDeleteDialog}
           onClose={() => setShowDeleteDialog(false)}
           onConfirm={handleConfirmDelete}
-          leads={selectedLeads.length > 0 
-            ? filteredLeads.filter(lead => selectedLeads.includes(lead.id))
-            : filteredLeads
+          leads={
+            selectedLeads.length > 0 ? filteredLeads.filter((lead) => selectedLeads.includes(lead.id)) : filteredLeads
           }
           isDeleting={isDeleting}
         />
