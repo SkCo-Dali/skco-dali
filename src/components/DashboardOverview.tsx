@@ -150,9 +150,9 @@ export function DashboardOverview({ leads, loading }: DashboardOverviewProps) {
           onAction={() => navigate("/leads")}
           variant="primary"
         />
-        <div className="bg-[#fafafa] rounded-xl grid grid-cols-2 grid-rows-7 p-4 space-y-4 gap-4">
+        <div className="bg-[#fafafa] rounded-xl grid grid-cols-2 grid-rows-6.5 p-4 space-y-4 gap-4">
           {/* Achievements Section */}
-          <div className="col-span-2 row-span-2">
+          <div className="col-span-2 row-span-1.5">
             <AchievementsSection
               points={5000}
               period={selectedPeriod}
@@ -196,7 +196,7 @@ export function DashboardOverview({ leads, loading }: DashboardOverviewProps) {
           </div>
 
           {/* Charts Section */}
-          <div className="col-span-1 row-span-5 gap-4 space-y-6">
+          <div className="col-span-1 row-span-5 gap-4 space-y-4">
             <CommissionsChart
               data={commissionsData}
               totalCommissions="$25.000.000"
