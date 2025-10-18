@@ -366,6 +366,8 @@ export const LeadCreateDialog = forwardRef<LeadCreateDialogRef, LeadCreateDialog
                     {formData.campaign && (
                       <Label className="absolute -top-2 left-3 bg-gray-50 px-1 text-xs text-gray-600">Campaña*</Label>
                     )}
+                  </div>
+                  <div className="relative">
                     <Select
                       value={formData.campaignOwnerName}
                       onValueChange={(value) => setFormData({ ...formData, campaignOwnerName: value })}
