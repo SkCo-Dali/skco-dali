@@ -1,14 +1,18 @@
-import React, { useMemo } from "react";
+import React, { useMemo, useState } from "react";
 import { Lead } from "@/types/crm";
-import { KPICard } from "@/components/KPICard";
+import { DashboardBanner } from "@/components/dashboard/DashboardBanner";
+import { AchievementsSection } from "@/components/dashboard/AchievementsSection";
+import { MetricCard } from "@/components/dashboard/MetricCard";
+import { CommissionsChart } from "@/components/dashboard/CommissionsChart";
+import { ClientDistributionChart } from "@/components/dashboard/ClientDistributionChart";
 import { TodayFollowUpsList } from "@/components/dashboard/TodayFollowUpsList";
 import { TodayTasksList } from "@/components/dashboard/TodayTasksList";
 import { TodayOpportunitiesList } from "@/components/dashboard/TodayOpportunitiesList";
 import { useAuth } from "@/contexts/AuthContext";
 import { useTasks } from "@/hooks/useTasks";
-import { Users, TrendingUp, Calendar, CheckCircle, DollarSign, UserCheck } from "lucide-react";
 import mockOpportunities from "@/data/mockOpportunities.json";
 import { IOpportunity } from "@/types/opportunities";
+import { useNavigate } from "react-router-dom";
 
 interface DashboardOverviewProps {
   leads: Lead[];
@@ -18,7 +22,9 @@ interface DashboardOverviewProps {
 export function DashboardOverview({ leads, loading }: DashboardOverviewProps) {
   const { user } = useAuth();
   const { tasks } = useTasks();
+  const navigate = useNavigate();
   const opportunities = mockOpportunities as IOpportunity[];
+  const [selectedPeriod, setSelectedPeriod] = useState("septiembre");
 
   // Filter leads based on user role
   const userLeads = useMemo(() => {
@@ -114,8 +120,28 @@ export function DashboardOverview({ leads, loading }: DashboardOverviewProps) {
 
   const isManagerRole = ['admin', 'manager', 'supervisor', 'director'].includes(user.role);
 
+  // Mock data for charts - In production, this would come from API
+  const commissionsData = [
+    { month: 'Ene', value: 20000 },
+    { month: 'Feb', value: 22000 },
+    { month: 'Mar', value: 19000 },
+    { month: 'Abr', value: 25000 },
+    { month: 'May', value: 23000 },
+    { month: 'Jun', value: 24000 },
+    { month: 'Jul', value: 21000 },
+    { month: 'Ago', value: 26000 },
+    { month: 'Sep', value: 25000 },
+  ];
+
+  const clientDistributionData = [
+    { name: 'Plan de retiro y Cesantías', value: 82, color: 'hsl(var(--primary))' },
+    { name: 'Ahorro e inversión', value: 15, color: 'hsl(var(--accent))' },
+    { name: 'Seguros', value: 3, color: 'hsl(var(--muted-foreground))' },
+  ];
+
   return (
     <div className="space-y-6">
+      {/* Welcome Section */}
       <div>
         <h2 className="text-2xl font-bold mb-2">
           Bienvenido, {user.name}
@@ -125,71 +151,73 @@ export function DashboardOverview({ leads, loading }: DashboardOverviewProps) {
         </p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <KPICard
-          title={isManagerRole ? "Total Leads del Equipo" : "Mis Leads"}
-          value={kpis.totalLeads.toLocaleString()}
-          icon={Users}
-          description={isManagerRole ? "Leads en la base de datos" : "Leads asignados a ti"}
+      {/* Banner */}
+      <DashboardBanner
+        title="¿Ya conoces el nuevo gestor de leads?"
+        description="Optimiza tus nuevas oportunidades."
+        actionLabel="Interés"
+        onAction={() => navigate('/leads')}
+        variant="primary"
+      />
+
+      {/* Achievements Section */}
+      <AchievementsSection
+        points={5000}
+        period={selectedPeriod}
+        goalMessage="¡Te quedan 3 días para lograr 10 clientes nuevos!"
+        goalProgress={50}
+        onViewAllAchievements={() => navigate('/gamification')}
+        onPeriodChange={setSelectedPeriod}
+      />
+
+      {/* Metrics Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <MetricCard
+          title="Venta neta"
+          value="$40.000.000"
+          changePercent={5}
+          changeLabel="¡Wow!"
+          variant="success"
         />
-        
-        <KPICard
-          title="Nuevos Asignados"
-          value={kpis.newAssignedLeads.toString()}
-          icon={TrendingUp}
-          change="Últimos 7 días"
-          changeType={kpis.newAssignedLeads > 0 ? 'positive' : 'neutral'}
-          description="Leads recientemente asignados"
+        <MetricCard
+          title="Aportes de tus clientes"
+          value="$25.000.000"
+          changePercent={5}
+          changeLabel="¡Wow!"
+          variant="success"
         />
-        
-        <KPICard
-          title="Próximos Seguimientos"
-          value={kpis.upcomingFollowUps.toString()}
-          icon={Calendar}
-          change="Próximos 7 días"
-          changeType={kpis.upcomingFollowUps > 0 ? 'positive' : 'neutral'}
-          description="Seguimientos programados"
+        <MetricCard
+          title="Retiros de tus clientes"
+          value="$15.000.000"
+          changePercent={10}
+          changeLabel="¡Vamos!"
+          variant="success"
         />
-        
-        <KPICard
-          title="Leads Activos"
-          value={kpis.activeLeads.toString()}
-          icon={UserCheck}
-          change={`${kpis.totalLeads > 0 ? ((kpis.activeLeads / kpis.totalLeads) * 100).toFixed(1) : '0'}% del total`}
-          changeType="neutral"
-          description="En proceso de gestión"
+        <MetricCard
+          title="Tus clientes actuales totales"
+          value="125"
+          changePercent={-1}
+          changeLabel="1 inactivo"
+          variant="warning"
+        />
+        <MetricCard
+          title="Activos bajo administración"
+          value="$125.000.000"
         />
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
-        <KPICard
-          title="Leads Convertidos"
-          value={kpis.convertedLeads.toString()}
-          icon={CheckCircle}
-          change={`${kpis.conversionRate}% conversión`}
-          changeType={kpis.convertedLeads > 0 ? 'positive' : 'neutral'}
-          description="Ventas cerradas exitosamente"
+      {/* Charts Section */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <CommissionsChart
+          data={commissionsData}
+          totalCommissions="$25.000.000"
+          onViewDetails={() => navigate('/comisiones')}
         />
-        
-        <KPICard
-          title="Alta Prioridad"
-          value={kpis.highPriorityLeads.toString()}
-          icon={TrendingUp}
-          change={`${kpis.totalLeads > 0 ? ((kpis.highPriorityLeads / kpis.totalLeads) * 100).toFixed(1) : '0'}% del total`}
-          changeType={kpis.highPriorityLeads > 0 ? 'positive' : 'neutral'}
-          description="Leads de alta prioridad"
-        />
-        
-        <KPICard
-          title="Valor Total Pipeline"
-          value={`$${kpis.totalValue.toLocaleString()}`}
-          icon={DollarSign}
-          description="Valor potencial de leads"
-        />
+        <ClientDistributionChart data={clientDistributionData} />
       </div>
 
       {/* Today's Activities Section */}
-      <div className="mt-4">
+      <div className="mt-6">
         <h3 className="text-xl font-semibold mb-4">Actividades de Hoy</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           <TodayFollowUpsList leads={userLeads} />
