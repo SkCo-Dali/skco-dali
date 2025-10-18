@@ -23,8 +23,8 @@ export function AchievementsSection({
   onPeriodChange,
 }: AchievementsSectionProps) {
   return (
-    <Card className="border-border p-4">
-      <CardHeader className="pb-3">
+    <Card className="border-border">
+      <CardHeader>
         <div className="flex items-center justify-between gap-4 flex-wrap">
           <div className="flex items-center gap-2">
             <Star className="h-5 w-5 text-primary" />
@@ -51,7 +51,7 @@ export function AchievementsSection({
           )}
         </div>
       </CardHeader>
-      <CardContent>
+      <CardContent className="p-4">
         <div className="flex flex-col md:flex-row items-start md:items-center gap-6">
           {/* Points Circle */}
           <div className="relative flex items-center justify-center shrink-0">
