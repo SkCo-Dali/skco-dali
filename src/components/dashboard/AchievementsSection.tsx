@@ -28,9 +28,9 @@ export function AchievementsSection({
         <div className="flex items-center justify-between gap-4 flex-wrap border-0">
           <div className="flex items-center gap-2">
             <Star className="h-5 w-5 text-primary" />
-            <h3 className="text-base md:text-md font-semibold text-foreground">Tus logros en</h3>
+            <h3 className="text-md font-semibold text-foreground">Tus logros en</h3>
             <Select value={period} onValueChange={onPeriodChange}>
-              <SelectTrigger className="w-[140px] h-8 font-semibold text-base md:text-md text-primary border-0 bg-transparent">
+              <SelectTrigger className="w-[140px] h-8 font-semibold text-md text-primary border-0 bg-transparent">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -64,7 +64,7 @@ export function AchievementsSection({
           </div>
 
           {/* Goal Progress */}
-          <div className="flex-1 w-full bg-white rounded-xl p-4 shadow-md">
+          <div className="grid grid-cols-2 gap-4 flex-1 w-full bg-white rounded-xl p-4 shadow-md">
             <p className="text-sm text-foreground mb-3">{goalMessage}</p>
             <div className="flex items-center gap-3">
               <Progress value={goalProgress} className="flex-1 h-2" />
