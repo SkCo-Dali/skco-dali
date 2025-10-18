@@ -150,59 +150,83 @@ export function DashboardOverview({ leads, loading }: DashboardOverviewProps) {
           onAction={() => navigate("/leads")}
           variant="primary"
         />
-        <div className="bg-[#fafafa] rounded-xl grid grid-cols-2 grid-rows-7 p-4 space-y-4 gap-4">
-          {/* Achievements Section */}
-          <div className="col-span-2 row-span-2">
-            <AchievementsSection
-              points={5000}
-              period={selectedPeriod}
-              goalMessage="¡Te quedan 3 días para lograr 10 clientes nuevos!"
-              goalProgress={50}
-              onViewAllAchievements={() => navigate("/gamification")}
-              onPeriodChange={setSelectedPeriod}
-            />
-          </div>
-          {/* Metrics Grid */}
-          <div className="col-span-1 row-span-5 space-y-4">
-            <MetricCard
-              title="Venta neta"
-              value="$40.000.000"
-              changePercent={5}
-              changeLabel="¡Wow!"
-              variant="success"
-            />
-            <MetricCard
-              title="Aportes de tus clientes"
-              value="$25.000.000"
-              changePercent={5}
-              changeLabel="¡Wow!"
-              variant="success"
-            />
-            <MetricCard
-              title="Retiros de tus clientes"
-              value="$15.000.000"
-              changePercent={10}
-              changeLabel="¡Vamos!"
-              variant="success"
-            />
-            <MetricCard
-              title="Tus clientes actuales totales"
-              value="125"
-              changePercent={-1}
-              changeLabel="1 inactivo"
-              variant="warning"
-            />
-            <MetricCard title="Activos bajo administración" value="$125.000.000" />
-          </div>
+        <div className="bg-[#fafafa] rounded-xl p-3 md:p-4">
+          <div
+            className="
+      grid grid-cols-12 grid-flow-dense
+      gap-3 md:gap-4
+      auto-rows-[160px] md:auto-rows-[190px]
+    "
+          >
+            {/* Achievements – ocupa todo el ancho, altura auto (sin crear huecos) */}
+            <div className="col-span-12 row-auto">
+              <AchievementsSection
+                points={5000}
+                period={selectedPeriod}
+                goalMessage="¡Te quedan 3 días para lograr 10 clientes nuevos!"
+                goalProgress={50}
+                onViewAllAchievements={() => navigate("/gamification")}
+                onPeriodChange={setSelectedPeriod}
+              />
+            </div>
+            {/* Métricas (cinco filas compactas) */}
+            <div className="col-span-12 lg:col-span-6 contents">
+              <div className="col-span-12 lg:col-span-6">
+                <MetricCard
+                  title="Venta neta"
+                  value="$40.000.000"
+                  changePercent={5}
+                  changeLabel="¡Wow!"
+                  variant="success"
+                />
+              </div>
+              <div className="col-span-12 lg:col-span-6">
+                <MetricCard
+                  title="Aportes de tus clientes"
+                  value="$25.000.000"
+                  changePercent={5}
+                  changeLabel="¡Wow!"
+                  variant="success"
+                />
+              </div>
+              <div className="col-span-12 lg:col-span-6">
+                <MetricCard
+                  title="Retiros de tus clientes"
+                  value="$15.000.000"
+                  changePercent={10}
+                  changeLabel="¡Vamos!"
+                  variant="success"
+                />
+              </div>
+              <div className="col-span-12 lg:col-span-6">
+                <MetricCard
+                  title="Tus clientes actuales totales"
+                  value="125"
+                  changePercent={-1}
+                  changeLabel="1 inactivo"
+                  variant="warning"
+                />
+              </div>
+              <div className="col-span-12 lg:col-span-6">
+                <MetricCard title="Activos bajo administración" value="$125.000.000" />
+              </div>
+            </div>
 
-          {/* Charts Section */}
-          <div className="col-span-1 row-span-5 gap-4 space-y-6">
-            <CommissionsChart
-              data={commissionsData}
-              totalCommissions="$25.000.000"
-              onViewDetails={() => navigate("/comisiones")}
-            />
-            <ClientDistributionChart data={clientDistributionData} />
+            {/* Charts – el de arriba ocupa 2 filas, abajo 1 fila */}
+            <div className="col-span-12 lg:col-span-6">
+              <div className="grid gap-3 md:gap-4 auto-rows-[minmax(0,1fr)]">
+                <div className="row-span-2 min-h-[220px] md:min-h-[320px]">
+                  <CommissionsChart
+                    data={commissionsData}
+                    totalCommissions="$25.000.000"
+                    onViewDetails={() => navigate("/comisiones")}
+                  />
+                </div>
+                <div className="row-span-1 min-h-[180px] md:min-h-[220px]">
+                  <ClientDistributionChart data={clientDistributionData} />
+                </div>
+              </div>
+            </div>
           </div>
         </div>
 
