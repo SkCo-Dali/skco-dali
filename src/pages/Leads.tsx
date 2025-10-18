@@ -70,7 +70,7 @@ const DEFAULT_COLUMNS: ColumnConfig[] = [
   { key: "product", label: "Producto", visible: false, sortable: true },
   { key: "priority", label: "Prioridad", visible: false, sortable: true },
   { key: "source", label: "Fuente", visible: false, sortable: true },
-  { key: "campaignOwnerName", label: "Área", visible: false, sortable: true },
+  { key: "campaignOwnerName", label: "Lead referido por", visible: false, sortable: true },
   { key: "value", label: "Valor", visible: false, sortable: true },
   { key: "tags", label: "Tags", visible: false, sortable: true },
   { key: "createdAt", label: "Fecha de Creación", visible: true, sortable: true },

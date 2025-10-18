@@ -373,7 +373,7 @@ export const LeadCreateDialog = forwardRef<LeadCreateDialogRef, LeadCreateDialog
                       onValueChange={(value) => setFormData({ ...formData, campaignOwnerName: value })}
                     >
                       <SelectTrigger className="border-gray-300 rounded-xl h-12 bg-gray-50">
-                        <SelectValue className="!text-muted-foreground" placeholder="Lead referido por*" />
+                        <SelectValue className="!text-muted-foreground" placeholder="Lead referido por" />
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="Growth">Growth</SelectItem>
@@ -383,7 +383,9 @@ export const LeadCreateDialog = forwardRef<LeadCreateDialogRef, LeadCreateDialog
                       </SelectContent>
                     </Select>
                     {formData.campaignOwnerName && (
-                      <Label className="absolute -top-2 left-3 bg-gray-50 px-1 text-xs text-gray-600">Género</Label>
+                      <Label className="absolute -top-2 left-3 bg-gray-50 px-1 text-xs text-gray-600">
+                        Lead referido por
+                      </Label>
                     )}
                   </div>
                 </div>

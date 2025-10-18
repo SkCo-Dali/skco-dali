@@ -96,7 +96,7 @@ const defaultColumns: ColumnConfig[] = [
   { key: "documentNumber", label: "Número documento", visible: false, sortable: true },
   { key: "product", label: "Producto", visible: false, sortable: true },
   { key: "source", label: "Fuente", visible: false, sortable: true },
-  { key: "campaignOwnerName", label: "Área", visible: false, sortable: true },
+  { key: "campaignOwnerName", label: "Lead referido por", visible: false, sortable: true },
   { key: "tags", label: "Tags", visible: false, sortable: true },
   { key: "createdAt", label: "Fecha creación", visible: true, sortable: true },
   { key: "lastInteraction", label: "Últ. interacción", visible: true, sortable: true },
