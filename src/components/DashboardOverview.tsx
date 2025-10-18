@@ -150,7 +150,7 @@ export function DashboardOverview({ leads, loading }: DashboardOverviewProps) {
           onAction={() => navigate("/leads")}
           variant="primary"
         />
-        <div className="bg-[#fafafa] rounded-xl p-4 space-y-4">
+        <div className="bg-[#fafafa] rounded-xl p-0 space-y-4">
           {/* Achievements Section */}
           <AchievementsSection
             points={5000}
@@ -160,7 +160,7 @@ export function DashboardOverview({ leads, loading }: DashboardOverviewProps) {
             onViewAllAchievements={() => navigate("/gamification")}
             onPeriodChange={setSelectedPeriod}
           />
-          
+
           {/* Metrics and Charts Grid */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             {/* Left Column - Metrics */}
