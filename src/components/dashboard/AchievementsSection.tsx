@@ -55,9 +55,11 @@ export function AchievementsSection({
         <div className="flex flex-col md:flex-row items-start md:items-center gap-6">
           {/* Points Circle */}
           <div className="relative flex items-center justify-center shrink-0">
-            <div className="relative w-24 h-24 md:w-28 md:h-28 rounded-full border-4 border-primary bg-transparent flex flex-col items-center justify-center">
-              <span className="text-2xl md:text-3xl font-bold text-foreground">{points.toLocaleString()}</span>
-              <span className="text-xs text-muted-foreground">Puntos</span>
+            <div className="relative w-24 h-24 md:w-28 md:h-28 rounded-full bg-gradient-to-r from-primary via-primary/70 to-primary p-1">
+              <div className="w-full h-full rounded-full bg-background flex flex-col items-center justify-center">
+                <span className="text-2xl md:text-3xl font-bold text-foreground">{points.toLocaleString()}</span>
+                <span className="text-xs text-muted-foreground">Puntos</span>
+              </div>
             </div>
           </div>
 
