@@ -56,7 +56,7 @@ export function AchievementsSection({
           {/* Points Circle */}
           <div className="relative flex items-center justify-center shrink-0">
             <div className="relative w-24 h-24 md:w-28 md:h-28 rounded-full bg-gradient-to-r from-[#8FE000] to-[#00C73D] p-1">
-              <div className="w-full h-full rounded-full bg-background flex flex-col items-center justify-center">
+              <div className="w-full h-full rounded-full bg-[#F6FCF2] flex flex-col items-center justify-center">
                 <span className="text-2xl md:text-3xl font-bold text-foreground">{points.toLocaleString()}</span>
                 <span className="text-xs text-muted-foreground">Puntos</span>
               </div>
@@ -65,7 +65,7 @@ export function AchievementsSection({
 
           {/* Goal Progress */}
           <div className="grid grid-cols-2 gap-4 flex-1 w-full bg-white rounded-xl p-4 shadow-md">
-            <p className="text-sm text-foreground mb-3">{goalMessage}</p>
+            <p className="text-sm text-foreground">{goalMessage}</p>
             <div className="flex items-center gap-3">
               <Progress value={goalProgress} className="flex-1 h-2" />
               <span className="text-sm font-semibold text-foreground shrink-0">{goalProgress}%</span>
