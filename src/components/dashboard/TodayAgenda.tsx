@@ -45,7 +45,7 @@ export function TodayAgenda() {
   const [selectedPeriod, setSelectedPeriod] = useState<PeriodType>("Hoy");
 
   return (
-    <Card className="p-2 h-full flex flex-col gap-4">
+    <Card className="p-4 h-full flex flex-col gap-4">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <Calendar className="w-5 h-5" />
