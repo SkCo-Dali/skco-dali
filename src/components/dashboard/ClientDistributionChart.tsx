@@ -12,7 +12,7 @@ export function ClientDistributionChart({ data }: ClientDistributionChartProps) 
         <h3 className="text-base md:text-lg font-semibold text-foreground">Distribución de tus clientes totales</h3>
       </CardHeader>
       <CardContent>
-        <ResponsiveContainer width="100%" height="100%">
+        <ResponsiveContainer width="100%" height={220}>
           <PieChart>
             <Pie data={data} cx="50%" cy="50%" innerRadius={60} outerRadius={80} paddingAngle={2} dataKey="value">
               {data.map((entry, index) => (
