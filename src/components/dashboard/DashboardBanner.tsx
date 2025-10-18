@@ -31,7 +31,7 @@ export function DashboardBanner({
           <p className="text-sm text-muted-foreground">{description}</p>
         </div>
         {actionLabel && onAction && (
-          <ChevronRight onClick={onAction} className="h-5 w-5 text-primary cursor-pointer hover:text-primary/80" />
+          <ChevronRight onClick={onAction} className="h-10 w-10 text-primary cursor-pointer hover:text-primary/80" />
         )}
       </div>
     </Card>
