@@ -37,6 +37,22 @@ const mockAgendaItems: AgendaItem[] = [
     location: "",
     isUrgent: true,
   },
+  {
+    id: "3",
+    title: "Envío de reportes",
+    date: "18/oct/2025",
+    time: "10:30 a.m.",
+    location: "",
+    isUrgent: true,
+  },
+  {
+    id: "3",
+    title: "Envío de reportes",
+    date: "18/oct/2025",
+    time: "10:30 a.m.",
+    location: "",
+    isUrgent: true,
+  },
 ];
 
 type PeriodType = "Hoy" | "Esta semana" | "Próxima semana";
@@ -70,7 +86,7 @@ export function TodayAgenda() {
         ))}
       </div>
 
-      <div className="space-y-2 flex-1">
+      <div className="overflow-x-auto space-y-2 flex-1">
         {mockAgendaItems.map((item) => (
           <div
             key={item.id}
