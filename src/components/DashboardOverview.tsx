@@ -150,7 +150,7 @@ export function DashboardOverview({ leads, loading }: DashboardOverviewProps) {
           onAction={() => navigate("/leads")}
           variant="primary"
         />
-        <div className="bg-[#fafafa] rounded-xl grid grid-cols-2 grid-rows 7 p-4 space-y-4 gap-4">
+        <div className="bg-[#fafafa] rounded-xl grid grid-cols-2 grid-rows-7 p-4 space-y-4 gap-4">
           {/* Achievements Section */}
           <div className="col-span-2 row-span-2">
             <AchievementsSection
