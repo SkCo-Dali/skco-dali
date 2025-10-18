@@ -23,9 +23,9 @@ export function AchievementsSection({
   onPeriodChange,
 }: AchievementsSectionProps) {
   return (
-    <Card className="border-border bg-transparent">
+    <Card className="bg-transparent">
       <CardHeader>
-        <div className="flex items-center justify-between gap-4 flex-wrap">
+        <div className="flex items-center justify-between gap-4 flex-wrap border-0">
           <div className="flex items-center gap-2">
             <Star className="h-5 w-5 text-primary" />
             <h3 className="text-base md:text-lg font-semibold text-foreground">Tus logros en {period}</h3>
@@ -62,7 +62,7 @@ export function AchievementsSection({
           </div>
 
           {/* Goal Progress */}
-          <div className="flex-1 w-full bg-white rounded-xl p-4">
+          <div className="flex-1 w-full bg-white rounded-xl p-4 shadow-md">
             <p className="text-sm text-foreground mb-3">{goalMessage}</p>
             <div className="flex items-center gap-3">
               <Progress value={goalProgress} className="flex-1 h-2" />
