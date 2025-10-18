@@ -152,16 +152,16 @@ export function DashboardOverview({ leads, loading }: DashboardOverviewProps) {
         />
         <div className="bg-[#fafafa] rounded-xl grid grid-cols-2 p-4 space-y-6">
           {/* Achievements Section */}
-          <AchievementsSection
-            className="col-span-2"
-            points={5000}
-            period={selectedPeriod}
-            goalMessage="¡Te quedan 3 días para lograr 10 clientes nuevos!"
-            goalProgress={50}
-            onViewAllAchievements={() => navigate("/gamification")}
-            onPeriodChange={setSelectedPeriod}
-          />
-
+          <div className="col-span-2">
+            <AchievementsSection
+              points={5000}
+              period={selectedPeriod}
+              goalMessage="¡Te quedan 3 días para lograr 10 clientes nuevos!"
+              goalProgress={50}
+              onViewAllAchievements={() => navigate("/gamification")}
+              onPeriodChange={setSelectedPeriod}
+            />
+          </div>
           {/* Metrics Grid */}
           <div className="col-span-1 gap-4">
             <MetricCard
