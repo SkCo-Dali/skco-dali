@@ -150,59 +150,61 @@ export function DashboardOverview({ leads, loading }: DashboardOverviewProps) {
           onAction={() => navigate("/leads")}
           variant="primary"
         />
-        <div className="bg-[#fafafa] rounded-xl grid grid-cols-2 grid-rows-6.5 p-4 space-y-4 gap-4">
+        <div className="bg-[#fafafa] rounded-xl p-4 space-y-4">
           {/* Achievements Section */}
-          <div className="col-span-2 row-span-1.5">
-            <AchievementsSection
-              points={5000}
-              period={selectedPeriod}
-              goalMessage="¡Te quedan 3 días para lograr 10 clientes nuevos!"
-              goalProgress={50}
-              onViewAllAchievements={() => navigate("/gamification")}
-              onPeriodChange={setSelectedPeriod}
-            />
-          </div>
-          {/* Metrics Grid */}
-          <div className="col-span-1 row-auto space-y-4">
-            <MetricCard
-              title="Venta neta"
-              value="$40.000.000"
-              changePercent={5}
-              changeLabel="¡Wow!"
-              variant="success"
-            />
-            <MetricCard
-              title="Aportes de tus clientes"
-              value="$25.000.000"
-              changePercent={5}
-              changeLabel="¡Wow!"
-              variant="success"
-            />
-            <MetricCard
-              title="Retiros de tus clientes"
-              value="$15.000.000"
-              changePercent={10}
-              changeLabel="¡Vamos!"
-              variant="success"
-            />
-            <MetricCard
-              title="Tus clientes actuales totales"
-              value="125"
-              changePercent={-1}
-              changeLabel="1 inactivo"
-              variant="warning"
-            />
-            <MetricCard title="Activos bajo administración" value="$125.000.000" />
-          </div>
+          <AchievementsSection
+            points={5000}
+            period={selectedPeriod}
+            goalMessage="¡Te quedan 3 días para lograr 10 clientes nuevos!"
+            goalProgress={50}
+            onViewAllAchievements={() => navigate("/gamification")}
+            onPeriodChange={setSelectedPeriod}
+          />
+          
+          {/* Metrics and Charts Grid */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            {/* Left Column - Metrics */}
+            <div className="flex flex-col gap-4">
+              <MetricCard
+                title="Venta neta"
+                value="$40.000.000"
+                changePercent={5}
+                changeLabel="¡Wow!"
+                variant="success"
+              />
+              <MetricCard
+                title="Aportes de tus clientes"
+                value="$25.000.000"
+                changePercent={5}
+                changeLabel="¡Wow!"
+                variant="success"
+              />
+              <MetricCard
+                title="Retiros de tus clientes"
+                value="$15.000.000"
+                changePercent={10}
+                changeLabel="¡Vamos!"
+                variant="success"
+              />
+              <MetricCard
+                title="Tus clientes actuales totales"
+                value="125"
+                changePercent={-1}
+                changeLabel="1 inactivo"
+                variant="warning"
+              />
+              <MetricCard title="Activos bajo administración" value="$125.000.000" />
+            </div>
 
-          {/* Charts Section */}
-          <div className="col-span-1 row-auto gap-4 space-y-4">
-            <CommissionsChart
-              data={commissionsData}
-              totalCommissions="$25.000.000"
-              onViewDetails={() => navigate("/comisiones")}
-            />
-            <ClientDistributionChart data={clientDistributionData} />
+            {/* Right Column - Charts */}
+            <div className="flex flex-col gap-4">
+              <CommissionsChart
+                data={commissionsData}
+                totalCommissions="$25.000.000"
+                onViewDetails={() => navigate("/comisiones")}
+              />
+              <ClientDistributionChart data={clientDistributionData} />
+            </div>
           </div>
         </div>
 
