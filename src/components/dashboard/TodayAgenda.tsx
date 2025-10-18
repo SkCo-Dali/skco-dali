@@ -45,8 +45,8 @@ export function TodayAgenda() {
   const [selectedPeriod, setSelectedPeriod] = useState<PeriodType>("Hoy");
 
   return (
-    <Card className="p-6 h-full flex flex-col">
-      <div className="flex items-center justify-between mb-6">
+    <Card className="p-2 h-full flex flex-col gap-4">
+      <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <Calendar className="w-5 h-5" />
           <h3 className="text-lg font-semibold">Tu agenda</h3>
@@ -56,7 +56,7 @@ export function TodayAgenda() {
         </Button>
       </div>
 
-      <div className="flex gap-2 mb-6">
+      <div className="flex gap-2 mb-4">
         {(["Hoy", "Esta semana", "Próxima semana"] as PeriodType[]).map((period) => (
           <Button
             key={period}
@@ -70,7 +70,7 @@ export function TodayAgenda() {
         ))}
       </div>
 
-      <div className="space-y-3 flex-1">
+      <div className="space-y-2 flex-1">
         {mockAgendaItems.map((item) => (
           <div
             key={item.id}
