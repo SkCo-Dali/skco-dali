@@ -33,7 +33,9 @@ export function MetricCard({ title, value, changePercent, changeLabel, variant =
         </div>
       </CardContent>
       {showChange && (
-        <Badge className={`${badgeBg} flex items-center gap-1 w-fit px-2 py-1`}>
+        <Badge
+          className={`${badgeBg} absolute right-4 top-1/2 -translate-y-1/2 inline-flex items-center gap-1 rounded-full px-2 py-0.5`}
+        >
           {isPositive && <TrendingUp className="h-3 w-3" />}
           {isNegative && <TrendingDown className="h-3 w-3" />}
           <span className="text-xs font-medium">{changePercent}%</span>
