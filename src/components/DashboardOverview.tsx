@@ -163,7 +163,7 @@ export function DashboardOverview({ leads, loading }: DashboardOverviewProps) {
             />
           </div>
           {/* Metrics Grid */}
-          <div className="col-span-1 row-span-5 space-y-4">
+          <div className="col-span-1 row-auto space-y-4">
             <MetricCard
               title="Venta neta"
               value="$40.000.000"
@@ -196,7 +196,7 @@ export function DashboardOverview({ leads, loading }: DashboardOverviewProps) {
           </div>
 
           {/* Charts Section */}
-          <div className="col-span-1 row-span-5 gap-4 space-y-4">
+          <div className="col-span-1 row-auto gap-4 space-y-4">
             <CommissionsChart
               data={commissionsData}
               totalCommissions="$25.000.000"
