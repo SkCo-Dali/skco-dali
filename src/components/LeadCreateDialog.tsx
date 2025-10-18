@@ -1,4 +1,3 @@
-
 import { useState, forwardRef, useImperativeHandle } from "react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -28,7 +27,7 @@ export interface LeadCreateDialogRef {
 
 const productOptions = [
   "ACCAI",
-  "C.A.T", 
+  "C.A.T",
   "CREA",
   "ENGRAV",
   "FCES",
@@ -37,7 +36,7 @@ const productOptions = [
   "ICRFLO",
   "MFUND",
   "OMINMA",
-  "OMPEV"
+  "OMPEV",
 ];
 
 export const LeadCreateDialog = forwardRef<LeadCreateDialogRef, LeadCreateDialogProps>(
@@ -45,7 +44,7 @@ export const LeadCreateDialog = forwardRef<LeadCreateDialogRef, LeadCreateDialog
     const { user } = useAuth();
     const { toast } = useToast();
     const permissions = user ? getRolePermissions(user.role) : null;
-    
+
     const [open, setOpen] = useState(false);
     const [showMoreFields, setShowMoreFields] = useState(false);
     const [uploadProgress, setUploadProgress] = useState(0);
@@ -54,22 +53,22 @@ export const LeadCreateDialog = forwardRef<LeadCreateDialogRef, LeadCreateDialog
     const [productSelectOpen, setProductSelectOpen] = useState(false);
     const [selectedProducts, setSelectedProducts] = useState<string[]>([]);
     const [formData, setFormData] = useState<Partial<Lead>>({
-      name: '',
-      email: '',
-      phone: '',
-      company: '',
-      stage: 'Nuevo',
-      priority: 'medium',
-      source: 'DaliLM',
+      name: "",
+      email: "",
+      phone: "",
+      company: "",
+      stage: "Nuevo",
+      priority: "medium",
+      source: "DaliLM",
       value: 0,
-      notes: '',
-      documentType: '',
+      notes: "",
+      documentType: "",
       documentNumber: undefined,
-      product: ''
+      product: "",
     });
 
     useImperativeHandle(ref, () => ({
-      openDialog: () => setOpen(true)
+      openDialog: () => setOpen(true),
     }));
 
     const handleSubmit = (e: React.FormEvent) => {
@@ -77,22 +76,22 @@ export const LeadCreateDialog = forwardRef<LeadCreateDialogRef, LeadCreateDialog
       onLeadCreate({
         ...formData,
         documentNumber: formData.documentNumber || 0,
-        product: selectedProducts.join(', ')
+        product: selectedProducts.join(", "),
       });
       setOpen(false);
       setFormData({
-        name: '',
-        email: '',
-        phone: '',
-        company: '',
-        stage: 'Nuevo',
-        priority: 'medium',
-        source: 'DaliLM',
+        name: "",
+        email: "",
+        phone: "",
+        company: "",
+        stage: "Nuevo",
+        priority: "medium",
+        source: "DaliLM",
         value: 0,
-        notes: '',
-        documentType: '',
+        notes: "",
+        documentType: "",
         documentNumber: undefined,
-        product: ''
+        product: "",
       });
       setSelectedProducts([]);
       setShowMoreFields(false);
@@ -100,9 +99,9 @@ export const LeadCreateDialog = forwardRef<LeadCreateDialogRef, LeadCreateDialog
 
     const handleProductToggle = (product: string) => {
       const updatedProducts = selectedProducts.includes(product)
-        ? selectedProducts.filter(p => p !== product)
+        ? selectedProducts.filter((p) => p !== product)
         : [...selectedProducts, product];
-      
+
       setSelectedProducts(updatedProducts);
     };
 
@@ -118,7 +117,7 @@ export const LeadCreateDialog = forwardRef<LeadCreateDialogRef, LeadCreateDialog
       if (file) {
         setUploadedFile(file);
         setIsUploading(true);
-        
+
         // Simulate upload progress
         let progress = 0;
         const interval = setInterval(() => {
@@ -150,7 +149,7 @@ export const LeadCreateDialog = forwardRef<LeadCreateDialogRef, LeadCreateDialog
             });
           })
           .catch((error) => {
-            console.error('❌ Upload failed:', error);
+            console.error("❌ Upload failed:", error);
             toast({
               title: "Error",
               description: "Error al cargar los leads",
@@ -158,7 +157,7 @@ export const LeadCreateDialog = forwardRef<LeadCreateDialogRef, LeadCreateDialog
             });
           });
       } else {
-        console.error('❌ Missing file or user ID');
+        console.error("❌ Missing file or user ID");
         toast({
           title: "Error",
           description: "Archivo o usuario no válido",
@@ -170,25 +169,25 @@ export const LeadCreateDialog = forwardRef<LeadCreateDialogRef, LeadCreateDialog
     const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
       const value = e.target.value;
       // Solo permitir números
-      const numericValue = value.replace(/[^0-9]/g, '');
-      setFormData({...formData, phone: numericValue});
+      const numericValue = value.replace(/[^0-9]/g, "");
+      setFormData({ ...formData, phone: numericValue });
     };
 
     const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
       const value = e.target.value;
-      setFormData({...formData, email: value});
+      setFormData({ ...formData, email: value });
     };
 
     const handleDocumentNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
       const value = e.target.value;
-      const numericValue = value.replace(/[^0-9]/g, '');
-      setFormData({...formData, documentNumber: numericValue ? Number(numericValue) : undefined});
+      const numericValue = value.replace(/[^0-9]/g, "");
+      setFormData({ ...formData, documentNumber: numericValue ? Number(numericValue) : undefined });
     };
 
     const handleAgeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
       const value = e.target.value;
-      const numericValue = value.replace(/[^0-9]/g, '');
-      setFormData({...formData, age: numericValue ? Number(numericValue) : undefined});
+      const numericValue = value.replace(/[^0-9]/g, "");
+      setFormData({ ...formData, age: numericValue ? Number(numericValue) : undefined });
     };
 
     const isValidEmail = (email: string): boolean => {
@@ -198,37 +197,40 @@ export const LeadCreateDialog = forwardRef<LeadCreateDialogRef, LeadCreateDialog
 
     return (
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogTrigger asChild>
-          {children}
-        </DialogTrigger>
+        <DialogTrigger asChild>{children}</DialogTrigger>
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader className="pb-4">
             <DialogTitle className="text-2xl font-bold text-center">¡Agrega tus leads!</DialogTitle>
           </DialogHeader>
-          
+
           <Tabs defaultValue="individual" className="w-full">
-            <TabsList className={`grid w-full ${permissions?.canUploadLeads ? 'grid-cols-2' : 'grid-cols-1'} mb-4 bg-gray-100 rounded-full px-0 py-0 my-0`}>
-              <TabsTrigger 
-                value="individual" 
+            <TabsList
+              className={`grid w-full ${permissions?.canUploadLeads ? "grid-cols-2" : "grid-cols-1"} mb-4 bg-gray-100 rounded-full px-0 py-0 my-0`}
+            >
+              <TabsTrigger
+                value="individual"
                 className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#00C73D] data-[state=active]:to-[#A3E40B] data-[state=active]:text-white rounded-full px-5 py-2 text-sm font-medium transition-all duration-200"
               >
                 Individual
               </TabsTrigger>
               {permissions?.canUploadLeads && (
-                <TabsTrigger 
-                  value="bulk" 
+                <TabsTrigger
+                  value="bulk"
                   className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#00C73D] data-[state=active]:to-[#A3E40B] data-[state=active]:text-white rounded-full px-5 py-2 text-sm font-medium transition-all duration-200"
                 >
                   Carga masiva
                 </TabsTrigger>
               )}
             </TabsList>
-            
+
             <TabsContent value="individual">
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div className="grid grid-cols-2 gap-4">
                   <div className="relative">
-                    <Select value={formData.documentType} onValueChange={(value) => setFormData({...formData, documentType: value})}>
+                    <Select
+                      value={formData.documentType}
+                      onValueChange={(value) => setFormData({ ...formData, documentType: value })}
+                    >
                       <SelectTrigger className="border-gray-300 rounded-xl h-12 bg-gray-50">
                         <SelectValue className="!text-muted-foreground" placeholder="Tipo de identificación*" />
                       </SelectTrigger>
@@ -246,16 +248,16 @@ export const LeadCreateDialog = forwardRef<LeadCreateDialogRef, LeadCreateDialog
                       </Label>
                     )}
                   </div>
-                  
-                   <div className="relative">
-                     <Input
-                       type="text"
-                       value={formData.documentNumber?.toString() || ''}
-                       onChange={handleDocumentNumberChange}
-                       className="border-gray-300 rounded-xl h-12 bg-gray-50"
-                       placeholder="Número de identificación*"
-                       required
-                     />
+
+                  <div className="relative">
+                    <Input
+                      type="text"
+                      value={formData.documentNumber?.toString() || ""}
+                      onChange={handleDocumentNumberChange}
+                      className="border-gray-300 rounded-xl h-12 bg-gray-50"
+                      placeholder="Número de identificación*"
+                      required
+                    />
                     {formData.documentNumber && (
                       <Label className="absolute -top-2 left-3 bg-gray-50 px-1 text-xs text-gray-600">
                         Número de identificación*
@@ -263,150 +265,159 @@ export const LeadCreateDialog = forwardRef<LeadCreateDialogRef, LeadCreateDialog
                     )}
                   </div>
                 </div>
-                
-                
 
                 <div className="grid grid-cols-2 gap-4">
                   <div className="relative">
-                  <Input
-                    value={formData.name}
-                    onChange={(e) => setFormData({...formData, name: e.target.value})}
-                    className="border-gray-300 rounded-xl h-12 bg-gray-50"
-                    placeholder="Nombres y apellidos*"
-                    required
-                  />
-                  {formData.name && (
-                    <Label className="absolute -top-2 left-3 bg-gray-50 px-1 text-xs text-gray-600">
-                      Nombres y apellidos*
-                    </Label>
-                  )}
+                    <Input
+                      value={formData.name}
+                      onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                      className="border-gray-300 rounded-xl h-12 bg-gray-50"
+                      placeholder="Nombres y apellidos*"
+                      required
+                    />
+                    {formData.name && (
+                      <Label className="absolute -top-2 left-3 bg-gray-50 px-1 text-xs text-gray-600">
+                        Nombres y apellidos*
+                      </Label>
+                    )}
+                  </div>
+                  <div className="relative">
+                    <Input
+                      value={formData.phone}
+                      onChange={handlePhoneChange}
+                      className="border-gray-300 rounded-xl h-12 bg-gray-50"
+                      placeholder="Celular*"
+                      required
+                    />
+                    {formData.phone && (
+                      <Label className="absolute -top-2 left-3 bg-gray-50 px-1 text-xs text-gray-600">Celular*</Label>
+                    )}
+                  </div>
                 </div>
-                <div className="relative">
-                  <Input
-                    value={formData.phone}
-                    onChange={handlePhoneChange}
-                    className="border-gray-300 rounded-xl h-12 bg-gray-50"
-                    placeholder="Celular*"
-                    required
-                  />
-                  {formData.phone && (
-                    <Label className="absolute -top-2 left-3 bg-gray-50 px-1 text-xs text-gray-600">
-                      Celular*
-                    </Label>
-                  )}
-                </div>
-              </div>    
 
                 <div className="grid grid-cols-2 gap-4">
-                 <div className="relative">
-                   <Input
-                     type="email"
-                     value={formData.email}
-                     onChange={handleEmailChange}
-                     className={`border-gray-300 rounded-xl h-12 bg-gray-50 ${formData.email && !isValidEmail(formData.email) ? 'border-red-500' : ''}`}
-                     placeholder="Correo electrónico*"
-                     required
-                   />
-                   {formData.email && (
-                     <Label className="absolute -top-2 left-3 bg-gray-50 px-1 text-xs text-gray-600">
-                       Correo electrónico*
-                     </Label>
-                   )}
-                   {formData.email && !isValidEmail(formData.email) && (
-                     <p className="text-red-500 text-xs mt-1">Formato de correo inválido</p>
-                   )}
-                </div>
-                <div className="relative">
-                  <Popover open={productSelectOpen} onOpenChange={setProductSelectOpen}>
-                    <PopoverTrigger asChild>
-                      <Button
-                        variant="outline"
-                        className="w-full !px-4 justify-between border border-gray-300 rounded-xl h-12 bg-gray-50 font-normal hover:bg-gray-50"
-                      >
-                        <span className={selectedProducts.length === 0 ? "text-left text-muted-foreground" : ""}>
-                          {getProductDisplayText()}
-                        </span>
-                        <ChevronDown className="h-4 w-4 text-[#00C73D]" />
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-full p-0" align="start">
-                      <div className="max-h-60 overflow-y-auto">
-                        {productOptions.map((product) => (
-                          <div key={product} className="flex items-center space-x-2 p-3 hover:bg-gray-50">
-                            <Checkbox
-                              id={product}
-                              checked={selectedProducts.includes(product)}
-                              onCheckedChange={() => handleProductToggle(product)}
-                            />
-                            <label
-                              htmlFor={product}
-                              className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer flex-1"
-                            >
-                              {product}
-                            </label>
-                          </div>
-                        ))}
-                      </div>
-                    </PopoverContent>
-                  </Popover>
-                  {selectedProducts.length > 0 && (
-                    <Label className="absolute -top-2 left-3 bg-gray-50 px-1 text-xs text-gray-600">
-                      Producto de interés*
-                    </Label>
-                  )}
-                </div>
+                  <div className="relative">
+                    <Input
+                      type="email"
+                      value={formData.email}
+                      onChange={handleEmailChange}
+                      className={`border-gray-300 rounded-xl h-12 bg-gray-50 ${formData.email && !isValidEmail(formData.email) ? "border-red-500" : ""}`}
+                      placeholder="Correo electrónico*"
+                      required
+                    />
+                    {formData.email && (
+                      <Label className="absolute -top-2 left-3 bg-gray-50 px-1 text-xs text-gray-600">
+                        Correo electrónico*
+                      </Label>
+                    )}
+                    {formData.email && !isValidEmail(formData.email) && (
+                      <p className="text-red-500 text-xs mt-1">Formato de correo inválido</p>
+                    )}
                   </div>
-                
-               <div className="relative">
+                  <div className="relative">
+                    <Popover open={productSelectOpen} onOpenChange={setProductSelectOpen}>
+                      <PopoverTrigger asChild>
+                        <Button
+                          variant="outline"
+                          className="w-full !px-4 justify-between border border-gray-300 rounded-xl h-12 bg-gray-50 font-normal hover:bg-gray-50"
+                        >
+                          <span className={selectedProducts.length === 0 ? "text-left text-muted-foreground" : ""}>
+                            {getProductDisplayText()}
+                          </span>
+                          <ChevronDown className="h-4 w-4 text-[#00C73D]" />
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-full p-0" align="start">
+                        <div className="max-h-60 overflow-y-auto">
+                          {productOptions.map((product) => (
+                            <div key={product} className="flex items-center space-x-2 p-3 hover:bg-gray-50">
+                              <Checkbox
+                                id={product}
+                                checked={selectedProducts.includes(product)}
+                                onCheckedChange={() => handleProductToggle(product)}
+                              />
+                              <label
+                                htmlFor={product}
+                                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer flex-1"
+                              >
+                                {product}
+                              </label>
+                            </div>
+                          ))}
+                        </div>
+                      </PopoverContent>
+                    </Popover>
+                    {selectedProducts.length > 0 && (
+                      <Label className="absolute -top-2 left-3 bg-gray-50 px-1 text-xs text-gray-600">
+                        Producto de interés*
+                      </Label>
+                    )}
+                  </div>
+                </div>
+
+                <div className="relative">
                   <Input
                     value={formData.campaign}
-                    onChange={(e) => setFormData({...formData, campaign: e.target.value})}
+                    onChange={(e) => setFormData({ ...formData, campaign: e.target.value })}
                     className="border-gray-300 rounded-xl h-12 bg-gray-50"
                     placeholder="Campaña"
                   />
                   {formData.campaign && (
-                    <Label className="absolute -top-2 left-3 bg-gray-50 px-1 text-xs text-gray-600">
-                      Campaña*
-                    </Label>
+                    <Label className="absolute -top-2 left-3 bg-gray-50 px-1 text-xs text-gray-600">Campaña*</Label>
+                  )}
+                  <Select
+                    value={formData.campaignOwnerName}
+                    onValueChange={(value) => setFormData({ ...formData, campaignOwnerName: value })}
+                  >
+                    <SelectTrigger className="border-gray-300 rounded-xl h-12 bg-gray-50">
+                      <SelectValue className="!text-muted-foreground" placeholder="Lead referido por*" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Growth">Growth</SelectItem>
+                      <SelectItem value="Marca">Marca</SelectItem>
+                      <SelectItem value="Agencia Digital">Agencia Digital</SelectItem>
+                      <SelectItem value="Otro">Otro</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  {formData.campaignOwnerName && (
+                    <Label className="absolute -top-2 left-3 bg-gray-50 px-1 text-xs text-gray-600">Género</Label>
                   )}
                 </div>
-                
-                
+
                 <div className="relative">
                   <Textarea
                     value={formData.notes}
-                    onChange={(e) => setFormData({...formData, notes: e.target.value})}
+                    onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
                     className="border-gray-300 rounded-xl resize-none bg-gray-50 min-h-[80px]"
                     placeholder="Comentarios:"
                     rows={3}
                   />
                   {formData.notes && (
-                    <Label className="absolute -top-2 left-3 bg-gray-50 px-1 text-xs text-gray-600">
-                      Comentarios:
-                    </Label>
+                    <Label className="absolute -top-2 left-3 bg-gray-50 px-1 text-xs text-gray-600">Comentarios:</Label>
                   )}
                 </div>
-                
+
                 {showMoreFields && (
                   <div className="space-y-4 border-t pt-4">
                     <div className="grid grid-cols-2 gap-4">
-                       <div className="relative">
-                         <Input
-                           type="text"
-                           value={formData.age?.toString() || ''}
-                           onChange={handleAgeChange}
-                           className="border-gray-300 rounded-xl h-12 bg-gray-50"
-                           placeholder="Edad"
-                         />
+                      <div className="relative">
+                        <Input
+                          type="text"
+                          value={formData.age?.toString() || ""}
+                          onChange={handleAgeChange}
+                          className="border-gray-300 rounded-xl h-12 bg-gray-50"
+                          placeholder="Edad"
+                        />
                         {formData.age && (
-                          <Label className="absolute -top-2 left-3 bg-gray-50 px-1 text-xs text-gray-600">
-                            Edad
-                          </Label>
+                          <Label className="absolute -top-2 left-3 bg-gray-50 px-1 text-xs text-gray-600">Edad</Label>
                         )}
                       </div>
-                      
+
                       <div className="relative">
-                        <Select value={formData.gender} onValueChange={(value) => setFormData({...formData, gender: value})}>
+                        <Select
+                          value={formData.gender}
+                          onValueChange={(value) => setFormData({ ...formData, gender: value })}
+                        >
                           <SelectTrigger className="border-gray-300 rounded-xl h-12 bg-gray-50">
                             <SelectValue placeholder="Género" />
                           </SelectTrigger>
@@ -418,66 +429,67 @@ export const LeadCreateDialog = forwardRef<LeadCreateDialogRef, LeadCreateDialog
                           </SelectContent>
                         </Select>
                         {formData.gender && (
+                          <Label className="absolute -top-2 left-3 bg-gray-50 px-1 text-xs text-gray-600">Género</Label>
+                        )}
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="relative">
+                        <Input
+                          value={formData.company}
+                          onChange={(e) => setFormData({ ...formData, company: e.target.value })}
+                          className="border-gray-300 rounded-xl h-12 bg-gray-50"
+                          placeholder="Empresa"
+                        />
+                        {formData.company && (
                           <Label className="absolute -top-2 left-3 bg-gray-50 px-1 text-xs text-gray-600">
-                            Género
+                            Empresa
+                          </Label>
+                        )}
+                      </div>
+
+                      <div className="relative">
+                        <Select
+                          value={formData.preferredContactChannel}
+                          onValueChange={(value) => setFormData({ ...formData, preferredContactChannel: value })}
+                        >
+                          <SelectTrigger className="border-gray-300 rounded-xl h-12 bg-gray-50">
+                            <SelectValue placeholder="Canal de contacto preferido" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="Llamada">Llamada</SelectItem>
+                            <SelectItem value="WhatsApp">WhatsApp</SelectItem>
+                            <SelectItem value="Correo">Correo</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        {formData.preferredContactChannel && (
+                          <Label className="absolute -top-2 left-3 bg-gray-50 px-1 text-xs text-gray-600">
+                            Canal de contacto preferido
                           </Label>
                         )}
                       </div>
                     </div>
-                   <div className="grid grid-cols-2 gap-4"> 
-                    <div className="relative">
-                      <Input
-                        value={formData.company}
-                        onChange={(e) => setFormData({...formData, company: e.target.value})}
-                        className="border-gray-300 rounded-xl h-12 bg-gray-50"
-                        placeholder="Empresa"
-                      />
-                      {formData.company && (
-                        <Label className="absolute -top-2 left-3 bg-gray-50 px-1 text-xs text-gray-600">
-                          Empresa
-                        </Label>
-                      )}
-                    </div>
-                    
-                    <div className="relative">
-                      <Select value={formData.preferredContactChannel} onValueChange={(value) => setFormData({...formData, preferredContactChannel: value})}>
-                        <SelectTrigger className="border-gray-300 rounded-xl h-12 bg-gray-50">
-                          <SelectValue placeholder="Canal de contacto preferido" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="Llamada">Llamada</SelectItem>
-                          <SelectItem value="WhatsApp">WhatsApp</SelectItem>
-                          <SelectItem value="Correo">Correo</SelectItem>
-                        </SelectContent>
-                      </Select>
-                      {formData.preferredContactChannel && (
-                        <Label className="absolute -top-2 left-3 bg-gray-50 px-1 text-xs text-gray-600">
-                          Canal de contacto preferido
-                        </Label>
-                      )}
-                    </div>
                   </div>
-                </div>
                 )}
-                
+
                 <button
                   type="button"
                   onClick={() => setShowMoreFields(!showMoreFields)}
                   className="flex items-center text-[#00C73D] font-medium hover:text-green-600 transition-colors"
                 >
                   <Plus className="h-4 w-4 mr-2" />
-                  {showMoreFields ? 'Ocultar más datos' : 'Añadir más datos'}
+                  {showMoreFields ? "Ocultar más datos" : "Añadir más datos"}
                 </button>
-                
-                <Button 
-                  type="submit" 
+
+                <Button
+                  type="submit"
                   className="w-full bg-gradient-to-r from-[#00C73D] to-[#00a532] hover:from-[#00a532] hover:to-[#008c2a] text-white font-medium h-10 rounded-full text-base mt-4 transition-all duration-200"
                 >
                   Agregar lead
                 </Button>
               </form>
             </TabsContent>
-            
+
             <TabsContent value="bulk" className="space-y-6">
               <div className="flex items-center space-x-2 mb-4">
                 <div className="w-6 h-6 bg-[#00C73D] rounded-full flex items-center justify-center">
@@ -485,12 +497,12 @@ export const LeadCreateDialog = forwardRef<LeadCreateDialogRef, LeadCreateDialog
                 </div>
                 <h3 className="text-lg font-semibold text-gray-800">Sube tu archivo de leads</h3>
               </div>
-              
+
               <div className="flex items-center text-blue-500 cursor-pointer hover:text-blue-600 mb-4">
                 <span className="mr-2">ℹ️</span>
                 <span className="text-sm">¿Cómo debes subir tus archivos?</span>
               </div>
-              
+
               {!uploadedFile ? (
                 <div className="border-2 border-dashed border-green-300 rounded-xl p-8 text-center bg-green-50">
                   <div className="flex flex-col items-center space-y-4">
@@ -498,12 +510,7 @@ export const LeadCreateDialog = forwardRef<LeadCreateDialogRef, LeadCreateDialog
                     <div>
                       <p className="text-gray-600 mb-2">Arrastra y suelta tu archivo aquí o</p>
                       <label className="cursor-pointer">
-                        <input
-                          type="file"
-                          accept=".xlsx,.xls,.csv"
-                          onChange={handleFileUpload}
-                          className="hidden"
-                        />
+                        <input type="file" accept=".xlsx,.xls,.csv" onChange={handleFileUpload} className="hidden" />
                         <span className="text-blue-500 hover:text-blue-600 underline">selecciona un archivo</span>
                       </label>
                     </div>
@@ -518,14 +525,14 @@ export const LeadCreateDialog = forwardRef<LeadCreateDialogRef, LeadCreateDialog
                       <p className="font-semibold text-gray-800">Carga completa</p>
                       <p className="text-gray-600">{uploadedFile.name}</p>
                     </div>
-                    
+
                     <div className="w-full max-w-md">
                       <Progress value={uploadProgress} className="h-2" />
                       <div className="text-right mt-1">
                         <span className="text-sm font-medium">{uploadProgress}%</span>
                       </div>
                     </div>
-                    
+
                     <button
                       onClick={handleReplaceFile}
                       className="flex items-center text-blue-500 hover:text-blue-600 text-sm"
@@ -533,13 +540,13 @@ export const LeadCreateDialog = forwardRef<LeadCreateDialogRef, LeadCreateDialog
                       <RefreshCcw className="h-4 w-4 mr-1" />
                       Reemplazar archivo
                     </button>
-                    
+
                     <p className="text-sm text-gray-500">2/5 MB</p>
                   </div>
                 </div>
               )}
-              
-              <Button 
+
+              <Button
                 onClick={handleBulkUpload}
                 disabled={!uploadedFile || isUploading}
                 className="w-full bg-gradient-to-r from-[#00C73D] to-[#00a532] hover:from-[#00a532] hover:to-[#008c2a] text-white font-medium h-10 rounded-full text-base transition-all duration-200"
@@ -551,7 +558,7 @@ export const LeadCreateDialog = forwardRef<LeadCreateDialogRef, LeadCreateDialog
         </DialogContent>
       </Dialog>
     );
-  }
+  },
 );
 
 LeadCreateDialog.displayName = "LeadCreateDialog";
