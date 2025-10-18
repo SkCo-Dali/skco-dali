@@ -5,9 +5,8 @@ import { AchievementsSection } from "@/components/dashboard/AchievementsSection"
 import { MetricCard } from "@/components/dashboard/MetricCard";
 import { CommissionsChart } from "@/components/dashboard/CommissionsChart";
 import { ClientDistributionChart } from "@/components/dashboard/ClientDistributionChart";
-import { TodayFollowUpsList } from "@/components/dashboard/TodayFollowUpsList";
-import { TodayTasksList } from "@/components/dashboard/TodayTasksList";
-import { TodayOpportunitiesList } from "@/components/dashboard/TodayOpportunitiesList";
+import { TodayAgenda } from "@/components/dashboard/TodayAgenda";
+import { MarketDaliOpportunities } from "@/components/dashboard/MarketDaliOpportunities";
 import { CareerLeaderboard } from "@/components/dashboard/CareerLeaderboard";
 import { useAuth } from "@/contexts/AuthContext";
 import { useTasks } from "@/hooks/useTasks";
@@ -213,11 +212,9 @@ export function DashboardOverview({ leads, loading }: DashboardOverviewProps) {
 
         {/* Today's Activities Section */}
         <div className="mt-6">
-          <h3 className="text-xl font-semibold mb-4">Actividades de Hoy</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <TodayFollowUpsList leads={userLeads} />
-            <TodayTasksList tasks={tasks} />
-            <TodayOpportunitiesList opportunities={opportunities} />
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <TodayAgenda />
+            <MarketDaliOpportunities />
           </div>
         </div>
       </div>
