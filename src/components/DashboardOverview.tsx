@@ -150,9 +150,9 @@ export function DashboardOverview({ leads, loading }: DashboardOverviewProps) {
           onAction={() => navigate("/leads")}
           variant="primary"
         />
-        <div className="bg-[#fafafa] rounded-xl grid grid-cols-2 grid-rows-[auto_1fr] min-h-[720px] gap-4 p-4">
-          {/* Achievements Section (fila auto) */}
-          <div className="col-span-2">
+        <div className="bg-[#fafafa] rounded-xl grid grid-cols-2 grid-rows 7 p-4 space-y-4 gap-4">
+          {/* Achievements Section */}
+          <div className="col-span-2 row-span-2">
             <AchievementsSection
               points={5000}
               period={selectedPeriod}
@@ -162,62 +162,47 @@ export function DashboardOverview({ leads, loading }: DashboardOverviewProps) {
               onPeriodChange={setSelectedPeriod}
             />
           </div>
-
-          {/* Metrics Grid (5 filas iguales) */}
-          <div className="col-span-1 grid grid-rows-5 gap-4">
-            <div className="h-full">
-              <MetricCard
-                title="Venta neta"
-                value="$40.000.000"
-                changePercent={5}
-                changeLabel="¡Wow!"
-                variant="success"
-              />
-            </div>
-            <div className="h-full">
-              <MetricCard
-                title="Aportes de tus clientes"
-                value="$25.000.000"
-                changePercent={5}
-                changeLabel="¡Wow!"
-                variant="success"
-              />
-            </div>
-            <div className="h-full">
-              <MetricCard
-                title="Retiros de tus clientes"
-                value="$15.000.000"
-                changePercent={10}
-                changeLabel="¡Vamos!"
-                variant="success"
-              />
-            </div>
-            <div className="h-full">
-              <MetricCard
-                title="Tus clientes actuales totales"
-                value="125"
-                changePercent={-1}
-                changeLabel="1 inactivo"
-                variant="warning"
-              />
-            </div>
-            <div className="h-full">
-              <MetricCard title="Activos bajo administración" value="$125.000.000" />
-            </div>
+          {/* Metrics Grid */}
+          <div className="col-span-1 row-span-5 space-y-4">
+            <MetricCard
+              title="Venta neta"
+              value="$40.000.000"
+              changePercent={5}
+              changeLabel="¡Wow!"
+              variant="success"
+            />
+            <MetricCard
+              title="Aportes de tus clientes"
+              value="$25.000.000"
+              changePercent={5}
+              changeLabel="¡Wow!"
+              variant="success"
+            />
+            <MetricCard
+              title="Retiros de tus clientes"
+              value="$15.000.000"
+              changePercent={10}
+              changeLabel="¡Vamos!"
+              variant="success"
+            />
+            <MetricCard
+              title="Tus clientes actuales totales"
+              value="125"
+              changePercent={-1}
+              changeLabel="1 inactivo"
+              variant="warning"
+            />
+            <MetricCard title="Activos bajo administración" value="$125.000.000" />
           </div>
 
-          {/* Charts Section (2 filas proporcionales: 2/3 y 1/3) */}
-          <div className="col-span-1 grid grid-rows-[2fr_1fr] gap-4">
-            <div className="h-full">
-              <CommissionsChart
-                data={commissionsData}
-                totalCommissions="$25.000.000"
-                onViewDetails={() => navigate("/comisiones")}
-              />
-            </div>
-            <div className="h-full">
-              <ClientDistributionChart data={clientDistributionData} />
-            </div>
+          {/* Charts Section */}
+          <div className="col-span-1 row-span-5 gap-4 space-y-6">
+            <CommissionsChart
+              data={commissionsData}
+              totalCommissions="$25.000.000"
+              onViewDetails={() => navigate("/comisiones")}
+            />
+            <ClientDistributionChart data={clientDistributionData} />
           </div>
         </div>
 
