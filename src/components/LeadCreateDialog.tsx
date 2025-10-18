@@ -355,33 +355,35 @@ export const LeadCreateDialog = forwardRef<LeadCreateDialogRef, LeadCreateDialog
                   </div>
                 </div>
 
-                <div className="relative">
-                  <Input
-                    value={formData.campaign}
-                    onChange={(e) => setFormData({ ...formData, campaign: e.target.value })}
-                    className="border-gray-300 rounded-xl h-12 bg-gray-50"
-                    placeholder="Campaña"
-                  />
-                  {formData.campaign && (
-                    <Label className="absolute -top-2 left-3 bg-gray-50 px-1 text-xs text-gray-600">Campaña*</Label>
-                  )}
-                  <Select
-                    value={formData.campaignOwnerName}
-                    onValueChange={(value) => setFormData({ ...formData, campaignOwnerName: value })}
-                  >
-                    <SelectTrigger className="border-gray-300 rounded-xl h-12 bg-gray-50">
-                      <SelectValue className="!text-muted-foreground" placeholder="Lead referido por*" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="Growth">Growth</SelectItem>
-                      <SelectItem value="Marca">Marca</SelectItem>
-                      <SelectItem value="Agencia Digital">Agencia Digital</SelectItem>
-                      <SelectItem value="Otro">Otro</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  {formData.campaignOwnerName && (
-                    <Label className="absolute -top-2 left-3 bg-gray-50 px-1 text-xs text-gray-600">Género</Label>
-                  )}
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="relative">
+                    <Input
+                      value={formData.campaign}
+                      onChange={(e) => setFormData({ ...formData, campaign: e.target.value })}
+                      className="border-gray-300 rounded-xl h-12 bg-gray-50"
+                      placeholder="Campaña"
+                    />
+                    {formData.campaign && (
+                      <Label className="absolute -top-2 left-3 bg-gray-50 px-1 text-xs text-gray-600">Campaña*</Label>
+                    )}
+                    <Select
+                      value={formData.campaignOwnerName}
+                      onValueChange={(value) => setFormData({ ...formData, campaignOwnerName: value })}
+                    >
+                      <SelectTrigger className="border-gray-300 rounded-xl h-12 bg-gray-50">
+                        <SelectValue className="!text-muted-foreground" placeholder="Lead referido por*" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="Growth">Growth</SelectItem>
+                        <SelectItem value="Marca">Marca</SelectItem>
+                        <SelectItem value="Agencia Digital">Agencia Digital</SelectItem>
+                        <SelectItem value="Otro">Otro</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    {formData.campaignOwnerName && (
+                      <Label className="absolute -top-2 left-3 bg-gray-50 px-1 text-xs text-gray-600">Género</Label>
+                    )}
+                  </div>
                 </div>
 
                 <div className="relative">
