@@ -11,7 +11,7 @@ interface CommissionsChartProps {
 
 export function CommissionsChart({ data, totalCommissions, onViewDetails }: CommissionsChartProps) {
   return (
-    <Card className="border-border">
+    <Card className="border-border h-[322-px]">
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between gap-4">
           <h3 className="text-base md:text-lg font-semibold text-foreground">Tus comisiones</h3>

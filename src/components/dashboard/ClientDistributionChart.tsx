@@ -7,37 +7,27 @@ interface ClientDistributionChartProps {
 
 export function ClientDistributionChart({ data }: ClientDistributionChartProps) {
   return (
-    <Card className="border-border">
+    <Card className="border-border h-[322-px]">
       <CardHeader className="pb-3">
-        <h3 className="text-base md:text-lg font-semibold text-foreground">
-          Distribución de tus clientes totales
-        </h3>
+        <h3 className="text-base md:text-lg font-semibold text-foreground">Distribución de tus clientes totales</h3>
       </CardHeader>
       <CardContent>
         <ResponsiveContainer width="100%" height={240}>
           <PieChart>
-            <Pie
-              data={data}
-              cx="50%"
-              cy="50%"
-              innerRadius={60}
-              outerRadius={80}
-              paddingAngle={2}
-              dataKey="value"
-            >
+            <Pie data={data} cx="50%" cy="50%" innerRadius={60} outerRadius={80} paddingAngle={2} dataKey="value">
               {data.map((entry, index) => (
                 <Cell key={`cell-${index}`} fill={entry.color} />
               ))}
             </Pie>
-            <Tooltip 
-              contentStyle={{ 
-                backgroundColor: 'hsl(var(--card))',
-                border: '1px solid hsl(var(--border))',
-                borderRadius: '8px'
+            <Tooltip
+              contentStyle={{
+                backgroundColor: "hsl(var(--card))",
+                border: "1px solid hsl(var(--border))",
+                borderRadius: "8px",
               }}
             />
-            <Legend 
-              verticalAlign="bottom" 
+            <Legend
+              verticalAlign="bottom"
               height={36}
               formatter={(value, entry: any) => (
                 <span className="text-sm text-foreground">
