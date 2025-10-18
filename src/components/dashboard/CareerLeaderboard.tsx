@@ -47,7 +47,7 @@ export function CareerLeaderboard({
   return (
     <Card className="overflow-hidden">
       {/* Banner Image */}
-      <div className="relative h-32 w-full overflow-hidden">
+      <div className="relative h-[162px] w-full overflow-hidden">
         <img
           src="https://aistudiojarvis0534199251.blob.core.windows.net/skandia-icons/b6f1229ca159e83d7f48738a9f186b8bb7d3f737.png"
           alt="Career Banner"
