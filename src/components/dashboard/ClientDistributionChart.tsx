@@ -27,8 +27,9 @@ export function ClientDistributionChart({ data }: ClientDistributionChartProps) 
               }}
             />
             <Legend
-              verticalAlign="bottom"
-              height={36}
+              layout="vertical"
+              verticalAlign="middle"
+              align="right"
               formatter={(value, entry: any) => (
                 <span className="text-sm text-foreground">
                   {entry.payload.value}% {value}
