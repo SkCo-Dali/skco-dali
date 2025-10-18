@@ -150,7 +150,7 @@ export function DashboardOverview({ leads, loading }: DashboardOverviewProps) {
           onAction={() => navigate("/leads")}
           variant="primary"
         />
-        <div className="bg-[#fafafa] rounded-xl p-4 space-y-6">
+        <div className="bg-[#fafafa] rounded-xl grid grid-cols-2 p-4 space-y-6">
           {/* Achievements Section */}
           <AchievementsSection
             points={5000}
@@ -162,7 +162,7 @@ export function DashboardOverview({ leads, loading }: DashboardOverviewProps) {
           />
 
           {/* Metrics Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="col-span-1 gap-4">
             <MetricCard
               title="Venta neta"
               value="$40.000.000"
@@ -195,7 +195,7 @@ export function DashboardOverview({ leads, loading }: DashboardOverviewProps) {
           </div>
 
           {/* Charts Section */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="col-span-1 gap-4">
             <CommissionsChart
               data={commissionsData}
               totalCommissions="$25.000.000"
