@@ -23,7 +23,7 @@ export function AchievementsSection({
   onPeriodChange,
 }: AchievementsSectionProps) {
   return (
-    <Card className="bg-transparent shadow-none">
+    <Card className="bg-transparent shadow-none border-0">
       <CardHeader>
         <div className="flex items-center justify-between gap-4 flex-wrap border-0">
           <div className="flex items-center gap-2">
