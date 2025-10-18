@@ -30,7 +30,7 @@ export function AchievementsSection({
             <Star className="h-5 w-5 text-primary" />
             <h3 className="text-base md:text-md font-semibold text-foreground">Tus logros en</h3>
             <Select value={period} onValueChange={onPeriodChange}>
-              <SelectTrigger className="w-[140px] h-8 text-md text-primary border-0 bg-transparent">
+              <SelectTrigger className="w-[140px] h-8 font-semibold text-md text-primary border-0 bg-transparent">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>

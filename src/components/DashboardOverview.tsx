@@ -162,7 +162,7 @@ export function DashboardOverview({ leads, loading }: DashboardOverviewProps) {
           />
 
           {/* Metrics and Charts Grid */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 p-4">
             {/* Left Column - Metrics */}
             <div className="flex flex-col gap-4 h-full">
               <MetricCard
