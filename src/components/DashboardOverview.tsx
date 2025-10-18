@@ -150,7 +150,7 @@ export function DashboardOverview({ leads, loading }: DashboardOverviewProps) {
           onAction={() => navigate("/leads")}
           variant="primary"
         />
-        <div className="bg-[#fafafa] rounded-xl p-0 space-y-4">
+        <div className="bg-[#fafafa] rounded-xl pb-4 space-y-4">
           {/* Achievements Section */}
           <AchievementsSection
             points={5000}
