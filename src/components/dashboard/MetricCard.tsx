@@ -7,31 +7,22 @@ interface MetricCardProps {
   value: string;
   changePercent?: number;
   changeLabel?: string;
-  variant?: 'success' | 'warning' | 'neutral';
+  variant?: "success" | "warning" | "neutral";
 }
 
-export function MetricCard({ 
-  title, 
-  value, 
-  changePercent, 
-  changeLabel,
-  variant = 'neutral' 
-}: MetricCardProps) {
+export function MetricCard({ title, value, changePercent, changeLabel, variant = "neutral" }: MetricCardProps) {
   const showChange = changePercent !== undefined;
   const isPositive = changePercent && changePercent > 0;
   const isNegative = changePercent && changePercent < 0;
 
-  const badgeVariant = variant === 'success' 
-    ? 'default' 
-    : variant === 'warning' 
-    ? 'secondary' 
-    : 'outline';
+  const badgeVariant = variant === "success" ? "default" : variant === "warning" ? "secondary" : "outline";
 
-  const badgeBg = variant === 'success' 
-    ? 'bg-primary/20 text-primary border-0' 
-    : variant === 'warning' 
-    ? 'bg-destructive/20 text-destructive border-0' 
-    : 'bg-muted text-muted-foreground border-border';
+  const badgeBg =
+    variant === "success"
+      ? "bg-primary/20 text-primary border-0"
+      : variant === "warning"
+        ? "bg-destructive/20 text-destructive border-0"
+        : "bg-muted text-muted-foreground border-border";
 
   return (
     <Card className="relative h-[140px]">
@@ -39,33 +30,16 @@ export function MetricCard({
         <div className="space-y-2">
           <p className="text-sm text-muted-foreground">{title}</p>
           <p className="text-2xl md:text-3xl font-bold text-foreground">{value}</p>
-          </div>
-        </CardContent>
-          {showChange && (
-            <Badge className={`${badgeBg} flex items-center gap-1 w-fit px-2 py-1`}>
-              {isPositive && <TrendingUp className="h-3 w-3" />}
-              {isNegative && <TrendingDown className="h-3 w-3" />}
-              <span className="text-xs font-medium">
-                {changePercent}%
-              </span>
-              {changeLabel && (
-                <span className="text-xs ml-1">{changeLabel}</span>
-              )}
-            </Badge>
-          )}    
+        </div>
+      </CardContent>
+      {showChange && (
+        <Badge className={`${badgeBg} flex items-center gap-1 w-fit px-2 py-1`}>
+          {isPositive && <TrendingUp className="h-3 w-3" />}
+          {isNegative && <TrendingDown className="h-3 w-3" />}
+          <span className="text-xs font-medium">{changePercent}%</span>
+          {changeLabel && <span className="text-xs ml-1">{changeLabel}</span>}
+        </Badge>
+      )}
     </Card>
-    
-    {/* <Card className="relative h-[140px]">
-            <CardContent className="pt-4 pb-4">
-              <div className="space-y-2">
-                <p className="text-sm text-muted-foreground">Tus comisiones del mes</p>
-                <p className="text-3xl font-bold">${monthTotal.toLocaleString()}</p>
-              </div>
-            </CardContent>
-            <Badge className="absolute right-4 top-1/2 -translate-y-1/2 inline-flex items-center gap-1 bg-[#d4f4dd] text-[#00c73d] hover:bg-[#d4f4dd]">
-              5% <TrendingUp className="h-3 w-3" /> ¡Wow!
-            </Badge>
-          </Card> */}
-    
   );
 }
