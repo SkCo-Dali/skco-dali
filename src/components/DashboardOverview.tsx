@@ -8,6 +8,7 @@ import { ClientDistributionChart } from "@/components/dashboard/ClientDistributi
 import { TodayFollowUpsList } from "@/components/dashboard/TodayFollowUpsList";
 import { TodayTasksList } from "@/components/dashboard/TodayTasksList";
 import { TodayOpportunitiesList } from "@/components/dashboard/TodayOpportunitiesList";
+import { CareerLeaderboard } from "@/components/dashboard/CareerLeaderboard";
 import { useAuth } from "@/contexts/AuthContext";
 import { useTasks } from "@/hooks/useTasks";
 import mockOpportunities from "@/data/mockOpportunities.json";
@@ -220,7 +221,11 @@ export function DashboardOverview({ leads, loading }: DashboardOverviewProps) {
           </div>
         </div>
       </div>
-      {/* Carrera */}
+
+      {/* Career Leaderboard - Right Column */}
+      <div className="col-span-1">
+        <CareerLeaderboard />
+      </div>
     </div>
   );
 }
