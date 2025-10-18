@@ -7,7 +7,7 @@ interface ClientDistributionChartProps {
 
 export function ClientDistributionChart({ data }: ClientDistributionChartProps) {
   return (
-    <Card className="border-border">
+    <Card className="border-border h-full">
       <CardHeader className="pb-3">
         <h3 className="text-base md:text-lg font-semibold text-foreground">Distribución de tus clientes totales</h3>
       </CardHeader>
