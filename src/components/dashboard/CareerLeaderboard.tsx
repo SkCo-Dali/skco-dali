@@ -48,7 +48,11 @@ export function CareerLeaderboard({
     <Card className="overflow-hidden">
       {/* Banner Image */}
       <div className="relative h-32 w-full overflow-hidden">
-        <img src={careerBanner} alt="Career Banner" className="w-full h-full object-cover" />
+        <img
+          src="https://aistudiojarvis0534199251.blob.core.windows.net/skandia-icons/b6f1229ca159e83d7f48738a9f186b8bb7d3f737.png"
+          alt="Career Banner"
+          className="w-full h-full object-cover"
+        />
       </div>
 
       {/* Content */}
@@ -69,9 +73,7 @@ export function CareerLeaderboard({
               }`}
             >
               <div className="flex items-center gap-3">
-                <div className={getRankBadge(entry.rank)}>
-                  {entry.rank}
-                </div>
+                <div className={getRankBadge(entry.rank)}>{entry.rank}</div>
                 <span className="font-medium text-sm">{entry.name}</span>
               </div>
               <span className="font-bold text-sm">{entry.points.toLocaleString()}</span>
@@ -87,8 +89,7 @@ export function CareerLeaderboard({
               <span className="text-lg">🇦🇷</span>
             </div>
             <p className="text-sm text-muted-foreground">
-              ¡Estás a <span className="font-semibold">{argentinaMeRanking}</span> posiciones del
-              primer puesto!
+              ¡Estás a <span className="font-semibold">{argentinaMeRanking}</span> posiciones del primer puesto!
             </p>
           </div>
 
@@ -98,8 +99,7 @@ export function CareerLeaderboard({
               <span className="text-lg">🇯🇵</span>
             </div>
             <p className="text-sm text-muted-foreground">
-              ¡Estás a <span className="font-semibold">{japanRanking}</span> posiciones del primer
-              puesto!
+              ¡Estás a <span className="font-semibold">{japanRanking}</span> posiciones del primer puesto!
             </p>
           </div>
         </div>
@@ -116,10 +116,7 @@ export function CareerLeaderboard({
         </button>
 
         {/* CTA Button */}
-        <Button
-          className="w-full bg-green-500 hover:bg-green-600 text-white"
-          onClick={() => navigate("/gamification")}
-        >
+        <Button className="w-full bg-green-500 hover:bg-green-600 text-white" onClick={() => navigate("/gamification")}>
           Ir a la Carrera de los mejores
         </Button>
       </div>
