@@ -174,7 +174,6 @@ export function DashboardOverview({ leads, loading }: DashboardOverviewProps) {
             <div className="col-span-12 lg:col-span-6 contents">
               <div className="col-span-12 lg:col-span-6">
                 <MetricCard
-                  className="h-full"
                   title="Venta neta"
                   value="$40.000.000"
                   changePercent={5}
@@ -184,7 +183,6 @@ export function DashboardOverview({ leads, loading }: DashboardOverviewProps) {
               </div>
               <div className="col-span-12 lg:col-span-6">
                 <MetricCard
-                  className="h-full"
                   title="Aportes de tus clientes"
                   value="$25.000.000"
                   changePercent={5}
@@ -194,7 +192,6 @@ export function DashboardOverview({ leads, loading }: DashboardOverviewProps) {
               </div>
               <div className="col-span-12 lg:col-span-6">
                 <MetricCard
-                  className="h-full"
                   title="Retiros de tus clientes"
                   value="$15.000.000"
                   changePercent={10}
@@ -204,7 +201,6 @@ export function DashboardOverview({ leads, loading }: DashboardOverviewProps) {
               </div>
               <div className="col-span-12 lg:col-span-6">
                 <MetricCard
-                  className="h-full"
                   title="Tus clientes actuales totales"
                   value="125"
                   changePercent={-1}
