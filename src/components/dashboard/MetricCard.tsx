@@ -34,11 +34,13 @@ export function MetricCard({
     : 'bg-muted text-muted-foreground border-border';
 
   return (
-    <Card className="border-border hover:shadow-md transition-shadow">
-      <CardContent className="p-4">
+    <Card className="relative h-[140px]">
+      <CardContent className="pt-4 pb-4">
         <div className="space-y-2">
           <p className="text-sm text-muted-foreground">{title}</p>
           <p className="text-2xl md:text-3xl font-bold text-foreground">{value}</p>
+          </div>
+        </CardContent>
           {showChange && (
             <Badge className={`${badgeBg} flex items-center gap-1 w-fit px-2 py-1`}>
               {isPositive && <TrendingUp className="h-3 w-3" />}
@@ -50,9 +52,20 @@ export function MetricCard({
                 <span className="text-xs ml-1">{changeLabel}</span>
               )}
             </Badge>
-          )}
-        </div>
-      </CardContent>
+          )}    
     </Card>
+    
+    {/* <Card className="relative h-[140px]">
+            <CardContent className="pt-4 pb-4">
+              <div className="space-y-2">
+                <p className="text-sm text-muted-foreground">Tus comisiones del mes</p>
+                <p className="text-3xl font-bold">${monthTotal.toLocaleString()}</p>
+              </div>
+            </CardContent>
+            <Badge className="absolute right-4 top-1/2 -translate-y-1/2 inline-flex items-center gap-1 bg-[#d4f4dd] text-[#00c73d] hover:bg-[#d4f4dd]">
+              5% <TrendingUp className="h-3 w-3" /> ¡Wow!
+            </Badge>
+          </Card> */}
+    
   );
 }
