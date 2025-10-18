@@ -31,10 +31,10 @@ export function DashboardOverview({ leads, loading }: DashboardOverviewProps) {
     if (!user) return [];
     const userRole = user.role;
     const userId = user.id;
-    
-    return userRole === 'admin' || userRole === 'socio' || userRole === 'supervisor' || userRole === 'director'
+
+    return userRole === "admin" || userRole === "socio" || userRole === "supervisor" || userRole === "director"
       ? leads // Admins and managers see all leads
-      : leads.filter(lead => lead.assignedTo === userId || lead.createdBy === userId);
+      : leads.filter((lead) => lead.assignedTo === userId || lead.createdBy === userId);
   }, [leads, user]);
 
   const kpis = useMemo(() => {
@@ -45,21 +45,21 @@ export function DashboardOverview({ leads, loading }: DashboardOverviewProps) {
 
     // Calculate KPIs
     const totalLeads = userLeads.length;
-    
+
     // New leads assigned to user in last 7 days
     const sevenDaysAgo = new Date();
     sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-    
-    const newAssignedLeads = userLeads.filter(lead => {
+
+    const newAssignedLeads = userLeads.filter((lead) => {
       const createdDate = new Date(lead.createdAt);
-      return createdDate >= sevenDaysAgo && (lead.assignedTo === userId || userRole === 'admin');
+      return createdDate >= sevenDaysAgo && (lead.assignedTo === userId || userRole === "admin");
     }).length;
 
     // Upcoming follow-ups (next 7 days)
     const nextWeek = new Date();
     nextWeek.setDate(nextWeek.getDate() + 7);
-    
-    const upcomingFollowUps = userLeads.filter(lead => {
+
+    const upcomingFollowUps = userLeads.filter((lead) => {
       if (!lead.nextFollowUp) return false;
       const followUpDate = new Date(lead.nextFollowUp);
       const today = new Date();
@@ -67,18 +67,18 @@ export function DashboardOverview({ leads, loading }: DashboardOverviewProps) {
     }).length;
 
     // Leads in active stages (not Won or Lost)
-    const activeLeads = userLeads.filter(lead => 
-      !['Won', 'Lost', 'Registro de Venta (fondeado)'].includes(lead.stage)
+    const activeLeads = userLeads.filter(
+      (lead) => !["Won", "Lost", "Registro de Venta (fondeado)"].includes(lead.stage),
     ).length;
 
     // Converted leads (Won or in final stage)
-    const convertedLeads = userLeads.filter(lead => 
-      lead.stage === 'Registro de Venta (fondeado)' || lead.status === 'Won'
+    const convertedLeads = userLeads.filter(
+      (lead) => lead.stage === "Registro de Venta (fondeado)" || lead.status === "Won",
     ).length;
 
     // High priority leads
-    const highPriorityLeads = userLeads.filter(lead => 
-      lead.priority === 'High' || lead.priority === 'high' || lead.priority === 'urgent'
+    const highPriorityLeads = userLeads.filter(
+      (lead) => lead.priority === "High" || lead.priority === "high" || lead.priority === "urgent",
     ).length;
 
     // Total value of user's leads
@@ -92,7 +92,7 @@ export function DashboardOverview({ leads, loading }: DashboardOverviewProps) {
       convertedLeads,
       highPriorityLeads,
       totalValue,
-      conversionRate: totalLeads > 0 ? ((convertedLeads / totalLeads) * 100).toFixed(1) : '0'
+      conversionRate: totalLeads > 0 ? ((convertedLeads / totalLeads) * 100).toFixed(1) : "0",
     };
   }, [userLeads, user, loading]);
 
@@ -118,113 +118,97 @@ export function DashboardOverview({ leads, loading }: DashboardOverviewProps) {
     );
   }
 
-  const isManagerRole = ['admin', 'manager', 'supervisor', 'director'].includes(user.role);
+  const isManagerRole = ["admin", "manager", "supervisor", "director"].includes(user.role);
 
   // Mock data for charts - In production, this would come from API
   const commissionsData = [
-    { month: 'Ene', value: 20000 },
-    { month: 'Feb', value: 22000 },
-    { month: 'Mar', value: 19000 },
-    { month: 'Abr', value: 25000 },
-    { month: 'May', value: 23000 },
-    { month: 'Jun', value: 24000 },
-    { month: 'Jul', value: 21000 },
-    { month: 'Ago', value: 26000 },
-    { month: 'Sep', value: 25000 },
+    { month: "Ene", value: 20000 },
+    { month: "Feb", value: 22000 },
+    { month: "Mar", value: 19000 },
+    { month: "Abr", value: 25000 },
+    { month: "May", value: 23000 },
+    { month: "Jun", value: 24000 },
+    { month: "Jul", value: 21000 },
+    { month: "Ago", value: 26000 },
+    { month: "Sep", value: 25000 },
   ];
 
   const clientDistributionData = [
-    { name: 'Plan de retiro y Cesantías', value: 82, color: 'hsl(var(--primary))' },
-    { name: 'Ahorro e inversión', value: 15, color: 'hsl(var(--accent))' },
-    { name: 'Seguros', value: 3, color: 'hsl(var(--muted-foreground))' },
+    { name: "Plan de retiro y Cesantías", value: 82, color: "hsl(var(--primary))" },
+    { name: "Ahorro e inversión", value: 15, color: "hsl(var(--accent))" },
+    { name: "Seguros", value: 3, color: "hsl(var(--muted-foreground))" },
   ];
 
   return (
-    <div className="space-y-6">
-      {/* Welcome Section */}
-      <div>
-        <h2 className="text-2xl font-bold mb-2">
-          Bienvenido, {user.name}
-        </h2>
-        <p className="text-muted-foreground">
-          Resumen de tu actividad {isManagerRole ? 'y del equipo' : 'comercial'}
-        </p>
-      </div>
+    <div className="grid grid-cols-3 gap-4 space-y-6">
+      <div className="col-span-3">
+        {/* Banner */}
+        <DashboardBanner
+          title="¿Ya conoces el nuevo gestor de leads?"
+          description="Optimiza tus nuevas oportunidades."
+          actionLabel="Interés"
+          onAction={() => navigate("/leads")}
+          variant="primary"
+        />
 
-      {/* Banner */}
-      <DashboardBanner
-        title="¿Ya conoces el nuevo gestor de leads?"
-        description="Optimiza tus nuevas oportunidades."
-        actionLabel="Interés"
-        onAction={() => navigate('/leads')}
-        variant="primary"
-      />
+        {/* Achievements Section */}
+        <AchievementsSection
+          points={5000}
+          period={selectedPeriod}
+          goalMessage="¡Te quedan 3 días para lograr 10 clientes nuevos!"
+          goalProgress={50}
+          onViewAllAchievements={() => navigate("/gamification")}
+          onPeriodChange={setSelectedPeriod}
+        />
 
-      {/* Achievements Section */}
-      <AchievementsSection
-        points={5000}
-        period={selectedPeriod}
-        goalMessage="¡Te quedan 3 días para lograr 10 clientes nuevos!"
-        goalProgress={50}
-        onViewAllAchievements={() => navigate('/gamification')}
-        onPeriodChange={setSelectedPeriod}
-      />
+        {/* Metrics Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <MetricCard title="Venta neta" value="$40.000.000" changePercent={5} changeLabel="¡Wow!" variant="success" />
+          <MetricCard
+            title="Aportes de tus clientes"
+            value="$25.000.000"
+            changePercent={5}
+            changeLabel="¡Wow!"
+            variant="success"
+          />
+          <MetricCard
+            title="Retiros de tus clientes"
+            value="$15.000.000"
+            changePercent={10}
+            changeLabel="¡Vamos!"
+            variant="success"
+          />
+          <MetricCard
+            title="Tus clientes actuales totales"
+            value="125"
+            changePercent={-1}
+            changeLabel="1 inactivo"
+            variant="warning"
+          />
+          <MetricCard title="Activos bajo administración" value="$125.000.000" />
+        </div>
 
-      {/* Metrics Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        <MetricCard
-          title="Venta neta"
-          value="$40.000.000"
-          changePercent={5}
-          changeLabel="¡Wow!"
-          variant="success"
-        />
-        <MetricCard
-          title="Aportes de tus clientes"
-          value="$25.000.000"
-          changePercent={5}
-          changeLabel="¡Wow!"
-          variant="success"
-        />
-        <MetricCard
-          title="Retiros de tus clientes"
-          value="$15.000.000"
-          changePercent={10}
-          changeLabel="¡Vamos!"
-          variant="success"
-        />
-        <MetricCard
-          title="Tus clientes actuales totales"
-          value="125"
-          changePercent={-1}
-          changeLabel="1 inactivo"
-          variant="warning"
-        />
-        <MetricCard
-          title="Activos bajo administración"
-          value="$125.000.000"
-        />
-      </div>
+        {/* Charts Section */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <CommissionsChart
+            data={commissionsData}
+            totalCommissions="$25.000.000"
+            onViewDetails={() => navigate("/comisiones")}
+          />
+          <ClientDistributionChart data={clientDistributionData} />
+        </div>
 
-      {/* Charts Section */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <CommissionsChart
-          data={commissionsData}
-          totalCommissions="$25.000.000"
-          onViewDetails={() => navigate('/comisiones')}
-        />
-        <ClientDistributionChart data={clientDistributionData} />
-      </div>
-
-      {/* Today's Activities Section */}
-      <div className="mt-6">
-        <h3 className="text-xl font-semibold mb-4">Actividades de Hoy</h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          <TodayFollowUpsList leads={userLeads} />
-          <TodayTasksList tasks={tasks} />
-          <TodayOpportunitiesList opportunities={opportunities} />
+        {/* Today's Activities Section */}
+        <div className="mt-6">
+          <h3 className="text-xl font-semibold mb-4">Actividades de Hoy</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <TodayFollowUpsList leads={userLeads} />
+            <TodayTasksList tasks={tasks} />
+            <TodayOpportunitiesList opportunities={opportunities} />
+          </div>
         </div>
       </div>
+      {/* Carrera */}
     </div>
   );
 }
