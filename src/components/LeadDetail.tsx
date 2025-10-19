@@ -1099,10 +1099,12 @@ Notas adicionales: ${lead.notes || "Ninguna"}`;
                       rows={3}
                     />
                   </div>
-                  <div className="flex gap-2">
-                    <Button size="icon" onClick={() => onOpenMassEmail?.(lead)} className="gap-1 w-8 h-8">
+                  <div className="flex w-full items-center gap-2">
+                    {/* Izquierda */}
+                    <Button size="icon" onClick={() => onOpenMassEmail?.(lead)} className="w-8 h-8">
                       <Mail className="h-3 w-3" />
                     </Button>
+
                     <Button
                       size="icon"
                       onClick={() => {
@@ -1117,25 +1119,30 @@ Notas adicionales: ${lead.notes || "Ninguna"}`;
                           });
                         }
                       }}
-                      className="gap-1 w-8 h-8"
+                      className="w-8 h-8"
+                      title="WhatsApp"
                     >
                       <FaWhatsapp className="h-3 w-3" />
                     </Button>
+
                     <Button
                       size="icon"
                       onClick={handleScheduleOutlookMeeting}
-                      className="gap-1 w-8 h-8"
+                      className="w-8 h-8"
                       title="Agendar reunión en Outlook"
                     >
                       <Calendar className="h-3 w-3" />
                     </Button>
-                    <Button onClick={handleProfilerClick} className=" h-8 bg-primary text-white">
+
+                    <Button onClick={handleProfilerClick} className="h-8 bg-primary text-white">
                       {hasExistingProfile && profileData ? "Perfilar Lead" : "Perfilar Lead"}
                     </Button>
+
+                    {/* Derecha */}
                     <Button
                       onClick={handleSaveManagement}
                       disabled={!managementChanges || !contactMethod || !result || !managementNotes}
-                      className="bg-primary flex justify-end h-8"
+                      className="ml-auto h-8 bg-primary text-white"
                     >
                       Guardar Gestión
                     </Button>
