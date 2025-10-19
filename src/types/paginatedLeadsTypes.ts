@@ -18,6 +18,7 @@ export interface PaginatedLead {
   Phone: string;
   DocumentNumber: string;
   Company: string;
+  Occupation: string;
   Source: string;
   Campaign: string;
   Product: string;
@@ -101,7 +102,7 @@ export interface DistinctValuesParams {
 
 // Campos permitidos para ordenamiento
 export const ALLOWED_SORT_FIELDS = [
-  'Id', 'Name', 'Email', 'AlternateEmail', 'Phone', 'DocumentNumber', 'Company', 
+  'Id', 'Name', 'Email', 'AlternateEmail', 'Phone', 'DocumentNumber', 'Company','Occupation' 
   'Source', 'Campaign', 'Product', 'Stage', 'Priority', 'Value', 'AssignedTo', 
   'CreatedAt', 'UpdatedAt', 'NextFollowUp', 'Notes', 'Tags', 'DocumentType', 
   'SelectedPortfolios', 'CampaignOwnerName', 'Age', 'Gender', 'PreferredContactChannel', 

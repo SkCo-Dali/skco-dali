@@ -258,7 +258,6 @@ export interface Lead {
   source: LeadSource;
   priority: Priority;
   campaign: Campaign;
-  occupation: Occupation;
   portfolio: Portfolio;
   product: string; // Changed from Product[] to string
   createdAt: string; // Changed to string for consistency
@@ -268,6 +267,7 @@ export interface Lead {
   assignedToName?: string; // Name of the assigned user from API
   createdBy: string; // Added missing property
   company?: string;
+  occupation?: string;
   value: number;
   type?: string;
   outcome?: string;
