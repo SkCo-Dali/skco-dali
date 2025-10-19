@@ -46,6 +46,7 @@ export function MarketDaliOpportunities() {
         <h3 className="text-lg font-semibold">Oportunidades de Market Dali</h3>
         <Button variant="link" className="text-primary p-0 h-auto">
           Más oportunidades
+          <ArrowRight className="ml-2 h-4 w-4" />
         </Button>
       </div>
 

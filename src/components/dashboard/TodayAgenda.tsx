@@ -70,6 +70,7 @@ export function TodayAgenda() {
         </div>
         <Button variant="link" className="text-primary p-0 h-auto">
           Organiza tu agenda
+          <ArrowRight className="ml-2 h-4 w-4" />
         </Button>
       </div>
 
