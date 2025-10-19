@@ -2,7 +2,7 @@ import { Calendar, MapPin, ChevronRight } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { ScrollArea } from "@/components/ui/scroll-area";
+import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { useState } from "react";
 
 interface AgendaItem {
@@ -88,6 +88,7 @@ export function TodayAgenda() {
       </div>
 
       <ScrollArea className="h-[280px]">
+        <ScrollBar className="[&>div]:bg-primary" />
         <div className="space-y-2 pr-4">
           {mockAgendaItems.map((item) => (
             <div
