@@ -106,6 +106,7 @@ const defaultColumns: ColumnConfig[] = [
   { key: "gender", label: "Género", visible: false, sortable: true },
   { key: "preferredContactChannel", label: "Medio de contacto preferido", visible: false, sortable: true },
   { key: "company", label: "Empresa", visible: false, sortable: true },
+  { key: "occupation", label: "Ocupación", visible: false, sortable: true },
   { key: "value", label: "Valor", visible: false, sortable: true },
 ];
 
@@ -406,6 +407,7 @@ export function LeadsTable({
       email: "Email",
       phone: "Phone",
       company: "Company",
+      occupation: "Occupation",
       source: "Source",
       campaign: "Campaign",
       product: "Product",
@@ -745,6 +747,8 @@ Por favor, confirmar asistencia.`;
         return <div className="text-gray-700 text-xs text-center">{lead.phone || "-"}</div>;
       case "company":
         return <div className="text-gray-700 text-xs text-center">{lead.company || "-"}</div>;
+      case "occupation":
+        return <div className="text-gray-700 text-xs text-center">{lead.occupation || "-"}</div>;
       case "documentNumber":
         return <div className="text-gray-700 text-xs text-center">{lead.documentNumber || "-"}</div>;
       case "product":
