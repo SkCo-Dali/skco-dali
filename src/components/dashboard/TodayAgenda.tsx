@@ -62,7 +62,7 @@ export function TodayAgenda() {
   const [selectedPeriod, setSelectedPeriod] = useState<PeriodType>("Hoy");
 
   return (
-    <Card className="p-4 h-full flex flex-col gap-4">
+    <Card className="p-4 h-full flex flex-col gap-4 bg-[#fafafa]">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <Calendar className="w-5 h-5" />
@@ -90,37 +90,37 @@ export function TodayAgenda() {
       <ScrollArea className="h-[340px]">
         <div className="space-y-2 pr-4">
           {mockAgendaItems.map((item) => (
-          <div
-            key={item.id}
-            className="flex items-center justify-between p-4 rounded-lg border hover:bg-muted/50 transition-colors cursor-pointer group"
-          >
-            <div className="flex-1">
-              <h4 className="font-medium mb-2">{item.title}</h4>
-              <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                <div className="flex items-center gap-1">
-                  <Calendar className="w-4 h-4" />
-                  <span>{item.date}</span>
-                </div>
-                {item.location && (
+            <div
+              key={item.id}
+              className="flex items-center justify-between p-4 rounded-lg border hover:bg-muted/50 transition-colors cursor-pointer group"
+            >
+              <div className="flex-1">
+                <h4 className="font-medium mb-2">{item.title}</h4>
+                <div className="flex items-center gap-4 text-sm text-muted-foreground">
                   <div className="flex items-center gap-1">
-                    <MapPin className="w-4 h-4" />
-                    <span>{item.location}</span>
+                    <Calendar className="w-4 h-4" />
+                    <span>{item.date}</span>
                   </div>
-                )}
+                  {item.location && (
+                    <div className="flex items-center gap-1">
+                      <MapPin className="w-4 h-4" />
+                      <span>{item.location}</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+              <div className="flex items-center gap-3">
+                <div className="text-right">
+                  <div className="font-medium">{item.time}</div>
+                  {item.isUrgent && (
+                    <Badge variant="secondary" className="mt-1 bg-orange-100 text-orange-700">
+                      Urgente
+                    </Badge>
+                  )}
+                </div>
+                <ChevronRight className="w-5 h-5 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
               </div>
             </div>
-            <div className="flex items-center gap-3">
-              <div className="text-right">
-                <div className="font-medium">{item.time}</div>
-                {item.isUrgent && (
-                  <Badge variant="secondary" className="mt-1 bg-orange-100 text-orange-700">
-                    Urgente
-                  </Badge>
-                )}
-              </div>
-              <ChevronRight className="w-5 h-5 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
-            </div>
-          </div>
           ))}
         </div>
       </ScrollArea>
