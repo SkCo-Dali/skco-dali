@@ -2,7 +2,7 @@ import { Calendar, MapPin, ChevronRight } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { useState } from "react";
 
 interface AgendaItem {
@@ -87,7 +87,7 @@ export function TodayAgenda() {
         ))}
       </div>
 
-      <ScrollArea className="h-[280px] [&>div]:overflow-y-auto [&>div]:[scrollbar-gutter:stable] [&>div]:[&::-webkit-scrollbar]:w-3 [&>div]:[&::-webkit-scrollbar-track]:bg-muted [&>div]:[&::-webkit-scrollbar-track]:rounded-full [&>div]:[&::-webkit-scrollbar-thumb]:bg-primary [&>div]:[&::-webkit-scrollbar-thumb]:rounded-full [&>div]:[&::-webkit-scrollbar-thumb:hover]:bg-primary/80 [&>div]:[scrollbar-color:hsl(var(--primary))_hsl(var(--muted))]">
+      <ScrollArea className="h-[280px]">
         <div className="space-y-2 pr-4">
           {mockAgendaItems.map((item) => (
             <div
