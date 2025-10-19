@@ -484,7 +484,7 @@ export const LeadCreateDialog = forwardRef<LeadCreateDialogRef, LeadCreateDialog
                           onValueChange={(value) => setFormData({ ...formData, occupation: value })}
                         >
                           <SelectTrigger className="border-gray-300 rounded-xl h-12 bg-gray-50">
-                            <SelectValue placeholder="Canal de contacto preferido" />
+                            <SelectValue placeholder="Ocupación" />
                           </SelectTrigger>
                           <SelectContent>
                             <SelectItem value="Estudiante">Estudiante</SelectItem>
