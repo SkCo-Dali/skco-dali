@@ -55,10 +55,6 @@ export function MarketDaliOpportunities() {
           return (
             <div
               key={opportunity.id}
-              role="button"
-              tabIndex={0}
-              onClick={() => onOpen(opportunity)}
-              onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && onOpen(opportunity)}
               className="
     group relative flex items-center justify-between gap-3
     p-4 rounded-lg transition-colors cursor-pointer
