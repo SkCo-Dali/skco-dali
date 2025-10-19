@@ -41,8 +41,8 @@ const mockOpportunities: DaliOpportunity[] = [
 
 export function MarketDaliOpportunities() {
   return (
-    <Card className="p-4 h-full flex flex-col gap-4">
-      <div className="flex items-center justify-between">
+    <Card className="p-6 h-full flex flex-col">
+      <div className="flex items-center justify-between mb-6">
         <h3 className="text-lg font-semibold">Oportunidades de Market Dali</h3>
         <Button variant="link" className="text-primary p-0 h-auto">
           Más oportunidades
@@ -75,7 +75,9 @@ export function MarketDaliOpportunities() {
                     <Badge
                       variant="secondary"
                       className={
-                        opportunity.priority === "Alta" ? "bg-red-100 text-red-700" : "bg-blue-100 text-blue-700"
+                        opportunity.priority === "Alta"
+                          ? "bg-red-100 text-red-700"
+                          : "bg-blue-100 text-blue-700"
                       }
                     >
                       {opportunity.priority}
