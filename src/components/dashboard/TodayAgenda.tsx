@@ -2,6 +2,7 @@ import { Calendar, MapPin, ChevronRight } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { useState } from "react";
 
 interface AgendaItem {
@@ -86,8 +87,9 @@ export function TodayAgenda() {
         ))}
       </div>
 
-      <div className="overflow-x-auto space-y-2 flex-1">
-        {mockAgendaItems.map((item) => (
+      <ScrollArea className="h-[340px]">
+        <div className="space-y-2 pr-4">
+          {mockAgendaItems.map((item) => (
           <div
             key={item.id}
             className="flex items-center justify-between p-4 rounded-lg border hover:bg-muted/50 transition-colors cursor-pointer group"
@@ -119,8 +121,9 @@ export function TodayAgenda() {
               <ChevronRight className="w-5 h-5 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
             </div>
           </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      </ScrollArea>
     </Card>
   );
 }
