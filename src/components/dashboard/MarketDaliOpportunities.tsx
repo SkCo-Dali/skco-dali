@@ -83,7 +83,7 @@ export function MarketDaliOpportunities() {
                   </div>
                 </div>
               </div>
-              <ChevronRight className="w-5 h-5 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0 ml-2" />
+              <ChevronRight className="w-8 h-8 text-primary group-hover:opacity-100 transition-opacity flex-shrink-0 ml-2" />
             </div>
           );
         })}

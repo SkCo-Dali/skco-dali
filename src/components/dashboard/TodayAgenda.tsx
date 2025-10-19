@@ -73,7 +73,7 @@ export function TodayAgenda() {
         </Button>
       </div>
 
-      <div className="flex gap-2 mb-4">
+      <div className="flex gap-2 mb-2">
         {(["Hoy", "Esta semana", "Próxima semana"] as PeriodType[]).map((period) => (
           <Button
             key={period}
