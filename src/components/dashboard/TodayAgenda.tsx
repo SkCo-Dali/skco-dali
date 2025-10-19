@@ -87,8 +87,7 @@ export function TodayAgenda() {
         ))}
       </div>
 
-      <ScrollArea className="h-[280px]">
-        <ScrollBar className="[&>div]:bg-primary" />
+      <ScrollArea className="h-[280px] [&>div]:overflow-y-auto [&>div]:[scrollbar-gutter:stable] [&>div]:[&::-webkit-scrollbar]:w-3 [&>div]:[&::-webkit-scrollbar-track]:bg-muted [&>div]:[&::-webkit-scrollbar-track]:rounded-full [&>div]:[&::-webkit-scrollbar-thumb]:bg-primary [&>div]:[&::-webkit-scrollbar-thumb]:rounded-full [&>div]:[&::-webkit-scrollbar-thumb:hover]:bg-primary/80 [&>div]:[scrollbar-color:hsl(var(--primary))_hsl(var(--muted))]">
         <div className="space-y-2 pr-4">
           {mockAgendaItems.map((item) => (
             <div
