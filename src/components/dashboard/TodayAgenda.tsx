@@ -87,7 +87,21 @@ export function TodayAgenda() {
         ))}
       </div>
 
-      <ScrollArea className="h-[280px]">
+      <div
+        className="
+    overflow-y-auto [scrollbar-gutter:stable]
+    mb-3                     
+    bg-white                
+    rounded-md px-1      
+    [&::-webkit-scrollbar]:h-3
+    [&::-webkit-scrollbar-track]:bg-white
+    [&::-webkit-scrollbar-track]:rounded-full
+    [&::-webkit-scrollbar-thumb]:bg-[#00c73d]
+    [&::-webkit-scrollbar-thumb]:rounded-full
+    [&::-webkit-scrollbar-thumb]:hover:bg-[#00b335]
+    [scrollbar-color:#00c73d_white]  /* Firefox: thumb _ track */
+  "
+      >
         <div className="space-y-2 pr-4">
           {mockAgendaItems.map((item) => (
             <div
@@ -123,7 +137,7 @@ export function TodayAgenda() {
             </div>
           ))}
         </div>
-      </ScrollArea>
+      </div>
     </Card>
   );
 }
