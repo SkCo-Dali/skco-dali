@@ -258,6 +258,7 @@ export interface Lead {
   source: LeadSource;
   priority: Priority;
   campaign: Campaign;
+  occupation: Occupation;
   portfolio: Portfolio;
   product: string; // Changed from Product[] to string
   createdAt: string; // Changed to string for consistency
@@ -307,6 +308,7 @@ export const LeadDefaultProperties: string[] = [
   "assignedToName",
   "createdBy",
   "company",
+  "occupation",
   "value",
   "type",
   "outcome",
