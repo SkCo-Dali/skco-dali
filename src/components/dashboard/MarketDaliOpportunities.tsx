@@ -61,7 +61,7 @@ export function MarketDaliOpportunities() {
                 <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
                   <IconComponent className="w-5 h-5 text-primary" />
                 </div>
-                <div className="flex-1 min-w-0">
+                <div className="flex-1 items-center min-w-0">
                   <h4 className="font-medium mb-3 line-clamp-2">{opportunity.title}</h4>
                   <div className="flex items-center gap-3 text-sm text-muted-foreground flex-wrap">
                     <div className="flex items-center gap-1">
@@ -83,7 +83,7 @@ export function MarketDaliOpportunities() {
                   </div>
                 </div>
               </div>
-              <ChevronRight className="w-8 h-8 text-primary group-hover:opacity-100 transition-opacity flex-shrink-0 ml-2" />
+              <ChevronRight className="absolute right-4 top-1/2 w-6 h-6 text-primary group-hover:opacity-100 transition-opacity flex-shrink-0 ml-2" />
             </div>
           );
         })}
