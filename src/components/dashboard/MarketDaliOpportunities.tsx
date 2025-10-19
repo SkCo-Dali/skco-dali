@@ -58,7 +58,7 @@ export function MarketDaliOpportunities() {
               key={opportunity.id}
               className="
     group relative flex items-center justify-between gap-3
-    p-4 rounded-lg transition-colors cursor-pointer
+    p-4 rounded-xl transition-colors cursor-pointer
     hover:bg-muted/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary
   "
             >
