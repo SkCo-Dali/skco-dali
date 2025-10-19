@@ -9,6 +9,7 @@ import { getUserRoleByEmail } from '@/utils/userApiUtils';
 import { getUserByEmail, createUser } from "@/utils/userApiClient";
 import { ENV } from '@/config/environment';
 import { extractIdpAccessToken } from '@/utils/tokenUtils';
+import { SessionService } from '@/services/sessionService';
 
 interface AuthContextType {
     user: User | null;
@@ -131,7 +132,13 @@ export function AuthProvider({ children }: AuthProviderProps) {
         sessionStorage.setItem('skandia-crm-user', JSON.stringify(userData));
 
         // Start session after successful login
-
+        try {
+            await SessionService.startSession(undefined, navigator.userAgent);
+            console.log('✅ Sesión registrada exitosamente');
+        } catch (error) {
+            console.error('❌ Error al registrar sesión:', error);
+            // No bloqueamos el login si falla el registro de sesión
+        }
     };
 
     const getUserPhoto = async (): Promise<string | null> => {
