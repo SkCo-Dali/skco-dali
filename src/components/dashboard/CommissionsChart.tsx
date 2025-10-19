@@ -16,7 +16,7 @@ export function CommissionsChart({ data, totalCommissions, onViewDetails }: Comm
         <div className="flex items-center justify-between gap-4">
           <h3 className="text-base md:text-lg font-semibold text-foreground">Tus comisiones</h3>
           {onViewDetails && (
-            <Button variant="ghost" size="sm" onClick={onViewDetails} className="text-primary hover:text-primary/80">
+            <Button variant="link" onClick={onViewDetails} className="text-primary hover:text-primary/80">
               Ir a comisiones
               <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
