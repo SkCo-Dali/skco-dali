@@ -93,7 +93,7 @@ export function TodayAgenda() {
           {mockAgendaItems.map((item) => (
             <div
               key={item.id}
-              className="flex items-center justify-between p-4 rounded-lg border bg-white hover:bg-muted/50 transition-colors cursor-pointer group"
+              className="flex items-center justify-between p-4 rounded-xl border bg-white hover:bg-muted/50 transition-colors cursor-pointer group"
             >
               <div className="flex-1">
                 <h4 className="font-medium mb-2">{item.title}</h4>
