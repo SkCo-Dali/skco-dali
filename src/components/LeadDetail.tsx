@@ -793,14 +793,23 @@ Notas adicionales: ${lead.notes || "Ninguna"}`;
                     </div>
                   </div>
                   <div className="grid grid-cols-2 gap-2">
-                    <div className="space-y-0 border-2 border-[#3d4b5c26] shadow-md rounded-md p-2.5">
-                      <Label className="p-0 text-sm text-gray-500 font-normal">Fuente</Label>
-                      <Input
-                        value={editedLead.source}
-                        onChange={(e) => handleGeneralChange("source", e.target.value as any)}
-                        className="border-0 border-b border-gray-200 rounded-none px-0 py-0 m-0 text-base font-medium bg-transparent leading-none h-auto min-h-0 focus:border-gray-400 focus:shadow-none focus:ring-0"
-                      />
-                    </div>
+                    <CustomFieldSelect
+                      label="Ocupación"
+                      value={editedLead.occupation || ""}
+                      onValueChange={(value) => handleGeneralChange("occupation", value)}
+                      options={[
+                        { value: "Estudiante", label: "Estudiante" },
+                        { value: "Empleado(a)", label: "Empleado(a)" },
+                        { value: "Independiente", label: "Independiente" },
+                        { value: "Desempleado(a)", label: "Desempleado(a)" },
+                        { value: "Pensionado(a)", label: "Pensionado(a)" },
+                        { value: "Hogar (Ama/o de casa)", label: "Hogar (Ama/o de casa)" },
+                        { value: "Militar / Policía", label: "Militar / Policía" },
+                        { value: "Docente", label: "Docente" },
+                        { value: "Profesional de la salud", label: "Profesional de la salud" },
+                        { value: "Otro", label: "Otro" },
+                      ]}
+                    />
 
                     <div className="space-y-0 border-2 border-[#3d4b5c26] shadow-md rounded-md p-2.5">
                       <Label className="p-0 text-sm text-gray-500 font-normal">Campaña</Label>
