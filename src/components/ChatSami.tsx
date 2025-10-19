@@ -32,7 +32,7 @@ export default function ChatSami({ defaultOpen = false }: ChatSamiProps) {
       bottom: 100,
       right: 20,
       transform: "scale(0.9)",
-      width: 400,
+      width: "90%",
       height: 500,
       background: "white",
       borderRadius: 10,
