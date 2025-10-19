@@ -55,36 +55,23 @@ export function MarketDaliOpportunities() {
           return (
             <div
               key={opportunity.id}
-              role="button"
-              tabIndex={0}
-              onClick={() => onOpen(opportunity)}
-              onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && onOpen(opportunity)}
-              className="
-    group relative flex items-center justify-between gap-3
-    p-4 rounded-lg transition-colors cursor-pointer
-    hover:bg-muted/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary
-  "
+              className="relative p-4 rounded-lg border-0 hover:bg-muted/50 transition-colors cursor-pointer group"
             >
-              {/* Izquierda */}
-              <div className="flex gap-3 flex-1 min-w-0">
-                <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+              <div className="flex gap-3 flex-1">
+                <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
                   <IconComponent className="w-5 h-5 text-primary" />
                 </div>
-
                 <div className="flex-1 min-w-0">
-                  <h4 className="font-medium mb-2 line-clamp-2">{opportunity.title}</h4>
-
+                  <h4 className="font-medium mb-3 line-clamp-2">{opportunity.title}</h4>
                   <div className="flex items-center gap-3 text-sm text-muted-foreground flex-wrap">
                     <div className="flex items-center gap-1">
-                      <Users className="w-4 h-4" />
+                      <Users className="top-1/2 w-4 h-4" />
                       <span>{opportunity.clients} Clientes</span>
                     </div>
-
                     <div className="flex items-center gap-1">
-                      <Calendar className="w-4 h-4" />
+                      <Calendar className="top-1/2 w-4 h-4" />
                       <span>Vence: {opportunity.dueDate}</span>
                     </div>
-
                     <Badge
                       variant="secondary"
                       className={
@@ -96,12 +83,7 @@ export function MarketDaliOpportunities() {
                   </div>
                 </div>
               </div>
-
-              {/* Derecha */}
-              <ChevronRight
-                aria-hidden
-                className="w-6 h-6 text-muted-foreground group-hover:text-primary self-center shrink-0 transition-colors"
-              />
+              <ChevronRight className="absolute right-4 top-1/2 w-6 h-6 text-primary group-hover:opacity-100 transition-opacity flex-shrink-0 ml-2" />
             </div>
           );
         })}
