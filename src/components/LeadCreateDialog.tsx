@@ -475,6 +475,36 @@ export const LeadCreateDialog = forwardRef<LeadCreateDialogRef, LeadCreateDialog
                         )}
                       </div>
                     </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="relative">
+                        <Select
+                          value={formData.occupation}
+                          onValueChange={(value) => setFormData({ ...formData, occupation: value })}
+                        >
+                          <SelectTrigger className="border-gray-300 rounded-xl h-12 bg-gray-50">
+                            <SelectValue placeholder="Canal de contacto preferido" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="Estudiante">Estudiante</SelectItem>
+                            <SelectItem value="Empleado(a)">Empleado(a)</SelectItem>
+                            <SelectItem value="Independiente">Independiente</SelectItem>
+                            <SelectItem value="Empresario(a)">Empresario(a)</SelectItem>
+                            <SelectItem value="Desempleado(a)">Desempleado(a)</SelectItem>
+                            <SelectItem value="Pensionado(a)">Pensionado(a)</SelectItem>
+                            <SelectItem value="Hogar (Ama/o de casa)">Hogar (Ama/o de casa)</SelectItem>
+                            <SelectItem value="Militar / Policía">Militar / Policía</SelectItem>
+                            <SelectItem value="Docente">Docente</SelectItem>
+                            <SelectItem value="Profesional de la salud">Profesional de la salud</SelectItem>
+                            <SelectItem value="Otro">Otro</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        {formData.occupation && (
+                          <Label className="absolute -top-2 left-3 bg-gray-50 px-1 text-xs text-gray-600">
+                            Ocupación
+                          </Label>
+                        )}
+                      </div>
+                    </div>
                   </div>
                 )}
 
