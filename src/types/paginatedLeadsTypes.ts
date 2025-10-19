@@ -39,14 +39,14 @@ export interface PaginatedLead {
   Gender: string | null;
   PreferredContactChannel: string | null;
   AdditionalInfo: string | null;
-  
+
   // Campos derivados del último gestor
   LastGestorUserId: string | null;
   LastGestorName: string | null;
   LastGestorInteractionAt: string | null;
   LastGestorInteractionStage: string | null;
   LastGestorInteractionDescription: string | null;
-  
+
   // Campos de duplicados
   IsDuplicate?: boolean;
   IsDupByEmail?: boolean;
@@ -62,9 +62,9 @@ export interface LeadsApiParams {
   page?: number;
   page_size?: number;
   sort_by?: string;
-  sort_dir?: 'asc' | 'desc';
+  sort_dir?: "asc" | "desc";
   filters?: LeadsApiFilters;
-  duplicate_filter?: 'all' | 'duplicates' | 'unique';
+  duplicate_filter?: "all" | "duplicates" | "unique";
   search?: string; // Búsqueda multi-campo en Name, Email, Phone, Campaign
 }
 
@@ -80,13 +80,25 @@ export interface FilterCondition {
   to?: string;
 }
 
-export type FilterOperator = 
+export type FilterOperator =
   // Texto
-  | 'eq' | 'neq' | 'contains' | 'ncontains' | 'startswith' | 'endswith' | 'isnull' | 'notnull'
+  | "eq"
+  | "neq"
+  | "contains"
+  | "ncontains"
+  | "startswith"
+  | "endswith"
+  | "isnull"
+  | "notnull"
   // Numérico/Fecha
-  | 'gt' | 'gte' | 'lt' | 'lte' | 'between'
+  | "gt"
+  | "gte"
+  | "lt"
+  | "lte"
+  | "between"
   // Lista
-  | 'in' | 'nin';
+  | "in"
+  | "nin";
 
 export interface DistinctValuesResponse {
   field: string;
@@ -102,12 +114,38 @@ export interface DistinctValuesParams {
 
 // Campos permitidos para ordenamiento
 export const ALLOWED_SORT_FIELDS = [
-  'Id', 'Name', 'Email', 'AlternateEmail', 'Phone', 'DocumentNumber', 'Company','Occupation' 
-  'Source', 'Campaign', 'Product', 'Stage', 'Priority', 'Value', 'AssignedTo', 
-  'CreatedAt', 'UpdatedAt', 'NextFollowUp', 'Notes', 'Tags', 'DocumentType', 
-  'SelectedPortfolios', 'CampaignOwnerName', 'Age', 'Gender', 'PreferredContactChannel', 
-  'AdditionalInfo', 'LastGestorUserId', 'LastGestorName', 'LastGestorInteractionAt',
-  'LastGestorInteractionStage', 'LastGestorInteractionDescription'
+  "Id",
+  "Name",
+  "Email",
+  "AlternateEmail",
+  "Phone",
+  "DocumentNumber",
+  "Company",
+  "Occupation",
+  "Source",
+  "Campaign",
+  "Product",
+  "Stage",
+  "Priority",
+  "Value",
+  "AssignedTo",
+  "CreatedAt",
+  "UpdatedAt",
+  "NextFollowUp",
+  "Notes",
+  "Tags",
+  "DocumentType",
+  "SelectedPortfolios",
+  "CampaignOwnerName",
+  "Age",
+  "Gender",
+  "PreferredContactChannel",
+  "AdditionalInfo",
+  "LastGestorUserId",
+  "LastGestorName",
+  "LastGestorInteractionAt",
+  "LastGestorInteractionStage",
+  "LastGestorInteractionDescription",
 ] as const;
 
-export type AllowedSortField = typeof ALLOWED_SORT_FIELDS[number];
+export type AllowedSortField = (typeof ALLOWED_SORT_FIELDS)[number];
