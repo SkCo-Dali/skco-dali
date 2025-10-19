@@ -212,7 +212,7 @@ export function DashboardOverview({ leads, loading }: DashboardOverviewProps) {
 
         {/* Today's Activities Section */}
         <div className="bg-transparent mt-4">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 p-4">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 p-0">
             <TodayAgenda />
             <MarketDaliOpportunities />
           </div>
