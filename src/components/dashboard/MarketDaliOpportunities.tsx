@@ -1,4 +1,4 @@
-import { Users, Calendar, ChevronRight, PartyPopper, FileText, TrendingUp } from "lucide-react";
+import { Users, Calendar, ChevronRight, PartyPopper, FileText, TrendingUp, ArrowRight } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";

@@ -1,4 +1,4 @@
-import { Calendar, MapPin, ChevronRight } from "lucide-react";
+import { Calendar, MapPin, ChevronRight, ArrowRight } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
