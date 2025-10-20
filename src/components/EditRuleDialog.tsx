@@ -210,19 +210,31 @@ export function EditRuleDialog({ rule, planId, open, onOpenChange, onRuleUpdated
   
   // Map API conditions to UI format when they load
   useEffect(() => {
-    if (apiConditions.length > 0 && formData.catalog) {
-      const mappedConditions: ConditionRow[] = apiConditions.map(apiCond => ({
-        id: apiCond.id,
-        field: apiCond.field_name,
-        fieldId: undefined, // Will be resolved when catalog fields load
-        fieldType: undefined,
-        condition: mapApiOperatorToUI(apiCond.operator),
-        value: apiCond.field_value
-      }));
+    if (apiConditions.length > 0 && formData.catalog && catalogFields.length > 0) {
+      const mappedConditions: ConditionRow[] = apiConditions.map(apiCond => {
+        // Find the corresponding field in catalogFields to get fieldType and fieldId
+        const catalogField = catalogFields.find(
+          f => f.display_name === apiCond.field_name || f.field_name === apiCond.field_name
+        );
+        
+        // Load field values for this condition if fieldId is found
+        if (catalogField && formData.catalog) {
+          loadFieldValues(formData.catalog, catalogField.id);
+        }
+        
+        return {
+          id: apiCond.id,
+          field: apiCond.field_name,
+          fieldId: catalogField?.id,
+          fieldType: catalogField?.field_type,
+          condition: mapApiOperatorToUI(apiCond.operator),
+          value: apiCond.field_value
+        };
+      });
       
       setFormData(prev => ({ ...prev, conditions: mappedConditions }));
     }
-  }, [apiConditions, formData.catalog]);
+  }, [apiConditions, formData.catalog, catalogFields]);
 
   const addCondition = async () => {
     if (!rule?.id) {
