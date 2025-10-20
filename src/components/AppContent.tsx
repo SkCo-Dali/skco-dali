@@ -33,18 +33,18 @@ export function AppContent() {
     const location = useLocation();
     const navigate = useNavigate();
 
-    // Guardar la ruta que el usuario intentaba acceder
+    // Guardar la ruta original antes de redirigir a login
     useEffect(() => {
         if (!user && !loading && location.pathname !== '/login') {
             sessionStorage.setItem('redirectAfterLogin', location.pathname);
         }
     }, [user, loading, location.pathname]);
 
-    // Redirigir después del login
+    // Redirigir después del login a la ruta guardada
     useEffect(() => {
         if (user && !loading) {
             const redirectPath = sessionStorage.getItem('redirectAfterLogin');
-            if (redirectPath && redirectPath !== '/login') {
+            if (redirectPath && redirectPath !== '/login' && redirectPath !== '/') {
                 sessionStorage.removeItem('redirectAfterLogin');
                 navigate(redirectPath, { replace: true });
             }
@@ -75,10 +75,15 @@ export function AppContent() {
     return (
         <div className="App">
             <UnauthenticatedTemplate>
-
                 <Routes>
                     <Route path="/login" element={<Login onLogin={() => { }} />} /> 
-                    <Route path="*" element={<Navigate to="/login" replace />} />
+                    <Route path="*" element={
+                        <Navigate 
+                            to="/login" 
+                            replace 
+                            state={{ from: location.pathname }}
+                        />
+                    } />
                 </Routes>
             </UnauthenticatedTemplate>
             <AuthenticatedTemplate>
@@ -89,7 +94,7 @@ export function AppContent() {
                             <Header onBannerMessage={handleBannerMessage} />
                             <main className="flex-1 pt-20">
                                 <Routes>
-                                    <Route path="/" element={<Navigate to="/informes" replace />} />
+                                    <Route path="/" element={<Navigate to="/leads" replace />} />
                                     <Route path="/dashboard" element={<Dashboard />} />
                                     <Route path="/leads" element={<Leads />} />
                                     <Route path="/tasks" element={<Tasks />} />
