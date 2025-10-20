@@ -43,6 +43,8 @@ export interface CreateLeadRequest {
   documentNumber: number;
   company: string;
   occupation: string;
+  // Some backends expect capitalized key as well; include for compatibility
+  Occupation?: string;
   source: string; // "DaliLM"
   campaign: string;
   product: string[];
@@ -69,6 +71,8 @@ export interface UpdateLeadRequest {
   documentNumber?: number;
   company?: string;
   occupation?: string;
+  // Some backends expect capitalized key as well; include for compatibility
+  Occupation?: string;
   source: string;
   campaign?: string;
   product?: string[];

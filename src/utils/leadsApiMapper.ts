@@ -206,6 +206,8 @@ export const mapLeadToCreateRequest = (lead: Partial<Lead>, userId: string): Cre
     documentNumber: lead.documentNumber || 0,
     company: lead.company || "",
     occupation: lead.occupation || "",
+    // Enviar también clave capitalizada para compatibilidad con backend
+    Occupation: lead.occupation || "",
     source: lead.source || "web", // Usar el source seleccionado
     campaign: lead.campaign || "",
     product: lead.product ? [lead.product] : [], // Convert string to array for API
@@ -266,6 +268,8 @@ export const mapLeadToUpdateRequest = (lead: Lead, userId: string): UpdateLeadRe
     documentNumber: lead.documentNumber,
     company: lead.company,
     occupation: lead.occupation || "",
+    // Enviar también clave capitalizada para compatibilidad con backend
+    Occupation: lead.occupation || "",
     source: lead.source || "web",
     campaign: lead.campaign,
     product: lead.product ? [lead.product] : [], // Convert string to array for API
