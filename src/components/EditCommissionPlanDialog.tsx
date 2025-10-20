@@ -333,9 +333,6 @@ export function EditCommissionPlanDialog({ plan, open, onOpenChange, onUpdatePla
               </>
             ) : (
               <>
-                <Button onClick={handlePublishAndCalculate} className="bg-primary hover:bg-primary/90" disabled={isLoading}>
-                  Publish & Calculate
-                </Button>
                 <Button
                   onClick={handleSaveAsDraft}
                   variant="outline"
