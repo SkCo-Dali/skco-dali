@@ -1,10 +1,10 @@
-import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
-import { Lead, LeadStatus } from '@/types/crm';
-import { getReassignableLeadsPaginated, getDistinctValues } from '@/utils/leadAssignmentApiClient';
-import { getDuplicateLeads, getDuplicateLeadsPaginated } from '@/utils/leadsApiClient';
-import { LeadsApiParams, LeadsApiFilters, PaginatedLead, FilterCondition } from '@/types/paginatedLeadsTypes';
-import { useAuth } from '@/contexts/AuthContext';
-import { TextFilterCondition } from '@/components/TextFilter';
+import { useState, useEffect, useCallback, useRef, useMemo } from "react";
+import { Lead, LeadStatus } from "@/types/crm";
+import { getReassignableLeadsPaginated, getDistinctValues } from "@/utils/leadAssignmentApiClient";
+import { getDuplicateLeads, getDuplicateLeadsPaginated } from "@/utils/leadsApiClient";
+import { LeadsApiParams, LeadsApiFilters, PaginatedLead, FilterCondition } from "@/types/paginatedLeadsTypes";
+import { useAuth } from "@/contexts/AuthContext";
+import { TextFilterCondition } from "@/components/TextFilter";
 
 export interface PaginatedLeadsState {
   leads: Lead[];
@@ -23,8 +23,8 @@ export interface LeadsFiltersState {
   columnFilters: Record<string, string[]>;
   textFilters: Record<string, TextFilterCondition[]>;
   sortBy: string;
-  sortDirection: 'asc' | 'desc';
-  duplicateFilter?: 'all' | 'duplicates' | 'unique';
+  sortDirection: "asc" | "desc";
+  duplicateFilter?: "all" | "duplicates" | "unique";
 }
 
 export const usePaginatedLeadsApi = () => {
@@ -41,12 +41,12 @@ export const usePaginatedLeadsApi = () => {
   });
 
   const [filters, setFilters] = useState<LeadsFiltersState>({
-    searchTerm: '',
+    searchTerm: "",
     columnFilters: {},
     textFilters: {},
-    sortBy: 'UpdatedAt',
-    sortDirection: 'desc',
-    duplicateFilter: 'all',
+    sortBy: "UpdatedAt",
+    sortDirection: "desc",
+    duplicateFilter: "all",
   });
 
   const { user } = useAuth();
@@ -90,10 +90,11 @@ export const usePaginatedLeadsApi = () => {
       id: paginatedLead.Id,
       name: paginatedLead.Name,
       email: paginatedLead.Email,
-      alternateEmail: paginatedLead.AlternateEmail || '',
+      alternateEmail: paginatedLead.AlternateEmail || "",
       phone: paginatedLead.Phone,
       documentNumber: parseInt(paginatedLead.DocumentNumber) || 0,
       company: paginatedLead.Company,
+      occupation: paginatedLead.Occupation,
       source: paginatedLead.Source,
       campaign: paginatedLead.Campaign,
       product: paginatedLead.Product,
@@ -114,8 +115,8 @@ export const usePaginatedLeadsApi = () => {
       age: paginatedLead.Age ? parseInt(paginatedLead.Age) : undefined,
       gender: paginatedLead.Gender,
       preferredContactChannel: paginatedLead.PreferredContactChannel,
-      status: 'New' as LeadStatus,
-      portfolio: portfolios[0] || 'Portfolio A',
+      status: "New" as LeadStatus,
+      portfolio: portfolios[0] || "Portfolio A",
       // Agregar campos del último gestor al additionalInfo
       ...additionalInfo,
       lastGestorUserId: paginatedLead.LastGestorUserId,
@@ -154,37 +155,36 @@ export const usePaginatedLeadsApi = () => {
     Object.entries(uiFilters.columnFilters).forEach(([column, values]) => {
       // Saltar filtros de fecha especiales, los manejaremos después
       if (
-        column === 'createdAt' || column === 'createdAtEnd' ||
-        column === 'updatedAt' || column === 'updatedAtEnd' ||
-        column === 'nextFollowUp' || column === 'nextFollowUpEnd'
+        column === "createdAt" ||
+        column === "createdAtEnd" ||
+        column === "updatedAt" ||
+        column === "updatedAtEnd" ||
+        column === "nextFollowUp" ||
+        column === "nextFollowUpEnd"
       ) {
         return;
       }
-      
+
       if (values.length > 0) {
         // Mapear nombres de columnas de UI a API
         const apiColumn = mapColumnNameToApi(column);
-        
+
         if (values.length === 1) {
           apiFilters[apiColumn] = {
-            op: 'eq',
-            value: values[0]
+            op: "eq",
+            value: values[0],
           };
         } else {
           apiFilters[apiColumn] = {
-            op: 'in',
-            values
+            op: "in",
+            values,
           };
         }
       }
     });
 
     // Helper para asignar filtros de fecha
-    const applyDateFilter = (
-      field: 'CreatedAt' | 'UpdatedAt' | 'NextFollowUp',
-      from?: string,
-      to?: string
-    ) => {
+    const applyDateFilter = (field: "CreatedAt" | "UpdatedAt" | "NextFollowUp", from?: string, to?: string) => {
       // Normalize boundaries to cover full days when UI provides date-only values
       const normalizeFromStartOfDay = (d?: string) => {
         if (!d) return undefined;
@@ -200,27 +200,27 @@ export const usePaginatedLeadsApi = () => {
 
       if (fromNormalized && toNormalized) {
         apiFilters[field] = {
-          op: 'between',
+          op: "between",
           from: fromNormalized,
           to: toNormalized,
         } as any;
       } else if (fromNormalized) {
         apiFilters[field] = {
-          op: 'gte',
+          op: "gte",
           value: fromNormalized,
         } as any;
       } else if (toNormalized) {
         apiFilters[field] = {
-          op: 'lte',
+          op: "lte",
           value: toNormalized,
         } as any;
       }
     };
 
     // Manejar filtros de fecha combinados
-    applyDateFilter('CreatedAt', createdAtFrom, createdAtTo);
-    applyDateFilter('UpdatedAt', updatedAtFrom, updatedAtTo);
-    applyDateFilter('NextFollowUp', nextFollowUpFrom, nextFollowUpTo);
+    applyDateFilter("CreatedAt", createdAtFrom, createdAtTo);
+    applyDateFilter("UpdatedAt", updatedAtFrom, updatedAtTo);
+    applyDateFilter("NextFollowUp", nextFollowUpFrom, nextFollowUpTo);
 
     // Convertir filtros de texto
     Object.entries(uiFilters.textFilters).forEach(([column, conditions]) => {
@@ -238,9 +238,9 @@ export const usePaginatedLeadsApi = () => {
   // Aplicar filtro de búsqueda client-side en múltiples campos
   const applyClientSearchFilter = useCallback((leads: Lead[], searchTerm: string): Lead[] => {
     if (!searchTerm) return leads;
-    
+
     const searchLower = searchTerm.toLowerCase();
-    return leads.filter(lead => {
+    return leads.filter((lead) => {
       return (
         lead.name?.toLowerCase().includes(searchLower) ||
         lead.email?.toLowerCase().includes(searchLower) ||
@@ -254,34 +254,35 @@ export const usePaginatedLeadsApi = () => {
   // Mapear nombres de columnas de UI a nombres de API
   const mapColumnNameToApi = (uiColumn: string): string => {
     const mapping: Record<string, string> = {
-      'name': 'Name',
-      'email': 'Email',
-      'phone': 'Phone',
-      'company': 'Company',
-      'source': 'Source',
-      'campaign': 'Campaign',
-      'product': 'Product',
-      'stage': 'Stage',
-      'priority': 'Priority',
-      'value': 'Value',
-      'assignedTo': 'AssignedTo',
-      'assignedToName': 'AssignedToName',
-      'createdAt': 'CreatedAt',
-      'updatedAt': 'UpdatedAt',
-      'nextFollowUp': 'NextFollowUp',
-      'notes': 'Notes',
-      'tags': 'Tags',
-      'documentNumber': 'DocumentNumber',
-      'documentType': 'DocumentType',
-      'alternateEmail': 'AlternateEmail',
+      name: "Name",
+      email: "Email",
+      phone: "Phone",
+      company: "Company",
+      occupation: "Occupation",
+      source: "Source",
+      campaign: "Campaign",
+      product: "Product",
+      stage: "Stage",
+      priority: "Priority",
+      value: "Value",
+      assignedTo: "AssignedTo",
+      assignedToName: "AssignedToName",
+      createdAt: "CreatedAt",
+      updatedAt: "UpdatedAt",
+      nextFollowUp: "NextFollowUp",
+      notes: "Notes",
+      tags: "Tags",
+      documentNumber: "DocumentNumber",
+      documentType: "DocumentType",
+      alternateEmail: "AlternateEmail",
       // Campos de duplicados (nueva API)
-      'isDuplicate': 'IsDuplicate',
-      'isDupByEmail': 'IsDupByEmail',
-      'isDupByDocumentNumber': 'IsDupByDocumentNumber',
-      'isDupByPhone': 'IsDupByPhone',
-      'duplicateEmailKey': 'DuplicateEmailKey',
-      'duplicateDocumentNumberKey': 'DuplicateDocumentNumberKey',
-      'duplicatePhoneKey': 'DuplicatePhoneKey',
+      isDuplicate: "IsDuplicate",
+      isDupByEmail: "IsDupByEmail",
+      isDupByDocumentNumber: "IsDupByDocumentNumber",
+      isDupByPhone: "IsDupByPhone",
+      duplicateEmailKey: "DuplicateEmailKey",
+      duplicateDocumentNumberKey: "DuplicateDocumentNumberKey",
+      duplicatePhoneKey: "DuplicatePhoneKey",
     };
     return mapping[uiColumn] || uiColumn;
   };
@@ -289,197 +290,214 @@ export const usePaginatedLeadsApi = () => {
   // Convertir condición de texto a formato API
   const convertTextConditionToApi = (condition: TextFilterCondition): FilterCondition => {
     const operatorMapping: Record<string, string> = {
-      'equals': 'eq',
-      'not_equals': 'neq',
-      'contains': 'contains',
-      'not_contains': 'ncontains',
-      'starts_with': 'startswith',
-      'ends_with': 'endswith',
-      'is_empty': 'isnull',
-      'is_not_empty': 'notnull',
-      'greater_than': 'gt',
-      'less_than': 'lt',
-      'greater_equal': 'gte',
-      'less_equal': 'lte',
-      'after': 'gt',
-      'before': 'lt',
+      equals: "eq",
+      not_equals: "neq",
+      contains: "contains",
+      not_contains: "ncontains",
+      starts_with: "startswith",
+      ends_with: "endswith",
+      is_empty: "isnull",
+      is_not_empty: "notnull",
+      greater_than: "gt",
+      less_than: "lt",
+      greater_equal: "gte",
+      less_equal: "lte",
+      after: "gt",
+      before: "lt",
     };
 
     return {
       op: operatorMapping[condition.operator] as any,
-      value: condition.value
+      value: condition.value,
     };
   };
 
   // Cargar leads con paginación
-  const loadLeads = useCallback(async (page?: number, newFilters?: Partial<LeadsFiltersState>, source?: string, pageSizeOverride?: number) => {
-    if (!user?.id) {
-      return;
-    }
+  const loadLeads = useCallback(
+    async (page?: number, newFilters?: Partial<LeadsFiltersState>, source?: string, pageSizeOverride?: number) => {
+      if (!user?.id) {
+        return;
+      }
 
-    // Construir parámetros actuales
-    const currentFilters = newFilters ? { ...filters, ...newFilters } : filters;
-    const currentPage = page || state.pagination.page;
+      // Construir parámetros actuales
+      const currentFilters = newFilters ? { ...filters, ...newFilters } : filters;
+      const currentPage = page || state.pagination.page;
 
-    // Construir filtros de API
-    let filtersForApi = convertFiltersToApiFormat(currentFilters);
+      // Construir filtros de API
+      let filtersForApi = convertFiltersToApiFormat(currentFilters);
 
-    const requestKey = JSON.stringify({
-      page: currentPage,
-      pageSize: pageSizeOverride ?? state.pagination.pageSize,
-      sortBy: currentFilters.sortBy,
-      sortDir: currentFilters.sortDirection,
-      filters: filtersForApi,
-      duplicateFilter: currentFilters.duplicateFilter,
-      search: currentFilters.searchTerm || ''
-    });
+      const requestKey = JSON.stringify({
+        page: currentPage,
+        pageSize: pageSizeOverride ?? state.pagination.pageSize,
+        sortBy: currentFilters.sortBy,
+        sortDir: currentFilters.sortDirection,
+        filters: filtersForApi,
+        duplicateFilter: currentFilters.duplicateFilter,
+        search: currentFilters.searchTerm || "",
+      });
 
-    // Prevenir llamadas duplicadas
-    if (inFlightRef.current) {
-      return;
-    }
-    if (lastRequestKeyRef.current === requestKey) {
-      return;
-    }
+      // Prevenir llamadas duplicadas
+      if (inFlightRef.current) {
+        return;
+      }
+      if (lastRequestKeyRef.current === requestKey) {
+        return;
+      }
 
-    inFlightRef.current = true;
-    setState(prev => ({ ...prev, loading: true, error: null }));
+      inFlightRef.current = true;
+      setState((prev) => ({ ...prev, loading: true, error: null }));
 
-    try {
-      let response;
-      
-      if (currentFilters.duplicateFilter === 'duplicates') {
-        // Usar API de duplicados con paginación
-        const apiParams = {
-          page: currentPage,
-          page_size: pageSizeOverride ?? state.pagination.pageSize,
-          sort_by: mapColumnNameToApi(currentFilters.sortBy),
-          sort_dir: currentFilters.sortDirection,
-          filters: Object.keys(filtersForApi).length > 0 ? filtersForApi : undefined,
-          search: currentFilters.searchTerm || undefined,
-        };
-        response = await getDuplicateLeadsPaginated(apiParams);
-      } else if (currentFilters.duplicateFilter === 'unique') {
-        // Para filtro 'unique', obtener IDs duplicados y excluirlos
-        try {
-          const dupLeads = await getDuplicateLeads();
-          const dupIds = dupLeads.map(l => l.id).filter(Boolean);
-          if (dupIds.length > 0) {
-            (filtersForApi as any)['Id'] = { op: 'nin', values: dupIds } as any;
+      try {
+        let response;
+
+        if (currentFilters.duplicateFilter === "duplicates") {
+          // Usar API de duplicados con paginación
+          const apiParams = {
+            page: currentPage,
+            page_size: pageSizeOverride ?? state.pagination.pageSize,
+            sort_by: mapColumnNameToApi(currentFilters.sortBy),
+            sort_dir: currentFilters.sortDirection,
+            filters: Object.keys(filtersForApi).length > 0 ? filtersForApi : undefined,
+            search: currentFilters.searchTerm || undefined,
+          };
+          response = await getDuplicateLeadsPaginated(apiParams);
+        } else if (currentFilters.duplicateFilter === "unique") {
+          // Para filtro 'unique', obtener IDs duplicados y excluirlos
+          try {
+            const dupLeads = await getDuplicateLeads();
+            const dupIds = dupLeads.map((l) => l.id).filter(Boolean);
+            if (dupIds.length > 0) {
+              (filtersForApi as any)["Id"] = { op: "nin", values: dupIds } as any;
+            }
+          } catch (e) {
+            console.error("❌ Error fetching duplicate leads for unique filter:", e);
           }
-        } catch (e) {
-          console.error('❌ Error fetching duplicate leads for unique filter:', e);
+
+          const apiParams: LeadsApiParams = {
+            page: currentPage,
+            page_size: pageSizeOverride ?? state.pagination.pageSize,
+            sort_by: mapColumnNameToApi(currentFilters.sortBy),
+            sort_dir: currentFilters.sortDirection,
+            filters: filtersForApi,
+            search: currentFilters.searchTerm || undefined,
+          };
+          response = await getReassignableLeadsPaginated(apiParams);
+        } else {
+          // Sin filtro de duplicados, usar API normal
+          const apiParams: LeadsApiParams = {
+            page: currentPage,
+            page_size: pageSizeOverride ?? state.pagination.pageSize,
+            sort_by: mapColumnNameToApi(currentFilters.sortBy),
+            sort_dir: currentFilters.sortDirection,
+            filters: filtersForApi,
+            search: currentFilters.searchTerm || undefined,
+          };
+          response = await getReassignableLeadsPaginated(apiParams);
         }
-        
-        const apiParams: LeadsApiParams = {
-          page: currentPage,
-          page_size: pageSizeOverride ?? state.pagination.pageSize,
-          sort_by: mapColumnNameToApi(currentFilters.sortBy),
-          sort_dir: currentFilters.sortDirection,
-          filters: filtersForApi,
-          search: currentFilters.searchTerm || undefined,
-        };
-        response = await getReassignableLeadsPaginated(apiParams);
-      } else {
-        // Sin filtro de duplicados, usar API normal
-        const apiParams: LeadsApiParams = {
-          page: currentPage,
-          page_size: pageSizeOverride ?? state.pagination.pageSize,
-          sort_by: mapColumnNameToApi(currentFilters.sortBy),
-          sort_dir: currentFilters.sortDirection,
-          filters: filtersForApi,
-          search: currentFilters.searchTerm || undefined,
-        };
-        response = await getReassignableLeadsPaginated(apiParams);
+
+        // Normalizar respuesta por si el backend usa claves alternativas
+        const items = Array.isArray((response as any).items)
+          ? (response as any).items
+          : Array.isArray((response as any).data)
+            ? (response as any).data
+            : [];
+        const pageNum = (response as any).page ?? (response as any).page_number ?? 1;
+        const pageSizeNum = (response as any).page_size ?? (response as any).pageSize ?? items.length;
+        const totalNum = (response as any).total ?? (response as any).count ?? items.length;
+        const totalPagesNum =
+          (response as any).total_pages ??
+          (response as any).totalPages ??
+          Math.ceil((totalNum || 0) / (pageSizeNum || 1));
+
+        const mappedLeads = items.map(mapPaginatedLeadToLead);
+
+        setState((prev) => ({
+          ...prev,
+          leads: mappedLeads,
+          loading: false,
+          pagination: {
+            page: pageNum,
+            pageSize: pageSizeNum,
+            total: totalNum,
+            totalPages: totalPagesNum,
+          },
+        }));
+
+        // Persistir filtros si venían nuevos
+        if (newFilters) {
+          setFilters((prev) => ({ ...prev, ...newFilters }));
+        }
+
+        // Marcar como completada esta request con esta combinación de parámetros
+        lastRequestKeyRef.current = requestKey;
+      } catch (err) {
+        console.error("❌ Error loading paginated leads:", err);
+        const errorMessage = err instanceof Error ? err.message : "Error al cargar leads";
+        setState((prev) => ({ ...prev, error: errorMessage, loading: false }));
+        // Permitir reintento en caso de error
+        lastRequestKeyRef.current = null;
+      } finally {
+        inFlightRef.current = false;
       }
-      
-      // Normalizar respuesta por si el backend usa claves alternativas
-      const items = Array.isArray((response as any).items)
-        ? (response as any).items
-        : Array.isArray((response as any).data)
-        ? (response as any).data
-        : [];
-      const pageNum = (response as any).page ?? (response as any).page_number ?? 1;
-      const pageSizeNum = (response as any).page_size ?? (response as any).pageSize ?? items.length;
-      const totalNum = (response as any).total ?? (response as any).count ?? items.length;
-      const totalPagesNum = (response as any).total_pages ?? (response as any).totalPages ?? Math.ceil((totalNum || 0) / (pageSizeNum || 1));
-
-      const mappedLeads = items.map(mapPaginatedLeadToLead);
-
-      setState(prev => ({
-        ...prev,
-        leads: mappedLeads,
-        loading: false,
-        pagination: {
-          page: pageNum,
-          pageSize: pageSizeNum,
-          total: totalNum,
-          totalPages: totalPagesNum,
-        },
-      }));
-
-      // Persistir filtros si venían nuevos
-      if (newFilters) {
-        setFilters(prev => ({ ...prev, ...newFilters }));
-      }
-
-      // Marcar como completada esta request con esta combinación de parámetros
-      lastRequestKeyRef.current = requestKey;
-
-    } catch (err) {
-      console.error('❌ Error loading paginated leads:', err);
-      const errorMessage = err instanceof Error ? err.message : 'Error al cargar leads';
-      setState(prev => ({ ...prev, error: errorMessage, loading: false }));
-      // Permitir reintento en caso de error
-      lastRequestKeyRef.current = null;
-    } finally {
-      inFlightRef.current = false;
-    }
-  }, [user?.id, filters, state.pagination.page, state.pagination.pageSize, convertFiltersToApiFormat]);
+    },
+    [user?.id, filters, state.pagination.page, state.pagination.pageSize, convertFiltersToApiFormat],
+  );
 
   // Obtener valores únicos para filtros
-  const getUniqueValues = useCallback(async (field: string, search?: string): Promise<(string | null)[]> => {
-    try {
-      const apiField = mapColumnNameToApi(field);
-      const response = await getDistinctValues({
-        field: apiField,
-        search,
-        // No limit - get all values from database
-        filters: convertFiltersToApiFormat(filters),
-      });
-      return response.values;
-    } catch (err) {
-      console.error('❌ Error getting unique values:', err);
-      return [];
-    }
-  }, [filters, convertFiltersToApiFormat]);
+  const getUniqueValues = useCallback(
+    async (field: string, search?: string): Promise<(string | null)[]> => {
+      try {
+        const apiField = mapColumnNameToApi(field);
+        const response = await getDistinctValues({
+          field: apiField,
+          search,
+          // No limit - get all values from database
+          filters: convertFiltersToApiFormat(filters),
+        });
+        return response.values;
+      } catch (err) {
+        console.error("❌ Error getting unique values:", err);
+        return [];
+      }
+    },
+    [filters, convertFiltersToApiFormat],
+  );
 
   // Funciones para actualizar filtros
-  const updateFilters = useCallback((newFilters: Partial<LeadsFiltersState>) => {
-    // Reiniciar a la primera página cuando cambian los filtros
-    // Solo loadLeads maneja setFilters para evitar bucles infinitos
-    loadLeads(1, newFilters, 'updateFilters');
-  }, [loadLeads]);
+  const updateFilters = useCallback(
+    (newFilters: Partial<LeadsFiltersState>) => {
+      // Reiniciar a la primera página cuando cambian los filtros
+      // Solo loadLeads maneja setFilters para evitar bucles infinitos
+      loadLeads(1, newFilters, "updateFilters");
+    },
+    [loadLeads],
+  );
 
-  const setPage = useCallback((page: number) => {
-    setState(prev => ({
-      ...prev,
-      pagination: { ...prev.pagination, page }
-    }));
-    loadLeads(page, undefined, 'setPage');
-  }, [loadLeads]);
+  const setPage = useCallback(
+    (page: number) => {
+      setState((prev) => ({
+        ...prev,
+        pagination: { ...prev.pagination, page },
+      }));
+      loadLeads(page, undefined, "setPage");
+    },
+    [loadLeads],
+  );
 
-  const setPageSize = useCallback((pageSize: number) => {
-    setState(prev => ({
-      ...prev,
-      pagination: { ...prev.pagination, pageSize, page: 1 }
-    }));
-    loadLeads(1, undefined, 'setPageSize', pageSize);
-  }, [loadLeads]);
+  const setPageSize = useCallback(
+    (pageSize: number) => {
+      setState((prev) => ({
+        ...prev,
+        pagination: { ...prev.pagination, pageSize, page: 1 },
+      }));
+      loadLeads(1, undefined, "setPageSize", pageSize);
+    },
+    [loadLeads],
+  );
 
   // Cargar leads inicialmente
   useEffect(() => {
-    loadLeads(undefined, undefined, 'initial');
+    loadLeads(undefined, undefined, "initial");
   }, [user?.id, user?.role]);
 
   // Memoizar apiFilters para que solo cambie cuando filters cambie
@@ -499,7 +517,7 @@ export const usePaginatedLeadsApi = () => {
     refreshLeads: () => {
       // Forzar recarga aunque los parámetros no cambien
       lastRequestKeyRef.current = null;
-      return loadLeads(undefined, undefined, 'refreshLeads');
+      return loadLeads(undefined, undefined, "refreshLeads");
     },
   };
 };

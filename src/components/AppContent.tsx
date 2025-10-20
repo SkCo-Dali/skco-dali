@@ -1,6 +1,6 @@
 
-import React, { useRef } from "react";
-import { Routes, Route, Navigate } from "react-router-dom";
+import React, { useRef, useEffect } from "react";
+import { Routes, Route, Navigate, useLocation, useNavigate } from "react-router-dom";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
 import { Header } from "@/components/Header";
@@ -30,6 +30,30 @@ import { AuthenticatedTemplate, UnauthenticatedTemplate } from "@azure/msal-reac
 export function AppContent() {
     const { user, loading } = useAuth();
     const chatDaliRef = useRef<any>(null);
+    const location = useLocation();
+    const navigate = useNavigate();
+
+    // Guardar la ruta original antes de redirigir a login
+    useEffect(() => {
+        if (!user && !loading && location.pathname !== '/login') {
+            const fullPath = location.pathname + location.search + location.hash;
+            sessionStorage.setItem('redirectAfterLogin', fullPath);
+        }
+    }, [user, loading, location.pathname, location.search, location.hash]);
+
+    // Redirigir después del login a la ruta guardada
+    useEffect(() => {
+        if (user && !loading) {
+            const redirectPath = sessionStorage.getItem('redirectAfterLogin');
+            if (redirectPath && redirectPath !== '/login') {
+                sessionStorage.removeItem('redirectAfterLogin');
+                navigate(redirectPath, { replace: true });
+            } else if (location.pathname === '/login' || location.pathname === '/') {
+                // Solo redirigir a /leads si no hay ruta guardada y estamos en login o root
+                navigate('/leads', { replace: true });
+            }
+        }
+    }, [user, loading, navigate, location.pathname]);
 
     if (loading) {
         return (
@@ -55,10 +79,14 @@ export function AppContent() {
     return (
         <div className="App">
             <UnauthenticatedTemplate>
-
                 <Routes>
                     <Route path="/login" element={<Login onLogin={() => { }} />} /> 
-                    <Route path="*" element={<Navigate to="/login" replace />} />
+                    <Route path="*" element={
+                        <Navigate 
+                            to={`/login?redirect=${encodeURIComponent(location.pathname + location.search + location.hash)}`} 
+                            replace 
+                        />
+                    } />
                 </Routes>
             </UnauthenticatedTemplate>
             <AuthenticatedTemplate>
@@ -69,7 +97,7 @@ export function AppContent() {
                             <Header onBannerMessage={handleBannerMessage} />
                             <main className="flex-1 pt-20">
                                 <Routes>
-                                    <Route path="/" element={<Navigate to="/leads" replace />} />
+                                    <Route path="/" element={<Dashboard />} />
                                     <Route path="/dashboard" element={<Dashboard />} />
                                     <Route path="/leads" element={<Leads />} />
                                     <Route path="/tasks" element={<Tasks />} />
@@ -90,7 +118,7 @@ export function AppContent() {
                                     <Route path="/motor-comisiones/compensation-plans" element={<CompensationPlans />} />
                                     <Route path="/motor-comisiones/catalogs" element={<Catalogs />} />
                                     <Route path="/voice-insights" element={<VoiceInsights />} />
-                                    <Route path="/login" element={<Navigate to="/" replace />} />
+                                    <Route path="/login" element={<div />} />
                                     <Route path="*" element={<NotFound />} />
                                 </Routes>
                             </main>

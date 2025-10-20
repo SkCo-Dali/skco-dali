@@ -3,16 +3,33 @@ import { Lead } from "@/types/crm";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Checkbox } from "@/components/ui/checkbox";
-import { User, ChevronUp, ChevronDown, MoreVertical, Edit, Calendar, User as UserIcon, MessageCircle, Trash2, Mail, GripVertical } from "lucide-react";
+import {
+  User,
+  ChevronUp,
+  ChevronDown,
+  MoreVertical,
+  Edit,
+  Calendar,
+  User as UserIcon,
+  MessageCircle,
+  Trash2,
+  Mail,
+  GripVertical,
+} from "lucide-react";
 import { formatBogotaDate } from "@/utils/dateUtils";
 import { ColumnConfig } from "@/components/LeadsTableColumnSelector";
 import { EditableLeadCell } from "@/components/EditableLeadCell";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { FaWhatsapp } from "react-icons/fa";
 import { useLeadDeletion } from "@/hooks/useLeadDeletion";
 import { LeadDeleteConfirmDialog } from "@/components/LeadDeleteConfirmDialog";
-import { useToast } from '@/hooks/use-toast';
+import { useToast } from "@/hooks/use-toast";
 import { ColumnFilter } from "@/components/ColumnFilter";
 import { ServerSideColumnFilter } from "@/components/ServerSideColumnFilter";
 import { ServerSideDateFilter } from "@/components/ServerSideDateFilter";
@@ -28,11 +45,7 @@ import {
   useSensors,
   closestCenter,
 } from "@dnd-kit/core";
-import {
-  SortableContext,
-  useSortable,
-  horizontalListSortingStrategy,
-} from "@dnd-kit/sortable";
+import { SortableContext, useSortable, horizontalListSortingStrategy } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 
 interface LeadsTableProps {
@@ -57,89 +70,91 @@ interface LeadsTableProps {
   // Props para ordenamiento desde el hook unificado
   sortBy?: string;
   setSortBy?: (sort: string) => void;
-  sortDirection?: 'asc' | 'desc';
-  setSortDirection?: (direction: 'asc' | 'desc') => void;
+  sortDirection?: "asc" | "desc";
+  setSortDirection?: (direction: "asc" | "desc") => void;
 }
 
 type SortConfig = {
   key: string;
-  direction: 'asc' | 'desc';
+  direction: "asc" | "desc";
 } | null;
 
 // Nueva configuración por defecto con solo 6 columnas visibles
 const defaultColumns: ColumnConfig[] = [
-  { key: 'name', label: 'Nombre', visible: true, sortable: true },
-  { key: 'campaign', label: 'Campaña', visible: true, sortable: true },
-  { key: 'email', label: 'Email', visible: true, sortable: true },
-  { key: 'alternateEmail', label: 'Email Alternativo', visible: true, sortable: true },
-  { key: 'phone', label: 'Teléfono', visible: true, sortable: false },
-  { key: 'stage', label: 'Etapa', visible: true, sortable: true },
-  { key: 'assignedToName', label: 'Asignado a', visible: true, sortable: true },
-  { key: 'lastGestorName', label: 'Últ Gestor Asignado', visible: false, sortable: true },
-  { key: 'lastGestorInteractionAt', label: 'Últ Fecha de Interaccion Gestor', visible: false, sortable: true },
-  { key: 'lastGestorInteractionStage', label: 'Últ Estado Gestor', visible: false, sortable: true },
-  { key: 'lastGestorInteractionDescription', label: 'Últ Descripción Gestor', visible: false, sortable: true },
-  { key: 'documentType', label: 'Tipo documento', visible: false, sortable: true },
-  { key: 'documentNumber', label: 'Número documento', visible: false, sortable: true },
-  { key: 'product', label: 'Producto', visible: false, sortable: true },
-  { key: 'source', label: 'Fuente', visible: false, sortable: true },
-  { key: 'tags', label: 'Tags', visible: false, sortable: true },  
-  { key: 'createdAt', label: 'Fecha creación', visible: true, sortable: true },
-  { key: 'lastInteraction', label: 'Últ. interacción', visible: true, sortable: true },
-  { key: 'nextFollowUp', label: 'Próximo seguimiento', visible: true, sortable: true },
-  { key: 'priority', label: 'Prioridad', visible: false, sortable: true },
-  { key: 'age', label: 'Edad', visible: false, sortable: true },
-  { key: 'gender', label: 'Género', visible: false, sortable: true },
-  { key: 'preferredContactChannel', label: 'Medio de contacto preferido', visible: false, sortable: true },
-  { key: 'company', label: 'Empresa', visible: false, sortable: true },
-  { key: 'value', label: 'Valor', visible: false, sortable: true },
+  { key: "name", label: "Nombre", visible: true, sortable: true },
+  { key: "campaign", label: "Campaña", visible: true, sortable: true },
+  { key: "email", label: "Email", visible: true, sortable: true },
+  { key: "alternateEmail", label: "Email Alternativo", visible: true, sortable: true },
+  { key: "phone", label: "Teléfono", visible: true, sortable: false },
+  { key: "stage", label: "Etapa", visible: true, sortable: true },
+  { key: "assignedToName", label: "Asignado a", visible: true, sortable: true },
+  { key: "lastGestorName", label: "Últ Gestor Asignado", visible: false, sortable: true },
+  { key: "lastGestorInteractionAt", label: "Últ Fecha de Interaccion Gestor", visible: false, sortable: true },
+  { key: "lastGestorInteractionStage", label: "Últ Estado Gestor", visible: false, sortable: true },
+  { key: "lastGestorInteractionDescription", label: "Últ Descripción Gestor", visible: false, sortable: true },
+  { key: "documentType", label: "Tipo documento", visible: false, sortable: true },
+  { key: "documentNumber", label: "Número documento", visible: false, sortable: true },
+  { key: "product", label: "Producto", visible: false, sortable: true },
+  { key: "source", label: "Fuente", visible: false, sortable: true },
+  { key: "campaignOwnerName", label: "Lead referido por", visible: false, sortable: true },
+  { key: "tags", label: "Tags", visible: false, sortable: true },
+  { key: "createdAt", label: "Fecha creación", visible: true, sortable: true },
+  { key: "lastInteraction", label: "Últ. interacción", visible: true, sortable: true },
+  { key: "nextFollowUp", label: "Próximo seguimiento", visible: true, sortable: true },
+  { key: "priority", label: "Prioridad", visible: false, sortable: true },
+  { key: "age", label: "Edad", visible: false, sortable: true },
+  { key: "gender", label: "Género", visible: false, sortable: true },
+  { key: "preferredContactChannel", label: "Medio de contacto preferido", visible: false, sortable: true },
+  { key: "company", label: "Empresa", visible: false, sortable: true },
+  { key: "occupation", label: "Ocupación", visible: false, sortable: true },
+  { key: "value", label: "Valor", visible: false, sortable: true },
 ];
 
 const capitalizeWords = (text: string) => {
-  return text.toLowerCase().replace(/\b\w/g, l => l.toUpperCase());
+  return text.toLowerCase().replace(/\b\w/g, (l) => l.toUpperCase());
 };
 
 // Helper function to clean product field
 const cleanProductField = (value: any): string => {
-  if (typeof value === 'string') {
+  if (typeof value === "string") {
     // Clean all JSON-like characters and escape sequences
     let cleaned = value
-      .replace(/\\"/g, '"')          // Remove escape sequences
-      .replace(/[\[\]"'\\]/g, '')    // Remove all brackets and quotes
-      .replace(/,+/g, ',')           // Replace multiple commas with single comma
-      .replace(/^,|,$/g, '')         // Remove leading/trailing commas
+      .replace(/\\"/g, '"') // Remove escape sequences
+      .replace(/[\[\]"'\\]/g, "") // Remove all brackets and quotes
+      .replace(/,+/g, ",") // Replace multiple commas with single comma
+      .replace(/^,|,$/g, "") // Remove leading/trailing commas
       .trim();
-    
+
     // Split by comma and rejoin with hyphens
-    if (cleaned.includes(',')) {
+    if (cleaned.includes(",")) {
       return cleaned
-        .split(',')
-        .map(item => item.trim())
-        .filter(item => item && item !== '')
-        .join(' - ');
+        .split(",")
+        .map((item) => item.trim())
+        .filter((item) => item && item !== "")
+        .join(" - ");
     }
-    
+
     return cleaned;
   }
-  if (Array.isArray(value)) return value.filter(item => item && item.trim()).join(' - ');
-  if (value === null || value === undefined) return '';
+  if (Array.isArray(value)) return value.filter((item) => item && item.trim()).join(" - ");
+  if (value === null || value === undefined) return "";
   return String(value);
 };
 
 // Función para cargar configuración de columnas desde sessionStorage
 const loadColumnConfig = (): ColumnConfig[] => {
   try {
-    const saved = sessionStorage.getItem('leads-table-columns');
+    const saved = sessionStorage.getItem("leads-table-columns");
     if (saved) {
       const savedColumns = JSON.parse(saved);
       // Merge saved config with default columns to handle new columns
-      return defaultColumns.map(defaultCol => {
+      return defaultColumns.map((defaultCol) => {
         const savedCol = savedColumns.find((col: ColumnConfig) => col.key === defaultCol.key);
         return savedCol ? { ...defaultCol, visible: savedCol.visible } : defaultCol;
       });
     }
   } catch (error) {
-    console.warn('Error loading column configuration:', error);
+    console.warn("Error loading column configuration:", error);
   }
   return defaultColumns;
 };
@@ -147,15 +162,15 @@ const loadColumnConfig = (): ColumnConfig[] => {
 // Función para guardar configuración de columnas en sessionStorage
 const saveColumnConfig = (columns: ColumnConfig[]) => {
   try {
-    sessionStorage.setItem('leads-table-columns', JSON.stringify(columns));
+    sessionStorage.setItem("leads-table-columns", JSON.stringify(columns));
   } catch (error) {
-    console.warn('Error saving column configuration:', error);
+    console.warn("Error saving column configuration:", error);
   }
 };
 
 interface SortableHeaderProps {
   column: ColumnConfig;
-  onSort: (columnKey: string, direction?: 'asc' | 'desc') => void;
+  onSort: (columnKey: string, direction?: "asc" | "desc") => void;
   onColumnHeaderClick: (columnKey: string, sortable: boolean, e: React.MouseEvent) => void;
   renderSortIcon: (columnKey: string) => React.ReactNode;
   leads: Lead[];
@@ -170,31 +185,24 @@ interface SortableHeaderProps {
   currentApiFilters?: LeadsApiFilters;
 }
 
-function SortableHeader({ 
-  column, 
-  onSort, 
-  onColumnHeaderClick, 
-  renderSortIcon, 
-  leads, 
-  columnFilters, 
+function SortableHeader({
+  column,
+  onSort,
+  onColumnHeaderClick,
+  renderSortIcon,
+  leads,
+  columnFilters,
   textFilters,
   onColumnFilterChange,
   onTextFilterChange,
   onClearFilter,
   isNameColumn = false,
   searchTerm,
-  currentApiFilters = {}
+  currentApiFilters = {},
 }: SortableHeaderProps) {
-  const {
-    attributes,
-    listeners,
-    setNodeRef,
-    transform,
-    transition,
-    isDragging,
-  } = useSortable({ 
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: column.key,
-    disabled: isNameColumn
+    disabled: isNameColumn,
   });
 
   const style = {
@@ -203,16 +211,16 @@ function SortableHeader({
   };
 
   return (
-    <TableHead 
+    <TableHead
       ref={setNodeRef}
       style={style}
       className={`px-4 py-3 text-center text-xs font-medium text-gray-600 capitalize tracking-wider ${
-        column.key === 'name' ? 'leads-name-column-sticky' : 'leads-regular-column'
-      } ${isDragging ? 'opacity-50' : ''}`}
+        column.key === "name" ? "leads-name-column-sticky" : "leads-regular-column"
+      } ${isDragging ? "opacity-50" : ""}`}
     >
       <div className="flex items-center justify-center space-x-1">
         {!isNameColumn && (
-          <div 
+          <div
             {...attributes}
             {...listeners}
             className="cursor-grab active:cursor-grabbing p-1 hover:bg-gray-100 rounded"
@@ -221,7 +229,9 @@ function SortableHeader({
           </div>
         )}
         {/* Use ServerSideColumnFilter for dropdown fields that need server-side distinct values */}
-        {['name', 'email', 'campaign', 'stage', 'assignedToName', 'source', 'product', 'priority'].includes(column.key) ? (
+        {["name", "email", "campaign", "stage", "assignedToName", "source", "product", "priority"].includes(
+          column.key,
+        ) ? (
           <ServerSideColumnFilter
             field={column.key}
             label={column.label}
@@ -232,7 +242,7 @@ function SortableHeader({
             }}
             onClearFilter={onClearFilter}
           />
-        ) : ['createdAt', 'updatedAt', 'nextFollowUp', 'lastInteraction'].includes(column.key) ? (
+        ) : ["createdAt", "updatedAt", "nextFollowUp", "lastInteraction"].includes(column.key) ? (
           <ServerSideDateFilter
             field={column.key}
             label={column.label}
@@ -255,8 +265,8 @@ function SortableHeader({
             tableTextFilters={textFilters}
           />
         )}
-        <span 
-          className={`${column.sortable ? 'cursor-pointer hover:text-green-600' : ''}`}
+        <span
+          className={`${column.sortable ? "cursor-pointer hover:text-green-600" : ""}`}
           onClick={(e) => onColumnHeaderClick(column.key, column.sortable, e)}
         >
           {column.label}
@@ -265,12 +275,14 @@ function SortableHeader({
         {/* X button to clear filters - positioned after column name */}
         {(() => {
           // Para lastInteraction, también buscar en updatedAt (debido al mapeo interno)
-          const effectiveKey = column.key === 'lastInteraction' ? 'updatedAt' : column.key;
-          return ((columnFilters[column.key] && columnFilters[column.key].length > 0) || 
+          const effectiveKey = column.key === "lastInteraction" ? "updatedAt" : column.key;
+          return (
+            (columnFilters[column.key] && columnFilters[column.key].length > 0) ||
             (columnFilters[effectiveKey] && columnFilters[effectiveKey].length > 0) ||
             (textFilters[column.key] && textFilters[column.key].length > 0) ||
             (columnFilters[`${column.key}End`] && columnFilters[`${column.key}End`].length > 0) ||
-            (columnFilters[`${effectiveKey}End`] && columnFilters[`${effectiveKey}End`].length > 0));
+            (columnFilters[`${effectiveKey}End`] && columnFilters[`${effectiveKey}End`].length > 0)
+          );
         })() && (
           <Button
             variant="ghost"
@@ -289,12 +301,12 @@ function SortableHeader({
   );
 }
 
-export function LeadsTable({ 
-  leads, 
-  paginatedLeads, 
-  onLeadClick, 
-  onLeadUpdate, 
-  columns, 
+export function LeadsTable({
+  leads,
+  paginatedLeads,
+  onLeadClick,
+  onLeadUpdate,
+  columns,
   onSortedLeadsChange,
   onSendEmail,
   onOpenProfiler,
@@ -311,13 +323,13 @@ export function LeadsTable({
   sortBy,
   setSortBy,
   sortDirection,
-  setSortDirection
+  setSortDirection,
 }: LeadsTableProps) {
   const { toast } = useToast();
   // Removed local sortConfig - using unified sort from props
   const [leadsToDelete, setLeadsToDelete] = useState<Lead[]>([]);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
-  
+
   // Convert UI filters to API format for server-side filtering
   const convertFiltersToApiFormat = useMemo((): LeadsApiFilters => {
     const apiFilters: LeadsApiFilters = {};
@@ -335,41 +347,42 @@ export function LeadsTable({
       return d.length === 10 ? `${d}T23:59:59` : d;
     };
 
-    const applyDateFilter = (
-      field: 'CreatedAt' | 'UpdatedAt' | 'NextFollowUp',
-      from?: string,
-      to?: string
-    ) => {
+    const applyDateFilter = (field: "CreatedAt" | "UpdatedAt" | "NextFollowUp", from?: string, to?: string) => {
       const toNorm = normalizeToEndOfDay(to);
       if (from && toNorm) {
-        (apiFilters as any)[field] = { op: 'between', from, to: toNorm };
+        (apiFilters as any)[field] = { op: "between", from, to: toNorm };
       } else if (from) {
-        (apiFilters as any)[field] = { op: 'gte', value: from };
+        (apiFilters as any)[field] = { op: "gte", value: from };
       } else if (toNorm) {
-        (apiFilters as any)[field] = { op: 'lte', value: toNorm };
+        (apiFilters as any)[field] = { op: "lte", value: toNorm };
       }
     };
 
-    applyDateFilter('CreatedAt', createdAtFrom, createdAtTo);
-    applyDateFilter('UpdatedAt', updatedAtFrom, updatedAtTo);
-    applyDateFilter('NextFollowUp', nextFollowUpFrom, nextFollowUpTo);
+    applyDateFilter("CreatedAt", createdAtFrom, createdAtTo);
+    applyDateFilter("UpdatedAt", updatedAtFrom, updatedAtTo);
+    applyDateFilter("NextFollowUp", nextFollowUpFrom, nextFollowUpTo);
 
     // Convert non-date column filters (dropdown selections)
     if (columnFilters) {
       Object.entries(columnFilters).forEach(([column, values]) => {
         if (!values || values.length === 0) return;
         // Skip special date keys handled above
-        if ([
-          'createdAt','createdAtEnd',
-          'updatedAt','updatedAtEnd','lastInteraction','lastInteractionEnd',
-          'nextFollowUp','nextFollowUpEnd'
-        ].includes(column)) {
+        if (
+          [
+            "createdAt",
+            "createdAtEnd",
+            "updatedAt",
+            "updatedAtEnd",
+            "lastInteraction",
+            "lastInteractionEnd",
+            "nextFollowUp",
+            "nextFollowUpEnd",
+          ].includes(column)
+        ) {
           return;
         }
         const apiColumn = mapColumnNameToApi(column);
-        (apiFilters as any)[apiColumn] = values.length === 1
-          ? { op: 'eq', value: values[0] }
-          : { op: 'in', values };
+        (apiFilters as any)[apiColumn] = values.length === 1 ? { op: "eq", value: values[0] } : { op: "in", values };
       });
     }
 
@@ -390,28 +403,29 @@ export function LeadsTable({
   // Map UI column names to API column names (use function declaration to avoid TDZ)
   function mapColumnNameToApi(uiColumn: string): string {
     const mapping: Record<string, string> = {
-      'name': 'Name',
-      'email': 'Email',
-      'phone': 'Phone',
-      'company': 'Company',
-      'source': 'Source',
-      'campaign': 'Campaign',
-      'product': 'Product',
-      'stage': 'Stage',
-      'priority': 'Priority',
-      'value': 'Value',
-      'assignedTo': 'AssignedTo',
-      'assignedToName': 'AssignedToName',
-      'createdAt': 'CreatedAt',
-      'updatedAt': 'UpdatedAt',
-      'nextFollowUp': 'NextFollowUp',
-      'notes': 'Notes',
-      'tags': 'Tags',
-      'alternateEmail': 'AlternateEmail',
-      'lastGestorName': 'LastGestorName',
-      'lastGestorInteractionAt': 'LastGestorInteractionAt',
-      'lastGestorInteractionStage': 'LastGestorInteractionStage',
-      'lastGestorInteractionDescription': 'LastGestorInteractionDescription',
+      name: "Name",
+      email: "Email",
+      phone: "Phone",
+      company: "Company",
+      occupation: "Occupation",
+      source: "Source",
+      campaign: "Campaign",
+      product: "Product",
+      stage: "Stage",
+      priority: "Priority",
+      value: "Value",
+      assignedTo: "AssignedTo",
+      assignedToName: "AssignedToName",
+      createdAt: "CreatedAt",
+      updatedAt: "UpdatedAt",
+      nextFollowUp: "NextFollowUp",
+      notes: "Notes",
+      tags: "Tags",
+      alternateEmail: "AlternateEmail",
+      lastGestorName: "LastGestorName",
+      lastGestorInteractionAt: "LastGestorInteractionAt",
+      lastGestorInteractionStage: "LastGestorInteractionStage",
+      lastGestorInteractionDescription: "LastGestorInteractionDescription",
     };
     return mapping[uiColumn] || uiColumn;
   }
@@ -419,52 +433,52 @@ export function LeadsTable({
   // Convert text condition to API format (function declaration to avoid TDZ)
   function convertTextConditionToApi(condition: TextFilterCondition): any {
     const operatorMapping: Record<string, string> = {
-      'equals': 'eq',
-      'not_equals': 'neq',
-      'contains': 'contains',
-      'not_contains': 'ncontains',
-      'starts_with': 'startswith',
-      'ends_with': 'endswith',
-      'is_empty': 'isnull',
-      'is_not_empty': 'notnull',
-      'greater_than': 'gt',
-      'less_than': 'lt',
-      'greater_equal': 'gte',
-      'less_equal': 'lte',
-      'after': 'gt',
-      'before': 'lt',
+      equals: "eq",
+      not_equals: "neq",
+      contains: "contains",
+      not_contains: "ncontains",
+      starts_with: "startswith",
+      ends_with: "endswith",
+      is_empty: "isnull",
+      is_not_empty: "notnull",
+      greater_than: "gt",
+      less_than: "lt",
+      greater_equal: "gte",
+      less_equal: "lte",
+      after: "gt",
+      before: "lt",
     };
 
     return {
       op: operatorMapping[condition.operator] as any,
-      value: condition.value
+      value: condition.value,
     };
   }
-  
+
   // Los leads ya vienen completamente filtrados desde el hook unificado del padre
   // Solo necesitamos aplicar ordenamiento local en la tabla si es necesario
   const filteredLeads = leads;
-  
+
   // Los leads ya vienen ordenados desde el hook unificado
   const sortedFilteredLeads = filteredLeads;
-  
+
   // Notificar cambios en leads filtrados al componente padre
   useEffect(() => {
     if (onFilteredLeadsChange) {
       onFilteredLeadsChange(sortedFilteredLeads);
     }
   }, [sortedFilteredLeads, onFilteredLeadsChange]);
-  
+
   // Notificar cambios en leads ordenados al componente padre
   useEffect(() => {
     if (onSortedLeadsChange) {
       onSortedLeadsChange(sortedFilteredLeads);
     }
   }, [sortedFilteredLeads, onSortedLeadsChange]);
-  
+
   // Usar configuración persistente si no se pasan columnas desde el padre
   const [activeColumns, setActiveColumns] = useState<ColumnConfig[]>(columns || loadColumnConfig());
-  
+
   // Actualizar columnas activas cuando cambien las columnas del padre
   useEffect(() => {
     if (columns) {
@@ -472,37 +486,37 @@ export function LeadsTable({
       saveColumnConfig(columns);
     }
   }, [columns]);
-  
+
   // Sensors para el drag and drop
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: {
         distance: 8,
       },
-    })
+    }),
   );
 
   const { isDeleting, canDeleteLead, deleteSingleLead } = useLeadDeletion({
-    onLeadDeleted: onLeadUpdate
+    onLeadDeleted: onLeadUpdate,
   });
 
-  const visibleColumns = activeColumns.filter(col => col.visible);
+  const visibleColumns = activeColumns.filter((col) => col.visible);
 
   // Separar columna de nombre de las demás
-  const nameColumn = visibleColumns.find(col => col.key === 'name');
-  const otherColumns = visibleColumns.filter(col => col.key !== 'name');
+  const nameColumn = visibleColumns.find((col) => col.key === "name");
+  const otherColumns = visibleColumns.filter((col) => col.key !== "name");
 
   const calculateTableWidth = () => {
     const checkboxColumnWidth = 50;
     const nameColumnWidth = 350;
     const regularColumnWidth = 250;
     const visibleRegularColumns = visibleColumns.length - 1;
-    
-    return checkboxColumnWidth + nameColumnWidth + (visibleRegularColumns * regularColumnWidth);
+
+    return checkboxColumnWidth + nameColumnWidth + visibleRegularColumns * regularColumnWidth;
   };
 
   const handleSelectAll = (checked: boolean) => {
-    const currentPageLeadIds = paginatedLeads.map(lead => lead.id);
+    const currentPageLeadIds = paginatedLeads.map((lead) => lead.id);
     if (onLeadSelectionChange) {
       onLeadSelectionChange(currentPageLeadIds, checked);
     }
@@ -514,13 +528,13 @@ export function LeadsTable({
     }
   };
 
-  const isAllSelected = paginatedLeads.length > 0 && paginatedLeads.every(lead => selectedLeads.includes(lead.id));
-  const isIndeterminate = paginatedLeads.some(lead => selectedLeads.includes(lead.id)) && !isAllSelected;
+  const isAllSelected = paginatedLeads.length > 0 && paginatedLeads.every((lead) => selectedLeads.includes(lead.id));
+  const isIndeterminate = paginatedLeads.some((lead) => selectedLeads.includes(lead.id)) && !isAllSelected;
 
-  const handleSort = (columnKey: string, direction?: 'asc' | 'desc') => {
+  const handleSort = (columnKey: string, direction?: "asc" | "desc") => {
     if (!setSortBy || !setSortDirection) return;
-    
-    const newDirection = direction || (sortBy === columnKey && sortDirection === 'asc' ? 'desc' : 'asc');
+
+    const newDirection = direction || (sortBy === columnKey && sortDirection === "asc" ? "desc" : "asc");
     console.log(`Sorting by ${columnKey} in ${newDirection} direction`);
     setSortBy(columnKey);
     setSortDirection(newDirection);
@@ -536,26 +550,22 @@ export function LeadsTable({
     if (!sortBy || sortBy !== columnKey) {
       return null;
     }
-    
-    return sortDirection === 'asc' ? (
-      <ChevronUp className="h-4 w-4 ml-1" />
-    ) : (
-      <ChevronDown className="h-4 w-4 ml-1" />
-    );
+
+    return sortDirection === "asc" ? <ChevronUp className="h-4 w-4 ml-1" /> : <ChevronDown className="h-4 w-4 ml-1" />;
   };
 
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
 
     if (active.id !== over?.id) {
-      const oldIndex = otherColumns.findIndex(col => col.key === active.id);
-      const newIndex = otherColumns.findIndex(col => col.key === over?.id);
-      
+      const oldIndex = otherColumns.findIndex((col) => col.key === active.id);
+      const newIndex = otherColumns.findIndex((col) => col.key === over?.id);
+
       if (oldIndex !== -1 && newIndex !== -1) {
         const newOtherColumns = [...otherColumns];
         const [reorderedColumn] = newOtherColumns.splice(oldIndex, 1);
         newOtherColumns.splice(newIndex, 0, reorderedColumn);
-        
+
         const newActiveColumns = nameColumn ? [nameColumn, ...newOtherColumns] : newOtherColumns;
         setActiveColumns(newActiveColumns);
         saveColumnConfig(newActiveColumns);
@@ -565,36 +575,36 @@ export function LeadsTable({
 
   const handleLeadAction = (action: string, lead: Lead, e: React.MouseEvent) => {
     e.stopPropagation();
-    
+
     switch (action) {
-      case 'edit':
+      case "edit":
         onLeadClick(lead);
         break;
-      case 'email':
+      case "email":
         if (onSendEmail) {
           onSendEmail(lead);
         }
         break;
-      case 'profile':
+      case "profile":
         if (onOpenProfiler) {
           onOpenProfiler(lead);
         }
         break;
-      case 'notes':
-        console.log('Ver notas del lead:', lead.name);
+      case "notes":
+        console.log("Ver notas del lead:", lead.name);
         break;
-      case 'whatsapp':
+      case "whatsapp":
         if (lead.phone) {
-          const cleanPhone = lead.phone.replace(/\D/g, '');
-          window.open(`https://wa.me/${cleanPhone}`, '_blank');
+          const cleanPhone = lead.phone.replace(/\D/g, "");
+          window.open(`https://wa.me/${cleanPhone}`, "_blank");
         } else {
-          console.log('No hay número de teléfono disponible para este lead');
+          console.log("No hay número de teléfono disponible para este lead");
         }
         break;
-      case 'outlook':
+      case "outlook":
         handleOutlookSchedule(lead);
         break;
-      case 'delete':
+      case "delete":
         handleDeleteLead(lead);
         break;
       default:
@@ -605,49 +615,50 @@ export function LeadsTable({
   const handleOutlookSchedule = (lead: Lead) => {
     const startDate = new Date();
     startDate.setHours(startDate.getHours() + 1); // Una hora desde ahora
-    
+
     const endDate = new Date(startDate);
     endDate.setHours(endDate.getHours() + 1); // Duración de 1 hora
-    
+
     const subject = `Reunión con ${lead.name}`;
     const body = `Reunión programada con el lead: ${lead.name}
     
-Email: ${lead.email || 'No disponible'}
-Teléfono: ${lead.phone || 'No disponible'}
-Campaña: ${lead.campaign || 'No disponible'}
+Email: ${lead.email || "No disponible"}
+Teléfono: ${lead.phone || "No disponible"}
+Campaña: ${lead.campaign || "No disponible"}
 Etapa: ${lead.stage}
 
 Por favor, confirmar asistencia.`;
-    
+
     const params = new URLSearchParams({
       subject: subject,
       body: body,
       startdt: startDate.toISOString(),
-      enddt: endDate.toISOString()
+      enddt: endDate.toISOString(),
     });
-    
+
     // Si hay email del lead, agregarlo como invitado
     if (lead.email) {
-      params.append('to', lead.email);
+      params.append("to", lead.email);
     }
-    
+
     const outlookUrl = `https://outlook.office365.com/calendar/0/deeplink/compose?${params.toString()}`;
-    window.open(outlookUrl, '_blank');
+    window.open(outlookUrl, "_blank");
   };
 
   const handleDeleteLead = (lead: Lead) => {
-    console.log('🗑️ LeadsTable: Attempting to delete lead:', lead.id, 'canDelete:', canDeleteLead(lead));
+    console.log("🗑️ LeadsTable: Attempting to delete lead:", lead.id, "canDelete:", canDeleteLead(lead));
     if (!canDeleteLead(lead)) {
-      const message = 'No tienes permisos para eliminar este lead. Solo puedes eliminar leads que hayas creado y tengas asignados.';
-      console.log('❌ LeadsTable: Permission denied:', message);
+      const message =
+        "No tienes permisos para eliminar este lead. Solo puedes eliminar leads que hayas creado y tengas asignados.";
+      console.log("❌ LeadsTable: Permission denied:", message);
       toast({
         title: "Permisos insuficientes",
         description: message,
-        variant: "destructive"
+        variant: "destructive",
       });
       return;
     }
-    console.log('✅ LeadsTable: Permission granted, showing delete dialog');
+    console.log("✅ LeadsTable: Permission granted, showing delete dialog");
     setLeadsToDelete([lead]);
     setShowDeleteDialog(true);
   };
@@ -666,21 +677,17 @@ Por favor, confirmar asistencia.`;
     // Use assignedToName directly from API response - no need for user lookup
 
     // Manejar columnas dinámicas de additionalInfo
-    if (columnKey.startsWith('additionalInfo.')) {
-      const key = columnKey.replace('additionalInfo.', '');
+    if (columnKey.startsWith("additionalInfo.")) {
+      const key = columnKey.replace("additionalInfo.", "");
       const value = lead.additionalInfo?.[key];
-      return (
-        <span className="text-gray-700 text-xs text-center">
-          {value || '-'}
-        </span>
-      );
+      return <span className="text-gray-700 text-xs text-center">{value || "-"}</span>;
     }
 
     switch (columnKey) {
-      case 'name':
+      case "name":
         return (
           <div className="flex items-center justify-between w-full">
-            <div 
+            <div
               className="text-gray-900 font-bold text-xs truncate pr-2 cursor-pointer hover:text-[#00C73D]"
               onClick={(e) => {
                 e.stopPropagation();
@@ -701,30 +708,30 @@ Por favor, confirmar asistencia.`;
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-48 bg-white border shadow-lg">
-                <DropdownMenuItem onClick={(e) => handleLeadAction('edit', lead, e)}>
+                <DropdownMenuItem onClick={(e) => handleLeadAction("edit", lead, e)}>
                   <Edit className="mr-2 h-4 w-4" />
                   Edición rápida
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={(e) => handleLeadAction('email', lead, e)}>
+                <DropdownMenuItem onClick={(e) => handleLeadAction("email", lead, e)}>
                   <Mail className="mr-2 h-4 w-4" />
                   Enviar Email
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={(e) => handleLeadAction('whatsapp', lead, e)}>
+                <DropdownMenuItem onClick={(e) => handleLeadAction("whatsapp", lead, e)}>
                   <FaWhatsapp className="mr-2 h-4 w-4" />
                   Enviar WhatsApp
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={(e) => handleLeadAction('outlook', lead, e)}>
+                <DropdownMenuItem onClick={(e) => handleLeadAction("outlook", lead, e)}>
                   <Calendar className="mr-2 h-4 w-4" />
                   Agendar reunión
                 </DropdownMenuItem>
                 {onOpenProfiler && (
-                  <DropdownMenuItem onClick={(e) => handleLeadAction('profile', lead, e)}>
+                  <DropdownMenuItem onClick={(e) => handleLeadAction("profile", lead, e)}>
                     <UserIcon className="mr-2 h-4 w-4" />
                     Perfilar lead
                   </DropdownMenuItem>
                 )}
-                <DropdownMenuItem 
-                  onClick={(e) => handleLeadAction('delete', lead, e)}
+                <DropdownMenuItem
+                  onClick={(e) => handleLeadAction("delete", lead, e)}
                   className="text-red-600 focus:text-red-600"
                 >
                   <Trash2 className="mr-2 h-4 w-4" />
@@ -734,101 +741,53 @@ Por favor, confirmar asistencia.`;
             </DropdownMenu>
           </div>
         );
-      case 'email':
-        return (
-          <div className="text-gray-700 text-xs text-center">
-            {(lead.email || '').toLowerCase()}
-          </div>
-        );
-      case 'phone':
-        return (
-          <div className="text-gray-700 text-xs text-center">
-            {lead.phone || '-'}
-          </div>
-        );
-      case 'company':
-        return (
-          <div className="text-gray-700 text-xs text-center">
-            {lead.company || '-'}
-          </div>
-        );
-      case 'documentNumber':
-        return (
-          <div className="text-gray-700 text-xs text-center">
-            {lead.documentNumber || '-'}
-          </div>
-        );
-      case 'product':
-        return (
-          <span className="text-gray-700 text-xs text-center">
-            {cleanProductField(lead.product) || '-'}
-          </span>
-        );
-      case 'campaign':
-        return (
-          <span className="text-gray-700 text-xs text-center">
-            {lead.campaign || '-'}
-          </span>
-        );
-      case 'source':
+      case "email":
+        return <div className="text-gray-700 text-xs text-center">{(lead.email || "").toLowerCase()}</div>;
+      case "phone":
+        return <div className="text-gray-700 text-xs text-center">{lead.phone || "-"}</div>;
+      case "company":
+        return <div className="text-gray-700 text-xs text-center">{lead.company || "-"}</div>;
+      case "occupation":
+        return <div className="text-gray-700 text-xs text-center">{lead.occupation || "-"}</div>;
+      case "documentNumber":
+        return <div className="text-gray-700 text-xs text-center">{lead.documentNumber || "-"}</div>;
+      case "product":
+        return <span className="text-gray-700 text-xs text-center">{cleanProductField(lead.product) || "-"}</span>;
+      case "campaign":
+        return <span className="text-gray-700 text-xs text-center">{lead.campaign || "-"}</span>;
+      case "source":
         return <span className="text-gray-700 text-xs capitalize text-center">{lead.source}</span>;
-      case 'stage':
-        return (
-          <EditableLeadCell
-            lead={lead}
-            field="stage"
-            onUpdate={() => onLeadUpdate?.()}
-          />
-        );
-      case 'assignedTo':
-        return (
-          <EditableLeadCell
-            lead={lead}
-            field="assignedTo"
-            onUpdate={() => onLeadUpdate?.()}
-          />
-        );
-      case 'assignedToName':
-        return (
-          <EditableLeadCell
-            lead={lead}
-            field="assignedToName"
-            onUpdate={() => onLeadUpdate?.()}
-          />
-        );
-      case 'lastInteraction':
-        return (
-          <span className="text-gray-700 text-xs text-center">
-            {formatBogotaDate(lead.updatedAt)}
-          </span>
-        );
-      case 'value':
+      case "stage":
+        return <EditableLeadCell lead={lead} field="stage" onUpdate={() => onLeadUpdate?.()} />;
+      case "assignedTo":
+        return <EditableLeadCell lead={lead} field="assignedTo" onUpdate={() => onLeadUpdate?.()} />;
+      case "assignedToName":
+        return <EditableLeadCell lead={lead} field="assignedToName" onUpdate={() => onLeadUpdate?.()} />;
+      case "lastInteraction":
+        return <span className="text-gray-700 text-xs text-center">{formatBogotaDate(lead.updatedAt)}</span>;
+      case "value":
         return <span className="text-gray-800 font-medium text-xs text-center">${lead.value.toLocaleString()}</span>;
-      case 'priority':
+      case "priority":
         const priorityLabels = {
-          'low': 'Baja',
-          'medium': 'Media',
-          'high': 'Alta',
-          'urgent': 'Urgente'
+          low: "Baja",
+          medium: "Media",
+          high: "Alta",
+          urgent: "Urgente",
         };
         return (
           <div className="text-gray-700 text-xs text-center">
-            {priorityLabels[lead.priority as keyof typeof priorityLabels] || lead.priority || '-'}
+            {priorityLabels[lead.priority as keyof typeof priorityLabels] || lead.priority || "-"}
           </div>
         );
-      case 'createdAt':
-        return (
-          <span className="text-center text-gray-700 text-xs">
-            {formatBogotaDate(lead.createdAt)}
-          </span>
-        );
-      case 'nextFollowUp':
+      case "createdAt":
+        return <span className="text-center text-gray-700 text-xs">{formatBogotaDate(lead.createdAt)}</span>;
+      case "nextFollowUp":
         return (
           <span className="text-gray-700 text-xs text-center">
-            {lead.nextFollowUp ? formatBogotaDate(lead.nextFollowUp) : '-'}
+            {lead.nextFollowUp ? formatBogotaDate(lead.nextFollowUp) : "-"}
           </span>
-             );
-      case 'tags':
+        );
+      case "tags":
         return (
           <div className="flex flex-wrap gap-1 justify-center max-w-[200px]">
             {lead.tags && lead.tags.length > 0 ? (
@@ -845,30 +804,33 @@ Por favor, confirmar asistencia.`;
             )}
           </div>
         );
-      case 'age':
-      case 'gender':
-      case 'preferredContactChannel':
-      case 'documentType':
-      case 'alternateEmail':
-        return <span className="text-center text-gray-700 text-xs">{lead[columnKey] || '-'}</span>;
-      case 'lastGestorName':
-        return <span className="text-center text-gray-700 text-xs">{lead.lastGestorName || '-'}</span>;
-      case 'lastGestorInteractionAt':
+      case "age":
+      case "gender":
+      case "preferredContactChannel":
+      case "documentType":
+      case "alternateEmail":
+        return <span className="text-center text-gray-700 text-xs">{lead[columnKey] || "-"}</span>;
+      case "lastGestorName":
+        return <span className="text-center text-gray-700 text-xs">{lead.lastGestorName || "-"}</span>;
+      case "lastGestorInteractionAt":
         return (
           <span className="text-center text-gray-700 text-xs">
-            {lead.lastGestorInteractionAt ? formatBogotaDate(lead.lastGestorInteractionAt) : '-'}
+            {lead.lastGestorInteractionAt ? formatBogotaDate(lead.lastGestorInteractionAt) : "-"}
           </span>
         );
-      case 'lastGestorInteractionStage':
-        return <span className="text-center text-gray-700 text-xs">{lead.lastGestorInteractionStage || '-'}</span>;
-      case 'lastGestorInteractionDescription':
+      case "lastGestorInteractionStage":
+        return <span className="text-center text-gray-700 text-xs">{lead.lastGestorInteractionStage || "-"}</span>;
+      case "lastGestorInteractionDescription":
         return (
-          <span className="text-center text-gray-700 text-xs max-w-[200px] truncate" title={lead.lastGestorInteractionDescription || ''}>
-            {lead.lastGestorInteractionDescription || '-'}
+          <span
+            className="text-center text-gray-700 text-xs max-w-[200px] truncate"
+            title={lead.lastGestorInteractionDescription || ""}
+          >
+            {lead.lastGestorInteractionDescription || "-"}
           </span>
         );
       default:
-        return <span className="text-center text-gray-700 text-xs">{lead[columnKey] || '-'}</span>;
+        return <span className="text-center text-gray-700 text-xs">{lead[columnKey] || "-"}</span>;
     }
   };
 
@@ -877,16 +839,12 @@ Por favor, confirmar asistencia.`;
       <div className="leads-table-container-scroll">
         <div className="leads-table-scroll-wrapper shadow-sm border">
           <div className="leads-table-inner-scroll">
-            <DndContext
-              sensors={sensors}
-              collisionDetection={closestCenter}
-              onDragEnd={handleDragEnd}
-            >
-              <Table 
+            <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+              <Table
                 className="w-full"
-                style={{ 
+                style={{
                   width: `${calculateTableWidth()}px`,
-                  minWidth: `${calculateTableWidth()}px`
+                  minWidth: `${calculateTableWidth()}px`,
                 }}
               >
                 <TableHeader className="leads-table-header-sticky">
@@ -896,57 +854,61 @@ Por favor, confirmar asistencia.`;
                         <Checkbox
                           checked={isAllSelected}
                           onCheckedChange={handleSelectAll}
-                          className={isIndeterminate ? "data-[state=indeterminate]:bg-primary data-[state=indeterminate]:text-primary-foreground" : ""}
+                          className={
+                            isIndeterminate
+                              ? "data-[state=indeterminate]:bg-primary data-[state=indeterminate]:text-primary-foreground"
+                              : ""
+                          }
                           {...(isIndeterminate ? { "data-state": "indeterminate" } : {})}
                         />
                       </div>
                     </TableHead>
-                    
-                     {nameColumn && (
-                       <SortableHeader
-                         column={nameColumn}
-                         onSort={handleSort}
-                         onColumnHeaderClick={handleColumnHeaderClick}
-                         renderSortIcon={renderSortIcon}
-                         leads={leads}
-                         columnFilters={columnFilters || {}}
-                         textFilters={textFilters || {}}
-                         onColumnFilterChange={onColumnFilterChange || (() => {})}
-                         onTextFilterChange={onTextFilterChange || (() => {})}
-                         onClearFilter={onClearColumnFilter || (() => {})}
-                         isNameColumn={true}
-                         searchTerm={searchTerm}
-                         currentApiFilters={convertFiltersToApiFormat}
-                       />
-                     )}
-                    
-                     <SortableContext items={otherColumns.map(col => col.key)} strategy={horizontalListSortingStrategy}>
-                        {otherColumns.map((column) => (
-                          <SortableHeader
-                            key={column.key}
-                            column={column}
-                            onSort={handleSort}
-                            onColumnHeaderClick={handleColumnHeaderClick}
-                            renderSortIcon={renderSortIcon}
-                            leads={leads}
-                            columnFilters={columnFilters || {}}
-                            textFilters={textFilters || {}}
-                            onColumnFilterChange={onColumnFilterChange || (() => {})}
-                            onTextFilterChange={onTextFilterChange || (() => {})}
-                            onClearFilter={onClearColumnFilter || (() => {})}
-                            searchTerm={searchTerm}
-                            currentApiFilters={convertFiltersToApiFormat}
-                          />
-                        ))}
-                     </SortableContext>
+
+                    {nameColumn && (
+                      <SortableHeader
+                        column={nameColumn}
+                        onSort={handleSort}
+                        onColumnHeaderClick={handleColumnHeaderClick}
+                        renderSortIcon={renderSortIcon}
+                        leads={leads}
+                        columnFilters={columnFilters || {}}
+                        textFilters={textFilters || {}}
+                        onColumnFilterChange={onColumnFilterChange || (() => {})}
+                        onTextFilterChange={onTextFilterChange || (() => {})}
+                        onClearFilter={onClearColumnFilter || (() => {})}
+                        isNameColumn={true}
+                        searchTerm={searchTerm}
+                        currentApiFilters={convertFiltersToApiFormat}
+                      />
+                    )}
+
+                    <SortableContext
+                      items={otherColumns.map((col) => col.key)}
+                      strategy={horizontalListSortingStrategy}
+                    >
+                      {otherColumns.map((column) => (
+                        <SortableHeader
+                          key={column.key}
+                          column={column}
+                          onSort={handleSort}
+                          onColumnHeaderClick={handleColumnHeaderClick}
+                          renderSortIcon={renderSortIcon}
+                          leads={leads}
+                          columnFilters={columnFilters || {}}
+                          textFilters={textFilters || {}}
+                          onColumnFilterChange={onColumnFilterChange || (() => {})}
+                          onTextFilterChange={onTextFilterChange || (() => {})}
+                          onClearFilter={onClearColumnFilter || (() => {})}
+                          searchTerm={searchTerm}
+                          currentApiFilters={convertFiltersToApiFormat}
+                        />
+                      ))}
+                    </SortableContext>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {paginatedLeads.map((lead, index) => (
-                    <TableRow 
-                      key={lead.id}
-                      className="hover:bg-[#fafafa] transition-colors border-[#fafafa]"
-                    >
+                    <TableRow key={lead.id} className="hover:bg-[#fafafa] transition-colors border-[#fafafa]">
                       <TableCell className="w-[50px] px-4 py-3 text-center">
                         <div className="flex items-center justify-center">
                           <Checkbox
@@ -955,18 +917,15 @@ Por favor, confirmar asistencia.`;
                           />
                         </div>
                       </TableCell>
-                      
+
                       {nameColumn && (
                         <TableCell className="px-4 py-3 text-xs text-center leads-name-column-sticky">
                           {renderCellContent(lead, nameColumn.key)}
                         </TableCell>
                       )}
-                      
+
                       {otherColumns.map((column) => (
-                        <TableCell 
-                          key={column.key} 
-                          className="px-4 py-3 text-xs text-center leads-regular-column"
-                        >
+                        <TableCell key={column.key} className="px-4 py-3 text-xs text-center leads-regular-column">
                           {renderCellContent(lead, column.key)}
                         </TableCell>
                       ))}

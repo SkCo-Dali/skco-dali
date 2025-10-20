@@ -37,7 +37,7 @@ export function LeadsBulkAssignment({ leads, onLeadsAssigned }: LeadsBulkAssignm
   const { handleReassignLead } = useLeadAssignments();
 
   // Filtrar solo usuarios con rol de gestor
-  const gestorUsers = users.filter(user => user.Role === 'gestor');
+  const gestorUsers = users.filter((user) => user.Role === "gestor");
 
   // Mapear PaginatedLead a Lead
   const mapPaginatedLeadToLead = (paginatedLead: PaginatedLead): Lead => {
@@ -47,15 +47,21 @@ export function LeadsBulkAssignment({ leads, onLeadsAssigned }: LeadsBulkAssignm
 
     try {
       if (paginatedLead.Tags) tags = JSON.parse(paginatedLead.Tags);
-    } catch { tags = []; }
+    } catch {
+      tags = [];
+    }
 
     try {
       if (paginatedLead.SelectedPortfolios) portfolios = JSON.parse(paginatedLead.SelectedPortfolios);
-    } catch { portfolios = []; }
+    } catch {
+      portfolios = [];
+    }
 
     try {
       if (paginatedLead.AdditionalInfo) additionalInfo = JSON.parse(paginatedLead.AdditionalInfo);
-    } catch { additionalInfo = null; }
+    } catch {
+      additionalInfo = null;
+    }
 
     return {
       id: paginatedLead.Id,
@@ -64,6 +70,7 @@ export function LeadsBulkAssignment({ leads, onLeadsAssigned }: LeadsBulkAssignm
       phone: paginatedLead.Phone,
       documentNumber: parseInt(paginatedLead.DocumentNumber) || 0,
       company: paginatedLead.Company,
+      occupation: paginatedLead.Occupation,
       source: paginatedLead.Source,
       campaign: paginatedLead.Campaign,
       product: paginatedLead.Product,
@@ -84,8 +91,8 @@ export function LeadsBulkAssignment({ leads, onLeadsAssigned }: LeadsBulkAssignm
       age: paginatedLead.Age ? parseInt(paginatedLead.Age) : undefined,
       gender: paginatedLead.Gender,
       preferredContactChannel: paginatedLead.PreferredContactChannel,
-      status: 'New' as LeadStatus,
-      portfolio: portfolios[0] || 'Portfolio A',
+      status: "New" as LeadStatus,
+      portfolio: portfolios[0] || "Portfolio A",
       ...additionalInfo,
       lastGestorUserId: paginatedLead.LastGestorUserId,
       lastGestorName: paginatedLead.LastGestorName,
@@ -103,11 +110,12 @@ export function LeadsBulkAssignment({ leads, onLeadsAssigned }: LeadsBulkAssignm
       if (leads.length > 0) {
         console.log(`✅ Using ${leads.length} selected leads`);
         // Filtrar solo los que están en estado Nuevo
-        const newLeads = leads.filter(lead => 
-          lead.stage?.toLowerCase() === 'nuevo' || 
-          lead.stage?.toLowerCase() === 'new' || 
-          lead.stage === 'Nuevo' || 
-          lead.stage === 'new'
+        const newLeads = leads.filter(
+          (lead) =>
+            lead.stage?.toLowerCase() === "nuevo" ||
+            lead.stage?.toLowerCase() === "new" ||
+            lead.stage === "Nuevo" ||
+            lead.stage === "new",
         );
         setAllNewLeads(newLeads);
         setIsLoadingLeads(false);
@@ -117,7 +125,7 @@ export function LeadsBulkAssignment({ leads, onLeadsAssigned }: LeadsBulkAssignm
       // Si NO hay selección, cargar todos los leads nuevos del API
       setIsLoadingLeads(true);
       console.log('🔄 No selection detected. Loading all leads with stage="Nuevo"...');
-      
+
       try {
         const allLeads: Lead[] = [];
         let currentPage = 1;
@@ -127,18 +135,18 @@ export function LeadsBulkAssignment({ leads, onLeadsAssigned }: LeadsBulkAssignm
         // Hacer llamadas paginadas hasta obtener todos los leads
         while (currentPage <= totalPages) {
           console.log(`📡 Fetching page ${currentPage} of ${totalPages}...`);
-          
+
           const response = await getReassignableLeadsPaginated({
             page: currentPage,
             page_size: pageSize,
             filters: {
-              Stage: { op: 'eq', value: 'Nuevo' }
-            }
+              Stage: { op: "eq", value: "Nuevo" },
+            },
           });
 
           const mappedLeads = response.items.map(mapPaginatedLeadToLead);
           allLeads.push(...mappedLeads);
-          
+
           totalPages = response.total_pages;
           currentPage++;
 
@@ -148,7 +156,7 @@ export function LeadsBulkAssignment({ leads, onLeadsAssigned }: LeadsBulkAssignm
         console.log(`✅ Total leads loaded: ${allLeads.length}`);
         setAllNewLeads(allLeads);
       } catch (error) {
-        console.error('❌ Error loading new leads:', error);
+        console.error("❌ Error loading new leads:", error);
         toast({
           title: "Error",
           description: "Error al cargar leads nuevos",
@@ -163,123 +171,128 @@ export function LeadsBulkAssignment({ leads, onLeadsAssigned }: LeadsBulkAssignm
   }, [leads]);
 
   // Obtener campañas únicas de los leads cargados
-  const uniqueCampaigns = Array.from(new Set(allNewLeads.map(lead => lead.campaign).filter(Boolean)));
+  const uniqueCampaigns = Array.from(new Set(allNewLeads.map((lead) => lead.campaign).filter(Boolean)));
 
   // Filtrar leads por campaña seleccionada
-  const filteredLeads = allNewLeads.filter(lead => {
+  const filteredLeads = allNewLeads.filter((lead) => {
     const matchesCampaign = selectedCampaign === "all" || lead.campaign === selectedCampaign;
     return matchesCampaign;
   });
 
-  console.log('Filtered leads for assignment:', filteredLeads.length);
-  console.log('Gestor users:', gestorUsers);
+  console.log("Filtered leads for assignment:", filteredLeads.length);
+  console.log("Gestor users:", gestorUsers);
 
   // Inicializar asignaciones cuando cambien los usuarios gestores
   useEffect(() => {
     if (gestorUsers.length > 0) {
-      console.log('Initializing user assignments for', gestorUsers.length, 'gestors');
-      setUserAssignments(gestorUsers.map(user => ({
-        userId: user.Id,
-        userName: user.Name,
-        quantity: 0
-      })));
+      console.log("Initializing user assignments for", gestorUsers.length, "gestors");
+      setUserAssignments(
+        gestorUsers.map((user) => ({
+          userId: user.Id,
+          userName: user.Name,
+          quantity: 0,
+        })),
+      );
     }
   }, [gestorUsers.length]);
 
   // Resetear asignaciones cuando cambie la campaña
   useEffect(() => {
     if (gestorUsers.length > 0) {
-      console.log('Resetting assignments for campaign change');
-      setUserAssignments(gestorUsers.map(user => ({
-        userId: user.Id,
-        userName: user.Name,
-        quantity: 0
-      })));
+      console.log("Resetting assignments for campaign change");
+      setUserAssignments(
+        gestorUsers.map((user) => ({
+          userId: user.Id,
+          userName: user.Name,
+          quantity: 0,
+        })),
+      );
     }
   }, [selectedCampaign]);
 
   const handleEquitableAssignment = () => {
     if (gestorUsers.length === 0 || filteredLeads.length === 0) {
-      console.log('Cannot distribute: no gestors or no leads');
+      console.log("Cannot distribute: no gestors or no leads");
       return;
     }
-    
+
     const totalLeads = filteredLeads.length;
     const baseQuantity = Math.floor(totalLeads / gestorUsers.length);
     const remainder = totalLeads % gestorUsers.length;
 
-    console.log('Distributing equitably:', { totalLeads, baseQuantity, remainder });
+    console.log("Distributing equitably:", { totalLeads, baseQuantity, remainder });
 
     const newAssignments = gestorUsers.map((user, index) => ({
       userId: user.Id,
       userName: user.Name,
-      quantity: baseQuantity + (index < remainder ? 1 : 0)
+      quantity: baseQuantity + (index < remainder ? 1 : 0),
     }));
 
-    console.log('New equitable assignments:', newAssignments);
+    console.log("New equitable assignments:", newAssignments);
     setUserAssignments(newAssignments);
   };
 
   const updateUserQuantity = (userId: string, quantity: number) => {
-    console.log('Updating quantity for user', userId, 'to', quantity);
-    
+    console.log("Updating quantity for user", userId, "to", quantity);
+
     // Asegurar que la cantidad esté dentro del rango válido
     const validQuantity = Math.max(0, Math.min(quantity || 0, filteredLeads.length));
-    
-    setUserAssignments(prev => {
-      const updated = prev.map(assignment =>
-        assignment.userId === userId 
-          ? { ...assignment, quantity: validQuantity }
-          : assignment
+
+    setUserAssignments((prev) => {
+      const updated = prev.map((assignment) =>
+        assignment.userId === userId ? { ...assignment, quantity: validQuantity } : assignment,
       );
-      console.log('Updated assignments:', updated);
+      console.log("Updated assignments:", updated);
       return updated;
     });
   };
 
   const addUserAssignment = () => {
-    console.log('Adding user assignment');
-    const availableUsers = gestorUsers.filter(user => 
-      !userAssignments.some(assignment => assignment.userId === user.Id)
+    console.log("Adding user assignment");
+    const availableUsers = gestorUsers.filter(
+      (user) => !userAssignments.some((assignment) => assignment.userId === user.Id),
     );
-    
+
     if (availableUsers.length > 0) {
       const newUser = availableUsers[0];
-      console.log('Adding user:', newUser.Name);
-      setUserAssignments(prev => {
-        const updated = [...prev, {
-          userId: newUser.Id,
-          userName: newUser.Name,
-          quantity: 0
-        }];
-        console.log('Updated assignments after add:', updated);
+      console.log("Adding user:", newUser.Name);
+      setUserAssignments((prev) => {
+        const updated = [
+          ...prev,
+          {
+            userId: newUser.Id,
+            userName: newUser.Name,
+            quantity: 0,
+          },
+        ];
+        console.log("Updated assignments after add:", updated);
         return updated;
       });
     } else {
-      console.log('No available users to add');
+      console.log("No available users to add");
     }
   };
 
   const removeUserAssignment = (userId: string) => {
-    console.log('Removing user assignment for:', userId);
-    setUserAssignments(prev => {
-      const updated = prev.filter(assignment => assignment.userId !== userId);
-      console.log('Updated assignments after remove:', updated);
+    console.log("Removing user assignment for:", userId);
+    setUserAssignments((prev) => {
+      const updated = prev.filter((assignment) => assignment.userId !== userId);
+      console.log("Updated assignments after remove:", updated);
       return updated;
     });
   };
 
   const getTotalAssigned = () => {
     const total = userAssignments.reduce((sum, assignment) => sum + (assignment.quantity || 0), 0);
-    console.log('Total assigned:', total);
+    console.log("Total assigned:", total);
     return total;
   };
 
   const handleAssign = async () => {
     const totalAssigned = getTotalAssigned();
-    
-    console.log('Starting assignment process. Total to assign:', totalAssigned);
-    
+
+    console.log("Starting assignment process. Total to assign:", totalAssigned);
+
     if (totalAssigned === 0) {
       toast({
         title: "Error",
@@ -311,31 +324,31 @@ export function LeadsBulkAssignment({ leads, onLeadsAssigned }: LeadsBulkAssignm
         if (assignment.quantity > 0) {
           // Tomar los leads necesarios para este usuario
           const leadsToAssign = filteredLeads.slice(leadIndex, leadIndex + assignment.quantity);
-          const leadIds = leadsToAssign.map(lead => lead.id);
-          
+          const leadIds = leadsToAssign.map((lead) => lead.id);
+
           console.log(`Assigning ${leadIds.length} leads to user ${assignment.userName}`);
-          
+
           // Guardar info para el histórico
-          leadsToAssign.forEach(lead => {
+          leadsToAssign.forEach((lead) => {
             allLeadsToAssign.push({
               lead,
               toUserId: assignment.userId,
-              toUserName: assignment.userName
+              toUserName: assignment.userName,
             });
           });
-          
+
           // Llamar a bulk-assign para hacer la asignación real
           if (leadIds.length > 0) {
             bulkAssignPromises.push(bulkAssignLeads(leadIds, assignment.userId));
           }
-          
+
           leadIndex += assignment.quantity;
         }
       }
 
       // Ejecutar todas las asignaciones masivas
       await Promise.all(bulkAssignPromises);
-      
+
       // Paso 2: Guardar histórico de cada asignación
       allLeadsToAssign.forEach(({ lead, toUserId, toUserName }) => {
         historicPromises.push(
@@ -345,17 +358,17 @@ export function LeadsBulkAssignment({ leads, onLeadsAssigned }: LeadsBulkAssignm
             "Asignación masiva",
             `Asignado masivamente a ${toUserName}`,
             lead.stage,
-            lead.assignedTo  // from_user_id: usuario actual del lead
-          )
+            lead.assignedTo, // from_user_id: usuario actual del lead
+          ),
         );
       });
 
       // Ejecutar todas las guardadas de histórico
       const results = await Promise.all(historicPromises);
-      
+
       // Verificar si todas fueron exitosas
-      const successCount = results.filter(success => success).length;
-      
+      const successCount = results.filter((success) => success).length;
+
       if (successCount === totalAssigned) {
         toast({
           title: "Éxito",
@@ -368,22 +381,23 @@ export function LeadsBulkAssignment({ leads, onLeadsAssigned }: LeadsBulkAssignm
           variant: "destructive",
         });
       }
-      
+
       onLeadsAssigned();
-      
+
       // Resetear estado
       setSelectedCampaign("all");
       setAssignmentType("equitable");
       if (gestorUsers.length > 0) {
-        setUserAssignments(gestorUsers.map(user => ({
-          userId: user.Id,
-          userName: user.Name,
-          quantity: 0
-        })));
+        setUserAssignments(
+          gestorUsers.map((user) => ({
+            userId: user.Id,
+            userName: user.Name,
+            quantity: 0,
+          })),
+        );
       }
-      
     } catch (error) {
-      console.error('Error assigning leads:', error);
+      console.error("Error assigning leads:", error);
       toast({
         title: "Error",
         description: "Error al asignar leads. Intente nuevamente.",
@@ -395,13 +409,15 @@ export function LeadsBulkAssignment({ leads, onLeadsAssigned }: LeadsBulkAssignm
   };
 
   const handleTypeChange = (value: "equitable" | "specific") => {
-    console.log('Changing assignment type to:', value);
+    console.log("Changing assignment type to:", value);
     setAssignmentType(value);
     // Resetear cantidades al cambiar tipo
-    setUserAssignments(prev => prev.map(assignment => ({
-      ...assignment,
-      quantity: 0
-    })));
+    setUserAssignments((prev) =>
+      prev.map((assignment) => ({
+        ...assignment,
+        quantity: 0,
+      })),
+    );
   };
 
   return (
@@ -409,7 +425,7 @@ export function LeadsBulkAssignment({ leads, onLeadsAssigned }: LeadsBulkAssignm
       <DialogHeader>
         <DialogTitle>Asignación Masiva de Leads</DialogTitle>
       </DialogHeader>
-      
+
       {isLoadingLeads ? (
         <div className="flex flex-col items-center justify-center py-12 space-y-4">
           <Loader2 className="h-8 w-8 animate-spin text-primary" />
@@ -417,151 +433,149 @@ export function LeadsBulkAssignment({ leads, onLeadsAssigned }: LeadsBulkAssignm
         </div>
       ) : (
         <div className="space-y-6">
-        {/* Filtro de campaña */}
-        <div>
-          <Label>Filtrar por campaña</Label>
-          <Select value={selectedCampaign} onValueChange={setSelectedCampaign}>
-            <SelectTrigger>
-              <SelectValue placeholder="Todas las campañas" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Todas las campañas</SelectItem>
-              {uniqueCampaigns.map(campaign => (
-                <SelectItem key={campaign} value={campaign || ''}>
-                  {campaign || 'Sin campaña'}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-
-        {/* Información de leads disponibles */}
-        <div className="p-4 bg-blue-50 rounded-xl">
-          <p className="text-sm text-blue-800">
-            <strong>Leads nuevos disponibles:</strong> {filteredLeads.length}
-          </p>
-          {selectedCampaign !== "all" && (
-            <p className="text-sm text-blue-700">
-              Campaña: {selectedCampaign}
-            </p>
-          )}
-        </div>
-
-        {/* Tipo de asignación */}
-        <div>
-          <Label>Tipo de asignación</Label>
-          <Select value={assignmentType} onValueChange={handleTypeChange}>
-            <SelectTrigger>
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="equitable">Asignación equitativa</SelectItem>
-              <SelectItem value="specific">Cantidad específica por gestor</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-
-        {/* Botón de asignación equitativa */}
-        {assignmentType === "equitable" && (
+          {/* Filtro de campaña */}
           <div>
-            <Button 
-              onClick={handleEquitableAssignment}
-              variant="outline"
-              className="w-full"
-              disabled={filteredLeads.length === 0 || gestorUsers.length === 0}
+            <Label>Filtrar por campaña</Label>
+            <Select value={selectedCampaign} onValueChange={setSelectedCampaign}>
+              <SelectTrigger>
+                <SelectValue placeholder="Todas las campañas" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todas las campañas</SelectItem>
+                {uniqueCampaigns.map((campaign) => (
+                  <SelectItem key={campaign} value={campaign || ""}>
+                    {campaign || "Sin campaña"}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* Información de leads disponibles */}
+          <div className="p-4 bg-blue-50 rounded-xl">
+            <p className="text-sm text-blue-800">
+              <strong>Leads nuevos disponibles:</strong> {filteredLeads.length}
+            </p>
+            {selectedCampaign !== "all" && <p className="text-sm text-blue-700">Campaña: {selectedCampaign}</p>}
+          </div>
+
+          {/* Tipo de asignación */}
+          <div>
+            <Label>Tipo de asignación</Label>
+            <Select value={assignmentType} onValueChange={handleTypeChange}>
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="equitable">Asignación equitativa</SelectItem>
+                <SelectItem value="specific">Cantidad específica por gestor</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* Botón de asignación equitativa */}
+          {assignmentType === "equitable" && (
+            <div>
+              <Button
+                onClick={handleEquitableAssignment}
+                variant="outline"
+                className="w-full"
+                disabled={filteredLeads.length === 0 || gestorUsers.length === 0}
+              >
+                Distribuir equitativamente entre gestores
+              </Button>
+            </div>
+          )}
+
+          <Separator />
+
+          {/* Lista de asignaciones */}
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <Label>Asignaciones por gestor</Label>
+              {assignmentType === "specific" && (
+                <Button
+                  onClick={addUserAssignment}
+                  size="sm"
+                  variant="outline"
+                  className="gap-1"
+                  disabled={userAssignments.length >= gestorUsers.length}
+                >
+                  <Plus className="h-3 w-3" />
+                  Agregar gestor
+                </Button>
+              )}
+            </div>
+
+            <div className="space-y-3 max-h-60 overflow-y-auto">
+              {userAssignments.map((assignment) => (
+                <div key={assignment.userId} className="flex items-center gap-3 p-3 border rounded-xl">
+                  <div className="flex-1">
+                    <p className="font-medium">{assignment.userName}</p>
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <Label className="text-sm">Cantidad:</Label>
+                    <Input
+                      type="number"
+                      min="0"
+                      max={filteredLeads.length}
+                      value={assignment.quantity}
+                      onChange={(e) => {
+                        const newValue = parseInt(e.target.value);
+                        console.log("Input change for user", assignment.userId, ":", newValue);
+                        updateUserQuantity(assignment.userId, isNaN(newValue) ? 0 : newValue);
+                      }}
+                      className="w-20"
+                      disabled={assignmentType === "equitable"}
+                    />
+                  </div>
+
+                  {assignmentType === "specific" && userAssignments.length > 1 && (
+                    <Button
+                      onClick={() => removeUserAssignment(assignment.userId)}
+                      size="sm"
+                      variant="outline"
+                      className="p-1"
+                    >
+                      <Trash2 className="h-3 w-3" />
+                    </Button>
+                  )}
+                </div>
+              ))}
+            </div>
+
+            {/* Resumen */}
+            <div className="p-3 bg-gray-50 rounded-xl">
+              <div className="flex justify-between text-sm">
+                <span>Total a asignar:</span>
+                <span className="font-medium">{getTotalAssigned()}</span>
+              </div>
+              <div className="flex justify-between text-sm">
+                <span>Leads disponibles:</span>
+                <span className="font-medium">{filteredLeads.length}</span>
+              </div>
+              <div className="flex justify-between text-sm">
+                <span>Restantes:</span>
+                <span
+                  className={`font-medium ${filteredLeads.length - getTotalAssigned() < 0 ? "text-red-600" : "text-green-600"}`}
+                >
+                  {filteredLeads.length - getTotalAssigned()}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* Botones de acción */}
+          <div className="flex gap-2 pt-4">
+            <Button
+              onClick={handleAssign}
+              disabled={getTotalAssigned() === 0 || getTotalAssigned() > filteredLeads.length || isAssigning}
+              className="flex-1"
             >
-              Distribuir equitativamente entre gestores
+              {isAssigning ? "Asignando..." : "Asignar Leads"}
             </Button>
           </div>
-        )}
-
-        <Separator />
-
-        {/* Lista de asignaciones */}
-        <div className="space-y-4">
-          <div className="flex items-center justify-between">
-            <Label>Asignaciones por gestor</Label>
-            {assignmentType === "specific" && (
-              <Button
-                onClick={addUserAssignment}
-                size="sm"
-                variant="outline"
-                className="gap-1"
-                disabled={userAssignments.length >= gestorUsers.length}
-              >
-                <Plus className="h-3 w-3" />
-                Agregar gestor
-              </Button>
-            )}
-          </div>
-
-          <div className="space-y-3 max-h-60 overflow-y-auto">
-            {userAssignments.map((assignment) => (
-              <div key={assignment.userId} className="flex items-center gap-3 p-3 border rounded-xl">
-                <div className="flex-1">
-                  <p className="font-medium">{assignment.userName}</p>
-                </div>
-                
-                <div className="flex items-center gap-2">
-                  <Label className="text-sm">Cantidad:</Label>
-                  <Input
-                    type="number"
-                    min="0"
-                    max={filteredLeads.length}
-                    value={assignment.quantity}
-                    onChange={(e) => {
-                      const newValue = parseInt(e.target.value);
-                      console.log('Input change for user', assignment.userId, ':', newValue);
-                      updateUserQuantity(assignment.userId, isNaN(newValue) ? 0 : newValue);
-                    }}
-                    className="w-20"
-                    disabled={assignmentType === "equitable"}
-                  />
-                </div>
-
-                {assignmentType === "specific" && userAssignments.length > 1 && (
-                  <Button
-                    onClick={() => removeUserAssignment(assignment.userId)}
-                    size="sm"
-                    variant="outline"
-                    className="p-1"
-                  >
-                    <Trash2 className="h-3 w-3" />
-                  </Button>
-                )}
-              </div>
-            ))}
-          </div>
-
-          {/* Resumen */}
-          <div className="p-3 bg-gray-50 rounded-xl">
-            <div className="flex justify-between text-sm">
-              <span>Total a asignar:</span>
-              <span className="font-medium">{getTotalAssigned()}</span>
-            </div>
-            <div className="flex justify-between text-sm">
-              <span>Leads disponibles:</span>
-              <span className="font-medium">{filteredLeads.length}</span>
-            </div>
-            <div className="flex justify-between text-sm">
-              <span>Restantes:</span>
-              <span className={`font-medium ${filteredLeads.length - getTotalAssigned() < 0 ? 'text-red-600' : 'text-green-600'}`}>
-                {filteredLeads.length - getTotalAssigned()}
-              </span>
-            </div>
-          </div>
-        </div>
-
-        {/* Botones de acción */}
-        <div className="flex gap-2 pt-4">
-          <Button 
-            onClick={handleAssign}
-            disabled={getTotalAssigned() === 0 || getTotalAssigned() > filteredLeads.length || isAssigning}
-            className="flex-1"
-          >
-            {isAssigning ? 'Asignando...' : 'Asignar Leads'}
-          </Button>
-        </div>
         </div>
       )}
     </>

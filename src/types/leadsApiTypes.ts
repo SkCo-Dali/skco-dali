@@ -1,4 +1,3 @@
-
 // Interfaces para la API de Leads
 
 export interface ApiLead {
@@ -9,6 +8,7 @@ export interface ApiLead {
   Phone: string;
   DocumentNumber: number;
   Company: string;
+  Occupation: string;
   Source: string;
   Campaign: string;
   Product: string | string[]; // Puede venir como string JSON o array
@@ -42,6 +42,9 @@ export interface CreateLeadRequest {
   phone: string;
   documentNumber: number;
   company: string;
+  occupation: string;
+  // Some backends expect capitalized key as well; include for compatibility
+  Occupation?: string;
   source: string; // "DaliLM"
   campaign: string;
   product: string[];
@@ -67,6 +70,9 @@ export interface UpdateLeadRequest {
   phone?: string;
   documentNumber?: number;
   company?: string;
+  occupation?: string;
+  // Some backends expect capitalized key as well; include for compatibility
+  Occupation?: string;
   source: string;
   campaign?: string;
   product?: string[];
@@ -115,50 +121,50 @@ export interface MergeLeadsRequest {
 
 // Mapeo de stages entre frontend y API
 export const FRONTEND_TO_API_STAGE_MAP: Record<string, string> = {
-  'Eliminado': 'Eliminado',
-  'Nuevo': 'Nuevo',
-  'Asignado': 'Asignado',
-  'Localizado: No interesado': 'Localizado: No interesado',
-  'Localizado: Prospecto de venta FP': 'Localizado: Prospecto de venta FP',
-  'Localizado: Prospecto de venta AD': 'Localizado: Prospecto de venta AD',
-  'Localizado: Prospecto de venta - Pendiente': 'Localizado: Prospecto de venta - Pendiente',  
-  'Localizado: Volver a llamar': 'Localizado: Volver a llamar',
-  'Localizado: No vuelve a contestar': 'Localizado: No vuelve a contestar',
-  'No localizado: No contesta': 'No localizado: No contesta',
-  'No localizado: Número equivocado': 'No localizado: Número equivocado',
-  'Contrato Creado': 'Contrato Creado',
-  'Registro de Venta (fondeado)': 'Registro de Venta (fondeado)',
-  'Repetido': 'Repetido'
+  Eliminado: "Eliminado",
+  Nuevo: "Nuevo",
+  Asignado: "Asignado",
+  "Localizado: No interesado": "Localizado: No interesado",
+  "Localizado: Prospecto de venta FP": "Localizado: Prospecto de venta FP",
+  "Localizado: Prospecto de venta AD": "Localizado: Prospecto de venta AD",
+  "Localizado: Prospecto de venta - Pendiente": "Localizado: Prospecto de venta - Pendiente",
+  "Localizado: Volver a llamar": "Localizado: Volver a llamar",
+  "Localizado: No vuelve a contestar": "Localizado: No vuelve a contestar",
+  "No localizado: No contesta": "No localizado: No contesta",
+  "No localizado: Número equivocado": "No localizado: Número equivocado",
+  "Contrato Creado": "Contrato Creado",
+  "Registro de Venta (fondeado)": "Registro de Venta (fondeado)",
+  Repetido: "Repetido",
 };
 
 export const API_TO_FRONTEND_STAGE_MAP: Record<string, string> = {
-  'Eliminado': 'Eliminado',
-  'Nuevo': 'Nuevo',
-  'Asignado': 'Asignado',
-  'Localizado: No interesado': 'Localizado: No interesado',
-  'Localizado: Prospecto de venta FP': 'Localizado: Prospecto de venta FP',
-  'Localizado: Prospecto de venta AD': 'Localizado: Prospecto de venta AD',
-  'Localizado: Prospecto de venta - Pendiente': 'Localizado: Prospecto de venta - Pendiente',  
-  'Localizado: Volver a llamar': 'Localizado: Volver a llamar',
-  'Localizado: No vuelve a contestar': 'Localizado: No vuelve a contestar',
-  'No localizado: No contesta': 'No localizado: No contesta',
-  'No localizado: Número equivocado': 'No localizado: Número equivocado',
-  'Contrato Creado': 'Contrato Creado',
-  'Registro de Venta (fondeado)': 'Registro de Venta (fondeado)',
-  'Repetido': 'Repetido'
+  Eliminado: "Eliminado",
+  Nuevo: "Nuevo",
+  Asignado: "Asignado",
+  "Localizado: No interesado": "Localizado: No interesado",
+  "Localizado: Prospecto de venta FP": "Localizado: Prospecto de venta FP",
+  "Localizado: Prospecto de venta AD": "Localizado: Prospecto de venta AD",
+  "Localizado: Prospecto de venta - Pendiente": "Localizado: Prospecto de venta - Pendiente",
+  "Localizado: Volver a llamar": "Localizado: Volver a llamar",
+  "Localizado: No vuelve a contestar": "Localizado: No vuelve a contestar",
+  "No localizado: No contesta": "No localizado: No contesta",
+  "No localizado: Número equivocado": "No localizado: Número equivocado",
+  "Contrato Creado": "Contrato Creado",
+  "Registro de Venta (fondeado)": "Registro de Venta (fondeado)",
+  Repetido: "Repetido",
 };
 
 // Mapeo de prioridades entre frontend y API
 export const FRONTEND_TO_API_PRIORITY_MAP: Record<string, string> = {
-  'low': 'Baja',
-  'medium': 'Media',
-  'high': 'Alta',
-  'urgent': 'Urgente'
+  low: "Baja",
+  medium: "Media",
+  high: "Alta",
+  urgent: "Urgente",
 };
 
 export const API_TO_FRONTEND_PRIORITY_MAP: Record<string, string> = {
-  'Baja': 'low',
-  'Media': 'medium',
-  'Alta': 'high',
-  'Urgente': 'urgent'
+  Baja: "low",
+  Media: "medium",
+  Alta: "high",
+  Urgente: "urgent",
 };
