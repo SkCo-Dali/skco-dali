@@ -259,7 +259,7 @@ export const mapLeadToUpdateRequest = (lead: Lead, userId: string): UpdateLeadRe
     phone: lead.phone,
     documentNumber: lead.documentNumber,
     company: lead.company,
-    occupation: lead.occupation,
+    occupation: lead.occupation || "",
     source: lead.source || "web",
     campaign: lead.campaign,
     product: lead.product ? [lead.product] : [], // Convert string to array for API
