@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { CommissionPlan, CommissionPlanStatus } from '@/data/commissionPlans';
-import { getCommissionPlans, createCommissionPlan, updateCommissionPlan, deleteCommissionPlan } from '@/utils/commissionPlansApiClient';
-import { mapApiCommissionPlanToUI, mapUICommissionPlanToAPI, formatDateForAPI } from '@/utils/commissionPlansApiMapper';
+import * as commissionPlansApi from '@/utils/commissionPlansApiClient';
+import * as commissionPlansMapper from '@/utils/commissionPlansApiMapper';
 import { CreateCommissionPlanRequest, UpdateCommissionPlanRequest } from '@/types/commissionPlansApi';
 import { toast } from '@/hooks/use-toast';
 
@@ -15,8 +15,8 @@ export const useCommissionPlans = () => {
       setLoading(true);
       setError(null);
       
-      const response = await getCommissionPlans();
-      const mappedPlans = response.items.map(mapApiCommissionPlanToUI);
+      const response = await commissionPlansApi.getCommissionPlans();
+      const mappedPlans = response.items.map(commissionPlansMapper.mapApiCommissionPlanToUI);
       setPlans(mappedPlans);
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Failed to fetch commission plans';
@@ -40,8 +40,8 @@ export const useCommissionPlans = () => {
       const apiData: CreateCommissionPlanRequest = {
         name: planData.name,
         description: planData.description,
-        start_date: formatDateForAPI(planData.startDate),
-        end_date: formatDateForAPI(planData.endDate, true),
+        start_date: commissionPlansMapper.formatDateForAPI(planData.startDate),
+        end_date: commissionPlansMapper.formatDateForAPI(planData.endDate, true),
         assignment_type: planData.assignmentType,
       };
 
@@ -50,8 +50,8 @@ export const useCommissionPlans = () => {
         apiData.assignment_value = planData.assignmentValue;
       }
 
-      const response = await createCommissionPlan(apiData);
-      const newPlan = mapApiCommissionPlanToUI(response);
+      const response = await commissionPlansApi.createCommissionPlan(apiData);
+      const newPlan = commissionPlansMapper.mapApiCommissionPlanToUI(response);
       
       setPlans(prevPlans => [...prevPlans, newPlan]);
       
@@ -78,13 +78,13 @@ export const useCommissionPlans = () => {
       
       if (planData.name) apiData.name = planData.name;
       if (planData.description) apiData.description = planData.description;
-      if (planData.startDate) apiData.start_date = formatDateForAPI(planData.startDate);
-      if (planData.endDate) apiData.end_date = formatDateForAPI(planData.endDate, true);
+      if (planData.startDate) apiData.start_date = commissionPlansMapper.formatDateForAPI(planData.startDate);
+      if (planData.endDate) apiData.end_date = commissionPlansMapper.formatDateForAPI(planData.endDate, true);
       if (planData.assignmentType) apiData.assignment_type = planData.assignmentType;
       if (planData.assignmentValue) apiData.assignment_value = planData.assignmentValue;
 
-      const response = await updateCommissionPlan(id, apiData);
-      const updatedPlan = mapApiCommissionPlanToUI(response);
+      const response = await commissionPlansApi.updateCommissionPlan(id, apiData);
+      const updatedPlan = commissionPlansMapper.mapApiCommissionPlanToUI(response);
       
       setPlans(prevPlans => 
         prevPlans.map(plan => plan.id === id ? updatedPlan : plan)
@@ -109,7 +109,7 @@ export const useCommissionPlans = () => {
 
   const deletePlan = async (id: string): Promise<boolean> => {
     try {
-      await deleteCommissionPlan(id);
+      await commissionPlansApi.deleteCommissionPlan(id);
       
       setPlans(prevPlans => prevPlans.filter(plan => plan.id !== id));
       
@@ -141,6 +141,129 @@ export const useCommissionPlans = () => {
     }
   };
 
+  // Send plan to approval (draft/rejected -> ready_to_approve)
+  const sendToApproval = async (id: string): Promise<boolean> => {
+    try {
+      const updatedPlan = await commissionPlansApi.sendPlanToApproval(id);
+      const mappedPlan = commissionPlansMapper.mapApiCommissionPlanToUI(updatedPlan);
+      
+      setPlans(prev => prev.map(p => p.id === id ? mappedPlan : p));
+      
+      toast({
+        title: "Success",
+        description: "Plan sent for approval successfully",
+      });
+      
+      return true;
+    } catch (error: any) {
+      console.error('Error sending plan to approval:', error);
+      
+      if (error.message?.includes('403')) {
+        toast({
+          title: "Permission Denied",
+          description: "You don't have permission to perform this action",
+          variant: "destructive",
+        });
+      } else if (error.message?.includes('409')) {
+        toast({
+          title: "Invalid State",
+          description: "Plan must have at least one active rule and be in draft or rejected state",
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Error",
+          description: error.message || "Failed to send plan for approval",
+          variant: "destructive",
+        });
+      }
+      
+      return false;
+    }
+  };
+
+  // Reject plan (ready_to_approve -> rejected)
+  const rejectPlan = async (id: string, reason?: string): Promise<boolean> => {
+    try {
+      const updatedPlan = await commissionPlansApi.rejectCommissionPlan(id, reason);
+      const mappedPlan = commissionPlansMapper.mapApiCommissionPlanToUI(updatedPlan);
+      
+      setPlans(prev => prev.map(p => p.id === id ? mappedPlan : p));
+      
+      toast({
+        title: "Plan Rejected",
+        description: "Plan has been rejected successfully",
+      });
+      
+      return true;
+    } catch (error: any) {
+      console.error('Error rejecting plan:', error);
+      
+      if (error.message?.includes('403')) {
+        toast({
+          title: "Permission Denied",
+          description: "You don't have permission to perform this action",
+          variant: "destructive",
+        });
+      } else if (error.message?.includes('409')) {
+        toast({
+          title: "Invalid State",
+          description: "Plan must be in 'ready to approve' state to be rejected",
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Error",
+          description: error.message || "Failed to reject plan",
+          variant: "destructive",
+        });
+      }
+      
+      return false;
+    }
+  };
+
+  // Publish plan (draft/ready_to_approve -> published)
+  const publishPlan = async (id: string): Promise<boolean> => {
+    try {
+      const updatedPlan = await commissionPlansApi.publishCommissionPlan(id);
+      const mappedPlan = commissionPlansMapper.mapApiCommissionPlanToUI(updatedPlan);
+      
+      setPlans(prev => prev.map(p => p.id === id ? mappedPlan : p));
+      
+      toast({
+        title: "Success",
+        description: "Plan published successfully",
+      });
+      
+      return true;
+    } catch (error: any) {
+      console.error('Error publishing plan:', error);
+      
+      if (error.message?.includes('403')) {
+        toast({
+          title: "Permission Denied",
+          description: "You don't have permission to perform this action",
+          variant: "destructive",
+        });
+      } else if (error.message?.includes('409')) {
+        toast({
+          title: "Invalid State",
+          description: "Plan must have at least one active rule and cannot be already published",
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Error",
+          description: error.message || "Failed to publish plan",
+          variant: "destructive",
+        });
+      }
+      
+      return false;
+    }
+  };
+
   const getPlansForStatus = (status: CommissionPlanStatus) => {
     return plans.filter(plan => plan.status === status);
   };
@@ -161,6 +284,9 @@ export const useCommissionPlans = () => {
     createPlan,
     updatePlan,
     deletePlan,
+    sendToApproval,
+    rejectPlan,
+    publishPlan,
     getPlansForStatus,
     getTabCount,
   };

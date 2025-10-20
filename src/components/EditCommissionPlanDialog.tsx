@@ -25,9 +25,12 @@ interface EditCommissionPlanDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onUpdatePlan: (id: string, planData: Partial<CommissionPlan>) => Promise<CommissionPlan | null>;
+  onSendToApproval?: (id: string) => Promise<boolean>;
+  onRejectPlan?: (id: string, reason?: string) => Promise<boolean>;
+  onPublishPlan?: (id: string) => Promise<boolean>;
 }
 
-export function EditCommissionPlanDialog({ plan, open, onOpenChange, onUpdatePlan }: EditCommissionPlanDialogProps) {
+export function EditCommissionPlanDialog({ plan, open, onOpenChange, onUpdatePlan, onSendToApproval, onRejectPlan, onPublishPlan }: EditCommissionPlanDialogProps) {
   const { toast } = useToast();
   const [isCreateRuleOpen, setIsCreateRuleOpen] = useState(false);
   const [isEditRuleOpen, setIsEditRuleOpen] = useState(false);
@@ -81,20 +84,28 @@ export function EditCommissionPlanDialog({ plan, open, onOpenChange, onUpdatePla
     }
   };
 
-  const handleSendForApproval = () => {
-    toast({
-      title: "Sent for Approval",
-      description: "Commission plan sent for approval.",
-    });
-    onOpenChange(false);
+  const handleSendForApproval = async () => {
+    if (!plan?.id || !onSendToApproval) return;
+    
+    setIsLoading(true);
+    const success = await onSendToApproval(plan.id);
+    setIsLoading(false);
+    
+    if (success) {
+      onOpenChange(false);
+    }
   };
 
-  const handlePublishAndCalculate = () => {
-    toast({
-      title: "Published",
-      description: "Commission plan published and calculation started.",
-    });
-    onOpenChange(false);
+  const handlePublishAndCalculate = async () => {
+    if (!plan?.id || !onPublishPlan) return;
+    
+    setIsLoading(true);
+    const success = await onPublishPlan(plan.id);
+    setIsLoading(false);
+    
+    if (success) {
+      onOpenChange(false);
+    }
   };
 
   const handleCancel = () => {

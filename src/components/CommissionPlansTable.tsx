@@ -23,9 +23,12 @@ interface CommissionPlansTableProps {
   status: CommissionPlanStatus;
   onUpdatePlan: (id: string, planData: Partial<CommissionPlan>) => Promise<CommissionPlan | null>;
   onDeletePlan: (id: string) => Promise<boolean>;
+  onSendToApproval?: (id: string) => Promise<boolean>;
+  onRejectPlan?: (id: string, reason?: string) => Promise<boolean>;
+  onPublishPlan?: (id: string) => Promise<boolean>;
 }
 
-export function CommissionPlansTable({ plans, status, onUpdatePlan, onDeletePlan }: CommissionPlansTableProps) {
+export function CommissionPlansTable({ plans, status, onUpdatePlan, onDeletePlan, onSendToApproval, onRejectPlan, onPublishPlan }: CommissionPlansTableProps) {
   const [selectedPlan, setSelectedPlan] = useState<CommissionPlan | null>(null);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [planToDelete, setPlanToDelete] = useState<CommissionPlan | null>(null);
@@ -167,6 +170,9 @@ export function CommissionPlansTable({ plans, status, onUpdatePlan, onDeletePlan
           open={isEditDialogOpen}
           onOpenChange={setIsEditDialogOpen}
           onUpdatePlan={onUpdatePlan}
+          onSendToApproval={onSendToApproval}
+          onRejectPlan={onRejectPlan}
+          onPublishPlan={onPublishPlan}
         />
       )}
 
