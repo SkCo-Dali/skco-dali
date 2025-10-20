@@ -36,9 +36,10 @@ export function AppContent() {
     // Guardar la ruta original antes de redirigir a login
     useEffect(() => {
         if (!user && !loading && location.pathname !== '/login') {
-            sessionStorage.setItem('redirectAfterLogin', location.pathname);
+            const fullPath = location.pathname + location.search + location.hash;
+            sessionStorage.setItem('redirectAfterLogin', fullPath);
         }
-    }, [user, loading, location.pathname]);
+    }, [user, loading, location.pathname, location.search, location.hash]);
 
     // Redirigir después del login a la ruta guardada
     useEffect(() => {
@@ -79,9 +80,8 @@ export function AppContent() {
                     <Route path="/login" element={<Login onLogin={() => { }} />} /> 
                     <Route path="*" element={
                         <Navigate 
-                            to="/login" 
+                            to={`/login?redirect=${encodeURIComponent(location.pathname + location.search + location.hash)}`} 
                             replace 
-                            state={{ from: location.pathname }}
                         />
                     } />
                 </Routes>

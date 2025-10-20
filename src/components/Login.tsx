@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Building2, Shield, ArrowRight } from "lucide-react";
@@ -9,6 +9,13 @@ interface LoginProps {
 }
 
 export function Login({ onLogin }: LoginProps) {
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const redirect = params.get('redirect');
+    if (redirect) {
+      sessionStorage.setItem('redirectAfterLogin', redirect);
+    }
+  }, []);
   return (
     <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: "#ededed" }}>
       <div className="w-full max-w-2xl">
