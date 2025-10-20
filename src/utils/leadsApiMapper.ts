@@ -252,6 +252,12 @@ export const mapLeadToUpdateRequest = (lead: Lead, userId: string): UpdateLeadRe
   const finalUserId = authenticatedUserUUID || userId;
   console.log("✅ UUID final que se usará para CreatedBy en update:", finalUserId);
 
+  // Log específico para occupation ANTES del mapeo
+  console.log("🔧 OCCUPATION FIELD MAPPING - BEFORE:");
+  console.log("  lead.occupation value:", lead.occupation);
+  console.log("  lead.occupation type:", typeof lead.occupation);
+  console.log("  lead.occupation is empty?:", !lead.occupation);
+
   const updateRequest: UpdateLeadRequest = {
     CreatedBy: finalUserId, // Usuario autenticado (UUID de la API)
     name: lead.name,
@@ -283,6 +289,12 @@ export const mapLeadToUpdateRequest = (lead: Lead, userId: string): UpdateLeadRe
   // Log específico para AlternateEmail DESPUÉS del mapeo
   console.log("📧 AFTER MAPPING - AlternateEmail in request:", updateRequest.AlternateEmail);
   console.log("📧 AFTER MAPPING - Type:", typeof updateRequest.AlternateEmail);
+
+  // Log específico para occupation DESPUÉS del mapeo
+  console.log("🔧 OCCUPATION FIELD MAPPING - AFTER:");
+  console.log("  updateRequest.occupation value:", updateRequest.occupation);
+  console.log("  updateRequest.occupation type:", typeof updateRequest.occupation);
+  console.log("  updateRequest.occupation is empty?:", !updateRequest.occupation);
 
   console.log("✅ Mapped update request:", JSON.stringify(updateRequest, null, 2));
 
