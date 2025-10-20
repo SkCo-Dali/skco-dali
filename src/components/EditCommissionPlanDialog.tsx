@@ -331,6 +331,20 @@ export function EditCommissionPlanDialog({ plan, open, onOpenChange, onUpdatePla
                   Cancel
                 </Button>
               </>
+            ) : plan.status === "rejected" ? (
+              <>
+                <Button
+                  onClick={handleSendForApproval}
+                  variant="outline"
+                  className="bg-primary/10 hover:bg-primary/20 text-primary border-primary"
+                  disabled={isLoading}
+                >
+                  Ready to Approve
+                </Button>
+                <Button onClick={handleCancel} variant="outline" disabled={isLoading}>
+                  Cancel
+                </Button>
+              </>
             ) : (
               <>
                 <Button
