@@ -264,6 +264,53 @@ export const useCommissionPlans = () => {
     }
   };
 
+  // Inactivate plan (published -> inactive)
+  const inactivatePlan = async (id: string, reason?: string): Promise<boolean> => {
+    try {
+      const updatedPlan = await commissionPlansApi.inactivateCommissionPlan(id, reason);
+      const mappedPlan = commissionPlansMapper.mapApiCommissionPlanToUI(updatedPlan);
+      
+      setPlans(prev => prev.map(p => p.id === id ? mappedPlan : p));
+      
+      toast({
+        title: "Plan Inactivated",
+        description: "Plan has been inactivated successfully",
+      });
+      
+      return true;
+    } catch (error: any) {
+      console.error('Error inactivating plan:', error);
+      
+      if (error.message?.includes('403')) {
+        toast({
+          title: "Permission Denied",
+          description: "You don't have permission to perform this action",
+          variant: "destructive",
+        });
+      } else if (error.message?.includes('404')) {
+        toast({
+          title: "Not Found",
+          description: "The plan does not exist or was deleted",
+          variant: "destructive",
+        });
+      } else if (error.message?.includes('409')) {
+        toast({
+          title: "Invalid State",
+          description: "Plan must be in 'published' state to be inactivated",
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Error",
+          description: error.message || "Failed to inactivate plan",
+          variant: "destructive",
+        });
+      }
+      
+      return false;
+    }
+  };
+
   const getPlansForStatus = (status: CommissionPlanStatus) => {
     return plans.filter(plan => plan.status === status);
   };
@@ -287,6 +334,7 @@ export const useCommissionPlans = () => {
     sendToApproval,
     rejectPlan,
     publishPlan,
+    inactivatePlan,
     getPlansForStatus,
     getTabCount,
   };

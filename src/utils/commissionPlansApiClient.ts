@@ -249,3 +249,33 @@ export const publishCommissionPlan = async (planId: string): Promise<ApiCommissi
     throw error;
   }
 };
+
+// 8. Inactivate Commission Plan (published -> inactive)
+export const inactivateCommissionPlan = async (planId: string, reason?: string): Promise<ApiCommissionPlan> => {
+  try {
+    console.log('[Commission Plans API] Inactivating plan...', planId, reason);
+    const headers = await getAuthHeaders();
+    
+    const response = await fetchWithRetry(`${API_BASE_URL}/${planId}/inactive`, {
+      method: 'POST',
+      headers: {
+        ...headers,
+        'Content-Type': 'application/json',
+      },
+      body: reason ? JSON.stringify({ reason }) : undefined,
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.detail || `Error inactivating plan: ${response.statusText}`);
+    }
+
+    const result: ApiCommissionPlan = await response.json();
+    console.log('[Commission Plans API] Successfully inactivated plan:', result);
+    
+    return result;
+  } catch (error) {
+    console.error('[Commission Plans API] Error inactivating plan:', error);
+    throw error;
+  }
+};

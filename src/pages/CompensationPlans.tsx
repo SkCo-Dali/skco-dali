@@ -22,6 +22,7 @@ export default function CompensationPlans() {
     sendToApproval,
     rejectPlan,
     publishPlan,
+    inactivatePlan,
     getPlansForStatus,
     getTabCount,
   } = useCommissionPlans();
@@ -103,6 +104,7 @@ export default function CompensationPlans() {
                         onSendToApproval={sendToApproval}
                         onRejectPlan={rejectPlan}
                         onPublishPlan={publishPlan}
+                        onInactivatePlan={inactivatePlan}
                       />
                     </TabsContent>
                   ))}

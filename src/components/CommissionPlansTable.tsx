@@ -26,9 +26,10 @@ interface CommissionPlansTableProps {
   onSendToApproval?: (id: string) => Promise<boolean>;
   onRejectPlan?: (id: string, reason?: string) => Promise<boolean>;
   onPublishPlan?: (id: string) => Promise<boolean>;
+  onInactivatePlan?: (id: string, reason?: string) => Promise<boolean>;
 }
 
-export function CommissionPlansTable({ plans, status, onUpdatePlan, onDeletePlan, onSendToApproval, onRejectPlan, onPublishPlan }: CommissionPlansTableProps) {
+export function CommissionPlansTable({ plans, status, onUpdatePlan, onDeletePlan, onSendToApproval, onRejectPlan, onPublishPlan, onInactivatePlan }: CommissionPlansTableProps) {
   const [selectedPlan, setSelectedPlan] = useState<CommissionPlan | null>(null);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [planToDelete, setPlanToDelete] = useState<CommissionPlan | null>(null);
@@ -173,6 +174,7 @@ export function CommissionPlansTable({ plans, status, onUpdatePlan, onDeletePlan
           onSendToApproval={onSendToApproval}
           onRejectPlan={onRejectPlan}
           onPublishPlan={onPublishPlan}
+          onInactivatePlan={onInactivatePlan}
         />
       )}
 

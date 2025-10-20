@@ -28,9 +28,10 @@ interface EditCommissionPlanDialogProps {
   onSendToApproval?: (id: string) => Promise<boolean>;
   onRejectPlan?: (id: string, reason?: string) => Promise<boolean>;
   onPublishPlan?: (id: string) => Promise<boolean>;
+  onInactivatePlan?: (id: string, reason?: string) => Promise<boolean>;
 }
 
-export function EditCommissionPlanDialog({ plan, open, onOpenChange, onUpdatePlan, onSendToApproval, onRejectPlan, onPublishPlan }: EditCommissionPlanDialogProps) {
+export function EditCommissionPlanDialog({ plan, open, onOpenChange, onUpdatePlan, onSendToApproval, onRejectPlan, onPublishPlan, onInactivatePlan }: EditCommissionPlanDialogProps) {
   const { toast } = useToast();
   const [isCreateRuleOpen, setIsCreateRuleOpen] = useState(false);
   const [isEditRuleOpen, setIsEditRuleOpen] = useState(false);
@@ -101,6 +102,21 @@ export function EditCommissionPlanDialog({ plan, open, onOpenChange, onUpdatePla
     
     setIsLoading(true);
     const success = await onPublishPlan(plan.id);
+    setIsLoading(false);
+    
+    if (success) {
+      onOpenChange(false);
+    }
+  };
+
+  const handleInactivate = async () => {
+    if (!plan?.id || !onInactivatePlan) return;
+    
+    const reason = prompt("Enter inactivation reason (optional):");
+    if (reason === null) return; // User cancelled
+    
+    setIsLoading(true);
+    const success = await onInactivatePlan(plan.id, reason || undefined);
     setIsLoading(false);
     
     if (success) {
@@ -340,6 +356,20 @@ export function EditCommissionPlanDialog({ plan, open, onOpenChange, onUpdatePla
                   disabled={isLoading}
                 >
                   Ready to Approve
+                </Button>
+                <Button onClick={handleCancel} variant="outline" disabled={isLoading}>
+                  Cancel
+                </Button>
+              </>
+            ) : plan.status === "published" ? (
+              <>
+                <Button
+                  onClick={handleInactivate}
+                  variant="outline"
+                  className="bg-destructive/10 hover:bg-destructive/20 text-destructive border-destructive"
+                  disabled={isLoading}
+                >
+                  {isLoading ? "Inactivating..." : "Inactivate"}
                 </Button>
                 <Button onClick={handleCancel} variant="outline" disabled={isLoading}>
                   Cancel
