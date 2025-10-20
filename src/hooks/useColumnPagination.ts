@@ -1,7 +1,7 @@
-import { useState, useEffect, useCallback } from 'react';
-import { Lead } from '@/types/crm';
-import { getReassignableLeadsPaginated, getDistinctValues } from '@/utils/leadAssignmentApiClient';
-import { LeadsApiFilters, PaginatedLead } from '@/types/paginatedLeadsTypes';
+import { useState, useEffect, useCallback } from "react";
+import { Lead } from "@/types/crm";
+import { getReassignableLeadsPaginated, getDistinctValues } from "@/utils/leadAssignmentApiClient";
+import { LeadsApiFilters, PaginatedLead } from "@/types/paginatedLeadsTypes";
 
 interface ColumnState {
   leads: Lead[];
@@ -18,7 +18,7 @@ interface UseColumnPaginationProps {
   enabled: boolean;
 }
 
-const NULL_KEY = '__NULL__';
+const NULL_KEY = "__NULL__";
 
 // Función para mapear PaginatedLead a Lead
 const mapPaginatedLeadToLead = (paginatedLead: PaginatedLead): Lead => {
@@ -58,6 +58,7 @@ const mapPaginatedLeadToLead = (paginatedLead: PaginatedLead): Lead => {
     phone: paginatedLead.Phone,
     documentNumber: parseInt(paginatedLead.DocumentNumber) || 0,
     company: paginatedLead.Company,
+    occupation: paginatedLead.Occupation,
     source: paginatedLead.Source as any,
     campaign: paginatedLead.Campaign,
     product: paginatedLead.Product,
@@ -71,11 +72,11 @@ const mapPaginatedLeadToLead = (paginatedLead: PaginatedLead): Lead => {
     nextFollowUp: paginatedLead.NextFollowUp || undefined,
     notes: paginatedLead.Notes || undefined,
     tags,
-    status: 'New' as any,
+    status: "New" as any,
     documentType: paginatedLead.DocumentType || undefined,
     alternateEmail: paginatedLead.AlternateEmail || undefined,
     selectedPortfolios: portfolios,
-    portfolio: paginatedLead.SelectedPortfolios || '',
+    portfolio: paginatedLead.SelectedPortfolios || "",
     campaignOwnerName: paginatedLead.CampaignOwnerName || undefined,
     age: paginatedLead.Age ? parseInt(paginatedLead.Age) : undefined,
     gender: paginatedLead.Gender || undefined,
@@ -90,12 +91,7 @@ const mapPaginatedLeadToLead = (paginatedLead: PaginatedLead): Lead => {
   };
 };
 
-export function useColumnPagination({
-  groupBy,
-  baseFilters,
-  pageSize = 20,
-  enabled
-}: UseColumnPaginationProps) {
+export function useColumnPagination({ groupBy, baseFilters, pageSize = 20, enabled }: UseColumnPaginationProps) {
   const [columns, setColumns] = useState<Record<string, ColumnState>>({});
   const [allColumnKeys, setAllColumnKeys] = useState<string[]>([]);
   const [isInitializing, setIsInitializing] = useState(false);
@@ -103,24 +99,24 @@ export function useColumnPagination({
   // Definir todas las columnas posibles según el groupBy (solo para fijos)
   const getStaticColumns = useCallback(() => {
     switch (groupBy) {
-      case 'stage':
+      case "stage":
         return [
-          'Nuevo',
-  'Asignado', 
-  'Localizado: No interesado',
-  'Localizado: Prospecto de venta FP',
-  'Localizado: Prospecto de venta AD',
-  'Localizado: Prospecto de venta - Pendiente',
-  'Localizado: Volver a llamar',
-  'Localizado: No vuelve a contestar',
-  'No localizado: No contesta',
-  'No localizado: Número equivocado',
-  'Contrato Creado',
-  'Registro de Venta (fondeado)',
-  'Repetido'
+          "Nuevo",
+          "Asignado",
+          "Localizado: No interesado",
+          "Localizado: Prospecto de venta FP",
+          "Localizado: Prospecto de venta AD",
+          "Localizado: Prospecto de venta - Pendiente",
+          "Localizado: Volver a llamar",
+          "Localizado: No vuelve a contestar",
+          "No localizado: No contesta",
+          "No localizado: Número equivocado",
+          "Contrato Creado",
+          "Registro de Venta (fondeado)",
+          "Repetido",
         ];
-      case 'priority':
-        return ['Baja', 'Media', 'Alta', 'Urgente'];
+      case "priority":
+        return ["Baja", "Media", "Alta", "Urgente"];
       default:
         return null; // Para columnas dinámicas
     }
@@ -128,21 +124,21 @@ export function useColumnPagination({
 
   // Obtener columnas dinámicas desde el API
   const getDynamicColumns = useCallback(async (): Promise<string[]> => {
-    if (!['source', 'assignedTo', 'campaign'].includes(groupBy)) {
+    if (!["source", "assignedTo", "campaign"].includes(groupBy)) {
       return [];
     }
 
     try {
-      let field = '';
+      let field = "";
       switch (groupBy) {
-        case 'source':
-          field = 'Source';
+        case "source":
+          field = "Source";
           break;
-        case 'assignedTo':
-          field = 'AssignedTo';
+        case "assignedTo":
+          field = "AssignedTo";
           break;
-        case 'campaign':
-          field = 'Campaign';
+        case "campaign":
+          field = "Campaign";
           break;
       }
 
@@ -153,7 +149,7 @@ export function useColumnPagination({
 
       const uniqueKeys = new Set<string>();
       (resp.values || []).forEach((val) => {
-        if (val === null || (typeof val === 'string' && val.trim() === '')) {
+        if (val === null || (typeof val === "string" && val.trim() === "")) {
           uniqueKeys.add(NULL_KEY);
         } else {
           uniqueKeys.add(String(val).trim());
@@ -163,10 +159,10 @@ export function useColumnPagination({
       return Array.from(uniqueKeys).sort((a, b) => {
         if (a === NULL_KEY) return 1;
         if (b === NULL_KEY) return -1;
-        return a.localeCompare(b, 'es', { sensitivity: 'base' });
+        return a.localeCompare(b, "es", { sensitivity: "base" });
       });
     } catch (error) {
-      console.error('Error getting dynamic columns:', error);
+      console.error("Error getting dynamic columns:", error);
       return [];
     }
   }, [groupBy, baseFilters]);
@@ -176,40 +172,40 @@ export function useColumnPagination({
     if (!enabled) return;
 
     setIsInitializing(true);
-    
+
     // Obtener columnas estáticas o dinámicas
     const staticCols = getStaticColumns();
     const columnKeys = staticCols !== null ? staticCols : await getDynamicColumns();
     // setAllColumnKeys moved after data fetch to allow filtering by totals
 
     const initialColumns: Record<string, ColumnState> = {};
-    
+
     // Inicializar todas las columnas en paralelo
     const promises = columnKeys.map(async (key) => {
       const filters = { ...baseFilters };
-      
+
       // Agregar filtro específico de la columna
-      if (groupBy === 'stage') {
-        filters['Stage'] = { op: 'eq', value: key };
-      } else if (groupBy === 'priority') {
-        filters['Priority'] = { op: 'eq', value: key };
-      } else if (groupBy === 'source') {
+      if (groupBy === "stage") {
+        filters["Stage"] = { op: "eq", value: key };
+      } else if (groupBy === "priority") {
+        filters["Priority"] = { op: "eq", value: key };
+      } else if (groupBy === "source") {
         if (key === NULL_KEY) {
-          (filters as any)['Source'] = { op: 'isnull' };
+          (filters as any)["Source"] = { op: "isnull" };
         } else {
-          filters['Source'] = { op: 'eq', value: key };
+          filters["Source"] = { op: "eq", value: key };
         }
-      } else if (groupBy === 'assignedTo') {
+      } else if (groupBy === "assignedTo") {
         if (key === NULL_KEY) {
-          (filters as any)['AssignedTo'] = { op: 'isnull' };
+          (filters as any)["AssignedTo"] = { op: "isnull" };
         } else {
-          filters['AssignedTo'] = { op: 'eq', value: key };
+          filters["AssignedTo"] = { op: "eq", value: key };
         }
-      } else if (groupBy === 'campaign') {
+      } else if (groupBy === "campaign") {
         if (key === NULL_KEY) {
-          (filters as any)['Campaign'] = { op: 'isnull' };
+          (filters as any)["Campaign"] = { op: "isnull" };
         } else {
-          filters['Campaign'] = { op: 'eq', value: key };
+          filters["Campaign"] = { op: "eq", value: key };
         }
       }
 
@@ -218,8 +214,8 @@ export function useColumnPagination({
           page: 1,
           page_size: pageSize,
           filters,
-          sort_by: 'UpdatedAt',
-          sort_dir: 'desc'
+          sort_by: "UpdatedAt",
+          sort_dir: "desc",
         });
 
         initialColumns[key] = {
@@ -227,7 +223,7 @@ export function useColumnPagination({
           page: 1,
           hasMore: response.total > pageSize,
           loading: false,
-          total: response.total
+          total: response.total,
         };
       } catch (error) {
         console.error(`Error loading column ${key}:`, error);
@@ -236,7 +232,7 @@ export function useColumnPagination({
           page: 1,
           hasMore: false,
           loading: false,
-          total: 0
+          total: 0,
         };
       }
     });
@@ -245,16 +241,19 @@ export function useColumnPagination({
 
     // Cuando se agrupa por etapa, ocultar columnas con total = 0
     let finalKeys = columnKeys;
-    if (groupBy === 'stage') {
+    if (groupBy === "stage") {
       finalKeys = columnKeys.filter((k) => (initialColumns[k]?.total || 0) > 0);
     }
 
     const filteredColumns =
-      groupBy === 'stage'
-        ? finalKeys.reduce((acc, k) => {
-            acc[k] = initialColumns[k];
-            return acc;
-          }, {} as Record<string, ColumnState>)
+      groupBy === "stage"
+        ? finalKeys.reduce(
+            (acc, k) => {
+              acc[k] = initialColumns[k];
+              return acc;
+            },
+            {} as Record<string, ColumnState>,
+          )
         : initialColumns;
 
     setAllColumnKeys(finalKeys);
@@ -263,72 +262,75 @@ export function useColumnPagination({
   }, [enabled, groupBy, baseFilters, pageSize, getStaticColumns, getDynamicColumns]);
 
   // Cargar más leads para una columna específica
-  const loadMore = useCallback(async (columnKey: string) => {
-    const currentState = columns[columnKey];
-    if (!currentState || currentState.loading || !currentState.hasMore) return;
+  const loadMore = useCallback(
+    async (columnKey: string) => {
+      const currentState = columns[columnKey];
+      if (!currentState || currentState.loading || !currentState.hasMore) return;
 
-    setColumns(prev => ({
-      ...prev,
-      [columnKey]: { ...prev[columnKey], loading: true }
-    }));
-
-    const filters = { ...baseFilters };
-    
-    // Agregar filtro específico de la columna
-    if (groupBy === 'stage') {
-      filters['Stage'] = { op: 'eq', value: columnKey };
-    } else if (groupBy === 'priority') {
-      filters['Priority'] = { op: 'eq', value: columnKey };
-    } else if (groupBy === 'source') {
-      if (columnKey === NULL_KEY) {
-        (filters as any)['Source'] = { op: 'isnull' };
-      } else {
-        filters['Source'] = { op: 'eq', value: columnKey };
-      }
-    } else if (groupBy === 'assignedTo') {
-      if (columnKey === NULL_KEY) {
-        (filters as any)['AssignedTo'] = { op: 'isnull' };
-      } else {
-        filters['AssignedTo'] = { op: 'eq', value: columnKey };
-      }
-    } else if (groupBy === 'campaign') {
-      if (columnKey === NULL_KEY) {
-        (filters as any)['Campaign'] = { op: 'isnull' };
-      } else {
-        filters['Campaign'] = { op: 'eq', value: columnKey };
-      }
-    }
-
-    try {
-      const nextPage = currentState.page + 1;
-      const response = await getReassignableLeadsPaginated({
-        page: nextPage,
-        page_size: pageSize,
-        filters,
-        sort_by: 'UpdatedAt',
-        sort_dir: 'desc'
-      });
-
-      const newLeads = response.items.map(mapPaginatedLeadToLead);
-
-      setColumns(prev => ({
+      setColumns((prev) => ({
         ...prev,
-        [columnKey]: {
-          ...prev[columnKey],
-          leads: [...prev[columnKey].leads, ...newLeads],
-          page: nextPage,
-          hasMore: prev[columnKey].leads.length + newLeads.length < response.total,
-          loading: false
+        [columnKey]: { ...prev[columnKey], loading: true },
+      }));
+
+      const filters = { ...baseFilters };
+
+      // Agregar filtro específico de la columna
+      if (groupBy === "stage") {
+        filters["Stage"] = { op: "eq", value: columnKey };
+      } else if (groupBy === "priority") {
+        filters["Priority"] = { op: "eq", value: columnKey };
+      } else if (groupBy === "source") {
+        if (columnKey === NULL_KEY) {
+          (filters as any)["Source"] = { op: "isnull" };
+        } else {
+          filters["Source"] = { op: "eq", value: columnKey };
         }
-      }));
-    } catch (error) {
-      console.error(`Error loading more for column ${columnKey}:`, error);
-      setColumns(prev => ({
-        ...prev,
-        [columnKey]: { ...prev[columnKey], loading: false }
-      }));
-    }
-  }, [columns, baseFilters, groupBy, pageSize]);
+      } else if (groupBy === "assignedTo") {
+        if (columnKey === NULL_KEY) {
+          (filters as any)["AssignedTo"] = { op: "isnull" };
+        } else {
+          filters["AssignedTo"] = { op: "eq", value: columnKey };
+        }
+      } else if (groupBy === "campaign") {
+        if (columnKey === NULL_KEY) {
+          (filters as any)["Campaign"] = { op: "isnull" };
+        } else {
+          filters["Campaign"] = { op: "eq", value: columnKey };
+        }
+      }
+
+      try {
+        const nextPage = currentState.page + 1;
+        const response = await getReassignableLeadsPaginated({
+          page: nextPage,
+          page_size: pageSize,
+          filters,
+          sort_by: "UpdatedAt",
+          sort_dir: "desc",
+        });
+
+        const newLeads = response.items.map(mapPaginatedLeadToLead);
+
+        setColumns((prev) => ({
+          ...prev,
+          [columnKey]: {
+            ...prev[columnKey],
+            leads: [...prev[columnKey].leads, ...newLeads],
+            page: nextPage,
+            hasMore: prev[columnKey].leads.length + newLeads.length < response.total,
+            loading: false,
+          },
+        }));
+      } catch (error) {
+        console.error(`Error loading more for column ${columnKey}:`, error);
+        setColumns((prev) => ({
+          ...prev,
+          [columnKey]: { ...prev[columnKey], loading: false },
+        }));
+      }
+    },
+    [columns, baseFilters, groupBy, pageSize],
+  );
 
   // Refrescar todas las columnas (útil cuando cambian los filtros)
   useEffect(() => {
@@ -341,6 +343,6 @@ export function useColumnPagination({
     columns,
     allColumnKeys,
     isInitializing,
-    loadMore
+    loadMore,
   };
 }

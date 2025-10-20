@@ -173,6 +173,9 @@ export const updateLead = async (leadId: string, leadData: UpdateLeadRequest): P
     });
     console.log('📄 Body data:', JSON.stringify(leadData, null, 2));
     console.log('📧 AlternateEmail field:', leadData.AlternateEmail);
+    console.log('🔧 OCCUPATION field in API request:', leadData.occupation);
+    console.log('🔧 OCCUPATION field type:', typeof leadData.occupation);
+    console.log('🔧 OCCUPATION (capitalized) in API request:', (leadData as any).Occupation);
     
     const response = await fetch(endpoint, {
       method: 'PUT',

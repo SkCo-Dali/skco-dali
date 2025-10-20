@@ -267,6 +267,7 @@ export interface Lead {
   assignedToName?: string; // Name of the assigned user from API
   createdBy: string; // Added missing property
   company?: string;
+  occupation?: string;
   value: number;
   type?: string;
   outcome?: string;
@@ -307,6 +308,7 @@ export const LeadDefaultProperties: string[] = [
   "assignedToName",
   "createdBy",
   "company",
+  "occupation",
   "value",
   "type",
   "outcome",

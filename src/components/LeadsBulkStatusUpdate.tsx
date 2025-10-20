@@ -7,13 +7,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { AlertCircle, CheckCircle2 } from "lucide-react";
@@ -30,15 +24,17 @@ interface LeadsBulkStatusUpdateProps {
 const STAGE_OPTIONS = [
   { value: "Nuevo", label: "Nuevo" },
   { value: "Asignado", label: "Asignado" },
-  { value: "Contactado", label: "Contactado" },
-  { value: "Calificado", label: "Calificado" },
-  { value: "En Negociación", label: "En Negociación" },
+  { value: "Localizado: No interesado", label: "Localizado: No interesado" },
+  { value: "Localizado: Prospecto de venta FP", label: "Localizado: Prospecto de venta FP" },
+  { value: "Localizado: Prospecto de venta AD", label: "Localizado: Prospecto de venta AD" },
+  { value: "Localizado: Prospecto de venta - Pendiente", label: "Localizado: Prospecto de venta - Pendiente" },
+  { value: "Localizado: Volver a llamar", label: "Localizado: Volver a llamar" },
+  { value: "Localizado: No vuelve a contestar", label: "Localizado: No vuelve a contestar" },
+  { value: "No localizado: No contesta", label: "No localizado: No contesta" },
+  { value: "No localizado: Número equivocado", label: "No localizado: Número equivocado" },
   { value: "Contrato Creado", label: "Contrato Creado" },
   { value: "Registro de Venta (fondeado)", label: "Registro de Venta (fondeado)" },
-  { value: "Cerrado Ganado", label: "Cerrado Ganado" },
-  { value: "Cerrado Perdido", label: "Cerrado Perdido" },
   { value: "Repetido", label: "Repetido" },
-  { value: "No Contactado", label: "No Contactado" },
 ];
 
 export function LeadsBulkStatusUpdate({
@@ -52,12 +48,12 @@ export function LeadsBulkStatusUpdate({
 
   const handleConfirm = async () => {
     if (!selectedStage) return;
-    
+
     try {
       await onConfirm(selectedStage);
       setSelectedStage("");
     } catch (error) {
-      console.error('Error en actualización masiva:', error);
+      console.error("Error en actualización masiva:", error);
     }
   };
 
@@ -74,9 +70,7 @@ export function LeadsBulkStatusUpdate({
             <CheckCircle2 className="h-5 w-5 text-primary" />
             Actualización Masiva de Estado
           </DialogTitle>
-          <DialogDescription>
-            Cambia el estado de múltiples leads a la vez
-          </DialogDescription>
+          <DialogDescription>Cambia el estado de múltiples leads a la vez</DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4 py-4">
@@ -114,24 +108,17 @@ export function LeadsBulkStatusUpdate({
               <CheckCircle2 className="h-4 w-4" />
               <AlertDescription>
                 Todos los leads seleccionados cambiarán a:{" "}
-                <strong>{STAGE_OPTIONS.find(s => s.value === selectedStage)?.label}</strong>
+                <strong>{STAGE_OPTIONS.find((s) => s.value === selectedStage)?.label}</strong>
               </AlertDescription>
             </Alert>
           )}
         </div>
 
         <DialogFooter>
-          <Button
-            variant="outline"
-            onClick={handleClose}
-            disabled={isLoading}
-          >
+          <Button variant="outline" onClick={handleClose} disabled={isLoading}>
             Cancelar
           </Button>
-          <Button
-            onClick={handleConfirm}
-            disabled={!selectedStage || isLoading}
-          >
+          <Button onClick={handleConfirm} disabled={!selectedStage || isLoading}>
             {isLoading ? "Actualizando..." : "Confirmar Actualización"}
           </Button>
         </DialogFooter>

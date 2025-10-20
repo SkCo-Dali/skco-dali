@@ -1,9 +1,9 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { UserAssigneeSelect } from "@/components/UserAssigneeSelect";
+import { LeadAssigneeSelect } from "@/components/LeadAssigneeSelect";
 import { Lead, User } from "@/types/crm";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
@@ -28,6 +28,16 @@ export function LeadReassignDialog({ lead, isOpen, onClose, onSuccess }: LeadRea
   const { toast } = useToast();
   const { user: currentUser } = useAuth();
   const { loading: reassignLoading, handleReassignLead } = useLeadAssignments();
+
+  // Transformar usuarios al formato esperado por LeadAssigneeSelect
+  const formattedUsers = useMemo(() => {
+    return assignableUsers.map(user => ({
+      Id: user.id,
+      Name: user.name,
+      Email: user.email,
+      Role: user.role
+    }));
+  }, [assignableUsers]);
 
 
   useEffect(() => {
@@ -136,12 +146,16 @@ export function LeadReassignDialog({ lead, isOpen, onClose, onSuccess }: LeadRea
 
           <div>
             <Label htmlFor="newUser">Nuevo Usuario Asignado</Label>
-            <UserAssigneeSelect
+            <LeadAssigneeSelect
               value={selectedUserId}
-              users={assignableUsers}
+              displayName={
+                selectedUserId 
+                  ? assignableUsers.find(u => u.id === selectedUserId)?.name || "Sin asignar"
+                  : "Sin asignar"
+              }
+              users={formattedUsers}
               loading={loadingUsers}
               onSelect={setSelectedUserId}
-              placeholder={loadingUsers ? "Cargando usuarios..." : "Seleccionar usuario"}
             />
           </div>
 
