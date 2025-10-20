@@ -338,8 +338,8 @@ export function CreateRuleDialog({ planId, open, onOpenChange, onRuleCreated }: 
     
     if (!formData.name || !formData.formula || !formData.catalog) {
       toast({
-        title: "Validation Error",
-        description: "Please fill in all required fields (Name, Formula, Catalog)",
+        title: "Error de Validación",
+        description: "Por favor completa todos los campos requeridos (Nombre, Fórmula, Catálogo)",
         variant: "destructive"
       });
       return;
@@ -397,8 +397,8 @@ export function CreateRuleDialog({ planId, open, onOpenChange, onRuleCreated }: 
       }
 
       toast({
-        title: "Success",
-        description: `Rule "${formData.name}" has been created successfully with ${formData.conditions.length} condition(s).`
+        title: "Éxito",
+        description: `La regla "${formData.name}" ha sido creada exitosamente con ${formData.conditions.length} condición(es).`
       });
       
       handleCancel();
@@ -439,26 +439,26 @@ export function CreateRuleDialog({ planId, open, onOpenChange, onRuleCreated }: 
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[800px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Create Commission Rule</DialogTitle>
+          <DialogTitle>Crear Regla de Comisión</DialogTitle>
           <DialogDescription>
-            Define a new rule for the commission plan with its formula and conditions.
+            Define una nueva regla para el plan de comisiones con su fórmula y condiciones.
           </DialogDescription>
         </DialogHeader>
         
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="grid w-full grid-cols-5">
-            <TabsTrigger value="information">Information</TabsTrigger>
-            <TabsTrigger value="rule">Rule</TabsTrigger>
-            <TabsTrigger value="incentives">Incentives</TabsTrigger>
-            <TabsTrigger value="payments">Payments</TabsTrigger>
-            <TabsTrigger value="preview">Preview</TabsTrigger>
+            <TabsTrigger value="information">Información</TabsTrigger>
+            <TabsTrigger value="rule">Regla</TabsTrigger>
+            <TabsTrigger value="incentives">Incentivos</TabsTrigger>
+            <TabsTrigger value="payments">Pagos</TabsTrigger>
+            <TabsTrigger value="preview">Vista Previa</TabsTrigger>
           </TabsList>
 
           <form onSubmit={handleSubmit}>
             {/* Information Tab */}
             <TabsContent value="information" className="space-y-4 mt-4">
               <div>
-                <Label htmlFor="rule-name">Name *</Label>
+                <Label htmlFor="rule-name">Nombre *</Label>
                 <Input
                   id="rule-name"
                   value={formData.name}
@@ -469,7 +469,7 @@ export function CreateRuleDialog({ planId, open, onOpenChange, onRuleCreated }: 
               </div>
 
               <div>
-                <Label htmlFor="rule-description">Description</Label>
+                <Label htmlFor="rule-description">Descripción</Label>
                 <Textarea
                   id="rule-description"
                   value={formData.description}
@@ -481,7 +481,7 @@ export function CreateRuleDialog({ planId, open, onOpenChange, onRuleCreated }: 
 
               <div>
                 <Label htmlFor="rule-owner-field">
-                  Owner Field * 
+                  Campo Propietario * 
                   <span className="ml-1 text-xs text-muted-foreground cursor-help">ⓘ</span>
                 </Label>
                 <Select
@@ -489,7 +489,7 @@ export function CreateRuleDialog({ planId, open, onOpenChange, onRuleCreated }: 
                   onValueChange={(value) => setFormData(prev => ({ ...prev, ownerField: value }))}
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder="Select owner field" />
+                    <SelectValue placeholder="Seleccionar campo propietario" />
                   </SelectTrigger>
                   <SelectContent>
                     {OWNER_FIELD_OPTIONS.map((field) => (
@@ -503,7 +503,7 @@ export function CreateRuleDialog({ planId, open, onOpenChange, onRuleCreated }: 
 
               <div>
                 <Label htmlFor="rule-date-field">
-                  Date Field * 
+                  Campo Fecha * 
                   <span className="ml-1 text-xs text-muted-foreground cursor-help">ⓘ</span>
                 </Label>
                 <Select
@@ -511,7 +511,7 @@ export function CreateRuleDialog({ planId, open, onOpenChange, onRuleCreated }: 
                   onValueChange={(value) => setFormData(prev => ({ ...prev, dateField: value }))}
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder="Select date field" />
+                    <SelectValue placeholder="Seleccionar campo fecha" />
                   </SelectTrigger>
                   <SelectContent>
                     {DATE_FIELD_OPTIONS.map((field) => (
@@ -529,7 +529,7 @@ export function CreateRuleDialog({ planId, open, onOpenChange, onRuleCreated }: 
                   checked={formData.goalIncentive}
                   onCheckedChange={(checked) => setFormData(prev => ({ ...prev, goalIncentive: checked }))}
                 />
-                <Label htmlFor="goal-incentive">Goal Incentive</Label>
+                <Label htmlFor="goal-incentive">Incentivo por Meta</Label>
               </div>
             </TabsContent>
 
@@ -537,7 +537,7 @@ export function CreateRuleDialog({ planId, open, onOpenChange, onRuleCreated }: 
             <TabsContent value="rule" className="space-y-4 mt-4">
               <div>
                 <Label htmlFor="rule-catalog">
-                  Catalog * 
+                  Catálogo * 
                   <span className="ml-1 text-xs text-muted-foreground cursor-help">ⓘ</span>
                 </Label>
                 <Select
@@ -546,7 +546,7 @@ export function CreateRuleDialog({ planId, open, onOpenChange, onRuleCreated }: 
                   disabled={catalogsLoading}
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder={catalogsLoading ? "Loading catalogs..." : "Select a catalog"} />
+                    <SelectValue placeholder={catalogsLoading ? "Cargando catálogos..." : "Seleccionar un catálogo"} />
                   </SelectTrigger>
                   <SelectContent>
                     {activeCatalogs.map((catalog) => (
@@ -561,7 +561,7 @@ export function CreateRuleDialog({ planId, open, onOpenChange, onRuleCreated }: 
               <div className="grid grid-cols-2 gap-6">
                 {/* Formula Section */}
                 <div>
-                  <Label htmlFor="rule-formula">Formula</Label>
+                  <Label htmlFor="rule-formula">Fórmula</Label>
                   <Textarea
                     ref={formulaRef}
                     id="rule-formula"
@@ -589,12 +589,12 @@ export function CreateRuleDialog({ planId, open, onOpenChange, onRuleCreated }: 
 
                 {/* Click to insert fields */}
                 <div>
-                  <Label>Click to insert fields</Label>
+                  <Label>Haz clic para insertar campos</Label>
                   <div className="space-y-2">
                     <div className="relative">
                       <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
                       <Input
-                        placeholder="Type to search"
+                        placeholder="Escribe para buscar"
                         value={fieldSearch}
                         onChange={(e) => setFieldSearch(e.target.value)}
                         className="pl-8"
@@ -603,15 +603,15 @@ export function CreateRuleDialog({ planId, open, onOpenChange, onRuleCreated }: 
                     <div className="max-h-40 overflow-y-auto space-y-1 border rounded-md p-2">
                       {fieldsLoading ? (
                         <div className="text-xs text-muted-foreground text-center py-4">
-                          Loading fields...
+                          Cargando campos...
                         </div>
                       ) : !formData.catalog ? (
                         <div className="text-xs text-muted-foreground text-center py-4">
-                          Select a catalog to view fields
+                          Selecciona un catálogo para ver campos
                         </div>
                       ) : filteredFields.length === 0 ? (
                         <div className="text-xs text-muted-foreground text-center py-4">
-                          No fields found
+                          No se encontraron campos
                         </div>
                       ) : (
                         <TooltipProvider>
@@ -650,7 +650,7 @@ export function CreateRuleDialog({ planId, open, onOpenChange, onRuleCreated }: 
               {/* Conditions Section */}
               <div className="mt-6">
                 <div className="flex justify-between items-center mb-3">
-                  <Label>Conditions</Label>
+                  <Label>Condiciones</Label>
                   <Button type="button" onClick={addCondition} size="sm" variant="outline">
                     <Plus className="h-4 w-4" />
                   </Button>
@@ -661,12 +661,12 @@ export function CreateRuleDialog({ planId, open, onOpenChange, onRuleCreated }: 
                     <div key={condition.id} className="grid grid-cols-12 gap-2 items-center">
                       {index > 0 && (
                         <div className="col-span-1 text-center text-sm text-muted-foreground">
-                          and
+                          y
                         </div>
                       )}
                       {index === 0 && (
                         <div className="col-span-1 text-center text-sm text-muted-foreground">
-                          If
+                          Si
                         </div>
                       )}
                       
@@ -677,7 +677,7 @@ export function CreateRuleDialog({ planId, open, onOpenChange, onRuleCreated }: 
                           disabled={fieldsLoading || !formData.catalog}
                         >
                           <SelectTrigger>
-                            <SelectValue placeholder={!formData.catalog ? "Select catalog first" : "Field"} />
+                            <SelectValue placeholder={!formData.catalog ? "Selecciona catálogo primero" : "Campo"} />
                           </SelectTrigger>
                           <SelectContent>
                             {catalogFields.map((field) => (
@@ -700,7 +700,7 @@ export function CreateRuleDialog({ planId, open, onOpenChange, onRuleCreated }: 
                           disabled={!condition.field}
                         >
                           <SelectTrigger>
-                            <SelectValue placeholder="Condition" />
+                            <SelectValue placeholder="Condición" />
                           </SelectTrigger>
                           <SelectContent>
                             {getConditionOptions(condition.fieldType).map((cond) => (
@@ -726,14 +726,14 @@ export function CreateRuleDialog({ planId, open, onOpenChange, onRuleCreated }: 
                                 !condition.value && "text-muted-foreground"
                               )}
                             >
-                              {condition.value || "Value"}
+                              {condition.value || "Valor"}
                               <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                             </Button>
                           </PopoverTrigger>
                           <PopoverContent className="w-full p-0" align="start">
                             <Command shouldFilter={false}>
                               <CommandInput 
-                                placeholder="Search or type value..." 
+                                placeholder="Buscar o escribir valor..." 
                                 onKeyDown={(e) => {
                                   if (e.key === 'Enter') {
                                     e.preventDefault();
@@ -748,8 +748,8 @@ export function CreateRuleDialog({ planId, open, onOpenChange, onRuleCreated }: 
                               <CommandList>
                                 <CommandEmpty>
                                   {loadingFieldValues[`${formData.catalog}-${condition.fieldId}`] 
-                                    ? "Loading values..." 
-                                    : "Type a value and press Enter"}
+                                    ? "Cargando valores..." 
+                                    : "Escribe un valor y presiona Enter"}
                                 </CommandEmpty>
                                 {condition.fieldId && formData.catalog && (
                                   <CommandGroup>
@@ -799,7 +799,7 @@ export function CreateRuleDialog({ planId, open, onOpenChange, onRuleCreated }: 
 
                   {formData.conditions.length === 0 && (
                     <div className="text-center py-4 text-muted-foreground border border-dashed rounded">
-                      No conditions added yet. Click the + button to add conditions.
+                      No se han agregado condiciones aún. Haz clic en el botón + para agregar condiciones.
                     </div>
                   )}
                 </div>

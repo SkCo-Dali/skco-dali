@@ -41,14 +41,14 @@ export default function CompensationPlans() {
                 className="gap-2"
               >
                 <ArrowLeft className="h-4 w-4" />
-                Back
+                Volver
               </Button>
               <div>
                 <h1 className="text-3xl font-bold mb-1 tracking-tight">
-                  Compensation Plans
+                  Planes de Compensación
                 </h1>
                 <p className="text-muted-foreground">
-                  Manage and configure commission plans for different channels and advisor types
+                  Administra y configura planes de comisiones para diferentes canales y tipos de asesores
                 </p>
               </div>
             </div>
@@ -58,24 +58,24 @@ export default function CompensationPlans() {
               size="sm"
             >
               <Plus className="h-4 w-4 mr-2" />
-              Create
+              Crear
             </Button>
           </div>
 
           {/* Tabs with commission plans */}
           <Card>
             <CardHeader className="pb-3">
-              <CardTitle className="text-lg">Commission Plans</CardTitle>
+              <CardTitle className="text-lg">Planes de Comisiones</CardTitle>
             </CardHeader>
             <CardContent>
               {loading ? (
                 <div className="flex items-center justify-center py-8">
                   <Loader2 className="h-6 w-6 animate-spin mr-2" />
-                  <span>Loading commission plans...</span>
+                  <span>Cargando planes de comisiones...</span>
                 </div>
               ) : error ? (
                 <div className="text-center py-8 text-destructive">
-                  <p>Error loading commission plans: {error}</p>
+                  <p>Error al cargar planes de comisiones: {error}</p>
                 </div>
               ) : (
                 <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as CommissionPlanStatus)}>

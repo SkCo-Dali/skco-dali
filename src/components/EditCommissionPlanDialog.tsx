@@ -133,21 +133,21 @@ export function EditCommissionPlanDialog({ plan, open, onOpenChange, onUpdatePla
       <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogContent className="sm:max-w-[1200px] max-h-[90vh] overflow-hidden">
           <DialogHeader>
-            <DialogTitle>Compensation Plan Editor</DialogTitle>
+            <DialogTitle>Editor de Planes de Compensación</DialogTitle>
           </DialogHeader>
 
           <div className="flex-1 overflow-hidden">
             <Tabs defaultValue="information" className="h-full flex flex-col">
               <TabsList className="grid w-full grid-cols-2">
-                <TabsTrigger value="information">Information</TabsTrigger>
-                <TabsTrigger value="history">History</TabsTrigger>
+                <TabsTrigger value="information">Información</TabsTrigger>
+                <TabsTrigger value="history">Historial</TabsTrigger>
               </TabsList>
 
               <TabsContent value="information" className="flex-1 overflow-hidden mt-4">
                 <div className="grid grid-cols-1 h-[calc(90vh-280px)] w-full overflow-y-auto">
                   {/* Section 1: General Information (Red box) */}
                   <div className="col-span-2 flex flex-col">
-                    <h3 className="text-sm font-semibold mb-2 text-muted-foreground">General Information</h3>
+                    <h3 className="text-sm font-semibold mb-2 text-muted-foreground">Información General</h3>
                     <div className="space-y-4">
                       <div>
                         <Label htmlFor="name">Nombre*</Label>
@@ -155,25 +155,25 @@ export function EditCommissionPlanDialog({ plan, open, onOpenChange, onUpdatePla
                           id="name"
                           value={formData.name}
                           onChange={(e) => setFormData((prev) => ({ ...prev, name: e.target.value }))}
-                          placeholder="Enter plan name"
+                          placeholder="Ingrese el nombre del plan"
                           className="w-full"
                         />
                       </div>
 
                       <div>
-                        <Label htmlFor="description">Description</Label>
+                        <Label htmlFor="description">Descripción</Label>
                         <Textarea
                           id="description"
                           value={formData.description}
                           onChange={(e) => setFormData((prev) => ({ ...prev, description: e.target.value }))}
-                          placeholder="Enter plan description"
+                          placeholder="Ingrese la descripción del plan"
                           rows={3}
                         />
                       </div>
 
                       <div className="grid grid-cols-2 gap-4">
                         <div>
-                          <Label>Start Date *</Label>
+                          <Label>Fecha de Inicio *</Label>
                           <DatePicker
                             date={formData.startDate}
                             onDateChange={(date) => setFormData((prev) => ({ ...prev, startDate: date }))}
@@ -182,7 +182,7 @@ export function EditCommissionPlanDialog({ plan, open, onOpenChange, onUpdatePla
                         </div>
 
                         <div>
-                          <Label>End Date *</Label>
+                          <Label>Fecha de Fin *</Label>
                           <DatePicker
                             date={formData.endDate}
                             onDateChange={(date) => setFormData((prev) => ({ ...prev, endDate: date }))}
@@ -193,7 +193,7 @@ export function EditCommissionPlanDialog({ plan, open, onOpenChange, onUpdatePla
                       </div>
 
                       <div>
-                        <Label>Assignee *</Label>
+                        <Label>Asignado a *</Label>
                         <RadioGroup
                           value={formData.assignmentType}
                           onValueChange={(value) =>
@@ -207,19 +207,19 @@ export function EditCommissionPlanDialog({ plan, open, onOpenChange, onUpdatePla
                         >
                           <div className="flex items-center space-x-2">
                             <RadioGroupItem value="all_users" id="edit_all_users" />
-                            <Label htmlFor="edit_all_users">All Users</Label>
+                            <Label htmlFor="edit_all_users">Todos los Usuarios</Label>
                           </div>
                           <div className="flex items-center space-x-2">
                             <RadioGroupItem value="user" id="edit_user" />
-                            <Label htmlFor="edit_user">User</Label>
+                            <Label htmlFor="edit_user">Usuario</Label>
                           </div>
                           <div className="flex items-center space-x-2">
                             <RadioGroupItem value="role" id="edit_role" />
-                            <Label htmlFor="edit_role">Role</Label>
+                            <Label htmlFor="edit_role">Rol</Label>
                           </div>
                           <div className="flex items-center space-x-2">
                             <RadioGroupItem value="team" id="edit_team" />
-                            <Label htmlFor="edit_team">Team</Label>
+                            <Label htmlFor="edit_team">Equipo</Label>
                           </div>
                         </RadioGroup>
 
@@ -230,7 +230,7 @@ export function EditCommissionPlanDialog({ plan, open, onOpenChange, onUpdatePla
                               onValueChange={(value) => setFormData((prev) => ({ ...prev, assignmentValue: value }))}
                             >
                               <SelectTrigger>
-                                <SelectValue placeholder="Select a role" />
+                                <SelectValue placeholder="Selecciona un rol" />
                               </SelectTrigger>
                               <SelectContent className="bg-background border shadow-md max-h-[200px] overflow-y-auto">
                                 {ROLES_LIST.map((role) => (
@@ -248,7 +248,7 @@ export function EditCommissionPlanDialog({ plan, open, onOpenChange, onUpdatePla
                             <Input
                               value={formData.assignmentValue}
                               onChange={(e) => setFormData((prev) => ({ ...prev, assignmentValue: e.target.value }))}
-                              placeholder={`Enter ${formData.assignmentType} name`}
+                              placeholder={`Ingrese el nombre del ${formData.assignmentType === 'user' ? 'usuario' : 'equipo'}`}
                             />
                           </div>
                         )}
@@ -259,7 +259,7 @@ export function EditCommissionPlanDialog({ plan, open, onOpenChange, onUpdatePla
                   {/* Section 3: Rules Table (Yellow box) */}
                   <div className="col-span-3 flex flex-col">
                     <div className="mt-4 flex items-center justify-between mb-2">
-                      <h3 className="text-sm font-semibold text-muted-foreground">Rules</h3>
+                      <h3 className="text-sm font-semibold text-muted-foreground">Reglas</h3>
                       <Button
                         onClick={() => setIsCreateRuleOpen(true)}
                         size="sm"
@@ -267,22 +267,22 @@ export function EditCommissionPlanDialog({ plan, open, onOpenChange, onUpdatePla
                         disabled={rulesLoading}
                       >
                         <Plus className="h-4 w-4 mr-2" />
-                        Create
+                        Crear
                       </Button>
                     </div>
 
                     {rulesLoading ? (
                       <div className="flex items-center justify-center py-8 border rounded-md">
                         <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
-                        <span className="ml-2 text-muted-foreground">Loading rules...</span>
+                        <span className="ml-2 text-muted-foreground">Cargando reglas...</span>
                       </div>
                     ) : rulesError ? (
                       <div className="text-center py-8 border rounded-md text-destructive">
-                        Error loading rules: {rulesError}
+                        Error al cargar reglas: {rulesError}
                       </div>
                     ) : uiRules.length === 0 ? (
                       <div className="text-center py-8 border rounded-md text-muted-foreground">
-                        No rules created yet. Click "Create" to add your first rule.
+                        No hay reglas creadas aún. Haz clic en "Crear" para agregar tu primera regla.
                       </div>
                     ) : (
                       <ScrollArea className="flex-1 rounded-md">
@@ -313,7 +313,7 @@ export function EditCommissionPlanDialog({ plan, open, onOpenChange, onUpdatePla
               </TabsContent>
 
               <TabsContent value="history" className="flex-1 overflow-y-auto mt-4">
-                <div className="text-center py-8 text-muted-foreground">History functionality coming soon.</div>
+                <div className="text-center py-8 text-muted-foreground">Funcionalidad de historial próximamente.</div>
               </TabsContent>
             </Tabs>
           </div>
@@ -323,11 +323,11 @@ export function EditCommissionPlanDialog({ plan, open, onOpenChange, onUpdatePla
             {plan.status === "ready_to_approve" ? (
               <>
                 <Button onClick={handlePublishAndCalculate} className="bg-primary hover:bg-primary/90" disabled={isLoading}>
-                  {isLoading ? "Publishing..." : "Publish"}
+                  {isLoading ? "Publicando..." : "Publicar"}
                 </Button>
                 <Button
                   onClick={async () => {
-                    const reason = prompt("Enter rejection reason (optional):");
+                    const reason = prompt("Ingrese el motivo del rechazo (opcional):");
                     if (reason !== null && onRejectPlan) {
                       setIsLoading(true);
                       const success = await onRejectPlan(plan.id, reason || undefined);
@@ -341,10 +341,10 @@ export function EditCommissionPlanDialog({ plan, open, onOpenChange, onUpdatePla
                   className="bg-destructive/10 hover:bg-destructive/20 text-destructive border-destructive"
                   disabled={isLoading}
                 >
-                  Reject
+                  Rechazar
                 </Button>
                 <Button onClick={handleCancel} variant="outline" disabled={isLoading}>
-                  Cancel
+                  Cancelar
                 </Button>
               </>
             ) : plan.status === "rejected" || plan.status === "inactive" ? (
@@ -355,10 +355,10 @@ export function EditCommissionPlanDialog({ plan, open, onOpenChange, onUpdatePla
                   className="bg-primary/10 hover:bg-primary/20 text-primary border-primary"
                   disabled={isLoading}
                 >
-                  Ready to Approve
+                  Listo para Aprobar
                 </Button>
                 <Button onClick={handleCancel} variant="outline" disabled={isLoading}>
-                  Cancel
+                  Cancelar
                 </Button>
               </>
             ) : plan.status === "published" ? (
@@ -369,10 +369,10 @@ export function EditCommissionPlanDialog({ plan, open, onOpenChange, onUpdatePla
                   className="bg-destructive/10 hover:bg-destructive/20 text-destructive border-destructive"
                   disabled={isLoading}
                 >
-                  {isLoading ? "Inactivating..." : "Inactivate"}
+                  {isLoading ? "Inactivando..." : "Inactivar"}
                 </Button>
                 <Button onClick={handleCancel} variant="outline" disabled={isLoading}>
-                  Cancel
+                  Cancelar
                 </Button>
               </>
             ) : (
@@ -383,7 +383,7 @@ export function EditCommissionPlanDialog({ plan, open, onOpenChange, onUpdatePla
                   className="bg-primary/10 hover:bg-primary/20 text-primary border-primary"
                   disabled={isLoading}
                 >
-                  {isLoading ? "Saving..." : "Save as Draft"}
+                  {isLoading ? "Guardando..." : "Guardar como Borrador"}
                 </Button>
                 <Button
                   onClick={handleSendForApproval}
@@ -391,10 +391,10 @@ export function EditCommissionPlanDialog({ plan, open, onOpenChange, onUpdatePla
                   className="bg-primary/10 hover:bg-primary/20 text-primary border-primary"
                   disabled={isLoading}
                 >
-                  Ready to Approve
+                  Listo para Aprobar
                 </Button>
                 <Button onClick={handleCancel} variant="outline" disabled={isLoading}>
-                  Cancel
+                  Cancelar
                 </Button>
               </>
             )}

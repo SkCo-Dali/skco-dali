@@ -87,7 +87,7 @@ export function CommissionRulesTable({ rules, planId, onRuleDeleted, onRuleUpdat
   };
 
   if (rules.length === 0) {
-    return <div className="text-center py-8 text-muted-foreground">No rules defined for this commission plan yet.</div>;
+    return <div className="text-center py-8 text-muted-foreground">No hay reglas definidas para este plan de comisiones aún.</div>;
   }
 
   return (
@@ -112,17 +112,17 @@ export function CommissionRulesTable({ rules, planId, onRuleDeleted, onRuleUpdat
                   #
                 </TableHead>
                 <TableHead className="w-[200px] text-[11px] uppercase tracking-wide text-muted-foreground text-center">
-                  Name
+                  Nombre
                 </TableHead>
                 <TableHead className="w-[280px] text-[11px] uppercase tracking-wide text-muted-foreground text-center">
-                  Formula
+                  Fórmula
                 </TableHead>
                 <TableHead className="w-[260px] text-[11px] uppercase tracking-wide text-muted-foreground text-center">
-                  Conditions
+                  Condiciones
                 </TableHead>
                 {planId && (
                   <TableHead className="w-20 text-[11px] uppercase tracking-wide text-muted-foreground text-center">
-                    Actions
+                    Acciones
                   </TableHead>
                 )}
               </TableRow>
@@ -201,21 +201,21 @@ export function CommissionRulesTable({ rules, planId, onRuleDeleted, onRuleUpdat
       <div className="lg:col-span-1 overflow-y-auto mr-2">
         <Card>
           <CardHeader>
-            <CardTitle className="text-lg">Rule Details</CardTitle>
+            <CardTitle className="text-lg">Detalles de la Regla</CardTitle>
           </CardHeader>
           <CardContent>
             {selectedRule ? (
               <div className="space-y-4">
                 <div>
-                  <h4 className="font-semibold mb-1">Information</h4>
+                  <h4 className="font-semibold mb-1">Información</h4>
                   <div className="space-y-2 text-sm">
                     <div>
-                      <span className="font-medium">Name:</span>
+                      <span className="font-medium">Nombre:</span>
                       <p className="text-muted-foreground mt-1">{selectedRule.name}</p>
                     </div>
                     {selectedRule.description && (
                       <div>
-                        <span className="font-medium">Description:</span>
+                        <span className="font-medium">Descripción:</span>
                         <p className="text-muted-foreground mt-1">{selectedRule.description}</p>
                       </div>
                     )}
@@ -223,18 +223,18 @@ export function CommissionRulesTable({ rules, planId, onRuleDeleted, onRuleUpdat
                 </div>
 
                 <div>
-                  <h4 className="font-semibold mb-2">Details</h4>
+                  <h4 className="font-semibold mb-2">Detalles</h4>
                   <div className="space-y-3 text-sm">
                     {selectedRule.owner && (
                       <div>
-                        <span className="font-medium">Owner:</span>
+                        <span className="font-medium">Propietario:</span>
                         <p className="text-muted-foreground mt-1">{selectedRule.owner}</p>
                       </div>
                     )}
 
                     {selectedRule.dataField && (
                       <div>
-                        <span className="font-medium">Data Field:</span>
+                        <span className="font-medium">Campo de Datos:</span>
                         <p className="text-muted-foreground mt-1">{selectedRule.dataField}</p>
                       </div>
                     )}
@@ -242,17 +242,17 @@ export function CommissionRulesTable({ rules, planId, onRuleDeleted, onRuleUpdat
                 </div>
 
                 <div>
-                  <h4 className="font-semibold mb-2">Formula</h4>
+                  <h4 className="font-semibold mb-2">Fórmula</h4>
                   <code className="text-xs bg-muted p-2 rounded block break-words">{selectedRule.formula}</code>
                 </div>
 
                 <div>
-                  <h4 className="font-semibold mb-2">Conditions</h4>
+                  <h4 className="font-semibold mb-2">Condiciones</h4>
                   <p className="text-sm text-muted-foreground break-words">{selectedRule.conditions}</p>
                 </div>
               </div>
             ) : (
-              <div className="text-center py-4 text-muted-foreground">Select a rule to view details</div>
+              <div className="text-center py-4 text-muted-foreground">Selecciona una regla para ver detalles</div>
             )}
           </CardContent>
         </Card>
@@ -261,19 +261,19 @@ export function CommissionRulesTable({ rules, planId, onRuleDeleted, onRuleUpdat
       <AlertDialog open={!!ruleToDelete} onOpenChange={() => setRuleToDelete(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete Rule</AlertDialogTitle>
+            <AlertDialogTitle>Eliminar Regla</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to delete the rule "{ruleToDelete?.name}"? This action cannot be undone.
+              ¿Estás seguro de que deseas eliminar la regla "{ruleToDelete?.name}"? Esta acción no se puede deshacer.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
+            <AlertDialogCancel disabled={isDeleting}>Cancelar</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleDeleteRule}
               disabled={isDeleting}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
-              {isDeleting ? "Deleting..." : "Delete"}
+              {isDeleting ? "Eliminando..." : "Eliminar"}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
