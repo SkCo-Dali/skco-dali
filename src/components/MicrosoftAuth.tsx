@@ -1,85 +1,49 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import { loginRequest } from "@/authConfig";
+import { useLocation, useNavigate, Location } from "react-router-dom";
+import { AuthenticationResult, EventType } from "@azure/msal-browser";
 
 export function MicrosoftAuth() {
   const { msalInstance, login } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
-
- 
-
-  const getUserPhoto = async (accessToken: string): Promise<string | null> => {
-    try {
-      const photoResponse = await fetch("https://graph.microsoft.com/v1.0/me/photo/$value", {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
-      });
-
-      if (photoResponse.ok) {
-        const photoBlob = await photoResponse.blob();
-        return URL.createObjectURL(photoBlob);
+  const location = useLocation();
+  const navigate = useNavigate();
+  useEffect(() => {
+    // Listen for sign-in event and set active account
+    msalInstance.addEventCallback((event) => {
+      if (event.eventType === EventType.LOGIN_SUCCESS && event.payload) {
+        const payload = event.payload as AuthenticationResult;
+        const account = payload.account;
+        const state = payload.state;
+        msalInstance.setActiveAccount(account);
+        if (state) {
+          const { from } = JSON.parse(state);
+          if (from.path) {
+            navigate(from.path + (from.query || ''), { replace: true });
+          }
+        }
       }
+    });
 
-      return null;
-    } catch (error) {
-      return null;
-    }
-  };
+  }, [msalInstance]);
 
-  
+
+
+
 
   const handleMicrosoftLogin = async () => {
     setIsLoading(true);
     try {
+      const { from } = location.state || {};
+
       // Paso 1: Obtener token de MSAL
-      const response = await msalInstance.acquireTokenPopup({
-        ...loginRequest
+      await msalInstance.acquireTokenPopup({
+        ...loginRequest,
+        state: from ? JSON.stringify({ from }) : undefined,
       });
-      
 
-    //   if (!response /*|| !response.account*/ || !response.accessToken) {
-    //     throw new Error("Respuesta de autenticación incompleta");
-    //   }
-
-    //   // Paso 2: Validar token contra Microsoft Graph
-    //   const tokenValidation = await TokenValidationService.validateAccessToken(response.accessToken);
-
-    //   if (!tokenValidation.isValid || !tokenValidation.userInfo) {
-    //     throw new Error(tokenValidation.error || "Token de acceso inválido");
-    //   }
-
-    //   const { userInfo } = tokenValidation;
-
-    //   // Paso 3: Validar dominio del email (ahora más flexible)
-    //   if (!TokenValidationService.validateEmailDomain(userInfo.email)) {
-    //     throw new Error("El email no pertenece a un dominio autorizado para acceder a la aplicación");
-    //   }
-
-
-    //   // Paso 4: Obtener foto del perfil (opcional, no crítico)
-    //   const userPhoto = await getUserPhoto(response.accessToken);
-
-    //   // Paso 5: Buscar o crear usuario en base de datos (CON VALIDACIÓN DE ESTADO ACTIVO)
-    //   const dbUser = await findOrCreateUser(userInfo.email, userInfo.name);
-
-    //   // Paso 6: Crear objeto de usuario final
-    //   const user = {
-    //     id: dbUser.id,
-    //     name: dbUser.name,
-    //     email: dbUser.email,
-    //     role: dbUser.role,
-    //     avatar: userPhoto,
-    //     zone: dbUser.zone || "Skandia",
-    //     team: dbUser.team || "Equipo Skandia",
-    //     jobTitle: userInfo.jobTitle || "Usuario",
-    //     isActive: dbUser.isActive,
-    //     createdAt: dbUser.createdAt || new Date().toISOString(),
-    //   };
-
-    //   // Paso 7: Completar login
-    //   login(user);
     } catch (error) {
       // Manejo específico de errores sin fallbacks inseguros
       let errorMessage = "Error durante la autenticación";
