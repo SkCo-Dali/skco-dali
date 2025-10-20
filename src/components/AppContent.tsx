@@ -1,6 +1,6 @@
 
-import React, { useRef } from "react";
-import { Routes, Route, Navigate } from "react-router-dom";
+import React, { useRef, useEffect } from "react";
+import { Routes, Route, Navigate, useLocation, useNavigate } from "react-router-dom";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
 import { Header } from "@/components/Header";
@@ -30,6 +30,26 @@ import { AuthenticatedTemplate, UnauthenticatedTemplate } from "@azure/msal-reac
 export function AppContent() {
     const { user, loading } = useAuth();
     const chatDaliRef = useRef<any>(null);
+    const location = useLocation();
+    const navigate = useNavigate();
+
+    // Guardar la ruta que el usuario intentaba acceder
+    useEffect(() => {
+        if (!user && !loading && location.pathname !== '/login') {
+            sessionStorage.setItem('redirectAfterLogin', location.pathname);
+        }
+    }, [user, loading, location.pathname]);
+
+    // Redirigir después del login
+    useEffect(() => {
+        if (user && !loading) {
+            const redirectPath = sessionStorage.getItem('redirectAfterLogin');
+            if (redirectPath && redirectPath !== '/login') {
+                sessionStorage.removeItem('redirectAfterLogin');
+                navigate(redirectPath, { replace: true });
+            }
+        }
+    }, [user, loading, navigate]);
 
     if (loading) {
         return (
@@ -69,7 +89,7 @@ export function AppContent() {
                             <Header onBannerMessage={handleBannerMessage} />
                             <main className="flex-1 pt-20">
                                 <Routes>
-                                    <Route path="/" element={<Navigate to="/leads" replace />} />
+                                    <Route path="/" element={<Navigate to="/informes" replace />} />
                                     <Route path="/dashboard" element={<Dashboard />} />
                                     <Route path="/leads" element={<Leads />} />
                                     <Route path="/tasks" element={<Tasks />} />
