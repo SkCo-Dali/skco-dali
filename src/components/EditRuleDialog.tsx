@@ -20,7 +20,7 @@ import { Check, ChevronsUpDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { CommissionRule } from "@/data/commissionPlans";
 import { useConditionRules } from "@/hooks/useConditionRules";
-import { CreateConditionRuleRequest } from "@/types/conditionRulesApi";
+import { CreateConditionRuleRequest, ConditionOperator } from "@/types/conditionRulesApi";
 
 interface EditRuleDialogProps {
   rule: CommissionRule | null;
@@ -86,6 +86,46 @@ const MATH_OPERATORS = [
   { symbol: ')', label: ')' },
 ];
 
+// Map UI condition strings to API operators
+const mapUIOperatorToAPI = (uiOperator: string): ConditionOperator => {
+  const mapping: Record<string, ConditionOperator> = {
+    'Equal': 'equal',
+    'Not Equal': 'not_equal',
+    'Greater Than': 'greater_than',
+    'Greater Than Or Equal': 'greater_or_equal',
+    'Less Than': 'less_than',
+    'Less Than Or Equal': 'less_or_equal',
+    'Contains': 'contains',
+    'Not Contains': 'not_contains',
+    'Begins With': 'starts_with',
+    'Ends With': 'ends_with',
+    'Is One Of': 'in'
+  };
+  return mapping[uiOperator] || 'equal';
+};
+
+// Map API operators to UI condition strings
+const mapApiOperatorToUI = (apiOperator: string): string => {
+  const mapping: Record<string, string> = {
+    'equal': 'Equal',
+    'not_equal': 'Not Equal',
+    'greater_than': 'Greater Than',
+    'bigger_than': 'Greater Than',
+    'greater_or_equal': 'Greater Than Or Equal',
+    'bigger_or_equal': 'Greater Than Or Equal',
+    'less_than': 'Less Than',
+    'less_or_equal': 'Less Than Or Equal',
+    'contains': 'Contains',
+    'not_contains': 'Not Contains',
+    'starts_with': 'Begins With',
+    'ends_with': 'Ends With',
+    'in': 'Is One Of',
+    'not_in': 'Not Equal',
+    'between': 'Greater Than Or Equal'
+  };
+  return mapping[apiOperator] || 'Equal';
+};
+
 interface ConditionRow {
   id: string;
   field: string;
@@ -102,6 +142,16 @@ export function EditRuleDialog({ rule, planId, open, onOpenChange, onRuleUpdated
   
   // Fetch catalogs
   const { catalogs, loading: catalogsLoading } = useCatalogs();
+  
+  // Fetch conditions for the rule using the API
+  const {
+    conditions: apiConditions,
+    loading: conditionsLoading,
+    createCondition,
+    updateCondition: updateConditionApi,
+    deleteCondition: deleteConditionApi,
+    fetchConditions
+  } = useConditionRules(rule?.id || '');
   
   const [formData, setFormData] = useState({
     // Information tab
@@ -155,30 +205,92 @@ export function EditRuleDialog({ rule, planId, open, onOpenChange, onRuleUpdated
         paymentPeriodBasedOn: ''
       });
       setActiveTab('information');
+      
+      // Fetch conditions from API
+      if (rule.id) {
+        fetchConditions({ order_by: 'condition_order', order_dir: 'asc' });
+      }
     }
-  }, [rule, open]);
+  }, [rule, open, fetchConditions]);
+  
+  // Map API conditions to UI format when they load
+  useEffect(() => {
+    if (apiConditions.length > 0 && formData.catalog) {
+      const mappedConditions: ConditionRow[] = apiConditions.map(apiCond => ({
+        id: apiCond.id,
+        field: apiCond.field_name,
+        fieldId: undefined, // Will be resolved when catalog fields load
+        fieldType: undefined,
+        condition: mapApiOperatorToUI(apiCond.operator),
+        value: apiCond.field_value
+      }));
+      
+      setFormData(prev => ({ ...prev, conditions: mappedConditions }));
+    }
+  }, [apiConditions, formData.catalog]);
 
-  const addCondition = () => {
-    const newCondition: ConditionRow = {
-      id: Math.random().toString(36).substr(2, 9),
+  const addCondition = async () => {
+    if (!rule?.id) {
+      toast({
+        title: "Error",
+        description: "Cannot add condition: rule ID is missing",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    // Create a temporary local condition for immediate UI feedback
+    const tempCondition: ConditionRow = {
+      id: `temp-${Date.now()}`,
       field: '',
       condition: '',
       value: ''
     };
+    
     setFormData(prev => ({
       ...prev,
-      conditions: [...prev.conditions, newCondition]
+      conditions: [...prev.conditions, tempCondition]
     }));
   };
 
-  const removeCondition = (id: string) => {
-    setFormData(prev => ({
-      ...prev,
-      conditions: prev.conditions.filter(c => c.id !== id)
-    }));
+  const removeCondition = async (id: string) => {
+    if (!rule?.id) return;
+    
+    // If it's a temporary condition (not saved to API yet), just remove from state
+    if (id.startsWith('temp-')) {
+      setFormData(prev => ({
+        ...prev,
+        conditions: prev.conditions.filter(c => c.id !== id)
+      }));
+      return;
+    }
+    
+    // Delete from API
+    try {
+      const success = await deleteConditionApi(id);
+      if (success) {
+        setFormData(prev => ({
+          ...prev,
+          conditions: prev.conditions.filter(c => c.id !== id)
+        }));
+        toast({
+          title: "Success",
+          description: "Condition deleted successfully"
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to delete condition",
+        variant: "destructive"
+      });
+    }
   };
 
-  const updateCondition = (id: string, field: keyof ConditionRow, value: string) => {
+  const updateConditionLocal = async (id: string, field: keyof ConditionRow, value: string) => {
+    if (!rule?.id) return;
+    
+    // First update the local state for immediate UI feedback
     setFormData(prev => ({
       ...prev,
       conditions: prev.conditions.map(c => {
@@ -204,6 +316,55 @@ export function EditRuleDialog({ rule, planId, open, onOpenChange, onRuleUpdated
         return { ...c, [field]: value };
       })
     }));
+    
+    // Get the updated condition
+    const condition = formData.conditions.find(c => c.id === id);
+    if (!condition) return;
+    
+    // Build the updated condition object with the new value
+    const updatedCondition = { ...condition, [field]: value };
+    
+    // Only sync to API if the condition is complete (has all required fields)
+    if (updatedCondition.field && updatedCondition.condition && updatedCondition.value) {
+      try {
+        // If it's a temp condition, create it in the API
+        if (id.startsWith('temp-')) {
+          const conditionOrder = formData.conditions.findIndex(c => c.id === id);
+          const apiCondition = await createCondition({
+            field_name: updatedCondition.field,
+            operator: mapUIOperatorToAPI(updatedCondition.condition),
+            field_value: updatedCondition.value,
+            logical_operator: 'AND',
+            group_level: 0,
+            condition_order: conditionOrder
+          });
+          
+          // Replace the temp ID with the real API ID
+          if (apiCondition) {
+            setFormData(prev => ({
+              ...prev,
+              conditions: prev.conditions.map(c => 
+                c.id === id ? { ...c, id: apiCondition.id } : c
+              )
+            }));
+          }
+        } else {
+          // Update existing condition in API
+          await updateConditionApi(id, {
+            field_name: updatedCondition.field,
+            operator: mapUIOperatorToAPI(updatedCondition.condition),
+            field_value: updatedCondition.value
+          });
+        }
+      } catch (error) {
+        console.error('Error saving condition:', error);
+        toast({
+          title: "Warning",
+          description: "Condition updated locally but failed to sync with server",
+          variant: "destructive"
+        });
+      }
+    }
   };
 
   // Load field values from API
@@ -626,7 +787,7 @@ export function EditRuleDialog({ rule, planId, open, onOpenChange, onRuleUpdated
                       <div className="col-span-4">
                         <Select
                           value={condition.field}
-                          onValueChange={(value) => updateCondition(condition.id, 'field', value)}
+                          onValueChange={(value) => updateConditionLocal(condition.id, 'field', value)}
                           disabled={fieldsLoading || !formData.catalog}
                         >
                           <SelectTrigger>
@@ -649,7 +810,7 @@ export function EditRuleDialog({ rule, planId, open, onOpenChange, onRuleUpdated
                       <div className="col-span-3">
                         <Select
                           value={condition.condition}
-                          onValueChange={(value) => updateCondition(condition.id, 'condition', value)}
+                          onValueChange={(value) => updateConditionLocal(condition.id, 'condition', value)}
                           disabled={!condition.field}
                         >
                           <SelectTrigger>
@@ -692,7 +853,7 @@ export function EditRuleDialog({ rule, planId, open, onOpenChange, onRuleUpdated
                                     e.preventDefault();
                                     const inputValue = (e.target as HTMLInputElement).value;
                                     if (inputValue) {
-                                      updateCondition(condition.id, 'value', inputValue);
+                                      updateConditionLocal(condition.id, 'value', inputValue);
                                       setOpenValuePopovers(prev => ({ ...prev, [condition.id]: false }));
                                     }
                                   }
@@ -711,7 +872,7 @@ export function EditRuleDialog({ rule, planId, open, onOpenChange, onRuleUpdated
                                         key={fieldValue.id}
                                         value={fieldValue.value}
                                         onSelect={(value) => {
-                                          updateCondition(condition.id, 'value', value);
+                                          updateConditionLocal(condition.id, 'value', value);
                                           setOpenValuePopovers(prev => ({ ...prev, [condition.id]: false }));
                                         }}
                                       >

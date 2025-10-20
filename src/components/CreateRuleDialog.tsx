@@ -19,6 +19,8 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Check, ChevronsUpDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ENV } from "@/config/environment";
+import { ConditionOperator } from "@/types/conditionRulesApi";
+import { createConditionRule } from "@/utils/conditionRulesApiClient";
 
 interface CreateRuleDialogProps {
   planId: string;
@@ -82,6 +84,24 @@ const MATH_OPERATORS = [
   { symbol: '(', label: '(' },
   { symbol: ')', label: ')' },
 ];
+
+// Map UI condition strings to API operators
+const mapUIOperatorToAPI = (uiOperator: string): ConditionOperator => {
+  const mapping: Record<string, ConditionOperator> = {
+    'Equal': 'equal',
+    'Not Equal': 'not_equal',
+    'Greater Than': 'greater_than',
+    'Greater Than Or Equal': 'greater_or_equal',
+    'Less Than': 'less_than',
+    'Less Than Or Equal': 'less_or_equal',
+    'Contains': 'contains',
+    'Not Contains': 'not_contains',
+    'Begins With': 'starts_with',
+    'Ends With': 'ends_with',
+    'Is One Of': 'in'
+  };
+  return mapping[uiOperator] || 'equal';
+};
 
 interface ConditionRow {
   id: string;
@@ -328,7 +348,7 @@ export function CreateRuleDialog({ planId, open, onOpenChange, onRuleCreated }: 
     setIsSubmitting(true);
     
     try {
-      
+      // Step 1: Create the commission rule
       const response = await fetch(
         `${ENV.CRM_API_BASE_URL}/api/commission-plans/${planId}/rules`, 
         {
@@ -354,9 +374,31 @@ export function CreateRuleDialog({ planId, open, onOpenChange, onRuleCreated }: 
         throw new Error(errorData.detail || `Failed to create rule: ${response.status}`);
       }
 
+      const createdRule = await response.json();
+      const ruleId = createdRule.id;
+
+      // Step 2: Create all conditions for this rule (if any)
+      if (formData.conditions.length > 0) {
+        const conditionPromises = formData.conditions
+          .filter(c => c.field && c.condition && c.value) // Only save complete conditions
+          .map((condition, index) => 
+            createConditionRule(ruleId, {
+              field_name: condition.field,
+              operator: mapUIOperatorToAPI(condition.condition),
+              field_value: condition.value,
+              logical_operator: 'AND',
+              group_level: 0,
+              condition_order: index
+            })
+          );
+
+        // Wait for all conditions to be created
+        await Promise.all(conditionPromises);
+      }
+
       toast({
         title: "Success",
-        description: `Rule "${formData.name}" has been created successfully.`
+        description: `Rule "${formData.name}" has been created successfully with ${formData.conditions.length} condition(s).`
       });
       
       handleCancel();
