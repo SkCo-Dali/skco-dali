@@ -67,6 +67,7 @@ const DEFAULT_COLUMNS: ColumnConfig[] = [
   { key: "documentType", label: "Tipo de Documento", visible: false, sortable: true },
   { key: "documentNumber", label: "Número de Documento", visible: false, sortable: true },
   { key: "company", label: "Empresa", visible: false, sortable: true },
+  { key: "occupation", label: "Ocupación", visible: false, sortable: true },
   { key: "product", label: "Producto", visible: false, sortable: true },
   { key: "priority", label: "Prioridad", visible: false, sortable: true },
   { key: "source", label: "Fuente", visible: false, sortable: true },
