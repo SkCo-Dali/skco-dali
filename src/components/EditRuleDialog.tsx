@@ -205,13 +205,8 @@ export function EditRuleDialog({ rule, planId, open, onOpenChange, onRuleUpdated
         paymentPeriodBasedOn: ''
       });
       setActiveTab('information');
-      
-      // Fetch conditions from API
-      if (rule.id) {
-        fetchConditions({ order_by: 'condition_order', order_dir: 'asc' });
-      }
     }
-  }, [rule, open, fetchConditions]);
+  }, [rule, open]);
   
   // Map API conditions to UI format when they load
   useEffect(() => {
