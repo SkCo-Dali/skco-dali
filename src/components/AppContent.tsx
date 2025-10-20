@@ -118,7 +118,7 @@ export function AppContent() {
                                     <Route path="/motor-comisiones/compensation-plans" element={<CompensationPlans />} />
                                     <Route path="/motor-comisiones/catalogs" element={<Catalogs />} />
                                     <Route path="/voice-insights" element={<VoiceInsights />} />
-                                    <Route path="/login" element={<Navigate to="/" replace />} />
+                                    <Route path="/login" element={<div />} />
                                     <Route path="*" element={<NotFound />} />
                                 </Routes>
                             </main>
