@@ -304,28 +304,59 @@ export function EditCommissionPlanDialog({ plan, open, onOpenChange, onUpdatePla
 
           {/* Action Buttons */}
           <div className="flex flex-wrap gap-2 pt-4 border-t">
-            <Button onClick={handlePublishAndCalculate} className="bg-primary hover:bg-primary/90" disabled={isLoading}>
-              Publish & Calculate
-            </Button>
-            <Button
-              onClick={handleSaveAsDraft}
-              variant="outline"
-              className="bg-primary/10 hover:bg-primary/20 text-primary border-primary"
-              disabled={isLoading}
-            >
-              {isLoading ? "Saving..." : "Save as Draft"}
-            </Button>
-            <Button
-              onClick={handleSendForApproval}
-              variant="outline"
-              className="bg-primary/10 hover:bg-primary/20 text-primary border-primary"
-              disabled={isLoading}
-            >
-              Ready to Approve
-            </Button>
-            <Button onClick={handleCancel} variant="outline" disabled={isLoading}>
-              Cancel
-            </Button>
+            {plan.status === "ready_to_approve" ? (
+              <>
+                <Button onClick={handlePublishAndCalculate} className="bg-primary hover:bg-primary/90" disabled={isLoading}>
+                  {isLoading ? "Publishing..." : "Publish"}
+                </Button>
+                <Button
+                  onClick={async () => {
+                    const reason = prompt("Enter rejection reason (optional):");
+                    if (reason !== null && onRejectPlan) {
+                      setIsLoading(true);
+                      const success = await onRejectPlan(plan.id, reason || undefined);
+                      setIsLoading(false);
+                      if (success) {
+                        onOpenChange(false);
+                      }
+                    }
+                  }}
+                  variant="outline"
+                  className="bg-destructive/10 hover:bg-destructive/20 text-destructive border-destructive"
+                  disabled={isLoading}
+                >
+                  Reject
+                </Button>
+                <Button onClick={handleCancel} variant="outline" disabled={isLoading}>
+                  Cancel
+                </Button>
+              </>
+            ) : (
+              <>
+                <Button onClick={handlePublishAndCalculate} className="bg-primary hover:bg-primary/90" disabled={isLoading}>
+                  Publish & Calculate
+                </Button>
+                <Button
+                  onClick={handleSaveAsDraft}
+                  variant="outline"
+                  className="bg-primary/10 hover:bg-primary/20 text-primary border-primary"
+                  disabled={isLoading}
+                >
+                  {isLoading ? "Saving..." : "Save as Draft"}
+                </Button>
+                <Button
+                  onClick={handleSendForApproval}
+                  variant="outline"
+                  className="bg-primary/10 hover:bg-primary/20 text-primary border-primary"
+                  disabled={isLoading}
+                >
+                  Ready to Approve
+                </Button>
+                <Button onClick={handleCancel} variant="outline" disabled={isLoading}>
+                  Cancel
+                </Button>
+              </>
+            )}
           </div>
         </DialogContent>
       </Dialog>
