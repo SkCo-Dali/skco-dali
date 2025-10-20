@@ -45,12 +45,15 @@ export function AppContent() {
     useEffect(() => {
         if (user && !loading) {
             const redirectPath = sessionStorage.getItem('redirectAfterLogin');
-            if (redirectPath && redirectPath !== '/login' && redirectPath !== '/') {
+            if (redirectPath && redirectPath !== '/login') {
                 sessionStorage.removeItem('redirectAfterLogin');
                 navigate(redirectPath, { replace: true });
+            } else if (location.pathname === '/login' || location.pathname === '/') {
+                // Solo redirigir a /leads si no hay ruta guardada y estamos en login o root
+                navigate('/leads', { replace: true });
             }
         }
-    }, [user, loading, navigate]);
+    }, [user, loading, navigate, location.pathname]);
 
     if (loading) {
         return (
@@ -94,7 +97,7 @@ export function AppContent() {
                             <Header onBannerMessage={handleBannerMessage} />
                             <main className="flex-1 pt-20">
                                 <Routes>
-                                    <Route path="/" element={<Navigate to="/leads" replace />} />
+                                    <Route path="/" element={<Dashboard />} />
                                     <Route path="/dashboard" element={<Dashboard />} />
                                     <Route path="/leads" element={<Leads />} />
                                     <Route path="/tasks" element={<Tasks />} />
