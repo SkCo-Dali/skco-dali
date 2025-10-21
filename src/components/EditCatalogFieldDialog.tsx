@@ -91,9 +91,9 @@ export function EditCatalogFieldDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[600px]">
         <DialogHeader>
-          <DialogTitle>Edit Field</DialogTitle>
+          <DialogTitle>Editar Campo</DialogTitle>
           <DialogDescription>
-            Update the field configuration
+            Actualizar la configuración del campo
           </DialogDescription>
         </DialogHeader>
 
@@ -102,7 +102,7 @@ export function EditCatalogFieldDialog({
             {/* Field Name */}
             <div className="space-y-2">
               <Label htmlFor="field_name">
-                Field Name <span className="text-destructive">*</span>
+                Nombre del Campo <span className="text-destructive">*</span>
               </Label>
               <Input
                 id="field_name"
@@ -117,7 +117,7 @@ export function EditCatalogFieldDialog({
             {/* Field Type */}
             <div className="space-y-2">
               <Label htmlFor="field_type">
-                Field Type <span className="text-destructive">*</span>
+                Tipo de Campo <span className="text-destructive">*</span>
               </Label>
               <Select
                 value={formData.field_type}
@@ -140,7 +140,7 @@ export function EditCatalogFieldDialog({
 
             {/* Display Name */}
             <div className="space-y-2">
-              <Label htmlFor="display_name">Display Name</Label>
+              <Label htmlFor="display_name">Nombre para Mostrar</Label>
               <Input
                 id="display_name"
                 value={formData.display_name}
@@ -152,7 +152,7 @@ export function EditCatalogFieldDialog({
 
             {/* Description */}
             <div className="space-y-2">
-              <Label htmlFor="description">Description</Label>
+              <Label htmlFor="description">Descripción</Label>
               <Textarea
                 id="description"
                 value={formData.description}
@@ -165,7 +165,7 @@ export function EditCatalogFieldDialog({
 
             {/* Example Value */}
             <div className="space-y-2">
-              <Label htmlFor="example_value">Example Value</Label>
+              <Label htmlFor="example_value">Valor de Ejemplo</Label>
               <Input
                 id="example_value"
                 value={formData.example_value}
@@ -178,9 +178,9 @@ export function EditCatalogFieldDialog({
             {/* Filterable */}
             <div className="flex items-center justify-between">
               <div className="space-y-0.5">
-                <Label htmlFor="is_filterable">Filterable</Label>
+                <Label htmlFor="is_filterable">Filtrable</Label>
                 <p className="text-xs text-muted-foreground">
-                  Can this field be used in filters?
+                  ¿Se puede usar este campo en filtros?
                 </p>
               </div>
               <Switch
@@ -197,7 +197,7 @@ export function EditCatalogFieldDialog({
               <div className="space-y-0.5">
                 <Label htmlFor="is_visible">Visible</Label>
                 <p className="text-xs text-muted-foreground">
-                  Should this field be visible in the UI?
+                  ¿Este campo debe ser visible en la interfaz?
                 </p>
               </div>
               <Switch
@@ -217,13 +217,13 @@ export function EditCatalogFieldDialog({
               onClick={() => onOpenChange(false)}
               disabled={isSubmitting}
             >
-              Cancel
+              Cancelar
             </Button>
             <Button
               type="submit"
               disabled={isSubmitting || !formData.field_name?.trim()}
             >
-              {isSubmitting ? "Updating..." : "Update Field"}
+              {isSubmitting ? "Actualizando..." : "Actualizar Campo"}
             </Button>
           </DialogFooter>
         </form>

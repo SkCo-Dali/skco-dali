@@ -139,9 +139,9 @@ export function CreateCatalogDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
-          <DialogTitle>Create New Catalog</DialogTitle>
+          <DialogTitle>Crear Nuevo Catálogo</DialogTitle>
           <DialogDescription>
-            Create a new data catalog for commission calculations
+            Crear un nuevo catálogo de datos para cálculos de comisiones
           </DialogDescription>
         </DialogHeader>
 
@@ -150,11 +150,11 @@ export function CreateCatalogDialog({
             {/* Name */}
             <div className="space-y-2">
               <Label htmlFor="name">
-                Catalog Name <span className="text-destructive">*</span>
+                Nombre del Catálogo <span className="text-destructive">*</span>
               </Label>
               <Input
                 id="name"
-                placeholder="e.g., Pólizas"
+                placeholder="ej., Pólizas"
                 value={formData.name}
                 onChange={(e) =>
                   setFormData({ ...formData, name: e.target.value })
@@ -165,10 +165,10 @@ export function CreateCatalogDialog({
 
             {/* Description */}
             <div className="space-y-2">
-              <Label htmlFor="description">Description</Label>
+              <Label htmlFor="description">Descripción</Label>
               <Textarea
                 id="description"
-                placeholder="e.g., Transacciones de pólizas"
+                placeholder="ej., Transacciones de pólizas"
                 value={formData.description}
                 onChange={(e) =>
                   setFormData({ ...formData, description: e.target.value })
@@ -179,26 +179,26 @@ export function CreateCatalogDialog({
 
             {/* Source Path */}
             <div className="space-y-2">
-              <Label htmlFor="source_path">Source Path</Label>
+              <Label htmlFor="source_path">Ruta de Origen</Label>
               <Input
                 id="source_path"
-                placeholder="e.g., dbfs:/mnt/fact/polizas_delta"
+                placeholder="ej., dbfs:/mnt/fact/polizas_delta"
                 value={formData.source_path}
                 onChange={(e) =>
                   setFormData({ ...formData, source_path: e.target.value })
                 }
               />
               <p className="text-xs text-muted-foreground">
-                Path to the dataset in Storage/Databricks
+                Ruta al conjunto de datos en Storage/Databricks
               </p>
             </div>
 
             {/* Active */}
             <div className="flex items-center justify-between">
               <div className="space-y-0.5">
-                <Label htmlFor="is_active">Active</Label>
+                <Label htmlFor="is_active">Activo</Label>
                 <p className="text-xs text-muted-foreground">
-                  Enable this catalog for use in rules
+                  Habilitar este catálogo para usar en reglas
                 </p>
               </div>
               <Switch
@@ -223,7 +223,7 @@ export function CreateCatalogDialog({
               onClick={handleCancel}
               disabled={isSubmitting}
             >
-              Cancel
+              Cancelar
             </Button>
             <Button
               type="submit"
@@ -234,7 +234,7 @@ export function CreateCatalogDialog({
                 fields.some(f => !f.field_name.trim() || !f.field_type || !f.display_name?.trim() || !f.description?.trim())
               }
             >
-              {isSubmitting ? "Creating..." : "Create Catalog"}
+              {isSubmitting ? "Creando..." : "Crear Catálogo"}
             </Button>
           </DialogFooter>
         </form>

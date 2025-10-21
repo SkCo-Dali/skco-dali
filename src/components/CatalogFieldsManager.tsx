@@ -35,14 +35,14 @@ export function CatalogFieldsManager({
           <DialogHeader>
             <div className="flex items-center justify-between">
               <div>
-                <DialogTitle>Manage Fields - {catalog.name}</DialogTitle>
+                <DialogTitle>Administrar Campos - {catalog.name}</DialogTitle>
                 <p className="text-sm text-muted-foreground mt-1">
-                  Configure the fields for this catalog
+                  Configurar los campos para este catálogo
                 </p>
               </div>
               <Button onClick={() => setIsCreateDialogOpen(true)} size="sm">
                 <Plus className="h-4 w-4 mr-2" />
-                Add Field
+                Agregar Campo
               </Button>
             </div>
           </DialogHeader>
@@ -51,7 +51,7 @@ export function CatalogFieldsManager({
             {loading ? (
               <div className="flex items-center justify-center py-12">
                 <Loader2 className="h-6 w-6 animate-spin mr-2" />
-                <span>Loading fields...</span>
+                <span>Cargando campos...</span>
               </div>
             ) : (
               <CatalogFieldsTable

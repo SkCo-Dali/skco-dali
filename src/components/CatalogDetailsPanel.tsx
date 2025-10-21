@@ -25,7 +25,7 @@ export function CatalogDetailsPanel({
       <Card className="h-[600px] flex items-center justify-center">
         <CardContent className="text-center text-muted-foreground">
           <Database className="h-12 w-12 mx-auto mb-4 opacity-50" />
-          <p>Select a catalog to view details</p>
+          <p>Selecciona un catálogo para ver detalles</p>
         </CardContent>
       </Card>
     );
@@ -45,9 +45,9 @@ export function CatalogDetailsPanel({
         <CardHeader className="pb-3">
           <div className="flex items-start justify-between">
             <div className="space-y-1">
-              <CardTitle className="text-lg">Catalog Details</CardTitle>
+              <CardTitle className="text-lg">Detalles del Catálogo</CardTitle>
               <Badge variant={catalog.is_active ? "default" : "secondary"}>
-                {catalog.is_active ? "Active" : "Inactive"}
+                {catalog.is_active ? "Activo" : "Inactivo"}
               </Badge>
             </div>
             <Button variant="ghost" size="sm" onClick={onClose}>
@@ -58,7 +58,7 @@ export function CatalogDetailsPanel({
         <CardContent className="space-y-4">
           {/* Name */}
           <div>
-            <h3 className="text-sm font-medium text-muted-foreground mb-1">Name</h3>
+            <h3 className="text-sm font-medium text-muted-foreground mb-1">Nombre</h3>
             <p className="text-sm">{catalog.name}</p>
           </div>
 
@@ -66,17 +66,17 @@ export function CatalogDetailsPanel({
 
           {/* Description */}
           <div>
-            <h3 className="text-sm font-medium text-muted-foreground mb-1">Description</h3>
-            <p className="text-sm">{catalog.description || "No description provided"}</p>
+            <h3 className="text-sm font-medium text-muted-foreground mb-1">Descripción</h3>
+            <p className="text-sm">{catalog.description || "No se proporcionó descripción"}</p>
           </div>
 
           <Separator />
 
           {/* Source Path */}
           <div>
-            <h3 className="text-sm font-medium text-muted-foreground mb-1">Source Path</h3>
+            <h3 className="text-sm font-medium text-muted-foreground mb-1">Ruta de Origen</h3>
             <p className="text-sm font-mono text-xs break-all">
-              {catalog.source_path || "Not specified"}
+              {catalog.source_path || "No especificado"}
             </p>
           </div>
 
@@ -84,7 +84,7 @@ export function CatalogDetailsPanel({
 
           {/* Created Info */}
           <div>
-            <h3 className="text-sm font-medium text-muted-foreground mb-1">Created</h3>
+            <h3 className="text-sm font-medium text-muted-foreground mb-1">Creado</h3>
             <p className="text-sm">{formatDate(catalog.created_at)}</p>
           </div>
 
@@ -92,7 +92,7 @@ export function CatalogDetailsPanel({
             <>
               <Separator />
               <div>
-                <h3 className="text-sm font-medium text-muted-foreground mb-1">Last Updated</h3>
+                <h3 className="text-sm font-medium text-muted-foreground mb-1">Última Actualización</h3>
                 <p className="text-sm">{formatDate(catalog.updated_at)}</p>
               </div>
             </>
@@ -107,7 +107,7 @@ export function CatalogDetailsPanel({
             variant="outline"
           >
             <Database className="h-4 w-4 mr-2" />
-            Manage Fields
+            Administrar Campos
           </Button>
         </CardContent>
       </Card>
