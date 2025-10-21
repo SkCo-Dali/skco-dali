@@ -1,5 +1,5 @@
 
-import React, { useRef, useEffect } from "react";
+import { useRef, useEffect } from "react";
 import { Routes, Route, Navigate, useLocation, useNavigate } from "react-router-dom";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
@@ -33,27 +33,7 @@ export function AppContent() {
     const location = useLocation();
     const navigate = useNavigate();
 
-    // Guardar la ruta original antes de redirigir a login
-    useEffect(() => {
-        if (!user && !loading && location.pathname !== '/login') {
-            const fullPath = location.pathname + location.search + location.hash;
-            sessionStorage.setItem('redirectAfterLogin', fullPath);
-        }
-    }, [user, loading, location.pathname, location.search, location.hash]);
 
-    // Redirigir después del login a la ruta guardada
-    useEffect(() => {
-        if (user && !loading) {
-            const redirectPath = sessionStorage.getItem('redirectAfterLogin');
-            if (redirectPath && redirectPath !== '/login') {
-                sessionStorage.removeItem('redirectAfterLogin');
-                navigate(redirectPath, { replace: true });
-            } else if (location.pathname === '/login' || location.pathname === '/') {
-                // Solo redirigir a /leads si no hay ruta guardada y estamos en login o root
-                navigate('/leads', { replace: true });
-            }
-        }
-    }, [user, loading, navigate, location.pathname]);
 
     if (loading) {
         return (
@@ -83,7 +63,8 @@ export function AppContent() {
                     <Route path="/login" element={<Login onLogin={() => { }} />} /> 
                     <Route path="*" element={
                         <Navigate 
-                            to={`/login?redirect=${encodeURIComponent(location.pathname + location.search + location.hash)}`} 
+                            to={`/login`}
+                                state={{ from: { query: location.search, path: location.pathname } }}
                             replace 
                         />
                     } />

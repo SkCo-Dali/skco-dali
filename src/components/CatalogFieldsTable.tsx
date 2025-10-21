@@ -81,7 +81,7 @@ export function CatalogFieldsTable({
   if (fields.length === 0) {
     return (
       <div className="text-center py-8 text-muted-foreground">
-        <p>No fields defined yet. Add your first field to get started.</p>
+        <p>No hay campos definidos aún. Agrega tu primer campo para comenzar.</p>
       </div>
     );
   }
@@ -92,14 +92,14 @@ export function CatalogFieldsTable({
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Field Name</TableHead>
-              <TableHead>Display Name</TableHead>
-              <TableHead>Type</TableHead>
-              <TableHead>Description</TableHead>
-              <TableHead>Filterable</TableHead>
+              <TableHead>Nombre del Campo</TableHead>
+              <TableHead>Nombre para Mostrar</TableHead>
+              <TableHead>Tipo</TableHead>
+              <TableHead>Descripción</TableHead>
+              <TableHead>Filtrable</TableHead>
               <TableHead>Visible</TableHead>
-              <TableHead>Example</TableHead>
-              <TableHead className="text-right">Actions</TableHead>
+              <TableHead>Ejemplo</TableHead>
+              <TableHead className="text-right">Acciones</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -144,14 +144,14 @@ export function CatalogFieldsTable({
                     <DropdownMenuContent align="end">
                       <DropdownMenuItem onClick={() => handleEdit(field)}>
                         <Pencil className="h-4 w-4 mr-2" />
-                        Edit
+                        Editar
                       </DropdownMenuItem>
                       <DropdownMenuItem
                         onClick={() => handleDelete(field)}
                         className="text-destructive"
                       >
                         <Trash2 className="h-4 w-4 mr-2" />
-                        Delete
+                        Eliminar
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
@@ -176,16 +176,16 @@ export function CatalogFieldsTable({
       <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+            <AlertDialogTitle>¿Estás seguro?</AlertDialogTitle>
             <AlertDialogDescription>
-              This will permanently delete the field "{fieldToDelete?.field_name}". This action
-              cannot be undone.
+              Esto eliminará permanentemente el campo "{fieldToDelete?.field_name}". Esta acción
+              no se puede deshacer.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
             <AlertDialogAction onClick={confirmDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
-              Delete
+              Eliminar
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

@@ -80,7 +80,7 @@ export function CatalogsTable({
   if (catalogs.length === 0) {
     return (
       <div className="text-center py-8 text-muted-foreground">
-        <p>No catalogs found. Create your first catalog to get started.</p>
+        <p>No se encontraron catálogos. Crea tu primer catálogo para comenzar.</p>
       </div>
     );
   }
@@ -91,12 +91,12 @@ export function CatalogsTable({
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Name</TableHead>
-              <TableHead>Description</TableHead>
-              <TableHead>Source Path</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead>Created</TableHead>
-              <TableHead className="text-right">Actions</TableHead>
+              <TableHead>Nombre</TableHead>
+              <TableHead>Descripción</TableHead>
+              <TableHead>Ruta de Origen</TableHead>
+              <TableHead>Estado</TableHead>
+              <TableHead>Creado</TableHead>
+              <TableHead className="text-right">Acciones</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -117,7 +117,7 @@ export function CatalogsTable({
                 </TableCell>
                 <TableCell>
                   <Badge variant={catalog.is_active ? "default" : "secondary"}>
-                    {catalog.is_active ? "Active" : "Inactive"}
+                    {catalog.is_active ? "Activo" : "Inactivo"}
                   </Badge>
                 </TableCell>
                 <TableCell>{formatDate(catalog.created_at)}</TableCell>
@@ -131,18 +131,18 @@ export function CatalogsTable({
                     <DropdownMenuContent align="end">
                       <DropdownMenuItem onClick={() => handleEdit(catalog)}>
                         <Pencil className="h-4 w-4 mr-2" />
-                        Edit
+                        Editar
                       </DropdownMenuItem>
                       <DropdownMenuItem onClick={() => handleToggleStatus(catalog)}>
                         {catalog.is_active ? (
                           <>
                             <PowerOff className="h-4 w-4 mr-2" />
-                            Deactivate
+                            Desactivar
                           </>
                         ) : (
                           <>
                             <Power className="h-4 w-4 mr-2" />
-                            Activate
+                            Activar
                           </>
                         )}
                       </DropdownMenuItem>
@@ -151,7 +151,7 @@ export function CatalogsTable({
                         className="text-destructive"
                       >
                         <Trash2 className="h-4 w-4 mr-2" />
-                        Delete
+                        Eliminar
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
@@ -176,16 +176,16 @@ export function CatalogsTable({
       <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+            <AlertDialogTitle>¿Estás seguro?</AlertDialogTitle>
             <AlertDialogDescription>
-              This will permanently delete the catalog "{catalogToDelete?.name}" and all its
-              fields. This action cannot be undone.
+              Esto eliminará permanentemente el catálogo "{catalogToDelete?.name}" y todos sus
+              campos. Esta acción no se puede deshacer.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
             <AlertDialogAction onClick={confirmDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
-              Delete
+              Eliminar
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

@@ -24,14 +24,6 @@ if (!msalInstance.getActiveAccount() && msalInstance.getAllAccounts().length > 0
     msalInstance.setActiveAccount(msalInstance.getAllAccounts()[0]);
 }
 
-// Listen for sign-in event and set active account
-msalInstance.addEventCallback((event) => {
-    if (event.eventType === EventType.LOGIN_SUCCESS && event.payload) {
-        const payload = event.payload as AuthenticationResult;
-        const account = payload.account;
-        msalInstance.setActiveAccount(account);
-    }
-});
 
 const root = createRoot(document.getElementById('root'));
 root.render(

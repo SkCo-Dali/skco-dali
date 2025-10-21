@@ -23,9 +23,13 @@ interface CommissionPlansTableProps {
   status: CommissionPlanStatus;
   onUpdatePlan: (id: string, planData: Partial<CommissionPlan>) => Promise<CommissionPlan | null>;
   onDeletePlan: (id: string) => Promise<boolean>;
+  onSendToApproval?: (id: string) => Promise<boolean>;
+  onRejectPlan?: (id: string, reason?: string) => Promise<boolean>;
+  onPublishPlan?: (id: string) => Promise<boolean>;
+  onInactivatePlan?: (id: string, reason?: string) => Promise<boolean>;
 }
 
-export function CommissionPlansTable({ plans, status, onUpdatePlan, onDeletePlan }: CommissionPlansTableProps) {
+export function CommissionPlansTable({ plans, status, onUpdatePlan, onDeletePlan, onSendToApproval, onRejectPlan, onPublishPlan, onInactivatePlan }: CommissionPlansTableProps) {
   const [selectedPlan, setSelectedPlan] = useState<CommissionPlan | null>(null);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [planToDelete, setPlanToDelete] = useState<CommissionPlan | null>(null);
@@ -87,7 +91,7 @@ export function CommissionPlansTable({ plans, status, onUpdatePlan, onDeletePlan
   if (plans.length === 0) {
     return (
       <div className="text-center py-8 text-muted-foreground">
-        No commission plans found for this status.
+        No se encontraron planes de comisiones para este estado.
       </div>
     );
   }
@@ -98,13 +102,13 @@ export function CommissionPlansTable({ plans, status, onUpdatePlan, onDeletePlan
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Name</TableHead>
-              <TableHead>Description</TableHead>
-              <TableHead>Start Date</TableHead>
-              <TableHead>End Date</TableHead>
-              <TableHead>Assignee</TableHead>
-              <TableHead>Published On</TableHead>
-              <TableHead className="w-[70px]">Actions</TableHead>
+              <TableHead>Nombre</TableHead>
+              <TableHead>Descripción</TableHead>
+              <TableHead>Fecha Inicio</TableHead>
+              <TableHead>Fecha Fin</TableHead>
+              <TableHead>Asignado a</TableHead>
+              <TableHead>Publicado el</TableHead>
+              <TableHead className="w-[70px]">Acciones</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -143,14 +147,14 @@ export function CommissionPlansTable({ plans, status, onUpdatePlan, onDeletePlan
                     <DropdownMenuContent align="end" className="bg-background border shadow-md">
                       <DropdownMenuItem onClick={() => handleEdit(plan)}>
                         <Edit className="mr-2 h-4 w-4" />
-                        Edit
+                        Editar
                       </DropdownMenuItem>
                       <DropdownMenuItem 
                         onClick={() => handleDelete(plan)}
                         className="text-destructive focus:text-destructive"
                       >
                         <Trash2 className="mr-2 h-4 w-4" />
-                        Delete
+                        Eliminar
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
@@ -167,29 +171,33 @@ export function CommissionPlansTable({ plans, status, onUpdatePlan, onDeletePlan
           open={isEditDialogOpen}
           onOpenChange={setIsEditDialogOpen}
           onUpdatePlan={onUpdatePlan}
+          onSendToApproval={onSendToApproval}
+          onRejectPlan={onRejectPlan}
+          onPublishPlan={onPublishPlan}
+          onInactivatePlan={onInactivatePlan}
         />
       )}
 
       <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete Commission Plan</AlertDialogTitle>
+            <AlertDialogTitle>Eliminar Plan de Comisiones</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to delete "{planToDelete?.name}"? This action cannot be undone.
+              ¿Estás seguro de que deseas eliminar "{planToDelete?.name}"? Esta acción no se puede deshacer.
               {planToDelete && (
                 <div className="mt-2 text-sm text-muted-foreground">
-                  Note: If this plan has associated rules, you must delete those first.
+                  Nota: Si este plan tiene reglas asociadas, debes eliminarlas primero.
                 </div>
               )}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
             <AlertDialogAction 
               onClick={confirmDelete}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
-              Delete
+              Eliminar
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

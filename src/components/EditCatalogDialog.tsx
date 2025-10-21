@@ -65,9 +65,9 @@ export function EditCatalogDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
-          <DialogTitle>Edit Catalog</DialogTitle>
+          <DialogTitle>Editar Catálogo</DialogTitle>
           <DialogDescription>
-            Update the catalog information
+            Actualizar la información del catálogo
           </DialogDescription>
         </DialogHeader>
 
@@ -76,7 +76,7 @@ export function EditCatalogDialog({
             {/* Name */}
             <div className="space-y-2">
               <Label htmlFor="name">
-                Name <span className="text-destructive">*</span>
+                Nombre <span className="text-destructive">*</span>
               </Label>
               <Input
                 id="name"
@@ -90,7 +90,7 @@ export function EditCatalogDialog({
 
             {/* Description */}
             <div className="space-y-2">
-              <Label htmlFor="description">Description</Label>
+              <Label htmlFor="description">Descripción</Label>
               <Textarea
                 id="description"
                 value={formData.description}
@@ -103,7 +103,7 @@ export function EditCatalogDialog({
 
             {/* Source Path */}
             <div className="space-y-2">
-              <Label htmlFor="source_path">Source Path</Label>
+              <Label htmlFor="source_path">Ruta de Origen</Label>
               <Input
                 id="source_path"
                 value={formData.source_path}
@@ -112,7 +112,7 @@ export function EditCatalogDialog({
                 }
               />
               <p className="text-xs text-muted-foreground">
-                Reference path to the dataset in Storage/Databricks
+                Ruta de referencia al conjunto de datos en Storage/Databricks
               </p>
             </div>
           </div>
@@ -124,10 +124,10 @@ export function EditCatalogDialog({
               onClick={() => onOpenChange(false)}
               disabled={isSubmitting}
             >
-              Cancel
+              Cancelar
             </Button>
             <Button type="submit" disabled={isSubmitting || !formData.name?.trim()}>
-              {isSubmitting ? "Updating..." : "Update Catalog"}
+              {isSubmitting ? "Actualizando..." : "Actualizar Catálogo"}
             </Button>
           </DialogFooter>
         </form>

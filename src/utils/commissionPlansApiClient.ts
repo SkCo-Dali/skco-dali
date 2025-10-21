@@ -167,3 +167,115 @@ export const deleteCommissionPlan = async (id: string): Promise<DeleteCommission
     throw error;
   }
 };
+
+// 5. Send Commission Plan to Approval (draft/rejected -> ready_to_approve)
+export const sendPlanToApproval = async (planId: string): Promise<ApiCommissionPlan> => {
+  try {
+    console.log('[Commission Plans API] Sending plan to approval...', planId);
+    const headers = await getAuthHeaders();
+    
+    const response = await fetchWithRetry(`${API_BASE_URL}/${planId}/ready-to-approve`, {
+      method: 'POST',
+      headers,
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.detail || `Error sending plan to approval: ${response.statusText}`);
+    }
+
+    const result: ApiCommissionPlan = await response.json();
+    console.log('[Commission Plans API] Successfully sent plan to approval:', result);
+    
+    return result;
+  } catch (error) {
+    console.error('[Commission Plans API] Error sending plan to approval:', error);
+    throw error;
+  }
+};
+
+// 6. Reject Commission Plan (ready_to_approve -> rejected)
+export const rejectCommissionPlan = async (planId: string, reason?: string): Promise<ApiCommissionPlan> => {
+  try {
+    console.log('[Commission Plans API] Rejecting plan...', planId, reason);
+    const headers = await getAuthHeaders();
+    
+    const response = await fetchWithRetry(`${API_BASE_URL}/${planId}/reject`, {
+      method: 'POST',
+      headers: {
+        ...headers,
+        'Content-Type': 'application/json',
+      },
+      body: reason ? JSON.stringify({ reason }) : undefined,
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.detail || `Error rejecting plan: ${response.statusText}`);
+    }
+
+    const result: ApiCommissionPlan = await response.json();
+    console.log('[Commission Plans API] Successfully rejected plan:', result);
+    
+    return result;
+  } catch (error) {
+    console.error('[Commission Plans API] Error rejecting plan:', error);
+    throw error;
+  }
+};
+
+// 7. Publish Commission Plan (draft/ready_to_approve -> published)
+export const publishCommissionPlan = async (planId: string): Promise<ApiCommissionPlan> => {
+  try {
+    console.log('[Commission Plans API] Publishing plan...', planId);
+    const headers = await getAuthHeaders();
+    
+    const response = await fetchWithRetry(`${API_BASE_URL}/${planId}/publish`, {
+      method: 'POST',
+      headers,
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.detail || `Error publishing plan: ${response.statusText}`);
+    }
+
+    const result: ApiCommissionPlan = await response.json();
+    console.log('[Commission Plans API] Successfully published plan:', result);
+    
+    return result;
+  } catch (error) {
+    console.error('[Commission Plans API] Error publishing plan:', error);
+    throw error;
+  }
+};
+
+// 8. Inactivate Commission Plan (published -> inactive)
+export const inactivateCommissionPlan = async (planId: string, reason?: string): Promise<ApiCommissionPlan> => {
+  try {
+    console.log('[Commission Plans API] Inactivating plan...', planId, reason);
+    const headers = await getAuthHeaders();
+    
+    const response = await fetchWithRetry(`${API_BASE_URL}/${planId}/inactive`, {
+      method: 'POST',
+      headers: {
+        ...headers,
+        'Content-Type': 'application/json',
+      },
+      body: reason ? JSON.stringify({ reason }) : undefined,
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.detail || `Error inactivating plan: ${response.statusText}`);
+    }
+
+    const result: ApiCommissionPlan = await response.json();
+    console.log('[Commission Plans API] Successfully inactivated plan:', result);
+    
+    return result;
+  } catch (error) {
+    console.error('[Commission Plans API] Error inactivating plan:', error);
+    throw error;
+  }
+};

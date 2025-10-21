@@ -33,7 +33,7 @@ export const useCommissionRules = (planId: string) => {
       const mappedRules = response.items.map(mapApiRuleToUIRule);
       setRules(mappedRules);
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Failed to fetch rules';
+      const errorMessage = err instanceof Error ? err.message : 'Error al obtener las reglas';
       setError(errorMessage);
       toast({
         title: 'Error',
@@ -52,7 +52,7 @@ export const useCommissionRules = (planId: string) => {
     if (!planId) {
       toast({
         title: 'Error',
-        description: 'Plan ID is required',
+        description: 'Se requiere el ID del plan',
         variant: 'destructive'
       });
       return null;
@@ -68,13 +68,13 @@ export const useCommissionRules = (planId: string) => {
       setRules(prev => [...prev, newRule]);
       
       toast({
-        title: 'Success',
-        description: 'Rule created successfully'
+        title: 'Éxito',
+        description: 'Regla creada exitosamente'
       });
       
       return newRule;
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Failed to create rule';
+      const errorMessage = err instanceof Error ? err.message : 'Error al crear la regla';
       toast({
         title: 'Error',
         description: errorMessage,
@@ -98,19 +98,19 @@ export const useCommissionRules = (planId: string) => {
       setRules(prev => prev.filter(rule => rule.id !== ruleId));
       
       toast({
-        title: 'Success',
-        description: 'Rule deleted successfully'
+        title: 'Éxito',
+        description: 'Regla eliminada exitosamente'
       });
       
       return true;
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Failed to delete rule';
+      const errorMessage = err instanceof Error ? err.message : 'Error al eliminar la regla';
       
       // Specific handling for dependency errors
       if (errorMessage.includes('dependencias') || errorMessage.includes('dependencies')) {
         toast({
-          title: 'Cannot Delete Rule',
-          description: 'This rule has associated conditions, incentives, or payments. Please remove them first.',
+          title: 'No se puede eliminar la regla',
+          description: 'Esta regla tiene condiciones, incentivos o pagos asociados. Por favor elimínalos primero.',
           variant: 'destructive'
         });
       } else {
@@ -137,7 +137,7 @@ export const useCommissionRules = (planId: string) => {
       const apiRule = await getCommissionRuleById(ruleId);
       return mapApiRuleToUIRule(apiRule);
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Failed to fetch rule';
+      const errorMessage = err instanceof Error ? err.message : 'Error al obtener la regla';
       toast({
         title: 'Error',
         description: errorMessage,

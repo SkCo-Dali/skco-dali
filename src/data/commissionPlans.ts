@@ -48,18 +48,18 @@ export const ROLES_LIST = [
 ];
 
 export const STATUS_LABELS: Record<CommissionPlanStatus, string> = {
-  published: 'Published',
-  ready_to_approve: 'Ready to Approve',
-  draft: 'Draft',
-  rejected: 'Rejected',
-  inactive: 'Inactive'
+  published: 'Publicados',
+  ready_to_approve: 'Listos para Aprobar',
+  draft: 'Borradores',
+  rejected: 'Rechazados',
+  inactive: 'Inactivos'
 };
 
 export const ASSIGNMENT_LABELS: Record<AssignmentType, string> = {
-  all_users: 'All Users',
-  user: 'User',
-  role: 'Role',
-  team: 'Team'
+  all_users: 'Todos los Usuarios',
+  user: 'Usuario',
+  role: 'Rol',
+  team: 'Equipo'
 };
 
 export const mockCommissionPlans: CommissionPlan[] = [

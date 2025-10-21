@@ -35,12 +35,12 @@ export default function Catalogs() {
           className="gap-2"
         >
           <ArrowLeft className="h-4 w-4" />
-          Back
+          Volver
         </Button>
         <div className="flex-1">
-          <h1 className="text-3xl font-bold tracking-tight">Catalogs</h1>
+          <h1 className="text-3xl font-bold tracking-tight">Catálogos</h1>
           <p className="text-muted-foreground">
-            Manage data catalogs used for commission calculations
+            Administrar catálogos de datos utilizados para cálculos de comisiones
           </p>
         </div>
         <Button 
@@ -49,7 +49,7 @@ export default function Catalogs() {
           size="sm"
         >
           <Plus className="h-4 w-4 mr-2" />
-          Create Catalog
+          Crear Catálogo
         </Button>
       </div>
 
@@ -59,17 +59,17 @@ export default function Catalogs() {
         <div className="lg:col-span-2">
           <Card>
             <CardHeader className="pb-3">
-              <CardTitle className="text-lg">All Catalogs</CardTitle>
+              <CardTitle className="text-lg">Todos los Catálogos</CardTitle>
             </CardHeader>
             <CardContent>
               {loading ? (
                 <div className="flex items-center justify-center py-8">
                   <Loader2 className="h-6 w-6 animate-spin mr-2" />
-                  <span>Loading catalogs...</span>
+                  <span>Cargando catálogos...</span>
                 </div>
               ) : error ? (
                 <div className="text-center py-8 text-destructive">
-                  <p>Error loading catalogs: {error}</p>
+                  <p>Error al cargar catálogos: {error}</p>
                 </div>
               ) : (
                 <CatalogsTable

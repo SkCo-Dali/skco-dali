@@ -8,24 +8,24 @@ export default function MotorComisionesIndex() {
 
   const modules = [
     {
-      title: "Compensation Plans",
-      description: "Manage and configure commission plans for different channels and advisor types",
+      title: "Planes de Compensación",
+      description: "Administra y configura planes de comisiones para diferentes canales y tipos de asesores",
       icon: Settings,
       path: "/motor-comisiones/compensation-plans",
       color: "text-blue-600",
       bgColor: "bg-blue-50",
     },
     {
-      title: "Catalogs",
-      description: "Manage data catalogs used for commission calculations",
+      title: "Catálogos",
+      description: "Administra catálogos de datos utilizados para cálculos de comisiones",
       icon: Database,
       path: "/motor-comisiones/catalogs",
       color: "text-green-600",
       bgColor: "bg-green-50",
     },
     {
-      title: "Rules",
-      description: "Configure formulas and conditions for commission calculations",
+      title: "Reglas",
+      description: "Configura fórmulas y condiciones para cálculos de comisiones",
       icon: Calculator,
       path: "/motor-comisiones/rules",
       color: "text-purple-600",
@@ -33,8 +33,8 @@ export default function MotorComisionesIndex() {
       disabled: true,
     },
     {
-      title: "Accounting",
-      description: "Manage accounting and financial records",
+      title: "Contabilidad",
+      description: "Administra registros contables y financieros",
       icon: FileText,
       path: "/motor-comisiones/accounting",
       color: "text-orange-600",
@@ -47,9 +47,9 @@ export default function MotorComisionesIndex() {
     <div className="w-full max-w-7xl mx-auto px-4 py-8 space-y-8">
       {/* Header */}
       <div className="space-y-2">
-        <h1 className="text-4xl font-bold tracking-tight">Commission Engine</h1>
+        <h1 className="text-4xl font-bold tracking-tight">Motor de Comisiones</h1>
         <p className="text-muted-foreground text-lg">
-          Comprehensive tools for managing commission plans, catalogs, rules, and accounting
+          Herramientas integrales para administrar planes de comisiones, catálogos, reglas y contabilidad
         </p>
       </div>
 
@@ -73,7 +73,7 @@ export default function MotorComisionesIndex() {
                     {module.title}
                     {module.disabled && (
                       <span className="text-xs font-normal text-muted-foreground bg-muted px-2 py-1 rounded">
-                        Coming soon
+                        Próximamente
                       </span>
                     )}
                   </CardTitle>
@@ -85,7 +85,7 @@ export default function MotorComisionesIndex() {
             </CardHeader>
             <CardContent>
               <div className="text-sm text-muted-foreground">
-                {!module.disabled ? "Click to access" : "Feature under development"}
+                {!module.disabled ? "Haz clic para acceder" : "Funcionalidad en desarrollo"}
               </div>
             </CardContent>
           </Card>
