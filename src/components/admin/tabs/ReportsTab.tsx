@@ -123,7 +123,8 @@ export function ReportsTab() {
       const workspaceId = selectedWorkspaceFilter === 'all' ? undefined : selectedWorkspaceFilter;
       console.log('📡 [ReportsTab] Cargando reportes con filtros:', { workspaceId });
       
-      const data = await powerbiService.getReports({ workspaceId }, tokenData.idToken);
+      // Fetch all reports (active and inactive) for admin management
+      const data = await powerbiService.getReports({ workspaceId, onlyActive: false }, tokenData.idToken);
       console.log('✅ [ReportsTab] Reportes cargados:', data.length);
       setReports(data);
     } catch (error) {
