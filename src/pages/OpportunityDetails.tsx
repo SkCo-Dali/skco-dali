@@ -376,10 +376,10 @@ export const OpportunityDetails: React.FC = () => {
                       <Mail className="h-4 w-4" />
                     </div>
                     <div className="flex flex-col items-start min-w-0 flex-1">
-                      <span className="font-semibold text-sm leading-tight">
+                      <span className="font-semibold text-sm leading-tight truncate w-full">
                         {loadingLeads ? "Cargando leads..." : "Cargar como leads y enviar correo masivo"}
                       </span>
-                      <span className="text-xs opacity-90 mt-0.5">Acción recomendada</span>
+                      <span className="text-xs opacity-90 mt-0.5 truncate w-full">Acción recomendada</span>
                     </div>
                   </div>
                 </Button>
@@ -400,10 +400,10 @@ export const OpportunityDetails: React.FC = () => {
                       <MessageSquare className="h-4 w-4 text-green-600" />
                     </div>
                     <div className="flex flex-col items-start min-w-0 flex-1">
-                      <span className="text-xs leading-tight font-medium">
+                      <span className="text-xs leading-tight font-medium truncate w-full">
                         Cargar como leads y enviar WhatsApp masivo
                       </span>
-                      <span className="text-xs text-muted-foreground mt-0.5">Mensajería directa</span>
+                      <span className="text-xs text-muted-foreground mt-0.5 truncate w-full">Mensajería directa</span>
                     </div>
                   </div>
                 </Button>
@@ -424,8 +424,8 @@ export const OpportunityDetails: React.FC = () => {
                       <GraduationCap className="h-4 w-4 text-blue-600" />
                     </div>
                     <div className="flex flex-col items-start min-w-0 flex-1">
-                      <span className="font-medium text-sm leading-tight">Aprende a pedir esta base en Chat Dali</span>
-                      <span className="text-xs text-blue-600 mt-0.5">Guía interactiva</span>
+                      <span className="font-medium text-sm leading-tight truncate w-full">Aprende a pedir esta base en Chat Dali</span>
+                      <span className="text-xs text-blue-600 mt-0.5 truncate w-full">Guía interactiva</span>
                     </div>
                   </div>
                 </Button>
