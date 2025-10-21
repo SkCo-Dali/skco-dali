@@ -1,14 +1,14 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useMemo } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { LeadAssigneeSelect } from "@/components/LeadAssigneeSelect";
-import { Lead, User } from "@/types/crm";
+import { Lead } from "@/types/crm";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
-import { getAllUsers } from "@/utils/userApiClient";
 import { useLeadAssignments } from "@/hooks/useLeadAssignments";
+import { useAssignableUsers } from "@/contexts/AssignableUsersContext";
 import { UserCheck } from "lucide-react";
 
 interface LeadReassignDialogProps {
@@ -22,52 +22,17 @@ export function LeadReassignDialog({ lead, isOpen, onClose, onSuccess }: LeadRea
   const [selectedUserId, setSelectedUserId] = useState<string>("");
   const [reason, setReason] = useState<string>("No informa");
   const [notes, setNotes] = useState<string>("Sin info");
-  const [assignableUsers, setAssignableUsers] = useState<User[]>([]);
-  const [loadingUsers, setLoadingUsers] = useState(false);
   
   const { toast } = useToast();
   const { user: currentUser } = useAuth();
   const { loading: reassignLoading, handleReassignLead } = useLeadAssignments();
+  const { users: assignableUsers, loading: loadingUsers } = useAssignableUsers();
 
-  // Transformar usuarios al formato esperado por LeadAssigneeSelect
-  const formattedUsers = useMemo(() => {
-    return assignableUsers.map(user => ({
-      Id: user.id,
-      Name: user.name,
-      Email: user.email,
-      Role: user.role
-    }));
-  }, [assignableUsers]);
+  // Filtrar para excluir al usuario actualmente asignado
+  const filteredUsers = useMemo(() => {
+    return assignableUsers.filter(user => user.Id !== lead?.assignedTo);
+  }, [assignableUsers, lead?.assignedTo]);
 
-
-  useEffect(() => {
-    const fetchAssignableUsers = async () => {
-      if (!isOpen) return;
-      
-      setLoadingUsers(true);
-      try {
-        const users = await getAllUsers();
-        
-        // Filtrar solo usuarios activos y que no sea el usuario actual asignado
-        const filteredUsers = users.filter(user => 
-          user.isActive && user.id !== lead?.assignedTo
-        );
-        
-        setAssignableUsers(filteredUsers);
-      } catch (error) {
-        console.error('❌ Error cargando usuarios asignables:', error);
-        toast({
-          title: "Error",
-          description: "Error al cargar usuarios asignables",
-          variant: "destructive"
-        });
-      } finally {
-        setLoadingUsers(false);
-      }
-    };
-
-    fetchAssignableUsers();
-  }, [isOpen, lead?.assignedTo, toast]);
 
   const handleSubmit = async () => {
     if (!lead || !selectedUserId) {
@@ -150,10 +115,10 @@ export function LeadReassignDialog({ lead, isOpen, onClose, onSuccess }: LeadRea
               value={selectedUserId}
               displayName={
                 selectedUserId 
-                  ? assignableUsers.find(u => u.id === selectedUserId)?.name || "Sin asignar"
+                  ? filteredUsers.find(u => u.Id === selectedUserId)?.Name || "Sin asignar"
                   : "Sin asignar"
               }
-              users={formattedUsers}
+              users={filteredUsers}
               loading={loadingUsers}
               onSelect={setSelectedUserId}
             />
