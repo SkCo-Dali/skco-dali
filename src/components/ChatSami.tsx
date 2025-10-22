@@ -1,7 +1,8 @@
 import React, { useEffect, useMemo, useState } from "react";
 import ReactWebChat, { createDirectLine, createStore } from "botframework-webchat";
-import { ChevronLeft, Minimize2 } from "lucide-react";
+import { ExternalLink, Minus, Lightbulb, ArrowRight, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 
 type ChatSamiProps = {
   /** Opcional: iniciar minimizado */
@@ -129,27 +130,92 @@ export default function ChatSami({ defaultMinimized = false }: ChatSamiProps) {
 
   return (
     <>
-      {/* Barra minimizada */}
+      {/* Panel minimizado */}
       {minimized && (
-        <div className="flex flex-col h-full w-20 border-l bg-[#3f3f3f]">
-          <div className="flex flex-col items-center p-3 gap-4">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => setMinimized(false)}
-              className="h-10 w-10 text-white hover:bg-white/10"
-              aria-label="Maximizar chat"
-            >
-              <ChevronLeft className="h-5 w-5" />
-            </Button>
-            <img
-              src="https://storage.googleapis.com/m-infra.appspot.com/public/res/skandia/20201218-9SaE0VZGz9ZNkjs6SO9fJnFVpRu1-U2SVE-.gif"
-              alt="SamiGPT"
-              className="w-12 h-12 rounded-full"
+        <div className="flex flex-col h-full w-[280px] border-l bg-background shadow-lg">
+          {/* Header */}
+          <div className="flex items-center justify-between p-4 border-b">
+            <h2 className="text-lg font-semibold text-foreground">SamiGPT</h2>
+            <div className="flex items-center gap-1">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setMinimized(false)}
+                className="h-8 w-8 hover:bg-muted"
+                aria-label="Abrir en ventana"
+              >
+                <ExternalLink className="h-4 w-4" />
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8 hover:bg-muted"
+                aria-label="Minimizar"
+              >
+                <Minus className="h-4 w-4" />
+              </Button>
+            </div>
+          </div>
+
+          {/* Tip del día */}
+          <div className="p-4 space-y-3">
+            <div className="flex items-center gap-2 bg-[#e8f5e9] rounded-lg p-3">
+              <div className="shrink-0 bg-black rounded-full p-1.5">
+                <Lightbulb className="h-4 w-4 text-[#00c83c]" />
+              </div>
+              <span className="text-sm font-medium text-foreground">Sami Tip de hoy✨</span>
+            </div>
+
+            <div className="space-y-2">
+              <p className="text-sm font-semibold text-foreground">¡Diversifica portafolios!</p>
+              <p className="text-xs text-muted-foreground">
+                Y podrías aumentar tu rentabilidad hasta un <span className="font-semibold">12% E.A.</span>
+              </p>
+              <button className="text-sm text-[#00c83c] font-medium hover:underline">
+                Quiero conocer más
+              </button>
+            </div>
+          </div>
+
+          {/* Espacio flex para empujar contenido hacia abajo */}
+          <div className="flex-1" />
+
+          {/* Acciones rápidas */}
+          <div className="p-4 space-y-2">
+            <button className="w-full text-left px-3 py-2 text-sm text-muted-foreground hover:bg-muted rounded-lg transition-colors">
+              Abrir un nuevo producto 🚀
+            </button>
+            <button className="w-full text-left px-3 py-2 text-sm text-muted-foreground hover:bg-muted rounded-lg transition-colors">
+              Gestionar portafolios ℹ️
+            </button>
+            <button className="w-full text-left px-3 py-2 text-sm text-muted-foreground hover:bg-muted rounded-lg transition-colors">
+              Solicitar un certificado 📄
+            </button>
+          </div>
+
+          {/* Input de búsqueda */}
+          <div className="p-4 pt-0 space-y-3">
+            <Input
+              placeholder="Pregunta o busca lo que deseas..."
+              className="w-full text-sm"
             />
-            <span className="text-white font-semibold text-xs writing-mode-vertical transform rotate-180">
-              SamiGPT
-            </span>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                size="icon"
+                className="h-9 w-9 rounded-full"
+                aria-label="Agregar archivo"
+              >
+                <Plus className="h-4 w-4" />
+              </Button>
+              <Button
+                className="h-9 w-9 rounded-full bg-[#00c83c] hover:bg-[#00b036] text-white ml-auto"
+                size="icon"
+                aria-label="Enviar mensaje"
+              >
+                <ArrowRight className="h-4 w-4" />
+              </Button>
+            </div>
           </div>
         </div>
       )}
@@ -175,7 +241,7 @@ export default function ChatSami({ defaultMinimized = false }: ChatSamiProps) {
                 className="h-9 w-9 text-white hover:bg-white/10"
                 aria-label="Minimizar chat"
               >
-                <Minimize2 className="h-5 w-5" />
+                <Minus className="h-5 w-5" />
               </Button>
             </div>
 
