@@ -12,7 +12,12 @@ export type UserRole =
   | "promotor"
   | "aliado"
   | "socio"
-  | "ais";
+  | "ais"
+  | "ejecutivo"
+  | "supervisor_comisiones"
+  | "analista_comisiones"
+  | "service_desk"
+  | "sac";
 
 export interface User {
   id: string;
@@ -97,6 +102,11 @@ export const getRolePermissions = (role: UserRole): RolePermissions => {
       };
     case "manager":
     case "supervisor":
+    case "ejecutivo":
+    case "supervisor_comisiones":
+    case "analista_comisiones":
+    case "service_desk":
+    case "sac":
       return {
         canCreate: true,
         canEdit: true,
@@ -235,6 +245,11 @@ export const getRoleDisplayName = (role: UserRole): string => {
     aliado: "Aliado",
     socio: "Socio",
     ais: "AIS",
+    ejecutivo: "Ejecutivo",
+    supervisor_comisiones: "Supervisor Comisiones",
+    analista_comisiones: "Analista Comisiones",
+    service_desk: "Service Desk",
+    sac: "SAC",
   };
   return roleDisplayMap[role] || role;
 };
