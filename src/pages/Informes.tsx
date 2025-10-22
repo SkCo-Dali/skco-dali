@@ -54,7 +54,7 @@ export default function Informes() {
   const { user, getAccessToken } = useAuth();
   const navigate = useNavigate();
   const hasAdminRole = useHasRole("admin", "seguridad");
-
+  const userPermissions = user ? getRolePermissions(user.role) : null;
   const [state, setState] = useState<InformesState>({
     reports: [],
     areas: [],
