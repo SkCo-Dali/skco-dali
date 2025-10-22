@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { Lead, getRolePermissions } from "@/types/crm";
 import ChatSami from "@/components/ChatSami";
 import { Link, useNavigate } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -730,7 +731,7 @@ export default function Informes() {
           </Card>
         )}
       </div>
-      {/*<ChatSami />*/}
+      {userPermissions?.chatSami && <ChatSami />}
     </div>
   );
 }
