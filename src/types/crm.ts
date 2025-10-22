@@ -57,6 +57,7 @@ export interface RolePermissions {
   canSendEmail?: boolean;
   canSendWhatsApp?: boolean;
   canSendmassiveWhatsApp?: boolean;
+  chatSami?: boolean;
   accessiblePages: string[];
 }
 
@@ -82,6 +83,7 @@ export const getRolePermissions = (role: UserRole): RolePermissions => {
         canSendEmail: true,
         canSendWhatsApp: true,
         canSendmassiveWhatsApp: true,
+        chatSami: true,
         accessiblePages: [
           "dashboard",
           "leads",
@@ -101,12 +103,6 @@ export const getRolePermissions = (role: UserRole): RolePermissions => {
         ],
       };
     case "manager":
-    case "supervisor":
-    case "ejecutivo":
-    case "supervisor_comisiones":
-    case "analista_comisiones":
-    case "service_desk":
-    case "sac":
       return {
         canCreate: true,
         canEdit: true,
@@ -123,7 +119,128 @@ export const getRolePermissions = (role: UserRole): RolePermissions => {
         canSendEmail: true,
         canSendWhatsApp: true,
         canSendmassiveWhatsApp: false,
+        chatSami: false,
         accessiblePages: ["leads", "ChatDali", "reports", "informes", "opportunities"],
+      };
+    case "supervisor":
+      return {
+        canCreate: true,
+        canEdit: true,
+        canDelete: true,
+        canAssign: true,
+        canViewAll: true,
+        canManageUsers: false,
+        canAccessReports: true,
+        canUploadLeads: true,
+        canBulkAssignLeads: true,
+        canBulkUpdateStage: true,
+        canAccessUserManagement: false,
+        canAssignRoles: false,
+        canSendEmail: true,
+        canSendWhatsApp: true,
+        canSendmassiveWhatsApp: false,
+        chatSami: false,
+        accessiblePages: ["leads", "ChatDali", "reports", "informes", "opportunities"],
+      };
+    case "ejecutivo":
+      return {
+        canCreate: true,
+        canEdit: true,
+        canDelete: true,
+        canAssign: true,
+        canViewAll: false,
+        canManageUsers: false,
+        canAccessReports: true,
+        canUploadLeads: true,
+        canBulkAssignLeads: true,
+        canBulkUpdateStage: true,
+        canAccessUserManagement: false,
+        canAssignRoles: false,
+        canSendEmail: true,
+        canSendWhatsApp: true,
+        canSendmassiveWhatsApp: false,
+        chatSami: false,
+        accessiblePages: ["leads", "ChatDali", "informes", "opportunities"],
+      };
+    case "supervisor_comisiones":
+      return {
+        canCreate: false,
+        canEdit: false,
+        canDelete: false,
+        canAssign: false,
+        canViewAll: false,
+        canManageUsers: false,
+        canAccessReports: false,
+        canUploadLeads: false,
+        canBulkAssignLeads: false,
+        canBulkUpdateStage: false,
+        canAccessUserManagement: false,
+        canAssignRoles: false,
+        canSendEmail: false,
+        canSendWhatsApp: false,
+        canSendmassiveWhatsApp: false,
+        chatSami: false,
+        accessiblePages: ["Comisiones", "CompensationPlans"],
+      };
+    case "analista_comisiones":
+      return {
+        canCreate: false,
+        canEdit: false,
+        canDelete: false,
+        canAssign: false,
+        canViewAll: false,
+        canManageUsers: false,
+        canAccessReports: false,
+        canUploadLeads: false,
+        canBulkAssignLeads: false,
+        canBulkUpdateStage: false,
+        canAccessUserManagement: false,
+        canAssignRoles: false,
+        canSendEmail: false,
+        canSendWhatsApp: false,
+        canSendmassiveWhatsApp: false,
+        chatSami: false,
+        accessiblePages: ["Comisiones", "CompensationPlans"],
+      };
+    case "service_desk":
+      return {
+        canCreate: false,
+        canEdit: false,
+        canDelete: false,
+        canAssign: false,
+        canViewAll: false,
+        canManageUsers: false,
+        canAccessReports: false,
+        canUploadLeads: false,
+        canBulkAssignLeads: false,
+        canBulkUpdateStage: false,
+        canAccessUserManagement: true,
+        canAssignRoles: true,
+        canSendEmail: false,
+        canSendWhatsApp: false,
+        canSendmassiveWhatsApp: false,
+        chatSami: false,
+        accessiblePages: ["users"],
+      };
+    case "sac":
+      return {
+        canCreate: true,
+        canEdit: true,
+        canDelete: true,
+        canAssign: true,
+        canViewAll: true,
+        canManageUsers: false,
+        canAccessReports: false,
+        canUploadLeads: false,
+        canBulkAssignLeads: true,
+        canBulkUpdateStage: false,
+        canAccessUserManagement: false,
+        canAssignRoles: false,
+        canSendEmail: false,
+        canSendWhatsApp: false,
+        canSendmassiveWhatsApp: false,
+        chatSami: false,
+        accessiblePages: ["leads", "ChatDali", "informes", "opportunities", "Comisiones"],
       };
     case "agent":
     case "gestor":
@@ -147,6 +264,7 @@ export const getRolePermissions = (role: UserRole): RolePermissions => {
         canSendEmail: true,
         canSendWhatsApp: true,
         canSendmassiveWhatsApp: false,
+        chatSami: false,
         accessiblePages: ["leads", "ChatDali", "informes", "opportunities"],
       };
     case "fp":
@@ -166,6 +284,7 @@ export const getRolePermissions = (role: UserRole): RolePermissions => {
         canSendEmail: true,
         canSendWhatsApp: true,
         canSendmassiveWhatsApp: false,
+        chatSami: false,
         accessiblePages: ["leads", "ChatDali", "informes", "opportunities"],
       };
     case "analista":
@@ -185,6 +304,7 @@ export const getRolePermissions = (role: UserRole): RolePermissions => {
         canSendEmail: false,
         canSendWhatsApp: false,
         canSendmassiveWhatsApp: false,
+        chatSami: false,
         accessiblePages: ["leads", "reports", "informes", "opportunities"],
       };
     case "viewer":
@@ -205,6 +325,7 @@ export const getRolePermissions = (role: UserRole): RolePermissions => {
         canSendEmail: true,
         canSendWhatsApp: true,
         canSendmassiveWhatsApp: false,
+        chatSami: false,
         accessiblePages: ["leads", "ChatDali", "informes", "opportunities"],
       };
     default:
@@ -224,6 +345,7 @@ export const getRolePermissions = (role: UserRole): RolePermissions => {
         canSendEmail: false,
         canSendWhatsApp: false,
         canSendmassiveWhatsApp: false,
+        chatSami: false,
         accessiblePages: ["dashboard"],
       };
   }
