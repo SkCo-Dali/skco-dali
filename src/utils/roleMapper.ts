@@ -17,9 +17,9 @@ export const FRONTEND_TO_API_ROLE_MAP: Record<User["role"], string> = {
   socio: "socio",
   ais: "ais",
   ejecutivo: "ejecutivo",
-  supervisorComisiones: "supervisor comisiones",
-  analistaComisiones: "analista comisiones",
-  serviceDesk: "service desk",
+  supervisorComisiones: "supervisorComisiones",
+  analistaComisiones: "analistaComisiones",
+  serviceDesk: "serviceDesk",
   sac: "sac",
 };
 
@@ -40,9 +40,9 @@ export const API_TO_FRONTEND_ROLE_MAP: Record<string, User["role"]> = {
   socio: "socio",
   ais: "ais",
   ejecutivo: "ejecutivo",
-  supervisorComisiones: "supervisor_comisiones",
-  analistaComisiones: "analista_comisiones",
-  serviceDesk: "service_desk",
+  supervisorComisiones: "supervisorComisiones",
+  analistaComisiones: "analistaComisiones",
+  serviceDesk: "serviceDesk",
   sac: "sac",
 };
 
