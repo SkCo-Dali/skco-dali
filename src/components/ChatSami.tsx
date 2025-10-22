@@ -9,10 +9,10 @@ type ChatSamiProps = {
   defaultMinimized?: boolean;
 };
 
-type ViewMode = 'hidden' | 'minimized' | 'maximized';
+type ViewMode = "hidden" | "minimized" | "maximized";
 
 export default function ChatSami({ defaultMinimized = false }: ChatSamiProps) {
-  const [viewMode, setViewMode] = useState<ViewMode>(defaultMinimized ? 'minimized' : 'hidden');
+  const [viewMode, setViewMode] = useState<ViewMode>(defaultMinimized ? "minimized" : "hidden");
   const [directLine, setDirectLine] = useState<ReturnType<typeof createDirectLine> | null>(null);
 
   const styleOptions = useMemo(
@@ -43,8 +43,7 @@ export default function ChatSami({ defaultMinimized = false }: ChatSamiProps) {
       avatarBorderRadius: "50%",
       avatarSize: 30,
       botAvatarBackgroundColor: "hsl(var(--background))",
-      botAvatarImage:
-        "https://storage.googleapis.com/m-infra.appspot.com/public/res/skandia/20201218-9SaE0VZGz9ZNkjs6SO9fJnFVpRu1-U2SVE-.gif",
+      botAvatarImage: "https://skcoblobresources.blob.core.windows.net/digital-assets/animations/sk-sami-contigo.gif",
     }),
     [],
   );
@@ -133,14 +132,14 @@ export default function ChatSami({ defaultMinimized = false }: ChatSamiProps) {
   return (
     <>
       {/* Burbuja flotante */}
-      {viewMode === 'hidden' && (
+      {viewMode === "hidden" && (
         <button
-          onClick={() => setViewMode('minimized')}
-          className="fixed bottom-6 right-6 z-50 h-16 w-16 rounded-full bg-[#00c83c] hover:bg-[#00b036] shadow-lg hover:shadow-xl transition-all duration-200 flex items-center justify-center group"
+          onClick={() => setViewMode("minimized")}
+          className="fixed bottom-6 right-6 z-50 h-16 w-16 rounded-full bg-transparent shadow-lg hover:shadow-xl transition-all duration-200 flex items-center justify-center group"
           aria-label="Abrir SamiGPT"
         >
           <img
-            src="https://storage.googleapis.com/m-infra.appspot.com/public/res/skandia/20201218-9SaE0VZGz9ZNkjs6SO9fJnFVpRu1-U2SVE-.gif"
+            src="https://skcoblobresources.blob.core.windows.net/digital-assets/animations/sk-sami-contigo.gif"
             alt="SamiGPT"
             className="w-10 h-10 rounded-full"
           />
@@ -148,7 +147,7 @@ export default function ChatSami({ defaultMinimized = false }: ChatSamiProps) {
       )}
 
       {/* Panel minimizado */}
-      {viewMode === 'minimized' && (
+      {viewMode === "minimized" && (
         <div className="flex flex-col h-screen w-[280px] border bg-background shadow-md m-4 rounded-xl">
           {/* Header */}
           <div className="flex items-center justify-between p-2 bg-[#fafafa]">
@@ -157,17 +156,17 @@ export default function ChatSami({ defaultMinimized = false }: ChatSamiProps) {
               <Button
                 variant="ghost"
                 size="icon"
-                onClick={() => setViewMode('maximized')}
+                onClick={() => setViewMode("maximized")}
                 className="h-8 w-8 hover:bg-muted"
                 aria-label="Abrir en ventana"
               >
                 <ExternalLink className="h-4 w-4" />
               </Button>
-              <Button 
-                variant="ghost" 
-                size="icon" 
-                onClick={() => setViewMode('hidden')}
-                className="h-8 w-8 hover:bg-muted" 
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setViewMode("hidden")}
+                className="h-8 w-8 hover:bg-muted"
                 aria-label="Minimizar"
               >
                 <Minus className="h-4 w-4" />
@@ -229,14 +228,14 @@ export default function ChatSami({ defaultMinimized = false }: ChatSamiProps) {
       )}
 
       {/* Diálogo flotante maximizado */}
-      {viewMode === 'maximized' && (
+      {viewMode === "maximized" && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
           <div className="flex flex-col h-[85vh] w-[90vw] max-w-4xl bg-background rounded-lg shadow-2xl overflow-hidden border">
             {/* Header */}
             <div className="flex items-center justify-between p-4 border-b bg-[#3f3f3f]">
               <div className="flex items-center gap-3">
                 <img
-                  src="https://storage.googleapis.com/m-infra.appspot.com/public/res/skandia/20201218-9SaE0VZGz9ZNkjs6SO9fJnFVpRu1-U2SVE-.gif"
+                  src="https://skcoblobresources.blob.core.windows.net/digital-assets/animations/sk-sami-contigo.gif"
                   alt="SamiGPT"
                   className="w-10 h-10 rounded-full"
                 />
@@ -245,7 +244,7 @@ export default function ChatSami({ defaultMinimized = false }: ChatSamiProps) {
               <Button
                 variant="ghost"
                 size="icon"
-                onClick={() => setViewMode('minimized')}
+                onClick={() => setViewMode("minimized")}
                 className="h-9 w-9 text-white hover:bg-white/10"
                 aria-label="Minimizar chat"
               >
