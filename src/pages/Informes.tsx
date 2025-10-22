@@ -341,7 +341,7 @@ export default function Informes() {
   }
 
   return (
-    <div className="pt-0 flex">
+    <div className="h-full pt-0 flex">
       {/* Contenido principal */}
       <div className={`flex-1 px-4 py-4 ${userPermissions?.chatSami ? "pr-0" : ""}`}>
         {/* Header */}
@@ -742,7 +742,7 @@ export default function Informes() {
       </div>
 
       {/* ChatSami - solo visible para roles autorizados */}
-      {userPermissions?.chatSami && <ChatSami defaultMinimized={true} />}
+      {userPermissions?.chatSami && <ChatSami className="h-full" defaultMinimized={true} />}
     </div>
   );
 }
