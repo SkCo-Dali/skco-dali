@@ -135,13 +135,13 @@ export default function ChatSami({ defaultMinimized = false }: ChatSamiProps) {
       {viewMode === "hidden" && (
         <button
           onClick={() => setViewMode("minimized")}
-          className="fixed bottom-6 right-6 z-50 h-16 w-16 rounded-full bg-transparent shadow-lg hover:shadow-xl transition-all duration-200 flex items-center justify-center group"
+          className="fixed bottom-6 right-6 z-50 h-16 w-16 rounded-full bg-transparent transition-all duration-200 flex items-center justify-center group"
           aria-label="Abrir SamiGPT"
         >
           <img
             src="https://skcoblobresources.blob.core.windows.net/digital-assets/animations/sk-sami-contigo.gif"
             alt="SamiGPT"
-            className="w-10 h-10 rounded-full"
+            className="w-10 h-10"
           />
         </button>
       )}
