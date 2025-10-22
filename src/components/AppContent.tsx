@@ -74,7 +74,7 @@ export function AppContent() {
               <Header onBannerMessage={handleBannerMessage} />
               <main className="flex-1 pt-20">
                 <Routes>
-                  <Route path="/" element={<Informes />} />
+                  <Route path="/" element={<Opportunities />} />
                   <Route path="/leads" element={<Leads />} />
                   <Route path="/tasks" element={<Tasks />} />
                   <Route path="/reports" element={<Reports />} />
