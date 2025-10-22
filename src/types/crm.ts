@@ -14,9 +14,9 @@ export type UserRole =
   | "socio"
   | "ais"
   | "ejecutivo"
-  | "supervisor_comisiones"
-  | "analista_comisiones"
-  | "service_desk"
+  | "supervisorComisiones"
+  | "analistaComisiones"
+  | "serviceDesk"
   | "sac";
 
 export interface User {
@@ -162,7 +162,7 @@ export const getRolePermissions = (role: UserRole): RolePermissions => {
         chatSami: true,
         accessiblePages: ["leads", "ChatDali", "informes", "opportunities"],
       };
-    case "supervisor_comisiones":
+    case "supervisorComisiones":
       return {
         canCreate: false,
         canEdit: false,
@@ -182,7 +182,7 @@ export const getRolePermissions = (role: UserRole): RolePermissions => {
         chatSami: true,
         accessiblePages: ["Comisiones", "CompensationPlans"],
       };
-    case "analista_comisiones":
+    case "analistaComisiones":
       return {
         canCreate: false,
         canEdit: false,
@@ -202,7 +202,7 @@ export const getRolePermissions = (role: UserRole): RolePermissions => {
         chatSami: true,
         accessiblePages: ["Comisiones", "CompensationPlans"],
       };
-    case "service_desk":
+    case "serviceDesk":
       return {
         canCreate: false,
         canEdit: false,
@@ -368,9 +368,9 @@ export const getRoleDisplayName = (role: UserRole): string => {
     socio: "Socio",
     ais: "AIS",
     ejecutivo: "Ejecutivo",
-    supervisor_comisiones: "Supervisor Comisiones",
-    analista_comisiones: "Analista Comisiones",
-    service_desk: "Service Desk",
+    supervisorComisiones: "Supervisor Comisiones",
+    analistaComisiones: "Analista Comisiones",
+    serviceDesk: "Service Desk",
     sac: "SAC",
   };
   return roleDisplayMap[role] || role;
