@@ -19,33 +19,7 @@ export default function ChatSami({ defaultMinimized = false }: ChatSamiProps) {
   const [directLine, setDirectLine] = useState<ReturnType<typeof createDirectLine> | null>(null);
   const [topOpportunity, setTopOpportunity] = useState<IOpportunity | null>(null);
   const [inputText, setInputText] = useState("");
-  const [storeRef, setStoreRef] = useState<any>(null);
   const { toast } = useToast();
-
-  // Store con referencia para enviar mensajes
-  const store = useMemo(() => {
-    const storeInstance = createStore({}, ({ dispatch }) => (next) => (action) => {
-      if (action.type === "DIRECT_LINE/CONNECT_FULFILLED") {
-        dispatch({
-          type: "WEB_CHAT/SEND_EVENT",
-          payload: {
-            name: "startConversation",
-            value: { locale, source: "Informes.tsx" },
-          },
-        });
-
-        setTimeout(() => {
-          dispatch({
-            type: "WEB_CHAT/SEND_MESSAGE",
-            payload: { text: "" },
-          });
-        }, 800);
-      }
-      return next(action);
-    });
-    setStoreRef(storeInstance);
-    return storeInstance;
-  }, []);
 
   const styleOptions = useMemo(
     () => ({
@@ -82,6 +56,31 @@ export default function ChatSami({ defaultMinimized = false }: ChatSamiProps) {
   const locale = useMemo(
     () => (typeof document !== "undefined" ? document.documentElement.lang || navigator.language || "es" : "es"),
     [],
+  );
+
+  // ======== Store: auto-saludo al conectar ========
+  const store = useMemo(
+    () =>
+      createStore({}, ({ dispatch }) => (next) => (action) => {
+        if (action.type === "DIRECT_LINE/CONNECT_FULFILLED") {
+          dispatch({
+            type: "WEB_CHAT/SEND_EVENT",
+            payload: {
+              name: "startConversation",
+              value: { locale, source: "Informes.tsx" },
+            },
+          });
+
+          setTimeout(() => {
+            dispatch({
+              type: "WEB_CHAT/SEND_MESSAGE",
+              payload: { text: "" },
+            });
+          }, 800);
+        }
+        return next(action);
+      }),
+    [locale],
   );
 
   // Cargar oportunidad top 1
@@ -156,7 +155,7 @@ export default function ChatSami({ defaultMinimized = false }: ChatSamiProps) {
   }, [directLine, toast]);
 
   const sendMessage = (text: string) => {
-    if (!storeRef) {
+    if (!directLine) {
       toast({
         title: "Chat no disponible",
         description: "El chat aún no está conectado",
@@ -165,20 +164,25 @@ export default function ChatSami({ defaultMinimized = false }: ChatSamiProps) {
       return;
     }
 
-    try {
-      storeRef.dispatch({
-        type: "WEB_CHAT/SEND_MESSAGE",
-        payload: { text },
-      });
-      setInputText("");
-    } catch (error) {
-      console.error("Error enviando mensaje:", error);
-      toast({
-        title: "Error",
-        description: "No se pudo enviar el mensaje",
-        variant: "destructive",
-      });
-    }
+    directLine
+      .postActivity({
+        from: { id: "user", name: "Usuario" },
+        type: "message",
+        text: text,
+      })
+      .subscribe(
+        () => {
+          setInputText("");
+        },
+        (error) => {
+          console.error("Error enviando mensaje:", error);
+          toast({
+            title: "Error",
+            description: "No se pudo enviar el mensaje",
+            variant: "destructive",
+          });
+        }
+      );
   };
 
   const handleQuickAction = (action: string) => {
