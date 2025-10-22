@@ -132,9 +132,9 @@ export default function ChatSami({ defaultMinimized = false }: ChatSamiProps) {
     <>
       {/* Panel minimizado */}
       {minimized && (
-        <div className="flex flex-col min-h-screen w-[280px] border bg-background shadow-lg m-4 rounded-xl">
+        <div className="flex flex-col h-screen w-[280px] border bg-background shadow-md m-4 rounded-xl">
           {/* Header */}
-          <div className="flex items-center justify-between p-2 border-0 bg-[#fafafa]">
+          <div className="flex items-center justify-between p-2 bg-[#fafafa]">
             <h2 className="text-md font-semibold text-foreground">SamiGPT</h2>
             <div className="flex items-center gap-1">
               <Button
@@ -145,6 +145,9 @@ export default function ChatSami({ defaultMinimized = false }: ChatSamiProps) {
                 aria-label="Abrir en ventana"
               >
                 <ExternalLink className="h-4 w-4" />
+              </Button>
+              <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-muted" aria-label="Minimizar">
+                <Minus className="h-4 w-4" />
               </Button>
             </div>
           </div>
