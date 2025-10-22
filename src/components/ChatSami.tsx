@@ -234,17 +234,17 @@ export default function ChatSami({ defaultMinimized = false }: ChatSamiProps) {
       {/* Diálogo flotante maximizado */}
       {viewMode === "maximized" && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
-          <div className="flex flex-col h-[85vh] w-[90vw] max-w-4xl bg-background rounded-lg shadow-2xl overflow-hidden border">
+          <div className="flex flex-col h-[85vh] w-[90vw] max-w-4xl bg-background rounded-xl shadow-2xl overflow-hidden border">
             {/* Header */}
-            <div className="flex items-center justify-between p-2 bg-[#fafafa] shrink-0">
-              <h2 className="text-md font-semibold text-foreground">SamiGPT</h2>
+            <div className="flex items-center justify-between p-4 bg-[#fafafa] shrink-0">
+              <h2 className="text-lg font-semibold text-foreground">SamiGPT</h2>
               <div className="flex items-center gap-3">
                 <Button
                   variant="ghost"
                   size="icon"
                   onClick={() => setViewMode("minimized")}
-                  className="h-9 w-9 text-white hover:bg-white/10"
-                  aria-label="Minimizar chat"
+                  className="h-8 w-8 hover:bg-muted"
+                  aria-label="Minimizar"
                 >
                   <Minus className="h-5 w-5" />
                 </Button>
@@ -252,9 +252,9 @@ export default function ChatSami({ defaultMinimized = false }: ChatSamiProps) {
             </div>
             {/* Tip del día */}
                     {" "}
-            <div className="p-2 space-y-3 shrink-0">
+            <div className="p-4 space-y-3 shrink-0">
                         {" "}
-              <div className="flex items-center gap-2 bg-[#e8f5e9] rounded-full p-2">
+              <div className="flex items-center gap-2 bg-[#e8f5e9] rounded-full p-4">
                             {" "}
                 <div className="shrink-0 bg-black rounded-full p-1.5">
                                  <Lightbulb className="h-4 w-4 text-[#00c83c]" />
@@ -263,7 +263,7 @@ export default function ChatSami({ defaultMinimized = false }: ChatSamiProps) {
                              <span className="text-sm font-medium text-foreground">Oportunidad de hoy✨</span>
                           {" "}
               </div>
-              <div className="space-y-2 border rounded-xl p-2">
+              <div className="space-y-2 border rounded-xl p-4">
                             {" "}
                 <p className="text-sm font-semibold text-foreground">
                                  ¡Acompaña a tus clientes en su declaración de renta!             {" "}
@@ -285,7 +285,7 @@ export default function ChatSami({ defaultMinimized = false }: ChatSamiProps) {
                      <div className="flex-1 min-h-0" />
                      {/* Acciones rápidas */}
                     {" "}
-            <div className="p-2 space-y-2 shrink-0">
+            <div className="p-4 space-y-2 shrink-0">
                         {" "}
               <button className="w-full text-left px-3 py-2 text-sm text-muted-foreground bg-muted rounded-full border transition-colors">
                              Consultar Informe 🚀           {" "}
@@ -302,7 +302,7 @@ export default function ChatSami({ defaultMinimized = false }: ChatSamiProps) {
             </div>
             {/* Input de búsqueda */}
                     {" "}
-            <div className="m-2 pt-0 space-y-3 shrink-0 border rounded-xl">
+            <div className="m-4 pt-0 space-y-3 shrink-0 border rounded-xl">
                          <Input placeholder="Pregunta o busca lo que deseas..." className="w-full text-sm border-0" />
                         {" "}
               <div className="flex items-center gap-2 p-2">
