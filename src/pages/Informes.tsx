@@ -733,12 +733,8 @@ export default function Informes() {
         )}
       </div>
 
-      {/* Panel lateral ChatSami */}
-      {userPermissions?.chatSami && (
-        <div className="h-screen sticky top-0">
-          <ChatSami defaultMinimized={false} />
-        </div>
-      )}
+      {/* ChatSami - solo visible para roles autorizados */}
+      {userPermissions?.chatSami && <ChatSami defaultMinimized={true} />}
     </div>
   );
 }

@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import ReactWebChat, { createDirectLine, createStore } from "botframework-webchat";
-import { ChevronRight, ChevronLeft, Maximize2, Minimize2 } from "lucide-react";
+import { ChevronLeft, Minimize2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 type ChatSamiProps = {
@@ -128,79 +128,77 @@ export default function ChatSami({ defaultMinimized = false }: ChatSamiProps) {
   }, [directLine]);
 
   return (
-    <div
-      className={`flex flex-col h-full border-l bg-background transition-all duration-300 ${
-        minimized ? "w-14" : "w-80"
-      }`}
-    >
-      {/* Header con logo y botones */}
-      <div className="flex items-center justify-between p-3 border-b bg-[#3f3f3f] min-h-[70px]">
-        {!minimized && (
-          <div className="flex items-center gap-2">
-            <img
-              src="https://storage.googleapis.com/m-infra.appspot.com/public/res/skandia/20201218-9SaE0VZGz9ZNkjs6SO9fJnFVpRu1-U2SVE-.gif"
-              alt="SamiGPT"
-              className="w-10 h-10 rounded-full"
-            />
-            <span className="text-white font-semibold text-sm">SamiGPT</span>
-          </div>
-        )}
-        <div className="flex items-center gap-1">
-          {!minimized && (
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => setMinimized(true)}
-              className="h-8 w-8 text-white hover:bg-white/10"
-              aria-label="Minimizar chat"
-            >
-              <ChevronRight className="h-4 w-4" />
-            </Button>
-          )}
-          {minimized && (
+    <>
+      {/* Barra minimizada */}
+      {minimized && (
+        <div className="flex flex-col h-full w-20 border-l bg-[#3f3f3f]">
+          <div className="flex flex-col items-center p-3 gap-4">
             <Button
               variant="ghost"
               size="icon"
               onClick={() => setMinimized(false)}
-              className="h-8 w-8 text-white hover:bg-white/10"
+              className="h-10 w-10 text-white hover:bg-white/10"
               aria-label="Maximizar chat"
             >
-              <ChevronLeft className="h-4 w-4" />
+              <ChevronLeft className="h-5 w-5" />
             </Button>
-          )}
-        </div>
-      </div>
-
-      {/* Contenido del chat */}
-      {!minimized && (
-        <div className="flex-1 overflow-hidden">
-          {directLine ? (
-            <ReactWebChat
-              directLine={directLine}
-              store={store}
-              locale={locale}
-              userID="web-user"
-              username="Invitado"
-              styleOptions={styleOptions}
+            <img
+              src="https://storage.googleapis.com/m-infra.appspot.com/public/res/skandia/20201218-9SaE0VZGz9ZNkjs6SO9fJnFVpRu1-U2SVE-.gif"
+              alt="SamiGPT"
+              className="w-12 h-12 rounded-full"
             />
-          ) : (
-            <div className="flex items-center justify-center h-full text-muted-foreground text-sm">
-              Cargando chat...
-            </div>
-          )}
+            <span className="text-white font-semibold text-xs writing-mode-vertical transform rotate-180">
+              SamiGPT
+            </span>
+          </div>
         </div>
       )}
 
-      {/* Cuando está minimizado, mostrar solo íconos */}
-      {minimized && (
-        <div className="flex-1 flex flex-col items-center gap-4 py-4">
-          <img
-            src="https://storage.googleapis.com/m-infra.appspot.com/public/res/skandia/20201218-9SaE0VZGz9ZNkjs6SO9fJnFVpRu1-U2SVE-.gif"
-            alt="SamiGPT"
-            className="w-8 h-8 rounded-full"
-          />
+      {/* Diálogo flotante maximizado */}
+      {!minimized && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+          <div className="flex flex-col h-[85vh] w-[90vw] max-w-4xl bg-background rounded-lg shadow-2xl overflow-hidden border">
+            {/* Header */}
+            <div className="flex items-center justify-between p-4 border-b bg-[#3f3f3f]">
+              <div className="flex items-center gap-3">
+                <img
+                  src="https://storage.googleapis.com/m-infra.appspot.com/public/res/skandia/20201218-9SaE0VZGz9ZNkjs6SO9fJnFVpRu1-U2SVE-.gif"
+                  alt="SamiGPT"
+                  className="w-10 h-10 rounded-full"
+                />
+                <span className="text-white font-semibold text-lg">SamiGPT</span>
+              </div>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setMinimized(true)}
+                className="h-9 w-9 text-white hover:bg-white/10"
+                aria-label="Minimizar chat"
+              >
+                <Minimize2 className="h-5 w-5" />
+              </Button>
+            </div>
+
+            {/* Contenido del chat */}
+            <div className="flex-1 overflow-hidden">
+              {directLine ? (
+                <ReactWebChat
+                  directLine={directLine}
+                  store={store}
+                  locale={locale}
+                  userID="web-user"
+                  username="Invitado"
+                  styleOptions={styleOptions}
+                />
+              ) : (
+                <div className="flex items-center justify-center h-full text-muted-foreground">
+                  Cargando chat...
+                </div>
+              )}
+            </div>
+          </div>
         </div>
       )}
-    </div>
+    </>
   );
 }
