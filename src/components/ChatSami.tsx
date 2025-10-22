@@ -180,7 +180,7 @@ export default function ChatSami({ defaultMinimized = false }: ChatSamiProps) {
               <div className="shrink-0 bg-black rounded-full p-1.5">
                 <Lightbulb className="h-4 w-4 text-[#00c83c]" />
               </div>
-              <span className="text-sm font-medium text-foreground">Sami Tip de hoy✨</span>
+              <span className="text-sm font-medium text-foreground">Oportunidad de hoy✨</span>
             </div>
 
             <div className="space-y-2 border rounded-xl p-2">
@@ -190,7 +190,7 @@ export default function ChatSami({ defaultMinimized = false }: ChatSamiProps) {
               <p className="text-xs text-muted-foreground">
                 Comisiones Potenciales <span className="font-semibold">$3,385,704</span>
               </p>
-              <button className="text-sm text-center text-secondary font-medium hover:underline">
+              <button className="w-full text-sm text-center text-secondary font-medium hover:underline">
                 Ver Oportunidad
               </button>
             </div>
