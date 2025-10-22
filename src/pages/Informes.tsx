@@ -329,7 +329,7 @@ export default function Informes() {
 
   if (state.loading) {
     return (
-      <div className="min-h-screen pt-0">
+      <div className="pt-0">
         <div className="px-4 py-4">
           <div className="flex items-center justify-center py-12">
             <Loader2 className="h-8 w-8 animate-spin text-primary" />
@@ -341,7 +341,7 @@ export default function Informes() {
   }
 
   return (
-    <div className="min-h-screen pt-0 flex">
+    <div className="pt-0 flex">
       {/* Contenido principal */}
       <div className={`flex-1 px-4 py-4 ${userPermissions?.chatSami ? "pr-0" : ""}`}>
         {/* Header */}
