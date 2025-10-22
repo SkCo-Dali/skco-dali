@@ -622,7 +622,7 @@ export default function Informes() {
                               <FileBarChart className="h-5 w-5 text-primary" />
                             </div>
                             <div className="flex-1">
-                              <CardTitle className="text-lg">{report.reportName}</CardTitle>
+                              <CardTitle className="text-md">{report.reportName}</CardTitle>
                               <CardDescription className="text-sm">{report.workspaceName}</CardDescription>
                             </div>
                           </div>
