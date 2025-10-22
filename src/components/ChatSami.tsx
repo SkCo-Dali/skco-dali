@@ -302,7 +302,7 @@ export default function ChatSami({ defaultMinimized = false }: ChatSamiProps) {
             </div>
             {/* Input de búsqueda */}
                     {" "}
-            <div className="m-2 pt-0 space-y-3 shrink-0 border rounded-xl">
+            <div className="m-4 pt-0 space-y-3 shrink-0 border rounded-xl">
                          <Input placeholder="Pregunta o busca lo que deseas..." className="w-full text-sm border-0" />
                         {" "}
               <div className="flex items-center gap-2 p-2">
