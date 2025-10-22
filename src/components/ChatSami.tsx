@@ -156,7 +156,10 @@ export default function ChatSami({ defaultMinimized = false }: ChatSamiProps) {
   }, [directLine, toast]);
 
   const sendMessage = (text: string) => {
-    if (!storeRef) {
+    const trimmed = text.trim();
+    if (!trimmed) return;
+
+    if (!directLine) {
       toast({
         title: "Chat no disponible",
         description: "El chat aún no está conectado",
@@ -166,11 +169,30 @@ export default function ChatSami({ defaultMinimized = false }: ChatSamiProps) {
     }
 
     try {
-      storeRef.dispatch({
-        type: "WEB_CHAT/SEND_MESSAGE",
-        payload: { text },
-      });
-      setInputText("");
+      // Enviar directamente por Direct Line para inputs personalizados
+      let sub: any;
+      sub = directLine
+        .postActivity({
+          type: "message",
+          text: trimmed,
+          locale,
+          from: { id: "user", name: "Usuario" },
+        })
+        .subscribe({
+          next: () => {
+            setInputText("");
+            sub?.unsubscribe();
+          },
+          error: (err: any) => {
+            console.error("Error enviando mensaje:", err);
+            toast({
+              title: "Error",
+              description: "No se pudo enviar el mensaje",
+              variant: "destructive",
+            });
+            sub?.unsubscribe();
+          },
+        });
     } catch (error) {
       console.error("Error enviando mensaje:", error);
       toast({
@@ -273,7 +295,7 @@ export default function ChatSami({ defaultMinimized = false }: ChatSamiProps) {
           {/* Chat WebChat */}
           <div className="flex-1 min-h-0 m-2">
             {directLine ? (
-              <ReactWebChat directLine={directLine} store={store} styleOptions={styleOptions} locale={locale} />
+              <ReactWebChat directLine={directLine} store={store} styleOptions={styleOptions} locale={locale} userID="user" username="Usuario" />
             ) : (
               <div className="flex items-center justify-center h-full">
                 <p className="text-sm text-muted-foreground">Conectando con el chat...</p>
@@ -391,7 +413,7 @@ export default function ChatSami({ defaultMinimized = false }: ChatSamiProps) {
             {/* Chat WebChat */}
             <div className="flex-1 min-h-0 mx-4">
               {directLine ? (
-                <ReactWebChat directLine={directLine} store={store} styleOptions={styleOptions} locale={locale} />
+                <ReactWebChat directLine={directLine} store={store} styleOptions={styleOptions} locale={locale} userID="user" username="Usuario" />
               ) : (
                 <div className="flex items-center justify-center h-full">
                   <p className="text-sm text-muted-foreground">Conectando con el chat...</p>
