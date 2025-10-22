@@ -16,6 +16,8 @@ import { createLead } from "@/utils/leadsApiClient";
 import { useMsal } from "@azure/msal-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { Lead } from "@/types/crm";
+import { AccessDenied } from "@/components/AccessDenied";
+import { usePageAccess } from "@/hooks/usePageAccess";
 
 const productOptions = [
   "ACCAI",
@@ -32,7 +34,12 @@ const productOptions = [
 ];
 
 const VoiceInsights = () => {
+  const { hasAccess, currentUser } = usePageAccess("voice-insights");
   const { user } = useAuth();
+
+  if (!hasAccess) {
+    return <AccessDenied />;
+  }
   const [isRecording, setIsRecording] = useState(false);
   const [recordingTime, setRecordingTime] = useState(0);
   const [hasRecording, setHasRecording] = useState(false);

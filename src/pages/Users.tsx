@@ -1,16 +1,15 @@
 import { useState, useEffect } from "react";
-import { Card, CardContent } from "@/components/ui/card";
-import { Shield } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { useAuth } from "@/contexts/AuthContext";
-import { User, getRolePermissions } from "@/types/crm";
+import { User } from "@/types/crm";
 import { UserFilters } from "@/components/UserFilters";
 import { UserTable } from "@/components/UserTable";
 import { AddUserDialog } from "@/components/AddUserDialog";
+import { AccessDenied } from "@/components/AccessDenied";
+import { usePageAccess } from "@/hooks/usePageAccess";
 import { getAllUsers, createUser, deleteUser, updateUser, toggleUserStatus } from "@/utils/userApiClient";
 
 export default function UsersPage() {
-  const { user: currentUser } = useAuth();
+  const { hasAccess, permissions, currentUser } = usePageAccess("users");
   const { toast } = useToast();
   const [users, setUsers] = useState<User[]>([]);
   const [filteredUsers, setFilteredUsers] = useState<User[]>([]);
@@ -18,21 +17,9 @@ export default function UsersPage() {
   const [roleFilter, setRoleFilter] = useState<string>("all");
   const [loading, setLoading] = useState(true);
 
-  const permissions = currentUser ? getRolePermissions(currentUser.role) : null;
-
   // Verificar permisos de acceso
-  if (!permissions?.canAccessUserManagement) {
-    return (
-      <div className="container mx-auto py-5">
-        <Card>
-          <CardContent className="text-center py-5">
-            <Shield className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-            <h2 className="text-xl font-semibold mb-2">Acceso Restringido</h2>
-            <p className="text-gray-600">No tienes permisos para acceder a la gestión de usuarios.</p>
-          </CardContent>
-        </Card>
-      </div>
-    );
+  if (!hasAccess || !permissions?.canAccessUserManagement) {
+    return <AccessDenied message="No tienes permisos para acceder a la gestión de usuarios." />;
   }
 
   const loadUsers = async () => {

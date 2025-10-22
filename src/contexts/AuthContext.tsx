@@ -10,6 +10,8 @@ import { getUserByEmail, createUser } from "@/utils/userApiClient";
 import { ENV } from '@/config/environment';
 import { extractIdpAccessToken } from '@/utils/tokenUtils';
 import { SessionService } from '@/services/sessionService';
+import { loginRequest } from "@/authConfig";
+import { isatty } from 'tty';
 
 interface AuthContextType {
     user: User | null;
@@ -52,7 +54,20 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
     const { toast } = useToast();
 
+    useEffect(() => {
+        const validateExistringSession = async () => {
+            if (!account && !isAuthenticated) {
+                const result = await msalInstance.handleRedirectPromise();
+                if (!result) {
+                    await msalInstance.loginRedirect({ ...loginRequest, prompt: "none" });
+                }
+            }
 
+        };
+
+        // validateExistringSession();
+
+    }, [msalInstance, account, isAuthenticated]);
 
     useEffect(() => {
         registerMsalFetchInterceptor(msalInstance);

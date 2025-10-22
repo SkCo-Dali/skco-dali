@@ -8,8 +8,15 @@ import { CatalogsTable } from "@/components/CatalogsTable";
 import { CreateCatalogDialog } from "@/components/CreateCatalogDialog";
 import { CatalogDetailsPanel } from "@/components/CatalogDetailsPanel";
 import { Catalog } from "@/types/catalogsApi";
+import { AccessDenied } from "@/components/AccessDenied";
+import { usePageAccess } from "@/hooks/usePageAccess";
 
 export default function Catalogs() {
+  const { hasAccess } = usePageAccess("motor-comisiones");
+
+  if (!hasAccess) {
+    return <AccessDenied />;
+  }
   const navigate = useNavigate();
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [selectedCatalog, setSelectedCatalog] = useState<Catalog | null>(null);

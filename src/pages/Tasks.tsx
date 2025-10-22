@@ -11,8 +11,15 @@ import { useTasks } from '@/hooks/useTasks';
 import { useAuth } from '@/contexts/AuthContext';
 import { TaskFilters } from '@/types/tasks';
 import { getRolePermissions } from '@/types/crm';
+import { AccessDenied } from '@/components/AccessDenied';
+import { usePageAccess } from '@/hooks/usePageAccess';
 
 export default function Tasks() {
+  const { hasAccess } = usePageAccess("tasks");
+
+  if (!hasAccess) {
+    return <AccessDenied />;
+  }
   const [searchTerm, setSearchTerm] = useState('');
   const [filters, setFilters] = useState<TaskFilters>({});
   const { tasks, getTasksByFilters } = useTasks();

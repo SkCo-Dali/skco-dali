@@ -23,6 +23,8 @@ import { useIsMobile, useIsMedium } from "@/hooks/use-mobile";
 import { ColumnConfig } from "@/components/LeadsTableColumnSelector";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { AccessDenied } from "@/components/AccessDenied";
+import { usePageAccess } from "@/hooks/usePageAccess";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -83,6 +85,12 @@ const DEFAULT_COLUMNS: ColumnConfig[] = [
 ];
 
 export default function Leads() {
+  const { hasAccess } = usePageAccess("leads");
+
+  if (!hasAccess) {
+    return <AccessDenied />;
+  }
+
   const isMobile = useIsMobile();
   const isMedium = useIsMedium();
   const isSmallScreen = isMobile || isMedium;

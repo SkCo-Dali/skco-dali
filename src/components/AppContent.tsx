@@ -3,6 +3,7 @@ import { Routes, Route, Navigate, useLocation, useNavigate } from "react-router-
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
 import { Header } from "@/components/Header";
+import { RoleBasedRedirect } from "@/components/RoleBasedRedirect";
 import Dashboard from "@/pages/Dashboard";
 import Leads from "@/pages/Leads";
 import Tasks from "@/pages/Tasks";
@@ -74,7 +75,7 @@ export function AppContent() {
               <Header onBannerMessage={handleBannerMessage} />
               <main className="flex-1 pt-20">
                 <Routes>
-                  <Route path="/" element={<Informes />} />
+                  <Route path="/" element={<RoleBasedRedirect />} />
                   <Route path="/leads" element={<Leads />} />
                   <Route path="/tasks" element={<Tasks />} />
                   <Route path="/reports" element={<Reports />} />
