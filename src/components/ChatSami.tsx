@@ -183,7 +183,7 @@ export default function ChatSami({ defaultMinimized = false }: ChatSamiProps) {
               <span className="text-sm font-medium text-foreground">Sami Tip de hoy✨</span>
             </div>
 
-            <div className="space-y-2">
+            <div className="space-y-2 border rounded-xl p-2">
               <p className="text-sm font-semibold text-foreground">¡Diversifica portafolios!</p>
               <p className="text-xs text-muted-foreground">
                 Y podrías aumentar tu rentabilidad hasta un <span className="font-semibold">12% E.A.</span>
