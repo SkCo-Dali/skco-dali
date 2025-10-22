@@ -1,19 +1,23 @@
-
 import { DashboardHeader } from "@/components/DashboardHeader";
 import { DashboardOverview } from "@/components/DashboardOverview";
 import { useLeadsApi } from "@/hooks/useLeadsApi";
-import { useAuth } from "@/contexts/AuthContext";
+import { AccessDenied } from "@/components/AccessDenied";
+import { usePageAccess } from "@/hooks/usePageAccess";
 
 export default function Dashboard() {
   const { leads, loading } = useLeadsApi();
-  const { user } = useAuth();
+  const { hasAccess, currentUser } = usePageAccess("dashboard");
+
+  if (!hasAccess) {
+    return <AccessDenied />;
+  }
 
   return (
     <div className="min-h-screen pt-14 md:pt-16">
       <div className="p-3 md:p-4 max-w-7xl mx-auto">
         <DashboardHeader />
         
-        {user ? (
+        {currentUser ? (
           <div className="mt-4">
             <DashboardOverview leads={leads} loading={loading} />
           </div>

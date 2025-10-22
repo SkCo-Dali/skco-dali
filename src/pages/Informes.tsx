@@ -31,6 +31,8 @@ import { powerbiService } from "@/services/powerbiService";
 import { EffectiveReport, Area, Workspace } from "@/types/powerbi";
 import { toast } from "@/hooks/use-toast";
 import { ENV } from "@/config/environment";
+import { AccessDenied } from "@/components/AccessDenied";
+import { usePageAccess } from "@/hooks/usePageAccess";
 
 // Component state types
 interface InformesState {
@@ -51,6 +53,12 @@ interface InformesState {
 }
 
 export default function Informes() {
+  const { hasAccess } = usePageAccess("informes");
+
+  if (!hasAccess) {
+    return <AccessDenied />;
+  }
+
   const { user, getAccessToken } = useAuth();
   const navigate = useNavigate();
   const hasAdminRole = useHasRole("admin", "seguridad");
