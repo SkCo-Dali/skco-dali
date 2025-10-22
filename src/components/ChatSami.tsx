@@ -3,6 +3,9 @@ import ReactWebChat, { createDirectLine, createStore } from "botframework-webcha
 import { ExternalLink, Minus, Lightbulb, ArrowRight, Plus, ArrowUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { opportunitiesService } from "@/services/opportunitiesService";
+import { IOpportunity } from "@/types/opportunities";
+import { useToast } from "@/hooks/use-toast";
 
 type ChatSamiProps = {
   /** Opcional: iniciar minimizado */
@@ -14,6 +17,9 @@ type ViewMode = "hidden" | "minimized" | "maximized";
 export default function ChatSami({ defaultMinimized = false }: ChatSamiProps) {
   const [viewMode, setViewMode] = useState<ViewMode>(defaultMinimized ? "minimized" : "hidden");
   const [directLine, setDirectLine] = useState<ReturnType<typeof createDirectLine> | null>(null);
+  const [topOpportunity, setTopOpportunity] = useState<IOpportunity | null>(null);
+  const [inputText, setInputText] = useState("");
+  const { toast } = useToast();
 
   const styleOptions = useMemo(
     () => ({
@@ -78,6 +84,21 @@ export default function ChatSami({ defaultMinimized = false }: ChatSamiProps) {
     [locale],
   );
 
+  // Cargar oportunidad top 1
+  useEffect(() => {
+    const loadTopOpportunity = async () => {
+      try {
+        const opportunities = await opportunitiesService.getOpportunities(undefined, 'relevance');
+        if (opportunities.length > 0) {
+          setTopOpportunity(opportunities[0]);
+        }
+      } catch (error) {
+        console.error("Error cargando oportunidad:", error);
+      }
+    };
+    loadTopOpportunity();
+  }, []);
+
   // Inicializar Direct Line al montar
   useEffect(() => {
     if (directLine) return;
@@ -121,13 +142,59 @@ export default function ChatSami({ defaultMinimized = false }: ChatSamiProps) {
         setDirectLine(dl);
       } catch (err) {
         console.error("Error iniciando WebChat:", err);
+        toast({
+          title: "Error",
+          description: "No se pudo conectar con el chat",
+          variant: "destructive",
+        });
       }
     })();
 
     return () => {
       disposed = true;
     };
-  }, [directLine]);
+  }, [directLine, toast]);
+
+  const sendMessage = (text: string) => {
+    if (!directLine) {
+      toast({
+        title: "Chat no disponible",
+        description: "El chat aún no está conectado",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    directLine
+      .postActivity({
+        from: { id: "user", name: "Usuario" },
+        type: "message",
+        text: text,
+      })
+      .subscribe(
+        () => {
+          setInputText("");
+        },
+        (error) => {
+          console.error("Error enviando mensaje:", error);
+          toast({
+            title: "Error",
+            description: "No se pudo enviar el mensaje",
+            variant: "destructive",
+          });
+        }
+      );
+  };
+
+  const handleQuickAction = (action: string) => {
+    sendMessage(action);
+  };
+
+  const handleSendInput = () => {
+    if (inputText.trim()) {
+      sendMessage(inputText);
+    }
+  };
 
   return (
     <>
@@ -183,43 +250,84 @@ export default function ChatSami({ defaultMinimized = false }: ChatSamiProps) {
               <span className="text-sm font-medium text-foreground">Oportunidad de hoy✨</span>
             </div>
 
-            <div className="space-y-2 border rounded-xl p-2">
-              <p className="text-sm font-semibold text-foreground">
-                ¡Acompaña a tus clientes en su declaración de renta!
-              </p>
-              <p className="text-xs text-muted-foreground">
-                Comisiones Potenciales <span className="font-semibold">$3,385,704</span>
-              </p>
-              <button className="w-full text-sm text-center text-secondary font-medium hover:underline">
-                Ver Oportunidad
-              </button>
-            </div>
+            {topOpportunity ? (
+              <div className="space-y-2 border rounded-xl p-2">
+                <p className="text-sm font-semibold text-foreground">
+                  {topOpportunity.title}
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  Comisiones Potenciales{" "}
+                  <span className="font-semibold">
+                    ${topOpportunity.metrics?.estimatedSales?.toLocaleString() || "N/A"}
+                  </span>
+                </p>
+                <button 
+                  onClick={() => handleQuickAction(`Más información sobre: ${topOpportunity.title}`)}
+                  className="w-full text-sm text-center text-secondary font-medium hover:underline"
+                >
+                  Ver Oportunidad
+                </button>
+              </div>
+            ) : (
+              <div className="space-y-2 border rounded-xl p-2">
+                <p className="text-sm text-muted-foreground">Cargando oportunidad...</p>
+              </div>
+            )}
           </div>
 
-          {/* Espacio flex para empujar contenido hacia abajo */}
-          <div className="flex-1 min-h-0" />
+          {/* Chat WebChat */}
+          <div className="flex-1 min-h-0 m-2">
+            {directLine ? (
+              <ReactWebChat directLine={directLine} store={store} styleOptions={styleOptions} locale={locale} />
+            ) : (
+              <div className="flex items-center justify-center h-full">
+                <p className="text-sm text-muted-foreground">Conectando con el chat...</p>
+              </div>
+            )}
+          </div>
 
           {/* Acciones rápidas */}
           <div className="p-2 space-y-2 shrink-0">
-            <button className="w-full text-left px-3 py-2 text-sm text-muted-foreground bg-muted rounded-full border transition-colors">
+            <button
+              onClick={() => handleQuickAction("Consultar Informe 🚀")}
+              className="w-full text-left px-3 py-2 text-sm text-muted-foreground bg-muted rounded-full border transition-colors hover:bg-muted/80"
+            >
               Consultar Informe 🚀
             </button>
-            <button className="w-full text-left px-3 py-2 text-sm text-muted-foreground bg-muted rounded-full border transition-colors">
+            <button
+              onClick={() => handleQuickAction("Ver Leads ℹ️")}
+              className="w-full text-left px-3 py-2 text-sm text-muted-foreground bg-muted rounded-full border transition-colors hover:bg-muted/80"
+            >
               Ver Leads ℹ️
             </button>
-            <button className="w-full text-left px-3 py-2 text-sm text-muted-foreground bg-muted rounded-full border transition-colors">
+            <button
+              onClick={() => handleQuickAction("Ver Comisiones 📄")}
+              className="w-full text-left px-3 py-2 text-sm text-muted-foreground bg-muted rounded-full border transition-colors hover:bg-muted/80"
+            >
               Ver Comisiones 📄
             </button>
           </div>
 
           {/* Input de búsqueda */}
           <div className="m-2 pt-0 space-y-3 shrink-0 border rounded-xl">
-            <Input placeholder="Pregunta o busca lo que deseas..." className="w-full text-sm border-0" />
+            <Input
+              placeholder="Pregunta o busca lo que deseas..."
+              className="w-full text-sm border-0"
+              value={inputText}
+              onChange={(e) => setInputText(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && !e.shiftKey) {
+                  e.preventDefault();
+                  handleSendInput();
+                }
+              }}
+            />
             <div className="flex items-center gap-2 p-2">
               <Button variant="outline" size="icon" className="h-9 w-9 rounded-full" aria-label="Agregar archivo">
                 <Plus className="h-4 w-4" />
               </Button>
               <Button
+                onClick={handleSendInput}
                 className="h-9 w-9 rounded-full bg-[#00c83c] hover:bg-[#00b036] text-white ml-auto"
                 size="icon"
                 aria-label="Enviar mensaje"
@@ -261,47 +369,89 @@ export default function ChatSami({ defaultMinimized = false }: ChatSamiProps) {
                 </div>
                              <span className="text-sm font-medium text-foreground">Oportunidad de hoy✨</span>
               </div>
+            {topOpportunity ? (
               <div className="space-y-2 border rounded-xl p-4">
                 <p className="text-sm font-semibold text-foreground">
-                  ¡Acompaña a tus clientes en su declaración de renta!
+                  {topOpportunity.title}
                 </p>
                 <p className="text-xs text-muted-foreground">
-                  Comisiones Potenciales <span className="font-semibold">$3,385,704</span>
+                  Comisiones Potenciales{" "}
+                  <span className="font-semibold">
+                    ${topOpportunity.metrics?.estimatedSales?.toLocaleString() || "N/A"}
+                  </span>
                 </p>
-                <button className="w-full text-sm text-center text-secondary font-medium hover:underline">
+                <button 
+                  onClick={() => handleQuickAction(`Más información sobre: ${topOpportunity.title}`)}
+                  className="w-full text-sm text-center text-secondary font-medium hover:underline"
+                >
                   Ver Oportunidad
                 </button>
               </div>
+            ) : (
+              <div className="space-y-2 border rounded-xl p-4">
+                <p className="text-sm text-muted-foreground">Cargando oportunidad...</p>
+              </div>
+            )}
             </div>
-            {/* Espacio flex para empujar contenido hacia abajo */}
-                     <div className="flex-1 min-h-0" />
-                     {/* Acciones rápidas */}
+            {/* Chat WebChat */}
+            <div className="flex-1 min-h-0 mx-4">
+              {directLine ? (
+                <ReactWebChat directLine={directLine} store={store} styleOptions={styleOptions} locale={locale} />
+              ) : (
+                <div className="flex items-center justify-center h-full">
+                  <p className="text-sm text-muted-foreground">Conectando con el chat...</p>
+                </div>
+              )}
+            </div>
+
+            {/* Acciones rápidas */}
             <div className="grid grid-cols-3 px-4 py-2 gap-2 shrink-0">
-              <button className="w-full text-left px-3 py-2 text-sm text-muted-foreground bg-muted rounded-full border transition-colors">
+              <button
+                onClick={() => handleQuickAction("Consultar Informe 🚀")}
+                className="w-full text-left px-3 py-2 text-sm text-muted-foreground bg-muted rounded-full border transition-colors hover:bg-muted/80"
+              >
                 Consultar Informe 🚀
               </button>
 
-              <button className="w-full text-left px-3 py-2 text-sm text-muted-foreground bg-muted rounded-full border transition-colors">
-                             Ver Leads ℹ️
+              <button
+                onClick={() => handleQuickAction("Ver Leads ℹ️")}
+                className="w-full text-left px-3 py-2 text-sm text-muted-foreground bg-muted rounded-full border transition-colors hover:bg-muted/80"
+              >
+                Ver Leads ℹ️
               </button>
 
-              <button className="w-full text-left px-3 py-2 text-sm text-muted-foreground bg-muted rounded-full border transition-colors">
-                             Ver Comisiones 📄
+              <button
+                onClick={() => handleQuickAction("Ver Comisiones 📄")}
+                className="w-full text-left px-3 py-2 text-sm text-muted-foreground bg-muted rounded-full border transition-colors hover:bg-muted/80"
+              >
+                Ver Comisiones 📄
               </button>
             </div>
             {/* Input de búsqueda */}
             <div className="mx-4 mt-2 mb-4 pt-0 space-y-3 shrink-0 border rounded-xl">
-                         <Input placeholder="Pregunta o busca lo que deseas..." className="w-full text-sm border-0" />
+              <Input
+                placeholder="Pregunta o busca lo que deseas..."
+                className="w-full text-sm border-0"
+                value={inputText}
+                onChange={(e) => setInputText(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && !e.shiftKey) {
+                    e.preventDefault();
+                    handleSendInput();
+                  }
+                }}
+              />
               <div className="flex items-center gap-2 p-2">
                 <Button variant="outline" size="icon" className="h-9 w-9 rounded-full" aria-label="Agregar archivo">
                   <Plus className="h-4 w-4" />
                 </Button>
                 <Button
+                  onClick={handleSendInput}
                   className="h-9 w-9 rounded-full bg-[#00c83c] hover:bg-[#00b036] text-white ml-auto"
                   size="icon"
                   aria-label="Enviar mensaje"
                 >
-                                 <ArrowUp className="h-4 w-4" />
+                  <ArrowUp className="h-4 w-4" />
                 </Button>
               </div>
             </div>
