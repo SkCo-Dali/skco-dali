@@ -341,7 +341,7 @@ export default function Informes() {
   }
 
   return (
-    <div className="h-screen pt-0 flex">
+    <div className="h-full pt-0">
       {/* Contenido principal */}
       <div className={`flex-1 px-4 py-4 h-full ${userPermissions?.chatSami ? "pr-0" : ""}`}>
         {/* Header */}
