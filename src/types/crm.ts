@@ -368,9 +368,9 @@ export const getRoleDisplayName = (role: UserRole): string => {
     socio: "Socio",
     ais: "AIS",
     ejecutivo: "Ejecutivo",
-    supervisor_comisiones: "Supervisor Comisiones",
-    analista_comisiones: "Analista Comisiones",
-    service_desk: "Service Desk",
+    supervisorComisiones: "Supervisor Comisiones",
+    analistaComisiones: "Analista Comisiones",
+    serviceDesk: "Service Desk",
     sac: "SAC",
   };
   return roleDisplayMap[role] || role;
