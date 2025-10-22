@@ -343,7 +343,7 @@ export default function Informes() {
   return (
     <div className="pt-0 flex h-[calc(100vh-theme(spacing.16))]">
       {/* Contenido principal */}
-      <div className={`flex-1 px-4 py-4 ${userPermissions?.chatSami ? "pr-0 m-4" : ""}`}>
+      <div className={`flex-1 px-4 py-4  ${userPermissions?.chatSami ? "pr-0 m-4" : ""}`}>
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <div>
