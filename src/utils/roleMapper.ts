@@ -1,69 +1,68 @@
-
-import { User } from '@/types/crm';
+import { User } from "@/types/crm";
 
 // Mapeo de roles del frontend a roles de la API
-export const FRONTEND_TO_API_ROLE_MAP: Record<User['role'], string> = {
-  'admin': 'admin',
-  'manager': 'manager',
-  'agent': 'agent', 
-  'viewer': 'viewer',
-  'supervisor': 'supervisor', 
-  'analista': 'analista',
-  'gestor': 'gestor',
-  'fp': 'fp',
-  'seguridad': 'seguridad',
-  'director': 'director',
-  'promotor': 'promotor',
-  'aliado': 'aliado',
-  'socio': 'socio',
-  'ais': 'ais',
-  'ejecutivo': 'ejecutivo',
-  'supervisor_comisiones': 'supervisor_comisiones',
-  'analista_comisiones': 'analista_comisiones',
-  'service_desk': 'service_desk',
-  'sac': 'sac'
+export const FRONTEND_TO_API_ROLE_MAP: Record<User["role"], string> = {
+  admin: "admin",
+  manager: "manager",
+  agent: "agent",
+  viewer: "viewer",
+  supervisor: "supervisor",
+  analista: "analista",
+  gestor: "gestor",
+  fp: "fp",
+  seguridad: "seguridad",
+  director: "director",
+  promotor: "promotor",
+  aliado: "aliado",
+  socio: "socio",
+  ais: "ais",
+  ejecutivo: "ejecutivo",
+  supervisorComisiones: "supervisor comisiones",
+  analistaComisiones: "analista comisiones",
+  serviceDesk: "service desk",
+  sac: "sac",
 };
 
 // Mapeo de roles de la API a roles del frontend
-export const API_TO_FRONTEND_ROLE_MAP: Record<string, User['role']> = {
-  'admin': 'admin',
-  'manager': 'manager',
-  'agent': 'agent',
-  'viewer': 'viewer', 
-  'supervisor': 'supervisor', 
-  'analista': 'analista',
-  'gestor': 'gestor',
-  'fp': 'fp',
-  'seguridad': 'seguridad',
-  'director': 'director',
-  'promotor': 'promotor',
-  'aliado': 'aliado',
-  'socio': 'socio',
-  'ais': 'ais',
-  'ejecutivo': 'ejecutivo',
-  'supervisor_comisiones': 'supervisor_comisiones',
-  'analista_comisiones': 'analista_comisiones',
-  'service_desk': 'service_desk',
-  'sac': 'sac'
+export const API_TO_FRONTEND_ROLE_MAP: Record<string, User["role"]> = {
+  admin: "admin",
+  manager: "manager",
+  agent: "agent",
+  viewer: "viewer",
+  supervisor: "supervisor",
+  analista: "analista",
+  gestor: "gestor",
+  fp: "fp",
+  seguridad: "seguridad",
+  director: "director",
+  promotor: "promotor",
+  aliado: "aliado",
+  socio: "socio",
+  ais: "ais",
+  ejecutivo: "ejecutivo",
+  supervisorComisiones: "supervisor comisiones",
+  analistaComisiones: "analista comisiones",
+  serviceDesk: "service desk",
+  sac: "sac",
 };
 
 // Función para convertir rol del frontend al formato de la API
-export const mapRoleToApi = (frontendRole: User['role']): string => {
+export const mapRoleToApi = (frontendRole: User["role"]): string => {
   const apiRole = FRONTEND_TO_API_ROLE_MAP[frontendRole];
   if (!apiRole) {
     console.warn(`⚠️ Unknown frontend role: ${frontendRole}, defaulting to 'fp'`);
-    return 'fp';
+    return "fp";
   }
   console.log(`🔄 Mapping frontend role '${frontendRole}' to API role '${apiRole}'`);
   return apiRole;
 };
 
 // Función para convertir rol de la API al formato del frontend
-export const mapRoleFromApi = (apiRole: string): User['role'] => {
+export const mapRoleFromApi = (apiRole: string): User["role"] => {
   const frontendRole = API_TO_FRONTEND_ROLE_MAP[apiRole];
   if (!frontendRole) {
     console.warn(`⚠️ Unknown API role: ${apiRole}, defaulting to 'fp'`);
-    return 'fp';
+    return "fp";
   }
   return frontendRole;
 };
