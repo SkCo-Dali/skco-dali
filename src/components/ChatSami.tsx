@@ -285,7 +285,7 @@ export default function ChatSami({ defaultMinimized = false }: ChatSamiProps) {
                      <div className="flex-1 min-h-0" />
                      {/* Acciones rápidas */}
                     {" "}
-            <div className="grid grid-cols-3 px-4 gap-4 shrink-0">
+            <div className="grid grid-cols-3 px-4 py-2 gap-2 shrink-0">
                         {" "}
               <button className="w-full text-left px-3 py-2 text-sm text-muted-foreground bg-muted rounded-full border transition-colors">
                              Consultar Informe 🚀           {" "}
