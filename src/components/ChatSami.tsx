@@ -209,19 +209,20 @@ export default function ChatSami({ defaultMinimized = false }: ChatSamiProps) {
           </div>
 
           {/* Input de búsqueda */}
-          <div className="p-4 pt-0 space-y-3 shrink-0">
-            <Input placeholder="Pregunta o busca lo que deseas..." className="w-full h-[120px] text-sm" />
-
-            <Button variant="outline" size="icon" className="h-9 w-9 rounded-full" aria-label="Agregar archivo">
-              <Plus className="h-4 w-4" />
-            </Button>
-            <Button
-              className="h-9 w-9 rounded-full bg-[#00c83c] hover:bg-[#00b036] text-white ml-auto"
-              size="icon"
-              aria-label="Enviar mensaje"
-            >
-              <ArrowRight className="h-4 w-4" />
-            </Button>
+          <div className="p-4 pt-0 space-y-3 shrink-0 border">
+            <Input placeholder="Pregunta o busca lo que deseas..." className="w-full text-sm border-0" />
+            <div className="flex items-center gap-2">
+              <Button variant="outline" size="icon" className="h-9 w-9 rounded-full" aria-label="Agregar archivo">
+                <Plus className="h-4 w-4" />
+              </Button>
+              <Button
+                className="h-9 w-9 rounded-full bg-[#00c83c] hover:bg-[#00b036] text-white ml-auto"
+                size="icon"
+                aria-label="Enviar mensaje"
+              >
+                <ArrowRight className="h-4 w-4" />
+              </Button>
+            </div>
           </div>
         </div>
       )}
