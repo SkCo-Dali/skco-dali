@@ -5,16 +5,16 @@ import { UserRole } from "@/types/crm";
  * Puedes modificar este mapeo según las necesidades del negocio
  */
 export const DEFAULT_PAGE_BY_ROLE: Record<UserRole, string> = {
-  admin: "/",
+  admin: "/index",
   seguridad: "/",
   analista: "/leads",
-  supervisor: "/",
+  supervisor: "/leads",
   gestor: "/leads",
-  director: "/",
+  director: "/leads",
   promotor: "/leads",
   aliado: "/leads",
   socio: "/leads",
-  fp: "/leads",
+  fp: "/informes",
   ejecutivo: "/leads",
   supervisorComisiones: "/comisiones",
   analistaComisiones: "/comisiones",
