@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { UserRole } from '@/types/crm';
+import { getDefaultPageForRole } from '@/utils/roleDefaultPages';
 
 /**
  * Hook to protect routes based on user roles
@@ -18,7 +19,8 @@ export const useRequireRole = (...allowedRoles: UserRole[]) => {
     }
 
     if (!allowedRoles.includes(user.role)) {
-      navigate('/informes', { replace: true });
+      const defaultPage = getDefaultPageForRole(user.role);
+      navigate(defaultPage, { replace: true });
       return;
     }
   }, [user, allowedRoles, navigate]);
