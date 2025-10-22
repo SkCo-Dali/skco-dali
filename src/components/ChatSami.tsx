@@ -252,9 +252,9 @@ export default function ChatSami({ defaultMinimized = false }: ChatSamiProps) {
             </div>
             {/* Tip del día */}
                     {" "}
-            <div className="p-2 space-y-3 shrink-0">
+            <div className="p-4 space-y-3 shrink-0">
                         {" "}
-              <div className="flex items-center gap-2 bg-[#e8f5e9] rounded-full p-4">
+              <div className="flex items-center gap-2 bg-[#e8f5e9] rounded-full p-2">
                             {" "}
                 <div className="shrink-0 bg-black rounded-full p-1.5">
                                  <Lightbulb className="h-4 w-4 text-[#00c83c]" />
