@@ -24,11 +24,10 @@ export default function ChatSami({ defaultMinimized = false }: ChatSamiProps) {
   const styleOptions = useMemo(
     () => ({
       hideUploadButton: true,
+      hideSendBox: true, // Ocultar el campo de texto del webchat
       rootHeight: "100%",
       rootWidth: "100%",
       backgroundColor: "hsl(var(--background))",
-      sendBoxButtonColor: "#00c83c",
-      sendBoxBorderTop: "solid 2px #00c83c",
       bubbleBackground: "rgba(0, 200, 60, .3)",
       bubbleBorderRadius: 10,
       bubbleFromUserBackground: "hsl(var(--muted))",
