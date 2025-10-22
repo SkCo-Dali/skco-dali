@@ -4,7 +4,7 @@ import { createRoot } from 'react-dom/client'
 import App from './App.tsx'
 import './index.css'
 import { validateEnvironment } from '@/config/environment'
-import { AuthenticationResult, EventMessage, EventType, PublicClientApplication } from '@azure/msal-browser'
+import { PublicClientApplication } from '@azure/msal-browser'
 import { msalConfig } from './authConfig.ts'
 
 // Validate environment variables on startup
@@ -26,8 +26,10 @@ if (!msalInstance.getActiveAccount() && msalInstance.getAllAccounts().length > 0
 
 
 const root = createRoot(document.getElementById('root'));
-root.render(
+msalInstance.initialize().then(() => {
+    root.render(
     <StrictMode>
         <App pca={msalInstance} />
     </StrictMode>
 );
+});
