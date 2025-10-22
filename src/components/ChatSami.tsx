@@ -175,8 +175,8 @@ export default function ChatSami({ defaultMinimized = false }: ChatSamiProps) {
           </div>
 
           {/* Tip del día */}
-          <div className="p-4 space-y-3 shrink-0">
-            <div className="flex items-center gap-2 bg-[#e8f5e9] rounded-lg p-3">
+          <div className="p-2 space-y-3 shrink-0">
+            <div className="flex items-center gap-2 bg-[#e8f5e9] rounded-full p-2">
               <div className="shrink-0 bg-black rounded-full p-1.5">
                 <Lightbulb className="h-4 w-4 text-[#00c83c]" />
               </div>
@@ -196,7 +196,7 @@ export default function ChatSami({ defaultMinimized = false }: ChatSamiProps) {
           <div className="flex-1 min-h-0" />
 
           {/* Acciones rápidas */}
-          <div className="p-4 space-y-2 shrink-0">
+          <div className="p-2 space-y-2 shrink-0">
             <button className="w-full text-left px-3 py-2 text-sm text-muted-foreground hover:bg-muted rounded-lg transition-colors">
               Abrir un nuevo producto 🚀
             </button>
