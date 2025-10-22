@@ -341,9 +341,9 @@ export default function Informes() {
   }
 
   return (
-    <div className="h-full pt-0 flex">
+    <div className="pt-0 flex">
       {/* Contenido principal */}
-      <div className={`flex-1 px-4 py-4 ${userPermissions?.chatSami ? "pr-0" : ""}`}>
+      <div className={`flex-1 px-4 py-4 h-full ${userPermissions?.chatSami ? "pr-0" : ""}`}>
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <div>
