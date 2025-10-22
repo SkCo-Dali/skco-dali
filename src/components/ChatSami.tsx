@@ -184,12 +184,14 @@ export default function ChatSami({ defaultMinimized = false }: ChatSamiProps) {
             </div>
 
             <div className="space-y-2 border rounded-xl p-2">
-              <p className="text-sm font-semibold text-foreground">¡Diversifica portafolios!</p>
+              <p className="text-sm font-semibold text-foreground">
+                ¡Acompaña a tus clientes en su declaración de renta!
+              </p>
               <p className="text-xs text-muted-foreground">
-                Y podrías aumentar tu rentabilidad hasta un <span className="font-semibold">12% E.A.</span>
+                Comisiones Potenciales <span className="font-semibold">$3,385,704</span>
               </p>
               <button className="text-sm text-center text-secondary font-medium hover:underline">
-                Quiero conocer más
+                Ver Oportunidad
               </button>
             </div>
           </div>
@@ -200,13 +202,13 @@ export default function ChatSami({ defaultMinimized = false }: ChatSamiProps) {
           {/* Acciones rápidas */}
           <div className="p-2 space-y-2 shrink-0">
             <button className="w-full text-left px-3 py-2 text-sm text-muted-foreground bg-muted rounded-full border transition-colors">
-              Abrir un nuevo producto 🚀
+              Consultar Informe 🚀
             </button>
             <button className="w-full text-left px-3 py-2 text-sm text-muted-foreground bg-muted rounded-full border transition-colors">
-              Gestionar portafolios ℹ️
+              Ver Leads ℹ️
             </button>
             <button className="w-full text-left px-3 py-2 text-sm text-muted-foreground bg-muted rounded-full border transition-colors">
-              Solicitar un certificado 📄
+              Ver Comisiones 📄
             </button>
           </div>
 
