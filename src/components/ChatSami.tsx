@@ -188,7 +188,9 @@ export default function ChatSami({ defaultMinimized = false }: ChatSamiProps) {
               <p className="text-xs text-muted-foreground">
                 Y podrías aumentar tu rentabilidad hasta un <span className="font-semibold">12% E.A.</span>
               </p>
-              <button className="text-sm text-[#00c83c] font-medium hover:underline">Quiero conocer más</button>
+              <button className="text-sm text-center text-secondary font-medium hover:underline">
+                Quiero conocer más
+              </button>
             </div>
           </div>
 
@@ -197,13 +199,13 @@ export default function ChatSami({ defaultMinimized = false }: ChatSamiProps) {
 
           {/* Acciones rápidas */}
           <div className="p-2 space-y-2 shrink-0">
-            <button className="w-full text-left px-3 py-2 text-sm text-muted-foreground hover:bg-muted rounded-lg transition-colors">
+            <button className="w-full text-left px-3 py-2 text-sm text-muted-foreground bg-muted rounded-full border transition-colors">
               Abrir un nuevo producto 🚀
             </button>
-            <button className="w-full text-left px-3 py-2 text-sm text-muted-foreground hover:bg-muted rounded-lg transition-colors">
+            <button className="w-full text-left px-3 py-2 text-sm text-muted-foreground bg-muted rounded-full border transition-colors">
               Gestionar portafolios ℹ️
             </button>
-            <button className="w-full text-left px-3 py-2 text-sm text-muted-foreground hover:bg-muted rounded-lg transition-colors">
+            <button className="w-full text-left px-3 py-2 text-sm text-muted-foreground bg-muted rounded-full border transition-colors">
               Solicitar un certificado 📄
             </button>
           </div>
