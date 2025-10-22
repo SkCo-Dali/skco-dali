@@ -141,7 +141,7 @@ export default function ChatSami({ defaultMinimized = false }: ChatSamiProps) {
           <img
             src="https://skcoblobresources.blob.core.windows.net/digital-assets/animations/sk-sami-contigo.gif"
             alt="SamiGPT"
-            className="w-10 h-10"
+            className="w-14 h-14"
           />
         </button>
       )}
