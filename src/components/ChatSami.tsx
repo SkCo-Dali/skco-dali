@@ -148,7 +148,7 @@ export default function ChatSami({ defaultMinimized = false }: ChatSamiProps) {
 
       {/* Panel minimizado */}
       {viewMode === "minimized" && (
-        <div className="fixed top-0 bottom-0 right-0 flex flex-col w-[280px] border-l bg-background shadow-md z-50">
+        <div className="fixed top-0 bottom-0 right-0 flex flex-col w-[280px] border-l bg-background shadow-md z-50 m-4">
           {/* Header */}
           <div className="flex items-center justify-between p-2 bg-[#fafafa] shrink-0">
             <h2 className="text-md font-semibold text-foreground">SamiGPT</h2>
