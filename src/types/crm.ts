@@ -159,7 +159,7 @@ export const getRolePermissions = (role: UserRole): RolePermissions => {
         canSendEmail: true,
         canSendWhatsApp: true,
         canSendmassiveWhatsApp: false,
-        chatSami: true,
+        chatSami: false,
         accessiblePages: ["leads", "ChatDali", "informes", "opportunities"],
       };
     case "supervisorComisiones":
@@ -179,7 +179,7 @@ export const getRolePermissions = (role: UserRole): RolePermissions => {
         canSendEmail: false,
         canSendWhatsApp: false,
         canSendmassiveWhatsApp: false,
-        chatSami: true,
+        chatSami: false,
         accessiblePages: ["Comisiones", "CompensationPlans"],
       };
     case "analistaComisiones":
@@ -199,7 +199,7 @@ export const getRolePermissions = (role: UserRole): RolePermissions => {
         canSendEmail: false,
         canSendWhatsApp: false,
         canSendmassiveWhatsApp: false,
-        chatSami: true,
+        chatSami: false,
         accessiblePages: ["Comisiones", "CompensationPlans"],
       };
     case "serviceDesk":
@@ -219,7 +219,7 @@ export const getRolePermissions = (role: UserRole): RolePermissions => {
         canSendEmail: false,
         canSendWhatsApp: false,
         canSendmassiveWhatsApp: false,
-        chatSami: true,
+        chatSami: false,
         accessiblePages: ["users"],
       };
     case "sac":
@@ -239,7 +239,7 @@ export const getRolePermissions = (role: UserRole): RolePermissions => {
         canSendEmail: false,
         canSendWhatsApp: false,
         canSendmassiveWhatsApp: false,
-        chatSami: true,
+        chatSami: false,
         accessiblePages: ["leads", "ChatDali", "informes", "opportunities", "Comisiones"],
       };
     case "agent":
