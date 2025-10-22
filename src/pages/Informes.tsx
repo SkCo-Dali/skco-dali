@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { Lead, getRolePermissions } from "@/types/crm";
 import ChatSami from "@/components/ChatSami";
 import { Link, useNavigate } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -53,7 +54,7 @@ export default function Informes() {
   const { user, getAccessToken } = useAuth();
   const navigate = useNavigate();
   const hasAdminRole = useHasRole("admin", "seguridad");
-
+  const userPermissions = user ? getRolePermissions(user.role) : null;
   const [state, setState] = useState<InformesState>({
     reports: [],
     areas: [],
@@ -332,8 +333,9 @@ export default function Informes() {
   }
 
   return (
-    <div className="min-h-screen pt-0">
-      <div className="px-4 py-4">
+    <div className="min-h-screen pt-0 flex">
+      {/* Contenido principal */}
+      <div className={`flex-1 px-4 py-4 ${userPermissions?.chatSami ? "pr-0" : ""}`}>
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <div>
@@ -730,7 +732,9 @@ export default function Informes() {
           </Card>
         )}
       </div>
-      <ChatSami />
+
+      {/* ChatSami - solo visible para roles autorizados */}
+      {userPermissions?.chatSami && <ChatSami defaultMinimized={true} />}
     </div>
   );
 }

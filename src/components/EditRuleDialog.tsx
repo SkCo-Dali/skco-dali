@@ -20,7 +20,7 @@ import { Check, ChevronsUpDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { CommissionRule } from "@/data/commissionPlans";
 import { useConditionRules } from "@/hooks/useConditionRules";
-import { CreateConditionRuleRequest } from "@/types/conditionRulesApi";
+import { CreateConditionRuleRequest, ConditionOperator } from "@/types/conditionRulesApi";
 
 interface EditRuleDialogProps {
   rule: CommissionRule | null;
@@ -58,22 +58,22 @@ const PAYMENT_SCHEDULE_OPTIONS = [
 ];
 
 const NUMERIC_CONDITION_OPTIONS = [
-  'Equal',
-  'Not Equal',
-  'Greater Than',
-  'Greater Than Or Equal',
-  'Less Than',
-  'Less Than Or Equal'
+  'Igual',
+  'No Igual',
+  'Mayor Que',
+  'Mayor o Igual Que',
+  'Menor Que',
+  'Menor o Igual Que'
 ];
 
 const STRING_CONDITION_OPTIONS = [
-  'Equal',
-  'Not Equal',
-  'Contains',
-  'Not Contains',
-  'Begins With',
-  'Ends With',
-  'Is One Of'
+  'Igual',
+  'No Igual',
+  'Contiene',
+  'No Contiene',
+  'Comienza Con',
+  'Termina Con',
+  'Es Uno De'
 ];
 
 const MATH_OPERATORS = [
@@ -85,6 +85,46 @@ const MATH_OPERATORS = [
   { symbol: '(', label: '(' },
   { symbol: ')', label: ')' },
 ];
+
+// Map UI condition strings to API operators
+const mapUIOperatorToAPI = (uiOperator: string): ConditionOperator => {
+  const mapping: Record<string, ConditionOperator> = {
+    'Igual': 'equal',
+    'No Igual': 'not_equal',
+    'Mayor Que': 'greater_than',
+    'Mayor o Igual Que': 'greater_or_equal',
+    'Menor Que': 'less_than',
+    'Menor o Igual Que': 'less_or_equal',
+    'Contiene': 'contains',
+    'No Contiene': 'not_contains',
+    'Comienza Con': 'starts_with',
+    'Termina Con': 'ends_with',
+    'Es Uno De': 'in'
+  };
+  return mapping[uiOperator] || 'equal';
+};
+
+// Map API operators to UI condition strings
+const mapApiOperatorToUI = (apiOperator: string): string => {
+  const mapping: Record<string, string> = {
+    'equal': 'Igual',
+    'not_equal': 'No Igual',
+    'greater_than': 'Mayor Que',
+    'bigger_than': 'Mayor Que',
+    'greater_or_equal': 'Mayor o Igual Que',
+    'bigger_or_equal': 'Mayor o Igual Que',
+    'less_than': 'Menor Que',
+    'less_or_equal': 'Menor o Igual Que',
+    'contains': 'Contiene',
+    'not_contains': 'No Contiene',
+    'starts_with': 'Comienza Con',
+    'ends_with': 'Termina Con',
+    'in': 'Es Uno De',
+    'not_in': 'No Igual',
+    'between': 'Mayor o Igual Que'
+  };
+  return mapping[apiOperator] || 'Igual';
+};
 
 interface ConditionRow {
   id: string;
@@ -102,6 +142,16 @@ export function EditRuleDialog({ rule, planId, open, onOpenChange, onRuleUpdated
   
   // Fetch catalogs
   const { catalogs, loading: catalogsLoading } = useCatalogs();
+  
+  // Fetch conditions for the rule using the API
+  const {
+    conditions: apiConditions,
+    loading: conditionsLoading,
+    createCondition,
+    updateCondition: updateConditionApi,
+    deleteCondition: deleteConditionApi,
+    fetchConditions
+  } = useConditionRules(rule?.id || '');
   
   const [formData, setFormData] = useState({
     // Information tab
@@ -157,28 +207,97 @@ export function EditRuleDialog({ rule, planId, open, onOpenChange, onRuleUpdated
       setActiveTab('information');
     }
   }, [rule, open]);
+  
+  // Map API conditions to UI format when they load
+  useEffect(() => {
+    if (apiConditions.length > 0 && formData.catalog && catalogFields.length > 0) {
+      const mappedConditions: ConditionRow[] = apiConditions.map(apiCond => {
+        // Find the corresponding field in catalogFields to get fieldType and fieldId
+        const catalogField = catalogFields.find(
+          f => f.display_name === apiCond.field_name || f.field_name === apiCond.field_name
+        );
+        
+        // Load field values for this condition if fieldId is found
+        if (catalogField && formData.catalog) {
+          loadFieldValues(formData.catalog, catalogField.id);
+        }
+        
+        return {
+          id: apiCond.id,
+          field: apiCond.field_name,
+          fieldId: catalogField?.id,
+          fieldType: catalogField?.field_type,
+          condition: mapApiOperatorToUI(apiCond.operator),
+          value: apiCond.field_value
+        };
+      });
+      
+      setFormData(prev => ({ ...prev, conditions: mappedConditions }));
+    }
+  }, [apiConditions, formData.catalog, catalogFields]);
 
-  const addCondition = () => {
-    const newCondition: ConditionRow = {
-      id: Math.random().toString(36).substr(2, 9),
+  const addCondition = async () => {
+    if (!rule?.id) {
+      toast({
+        title: "Error",
+        description: "No se puede agregar condición: falta el ID de la regla",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    // Create a temporary local condition for immediate UI feedback
+    const tempCondition: ConditionRow = {
+      id: `temp-${Date.now()}`,
       field: '',
       condition: '',
       value: ''
     };
+    
     setFormData(prev => ({
       ...prev,
-      conditions: [...prev.conditions, newCondition]
+      conditions: [...prev.conditions, tempCondition]
     }));
   };
 
-  const removeCondition = (id: string) => {
-    setFormData(prev => ({
-      ...prev,
-      conditions: prev.conditions.filter(c => c.id !== id)
-    }));
+  const removeCondition = async (id: string) => {
+    if (!rule?.id) return;
+    
+    // If it's a temporary condition (not saved to API yet), just remove from state
+    if (id.startsWith('temp-')) {
+      setFormData(prev => ({
+        ...prev,
+        conditions: prev.conditions.filter(c => c.id !== id)
+      }));
+      return;
+    }
+    
+    // Delete from API
+    try {
+      const success = await deleteConditionApi(id);
+      if (success) {
+        setFormData(prev => ({
+          ...prev,
+          conditions: prev.conditions.filter(c => c.id !== id)
+        }));
+        toast({
+          title: "Éxito",
+          description: "Condición eliminada exitosamente"
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Error al eliminar la condición",
+        variant: "destructive"
+      });
+    }
   };
 
-  const updateCondition = (id: string, field: keyof ConditionRow, value: string) => {
+  const updateConditionLocal = async (id: string, field: keyof ConditionRow, value: string) => {
+    if (!rule?.id) return;
+    
+    // First update the local state for immediate UI feedback
     setFormData(prev => ({
       ...prev,
       conditions: prev.conditions.map(c => {
@@ -204,6 +323,55 @@ export function EditRuleDialog({ rule, planId, open, onOpenChange, onRuleUpdated
         return { ...c, [field]: value };
       })
     }));
+    
+    // Get the updated condition
+    const condition = formData.conditions.find(c => c.id === id);
+    if (!condition) return;
+    
+    // Build the updated condition object with the new value
+    const updatedCondition = { ...condition, [field]: value };
+    
+    // Only sync to API if the condition is complete (has all required fields)
+    if (updatedCondition.field && updatedCondition.condition && updatedCondition.value) {
+      try {
+        // If it's a temp condition, create it in the API
+        if (id.startsWith('temp-')) {
+          const conditionOrder = formData.conditions.findIndex(c => c.id === id);
+          const apiCondition = await createCondition({
+            field_name: updatedCondition.field,
+            operator: mapUIOperatorToAPI(updatedCondition.condition),
+            field_value: updatedCondition.value,
+            logical_operator: 'AND',
+            group_level: 0,
+            condition_order: conditionOrder
+          });
+          
+          // Replace the temp ID with the real API ID
+          if (apiCondition) {
+            setFormData(prev => ({
+              ...prev,
+              conditions: prev.conditions.map(c => 
+                c.id === id ? { ...c, id: apiCondition.id } : c
+              )
+            }));
+          }
+        } else {
+          // Update existing condition in API
+          await updateConditionApi(id, {
+            field_name: updatedCondition.field,
+            operator: mapUIOperatorToAPI(updatedCondition.condition),
+            field_value: updatedCondition.value
+          });
+        }
+      } catch (error) {
+        console.error('Error saving condition:', error);
+        toast({
+          title: "Advertencia",
+          description: "Condición actualizada localmente pero falló la sincronización con el servidor",
+          variant: "destructive"
+        });
+      }
+    }
   };
 
   // Load field values from API
@@ -229,7 +397,7 @@ export function EditRuleDialog({ rule, planId, open, onOpenChange, onRuleUpdated
       console.error('Error loading field values:', error);
       toast({
         title: "Error",
-        description: "Failed to load field values",
+        description: "Error al cargar los valores del campo",
         variant: "destructive"
       });
     } finally {
@@ -330,8 +498,8 @@ export function EditRuleDialog({ rule, planId, open, onOpenChange, onRuleUpdated
     
     if (!rule || !formData.name || !formData.formula || !formData.catalog) {
       toast({
-        title: "Validation Error",
-        description: "Please fill in all required fields (Name, Formula, Catalog)",
+        title: "Error de Validación",
+        description: "Por favor completa todos los campos requeridos (Nombre, Fórmula, Catálogo)",
         variant: "destructive"
       });
       return;
@@ -354,15 +522,15 @@ export function EditRuleDialog({ rule, planId, open, onOpenChange, onRuleUpdated
 
       if (updatedRule) {
         toast({
-          title: "Success",
-          description: `Rule "${formData.name}" has been updated successfully.`
+          title: "Éxito",
+          description: `La regla "${formData.name}" ha sido actualizada exitosamente.`
         });
         
         handleCancel();
         onRuleUpdated?.();
       }
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Failed to update rule';
+      const errorMessage = err instanceof Error ? err.message : 'Error al actualizar la regla';
       toast({
         title: "Error",
         description: errorMessage,
@@ -398,54 +566,54 @@ export function EditRuleDialog({ rule, planId, open, onOpenChange, onRuleUpdated
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[800px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Edit Commission Rule</DialogTitle>
+          <DialogTitle>Editar Regla de Comisión</DialogTitle>
           <DialogDescription>
-            Update the rule details, formula and conditions.
+            Actualiza los detalles de la regla, fórmula y condiciones.
           </DialogDescription>
         </DialogHeader>
         
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="grid w-full grid-cols-5">
-            <TabsTrigger value="information">Information</TabsTrigger>
-            <TabsTrigger value="rule">Rule</TabsTrigger>
-            <TabsTrigger value="incentives">Incentives</TabsTrigger>
-            <TabsTrigger value="payments">Payments</TabsTrigger>
-            <TabsTrigger value="preview">Preview</TabsTrigger>
+            <TabsTrigger value="information">Información</TabsTrigger>
+            <TabsTrigger value="rule">Regla</TabsTrigger>
+            <TabsTrigger value="incentives">Incentivos</TabsTrigger>
+            <TabsTrigger value="payments">Pagos</TabsTrigger>
+            <TabsTrigger value="preview">Vista Previa</TabsTrigger>
           </TabsList>
 
           <form onSubmit={handleSubmit}>
             {/* Information Tab */}
             <TabsContent value="information" className="space-y-4 mt-4">
               <div>
-                <Label htmlFor="rule-name">Name *</Label>
+                <Label htmlFor="rule-name">Nombre *</Label>
                 <Input
                   id="rule-name"
                   value={formData.name}
                   onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
-                  placeholder="Enter rule name"
+                  placeholder="Ingrese el nombre de la regla"
                   required
                 />
               </div>
 
               <div>
-                <Label htmlFor="rule-description">Description</Label>
+                <Label htmlFor="rule-description">Descripción</Label>
                 <Textarea
                   id="rule-description"
                   value={formData.description}
                   onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
-                  placeholder="Enter rule description"
+                  placeholder="Ingrese la descripción de la regla"
                   rows={3}
                 />
               </div>
 
               <div>
-                <Label htmlFor="rule-owner-field">Owner Field *</Label>
+                <Label htmlFor="rule-owner-field">Campo Propietario *</Label>
                 <Select
                   value={formData.ownerField}
                   onValueChange={(value) => setFormData(prev => ({ ...prev, ownerField: value }))}
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder="Select owner field" />
+                    <SelectValue placeholder="Seleccionar campo propietario" />
                   </SelectTrigger>
                   <SelectContent>
                     {OWNER_FIELD_OPTIONS.map((field) => (
@@ -458,13 +626,13 @@ export function EditRuleDialog({ rule, planId, open, onOpenChange, onRuleUpdated
               </div>
 
               <div>
-                <Label htmlFor="rule-date-field">Date Field *</Label>
+                <Label htmlFor="rule-date-field">Campo Fecha *</Label>
                 <Select
                   value={formData.dateField}
                   onValueChange={(value) => setFormData(prev => ({ ...prev, dateField: value }))}
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder="Select date field" />
+                    <SelectValue placeholder="Seleccionar campo fecha" />
                   </SelectTrigger>
                   <SelectContent>
                     {DATE_FIELD_OPTIONS.map((field) => (
@@ -482,7 +650,7 @@ export function EditRuleDialog({ rule, planId, open, onOpenChange, onRuleUpdated
                   checked={formData.goalIncentive}
                   onCheckedChange={(checked) => setFormData(prev => ({ ...prev, goalIncentive: checked }))}
                 />
-                <Label htmlFor="goal-incentive">Goal Incentive</Label>
+                <Label htmlFor="goal-incentive">Incentivo por Meta</Label>
               </div>
             </TabsContent>
 
@@ -490,7 +658,7 @@ export function EditRuleDialog({ rule, planId, open, onOpenChange, onRuleUpdated
             <TabsContent value="rule" className="space-y-4 mt-4">
               <div>
                 <Label htmlFor="rule-catalog">
-                  Catalog * 
+                  Catálogo * 
                   <span className="ml-1 text-xs text-muted-foreground cursor-help">ⓘ</span>
                 </Label>
                 <Select
@@ -499,7 +667,7 @@ export function EditRuleDialog({ rule, planId, open, onOpenChange, onRuleUpdated
                   disabled={catalogsLoading}
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder={catalogsLoading ? "Loading catalogs..." : "Select a catalog"} />
+                    <SelectValue placeholder={catalogsLoading ? "Cargando catálogos..." : "Seleccionar un catálogo"} />
                   </SelectTrigger>
                   <SelectContent>
                     {activeCatalogs.map((catalog) => (
@@ -514,7 +682,7 @@ export function EditRuleDialog({ rule, planId, open, onOpenChange, onRuleUpdated
               <div className="grid grid-cols-2 gap-6">
                 {/* Formula Section */}
                 <div>
-                  <Label htmlFor="rule-formula">Formula</Label>
+                  <Label htmlFor="rule-formula">Fórmula</Label>
                   <Textarea
                     ref={formulaRef}
                     id="rule-formula"
@@ -542,12 +710,12 @@ export function EditRuleDialog({ rule, planId, open, onOpenChange, onRuleUpdated
 
                 {/* Click to insert fields */}
                 <div>
-                  <Label>Click to insert fields</Label>
+                  <Label>Haz clic para insertar campos</Label>
                   <div className="space-y-2">
                     <div className="relative">
                       <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
                       <Input
-                        placeholder="Type to search"
+                        placeholder="Escribe para buscar"
                         value={fieldSearch}
                         onChange={(e) => setFieldSearch(e.target.value)}
                         className="pl-8"
@@ -556,15 +724,15 @@ export function EditRuleDialog({ rule, planId, open, onOpenChange, onRuleUpdated
                     <div className="max-h-40 overflow-y-auto space-y-1 border rounded-md p-2">
                       {fieldsLoading ? (
                         <div className="text-xs text-muted-foreground text-center py-4">
-                          Loading fields...
+                          Cargando campos...
                         </div>
                       ) : !formData.catalog ? (
                         <div className="text-xs text-muted-foreground text-center py-4">
-                          Select a catalog to view fields
+                          Selecciona un catálogo para ver campos
                         </div>
                       ) : filteredFields.length === 0 ? (
                         <div className="text-xs text-muted-foreground text-center py-4">
-                          No fields found
+                          No se encontraron campos
                         </div>
                       ) : (
                         <TooltipProvider>
@@ -603,7 +771,7 @@ export function EditRuleDialog({ rule, planId, open, onOpenChange, onRuleUpdated
               {/* Conditions Section */}
               <div className="mt-6">
                 <div className="flex justify-between items-center mb-3">
-                  <Label>Conditions</Label>
+                  <Label>Condiciones</Label>
                   <Button type="button" onClick={addCondition} size="sm" variant="outline">
                     <Plus className="h-4 w-4" />
                   </Button>
@@ -614,23 +782,23 @@ export function EditRuleDialog({ rule, planId, open, onOpenChange, onRuleUpdated
                     <div key={condition.id} className="grid grid-cols-12 gap-2 items-center">
                       {index > 0 && (
                         <div className="col-span-1 text-center text-sm text-muted-foreground">
-                          and
+                          y
                         </div>
                       )}
                       {index === 0 && (
                         <div className="col-span-1 text-center text-sm text-muted-foreground">
-                          If
+                          Si
                         </div>
                       )}
                       
                       <div className="col-span-4">
                         <Select
                           value={condition.field}
-                          onValueChange={(value) => updateCondition(condition.id, 'field', value)}
+                          onValueChange={(value) => updateConditionLocal(condition.id, 'field', value)}
                           disabled={fieldsLoading || !formData.catalog}
                         >
                           <SelectTrigger>
-                            <SelectValue placeholder={!formData.catalog ? "Select catalog first" : "Field"} />
+                            <SelectValue placeholder={!formData.catalog ? "Primero selecciona catálogo" : "Campo"} />
                           </SelectTrigger>
                           <SelectContent>
                             {catalogFields.map((field) => (
@@ -649,11 +817,11 @@ export function EditRuleDialog({ rule, planId, open, onOpenChange, onRuleUpdated
                       <div className="col-span-3">
                         <Select
                           value={condition.condition}
-                          onValueChange={(value) => updateCondition(condition.id, 'condition', value)}
+                          onValueChange={(value) => updateConditionLocal(condition.id, 'condition', value)}
                           disabled={!condition.field}
                         >
                           <SelectTrigger>
-                            <SelectValue placeholder="Condition" />
+                            <SelectValue placeholder="Condición" />
                           </SelectTrigger>
                           <SelectContent>
                             {getConditionOptions(condition.fieldType).map((cond) => (
@@ -679,20 +847,20 @@ export function EditRuleDialog({ rule, planId, open, onOpenChange, onRuleUpdated
                                 !condition.value && "text-muted-foreground"
                               )}
                             >
-                              {condition.value || "Value"}
+                              {condition.value || "Valor"}
                               <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                             </Button>
                           </PopoverTrigger>
                           <PopoverContent className="w-full p-0" align="start">
                             <Command shouldFilter={false}>
                               <CommandInput 
-                                placeholder="Search or type value..." 
+                                placeholder="Buscar o escribir valor..." 
                                 onKeyDown={(e) => {
                                   if (e.key === 'Enter') {
                                     e.preventDefault();
                                     const inputValue = (e.target as HTMLInputElement).value;
                                     if (inputValue) {
-                                      updateCondition(condition.id, 'value', inputValue);
+                                      updateConditionLocal(condition.id, 'value', inputValue);
                                       setOpenValuePopovers(prev => ({ ...prev, [condition.id]: false }));
                                     }
                                   }
@@ -701,8 +869,8 @@ export function EditRuleDialog({ rule, planId, open, onOpenChange, onRuleUpdated
                               <CommandList>
                                 <CommandEmpty>
                                   {loadingFieldValues[`${formData.catalog}-${condition.fieldId}`] 
-                                    ? "Loading values..." 
-                                    : "Type a value and press Enter"}
+                                    ? "Cargando valores..." 
+                                    : "Escribe un valor y presiona Enter"}
                                 </CommandEmpty>
                                 {condition.fieldId && formData.catalog && (
                                   <CommandGroup>
@@ -711,7 +879,7 @@ export function EditRuleDialog({ rule, planId, open, onOpenChange, onRuleUpdated
                                         key={fieldValue.id}
                                         value={fieldValue.value}
                                         onSelect={(value) => {
-                                          updateCondition(condition.id, 'value', value);
+                                          updateConditionLocal(condition.id, 'value', value);
                                           setOpenValuePopovers(prev => ({ ...prev, [condition.id]: false }));
                                         }}
                                       >
@@ -752,7 +920,7 @@ export function EditRuleDialog({ rule, planId, open, onOpenChange, onRuleUpdated
 
                   {formData.conditions.length === 0 && (
                     <div className="text-center py-4 text-muted-foreground border border-dashed rounded">
-                      No conditions added yet. Click the + button to add conditions.
+                      No se han agregado condiciones aún. Haz clic en el botón + para agregar condiciones.
                     </div>
                   )}
                 </div>
@@ -763,7 +931,7 @@ export function EditRuleDialog({ rule, planId, open, onOpenChange, onRuleUpdated
             <TabsContent value="incentives" className="space-y-4 mt-4">
               <div>
                 <Label htmlFor="incentive-status">
-                  Incentive Status * 
+                  Estado del Incentivo * 
                   <span className="ml-1 text-xs text-muted-foreground cursor-help">ⓘ</span>
                 </Label>
                 <Select
@@ -771,7 +939,7 @@ export function EditRuleDialog({ rule, planId, open, onOpenChange, onRuleUpdated
                   onValueChange={(value) => setFormData(prev => ({ ...prev, incentiveStatus: value }))}
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder="Select incentive status" />
+                    <SelectValue placeholder="Seleccionar estado del incentivo" />
                   </SelectTrigger>
                   <SelectContent>
                     {INCENTIVE_STATUS_OPTIONS.map((status) => (
@@ -790,10 +958,10 @@ export function EditRuleDialog({ rule, planId, open, onOpenChange, onRuleUpdated
                   onCheckedChange={(checked) => setFormData(prev => ({ ...prev, applyCommissionsGenerated: checked as boolean }))}
                 />
                 <div>
-                  <Label htmlFor="apply-commissions">Apply commissions already generated (n...</Label>
+                  <Label htmlFor="apply-commissions">Aplicar comisiones ya generadas (n...</Label>
                   <div className="mt-2">
                     <Button type="button" variant="outline" size="sm" className="text-xs">
-                      Apply commissions already generated (negative operations)
+                      Aplicar comisiones ya generadas (operaciones negativas)
                     </Button>
                   </div>
                 </div>
@@ -804,7 +972,7 @@ export function EditRuleDialog({ rule, planId, open, onOpenChange, onRuleUpdated
             <TabsContent value="payments" className="space-y-4 mt-4">
               <div>
                 <Label htmlFor="payment-schedule">
-                  Payment Schedule * 
+                  Calendario de Pagos * 
                   <span className="ml-1 text-xs text-muted-foreground cursor-help">ⓘ</span>
                 </Label>
                 <Select
@@ -812,7 +980,7 @@ export function EditRuleDialog({ rule, planId, open, onOpenChange, onRuleUpdated
                   onValueChange={(value) => setFormData(prev => ({ ...prev, paymentSchedule: value }))}
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder="Select payment schedule" />
+                    <SelectValue placeholder="Seleccionar calendario de pagos" />
                   </SelectTrigger>
                   <SelectContent>
                     {PAYMENT_SCHEDULE_OPTIONS.map((schedule) => (
@@ -823,18 +991,18 @@ export function EditRuleDialog({ rule, planId, open, onOpenChange, onRuleUpdated
                   </SelectContent>
                 </Select>
                 <div className="text-xs text-muted-foreground mt-1">
-                  The incentive will be grouped in this Payment Schedule.
+                  El incentivo se agrupará en este Calendario de Pagos.
                 </div>
               </div>
 
               <div>
-                <Label htmlFor="payment-period">Payment period based on *</Label>
+                <Label htmlFor="payment-period">Período de pago basado en *</Label>
                 <Select
                   value={formData.paymentPeriodBasedOn}
                   onValueChange={(value) => setFormData(prev => ({ ...prev, paymentPeriodBasedOn: value }))}
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder="Select payment period" />
+                    <SelectValue placeholder="Seleccionar período de pago" />
                   </SelectTrigger>
                   <SelectContent>
                     {DATE_FIELD_OPTIONS.map((field) => (
@@ -851,18 +1019,18 @@ export function EditRuleDialog({ rule, planId, open, onOpenChange, onRuleUpdated
             <TabsContent value="preview" className="space-y-4 mt-4">
               <div className="text-center py-8">
                 <p className="text-muted-foreground mb-2">
-                  The following top 10 commissions displayed are just a sneak peek of the total your Rule might generate.
+                  Las siguientes 10 comisiones principales mostradas son solo una vista previa del total que tu regla podría generar.
                 </p>
-                <p className="font-medium">Preview not available.</p>
+                <p className="font-medium">Vista previa no disponible.</p>
               </div>
             </TabsContent>
 
             <DialogFooter className="gap-2 mt-6">
               <Button type="button" variant="outline" onClick={handleCancel} disabled={isSubmitting}>
-                Cancel
+                Cancelar
               </Button>
               <Button type="submit" className="bg-green-600 hover:bg-green-700 text-white" disabled={isSubmitting}>
-                {isSubmitting ? "Updating..." : "Update Rule"}
+                {isSubmitting ? "Actualizando..." : "Actualizar Regla"}
               </Button>
             </DialogFooter>
           </form>

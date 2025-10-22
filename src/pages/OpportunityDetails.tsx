@@ -363,78 +363,104 @@ export const OpportunityDetails: React.FC = () => {
               <p className="text-sm text-muted-foreground">Acciones disponibles para esta oportunidad</p>
             </CardHeader>
             <CardContent className="space-y-4 pb-6">
-              <div className="relative">
-                <Button
-                  variant="default"
-                  className="w-full justify-start h-auto py-3 px-4 text-left bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 shadow-md hover:shadow-lg transition-all duration-200 group"
-                  size="lg"
-                  onClick={handleLoadAsLeads}
-                  disabled={loadingLeads}
-                >
-                  <div className="flex items-center gap-3 w-full min-w-0">
-                    <div className="flex-shrink-0 p-2 bg-white/20 rounded-lg group-hover:bg-white/30 transition-colors">
-                      <Mail className="h-4 w-4" />
+              <TooltipProvider>
+                <div className="relative">
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        variant="default"
+                        className="w-full justify-start h-auto py-3 px-4 text-left bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 shadow-md hover:shadow-lg transition-all duration-200 group"
+                        size="lg"
+                        onClick={handleLoadAsLeads}
+                        disabled={loadingLeads}
+                      >
+                        <div className="flex items-center gap-3 w-full min-w-0">
+                          <div className="flex-shrink-0 p-2 bg-white/20 rounded-lg group-hover:bg-white/30 transition-colors">
+                            <Mail className="h-4 w-4" />
+                          </div>
+                          <div className="flex flex-col items-start min-w-0 flex-1">
+                            <span className="font-semibold text-sm leading-tight truncate w-full">
+                              {loadingLeads ? "Cargando leads..." : "Cargar como leads y enviar correo masivo"}
+                            </span>
+                            <span className="text-xs opacity-90 mt-0.5 truncate w-full">Acción recomendada</span>
+                          </div>
+                        </div>
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent side="left" className="max-w-xs">
+                      <p className="text-sm font-semibold">Cargar como leads y enviar correo masivo</p>
+                      <p className="text-xs text-muted-foreground mt-1">Acción recomendada</p>
+                    </TooltipContent>
+                  </Tooltip>
+                  <div className="absolute -top-2 -right-2 pointer-events-none">
+                    <div className="bg-yellow-400 text-yellow-900 text-xs font-bold px-2 py-1 rounded-full shadow-sm">
+                      PRINCIPAL
                     </div>
-                    <div className="flex flex-col items-start min-w-0 flex-1">
-                      <span className="font-semibold text-sm leading-tight">
-                        {loadingLeads ? "Cargando leads..." : "Cargar como leads y enviar correo masivo"}
-                      </span>
-                      <span className="text-xs opacity-90 mt-0.5">Acción recomendada</span>
-                    </div>
-                  </div>
-                </Button>
-                <div className="absolute -top-2 -right-2">
-                  <div className="bg-yellow-400 text-yellow-900 text-xs font-bold px-2 py-1 rounded-full shadow-sm">
-                    PRINCIPAL
                   </div>
                 </div>
-              </div>
-              <div className="relative">
-                <Button
-                  variant="outline"
-                  className="w-full justify-start h-auto py-3 px-3 text-left border-2 hover:bg-green-50 hover:border-green-200 hover:text-green-700 transition-all duration-200 group"
-                  size="lg"
-                >
-                  <div className="flex items-center gap-2 w-full min-w-0">
-                    <div className="flex-shrink-0 p-2 bg-green-100 rounded-lg group-hover:bg-green-200 transition-colors">
-                      <MessageSquare className="h-4 w-4 text-green-600" />
+                <div className="relative">
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        variant="outline"
+                        className="w-full justify-start h-auto py-3 px-3 text-left border-2 hover:bg-green-50 hover:border-green-200 hover:text-green-700 transition-all duration-200 group"
+                        size="lg"
+                      >
+                        <div className="flex items-center gap-2 w-full min-w-0">
+                          <div className="flex-shrink-0 p-2 bg-green-100 rounded-lg group-hover:bg-green-200 transition-colors">
+                            <MessageSquare className="h-4 w-4 text-green-600" />
+                          </div>
+                          <div className="flex flex-col items-start min-w-0 flex-1">
+                            <span className="text-xs leading-tight font-medium truncate w-full">
+                              Cargar como leads y enviar WhatsApp masivo
+                            </span>
+                            <span className="text-xs text-muted-foreground mt-0.5 truncate w-full">Mensajería directa</span>
+                          </div>
+                        </div>
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent side="left" className="max-w-xs">
+                      <p className="text-sm font-medium">Cargar como leads y enviar WhatsApp masivo</p>
+                      <p className="text-xs text-muted-foreground mt-1">Mensajería directa</p>
+                    </TooltipContent>
+                  </Tooltip>
+                  <div className="absolute -top-2 -right-2 pointer-events-none">
+                    <div className="bg-primary text-white text-xs font-bold px-2 py-1 rounded-full shadow-sm">
+                      PROXIMAMENTE
                     </div>
-                    <div className="flex flex-col items-start min-w-0 flex-1">
-                      <span className="text-xs leading-tight font-medium">
-                        Cargar como leads y enviar WhatsApp masivo
-                      </span>
-                      <span className="text-xs text-muted-foreground mt-0.5">Mensajería directa</span>
-                    </div>
-                  </div>
-                </Button>
-                <div className="absolute -top-2 -right-2">
-                  <div className="bg-primary text-white text-xs font-bold px-2 py-1 rounded-full shadow-sm">
-                    PROXIMAMENTE
                   </div>
                 </div>
-              </div>
-              <div className="relative">
-                <Button
-                  variant="secondary"
-                  className="w-full justify-start h-auto py-3 px-4 text-left bg-blue-50 hover:bg-blue-100 border border-blue-200 hover:border-blue-300 text-blue-700 hover:text-blue-800 transition-all duration-200 group"
-                  size="lg"
-                >
-                  <div className="flex items-center gap-3 w-full min-w-0">
-                    <div className="flex-shrink-0 p-2 bg-blue-100 rounded-lg group-hover:bg-blue-200 transition-colors">
-                      <GraduationCap className="h-4 w-4 text-blue-600" />
+                <div className="relative">
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        variant="secondary"
+                        className="w-full justify-start h-auto py-3 px-4 text-left bg-blue-50 hover:bg-blue-100 border border-blue-200 hover:border-blue-300 text-blue-700 hover:text-blue-800 transition-all duration-200 group"
+                        size="lg"
+                      >
+                        <div className="flex items-center gap-3 w-full min-w-0">
+                          <div className="flex-shrink-0 p-2 bg-blue-100 rounded-lg group-hover:bg-blue-200 transition-colors">
+                            <GraduationCap className="h-4 w-4 text-blue-600" />
+                          </div>
+                          <div className="flex flex-col items-start min-w-0 flex-1">
+                            <span className="font-medium text-sm leading-tight truncate w-full">Aprende a pedir esta base en Chat Dali</span>
+                            <span className="text-xs text-blue-600 mt-0.5 truncate w-full">Guía interactiva</span>
+                          </div>
+                        </div>
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent side="left" className="max-w-xs">
+                      <p className="text-sm font-medium">Aprende a pedir esta base en Chat Dali</p>
+                      <p className="text-xs text-muted-foreground mt-1">Guía interactiva</p>
+                    </TooltipContent>
+                  </Tooltip>
+                  <div className="absolute -top-2 -right-2 pointer-events-none">
+                    <div className="bg-primary text-white text-xs font-bold px-2 py-1 rounded-full shadow-sm">
+                      PROXIMAMENTE
                     </div>
-                    <div className="flex flex-col items-start min-w-0 flex-1">
-                      <span className="font-medium text-sm leading-tight">Aprende a pedir esta base en Chat Dali</span>
-                      <span className="text-xs text-blue-600 mt-0.5">Guía interactiva</span>
-                    </div>
-                  </div>
-                </Button>
-                <div className="absolute -top-2 -right-2">
-                  <div className="bg-primary text-white text-xs font-bold px-2 py-1 rounded-full shadow-sm">
-                    PROXIMAMENTE
                   </div>
                 </div>
-              </div>
+              </TooltipProvider>
             </CardContent>
           </Card>
         </div>

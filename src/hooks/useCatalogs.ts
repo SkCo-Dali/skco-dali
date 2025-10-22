@@ -48,8 +48,8 @@ export function useCatalogs() {
       const newCatalog = await catalogsApi.createCatalog(data);
       setCatalogs((prev) => [...prev, newCatalog]);
       toast({
-        title: 'Success',
-        description: 'Catalog created successfully',
+        title: 'Éxito',
+        description: 'Catálogo creado exitosamente',
       });
       return newCatalog;
     } catch (err) {
@@ -73,8 +73,8 @@ export function useCatalogs() {
         prev.map((cat) => (cat.id === catalogId ? updatedCatalog : cat))
       );
       toast({
-        title: 'Success',
-        description: 'Catalog updated successfully',
+        title: 'Éxito',
+        description: 'Catálogo actualizado exitosamente',
       });
       return true;
     } catch (err) {
@@ -93,8 +93,8 @@ export function useCatalogs() {
       await catalogsApi.deleteCatalog(catalogId);
       setCatalogs((prev) => prev.filter((cat) => cat.id !== catalogId));
       toast({
-        title: 'Success',
-        description: 'Catalog deleted successfully',
+        title: 'Éxito',
+        description: 'Catálogo eliminado exitosamente',
       });
       return true;
     } catch (err) {
@@ -118,8 +118,8 @@ export function useCatalogs() {
         prev.map((cat) => (cat.id === catalogId ? updatedCatalog : cat))
       );
       toast({
-        title: 'Success',
-        description: `Catalog ${activate ? 'activated' : 'deactivated'} successfully`,
+        title: 'Éxito',
+        description: `Catálogo ${activate ? 'activado' : 'desactivado'} exitosamente`,
       });
       return true;
     } catch (err) {
@@ -185,8 +185,8 @@ export function useCatalogFields(catalogId: string) {
       const newField = await catalogsApi.createCatalogField(catalogId, data);
       setFields((prev) => [...prev, newField]);
       toast({
-        title: 'Success',
-        description: 'Field created successfully',
+        title: 'Éxito',
+        description: 'Campo creado exitosamente',
       });
       return newField;
     } catch (err) {
@@ -210,8 +210,8 @@ export function useCatalogFields(catalogId: string) {
         prev.map((field) => (field.id === fieldId ? updatedField : field))
       );
       toast({
-        title: 'Success',
-        description: 'Field updated successfully',
+        title: 'Éxito',
+        description: 'Campo actualizado exitosamente',
       });
       return true;
     } catch (err) {
@@ -230,8 +230,8 @@ export function useCatalogFields(catalogId: string) {
       await catalogsApi.deleteCatalogField(catalogId, fieldId);
       setFields((prev) => prev.filter((field) => field.id !== fieldId));
       toast({
-        title: 'Success',
-        description: 'Field deleted successfully',
+        title: 'Éxito',
+        description: 'Campo eliminado exitosamente',
       });
       return true;
     } catch (err) {

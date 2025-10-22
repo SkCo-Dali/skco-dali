@@ -46,8 +46,8 @@ export function CreateCommissionPlanDialog({ open, onOpenChange, onCreatePlan }:
     
     if (!formData.name || !formData.description || !formData.startDate || !formData.endDate) {
       toast({
-        title: "Validation Error",
-        description: "Please fill in all required fields.",
+        title: "Error de Validación",
+        description: "Por favor completa todos los campos requeridos.",
         variant: "destructive"
       });
       return;
@@ -55,8 +55,8 @@ export function CreateCommissionPlanDialog({ open, onOpenChange, onCreatePlan }:
 
     if (formData.assignmentType !== 'all_users' && !formData.assignmentValue) {
       toast({
-        title: "Validation Error",
-        description: `Please specify a ${formData.assignmentType} name.`,
+        title: "Error de Validación",
+        description: `Por favor especifica un nombre de ${formData.assignmentType === 'user' ? 'usuario' : formData.assignmentType === 'role' ? 'rol' : 'equipo'}.`,
         variant: "destructive"
       });
       return;
@@ -96,39 +96,39 @@ export function CreateCommissionPlanDialog({ open, onOpenChange, onCreatePlan }:
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Create Commission Plan</DialogTitle>
+          <DialogTitle>Crear Plan de Comisiones</DialogTitle>
           <DialogDescription>
-            Create a new commission plan with rules and assignments.
+            Crea un nuevo plan de comisiones con reglas y asignaciones.
           </DialogDescription>
         </DialogHeader>
         
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="space-y-4">
             <div>
-              <Label htmlFor="name">Name *</Label>
+              <Label htmlFor="name">Nombre *</Label>
               <Input
                 id="name"
                 value={formData.name}
                 onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
-                placeholder="Enter plan name"
+                placeholder="Ingrese el nombre del plan"
                 required
               />
             </div>
 
             <div>
-              <Label htmlFor="description">Description</Label>
+              <Label htmlFor="description">Descripción</Label>
               <Textarea
                 id="description"
                 value={formData.description}
                 onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
-                placeholder="Enter plan description"
+                placeholder="Ingrese la descripción del plan"
                 rows={3}
               />
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <Label>Start Date *</Label>
+                <Label>Fecha de Inicio *</Label>
                 <DatePicker
                   date={formData.startDate}
                   onDateChange={(date) => setFormData(prev => ({ ...prev, startDate: date }))}
@@ -137,7 +137,7 @@ export function CreateCommissionPlanDialog({ open, onOpenChange, onCreatePlan }:
               </div>
 
               <div>
-                <Label>End Date *</Label>
+                <Label>Fecha de Fin *</Label>
                 <DatePicker
                   date={formData.endDate}
                   onDateChange={(date) => setFormData(prev => ({ ...prev, endDate: date }))}
@@ -148,7 +148,7 @@ export function CreateCommissionPlanDialog({ open, onOpenChange, onCreatePlan }:
             </div>
 
             <div>
-              <Label>Assignee *</Label>
+              <Label>Asignado a *</Label>
               <RadioGroup
                 value={formData.assignmentType}
                 onValueChange={(value) => setFormData(prev => ({ 
@@ -160,19 +160,19 @@ export function CreateCommissionPlanDialog({ open, onOpenChange, onCreatePlan }:
               >
                 <div className="flex items-center space-x-2">
                   <RadioGroupItem value="all_users" id="all_users" />
-                  <Label htmlFor="all_users">All Users</Label>
+                  <Label htmlFor="all_users">Todos los Usuarios</Label>
                 </div>
                 <div className="flex items-center space-x-2">
                   <RadioGroupItem value="user" id="user" />
-                  <Label htmlFor="user">User</Label>
+                  <Label htmlFor="user">Usuario</Label>
                 </div>
                 <div className="flex items-center space-x-2">
                   <RadioGroupItem value="role" id="role" />
-                  <Label htmlFor="role">Role</Label>
+                  <Label htmlFor="role">Rol</Label>
                 </div>
                 <div className="flex items-center space-x-2">
                   <RadioGroupItem value="team" id="team" />
-                  <Label htmlFor="team">Team</Label>
+                  <Label htmlFor="team">Equipo</Label>
                 </div>
               </RadioGroup>
 
@@ -183,7 +183,7 @@ export function CreateCommissionPlanDialog({ open, onOpenChange, onCreatePlan }:
                     onValueChange={(value) => setFormData(prev => ({ ...prev, assignmentValue: value }))}
                   >
                     <SelectTrigger>
-                      <SelectValue placeholder="Select a role" />
+                      <SelectValue placeholder="Selecciona un rol" />
                     </SelectTrigger>
                     <SelectContent className="bg-background border shadow-md max-h-[200px] overflow-y-auto">
                       {ROLES_LIST.map((role) => (
@@ -201,7 +201,7 @@ export function CreateCommissionPlanDialog({ open, onOpenChange, onCreatePlan }:
                   <Input
                     value={formData.assignmentValue}
                     onChange={(e) => setFormData(prev => ({ ...prev, assignmentValue: e.target.value }))}
-                    placeholder={`Enter ${formData.assignmentType} name`}
+                    placeholder={`Ingrese el nombre del ${formData.assignmentType === 'user' ? 'usuario' : 'equipo'}`}
                   />
                 </div>
               )}
@@ -210,10 +210,10 @@ export function CreateCommissionPlanDialog({ open, onOpenChange, onCreatePlan }:
 
           <DialogFooter className="gap-2">
             <Button type="button" variant="outline" onClick={handleCancel} disabled={isLoading}>
-              Cancel
+              Cancelar
             </Button>
             <Button type="submit" className="bg-primary hover:bg-primary/90" disabled={isLoading}>
-              {isLoading ? "Creating..." : "Create Plan"}
+              {isLoading ? "Creando..." : "Crear Plan"}
             </Button>
           </DialogFooter>
         </form>

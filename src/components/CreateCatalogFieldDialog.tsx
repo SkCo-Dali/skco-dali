@@ -139,9 +139,9 @@ export function CreateCatalogFieldDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[700px] max-h-[85vh]">
         <DialogHeader>
-          <DialogTitle>Add New Fields</DialogTitle>
+          <DialogTitle>Agregar Nuevos Campos</DialogTitle>
           <DialogDescription>
-            Define one or more fields for this catalog
+            Define uno o más campos para este catálogo
           </DialogDescription>
         </DialogHeader>
 
@@ -149,10 +149,10 @@ export function CreateCatalogFieldDialog({
           <div className="space-y-4 py-4 max-h-[60vh] overflow-y-auto">
             <div className="flex items-center justify-between mb-4">
               <Label className="text-base">
-                Fields <span className="text-destructive">*</span>
+                Campos <span className="text-destructive">*</span>
               </Label>
               <Button type="button" variant="outline" size="sm" onClick={addField}>
-                Add Another Field
+                Agregar Otro Campo
               </Button>
             </div>
 
@@ -176,11 +176,11 @@ export function CreateCatalogFieldDialog({
                 <div className="grid grid-cols-2 gap-3">
                   <div className="space-y-2">
                     <Label htmlFor={`field_name_${index}`}>
-                      Field Name <span className="text-destructive">*</span>
+                      Nombre del Campo <span className="text-destructive">*</span>
                     </Label>
                     <Input
                       id={`field_name_${index}`}
-                      placeholder="e.g., PolizaNumber"
+                      placeholder="ej., PolizaNumber"
                       value={field.field_name}
                       onChange={(e) =>
                         updateField(index, { field_name: e.target.value })
@@ -188,13 +188,13 @@ export function CreateCatalogFieldDialog({
                       required
                     />
                     <p className="text-xs text-muted-foreground">
-                      Technical name as it appears in the dataset
+                      Nombre técnico como aparece en el conjunto de datos
                     </p>
                   </div>
 
                   <div className="space-y-2">
                     <Label htmlFor={`field_type_${index}`}>
-                      Field Type <span className="text-destructive">*</span>
+                      Tipo de Campo <span className="text-destructive">*</span>
                     </Label>
                     <Select
                       value={field.field_type}
@@ -217,11 +217,11 @@ export function CreateCatalogFieldDialog({
 
                   <div className="space-y-2">
                     <Label htmlFor={`display_name_${index}`}>
-                      Display Name <span className="text-destructive">*</span>
+                      Nombre para Mostrar <span className="text-destructive">*</span>
                     </Label>
                     <Input
                       id={`display_name_${index}`}
-                      placeholder="e.g., Nro de Póliza"
+                      placeholder="ej., Nro de Póliza"
                       value={field.display_name}
                       onChange={(e) =>
                         updateField(index, { display_name: e.target.value })
@@ -229,15 +229,15 @@ export function CreateCatalogFieldDialog({
                       required
                     />
                     <p className="text-xs text-muted-foreground">
-                      User-friendly label for UI
+                      Etiqueta amigable para la interfaz
                     </p>
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor={`example_value_${index}`}>Example Value</Label>
+                    <Label htmlFor={`example_value_${index}`}>Valor de Ejemplo</Label>
                     <Input
                       id={`example_value_${index}`}
-                      placeholder="e.g., 2025-ABC-000123"
+                      placeholder="ej., 2025-ABC-000123"
                       value={field.example_value}
                       onChange={(e) =>
                         updateField(index, { example_value: e.target.value })
@@ -248,11 +248,11 @@ export function CreateCatalogFieldDialog({
 
                 <div className="space-y-2">
                   <Label htmlFor={`description_${index}`}>
-                    Description <span className="text-destructive">*</span>
+                    Descripción <span className="text-destructive">*</span>
                   </Label>
                   <Textarea
                     id={`description_${index}`}
-                    placeholder="e.g., Identificador visible de la póliza"
+                    placeholder="ej., Identificador visible de la póliza"
                     value={field.description}
                     onChange={(e) =>
                       updateField(index, { description: e.target.value })
@@ -272,7 +272,7 @@ export function CreateCatalogFieldDialog({
                       }
                     />
                     <Label htmlFor={`is_filterable_${index}`} className="text-sm">
-                      Filterable
+                      Filtrable
                     </Label>
                   </div>
 
@@ -300,7 +300,7 @@ export function CreateCatalogFieldDialog({
               onClick={handleCancel}
               disabled={isSubmitting}
             >
-              Cancel
+              Cancelar
             </Button>
             <Button
               type="submit"
@@ -314,7 +314,7 @@ export function CreateCatalogFieldDialog({
                 )
               }
             >
-              {isSubmitting ? "Creating..." : `Create ${fields.length} Field${fields.length > 1 ? 's' : ''}`}
+              {isSubmitting ? "Creando..." : `Crear ${fields.length} Campo${fields.length > 1 ? 's' : ''}`}
             </Button>
           </DialogFooter>
         </form>
