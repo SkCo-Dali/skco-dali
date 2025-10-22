@@ -148,9 +148,9 @@ export default function ChatSami({ defaultMinimized = false }: ChatSamiProps) {
 
       {/* Panel minimizado */}
       {viewMode === "minimized" && (
-        <div className="flex flex-col h-full w-[280px] border bg-background shadow-md m-4 rounded-xl">
+        <div className="fixed top-0 bottom-0 right-0 flex flex-col w-[280px] border-l bg-background shadow-md z-50">
           {/* Header */}
-          <div className="flex items-center justify-between p-2 bg-[#fafafa]">
+          <div className="flex items-center justify-between p-2 bg-[#fafafa] shrink-0">
             <h2 className="text-md font-semibold text-foreground">SamiGPT</h2>
             <div className="flex items-center gap-1">
               <Button
@@ -175,7 +175,7 @@ export default function ChatSami({ defaultMinimized = false }: ChatSamiProps) {
           </div>
 
           {/* Tip del día */}
-          <div className="p-4 space-y-3">
+          <div className="p-4 space-y-3 shrink-0">
             <div className="flex items-center gap-2 bg-[#e8f5e9] rounded-lg p-3">
               <div className="shrink-0 bg-black rounded-full p-1.5">
                 <Lightbulb className="h-4 w-4 text-[#00c83c]" />
@@ -193,10 +193,10 @@ export default function ChatSami({ defaultMinimized = false }: ChatSamiProps) {
           </div>
 
           {/* Espacio flex para empujar contenido hacia abajo */}
-          <div className="flex-1" />
+          <div className="flex-1 min-h-0" />
 
           {/* Acciones rápidas */}
-          <div className="p-4 space-y-2">
+          <div className="p-4 space-y-2 shrink-0">
             <button className="w-full text-left px-3 py-2 text-sm text-muted-foreground hover:bg-muted rounded-lg transition-colors">
               Abrir un nuevo producto 🚀
             </button>
@@ -209,7 +209,7 @@ export default function ChatSami({ defaultMinimized = false }: ChatSamiProps) {
           </div>
 
           {/* Input de búsqueda */}
-          <div className="p-4 pt-0 space-y-3">
+          <div className="p-4 pt-0 space-y-3 shrink-0">
             <Input placeholder="Pregunta o busca lo que deseas..." className="w-full text-sm" />
             <div className="flex items-center gap-2">
               <Button variant="outline" size="icon" className="h-9 w-9 rounded-full" aria-label="Agregar archivo">
