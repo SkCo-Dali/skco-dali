@@ -139,7 +139,7 @@ export const getRolePermissions = (role: UserRole): RolePermissions => {
         canSendEmail: true,
         canSendWhatsApp: true,
         canSendmassiveWhatsApp: false,
-        chatSami: false,
+        chatSami: true,
         accessiblePages: ["leads", "ChatDali", "reports", "informes", "opportunities"],
       };
     case "ejecutivo":
@@ -159,7 +159,7 @@ export const getRolePermissions = (role: UserRole): RolePermissions => {
         canSendEmail: true,
         canSendWhatsApp: true,
         canSendmassiveWhatsApp: false,
-        chatSami: false,
+        chatSami: true,
         accessiblePages: ["leads", "ChatDali", "informes", "opportunities"],
       };
     case "supervisor_comisiones":
@@ -179,7 +179,7 @@ export const getRolePermissions = (role: UserRole): RolePermissions => {
         canSendEmail: false,
         canSendWhatsApp: false,
         canSendmassiveWhatsApp: false,
-        chatSami: false,
+        chatSami: true,
         accessiblePages: ["Comisiones", "CompensationPlans"],
       };
     case "analista_comisiones":
@@ -199,7 +199,7 @@ export const getRolePermissions = (role: UserRole): RolePermissions => {
         canSendEmail: false,
         canSendWhatsApp: false,
         canSendmassiveWhatsApp: false,
-        chatSami: false,
+        chatSami: true,
         accessiblePages: ["Comisiones", "CompensationPlans"],
       };
     case "service_desk":
@@ -219,7 +219,7 @@ export const getRolePermissions = (role: UserRole): RolePermissions => {
         canSendEmail: false,
         canSendWhatsApp: false,
         canSendmassiveWhatsApp: false,
-        chatSami: false,
+        chatSami: true,
         accessiblePages: ["users"],
       };
     case "sac":
@@ -239,7 +239,7 @@ export const getRolePermissions = (role: UserRole): RolePermissions => {
         canSendEmail: false,
         canSendWhatsApp: false,
         canSendmassiveWhatsApp: false,
-        chatSami: false,
+        chatSami: true,
         accessiblePages: ["leads", "ChatDali", "informes", "opportunities", "Comisiones"],
       };
     case "agent":

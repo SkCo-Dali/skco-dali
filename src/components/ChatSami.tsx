@@ -1,95 +1,37 @@
 import React, { useEffect, useMemo, useState } from "react";
 import ReactWebChat, { createDirectLine, createStore } from "botframework-webchat";
+import { ChevronRight, ChevronLeft, Maximize2, Minimize2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 type ChatSamiProps = {
-  /** Opcional: forzar oculto inicialmente */
-  defaultOpen?: boolean;
+  /** Opcional: iniciar minimizado */
+  defaultMinimized?: boolean;
 };
 
-export default function ChatSami({ defaultOpen = false }: ChatSamiProps) {
-  const [open, setOpen] = useState(defaultOpen);
+export default function ChatSami({ defaultMinimized = false }: ChatSamiProps) {
+  const [minimized, setMinimized] = useState(defaultMinimized);
   const [directLine, setDirectLine] = useState<ReturnType<typeof createDirectLine> | null>(null);
-
-  // ======== Estilo (igual al tuyo) ========
-  const styles: Record<string, React.CSSProperties> = {
-    chatButton: {
-      position: "fixed",
-      bottom: 20,
-      right: 20,
-      left: "auto",
-      transform: "none",
-      background: "none",
-      border: "none",
-      width: 60,
-      height: 60,
-      cursor: "pointer",
-      borderRadius: "50%",
-      padding: 0,
-      zIndex: 60,
-    },
-    chatContainerBase: {
-      position: "fixed",
-      bottom: 100,
-      right: 20,
-      transform: "scale(0.9)",
-      width: "90%",
-      height: 500,
-      background: "white",
-      borderRadius: 10,
-      boxShadow: "0px 4px 6px rgba(0,0,0,0.3)",
-      display: "flex",
-      flexDirection: "column",
-      overflow: "hidden",
-      opacity: 0,
-      transition: "transform .3s ease-out, opacity .3s ease-out",
-      zIndex: 70,
-      border: "1px solid rgba(0,0,0,0.06)",
-    },
-    chatContainerShow: {
-      transform: "scale(1)",
-      opacity: 1,
-    },
-    chatHeader: {
-      background:
-        "#3f3f3f url('https://storage.googleapis.com/m-infra.appspot.com/public/res/skandia/20201216-9SaE0VZGz9ZNkjs6SO9fJnFVpRu1-RZY28-.png') no-repeat 10px center",
-      backgroundSize: "100px",
-      color: "white",
-      border: "none",
-      width: "100%",
-      height: 70,
-      minHeight: 70,
-      padding: "10px 10px 10px 150px",
-      textAlign: "left",
-      cursor: "pointer",
-    },
-    webchatHost: {
-      flexGrow: 1,
-      width: "100%",
-      height: "100%",
-      overflowY: "auto",
-    },
-  };
 
   const styleOptions = useMemo(
     () => ({
       hideUploadButton: true,
       rootHeight: "100%",
       rootWidth: "100%",
-      backgroundColor: "White",
+      backgroundColor: "hsl(var(--background))",
       sendBoxButtonColor: "#00c83c",
       sendBoxBorderTop: "solid 2px #00c83c",
       bubbleBackground: "rgba(0, 200, 60, .3)",
       bubbleBorderRadius: 10,
-      bubbleFromUserBackground: "#DADADA",
+      bubbleFromUserBackground: "hsl(var(--muted))",
       bubbleFromUserBorderRadius: 10,
       bubbleNubOffset: "bottom" as const,
       bubbleNubSize: 5,
       bubbleFromUserNubOffset: "top" as const,
       bubbleFromUserNubSize: 5,
-      suggestedActionBackground: "white",
+      suggestedActionBackground: "hsl(var(--background))",
       suggestedActionBorderWidth: 1,
       suggestedActionBorderColor: "#00c83c",
-      suggestedActionDisabledBackground: "white",
+      suggestedActionDisabledBackground: "hsl(var(--background))",
       suggestedActionBorderRadius: 10,
       suggestedActionDisabledBorderColor: "#00c83c",
       suggestedActionLayout: "flow" as const,
@@ -97,7 +39,7 @@ export default function ChatSami({ defaultOpen = false }: ChatSamiProps) {
       botAvatarInitials: "SS",
       avatarBorderRadius: "50%",
       avatarSize: 30,
-      botAvatarBackgroundColor: "white",
+      botAvatarBackgroundColor: "hsl(var(--background))",
       botAvatarImage:
         "https://storage.googleapis.com/m-infra.appspot.com/public/res/skandia/20201218-9SaE0VZGz9ZNkjs6SO9fJnFVpRu1-U2SVE-.gif",
     }),
@@ -114,16 +56,14 @@ export default function ChatSami({ defaultOpen = false }: ChatSamiProps) {
     () =>
       createStore({}, ({ dispatch }) => (next) => (action) => {
         if (action.type === "DIRECT_LINE/CONNECT_FULFILLED") {
-          // Evento estándar para PVA/Copilot Studio
           dispatch({
             type: "WEB_CHAT/SEND_EVENT",
             payload: {
               name: "startConversation",
-              value: { locale, source: "Informes.tsx" }, // opcional, tu contexto
+              value: { locale, source: "Informes.tsx" },
             },
           });
 
-          // Fallback por si tu bot no maneja startConversation
           setTimeout(() => {
             dispatch({
               type: "WEB_CHAT/SEND_MESSAGE",
@@ -136,13 +76,9 @@ export default function ChatSami({ defaultOpen = false }: ChatSamiProps) {
     [locale],
   );
 
-  const openIcon =
-    "data:image/svg+xml,%3Csvg id='Capa_1' xmlns='http://www.w3.org/2000/svg' viewBox='0 0 65 65'%3E%3Cstyle%3E.st1%7Bfill:%2300c83c;stroke:%2300c83c;stroke-width:2;stroke-linecap:round;stroke-miterlimit:10%7D%3C/style%3E%3Ccircle cx='32.5' cy='32.5' r='25' fill='%23ffffff'/%3E%3Cpath class='st1' d='M23.5 41.5l9-9 9-9M23.5 23.5l9 9 9 9'/%3E%3C/svg%3E";
-  const closeIconGIF = "https://skcoblobresources.blob.core.windows.net/digital-assets/animations/sk-sami-contigo.gif";
-
-  // ======== Inicializa Direct Line en el primer open ========
+  // Inicializar Direct Line al montar
   useEffect(() => {
-    if (!open || directLine) return;
+    if (directLine) return;
 
     let disposed = false;
 
@@ -189,43 +125,82 @@ export default function ChatSami({ defaultOpen = false }: ChatSamiProps) {
     return () => {
       disposed = true;
     };
-  }, [open, directLine]);
+  }, [directLine]);
 
   return (
-    <>
-      {/* Botón flotante */}
-      <button aria-label="Abrir chat" style={styles.chatButton} onClick={() => setOpen((o) => !o)}>
-        <img
-          alt="Chatbot"
-          src={open ? openIcon : closeIconGIF}
-          style={{ width: "100%", height: "100%", borderRadius: "50%" }}
-        />
-      </button>
-
-      {/* Contenedor del chat */}
-      <div
-        style={{
-          ...styles.chatContainerBase,
-          ...(open ? styles.chatContainerShow : {}),
-          display: open ? "flex" : "none",
-        }}
-        role="dialog"
-        aria-modal="true"
-      >
-        <button style={styles.chatHeader} onClick={() => setOpen(false)} aria-label="Cerrar chat" />
-        <div style={styles.webchatHost}>
-          {directLine && (
-            <ReactWebChat
-              directLine={directLine}
-              store={store} // 👈 auto-saludo aquí
-              locale={locale}
-              userID="web-user" // opcional para trazas
-              username="Invitado" // opcional
-              styleOptions={styleOptions}
+    <div
+      className={`flex flex-col h-full border-l bg-background transition-all duration-300 ${
+        minimized ? "w-14" : "w-80"
+      }`}
+    >
+      {/* Header con logo y botones */}
+      <div className="flex items-center justify-between p-3 border-b bg-[#3f3f3f] min-h-[70px]">
+        {!minimized && (
+          <div className="flex items-center gap-2">
+            <img
+              src="https://storage.googleapis.com/m-infra.appspot.com/public/res/skandia/20201218-9SaE0VZGz9ZNkjs6SO9fJnFVpRu1-U2SVE-.gif"
+              alt="SamiGPT"
+              className="w-10 h-10 rounded-full"
             />
+            <span className="text-white font-semibold text-sm">SamiGPT</span>
+          </div>
+        )}
+        <div className="flex items-center gap-1">
+          {!minimized && (
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setMinimized(true)}
+              className="h-8 w-8 text-white hover:bg-white/10"
+              aria-label="Minimizar chat"
+            >
+              <ChevronRight className="h-4 w-4" />
+            </Button>
+          )}
+          {minimized && (
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setMinimized(false)}
+              className="h-8 w-8 text-white hover:bg-white/10"
+              aria-label="Maximizar chat"
+            >
+              <ChevronLeft className="h-4 w-4" />
+            </Button>
           )}
         </div>
       </div>
-    </>
+
+      {/* Contenido del chat */}
+      {!minimized && (
+        <div className="flex-1 overflow-hidden">
+          {directLine ? (
+            <ReactWebChat
+              directLine={directLine}
+              store={store}
+              locale={locale}
+              userID="web-user"
+              username="Invitado"
+              styleOptions={styleOptions}
+            />
+          ) : (
+            <div className="flex items-center justify-center h-full text-muted-foreground text-sm">
+              Cargando chat...
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Cuando está minimizado, mostrar solo íconos */}
+      {minimized && (
+        <div className="flex-1 flex flex-col items-center gap-4 py-4">
+          <img
+            src="https://storage.googleapis.com/m-infra.appspot.com/public/res/skandia/20201218-9SaE0VZGz9ZNkjs6SO9fJnFVpRu1-U2SVE-.gif"
+            alt="SamiGPT"
+            className="w-8 h-8 rounded-full"
+          />
+        </div>
+      )}
+    </div>
   );
 }

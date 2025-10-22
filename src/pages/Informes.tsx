@@ -333,8 +333,9 @@ export default function Informes() {
   }
 
   return (
-    <div className="min-h-screen pt-0">
-      <div className="px-4 py-4">
+    <div className="min-h-screen pt-0 flex">
+      {/* Contenido principal */}
+      <div className={`flex-1 px-4 py-4 ${userPermissions?.chatSami ? "pr-0" : ""}`}>
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <div>
@@ -731,7 +732,13 @@ export default function Informes() {
           </Card>
         )}
       </div>
-      {userPermissions?.chatSami && <ChatSami />}
+
+      {/* Panel lateral ChatSami */}
+      {userPermissions?.chatSami && (
+        <div className="h-screen sticky top-0">
+          <ChatSami defaultMinimized={false} />
+        </div>
+      )}
     </div>
   );
 }
