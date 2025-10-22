@@ -742,7 +742,7 @@ export default function Informes() {
       </div>
 
       {/* ChatSami - solo visible para roles autorizados */}
-      {userPermissions?.chatSami && <ChatSami className="h-full" defaultMinimized={true} />}
+      {userPermissions?.chatSami && <ChatSami defaultMinimized={true} />}
     </div>
   );
 }
