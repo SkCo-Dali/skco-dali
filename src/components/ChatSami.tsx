@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import ReactWebChat, { createDirectLine, createStore } from "botframework-webchat";
-import { ExternalLink, Minus, Lightbulb, ArrowRight, Plus } from "lucide-react";
+import { ExternalLink, Minus, Lightbulb, ArrowRight, Plus, ArrowUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
@@ -224,7 +224,7 @@ export default function ChatSami({ defaultMinimized = false }: ChatSamiProps) {
                 size="icon"
                 aria-label="Enviar mensaje"
               >
-                <ArrowRight className="h-4 w-4" />
+                <ArrowUp className="h-4 w-4" />
               </Button>
             </div>
           </div>
@@ -251,78 +251,59 @@ export default function ChatSami({ defaultMinimized = false }: ChatSamiProps) {
               </div>
             </div>
             {/* Tip del día */}
-                    {" "}
+                   
             <div className="p-4 space-y-3 shrink-0">
-                        {" "}
+                   
               <div className="flex items-center gap-2 bg-[#e8f5e9] rounded-full p-2">
-                            {" "}
+                 
                 <div className="shrink-0 bg-black rounded-full p-1.5">
                                  <Lightbulb className="h-4 w-4 text-[#00c83c]" />
-                              {" "}
                 </div>
                              <span className="text-sm font-medium text-foreground">Oportunidad de hoy✨</span>
-                          {" "}
               </div>
               <div className="space-y-2 border rounded-xl p-4">
-                            {" "}
                 <p className="text-sm font-semibold text-foreground">
-                                 ¡Acompaña a tus clientes en su declaración de renta!             {" "}
+                  ¡Acompaña a tus clientes en su declaración de renta!
                 </p>
-                            {" "}
                 <p className="text-xs text-muted-foreground">
-                                 Comisiones Potenciales <span className="font-semibold">$3,385,704</span>
-                              {" "}
+                  Comisiones Potenciales <span className="font-semibold">$3,385,704</span>
                 </p>
-                            {" "}
                 <button className="w-full text-sm text-center text-secondary font-medium hover:underline">
-                                 Ver Oportunidad             {" "}
+                  Ver Oportunidad
                 </button>
-                          {" "}
               </div>
-                      {" "}
             </div>
             {/* Espacio flex para empujar contenido hacia abajo */}
                      <div className="flex-1 min-h-0" />
                      {/* Acciones rápidas */}
-                    {" "}
             <div className="grid grid-cols-3 px-4 py-2 gap-2 shrink-0">
-                        {" "}
               <button className="w-full text-left px-3 py-2 text-sm text-muted-foreground bg-muted rounded-full border transition-colors">
-                             Consultar Informe 🚀           {" "}
+                Consultar Informe 🚀
               </button>
-                        {" "}
+
               <button className="w-full text-left px-3 py-2 text-sm text-muted-foreground bg-muted rounded-full border transition-colors">
-                             Ver Leads ℹ️           {" "}
+                             Ver Leads ℹ️
               </button>
-                        {" "}
+
               <button className="w-full text-left px-3 py-2 text-sm text-muted-foreground bg-muted rounded-full border transition-colors">
-                             Ver Comisiones 📄           {" "}
+                             Ver Comisiones 📄
               </button>
-                      {" "}
             </div>
             {/* Input de búsqueda */}
-                    {" "}
             <div className="mx-4 mt-2 mb-4 pt-0 space-y-3 shrink-0 border rounded-xl">
                          <Input placeholder="Pregunta o busca lo que deseas..." className="w-full text-sm border-0" />
-                        {" "}
               <div className="flex items-center gap-2 p-2">
-                            {" "}
                 <Button variant="outline" size="icon" className="h-9 w-9 rounded-full" aria-label="Agregar archivo">
-                                 <Plus className="h-4 w-4" />
-                              {" "}
+                  <Plus className="h-4 w-4" />
                 </Button>
-                            {" "}
                 <Button
                   className="h-9 w-9 rounded-full bg-[#00c83c] hover:bg-[#00b036] text-white ml-auto"
                   size="icon"
                   aria-label="Enviar mensaje"
                 >
-                                 <ArrowRight className="h-4 w-4" />
-                              {" "}
+                                 <ArrowUp className="h-4 w-4" />
                 </Button>
-                          {" "}
               </div>
-                      {" "}
             </div>
                   
           </div>
