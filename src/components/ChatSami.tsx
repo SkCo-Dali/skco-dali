@@ -68,7 +68,7 @@ export default function ChatSami({ defaultMinimized = false }: ChatSamiProps) {
           setTimeout(() => {
             dispatch({
               type: "WEB_CHAT/SEND_MESSAGE",
-              payload: { text: "hola" },
+              payload: { text: "" },
             });
           }, 800);
         }
@@ -132,7 +132,7 @@ export default function ChatSami({ defaultMinimized = false }: ChatSamiProps) {
     <>
       {/* Panel minimizado */}
       {minimized && (
-        <div className="flex flex-col h-full w-[280px] border-l bg-background shadow-lg">
+        <div className="flex flex-col h-full w-[280px] border-l bg-background shadow-lg m-4 rounded-xl">
           {/* Header */}
           <div className="flex items-center justify-between p-4 border-b">
             <h2 className="text-lg font-semibold text-foreground">SamiGPT</h2>
@@ -146,12 +146,7 @@ export default function ChatSami({ defaultMinimized = false }: ChatSamiProps) {
               >
                 <ExternalLink className="h-4 w-4" />
               </Button>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-8 w-8 hover:bg-muted"
-                aria-label="Minimizar"
-              >
+              <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-muted" aria-label="Minimizar">
                 <Minus className="h-4 w-4" />
               </Button>
             </div>
@@ -171,9 +166,7 @@ export default function ChatSami({ defaultMinimized = false }: ChatSamiProps) {
               <p className="text-xs text-muted-foreground">
                 Y podrías aumentar tu rentabilidad hasta un <span className="font-semibold">12% E.A.</span>
               </p>
-              <button className="text-sm text-[#00c83c] font-medium hover:underline">
-                Quiero conocer más
-              </button>
+              <button className="text-sm text-[#00c83c] font-medium hover:underline">Quiero conocer más</button>
             </div>
           </div>
 
@@ -195,17 +188,9 @@ export default function ChatSami({ defaultMinimized = false }: ChatSamiProps) {
 
           {/* Input de búsqueda */}
           <div className="p-4 pt-0 space-y-3">
-            <Input
-              placeholder="Pregunta o busca lo que deseas..."
-              className="w-full text-sm"
-            />
+            <Input placeholder="Pregunta o busca lo que deseas..." className="w-full text-sm" />
             <div className="flex items-center gap-2">
-              <Button
-                variant="outline"
-                size="icon"
-                className="h-9 w-9 rounded-full"
-                aria-label="Agregar archivo"
-              >
+              <Button variant="outline" size="icon" className="h-9 w-9 rounded-full" aria-label="Agregar archivo">
                 <Plus className="h-4 w-4" />
               </Button>
               <Button
@@ -257,9 +242,7 @@ export default function ChatSami({ defaultMinimized = false }: ChatSamiProps) {
                   styleOptions={styleOptions}
                 />
               ) : (
-                <div className="flex items-center justify-center h-full text-muted-foreground">
-                  Cargando chat...
-                </div>
+                <div className="flex items-center justify-center h-full text-muted-foreground">Cargando chat...</div>
               )}
             </div>
           </div>
