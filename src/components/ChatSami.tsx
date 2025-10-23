@@ -51,14 +51,6 @@ function ChatSamiContent({ isOpen = false, onOpenChange }: ChatSamiProps) {
   const [showOpportunityModal, setShowOpportunityModal] = useState(false);
   const chatInterfaceRef = useRef<any>(null);
 
-  useImperativeHandle(ref, () => ({
-    handleBannerMessage: (automaticReply: string) => {
-      if (chatInterfaceRef.current && chatInterfaceRef.current.handleBannerMessage) {
-        chatInterfaceRef.current.handleBannerMessage(automaticReply);
-      }
-    },
-  }));
-
   const handleNewChat = () => {
     if (chatInterfaceRef.current?.handleStartNewConversation) {
       chatInterfaceRef.current.handleStartNewConversation();
