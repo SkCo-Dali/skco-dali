@@ -20,13 +20,14 @@ const buttonVariants = cva(
         ghost: "hover:bg-accent hover:text-accent-foreground",
         link: "text-primary underline-offset-4 hover:underline",
         carousel:
-          "border-0 opacity-[1%] bg-transparent hover:bg-transparent hover:text-primary hover:opacity-100 hover:scale-110 active:scale-95 transition-all duration-200",
+          "border-0 opacity-[10%] bg-transparent hover:bg-transparent hover:text-primary hover:opacity-100 hover:scale-110 active:scale-95 transition-all duration-200",
       },
       size: {
         default: "h-10 px-4 py-2",
         sm: "h-9 rounded-full px-3",
         lg: "h-11 rounded-md px-5",
         icon: "h-12 w-12",
+        arrows: "h-14 w-14",
       },
     },
     defaultVariants: {
