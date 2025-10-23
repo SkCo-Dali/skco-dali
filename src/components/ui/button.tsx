@@ -20,7 +20,7 @@ const buttonVariants = cva(
         ghost: "hover:bg-accent hover:text-accent-foreground",
         link: "text-primary underline-offset-4 hover:underline",
         carousel:
-          "border-0 opacity-2 bg-transparent hover:bg-transparent hover:text-primary hover:opacity-100 hover:scale-110 transition-all duration-200",
+          "border-0 opacity-2 bg-transparent hover:bg-transparent hover:text-primary hover:opacity-100 transition-opacity",
       },
       size: {
         default: "h-10 px-4 py-2",
