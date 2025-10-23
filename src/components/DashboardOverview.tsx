@@ -218,14 +218,12 @@ export function DashboardOverview({ leads, loading }: DashboardOverviewProps) {
             </div>
 
             {/* Right Column - Charts */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 flex flex-col col-span-5 gap-4 h-full">
-              <div className="flex flex-col col-span-2 gap-4 h-full">
-                <CommissionsChart
-                  data={commissionsData}
-                  totalCommissions="$25M"
-                  onViewDetails={() => navigate("/comisiones")}
-                />
-              </div>
+            <div className="flex flex-col col-span-5 gap-4 h-full">
+              <CommissionsChart
+                data={commissionsData}
+                totalCommissions="$25M"
+                onViewDetails={() => navigate("/comisiones")}
+              />
               <ClientDistributionChart data={clientDistributionData} />
             </div>
           </div>
