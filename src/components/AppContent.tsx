@@ -34,7 +34,7 @@ export function AppContent() {
   const chatDaliRef = useRef<any>(null);
   const location = useLocation();
   const navigate = useNavigate();
-  const [chatSamiOpen, setChatSamiOpen] = useState(false);
+  const [chatSamiOpen, setChatSamiOpen] = useState(true);
 
   if (loading) {
     return (
