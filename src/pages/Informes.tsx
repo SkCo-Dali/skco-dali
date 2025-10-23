@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import { Lead, getRolePermissions } from "@/types/crm";
-import ChatSami from "@/components/ChatSami";
 import { Link, useNavigate } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -341,9 +340,9 @@ export default function Informes() {
   }
 
   return (
-    <div className="m-4 pt-0 flex h-[calc(100vh-theme(spacing.16))]">
+    <div className="m-4 pt-0">
       {/* Contenido principal */}
-      <div className={`flex-1 px-4 ${userPermissions?.chatSami ? "pr-0" : ""}`}>
+      <div className="flex-1 px-4">
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <div>
@@ -740,9 +739,6 @@ export default function Informes() {
           </Card>
         )}
       </div>
-
-      {/* ChatSami - solo visible para roles autorizados */}
-      {userPermissions?.chatSami && <ChatSami defaultMinimized={true} />}
     </div>
   );
 }

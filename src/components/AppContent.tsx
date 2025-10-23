@@ -26,6 +26,8 @@ import PowerBIReportsAdmin from "@/components/admin/PowerBIReportsAdmin";
 import { useAuth } from "@/contexts/AuthContext";
 import { Login } from "@/components/Login";
 import { AuthenticatedTemplate, UnauthenticatedTemplate } from "@azure/msal-react";
+import ChatSami from "@/components/ChatSami";
+import { getRolePermissions } from "@/types/crm";
 
 export function AppContent() {
   const { user, loading } = useAuth();
@@ -100,6 +102,15 @@ export function AppContent() {
                 </Routes>
               </main>
             </div>
+            
+            {/* ChatSami - Panel fijo disponible en todas las páginas */}
+            {user && getRolePermissions(user.role)?.chatSami && (
+              <div className="fixed bottom-0 right-0 z-40 p-4 pointer-events-none">
+                <div className="pointer-events-auto">
+                  <ChatSami defaultMinimized={false} />
+                </div>
+              </div>
+            )}
           </div>
         </SidebarProvider>
       </AuthenticatedTemplate>
