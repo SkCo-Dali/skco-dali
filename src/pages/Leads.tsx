@@ -747,10 +747,11 @@ export default function Leads() {
   }
 
   return (
-    <>
-      <div className="w-full max-w-full px-4 py-4 space-y-6">
-        <div className="flex flex-col lg:flex-row gap-6">
-          <div className="flex-1 space-y-6">
+    <div className="m-4 pt-0 flex h-[calc(100vh-theme(spacing.16))]">
+      <div className={`flex-1 ${userPermissions?.chatSami ? "pr-0" : ""}`}>
+        <div className="w-full max-w-full px-4 py-4 space-y-6">
+          <div className="flex flex-col lg:flex-row gap-6">
+            <div className="flex-1 space-y-6">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 pt-0">
               <h1 className="text-3xl font-bold mb-1 tracking-tight text-[#00c73d]">Gestión de Leads</h1>
             </div>
@@ -1265,12 +1266,13 @@ export default function Leads() {
           }
           isDeleting={isDeleting}
         />
+            </div>
           </div>
         </div>
-
-        {/* ChatSami - solo visible para roles autorizados */}
-        {userPermissions?.chatSami && <ChatSami defaultMinimized={true} />}
       </div>
-    </>
+
+      {/* ChatSami - solo visible para roles autorizados */}
+      {userPermissions?.chatSami && <ChatSami defaultMinimized={true} />}
+    </div>
   );
 }
