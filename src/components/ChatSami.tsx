@@ -165,9 +165,8 @@ const ChatSamiContent = forwardRef<ChatSamiHandle, ChatSamiProps>(({ isOpen = fa
       }
       // Enviar el mensaje directamente
       sendMessageDirectly(message);
-    }
+    },
   }));
-
 
   // Auto-resize textarea
   useEffect(() => {
@@ -415,7 +414,7 @@ const ChatSamiContent = forwardRef<ChatSamiHandle, ChatSamiProps>(({ isOpen = fa
                       <CarouselItem key={index} className="pl-2 basis-1/2">
                         <button
                           onClick={() => handleQuickAction(action)}
-                          className="w-full text-center px-2 py-2 text-xs text-muted-foreground bg-muted rounded-full border transition-colors hover:bg-muted/80 whitespace-nowrap overflow-hidden text-ellipsis"
+                          className="w-full h-20 text-center px-2 py-2 text-xs text-muted-foreground bg-muted rounded-full border transition-colors hover:bg-muted/80 whitespace-nowrap overflow-hidden text-ellipsis"
                         >
                           {action}
                         </button>
@@ -608,18 +607,12 @@ const ChatSamiContent = forwardRef<ChatSamiHandle, ChatSamiProps>(({ isOpen = fa
       )}
 
       {/* Modal de historial de conversaciones */}
-      <ConversationHistoryModal
-        isOpen={showConversationModal}
-        onClose={() => setShowConversationModal(false)}
-      />
+      <ConversationHistoryModal isOpen={showConversationModal} onClose={() => setShowConversationModal(false)} />
 
       {/* Modal de plantillas */}
       <Dialog open={showTemplatesModal} onOpenChange={setShowTemplatesModal}>
         <DialogContent className="max-w-4xl w-full h-[85vh] p-0">
-          <PromptTemplates
-            onSelectTemplate={handleSelectTemplate}
-            onClose={() => setShowTemplatesModal(false)}
-          />
+          <PromptTemplates onSelectTemplate={handleSelectTemplate} onClose={() => setShowTemplatesModal(false)} />
         </DialogContent>
       </Dialog>
     </>
