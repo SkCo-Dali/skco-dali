@@ -1,11 +1,18 @@
 import React, { useEffect, useState, useRef } from "react";
-import { ExternalLink, Minus, Lightbulb } from "lucide-react";
+import { ExternalLink, Minus, Lightbulb, Send } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
 import { opportunitiesService } from "@/services/opportunitiesService";
 import { IOpportunity } from "@/types/opportunities";
-import { SimpleChatInterface } from "./SimpleChatInterface";
+import { SimpleMessage } from "./SimpleMessage";
 import { SettingsProvider } from "@/contexts/SettingsContext";
 import { ThemeProvider } from "@/contexts/ThemeContext";
+import { useSimpleConversation } from "@/contexts/SimpleConversationContext";
+import { useAuth } from "@/contexts/AuthContext";
+import { useSettings } from "@/contexts/SettingsContext";
+import { callAzureAgentApi } from "@/utils/azureApiService";
+import { ChatMessage } from "@/types/chat";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 type ChatSamiProps = {
   /** Opcional: iniciar minimizado */
@@ -17,26 +24,147 @@ type ViewMode = "hidden" | "minimized" | "maximized";
 export default function ChatSami({ defaultMinimized = false }: ChatSamiProps) {
   const [viewMode, setViewMode] = useState<ViewMode>(defaultMinimized ? "minimized" : "hidden");
   const [topOpportunity, setTopOpportunity] = useState<IOpportunity | null>(null);
-  const chatInterfaceRef = useRef<any>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [inputMessage, setInputMessage] = useState('');
+  const [opportunityLoading, setOpportunityLoading] = useState(true);
+  
+  const { currentConversation, addMessage, createNewConversation } = useSimpleConversation();
+  const { user } = useAuth();
+  const { aiSettings } = useSettings();
+  const isMobile = useIsMobile();
+  
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const messagesContainerRef = useRef<HTMLDivElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  const userEmail = user?.email || '';
+  const messages = currentConversation?.messages || [];
+
+  // Crear conversación si no existe
+  useEffect(() => {
+    if (!currentConversation) {
+      createNewConversation();
+    }
+  }, [currentConversation, createNewConversation]);
+
+  // Auto-resize textarea
+  useEffect(() => {
+    const textarea = textareaRef.current;
+    if (textarea) {
+      textarea.style.height = 'auto';
+      const scrollHeight = textarea.scrollHeight;
+      const maxHeight = isMobile ? 100 : 120;
+      const minHeight = isMobile ? 40 : 44;
+      const newHeight = Math.min(Math.max(scrollHeight, minHeight), maxHeight);
+      textarea.style.height = `${newHeight}px`;
+      textarea.style.overflowY = scrollHeight > maxHeight ? 'auto' : 'hidden';
+    }
+  }, [inputMessage, isMobile]);
+
+  // Scroll to bottom cuando hay nuevos mensajes
+  useEffect(() => {
+    if (messagesContainerRef.current) {
+      messagesContainerRef.current.scrollTo({
+        top: messagesContainerRef.current.scrollHeight,
+        behavior: 'smooth'
+      });
+    }
+  }, [messages]);
 
   // Cargar oportunidad top 1
   useEffect(() => {
     const loadTopOpportunity = async () => {
       try {
+        setOpportunityLoading(true);
+        console.log('Cargando oportunidades...');
         const opportunities = await opportunitiesService.getOpportunities(undefined, 'relevance');
+        console.log('Oportunidades cargadas:', opportunities);
         if (opportunities.length > 0) {
           setTopOpportunity(opportunities[0]);
+          console.log('Top oportunidad:', opportunities[0]);
         }
       } catch (error) {
         console.error("Error cargando oportunidad:", error);
+      } finally {
+        setOpportunityLoading(false);
       }
     };
     loadTopOpportunity();
   }, []);
 
   const handleQuickAction = (action: string) => {
-    if (chatInterfaceRef.current?.setInputMessage) {
-      chatInterfaceRef.current.setInputMessage(action);
+    setInputMessage(action);
+  };
+
+  const handleSendMessage = async () => {
+    if (!inputMessage.trim() || isLoading || !currentConversation) return;
+
+    const messageContent = inputMessage.trim();
+    const userMessage: ChatMessage = {
+      id: Date.now().toString(),
+      type: 'user',
+      content: messageContent,
+      timestamp: new Date(),
+    };
+
+    addMessage(userMessage);
+    setInputMessage('');
+    setIsLoading(true);
+
+    try {
+      const response = await callAzureAgentApi(
+        '',
+        [],
+        aiSettings,
+        userEmail,
+        currentConversation.id
+      );
+
+      // Preparar respuesta del asistente
+      let aiResponseContent = '';
+      if ((response as any).text) {
+        aiResponseContent = (response as any).text;
+      } else if ((response as any).data) {
+        const d = (response as any).data;
+        if (d.headers && d.rows) {
+          aiResponseContent = `Se encontraron ${d.rows.length} registros con los siguientes campos: ${d.headers.join(', ')}`;
+        } else {
+          aiResponseContent = 'Se procesaron los datos correctamente.';
+        }
+      } else {
+        aiResponseContent = 'Respuesta recibida del sistema.';
+      }
+
+      const assistantMessage: ChatMessage = {
+        id: (Date.now() + 1).toString(),
+        type: 'assistant',
+        content: aiResponseContent,
+        timestamp: new Date(),
+        data: (response as any).data,
+        chart: (response as any).chart,
+        downloadLink: (response as any).downloadLink,
+        videoPreview: (response as any).videoPreview
+      };
+
+      addMessage(assistantMessage);
+    } catch (error) {
+      console.error('Error al enviar mensaje:', error);
+      const errorMessage: ChatMessage = {
+        id: (Date.now() + 1).toString(),
+        type: 'assistant',
+        content: 'Lo siento, hubo un error al procesar tu mensaje.',
+        timestamp: new Date(),
+      };
+      addMessage(errorMessage);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      handleSendMessage();
     }
   };
 
@@ -96,7 +224,11 @@ export default function ChatSami({ defaultMinimized = false }: ChatSamiProps) {
               <span className="text-sm font-medium text-foreground">Oportunidad de hoy✨</span>
             </div>
 
-            {topOpportunity ? (
+            {opportunityLoading ? (
+              <div className="space-y-2 border rounded-xl p-2">
+                <p className="text-sm text-muted-foreground">Cargando oportunidad...</p>
+              </div>
+            ) : topOpportunity ? (
               <div className="space-y-2 border rounded-xl p-2">
                 <p className="text-sm font-semibold text-foreground">
                   {topOpportunity.title}
@@ -116,14 +248,62 @@ export default function ChatSami({ defaultMinimized = false }: ChatSamiProps) {
               </div>
             ) : (
               <div className="space-y-2 border rounded-xl p-2">
-                <p className="text-sm text-muted-foreground">Cargando oportunidad...</p>
+                <p className="text-sm text-muted-foreground">No hay oportunidades disponibles</p>
               </div>
             )}
           </div>
 
           {/* Chat Dali */}
-          <div className="flex-1 min-h-0 m-2">
-            <SimpleChatInterface ref={chatInterfaceRef} />
+          <div className="flex-1 min-h-0 m-2 flex flex-col bg-background rounded-lg border">
+            {/* Messages area */}
+            <div 
+              ref={messagesContainerRef}
+              className="flex-1 overflow-y-auto p-3 space-y-3"
+            >
+              {messages.length === 0 ? (
+                <div className="flex items-center justify-center h-full">
+                  <p className="text-sm text-muted-foreground">¡Hola! Soy Dali, tu asistente de IA. ¿En qué puedo ayudarte hoy?</p>
+                </div>
+              ) : (
+                messages.map((msg) => (
+                  <SimpleMessage key={msg.id} message={msg} />
+                ))
+              )}
+              <div ref={messagesEndRef} />
+            </div>
+
+            {/* Input area */}
+            <div className="p-2 border-t">
+              <div className="relative">
+                <Textarea
+                  ref={textareaRef}
+                  value={inputMessage}
+                  onChange={(e) => setInputMessage(e.target.value)}
+                  onKeyDown={handleKeyDown}
+                  placeholder={isLoading ? "Enviando..." : "Escribe tu mensaje..."}
+                  disabled={isLoading}
+                  className="w-full resize-none transition-all duration-200 bg-background border-input focus:border-ring focus:ring-1 focus:ring-ring rounded-2xl min-h-[40px] text-sm pr-12"
+                  rows={1}
+                  style={{ 
+                    height: '40px',
+                    fontSize: '14px',
+                    paddingRight: inputMessage.trim() ? '52px' : '12px'
+                  }}
+                />
+                
+                {inputMessage.trim() && (
+                  <Button
+                    onClick={handleSendMessage}
+                    disabled={isLoading}
+                    variant="ghost"
+                    className="absolute right-2 top-1/2 -translate-y-1/2 text-primary hover:text-primary hover:bg-primary/10 flex-shrink-0 h-[36px] w-[36px]"
+                    size="icon"
+                  >
+                    <Send className="h-3.5 w-3.5" />
+                  </Button>
+                )}
+              </div>
+            </div>
           </div>
 
           {/* Acciones rápidas */}
@@ -180,7 +360,11 @@ export default function ChatSami({ defaultMinimized = false }: ChatSamiProps) {
                 </div>
                              <span className="text-sm font-medium text-foreground">Oportunidad de hoy✨</span>
               </div>
-            {topOpportunity ? (
+            {opportunityLoading ? (
+              <div className="space-y-2 border rounded-xl p-4">
+                <p className="text-sm text-muted-foreground">Cargando oportunidad...</p>
+              </div>
+            ) : topOpportunity ? (
               <div className="space-y-2 border rounded-xl p-4">
                 <p className="text-sm font-semibold text-foreground">
                   {topOpportunity.title}
@@ -200,13 +384,61 @@ export default function ChatSami({ defaultMinimized = false }: ChatSamiProps) {
               </div>
             ) : (
               <div className="space-y-2 border rounded-xl p-4">
-                <p className="text-sm text-muted-foreground">Cargando oportunidad...</p>
+                <p className="text-sm text-muted-foreground">No hay oportunidades disponibles</p>
               </div>
             )}
             </div>
             {/* Chat Dali */}
-            <div className="flex-1 min-h-0 mx-4">
-              <SimpleChatInterface ref={chatInterfaceRef} />
+            <div className="flex-1 min-h-0 mx-4 flex flex-col bg-background rounded-lg border">
+              {/* Messages area */}
+              <div 
+                ref={messagesContainerRef}
+                className="flex-1 overflow-y-auto p-4 space-y-4"
+              >
+                {messages.length === 0 ? (
+                  <div className="flex items-center justify-center h-full">
+                    <p className="text-sm text-muted-foreground">¡Hola! Soy Dali, tu asistente de IA. ¿En qué puedo ayudarte hoy?</p>
+                  </div>
+                ) : (
+                  messages.map((msg) => (
+                    <SimpleMessage key={msg.id} message={msg} />
+                  ))
+                )}
+                <div ref={messagesEndRef} />
+              </div>
+
+              {/* Input area */}
+              <div className="p-4 border-t">
+                <div className="relative">
+                  <Textarea
+                    ref={textareaRef}
+                    value={inputMessage}
+                    onChange={(e) => setInputMessage(e.target.value)}
+                    onKeyDown={handleKeyDown}
+                    placeholder={isLoading ? "Enviando..." : "Escribe tu mensaje..."}
+                    disabled={isLoading}
+                    className="w-full resize-none transition-all duration-200 bg-background border-input focus:border-ring focus:ring-1 focus:ring-ring rounded-2xl min-h-[44px] text-sm pr-12"
+                    rows={1}
+                    style={{ 
+                      height: '44px',
+                      fontSize: '14px',
+                      paddingRight: inputMessage.trim() ? '52px' : '12px'
+                    }}
+                  />
+                  
+                  {inputMessage.trim() && (
+                    <Button
+                      onClick={handleSendMessage}
+                      disabled={isLoading}
+                      variant="ghost"
+                      className="absolute right-2 top-1/2 -translate-y-1/2 text-primary hover:text-primary hover:bg-primary/10 flex-shrink-0 h-[36px] w-[36px]"
+                      size="icon"
+                    >
+                      <Send className="h-3.5 w-3.5" />
+                    </Button>
+                  )}
+                </div>
+              </div>
             </div>
 
             {/* Acciones rápidas */}
