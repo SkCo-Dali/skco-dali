@@ -132,7 +132,8 @@ class PowerBIService {
 
   async getReports(params?: any, token?: string): Promise<Report[]> {
     if (!token) throw new Error('Token is required');
-    const response = await getReports(token, { onlyActive: true, ...params });
+    // Don't force onlyActive=true, let the caller decide
+    const response = await getReports(token, params);
     return response.items;
   }
 

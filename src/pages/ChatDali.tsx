@@ -12,8 +12,15 @@ import { PromptTemplates } from "../components/PromptTemplates";
 import { OpportunityHighlights } from "../components/opportunities/OpportunityHighlights";
 import { OpportunityDetailsModal } from "../components/opportunities/OpportunityDetailsModal";
 import { IOpportunity } from "../types/opportunities";
+import { AccessDenied } from "../components/AccessDenied";
+import { usePageAccess } from "../hooks/usePageAccess";
 
 const IndexContent = forwardRef<any, {}>((props, ref) => {
+  const { hasAccess } = usePageAccess("ChatDali");
+
+  if (!hasAccess) {
+    return <AccessDenied />;
+  }
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [showConversationModal, setShowConversationModal] = useState(false);
   const [showTemplatesModal, setShowTemplatesModal] = useState(false);

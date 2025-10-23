@@ -1,23 +1,15 @@
-
 import { useState, useEffect } from "react";
-import { Card, CardContent } from "@/components/ui/card";
-import { Shield } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { useAuth } from "@/contexts/AuthContext";
-import { User, getRolePermissions } from "@/types/crm";
+import { User } from "@/types/crm";
 import { UserFilters } from "@/components/UserFilters";
 import { UserTable } from "@/components/UserTable";
 import { AddUserDialog } from "@/components/AddUserDialog";
-import { 
-  getAllUsers,
-  createUser,
-  deleteUser,
-  updateUser,
-  toggleUserStatus
-} from "@/utils/userApiClient";
+import { AccessDenied } from "@/components/AccessDenied";
+import { usePageAccess } from "@/hooks/usePageAccess";
+import { getAllUsers, createUser, deleteUser, updateUser, toggleUserStatus } from "@/utils/userApiClient";
 
 export default function UsersPage() {
-  const { user: currentUser } = useAuth();
+  const { hasAccess, permissions, currentUser } = usePageAccess("users");
   const { toast } = useToast();
   const [users, setUsers] = useState<User[]>([]);
   const [filteredUsers, setFilteredUsers] = useState<User[]>([]);
@@ -25,21 +17,9 @@ export default function UsersPage() {
   const [roleFilter, setRoleFilter] = useState<string>("all");
   const [loading, setLoading] = useState(true);
 
-  const permissions = currentUser ? getRolePermissions(currentUser.role) : null;
-
   // Verificar permisos de acceso
-  if (!permissions?.canAccessUserManagement) {
-    return (
-      <div className="container mx-auto py-5">
-        <Card>
-          <CardContent className="text-center py-5">
-            <Shield className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-            <h2 className="text-xl font-semibold mb-2">Acceso Restringido</h2>
-            <p className="text-gray-600">No tienes permisos para acceder a la gestión de usuarios.</p>
-          </CardContent>
-        </Card>
-      </div>
-    );
+  if (!hasAccess || !permissions?.canAccessUserManagement) {
+    return <AccessDenied message="No tienes permisos para acceder a la gestión de usuarios." />;
   }
 
   const loadUsers = async () => {
@@ -52,7 +32,7 @@ export default function UsersPage() {
       toast({
         title: "Error",
         description: "No se pudieron cargar los usuarios",
-        variant: "destructive"
+        variant: "destructive",
       });
     } finally {
       setLoading(false);
@@ -67,33 +47,34 @@ export default function UsersPage() {
     let filtered = users;
 
     if (searchTerm) {
-      filtered = filtered.filter(user =>
-        user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        user.email.toLowerCase().includes(searchTerm.toLowerCase())
+      filtered = filtered.filter(
+        (user) =>
+          user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          user.email.toLowerCase().includes(searchTerm.toLowerCase()),
       );
     }
 
     if (roleFilter !== "all") {
-      filtered = filtered.filter(user => user.role === roleFilter);
+      filtered = filtered.filter((user) => user.role === roleFilter);
     }
 
     setFilteredUsers(filtered);
   }, [users, searchTerm, roleFilter]);
 
-  const handleAddUser = async (email: string, role: User['role']) => {
+  const handleAddUser = async (email: string, role: User["role"]) => {
     try {
       // Extraer nombre del email (parte antes del @)
-      const name = email.split('@')[0];
-      
+      const name = email.split("@")[0];
+
       await createUser({
         name,
         email,
         role,
-        isActive: true
+        isActive: true,
       });
-      
+
       await loadUsers();
-      
+
       toast({
         title: "Usuario agregado",
         description: `Usuario ${email} agregado con rol ${role}`,
@@ -102,25 +83,41 @@ export default function UsersPage() {
       toast({
         title: "Error",
         description: "No se pudo agregar el usuario",
-        variant: "destructive"
+        variant: "destructive",
       });
     }
   };
 
-  const handleRoleUpdate = async (userId: string, newRole: User['role']) => {
+  const handleRoleUpdate = async (userId: string, newRole: User["role"]) => {
     try {
-      const user = users.find(u => u.id === userId);
+      const user = users.find((u) => u.id === userId);
       if (!user) {
         return;
       }
 
       // Validar que el rol sea válido
-      const validRoles = ['admin', 'seguridad', 'analista', 'supervisor', 'gestor', 'director', 'promotor', 'aliado', 'socio', 'fp'];
+      const validRoles = [
+        "admin",
+        "seguridad",
+        "analista",
+        "supervisor",
+        "gestor",
+        "director",
+        "promotor",
+        "aliado",
+        "socio",
+        "fp",
+        "ejecutivo",
+        "supervisorComisiones",
+        "analistaComisiones",
+        "serviceDesk",
+        "sac",
+      ];
       if (!validRoles.includes(newRole)) {
         toast({
           title: "Error",
           description: `Rol inválido: ${newRole}`,
-          variant: "destructive"
+          variant: "destructive",
         });
         return;
       }
@@ -129,7 +126,7 @@ export default function UsersPage() {
         name: user.name,
         email: user.email,
         role: newRole,
-        isActive: user.isActive ?? true
+        isActive: user.isActive ?? true,
       };
 
       await updateUser(userId, updateData);
@@ -143,8 +140,8 @@ export default function UsersPage() {
     } catch (error) {
       toast({
         title: "Error",
-        description: `No se pudo actualizar el rol: ${error instanceof Error ? error.message : 'Error desconocido'}`,
-        variant: "destructive"
+        description: `No se pudo actualizar el rol: ${error instanceof Error ? error.message : "Error desconocido"}`,
+        variant: "destructive",
       });
     }
   };
@@ -162,7 +159,7 @@ export default function UsersPage() {
       toast({
         title: "Error",
         description: "No se pudo eliminar el usuario",
-        variant: "destructive"
+        variant: "destructive",
       });
     }
   };
@@ -174,27 +171,27 @@ export default function UsersPage() {
 
       toast({
         title: "Estado actualizado",
-        description: `Usuario ${isActive ? 'activado' : 'desactivado'} correctamente`,
+        description: `Usuario ${isActive ? "activado" : "desactivado"} correctamente`,
       });
     } catch (error) {
       toast({
         title: "Error",
         description: "No se pudo actualizar el estado del usuario",
-        variant: "destructive"
+        variant: "destructive",
       });
     }
   };
 
   const handleUserUpdate = async (userId: string, name: string, email: string) => {
     try {
-      const user = users.find(u => u.id === userId);
+      const user = users.find((u) => u.id === userId);
       if (!user) return;
 
       await updateUser(userId, {
         name,
         email,
         role: user.role,
-        isActive: user.isActive ?? true
+        isActive: user.isActive ?? true,
       });
 
       await loadUsers();
@@ -207,7 +204,7 @@ export default function UsersPage() {
       toast({
         title: "Error",
         description: "No se pudieron actualizar los datos del usuario",
-        variant: "destructive"
+        variant: "destructive",
       });
     }
   };
@@ -227,9 +224,7 @@ export default function UsersPage() {
           <h1 className="text-3xl font-bold mb-1 text-[#00c73d]">Gestión de Usuarios</h1>
           <p className="text-muted-foreground">Administra usuarios y roles del sistema</p>
         </div>
-        {permissions?.canAssignRoles && (
-          <AddUserDialog onUserAdd={handleAddUser} />
-        )}
+        {permissions?.canAssignRoles && <AddUserDialog onUserAdd={handleAddUser} />}
       </div>
 
       <UserFilters
@@ -242,7 +237,7 @@ export default function UsersPage() {
       <UserTable
         users={filteredUsers}
         permissions={permissions}
-        currentUserId={currentUser?.id || ''}
+        currentUserId={currentUser?.id || ""}
         onRoleUpdate={handleRoleUpdate}
         onUserDelete={handleUserDelete}
         onUserStatusToggle={handleUserStatusToggle}

@@ -1,36 +1,59 @@
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { useAuth } from "@/contexts/AuthContext";
 import { loginRequest } from "@/authConfig";
-import { useLocation, useNavigate, Location } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { AuthenticationResult, EventType } from "@azure/msal-browser";
+import { useMsal, useIsAuthenticated } from "@azure/msal-react";
 
 export function MicrosoftAuth() {
-  const { msalInstance, login } = useAuth();
+  const { instance: msalInstance, inProgress } = useMsal();
   const [isLoading, setIsLoading] = useState(false);
+  const isAuthenticated = useIsAuthenticated();
   const location = useLocation();
   const navigate = useNavigate();
+
+  // Intento de login automático silencioso
   useEffect(() => {
-    // Listen for sign-in event and set active account
-    msalInstance.addEventCallback((event) => {
+    const attemptSilentLogin = async () => {
+      if (!isAuthenticated) {
+        try {
+          const { from } = location.state || {};
+          // try to login automatically without prompting the user
+          await msalInstance.loginPopup(
+            { ...loginRequest, prompt: 'none', state: from ? JSON.stringify({ from }) : undefined }
+          );
+        } catch (error) {
+          console.error("Error en login automático:", error);
+        }
+      }
+
+
+    };
+    attemptSilentLogin();
+  }, [msalInstance, isAuthenticated]);
+
+  // Escuchar eventos de autenticación
+  useEffect(() => {
+    const callbackId = msalInstance.addEventCallback((event) => {
       if (event.eventType === EventType.LOGIN_SUCCESS && event.payload) {
         const payload = event.payload as AuthenticationResult;
-        const account = payload.account;
+        msalInstance.setActiveAccount(payload.account);
         const state = payload.state;
-        msalInstance.setActiveAccount(account);
         if (state) {
           const { from } = JSON.parse(state);
-          if (from.path) {
-            navigate(from.path + (from.query || ''), { replace: true });
+          if (from?.path) {
+            navigate(from.path + (from.query || ""), { replace: true });
           }
         }
+      } else if (event.eventType === EventType.LOGIN_FAILURE) {
+        console.error("Login fallido:", event.error);
       }
     });
 
-  }, [msalInstance]);
-
-
-
+    return () => {
+      msalInstance.removeEventCallback(callbackId);
+    };
+  }, [msalInstance, navigate]);
 
 
   const handleMicrosoftLogin = async () => {
@@ -38,32 +61,32 @@ export function MicrosoftAuth() {
     try {
       const { from } = location.state || {};
 
-      // Paso 1: Obtener token de MSAL
       await msalInstance.acquireTokenPopup({
         ...loginRequest,
         state: from ? JSON.stringify({ from }) : undefined,
       });
-
     } catch (error) {
-      // Manejo específico de errores sin fallbacks inseguros
       let errorMessage = "Error durante la autenticación";
 
       if (error.errorCode === "user_cancelled") {
         errorMessage = "Autenticación cancelada por el usuario";
       } else if (error.errorCode === "popup_blocked") {
-        errorMessage = "El popup fue bloqueado. Por favor, permite popups para este sitio.";
+        errorMessage = "El popup fue bloqueado. Por favor, permite popups.";
       } else if (error.message) {
         errorMessage = error.message;
       }
 
-      // Mostrar error al usuario sin comprometer la seguridad
       alert(errorMessage);
     } finally {
       setIsLoading(false);
     }
   };
 
+
   return (
+    <>
+    {isLoading && <div>Cargando...</div> }
+    {!isLoading && (
     <Button
       onClick={handleMicrosoftLogin}
       disabled={isLoading}
@@ -80,5 +103,7 @@ export function MicrosoftAuth() {
         </div>
       )}
     </Button>
+    )}
+    </>
   );
 }

@@ -7,8 +7,15 @@ import { CommissionPlansTable } from "@/components/CommissionPlansTable";
 import { CreateCommissionPlanDialog } from "@/components/CreateCommissionPlanDialog";
 import { CommissionPlanStatus, STATUS_LABELS } from "@/data/commissionPlans";
 import { useCommissionPlans } from "@/hooks/useCommissionPlans";
+import { AccessDenied } from "@/components/AccessDenied";
+import { usePageAccess } from "@/hooks/usePageAccess";
 
 export default function CompensationPlans() {
+  const { hasAccess } = usePageAccess("motor-comisiones");
+
+  if (!hasAccess) {
+    return <AccessDenied />;
+  }
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<CommissionPlanStatus>('published');
   

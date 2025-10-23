@@ -3,8 +3,15 @@ import { DashboardHeader } from "@/components/DashboardHeader";
 import { DashboardOverview } from "@/components/DashboardOverview";
 import { useLeadsApi } from "@/hooks/useLeadsApi";
 import { useAuth } from "@/contexts/AuthContext";
+import { AccessDenied } from "@/components/AccessDenied";
+import { usePageAccess } from "@/hooks/usePageAccess";
 
 const Index = () => {
+  const { hasAccess, currentUser } = usePageAccess("index");
+
+  if (!hasAccess) {
+    return <AccessDenied />;
+  }
   const { leads, loading } = useLeadsApi();
   const { user } = useAuth();
 
@@ -13,7 +20,7 @@ const Index = () => {
       <div className="w-full max-w-full px-4 py-4 space-y-6">
         <DashboardHeader />
         
-        {user ? (
+        {currentUser ? (
           <div className="mt-4">
             <DashboardOverview leads={leads} loading={loading} />
           </div>

@@ -1,231 +1,471 @@
-import React, { useEffect, useMemo, useState } from "react";
-import ReactWebChat, { createDirectLine, createStore } from "botframework-webchat";
+import React, { useEffect, useState, useRef } from "react";
+import { useNavigate } from "react-router-dom";
+import { ExternalLink, Minus, Lightbulb, Send } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
+import { opportunitiesService } from "@/services/opportunitiesService";
+import { IOpportunity } from "@/types/opportunities";
+import { SimpleMessage } from "./SimpleMessage";
+import { SettingsProvider } from "@/contexts/SettingsContext";
+import { ThemeProvider } from "@/contexts/ThemeContext";
+import { useSimpleConversation } from "@/contexts/SimpleConversationContext";
+import { useAuth } from "@/contexts/AuthContext";
+import { useSettings } from "@/contexts/SettingsContext";
+import { callAzureAgentApi } from "@/utils/azureApiService";
+import { ChatMessage } from "@/types/chat";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 type ChatSamiProps = {
-  /** Opcional: forzar oculto inicialmente */
-  defaultOpen?: boolean;
+  /** Opcional: iniciar minimizado */
+  defaultMinimized?: boolean;
 };
 
-export default function ChatSami({ defaultOpen = false }: ChatSamiProps) {
-  const [open, setOpen] = useState(defaultOpen);
-  const [directLine, setDirectLine] = useState<ReturnType<typeof createDirectLine> | null>(null);
+type ViewMode = "hidden" | "minimized" | "maximized";
 
-  // ======== Estilo (igual al tuyo) ========
-  const styles: Record<string, React.CSSProperties> = {
-    chatButton: {
-      position: "fixed",
-      bottom: 20,
-      right: 20,
-      left: "auto",
-      transform: "none",
-      background: "none",
-      border: "none",
-      width: 60,
-      height: 60,
-      cursor: "pointer",
-      borderRadius: "50%",
-      padding: 0,
-      zIndex: 60,
-    },
-    chatContainerBase: {
-      position: "fixed",
-      bottom: 100,
-      right: 20,
-      transform: "scale(0.9)",
-      width: "90%",
-      height: 500,
-      background: "white",
-      borderRadius: 10,
-      boxShadow: "0px 4px 6px rgba(0,0,0,0.3)",
-      display: "flex",
-      flexDirection: "column",
-      overflow: "hidden",
-      opacity: 0,
-      transition: "transform .3s ease-out, opacity .3s ease-out",
-      zIndex: 70,
-      border: "1px solid rgba(0,0,0,0.06)",
-    },
-    chatContainerShow: {
-      transform: "scale(1)",
-      opacity: 1,
-    },
-    chatHeader: {
-      background:
-        "#3f3f3f url('https://storage.googleapis.com/m-infra.appspot.com/public/res/skandia/20201216-9SaE0VZGz9ZNkjs6SO9fJnFVpRu1-RZY28-.png') no-repeat 10px center",
-      backgroundSize: "100px",
-      color: "white",
-      border: "none",
-      width: "100%",
-      height: 70,
-      minHeight: 70,
-      padding: "10px 10px 10px 150px",
-      textAlign: "left",
-      cursor: "pointer",
-    },
-    webchatHost: {
-      flexGrow: 1,
-      width: "100%",
-      height: "100%",
-      overflowY: "auto",
-    },
+function ChatSamiContent({ defaultMinimized = false }: ChatSamiProps) {
+  const [viewMode, setViewMode] = useState<ViewMode>(defaultMinimized ? "minimized" : "hidden");
+  const [topOpportunity, setTopOpportunity] = useState<IOpportunity | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [inputMessage, setInputMessage] = useState("");
+  const [opportunityLoading, setOpportunityLoading] = useState(true);
+
+  const { currentConversation, addMessage, createNewConversation } = useSimpleConversation();
+  const { user } = useAuth();
+  const { aiSettings } = useSettings();
+  const isMobile = useIsMobile();
+  const navigate = useNavigate();
+
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const messagesContainerRef = useRef<HTMLDivElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  const userEmail = user?.email || "";
+  const messages = currentConversation?.messages || [];
+
+  // Crear conversación si no existe
+  useEffect(() => {
+    if (!currentConversation) {
+      createNewConversation();
+    }
+  }, [currentConversation, createNewConversation]);
+
+  // Auto-resize textarea
+  useEffect(() => {
+    const textarea = textareaRef.current;
+    if (textarea) {
+      textarea.style.height = "auto";
+      const scrollHeight = textarea.scrollHeight;
+      const maxHeight = isMobile ? 100 : 120;
+      const minHeight = isMobile ? 40 : 44;
+      const newHeight = Math.min(Math.max(scrollHeight, minHeight), maxHeight);
+      textarea.style.height = `${newHeight}px`;
+      textarea.style.overflowY = scrollHeight > maxHeight ? "auto" : "hidden";
+    }
+  }, [inputMessage, isMobile]);
+
+  // Scroll to bottom cuando hay nuevos mensajes
+  useEffect(() => {
+    if (messagesContainerRef.current) {
+      messagesContainerRef.current.scrollTo({
+        top: messagesContainerRef.current.scrollHeight,
+        behavior: "smooth",
+      });
+    }
+  }, [messages]);
+
+  // Cargar oportunidad top 1
+  useEffect(() => {
+    const loadTopOpportunity = async () => {
+      try {
+        setOpportunityLoading(true);
+        console.log("Cargando oportunidades...");
+        const opportunities = await opportunitiesService.getOpportunities(undefined, "relevance");
+        console.log("Oportunidades cargadas:", opportunities);
+        if (opportunities.length > 0) {
+          setTopOpportunity(opportunities[0]);
+          console.log("Top oportunidad:", opportunities[0]);
+        }
+      } catch (error) {
+        console.error("Error cargando oportunidad:", error);
+      } finally {
+        setOpportunityLoading(false);
+      }
+    };
+    loadTopOpportunity();
+  }, []);
+
+  const handleQuickAction = (action: string) => {
+    setInputMessage(action);
   };
 
-  const styleOptions = useMemo(
-    () => ({
-      hideUploadButton: true,
-      rootHeight: "100%",
-      rootWidth: "100%",
-      backgroundColor: "White",
-      sendBoxButtonColor: "#00c83c",
-      sendBoxBorderTop: "solid 2px #00c83c",
-      bubbleBackground: "rgba(0, 200, 60, .3)",
-      bubbleBorderRadius: 10,
-      bubbleFromUserBackground: "#DADADA",
-      bubbleFromUserBorderRadius: 10,
-      bubbleNubOffset: "bottom" as const,
-      bubbleNubSize: 5,
-      bubbleFromUserNubOffset: "top" as const,
-      bubbleFromUserNubSize: 5,
-      suggestedActionBackground: "white",
-      suggestedActionBorderWidth: 1,
-      suggestedActionBorderColor: "#00c83c",
-      suggestedActionDisabledBackground: "white",
-      suggestedActionBorderRadius: 10,
-      suggestedActionDisabledBorderColor: "#00c83c",
-      suggestedActionLayout: "flow" as const,
-      suggestedActionTextColor: "#00c83c",
-      botAvatarInitials: "SS",
-      avatarBorderRadius: "50%",
-      avatarSize: 30,
-      botAvatarBackgroundColor: "white",
-      botAvatarImage:
-        "https://storage.googleapis.com/m-infra.appspot.com/public/res/skandia/20201218-9SaE0VZGz9ZNkjs6SO9fJnFVpRu1-U2SVE-.gif",
-    }),
-    [],
-  );
+  const handleViewOpportunity = () => {
+    if (topOpportunity) {
+      navigate(`/oportunidades/${topOpportunity.id}`);
+    }
+  };
 
-  const locale = useMemo(
-    () => (typeof document !== "undefined" ? document.documentElement.lang || navigator.language || "es" : "es"),
-    [],
-  );
+  const handleSendMessage = async () => {
+    if (!inputMessage.trim() || isLoading || !currentConversation) return;
 
-  // ======== Store: auto-saludo al conectar ========
-  const store = useMemo(
-    () =>
-      createStore({}, ({ dispatch }) => (next) => (action) => {
-        if (action.type === "DIRECT_LINE/CONNECT_FULFILLED") {
-          // Evento estándar para PVA/Copilot Studio
-          dispatch({
-            type: "WEB_CHAT/SEND_EVENT",
-            payload: {
-              name: "startConversation",
-              value: { locale, source: "Informes.tsx" }, // opcional, tu contexto
-            },
-          });
-
-          // Fallback por si tu bot no maneja startConversation
-          setTimeout(() => {
-            dispatch({
-              type: "WEB_CHAT/SEND_MESSAGE",
-              payload: { text: "hola" },
-            });
-          }, 800);
-        }
-        return next(action);
-      }),
-    [locale],
-  );
-
-  const openIcon =
-    "data:image/svg+xml,%3Csvg id='Capa_1' xmlns='http://www.w3.org/2000/svg' viewBox='0 0 65 65'%3E%3Cstyle%3E.st1%7Bfill:%2300c83c;stroke:%2300c83c;stroke-width:2;stroke-linecap:round;stroke-miterlimit:10%7D%3C/style%3E%3Ccircle cx='32.5' cy='32.5' r='25' fill='%23ffffff'/%3E%3Cpath class='st1' d='M23.5 41.5l9-9 9-9M23.5 23.5l9 9 9 9'/%3E%3C/svg%3E";
-  const closeIconGIF = "https://skcoblobresources.blob.core.windows.net/digital-assets/animations/sk-sami-contigo.gif";
-
-  // ======== Inicializa Direct Line en el primer open ========
-  useEffect(() => {
-    if (!open || directLine) return;
-
-    let disposed = false;
-
-    (async () => {
-      try {
-        const tokenEndpointURL = new URL(
-          "https://6fec394b8c1befd4922c16d793ecb3.0c.environment.api.powerplatform.com/powervirtualagents/botsbyschema/cra2e_maestro/directline/token?api-version=2022-03-01-preview",
-        );
-        const apiVersion = tokenEndpointURL.searchParams.get("api-version") || "2022-03-01-preview";
-
-        const [directLineURL, token] = await Promise.all([
-          fetch(
-            new URL(
-              `/powervirtualagents/regionalchannelsettings?api-version=${apiVersion}`,
-              tokenEndpointURL,
-            ).toString(),
-          )
-            .then((r) => {
-              if (!r.ok) throw new Error(`regionalchannelsettings ${r.status}`);
-              return r.json();
-            })
-            .then(({ channelUrlsById: { directline } }) => directline),
-          fetch(tokenEndpointURL.toString())
-            .then((r) => {
-              if (!r.ok) throw new Error(`token ${r.status}`);
-              return r.json();
-            })
-            .then(({ token }) => token),
-        ]);
-
-        if (disposed) return;
-
-        const dl = createDirectLine({
-          domain: new URL("v3/directline", directLineURL).toString(),
-          token,
-        });
-
-        setDirectLine(dl);
-      } catch (err) {
-        console.error("Error iniciando WebChat:", err);
-      }
-    })();
-
-    return () => {
-      disposed = true;
+    const messageContent = inputMessage.trim();
+    const userMessage: ChatMessage = {
+      id: Date.now().toString(),
+      type: "user",
+      content: messageContent,
+      timestamp: new Date(),
     };
-  }, [open, directLine]);
+
+    addMessage(userMessage);
+    setInputMessage("");
+    setIsLoading(true);
+
+    try {
+      const response = await callAzureAgentApi("", [], aiSettings, userEmail, currentConversation.id);
+
+      // Preparar respuesta del asistente
+      let aiResponseContent = "";
+      if ((response as any).text) {
+        aiResponseContent = (response as any).text;
+      } else if ((response as any).data) {
+        const d = (response as any).data;
+        if (d.headers && d.rows) {
+          aiResponseContent = `Se encontraron ${d.rows.length} registros con los siguientes campos: ${d.headers.join(", ")}`;
+        } else {
+          aiResponseContent = "Se procesaron los datos correctamente.";
+        }
+      } else {
+        aiResponseContent = "Respuesta recibida del sistema.";
+      }
+
+      const assistantMessage: ChatMessage = {
+        id: (Date.now() + 1).toString(),
+        type: "assistant",
+        content: aiResponseContent,
+        timestamp: new Date(),
+        data: (response as any).data,
+        chart: (response as any).chart,
+        downloadLink: (response as any).downloadLink,
+        videoPreview: (response as any).videoPreview,
+      };
+
+      addMessage(assistantMessage);
+    } catch (error) {
+      console.error("Error al enviar mensaje:", error);
+      const errorMessage: ChatMessage = {
+        id: (Date.now() + 1).toString(),
+        type: "assistant",
+        content: "Lo siento, hubo un error al procesar tu mensaje.",
+        timestamp: new Date(),
+      };
+      addMessage(errorMessage);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      handleSendMessage();
+    }
+  };
 
   return (
     <>
-      {/* Botón flotante */}
-      <button aria-label="Abrir chat" style={styles.chatButton} onClick={() => setOpen((o) => !o)}>
-        <img
-          alt="Chatbot"
-          src={open ? openIcon : closeIconGIF}
-          style={{ width: "100%", height: "100%", borderRadius: "50%" }}
-        />
-      </button>
+      {/* Burbuja flotante */}
+      {viewMode === "hidden" && (
+        <button
+          onClick={() => setViewMode("minimized")}
+          className="fixed bottom-6 right-6 z-50 h-16 w-16 rounded-full bg-transparent transition-all duration-200 flex items-center justify-center group"
+          aria-label="Abrir SamiGPT"
+        >
+          <img
+            src="https://skcoblobresources.blob.core.windows.net/digital-assets/animations/sk-sami-contigo.gif"
+            alt="SamiGPT"
+            className="w-14 h-14"
+          />
+        </button>
+      )}
 
-      {/* Contenedor del chat */}
-      <div
-        style={{
-          ...styles.chatContainerBase,
-          ...(open ? styles.chatContainerShow : {}),
-          display: open ? "flex" : "none",
-        }}
-        role="dialog"
-        aria-modal="true"
-      >
-        <button style={styles.chatHeader} onClick={() => setOpen(false)} aria-label="Cerrar chat" />
-        <div style={styles.webchatHost}>
-          {directLine && (
-            <ReactWebChat
-              directLine={directLine}
-              store={store} // 👈 auto-saludo aquí
-              locale={locale}
-              userID="web-user" // opcional para trazas
-              username="Invitado" // opcional
-              styleOptions={styleOptions}
-            />
-          )}
+      {/* Panel minimizado */}
+      {viewMode === "minimized" && (
+        <div className="flex flex-col w-[280px] border bg-background shadow-md rounded-xl h-[90%]">
+          {/* Header */}
+          <div className="flex items-center justify-between p-2 bg-[#fafafa] shrink-0">
+            <h2 className="text-md font-semibold text-foreground">SamiGPT</h2>
+            <div className="flex items-center gap-1">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setViewMode("maximized")}
+                className="h-8 w-8 hover:bg-muted"
+                aria-label="Abrir en ventana"
+              >
+                <ExternalLink className="h-4 w-4" />
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setViewMode("hidden")}
+                className="h-8 w-8 hover:bg-muted"
+                aria-label="Minimizar"
+              >
+                <Minus className="h-4 w-4" />
+              </Button>
+            </div>
+          </div>
+
+          {/* Tip del día */}
+          <div className="p-2 space-y-3 shrink-0">
+            <div className="flex items-center gap-2 bg-[#e8f5e9] rounded-full p-2">
+              <div className="shrink-0 bg-black rounded-full p-1.5">
+                <Lightbulb className="h-4 w-4 text-[#00c83c]" />
+              </div>
+              <span className="text-sm font-medium text-foreground">Oportunidad de hoy✨</span>
+            </div>
+
+            {opportunityLoading ? (
+              <div className="space-y-2 border rounded-xl p-2">
+                <p className="text-sm text-muted-foreground">Cargando oportunidad...</p>
+              </div>
+            ) : topOpportunity ? (
+              <div className="space-y-2 border rounded-xl p-2">
+                <p className="text-sm font-semibold text-foreground">{topOpportunity.title}</p>
+                <p className="text-xs text-muted-foreground">
+                  Comisiones Potenciales{" "}
+                  <span className="font-semibold">
+                    ${topOpportunity.metrics?.estimatedSales?.toLocaleString() || "N/A"}
+                  </span>
+                </p>
+                <button
+                  onClick={handleViewOpportunity}
+                  className="w-full text-sm text-center text-secondary font-medium hover:underline"
+                >
+                  Ver Oportunidad
+                </button>
+              </div>
+            ) : (
+              <div className="space-y-2 border rounded-xl p-2">
+                <p className="text-sm text-muted-foreground">No hay oportunidades disponibles</p>
+              </div>
+            )}
+          </div>
+
+          {/* Chat Dali */}
+          <div className="flex-1 min-h-0 m-2 flex flex-col bg-background rounded-lg border">
+            {/* Messages area */}
+            <div ref={messagesContainerRef} className="flex-1 overflow-y-auto p-3 space-y-3">
+              {messages.length === 0 ? (
+                <div className="flex items-center justify-center h-full">
+                  <p className="text-sm text-muted-foreground">
+                    ¡Hola! Soy Dali, tu asistente de IA. ¿En qué puedo ayudarte hoy?
+                  </p>
+                </div>
+              ) : (
+                messages.map((msg) => <SimpleMessage key={msg.id} message={msg} />)
+              )}
+              <div ref={messagesEndRef} />
+            </div>
+
+            {/* Acciones rápidas */}
+            <div className="p-2 space-y-2 shrink-0">
+              <button
+                onClick={() => handleQuickAction("Consultar Informe 🚀")}
+                className="w-full text-left px-3 py-2 text-sm text-muted-foreground bg-muted rounded-full border transition-colors hover:bg-muted/80"
+              >
+                Consultar Informe 🚀
+              </button>
+              <button
+                onClick={() => handleQuickAction("Ver Leads ℹ️")}
+                className="w-full text-left px-3 py-2 text-sm text-muted-foreground bg-muted rounded-full border transition-colors hover:bg-muted/80"
+              >
+                Ver Leads ℹ️
+              </button>
+              <button
+                onClick={() => handleQuickAction("Ver Comisiones 📄")}
+                className="w-full text-left px-3 py-2 text-sm text-muted-foreground bg-muted rounded-full border transition-colors hover:bg-muted/80"
+              >
+                Ver Comisiones 📄
+              </button>
+            </div>
+
+            {/* Input area */}
+            <div className="p-2 border-t">
+              <div className="relative">
+                <Textarea
+                  ref={textareaRef}
+                  value={inputMessage}
+                  onChange={(e) => setInputMessage(e.target.value)}
+                  onKeyDown={handleKeyDown}
+                  placeholder={isLoading ? "Enviando..." : "Escribe tu mensaje..."}
+                  disabled={isLoading}
+                  className="w-full resize-none transition-all duration-200 bg-background border-input focus:border-ring focus:ring-1 focus:ring-ring rounded-2xl min-h-[40px] text-sm pr-12"
+                  rows={1}
+                  style={{
+                    height: "40px",
+                    fontSize: "14px",
+                    paddingRight: inputMessage.trim() ? "52px" : "12px",
+                  }}
+                />
+
+                {inputMessage.trim() && (
+                  <Button
+                    onClick={handleSendMessage}
+                    disabled={isLoading}
+                    variant="ghost"
+                    className="absolute right-2 top-1/2 -translate-y-1/2 text-primary hover:text-primary hover:bg-primary/10 flex-shrink-0 h-[36px] w-[36px]"
+                    size="icon"
+                  >
+                    <Send className="h-3.5 w-3.5" />
+                  </Button>
+                )}
+              </div>
+            </div>
+          </div>
         </div>
-      </div>
+      )}
+
+      {/* Diálogo flotante maximizado */}
+      {viewMode === "maximized" && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+          <div className="flex flex-col h-[85vh] w-[90vw] max-w-4xl bg-background rounded-xl shadow-2xl overflow-hidden border">
+            {/* Header */}
+            <div className="flex items-center justify-between px-4 py-2 bg-[#fafafa] shrink-0">
+              <h2 className="text-lg font-semibold text-foreground">SamiGPT</h2>
+              <div className="flex items-center gap-3">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => setViewMode("minimized")}
+                  className="h-8 w-8 hover:bg-muted"
+                  aria-label="Minimizar"
+                >
+                  <Minus className="h-5 w-5" />
+                </Button>
+              </div>
+            </div>
+            {/* Tip del día */}
+                   
+            <div className="p-4 space-y-3 shrink-0">
+                   
+              <div className="flex items-center gap-2 bg-[#e8f5e9] rounded-full p-2">
+                 
+                <div className="shrink-0 bg-black rounded-full p-1.5">
+                                 <Lightbulb className="h-4 w-4 text-[#00c83c]" />
+                </div>
+                             <span className="text-sm font-medium text-foreground">Oportunidad de hoy✨</span>
+              </div>
+              {opportunityLoading ? (
+                <div className="space-y-2 border rounded-xl p-4">
+                  <p className="text-sm text-muted-foreground">Cargando oportunidad...</p>
+                </div>
+              ) : topOpportunity ? (
+                <div className="space-y-2 border rounded-xl p-4">
+                  <p className="text-sm font-semibold text-foreground">{topOpportunity.title}</p>
+                  <p className="text-xs text-muted-foreground">
+                    Comisiones Potenciales{" "}
+                    <span className="font-semibold">
+                      ${topOpportunity.metrics?.estimatedSales?.toLocaleString() || "N/A"}
+                    </span>
+                  </p>
+                  <button
+                    onClick={handleViewOpportunity}
+                    className="w-full text-sm text-center text-secondary font-medium hover:underline"
+                  >
+                    Ver Oportunidad
+                  </button>
+                </div>
+              ) : (
+                <div className="space-y-2 border rounded-xl p-4">
+                  <p className="text-sm text-muted-foreground">No hay oportunidades disponibles</p>
+                </div>
+              )}
+            </div>
+            {/* Chat Dali */}
+            <div className="flex-1 min-h-0 mx-4 flex flex-col bg-background rounded-lg border">
+              {/* Messages area */}
+              <div ref={messagesContainerRef} className="flex-1 overflow-y-auto p-4 space-y-4">
+                {messages.length === 0 ? (
+                  <div className="flex items-center justify-center h-full">
+                    <p className="text-sm text-muted-foreground">
+                      ¡Hola! Soy Dali, tu asistente de IA. ¿En qué puedo ayudarte hoy?
+                    </p>
+                  </div>
+                ) : (
+                  messages.map((msg) => <SimpleMessage key={msg.id} message={msg} />)
+                )}
+                <div ref={messagesEndRef} />
+              </div>
+
+              {/* Acciones rápidas */}
+              <div className="grid grid-cols-3 px-4 py-2 gap-2 shrink-0">
+                <button
+                  onClick={() => handleQuickAction("Consultar Informe 🚀")}
+                  className="w-full text-left px-3 py-2 text-sm text-muted-foreground bg-muted rounded-full border transition-colors hover:bg-muted/80"
+                >
+                  Consultar Informe 🚀
+                </button>
+
+                <button
+                  onClick={() => handleQuickAction("Ver Leads ℹ️")}
+                  className="w-full text-left px-3 py-2 text-sm text-muted-foreground bg-muted rounded-full border transition-colors hover:bg-muted/80"
+                >
+                  Ver Leads ℹ️
+                </button>
+
+                <button
+                  onClick={() => handleQuickAction("Ver Comisiones 📄")}
+                  className="w-full text-left px-3 py-2 text-sm text-muted-foreground bg-muted rounded-full border transition-colors hover:bg-muted/80"
+                >
+                  Ver Comisiones 📄
+                </button>
+              </div>
+            </div>
+            {/* Input area */}
+            <div className="p-4 border-0">
+              <div className="relative">
+                <Textarea
+                  ref={textareaRef}
+                  value={inputMessage}
+                  onChange={(e) => setInputMessage(e.target.value)}
+                  onKeyDown={handleKeyDown}
+                  placeholder={isLoading ? "Enviando..." : "Escribe tu mensaje..."}
+                  disabled={isLoading}
+                  className="w-full resize-none transition-all duration-200 bg-background border-input focus:border-ring focus:ring-1 focus:ring-ring rounded-2xl min-h-[44px] text-sm pr-12"
+                  rows={1}
+                  style={{
+                    height: "44px",
+                    fontSize: "14px",
+                    paddingRight: inputMessage.trim() ? "52px" : "12px",
+                  }}
+                />
+
+                {inputMessage.trim() && (
+                  <Button
+                    onClick={handleSendMessage}
+                    disabled={isLoading}
+                    variant="ghost"
+                    className="absolute right-2 top-1/2 -translate-y-1/2 text-primary hover:text-primary hover:bg-primary/10 flex-shrink-0 h-[36px] w-[36px]"
+                    size="icon"
+                  >
+                    <Send className="h-3.5 w-3.5" />
+                  </Button>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </>
+  );
+}
+
+export default function ChatSami(props: ChatSamiProps) {
+  return (
+    <ThemeProvider>
+      <SettingsProvider>
+        <ChatSamiContent {...props} />
+      </SettingsProvider>
+    </ThemeProvider>
   );
 }

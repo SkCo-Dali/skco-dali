@@ -1,5 +1,13 @@
 
+import { AccessDenied } from "@/components/AccessDenied";
+import { usePageAccess } from "@/hooks/usePageAccess";
+
 export default function Reports() {
+  const { hasAccess } = usePageAccess("reports");
+
+  if (!hasAccess) {
+    return <AccessDenied />;
+  }
   return (
     <div className="min-h-screen pt-0">
       <div className="px-4 py-4">

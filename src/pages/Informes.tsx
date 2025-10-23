@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { Lead, getRolePermissions } from "@/types/crm";
 import ChatSami from "@/components/ChatSami";
 import { Link, useNavigate } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -30,6 +31,8 @@ import { powerbiService } from "@/services/powerbiService";
 import { EffectiveReport, Area, Workspace } from "@/types/powerbi";
 import { toast } from "@/hooks/use-toast";
 import { ENV } from "@/config/environment";
+import { AccessDenied } from "@/components/AccessDenied";
+import { usePageAccess } from "@/hooks/usePageAccess";
 
 // Component state types
 interface InformesState {
@@ -50,10 +53,16 @@ interface InformesState {
 }
 
 export default function Informes() {
+  const { hasAccess } = usePageAccess("informes");
+
+  if (!hasAccess) {
+    return <AccessDenied />;
+  }
+
   const { user, getAccessToken } = useAuth();
   const navigate = useNavigate();
   const hasAdminRole = useHasRole("admin", "seguridad");
-
+  const userPermissions = user ? getRolePermissions(user.role) : null;
   const [state, setState] = useState<InformesState>({
     reports: [],
     areas: [],
@@ -320,7 +329,7 @@ export default function Informes() {
 
   if (state.loading) {
     return (
-      <div className="min-h-screen pt-0">
+      <div className="pt-0">
         <div className="px-4 py-4">
           <div className="flex items-center justify-center py-12">
             <Loader2 className="h-8 w-8 animate-spin text-primary" />
@@ -332,8 +341,9 @@ export default function Informes() {
   }
 
   return (
-    <div className="min-h-screen pt-0">
-      <div className="px-4 py-4">
+    <div className="m-4 pt-0 flex h-[calc(100vh-theme(spacing.16))]">
+      {/* Contenido principal */}
+      <div className={`flex-1 px-4 ${userPermissions?.chatSami ? "pr-0" : ""}`}>
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <div>
@@ -612,7 +622,7 @@ export default function Informes() {
                               <FileBarChart className="h-5 w-5 text-primary" />
                             </div>
                             <div className="flex-1">
-                              <CardTitle className="text-lg">{report.reportName}</CardTitle>
+                              <CardTitle className="text-md">{report.reportName}</CardTitle>
                               <CardDescription className="text-sm">{report.workspaceName}</CardDescription>
                             </div>
                           </div>
@@ -730,7 +740,9 @@ export default function Informes() {
           </Card>
         )}
       </div>
-      {/*<ChatSami />*/}
+
+      {/* ChatSami - solo visible para roles autorizados */}
+      {userPermissions?.chatSami && <ChatSami defaultMinimized={true} />}
     </div>
   );
 }
