@@ -289,8 +289,9 @@ function ChatSamiContent({ isOpen = false, onOpenChange }: ChatSamiProps) {
 
             {/* Acciones rápidas */}
             <div className="p-3 shrink-0 border-t">
-              <Carousel className="w-full" opts={{ slidesToScroll: 1 }}>
-                <CarouselContent className="-ml-2">
+              <Carousel className="w-full relative" opts={{ slidesToScroll: 1 }}>
+                <CarouselPrevious className="absolute -left-2 top-1/2 -translate-y-1/2 h-7 w-7" />
+                <CarouselContent className="-ml-2 px-8">
                   {quickActions.map((action, index) => (
                     <CarouselItem key={index} className="pl-2 basis-1/2">
                       <button
@@ -302,10 +303,7 @@ function ChatSamiContent({ isOpen = false, onOpenChange }: ChatSamiProps) {
                     </CarouselItem>
                   ))}
                 </CarouselContent>
-                <div className="flex justify-center gap-2 mt-2">
-                  <CarouselPrevious className="relative left-0 top-0 translate-y-0" />
-                  <CarouselNext className="relative right-0 top-0 translate-y-0" />
-                </div>
+                <CarouselNext className="absolute -right-2 top-1/2 -translate-y-1/2 h-7 w-7" />
               </Carousel>
             </div>
 
@@ -420,8 +418,9 @@ function ChatSamiContent({ isOpen = false, onOpenChange }: ChatSamiProps) {
 
               {/* Acciones rápidas */}
               <div className="px-4 py-2 shrink-0">
-                <Carousel className="w-full" opts={{ slidesToScroll: 1 }}>
-                  <CarouselContent className="-ml-2">
+                <Carousel className="w-full relative" opts={{ slidesToScroll: 1 }}>
+                  <CarouselPrevious className="absolute -left-2 top-1/2 -translate-y-1/2 h-8 w-8" />
+                  <CarouselContent className="-ml-2 px-10">
                     {quickActions.map((action, index) => (
                       <CarouselItem key={index} className="pl-2 basis-1/3">
                         <button
@@ -433,10 +432,7 @@ function ChatSamiContent({ isOpen = false, onOpenChange }: ChatSamiProps) {
                       </CarouselItem>
                     ))}
                   </CarouselContent>
-                  <div className="flex justify-center gap-2 mt-2">
-                    <CarouselPrevious className="relative left-0 top-0 translate-y-0" />
-                    <CarouselNext className="relative right-0 top-0 translate-y-0" />
-                  </div>
+                  <CarouselNext className="absolute -right-2 top-1/2 -translate-y-1/2 h-8 w-8" />
                 </Carousel>
               </div>
             </div>
