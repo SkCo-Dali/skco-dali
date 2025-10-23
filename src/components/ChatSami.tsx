@@ -257,12 +257,6 @@ function ChatSamiContent({ isOpen = false, onOpenChange }: ChatSamiProps) {
           <div className="flex items-center justify-between p-3 bg-[#fafafa] border-b shrink-0">
             <h2 className="text-lg font-semibold text-foreground">SamiGPT</h2>
             <div className="flex items-center gap-1">
-              {/* Botón de acciones */}
-              <ChatActionsButton
-                onNewConversation={handleNewChat}
-                onSearchConversations={handleSearchConversations}
-                onViewTemplates={handleViewTemplates}
-              />
               <Button
                 variant="ghost"
                 size="icon"
@@ -281,6 +275,12 @@ function ChatSamiContent({ isOpen = false, onOpenChange }: ChatSamiProps) {
               >
                 <Minus className="h-4 w-4" />
               </Button>
+              {/* Botón de acciones */}
+              <ChatActionsButton
+                onNewConversation={handleNewChat}
+                onSearchConversations={handleSearchConversations}
+                onViewTemplates={handleViewTemplates}
+              />
             </div>
           </div>
 
@@ -414,6 +414,12 @@ function ChatSamiContent({ isOpen = false, onOpenChange }: ChatSamiProps) {
                 >
                   <Minus className="h-5 w-5" />
                 </Button>
+                {/* Botón de acciones */}
+                <ChatActionsButton
+                  onNewConversation={handleNewChat}
+                  onSearchConversations={handleSearchConversations}
+                  onViewTemplates={handleViewTemplates}
+                />
               </div>
             </div>
 
