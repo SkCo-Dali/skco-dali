@@ -16,14 +16,14 @@ import { ChatMessage } from "@/types/chat";
 import { useIsMobile } from "@/hooks/use-mobile";
 
 type ChatSamiProps = {
-  /** Opcional: iniciar minimizado */
-  defaultMinimized?: boolean;
+  isOpen?: boolean;
+  onOpenChange?: (open: boolean) => void;
 };
 
 type ViewMode = "hidden" | "minimized" | "maximized";
 
-function ChatSamiContent({ defaultMinimized = false }: ChatSamiProps) {
-  const [viewMode, setViewMode] = useState<ViewMode>(defaultMinimized ? "minimized" : "hidden");
+function ChatSamiContent({ isOpen = false, onOpenChange }: ChatSamiProps) {
+  const [viewMode, setViewMode] = useState<ViewMode>("hidden");
   const [topOpportunity, setTopOpportunity] = useState<IOpportunity | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [inputMessage, setInputMessage] = useState("");
@@ -170,12 +170,16 @@ function ChatSamiContent({ defaultMinimized = false }: ChatSamiProps) {
     }
   };
 
+  const handleToggle = (newState: boolean) => {
+    onOpenChange?.(newState);
+  };
+
   return (
     <>
       {/* Burbuja flotante */}
-      {viewMode === "hidden" && (
+      {!isOpen && (
         <button
-          onClick={() => setViewMode("minimized")}
+          onClick={() => handleToggle(true)}
           className="fixed bottom-6 right-6 z-50 h-16 w-16 rounded-full bg-transparent transition-all duration-200 flex items-center justify-center group"
           aria-label="Abrir SamiGPT"
         >
@@ -188,8 +192,8 @@ function ChatSamiContent({ defaultMinimized = false }: ChatSamiProps) {
       )}
 
       {/* Panel lateral fijo */}
-      {viewMode === "minimized" && (
-        <div className="fixed top-24 right-4 bottom-4 w-[380px] border bg-background shadow-lg flex flex-col z-30 rounded-xl">
+      {isOpen && viewMode !== "maximized" && (
+        <div className="fixed top-16 right-0 bottom-0 w-[380px] border-l bg-background shadow-lg flex flex-col z-30">
           {/* Header */}
           <div className="flex items-center justify-between p-3 bg-[#fafafa] border-b shrink-0">
             <h2 className="text-lg font-semibold text-foreground">SamiGPT</h2>
@@ -206,7 +210,7 @@ function ChatSamiContent({ defaultMinimized = false }: ChatSamiProps) {
               <Button
                 variant="ghost"
                 size="icon"
-                onClick={() => setViewMode("hidden")}
+                onClick={() => handleToggle(false)}
                 className="h-8 w-8 hover:bg-muted"
                 aria-label="Cerrar"
               >

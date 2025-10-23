@@ -1,4 +1,4 @@
-import { useRef, useEffect } from "react";
+import { useRef, useEffect, useState } from "react";
 import { Routes, Route, Navigate, useLocation, useNavigate } from "react-router-dom";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
@@ -34,6 +34,7 @@ export function AppContent() {
   const chatDaliRef = useRef<any>(null);
   const location = useLocation();
   const navigate = useNavigate();
+  const [chatSamiOpen, setChatSamiOpen] = useState(false);
 
   if (loading) {
     return (
@@ -73,7 +74,7 @@ export function AppContent() {
         <SidebarProvider>
           <div className="min-h-screen flex w-full">
             <AppSidebar />
-            <div className="flex-1">
+            <div className="flex-1 flex flex-col transition-all duration-300" style={{ marginRight: chatSamiOpen ? '380px' : '0' }}>
               <Header onBannerMessage={handleBannerMessage} />
               <main className="flex-1 pt-20">
                 <Routes>
@@ -105,7 +106,10 @@ export function AppContent() {
             
             {/* ChatSami - disponible en todas las páginas */}
             {user && getRolePermissions(user.role)?.chatSami && (
-              <ChatSami defaultMinimized={false} />
+              <ChatSami 
+                isOpen={chatSamiOpen}
+                onOpenChange={setChatSamiOpen}
+              />
             )}
           </div>
         </SidebarProvider>
