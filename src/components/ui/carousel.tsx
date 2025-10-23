@@ -203,6 +203,7 @@ const CarouselPrevious = React.forwardRef<
       ref={ref}
       variant={variant}
       size={size}
+      aria-disabled={!canScrollPrev}
       className={cn(
         "absolute z-20 h-8 w-8 rounded-full opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none group-hover:pointer-events-auto bg-background/80 text-foreground border shadow-sm backdrop-blur",
         orientation === "horizontal"
@@ -210,8 +211,10 @@ const CarouselPrevious = React.forwardRef<
           : "top-2 left-1/2 -translate-x-1/2 rotate-90",
         className
       )}
-      disabled={!canScrollPrev}
-      onClick={scrollPrev}
+      onClick={(e) => {
+        if (!canScrollPrev) return
+        scrollPrev()
+      }}
       {...props}
     >
       <ArrowLeft className="h-4 w-4" />
@@ -232,15 +235,18 @@ const CarouselNext = React.forwardRef<
       ref={ref}
       variant={variant}
       size={size}
+      aria-disabled={!canScrollNext}
       className={cn(
-        "absolute z-20 h-8 w-8 rounded-full opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none group-hover:pointer-events-auto bg-background/80 text-foreground border shadow-sm backdrop-blur",
+        "absolute z-20 h-8 w-8 rounded-full opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none group-hover:pointer-events-auto bg-background/80 text-foreground border shadow_sm backdrop-blur",
         orientation === "horizontal"
           ? "right-2 top-1/2 -translate-y-1/2"
           : "bottom-2 left-1/2 -translate-x-1/2 rotate-90",
         className
       )}
-      disabled={!canScrollNext}
-      onClick={scrollNext}
+      onClick={(e) => {
+        if (!canScrollNext) return
+        scrollNext()
+      }}
       {...props}
     >
       <ArrowRight className="h-4 w-4" />
