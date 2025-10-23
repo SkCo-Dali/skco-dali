@@ -283,7 +283,7 @@ function ChatSamiContent({ isOpen = false, onOpenChange }: ChatSamiProps) {
 
             {/* Acciones rápidas */}
             <div className="p-3 shrink-0 border-t">
-              <Carousel className="w-full" opts={{ slidesToScroll: 1, align: "start", loop: true }}>
+              <Carousel className="w-full group" opts={{ slidesToScroll: 1, align: "start", loop: true }}>
                 <CarouselContent className="-ml-2">
                   {quickActions.map((action, index) => (
                     <CarouselItem key={index} className="pl-2 basis-1/2">
@@ -296,8 +296,8 @@ function ChatSamiContent({ isOpen = false, onOpenChange }: ChatSamiProps) {
                     </CarouselItem>
                   ))}
                 </CarouselContent>
-                <CarouselPrevious className="absolute -left-2 top-1/2 -translate-y-1/2 h-7 w-7" />
-                <CarouselNext className="absolute -right-2 top-1/2 -translate-y-1/2 h-7 w-7" />
+                <CarouselPrevious className="absolute -left-2 top-1/2 -translate-y-1/2 h-7 w-7 opacity-0 group-hover:opacity-100 transition-opacity" />
+                <CarouselNext className="absolute -right-2 top-1/2 -translate-y-1/2 h-7 w-7 opacity-0 group-hover:opacity-100 transition-opacity" />
               </Carousel>
             </div>
 
@@ -412,7 +412,7 @@ function ChatSamiContent({ isOpen = false, onOpenChange }: ChatSamiProps) {
 
               {/* Acciones rápidas */}
               <div className="px-4 py-2 shrink-0">
-                <Carousel className="w-full relative" opts={{ slidesToScroll: 1, align: "start", loop: true }}>
+                <Carousel className="w-full relative group" opts={{ slidesToScroll: 1, align: "start", loop: true }}>
                   <CarouselContent className="-ml-2 px-10">
                     {quickActions.map((action, index) => (
                       <CarouselItem key={index} className="pl-2 basis-1/3">
@@ -425,8 +425,8 @@ function ChatSamiContent({ isOpen = false, onOpenChange }: ChatSamiProps) {
                       </CarouselItem>
                     ))}
                   </CarouselContent>
-                  <CarouselPrevious className="absolute -left-2 top-1/2 -translate-y-1/2 h-8 w-8" />
-                  <CarouselNext className="absolute -right-2 top-1/2 -translate-y-1/2 h-8 w-8" />
+                  <CarouselPrevious className="absolute -left-2 top-1/2 -translate-y-1/2 h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity" />
+                  <CarouselNext className="absolute -right-2 top-1/2 -translate-y-1/2 h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity" />
                 </Carousel>
               </div>
             </div>
