@@ -1,11 +1,9 @@
-import React, { useEffect, useMemo, useState } from "react";
-import ReactWebChat, { createDirectLine, createStore } from "botframework-webchat";
-import { ExternalLink, Minus, Lightbulb, ArrowRight, Plus, ArrowUp } from "lucide-react";
+import React, { useEffect, useState, useRef } from "react";
+import { ExternalLink, Minus, Lightbulb } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { opportunitiesService } from "@/services/opportunitiesService";
 import { IOpportunity } from "@/types/opportunities";
-import { useToast } from "@/hooks/use-toast";
+import { SimpleChatInterface } from "./SimpleChatInterface";
 
 type ChatSamiProps = {
   /** Opcional: iniciar minimizado */
@@ -16,69 +14,8 @@ type ViewMode = "hidden" | "minimized" | "maximized";
 
 export default function ChatSami({ defaultMinimized = false }: ChatSamiProps) {
   const [viewMode, setViewMode] = useState<ViewMode>(defaultMinimized ? "minimized" : "hidden");
-  const [directLine, setDirectLine] = useState<ReturnType<typeof createDirectLine> | null>(null);
   const [topOpportunity, setTopOpportunity] = useState<IOpportunity | null>(null);
-  const [inputText, setInputText] = useState("");
-  const [storeRef, setStoreRef] = useState<any>(null);
-  const { toast } = useToast();
-
-  // Store con referencia para enviar mensajes
-  const store = useMemo(() => {
-    const storeInstance = createStore({}, ({ dispatch }) => (next) => (action) => {
-      if (action.type === "DIRECT_LINE/CONNECT_FULFILLED") {
-        dispatch({
-          type: "WEB_CHAT/SEND_EVENT",
-          payload: {
-            name: "startConversation",
-            value: { locale, source: "Informes.tsx" },
-          },
-        });
-
-        // Ya enviamos el evento de inicio; evitamos enviar un mensaje vacío que puede causar estados indeseados
-        // (antes disparaba WEB_CHAT/SEND_MESSAGE con text: "")
-      }
-      return next(action);
-    });
-    setStoreRef(storeInstance);
-    return storeInstance;
-  }, []);
-
-  const styleOptions = useMemo(
-    () => ({
-      hideUploadButton: true,
-      hideSendBox: true, // Ocultar el campo de texto del webchat
-      rootHeight: "100%",
-      rootWidth: "100%",
-      backgroundColor: "hsl(var(--background))",
-      bubbleBackground: "rgba(0, 200, 60, .3)",
-      bubbleBorderRadius: 10,
-      bubbleFromUserBackground: "hsl(var(--muted))",
-      bubbleFromUserBorderRadius: 10,
-      bubbleNubOffset: "bottom" as const,
-      bubbleNubSize: 5,
-      bubbleFromUserNubOffset: "top" as const,
-      bubbleFromUserNubSize: 5,
-      suggestedActionBackground: "hsl(var(--background))",
-      suggestedActionBorderWidth: 1,
-      suggestedActionBorderColor: "#00c83c",
-      suggestedActionDisabledBackground: "hsl(var(--background))",
-      suggestedActionBorderRadius: 10,
-      suggestedActionDisabledBorderColor: "#00c83c",
-      suggestedActionLayout: "flow" as const,
-      suggestedActionTextColor: "#00c83c",
-      botAvatarInitials: "SS",
-      avatarBorderRadius: "50%",
-      avatarSize: 30,
-      botAvatarBackgroundColor: "hsl(var(--background))",
-      botAvatarImage: "https://skcoblobresources.blob.core.windows.net/digital-assets/animations/sk-sami-contigo.gif",
-    }),
-    [],
-  );
-
-  const locale = useMemo(
-    () => (typeof document !== "undefined" ? document.documentElement.lang || navigator.language || "es" : "es"),
-    [],
-  );
+  const chatInterfaceRef = useRef<any>(null);
 
   // Cargar oportunidad top 1
   useEffect(() => {
@@ -95,130 +32,9 @@ export default function ChatSami({ defaultMinimized = false }: ChatSamiProps) {
     loadTopOpportunity();
   }, []);
 
-  // Inicializar Direct Line al montar
-  useEffect(() => {
-    if (directLine) return;
-
-    let disposed = false;
-
-    (async () => {
-      try {
-        const tokenEndpointURL = new URL(
-          "https://6fec394b8c1befd4922c16d793ecb3.0c.environment.api.powerplatform.com/powervirtualagents/botsbyschema/cra2e_maestro/directline/token?api-version=2022-03-01-preview",
-        );
-        const apiVersion = tokenEndpointURL.searchParams.get("api-version") || "2022-03-01-preview";
-
-        const [directLineURL, token] = await Promise.all([
-          fetch(
-            new URL(
-              `/powervirtualagents/regionalchannelsettings?api-version=${apiVersion}`,
-              tokenEndpointURL,
-            ).toString(),
-          )
-            .then((r) => {
-              if (!r.ok) throw new Error(`regionalchannelsettings ${r.status}`);
-              return r.json();
-            })
-            .then(({ channelUrlsById: { directline } }) => directline),
-          fetch(tokenEndpointURL.toString())
-            .then((r) => {
-              if (!r.ok) throw new Error(`token ${r.status}`);
-              return r.json();
-            })
-            .then(({ token }) => token),
-        ]);
-
-        if (disposed) return;
-
-        const dl = createDirectLine({
-          domain: new URL("v3/directline", directLineURL).toString(),
-          token,
-        });
-
-        setDirectLine(dl);
-      } catch (err) {
-        console.error("Error iniciando WebChat:", err);
-        toast({
-          title: "Error",
-          description: "No se pudo conectar con el chat",
-          variant: "destructive",
-        });
-      }
-    })();
-
-    return () => {
-      disposed = true;
-    };
-  }, [directLine, toast]);
-
-  // Reconnect Direct Line if token expires or conversation ends
-  useEffect(() => {
-    if (!directLine?.connectionStatus$) return;
-    const sub = directLine.connectionStatus$.subscribe((status: number) => {
-      // 3 = ExpiredToken, 5 = Ended
-      if (status === 3 || status === 5) {
-        console.warn('Direct Line connection status:', status, '- restarting');
-        setDirectLine(null);
-      }
-    });
-    return () => sub.unsubscribe?.();
-  }, [directLine]);
-
-  const sendMessage = (text: string) => {
-    const trimmed = text.trim();
-    if (!trimmed) return;
-
-    // Preferir el store de WebChat para mantener el estado de la conversación
-    if (storeRef?.dispatch) {
-      try {
-        storeRef.dispatch({
-          type: "WEB_CHAT/SEND_MESSAGE",
-          payload: { text: trimmed, locale },
-        });
-        setInputText("");
-        return;
-      } catch (err) {
-        console.error("Error enviando por store:", err);
-      }
-    }
-
-    if (!directLine) {
-      toast({
-        title: "Chat no disponible",
-        description: "El chat aún no está conectado",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    try {
-      let sub: any;
-      sub = directLine
-        .postActivity({ type: "message", text: trimmed, locale, from: { id: "user", name: "Usuario" } })
-        .subscribe({
-          next: () => {
-            setInputText("");
-            sub?.unsubscribe();
-          },
-          error: (err: any) => {
-            console.error("Error enviando mensaje:", err);
-            toast({ title: "Error", description: "No se pudo enviar el mensaje", variant: "destructive" });
-            sub?.unsubscribe();
-          },
-        });
-    } catch (error) {
-      console.error("Error enviando mensaje:", error);
-      toast({ title: "Error", description: "No se pudo enviar el mensaje", variant: "destructive" });
-    }
-  };
-
   const handleQuickAction = (action: string) => {
-    sendMessage(action);
-  };
-
-  const handleSendInput = () => {
-    if (inputText.trim()) {
-      sendMessage(inputText);
+    if (chatInterfaceRef.current?.setInputMessage) {
+      chatInterfaceRef.current.setInputMessage(action);
     }
   };
 
@@ -301,15 +117,9 @@ export default function ChatSami({ defaultMinimized = false }: ChatSamiProps) {
             )}
           </div>
 
-          {/* Chat WebChat */}
+          {/* Chat Dali */}
           <div className="flex-1 min-h-0 m-2">
-            {directLine ? (
-              <ReactWebChat directLine={directLine} store={store} styleOptions={styleOptions} locale={locale} />
-            ) : (
-              <div className="flex items-center justify-center h-full">
-                <p className="text-sm text-muted-foreground">Conectando con el chat...</p>
-              </div>
-            )}
+            <SimpleChatInterface ref={chatInterfaceRef} />
           </div>
 
           {/* Acciones rápidas */}
@@ -332,35 +142,6 @@ export default function ChatSami({ defaultMinimized = false }: ChatSamiProps) {
             >
               Ver Comisiones 📄
             </button>
-          </div>
-
-          {/* Input de búsqueda */}
-          <div className="m-2 pt-0 space-y-3 shrink-0 border rounded-xl">
-            <Input
-              placeholder="Pregunta o busca lo que deseas..."
-              className="w-full text-sm border-0"
-              value={inputText}
-              onChange={(e) => setInputText(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" && !e.shiftKey) {
-                  e.preventDefault();
-                  handleSendInput();
-                }
-              }}
-            />
-            <div className="flex items-center gap-2 p-2">
-              <Button variant="outline" size="icon" className="h-9 w-9 rounded-full" aria-label="Agregar archivo">
-                <Plus className="h-4 w-4" />
-              </Button>
-              <Button
-                onClick={handleSendInput}
-                className="h-9 w-9 rounded-full bg-[#00c83c] hover:bg-[#00b036] text-white ml-auto"
-                size="icon"
-                aria-label="Enviar mensaje"
-              >
-                <ArrowUp className="h-4 w-4" />
-              </Button>
-            </div>
           </div>
         </div>
       )}
@@ -419,15 +200,9 @@ export default function ChatSami({ defaultMinimized = false }: ChatSamiProps) {
               </div>
             )}
             </div>
-            {/* Chat WebChat */}
+            {/* Chat Dali */}
             <div className="flex-1 min-h-0 mx-4">
-              {directLine ? (
-                <ReactWebChat directLine={directLine} store={store} styleOptions={styleOptions} locale={locale} />
-              ) : (
-                <div className="flex items-center justify-center h-full">
-                  <p className="text-sm text-muted-foreground">Conectando con el chat...</p>
-                </div>
-              )}
+              <SimpleChatInterface ref={chatInterfaceRef} />
             </div>
 
             {/* Acciones rápidas */}
@@ -452,34 +227,6 @@ export default function ChatSami({ defaultMinimized = false }: ChatSamiProps) {
               >
                 Ver Comisiones 📄
               </button>
-            </div>
-            {/* Input de búsqueda */}
-            <div className="mx-4 mt-2 mb-4 pt-0 space-y-3 shrink-0 border rounded-xl">
-              <Input
-                placeholder="Pregunta o busca lo que deseas..."
-                className="w-full text-sm border-0"
-                value={inputText}
-                onChange={(e) => setInputText(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" && !e.shiftKey) {
-                    e.preventDefault();
-                    handleSendInput();
-                  }
-                }}
-              />
-              <div className="flex items-center gap-2 p-2">
-                <Button variant="outline" size="icon" className="h-9 w-9 rounded-full" aria-label="Agregar archivo">
-                  <Plus className="h-4 w-4" />
-                </Button>
-                <Button
-                  onClick={handleSendInput}
-                  className="h-9 w-9 rounded-full bg-[#00c83c] hover:bg-[#00b036] text-white ml-auto"
-                  size="icon"
-                  aria-label="Enviar mensaje"
-                >
-                  <ArrowUp className="h-4 w-4" />
-                </Button>
-              </div>
             </div>
                   
           </div>
