@@ -26,12 +26,13 @@ import PowerBIReportsAdmin from "@/components/admin/PowerBIReportsAdmin";
 import { useAuth } from "@/contexts/AuthContext";
 import { Login } from "@/components/Login";
 import { AuthenticatedTemplate, UnauthenticatedTemplate } from "@azure/msal-react";
-import ChatSami from "@/components/ChatSami";
+import ChatSami, { ChatSamiHandle } from "@/components/ChatSami";
 import { getRolePermissions } from "@/types/crm";
 
 export function AppContent() {
   const { user, loading } = useAuth();
   const chatDaliRef = useRef<any>(null);
+  const chatSamiRef = useRef<ChatSamiHandle>(null);
   const location = useLocation();
   const navigate = useNavigate();
   const [chatSamiOpen, setChatSamiOpen] = useState(true);
@@ -45,15 +46,9 @@ export function AppContent() {
   }
 
   const handleBannerMessage = (automaticReply: string) => {
-    if (chatDaliRef.current && chatDaliRef.current.handleBannerMessage) {
-      chatDaliRef.current.handleBannerMessage(automaticReply);
-    } else {
-      // Reintentar después de un breve delay si ChatDali no está listo
-      setTimeout(() => {
-        if (chatDaliRef.current && chatDaliRef.current.handleBannerMessage) {
-          chatDaliRef.current.handleBannerMessage(automaticReply);
-        }
-      }, 1000);
+    // Usar ChatSami en lugar de ChatDali
+    if (chatSamiRef.current) {
+      chatSamiRef.current.sendMessage(automaticReply);
     }
   };
 
@@ -107,7 +102,7 @@ export function AppContent() {
 
             {/* ChatSami - disponible en todas las páginas */}
             {user && getRolePermissions(user.role)?.chatSami && (
-              <ChatSami isOpen={chatSamiOpen} onOpenChange={setChatSamiOpen} />
+              <ChatSami ref={chatSamiRef} isOpen={chatSamiOpen} onOpenChange={setChatSamiOpen} />
             )}
           </div>
         </SidebarProvider>

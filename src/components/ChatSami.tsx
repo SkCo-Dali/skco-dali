@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useRef, forwardRef, useImperativeHandle } from "react";
 import { ChatActionsButton } from "../components/ChatActionsButton";
 import { useNavigate } from "react-router-dom";
 import { ExternalLink, Minus, Lightbulb, Send, Maximize2, Minimize2 } from "lucide-react";
@@ -25,9 +25,13 @@ type ChatSamiProps = {
   onOpenChange?: (open: boolean) => void;
 };
 
+export type ChatSamiHandle = {
+  sendMessage: (message: string) => void;
+};
+
 type ViewMode = "hidden" | "minimized" | "maximized";
 
-function ChatSamiContent({ isOpen = false, onOpenChange }: ChatSamiProps) {
+const ChatSamiContent = forwardRef<ChatSamiHandle, ChatSamiProps>(({ isOpen = false, onOpenChange }, ref) => {
   const [viewMode, setViewMode] = useState<ViewMode>("minimized");
   const [topOpportunity, setTopOpportunity] = useState<IOpportunity | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -94,6 +98,76 @@ function ChatSamiContent({ isOpen = false, onOpenChange }: ChatSamiProps) {
       createNewConversation();
     }
   }, [currentConversation, createNewConversation]);
+
+  // Función para enviar mensaje directamente (usado por el ref)
+  const sendMessageDirectly = async (messageContent: string) => {
+    if (!messageContent.trim() || isLoading || !currentConversation) return;
+
+    const userMessage: ChatMessage = {
+      id: Date.now().toString(),
+      type: "user",
+      content: messageContent.trim(),
+      timestamp: new Date(),
+    };
+
+    addMessage(userMessage);
+    setIsLoading(true);
+
+    try {
+      const response = await callAzureAgentApi("", [], aiSettings, userEmail, currentConversation.id);
+
+      let aiResponseContent = "";
+      if ((response as any).text) {
+        aiResponseContent = (response as any).text;
+      } else if ((response as any).data) {
+        const d = (response as any).data;
+        if (d.headers && d.rows) {
+          aiResponseContent = `Se encontraron ${d.rows.length} registros con los siguientes campos: ${d.headers.join(", ")}`;
+        } else {
+          aiResponseContent = "Se procesaron los datos correctamente.";
+        }
+      } else {
+        aiResponseContent = "Respuesta recibida del sistema.";
+      }
+
+      const assistantMessage: ChatMessage = {
+        id: (Date.now() + 1).toString(),
+        type: "assistant",
+        content: aiResponseContent,
+        timestamp: new Date(),
+        data: (response as any).data,
+        chart: (response as any).chart,
+        downloadLink: (response as any).downloadLink,
+        videoPreview: (response as any).videoPreview,
+      };
+
+      addMessage(assistantMessage);
+    } catch (error) {
+      console.error("Error al enviar mensaje:", error);
+      const errorMessage: ChatMessage = {
+        id: (Date.now() + 1).toString(),
+        type: "assistant",
+        content: "Lo siento, hubo un error al procesar tu mensaje.",
+        timestamp: new Date(),
+      };
+      addMessage(errorMessage);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Exponer método para enviar mensajes desde fuera
+  useImperativeHandle(ref, () => ({
+    sendMessage: (message: string) => {
+      // Abrir ChatSami si está cerrado
+      if (!isOpen) {
+        onOpenChange?.(true);
+      }
+      // Enviar el mensaje directamente
+      sendMessageDirectly(message);
+    }
+  }));
+
 
   // Auto-resize textarea
   useEffect(() => {
@@ -550,14 +624,20 @@ function ChatSamiContent({ isOpen = false, onOpenChange }: ChatSamiProps) {
       </Dialog>
     </>
   );
-}
+});
 
-export default function ChatSami(props: ChatSamiProps) {
+ChatSamiContent.displayName = "ChatSamiContent";
+
+const ChatSami = forwardRef<ChatSamiHandle, ChatSamiProps>((props, ref) => {
   return (
     <ThemeProvider>
       <SettingsProvider>
-        <ChatSamiContent {...props} />
+        <ChatSamiContent {...props} ref={ref} />
       </SettingsProvider>
     </ThemeProvider>
   );
-}
+});
+
+ChatSami.displayName = "ChatSami";
+
+export default ChatSami;
