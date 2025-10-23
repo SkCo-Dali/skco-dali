@@ -44,6 +44,23 @@ function ChatSamiContent({ isOpen = false, onOpenChange }: ChatSamiProps) {
   const userEmail = user?.email || "";
   const messages = currentConversation?.messages || [];
 
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [showConversationModal, setShowConversationModal] = useState(false);
+  const [showTemplatesModal, setShowTemplatesModal] = useState(false);
+  const [selectedOpportunity, setSelectedOpportunity] = useState<IOpportunity | null>(null);
+  const [showOpportunityModal, setShowOpportunityModal] = useState(false);
+  const isMobile = useIsMobile();
+  const isMedium = useIsMedium();
+  const chatInterfaceRef = useRef<any>(null);
+
+  useImperativeHandle(ref, () => ({
+    handleBannerMessage: (automaticReply: string) => {
+      if (chatInterfaceRef.current && chatInterfaceRef.current.handleBannerMessage) {
+        chatInterfaceRef.current.handleBannerMessage(automaticReply);
+      }
+    },
+  }));
+
   const handleNewChat = () => {
     if (chatInterfaceRef.current?.handleStartNewConversation) {
       chatInterfaceRef.current.handleStartNewConversation();
