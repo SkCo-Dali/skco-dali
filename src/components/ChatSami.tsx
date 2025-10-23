@@ -258,13 +258,11 @@ function ChatSamiContent({ isOpen = false, onOpenChange }: ChatSamiProps) {
             <h2 className="text-lg font-semibold text-foreground">SamiGPT</h2>
             <div className="flex items-center gap-1">
               {/* Botón de acciones */}
-              <div className="fixed z-40 top-18 right-2">
-                <ChatActionsButton
-                  onNewConversation={handleNewChat}
-                  onSearchConversations={handleSearchConversations}
-                  onViewTemplates={handleViewTemplates}
-                />
-              </div>
+              <ChatActionsButton
+                onNewConversation={handleNewChat}
+                onSearchConversations={handleSearchConversations}
+                onViewTemplates={handleViewTemplates}
+              />
               <Button
                 variant="ghost"
                 size="icon"
