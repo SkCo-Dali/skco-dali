@@ -414,7 +414,7 @@ const ChatSamiContent = forwardRef<ChatSamiHandle, ChatSamiProps>(({ isOpen = fa
                       <CarouselItem key={index} className="pl-2 basis-1/2">
                         <button
                           onClick={() => handleQuickAction(action)}
-                          className="w-full h-20 text-center px-2 py-2 text-xs text-muted-foreground bg-muted rounded-full border transition-colors hover:bg-muted/80 whitespace-nowrap overflow-hidden text-ellipsis"
+                          className="w-full h-20 text-center px-2 py-2 text-xs text-muted-foreground bg-muted rounded-lg border transition-colors hover:bg-muted/80 whitespace-nowrap overflow-hidden text-ellipsis"
                         >
                           {action}
                         </button>
