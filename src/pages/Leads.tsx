@@ -2,6 +2,7 @@ import React, { useState, useCallback, useMemo, useRef, useEffect } from "react"
 import { useToast } from "@/hooks/use-toast";
 import { Lead, getRolePermissions } from "@/types/crm";
 import { useAuth } from "@/contexts/AuthContext";
+import ChatSami from "@/components/ChatSami";
 import { LeadsSearch } from "@/components/LeadsSearch";
 import { LeadsFilters } from "@/components/LeadsFilters";
 import { LeadsStats } from "@/components/LeadsStats";
@@ -1264,6 +1265,11 @@ export default function Leads() {
           }
           isDeleting={isDeleting}
         />
+          </div>
+        </div>
+
+        {/* ChatSami - solo visible para roles autorizados */}
+        {userPermissions?.chatSami && <ChatSami defaultMinimized={true} />}
       </div>
     </>
   );

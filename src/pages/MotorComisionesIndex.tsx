@@ -4,6 +4,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Settings, Database, FileText, Calculator } from "lucide-react";
 import { AccessDenied } from "@/components/AccessDenied";
 import { usePageAccess } from "@/hooks/usePageAccess";
+import ChatSami from "@/components/ChatSami";
+import { getRolePermissions } from "@/types/crm";
+import { useAuth } from "@/contexts/AuthContext";
 
 export default function MotorComisionesIndex() {
   const { hasAccess } = usePageAccess("motor-comisiones");
@@ -12,6 +15,8 @@ export default function MotorComisionesIndex() {
     return <AccessDenied />;
   }
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const userPermissions = user ? getRolePermissions(user.role) : null;
 
   const modules = [
     {
@@ -51,53 +56,60 @@ export default function MotorComisionesIndex() {
   ];
 
   return (
-    <div className="w-full max-w-7xl mx-auto px-4 py-8 space-y-8">
-      {/* Header */}
-      <div className="space-y-2">
-        <h1 className="text-4xl font-bold tracking-tight">Motor de Comisiones</h1>
-        <p className="text-muted-foreground text-lg">
-          Herramientas integrales para administrar planes de comisiones, catálogos, reglas y contabilidad
-        </p>
+    <div className="m-4 pt-0 flex h-[calc(100vh-theme(spacing.16))]">
+      <div className={`flex-1 ${userPermissions?.chatSami ? "pr-0" : ""}`}>
+        <div className="w-full max-w-7xl mx-auto px-4 py-8 space-y-8">
+          {/* Header */}
+          <div className="space-y-2">
+            <h1 className="text-4xl font-bold tracking-tight">Motor de Comisiones</h1>
+            <p className="text-muted-foreground text-lg">
+              Herramientas integrales para administrar planes de comisiones, catálogos, reglas y contabilidad
+            </p>
+          </div>
+
+          {/* Modules Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {modules.map((module) => (
+              <Card
+                key={module.path}
+                className={`cursor-pointer transition-all hover:shadow-lg ${
+                  module.disabled ? "opacity-60 cursor-not-allowed" : "hover:scale-[1.02]"
+                }`}
+                onClick={() => !module.disabled && navigate(module.path)}
+              >
+                <CardHeader>
+                  <div className="flex items-start gap-4">
+                    <div className={`p-3 rounded-lg ${module.bgColor}`}>
+                      <module.icon className={`h-6 w-6 ${module.color}`} />
+                    </div>
+                    <div className="flex-1 space-y-1">
+                      <CardTitle className="text-xl flex items-center gap-2">
+                        {module.title}
+                        {module.disabled && (
+                          <span className="text-xs font-normal text-muted-foreground bg-muted px-2 py-1 rounded">
+                            Próximamente
+                          </span>
+                        )}
+                      </CardTitle>
+                      <CardDescription className="text-sm">
+                        {module.description}
+                      </CardDescription>
+                    </div>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-sm text-muted-foreground">
+                    {!module.disabled ? "Haz clic para acceder" : "Funcionalidad en desarrollo"}
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
       </div>
 
-      {/* Modules Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {modules.map((module) => (
-          <Card
-            key={module.path}
-            className={`cursor-pointer transition-all hover:shadow-lg ${
-              module.disabled ? "opacity-60 cursor-not-allowed" : "hover:scale-[1.02]"
-            }`}
-            onClick={() => !module.disabled && navigate(module.path)}
-          >
-            <CardHeader>
-              <div className="flex items-start gap-4">
-                <div className={`p-3 rounded-lg ${module.bgColor}`}>
-                  <module.icon className={`h-6 w-6 ${module.color}`} />
-                </div>
-                <div className="flex-1 space-y-1">
-                  <CardTitle className="text-xl flex items-center gap-2">
-                    {module.title}
-                    {module.disabled && (
-                      <span className="text-xs font-normal text-muted-foreground bg-muted px-2 py-1 rounded">
-                        Próximamente
-                      </span>
-                    )}
-                  </CardTitle>
-                  <CardDescription className="text-sm">
-                    {module.description}
-                  </CardDescription>
-                </div>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="text-sm text-muted-foreground">
-                {!module.disabled ? "Haz clic para acceder" : "Funcionalidad en desarrollo"}
-              </div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
+      {/* ChatSami - solo visible para roles autorizados */}
+      {userPermissions?.chatSami && <ChatSami defaultMinimized={true} />}
     </div>
   );
 }

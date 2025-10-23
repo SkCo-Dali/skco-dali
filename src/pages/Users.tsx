@@ -186,6 +186,33 @@ export default function UsersPage() {
     }
   };
 
+  const handleUserUpdate = async (userId: string, name: string, email: string) => {
+    try {
+      const user = users.find((u) => u.id === userId);
+      if (!user) return;
+
+      await updateUser(userId, {
+        name,
+        email,
+        role: user.role,
+        isActive: user.isActive ?? true,
+      });
+
+      await loadUsers();
+
+      toast({
+        title: "Usuario actualizado",
+        description: "Datos del usuario actualizados correctamente",
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "No se pudieron actualizar los datos del usuario",
+        variant: "destructive",
+      });
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -207,24 +234,24 @@ export default function UsersPage() {
                 Administra usuarios y roles del sistema
               </p>
             </div>
-            {permissions?.canAssignRoles && <AddUserDialog onAddUser={handleAddUser} />}
+            {permissions?.canAssignRoles && <AddUserDialog onUserAdd={handleAddUser} />}
           </div>
 
           <UserFilters
             searchTerm={searchTerm}
+            setSearchTerm={setSearchTerm}
             roleFilter={roleFilter}
-            onSearchChange={setSearchTerm}
-            onRoleFilterChange={setRoleFilter}
+            setRoleFilter={setRoleFilter}
           />
 
           <UserTable
             users={filteredUsers}
-            loading={loading}
+            permissions={permissions}
+            currentUserId={currentUser?.id || ""}
             onRoleUpdate={handleRoleUpdate}
-            onToggleStatus={handleToggleStatus}
-            onDeleteUser={handleDeleteUser}
-            canEdit={permissions?.canAssignRoles ?? false}
-            currentUserId={currentUser?.id}
+            onUserDelete={handleDeleteUser}
+            onUserStatusToggle={handleToggleStatus}
+            onUserUpdate={handleUserUpdate}
           />
         </div>
       </div>
