@@ -2,6 +2,7 @@ import { Users, Calendar, ChevronRight, PartyPopper, FileText, TrendingUp, Arrow
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { useNavigate } from "react-router-dom";
 
 interface DaliOpportunity {
   id: string;
@@ -11,6 +12,8 @@ interface DaliOpportunity {
   dueDate: string;
   priority: "Alta" | "Media" | "Baja";
 }
+
+const navigate = useNavigate();
 
 const mockOpportunities: DaliOpportunity[] = [
   {
@@ -49,7 +52,7 @@ export function MarketDaliOpportunities() {
     <Card className="p-4 h-full flex flex-col gap-4">
       <div className="flex items-center justify-between">
         <h3 className="text-lg font-semibold">Oportunidades de Market Dali</h3>
-        <Button variant="link" className="text-primary p-0 h-auto">
+        <Button variant="link" className="text-primary p-0 h-auto" onClick={() => navigate("/oportunidades")}>
           Más oportunidades
           <ArrowRight className="ml-2 h-4 w-4" />
         </Button>
@@ -103,7 +106,7 @@ export function MarketDaliOpportunities() {
               <ChevronRight
                 aria-hidden
                 className="w-6 h-6 text-muted-foreground group-hover:text-primary self-center shrink-0 transition-colors"
-                onClick={handleViewOpportunity}
+                onClick={() => navigate(`/oportunidades/${opportunity.id}`)}
               />
             </div>
           );
