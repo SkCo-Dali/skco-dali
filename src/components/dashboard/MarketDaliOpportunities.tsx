@@ -13,8 +13,6 @@ interface DaliOpportunity {
   priority: "Alta" | "Media" | "Baja";
 }
 
-const navigate = useNavigate();
-
 const mockOpportunities: DaliOpportunity[] = [
   {
     id: "1",
@@ -43,6 +41,8 @@ const mockOpportunities: DaliOpportunity[] = [
 ];
 
 export function MarketDaliOpportunities() {
+  const navigate = useNavigate();
+  
   return (
     <Card className="p-4 h-full flex flex-col gap-4">
       <div className="flex items-center justify-between">
