@@ -21,7 +21,7 @@ type ChatSamiProps = {
 
 type ViewMode = "hidden" | "minimized" | "maximized";
 
-export default function ChatSami({ defaultMinimized = false }: ChatSamiProps) {
+function ChatSamiContent({ defaultMinimized = false }: ChatSamiProps) {
   const [viewMode, setViewMode] = useState<ViewMode>(defaultMinimized ? "minimized" : "hidden");
   const [topOpportunity, setTopOpportunity] = useState<IOpportunity | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -169,11 +169,9 @@ export default function ChatSami({ defaultMinimized = false }: ChatSamiProps) {
   };
 
   return (
-    <ThemeProvider>
-      <SettingsProvider>
-        <>
-          {/* Burbuja flotante */}
-          {viewMode === "hidden" && (
+    <>
+      {/* Burbuja flotante */}
+      {viewMode === "hidden" && (
         <button
           onClick={() => setViewMode("minimized")}
           className="fixed bottom-6 right-6 z-50 h-16 w-16 rounded-full bg-transparent transition-all duration-200 flex items-center justify-center group"
@@ -464,11 +462,19 @@ export default function ChatSami({ defaultMinimized = false }: ChatSamiProps) {
                 Ver Comisiones 📄
               </button>
             </div>
-                  
+                  
           </div>
         </div>
       )}
-        </>
+    </>
+  );
+}
+
+export default function ChatSami(props: ChatSamiProps) {
+  return (
+    <ThemeProvider>
+      <SettingsProvider>
+        <ChatSamiContent {...props} />
       </SettingsProvider>
     </ThemeProvider>
   );
