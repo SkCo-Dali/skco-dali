@@ -218,7 +218,7 @@ export function DashboardOverview({ leads, loading }: DashboardOverviewProps) {
             </div>
 
             {/* Right Column - Charts */}
-            <div className="flex flex-col gap-4 h-full">
+            <div className="flex flex-col col-span-3 gap-4 h-full">
               <CommissionsChart
                 data={commissionsData}
                 totalCommissions="$25M"
