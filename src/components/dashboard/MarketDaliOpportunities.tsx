@@ -39,6 +39,11 @@ const mockOpportunities: DaliOpportunity[] = [
   },
 ];
 
+const handleViewOpportunity = () => {
+  if (topOpportunity) {
+    navigate(`/oportunidades/${topOpportunity.id}`);
+  }
+};
 export function MarketDaliOpportunities() {
   return (
     <Card className="p-4 h-full flex flex-col gap-4">
@@ -98,6 +103,7 @@ export function MarketDaliOpportunities() {
               <ChevronRight
                 aria-hidden
                 className="w-6 h-6 text-muted-foreground group-hover:text-primary self-center shrink-0 transition-colors"
+                onClick={handleViewOpportunity}
               />
             </div>
           );
