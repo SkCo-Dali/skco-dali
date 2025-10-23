@@ -414,7 +414,7 @@ function ChatSamiContent({ defaultMinimized = false }: ChatSamiProps) {
               </div>
             </div>
             {/* Input area */}
-            <div className="p-4 border-t">
+            <div className="p-4 border-0">
               <div className="relative">
                 <Textarea
                   ref={textareaRef}
