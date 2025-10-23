@@ -34,12 +34,8 @@ export default function ChatSami({ defaultMinimized = false }: ChatSamiProps) {
           },
         });
 
-        setTimeout(() => {
-          dispatch({
-            type: "WEB_CHAT/SEND_MESSAGE",
-            payload: { text: "" },
-          });
-        }, 800);
+        // Ya enviamos el evento de inicio; evitamos enviar un mensaje vacío que puede causar estados indeseados
+        // (antes disparaba WEB_CHAT/SEND_MESSAGE con text: "")
       }
       return next(action);
     });
@@ -155,9 +151,36 @@ export default function ChatSami({ defaultMinimized = false }: ChatSamiProps) {
     };
   }, [directLine, toast]);
 
+  // Reconnect Direct Line if token expires or conversation ends
+  useEffect(() => {
+    if (!directLine?.connectionStatus$) return;
+    const sub = directLine.connectionStatus$.subscribe((status: number) => {
+      // 3 = ExpiredToken, 5 = Ended
+      if (status === 3 || status === 5) {
+        console.warn('Direct Line connection status:', status, '- restarting');
+        setDirectLine(null);
+      }
+    });
+    return () => sub.unsubscribe?.();
+  }, [directLine]);
+
   const sendMessage = (text: string) => {
     const trimmed = text.trim();
     if (!trimmed) return;
+
+    // Preferir el store de WebChat para mantener el estado de la conversación
+    if (storeRef?.dispatch) {
+      try {
+        storeRef.dispatch({
+          type: "WEB_CHAT/SEND_MESSAGE",
+          payload: { text: trimmed, locale },
+        });
+        setInputText("");
+        return;
+      } catch (err) {
+        console.error("Error enviando por store:", err);
+      }
+    }
 
     if (!directLine) {
       toast({
@@ -169,15 +192,9 @@ export default function ChatSami({ defaultMinimized = false }: ChatSamiProps) {
     }
 
     try {
-      // Enviar directamente por Direct Line para inputs personalizados
       let sub: any;
       sub = directLine
-        .postActivity({
-          type: "message",
-          text: trimmed,
-          locale,
-          from: { id: "user", name: "Usuario" },
-        })
+        .postActivity({ type: "message", text: trimmed, locale, from: { id: "user", name: "Usuario" } })
         .subscribe({
           next: () => {
             setInputText("");
@@ -185,21 +202,13 @@ export default function ChatSami({ defaultMinimized = false }: ChatSamiProps) {
           },
           error: (err: any) => {
             console.error("Error enviando mensaje:", err);
-            toast({
-              title: "Error",
-              description: "No se pudo enviar el mensaje",
-              variant: "destructive",
-            });
+            toast({ title: "Error", description: "No se pudo enviar el mensaje", variant: "destructive" });
             sub?.unsubscribe();
           },
         });
     } catch (error) {
       console.error("Error enviando mensaje:", error);
-      toast({
-        title: "Error",
-        description: "No se pudo enviar el mensaje",
-        variant: "destructive",
-      });
+      toast({ title: "Error", description: "No se pudo enviar el mensaje", variant: "destructive" });
     }
   };
 
@@ -295,7 +304,7 @@ export default function ChatSami({ defaultMinimized = false }: ChatSamiProps) {
           {/* Chat WebChat */}
           <div className="flex-1 min-h-0 m-2">
             {directLine ? (
-              <ReactWebChat directLine={directLine} store={store} styleOptions={styleOptions} locale={locale} userID="user" username="Usuario" />
+              <ReactWebChat directLine={directLine} store={store} styleOptions={styleOptions} locale={locale} />
             ) : (
               <div className="flex items-center justify-center h-full">
                 <p className="text-sm text-muted-foreground">Conectando con el chat...</p>
@@ -413,7 +422,7 @@ export default function ChatSami({ defaultMinimized = false }: ChatSamiProps) {
             {/* Chat WebChat */}
             <div className="flex-1 min-h-0 mx-4">
               {directLine ? (
-                <ReactWebChat directLine={directLine} store={store} styleOptions={styleOptions} locale={locale} userID="user" username="Usuario" />
+                <ReactWebChat directLine={directLine} store={store} styleOptions={styleOptions} locale={locale} />
               ) : (
                 <div className="flex items-center justify-center h-full">
                   <p className="text-sm text-muted-foreground">Conectando con el chat...</p>
