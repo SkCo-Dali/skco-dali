@@ -283,22 +283,28 @@ function ChatSamiContent({ isOpen = false, onOpenChange }: ChatSamiProps) {
 
             {/* Acciones rápidas */}
             <div className="p-3 shrink-0 border-t">
-              <Carousel className="w-full" opts={{ slidesToScroll: 1, align: "start", loop: true }}>
-                <CarouselContent className="-ml-2">
-                  {quickActions.map((action, index) => (
-                    <CarouselItem key={index} className="pl-2 basis-1/2">
-                      <button
-                        onClick={() => handleQuickAction(action)}
-                        className="w-full text-center px-2 py-2 text-xs text-muted-foreground bg-muted rounded-full border transition-colors hover:bg-muted/80 whitespace-nowrap overflow-hidden text-ellipsis"
-                      >
-                        {action}
-                      </button>
-                    </CarouselItem>
-                  ))}
-                </CarouselContent>
-                <CarouselPrevious className="absolute -left-2 top-1/2 -translate-y-1/2 h-7 w-7 opacity-0 hover:opacity-100" />
-                <CarouselNext className="absolute -right-2 top-1/2 -translate-y-1/2 h-7 w-7 opacity-0 hover:opacity-100" />
-              </Carousel>
+              <div className="relative group">
+                <Carousel className="w-full" opts={{ slidesToScroll: 1, align: "start", loop: true }}>
+                  <CarouselContent className="-ml-2">
+                    {quickActions.map((action, index) => (
+                      <CarouselItem key={index} className="pl-2 basis-1/2">
+                        <button
+                          onClick={() => handleQuickAction(action)}
+                          className="w-full text-center px-2 py-2 text-xs text-muted-foreground bg-muted rounded-full border transition-colors hover:bg-muted/80 whitespace-nowrap overflow-hidden text-ellipsis"
+                        >
+                          {action}
+                        </button>
+                      </CarouselItem>
+                    ))}
+                  </CarouselContent>
+                </Carousel>
+
+                {/* Overlay de controles: invisibles hasta hover/focus */}
+                <div className="pointer-events-none opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity duration-200">
+                  <CarouselPrevious className="pointer-events-auto z-10 absolute -left-2 top-1/2 -translate-y-1/2 h-7 w-7" />
+                  <CarouselNext className="pointer-events-auto z-10 absolute -right-2 top-1/2 -translate-y-1/2 h-7 w-7" />
+                </div>
+              </div>
             </div>
 
             {/* Input area */}
