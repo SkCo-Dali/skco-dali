@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { ExternalLink, Minus, Lightbulb, Send, Maximize2, Minimize2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { opportunitiesService } from "@/services/opportunitiesService";
 import { IOpportunity } from "@/types/opportunities";
 import { SimpleMessage } from "./SimpleMessage";
@@ -16,6 +17,8 @@ import { callAzureAgentApi } from "@/utils/azureApiService";
 import { ChatMessage } from "@/types/chat";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
+import { ConversationHistoryModal } from "./ConversationHistoryModal";
+import { PromptTemplates } from "./PromptTemplates";
 
 type ChatSamiProps = {
   isOpen?: boolean;
@@ -52,20 +55,13 @@ function ChatSamiContent({ isOpen = false, onOpenChange }: ChatSamiProps) {
   const chatInterfaceRef = useRef<any>(null);
 
   const handleNewChat = () => {
-    if (chatInterfaceRef.current?.handleStartNewConversation) {
-      chatInterfaceRef.current.handleStartNewConversation();
-    }
+    createNewConversation();
+    setInputMessage("");
   };
 
   const handleBannerMessage = (automaticReply: string) => {
     if (chatInterfaceRef.current?.handleBannerMessage) {
       chatInterfaceRef.current.handleBannerMessage(automaticReply);
-    }
-  };
-
-  const handleTemplateSelect = (content: string) => {
-    if (chatInterfaceRef.current?.setInputMessage) {
-      chatInterfaceRef.current.setInputMessage(content);
     }
   };
 
@@ -78,8 +74,8 @@ function ChatSamiContent({ isOpen = false, onOpenChange }: ChatSamiProps) {
   };
 
   const handleSelectTemplate = (content: string) => {
+    setInputMessage(content);
     setShowTemplatesModal(false);
-    handleTemplateSelect(content);
   };
 
   const handleViewOpportunityDetails = (opportunity: IOpportunity) => {
@@ -536,6 +532,22 @@ function ChatSamiContent({ isOpen = false, onOpenChange }: ChatSamiProps) {
           </div>
         </div>
       )}
+
+      {/* Modal de historial de conversaciones */}
+      <ConversationHistoryModal
+        isOpen={showConversationModal}
+        onClose={() => setShowConversationModal(false)}
+      />
+
+      {/* Modal de plantillas */}
+      <Dialog open={showTemplatesModal} onOpenChange={setShowTemplatesModal}>
+        <DialogContent className="max-w-4xl w-full h-[85vh] p-0">
+          <PromptTemplates
+            onSelectTemplate={handleSelectTemplate}
+            onClose={() => setShowTemplatesModal(false)}
+          />
+        </DialogContent>
+      </Dialog>
     </>
   );
 }
