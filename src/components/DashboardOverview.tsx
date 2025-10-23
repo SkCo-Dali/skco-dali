@@ -10,6 +10,7 @@ import { MarketDaliOpportunities } from "@/components/dashboard/MarketDaliOpport
 import { CareerLeaderboard } from "@/components/dashboard/CareerLeaderboard";
 import { useAuth } from "@/contexts/AuthContext";
 import { useTasks } from "@/hooks/useTasks";
+import { useLeadsKPICounts } from "@/hooks/useLeadsKPICounts";
 import mockOpportunities from "@/data/mockOpportunities.json";
 import { IOpportunity } from "@/types/opportunities";
 import { useNavigate } from "react-router-dom";
@@ -25,6 +26,12 @@ export function DashboardOverview({ leads, loading }: DashboardOverviewProps) {
   const navigate = useNavigate();
   const opportunities = mockOpportunities as IOpportunity[];
   const [selectedPeriod, setSelectedPeriod] = useState("septiembre");
+
+  // Obtener conteos reales de KPIs de leads
+  const kpiCounts = useLeadsKPICounts({
+    apiFilters: {},
+    duplicateFilter: "all",
+  });
 
   // Filter leads based on user role
   const userLeads = useMemo(() => {
@@ -165,30 +172,39 @@ export function DashboardOverview({ leads, loading }: DashboardOverviewProps) {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 px-4">
             {/* Left Column - Metrics */}
             <div className="flex flex-col gap-4 h-full">
-              <MetricCard title="Venta neta" value="$40M" changePercent={5} changeLabel="¡Wow!" variant="success" />
+              <MetricCard 
+                title="Total de Leads" 
+                value={kpiCounts.loading ? "..." : kpiCounts.totalLeads.toLocaleString()} 
+                changePercent={kpiCounts.loading ? undefined : Math.round((kpiCounts.newLeads / (kpiCounts.totalLeads || 1)) * 100)}
+                changeLabel="nuevos"
+                variant="neutral" 
+              />
               <MetricCard
-                title="Aportes de tus clientes"
-                value="$25M"
-                changePercent={5}
-                changeLabel="¡Wow!"
+                title="Leads Nuevos"
+                value={kpiCounts.loading ? "..." : kpiCounts.newLeads.toLocaleString()}
+                changePercent={kpiCounts.loading ? undefined : Math.round((kpiCounts.newLeads / (kpiCounts.totalLeads || 1)) * 100)}
+                changeLabel="del total"
                 variant="success"
               />
               <MetricCard
-                title="Retiros de tus clientes"
-                value="$15M"
-                changePercent={10}
-                changeLabel="¡Vamos!"
+                title="Contratos Creados"
+                value={kpiCounts.loading ? "..." : kpiCounts.contratoCreado.toLocaleString()}
+                changePercent={kpiCounts.loading ? undefined : Math.round((kpiCounts.contratoCreado / (kpiCounts.totalLeads || 1)) * 100)}
+                changeLabel="del total"
                 variant="success"
               />
               <MetricCard
-                title="Tus clientes actuales totales"
-                value="125"
-                changePercent={-1}
-                changeLabel="1 inactivo"
-                variant="warning"
+                title="Ventas Registradas"
+                value={kpiCounts.loading ? "..." : kpiCounts.registroVenta.toLocaleString()}
+                changePercent={kpiCounts.loading ? undefined : Math.round((kpiCounts.registroVenta / (kpiCounts.totalLeads || 1)) * 100)}
+                changeLabel="del total"
+                variant={kpiCounts.registroVenta > 0 ? "success" : "neutral"}
               />
               <div className="flex-1">
-                <MetricCard title="Activos bajo administración" value="$125.000.000" />
+                <MetricCard 
+                  title="Activos bajo administración" 
+                  value="$125.000.000" 
+                />
               </div>
             </div>
 
