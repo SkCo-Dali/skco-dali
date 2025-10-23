@@ -1,12 +1,14 @@
 import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
-import { User } from "@/types/crm";
+import { User, getRolePermissions } from "@/types/crm";
 import { UserFilters } from "@/components/UserFilters";
 import { UserTable } from "@/components/UserTable";
 import { AddUserDialog } from "@/components/AddUserDialog";
 import { AccessDenied } from "@/components/AccessDenied";
 import { usePageAccess } from "@/hooks/usePageAccess";
 import { getAllUsers, createUser, deleteUser, updateUser, toggleUserStatus } from "@/utils/userApiClient";
+import ChatSami from "@/components/ChatSami";
+import { useAuth } from "@/contexts/AuthContext";
 
 export default function UsersPage() {
   const { hasAccess, permissions, currentUser } = usePageAccess("users");
@@ -16,6 +18,8 @@ export default function UsersPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [roleFilter, setRoleFilter] = useState<string>("all");
   const [loading, setLoading] = useState(true);
+  const { user } = useAuth();
+  const userPermissions = user ? getRolePermissions(user.role) : null;
 
   // Verificar permisos de acceso
   if (!hasAccess || !permissions?.canAccessUserManagement) {
@@ -146,7 +150,7 @@ export default function UsersPage() {
     }
   };
 
-  const handleUserDelete = async (userId: string) => {
+  const handleDeleteUser = async (userId: string) => {
     try {
       await deleteUser(userId);
       await loadUsers();
@@ -164,7 +168,7 @@ export default function UsersPage() {
     }
   };
 
-  const handleUserStatusToggle = async (userId: string, isActive: boolean) => {
+  const handleToggleStatus = async (userId: string, isActive: boolean) => {
     try {
       await toggleUserStatus(userId, isActive);
       await loadUsers();
@@ -182,33 +186,6 @@ export default function UsersPage() {
     }
   };
 
-  const handleUserUpdate = async (userId: string, name: string, email: string) => {
-    try {
-      const user = users.find((u) => u.id === userId);
-      if (!user) return;
-
-      await updateUser(userId, {
-        name,
-        email,
-        role: user.role,
-        isActive: user.isActive ?? true,
-      });
-
-      await loadUsers();
-
-      toast({
-        title: "Usuario actualizado",
-        description: "Datos del usuario actualizados correctamente",
-      });
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "No se pudieron actualizar los datos del usuario",
-        variant: "destructive",
-      });
-    }
-  };
-
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -218,31 +195,42 @@ export default function UsersPage() {
   }
 
   return (
-    <div className="min-h-screen pt-16">
-      <div className="p-4">
-        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-4">
-          <h1 className="text-3xl font-bold mb-1 text-[#00c73d]">Gestión de Usuarios</h1>
-          <p className="text-muted-foreground">Administra usuarios y roles del sistema</p>
+    <div className="m-4 pt-0 flex h-[calc(100vh-theme(spacing.16))]">
+      <div className={`flex-1 ${userPermissions?.chatSami ? "pr-0" : ""}`}>
+        <div className="w-full max-w-full px-4 py-4 space-y-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-xl md:text-2xl lg:text-3xl font-bold mb-1 tracking-tight text-primary">
+                Gestión de Usuarios
+              </h1>
+              <p className="text-sm md:text-base text-muted-foreground">
+                Administra usuarios y roles del sistema
+              </p>
+            </div>
+            {permissions?.canAssignRoles && <AddUserDialog onAddUser={handleAddUser} />}
+          </div>
+
+          <UserFilters
+            searchTerm={searchTerm}
+            roleFilter={roleFilter}
+            onSearchChange={setSearchTerm}
+            onRoleFilterChange={setRoleFilter}
+          />
+
+          <UserTable
+            users={filteredUsers}
+            loading={loading}
+            onRoleUpdate={handleRoleUpdate}
+            onToggleStatus={handleToggleStatus}
+            onDeleteUser={handleDeleteUser}
+            canEdit={permissions?.canAssignRoles ?? false}
+            currentUserId={currentUser?.id}
+          />
         </div>
-        {permissions?.canAssignRoles && <AddUserDialog onUserAdd={handleAddUser} />}
       </div>
 
-      <UserFilters
-        searchTerm={searchTerm}
-        setSearchTerm={setSearchTerm}
-        roleFilter={roleFilter}
-        setRoleFilter={setRoleFilter}
-      />
-
-      <UserTable
-        users={filteredUsers}
-        permissions={permissions}
-        currentUserId={currentUser?.id || ""}
-        onRoleUpdate={handleRoleUpdate}
-        onUserDelete={handleUserDelete}
-        onUserStatusToggle={handleUserStatusToggle}
-        onUserUpdate={handleUserUpdate}
-      />
+      {/* ChatSami - solo visible para roles autorizados */}
+      {userPermissions?.chatSami && <ChatSami defaultMinimized={true} />}
     </div>
   );
 }

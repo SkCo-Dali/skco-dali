@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -13,6 +12,7 @@ import { TaskFilters } from '@/types/tasks';
 import { getRolePermissions } from '@/types/crm';
 import { AccessDenied } from '@/components/AccessDenied';
 import { usePageAccess } from '@/hooks/usePageAccess';
+import ChatSami from '@/components/ChatSami';
 
 export default function Tasks() {
   const { hasAccess } = usePageAccess("tasks");
@@ -34,85 +34,92 @@ export default function Tasks() {
   );
 
   return (
-    <div className="flex-1 space-y-6 p-4">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Tareas</h1>
-          <p className="text-muted-foreground">
-            Gestiona y organiza las tareas del equipo
-          </p>
+    <div className="m-4 pt-0 flex h-[calc(100vh-theme(spacing.16))]">
+      <div className={`flex-1 ${permissions?.chatSami ? "pr-0" : ""}`}>
+        <div className="flex-1 space-y-6 p-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-3xl font-bold tracking-tight">Tareas</h1>
+              <p className="text-muted-foreground">
+                Gestiona y organiza las tareas del equipo
+              </p>
+            </div>
+            {canCreateTasks && (
+              <TaskCreateDialog />
+            )}
+          </div>
+
+          {/* Filtros y búsqueda */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg">Filtros</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    placeholder="Buscar tareas..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="pl-10"
+                  />
+                </div>
+
+                <Select 
+                  value={filters.status || 'all'} 
+                  onValueChange={(value) => setFilters(prev => ({ ...prev, status: value === 'all' ? undefined : value as any }))}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Estado" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Todos</SelectItem>
+                    <SelectItem value="pending">Pendiente</SelectItem>
+                    <SelectItem value="in-progress">En Progreso</SelectItem>
+                    <SelectItem value="completed">Completada</SelectItem>
+                    <SelectItem value="cancelled">Cancelada</SelectItem>
+                  </SelectContent>
+                </Select>
+
+                <Select 
+                  value={filters.priority || 'all'} 
+                  onValueChange={(value) => setFilters(prev => ({ ...prev, priority: value === 'all' ? undefined : value as any }))}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Prioridad" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Todas</SelectItem>
+                    <SelectItem value="low">Baja</SelectItem>
+                    <SelectItem value="medium">Media</SelectItem>
+                    <SelectItem value="high">Alta</SelectItem>
+                    <SelectItem value="urgent">Urgente</SelectItem>
+                  </SelectContent>
+                </Select>
+
+                <Button 
+                  variant="outline" 
+                  onClick={() => {
+                    setFilters({});
+                    setSearchTerm('');
+                  }}
+                  className="gap-2"
+                >
+                  <Filter className="h-4 w-4" />
+                  Limpiar
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Board de tareas */}
+          <TaskBoard tasks={filteredTasks} />
         </div>
-        {canCreateTasks && (
-          <TaskCreateDialog />
-        )}
       </div>
 
-      {/* Filtros y búsqueda */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-lg">Filtros</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="Buscar tareas..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10"
-              />
-            </div>
-
-            <Select 
-              value={filters.status || 'all'} 
-              onValueChange={(value) => setFilters(prev => ({ ...prev, status: value === 'all' ? undefined : value as any }))}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Estado" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Todos</SelectItem>
-                <SelectItem value="pending">Pendiente</SelectItem>
-                <SelectItem value="in-progress">En Progreso</SelectItem>
-                <SelectItem value="completed">Completada</SelectItem>
-                <SelectItem value="cancelled">Cancelada</SelectItem>
-              </SelectContent>
-            </Select>
-
-            <Select 
-              value={filters.priority || 'all'} 
-              onValueChange={(value) => setFilters(prev => ({ ...prev, priority: value === 'all' ? undefined : value as any }))}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Prioridad" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Todas</SelectItem>
-                <SelectItem value="low">Baja</SelectItem>
-                <SelectItem value="medium">Media</SelectItem>
-                <SelectItem value="high">Alta</SelectItem>
-                <SelectItem value="urgent">Urgente</SelectItem>
-              </SelectContent>
-            </Select>
-
-            <Button 
-              variant="outline" 
-              onClick={() => {
-                setFilters({});
-                setSearchTerm('');
-              }}
-              className="gap-2"
-            >
-              <Filter className="h-4 w-4" />
-              Limpiar
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Board de tareas */}
-      <TaskBoard tasks={filteredTasks} />
+      {/* ChatSami - solo visible para roles autorizados */}
+      {permissions?.chatSami && <ChatSami defaultMinimized={true} />}
     </div>
   );
 }
