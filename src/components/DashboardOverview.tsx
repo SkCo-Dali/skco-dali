@@ -165,23 +165,17 @@ export function DashboardOverview({ leads, loading }: DashboardOverviewProps) {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 px-4">
             {/* Left Column - Metrics */}
             <div className="flex flex-col gap-4 h-full">
-              <MetricCard
-                title="Venta neta"
-                value="$40.000.000"
-                changePercent={5}
-                changeLabel="¡Wow!"
-                variant="success"
-              />
+              <MetricCard title="Venta neta" value="$40M" changePercent={5} changeLabel="¡Wow!" variant="success" />
               <MetricCard
                 title="Aportes de tus clientes"
-                value="$25.000.000"
+                value="$25M"
                 changePercent={5}
                 changeLabel="¡Wow!"
                 variant="success"
               />
               <MetricCard
                 title="Retiros de tus clientes"
-                value="$15.000.000"
+                value="$15M"
                 changePercent={10}
                 changeLabel="¡Vamos!"
                 variant="success"
@@ -202,7 +196,7 @@ export function DashboardOverview({ leads, loading }: DashboardOverviewProps) {
             <div className="flex flex-col gap-4 h-full">
               <CommissionsChart
                 data={commissionsData}
-                totalCommissions="$25.000.000"
+                totalCommissions="$25M"
                 onViewDetails={() => navigate("/comisiones")}
               />
               <ClientDistributionChart data={clientDistributionData} />

@@ -29,7 +29,7 @@ export function MetricCard({ title, value, changePercent, changeLabel, variant =
       <CardContent className="pt-4 pb-4">
         <div className="space-y-2">
           <p className="text-sm text-muted-foreground">{title}</p>
-          <p className="text-2xl md:text-3xl font-bold text-foreground">{value}</p>
+          <p className="text-3xl font-bold text-foreground">{value}</p>
         </div>
       </CardContent>
       {showChange && (
