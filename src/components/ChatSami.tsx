@@ -284,7 +284,7 @@ function ChatSamiContent({ isOpen = false, onOpenChange }: ChatSamiProps) {
             {/* Acciones rápidas */}
             <div className="p-3 shrink-0 border-t">
               <Carousel className="w-full group" opts={{ slidesToScroll: 1, align: "start", loop: true }}>
-                <CarouselContent className="-ml-2">
+                <CarouselContent className="m-2">
                   {quickActions.map((action, index) => (
                     <CarouselItem key={index} className="pl-2 basis-1/2">
                       <button
@@ -296,8 +296,8 @@ function ChatSamiContent({ isOpen = false, onOpenChange }: ChatSamiProps) {
                     </CarouselItem>
                   ))}
                 </CarouselContent>
-                <CarouselPrevious className="absolute -left-2 top-1/2 -translate-y-1/2 h-7 w-7 opacity-50 group-hover:opacity-100 transition-opacity" />
-                <CarouselNext className="absolute -right-2 top-1/2 -translate-y-1/2 h-7 w-7 opacity-50 group-hover:opacity-100 transition-opacity" />
+                <CarouselPrevious className="absolute -left-2 top-1/2 -translate-y-1/2 h-7 w-7" />
+                <CarouselNext className="absolute -right-2 top-1/2 -translate-y-1/2 h-7 w-7" />
               </Carousel>
             </div>
 
