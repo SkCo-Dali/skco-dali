@@ -74,7 +74,10 @@ export function AppContent() {
         <SidebarProvider>
           <div className="min-h-screen flex w-full">
             <AppSidebar />
-            <div className="flex-1 flex flex-col transition-all duration-300" style={{ marginRight: chatSamiOpen ? '380px' : '0' }}>
+            <div
+              className="flex-1 flex flex-col transition-all duration-300"
+              style={{ marginRight: chatSamiOpen ? "380px" : "0" }}
+            >
               <Header onBannerMessage={handleBannerMessage} />
               <main className="flex-1 pt-20">
                 <Routes>
@@ -89,8 +92,6 @@ export function AppContent() {
                   <Route path="/oportunidades/:id" element={<OpportunityDetails />} />
                   <Route path="/admin/users" element={<Users />} />
                   <Route path="/admin/reports" element={<PowerBIReportsAdmin />} />
-                  <Route path="/chat" element={<ChatDali ref={chatDaliRef} />} />
-                  <Route path="/Chat" element={<ChatDali ref={chatDaliRef} />} />
                   <Route path="/gamification" element={<Gamification />} />
                   <Route path="/index" element={<Index />} />
                   <Route path="/comisiones" element={<Comisiones />} />
@@ -103,13 +104,10 @@ export function AppContent() {
                 </Routes>
               </main>
             </div>
-            
+
             {/* ChatSami - disponible en todas las páginas */}
             {user && getRolePermissions(user.role)?.chatSami && (
-              <ChatSami 
-                isOpen={chatSamiOpen}
-                onOpenChange={setChatSamiOpen}
-              />
+              <ChatSami isOpen={chatSamiOpen} onOpenChange={setChatSamiOpen} />
             )}
           </div>
         </SidebarProvider>
