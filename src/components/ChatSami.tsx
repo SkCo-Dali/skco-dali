@@ -429,8 +429,8 @@ function ChatSamiContent({ isOpen = false, onOpenChange }: ChatSamiProps) {
                       </CarouselItem>
                     ))}
                   </CarouselContent>
-                  <CarouselPrevious className="absolute -left-2 top-1/2 -translate-y-1/2 h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity" />
-                  <CarouselNext className="absolute -right-2 top-1/2 -translate-y-1/2 h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity" />
+                  <CarouselPrevious className="absolute -left-2 top-1/2 -translate-y-1/2 h-8 w-8" />
+                  <CarouselNext className="absolute -right-2 top-1/2 -translate-y-1/2 h-8 w-8" />
                 </Carousel>
               </div>
             </div>
