@@ -171,7 +171,7 @@ export function DashboardOverview({ leads, loading }: DashboardOverviewProps) {
           {/* Metrics and Charts Grid */}
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 px-4">
             {/* Left Column - Metrics */}
-            <div className="flex flex-col col-span-2 gap-4 h-full">
+            <div className="flex flex-col col-span-1 gap-4 h-full">
               <MetricCard
                 title="Total de Leads"
                 value={kpiCounts.loading ? "..." : kpiCounts.totalLeads.toLocaleString()}
