@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 import { ExternalLink, Minus, Lightbulb, Send } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -32,6 +33,7 @@ function ChatSamiContent({ defaultMinimized = false }: ChatSamiProps) {
   const { user } = useAuth();
   const { aiSettings } = useSettings();
   const isMobile = useIsMobile();
+  const navigate = useNavigate();
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
@@ -94,6 +96,12 @@ function ChatSamiContent({ defaultMinimized = false }: ChatSamiProps) {
 
   const handleQuickAction = (action: string) => {
     setInputMessage(action);
+  };
+
+  const handleViewOpportunity = () => {
+    if (topOpportunity) {
+      navigate(`/oportunidades/${topOpportunity.id}`);
+    }
   };
 
   const handleSendMessage = async () => {
@@ -230,7 +238,7 @@ function ChatSamiContent({ defaultMinimized = false }: ChatSamiProps) {
                   </span>
                 </p>
                 <button
-                  onClick={() => handleQuickAction(`Más información sobre: ${topOpportunity.title}`)}
+                  onClick={handleViewOpportunity}
                   className="w-full text-sm text-center text-secondary font-medium hover:underline"
                 >
                   Ver Oportunidad
@@ -361,7 +369,7 @@ function ChatSamiContent({ defaultMinimized = false }: ChatSamiProps) {
                     </span>
                   </p>
                   <button
-                    onClick={() => handleQuickAction(`Más información sobre: ${topOpportunity.title}`)}
+                    onClick={handleViewOpportunity}
                     className="w-full text-sm text-center text-secondary font-medium hover:underline"
                   >
                     Ver Oportunidad
