@@ -23,7 +23,7 @@ type ChatSamiProps = {
 type ViewMode = "hidden" | "minimized" | "maximized";
 
 function ChatSamiContent({ isOpen = false, onOpenChange }: ChatSamiProps) {
-  const [viewMode, setViewMode] = useState<ViewMode>("hidden");
+  const [viewMode, setViewMode] = useState<ViewMode>("minimized");
   const [topOpportunity, setTopOpportunity] = useState<IOpportunity | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [inputMessage, setInputMessage] = useState("");
