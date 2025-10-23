@@ -189,7 +189,7 @@ function ChatSamiContent({ defaultMinimized = false }: ChatSamiProps) {
 
       {/* Panel lateral fijo */}
       {viewMode === "minimized" && (
-        <div className="fixed top-16 right-0 bottom-0 w-[380px] border-l bg-background shadow-lg flex flex-col z-30">
+        <div className="fixed top-20 right-4 bottom-4 w-[380px] border bg-background shadow-md flex flex-col z-30 rounded-xl">
           {/* Header */}
           <div className="flex items-center justify-between p-3 bg-[#fafafa] border-b shrink-0">
             <h2 className="text-lg font-semibold text-foreground">SamiGPT</h2>
