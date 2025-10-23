@@ -14,6 +14,13 @@ import { useSettings } from "@/contexts/SettingsContext";
 import { callAzureAgentApi } from "@/utils/azureApiService";
 import { ChatMessage } from "@/types/chat";
 import { useIsMobile } from "@/hooks/use-mobile";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel";
 
 type ChatSamiProps = {
   isOpen?: boolean;
@@ -93,6 +100,15 @@ function ChatSamiContent({ isOpen = false, onOpenChange }: ChatSamiProps) {
     };
     loadTopOpportunity();
   }, []);
+
+  const quickActions = [
+    "Consultar Informe 🚀",
+    "Ver Leads ℹ️",
+    "Ver Comisiones 📄",
+    "Crear Tarea 📝",
+    "Revisar Oportunidades 💡",
+    "Estado de Proyectos 📊"
+  ];
 
   const handleQuickAction = (action: string) => {
     setInputMessage(action);
@@ -272,25 +288,25 @@ function ChatSamiContent({ isOpen = false, onOpenChange }: ChatSamiProps) {
             </div>
 
             {/* Acciones rápidas */}
-            <div className="p-3 space-y-2 shrink-0 border-t">
-              <button
-                onClick={() => handleQuickAction("Consultar Informe 🚀")}
-                className="w-full text-left px-3 py-2 text-sm text-muted-foreground bg-muted rounded-full border transition-colors hover:bg-muted/80"
-              >
-                Consultar Informe 🚀
-              </button>
-              <button
-                onClick={() => handleQuickAction("Ver Leads ℹ️")}
-                className="w-full text-left px-3 py-2 text-sm text-muted-foreground bg-muted rounded-full border transition-colors hover:bg-muted/80"
-              >
-                Ver Leads ℹ️
-              </button>
-              <button
-                onClick={() => handleQuickAction("Ver Comisiones 📄")}
-                className="w-full text-left px-3 py-2 text-sm text-muted-foreground bg-muted rounded-full border transition-colors hover:bg-muted/80"
-              >
-                Ver Comisiones 📄
-              </button>
+            <div className="p-3 shrink-0 border-t">
+              <Carousel className="w-full">
+                <CarouselContent>
+                  {quickActions.map((action, index) => (
+                    <CarouselItem key={index}>
+                      <button
+                        onClick={() => handleQuickAction(action)}
+                        className="w-full text-left px-3 py-2 text-sm text-muted-foreground bg-muted rounded-full border transition-colors hover:bg-muted/80"
+                      >
+                        {action}
+                      </button>
+                    </CarouselItem>
+                  ))}
+                </CarouselContent>
+                <div className="flex justify-center gap-2 mt-2">
+                  <CarouselPrevious className="relative left-0 top-0 translate-y-0" />
+                  <CarouselNext className="relative right-0 top-0 translate-y-0" />
+                </div>
+              </Carousel>
             </div>
 
             {/* Input area */}
@@ -403,27 +419,25 @@ function ChatSamiContent({ isOpen = false, onOpenChange }: ChatSamiProps) {
               </div>
 
               {/* Acciones rápidas */}
-              <div className="grid grid-cols-3 px-4 py-2 gap-2 shrink-0">
-                <button
-                  onClick={() => handleQuickAction("Consultar Informe 🚀")}
-                  className="w-full text-left px-3 py-2 text-sm text-muted-foreground bg-muted rounded-full border transition-colors hover:bg-muted/80"
-                >
-                  Consultar Informe 🚀
-                </button>
-
-                <button
-                  onClick={() => handleQuickAction("Ver Leads ℹ️")}
-                  className="w-full text-left px-3 py-2 text-sm text-muted-foreground bg-muted rounded-full border transition-colors hover:bg-muted/80"
-                >
-                  Ver Leads ℹ️
-                </button>
-
-                <button
-                  onClick={() => handleQuickAction("Ver Comisiones 📄")}
-                  className="w-full text-left px-3 py-2 text-sm text-muted-foreground bg-muted rounded-full border transition-colors hover:bg-muted/80"
-                >
-                  Ver Comisiones 📄
-                </button>
+              <div className="px-4 py-2 shrink-0">
+                <Carousel className="w-full" opts={{ slidesToScroll: 1 }}>
+                  <CarouselContent className="-ml-2">
+                    {quickActions.map((action, index) => (
+                      <CarouselItem key={index} className="pl-2 basis-1/3">
+                        <button
+                          onClick={() => handleQuickAction(action)}
+                          className="w-full text-center px-3 py-2 text-sm text-muted-foreground bg-muted rounded-full border transition-colors hover:bg-muted/80"
+                        >
+                          {action}
+                        </button>
+                      </CarouselItem>
+                    ))}
+                  </CarouselContent>
+                  <div className="flex justify-center gap-2 mt-2">
+                    <CarouselPrevious className="relative left-0 top-0 translate-y-0" />
+                    <CarouselNext className="relative right-0 top-0 translate-y-0" />
+                  </div>
+                </Carousel>
               </div>
             </div>
 
