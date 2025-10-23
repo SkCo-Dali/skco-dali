@@ -169,42 +169,51 @@ export function DashboardOverview({ leads, loading }: DashboardOverviewProps) {
           />
 
           {/* Metrics and Charts Grid */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 px-4">
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 px-4">
             {/* Left Column - Metrics */}
-            <div className="flex flex-col gap-4 h-full">
-              <MetricCard 
-                title="Total de Leads" 
-                value={kpiCounts.loading ? "..." : kpiCounts.totalLeads.toLocaleString()} 
-                changePercent={kpiCounts.loading ? undefined : Math.round((kpiCounts.newLeads / (kpiCounts.totalLeads || 1)) * 100)}
+            <div className="flex flex-col col-span-2 gap-4 h-full">
+              <MetricCard
+                title="Total de Leads"
+                value={kpiCounts.loading ? "..." : kpiCounts.totalLeads.toLocaleString()}
+                changePercent={
+                  kpiCounts.loading ? undefined : Math.round((kpiCounts.newLeads / (kpiCounts.totalLeads || 1)) * 100)
+                }
                 changeLabel="nuevos"
-                variant="neutral" 
+                variant="neutral"
               />
               <MetricCard
                 title="Leads Nuevos"
                 value={kpiCounts.loading ? "..." : kpiCounts.newLeads.toLocaleString()}
-                changePercent={kpiCounts.loading ? undefined : Math.round((kpiCounts.newLeads / (kpiCounts.totalLeads || 1)) * 100)}
+                changePercent={
+                  kpiCounts.loading ? undefined : Math.round((kpiCounts.newLeads / (kpiCounts.totalLeads || 1)) * 100)
+                }
                 changeLabel="del total"
                 variant="success"
               />
               <MetricCard
                 title="Contratos Creados"
                 value={kpiCounts.loading ? "..." : kpiCounts.contratoCreado.toLocaleString()}
-                changePercent={kpiCounts.loading ? undefined : Math.round((kpiCounts.contratoCreado / (kpiCounts.totalLeads || 1)) * 100)}
+                changePercent={
+                  kpiCounts.loading
+                    ? undefined
+                    : Math.round((kpiCounts.contratoCreado / (kpiCounts.totalLeads || 1)) * 100)
+                }
                 changeLabel="del total"
                 variant="success"
               />
               <MetricCard
                 title="Ventas Registradas"
                 value={kpiCounts.loading ? "..." : kpiCounts.registroVenta.toLocaleString()}
-                changePercent={kpiCounts.loading ? undefined : Math.round((kpiCounts.registroVenta / (kpiCounts.totalLeads || 1)) * 100)}
+                changePercent={
+                  kpiCounts.loading
+                    ? undefined
+                    : Math.round((kpiCounts.registroVenta / (kpiCounts.totalLeads || 1)) * 100)
+                }
                 changeLabel="del total"
                 variant={kpiCounts.registroVenta > 0 ? "success" : "neutral"}
               />
               <div className="flex-1">
-                <MetricCard 
-                  title="Activos bajo administración" 
-                  value="$125.000.000" 
-                />
+                <MetricCard title="Activos bajo administración" value="$125.000.000" />
               </div>
             </div>
 
