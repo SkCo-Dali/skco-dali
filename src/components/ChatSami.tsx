@@ -412,38 +412,37 @@ function ChatSamiContent({ defaultMinimized = false }: ChatSamiProps) {
                   Ver Comisiones 📄
                 </button>
               </div>
+            </div>
+            {/* Input area */}
+            <div className="p-4 border-t">
+              <div className="relative">
+                <Textarea
+                  ref={textareaRef}
+                  value={inputMessage}
+                  onChange={(e) => setInputMessage(e.target.value)}
+                  onKeyDown={handleKeyDown}
+                  placeholder={isLoading ? "Enviando..." : "Escribe tu mensaje..."}
+                  disabled={isLoading}
+                  className="w-full resize-none transition-all duration-200 bg-background border-input focus:border-ring focus:ring-1 focus:ring-ring rounded-2xl min-h-[44px] text-sm pr-12"
+                  rows={1}
+                  style={{
+                    height: "44px",
+                    fontSize: "14px",
+                    paddingRight: inputMessage.trim() ? "52px" : "12px",
+                  }}
+                />
 
-              {/* Input area */}
-              <div className="p-4 border-t">
-                <div className="relative">
-                  <Textarea
-                    ref={textareaRef}
-                    value={inputMessage}
-                    onChange={(e) => setInputMessage(e.target.value)}
-                    onKeyDown={handleKeyDown}
-                    placeholder={isLoading ? "Enviando..." : "Escribe tu mensaje..."}
+                {inputMessage.trim() && (
+                  <Button
+                    onClick={handleSendMessage}
                     disabled={isLoading}
-                    className="w-full resize-none transition-all duration-200 bg-background border-input focus:border-ring focus:ring-1 focus:ring-ring rounded-2xl min-h-[44px] text-sm pr-12"
-                    rows={1}
-                    style={{
-                      height: "44px",
-                      fontSize: "14px",
-                      paddingRight: inputMessage.trim() ? "52px" : "12px",
-                    }}
-                  />
-
-                  {inputMessage.trim() && (
-                    <Button
-                      onClick={handleSendMessage}
-                      disabled={isLoading}
-                      variant="ghost"
-                      className="absolute right-2 top-1/2 -translate-y-1/2 text-primary hover:text-primary hover:bg-primary/10 flex-shrink-0 h-[36px] w-[36px]"
-                      size="icon"
-                    >
-                      <Send className="h-3.5 w-3.5" />
-                    </Button>
-                  )}
-                </div>
+                    variant="ghost"
+                    className="absolute right-2 top-1/2 -translate-y-1/2 text-primary hover:text-primary hover:bg-primary/10 flex-shrink-0 h-[36px] w-[36px]"
+                    size="icon"
+                  >
+                    <Send className="h-3.5 w-3.5" />
+                  </Button>
+                )}
               </div>
             </div>
           </div>
