@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useRef } from "react";
+import { ChatActionsButton } from "../components/ChatActionsButton";
 import { useNavigate } from "react-router-dom";
 import { ExternalLink, Minus, Lightbulb, Send, Maximize2, Minimize2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -42,6 +43,47 @@ function ChatSamiContent({ isOpen = false, onOpenChange }: ChatSamiProps) {
 
   const userEmail = user?.email || "";
   const messages = currentConversation?.messages || [];
+
+  const handleNewChat = () => {
+    if (chatInterfaceRef.current?.handleStartNewConversation) {
+      chatInterfaceRef.current.handleStartNewConversation();
+    }
+  };
+
+  const handleBannerMessage = (automaticReply: string) => {
+    if (chatInterfaceRef.current?.handleBannerMessage) {
+      chatInterfaceRef.current.handleBannerMessage(automaticReply);
+    }
+  };
+
+  const handleTemplateSelect = (content: string) => {
+    if (chatInterfaceRef.current?.setInputMessage) {
+      chatInterfaceRef.current.setInputMessage(content);
+    }
+  };
+
+  const handleSearchConversations = () => {
+    setShowConversationModal(true);
+  };
+
+  const handleViewTemplates = () => {
+    setShowTemplatesModal(true);
+  };
+
+  const handleSelectTemplate = (content: string) => {
+    setShowTemplatesModal(false);
+    handleTemplateSelect(content);
+  };
+
+  const handleViewOpportunityDetails = (opportunity: IOpportunity) => {
+    setSelectedOpportunity(opportunity);
+    setShowOpportunityModal(true);
+  };
+
+  const handleCloseOpportunityModal = () => {
+    setShowOpportunityModal(false);
+    setSelectedOpportunity(null);
+  };
 
   // Crear conversación si no existe
   useEffect(() => {
@@ -208,6 +250,14 @@ function ChatSamiContent({ isOpen = false, onOpenChange }: ChatSamiProps) {
           <div className="flex items-center justify-between p-3 bg-[#fafafa] border-b shrink-0">
             <h2 className="text-lg font-semibold text-foreground">SamiGPT</h2>
             <div className="flex items-center gap-1">
+              {/* Botón de acciones */}
+              <div className="fixed z-40 top-18 right-2">
+                <ChatActionsButton
+                  onNewConversation={handleNewChat}
+                  onSearchConversations={handleSearchConversations}
+                  onViewTemplates={handleViewTemplates}
+                />
+              </div>
               <Button
                 variant="ghost"
                 size="icon"
