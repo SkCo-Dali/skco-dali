@@ -7,9 +7,6 @@ import { PieChart, FileText, Receipt } from "lucide-react";
 import { CommissionsCategorySlicer, CommissionCategory } from "@/components/CommissionsCategorySlicer";
 import { AccessDenied } from "@/components/AccessDenied";
 import { usePageAccess } from "@/hooks/usePageAccess";
-import ChatSami from "@/components/ChatSami";
-import { getRolePermissions } from "@/types/crm";
-import { useAuth } from "@/contexts/AuthContext";
 
 export default function Comisiones() {
   const { hasAccess } = usePageAccess("comisiones");
@@ -20,67 +17,58 @@ export default function Comisiones() {
   const [selectedMonth, setSelectedMonth] = React.useState("2024-09");
   const [selectedYear, setSelectedYear] = React.useState("2025");
   const [selectedCategory, setSelectedCategory] = React.useState<CommissionCategory>("pensiones");
-  const { user } = useAuth();
-  const userPermissions = user ? getRolePermissions(user.role) : null;
 
   return (
-    <div className="m-4 pt-0 flex h-[calc(100vh-theme(spacing.16))]">
-      <div className={`flex-1 ${userPermissions?.chatSami ? "pr-0" : ""}`}>
-        <div className="w-full px-16 py-4 space-y-6 mt-4">
-          {/* Category Slicer */}
-          <div className="flex justify-left">
-            <CommissionsCategorySlicer selectedCategory={selectedCategory} onCategoryChange={setSelectedCategory} />
-          </div>
-
-          <Tabs defaultValue="resumen" className="w-full mt-6">
-            <TabsList className="grid w-full grid-cols-3 h-[37px] bg-transparent border-b border-border gap-0 rounded-none p-0">
-              <TabsTrigger
-                value="resumen"
-                className="data-[state=active]:bg-[#00c73d] data-[state=active]:text-white rounded-t-xl flex items-center gap-2 h-full mx-2"
-              >
-                <PieChart className="h-4 w-4" />
-                Resumen
-              </TabsTrigger>
-              <TabsTrigger
-                value="detalle"
-                className="data-[state=active]:bg-[#00c73d] data-[state=active]:text-white rounded-t-xl flex items-center gap-2 h-full mx-2"
-              >
-                <FileText className="h-4 w-4" />
-                Detalle de comisiones
-              </TabsTrigger>
-              <TabsTrigger
-                value="facturacion"
-                className="data-[state=active]:bg-[#00c73d] data-[state=active]:text-white rounded-t-xl flex items-center gap-2 h-full mx-2"
-              >
-                <Receipt className="h-4 w-4" />
-                Covers y facturación
-              </TabsTrigger>
-            </TabsList>
-
-            <TabsContent value="resumen" className="border rounded-b-md mt-0 mb-2 pb-2 px-2">
-              <CommissionsResumenTab
-                commissions={mockCommissions}
-                selectedMonth={selectedMonth}
-                onMonthChange={setSelectedMonth}
-                selectedYear={selectedYear}
-                onYearChange={setSelectedYear}
-                selectedCategory={selectedCategory}
-              />
-            </TabsContent>
-
-            <TabsContent value="detalle" className="mt-0">
-              <CommissionsTable commissions={mockCommissions} selectedCategory={selectedCategory} />
-            </TabsContent>
-
-            <TabsContent value="facturacion" className="mt-6">
-              <div className="flex items-center justify-center h-64 text-muted-foreground">Próximamente</div>
-            </TabsContent>
-          </Tabs>
-        </div>
+    <div className="w-full px-16 py-4 space-y-6 mt-4">
+      {/* Category Slicer */}
+      <div className="flex justify-left">
+        <CommissionsCategorySlicer selectedCategory={selectedCategory} onCategoryChange={setSelectedCategory} />
       </div>
 
-      {/* ChatSami - solo visible para roles autorizados */}
-      {userPermissions?.chatSami && <ChatSami defaultMinimized={true} />}
+      <Tabs defaultValue="resumen" className="w-full mt-6">
+        <TabsList className="grid w-full grid-cols-3 h-[37px] bg-transparent border-b border-border gap-0 rounded-none p-0">
+          <TabsTrigger
+            value="resumen"
+            className="data-[state=active]:bg-[#00c73d] data-[state=active]:text-white rounded-t-xl flex items-center gap-2 h-full mx-2"
+          >
+            <PieChart className="h-4 w-4" />
+            Resumen
+          </TabsTrigger>
+          <TabsTrigger
+            value="detalle"
+            className="data-[state=active]:bg-[#00c73d] data-[state=active]:text-white rounded-t-xl flex items-center gap-2 h-full mx-2"
+          >
+            <FileText className="h-4 w-4" />
+            Detalle de comisiones
+          </TabsTrigger>
+          <TabsTrigger
+            value="facturacion"
+            className="data-[state=active]:bg-[#00c73d] data-[state=active]:text-white rounded-t-xl flex items-center gap-2 h-full mx-2"
+          >
+            <Receipt className="h-4 w-4" />
+            Covers y facturación
+          </TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="resumen" className="border rounded-b-md mt-0 mb-2 pb-2 px-2">
+          <CommissionsResumenTab
+            commissions={mockCommissions}
+            selectedMonth={selectedMonth}
+            onMonthChange={setSelectedMonth}
+            selectedYear={selectedYear}
+            onYearChange={setSelectedYear}
+            selectedCategory={selectedCategory}
+          />
+        </TabsContent>
+
+        <TabsContent value="detalle" className="mt-0">
+          <CommissionsTable commissions={mockCommissions} selectedCategory={selectedCategory} />
+        </TabsContent>
+
+        <TabsContent value="facturacion" className="mt-6">
+          <div className="flex items-center justify-center h-64 text-muted-foreground">Próximamente</div>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }

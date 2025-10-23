@@ -22,9 +22,6 @@ import {
 import { opportunitiesService } from "@/services/opportunitiesService";
 import { AccessDenied } from "@/components/AccessDenied";
 import { usePageAccess } from "@/hooks/usePageAccess";
-import ChatSami from "@/components/ChatSami";
-import { getRolePermissions } from "@/types/crm";
-import { useAuth } from "@/contexts/AuthContext";
 
 export const Opportunities: React.FC = () => {
   const { hasAccess } = usePageAccess("opportunities");
@@ -33,8 +30,6 @@ export const Opportunities: React.FC = () => {
     return <AccessDenied />;
   }
   const navigate = useNavigate();
-  const { user } = useAuth();
-  const userPermissions = user ? getRolePermissions(user.role) : null;
   const [opportunities, setOpportunities] = React.useState<IOpportunity[]>([]);
   const [highlightedOpportunities, setHighlightedOpportunities] = React.useState<IOpportunity[]>([]);
   const [stats, setStats] = React.useState<OpportunityStats | null>(null);
@@ -103,10 +98,8 @@ export const Opportunities: React.FC = () => {
   }
 
   return (
-    <div className="m-4 pt-0 flex h-[calc(100vh-theme(spacing.16))]">
-      <div className={`flex-1 ${userPermissions?.chatSami ? "pr-0" : ""}`}>
-        <div className="bg-gray-50 min-h-screen">
-          <div className="container mx-auto px-4 py-5">
+    <div className="bg-gray-50 min-h-screen">
+      <div className="container mx-auto px-4 py-5">
         {/* Header */}
         <div className="space-y-3 mb-6">
           <h1 className="text-3xl font-bold bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
@@ -406,12 +399,7 @@ export const Opportunities: React.FC = () => {
             onClearFilters={handleClearFilters}
           />
         </div>
-          </div>
-        </div>
       </div>
-
-      {/* ChatSami - solo visible para roles autorizados */}
-      {userPermissions?.chatSami && <ChatSami defaultMinimized={true} />}
     </div>
   );
 };

@@ -2,7 +2,6 @@ import React, { useState, useCallback, useMemo, useRef, useEffect } from "react"
 import { useToast } from "@/hooks/use-toast";
 import { Lead, getRolePermissions } from "@/types/crm";
 import { useAuth } from "@/contexts/AuthContext";
-import ChatSami from "@/components/ChatSami";
 import { LeadsSearch } from "@/components/LeadsSearch";
 import { LeadsFilters } from "@/components/LeadsFilters";
 import { LeadsStats } from "@/components/LeadsStats";
@@ -747,12 +746,10 @@ export default function Leads() {
   }
 
   return (
-    <div className="m-4 pt-0 flex h-[calc(100vh-theme(spacing.16))]">
-      <div className={`flex-1 ${userPermissions?.chatSami ? "pr-0" : ""}`}>
-        <div className="flex flex-col h-full min-h-0 overflow-hidden w-full max-w-full px-1 md:px-4 space-y-2 md:space-y-4 pt-4 pb-2 md:pb-4">
-          <div className="w-full max-w-full px-4 py-4 space-y-6">
-            <div className="flex flex-col lg:flex-row gap-6">
-              <div className="flex-1 space-y-6">
+    <>
+      <div className="w-full max-w-full px-4 py-4 space-y-6">
+        <div className="flex flex-col lg:flex-row gap-6">
+          <div className="flex-1 space-y-6">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 pt-0">
               <h1 className="text-3xl font-bold mb-1 tracking-tight text-[#00c73d]">Gestión de Leads</h1>
             </div>
@@ -1267,14 +1264,7 @@ export default function Leads() {
           }
           isDeleting={isDeleting}
         />
-              </div>
-            </div>
-          </div>
-        </div>
       </div>
-
-      {/* ChatSami - solo visible para roles autorizados */}
-      {userPermissions?.chatSami && <ChatSami defaultMinimized={true} />}
-    </div>
+    </>
   );
 }

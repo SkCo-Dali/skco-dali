@@ -11,9 +11,6 @@ import { GamificationStats } from "@/components/GamificationStats";
 import { AccessDenied } from "@/components/AccessDenied";
 import { usePageAccess } from "@/hooks/usePageAccess";
 import { toast } from "sonner";
-import ChatSami from "@/components/ChatSami";
-import { getRolePermissions } from "@/types/crm";
-import { useAuth } from "@/contexts/AuthContext";
 
 export default function Gamification() {
   const { hasAccess } = usePageAccess("gamification");
@@ -34,8 +31,6 @@ export default function Gamification() {
   } = useGamification();
 
   const [activeTab, setActiveTab] = useState("overview");
-  const { user } = useAuth();
-  const userPermissions = user ? getRolePermissions(user.role) : null;
 
   const handleTestChatDali = async () => {
     const success = await recordChatDaliUsage();
@@ -87,18 +82,16 @@ export default function Gamification() {
   const nextLevelProgress = getProgressToNextLevel();
 
   return (
-    <div className="m-4 pt-0 flex h-[calc(100vh-theme(spacing.16))]">
-      <div className={`flex-1 ${userPermissions?.chatSami ? "pr-0" : ""}`}>
-        <div className="w-full max-w-full px-4 py-4 space-y-6">
-          {/* Header */}
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-xl md:text-2xl lg:text-3xl font-bold mb-1 tracking-tight text-[#00c73d]">Gamificación</h1>
-              <p className="text-muted-foreground">
-                Compite, mejora y alcanza nuevos niveles
-              </p>
-            </div>
-          </div>
+    <div className="w-full max-w-full px-4 py-4 space-y-6">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-xl md:text-2xl lg:text-3xl font-bold mb-1 tracking-tight text-[#00c73d]">Gamificación</h1>
+          <p className="text-muted-foreground">
+            Compite, mejora y alcanza nuevos niveles
+          </p>
+        </div>
+      </div>
 
       {/* Notifications */}
       {notifications.length > 0 && (
@@ -244,11 +237,6 @@ export default function Gamification() {
           </div>
         </TabsContent>
       </Tabs>
-        </div>
-      </div>
-
-      {/* ChatSami - solo visible para roles autorizados */}
-      {userPermissions?.chatSami && <ChatSami defaultMinimized={true} />}
     </div>
   );
 }
