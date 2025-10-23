@@ -14,13 +14,7 @@ import { useSettings } from "@/contexts/SettingsContext";
 import { callAzureAgentApi } from "@/utils/azureApiService";
 import { ChatMessage } from "@/types/chat";
 import { useIsMobile } from "@/hooks/use-mobile";
-import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-  CarouselNext,
-  CarouselPrevious,
-} from "@/components/ui/carousel";
+import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 
 type ChatSamiProps = {
   isOpen?: boolean;
@@ -107,7 +101,7 @@ function ChatSamiContent({ isOpen = false, onOpenChange }: ChatSamiProps) {
     "Ver Comisiones 📄",
     "Crear Tarea 📝",
     "Revisar Oportunidades 💡",
-    "Estado de Proyectos 📊"
+    "Estado de Proyectos 📊",
   ];
 
   const handleQuickAction = (action: string) => {
@@ -289,11 +283,11 @@ function ChatSamiContent({ isOpen = false, onOpenChange }: ChatSamiProps) {
 
             {/* Acciones rápidas */}
             <div className="p-3 shrink-0 border-t">
-              <Carousel className="w-full max-w-full relative" opts={{ slidesToScroll: 2, align: "start", loop: false }}>
+              <Carousel className="w-full" opts={{ slidesToScroll: 1, align: "start", loop: true }}>
                 <CarouselPrevious className="absolute -left-2 top-1/2 -translate-y-1/2 h-7 w-7" />
-                <CarouselContent className="-ml-2 px-8">
+                <CarouselContent className="-ml-2">
                   {quickActions.map((action, index) => (
-                    <CarouselItem key={index} className="pl-2 basis-1/2 min-w-0">
+                    <CarouselItem key={index} className="pl-2 basis-1/2">
                       <button
                         onClick={() => handleQuickAction(action)}
                         className="w-full text-center px-2 py-2 text-xs text-muted-foreground bg-muted rounded-full border transition-colors hover:bg-muted/80 whitespace-nowrap overflow-hidden text-ellipsis"
