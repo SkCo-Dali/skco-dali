@@ -259,6 +259,28 @@ function ChatSamiContent({ defaultMinimized = false }: ChatSamiProps) {
               <div ref={messagesEndRef} />
             </div>
 
+            {/* Acciones rápidas */}
+            <div className="p-2 space-y-2 shrink-0">
+              <button
+                onClick={() => handleQuickAction("Consultar Informe 🚀")}
+                className="w-full text-left px-3 py-2 text-sm text-muted-foreground bg-muted rounded-full border transition-colors hover:bg-muted/80"
+              >
+                Consultar Informe 🚀
+              </button>
+              <button
+                onClick={() => handleQuickAction("Ver Leads ℹ️")}
+                className="w-full text-left px-3 py-2 text-sm text-muted-foreground bg-muted rounded-full border transition-colors hover:bg-muted/80"
+              >
+                Ver Leads ℹ️
+              </button>
+              <button
+                onClick={() => handleQuickAction("Ver Comisiones 📄")}
+                className="w-full text-left px-3 py-2 text-sm text-muted-foreground bg-muted rounded-full border transition-colors hover:bg-muted/80"
+              >
+                Ver Comisiones 📄
+              </button>
+            </div>
+
             {/* Input area */}
             <div className="p-2 border-t">
               <div className="relative">
@@ -291,28 +313,6 @@ function ChatSamiContent({ defaultMinimized = false }: ChatSamiProps) {
                 )}
               </div>
             </div>
-          </div>
-
-          {/* Acciones rápidas */}
-          <div className="p-2 space-y-2 shrink-0">
-            <button
-              onClick={() => handleQuickAction("Consultar Informe 🚀")}
-              className="w-full text-left px-3 py-2 text-sm text-muted-foreground bg-muted rounded-full border transition-colors hover:bg-muted/80"
-            >
-              Consultar Informe 🚀
-            </button>
-            <button
-              onClick={() => handleQuickAction("Ver Leads ℹ️")}
-              className="w-full text-left px-3 py-2 text-sm text-muted-foreground bg-muted rounded-full border transition-colors hover:bg-muted/80"
-            >
-              Ver Leads ℹ️
-            </button>
-            <button
-              onClick={() => handleQuickAction("Ver Comisiones 📄")}
-              className="w-full text-left px-3 py-2 text-sm text-muted-foreground bg-muted rounded-full border transition-colors hover:bg-muted/80"
-            >
-              Ver Comisiones 📄
-            </button>
           </div>
         </div>
       )}
