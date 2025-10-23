@@ -4,6 +4,8 @@ import { Button } from "@/components/ui/button";
 import { opportunitiesService } from "@/services/opportunitiesService";
 import { IOpportunity } from "@/types/opportunities";
 import { SimpleChatInterface } from "./SimpleChatInterface";
+import { SettingsProvider } from "@/contexts/SettingsContext";
+import { ThemeProvider } from "@/contexts/ThemeContext";
 
 type ChatSamiProps = {
   /** Opcional: iniciar minimizado */
@@ -39,9 +41,11 @@ export default function ChatSami({ defaultMinimized = false }: ChatSamiProps) {
   };
 
   return (
-    <>
-      {/* Burbuja flotante */}
-      {viewMode === "hidden" && (
+    <ThemeProvider>
+      <SettingsProvider>
+        <>
+          {/* Burbuja flotante */}
+          {viewMode === "hidden" && (
         <button
           onClick={() => setViewMode("minimized")}
           className="fixed bottom-6 right-6 z-50 h-16 w-16 rounded-full bg-transparent transition-all duration-200 flex items-center justify-center group"
@@ -232,6 +236,8 @@ export default function ChatSami({ defaultMinimized = false }: ChatSamiProps) {
           </div>
         </div>
       )}
-    </>
+        </>
+      </SettingsProvider>
+    </ThemeProvider>
   );
 }
