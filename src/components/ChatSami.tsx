@@ -49,8 +49,6 @@ function ChatSamiContent({ isOpen = false, onOpenChange }: ChatSamiProps) {
   const [showTemplatesModal, setShowTemplatesModal] = useState(false);
   const [selectedOpportunity, setSelectedOpportunity] = useState<IOpportunity | null>(null);
   const [showOpportunityModal, setShowOpportunityModal] = useState(false);
-  const isMobile = useIsMobile();
-  const isMedium = useIsMedium();
   const chatInterfaceRef = useRef<any>(null);
 
   useImperativeHandle(ref, () => ({
