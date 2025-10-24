@@ -123,14 +123,6 @@ export const SimpleMessage: React.FC<SimpleMessageProps> = ({ message }) => {
         {/* Avatar */}
         <div className={`flex-shrink-0 ${isUser ? 'ml-3' : 'mr-3'}`}>
           {isUser ? (
-            <Avatar className="w-8 h-8">
-              {photoUrl && (
-                <AvatarImage src={photoUrl} alt={user?.name || 'Usuario'} />
-              )}
-              <AvatarFallback className="bg-gray-700 text-white text-xs">
-                {getUserInitials()}
-              </AvatarFallback>
-            </Avatar>
           ) : (
             <div className="w-10 h-10 rounded-full bg-white border border-gray-200 overflow-hidden flex items-center justify-center">
               <img 

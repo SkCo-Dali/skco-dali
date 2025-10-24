@@ -393,11 +393,7 @@ const ChatSamiContent = forwardRef<ChatSamiHandle, ChatSamiProps>(({ isOpen = fa
             {/* Messages area */}
             <div ref={messagesContainerRef} className="flex-1 overflow-y-auto p-4 space-y-3">
               {messages.length === 0 ? (
-                <div className="flex items-center justify-center h-full">
-                  <p className="text-sm text-muted-foreground text-center px-4">
-                    ¡Hola! Soy Dali, tu asistente de IA. ¿En qué puedo ayudarte hoy?
-                  </p>
-                </div>
+                <div className="flex items-center justify-center h-full"></div>
               ) : (
                 messages.map((msg) => <SimpleMessage key={msg.id} message={msg} />)
               )}
