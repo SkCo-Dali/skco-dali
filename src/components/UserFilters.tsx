@@ -32,7 +32,7 @@ export function UserFilters({ searchTerm, setSearchTerm, roleFilter, setRoleFilt
         />
       </div>
 
-      <Select value={roleFilter} onValueChange={setRoleFilter}>
+      <Select className="items-end" value={roleFilter} onValueChange={setRoleFilter}>
         <Label htmlFor="role-filter">Filtrar por rol</Label>
         <SelectTrigger className="w-48">
           <SelectValue />
