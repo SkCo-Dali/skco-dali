@@ -20,40 +20,36 @@ export function UserFilters({ searchTerm, setSearchTerm, roleFilter, setRoleFilt
   };
 
   return (
-    <Card>
-      <CardContent className="p-0 border-0">
-        <div className="flex gap-4 items-end">
-          <div className="flex-1">
-            <Label htmlFor="search">Buscar usuarios</Label>
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-              <Input
-                id="search"
-                placeholder="Buscar por nombre o email..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="!pl-10"
-              />
-            </div>
-          </div>
-          <div>
-            <Label htmlFor="role-filter">Filtrar por rol</Label>
-            <Select value={roleFilter} onValueChange={setRoleFilter}>
-              <SelectTrigger className="w-48">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Todos los roles</SelectItem>
-                {roles.map((role) => (
-                  <SelectItem key={role.value} value={role.value}>
-                    {role.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
+    <div className="flex gap-4 items-end">
+      <div className="flex-1">
+        <Label htmlFor="search">Buscar usuarios</Label>
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+          <Input
+            id="search"
+            placeholder="Buscar por nombre o email..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="!pl-10"
+          />
         </div>
-      </CardContent>
-    </Card>
+      </div>
+      <div>
+        <Label htmlFor="role-filter">Filtrar por rol</Label>
+        <Select value={roleFilter} onValueChange={setRoleFilter}>
+          <SelectTrigger className="w-48">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">Todos los roles</SelectItem>
+            {roles.map((role) => (
+              <SelectItem key={role.value} value={role.value}>
+                {role.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+    </div>
   );
 }
