@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { TableCell, TableRow } from "@/components/ui/table";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -7,7 +6,17 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { Trash2, Edit2, Check, X } from "lucide-react";
 import { User, UserPermissions, getRoleDisplayName } from "@/types/crm";
 import { roles } from "@/utils/userRoleUtils";
@@ -16,20 +25,20 @@ interface UserTableRowProps {
   user: User;
   permissions: UserPermissions | null;
   currentUserId: string;
-  onRoleUpdate: (userId: string, newRole: User['role']) => void;
+  onRoleUpdate: (userId: string, newRole: User["role"]) => void;
   onUserDelete: (userId: string) => void;
   onUserStatusToggle: (userId: string, isActive: boolean) => void;
   onUserUpdate: (userId: string, name: string, email: string) => void;
 }
 
-export function UserTableRow({ 
-  user, 
-  permissions, 
-  currentUserId, 
-  onRoleUpdate, 
-  onUserDelete, 
+export function UserTableRow({
+  user,
+  permissions,
+  currentUserId,
+  onRoleUpdate,
+  onUserDelete,
   onUserStatusToggle,
-  onUserUpdate 
+  onUserUpdate,
 }: UserTableRowProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [editName, setEditName] = useState(user.name);
@@ -57,10 +66,13 @@ export function UserTableRow({
     <TableRow>
       <TableCell>
         <div className="flex items-center space-x-3">
-          <Avatar className="h-8 w-8">
+          <Avatar className="h-6 w-6">
             <AvatarImage src={user.avatar} />
             <AvatarFallback>
-              {user.name.split(" ").map(n => n[0]).join("")}
+              {user.name
+                .split(" ")
+                .map((n) => n[0])
+                .join("")}
             </AvatarFallback>
           </Avatar>
           <div className="flex-1">
@@ -74,9 +86,7 @@ export function UserTableRow({
             ) : (
               <div>
                 <span className="font-medium">{user.name}</span>
-                {isCurrentUser && (
-                  <span className="ml-2 text-xs text-blue-600 font-medium">(Tú)</span>
-                )}
+                {isCurrentUser && <span className="ml-2 text-xs text-blue-600 font-medium">(Tú)</span>}
               </div>
             )}
           </div>
@@ -96,16 +106,12 @@ export function UserTableRow({
         )}
       </TableCell>
       <TableCell>
-        <Badge variant="outline">
-          {getRoleDisplayName(user.role)}
-        </Badge>
+        <Badge variant="outline">{getRoleDisplayName(user.role)}</Badge>
       </TableCell>
-      <TableCell>{user.jobTitle || '-'}</TableCell>
+      <TableCell>{user.jobTitle || "-"}</TableCell>
       <TableCell>
         <div className="flex items-center gap-2">
-          <Badge variant={user.isActive ? "default" : "secondary"}>
-            {user.isActive ? 'Activo' : 'Inactivo'}
-          </Badge>
+          <Badge variant={user.isActive ? "default" : "secondary"}>{user.isActive ? "Activo" : "Inactivo"}</Badge>
           {permissions?.canAssignRoles && !isCurrentUser && (
             <Switch
               checked={user.isActive ?? true}
@@ -141,16 +147,14 @@ export function UserTableRow({
               {permissions?.canAssignRoles && (
                 <Select
                   value={user.role}
-                  onValueChange={(newRole: User['role']) => 
-                    onRoleUpdate(user.id, newRole)
-                  }
+                  onValueChange={(newRole: User["role"]) => onRoleUpdate(user.id, newRole)}
                   disabled={isCurrentUser}
                 >
                   <SelectTrigger className="w-32">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    {roles.map(role => (
+                    {roles.map((role) => (
                       <SelectItem key={role.value} value={role.value}>
                         {role.label}
                       </SelectItem>
@@ -158,7 +162,7 @@ export function UserTableRow({
                   </SelectContent>
                 </Select>
               )}
-              
+
               {permissions?.canAssignRoles && !isCurrentUser && (
                 <>
                   <Button
@@ -170,19 +174,18 @@ export function UserTableRow({
                       border: "1px solid #ffffff",
                       color: "#00C73D",
                     }}
-                    onMouseEnter={e => {
+                    onMouseEnter={(e) => {
                       e.currentTarget.style.backgroundColor = "#3f3f3f";
                       e.currentTarget.style.color = "#ffffff";
                     }}
-                    onMouseLeave={e => {
+                    onMouseLeave={(e) => {
                       e.currentTarget.style.backgroundColor = "#ffffff";
                       e.currentTarget.style.color = "#00C73D";
                     }}
-                    
                   >
                     <Edit2 className="h-4 w-4" />
                   </Button>
-                  
+
                   <AlertDialog>
                     <AlertDialogTrigger asChild>
                       <Button variant="outline" size="sm" className="text-red-600 hover:text-red-700">
@@ -193,13 +196,13 @@ export function UserTableRow({
                       <AlertDialogHeader>
                         <AlertDialogTitle>¿Eliminar usuario?</AlertDialogTitle>
                         <AlertDialogDescription>
-                          Esta acción eliminará permanentemente al usuario {user.name} ({user.email}) 
-                          del sistema. Esta acción no se puede deshacer.
+                          Esta acción eliminará permanentemente al usuario {user.name} ({user.email}) del sistema. Esta
+                          acción no se puede deshacer.
                         </AlertDialogDescription>
                       </AlertDialogHeader>
                       <AlertDialogFooter>
                         <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                        <AlertDialogAction 
+                        <AlertDialogAction
                           className="bg-red-600 hover:bg-red-700"
                           onClick={() => onUserDelete(user.id)}
                         >

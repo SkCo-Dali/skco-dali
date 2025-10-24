@@ -24,5 +24,10 @@ yarn-error.log*
 /.turbo
 /.next
 out/
+
+# Certificados SSL de prueba (desarrollo local)
+.certs/
 *.pem
+*.key
+
 .env

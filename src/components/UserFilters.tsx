@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -15,46 +14,53 @@ interface UserFiltersProps {
 }
 
 export function UserFilters({ searchTerm, setSearchTerm, roleFilter, setRoleFilter }: UserFiltersProps) {
+  const [localSearchTerm, setLocalSearchTerm] = useState(searchTerm);
+
+  // Debounce: esperar 500ms después de que el usuario deje de escribir
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setSearchTerm(localSearchTerm);
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [localSearchTerm, setSearchTerm]);
+
   const getRoleDisplayName = (role: string): string => {
-    const foundRole = roles.find(r => r.value === role);
+    const foundRole = roles.find((r) => r.value === role);
     return foundRole ? foundRole.label : role;
   };
 
   return (
-    <Card>
-      <CardContent className="pt-6">
-        <div className="flex gap-4 items-end">
-          <div className="flex-1">
-            <Label htmlFor="search">Buscar usuarios</Label>
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-              <Input
-                id="search"
-                placeholder="Buscar por nombre o email..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="!pl-10"
-              />
-            </div>
-          </div>
-          <div>
-            <Label htmlFor="role-filter">Filtrar por rol</Label>
-            <Select value={roleFilter} onValueChange={setRoleFilter}>
-              <SelectTrigger className="w-48">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Todos los roles</SelectItem>
-                {roles.map(role => (
-                  <SelectItem key={role.value} value={role.value}>
-                    {role.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-        </div>
-      </CardContent>
-    </Card>
+    <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center justify-between mb-4">
+      <div className="relative flex-1 max-w-md">
+        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+        <Input
+          id="search"
+          placeholder="Buscar por nombre, correo, rol o estado..."
+          value={localSearchTerm}
+          onChange={(e) => setLocalSearchTerm(e.target.value)}
+          className="!pl-10"
+        />
+      </div>
+
+      <div className="flex items-center space-x-2 ml-auto">
+        <Select value={roleFilter} onValueChange={setRoleFilter}>
+          <Label className="m-0" htmlFor="role-filter">
+            Filtrar por rol
+          </Label>
+          <SelectTrigger className="w-48">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">Todos los roles</SelectItem>
+            {roles.map((role) => (
+              <SelectItem key={role.value} value={role.value}>
+                {role.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+    </div>
   );
 }

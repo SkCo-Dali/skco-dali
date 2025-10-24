@@ -321,11 +321,10 @@ const ChatSamiContent = forwardRef<ChatSamiHandle, ChatSamiProps>(({ isOpen = fa
 
       {/* Panel lateral fijo */}
       {isOpen && viewMode !== "maximized" && (
-        <div className="fixed top-24 right-4 bottom-4 w-[360px] border bg-background shadow-lg flex flex-col z-30 rounded-xl">
+        <div className="fixed top-20 right-0 bottom-0 w-[360px] border-l bg-background shadow-none flex flex-col z-30">
           {/* Header */}
-          <div className="flex items-center justify-between p-3 bg-[#fafafa] border-b shrink-0">
-            <h2 className="text-lg font-semibold text-foreground">SamiGPT</h2>
-            <div className="flex items-center gap-1">
+          <div className="flex items-center justify-end px-2 pt-2 bg-transparent shrink-0">
+            <div className="flex items-end gap-1">
               <Button
                 variant="ghost"
                 size="icon"
@@ -335,7 +334,7 @@ const ChatSamiContent = forwardRef<ChatSamiHandle, ChatSamiProps>(({ isOpen = fa
               >
                 <Maximize2 className="h-4 w-4" />
               </Button>
-              <Button
+              {/* <Button
                 variant="ghost"
                 size="icon"
                 onClick={() => handleToggle(false)}
@@ -343,7 +342,7 @@ const ChatSamiContent = forwardRef<ChatSamiHandle, ChatSamiProps>(({ isOpen = fa
                 aria-label="Cerrar"
               >
                 <Minus className="h-4 w-4" />
-              </Button>
+              </Button>*/}
               {/* Botón de acciones */}
               <ChatActionsButton
                 onNewConversation={handleNewChat}
@@ -354,7 +353,7 @@ const ChatSamiContent = forwardRef<ChatSamiHandle, ChatSamiProps>(({ isOpen = fa
           </div>
 
           {/* Tip del día */}
-          <div className="p-4 space-y-3 shrink-0 border-b">
+          <div className="px-4 pb-4 space-y-3 shrink-0 border-b">
             <div className="flex items-center gap-2 bg-[#e8f5e9] rounded-full p-2">
               <div className="shrink-0 bg-black rounded-full p-1.5">
                 <Lightbulb className="h-4 w-4 text-[#00c83c]" />
@@ -395,9 +394,7 @@ const ChatSamiContent = forwardRef<ChatSamiHandle, ChatSamiProps>(({ isOpen = fa
             <div ref={messagesContainerRef} className="flex-1 overflow-y-auto p-4 space-y-3">
               {messages.length === 0 ? (
                 <div className="flex items-center justify-center h-full">
-                  <p className="text-sm text-muted-foreground text-center px-4">
-                    ¡Hola! Soy Dali, tu asistente de IA. ¿En qué puedo ayudarte hoy?
-                  </p>
+                  <p className="text-sm text-muted-foreground">Hola, ¡Qué gusto volver a hablar contigo!</p>
                 </div>
               ) : (
                 messages.map((msg) => <SimpleMessage key={msg.id} message={msg} />)
@@ -405,7 +402,7 @@ const ChatSamiContent = forwardRef<ChatSamiHandle, ChatSamiProps>(({ isOpen = fa
               <div ref={messagesEndRef} />
             </div>
 
-            {/* Acciones rápidas */}
+            {/* Acciones rápidas 
             <div className="px-2 py-2 shrink-0">
               <div className="relative group">
                 <Carousel className="px-4 w-full" opts={{ slidesToScroll: 1, align: "start", loop: true }}>
@@ -422,12 +419,12 @@ const ChatSamiContent = forwardRef<ChatSamiHandle, ChatSamiProps>(({ isOpen = fa
                     ))}
                   </CarouselContent>
 
-                  {/* Botones ocultos hasta hover */}
+                  
                   <CarouselPrevious className="absolute -left-2 top-1/2 -translate-y-1/2 h-7 w-7" />
                   <CarouselNext className="absolute -right-2 top-1/2 -translate-y-1/2 h-7 w-7" />
                 </Carousel>
               </div>
-            </div>
+            </div>*/}
 
             {/* Input area */}
             <div className="p-3 border-t shrink-0">
@@ -534,9 +531,7 @@ const ChatSamiContent = forwardRef<ChatSamiHandle, ChatSamiProps>(({ isOpen = fa
               <div ref={messagesContainerRef} className="flex-1 overflow-y-auto p-4 space-y-4">
                 {messages.length === 0 ? (
                   <div className="flex items-center justify-center h-full">
-                    <p className="text-sm text-muted-foreground">
-                      ¡Hola! Soy Dali, tu asistente de IA. ¿En qué puedo ayudarte hoy?
-                    </p>
+                    <p className="text-sm text-muted-foreground">Hola, ¡Qué gusto volver a hablar contigo!</p>
                   </div>
                 ) : (
                   messages.map((msg) => <SimpleMessage key={msg.id} message={msg} />)
@@ -544,7 +539,7 @@ const ChatSamiContent = forwardRef<ChatSamiHandle, ChatSamiProps>(({ isOpen = fa
                 <div ref={messagesEndRef} />
               </div>
 
-              {/* Acciones rápidas */}
+              {/* Acciones rápidas 
               <div className="px-2 py-2 shrink-0">
                 <Carousel
                   className="px-4 w-full relative group"
@@ -565,7 +560,7 @@ const ChatSamiContent = forwardRef<ChatSamiHandle, ChatSamiProps>(({ isOpen = fa
                   <CarouselPrevious className="absolute -left-2 top-1/2 -translate-y-1/2 h-8 w-8" />
                   <CarouselNext className="absolute -right-2 top-1/2 -translate-y-1/2 h-8 w-8" />
                 </Carousel>
-              </div>
+              </div>*/}
             </div>
 
             {/* Input area */}
