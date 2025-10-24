@@ -64,8 +64,8 @@ export function TodayAgenda() {
   return (
     <Card className="p-4 max-h-[450px] flex flex-col gap-4 bg-[#fafafa]">
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2  truncate">
-          <h3 className="text-lg font-semibold">Tu agenda</h3>
+        <div className="flex items-center gap-2">
+          <h3 className="text-lg font-semibold truncate">Tu agenda</h3>
         </div>
         <Button variant="link" className="text-primary p-0 h-auto truncate">
           Organiza tu agenda
