@@ -14,6 +14,17 @@ interface UserFiltersProps {
 }
 
 export function UserFilters({ searchTerm, setSearchTerm, roleFilter, setRoleFilter }: UserFiltersProps) {
+  const [localSearchTerm, setLocalSearchTerm] = useState(searchTerm);
+
+  // Debounce: esperar 500ms después de que el usuario deje de escribir
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setSearchTerm(localSearchTerm);
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [localSearchTerm, setSearchTerm]);
+
   const getRoleDisplayName = (role: string): string => {
     const foundRole = roles.find((r) => r.value === role);
     return foundRole ? foundRole.label : role;
@@ -25,9 +36,9 @@ export function UserFilters({ searchTerm, setSearchTerm, roleFilter, setRoleFilt
         <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
         <Input
           id="search"
-          placeholder="Buscar por nombre o email..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
+          placeholder="Buscar por nombre, correo, rol o estado..."
+          value={localSearchTerm}
+          onChange={(e) => setLocalSearchTerm(e.target.value)}
           className="!pl-10"
         />
       </div>
