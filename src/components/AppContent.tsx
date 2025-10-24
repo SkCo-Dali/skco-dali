@@ -35,7 +35,10 @@ export function AppContent() {
   const chatSamiRef = useRef<ChatSamiHandle>(null);
   const location = useLocation();
   const navigate = useNavigate();
-  const [chatSamiOpen, setChatSamiOpen] = useState(true);
+  
+  // Check if user has ChatSami permissions
+  const hasChatSamiPermissions = user ? getRolePermissions(user.role)?.chatSami : false;
+  const [chatSamiOpen, setChatSamiOpen] = useState(false);
 
   if (loading) {
     return (
@@ -71,7 +74,7 @@ export function AppContent() {
             <AppSidebar />
             <div
               className="flex-1 flex flex-col transition-all duration-300"
-              style={{ marginRight: chatSamiOpen ? "380px" : "0" }}
+              style={{ marginRight: chatSamiOpen && hasChatSamiPermissions ? "380px" : "0" }}
             >
               <Header onBannerMessage={handleBannerMessage} />
               <main className="flex-1 pt-20">
@@ -100,8 +103,8 @@ export function AppContent() {
               </main>
             </div>
 
-            {/* ChatSami - disponible en todas las páginas */}
-            {user && getRolePermissions(user.role)?.chatSami && (
+            {/* ChatSami - disponible solo para usuarios con permisos */}
+            {hasChatSamiPermissions && (
               <ChatSami ref={chatSamiRef} isOpen={chatSamiOpen} onOpenChange={setChatSamiOpen} />
             )}
           </div>
