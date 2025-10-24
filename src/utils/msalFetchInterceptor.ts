@@ -36,12 +36,19 @@ export const registerMsalFetchInterceptor = (instance: IPublicClientApplication)
                             const tokenResp = await instance.acquireTokenSilent({ ...loginRequest, account });
                             bearerToken = tokenResp.accessToken;
                         } catch (e) {
-                            console.warn("MSAL acquireTokenSilent failed, falling back to idToken", e);
-                            bearerToken = account.idToken;
+                            console.error("MSAL acquireTokenSilent failed - not attaching Authorization header", e);
+                            bearerToken = undefined;
                         }
                     }
 
                     if (bearerToken) {
+                        // Log token information for debugging
+                        const tokenPreview = bearerToken.substring(0, 20) + '...' + bearerToken.substring(bearerToken.length - 20);
+                        console.log('🔑 MSAL INTERCEPTOR - Token being used:');
+                        console.log('   📍 URL:', reqUrl);
+                        console.log('   🎫 Token preview:', tokenPreview);
+                        console.log('   📏 Token length:', bearerToken.length);
+                        
                         // Ensure headers object exists and set Authorization header
                         if (cfg.headers instanceof Headers) {
                             cfg.headers.set('Authorization', `Bearer ${bearerToken}`);
