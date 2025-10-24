@@ -98,6 +98,9 @@ export default function UsersPage() {
       // Validar que el rol sea válido
       const validRoles = [
         "admin",
+        "manager",
+        "agent",
+        "viewer",
         "seguridad",
         "analista",
         "supervisor",
@@ -107,6 +110,7 @@ export default function UsersPage() {
         "aliado",
         "socio",
         "fp",
+        "ais",
         "ejecutivo",
         "supervisorComisiones",
         "analistaComisiones",
