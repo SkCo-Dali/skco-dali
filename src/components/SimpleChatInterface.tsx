@@ -149,19 +149,18 @@ export const SimpleChatInterface = forwardRef<any, {}>((props, ref) => {
 
       // PASO 1: Si es nueva conversación, crearla en Azure primero
       if (isNewConversation) {
-        console.log('📝 Creando nueva conversación en Azure...');
+        console.log('📝 Creando nueva conversación en Azure...', { userEmail, conversationTitle });
         conversationId = await azureConversationService.createConversation(
           userEmail,
           conversationTitle
         );
         console.log('✅ Conversación creada en Azure con ID:', conversationId);
-        
         // Actualizar el ID local de la conversación con el ID real de Azure
         updateConversationId(conversationId);
       }
 
       // PASO 2: Guardar en Azure el mensaje del usuario antes de llamar al maestro
-      console.log('💾 Guardando mensaje del usuario en Azure...');
+      console.log('💾 Guardando mensaje del usuario en Azure...', { conversationId, count: (messages?.length || 0) + 1 });
       const messagesBeforeAssistant = [...messages, userMessage];
       await azureConversationService.updateConversation(conversationId, userEmail, {
         title: conversationTitle,

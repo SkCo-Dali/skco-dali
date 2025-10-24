@@ -14,6 +14,7 @@ import { useSimpleConversation } from "@/contexts/SimpleConversationContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { useSettings } from "@/contexts/SettingsContext";
 import { callAzureAgentApi } from "@/utils/azureApiService";
+import { azureConversationService } from "@/services/azureConversationService";
 import { ChatMessage } from "@/types/chat";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
@@ -38,7 +39,7 @@ const ChatSamiContent = forwardRef<ChatSamiHandle, ChatSamiProps>(({ isOpen = fa
   const [inputMessage, setInputMessage] = useState("");
   const [opportunityLoading, setOpportunityLoading] = useState(true);
 
-  const { currentConversation, addMessage, createNewConversation } = useSimpleConversation();
+  const { currentConversation, addMessage, createNewConversation, updateConversationId } = useSimpleConversation();
   const { user } = useAuth();
   const { aiSettings } = useSettings();
   const isMobile = useIsMobile();
@@ -99,40 +100,86 @@ const ChatSamiContent = forwardRef<ChatSamiHandle, ChatSamiProps>(({ isOpen = fa
     }
   }, [currentConversation, createNewConversation]);
 
-  // Función para enviar mensaje directamente (usado por el ref)
-  const sendMessageDirectly = async (messageContent: string) => {
-    if (!messageContent.trim() || isLoading || !currentConversation) return;
+  // Genera un título “inteligente” desde el 1er mensaje del usuario (igual a Chat Dali)
+  const generateConversationTitle = (message: string): string => {
+    const cleanMessage = message.trim();
+    if (cleanMessage.length <= 30) return cleanMessage;
+    const firstSentence = cleanMessage.split(/[.!?]/)[0];
+    if (firstSentence.length <= 50) return firstSentence.trim();
+    const words = cleanMessage.split(' ');
+    let title = '';
+    for (const w of words) {
+      if ((title + ' ' + w).length > 45) break;
+      title = title ? `${title} ${w}` : w;
+    }
+    return title || cleanMessage.substring(0, 45);
+  };
 
-    const userMessage: ChatMessage = {
-      id: Date.now().toString(),
-      type: "user",
-      content: messageContent.trim(),
-      timestamp: new Date(),
-    };
+  // Flujo replicado de Chat Dali: crear/guardar en Azure -> llamar maestro -> guardar ambos mensajes
+  const processSend = async (userMessage: ChatMessage, originalContent: string) => {
+    console.group('%c🧠 ChatSami - Proceso de envío', 'color:#16a34a;font-weight:bold');
+    console.log('📩 userEmail:', userEmail);
+    console.log('🆔 currentConversationId (local):', currentConversation?.id);
+    console.log('💬 mensaje (preview 80):', originalContent.slice(0, 80));
 
-    addMessage(userMessage);
-    setIsLoading(true);
+    const isNewConversation = (messages?.length || 0) === 0;
+    const conversationTitle = isNewConversation
+      ? generateConversationTitle(originalContent)
+      : (currentConversation?.title || 'Conversación');
+
+    let conversationId = currentConversation?.id;
 
     try {
-      const response = await callAzureAgentApi("", [], aiSettings, userEmail, currentConversation.id);
+      if (isNewConversation) {
+        console.log('📝 Creando nueva conversación en Azure...', { userEmail, conversationTitle });
+        conversationId = await azureConversationService.createConversation(userEmail, conversationTitle);
+        console.log('✅ Conversación creada en Azure con ID:', conversationId);
+        updateConversationId(conversationId);
+      } else {
+        console.log('ℹ️ Usando conversación existente con ID:', conversationId);
+      }
 
-      let aiResponseContent = "";
+      // Guardar mensaje del usuario antes de llamar al maestro
+      const messagesBeforeAssistant = [...(messages || []), userMessage];
+      console.log('💾 Guardando mensaje del usuario en Azure...', { conversationId, count: messagesBeforeAssistant.length });
+      await azureConversationService.updateConversation(conversationId!, userEmail, {
+        title: conversationTitle,
+        messages: messagesBeforeAssistant.map((msg) => ({
+          role: msg.type === 'user' ? 'user' as const : 'assistant' as const,
+          content: msg.content,
+          timestamp: msg.timestamp.toISOString(),
+          data: (msg as any).data,
+          chart: (msg as any).chart,
+          downloadLink: (msg as any).downloadLink,
+          videoPreview: (msg as any).videoPreview,
+          metadata: (msg as any).metadata,
+        })),
+        updatedAt: new Date().toISOString(),
+      });
+      console.log('✅ Mensaje del usuario guardado en Azure');
+
+      // Llamar al maestro (lee por conversationId)
+      console.log('📞 Llamando al agente maestro...', { conversationId, userEmail });
+      const response = await callAzureAgentApi('', [], aiSettings, userEmail, conversationId);
+      console.log('✅ Respuesta recibida del agente maestro');
+
+      let aiResponseContent = '';
       if ((response as any).text) {
         aiResponseContent = (response as any).text;
       } else if ((response as any).data) {
         const d = (response as any).data;
         if (d.headers && d.rows) {
-          aiResponseContent = `Se encontraron ${d.rows.length} registros con los siguientes campos: ${d.headers.join(", ")}`;
+          aiResponseContent = `Se encontraron ${d.rows.length} registros con los siguientes campos: ${d.headers.join(', ')}`;
         } else {
-          aiResponseContent = "Se procesaron los datos correctamente.";
+          aiResponseContent = 'Se procesaron los datos correctamente.';
         }
       } else {
-        aiResponseContent = "Respuesta recibida del sistema.";
+        aiResponseContent = 'Respuesta recibida del sistema.';
       }
 
       const assistantMessage: ChatMessage = {
         id: (Date.now() + 1).toString(),
-        type: "assistant",
+        type: 'assistant',
         content: aiResponseContent,
         timestamp: new Date(),
         data: (response as any).data,
@@ -142,12 +189,54 @@ const ChatSamiContent = forwardRef<ChatSamiHandle, ChatSamiProps>(({ isOpen = fa
       };
 
       addMessage(assistantMessage);
+
+      const finalMessages = [...messagesBeforeAssistant, assistantMessage];
+      console.log('💾 Actualizando conversación en Azure con ambos mensajes...', { total: finalMessages.length });
+      await azureConversationService.updateConversation(conversationId!, userEmail, {
+        title: conversationTitle,
+        messages: finalMessages.map((msg) => ({
+          role: msg.type === 'user' ? 'user' as const : 'assistant' as const,
+          content: msg.content,
+          timestamp: msg.timestamp.toISOString(),
+          data: (msg as any).data,
+          chart: (msg as any).chart,
+          downloadLink: (msg as any).downloadLink,
+          videoPreview: (msg as any).videoPreview,
+          metadata: (msg as any).metadata,
+        })),
+        updatedAt: new Date().toISOString(),
+      });
+      console.log('✅ Conversación actualizada en Azure');
     } catch (error) {
-      console.error("Error al enviar mensaje:", error);
+      console.error('❌ Error en processSend:', error);
+      throw error;
+    } finally {
+      console.groupEnd();
+    }
+  };
+
+  // Función para enviar mensaje directamente (usado por el ref)
+  const sendMessageDirectly = async (messageContent: string) => {
+    if (!messageContent.trim() || isLoading || !currentConversation) return;
+
+    const userMessage: ChatMessage = {
+      id: Date.now().toString(),
+      type: 'user',
+      content: messageContent.trim(),
+      timestamp: new Date(),
+    };
+
+    addMessage(userMessage);
+    setIsLoading(true);
+
+    try {
+      await processSend(userMessage, messageContent.trim());
+    } catch (error) {
+      console.error('Error al enviar mensaje (direct):', error);
       const errorMessage: ChatMessage = {
         id: (Date.now() + 1).toString(),
-        type: "assistant",
-        content: "Lo siento, hubo un error al procesar tu mensaje.",
+        type: 'assistant',
+        content: 'Lo siento, hubo un error al procesar tu mensaje.',
         timestamp: new Date(),
       };
       addMessage(errorMessage);
@@ -238,51 +327,23 @@ const ChatSamiContent = forwardRef<ChatSamiHandle, ChatSamiProps>(({ isOpen = fa
     const messageContent = inputMessage.trim();
     const userMessage: ChatMessage = {
       id: Date.now().toString(),
-      type: "user",
+      type: 'user',
       content: messageContent,
       timestamp: new Date(),
     };
 
     addMessage(userMessage);
-    setInputMessage("");
+    setInputMessage('');
     setIsLoading(true);
 
     try {
-      const response = await callAzureAgentApi("", [], aiSettings, userEmail, currentConversation.id);
-
-      // Preparar respuesta del asistente
-      let aiResponseContent = "";
-      if ((response as any).text) {
-        aiResponseContent = (response as any).text;
-      } else if ((response as any).data) {
-        const d = (response as any).data;
-        if (d.headers && d.rows) {
-          aiResponseContent = `Se encontraron ${d.rows.length} registros con los siguientes campos: ${d.headers.join(", ")}`;
-        } else {
-          aiResponseContent = "Se procesaron los datos correctamente.";
-        }
-      } else {
-        aiResponseContent = "Respuesta recibida del sistema.";
-      }
-
-      const assistantMessage: ChatMessage = {
-        id: (Date.now() + 1).toString(),
-        type: "assistant",
-        content: aiResponseContent,
-        timestamp: new Date(),
-        data: (response as any).data,
-        chart: (response as any).chart,
-        downloadLink: (response as any).downloadLink,
-        videoPreview: (response as any).videoPreview,
-      };
-
-      addMessage(assistantMessage);
+      await processSend(userMessage, messageContent);
     } catch (error) {
-      console.error("Error al enviar mensaje:", error);
+      console.error('Error al enviar mensaje:', error);
       const errorMessage: ChatMessage = {
         id: (Date.now() + 1).toString(),
-        type: "assistant",
-        content: "Lo siento, hubo un error al procesar tu mensaje.",
+        type: 'assistant',
+        content: 'Lo siento, hubo un error al procesar tu mensaje.',
         timestamp: new Date(),
       };
       addMessage(errorMessage);
