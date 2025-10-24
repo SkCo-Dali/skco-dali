@@ -175,11 +175,7 @@ export function DashboardOverview({ leads, loading }: DashboardOverviewProps) {
               <MetricCard
                 title="Total de Leads"
                 value={kpiCounts.loading ? "..." : kpiCounts.totalLeads.toLocaleString()}
-                changePercent={
-                  kpiCounts.loading ? undefined : Math.round((kpiCounts.newLeads / (kpiCounts.totalLeads || 1)) * 100)
-                }
-                changeLabel="nuevos"
-                variant="neutral"
+                description="Leads en la base de datos"
               />
               <MetricCard
                 title="Leads Nuevos"
