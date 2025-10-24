@@ -39,13 +39,20 @@ export function AppContent() {
   // Check if user has ChatSami permissions
   const hasChatSamiPermissions = user ? getRolePermissions(user.role)?.chatSami : false;
   const [chatSamiOpen, setChatSamiOpen] = useState(false);
+  
+  // Verificar si estamos en la página de Users
+  const isUsersPage = location.pathname === '/users' || location.pathname === '/admin/users';
 
-  // Abrir ChatSami por defecto para usuarios con permisos
+  // Abrir ChatSami por defecto para usuarios con permisos (excepto en página de Users)
   useEffect(() => {
-    if (user && hasChatSamiPermissions && !chatSamiOpen) {
+    if (user && hasChatSamiPermissions && !chatSamiOpen && !isUsersPage) {
       setChatSamiOpen(true);
     }
-  }, [user, hasChatSamiPermissions]);
+    // Cerrar ChatSami si navegamos a la página de Users
+    if (isUsersPage && chatSamiOpen) {
+      setChatSamiOpen(false);
+    }
+  }, [user, hasChatSamiPermissions, isUsersPage]);
 
   if (loading) {
     return (
@@ -81,7 +88,7 @@ export function AppContent() {
             <AppSidebar />
             <div
               className="flex-1 flex flex-col transition-all duration-300"
-              style={{ marginRight: chatSamiOpen && hasChatSamiPermissions ? "380px" : "0" }}
+              style={{ marginRight: chatSamiOpen && hasChatSamiPermissions && !isUsersPage ? "380px" : "0" }}
             >
               <Header onBannerMessage={handleBannerMessage} />
               <main className="flex-1 pt-20">
@@ -110,8 +117,8 @@ export function AppContent() {
               </main>
             </div>
 
-            {/* ChatSami - disponible solo para usuarios con permisos */}
-            {hasChatSamiPermissions && (
+            {/* ChatSami - disponible solo para usuarios con permisos, excepto en página de Users */}
+            {hasChatSamiPermissions && !isUsersPage && (
               <ChatSami ref={chatSamiRef} isOpen={chatSamiOpen} onOpenChange={setChatSamiOpen} />
             )}
           </div>
