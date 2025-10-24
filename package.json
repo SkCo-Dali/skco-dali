@@ -9,8 +9,8 @@
     "build:dev": "vite build --mode development",
     "lint": "eslint .",
     "preview": "vite preview",
-    "build:web-components": "node scripts/build-web-components.js",
-    "run:web-components": "http-server dist/web-components -o -S"
+    "build:web-components": "node scripts/build-web-components-new.js",
+    "run:web-components": "http-server dist/web-components -o -S -c-1 --ssl --cert .certs/cert.pem --key .certs/key.pem"
   },
   "dependencies": {
     "@azure/msal-browser": "^4.25.0",
