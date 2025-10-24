@@ -48,8 +48,8 @@ export function MarketDaliOpportunities() {
       <div className="flex items-center justify-between">
        <div className="flex items-center gap-2">
         <ShoppingBag className="w-5 h-5" />
-        <h3 className="text-lg font-semibold">Oportunidades de Market Dali</h3>
-        <Button variant="link" className="text-primary p-0 h-auto" onClick={() => navigate("/oportunidades")}>
+        <h3 className="text-lg font-semibold truncate">Oportunidades de Market Dali</h3>
+        <Button variant="link" className="text-primary p-0 h-auto"> onClick={() => navigate("/oportunidades")}>
           Más oportunidades
           <ArrowRight className="ml-2 h-4 w-4" />
         </Button>
