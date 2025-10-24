@@ -321,7 +321,7 @@ const ChatSamiContent = forwardRef<ChatSamiHandle, ChatSamiProps>(({ isOpen = fa
 
       {/* Panel lateral fijo */}
       {isOpen && viewMode !== "maximized" && (
-        <div className="fixed top-24 right-4 bottom-4 w-[360px] border bg-background shadow-lg flex flex-col z-30 rounded-xl">
+        <div className="fixed top-20 right-0 bottom-4 w-[360px] border bg-background shadow-none flex flex-col z-30 rounded-xl">
           {/* Header */}
           <div className="flex items-center justify-between p-3 bg-[#fafafa] border-b shrink-0">
             <h2 className="text-lg font-semibold text-foreground">SamiGPT</h2>
@@ -335,7 +335,7 @@ const ChatSamiContent = forwardRef<ChatSamiHandle, ChatSamiProps>(({ isOpen = fa
               >
                 <Maximize2 className="h-4 w-4" />
               </Button>
-              <Button
+              {/* <Button
                 variant="ghost"
                 size="icon"
                 onClick={() => handleToggle(false)}
@@ -343,7 +343,7 @@ const ChatSamiContent = forwardRef<ChatSamiHandle, ChatSamiProps>(({ isOpen = fa
                 aria-label="Cerrar"
               >
                 <Minus className="h-4 w-4" />
-              </Button>
+              </Button>*/}
               {/* Botón de acciones */}
               <ChatActionsButton
                 onNewConversation={handleNewChat}
