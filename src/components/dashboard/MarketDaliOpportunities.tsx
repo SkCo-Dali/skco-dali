@@ -63,7 +63,7 @@ export function MarketDaliOpportunities() {
         </Button>
       </div>
 
-      <ScrollArea className="max-h-[280px]">
+      <ScrollArea className="h-full">
         <div className="space-y-3 flex-1 pr-4">
           {mockOpportunities.slice(0, 3).map((opportunity) => {
             const IconComponent = opportunity.icon;
