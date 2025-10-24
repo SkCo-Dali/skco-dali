@@ -1,7 +1,7 @@
 import React from "react";
 import { User } from "@/types/crm";
 import { KPICard } from "@/components/KPICard";
-import { Users, UserX, Briefcase, BadgeCheck, Store, Headphones, ShieldCheck, Calculator, Phone, PhoneCall } from "lucide-react";
+import { Users, UserX, Briefcase, BadgeCheck, Store, Headphones, ShieldCheck, Calculator, Phone, PhoneCall, Crown } from "lucide-react";
 
 interface UsersKPICardsProps {
   users: User[];
@@ -9,6 +9,10 @@ interface UsersKPICardsProps {
 }
 
 export function UsersKPICards({ users, totalUsers }: UsersKPICardsProps) {
+  // Administradores
+  const admins = users.filter((user) => user.role === "admin").length;
+  const adminsPercentage = totalUsers > 0 ? ((admins / totalUsers) * 100).toFixed(1) : "0";
+
   // Contar usuarios inactivos
   const inactiveUsers = users.filter((user) => !user.isActive).length;
   const inactivePercentage = totalUsers > 0 ? ((inactiveUsers / totalUsers) * 100).toFixed(1) : "0";
@@ -50,91 +54,100 @@ export function UsersKPICards({ users, totalUsers }: UsersKPICardsProps) {
   const comercialesSacPercentage = totalUsers > 0 ? ((comercialesSac / totalUsers) * 100).toFixed(1) : "0";
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 mb-2">
+    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-2 mb-2">
       <KPICard
-        title="Total de Usuarios"
+        title="Total Usuarios"
         value={totalUsers.toLocaleString()}
         icon={Users}
-        description="Usuarios en el sistema"
+        description="En el sistema"
       />
 
       <KPICard
-        title="Usuarios Inactivos"
+        title="Administradores"
+        value={admins.toString()}
+        icon={Crown}
+        change={`${adminsPercentage}%`}
+        changeType="neutral"
+        description="Rol admin"
+      />
+
+      <KPICard
+        title="Inactivos"
         value={inactiveUsers.toLocaleString()}
         icon={UserX}
-        change={`${inactivePercentage}% del total`}
+        change={`${inactivePercentage}%`}
         changeType={inactiveUsers > 0 ? "negative" : "positive"}
-        description="Usuarios desactivados"
+        description="Desactivados"
       />
 
       <KPICard
         title="Ejecutivos y Analistas"
         value={ejecutivosAnalistas.toString()}
         icon={Briefcase}
-        change={`${ejecutivosAnalistasPercentage}% del total`}
+        change={`${ejecutivosAnalistasPercentage}%`}
         changeType="neutral"
-        description="Usuarios administrativos"
+        description="Administrativos"
       />
 
       <KPICard
-        title="Comerciales Canal Seguros"
+        title="Canal Seguros"
         value={canalSeguros.toString()}
         icon={BadgeCheck}
-        change={`${canalSegurosPercentage}% del total`}
+        change={`${canalSegurosPercentage}%`}
         changeType="neutral"
-        description="AIS, Promotores, Aliados"
+        description="AIS, Promotores"
       />
 
       <KPICard
-        title="Comerciales Canal Agencias"
+        title="Canal Agencias"
         value={canalAgencias.toString()}
         icon={Store}
-        change={`${canalAgenciasPercentage}% del total`}
+        change={`${canalAgenciasPercentage}%`}
         changeType="neutral"
-        description="FP, Socios, Directores"
+        description="FP, Socios"
       />
 
       <KPICard
         title="Service Desk"
         value={serviceDesk.toString()}
         icon={Headphones}
-        change={`${serviceDeskPercentage}% del total`}
+        change={`${serviceDeskPercentage}%`}
         changeType="neutral"
-        description="Soporte técnico"
+        description="Soporte"
       />
 
       <KPICard
         title="Seguridad"
         value={seguridad.toString()}
         icon={ShieldCheck}
-        change={`${seguridadPercentage}% del total`}
+        change={`${seguridadPercentage}%`}
         changeType="neutral"
-        description="Usuarios de seguridad"
+        description="Seguridad"
       />
 
       <KPICard
-        title="Operaciones de Comisiones"
+        title="Comisiones"
         value={comisiones.toString()}
         icon={Calculator}
-        change={`${comisionesPercentage}% del total`}
+        change={`${comisionesPercentage}%`}
         changeType="neutral"
-        description="Analistas y Supervisores"
+        description="Analistas"
       />
 
       <KPICard
         title="SAC"
         value={sac.toString()}
         icon={Phone}
-        change={`${sacPercentage}% del total`}
+        change={`${sacPercentage}%`}
         changeType="neutral"
-        description="Servicio al Cliente"
+        description="Servicio"
       />
 
       <KPICard
         title="Comerciales SAC"
         value={comercialesSac.toString()}
         icon={PhoneCall}
-        change={`${comercialesSacPercentage}% del total`}
+        change={`${comercialesSacPercentage}%`}
         changeType="neutral"
         description="FP SAC"
       />

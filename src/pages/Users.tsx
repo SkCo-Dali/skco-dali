@@ -14,6 +14,7 @@ export default function UsersPage() {
   const { hasAccess, permissions, currentUser } = usePageAccess("users");
   const { toast } = useToast();
   const [users, setUsers] = useState<User[]>([]);
+  const [allUsers, setAllUsers] = useState<User[]>([]); // Para los KPIs
   const [searchTerm, setSearchTerm] = useState("");
   const [roleFilter, setRoleFilter] = useState<string>("all");
   const [loading, setLoading] = useState(true);
@@ -57,9 +58,29 @@ export default function UsersPage() {
     }
   };
 
+  const loadAllUsersForKPIs = async () => {
+    try {
+      // Cargar todos los usuarios sin filtros para calcular los KPIs correctamente
+      const result = await getAllUsers({
+        page: 1,
+        pageSize: 10000, // Número grande para obtener todos los usuarios
+        sortBy: "CreatedAt",
+        sortDir: "desc",
+      });
+      setAllUsers(result.users);
+    } catch (error) {
+      console.error("Error loading all users for KPIs:", error);
+    }
+  };
+
   useEffect(() => {
     loadUsers();
   }, [currentPage, usersPerPage, sortBy, sortDir, searchTerm, roleFilter]);
+
+  // Cargar todos los usuarios una sola vez al montar para los KPIs
+  useEffect(() => {
+    loadAllUsersForKPIs();
+  }, []);
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
@@ -251,7 +272,7 @@ export default function UsersPage() {
           {permissions?.canAssignRoles && <AddUserDialog onUserAdd={handleAddUser} />}
         </div>
 
-        <UsersKPICards users={users} totalUsers={totalUsers} />
+        <UsersKPICards users={allUsers} totalUsers={totalUsers} />
       </div>
 
       <div className="px-4">
