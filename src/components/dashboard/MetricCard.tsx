@@ -8,6 +8,7 @@ interface MetricCardProps {
   changePercent?: number;
   changeLabel?: string;
   variant?: "success" | "warning" | "neutral";
+  description?: string;
 }
 
 export function MetricCard({ title, value, changePercent, changeLabel, variant = "neutral" }: MetricCardProps) {
@@ -31,6 +32,7 @@ export function MetricCard({ title, value, changePercent, changeLabel, variant =
           <p className="text-sm text-muted-foreground">{title}</p>
           <p className="text-3xl font-bold text-foreground">{value}</p>
         </div>
+        {description && <p className="text-xs md:text-xs text-muted-foreground">{description}</p>}
       </CardContent>
       {showChange && (
         <Badge
