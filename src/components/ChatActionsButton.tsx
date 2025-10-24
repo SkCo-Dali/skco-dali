@@ -44,13 +44,13 @@ export const ChatActionsButton: React.FC<ChatActionsButtonProps> = ({
           <Search className="h-4 w-4" />
           Buscar Conversación
         </DropdownMenuItem>
-        <DropdownMenuItem
+        {/*<DropdownMenuItem
           onClick={onViewTemplates}
           className="flex items-center gap-2 px-3 py-2 hover:bg-gray-100 cursor-pointer"
         >
           <FileText className="h-4 w-4" />
           Ver Plantillas
-        </DropdownMenuItem>
+        </DropdownMenuItem>*/}
       </DropdownMenuContent>
     </DropdownMenu>
   );
