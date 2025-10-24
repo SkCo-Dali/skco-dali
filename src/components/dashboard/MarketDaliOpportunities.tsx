@@ -72,7 +72,7 @@ export function MarketDaliOpportunities() {
                 </div>
 
                 <div className="flex-1 min-w-0">
-                  <h4 className="font-medium mb-2 line-clamp-2">{opportunity.title}</h4>
+                  <h4 className="font-medium mb-2 line-clamp-2 truncate">{opportunity.title}</h4>
 
                   <div className="flex items-center gap-3 text-sm text-muted-foreground flex-wrap">
                     <div className="flex items-center gap-1">
