@@ -113,7 +113,7 @@ export const SimpleMessage: React.FC<SimpleMessageProps> = ({ message }) => {
   return (
     <div className={`flex ${isUser ? "justify-end" : "justify-start"} mb-4`}>
       <div
-        className={`${isUser ? "max-w-[70%]" : "max-w-[70%]"} flex ${isUser ? "flex-row-reverse" : "flex-row"} items-start space-x-3`}
+        className={`${isUser ? "max-w-[70%]" : "max-w-[90%]"} flex ${isUser ? "flex-row-reverse" : "flex-row"} items-start space-x-3`}
       >
         {/* Message content */}
         <div className="flex flex-col">
@@ -121,7 +121,7 @@ export const SimpleMessage: React.FC<SimpleMessageProps> = ({ message }) => {
             className={`px-4 py-3 rounded-2xl ${
               isUser
                 ? "bg-gray-100 text-gray-900 border border-gray-200"
-                : "bg-white text-gray-900 border border-gray-200 shadow-sm"
+                : "bg-trasnaparent text-gray-900 border-0 shadow-sm"
             }`}
           >
             {/* Text content */}
