@@ -76,7 +76,7 @@ export function AppContent() {
         </Routes>
       </UnauthenticatedTemplate>
       <AuthenticatedTemplate>
-        <SidebarProvider>
+        <SidebarProvider defaultOpen={false}>
           <div className="min-h-screen flex w-full">
             <AppSidebar />
             <div
