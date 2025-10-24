@@ -560,8 +560,8 @@ const ChatSamiContent = forwardRef<ChatSamiHandle, ChatSamiProps>(({ isOpen = fa
                   <CarouselPrevious className="absolute -left-2 top-1/2 -translate-y-1/2 h-8 w-8" />
                   <CarouselNext className="absolute -right-2 top-1/2 -translate-y-1/2 h-8 w-8" />
                 </Carousel>
-              </div>
-            </div>*/}
+              </div>*/}
+            </div>
 
             {/* Input area */}
             <div className="p-4 border-0">
