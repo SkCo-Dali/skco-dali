@@ -17,6 +17,7 @@ export default function UsersPage() {
   const [allUsers, setAllUsers] = useState<User[]>([]); // Para los KPIs
   const [searchTerm, setSearchTerm] = useState("");
   const [roleFilter, setRoleFilter] = useState<string>("all");
+  const [selectedRoles, setSelectedRoles] = useState<string[]>([]); // Para filtrado por múltiples roles
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const [usersPerPage, setUsersPerPage] = useState(50);
@@ -129,8 +130,20 @@ export default function UsersPage() {
 
   const handleRoleFilterChange = (value: string) => {
     setRoleFilter(value);
+    setSelectedRoles([]); // Limpiar filtro de múltiples roles al usar el dropdown
     setCurrentPage(1);
   };
+
+  const handleKPIRoleFilter = (roles: string[]) => {
+    setSelectedRoles(roles);
+    setRoleFilter("all"); // Resetear el filtro del dropdown
+    setCurrentPage(1);
+  };
+
+  // Filtrar usuarios mostrados si hay roles seleccionados desde KPI
+  const displayedUsers = selectedRoles.length > 0 
+    ? users.filter(user => selectedRoles.includes(user.role))
+    : users;
 
   const handleAddUser = async (email: string, role: User["role"]) => {
     try {
@@ -303,7 +316,12 @@ export default function UsersPage() {
           {permissions?.canAssignRoles && <AddUserDialog onUserAdd={handleAddUser} />}
         </div>
 
-        <UsersKPICards users={allUsers} totalUsers={totalUsers} />
+        <UsersKPICards 
+          users={allUsers} 
+          totalUsers={totalUsers}
+          onRoleFilter={handleKPIRoleFilter}
+          selectedRoles={selectedRoles}
+        />
       </div>
 
       <div className="px-4">
@@ -318,7 +336,7 @@ export default function UsersPage() {
       <div className="px-4 pb-4 mt-4 flex flex-col" style={{ height: "calc(100vh - 480px)" }}>
         <div className="flex-1 min-h-0">
           <UserTable
-            users={users}
+            users={displayedUsers}
             permissions={permissions}
             currentUserId={currentUser?.id || ""}
             onRoleUpdate={handleRoleUpdate}
