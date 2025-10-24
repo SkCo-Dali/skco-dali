@@ -40,6 +40,13 @@ export function AppContent() {
   const hasChatSamiPermissions = user ? getRolePermissions(user.role)?.chatSami : false;
   const [chatSamiOpen, setChatSamiOpen] = useState(false);
 
+  // Abrir ChatSami por defecto para usuarios con permisos
+  useEffect(() => {
+    if (user && hasChatSamiPermissions && !chatSamiOpen) {
+      setChatSamiOpen(true);
+    }
+  }, [user, hasChatSamiPermissions]);
+
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
