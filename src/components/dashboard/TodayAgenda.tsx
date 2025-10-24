@@ -88,7 +88,7 @@ export function TodayAgenda() {
         ))}
       </div>
 
-      <ScrollArea className="h-full">
+      <ScrollArea className="max-h-[280px]">
         <div className="space-y-2 pr-4">
           {mockAgendaItems.map((item) => (
             <div
