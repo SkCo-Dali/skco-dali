@@ -212,9 +212,6 @@ export function DashboardOverview({ leads, loading }: DashboardOverviewProps) {
                 changeLabel="del total"
                 variant={kpiCounts.registroVenta > 0 ? "success" : "neutral"}
               />
-              <div className="flex-1">
-                <MetricCard title="Activos bajo administración" value="$125.000.000" />
-              </div>
             </div>
 
             {/* Right Column - Charts */}
