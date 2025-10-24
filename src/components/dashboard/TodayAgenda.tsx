@@ -67,7 +67,7 @@ export function TodayAgenda() {
         <div className="flex items-center gap-2 truncate">
           <h3 className="text-lg font-semibold truncate">Tu agenda</h3>
         </div>
-        <Button variant="link" className="text-primary p-0 h-auto truncate">
+        <Button variant="link" className="text-primary p-0 h-auto">
           Organiza tu agenda
           <ArrowRight className="ml-2 h-4 w-4" />
         </Button>
