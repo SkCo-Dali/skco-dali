@@ -1,8 +1,7 @@
-
-import React from 'react';
-import { Search } from 'lucide-react';
-import { Input } from '../ui/input';
-import { Button } from '../ui/button';
+import React from "react";
+import { Search } from "lucide-react";
+import { Input } from "../ui/input";
+import { Button } from "../ui/button";
 
 interface ConversationSearchBarProps {
   searchQuery: string;
@@ -17,21 +16,20 @@ export const ConversationSearchBar: React.FC<ConversationSearchBarProps> = ({
   onSearchChange,
   filteredCount,
   totalCount,
-  isLoading
+  isLoading,
 }) => {
   return (
     <div className="p-4 pb-4 border-b bg-white flex-shrink-0">
       <div className="relative">
-        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 z-10" />
         <Input
           placeholder="Buscar conversaciones por título o contenido..."
           value={searchQuery}
           onChange={onSearchChange}
           className="pl-10 h-11 bg-gray-50 border-gray-200 focus:border-green-400 focus:ring-green-400"
-          style={{ paddingLeft: '2.5rem' }}
+          style={{ paddingLeft: "2.5rem" }}
         />
       </div>
-      
+
       {/* Estadísticas */}
       <div className="mt-4 flex items-center justify-between">
         <div className="flex items-center gap-4 text-sm text-gray-600">
@@ -45,12 +43,12 @@ export const ConversationSearchBar: React.FC<ConversationSearchBarProps> = ({
             </div>
           )}
         </div>
-        
+
         {searchQuery && (
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => onSearchChange({ target: { value: '' } } as React.ChangeEvent<HTMLInputElement>)}
+            onClick={() => onSearchChange({ target: { value: "" } } as React.ChangeEvent<HTMLInputElement>)}
             className="text-gray-500 hover:text-gray-700"
           >
             Limpiar búsqueda

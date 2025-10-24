@@ -15,15 +15,16 @@ export const DEFAULT_PAGE_BY_ROLE: Record<UserRole, string> = {
   aliado: "/leads",
   socio: "/leads",
   fp: "/informes",
+  ais: "/informes",
   ejecutivo: "/leads",
   supervisorComisiones: "/comisiones",
   analistaComisiones: "/comisiones",
   serviceDesk: "/informes",
   sac: "/informes",
+  fpSac: "/informes",
   manager: "/",
   agent: "/leads",
   viewer: "/informes",
-  ais: "/leads",
 };
 
 /**

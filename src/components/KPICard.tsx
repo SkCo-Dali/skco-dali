@@ -20,19 +20,19 @@ export function KPICard({ title, value, change, changeType = 'neutral', icon: Ic
 
   return (
     <Card className="hover:shadow-md transition-shadow h-full">
-      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 md:pb-3 px-3 md:px-6">
-        <CardTitle className="text-xs md:text-sm font-medium">{title}</CardTitle>
-        <Icon className="h-4 w-4 md:h-4 md:w-4 text-muted-foreground" />
+      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1.5 px-3">
+        <CardTitle className="text-xs font-medium truncate">{title}</CardTitle>
+        <Icon className="h-3.5 w-3.5 text-muted-foreground flex-shrink-0" />
       </CardHeader>
-      <CardContent className="pb-3 md:pb-4 px-3 md:px-6">
-        <div className="text-xl md:text-2xl lg:text-3xl font-bold mb-1 md:mb-2">{value}</div>
+      <CardContent className="pb-2 px-3">
+        <div className="text-lg md:text-xl font-bold mb-0.5">{value}</div>
         {change && (
-          <p className={`text-xs md:text-xs ${changeColor} mb-1`}>
+          <p className={`text-[10px] ${changeColor} mb-0.5`}>
             {change}
           </p>
         )}
         {description && (
-          <p className="text-xs md:text-xs text-muted-foreground">
+          <p className="text-[10px] text-muted-foreground truncate">
             {description}
           </p>
         )}

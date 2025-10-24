@@ -1,4 +1,4 @@
-import { useRef, useEffect } from "react";
+import { useRef, useEffect, useState } from "react";
 import { Routes, Route, Navigate, useLocation, useNavigate } from "react-router-dom";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
@@ -26,12 +26,33 @@ import PowerBIReportsAdmin from "@/components/admin/PowerBIReportsAdmin";
 import { useAuth } from "@/contexts/AuthContext";
 import { Login } from "@/components/Login";
 import { AuthenticatedTemplate, UnauthenticatedTemplate } from "@azure/msal-react";
+import ChatSami, { ChatSamiHandle } from "@/components/ChatSami";
+import { getRolePermissions } from "@/types/crm";
 
 export function AppContent() {
   const { user, loading } = useAuth();
   const chatDaliRef = useRef<any>(null);
+  const chatSamiRef = useRef<ChatSamiHandle>(null);
   const location = useLocation();
   const navigate = useNavigate();
+  
+  // Check if user has ChatSami permissions
+  const hasChatSamiPermissions = user ? getRolePermissions(user.role)?.chatSami : false;
+  const [chatSamiOpen, setChatSamiOpen] = useState(false);
+  
+  // Verificar si estamos en la página de Users
+  const isUsersPage = location.pathname === '/users' || location.pathname === '/admin/users';
+
+  // Abrir ChatSami por defecto para usuarios con permisos (excepto en página de Users)
+  useEffect(() => {
+    if (user && hasChatSamiPermissions && !chatSamiOpen && !isUsersPage) {
+      setChatSamiOpen(true);
+    }
+    // Cerrar ChatSami si navegamos a la página de Users
+    if (isUsersPage && chatSamiOpen) {
+      setChatSamiOpen(false);
+    }
+  }, [user, hasChatSamiPermissions, isUsersPage]);
 
   if (loading) {
     return (
@@ -42,15 +63,9 @@ export function AppContent() {
   }
 
   const handleBannerMessage = (automaticReply: string) => {
-    if (chatDaliRef.current && chatDaliRef.current.handleBannerMessage) {
-      chatDaliRef.current.handleBannerMessage(automaticReply);
-    } else {
-      // Reintentar después de un breve delay si ChatDali no está listo
-      setTimeout(() => {
-        if (chatDaliRef.current && chatDaliRef.current.handleBannerMessage) {
-          chatDaliRef.current.handleBannerMessage(automaticReply);
-        }
-      }, 1000);
+    // Usar ChatSami en lugar de ChatDali
+    if (chatSamiRef.current) {
+      chatSamiRef.current.sendMessage(automaticReply);
     }
   };
 
@@ -68,10 +83,13 @@ export function AppContent() {
         </Routes>
       </UnauthenticatedTemplate>
       <AuthenticatedTemplate>
-        <SidebarProvider>
+        <SidebarProvider defaultOpen={false}>
           <div className="min-h-screen flex w-full">
             <AppSidebar />
-            <div className="flex-1">
+            <div
+              className="flex-1 flex flex-col transition-all duration-300"
+              style={{ marginRight: chatSamiOpen && hasChatSamiPermissions && !isUsersPage ? "380px" : "0" }}
+            >
               <Header onBannerMessage={handleBannerMessage} />
               <main className="flex-1 pt-20">
                 <Routes>
@@ -86,8 +104,6 @@ export function AppContent() {
                   <Route path="/oportunidades/:id" element={<OpportunityDetails />} />
                   <Route path="/admin/users" element={<Users />} />
                   <Route path="/admin/reports" element={<PowerBIReportsAdmin />} />
-                  <Route path="/chat" element={<ChatDali ref={chatDaliRef} />} />
-                  <Route path="/Chat" element={<ChatDali ref={chatDaliRef} />} />
                   <Route path="/gamification" element={<Gamification />} />
                   <Route path="/index" element={<Index />} />
                   <Route path="/comisiones" element={<Comisiones />} />
@@ -100,6 +116,11 @@ export function AppContent() {
                 </Routes>
               </main>
             </div>
+
+            {/* ChatSami - disponible solo para usuarios con permisos, excepto en página de Users */}
+            {hasChatSamiPermissions && !isUsersPage && (
+              <ChatSami ref={chatSamiRef} isOpen={chatSamiOpen} onOpenChange={setChatSamiOpen} />
+            )}
           </div>
         </SidebarProvider>
       </AuthenticatedTemplate>

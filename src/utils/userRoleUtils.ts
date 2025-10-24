@@ -20,9 +20,11 @@ export const roles = [
   { value: "aliado", label: "Aliado" },
   { value: "socio", label: "Socio" },
   { value: "fp", label: "FP" },
+  { value: "ais", label: "AIS" },
   { value: "ejecutivo", label: "Ejecutivo" },
   { value: "supervisorComisiones", label: "Supervisor Comisiones" },
   { value: "analistaComisiones", label: "Analista Comisiones" },
   { value: "serviceDesk", label: "Service Desk" },
   { value: "sac", label: "SAC" },
+  { value: "fpSac", label: "FP SAC" },
 ];

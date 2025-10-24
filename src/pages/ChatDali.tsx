@@ -87,7 +87,6 @@ const IndexContent = forwardRef<any, {}>((props, ref) => {
         <div className="fixed top-0 left-0 right-0 z-50 bg-white">
           <Header 
             onBannerMessage={handleBannerMessage}
-            chatInterfaceRef={chatInterfaceRef}
           />
         </div>
       )}

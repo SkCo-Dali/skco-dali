@@ -52,13 +52,6 @@ const allMenuItems = [
     customIcon: "https://skcoblobresources.blob.core.windows.net/digital-assets/icons/icon-skandia/sk_maletin_1_p.svg",
   },
   {
-    title: "Chat Dali",
-    url: "/Chat",
-    iconClass: "",
-    page: "ChatDali",
-    customIcon: "https://skcoblobresources.blob.core.windows.net/digital-assets/icons/icon-skandia/sk_globo_p.svg",
-  },
-  {
     title: "Gamificación",
     url: "/gamification",
     iconClass: "",

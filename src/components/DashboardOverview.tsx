@@ -10,6 +10,7 @@ import { MarketDaliOpportunities } from "@/components/dashboard/MarketDaliOpport
 import { CareerLeaderboard } from "@/components/dashboard/CareerLeaderboard";
 import { useAuth } from "@/contexts/AuthContext";
 import { useTasks } from "@/hooks/useTasks";
+import { useLeadsKPICounts } from "@/hooks/useLeadsKPICounts";
 import mockOpportunities from "@/data/mockOpportunities.json";
 import { IOpportunity } from "@/types/opportunities";
 import { useNavigate } from "react-router-dom";
@@ -25,6 +26,12 @@ export function DashboardOverview({ leads, loading }: DashboardOverviewProps) {
   const navigate = useNavigate();
   const opportunities = mockOpportunities as IOpportunity[];
   const [selectedPeriod, setSelectedPeriod] = useState("septiembre");
+
+  // Obtener conteos reales de KPIs de leads
+  const kpiCounts = useLeadsKPICounts({
+    apiFilters: {},
+    duplicateFilter: "all",
+  });
 
   // Filter leads based on user role
   const userLeads = useMemo(() => {
@@ -150,7 +157,7 @@ export function DashboardOverview({ leads, loading }: DashboardOverviewProps) {
           onAction={() => navigate("/leads")}
           variant="primary"
         />
-        <div className="bg-[#fafafa] rounded-xl pb-4 space-y-4">
+        <div className="bg-[#fafafa] rounded-xl pb-4 space-y-4 border">
           {/* Achievements Section */}
           <AchievementsSection
             points={5000}
@@ -162,47 +169,55 @@ export function DashboardOverview({ leads, loading }: DashboardOverviewProps) {
           />
 
           {/* Metrics and Charts Grid */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 px-4">
+          <div className="grid grid-cols-1 lg:grid-cols-8 gap-4 px-4">
             {/* Left Column - Metrics */}
-            <div className="flex flex-col gap-4 h-full">
+            <div className="flex flex-col col-span-3 gap-4 h-full">
               <MetricCard
-                title="Venta neta"
-                value="$40.000.000"
-                changePercent={5}
-                changeLabel="¡Wow!"
+                title="Total de Leads"
+                value={kpiCounts.loading ? "..." : kpiCounts.totalLeads.toLocaleString()}
+                description="Leads en la base de datos"
+              />
+              <MetricCard
+                title="Leads Nuevos"
+                value={kpiCounts.loading ? "..." : kpiCounts.newLeads.toLocaleString()}
+                description="Leads en estado nuevo"
+                changePercent={
+                  kpiCounts.loading ? undefined : Math.round((kpiCounts.newLeads / (kpiCounts.totalLeads || 1)) * 100)
+                }
+                changeLabel="del total"
                 variant="success"
               />
               <MetricCard
-                title="Aportes de tus clientes"
-                value="$25.000.000"
-                changePercent={5}
-                changeLabel="¡Wow!"
+                title="Contratos Creados"
+                value={kpiCounts.loading ? "..." : kpiCounts.contratoCreado.toLocaleString()}
+                description="Leads con estado Contrato creado"
+                changePercent={
+                  kpiCounts.loading
+                    ? undefined
+                    : Math.round((kpiCounts.contratoCreado / (kpiCounts.totalLeads || 1)) * 100)
+                }
+                changeLabel="del total"
                 variant="success"
               />
               <MetricCard
-                title="Retiros de tus clientes"
-                value="$15.000.000"
-                changePercent={10}
-                changeLabel="¡Vamos!"
-                variant="success"
+                title="Ventas Registradas"
+                value={kpiCounts.loading ? "..." : kpiCounts.registroVenta.toLocaleString()}
+                description="Leads en estado Registro de Venta"
+                changePercent={
+                  kpiCounts.loading
+                    ? undefined
+                    : Math.round((kpiCounts.registroVenta / (kpiCounts.totalLeads || 1)) * 100)
+                }
+                changeLabel="del total"
+                variant={kpiCounts.registroVenta > 0 ? "success" : "neutral"}
               />
-              <MetricCard
-                title="Tus clientes actuales totales"
-                value="125"
-                changePercent={-1}
-                changeLabel="1 inactivo"
-                variant="warning"
-              />
-              <div className="flex-1">
-                <MetricCard title="Activos bajo administración" value="$125.000.000" />
-              </div>
             </div>
 
             {/* Right Column - Charts */}
-            <div className="flex flex-col gap-4 h-full">
+            <div className="flex flex-col col-span-5 gap-4 h-full">
               <CommissionsChart
                 data={commissionsData}
-                totalCommissions="$25.000.000"
+                totalCommissions="$25M"
                 onViewDetails={() => navigate("/comisiones")}
               />
               <ClientDistributionChart data={clientDistributionData} />
