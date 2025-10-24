@@ -2,6 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Users } from "lucide-react";
 import { User, UserPermissions } from "@/types/crm";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { UserTableRow } from "./UserTableRow";
 
 interface UserTableProps {
