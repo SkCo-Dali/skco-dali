@@ -323,7 +323,7 @@ const ChatSamiContent = forwardRef<ChatSamiHandle, ChatSamiProps>(({ isOpen = fa
       {isOpen && viewMode !== "maximized" && (
         <div className="fixed top-20 right-0 bottom-0 w-[360px] border-l bg-background shadow-none flex flex-col z-30">
           {/* Header */}
-          <div className="flex items-center justify-end px-2 bg-transparent shrink-0">
+          <div className="flex items-center justify-end px-2 pt-2 bg-transparent shrink-0">
             <div className="flex items-end gap-1">
               <Button
                 variant="ghost"
@@ -353,7 +353,7 @@ const ChatSamiContent = forwardRef<ChatSamiHandle, ChatSamiProps>(({ isOpen = fa
           </div>
 
           {/* Tip del día */}
-          <div className="p-4 space-y-3 shrink-0 border-b">
+          <div className="px-4 pb-4 space-y-3 shrink-0 border-b">
             <div className="flex items-center gap-2 bg-[#e8f5e9] rounded-full p-2">
               <div className="shrink-0 bg-black rounded-full p-1.5">
                 <Lightbulb className="h-4 w-4 text-[#00c83c]" />
