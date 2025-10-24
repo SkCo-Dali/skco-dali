@@ -21,8 +21,8 @@ export default function UsersPage() {
   const [usersPerPage, setUsersPerPage] = useState(50);
   const [totalUsers, setTotalUsers] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
-  const [sortBy, setSortBy] = useState<'CreatedAt' | 'UpdatedAt' | 'Name' | 'Email' | 'Role' | 'IsActive'>('UpdatedAt');
-  const [sortDir, setSortDir] = useState<'asc' | 'desc'>('desc');
+  const [sortBy, setSortBy] = useState<"CreatedAt" | "UpdatedAt" | "Name" | "Email" | "Role" | "IsActive">("UpdatedAt");
+  const [sortDir, setSortDir] = useState<"asc" | "desc">("desc");
 
   // Verificar permisos de acceso
   if (!hasAccess || !permissions?.canAccessUserManagement) {
@@ -32,7 +32,7 @@ export default function UsersPage() {
   const loadUsers = async () => {
     try {
       setLoading(true);
-      
+
       const result = await getAllUsers({
         page: currentPage,
         pageSize: usersPerPage,
@@ -41,7 +41,7 @@ export default function UsersPage() {
         name: searchTerm || undefined,
         role: roleFilter !== "all" ? roleFilter : undefined,
       });
-      
+
       setUsers(result.users);
       setTotalUsers(result.total);
       setTotalPages(result.totalPages);
@@ -241,7 +241,7 @@ export default function UsersPage() {
   }
 
   return (
-    <div className="min-h-screen pt-16">
+    <div className="min-h-screen pt-0">
       <div className="p-4 pb-2">
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-2 mb-4">
           <div>
@@ -263,7 +263,7 @@ export default function UsersPage() {
         />
       </div>
 
-      <div className="px-4 pb-4 flex flex-col" style={{ height: 'calc(100vh - 480px)' }}>
+      <div className="px-4 pb-4 flex flex-col" style={{ height: "calc(100vh - 480px)" }}>
         <div className="flex-1 min-h-0">
           <UserTable
             users={users}

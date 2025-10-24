@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -16,13 +15,13 @@ interface UserFiltersProps {
 
 export function UserFilters({ searchTerm, setSearchTerm, roleFilter, setRoleFilter }: UserFiltersProps) {
   const getRoleDisplayName = (role: string): string => {
-    const foundRole = roles.find(r => r.value === role);
+    const foundRole = roles.find((r) => r.value === role);
     return foundRole ? foundRole.label : role;
   };
 
   return (
     <Card>
-      <CardContent className="pt-6">
+      <CardContent className="p-4">
         <div className="flex gap-4 items-end">
           <div className="flex-1">
             <Label htmlFor="search">Buscar usuarios</Label>
@@ -45,7 +44,7 @@ export function UserFilters({ searchTerm, setSearchTerm, roleFilter, setRoleFilt
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">Todos los roles</SelectItem>
-                {roles.map(role => (
+                {roles.map((role) => (
                   <SelectItem key={role.value} value={role.value}>
                     {role.label}
                   </SelectItem>
