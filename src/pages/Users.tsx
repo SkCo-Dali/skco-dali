@@ -4,6 +4,7 @@ import { User } from "@/types/crm";
 import { UserFilters } from "@/components/UserFilters";
 import { UserTable } from "@/components/UserTable";
 import { UsersPagination } from "@/components/UsersPagination";
+import { UsersKPICards } from "@/components/UsersKPICards";
 import { AddUserDialog } from "@/components/AddUserDialog";
 import { AccessDenied } from "@/components/AccessDenied";
 import { usePageAccess } from "@/hooks/usePageAccess";
@@ -241,39 +242,51 @@ export default function UsersPage() {
 
   return (
     <div className="min-h-screen pt-16">
-      <div className="p-4">
-        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-4">
-          <h1 className="text-3xl font-bold mb-1 text-[#00c73d]">Gestión de Usuarios</h1>
-          <p className="text-muted-foreground">Administra usuarios y roles del sistema</p>
+      <div className="p-4 pb-2">
+        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-2 mb-4">
+          <div>
+            <h1 className="text-3xl font-bold text-primary">Gestión de Usuarios</h1>
+            <p className="text-muted-foreground text-sm">Administra usuarios y roles del sistema</p>
+          </div>
+          {permissions?.canAssignRoles && <AddUserDialog onUserAdd={handleAddUser} />}
         </div>
-        {permissions?.canAssignRoles && <AddUserDialog onUserAdd={handleAddUser} />}
+
+        <UsersKPICards users={users} totalUsers={totalUsers} />
       </div>
 
-      <UserFilters
-        searchTerm={searchTerm}
-        setSearchTerm={handleSearchChange}
-        roleFilter={roleFilter}
-        setRoleFilter={handleRoleFilterChange}
-      />
+      <div className="px-4">
+        <UserFilters
+          searchTerm={searchTerm}
+          setSearchTerm={handleSearchChange}
+          roleFilter={roleFilter}
+          setRoleFilter={handleRoleFilterChange}
+        />
+      </div>
 
-      <UserTable
-        users={users}
-        permissions={permissions}
-        currentUserId={currentUser?.id || ""}
-        onRoleUpdate={handleRoleUpdate}
-        onUserDelete={handleUserDelete}
-        onUserStatusToggle={handleUserStatusToggle}
-        onUserUpdate={handleUserUpdate}
-      />
+      <div className="px-4 pb-4 flex flex-col" style={{ height: 'calc(100vh - 480px)' }}>
+        <div className="flex-1 min-h-0">
+          <UserTable
+            users={users}
+            permissions={permissions}
+            currentUserId={currentUser?.id || ""}
+            onRoleUpdate={handleRoleUpdate}
+            onUserDelete={handleUserDelete}
+            onUserStatusToggle={handleUserStatusToggle}
+            onUserUpdate={handleUserUpdate}
+          />
+        </div>
 
-      <UsersPagination
-        currentPage={currentPage}
-        totalPages={totalPages}
-        totalUsers={totalUsers}
-        usersPerPage={usersPerPage}
-        onPageChange={handlePageChange}
-        onUsersPerPageChange={handleUsersPerPageChange}
-      />
+        <div className="flex-shrink-0 mt-2">
+          <UsersPagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            totalUsers={totalUsers}
+            usersPerPage={usersPerPage}
+            onPageChange={handlePageChange}
+            onUsersPerPageChange={handleUsersPerPageChange}
+          />
+        </div>
+      </div>
     </div>
   );
 }

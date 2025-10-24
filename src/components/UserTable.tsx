@@ -25,40 +25,42 @@ export function UserTable({
   onUserUpdate
 }: UserTableProps) {
   return (
-    <Card>
-      <CardHeader>
+    <Card className="flex flex-col h-full">
+      <CardHeader className="flex-shrink-0">
         <CardTitle className="flex items-center gap-2">
           <Users className="h-5 w-5" />
           Usuarios ({users.length})
         </CardTitle>
       </CardHeader>
-      <CardContent>
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Usuario</TableHead>
-              <TableHead>Email</TableHead>
-              <TableHead>Rol</TableHead>
-              <TableHead>Cargo</TableHead>
-              <TableHead>Estado</TableHead>
-              <TableHead>Acciones</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {users.map((user) => (
-              <UserTableRow
-                key={user.id}
-                user={user}
-                permissions={permissions}
-                currentUserId={currentUserId}
-                onRoleUpdate={onRoleUpdate}
-                onUserDelete={onUserDelete}
-                onUserStatusToggle={onUserStatusToggle}
-                onUserUpdate={onUserUpdate}
-              />
-            ))}
-          </TableBody>
-        </Table>
+      <CardContent className="flex-1 overflow-hidden p-0">
+        <div className="overflow-y-auto max-h-[calc(100vh-400px)]">
+          <Table>
+            <TableHeader className="sticky top-0 bg-card z-10">
+              <TableRow>
+                <TableHead>Usuario</TableHead>
+                <TableHead>Email</TableHead>
+                <TableHead>Rol</TableHead>
+                <TableHead>Cargo</TableHead>
+                <TableHead>Estado</TableHead>
+                <TableHead>Acciones</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {users.map((user) => (
+                <UserTableRow
+                  key={user.id}
+                  user={user}
+                  permissions={permissions}
+                  currentUserId={currentUserId}
+                  onRoleUpdate={onRoleUpdate}
+                  onUserDelete={onUserDelete}
+                  onUserStatusToggle={onUserStatusToggle}
+                  onUserUpdate={onUserUpdate}
+                />
+              ))}
+            </TableBody>
+          </Table>
+        </div>
       </CardContent>
     </Card>
   );
