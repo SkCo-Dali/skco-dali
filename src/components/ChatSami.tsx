@@ -400,7 +400,7 @@ const ChatSamiContent = forwardRef<ChatSamiHandle, ChatSamiProps>(({ isOpen = fa
               <div ref={messagesEndRef} />
             </div>
 
-            {/* Acciones rápidas */}
+            {/* Acciones rápidas 
             <div className="px-2 py-2 shrink-0">
               <div className="relative group">
                 <Carousel className="px-4 w-full" opts={{ slidesToScroll: 1, align: "start", loop: true }}>
@@ -417,12 +417,12 @@ const ChatSamiContent = forwardRef<ChatSamiHandle, ChatSamiProps>(({ isOpen = fa
                     ))}
                   </CarouselContent>
 
-                  {/* Botones ocultos hasta hover */}
+                  
                   <CarouselPrevious className="absolute -left-2 top-1/2 -translate-y-1/2 h-7 w-7" />
                   <CarouselNext className="absolute -right-2 top-1/2 -translate-y-1/2 h-7 w-7" />
                 </Carousel>
               </div>
-            </div>
+            </div>*/}
 
             {/* Input area */}
             <div className="p-3 border-t shrink-0">
@@ -539,7 +539,7 @@ const ChatSamiContent = forwardRef<ChatSamiHandle, ChatSamiProps>(({ isOpen = fa
                 <div ref={messagesEndRef} />
               </div>
 
-              {/* Acciones rápidas */}
+              {/* Acciones rápidas 
               <div className="px-2 py-2 shrink-0">
                 <Carousel
                   className="px-4 w-full relative group"
@@ -561,7 +561,7 @@ const ChatSamiContent = forwardRef<ChatSamiHandle, ChatSamiProps>(({ isOpen = fa
                   <CarouselNext className="absolute -right-2 top-1/2 -translate-y-1/2 h-8 w-8" />
                 </Carousel>
               </div>
-            </div>
+            </div>*/}
 
             {/* Input area */}
             <div className="p-4 border-0">
