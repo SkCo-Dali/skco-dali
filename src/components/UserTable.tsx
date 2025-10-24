@@ -26,15 +26,14 @@ export function UserTable({
 }: UserTableProps) {
   return (
     <Card className="flex flex-col h-full">
-      <ScrollArea className="h-full p-2">
+      <ScrollArea className="h-full p-4">
         <div className="max-h-[359px]">
           <Table>
-            <TableHeader className="sticky top-0 bg-card z-10">
-              <TableRow>
+            <TableHeader className="sticky top-0 bg-card z-10 text-center">
+              <TableRow className="gap-4">
                 <TableHead>Usuario</TableHead>
                 <TableHead>Email</TableHead>
                 <TableHead>Rol</TableHead>
-                <TableHead>Cargo</TableHead>
                 <TableHead>Estado</TableHead>
                 <TableHead>Acciones</TableHead>
               </TableRow>
