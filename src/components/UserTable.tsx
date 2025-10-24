@@ -27,7 +27,7 @@ export function UserTable({
   return (
     <Card className="flex flex-col h-full">
       <ScrollArea className="max-h-[280px]">
-        <div className="overflow-y-auto max-h-[359px]">
+        <div className="max-h-[359px]">
           <Table>
             <TableHeader className="sticky top-0 bg-card z-10">
               <TableRow>
