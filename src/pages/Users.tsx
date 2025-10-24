@@ -3,6 +3,7 @@ import { useToast } from "@/hooks/use-toast";
 import { User } from "@/types/crm";
 import { UserFilters } from "@/components/UserFilters";
 import { UserTable } from "@/components/UserTable";
+import { UsersPagination } from "@/components/UsersPagination";
 import { AddUserDialog } from "@/components/AddUserDialog";
 import { AccessDenied } from "@/components/AccessDenied";
 import { usePageAccess } from "@/hooks/usePageAccess";
@@ -12,10 +13,15 @@ export default function UsersPage() {
   const { hasAccess, permissions, currentUser } = usePageAccess("users");
   const { toast } = useToast();
   const [users, setUsers] = useState<User[]>([]);
-  const [filteredUsers, setFilteredUsers] = useState<User[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [roleFilter, setRoleFilter] = useState<string>("all");
   const [loading, setLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [usersPerPage, setUsersPerPage] = useState(50);
+  const [totalUsers, setTotalUsers] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
+  const [sortBy, setSortBy] = useState<'CreatedAt' | 'UpdatedAt' | 'Name' | 'Email' | 'Role' | 'IsActive'>('UpdatedAt');
+  const [sortDir, setSortDir] = useState<'asc' | 'desc'>('desc');
 
   // Verificar permisos de acceso
   if (!hasAccess || !permissions?.canAccessUserManagement) {
@@ -25,13 +31,24 @@ export default function UsersPage() {
   const loadUsers = async () => {
     try {
       setLoading(true);
-      const allUsers = await getAllUsers();
-      setUsers(allUsers);
-      setFilteredUsers(allUsers);
+      
+      const result = await getAllUsers({
+        page: currentPage,
+        pageSize: usersPerPage,
+        sortBy,
+        sortDir,
+        name: searchTerm || undefined,
+        role: roleFilter !== "all" ? roleFilter : undefined,
+      });
+      
+      setUsers(result.users);
+      setTotalUsers(result.total);
+      setTotalPages(result.totalPages);
     } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : "No se pudieron cargar los usuarios";
       toast({
         title: "Error",
-        description: "No se pudieron cargar los usuarios",
+        description: errorMessage,
         variant: "destructive",
       });
     } finally {
@@ -41,25 +58,26 @@ export default function UsersPage() {
 
   useEffect(() => {
     loadUsers();
-  }, []);
+  }, [currentPage, usersPerPage, sortBy, sortDir, searchTerm, roleFilter]);
 
-  useEffect(() => {
-    let filtered = users;
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+  };
 
-    if (searchTerm) {
-      filtered = filtered.filter(
-        (user) =>
-          user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          user.email.toLowerCase().includes(searchTerm.toLowerCase()),
-      );
-    }
+  const handleUsersPerPageChange = (perPage: number) => {
+    setUsersPerPage(perPage);
+    setCurrentPage(1);
+  };
 
-    if (roleFilter !== "all") {
-      filtered = filtered.filter((user) => user.role === roleFilter);
-    }
+  const handleSearchChange = (value: string) => {
+    setSearchTerm(value);
+    setCurrentPage(1);
+  };
 
-    setFilteredUsers(filtered);
-  }, [users, searchTerm, roleFilter]);
+  const handleRoleFilterChange = (value: string) => {
+    setRoleFilter(value);
+    setCurrentPage(1);
+  };
 
   const handleAddUser = async (email: string, role: User["role"]) => {
     try {
@@ -233,19 +251,28 @@ export default function UsersPage() {
 
       <UserFilters
         searchTerm={searchTerm}
-        setSearchTerm={setSearchTerm}
+        setSearchTerm={handleSearchChange}
         roleFilter={roleFilter}
-        setRoleFilter={setRoleFilter}
+        setRoleFilter={handleRoleFilterChange}
       />
 
       <UserTable
-        users={filteredUsers}
+        users={users}
         permissions={permissions}
         currentUserId={currentUser?.id || ""}
         onRoleUpdate={handleRoleUpdate}
         onUserDelete={handleUserDelete}
         onUserStatusToggle={handleUserStatusToggle}
         onUserUpdate={handleUserUpdate}
+      />
+
+      <UsersPagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        totalUsers={totalUsers}
+        usersPerPage={usersPerPage}
+        onPageChange={handlePageChange}
+        onUsersPerPageChange={handleUsersPerPageChange}
       />
     </div>
   );

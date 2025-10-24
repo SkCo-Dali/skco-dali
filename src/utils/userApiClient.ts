@@ -26,71 +26,66 @@ export const getAllUsers = async (options?: {
     email?: string;
     role?: string;
     isActive?: boolean;
-}): Promise<User[]> => {
-    const allUsers: User[] = [];
-    let currentPage = options?.page || 1;
-    const pageSize = options?.pageSize || 200; // Usar el máximo permitido para obtener todos
-    let hasMoreData = true;
-
+}): Promise<{
+    users: User[];
+    page: number;
+    pageSize: number;
+    total: number;
+    totalPages: number;
+}> => {
     try {
-        while (hasMoreData) {
-            const params = new URLSearchParams({
-                page: currentPage.toString(),
-                page_size: pageSize.toString(),
-            });
+        const params = new URLSearchParams({
+            page: (options?.page || 1).toString(),
+            page_size: (options?.pageSize || 50).toString(),
+        });
 
-            // Agregar parámetros opcionales
-            if (options?.sortBy) params.append('sort_by', options.sortBy);
-            if (options?.sortDir) params.append('sort_dir', options.sortDir);
-            if (options?.name) params.append('name', options.name);
-            if (options?.email) params.append('email', options.email);
-            if (options?.role) params.append('role', options.role);
-            if (options?.isActive !== undefined) params.append('is_active', options.isActive.toString());
+        // Agregar parámetros opcionales
+        if (options?.sortBy) params.append('sort_by', options.sortBy);
+        if (options?.sortDir) params.append('sort_dir', options.sortDir);
+        if (options?.name) params.append('name', options.name);
+        if (options?.email) params.append('email', options.email);
+        if (options?.role) params.append('role', options.role);
+        if (options?.isActive !== undefined) params.append('is_active', options.isActive.toString());
 
-            const endpoint = `${API_BASE_URL}/list?${params.toString()}`;
-            const headers = await getAuthHeaders();
+        const endpoint = `${API_BASE_URL}/list?${params.toString()}`;
+        const headers = await getAuthHeaders();
 
-            const response = await fetch(endpoint, {
-                method: 'GET',
-                headers,
-            });
+        const response = await fetch(endpoint, {
+            method: 'GET',
+            headers,
+        });
 
-            if (!response.ok) {
-                // Manejo de errores específicos
-                if (response.status === 401) {
-                    throw new Error('No autenticado. Por favor, inicia sesión nuevamente.');
-                }
-                if (response.status === 403) {
-                    throw new Error('No tienes permisos para ver esta sección. Se requiere rol admin o serviceDesk.');
-                }
-                if (response.status === 400) {
-                    throw new Error('Parámetros inválidos en la solicitud.');
-                }
-                throw new Error(`Error al obtener usuarios: ${response.statusText}`);
+        if (!response.ok) {
+            // Manejo de errores específicos
+            if (response.status === 401) {
+                throw new Error('No autenticado. Por favor, inicia sesión nuevamente.');
             }
-
-            const result: {
-                items: ApiUser[];
-                page: number;
-                page_size: number;
-                total: number;
-                total_pages: number;
-            } = await response.json();
-
-            const mappedUsers = result.items.map(mapApiUserToUser);
-            allUsers.push(...mappedUsers);
-
-            // Si estamos solicitando una página específica, no seguir paginando
-            if (options?.page) {
-                hasMoreData = false;
-            } else {
-                // Si no hay más páginas, terminar
-                hasMoreData = currentPage < result.total_pages;
-                currentPage++;
+            if (response.status === 403) {
+                throw new Error('No tienes permisos para ver esta sección. Se requiere rol admin o serviceDesk.');
             }
+            if (response.status === 400) {
+                throw new Error('Parámetros inválidos en la solicitud.');
+            }
+            throw new Error(`Error al obtener usuarios: ${response.statusText}`);
         }
 
-        return allUsers;
+        const result: {
+            items: ApiUser[];
+            page: number;
+            page_size: number;
+            total: number;
+            total_pages: number;
+        } = await response.json();
+
+        const mappedUsers = result.items.map(mapApiUserToUser);
+
+        return {
+            users: mappedUsers,
+            page: result.page,
+            pageSize: result.page_size,
+            total: result.total,
+            totalPages: result.total_pages
+        };
     } catch (error) {
         console.error('❌ Error in getAllUsers:', error);
         throw error;
