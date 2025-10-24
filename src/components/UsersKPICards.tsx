@@ -54,10 +54,10 @@ export function UsersKPICards({ users, totalUsers }: UsersKPICardsProps) {
   const comercialesSacPercentage = totalUsers > 0 ? ((comercialesSac / totalUsers) * 100).toFixed(1) : "0";
 
   return (
-    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-2 mb-2">
+    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2 mb-2">
       <KPICard
         title="Total Usuarios"
-        value={totalUsers.toLocaleString()}
+        value={`${totalUsers.toLocaleString()} (${inactiveUsers} inactivos)`}
         icon={Users}
         description="En el sistema"
       />
@@ -69,15 +69,6 @@ export function UsersKPICards({ users, totalUsers }: UsersKPICardsProps) {
         change={`${adminsPercentage}%`}
         changeType="neutral"
         description="Rol admin"
-      />
-
-      <KPICard
-        title="Inactivos"
-        value={inactiveUsers.toLocaleString()}
-        icon={UserX}
-        change={`${inactivePercentage}%`}
-        changeType={inactiveUsers > 0 ? "negative" : "positive"}
-        description="Desactivados"
       />
 
       <KPICard
