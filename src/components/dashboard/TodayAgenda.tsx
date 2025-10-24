@@ -88,13 +88,13 @@ export function TodayAgenda() {
       </div>
 
       <ScrollArea className="max-h-[280px]">
-        <div className="space-y-2 pr-4">
+        <div className="space-y-3 flex-1 pr-4">
           {mockAgendaItems.map((item) => (
             <div
               key={item.id}
               className="flex items-center justify-between p-4 rounded-xl border bg-white hover:bg-muted/50 transition-colors cursor-pointer group"
             >
-              <div className="flex-1">
+              <div className="flex-1 min-w-0">
                 <h4 className="font-medium mb-2 truncate">{item.title}</h4>
                 <div className="flex items-center gap-4 text-sm text-muted-foreground truncate">
                   <div className="flex items-center gap-1">
