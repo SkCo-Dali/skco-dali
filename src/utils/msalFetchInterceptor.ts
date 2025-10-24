@@ -42,6 +42,13 @@ export const registerMsalFetchInterceptor = (instance: IPublicClientApplication)
                     }
 
                     if (bearerToken) {
+                        // Log token information for debugging
+                        const tokenPreview = bearerToken.substring(0, 20) + '...' + bearerToken.substring(bearerToken.length - 20);
+                        console.log('🔑 MSAL INTERCEPTOR - Token being used:');
+                        console.log('   📍 URL:', reqUrl);
+                        console.log('   🎫 Token preview:', tokenPreview);
+                        console.log('   📏 Token length:', bearerToken.length);
+                        
                         // Ensure headers object exists and set Authorization header
                         if (cfg.headers instanceof Headers) {
                             cfg.headers.set('Authorization', `Bearer ${bearerToken}`);
