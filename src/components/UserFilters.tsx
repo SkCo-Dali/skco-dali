@@ -21,7 +21,7 @@ export function UserFilters({ searchTerm, setSearchTerm, roleFilter, setRoleFilt
 
   return (
     <Card>
-      <CardContent className="p-4">
+      <CardContent className="p-0 border-0">
         <div className="flex gap-4 items-end">
           <div className="flex-1">
             <Label htmlFor="search">Buscar usuarios</Label>
