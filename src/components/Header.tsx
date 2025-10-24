@@ -1,4 +1,3 @@
-// Header de Dali LM
 import { UserProfile } from "@/components/UserProfile";
 import { NotificationCenter } from "@/components/NotificationCenter";
 import { Button } from "@/components/ui/button";
@@ -6,38 +5,19 @@ import { useSidebar } from "@/components/ui/sidebar";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useAuth } from "@/contexts/AuthContext";
 import { DynamicBanner } from "@/components/DynamicBanner";
-import { useNavigate, useLocation } from "react-router-dom";
-import { useEffect, useState } from "react";
 
 interface HeaderProps {
   onBannerMessage?: (automaticReply: string) => void;
-  chatInterfaceRef?: React.RefObject<any>;
 }
 
-export function Header({ onBannerMessage, chatInterfaceRef }: HeaderProps = {}) {
+export function Header({ onBannerMessage }: HeaderProps = {}) {
   const { toggleSidebar } = useSidebar();
   const isMobile = useIsMobile();
   const { user } = useAuth();
-  const navigate = useNavigate();
-  const location = useLocation();
-  const [pendingMessage, setPendingMessage] = useState<string | null>(null);
-
-  // Efecto para enviar el mensaje pendiente cuando llegamos a ChatDali
-  useEffect(() => {
-    if (pendingMessage && (location.pathname === '/chat' || location.pathname === '/Chat') && onBannerMessage) {
-      setTimeout(() => {
-        onBannerMessage(pendingMessage);
-        setPendingMessage(null);
-      }, 500);
-    }
-  }, [location.pathname, pendingMessage, onBannerMessage]);
 
   const handleBannerAction = (automaticReply: string) => {
-    if ((location.pathname === '/chat' || location.pathname === '/Chat') && onBannerMessage) {
+    if (onBannerMessage) {
       onBannerMessage(automaticReply);
-    } else {
-      setPendingMessage(automaticReply);
-      navigate('/chat');
     }
   };
 

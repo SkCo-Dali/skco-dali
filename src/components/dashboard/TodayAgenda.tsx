@@ -62,11 +62,10 @@ export function TodayAgenda() {
   const [selectedPeriod, setSelectedPeriod] = useState<PeriodType>("Hoy");
 
   return (
-    <Card className="p-4 h-full flex flex-col gap-4 bg-[#fafafa]">
+    <Card className="p-4 max-h-[450px] flex flex-col gap-4 bg-[#fafafa]">
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <Calendar className="w-5 h-5" />
-          <h3 className="text-lg font-semibold">Tu agenda</h3>
+        <div className="flex items-center gap-2 truncate">
+          <h3 className="text-lg font-semibold truncate">Tu agenda</h3>
         </div>
         <Button variant="link" className="text-primary p-0 h-auto">
           Organiza tu agenda
@@ -88,16 +87,16 @@ export function TodayAgenda() {
         ))}
       </div>
 
-      <ScrollArea className="h-[280px]">
-        <div className="space-y-2 pr-4">
+      <ScrollArea className="max-h-[280px]">
+        <div className="space-y-3 flex-1 pr-4">
           {mockAgendaItems.map((item) => (
             <div
               key={item.id}
               className="flex items-center justify-between p-4 rounded-xl border bg-white hover:bg-muted/50 transition-colors cursor-pointer group"
             >
-              <div className="flex-1">
-                <h4 className="font-medium mb-2">{item.title}</h4>
-                <div className="flex items-center gap-4 text-sm text-muted-foreground">
+              <div className="flex-1 min-w-0">
+                <h4 className="font-medium mb-2 truncate">{item.title}</h4>
+                <div className="flex items-center gap-4 text-sm text-muted-foreground truncate">
                   <div className="flex items-center gap-1">
                     <Calendar className="w-4 h-4" />
                     <span>{item.date}</span>
