@@ -180,6 +180,7 @@ export function DashboardOverview({ leads, loading }: DashboardOverviewProps) {
               <MetricCard
                 title="Leads Nuevos"
                 value={kpiCounts.loading ? "..." : kpiCounts.newLeads.toLocaleString()}
+                description="Leads en estado nuevo"
                 changePercent={
                   kpiCounts.loading ? undefined : Math.round((kpiCounts.newLeads / (kpiCounts.totalLeads || 1)) * 100)
                 }
@@ -189,6 +190,7 @@ export function DashboardOverview({ leads, loading }: DashboardOverviewProps) {
               <MetricCard
                 title="Contratos Creados"
                 value={kpiCounts.loading ? "..." : kpiCounts.contratoCreado.toLocaleString()}
+                description="Leads con estado Contrato creado"
                 changePercent={
                   kpiCounts.loading
                     ? undefined
@@ -200,6 +202,7 @@ export function DashboardOverview({ leads, loading }: DashboardOverviewProps) {
               <MetricCard
                 title="Ventas Registradas"
                 value={kpiCounts.loading ? "..." : kpiCounts.registroVenta.toLocaleString()}
+                description="Leads en estado Registro de Venta"
                 changePercent={
                   kpiCounts.loading
                     ? undefined
