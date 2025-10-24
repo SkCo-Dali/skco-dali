@@ -345,7 +345,7 @@ export const getRolePermissions = (role: UserRole): RolePermissions => {
         chatSami: true,
         accessiblePages: ["leads", "ChatDali", "informes", "opportunities"],
       };
-    case "fpsac":
+    case "fpSac":
       return {
         canCreate: true,
         canEdit: true,
