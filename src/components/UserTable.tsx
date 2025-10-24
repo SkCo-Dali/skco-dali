@@ -26,7 +26,7 @@ export function UserTable({
 }: UserTableProps) {
   return (
     <Card className="flex flex-col h-full">
-      <ScrollArea className="max-h-[280px]">
+      <ScrollArea className="h-full p-2">
         <div className="max-h-[359px]">
           <Table>
             <TableHeader className="sticky top-0 bg-card z-10">
