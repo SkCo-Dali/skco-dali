@@ -66,7 +66,7 @@ export function TodayAgenda() {
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <Calendar className="w-5 h-5" />
-          <h3 className="text-lg font-semibold">Tu agenda</h3>
+          <h3 className="text-lg font-semibold truncate">Tu agenda</h3>
         </div>
         <Button variant="link" className="text-primary p-0 h-auto">
           Organiza tu agenda
@@ -96,7 +96,7 @@ export function TodayAgenda() {
               className="flex items-center justify-between p-4 rounded-xl border bg-white hover:bg-muted/50 transition-colors cursor-pointer group"
             >
               <div className="flex-1">
-                <h4 className="font-medium mb-2">{item.title}</h4>
+                <h4 className="font-medium mb-2 truncate">{item.title}</h4>
                 <div className="flex items-center gap-4 text-sm text-muted-foreground">
                   <div className="flex items-center gap-1">
                     <Calendar className="w-4 h-4" />

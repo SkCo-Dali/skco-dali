@@ -56,7 +56,7 @@ export function MarketDaliOpportunities() {
   return (
     <Card className="p-4 max-h-[450px] flex flex-col gap-4">
       <div className="flex items-center justify-between">
-        <h3 className="text-lg font-semibold">Oportunidades de Market Dali</h3>
+        <h3 className="text-lg font-semibold truncate">Oportunidades de Market Dali</h3>
         <Button variant="link" className="text-primary p-0 h-auto" onClick={() => navigate("/oportunidades")}>
           Más oportunidades
           <ArrowRight className="ml-2 h-4 w-4" />
@@ -64,7 +64,7 @@ export function MarketDaliOpportunities() {
       </div>
 
       <ScrollArea className="max-h-[280px]">
-        <div className="space-y-3 flex-1">
+        <div className="space-y-3 flex-1 pr-4">
           {mockOpportunities.slice(0, 3).map((opportunity) => {
             const IconComponent = opportunity.icon;
             return (
