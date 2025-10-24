@@ -44,7 +44,7 @@ export const SimpleChatInterface = forwardRef<any, {}>((props, ref) => {
   const [showTemplatesModal, setShowTemplatesModal] = useState(false);
   const [showScrollToBottom, setShowScrollToBottom] = useState(false);
 
-  const { currentConversation, addMessage, createNewConversation } = useSimpleConversation();
+  const { currentConversation, addMessage, createNewConversation, updateConversationId } = useSimpleConversation();
   const { user } = useAuth();
   const { aiSettings } = useSettings();
   const isMobile = useIsMobile();
@@ -155,6 +155,9 @@ export const SimpleChatInterface = forwardRef<any, {}>((props, ref) => {
           conversationTitle
         );
         console.log('✅ Conversación creada en Azure con ID:', conversationId);
+        
+        // Actualizar el ID local de la conversación con el ID real de Azure
+        updateConversationId(conversationId);
       }
 
       // PASO 2: Llamar al agente maestro con el conversationId
