@@ -7,6 +7,7 @@ import { useSimpleConversation } from '../contexts/SimpleConversationContext';
 import { ChatMessage } from '../types/chat';
 import { useAuth } from '../contexts/AuthContext';
 import { callAzureAgentApi } from '../utils/azureApiService';
+import { azureConversationService } from '../services/azureConversationService';
 import { useSettings } from '../contexts/SettingsContext';
 import { templatesService } from '../services/templatesService';
 import { PromptTemplate } from '../types/templates';
@@ -144,9 +145,21 @@ export const SimpleChatInterface = forwardRef<any, {}>((props, ref) => {
         ? generateConversationTitle(content)
         : currentConversation.title;
 
-      // PRIMERO: Llamar al agente maestro para que procese y guarde la conversación en su sistema
-      console.log('📞 Llamando al agente maestro primero...');
-      const response = await callAzureAgentApi(content, [], aiSettings, userEmail, currentConversation.id);
+      let conversationId = currentConversation.id;
+
+      // PASO 1: Si es nueva conversación, crearla en Azure primero
+      if (isNewConversation) {
+        console.log('📝 Creando nueva conversación en Azure...');
+        conversationId = await azureConversationService.createConversation(
+          userEmail,
+          conversationTitle
+        );
+        console.log('✅ Conversación creada en Azure con ID:', conversationId);
+      }
+
+      // PASO 2: Llamar al agente maestro con el conversationId
+      console.log('📞 Llamando al agente maestro...');
+      const response = await callAzureAgentApi(content, [], aiSettings, userEmail, conversationId);
 
       // Preparar respuesta del asistente
       console.log('✅ Respuesta recibida del agente maestro');
@@ -177,15 +190,13 @@ export const SimpleChatInterface = forwardRef<any, {}>((props, ref) => {
 
       addMessage(aiMessage);
 
-      // SEGUNDO: Ahora guardamos la conversación completa en nuestro backend
-      console.log('💾 Guardando conversación en backend local...');
+      // PASO 3: Actualizar la conversación en Azure con ambos mensajes (user y assistant)
+      console.log('💾 Actualizando conversación en Azure...');
       const finalMessages = [...messages, userMessage, aiMessage];
-      const conversationFinalUpdate = {
-        id: currentConversation.id,
-        userId: userEmail,
+      
+      await azureConversationService.updateConversation(conversationId, userEmail, {
         title: conversationTitle,
         messages: finalMessages.map(msg => ({
-          messageId: msg.id,
           role: msg.type === 'user' ? 'user' as const : 'assistant' as const,
           content: msg.content,
           timestamp: msg.timestamp.toISOString(),
@@ -195,34 +206,10 @@ export const SimpleChatInterface = forwardRef<any, {}>((props, ref) => {
           videoPreview: (msg as any).videoPreview,
           metadata: (msg as any).metadata
         })),
-        createdAt: currentConversation.createdAt.toISOString(),
-        updatedAt: new Date().toISOString(),
-        tags: currentConversation.tags || [],
-        isArchived: currentConversation.isArchived || false,
-        totalTokens: currentConversation.totalTokens || 0,
-        attachments: []
-      };
-
-      const finalHeaders: Record<string, string> = { 'Content-Type': 'application/json' };
-
-      // Usar POST si es nueva conversación, PUT si ya existe
-      const method = isNewConversation ? 'POST' : 'PUT';
-      const url = isNewConversation 
-        ? `${ENV.AI_API_BASE_URL}/api/conversations`
-        : `${ENV.AI_API_BASE_URL}/api/conversations/${currentConversation.id}?user_id=${encodeURIComponent(userEmail)}`;
-
-      const finalRes = await fetch(url, { 
-        method, 
-        headers: finalHeaders, 
-        body: JSON.stringify(conversationFinalUpdate) 
+        updatedAt: new Date().toISOString()
       });
       
-      if (!finalRes.ok) {
-        const errorText = await finalRes.text();
-        console.error('Error saving conversation to local backend:', finalRes.status, errorText);
-      } else {
-        console.log('✅ Conversación guardada en backend local');
-      }
+      console.log('✅ Conversación actualizada en Azure');
     } catch (error) {
       console.error('Error in handleSendMessage:', error);
       addMessage({
