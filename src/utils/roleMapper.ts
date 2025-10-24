@@ -21,6 +21,7 @@ export const FRONTEND_TO_API_ROLE_MAP: Record<User["role"], string> = {
   analistaComisiones: "analistaComisiones",
   serviceDesk: "serviceDesk",
   sac: "sac",
+  fpSac: "fpSac",
 };
 
 // Mapeo de roles de la API a roles del frontend
@@ -44,6 +45,7 @@ export const API_TO_FRONTEND_ROLE_MAP: Record<string, User["role"]> = {
   analistaComisiones: "analistaComisiones",
   serviceDesk: "serviceDesk",
   sac: "sac",
+  fpSac: "fpSac",
 };
 
 // Función para convertir rol del frontend al formato de la API

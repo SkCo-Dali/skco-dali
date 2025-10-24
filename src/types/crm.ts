@@ -1,7 +1,7 @@
-export type UserRole =
-  | "admin"
-  | "manager"
-  | "agent"
+export type UserRole = 
+  | "admin" 
+  | "manager" 
+  | "agent" 
   | "viewer"
   | "supervisor"
   | "analista"
@@ -17,7 +17,8 @@ export type UserRole =
   | "supervisorComisiones"
   | "analistaComisiones"
   | "serviceDesk"
-  | "sac";
+  | "sac"
+  | "fpSac";
 
 export interface User {
   id: string;
@@ -449,6 +450,7 @@ export const getRoleDisplayName = (role: UserRole): string => {
     analistaComisiones: "Analista Comisiones",
     serviceDesk: "Service Desk",
     sac: "SAC",
+    fpSac: "FP SAC",
   };
   return roleDisplayMap[role] || role;
 };

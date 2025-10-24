@@ -26,4 +26,5 @@ export const roles = [
   { value: "analistaComisiones", label: "Analista Comisiones" },
   { value: "serviceDesk", label: "Service Desk" },
   { value: "sac", label: "SAC" },
+  { value: "fpSac", label: "FP SAC" },
 ];
