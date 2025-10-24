@@ -27,10 +27,10 @@ export function UserTable({
   return (
     <Card className="flex flex-col h-full">
       <ScrollArea className="h-full p-4">
-        <div className="max-h-[359px] p-2 border">
+        <div className="p-2 border rounded-xl">
           <Table>
-            <TableHeader className="sticky top-0 bg-card z-10 text-center">
-              <TableRow className="gap-4">
+            <TableHeader className="sticky top-0 bg-card z-10">
+              <TableRow className="h-20">
                 <TableHead>Usuario</TableHead>
                 <TableHead>Email</TableHead>
                 <TableHead>Rol</TableHead>
