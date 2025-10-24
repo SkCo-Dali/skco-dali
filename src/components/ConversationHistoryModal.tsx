@@ -19,12 +19,12 @@ export const ConversationHistoryModal: React.FC<ConversationHistoryModalProps> =
   const { conversations, loadConversation, deleteConversation, isLoading, loadConversationsList } =
     useSimpleConversation();
 
-  // Load conversations when modal opens
+  // Load conversations when modal opens (replicates Chat Dali behavior, avoid loops)
   useEffect(() => {
-    if (isOpen && conversations.length === 0) {
+    if (isOpen && !isLoading && conversations.length === 0) {
       loadConversationsList();
     }
-  }, [isOpen, conversations.length, loadConversationsList]);
+  }, [isOpen, conversations.length, isLoading]);
 
   // Simple search filter
   const filteredConversations = conversations.filter((conv) => {
