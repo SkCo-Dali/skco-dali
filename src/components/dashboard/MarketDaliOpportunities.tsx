@@ -1,4 +1,4 @@
-import { Users, Calendar, ChevronRight, PartyPopper, FileText, TrendingUp, ArrowRight, shopping-bag } from "lucide-react";
+import { Users, Calendar, ChevronRight, PartyPopper, FileText, TrendingUp, ArrowRight, ShoppingBag } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -46,12 +46,14 @@ export function MarketDaliOpportunities() {
   return (
     <Card className="p-4 h-full flex flex-col gap-4">
       <div className="flex items-center justify-between">
-        <shopping-bag className="w-5 h-5"/>
+       <div className="flex items-center gap-2">
+        <ShoppingBag className="w-5 h-5" />
         <h3 className="text-lg font-semibold">Oportunidades de Market Dali</h3>
         <Button variant="link" className="text-primary p-0 h-auto" onClick={() => navigate("/oportunidades")}>
           Más oportunidades
           <ArrowRight className="ml-2 h-4 w-4" />
         </Button>
+       </div>
       </div>
 
       <div className="space-y-3 flex-1">
