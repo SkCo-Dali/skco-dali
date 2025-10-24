@@ -323,7 +323,7 @@ const ChatSamiContent = forwardRef<ChatSamiHandle, ChatSamiProps>(({ isOpen = fa
       {isOpen && viewMode !== "maximized" && (
         <div className="fixed top-20 right-0 bottom-0 w-[360px] border-l bg-background shadow-none flex flex-col z-30">
           {/* Header */}
-          <div className="flex items-center justify-end p-3 bg-[#fafafa] border-b shrink-0">
+          <div className="flex items-center justify-end px-2 bg-transparent shrink-0">
             <div className="flex items-end gap-1">
               <Button
                 variant="ghost"
