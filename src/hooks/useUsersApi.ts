@@ -17,7 +17,11 @@ export const useUsersApi = () => {
     setError(null);
     
     try {
-      const fetchedUsers = await getAllUsers();
+      // Obtener todos los usuarios con ordenamiento por fecha de actualización
+      const fetchedUsers = await getAllUsers({
+        sortBy: 'UpdatedAt',
+        sortDir: 'desc'
+      });
       setUsers(fetchedUsers);
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Error al cargar usuarios';
