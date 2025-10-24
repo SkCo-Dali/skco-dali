@@ -11,7 +11,7 @@ interface MetricCardProps {
   description?: string;
 }
 
-export function MetricCard({ title, value, changePercent, changeLabel, variant = "neutral" }: MetricCardProps) {
+export function MetricCard({ title, value, changePercent, changeLabel, variant = "neutral", description }: MetricCardProps) {
   const showChange = changePercent !== undefined;
   const isPositive = changePercent && changePercent > 0;
   const isNegative = changePercent && changePercent < 0;
