@@ -1,7 +1,19 @@
 import React from "react";
 import { User } from "@/types/crm";
 import { KPICard } from "@/components/KPICard";
-import { Users, UserX, Briefcase, BadgeCheck, Store, Headphones, ShieldCheck, Calculator, Phone, PhoneCall, Crown } from "lucide-react";
+import {
+  Users,
+  UserX,
+  Briefcase,
+  BadgeCheck,
+  Store,
+  Headphones,
+  ShieldCheck,
+  Calculator,
+  Phone,
+  PhoneCall,
+  Crown,
+} from "lucide-react";
 
 interface UsersKPICardsProps {
   users: User[];
@@ -56,7 +68,7 @@ export function UsersKPICards({ users, totalUsers, onRoleFilter, selectedRoles }
   const comercialesSacPercentage = totalUsers > 0 ? ((comercialesSac / totalUsers) * 100).toFixed(1) : "0";
 
   const isRoleSelected = (roles: string[]) => {
-    return roles.length === selectedRoles.length && roles.every(r => selectedRoles.includes(r));
+    return roles.length === selectedRoles.length && roles.every((r) => selectedRoles.includes(r));
   };
 
   return (
@@ -99,7 +111,7 @@ export function UsersKPICards({ users, totalUsers, onRoleFilter, selectedRoles }
           icon={BadgeCheck}
           change={`${canalSegurosPercentage}%`}
           changeType="neutral"
-          description="AIS, Promotores"
+          description="AIS, Promotores y Aliados"
         />
       </div>
 
@@ -110,7 +122,7 @@ export function UsersKPICards({ users, totalUsers, onRoleFilter, selectedRoles }
           icon={Store}
           change={`${canalAgenciasPercentage}%`}
           changeType="neutral"
-          description="FP, Socios"
+          description="FP, Socios, Directores"
         />
       </div>
 
