@@ -144,76 +144,12 @@ export const SimpleChatInterface = forwardRef<any, {}>((props, ref) => {
         ? generateConversationTitle(content)
         : currentConversation.title;
 
-      // Crear/actualizar conversación en tu backend
-      if (isNewConversation) {
-        const conversationData = {
-          id: currentConversation.id,
-          userId: userEmail,
-          title: conversationTitle,
-          messages: [{
-            messageId: userMessage.id,
-            role: 'user' as const,
-            content: userMessage.content,
-            timestamp: userMessage.timestamp.toISOString()
-          }],
-          createdAt: currentConversation.createdAt.toISOString(),
-          updatedAt: new Date().toISOString(),
-          tags: [],
-          isArchived: false,
-          totalTokens: 0,
-          attachments: []
-        };
-
-        const headers: Record<string, string> = { 'Content-Type': 'application/json' };
-
-        const res = await fetch(`${ENV.AI_API_BASE_URL}/api/conversations`, {
-          method: 'POST',
-          headers,
-          body: JSON.stringify(conversationData)
-        });
-        if (!res.ok) {
-          const errorText = await res.text();
-          throw new Error(`Failed to create conversation: ${res.status} ${res.statusText} - ${errorText}`);
-        }
-      } else {
-        const updatedMessages = [...messages, userMessage];
-        const conversationUpdate = {
-          id: currentConversation.id,
-          userId: userEmail,
-          title: currentConversation.title,
-          messages: updatedMessages.map(msg => ({
-            messageId: msg.id,
-            role: msg.type === 'user' ? 'user' as const : 'assistant' as const,
-            content: msg.content,
-            timestamp: msg.timestamp.toISOString(),
-            data: (msg as any).data,
-            chart: (msg as any).chart,
-            downloadLink: (msg as any).downloadLink,
-            videoPreview: (msg as any).videoPreview,
-            metadata: (msg as any).metadata
-          })),
-          updatedAt: new Date().toISOString(),
-          tags: currentConversation.tags,
-          isArchived: currentConversation.isArchived,
-          totalTokens: currentConversation.totalTokens
-        };
-
-        const headers: Record<string, string> = { 'Content-Type': 'application/json' };
-
-        const res = await fetch(
-          `${ENV.AI_API_BASE_URL}/api/conversations/${currentConversation.id}?user_id=${encodeURIComponent(userEmail)}`,
-          { method: 'PUT', headers, body: JSON.stringify(conversationUpdate) }
-        );
-        if (!res.ok) {
-          const errorText = await res.text();
-          console.error('Error updating conversation:', res.status, errorText);
-        }
-      }
-
-      // Llamada al agente
-      const response = await callAzureAgentApi('', [], aiSettings, userEmail, currentConversation.id);
+      // PRIMERO: Llamar al agente maestro para que procese y guarde la conversación en su sistema
+      console.log('📞 Llamando al agente maestro primero...');
+      const response = await callAzureAgentApi(content, [], aiSettings, userEmail, currentConversation.id);
 
       // Preparar respuesta del asistente
+      console.log('✅ Respuesta recibida del agente maestro');
       let aiResponseContent = '';
       if ((response as any).text) {
         aiResponseContent = (response as any).text;
@@ -241,7 +177,8 @@ export const SimpleChatInterface = forwardRef<any, {}>((props, ref) => {
 
       addMessage(aiMessage);
 
-      // Update final con el título (si cambió) y mensajes finales
+      // SEGUNDO: Ahora guardamos la conversación completa en nuestro backend
+      console.log('💾 Guardando conversación en backend local...');
       const finalMessages = [...messages, userMessage, aiMessage];
       const conversationFinalUpdate = {
         id: currentConversation.id,
@@ -258,21 +195,33 @@ export const SimpleChatInterface = forwardRef<any, {}>((props, ref) => {
           videoPreview: (msg as any).videoPreview,
           metadata: (msg as any).metadata
         })),
+        createdAt: currentConversation.createdAt.toISOString(),
         updatedAt: new Date().toISOString(),
-        tags: currentConversation.tags,
-        isArchived: currentConversation.isArchived,
-        totalTokens: currentConversation.totalTokens
+        tags: currentConversation.tags || [],
+        isArchived: currentConversation.isArchived || false,
+        totalTokens: currentConversation.totalTokens || 0,
+        attachments: []
       };
 
       const finalHeaders: Record<string, string> = { 'Content-Type': 'application/json' };
 
-      const finalRes = await fetch(
-        `${ENV.AI_API_BASE_URL}/api/conversations/${currentConversation.id}?user_id=${encodeURIComponent(userEmail)}`,
-        { method: 'PUT', headers: finalHeaders, body: JSON.stringify(conversationFinalUpdate) }
-      );
+      // Usar POST si es nueva conversación, PUT si ya existe
+      const method = isNewConversation ? 'POST' : 'PUT';
+      const url = isNewConversation 
+        ? `${ENV.AI_API_BASE_URL}/api/conversations`
+        : `${ENV.AI_API_BASE_URL}/api/conversations/${currentConversation.id}?user_id=${encodeURIComponent(userEmail)}`;
+
+      const finalRes = await fetch(url, { 
+        method, 
+        headers: finalHeaders, 
+        body: JSON.stringify(conversationFinalUpdate) 
+      });
+      
       if (!finalRes.ok) {
         const errorText = await finalRes.text();
-        console.error('Error in final conversation update:', finalRes.status, errorText);
+        console.error('Error saving conversation to local backend:', finalRes.status, errorText);
+      } else {
+        console.log('✅ Conversación guardada en backend local');
       }
     } catch (error) {
       console.error('Error in handleSendMessage:', error);
