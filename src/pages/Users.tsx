@@ -60,18 +60,51 @@ export default function UsersPage() {
 
   const loadAllUsersForKPIs = async () => {
     try {
-      // Cargar todos los usuarios que coincidan con los filtros actuales para los KPIs
-      const result = await getAllUsers({
+      // 1) Primera página para conocer total de páginas
+      const first = await getAllUsers({
         page: 1,
-        pageSize: 10000, // Número grande para obtener todos los usuarios que coincidan con el filtro
+        pageSize: 200,
         sortBy: "CreatedAt",
         sortDir: "desc",
         name: searchTerm || undefined,
         role: roleFilter !== "all" ? roleFilter : undefined,
       });
-      setAllUsers(result.users);
+
+      let aggregated: User[] = [...first.users];
+
+      if (first.totalPages > 1) {
+        const requests = [] as Promise<{
+          users: User[];
+          page: number;
+          pageSize: number;
+          total: number;
+          totalPages: number;
+        }>[];
+
+        for (let p = 2; p <= first.totalPages; p++) {
+          requests.push(
+            getAllUsers({
+              page: p,
+              pageSize: 200,
+              sortBy: "CreatedAt",
+              sortDir: "desc",
+              name: searchTerm || undefined,
+              role: roleFilter !== "all" ? roleFilter : undefined,
+            })
+          );
+        }
+
+        const results = await Promise.all(requests);
+        results.forEach((r) => {
+          aggregated = aggregated.concat(r.users);
+        });
+      }
+
+      setAllUsers(aggregated);
     } catch (error) {
       console.error("Error loading all users for KPIs:", error);
+      // Fallback: usar los usuarios visibles para evitar mostrar 0
+      setAllUsers(users);
     }
   };
 
