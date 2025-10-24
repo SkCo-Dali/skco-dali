@@ -38,7 +38,7 @@ export function UserTable({
                 <TableHead>Acciones</TableHead>
               </TableRow>
             </TableHeader>
-            <TableBody>
+            <TableBody className="px-2">
               {users.map((user) => (
                 <UserTableRow
                   key={user.id}
