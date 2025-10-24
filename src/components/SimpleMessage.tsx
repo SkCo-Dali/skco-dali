@@ -111,7 +111,7 @@ export const SimpleMessage: React.FC<SimpleMessageProps> = ({ message }) => {
   };
 
   return (
-    <div className={`flex ${isUser ? "justify-end" : "justify-center"} mb-4`}>
+    <div className={`flex ${isUser ? "justify-end" : "justify-start"} mb-4`}>
       <div
         className={`${isUser ? "max-w-[70%]" : "max-w-[90%]"} flex ${isUser ? "flex-row-reverse" : "flex-row"} items-start space-x-3`}
       >
