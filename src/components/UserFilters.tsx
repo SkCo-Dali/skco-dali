@@ -32,20 +32,22 @@ export function UserFilters({ searchTerm, setSearchTerm, roleFilter, setRoleFilt
         />
       </div>
 
-      <Select className="items-end" value={roleFilter} onValueChange={setRoleFilter}>
-        <Label htmlFor="role-filter">Filtrar por rol</Label>
-        <SelectTrigger className="w-48">
-          <SelectValue />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value="all">Todos los roles</SelectItem>
-          {roles.map((role) => (
-            <SelectItem key={role.value} value={role.value}>
-              {role.label}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
+      <div className="items-end">
+        <Select value={roleFilter} onValueChange={setRoleFilter}>
+          <Label htmlFor="role-filter">Filtrar por rol</Label>
+          <SelectTrigger className="w-48">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">Todos los roles</SelectItem>
+            {roles.map((role) => (
+              <SelectItem key={role.value} value={role.value}>
+                {role.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
     </div>
   );
 }
