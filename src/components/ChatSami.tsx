@@ -321,7 +321,7 @@ const ChatSamiContent = forwardRef<ChatSamiHandle, ChatSamiProps>(({ isOpen = fa
 
       {/* Panel lateral fijo */}
       {isOpen && viewMode !== "maximized" && (
-        <div className="fixed top-20 right-0 bottom-4 w-[360px] border bg-background shadow-none flex flex-col z-30 rounded-xl">
+        <div className="fixed top-20 right-0 bottom-0 w-[360px] border bg-background shadow-none flex flex-col z-30 rounded-xl">
           {/* Header */}
           <div className="flex items-center justify-between p-3 bg-[#fafafa] border-b shrink-0">
             <h2 className="text-lg font-semibold text-foreground">SamiGPT</h2>
