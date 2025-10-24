@@ -9,6 +9,7 @@ import { AddUserDialog } from "@/components/AddUserDialog";
 import { AccessDenied } from "@/components/AccessDenied";
 import { usePageAccess } from "@/hooks/usePageAccess";
 import { getAllUsers, createUser, deleteUser, updateUser, toggleUserStatus } from "@/utils/userApiClient";
+import { roles } from "@/utils/userRoleUtils";
 
 export default function UsersPage() {
   const { hasAccess, permissions, currentUser } = usePageAccess("users");
@@ -35,14 +36,60 @@ export default function UsersPage() {
     try {
       setLoading(true);
 
-      const result = await getAllUsers({
+      // Detectar tipo de búsqueda según el término
+      let searchParams: {
+        page: number;
+        pageSize: number;
+        sortBy: "CreatedAt" | "UpdatedAt" | "Name" | "Email" | "Role" | "IsActive";
+        sortDir: "asc" | "desc";
+        name?: string;
+        email?: string;
+        role?: string;
+        isActive?: boolean;
+      } = {
         page: currentPage,
         pageSize: usersPerPage,
         sortBy,
         sortDir,
-        name: searchTerm || undefined,
-        role: roleFilter !== "all" ? roleFilter : undefined,
-      });
+      };
+
+      // Si hay término de búsqueda, determinar qué buscar
+      if (searchTerm) {
+        const term = searchTerm.toLowerCase().trim();
+        
+        // Buscar por email si contiene @
+        if (term.includes('@')) {
+          searchParams.email = searchTerm;
+        }
+        // Buscar por estado si dice "activo" o "inactivo"
+        else if (term === 'activo' || term === 'active') {
+          searchParams.isActive = true;
+        }
+        else if (term === 'inactivo' || term === 'inactive' || term === 'desactivado') {
+          searchParams.isActive = false;
+        }
+        // Buscar por rol si coincide con algún rol
+        else {
+          const matchingRole = roles.find(r => 
+            r.label.toLowerCase().includes(term) || 
+            r.value.toLowerCase().includes(term)
+          );
+          
+          if (matchingRole) {
+            searchParams.role = matchingRole.value;
+          } else {
+            // Si no coincide con nada específico, buscar por nombre
+            searchParams.name = searchTerm;
+          }
+        }
+      }
+
+      // Agregar filtro de rol del dropdown si está seleccionado
+      if (roleFilter !== "all") {
+        searchParams.role = roleFilter;
+      }
+
+      const result = await getAllUsers(searchParams);
 
       setUsers(result.users);
       setTotalUsers(result.total);
@@ -61,15 +108,57 @@ export default function UsersPage() {
 
   const loadAllUsersForKPIs = async () => {
     try {
-      // 1) Primera página para conocer total de páginas
-      const first = await getAllUsers({
+      // Detectar tipo de búsqueda según el término
+      let searchParams: {
+        page: number;
+        pageSize: number;
+        sortBy: "CreatedAt" | "UpdatedAt" | "Name" | "Email" | "Role" | "IsActive";
+        sortDir: "asc" | "desc";
+        name?: string;
+        email?: string;
+        role?: string;
+        isActive?: boolean;
+      } = {
         page: 1,
         pageSize: 200,
         sortBy: "CreatedAt",
         sortDir: "desc",
-        name: searchTerm || undefined,
-        role: roleFilter !== "all" ? roleFilter : undefined,
-      });
+      };
+
+      // Si hay término de búsqueda, determinar qué buscar
+      if (searchTerm) {
+        const term = searchTerm.toLowerCase().trim();
+        
+        if (term.includes('@')) {
+          searchParams.email = searchTerm;
+        }
+        else if (term === 'activo' || term === 'active') {
+          searchParams.isActive = true;
+        }
+        else if (term === 'inactivo' || term === 'inactive' || term === 'desactivado') {
+          searchParams.isActive = false;
+        }
+        else {
+          const matchingRole = roles.find(r => 
+            r.label.toLowerCase().includes(term) || 
+            r.value.toLowerCase().includes(term)
+          );
+          
+          if (matchingRole) {
+            searchParams.role = matchingRole.value;
+          } else {
+            searchParams.name = searchTerm;
+          }
+        }
+      }
+
+      // Agregar filtro de rol del dropdown si está seleccionado
+      if (roleFilter !== "all") {
+        searchParams.role = roleFilter;
+      }
+
+      // 1) Primera página para conocer total de páginas
+      const first = await getAllUsers(searchParams);
 
       let aggregated: User[] = [...first.users];
 
@@ -85,12 +174,8 @@ export default function UsersPage() {
         for (let p = 2; p <= first.totalPages; p++) {
           requests.push(
             getAllUsers({
+              ...searchParams,
               page: p,
-              pageSize: 200,
-              sortBy: "CreatedAt",
-              sortDir: "desc",
-              name: searchTerm || undefined,
-              role: roleFilter !== "all" ? roleFilter : undefined,
             })
           );
         }
