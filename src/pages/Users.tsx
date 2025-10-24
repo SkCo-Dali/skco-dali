@@ -60,12 +60,14 @@ export default function UsersPage() {
 
   const loadAllUsersForKPIs = async () => {
     try {
-      // Cargar todos los usuarios sin filtros para calcular los KPIs correctamente
+      // Cargar todos los usuarios que coincidan con los filtros actuales para los KPIs
       const result = await getAllUsers({
         page: 1,
-        pageSize: 10000, // Número grande para obtener todos los usuarios
+        pageSize: 10000, // Número grande para obtener todos los usuarios que coincidan con el filtro
         sortBy: "CreatedAt",
         sortDir: "desc",
+        name: searchTerm || undefined,
+        role: roleFilter !== "all" ? roleFilter : undefined,
       });
       setAllUsers(result.users);
     } catch (error) {
@@ -75,12 +77,8 @@ export default function UsersPage() {
 
   useEffect(() => {
     loadUsers();
+    loadAllUsersForKPIs(); // Cargar KPIs con los mismos filtros
   }, [currentPage, usersPerPage, sortBy, sortDir, searchTerm, roleFilter]);
-
-  // Cargar todos los usuarios una sola vez al montar para los KPIs
-  useEffect(() => {
-    loadAllUsersForKPIs();
-  }, []);
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
