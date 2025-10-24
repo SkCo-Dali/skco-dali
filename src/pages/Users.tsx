@@ -263,7 +263,7 @@ export default function UsersPage() {
         />
       </div>
 
-      <div className="px-4 pb-4 flex flex-col" style={{ height: "calc(100vh - 480px)" }}>
+      <div className="px-4 pb-4 mt-4 flex flex-col" style={{ height: "calc(100vh - 480px)" }}>
         <div className="flex-1 min-h-0">
           <UserTable
             users={users}
