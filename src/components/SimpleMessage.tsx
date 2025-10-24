@@ -118,10 +118,10 @@ export const SimpleMessage: React.FC<SimpleMessageProps> = ({ message }) => {
         {/* Message content */}
         <div className="flex flex-col">
           <div
-            className={`px-4 py-3 rounded-2xl ${
+            className={`py-3 rounded-2xl ${
               isUser
-                ? "bg-gray-100 text-gray-900 border border-gray-200"
-                : "bg-trasnaparent text-gray-900 border-0 shadow-sm"
+                ? "px-4 bg-gray-100 text-gray-900 border border-gray-200"
+                : "px-0 bg-trasnaparent text-gray-900 border-0 shadow-none"
             }`}
           >
             {/* Text content */}
