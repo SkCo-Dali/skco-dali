@@ -268,6 +268,7 @@ export const getRolePermissions = (role: UserRole): RolePermissions => {
         accessiblePages: ["leads", "ChatDali", "informes", "opportunities"],
       };
     case "fp":
+    case "ais":
       return {
         canCreate: true,
         canEdit: true,
