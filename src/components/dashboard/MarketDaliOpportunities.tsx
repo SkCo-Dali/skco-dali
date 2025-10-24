@@ -62,60 +62,58 @@ export function MarketDaliOpportunities() {
         </Button>
       </div>
 
-      <div className="space-y-3 flex-1">
-        {mockOpportunities.slice(0, 3).map((opportunity) => {
-          const IconComponent = opportunity.icon;
-          return (
-            <div
-              key={opportunity.id}
-              className="
-    group relative flex items-center justify-between gap-3
-    p-4 rounded-xl transition-colors cursor-pointer
-    hover:bg-muted/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary
-  "
-            >
-              {/* Izquierda */}
-              <div className="flex gap-3 flex-1 min-w-0" onClick={() => navigate(`/oportunidades/${opportunity.id}`)}>
-                <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-                  <IconComponent className="w-5 h-5 text-primary" />
-                </div>
+      <ScrollArea className="max-h-[280px]">
+        <div className="space-y-3 flex-1">
+          {mockOpportunities.slice(0, 3).map((opportunity) => {
+            const IconComponent = opportunity.icon;
+            return (
+              <div
+                key={opportunity.id}
+                className="group relative flex items-center justify-between gap-3 p-4 rounded-xl transition-colors cursor-pointer hover:bg-muted/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+              >
+                {/* Izquierda */}
+                <div className="flex gap-3 flex-1 min-w-0" onClick={() => navigate(`/oportunidades/${opportunity.id}`)}>
+                  <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+                    <IconComponent className="w-5 h-5 text-primary" />
+                  </div>
 
-                <div className="flex-1 min-w-0">
-                  <h4 className="font-medium mb-2 line-clamp-2 truncate">{opportunity.title}</h4>
+                  <div className="flex-1 min-w-0">
+                    <h4 className="font-medium mb-2 line-clamp-2 truncate">{opportunity.title}</h4>
 
-                  <div className="flex items-center gap-3 text-sm text-muted-foreground flex-wrap">
-                    <div className="flex items-center gap-1">
-                      <Users className="w-4 h-4" />
-                      <span>{opportunity.clients} Clientes</span>
+                    <div className="flex items-center gap-3 text-sm text-muted-foreground flex-wrap">
+                      <div className="flex items-center gap-1">
+                        <Users className="w-4 h-4" />
+                        <span>{opportunity.clients} Clientes</span>
+                      </div>
+
+                      <div className="flex items-center gap-1">
+                        <Calendar className="w-4 h-4" />
+                        <span>Vence: {opportunity.dueDate}</span>
+                      </div>
+
+                      <Badge
+                        variant="secondary"
+                        className={
+                          opportunity.priority === "Alta" ? "bg-red-100 text-red-700" : "bg-blue-100 text-blue-700"
+                        }
+                      >
+                        {opportunity.priority}
+                      </Badge>
                     </div>
-
-                    <div className="flex items-center gap-1">
-                      <Calendar className="w-4 h-4" />
-                      <span>Vence: {opportunity.dueDate}</span>
-                    </div>
-
-                    <Badge
-                      variant="secondary"
-                      className={
-                        opportunity.priority === "Alta" ? "bg-red-100 text-red-700" : "bg-blue-100 text-blue-700"
-                      }
-                    >
-                      {opportunity.priority}
-                    </Badge>
                   </div>
                 </div>
-              </div>
 
-              {/* Derecha */}
-              <ChevronRight
-                aria-hidden
-                className="w-6 h-6 text-muted-foreground group-hover:text-primary self-center shrink-0 transition-colors"
-                onClick={() => navigate(`/oportunidades/${opportunity.id}`)}
-              />
-            </div>
-          );
-        })}
-      </div>
+                {/* Derecha */}
+                <ChevronRight
+                  aria-hidden
+                  className="w-6 h-6 text-muted-foreground group-hover:text-primary self-center shrink-0 transition-colors"
+                  onClick={() => navigate(`/oportunidades/${opportunity.id}`)}
+                />
+              </div>
+            );
+          })}
+        </div>
+      </ScrollArea>
     </Card>
   );
 }
