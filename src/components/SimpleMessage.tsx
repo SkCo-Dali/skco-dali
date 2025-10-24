@@ -111,7 +111,7 @@ export const SimpleMessage: React.FC<SimpleMessageProps> = ({ message }) => {
   };
 
   return (
-    <div className={`flex ${isUser ? "justify-end" : "justify-start mx-0"} mb-4`}>
+    <div className={`flex ${isUser ? "justify-end" : "justify-start"} mb-4`}>
       <div
         className={`${isUser ? "max-w-[70%]" : "max-w-[90%]"} flex ${isUser ? "flex-row-reverse" : "flex-row"} items-start space-x-3`}
       >
@@ -169,11 +169,6 @@ export const SimpleMessage: React.FC<SimpleMessageProps> = ({ message }) => {
                 </div>
               </div>
             )}
-
-            {/* Timestamp */}
-            <div className={`mt-2 text-xs text-gray-500 ${isUser ? "text-right" : "text-left"}`}>
-              {formatBogotaTimeAmPm(message.timestamp.toISOString())}
-            </div>
           </div>
 
           {/* Rating buttons - solo para mensajes del asistente */}
