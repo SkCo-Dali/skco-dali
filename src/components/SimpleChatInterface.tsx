@@ -160,9 +160,28 @@ export const SimpleChatInterface = forwardRef<any, {}>((props, ref) => {
         updateConversationId(conversationId);
       }
 
-      // PASO 2: Llamar al agente maestro con el conversationId
+      // PASO 2: Guardar en Azure el mensaje del usuario antes de llamar al maestro
+      console.log('💾 Guardando mensaje del usuario en Azure...');
+      const messagesBeforeAssistant = [...messages, userMessage];
+      await azureConversationService.updateConversation(conversationId, userEmail, {
+        title: conversationTitle,
+        messages: messagesBeforeAssistant.map(msg => ({
+          role: msg.type === 'user' ? 'user' as const : 'assistant' as const,
+          content: msg.content,
+          timestamp: msg.timestamp.toISOString(),
+          data: (msg as any).data,
+          chart: (msg as any).chart,
+          downloadLink: (msg as any).downloadLink,
+          videoPreview: (msg as any).videoPreview,
+          metadata: (msg as any).metadata
+        })),
+        updatedAt: new Date().toISOString()
+      });
+      console.log('✅ Mensaje del usuario guardado en Azure');
+
+      // PASO 3: Llamar al agente maestro (lee del historial por conversationId)
       console.log('📞 Llamando al agente maestro...');
-      const response = await callAzureAgentApi(content, [], aiSettings, userEmail, conversationId);
+      const response = await callAzureAgentApi('', [], aiSettings, userEmail, conversationId);
 
       // Preparar respuesta del asistente
       console.log('✅ Respuesta recibida del agente maestro');
@@ -193,9 +212,9 @@ export const SimpleChatInterface = forwardRef<any, {}>((props, ref) => {
 
       addMessage(aiMessage);
 
-      // PASO 3: Actualizar la conversación en Azure con ambos mensajes (user y assistant)
-      console.log('💾 Actualizando conversación en Azure...');
-      const finalMessages = [...messages, userMessage, aiMessage];
+      // PASO 4: Actualizar la conversación en Azure con ambos mensajes (user y assistant)
+      console.log('💾 Actualizando conversación en Azure con ambos mensajes...');
+      const finalMessages = [...messagesBeforeAssistant, aiMessage];
       
       await azureConversationService.updateConversation(conversationId, userEmail, {
         title: conversationTitle,
