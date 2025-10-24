@@ -15,7 +15,8 @@ export const FRONTEND_TO_API_ROLE_MAP: Record<User["role"], string> = {
   promotor: "promotor",
   aliado: "aliado",
   socio: "socio",
-  ais: "ais",
+  // Alias temporal: el backend aún no soporta 'ais', se envía como 'fp'
+  ais: "fp",
   ejecutivo: "ejecutivo",
   supervisorComisiones: "supervisorComisiones",
   analistaComisiones: "analistaComisiones",
