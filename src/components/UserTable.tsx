@@ -25,7 +25,7 @@ export function UserTable({
 }: UserTableProps) {
   return (
     <Card className="flex flex-col h-full">
-      <CardContent className="flex-1 overflow-hidden p-0">
+      <CardContent className="flex-1 overflow-hidden p-4">
         <div className="overflow-y-auto max-h-[calc(100vh-400px)]">
           <Table>
             <TableHeader className="sticky top-0 bg-card z-10">
@@ -38,7 +38,7 @@ export function UserTable({
                 <TableHead>Acciones</TableHead>
               </TableRow>
             </TableHeader>
-            <TableBody className="px-2">
+            <TableBody>
               {users.map((user) => (
                 <UserTableRow
                   key={user.id}
