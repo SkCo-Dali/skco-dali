@@ -20,7 +20,7 @@ export function UserFilters({ searchTerm, setSearchTerm, roleFilter, setRoleFilt
   };
 
   return (
-    <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center mb-4">
+    <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center justify-between mb-4">
       <div className="relative flex-1 max-w-md">
         <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
         <Input
@@ -32,7 +32,7 @@ export function UserFilters({ searchTerm, setSearchTerm, roleFilter, setRoleFilt
         />
       </div>
 
-      <div className="justify-between items-end">
+      <div className="flex items-center space-x-2 ml-auto">
         <Select value={roleFilter} onValueChange={setRoleFilter}>
           <Label htmlFor="role-filter">Filtrar por rol</Label>
           <SelectTrigger className="w-48">
