@@ -30,11 +30,11 @@ export default function Comisiones() {
         <CommissionsCategorySlicer selectedCategory={selectedCategory} onCategoryChange={setSelectedCategory} />
       </div>
 
-      <Tabs defaultValue="resumen" className="w-full mt-6">
+      <Tabs defaultValue="resumen" className="w-full mt-4">
         <TabsList className="grid w-full grid-cols-3 h-[37px] bg-transparent border-b border-border gap-0 rounded-none p-0">
           <TabsTrigger
             value="resumen"
-            className="data-[state=active]:bg-[#00c73d] data-[state=active]:text-white rounded-t-xl flex items-center gap-2 h-full mx-2"
+            className="data-[state=active]:bg-[#00c73d] data-[state=active]:text-white rounded-t-xl flex items-center gap-2 h-full mx-0"
           >
             <PieChart className="h-4 w-4" />
             Resumen
