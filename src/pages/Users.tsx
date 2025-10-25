@@ -18,7 +18,7 @@ export default function UsersPage() {
   const [allUsers, setAllUsers] = useState<User[]>([]); // Para los KPIs
   const [searchTerm, setSearchTerm] = useState("");
   const [roleFilter, setRoleFilter] = useState<string>("all");
-  const [kpiRoleFilter, setKpiRoleFilter] = useState<string>(""); // Filtro desde KPI Cards
+  const [kpiRoleFilters, setKpiRoleFilters] = useState<string[]>([]); // Filtros múltiples desde KPI Cards
   const [sortBy, setSortBy] = useState<"CreatedAt" | "UpdatedAt" | "Name" | "Email" | "Role" | "IsActive">("UpdatedAt");
   const [sortDir, setSortDir] = useState<"asc" | "desc">("desc");
 
@@ -53,8 +53,9 @@ export default function UsersPage() {
     }
 
     // Priorizar filtro de KPI sobre filtro de dropdown
-    if (kpiRoleFilter) {
-      filters.role = kpiRoleFilter;
+    // Si hay múltiples roles desde KPI, usar el primero (la lógica de múltiples roles se maneja aparte)
+    if (kpiRoleFilters.length === 1) {
+      filters.role = kpiRoleFilters[0];
     } else if (roleFilter !== "all") {
       filters.role = roleFilter;
     }
@@ -86,11 +87,14 @@ export default function UsersPage() {
     return <AccessDenied message="No tienes permisos para acceder a la gestión de usuarios." />;
   }
 
-  // Aplicar filtros cuando cambian
+  // Aplicar filtros cuando cambian (solo para filtro simple o dropdown)
   useEffect(() => {
-    const filters = getFiltersFromSearch();
-    setFilters(filters);
-  }, [searchTerm, roleFilter, kpiRoleFilter, sortBy, sortDir]);
+    // Solo aplicar filtros normales si no hay múltiples roles seleccionados desde KPI
+    if (kpiRoleFilters.length <= 1) {
+      const filters = getFiltersFromSearch();
+      setFilters(filters);
+    }
+  }, [searchTerm, roleFilter, kpiRoleFilters, sortBy, sortDir]);
 
   // Cargar todos los usuarios para KPIs (separado de la paginación)
   const loadAllUsersForKPIs = async () => {
@@ -126,10 +130,58 @@ export default function UsersPage() {
     }
   };
 
+  // Cargar usuarios con múltiples roles cuando se seleccionan desde KPI
+  useEffect(() => {
+    const loadUsersWithMultipleRoles = async () => {
+      if (kpiRoleFilters.length > 1) {
+        try {
+          // Hacer llamadas paralelas al API para cada rol
+          const allRolePromises = kpiRoleFilters.map(role => 
+            getAllUsers({
+              page: 1,
+              pageSize: 200, // Cargar suficientes usuarios de cada rol
+              sortBy,
+              sortDir,
+              role,
+              ...(searchTerm && { name: searchTerm })
+            })
+          );
+
+          const results = await Promise.all(allRolePromises);
+          
+          // Combinar todos los usuarios de los diferentes roles
+          const combinedUsers: User[] = [];
+          const seenIds = new Set<string>();
+          
+          results.forEach(result => {
+            result.users.forEach(user => {
+              if (!seenIds.has(user.id)) {
+                seenIds.add(user.id);
+                combinedUsers.push(user);
+              }
+            });
+          });
+
+          // Actualizar el estado con los usuarios combinados
+          setAllUsers(combinedUsers);
+        } catch (error) {
+          console.error("Error loading users with multiple roles:", error);
+          toast({
+            title: "Error",
+            description: "No se pudieron cargar los usuarios filtrados",
+            variant: "destructive",
+          });
+        }
+      }
+    };
+
+    loadUsersWithMultipleRoles();
+  }, [kpiRoleFilters, searchTerm, sortBy, sortDir]);
+
   // Cargar KPIs solo cuando cambian los filtros
   useEffect(() => {
     loadAllUsersForKPIs();
-  }, [searchTerm, roleFilter, kpiRoleFilter]);
+  }, [searchTerm, roleFilter, kpiRoleFilters]);
 
   const handlePageChange = (page: number) => {
     setPage(page);
@@ -145,17 +197,15 @@ export default function UsersPage() {
 
   const handleRoleFilterChange = (value: string) => {
     setRoleFilter(value);
-    setKpiRoleFilter(""); // Limpiar filtro de KPI
+    setKpiRoleFilters([]); // Limpiar filtros de KPI
   };
 
   const handleKPIRoleFilter = (rolesToFilter: string[]) => {
-    // Cuando se hace clic en un KPI Card, aplicar el filtro a nivel de API
     if (rolesToFilter.length > 0) {
-      // Por ahora, solo soportamos un rol a la vez en el filtro de API
-      setKpiRoleFilter(rolesToFilter[0]);
+      setKpiRoleFilters(rolesToFilter);
       setRoleFilter("all"); // Resetear el filtro del dropdown
     } else {
-      setKpiRoleFilter(""); // Limpiar filtro
+      setKpiRoleFilters([]); // Limpiar filtros
     }
   };
 
@@ -339,7 +389,7 @@ export default function UsersPage() {
           users={allUsers} 
           totalUsers={totalUsers}
           onRoleFilter={handleKPIRoleFilter}
-          selectedRoles={kpiRoleFilter ? [kpiRoleFilter] : []}
+          selectedRoles={kpiRoleFilters}
         />
       </div>
 
@@ -355,7 +405,7 @@ export default function UsersPage() {
       <div className="px-4 pb-4 mt-4 flex flex-col" style={{ height: "calc(100vh - 480px)" }}>
         <div className="flex-1 min-h-0">
           <UserTable
-            users={users}
+            users={kpiRoleFilters.length > 1 ? allUsers : users}
             permissions={permissions}
             currentUserId={currentUser?.id || ""}
             onRoleUpdate={handleRoleUpdate}
@@ -366,14 +416,20 @@ export default function UsersPage() {
         </div>
 
         <div className="flex-shrink-0 mt-2">
-          <UsersPagination
-            currentPage={currentPage}
-            totalPages={totalPages}
-            totalUsers={totalUsers}
-            usersPerPage={users.length}
-            onPageChange={handlePageChange}
-            onUsersPerPageChange={handleUsersPerPageChange}
-          />
+          {kpiRoleFilters.length > 1 ? (
+            <div className="text-sm text-muted-foreground text-center">
+              Mostrando {allUsers.length} usuarios con roles: {kpiRoleFilters.join(", ")}
+            </div>
+          ) : (
+            <UsersPagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              totalUsers={totalUsers}
+              usersPerPage={users.length}
+              onPageChange={handlePageChange}
+              onUsersPerPageChange={handleUsersPerPageChange}
+            />
+          )}
         </div>
       </div>
     </div>
