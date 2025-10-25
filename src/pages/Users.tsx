@@ -208,15 +208,14 @@ export default function UsersPage() {
       setKpiRoleFilters(rolesToFilter);
       setRoleFilter("all"); // Resetear el filtro del dropdown
     } else {
-      // Limpiar TODOS los filtros cuando se hace clic en "Total Usuarios"
+      // Limpiar TODO y volver a página 1 cuando se hace clic en "Total Usuarios"
       setKpiRoleFilters([]);
       setRoleFilter("all");
       setSearchTerm("");
-      // Resetear explícitamente los filtros del hook a valores por defecto
-      setFilters({
-        sortBy,
-        sortDir,
-      });
+      setAllUsers([]); // Evitar datos desfasados en KPIs
+      setPage(1);
+      setFilters({ sortBy, sortDir });
+      refreshUsers();
     }
   };
 
