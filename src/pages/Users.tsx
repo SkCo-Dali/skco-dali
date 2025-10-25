@@ -172,6 +172,9 @@ export default function UsersPage() {
             variant: "destructive",
           });
         }
+      } else if (kpiRoleFilters.length === 0) {
+        // Limpiar allUsers cuando no hay filtros de KPI
+        setAllUsers([]);
       }
     };
 
@@ -209,6 +212,11 @@ export default function UsersPage() {
       setKpiRoleFilters([]);
       setRoleFilter("all");
       setSearchTerm("");
+      // Resetear explícitamente los filtros del hook a valores por defecto
+      setFilters({
+        sortBy,
+        sortDir,
+      });
     }
   };
 
