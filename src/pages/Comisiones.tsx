@@ -22,9 +22,7 @@ export default function Comisiones() {
     <div className="w-full max-w-full px-4 py-4 space-y-6">
       <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3 md:gap-4 mb-3 md:mb-4">
         <div>
-          <p className="text-[24px] md:text-2xl lg:text-3xl font-bold mb-1 text-[#404040]">
-            Visualiza las Comisiones por Compañia
-          </p>
+          <p className="text-[24px] font-bold mb-1 text-[#404040]">Visualiza las Comisiones por Compañia</p>
         </div>
       </div>
       {/* Category Slicer */}
