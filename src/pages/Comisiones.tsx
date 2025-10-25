@@ -19,7 +19,13 @@ export default function Comisiones() {
   const [selectedCategory, setSelectedCategory] = React.useState<CommissionCategory>("pensiones");
 
   return (
-    <div className="w-full px-16 py-4 space-y-6 mt-4">
+
+  <div className="w-full max-w-full px-4 py-4 space-y-6">
+    <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3 md:gap-4 mb-3 md:mb-4">
+          <div>
+            <h3 className="text-xl md:text-2xl lg:text-3xl font-bold mb-1 text-[#404040]">Visualiza las Comisiones por Compañia</h1>
+          </div>
+        </div>
       {/* Category Slicer */}
       <div className="flex justify-left">
         <CommissionsCategorySlicer selectedCategory={selectedCategory} onCategoryChange={setSelectedCategory} />
