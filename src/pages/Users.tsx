@@ -214,8 +214,14 @@ export default function UsersPage() {
       setSearchTerm("");
       setAllUsers([]); // Evitar datos desfasados en KPIs
       setPage(1);
-      setFilters({ sortBy, sortDir });
-      refreshUsers();
+      setFilters({
+        sortBy,
+        sortDir,
+        name: undefined,
+        email: undefined,
+        role: undefined,
+        isActive: undefined,
+      });
     }
   };
 
