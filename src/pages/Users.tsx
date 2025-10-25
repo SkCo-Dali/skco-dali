@@ -205,7 +205,10 @@ export default function UsersPage() {
       setKpiRoleFilters(rolesToFilter);
       setRoleFilter("all"); // Resetear el filtro del dropdown
     } else {
-      setKpiRoleFilters([]); // Limpiar filtros
+      // Limpiar TODOS los filtros cuando se hace clic en "Total Usuarios"
+      setKpiRoleFilters([]);
+      setRoleFilter("all");
+      setSearchTerm("");
     }
   };
 
