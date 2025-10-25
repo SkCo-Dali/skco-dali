@@ -192,7 +192,7 @@ export function CommissionsResumenTab({
   ];
 
   return (
-    <div className="space-y-6 p-4 m-2 rounded-md bg-gray-50">
+    <div className="border rounded-b-md mt-0 mb-2 p-4">
       {/* Selector de mes */}
       <div className="flex justify-between items-center">
         <div className="flex items-center gap-2">
