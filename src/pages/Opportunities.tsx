@@ -101,7 +101,7 @@ export const Opportunities: React.FC = () => {
     <div className="bg-transparent min-h-screen">
       <div className="w-full max-w-full px-4 py-4">
         {/* Header */}
-        <div className="space-y-3 mb-6">
+        <div className="space-y-3 mb-4">
           <h1 className="text-3xl font-bold bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
             Market Dali
           </h1>
