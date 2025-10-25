@@ -18,11 +18,11 @@ export default function UsersPage() {
   const [allUsers, setAllUsers] = useState<User[]>([]); // Para los KPIs
   const [searchTerm, setSearchTerm] = useState("");
   const [roleFilter, setRoleFilter] = useState<string>("all");
-  const [selectedRoles, setSelectedRoles] = useState<string[]>([]); // Para filtrado por múltiples roles
+  const [kpiRoleFilter, setKpiRoleFilter] = useState<string>(""); // Filtro desde KPI Cards
   const [sortBy, setSortBy] = useState<"CreatedAt" | "UpdatedAt" | "Name" | "Email" | "Role" | "IsActive">("UpdatedAt");
   const [sortDir, setSortDir] = useState<"asc" | "desc">("desc");
 
-  // Construir filtros dinámicos basados en el searchTerm
+  // Construir filtros dinámicos basados en el searchTerm y filtros activos
   const getFiltersFromSearch = () => {
     const filters: any = {
       sortBy,
@@ -52,7 +52,10 @@ export default function UsersPage() {
       }
     }
 
-    if (roleFilter !== "all") {
+    // Priorizar filtro de KPI sobre filtro de dropdown
+    if (kpiRoleFilter) {
+      filters.role = kpiRoleFilter;
+    } else if (roleFilter !== "all") {
       filters.role = roleFilter;
     }
 
@@ -87,7 +90,7 @@ export default function UsersPage() {
   useEffect(() => {
     const filters = getFiltersFromSearch();
     setFilters(filters);
-  }, [searchTerm, roleFilter, sortBy, sortDir]);
+  }, [searchTerm, roleFilter, kpiRoleFilter, sortBy, sortDir]);
 
   // Cargar todos los usuarios para KPIs (separado de la paginación)
   const loadAllUsersForKPIs = async () => {
@@ -126,7 +129,7 @@ export default function UsersPage() {
   // Cargar KPIs solo cuando cambian los filtros
   useEffect(() => {
     loadAllUsersForKPIs();
-  }, [searchTerm, roleFilter]);
+  }, [searchTerm, roleFilter, kpiRoleFilter]);
 
   const handlePageChange = (page: number) => {
     setPage(page);
@@ -142,18 +145,19 @@ export default function UsersPage() {
 
   const handleRoleFilterChange = (value: string) => {
     setRoleFilter(value);
-    setSelectedRoles([]);
+    setKpiRoleFilter(""); // Limpiar filtro de KPI
   };
 
-  const handleKPIRoleFilter = (roles: string[]) => {
-    setSelectedRoles(roles);
-    setRoleFilter("all");
+  const handleKPIRoleFilter = (rolesToFilter: string[]) => {
+    // Cuando se hace clic en un KPI Card, aplicar el filtro a nivel de API
+    if (rolesToFilter.length > 0) {
+      // Por ahora, solo soportamos un rol a la vez en el filtro de API
+      setKpiRoleFilter(rolesToFilter[0]);
+      setRoleFilter("all"); // Resetear el filtro del dropdown
+    } else {
+      setKpiRoleFilter(""); // Limpiar filtro
+    }
   };
-
-  // Filtrar usuarios mostrados si hay roles seleccionados desde KPI
-  const displayedUsers = selectedRoles.length > 0 
-    ? users.filter(user => selectedRoles.includes(user.role))
-    : users;
 
   const handleAddUser = async (email: string, role: User["role"]) => {
     try {
@@ -335,7 +339,7 @@ export default function UsersPage() {
           users={allUsers} 
           totalUsers={totalUsers}
           onRoleFilter={handleKPIRoleFilter}
-          selectedRoles={selectedRoles}
+          selectedRoles={kpiRoleFilter ? [kpiRoleFilter] : []}
         />
       </div>
 
@@ -351,7 +355,7 @@ export default function UsersPage() {
       <div className="px-4 pb-4 mt-4 flex flex-col" style={{ height: "calc(100vh - 480px)" }}>
         <div className="flex-1 min-h-0">
           <UserTable
-            users={displayedUsers}
+            users={users}
             permissions={permissions}
             currentUserId={currentUser?.id || ""}
             onRoleUpdate={handleRoleUpdate}
