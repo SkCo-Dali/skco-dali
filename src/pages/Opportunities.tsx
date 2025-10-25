@@ -98,7 +98,7 @@ export const Opportunities: React.FC = () => {
   }
 
   return (
-    <div className="bg-gray-50 min-h-screen">
+    <div className="bg-transparent min-h-screen">
       <div className="container mx-auto px-4 py-5">
         {/* Header */}
         <div className="space-y-3 mb-6">
