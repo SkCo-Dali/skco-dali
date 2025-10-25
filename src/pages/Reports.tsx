@@ -8,7 +8,7 @@ export default function Reports() {
     return <AccessDenied />;
   }
   return (
-    <div className="min-h-screen pt-0">
+    <div className="min-h-screen p-4">
       <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3 md:gap-4 mb-3 md:mb-4">
         <div>
           <h1 className="text-xl md:text-2xl lg:text-3xl font-bold mb-1 text-[#00C73D]">Reporte</h1>
