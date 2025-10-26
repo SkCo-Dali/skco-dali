@@ -2,6 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Users } from "lucide-react";
 import { User, UserPermissions } from "@/types/crm";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { UserTableRow } from "./UserTableRow";
 
 interface UserTableProps {
@@ -24,8 +25,8 @@ export function UserTable({
   onUserUpdate,
 }: UserTableProps) {
   return (
-    <Card className="flex flex-col h-full overflow-hidden">
-      <div className="flex-1 overflow-auto">
+    <Card className="flex flex-col h-full">
+      <ScrollArea className="h-full w-full">
         <div className="p-4 min-w-max">
           <Table>
             <TableHeader className="sticky top-0 bg-card z-10">
@@ -66,7 +67,8 @@ export function UserTable({
             </TableBody>
           </Table>
         </div>
-      </div>
+        <div className="h-4" />
+      </ScrollArea>
     </Card>
   );
 }
