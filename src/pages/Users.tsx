@@ -31,9 +31,13 @@ export default function UsersPage() {
     const filters: any = {
       sortBy,
       sortDir,
+      // Limpiar explícitamente los filtros de búsqueda cuando searchTerm está vacío
+      name: undefined,
+      email: undefined,
+      isActive: undefined,
     };
 
-    if (searchTerm) {
+    if (searchTerm && searchTerm.trim()) {
       const term = searchTerm.toLowerCase().trim();
       
       if (term.includes('@')) {
@@ -62,6 +66,9 @@ export default function UsersPage() {
       filters.role = kpiRoleFilters[0];
     } else if (roleFilter !== "all") {
       filters.role = roleFilter;
+    } else {
+      // Si no hay filtro de rol, limpiarlo explícitamente
+      filters.role = undefined;
     }
 
     return filters;
