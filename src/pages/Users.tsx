@@ -11,6 +11,8 @@ import { usePageAccess } from "@/hooks/usePageAccess";
 import { useUsersApi } from "@/hooks/useUsersApi";
 import { getAllUsers, createUser, deleteUser, updateUser, toggleUserStatus } from "@/utils/userApiClient";
 import { roles } from "@/utils/userRoleUtils";
+import { Button } from "@/components/ui/button";
+import { ChevronDown, ChevronUp } from "lucide-react";
 
 export default function UsersPage() {
   const { hasAccess, permissions, currentUser } = usePageAccess("users");
@@ -22,6 +24,7 @@ export default function UsersPage() {
   const [kpiRoleFilters, setKpiRoleFilters] = useState<string[]>([]); // Filtros múltiples desde KPI Cards
   const [sortBy, setSortBy] = useState<"CreatedAt" | "UpdatedAt" | "Name" | "Email" | "Role" | "IsActive">("UpdatedAt");
   const [sortDir, setSortDir] = useState<"asc" | "desc">("desc");
+  const [showKPIs, setShowKPIs] = useState(true); // Mostrar KPIs por defecto
 
   // Construir filtros dinámicos basados en el searchTerm y filtros activos
   const getFiltersFromSearch = () => {
@@ -394,19 +397,35 @@ export default function UsersPage() {
     <div className="min-h-screen pt-0">
       <div className="p-4 pb-2">
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-2 mb-4">
-          <div>
-            <h1 className="text-3xl font-bold text-primary">Gestión de Usuarios</h1>
-            <p className="text-muted-foreground text-sm">Administra usuarios y roles del sistema</p>
+          <div className="flex items-center gap-3">
+            <div>
+              <h1 className="text-3xl font-bold text-primary">Gestión de Usuarios</h1>
+              <p className="text-muted-foreground text-sm">Administra usuarios y roles del sistema</p>
+            </div>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setShowKPIs(!showKPIs)}
+              className="self-start mt-1"
+            >
+              {showKPIs ? (
+                <ChevronUp className="h-5 w-5" />
+              ) : (
+                <ChevronDown className="h-5 w-5" />
+              )}
+            </Button>
           </div>
           {permissions?.canAssignRoles && <AddUserDialog onUserAdd={handleAddUser} />}
         </div>
 
-        <UsersKPICards 
-          users={allUsers} 
-          totalUsers={allUsers.length}
-          onRoleFilter={handleKPIRoleFilter}
-          selectedRoles={kpiRoleFilters}
-        />
+        {showKPIs && (
+          <UsersKPICards 
+            users={allUsers} 
+            totalUsers={allUsers.length}
+            onRoleFilter={handleKPIRoleFilter}
+            selectedRoles={kpiRoleFilters}
+          />
+        )}
       </div>
 
       <div className="px-4">
