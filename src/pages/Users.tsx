@@ -15,7 +15,8 @@ import { roles } from "@/utils/userRoleUtils";
 export default function UsersPage() {
   const { hasAccess, permissions, currentUser } = usePageAccess("users");
   const { toast } = useToast();
-  const [allUsers, setAllUsers] = useState<User[]>([]); // Para los KPIs
+  const [allUsers, setAllUsers] = useState<User[]>([]); // Para los KPIs - siempre todos los usuarios
+  const [filteredUsers, setFilteredUsers] = useState<User[]>([]); // Para la tabla cuando hay múltiples roles
   const [searchTerm, setSearchTerm] = useState("");
   const [roleFilter, setRoleFilter] = useState<string>("all");
   const [kpiRoleFilters, setKpiRoleFilters] = useState<string[]>([]); // Filtros múltiples desde KPI Cards
@@ -97,16 +98,15 @@ export default function UsersPage() {
   }, [searchTerm, roleFilter, kpiRoleFilters, sortBy, sortDir]);
 
   // Cargar todos los usuarios para KPIs (separado de la paginación)
+  // IMPORTANTE: Siempre carga TODOS los usuarios sin filtros para que los KPIs sean correctos
   const loadAllUsersForKPIs = async () => {
     try {
-      const filters = getFiltersFromSearch();
-      
       const searchParams = {
         page: 1,
         pageSize: 200,
         sortBy: "CreatedAt" as const,
         sortDir: "desc" as const,
-        ...filters,
+        // NO aplicar filtros aquí - queremos TODOS los usuarios para los KPIs
       };
 
       const first = await getAllUsers(searchParams);
@@ -162,8 +162,8 @@ export default function UsersPage() {
             });
           });
 
-          // Actualizar el estado con los usuarios combinados
-          setAllUsers(combinedUsers);
+          // Actualizar el estado con los usuarios combinados para la tabla
+          setFilteredUsers(combinedUsers);
         } catch (error) {
           console.error("Error loading users with multiple roles:", error);
           toast({
@@ -172,19 +172,19 @@ export default function UsersPage() {
             variant: "destructive",
           });
         }
-      } else if (kpiRoleFilters.length === 0) {
-        // Limpiar allUsers cuando no hay filtros de KPI
-        setAllUsers([]);
+      } else {
+        // Limpiar usuarios filtrados cuando no hay múltiples roles
+        setFilteredUsers([]);
       }
     };
 
     loadUsersWithMultipleRoles();
   }, [kpiRoleFilters, searchTerm, sortBy, sortDir]);
 
-  // Cargar KPIs solo cuando cambian los filtros
+  // Cargar todos los usuarios para KPIs al montar el componente
   useEffect(() => {
     loadAllUsersForKPIs();
-  }, [searchTerm, roleFilter, kpiRoleFilters]);
+  }, []); // Solo cargar una vez al inicio
 
   const handlePageChange = (page: number) => {
     setPage(page);
@@ -212,7 +212,7 @@ export default function UsersPage() {
       setKpiRoleFilters([]);
       setRoleFilter("all");
       setSearchTerm("");
-      setAllUsers([]); // Evitar datos desfasados en KPIs
+      setFilteredUsers([]); // Limpiar usuarios filtrados
       setPage(1);
       setFilters({
         sortBy,
@@ -421,7 +421,7 @@ export default function UsersPage() {
       <div className="px-4 pb-4 mt-4 flex flex-col" style={{ height: "calc(100vh - 480px)" }}>
         <div className="flex-1 min-h-0">
           <UserTable
-            users={kpiRoleFilters.length > 1 ? allUsers : users}
+            users={kpiRoleFilters.length > 1 ? filteredUsers : users}
             permissions={permissions}
             currentUserId={currentUser?.id || ""}
             onRoleUpdate={handleRoleUpdate}
@@ -434,7 +434,7 @@ export default function UsersPage() {
         <div className="flex-shrink-0 mt-2">
           {kpiRoleFilters.length > 1 ? (
             <div className="text-sm text-muted-foreground text-center">
-              Mostrando {allUsers.length} usuarios con roles: {kpiRoleFilters.join(", ")}
+              Mostrando {filteredUsers.length} usuarios con roles: {kpiRoleFilters.join(", ")}
             </div>
           ) : (
             <UsersPagination
