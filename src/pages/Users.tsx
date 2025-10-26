@@ -403,7 +403,7 @@ export default function UsersPage() {
 
         <UsersKPICards 
           users={allUsers} 
-          totalUsers={totalUsers}
+          totalUsers={allUsers.length}
           onRoleFilter={handleKPIRoleFilter}
           selectedRoles={kpiRoleFilters}
         />
