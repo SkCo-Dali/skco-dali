@@ -34,6 +34,19 @@ export function UserTable({
                 <TableHead>Usuario</TableHead>
                 <TableHead>Email</TableHead>
                 <TableHead>Rol</TableHead>
+                <TableHead>Nombre Preferido</TableHead>
+                <TableHead>Fecha Nacimiento</TableHead>
+                <TableHead>WhatsApp</TableHead>
+                <TableHead>ID Agente</TableHead>
+                <TableHead>ID Sociedad</TableHead>
+                <TableHead>ID Promotor</TableHead>
+                <TableHead>ID Aliado</TableHead>
+                <TableHead>WSaler</TableHead>
+                <TableHead>ID Supervisor</TableHead>
+                <TableHead>Límite Email</TableHead>
+                <TableHead>Límite WA</TableHead>
+                <TableHead>Fecha Creación</TableHead>
+                <TableHead>Última Act.</TableHead>
                 <TableHead>Estado</TableHead>
                 <TableHead>Acciones</TableHead>
               </TableRow>

@@ -108,7 +108,27 @@ export function UserTableRow({
       <TableCell>
         <Badge variant="outline">{getRoleDisplayName(user.role)}</Badge>
       </TableCell>
-      <TableCell>{user.jobTitle || "-"}</TableCell>
+      <TableCell>{user.preferredName || "-"}</TableCell>
+      <TableCell>
+        {user.birthDate ? new Date(user.birthDate).toLocaleDateString('es-CO') : "-"}
+      </TableCell>
+      <TableCell>
+        {user.whatsappNumber ? `+${user.countryCodeWhatsApp || 57} ${user.whatsappNumber}` : "-"}
+      </TableCell>
+      <TableCell>{user.idAgte ?? "-"}</TableCell>
+      <TableCell>{user.idSociedad ?? "-"}</TableCell>
+      <TableCell>{user.idPromotor ?? "-"}</TableCell>
+      <TableCell>{user.idAliado ?? "-"}</TableCell>
+      <TableCell>{user.wSaler || "-"}</TableCell>
+      <TableCell>{user.idSupervisor ?? "-"}</TableCell>
+      <TableCell>{user.dailyEmailLimit ?? "-"}</TableCell>
+      <TableCell>{user.dailyWhatsAppLimit ?? "-"}</TableCell>
+      <TableCell>
+        {user.createdAt ? new Date(user.createdAt).toLocaleDateString('es-CO') : "-"}
+      </TableCell>
+      <TableCell>
+        {user.updatedAt ? new Date(user.updatedAt).toLocaleDateString('es-CO') : "-"}
+      </TableCell>
       <TableCell>
         <div className="flex items-center gap-2">
           <Badge variant={user.isActive ? "default" : "secondary"}>{user.isActive ? "Activo" : "Inactivo"}</Badge>
