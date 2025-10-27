@@ -171,7 +171,7 @@ export function UserTableRow({
         )}
       </TableCell>
       <TableCell className="text-xs text-center mx-2">
-        {user.birthDate ? format(new Date(user.birthDate), "dd/MM/yyyy") : "-"}
+        {user.birthDate ? user.birthDate.split('T')[0].split('-').reverse().join('/') : "-"}
       </TableCell>
       <TableCell className="text-xs text-center mx-2">
         {isEditing ? (
