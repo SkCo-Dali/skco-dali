@@ -13,6 +13,7 @@ import { toast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
 import { ENV } from '@/config/environment';
 import { UserAccessSelect } from '@/components/UserAccessSelect';
+import { AccessUsersTable } from '@/components/admin/AccessUsersTable';
 
 // User type for search results
 interface SearchUser {
@@ -718,35 +719,10 @@ export function AccessTab() {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                {workspaceAccess.length === 0 ? (
-                  <p className="text-muted-foreground">No hay usuarios con acceso directo</p>
-                ) : (
-                  <div className="space-y-2">
-                    {workspaceAccess.map((access) => (
-                      <div key={access.userId} className="flex items-center justify-between p-3 border rounded-lg">
-                        <div className="flex items-center space-x-4">
-                          <div>
-                            <p className="font-medium">{access.userName || access.userEmail}</p>
-                            <p className="text-sm text-muted-foreground">{access.userEmail}</p>
-                          </div>
-                          <Badge variant="outline">{access.accessLevel}</Badge>
-                          {access.expiresAt && (
-                            <Badge variant="secondary">
-                              Expira: {new Date(access.expiresAt).toLocaleDateString()}
-                            </Badge>
-                          )}
-                        </div>
-                        <Button
-                          variant="destructive"
-                          size="sm"
-                          onClick={() => handleRevokeWorkspaceAccess(access.userId, access.userName || access.userEmail || '')}
-                        >
-                          <UserMinus className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    ))}
-                  </div>
-                )}
+                <AccessUsersTable
+                  users={workspaceAccess}
+                  onRevokeAccess={handleRevokeWorkspaceAccess}
+                />
               </CardContent>
             </Card>
           )}
@@ -816,35 +792,10 @@ export function AccessTab() {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                {reportAccess.length === 0 ? (
-                  <p className="text-muted-foreground">No hay usuarios con acceso directo</p>
-                ) : (
-                  <div className="space-y-2">
-                    {reportAccess.map((access) => (
-                      <div key={access.userId} className="flex items-center justify-between p-3 border rounded-lg">
-                        <div className="flex items-center space-x-4">
-                          <div>
-                            <p className="font-medium">{access.userName || access.userEmail}</p>
-                            <p className="text-sm text-muted-foreground">{access.userEmail}</p>
-                          </div>
-                          <Badge variant="outline">{access.accessLevel}</Badge>
-                          {access.expiresAt && (
-                            <Badge variant="secondary">
-                              Expira: {new Date(access.expiresAt).toLocaleDateString()}
-                            </Badge>
-                          )}
-                        </div>
-                        <Button
-                          variant="destructive"
-                          size="sm"
-                          onClick={() => handleRevokeReportAccess(access.userId, access.userName || access.userEmail || '')}
-                        >
-                          <UserMinus className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    ))}
-                  </div>
-                )}
+                <AccessUsersTable
+                  users={reportAccess}
+                  onRevokeAccess={handleRevokeReportAccess}
+                />
               </CardContent>
             </Card>
           )}
@@ -907,26 +858,10 @@ export function AccessTab() {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                {effectiveAccess.length === 0 ? (
-                  <p className="text-muted-foreground">No hay usuarios con acceso</p>
-                ) : (
-                  <div className="space-y-2">
-                    {effectiveAccess.map((access) => (
-                      <div key={access.userId} className="flex items-center justify-between p-3 border rounded-lg">
-                        <div className="flex items-center space-x-4">
-                          <div>
-                            <p className="font-medium">{access.userName || access.userEmail}</p>
-                            <p className="text-sm text-muted-foreground">{access.userEmail}</p>
-                          </div>
-                          <Badge variant="outline">{access.accessLevel}</Badge>
-                          <Badge variant={(access as any).source === 'workspace' ? 'default' : 'secondary'}>
-                            {(access as any).source === 'workspace' ? 'Por Workspace' : 'Directo'}
-                          </Badge>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
+                <AccessUsersTable
+                  users={effectiveAccess}
+                  showSource={true}
+                />
               </CardContent>
             </Card>
           )}
