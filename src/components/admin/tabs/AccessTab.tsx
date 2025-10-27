@@ -712,17 +712,17 @@ export function AccessTab() {
           </div>
 
           {selectedWorkspace && (
-            <Card className="p-0 border-0">
-              <CardHeader className="mb-4">
-                <CardTitle className="flex items-center ">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center mb-4">
                   <Shield className="h-5 w-5 mr-2" />
                   Usuarios con Acceso: {getWorkspaceName(selectedWorkspace)}
                 </CardTitle>
                 <CardDescription>Lista de usuarios que tienen acceso directo al workspace</CardDescription>
               </CardHeader>
-              <CardContent>
+              <ScrollArea className="max-h-[280px]">
                 <AccessUsersTable users={workspaceAccess} onRevokeAccess={handleRevokeWorkspaceAccess} />
-              </CardContent>
+              </ScrollArea>
             </Card>
           )}
         </TabsContent>
