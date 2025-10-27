@@ -1,19 +1,26 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { Users, UserPlus, UserMinus, Search, Eye, Shield, Loader2 } from 'lucide-react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Area, Workspace, Report, UserAccess } from '@/types/powerbi';
-import { toast } from '@/hooks/use-toast';
-import { useAuth } from '@/contexts/AuthContext';
-import { ENV } from '@/config/environment';
-import { UserAccessSelect } from '@/components/UserAccessSelect';
-import { AccessUsersTable } from '@/components/admin/AccessUsersTable';
+import React, { useState, useEffect, useCallback } from "react";
+import { Users, UserPlus, UserMinus, Search, Eye, Shield, Loader2 } from "lucide-react";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Area, Workspace, Report, UserAccess } from "@/types/powerbi";
+import { toast } from "@/hooks/use-toast";
+import { useAuth } from "@/contexts/AuthContext";
+import { ENV } from "@/config/environment";
+import { UserAccessSelect } from "@/components/UserAccessSelect";
+import { AccessUsersTable } from "@/components/admin/AccessUsersTable";
 
 // User type for search results
 interface SearchUser {
@@ -31,7 +38,7 @@ interface SearchUser {
 const apiCall = async (endpoint: string, options: RequestInit = {}) => {
   const response = await fetch(endpoint, {
     headers: {
-      'Content-Type': 'application/json',
+      "Content-Type": "application/json",
       ...options.headers,
     },
     ...options,
@@ -51,28 +58,28 @@ export function AccessTab() {
   const [workspaces, setWorkspaces] = useState<Workspace[]>([]);
   const [reports, setReports] = useState<Report[]>([]);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState('workspace');
-  
+  const [activeTab, setActiveTab] = useState("workspace");
+
   // Workspace access
-  const [selectedWorkspace, setSelectedWorkspace] = useState<string>('');
+  const [selectedWorkspace, setSelectedWorkspace] = useState<string>("");
   const [workspaceAccess, setWorkspaceAccess] = useState<UserAccess[]>([]);
   const [showGrantWorkspaceDialog, setShowGrantWorkspaceDialog] = useState(false);
-  
+
   // Report access
-  const [selectedArea, setSelectedArea] = useState<string>('');
-  const [selectedReportWorkspace, setSelectedReportWorkspace] = useState<string>('');
-  const [selectedReport, setSelectedReport] = useState<string>('');
+  const [selectedArea, setSelectedArea] = useState<string>("");
+  const [selectedReportWorkspace, setSelectedReportWorkspace] = useState<string>("");
+  const [selectedReport, setSelectedReport] = useState<string>("");
   const [reportAccess, setReportAccess] = useState<UserAccess[]>([]);
   const [showGrantReportDialog, setShowGrantReportDialog] = useState(false);
-  
+
   // Effective access
-  const [effectiveAccessArea, setEffectiveAccessArea] = useState<string>('');
-  const [effectiveAccessWorkspace, setEffectiveAccessWorkspace] = useState<string>('');
-  const [effectiveAccessReport, setEffectiveAccessReport] = useState<string>('');
+  const [effectiveAccessArea, setEffectiveAccessArea] = useState<string>("");
+  const [effectiveAccessWorkspace, setEffectiveAccessWorkspace] = useState<string>("");
+  const [effectiveAccessReport, setEffectiveAccessReport] = useState<string>("");
   const [effectiveAccess, setEffectiveAccess] = useState<UserAccess[]>([]);
-  
+
   // User search state
-  const [selectedUser, setSelectedUser] = useState<string>('');
+  const [selectedUser, setSelectedUser] = useState<string>("");
   const [userSearchLoading, setUserSearchLoading] = useState(false);
   const [userSearchError, setUserSearchError] = useState<string | null>(null);
 
@@ -106,13 +113,13 @@ export function AccessTab() {
 
   useEffect(() => {
     if (effectiveAccessArea) {
-      fetchWorkspacesByArea(effectiveAccessArea, 'effective');
+      fetchWorkspacesByArea(effectiveAccessArea, "effective");
     }
   }, [effectiveAccessArea]);
 
   useEffect(() => {
     if (effectiveAccessWorkspace) {
-      fetchReportsByWorkspace(effectiveAccessWorkspace, 'effective');
+      fetchReportsByWorkspace(effectiveAccessWorkspace, "effective");
     }
   }, [effectiveAccessWorkspace]);
 
@@ -124,88 +131,88 @@ export function AccessTab() {
 
   const fetchInitialData = async () => {
     try {
-      console.log('🔐 === INICIANDO fetchInitialData ===');
+      console.log("🔐 === INICIANDO fetchInitialData ===");
       setLoading(true);
-      
+
       const tokens = await getAccessToken();
       if (!tokens) {
-        console.error('❌ No se pudo obtener token de autenticación para fetchInitialData');
-        throw new Error('No se pudo obtener token de autenticación');
+        console.error("❌ No se pudo obtener token de autenticación para fetchInitialData");
+        throw new Error("No se pudo obtener token de autenticación");
       }
-      
-      console.log('🔑 Token obtenido para fetchInitialData:', tokens.idToken.substring(0, 50) + '...');
-      
+
+      console.log("🔑 Token obtenido para fetchInitialData:", tokens.idToken.substring(0, 50) + "...");
+
       // Log the API calls details
-      console.log('📡 === DETALLES DE LAS LLAMADAS API INICIALES ===');
-      console.log('🌐 Endpoints:');
-      console.log('  - GET /api/reports/areas?only_active=true&search=&page=1&page_size=200');
-      console.log('  - GET /api/reports/workspaces?only_active=true&search=&page=1&page_size=200');
-      console.log('🔐 Authorization Header: Bearer ' + tokens.idToken.substring(0, 50) + '...');
-      console.log('📊 Method: GET (x2)');
-      console.log('📦 Body: N/A (GET requests)');
-      
+      console.log("📡 === DETALLES DE LAS LLAMADAS API INICIALES ===");
+      console.log("🌐 Endpoints:");
+      console.log("  - GET /api/reports/areas?only_active=true&search=&page=1&page_size=200");
+      console.log("  - GET /api/reports/workspaces?only_active=true&search=&page=1&page_size=200");
+      console.log("🔐 Authorization Header: Bearer " + tokens.idToken.substring(0, 50) + "...");
+      console.log("📊 Method: GET (x2)");
+      console.log("📦 Body: N/A (GET requests)");
+
       const [areasResponse, workspacesResponse] = await Promise.all([
         apiCall(`${ENV.CRM_API_BASE_URL}/api/reports/areas?only_active=true&search=&page=1&page_size=200`, {
-          headers: { 'Authorization': `Bearer ${tokens.idToken}` }
+          headers: { Authorization: `Bearer ${tokens.idToken}` },
         }),
         apiCall(`${ENV.CRM_API_BASE_URL}/api/reports/workspaces?only_active=true&search=&page=1&page_size=200`, {
-          headers: { 'Authorization': `Bearer ${tokens.idToken}` }
-        })
+          headers: { Authorization: `Bearer ${tokens.idToken}` },
+        }),
       ]);
-      
-      console.log('✅ Datos iniciales obtenidos:');
-      console.log('  - Areas:', areasResponse);
-      console.log('  - Workspaces:', workspacesResponse);
-      
+
+      console.log("✅ Datos iniciales obtenidos:");
+      console.log("  - Areas:", areasResponse);
+      console.log("  - Workspaces:", workspacesResponse);
+
       setAreas(areasResponse.items || areasResponse);
       setWorkspaces(workspacesResponse.items || workspacesResponse);
     } catch (error) {
-      console.error('❌ Error fetching initial data:', error);
+      console.error("❌ Error fetching initial data:", error);
       toast({
         title: "Error",
         description: "No se pudieron cargar los datos",
-        variant: "destructive"
+        variant: "destructive",
       });
     } finally {
       setLoading(false);
     }
   };
 
-  const fetchWorkspacesByArea = async (areaId: string, context: string = 'default') => {
+  const fetchWorkspacesByArea = async (areaId: string, context: string = "default") => {
     try {
       console.log(`🔐 === INICIANDO fetchWorkspacesByArea (${context}) ===`);
-      console.log('🔍 Area seleccionada:', areaId);
-      
+      console.log("🔍 Area seleccionada:", areaId);
+
       const tokens = await getAccessToken();
       if (!tokens) {
-        console.error('❌ No se pudo obtener token de autenticación');
-        throw new Error('No se pudo obtener token de autenticación');
+        console.error("❌ No se pudo obtener token de autenticación");
+        throw new Error("No se pudo obtener token de autenticación");
       }
-      
-      console.log('🔑 Token obtenido para workspaces by area:', tokens.idToken.substring(0, 50) + '...');
-      
+
+      console.log("🔑 Token obtenido para workspaces by area:", tokens.idToken.substring(0, 50) + "...");
+
       const endpoint = `${ENV.CRM_API_BASE_URL}/api/reports/workspaces?only_active=true&area_id=${areaId}&search=&page=1&page_size=200`;
-      console.log('📡 === DETALLES DE LA LLAMADA API ===');
-      console.log('🌐 Endpoint: GET', endpoint);
-      console.log('🔐 Authorization Header: Bearer ' + tokens.idToken.substring(0, 50) + '...');
-      console.log('📊 Method: GET');
-      console.log('📦 Body: N/A (GET request)');
-      
+      console.log("📡 === DETALLES DE LA LLAMADA API ===");
+      console.log("🌐 Endpoint: GET", endpoint);
+      console.log("🔐 Authorization Header: Bearer " + tokens.idToken.substring(0, 50) + "...");
+      console.log("📊 Method: GET");
+      console.log("📦 Body: N/A (GET request)");
+
       const workspacesResponse = await apiCall(endpoint, {
-        headers: { 'Authorization': `Bearer ${tokens.idToken}` }
+        headers: { Authorization: `Bearer ${tokens.idToken}` },
       });
-      
-      console.log('✅ Workspaces por área obtenidos:', workspacesResponse);
-      
+
+      console.log("✅ Workspaces por área obtenidos:", workspacesResponse);
+
       const workspacesList = workspacesResponse.items || workspacesResponse;
-      if (context === 'effective') {
+      if (context === "effective") {
         // Reset dependent selections
-        setEffectiveAccessWorkspace('');
-        setEffectiveAccessReport('');
+        setEffectiveAccessWorkspace("");
+        setEffectiveAccessReport("");
         setEffectiveAccess([]);
       } else {
-        setSelectedReportWorkspace('');
-        setSelectedReport('');
+        setSelectedReportWorkspace("");
+        setSelectedReport("");
         setReportAccess([]);
         setReports([]);
       }
@@ -214,40 +221,40 @@ export function AccessTab() {
     }
   };
 
-  const fetchReportsByWorkspace = async (workspaceId: string, context: string = 'default') => {
+  const fetchReportsByWorkspace = async (workspaceId: string, context: string = "default") => {
     try {
       console.log(`🔐 === INICIANDO fetchReportsByWorkspace (${context}) ===`);
-      console.log('🔍 Workspace seleccionado:', workspaceId);
-      
+      console.log("🔍 Workspace seleccionado:", workspaceId);
+
       const tokens = await getAccessToken();
       if (!tokens) {
-        console.error('❌ No se pudo obtener token de autenticación');
-        throw new Error('No se pudo obtener token de autenticación');
+        console.error("❌ No se pudo obtener token de autenticación");
+        throw new Error("No se pudo obtener token de autenticación");
       }
-      
-      console.log('🔑 Token obtenido para reports by workspace:', tokens.idToken.substring(0, 50) + '...');
-      
+
+      console.log("🔑 Token obtenido para reports by workspace:", tokens.idToken.substring(0, 50) + "...");
+
       const endpoint = `${ENV.CRM_API_BASE_URL}/api/reports/reports?only_active=true&workspace_id=${workspaceId}&search=&page=1&page_size=200`;
-      console.log('📡 === DETALLES DE LA LLAMADA API ===');
-      console.log('🌐 Endpoint: GET', endpoint);
-      console.log('🔐 Authorization Header: Bearer ' + tokens.idToken.substring(0, 50) + '...');
-      console.log('📊 Method: GET');
-      console.log('📦 Body: N/A (GET request)');
-      
+      console.log("📡 === DETALLES DE LA LLAMADA API ===");
+      console.log("🌐 Endpoint: GET", endpoint);
+      console.log("🔐 Authorization Header: Bearer " + tokens.idToken.substring(0, 50) + "...");
+      console.log("📊 Method: GET");
+      console.log("📦 Body: N/A (GET request)");
+
       const reportsResponse = await apiCall(endpoint, {
-        headers: { 'Authorization': `Bearer ${tokens.idToken}` }
+        headers: { Authorization: `Bearer ${tokens.idToken}` },
       });
-      
-      console.log('✅ Reportes por workspace obtenidos:', reportsResponse);
-      
+
+      console.log("✅ Reportes por workspace obtenidos:", reportsResponse);
+
       const reportsList = reportsResponse.items || reportsResponse;
       setReports(reportsList);
-      
-      if (context === 'effective') {
-        setEffectiveAccessReport('');
+
+      if (context === "effective") {
+        setEffectiveAccessReport("");
         setEffectiveAccess([]);
       } else {
-        setSelectedReport('');
+        setSelectedReport("");
         setReportAccess([]);
       }
     } catch (error) {
@@ -257,96 +264,96 @@ export function AccessTab() {
 
   const fetchWorkspaceAccess = async () => {
     try {
-      console.log('🔐 === INICIANDO fetchWorkspaceAccess ===');
-      console.log('🔍 Workspace seleccionado:', selectedWorkspace);
-      
+      console.log("🔐 === INICIANDO fetchWorkspaceAccess ===");
+      console.log("🔍 Workspace seleccionado:", selectedWorkspace);
+
       const tokens = await getAccessToken();
       if (!tokens) {
-        console.error('❌ No se pudo obtener token de autenticación');
-        throw new Error('No se pudo obtener token de autenticación');
+        console.error("❌ No se pudo obtener token de autenticación");
+        throw new Error("No se pudo obtener token de autenticación");
       }
-      
-      console.log('🔑 Token obtenido para workspace access:', tokens.idToken.substring(0, 50) + '...');
-      
+
+      console.log("🔑 Token obtenido para workspace access:", tokens.idToken.substring(0, 50) + "...");
+
       const endpoint = `${ENV.CRM_API_BASE_URL}/api/reports/workspaces/${selectedWorkspace}/access?status=active&search=&page=1&page_size=50`;
-      console.log('📡 === DETALLES DE LA LLAMADA API ===');
-      console.log('🌐 Endpoint: GET', endpoint);
-      console.log('🔐 Authorization Header: Bearer ' + tokens.idToken.substring(0, 50) + '...');
-      console.log('📊 Method: GET');
-      console.log('📦 Body: N/A (GET request)');
-      
+      console.log("📡 === DETALLES DE LA LLAMADA API ===");
+      console.log("🌐 Endpoint: GET", endpoint);
+      console.log("🔐 Authorization Header: Bearer " + tokens.idToken.substring(0, 50) + "...");
+      console.log("📊 Method: GET");
+      console.log("📦 Body: N/A (GET request)");
+
       const accessResponse = await apiCall(endpoint, {
-        headers: { 'Authorization': `Bearer ${tokens.idToken}` }
+        headers: { Authorization: `Bearer ${tokens.idToken}` },
       });
-      
-      console.log('✅ Workspace access obtenido:', accessResponse);
+
+      console.log("✅ Workspace access obtenido:", accessResponse);
       setWorkspaceAccess(accessResponse.items || accessResponse);
     } catch (error) {
-      console.error('❌ Error fetching workspace access:', error);
+      console.error("❌ Error fetching workspace access:", error);
       setWorkspaceAccess([]);
     }
   };
 
   const fetchReportAccess = async () => {
     try {
-      console.log('🔐 === INICIANDO fetchReportAccess ===');
-      console.log('🔍 Reporte seleccionado:', selectedReport);
-      
+      console.log("🔐 === INICIANDO fetchReportAccess ===");
+      console.log("🔍 Reporte seleccionado:", selectedReport);
+
       const tokens = await getAccessToken();
       if (!tokens) {
-        console.error('❌ No se pudo obtener token de autenticación');
-        throw new Error('No se pudo obtener token de autenticación');
+        console.error("❌ No se pudo obtener token de autenticación");
+        throw new Error("No se pudo obtener token de autenticación");
       }
-      
-      console.log('🔑 Token obtenido para report access:', tokens.idToken.substring(0, 50) + '...');
-      
+
+      console.log("🔑 Token obtenido para report access:", tokens.idToken.substring(0, 50) + "...");
+
       const endpoint = `${ENV.CRM_API_BASE_URL}/api/reports/reports/${selectedReport}/access?status=active&search=&page=1&page_size=50`;
-      console.log('📡 === DETALLES DE LA LLAMADA API ===');
-      console.log('🌐 Endpoint: GET', endpoint);
-      console.log('🔐 Authorization Header: Bearer ' + tokens.idToken.substring(0, 50) + '...');
-      console.log('📊 Method: GET');
-      console.log('📦 Body: N/A (GET request)');
-      
+      console.log("📡 === DETALLES DE LA LLAMADA API ===");
+      console.log("🌐 Endpoint: GET", endpoint);
+      console.log("🔐 Authorization Header: Bearer " + tokens.idToken.substring(0, 50) + "...");
+      console.log("📊 Method: GET");
+      console.log("📦 Body: N/A (GET request)");
+
       const accessResponse = await apiCall(endpoint, {
-        headers: { 'Authorization': `Bearer ${tokens.idToken}` }
+        headers: { Authorization: `Bearer ${tokens.idToken}` },
       });
-      
-      console.log('✅ Report access obtenido:', accessResponse);
+
+      console.log("✅ Report access obtenido:", accessResponse);
       setReportAccess(accessResponse.items || accessResponse);
     } catch (error) {
-      console.error('❌ Error fetching report access:', error);
+      console.error("❌ Error fetching report access:", error);
       setReportAccess([]);
     }
   };
 
   const fetchEffectiveAccess = async () => {
     try {
-      console.log('🔐 === INICIANDO fetchEffectiveAccess ===');
-      console.log('🔍 Reporte para acceso efectivo:', effectiveAccessReport);
-      
+      console.log("🔐 === INICIANDO fetchEffectiveAccess ===");
+      console.log("🔍 Reporte para acceso efectivo:", effectiveAccessReport);
+
       const tokens = await getAccessToken();
       if (!tokens) {
-        console.error('❌ No se pudo obtener token de autenticación');
-        throw new Error('No se pudo obtener token de autenticación');
+        console.error("❌ No se pudo obtener token de autenticación");
+        throw new Error("No se pudo obtener token de autenticación");
       }
-      
-      console.log('🔑 Token obtenido para effective access:', tokens.idToken.substring(0, 50) + '...');
-      
+
+      console.log("🔑 Token obtenido para effective access:", tokens.idToken.substring(0, 50) + "...");
+
       const endpoint = `${ENV.CRM_API_BASE_URL}/api/reports/effective/reports/${effectiveAccessReport}/users?only_active_users=true&search=&page=1&page_size=50`;
-      console.log('📡 === DETALLES DE LA LLAMADA API ===');
-      console.log('🌐 Endpoint: GET', endpoint);
-      console.log('🔐 Authorization Header: Bearer ' + tokens.idToken.substring(0, 50) + '...');
-      console.log('📊 Method: GET');
-      console.log('📦 Body: N/A (GET request)');
-      
+      console.log("📡 === DETALLES DE LA LLAMADA API ===");
+      console.log("🌐 Endpoint: GET", endpoint);
+      console.log("🔐 Authorization Header: Bearer " + tokens.idToken.substring(0, 50) + "...");
+      console.log("📊 Method: GET");
+      console.log("📦 Body: N/A (GET request)");
+
       const accessResponse = await apiCall(endpoint, {
-        headers: { 'Authorization': `Bearer ${tokens.idToken}` }
+        headers: { Authorization: `Bearer ${tokens.idToken}` },
       });
-      
-      console.log('✅ Effective access obtenido:', accessResponse);
+
+      console.log("✅ Effective access obtenido:", accessResponse);
       setEffectiveAccess(accessResponse.items || accessResponse);
     } catch (error) {
-      console.error('❌ Error fetching effective access:', error);
+      console.error("❌ Error fetching effective access:", error);
       setEffectiveAccess([]);
     }
   };
@@ -357,49 +364,48 @@ export function AccessTab() {
 
   const fetchAllUsers = useCallback(async () => {
     if (usersLoaded) return;
-    
+
     try {
       setUserSearchLoading(true);
       setUserSearchError(null);
 
-      console.log('🔐 === INICIANDO fetchAllUsers ===');
-      
+      console.log("🔐 === INICIANDO fetchAllUsers ===");
+
       const tokens = await getAccessToken();
       if (!tokens) {
-        console.error('❌ No se pudo obtener token de autenticación');
-        throw new Error('No se pudo obtener token de autenticación');
+        console.error("❌ No se pudo obtener token de autenticación");
+        throw new Error("No se pudo obtener token de autenticación");
       }
-      
-      console.log('🔑 Token obtenido para fetch all users:', tokens.idToken.substring(0, 50) + '...');
-      
+
+      console.log("🔑 Token obtenido para fetch all users:", tokens.idToken.substring(0, 50) + "...");
+
       const endpoint = `${ENV.CRM_API_BASE_URL}/api/users/list`;
-      console.log('📡 === DETALLES DE LA LLAMADA API ===');
-      console.log('🌐 Endpoint: GET', endpoint);
-      console.log('🔐 Authorization Header: Bearer ' + tokens.idToken.substring(0, 50) + '...');
-      console.log('📊 Method: GET');
-      console.log('📦 Body: N/A (GET request)');
-      
+      console.log("📡 === DETALLES DE LA LLAMADA API ===");
+      console.log("🌐 Endpoint: GET", endpoint);
+      console.log("🔐 Authorization Header: Bearer " + tokens.idToken.substring(0, 50) + "...");
+      console.log("📊 Method: GET");
+      console.log("📦 Body: N/A (GET request)");
+
       const usersResponse = await apiCall(endpoint, {
-        headers: { 'Authorization': `Bearer ${tokens.idToken}` }
+        headers: { Authorization: `Bearer ${tokens.idToken}` },
       });
-      
-      console.log('✅ Todos los usuarios obtenidos:', usersResponse);
-      
-      const users = Array.isArray(usersResponse) ? usersResponse : (usersResponse.items || []);
+
+      console.log("✅ Todos los usuarios obtenidos:", usersResponse);
+
+      const users = Array.isArray(usersResponse) ? usersResponse : usersResponse.items || [];
       setAllUsers(users);
       setUsersLoaded(true);
-      
     } catch (error: any) {
-      console.error('❌ Error fetching all users:', error);
-      const errorMessage = error.message.includes('detail') ? 
-        JSON.parse(error.message.split(': ')[1]).detail : 
-        'Error al cargar usuarios';
-      
+      console.error("❌ Error fetching all users:", error);
+      const errorMessage = error.message.includes("detail")
+        ? JSON.parse(error.message.split(": ")[1]).detail
+        : "Error al cargar usuarios";
+
       setUserSearchError(errorMessage);
       toast({
         title: "Error",
         description: errorMessage,
-        variant: "destructive"
+        variant: "destructive",
       });
     } finally {
       setUserSearchLoading(false);
@@ -413,63 +419,63 @@ export function AccessTab() {
 
   const handleGrantWorkspaceAccess = async () => {
     if (!selectedWorkspace || !selectedUser) return;
-    
+
     try {
-      console.log('🔐 === INICIANDO handleGrantWorkspaceAccess ===');
-      console.log('🔍 Workspace:', selectedWorkspace);
-      console.log('🔍 Usuario:', selectedUser);
-      
+      console.log("🔐 === INICIANDO handleGrantWorkspaceAccess ===");
+      console.log("🔍 Workspace:", selectedWorkspace);
+      console.log("🔍 Usuario:", selectedUser);
+
       const tokens = await getAccessToken();
       if (!tokens) {
-        console.error('❌ No se pudo obtener token de autenticación');
-        throw new Error('No se pudo obtener token de autenticación');
+        console.error("❌ No se pudo obtener token de autenticación");
+        throw new Error("No se pudo obtener token de autenticación");
       }
-      
-      console.log('🔑 Token obtenido para grant workspace access:', tokens.idToken.substring(0, 50) + '...');
-      
+
+      console.log("🔑 Token obtenido para grant workspace access:", tokens.idToken.substring(0, 50) + "...");
+
       const endpoint = `${ENV.CRM_API_BASE_URL}/api/reports/workspaces/${selectedWorkspace}/access/grant`;
-      const requestBody = { 
-        userId: selectedUser, 
-        accessLevel: "view"
+      const requestBody = {
+        userId: selectedUser,
+        accessLevel: "view",
       };
-      
+
       const bodyString = JSON.stringify(requestBody);
-      
-      console.log('📡 === DETALLES DE LA LLAMADA API - GRANT WORKSPACE ACCESS ===');
-      console.log('🌐 Endpoint: POST', endpoint);
-      console.log('🔐 Authorization Header: Bearer ' + tokens.idToken.substring(0, 50) + '...');
-      console.log('📊 Method: POST');
-      console.log('📦 Body Object:', requestBody);
-      console.log('📦 Body Stringified:', bodyString);
-      console.log('📦 Body Length:', bodyString.length);
-      console.log('📋 Content-Type: application/json');
-      
+
+      console.log("📡 === DETALLES DE LA LLAMADA API - GRANT WORKSPACE ACCESS ===");
+      console.log("🌐 Endpoint: POST", endpoint);
+      console.log("🔐 Authorization Header: Bearer " + tokens.idToken.substring(0, 50) + "...");
+      console.log("📊 Method: POST");
+      console.log("📦 Body Object:", requestBody);
+      console.log("📦 Body Stringified:", bodyString);
+      console.log("📦 Body Length:", bodyString.length);
+      console.log("📋 Content-Type: application/json");
+
       await apiCall(endpoint, {
-        method: 'POST',
-        headers: { 
-          'Authorization': `Bearer ${tokens.idToken}`,
-          'Content-Type': 'application/json'
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${tokens.idToken}`,
+          "Content-Type": "application/json",
         },
-        body: bodyString
+        body: bodyString,
       });
-      
-      console.log('✅ Acceso a workspace concedido correctamente');
+
+      console.log("✅ Acceso a workspace concedido correctamente");
       toast({
         title: "Éxito",
-        description: "Acceso concedido correctamente"
+        description: "Acceso concedido correctamente",
       });
       await fetchWorkspaceAccess();
       setShowGrantWorkspaceDialog(false);
-      setSelectedUser('');
+      setSelectedUser("");
     } catch (error: any) {
-      console.error('❌ Error granting workspace access:', error);
-      const errorMessage = error.message.includes('detail') ? 
-        JSON.parse(error.message.split(': ')[1]).detail : 
-        error.message || "No se pudo conceder el acceso";
+      console.error("❌ Error granting workspace access:", error);
+      const errorMessage = error.message.includes("detail")
+        ? JSON.parse(error.message.split(": ")[1]).detail
+        : error.message || "No se pudo conceder el acceso";
       toast({
         title: "Error",
         description: errorMessage,
-        variant: "destructive"
+        variant: "destructive",
       });
     }
   };
@@ -480,114 +486,114 @@ export function AccessTab() {
     }
 
     try {
-      console.log('🔐 === INICIANDO handleRevokeWorkspaceAccess ===');
-      console.log('🔍 Workspace:', selectedWorkspace);
-      console.log('🔍 Usuario:', userId, userName);
-      
+      console.log("🔐 === INICIANDO handleRevokeWorkspaceAccess ===");
+      console.log("🔍 Workspace:", selectedWorkspace);
+      console.log("🔍 Usuario:", userId, userName);
+
       const tokens = await getAccessToken();
       if (!tokens) {
-        console.error('❌ No se pudo obtener token de autenticación');
-        throw new Error('No se pudo obtener token de autenticación');
+        console.error("❌ No se pudo obtener token de autenticación");
+        throw new Error("No se pudo obtener token de autenticación");
       }
-      
-      console.log('🔑 Token obtenido para revoke workspace access:', tokens.idToken.substring(0, 50) + '...');
-      
+
+      console.log("🔑 Token obtenido para revoke workspace access:", tokens.idToken.substring(0, 50) + "...");
+
       const endpoint = `${ENV.CRM_API_BASE_URL}/api/reports/workspaces/${selectedWorkspace}/access/revoke`;
       const requestBody = { userId };
       const bodyString = JSON.stringify(requestBody);
-      
-      console.log('📡 === DETALLES DE LA LLAMADA API - REVOKE WORKSPACE ACCESS ===');
-      console.log('🌐 Endpoint: POST', endpoint);
-      console.log('🔐 Authorization Header: Bearer ' + tokens.idToken.substring(0, 50) + '...');
-      console.log('📊 Method: POST');
-      console.log('📦 Body Object:', requestBody);
-      console.log('📦 Body Stringified:', bodyString);
-      console.log('📋 Content-Type: application/json');
-      
+
+      console.log("📡 === DETALLES DE LA LLAMADA API - REVOKE WORKSPACE ACCESS ===");
+      console.log("🌐 Endpoint: POST", endpoint);
+      console.log("🔐 Authorization Header: Bearer " + tokens.idToken.substring(0, 50) + "...");
+      console.log("📊 Method: POST");
+      console.log("📦 Body Object:", requestBody);
+      console.log("📦 Body Stringified:", bodyString);
+      console.log("📋 Content-Type: application/json");
+
       await apiCall(endpoint, {
-        method: 'POST',
-        headers: { 
-          'Authorization': `Bearer ${tokens.idToken}`,
-          'Content-Type': 'application/json'
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${tokens.idToken}`,
+          "Content-Type": "application/json",
         },
-        body: bodyString
+        body: bodyString,
       });
-      
-      console.log('✅ Acceso a workspace revocado correctamente');
+
+      console.log("✅ Acceso a workspace revocado correctamente");
       toast({
         title: "Éxito",
-        description: "Acceso revocado correctamente"
+        description: "Acceso revocado correctamente",
       });
       await fetchWorkspaceAccess();
     } catch (error) {
-      console.error('❌ Error revoking workspace access:', error);
+      console.error("❌ Error revoking workspace access:", error);
       toast({
         title: "Error",
         description: "No se pudo revocar el acceso",
-        variant: "destructive"
+        variant: "destructive",
       });
     }
   };
 
   const handleGrantReportAccess = async () => {
     if (!selectedReport || !selectedUser) return;
-    
+
     try {
-      console.log('🔐 === INICIANDO handleGrantReportAccess ===');
-      console.log('🔍 Reporte:', selectedReport);
-      console.log('🔍 Usuario:', selectedUser);
-      
+      console.log("🔐 === INICIANDO handleGrantReportAccess ===");
+      console.log("🔍 Reporte:", selectedReport);
+      console.log("🔍 Usuario:", selectedUser);
+
       const tokens = await getAccessToken();
       if (!tokens) {
-        console.error('❌ No se pudo obtener token de autenticación');
-        throw new Error('No se pudo obtener token de autenticación');
+        console.error("❌ No se pudo obtener token de autenticación");
+        throw new Error("No se pudo obtener token de autenticación");
       }
-      
-      console.log('🔑 Token obtenido para grant report access:', tokens.idToken.substring(0, 50) + '...');
-      
+
+      console.log("🔑 Token obtenido para grant report access:", tokens.idToken.substring(0, 50) + "...");
+
       const endpoint = `${ENV.CRM_API_BASE_URL}/api/reports/reports/${selectedReport}/access/grant`;
-      const requestBody = { 
-        userId: selectedUser, 
-        accessLevel: "view"
+      const requestBody = {
+        userId: selectedUser,
+        accessLevel: "view",
       };
-      
+
       const bodyString = JSON.stringify(requestBody);
-      
-      console.log('📡 === DETALLES DE LA LLAMADA API - GRANT REPORT ACCESS ===');
-      console.log('🌐 Endpoint: POST', endpoint);
-      console.log('🔐 Authorization Header: Bearer ' + tokens.idToken.substring(0, 50) + '...');
-      console.log('📊 Method: POST');
-      console.log('📦 Body Object:', requestBody);
-      console.log('📦 Body Stringified:', bodyString);
-      console.log('📦 Body Length:', bodyString.length);
-      console.log('📋 Content-Type: application/json');
-      
+
+      console.log("📡 === DETALLES DE LA LLAMADA API - GRANT REPORT ACCESS ===");
+      console.log("🌐 Endpoint: POST", endpoint);
+      console.log("🔐 Authorization Header: Bearer " + tokens.idToken.substring(0, 50) + "...");
+      console.log("📊 Method: POST");
+      console.log("📦 Body Object:", requestBody);
+      console.log("📦 Body Stringified:", bodyString);
+      console.log("📦 Body Length:", bodyString.length);
+      console.log("📋 Content-Type: application/json");
+
       await apiCall(endpoint, {
-        method: 'POST',
-        headers: { 
-          'Authorization': `Bearer ${tokens.idToken}`,
-          'Content-Type': 'application/json'
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${tokens.idToken}`,
+          "Content-Type": "application/json",
         },
-        body: bodyString
+        body: bodyString,
       });
-      
-      console.log('✅ Acceso a reporte concedido correctamente');
+
+      console.log("✅ Acceso a reporte concedido correctamente");
       toast({
         title: "Éxito",
-        description: "Acceso concedido correctamente"
+        description: "Acceso concedido correctamente",
       });
       await fetchReportAccess();
       setShowGrantReportDialog(false);
-      setSelectedUser('');
+      setSelectedUser("");
     } catch (error: any) {
-      console.error('❌ Error granting report access:', error);
-      const errorMessage = error.message.includes('detail') ? 
-        JSON.parse(error.message.split(': ')[1]).detail : 
-        error.message || "No se pudo conceder el acceso";
+      console.error("❌ Error granting report access:", error);
+      const errorMessage = error.message.includes("detail")
+        ? JSON.parse(error.message.split(": ")[1]).detail
+        : error.message || "No se pudo conceder el acceso";
       toast({
         title: "Error",
         description: errorMessage,
-        variant: "destructive"
+        variant: "destructive",
       });
     }
   };
@@ -598,63 +604,63 @@ export function AccessTab() {
     }
 
     try {
-      console.log('🔐 === INICIANDO handleRevokeReportAccess ===');
-      console.log('🔍 Reporte:', selectedReport);
-      console.log('🔍 Usuario:', userId, userName);
-      
+      console.log("🔐 === INICIANDO handleRevokeReportAccess ===");
+      console.log("🔍 Reporte:", selectedReport);
+      console.log("🔍 Usuario:", userId, userName);
+
       const tokens = await getAccessToken();
       if (!tokens) {
-        console.error('❌ No se pudo obtener token de autenticación');
-        throw new Error('No se pudo obtener token de autenticación');
+        console.error("❌ No se pudo obtener token de autenticación");
+        throw new Error("No se pudo obtener token de autenticación");
       }
-      
-      console.log('🔑 Token obtenido para revoke report access:', tokens.idToken.substring(0, 50) + '...');
-      
+
+      console.log("🔑 Token obtenido para revoke report access:", tokens.idToken.substring(0, 50) + "...");
+
       const endpoint = `${ENV.CRM_API_BASE_URL}/api/reports/reports/${selectedReport}/access/revoke`;
       const requestBody = { userId };
       const bodyString = JSON.stringify(requestBody);
-      
-      console.log('📡 === DETALLES DE LA LLAMADA API - REVOKE REPORT ACCESS ===');
-      console.log('🌐 Endpoint: POST', endpoint);
-      console.log('🔐 Authorization Header: Bearer ' + tokens.idToken.substring(0, 50) + '...');
-      console.log('📊 Method: POST');
-      console.log('📦 Body Object:', requestBody);
-      console.log('📦 Body Stringified:', bodyString);
-      console.log('📋 Content-Type: application/json');
-      
+
+      console.log("📡 === DETALLES DE LA LLAMADA API - REVOKE REPORT ACCESS ===");
+      console.log("🌐 Endpoint: POST", endpoint);
+      console.log("🔐 Authorization Header: Bearer " + tokens.idToken.substring(0, 50) + "...");
+      console.log("📊 Method: POST");
+      console.log("📦 Body Object:", requestBody);
+      console.log("📦 Body Stringified:", bodyString);
+      console.log("📋 Content-Type: application/json");
+
       await apiCall(endpoint, {
-        method: 'POST',
-        headers: { 
-          'Authorization': `Bearer ${tokens.idToken}`,
-          'Content-Type': 'application/json'
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${tokens.idToken}`,
+          "Content-Type": "application/json",
         },
-        body: bodyString
+        body: bodyString,
       });
-      
-      console.log('✅ Acceso a reporte revocado correctamente');
+
+      console.log("✅ Acceso a reporte revocado correctamente");
       toast({
         title: "Éxito",
-        description: "Acceso revocado correctamente"
+        description: "Acceso revocado correctamente",
       });
       await fetchReportAccess();
     } catch (error) {
-      console.error('❌ Error revoking report access:', error);
+      console.error("❌ Error revoking report access:", error);
       toast({
         title: "Error",
         description: "No se pudo revocar el acceso",
-        variant: "destructive"
+        variant: "destructive",
       });
     }
   };
 
   const getWorkspaceName = (workspaceId: string) => {
-    const workspace = workspaces.find(w => w.id === workspaceId);
-    return workspace ? workspace.name : 'Workspace no encontrado';
+    const workspace = workspaces.find((w) => w.id === workspaceId);
+    return workspace ? workspace.name : "Workspace no encontrado";
   };
 
   const getReportName = (reportId: string) => {
-    const report = reports.find(r => r.id === reportId);
-    return report ? report.name : 'Reporte no encontrado';
+    const report = reports.find((r) => r.id === reportId);
+    return report ? report.name : "Reporte no encontrado";
   };
 
   if (loading) {
@@ -670,9 +676,7 @@ export function AccessTab() {
       {/* Header */}
       <div>
         <h2 className="text-2xl font-semibold">Gestión de Accesos</h2>
-        <p className="text-muted-foreground">
-          Administra los permisos de acceso a workspaces y reportes
-        </p>
+        <p className="text-muted-foreground">Administra los permisos de acceso a workspaces y reportes</p>
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
@@ -708,21 +712,16 @@ export function AccessTab() {
           </div>
 
           {selectedWorkspace && (
-            <Card>
+            <Card classname="p-0 border-0">
               <CardHeader>
-                <CardTitle className="flex items-center">
+                <CardTitle className="flex items-center mb-4">
                   <Shield className="h-5 w-5 mr-2" />
                   Usuarios con Acceso: {getWorkspaceName(selectedWorkspace)}
                 </CardTitle>
-                <CardDescription>
-                  Lista de usuarios que tienen acceso directo al workspace
-                </CardDescription>
+                <CardDescription>Lista de usuarios que tienen acceso directo al workspace</CardDescription>
               </CardHeader>
               <CardContent>
-                <AccessUsersTable
-                  users={workspaceAccess}
-                  onRevokeAccess={handleRevokeWorkspaceAccess}
-                />
+                <AccessUsersTable users={workspaceAccess} onRevokeAccess={handleRevokeWorkspaceAccess} />
               </CardContent>
             </Card>
           )}
@@ -750,7 +749,7 @@ export function AccessTab() {
               </SelectTrigger>
               <SelectContent>
                 {workspaces
-                  .filter(w => w.areaId === selectedArea)
+                  .filter((w) => w.areaId === selectedArea)
                   .map((workspace) => (
                     <SelectItem key={workspace.id} value={workspace.id}>
                       {workspace.name}
@@ -787,15 +786,10 @@ export function AccessTab() {
                   <Eye className="h-5 w-5 mr-2" />
                   Usuarios con Acceso: {getReportName(selectedReport)}
                 </CardTitle>
-                <CardDescription>
-                  Lista de usuarios que tienen acceso directo al reporte
-                </CardDescription>
+                <CardDescription>Lista de usuarios que tienen acceso directo al reporte</CardDescription>
               </CardHeader>
               <CardContent>
-                <AccessUsersTable
-                  users={reportAccess}
-                  onRevokeAccess={handleRevokeReportAccess}
-                />
+                <AccessUsersTable users={reportAccess} onRevokeAccess={handleRevokeReportAccess} />
               </CardContent>
             </Card>
           )}
@@ -817,13 +811,17 @@ export function AccessTab() {
               </SelectContent>
             </Select>
 
-            <Select value={effectiveAccessWorkspace} onValueChange={setEffectiveAccessWorkspace} disabled={!effectiveAccessArea}>
+            <Select
+              value={effectiveAccessWorkspace}
+              onValueChange={setEffectiveAccessWorkspace}
+              disabled={!effectiveAccessArea}
+            >
               <SelectTrigger>
                 <SelectValue placeholder="Seleccionar workspace" />
               </SelectTrigger>
               <SelectContent>
                 {workspaces
-                  .filter(w => w.areaId === effectiveAccessArea)
+                  .filter((w) => w.areaId === effectiveAccessArea)
                   .map((workspace) => (
                     <SelectItem key={workspace.id} value={workspace.id}>
                       {workspace.name}
@@ -832,7 +830,11 @@ export function AccessTab() {
               </SelectContent>
             </Select>
 
-            <Select value={effectiveAccessReport} onValueChange={setEffectiveAccessReport} disabled={!effectiveAccessWorkspace}>
+            <Select
+              value={effectiveAccessReport}
+              onValueChange={setEffectiveAccessReport}
+              disabled={!effectiveAccessWorkspace}
+            >
               <SelectTrigger>
                 <SelectValue placeholder="Seleccionar reporte" />
               </SelectTrigger>
@@ -858,10 +860,7 @@ export function AccessTab() {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <AccessUsersTable
-                  users={effectiveAccess}
-                  showSource={true}
-                />
+                <AccessUsersTable users={effectiveAccess} showSource={true} />
               </CardContent>
             </Card>
           )}
@@ -896,10 +895,13 @@ export function AccessTab() {
           </div>
 
           <DialogFooter>
-            <Button variant="outline" onClick={() => {
-              setShowGrantWorkspaceDialog(false);
-              setSelectedUser('');
-            }}>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setShowGrantWorkspaceDialog(false);
+                setSelectedUser("");
+              }}
+            >
               Cancelar
             </Button>
             <Button onClick={handleGrantWorkspaceAccess} disabled={!selectedUser}>
@@ -937,10 +939,13 @@ export function AccessTab() {
           </div>
 
           <DialogFooter>
-            <Button variant="outline" onClick={() => {
-              setShowGrantReportDialog(false);
-              setSelectedUser('');
-            }}>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setShowGrantReportDialog(false);
+                setSelectedUser("");
+              }}
+            >
               Cancelar
             </Button>
             <Button onClick={handleGrantReportAccess} disabled={!selectedUser}>
