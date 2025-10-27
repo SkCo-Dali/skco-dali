@@ -401,7 +401,7 @@ export default function UsersPage() {
   }
 
   return (
-    <div className="h-full pt-0">
+    <div className="pt-0">
       <div className="p-4 pb-2">
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-2 mb-4">
           <div className="flex items-center gap-3">
@@ -445,7 +445,7 @@ export default function UsersPage() {
       </div>
 
       <div 
-        className="px-4 pb-4 mt-4 flex flex-col" 
+        className="px-4 pb-4 mt-4 flex flex-col max-h-[320px]" 
         style={{ height: showKPIs ? "calc(100vh - 480px)" : "calc(100vh - 320px)" }}
       >
         <div className="flex-1 max-h-[250px]">
