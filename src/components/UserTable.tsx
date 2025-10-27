@@ -10,15 +10,18 @@ interface UserTableProps {
   onRoleUpdate: (userId: string, newRole: User["role"]) => void;
   onUserDelete: (userId: string) => void;
   onUserStatusToggle: (userId: string, isActive: boolean) => void;
-  onUserUpdate: (userId: string, updates: {
-    name: string;
-    email: string;
-    preferredName?: string | null;
-    whatsappNumber?: string | null;
-    countryCodeWhatsApp?: number | null;
-    dailyEmailLimit?: number | null;
-    dailyWhatsAppLimit?: number | null;
-  }) => void;
+  onUserUpdate: (
+    userId: string,
+    updates: {
+      name: string;
+      email: string;
+      preferredName?: string | null;
+      whatsappNumber?: string | null;
+      countryCodeWhatsApp?: number | null;
+      dailyEmailLimit?: number | null;
+      dailyWhatsAppLimit?: number | null;
+    },
+  ) => void;
 }
 
 export function UserTable({
@@ -36,7 +39,7 @@ export function UserTable({
         <div className="leads-table-scroll-wrapper shadow-sm border">
           <div className="leads-table-inner-scroll">
             <Table className="w-full">
-              <TableHeader className="sticky top-0 bg-card z-10">
+              <TableHeader className="sticky top-0 bg-card z-10 text-center text-md">
                 <TableRow className="h-20">
                   <TableHead>Usuario</TableHead>
                   <TableHead>Email</TableHead>

@@ -168,8 +168,10 @@ export function UserTableRow({
           user.preferredName || "-"
         )}
       </TableCell>
-      <TableCell>{user.birthDate ? new Date(user.birthDate).toLocaleDateString("es-CO") : "-"}</TableCell>
-      <TableCell className="!text-xs !mx-2">
+      <TableCell className="text-xs text-center mx-2">
+        {user.birthDate ? new Date(user.birthDate).toLocaleDateString("es-CO") : "-"}
+      </TableCell>
+      <TableCell className="text-xs text-center mx-2">
         {isEditing ? (
           <Input
             value={editCountryCode}
@@ -182,7 +184,7 @@ export function UserTableRow({
           user.countryCodeWhatsApp || "-"
         )}
       </TableCell>
-      <TableCell className="!text-xs !mx-2">
+      <TableCell className="text-xs text-center mx-2">
         {isEditing ? (
           <Input
             value={editWhatsappNumber}
@@ -194,13 +196,13 @@ export function UserTableRow({
           user.whatsappNumber || "-"
         )}
       </TableCell>
-      <TableCell className="h-8 !text-xs !mx-2">{user.idAgte ?? "-"} </TableCell>
-      <TableCell className="h-8 !text-xs !mx-2">{user.idSociedad ?? "-"}</TableCell>
-      <TableCell className="h-8 !text-xs !mx-2">{user.idPromotor ?? "-"}</TableCell>
-      <TableCell className="h-8 !text-xs !mx-2">{user.idAliado ?? "-"}</TableCell>
-      <TableCell className="h-8 !text-xs !mx-2">{user.wSaler || "-"}</TableCell>
-      <TableCell className="h-8 !text-xs !mx-2">{user.idSupervisor ?? "-"}</TableCell>
-      <TableCell className="h-8 !text-xs !mx-2">
+      <TableCell className="text-xs text-center mx-2">{user.idAgte ?? "-"} </TableCell>
+      <TableCell className="text-xs text-center mx-2">{user.idSociedad ?? "-"}</TableCell>
+      <TableCell className="text-xs text-center mx-2">{user.idPromotor ?? "-"}</TableCell>
+      <TableCell className="text-xs text-center mx-2">{user.idAliado ?? "-"}</TableCell>
+      <TableCell className="text-xs text-center mx-2">{user.wSaler || "-"}</TableCell>
+      <TableCell className="text-xs text-center mx-2">{user.idSupervisor ?? "-"}</TableCell>
+      <TableCell className="text-xs text-center mx-2">
         {isEditing ? (
           <Input
             value={editEmailLimit}
@@ -213,7 +215,7 @@ export function UserTableRow({
           (user.dailyEmailLimit ?? "-")
         )}
       </TableCell>
-      <TableCell className="!text-xs !mx-2">
+      <TableCell className="text-xs text-center mx-2">
         {isEditing ? (
           <Input
             value={editWhatsAppLimit}
@@ -226,13 +228,13 @@ export function UserTableRow({
           (user.dailyWhatsAppLimit ?? "-")
         )}
       </TableCell>
-      <TableCell className="!text-xs !mx-2">
+      <TableCell className="text-xs text-center mx-2">
         {user.createdAt ? new Date(user.createdAt).toLocaleDateString("es-CO") : "-"}
       </TableCell>
-      <TableCell className="!text-xs !mx-2">
+      <TableCell className="text-xs text-center mx-2">
         {user.updatedAt ? new Date(user.updatedAt).toLocaleDateString("es-CO") : "-"}
       </TableCell>
-      <TableCell className="!text-xs !mx-2">
+      <TableCell className="text-xs text-center mx-2">
         <div className="flex items-center gap-2">
           <Badge variant={user.isActive ? "default" : "secondary"}>{user.isActive ? "Activo" : "Inactivo"}</Badge>
           {permissions?.canAssignRoles && !isCurrentUser && (
@@ -243,7 +245,7 @@ export function UserTableRow({
           )}
         </div>
       </TableCell>
-      <TableCell className="!text-xs !mx-2">
+      <TableCell className="text-xs text-center mx-2">
         <div className="flex items-center gap-2">
           {isEditing ? (
             <>
