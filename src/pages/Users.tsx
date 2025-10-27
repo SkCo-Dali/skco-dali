@@ -445,7 +445,7 @@ export default function UsersPage() {
       </div>
 
       
-        <div className="py-4 flex-1 min-h-0">
+        <div className="px-4 flex-1 min-h-0">
           <UserTable
             users={kpiRoleFilters.length > 1 ? filteredUsers : users}
             permissions={permissions}
