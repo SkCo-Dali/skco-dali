@@ -41,25 +41,24 @@ export function UserTable({
             <Table className="w-full">
               <TableHeader className="sticky top-0 bg-card z-10">
                 <TableRow className="h-18 text-center text-md">
-                  <TableHead>Usuario</TableHead>
-                  <TableHead>Email</TableHead>
-                  <TableHead>Rol</TableHead>
-                  <TableHead>Nombre Preferido</TableHead>
-                  <TableHead>Fecha Nacimiento</TableHead>
-                  <TableHead>Cód. País</TableHead>
-                  <TableHead>WhatsApp</TableHead>
-                  <TableHead>ID Agente</TableHead>
-                  <TableHead>ID Sociedad</TableHead>
-                  <TableHead>ID Promotor</TableHead>
-                  <TableHead>ID Aliado</TableHead>
-                  <TableHead>WSaler</TableHead>
-                  <TableHead>ID Supervisor</TableHead>
-                  <TableHead>Límite Email</TableHead>
-                  <TableHead>Límite WA</TableHead>
-                  <TableHead>Fecha Creación</TableHead>
-                  <TableHead>Última Act.</TableHead>
-                  <TableHead>Estado</TableHead>
-                  <TableHead>Acciones</TableHead>
+                  <TableHead className="text-center text-md">Email</TableHead>
+                  <TableHead className="text-center text-md">Rol</TableHead>
+                  <TableHead className="text-center text-md">Nombre Preferido</TableHead>
+                  <TableHead className="text-center text-md">Fecha Nacimiento</TableHead>
+                  <TableHead className="text-center text-md">Cód. País</TableHead>
+                  <TableHead className="text-center text-md">WhatsApp</TableHead>
+                  <TableHead className="text-center text-md">ID Agente</TableHead>
+                  <TableHead className="text-center text-md">ID Sociedad</TableHead>
+                  <TableHead className="text-center text-md">ID Promotor</TableHead>
+                  <TableHead className="text-center text-md">ID Aliado</TableHead>
+                  <TableHead className="text-center text-md">WSaler</TableHead>
+                  <TableHead className="text-center text-md">ID Supervisor</TableHead>
+                  <TableHead className="text-center text-md">Límite Email</TableHead>
+                  <TableHead className="text-center text-md">Límite WA</TableHead>
+                  <TableHead className="text-center text-md">Fecha Creación</TableHead>
+                  <TableHead className="text-center text-md">Última Act.</TableHead>
+                  <TableHead className="text-center text-md">Estado</TableHead>
+                  <TableHead className="text-center text-md">Acciones</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody className="max-h-[300px]">
