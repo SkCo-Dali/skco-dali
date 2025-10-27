@@ -12,6 +12,7 @@ import { Area, Workspace, Report, UserAccess } from '@/types/powerbi';
 import { toast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
 import { ENV } from '@/config/environment';
+import { UserAccessSelect } from '@/components/UserAccessSelect';
 
 // User type for search results
 interface SearchUser {
@@ -48,7 +49,6 @@ export function AccessTab() {
   const [areas, setAreas] = useState<Area[]>([]);
   const [workspaces, setWorkspaces] = useState<Workspace[]>([]);
   const [reports, setReports] = useState<Report[]>([]);
-  const [foundUsers, setFoundUsers] = useState<SearchUser[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('workspace');
   
@@ -72,12 +72,8 @@ export function AccessTab() {
   
   // User search state
   const [selectedUser, setSelectedUser] = useState<string>('');
-  const [userSearch, setUserSearch] = useState<string>('');
   const [userSearchLoading, setUserSearchLoading] = useState(false);
   const [userSearchError, setUserSearchError] = useState<string | null>(null);
-  const [userSearchSkip, setUserSearchSkip] = useState(0);
-  const [hasMoreUsers, setHasMoreUsers] = useState(false);
-  const [loadingMoreUsers, setLoadingMoreUsers] = useState(false);
 
   useEffect(() => {
     fetchInitialData();
@@ -354,7 +350,7 @@ export function AccessTab() {
     }
   };
 
-  // Fetch all users once and implement client-side filtering
+  // Fetch all users once
   const [allUsers, setAllUsers] = useState<SearchUser[]>([]);
   const [usersLoaded, setUsersLoaded] = useState(false);
 
@@ -409,34 +405,10 @@ export function AccessTab() {
     }
   }, [getAccessToken, usersLoaded]);
 
-  // Client-side filtering of users
-  const getFilteredUsers = useCallback(() => {
-    if (!userSearch || userSearch.length < 2) {
-      return allUsers;
-    }
-
-    const searchTerm = userSearch.toLowerCase().trim();
-    const isEmailSearch = searchTerm.includes('@');
-    
-    return allUsers.filter(user => {
-      if (isEmailSearch) {
-        return user.Email?.toLowerCase().includes(searchTerm);
-      } else {
-        const name = user.PreferredName || user.Name || '';
-        return name.toLowerCase().includes(searchTerm);
-      }
-    });
-  }, [userSearch, allUsers]);
-
   // Load all users on component mount
   useEffect(() => {
     fetchAllUsers();
   }, [fetchAllUsers]);
-
-  const loadMoreUsers = () => {
-    // Not needed anymore since we're doing client-side filtering
-    return;
-  };
 
   const handleGrantWorkspaceAccess = async () => {
     if (!selectedWorkspace || !selectedUser) return;
@@ -488,8 +460,6 @@ export function AccessTab() {
       await fetchWorkspaceAccess();
       setShowGrantWorkspaceDialog(false);
       setSelectedUser('');
-      setUserSearch('');
-      setFoundUsers([]);
     } catch (error: any) {
       console.error('❌ Error granting workspace access:', error);
       const errorMessage = error.message.includes('detail') ? 
@@ -608,8 +578,6 @@ export function AccessTab() {
       await fetchReportAccess();
       setShowGrantReportDialog(false);
       setSelectedUser('');
-      setUserSearch('');
-      setFoundUsers([]);
     } catch (error: any) {
       console.error('❌ Error granting report access:', error);
       const errorMessage = error.message.includes('detail') ? 
@@ -978,39 +946,16 @@ export function AccessTab() {
           <div className="space-y-4">
             <div>
               <Label htmlFor="user-select">Seleccionar Usuario</Label>
-              {userSearchLoading ? (
-                <div className="flex items-center justify-center py-4">
-                  <Loader2 className="h-6 w-6 animate-spin" />
-                  <span className="ml-2">Cargando usuarios...</span>
-                </div>
-              ) : userSearchError ? (
+              {userSearchError ? (
                 <div className="text-sm text-destructive mt-1">{userSearchError}</div>
               ) : (
-                <Select value={selectedUser} onValueChange={setSelectedUser}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Seleccionar usuario" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <div className="p-2">
-                      <Input
-                        placeholder="Buscar usuario..."
-                        value={userSearch}
-                        onChange={(e) => setUserSearch(e.target.value)}
-                        className="mb-2"
-                      />
-                    </div>
-                    {getFilteredUsers().map((user) => (
-                      <SelectItem key={user.Id} value={user.Id}>
-                        {user.PreferredName || user.Name} · {user.Email}
-                      </SelectItem>
-                    ))}
-                    {getFilteredUsers().length === 0 && userSearch && (
-                      <div className="p-2 text-sm text-muted-foreground">
-                        No se encontraron usuarios
-                      </div>
-                    )}
-                  </SelectContent>
-                </Select>
+                <UserAccessSelect
+                  value={selectedUser}
+                  users={allUsers}
+                  loading={userSearchLoading}
+                  onSelect={setSelectedUser}
+                  placeholder="Seleccionar usuario"
+                />
               )}
             </div>
           </div>
@@ -1019,8 +964,6 @@ export function AccessTab() {
             <Button variant="outline" onClick={() => {
               setShowGrantWorkspaceDialog(false);
               setSelectedUser('');
-              setUserSearch('');
-              setFoundUsers([]);
             }}>
               Cancelar
             </Button>
@@ -1044,39 +987,16 @@ export function AccessTab() {
           <div className="space-y-4">
             <div>
               <Label htmlFor="user-select-report">Seleccionar Usuario</Label>
-              {userSearchLoading ? (
-                <div className="flex items-center justify-center py-4">
-                  <Loader2 className="h-6 w-6 animate-spin" />
-                  <span className="ml-2">Cargando usuarios...</span>
-                </div>
-              ) : userSearchError ? (
+              {userSearchError ? (
                 <div className="text-sm text-destructive mt-1">{userSearchError}</div>
               ) : (
-                <Select value={selectedUser} onValueChange={setSelectedUser}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Seleccionar usuario" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <div className="p-2">
-                      <Input
-                        placeholder="Buscar usuario..."
-                        value={userSearch}
-                        onChange={(e) => setUserSearch(e.target.value)}
-                        className="mb-2"
-                      />
-                    </div>
-                    {getFilteredUsers().map((user) => (
-                      <SelectItem key={user.Id} value={user.Id}>
-                        {user.PreferredName || user.Name} · {user.Email}
-                      </SelectItem>
-                    ))}
-                    {getFilteredUsers().length === 0 && userSearch && (
-                      <div className="p-2 text-sm text-muted-foreground">
-                        No se encontraron usuarios
-                      </div>
-                    )}
-                  </SelectContent>
-                </Select>
+                <UserAccessSelect
+                  value={selectedUser}
+                  users={allUsers}
+                  loading={userSearchLoading}
+                  onSelect={setSelectedUser}
+                  placeholder="Seleccionar usuario"
+                />
               )}
             </div>
           </div>
@@ -1085,8 +1005,6 @@ export function AccessTab() {
             <Button variant="outline" onClick={() => {
               setShowGrantReportDialog(false);
               setSelectedUser('');
-              setUserSearch('');
-              setFoundUsers([]);
             }}>
               Cancelar
             </Button>
