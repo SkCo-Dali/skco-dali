@@ -161,7 +161,7 @@ export function UserTableRow({
           <Input
             value={editPreferredName}
             onChange={(e) => setEditPreferredName(e.target.value)}
-            className="h-8 text-xs"
+            className="!text-xs !mx-2"
             placeholder="Nombre preferido"
           />
         ) : (
@@ -174,7 +174,7 @@ export function UserTableRow({
           <Input
             value={editCountryCode}
             onChange={(e) => setEditCountryCode(e.target.value)}
-            className="h-8 w-16 text-xs"
+            className="h-8 w-16 !text-xs !mx-2"
             placeholder="57"
             type="number"
           />
@@ -187,14 +187,14 @@ export function UserTableRow({
           <Input
             value={editWhatsappNumber}
             onChange={(e) => setEditWhatsappNumber(e.target.value)}
-            className="h-8 text-xs"
+            className="h-8 !text-xs !mx-2"
             placeholder="WhatsApp"
           />
         ) : (
           user.whatsappNumber || "-"
         )}
       </TableCell>
-      <TableCell>{user.idAgte ?? "-"}</TableCell>
+      <TableCell className="h-8 !text-xs !mx-2">{user.idAgte ?? "-"} </TableCell>
       <TableCell>{user.idSociedad ?? "-"}</TableCell>
       <TableCell>{user.idPromotor ?? "-"}</TableCell>
       <TableCell>{user.idAliado ?? "-"}</TableCell>
@@ -205,7 +205,7 @@ export function UserTableRow({
           <Input
             value={editEmailLimit}
             onChange={(e) => setEditEmailLimit(e.target.value)}
-            className="h-8 w-20 text-xs"
+            className="h-8 w-20 !text-xs !mx-2"
             placeholder="100"
             type="number"
           />
@@ -218,7 +218,7 @@ export function UserTableRow({
           <Input
             value={editWhatsAppLimit}
             onChange={(e) => setEditWhatsAppLimit(e.target.value)}
-            className="h-8 w-20 text-xs"
+            className="h-8 w-20 !text-xs !mx-2"
             placeholder="20"
             type="number"
           />
