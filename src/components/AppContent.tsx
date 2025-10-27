@@ -35,13 +35,14 @@ export function AppContent() {
   const chatSamiRef = useRef<ChatSamiHandle>(null);
   const location = useLocation();
   const navigate = useNavigate();
-  
+
   // Check if user has ChatSami permissions
   const hasChatSamiPermissions = user ? getRolePermissions(user.role)?.chatSami : false;
   const [chatSamiOpen, setChatSamiOpen] = useState(false);
-  
-  // Verificar si estamos en la página de Users
-  const isUsersPage = location.pathname === '/users' || location.pathname === '/admin/users';
+
+  // Verificar si estamos en la página de o admin/reports
+  const allowedPages = ["/users", "/admin/reports"];
+  const chatPages = allowedPages.includes(pathname);
 
   // Abrir ChatSami por defecto para usuarios con permisos (excepto en página de Users)
   useEffect(() => {
@@ -118,7 +119,7 @@ export function AppContent() {
             </div>
 
             {/* ChatSami - disponible solo para usuarios con permisos, excepto en página de Users */}
-            {hasChatSamiPermissions && !isUsersPage && (
+            {hasChatSamiPermissions && !chatPages && (
               <ChatSami ref={chatSamiRef} isOpen={chatSamiOpen} onOpenChange={setChatSamiOpen} />
             )}
           </div>
