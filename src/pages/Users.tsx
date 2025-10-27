@@ -448,7 +448,7 @@ export default function UsersPage() {
         className="px-4 pb-4 mt-4 flex flex-col" 
         style={{ height: showKPIs ? "calc(100vh - 480px)" : "calc(100vh - 320px)" }}
       >
-        <div className="flex-1 max-h-[250px]">
+        <div className="flex-1 min-h-0">
           <UserTable
             users={kpiRoleFilters.length > 1 ? filteredUsers : users}
             permissions={permissions}
