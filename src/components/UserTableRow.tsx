@@ -65,7 +65,7 @@ export function UserTableRow({
   return (
     <TableRow>
       <TableCell>
-        <div className="flex items-center space-x-3">
+        <div className="flex items-center space-x-3 px-2">
           <Avatar className="h-6 w-6">
             <AvatarImage src={user.avatar} />
             <AvatarFallback>
