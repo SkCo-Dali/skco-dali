@@ -401,7 +401,7 @@ export default function UsersPage() {
   }
 
   return (
-    <div className="overflow-y-auto pt-0">
+    <div className="pt-0">
       <div className="p-4 pb-2">
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-2 mb-4">
           <div className="flex items-center gap-3">
