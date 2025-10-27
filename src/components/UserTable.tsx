@@ -41,6 +41,7 @@ export function UserTable({
             <Table className="w-full">
               <TableHeader className="sticky top-0 bg-card z-10">
                 <TableRow className="h-18 text-center text-md">
+                  <TableHead className="text-center text-md">Usuario</TableHead>
                   <TableHead className="text-center text-md">Email</TableHead>
                   <TableHead className="text-center text-md">Rol</TableHead>
                   <TableHead className="text-center text-md">Nombre Preferido</TableHead>
