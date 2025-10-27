@@ -104,12 +104,12 @@ export function UserTableRow({
                 .join("")}
             </AvatarFallback>
           </Avatar>
-          <div className="flex-1">
+          <div className="flex-1 !text-xs !mx-2">
             {isEditing ? (
               <Input
                 value={editName}
                 onChange={(e) => setEditName(e.target.value)}
-                className="h-8 !text-xs !mx-2"
+                className="h-8"
                 placeholder="Nombre del usuario"
               />
             ) : (
@@ -121,13 +121,13 @@ export function UserTableRow({
           </div>
         </div>
       </TableCell>
-      <TableCell>
+      <TableCell className="h-8 !text-xs !mx-2">
         {isEditing ? (
           <Input
             type="email"
             value={editEmail}
             onChange={(e) => setEditEmail(e.target.value)}
-            className="!text-xs !mx-2"
+            className="h-8"
             placeholder="Email del usuario"
           />
         ) : (
@@ -156,12 +156,12 @@ export function UserTableRow({
           <Badge variant="outline">{getRoleDisplayName(user.role)}</Badge>
         )}
       </TableCell>
-      <TableCell>
+      <TableCell className="!text-xs !mx-2">
         {isEditing ? (
           <Input
             value={editPreferredName}
             onChange={(e) => setEditPreferredName(e.target.value)}
-            className="!text-xs !mx-2"
+            className="h-8"
             placeholder="Nombre preferido"
           />
         ) : (
@@ -169,12 +169,12 @@ export function UserTableRow({
         )}
       </TableCell>
       <TableCell>{user.birthDate ? new Date(user.birthDate).toLocaleDateString("es-CO") : "-"}</TableCell>
-      <TableCell>
+      <TableCell className="!text-xs !mx-2">
         {isEditing ? (
           <Input
             value={editCountryCode}
             onChange={(e) => setEditCountryCode(e.target.value)}
-            className="h-8 w-16 !text-xs !mx-2"
+            className="h-8 w-16"
             placeholder="57"
             type="number"
           />
@@ -182,12 +182,12 @@ export function UserTableRow({
           user.countryCodeWhatsApp || "-"
         )}
       </TableCell>
-      <TableCell>
+      <TableCell className="!text-xs !mx-2">
         {isEditing ? (
           <Input
             value={editWhatsappNumber}
             onChange={(e) => setEditWhatsappNumber(e.target.value)}
-            className="h-8 !text-xs !mx-2"
+            className="h-8"
             placeholder="WhatsApp"
           />
         ) : (
@@ -195,17 +195,17 @@ export function UserTableRow({
         )}
       </TableCell>
       <TableCell className="h-8 !text-xs !mx-2">{user.idAgte ?? "-"} </TableCell>
-      <TableCell>{user.idSociedad ?? "-"}</TableCell>
-      <TableCell>{user.idPromotor ?? "-"}</TableCell>
-      <TableCell>{user.idAliado ?? "-"}</TableCell>
-      <TableCell>{user.wSaler || "-"}</TableCell>
-      <TableCell>{user.idSupervisor ?? "-"}</TableCell>
-      <TableCell>
+      <TableCell className="h-8 !text-xs !mx-2">{user.idSociedad ?? "-"}</TableCell>
+      <TableCell className="h-8 !text-xs !mx-2">{user.idPromotor ?? "-"}</TableCell>
+      <TableCell className="h-8 !text-xs !mx-2">{user.idAliado ?? "-"}</TableCell>
+      <TableCell className="h-8 !text-xs !mx-2">{user.wSaler || "-"}</TableCell>
+      <TableCell className="h-8 !text-xs !mx-2">{user.idSupervisor ?? "-"}</TableCell>
+      <TableCell className="h-8 !text-xs !mx-2">
         {isEditing ? (
           <Input
             value={editEmailLimit}
             onChange={(e) => setEditEmailLimit(e.target.value)}
-            className="h-8 w-20 !text-xs !mx-2"
+            className="h-8 w-20"
             placeholder="100"
             type="number"
           />
@@ -213,12 +213,12 @@ export function UserTableRow({
           (user.dailyEmailLimit ?? "-")
         )}
       </TableCell>
-      <TableCell>
+      <TableCell className="!text-xs !mx-2">
         {isEditing ? (
           <Input
             value={editWhatsAppLimit}
             onChange={(e) => setEditWhatsAppLimit(e.target.value)}
-            className="h-8 w-20 !text-xs !mx-2"
+            className="h-8 w-20"
             placeholder="20"
             type="number"
           />
@@ -226,9 +226,13 @@ export function UserTableRow({
           (user.dailyWhatsAppLimit ?? "-")
         )}
       </TableCell>
-      <TableCell>{user.createdAt ? new Date(user.createdAt).toLocaleDateString("es-CO") : "-"}</TableCell>
-      <TableCell>{user.updatedAt ? new Date(user.updatedAt).toLocaleDateString("es-CO") : "-"}</TableCell>
-      <TableCell>
+      <TableCell className="!text-xs !mx-2">
+        {user.createdAt ? new Date(user.createdAt).toLocaleDateString("es-CO") : "-"}
+      </TableCell>
+      <TableCell className="!text-xs !mx-2">
+        {user.updatedAt ? new Date(user.updatedAt).toLocaleDateString("es-CO") : "-"}
+      </TableCell>
+      <TableCell className="!text-xs !mx-2">
         <div className="flex items-center gap-2">
           <Badge variant={user.isActive ? "default" : "secondary"}>{user.isActive ? "Activo" : "Inactivo"}</Badge>
           {permissions?.canAssignRoles && !isCurrentUser && (
@@ -239,7 +243,7 @@ export function UserTableRow({
           )}
         </div>
       </TableCell>
-      <TableCell>
+      <TableCell className="!text-xs !mx-2">
         <div className="flex items-center gap-2">
           {isEditing ? (
             <>
