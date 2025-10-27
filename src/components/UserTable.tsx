@@ -23,7 +23,7 @@ export function UserTable({
   onUserUpdate,
 }: UserTableProps) {
   return (
-    <Card className="flex flex-col h-full">
+    <Card className="flex flex-col h-[400px]">
       <div className="leads-table-container-scroll">
         <div className="leads-table-scroll-wrapper shadow-sm border">
           <div className="leads-table-inner-scroll">
