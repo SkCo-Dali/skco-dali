@@ -714,7 +714,7 @@ export function AccessTab() {
 
           {selectedWorkspace && (
             <Card className="border-0 p-0 shadow-none">
-              <CardHeader className="mb-4">
+              <CardHeader className="mb-4 px-0">
                 <CardTitle className="flex items-center">
                   <Shield className="h-5 w-5 mr-2" />
                   Usuarios con Acceso: {getWorkspaceName(selectedWorkspace)}

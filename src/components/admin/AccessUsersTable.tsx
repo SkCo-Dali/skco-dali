@@ -68,12 +68,12 @@ export function AccessUsersTable({ users, onRevokeAccess, showSource = false }: 
         <ScrollArea className="max-h-[400px]">
           <Table>
             <TableHeader>
-              <TableRow>
-                <TableHead>Usuario</TableHead>
-                <TableHead>Email</TableHead>
-                <TableHead>Nivel de Acceso</TableHead>
-                {showSource && <TableHead>Fuente</TableHead>}
-                <TableHead>Expira</TableHead>
+              <TableRow className="p-2">
+                <TableHead className="text-center">Usuario</TableHead>
+                <TableHead className="text-center">Email</TableHead>
+                <TableHead className="text-center">Nivel de Acceso</TableHead>
+                {showSource && <TableHead className="text-center">Fuente</TableHead>}
+                <TableHead className="text-center">Expira</TableHead>
                 {onRevokeAccess && <TableHead className="text-right">Acciones</TableHead>}
               </TableRow>
             </TableHeader>
