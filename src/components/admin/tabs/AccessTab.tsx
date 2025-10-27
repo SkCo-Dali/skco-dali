@@ -712,7 +712,7 @@ export function AccessTab() {
           </div>
 
           {selectedWorkspace && (
-            <Card classname="p-0 border-0">
+            <Card className="p-0 border-0">
               <CardHeader className="mb-4">
                 <CardTitle className="flex items-center ">
                   <Shield className="h-5 w-5 mr-2" />

@@ -20,6 +20,8 @@ import {
 import { Trash2, Edit2, Check, X } from "lucide-react";
 import { User, UserPermissions, getRoleDisplayName } from "@/types/crm";
 import { roles } from "@/utils/userRoleUtils";
+import { formatBogotaDateTime } from "@/utils/dateUtils";
+import { format } from "date-fns";
 
 interface UserTableRowProps {
   user: User;
@@ -169,7 +171,7 @@ export function UserTableRow({
         )}
       </TableCell>
       <TableCell className="text-xs text-center mx-2">
-        {user.birthDate ? new Date(user.birthDate).toLocaleDateString("es-CO") : "-"}
+        {user.birthDate ? format(new Date(user.birthDate), "dd/MM/yyyy") : "-"}
       </TableCell>
       <TableCell className="text-xs text-center mx-2">
         {isEditing ? (
@@ -229,10 +231,10 @@ export function UserTableRow({
         )}
       </TableCell>
       <TableCell className="text-xs text-center mx-2">
-        {user.createdAt ? new Date(user.createdAt).toLocaleDateString("es-CO") : "-"}
+        {user.createdAt ? formatBogotaDateTime(user.createdAt, "dd/MM/yyyy HH:mm") : "-"}
       </TableCell>
       <TableCell className="text-xs text-center mx-2">
-        {user.updatedAt ? new Date(user.updatedAt).toLocaleDateString("es-CO") : "-"}
+        {user.updatedAt ? formatBogotaDateTime(user.updatedAt, "dd/MM/yyyy HH:mm") : "-"}
       </TableCell>
       <TableCell className="text-xs text-center mx-2">
         <div className="flex items-center gap-2">
