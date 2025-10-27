@@ -8,12 +8,24 @@ export const mapApiUserToUser = (apiUser: ApiUser): User => {
     id: apiUser.Id,
     name: apiUser.Name,
     email: apiUser.Email,
-    role: mapRoleFromApi(apiUser.Role), // Usar el mapeador para convertir el rol
+    role: mapRoleFromApi(apiUser.Role),
     isActive: apiUser.IsActive,
     createdAt: apiUser.CreatedAt,
     updatedAt: apiUser.UpdatedAt,
     avatar: null,
     zone: 'Skandia',
-    team: 'Equipo Skandia'
+    team: 'Equipo Skandia',
+    countryCodeWhatsApp: apiUser.CountryCodeWhatsApp,
+    whatsappNumber: apiUser.WhatsAppNumber,
+    idAgte: apiUser.IdAgte,
+    idSociedad: apiUser.IdSociedad,
+    idPromotor: apiUser.IdPromotor,
+    idAliado: apiUser.IdAliado,
+    wSaler: apiUser.WSaler,
+    preferredName: apiUser.PreferredName,
+    birthDate: apiUser.BirthDate,
+    dailyEmailLimit: apiUser.DailyEmailLimit,
+    dailyWhatsAppLimit: apiUser.DailyWhatsAppLimit,
+    idSupervisor: apiUser.IdSupervisor
   };
 };

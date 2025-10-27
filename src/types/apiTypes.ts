@@ -8,6 +8,18 @@ export interface ApiUser {
   IsActive: boolean;
   CreatedAt: string;
   UpdatedAt: string;
+  CountryCodeWhatsApp?: number;
+  WhatsAppNumber?: string;
+  IdAgte?: number | null;
+  IdSociedad?: number | null;
+  IdPromotor?: number | null;
+  IdAliado?: number | null;
+  WSaler?: string | null;
+  PreferredName?: string | null;
+  BirthDate?: string | null;
+  DailyEmailLimit?: number;
+  DailyWhatsAppLimit?: number;
+  IdSupervisor?: number | null;
 }
 
 export interface CreateUserRequest {
