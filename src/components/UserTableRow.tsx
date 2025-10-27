@@ -109,7 +109,7 @@ export function UserTableRow({
               <Input
                 value={editName}
                 onChange={(e) => setEditName(e.target.value)}
-                className="h-8"
+                className="h-8 text-xs"
                 placeholder="Nombre del usuario"
               />
             ) : (
@@ -127,7 +127,7 @@ export function UserTableRow({
             type="email"
             value={editEmail}
             onChange={(e) => setEditEmail(e.target.value)}
-            className="h-8"
+            className="h-8 text-xs"
             placeholder="Email del usuario"
           />
         ) : (
@@ -161,7 +161,7 @@ export function UserTableRow({
           <Input
             value={editPreferredName}
             onChange={(e) => setEditPreferredName(e.target.value)}
-            className="h-8"
+            className="h-8 text-xs"
             placeholder="Nombre preferido"
           />
         ) : (
@@ -176,7 +176,7 @@ export function UserTableRow({
           <Input
             value={editCountryCode}
             onChange={(e) => setEditCountryCode(e.target.value)}
-            className="h-8 w-16"
+            className="h-8 w-16 text-xs"
             placeholder="57"
             type="number"
           />
@@ -189,7 +189,7 @@ export function UserTableRow({
           <Input
             value={editWhatsappNumber}
             onChange={(e) => setEditWhatsappNumber(e.target.value)}
-            className="h-8"
+            className="h-8 text-xs"
             placeholder="WhatsApp"
           />
         ) : (
@@ -207,7 +207,7 @@ export function UserTableRow({
           <Input
             value={editEmailLimit}
             onChange={(e) => setEditEmailLimit(e.target.value)}
-            className="h-8 w-20"
+            className="h-8 w-20 text-xs"
             placeholder="100"
             type="number"
           />
@@ -220,7 +220,7 @@ export function UserTableRow({
           <Input
             value={editWhatsAppLimit}
             onChange={(e) => setEditWhatsAppLimit(e.target.value)}
-            className="h-8 w-20"
+            className="h-8 w-20 text-xs"
             placeholder="20"
             type="number"
           />
