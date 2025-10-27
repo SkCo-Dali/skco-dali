@@ -98,17 +98,16 @@ export const Opportunities: React.FC = () => {
   }
 
   return (
-    <div className="bg-gray-50 min-h-screen">
-      <div className="container mx-auto px-4 py-5">
+    <div className="bg-transparent min-h-screen">
+      <div className="w-full max-w-full px-4 py-4">
         {/* Header */}
-        <div className="space-y-3 mb-6">
-          <h1 className="text-3xl font-bold bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
-            Market Dali
-          </h1>
-          <p className="text-muted-foreground max-w-2xl">
-            El mercado de tus clientes ideales. Descubre oportunidades comerciales personalizadas para maximizar tu
-            impacto.
-          </p>
+        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3 md:gap-4 mb-3 md:mb-4">
+          <div>
+            <h1 className="text-xl md:text-2xl lg:text-3xl font-bold mb-1 text-[#00C73D]">Market Dali</h1>
+            <p className="text-sm md:text-base text-muted-foreground">
+              Descubre oportunidades comerciales personalizadas para maximizar tu impacto.
+            </p>
+          </div>
         </div>
 
         {/* Stats Cards */}

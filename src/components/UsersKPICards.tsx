@@ -3,16 +3,14 @@ import { User } from "@/types/crm";
 import { KPICard } from "@/components/KPICard";
 import {
   Users,
-  UserX,
-  Briefcase,
-  BadgeCheck,
-  Store,
-  Headphones,
-  ShieldCheck,
-  Calculator,
-  Phone,
-  PhoneCall,
   Crown,
+  Briefcase,
+  Shield,
+  Building2,
+  HeadphonesIcon,
+  DollarSign,
+  Phone,
+  UserCog,
 } from "lucide-react";
 
 interface UsersKPICardsProps {
@@ -23,27 +21,29 @@ interface UsersKPICardsProps {
 }
 
 export function UsersKPICards({ users, totalUsers, onRoleFilter, selectedRoles }: UsersKPICardsProps) {
+  // Contar usuarios inactivos
+  const inactiveUsers = users.filter((user) => !user.isActive).length;
+
   // Administradores
   const admins = users.filter((user) => user.role === "admin").length;
   const adminsPercentage = totalUsers > 0 ? ((admins / totalUsers) * 100).toFixed(1) : "0";
 
-  // Contar usuarios inactivos
-  const inactiveUsers = users.filter((user) => !user.isActive).length;
-  const inactivePercentage = totalUsers > 0 ? ((inactiveUsers / totalUsers) * 100).toFixed(1) : "0";
-
   // Ejecutivos y Analistas
-  const ejecutivosAnalistasRoles = ["ejecutivo", "analista"];
-  const ejecutivosAnalistas = users.filter((user) => ejecutivosAnalistasRoles.includes(user.role)).length;
+  const ejecutivosAnalistas = users.filter((user) => 
+    ["ejecutivo", "analista"].includes(user.role)
+  ).length;
   const ejecutivosAnalistasPercentage = totalUsers > 0 ? ((ejecutivosAnalistas / totalUsers) * 100).toFixed(1) : "0";
 
-  // Comerciales Canal Seguros
-  const canalSegurosRoles = ["ais", "promotor", "aliado"];
-  const canalSeguros = users.filter((user) => canalSegurosRoles.includes(user.role)).length;
+  // Canal Seguros
+  const canalSeguros = users.filter((user) => 
+    ["ais", "promotor", "aliado"].includes(user.role)
+  ).length;
   const canalSegurosPercentage = totalUsers > 0 ? ((canalSeguros / totalUsers) * 100).toFixed(1) : "0";
 
-  // Comerciales Canal Agencias y Empleados
-  const canalAgenciasRoles = ["fp", "socio", "director", "gestor", "supervisor"];
-  const canalAgencias = users.filter((user) => canalAgenciasRoles.includes(user.role)).length;
+  // Canal Agencias y Empleados
+  const canalAgencias = users.filter((user) => 
+    ["fp", "socio", "director", "gestor", "supervisor"].includes(user.role)
+  ).length;
   const canalAgenciasPercentage = totalUsers > 0 ? ((canalAgencias / totalUsers) * 100).toFixed(1) : "0";
 
   // Service Desk
@@ -54,9 +54,10 @@ export function UsersKPICards({ users, totalUsers, onRoleFilter, selectedRoles }
   const seguridad = users.filter((user) => user.role === "seguridad").length;
   const seguridadPercentage = totalUsers > 0 ? ((seguridad / totalUsers) * 100).toFixed(1) : "0";
 
-  // Operaciones de Comisiones
-  const comisionesRoles = ["analistaComisiones", "supervisorComisiones"];
-  const comisiones = users.filter((user) => comisionesRoles.includes(user.role)).length;
+  // Comisiones
+  const comisiones = users.filter((user) => 
+    ["analistaComisiones", "supervisorComisiones"].includes(user.role)
+  ).length;
   const comisionesPercentage = totalUsers > 0 ? ((comisiones / totalUsers) * 100).toFixed(1) : "0";
 
   // SAC
@@ -67,119 +68,120 @@ export function UsersKPICards({ users, totalUsers, onRoleFilter, selectedRoles }
   const comercialesSac = users.filter((user) => user.role === "fpSac").length;
   const comercialesSacPercentage = totalUsers > 0 ? ((comercialesSac / totalUsers) * 100).toFixed(1) : "0";
 
-  const isRoleSelected = (roles: string[]) => {
-    return roles.length === selectedRoles.length && roles.every((r) => selectedRoles.includes(r));
+  const isKPIActive = (roles: string[]) => {
+    return selectedRoles.length > 0 && 
+           roles.length === selectedRoles.length && 
+           roles.every((r) => selectedRoles.includes(r));
   };
 
   return (
     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2 mb-2">
-      <div onClick={() => onRoleFilter([])} className="cursor-pointer">
-        <KPICard
-          title="Total Usuarios"
-          value={`${totalUsers.toLocaleString()} (${inactiveUsers} inactivos)`}
-          icon={Users}
-          description="En el sistema"
-        />
-      </div>
+      <KPICard
+        title="Total Usuarios"
+        value={`${totalUsers.toLocaleString()} (${inactiveUsers} inactivos)`}
+        icon={Users}
+        description="En el sistema"
+        onClick={() => onRoleFilter([])}
+      />
 
-      <div onClick={() => onRoleFilter(["admin"])} className="cursor-pointer">
-        <KPICard
-          title="Administradores"
-          value={admins.toString()}
-          icon={Crown}
-          change={`${adminsPercentage}%`}
-          changeType="neutral"
-          description="Rol admin"
-        />
-      </div>
+      <KPICard
+        title="Administradores"
+        value={admins.toString()}
+        icon={Crown}
+        change={`${adminsPercentage}%`}
+        changeType="neutral"
+        description="Rol admin"
+        onClick={() => onRoleFilter(["admin"])}
+        isActive={isKPIActive(["admin"])}
+      />
 
-      <div onClick={() => onRoleFilter(["ejecutivo", "analista"])} className="cursor-pointer">
-        <KPICard
-          title="Ejecutivos y Analistas"
-          value={ejecutivosAnalistas.toString()}
-          icon={Briefcase}
-          change={`${ejecutivosAnalistasPercentage}%`}
-          changeType="neutral"
-          description="Administrativos"
-        />
-      </div>
+      <KPICard
+        title="Ejecutivos y Analistas"
+        value={ejecutivosAnalistas.toString()}
+        icon={Briefcase}
+        change={`${ejecutivosAnalistasPercentage}%`}
+        changeType="neutral"
+        description="Roles ejecutivo y analista"
+        onClick={() => onRoleFilter(["ejecutivo", "analista"])}
+        isActive={isKPIActive(["ejecutivo", "analista"])}
+      />
 
-      <div onClick={() => onRoleFilter(["ais", "promotor", "aliado"])} className="cursor-pointer">
-        <KPICard
-          title="Canal Seguros"
-          value={canalSeguros.toString()}
-          icon={BadgeCheck}
-          change={`${canalSegurosPercentage}%`}
-          changeType="neutral"
-          description="AIS, Promotores y Aliados"
-        />
-      </div>
+      <KPICard
+        title="Canal Seguros"
+        value={canalSeguros.toString()}
+        icon={Shield}
+        change={`${canalSegurosPercentage}%`}
+        changeType="neutral"
+        description="AIS, promotor, aliado"
+        onClick={() => onRoleFilter(["ais", "promotor", "aliado"])}
+        isActive={isKPIActive(["ais", "promotor", "aliado"])}
+      />
 
-      <div onClick={() => onRoleFilter(["fp", "socio", "director", "gestor", "supervisor"])} className="cursor-pointer">
-        <KPICard
-          title="Canal Agencias"
-          value={canalAgencias.toString()}
-          icon={Store}
-          change={`${canalAgenciasPercentage}%`}
-          changeType="neutral"
-          description="FP, Socios, Directores"
-        />
-      </div>
+      <KPICard
+        title="Canal Agencias y Empleados"
+        value={canalAgencias.toString()}
+        icon={Building2}
+        change={`${canalAgenciasPercentage}%`}
+        changeType="neutral"
+        description="FP, socio, director, gestor, supervisor"
+        onClick={() => onRoleFilter(["fp", "socio", "director", "gestor", "supervisor"])}
+        isActive={isKPIActive(["fp", "socio", "director", "gestor", "supervisor"])}
+      />
 
-      <div onClick={() => onRoleFilter(["serviceDesk"])} className="cursor-pointer">
-        <KPICard
-          title="Service Desk"
-          value={serviceDesk.toString()}
-          icon={Headphones}
-          change={`${serviceDeskPercentage}%`}
-          changeType="neutral"
-          description="Soporte"
-        />
-      </div>
+      <KPICard
+        title="Service Desk"
+        value={serviceDesk.toString()}
+        icon={HeadphonesIcon}
+        change={`${serviceDeskPercentage}%`}
+        changeType="neutral"
+        description="Rol serviceDesk"
+        onClick={() => onRoleFilter(["serviceDesk"])}
+        isActive={isKPIActive(["serviceDesk"])}
+      />
 
-      <div onClick={() => onRoleFilter(["seguridad"])} className="cursor-pointer">
-        <KPICard
-          title="Seguridad"
-          value={seguridad.toString()}
-          icon={ShieldCheck}
-          change={`${seguridadPercentage}%`}
-          changeType="neutral"
-          description="Seguridad"
-        />
-      </div>
+      <KPICard
+        title="Seguridad"
+        value={seguridad.toString()}
+        icon={Shield}
+        change={`${seguridadPercentage}%`}
+        changeType="neutral"
+        description="Rol seguridad"
+        onClick={() => onRoleFilter(["seguridad"])}
+        isActive={isKPIActive(["seguridad"])}
+      />
 
-      <div onClick={() => onRoleFilter(["analistaComisiones", "supervisorComisiones"])} className="cursor-pointer">
-        <KPICard
-          title="Comisiones"
-          value={comisiones.toString()}
-          icon={Calculator}
-          change={`${comisionesPercentage}%`}
-          changeType="neutral"
-          description="Analistas"
-        />
-      </div>
+      <KPICard
+        title="Comisiones"
+        value={comisiones.toString()}
+        icon={DollarSign}
+        change={`${comisionesPercentage}%`}
+        changeType="neutral"
+        description="Analista y supervisor comisiones"
+        onClick={() => onRoleFilter(["analistaComisiones", "supervisorComisiones"])}
+        isActive={isKPIActive(["analistaComisiones", "supervisorComisiones"])}
+      />
 
-      <div onClick={() => onRoleFilter(["sac"])} className="cursor-pointer">
-        <KPICard
-          title="SAC"
-          value={sac.toString()}
-          icon={Phone}
-          change={`${sacPercentage}%`}
-          changeType="neutral"
-          description="Servicio"
-        />
-      </div>
+      <KPICard
+        title="SAC"
+        value={sac.toString()}
+        icon={Phone}
+        change={`${sacPercentage}%`}
+        changeType="neutral"
+        description="Rol SAC"
+        onClick={() => onRoleFilter(["sac"])}
+        isActive={isKPIActive(["sac"])}
+      />
 
-      <div onClick={() => onRoleFilter(["fpSac"])} className="cursor-pointer">
-        <KPICard
-          title="Comerciales SAC"
-          value={comercialesSac.toString()}
-          icon={PhoneCall}
-          change={`${comercialesSacPercentage}%`}
-          changeType="neutral"
-          description="FP SAC"
-        />
-      </div>
+      <KPICard
+        title="Comerciales SAC"
+        value={comercialesSac.toString()}
+        icon={UserCog}
+        change={`${comercialesSacPercentage}%`}
+        changeType="neutral"
+        description="Rol fpSac"
+        onClick={() => onRoleFilter(["fpSac"])}
+        isActive={isKPIActive(["fpSac"])}
+      />
     </div>
   );
 }

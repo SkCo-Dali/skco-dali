@@ -49,7 +49,7 @@ const allMenuItems = [
     url: "/oportunidades",
     iconClass: "",
     page: "opportunities",
-    customIcon: "https://skcoblobresources.blob.core.windows.net/digital-assets/icons/icon-skandia/sk_maletin_1_p.svg",
+    customIcon: "https://aistudiojarvis0534199251.blob.core.windows.net/skandia-icons/shop.png",
   },
   {
     title: "Gamificación",

@@ -9,9 +9,11 @@ interface KPICardProps {
   changeType?: 'positive' | 'negative' | 'neutral';
   icon: LucideIcon | React.ComponentType<any>;
   description?: string;
+  isActive?: boolean;
+  onClick?: () => void;
 }
 
-export function KPICard({ title, value, change, changeType = 'neutral', icon: Icon, description }: KPICardProps) {
+export function KPICard({ title, value, change, changeType = 'neutral', icon: Icon, description, isActive = false, onClick }: KPICardProps) {
   const changeColor = {
     positive: 'text-green-600',
     negative: 'text-red-600',
@@ -19,7 +21,12 @@ export function KPICard({ title, value, change, changeType = 'neutral', icon: Ic
   }[changeType];
 
   return (
-    <Card className="hover:shadow-md transition-shadow h-full">
+    <Card 
+      className={`hover:shadow-md transition-all h-full ${onClick ? 'cursor-pointer' : ''} ${
+        isActive ? 'bg-primary/10 border-primary shadow-md' : ''
+      }`}
+      onClick={onClick}
+    >
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1.5 px-3">
         <CardTitle className="text-xs font-medium truncate">{title}</CardTitle>
         <Icon className="h-3.5 w-3.5 text-muted-foreground flex-shrink-0" />

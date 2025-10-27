@@ -340,9 +340,9 @@ export default function Informes() {
   }
 
   return (
-    <div className="m-4 pt-0">
+    <div className="w-full max-w-full px-4 py-4 space-y-6">
       {/* Contenido principal */}
-      <div className="flex-1 px-4">
+      <div className="flex-1 px-0">
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <div>

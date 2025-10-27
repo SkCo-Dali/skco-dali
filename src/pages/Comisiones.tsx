@@ -19,38 +19,43 @@ export default function Comisiones() {
   const [selectedCategory, setSelectedCategory] = React.useState<CommissionCategory>("pensiones");
 
   return (
-    <div className="w-full px-16 py-4 space-y-6 mt-4">
+    <div className="w-full max-w-full px-4 py-4 space-y-6">
+      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3 md:gap-4 mb-3 md:mb-4">
+        <div>
+          <p className="text-[24px] font-bold mb-1 text-[#404040]">Visualiza las Comisiones por Compañia</p>
+        </div>
+      </div>
       {/* Category Slicer */}
       <div className="flex justify-left">
         <CommissionsCategorySlicer selectedCategory={selectedCategory} onCategoryChange={setSelectedCategory} />
       </div>
 
-      <Tabs defaultValue="resumen" className="w-full mt-6">
-        <TabsList className="grid w-full grid-cols-3 h-[37px] bg-transparent border-b border-border gap-0 rounded-none p-0">
+      <Tabs defaultValue="resumen" className="w-full mt-4">
+        <TabsList className="grid w-full grid-cols-3 h-[37px] bg-transparent gap-0 rounded-none p-0">
           <TabsTrigger
             value="resumen"
-            className="data-[state=active]:bg-[#00c73d] data-[state=active]:text-white rounded-t-xl flex items-center gap-2 h-full mx-2"
+            className="data-[state=active]:bg-[#00c73d] data-[state=active]:shadow-sm data-[state=active]:text-white rounded-t-xl flex items-center gap-2 h-full mx-0"
           >
             <PieChart className="h-4 w-4" />
             Resumen
           </TabsTrigger>
           <TabsTrigger
             value="detalle"
-            className="data-[state=active]:bg-[#00c73d] data-[state=active]:text-white rounded-t-xl flex items-center gap-2 h-full mx-2"
+            className="data-[state=active]:bg-[#00c73d] data-[state=active]:shadow-sm data-[state=active]:text-white rounded-t-xl flex items-center gap-2 h-full mx-2"
           >
             <FileText className="h-4 w-4" />
             Detalle de comisiones
           </TabsTrigger>
           <TabsTrigger
             value="facturacion"
-            className="data-[state=active]:bg-[#00c73d] data-[state=active]:text-white rounded-t-xl flex items-center gap-2 h-full mx-2"
+            className="data-[state=active]:bg-[#00c73d] data-[state=active]:shadow-sm data-[state=active]:text-white rounded-t-xl flex items-center gap-2 h-full mx-2"
           >
             <Receipt className="h-4 w-4" />
             Covers y facturación
           </TabsTrigger>
         </TabsList>
 
-        <TabsContent value="resumen" className="border rounded-b-md mt-0 mb-2 pb-2 px-2">
+        <TabsContent value="resumen" className="mt-0">
           <CommissionsResumenTab
             commissions={mockCommissions}
             selectedMonth={selectedMonth}

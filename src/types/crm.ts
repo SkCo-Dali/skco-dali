@@ -40,6 +40,19 @@ export interface User {
     full_name?: string;
     name?: string;
   };
+  // Additional fields from API
+  countryCodeWhatsApp?: number;
+  whatsappNumber?: string;
+  idAgte?: number | null;
+  idSociedad?: number | null;
+  idPromotor?: number | null;
+  idAliado?: number | null;
+  wSaler?: string | null;
+  preferredName?: string | null;
+  birthDate?: string | null;
+  dailyEmailLimit?: number;
+  dailyWhatsAppLimit?: number;
+  idSupervisor?: number | null;
 }
 
 export interface RolePermissions {
