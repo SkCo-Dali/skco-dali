@@ -94,17 +94,17 @@ export function UserTableRow({
   return (
     <TableRow>
       <TableCell>
-        <div className="flex items-center space-x-4 px-2 h-20">
-          <Avatar className="h-10 w-10 mr-2">
+        <div className="flex items-center space-x-4 px-2 h-18">
+          <Avatar className="h-10 w-10 text-xs mx-2">
             <AvatarImage src={user.avatar} />
-            <AvatarFallback>
+            <AvatarFallback className="text-xs mx-2">
               {user.name
                 .split(" ")
                 .map((n) => n[0])
                 .join("")}
             </AvatarFallback>
           </Avatar>
-          <div className="flex-1 !text-xs !mx-2">
+          <div className="flex-1 text-xs mx-2">
             {isEditing ? (
               <Input
                 value={editName}
