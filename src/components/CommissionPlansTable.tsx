@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Edit, MoreHorizontal, Trash2 } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { EditCommissionPlanDialog } from "@/components/EditCommissionPlanDialog";
+import { CommissionsPagination } from "@/components/CommissionsPagination";
 import { format } from "date-fns";
 import {
   AlertDialog,
@@ -27,9 +28,30 @@ interface CommissionPlansTableProps {
   onRejectPlan?: (id: string, reason?: string) => Promise<boolean>;
   onPublishPlan?: (id: string) => Promise<boolean>;
   onInactivatePlan?: (id: string, reason?: string) => Promise<boolean>;
+  currentPage: number;
+  totalPages: number;
+  totalCount: number;
+  itemsPerPage: number;
+  onPageChange: (page: number) => void;
+  onItemsPerPageChange: (items: number) => void;
 }
 
-export function CommissionPlansTable({ plans, status, onUpdatePlan, onDeletePlan, onSendToApproval, onRejectPlan, onPublishPlan, onInactivatePlan }: CommissionPlansTableProps) {
+export function CommissionPlansTable({ 
+  plans, 
+  status, 
+  onUpdatePlan, 
+  onDeletePlan, 
+  onSendToApproval, 
+  onRejectPlan, 
+  onPublishPlan, 
+  onInactivatePlan,
+  currentPage,
+  totalPages,
+  totalCount,
+  itemsPerPage,
+  onPageChange,
+  onItemsPerPageChange
+}: CommissionPlansTableProps) {
   const [selectedPlan, setSelectedPlan] = useState<CommissionPlan | null>(null);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [planToDelete, setPlanToDelete] = useState<CommissionPlan | null>(null);
@@ -164,6 +186,15 @@ export function CommissionPlansTable({ plans, status, onUpdatePlan, onDeletePlan
           </TableBody>
         </Table>
       </div>
+
+      <CommissionsPagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        totalCommissions={totalCount}
+        itemsPerPage={itemsPerPage}
+        onPageChange={onPageChange}
+        onItemsPerPageChange={onItemsPerPageChange}
+      />
 
       {selectedPlan && (
         <EditCommissionPlanDialog

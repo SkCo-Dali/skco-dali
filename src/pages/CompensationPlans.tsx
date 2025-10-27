@@ -30,8 +30,13 @@ export default function CompensationPlans() {
     rejectPlan,
     publishPlan,
     inactivatePlan,
-    getPlansForStatus,
+    getPaginatedPlansForStatus,
     getTabCount,
+    currentPage,
+    itemsPerPage,
+    totalCounts,
+    handlePageChange,
+    handleItemsPerPageChange,
   } = useCommissionPlans();
 
   return (
@@ -101,20 +106,33 @@ export default function CompensationPlans() {
                     ))}
                   </TabsList>
 
-                  {Object.keys(STATUS_LABELS).map((status) => (
-                    <TabsContent key={status} value={status} className="mt-6">
-                      <CommissionPlansTable 
-                        plans={getPlansForStatus(status as CommissionPlanStatus)}
-                        status={status as CommissionPlanStatus}
-                        onUpdatePlan={updatePlan}
-                        onDeletePlan={deletePlan}
-                        onSendToApproval={sendToApproval}
-                        onRejectPlan={rejectPlan}
-                        onPublishPlan={publishPlan}
-                        onInactivatePlan={inactivatePlan}
-                      />
-                    </TabsContent>
-                  ))}
+                  {Object.keys(STATUS_LABELS).map((status) => {
+                    const statusKey = status as CommissionPlanStatus;
+                    const paginatedPlans = getPaginatedPlansForStatus(statusKey);
+                    const totalCount = totalCounts[statusKey] || 0;
+                    const totalPages = Math.ceil(totalCount / itemsPerPage[statusKey]);
+                    
+                    return (
+                      <TabsContent key={status} value={status} className="mt-6">
+                        <CommissionPlansTable 
+                          plans={paginatedPlans}
+                          status={statusKey}
+                          onUpdatePlan={updatePlan}
+                          onDeletePlan={deletePlan}
+                          onSendToApproval={sendToApproval}
+                          onRejectPlan={rejectPlan}
+                          onPublishPlan={publishPlan}
+                          onInactivatePlan={inactivatePlan}
+                          currentPage={currentPage[statusKey]}
+                          totalPages={totalPages}
+                          totalCount={totalCount}
+                          itemsPerPage={itemsPerPage[statusKey]}
+                          onPageChange={(page) => handlePageChange(statusKey, page)}
+                          onItemsPerPageChange={(items) => handleItemsPerPageChange(statusKey, items)}
+                        />
+                      </TabsContent>
+                    );
+                  })}
                 </Tabs>
               )}
             </CardContent>

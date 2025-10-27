@@ -52,9 +52,10 @@ const fetchWithRetry = async (url: string, options?: RequestInit, retries = 3): 
 };
 
 // 1. List all Commission Plans
-export const getCommissionPlans = async (): Promise<ApiCommissionPlansListResponse> => {
+export const getCommissionPlans = async (page: number = 1, pageSize: number = 20): Promise<ApiCommissionPlansListResponse> => {
   try {
-    console.log('[Commission Plans API] 📡 Fetching all commission plans from:', API_BASE_URL);
+    const url = `${API_BASE_URL}?page=${page}&page_size=${pageSize}`;
+    console.log('[Commission Plans API] 📡 Fetching commission plans from:', url);
     const headers = await getAuthHeaders();
     
     console.log('[Commission Plans API] 📤 Request headers:', {
@@ -62,7 +63,7 @@ export const getCommissionPlans = async (): Promise<ApiCommissionPlansListRespon
       Authorization: headers.Authorization ? `Bearer ${headers.Authorization.substring(7, 27)}...` : 'NOT SET'
     });
     
-    const response = await fetchWithRetry(API_BASE_URL, { headers });
+    const response = await fetchWithRetry(url, { headers });
     
     console.log('[Commission Plans API] 📥 Response received:', {
       status: response.status,
