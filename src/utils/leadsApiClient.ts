@@ -320,6 +320,36 @@ export const bulkAssignLeads = async (leadIds: string[], assignedTo: string): Pr
 };
 
 // API 9: Cargar archivo de Leads
+/**
+ * Downloads the leads template file
+ */
+export const downloadLeadsTemplate = async (): Promise<Blob> => {
+  console.log('🔽 Descargando plantilla de leads...');
+  
+  try {
+    const response = await fetchWithRetry(
+      `${ENV.CRM_API_BASE_URL}/api/leadstemplate`,
+      {
+        method: 'GET',
+        headers: await getAuthHeaders(),
+      }
+    );
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('❌ Error al descargar plantilla:', errorText);
+      throw new Error(`Error al descargar plantilla: ${response.statusText}`);
+    }
+
+    const blob = await response.blob();
+    console.log('✅ Plantilla descargada exitosamente');
+    return blob;
+  } catch (error) {
+    console.error('❌ Error en downloadLeadsTemplate:', error);
+    throw error;
+  }
+};
+
 export const uploadLeadsFile = async (file: File, userId: string): Promise<void> => {
   console.log('🚀 === UPLOAD LEADS FILE API CALL STARTED ===');
   console.log('📁 File details:', {
