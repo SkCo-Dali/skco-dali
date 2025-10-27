@@ -79,20 +79,20 @@ export function AccessUsersTable({ users, onRevokeAccess, showSource = false }: 
             </TableHeader>
             <TableBody>
               {currentUsers.map((access) => (
-                <TableRow key={access.userId}>
-                  <TableCell className="font-medium">{access.userName || "Sin nombre"}</TableCell>
+                <TableRow className="m-2" key={access.userId}>
+                  <TableCell className="text-xs font-medium">{access.userName || "Sin nombre"}</TableCell>
                   <TableCell>{access.userEmail}</TableCell>
                   <TableCell>
                     <Badge variant="outline">{access.accessLevel}</Badge>
                   </TableCell>
                   {showSource && (
-                    <TableCell>
+                    <TableCell className="text-xs text-center font-medium">
                       <Badge variant={(access as any).source === "workspace" ? "default" : "secondary"}>
                         {(access as any).source === "workspace" ? "Por Workspace" : "Directo"}
                       </Badge>
                     </TableCell>
                   )}
-                  <TableCell>
+                  <TableCell className="text-xs text-center font-medium">
                     {access.expiresAt ? (
                       <Badge variant="secondary">{new Date(access.expiresAt).toLocaleDateString()}</Badge>
                     ) : (
