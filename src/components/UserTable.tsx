@@ -39,8 +39,8 @@ export function UserTable({
         <div className="leads-table-scroll-wrapper shadow-sm border">
           <div className="leads-table-inner-scroll">
             <Table className="w-full">
-              <TableHeader className="sticky top-0 bg-card z-10 text-center text-md">
-                <TableRow className="h-20">
+              <TableHeader className="sticky top-0 bg-card z-10">
+                <TableRow className="h-18 text-center text-md">
                   <TableHead>Usuario</TableHead>
                   <TableHead>Email</TableHead>
                   <TableHead>Rol</TableHead>
