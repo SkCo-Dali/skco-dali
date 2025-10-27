@@ -387,7 +387,7 @@ const ChatSamiContent = forwardRef<ChatSamiHandle, ChatSamiProps>(({ isOpen = fa
       {isOpen && viewMode !== "maximized" && (
         <div className="fixed top-20 right-0 bottom-0 w-[360px] border-l bg-background shadow-none flex flex-col z-30">
           {/* Header */}
-          <div className="flex items-center justify-between px-2 pt-2 bg-[#fafafa] h-20 mb-2 shrink-0">
+          <div className="flex items-center justify-between px-2 pt-2 bg-[#fafafa] h-18 mb-3 shrink-0">
             <h2 className="text-lg font-semibold text-foreground">Dali</h2>
             <div className="flex items-end gap-1">
               <Button
