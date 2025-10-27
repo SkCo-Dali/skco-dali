@@ -1,10 +1,10 @@
-import React, { useState } from 'react';
-import { UserMinus } from 'lucide-react';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Card, CardContent } from '@/components/ui/card';
-import { UserAccess } from '@/types/powerbi';
+import React, { useState } from "react";
+import { UserMinus } from "lucide-react";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent } from "@/components/ui/card";
+import { UserAccess } from "@/types/powerbi";
 
 interface AccessUsersTableProps {
   users: UserAccess[];
@@ -37,19 +37,19 @@ export function AccessUsersTable({ users, onRevokeAccess, showSource = false }: 
     } else {
       if (currentPage <= 3) {
         for (let i = 1; i <= 4; i++) pages.push(i);
-        pages.push('...');
+        pages.push("...");
         pages.push(totalPages);
       } else if (currentPage >= totalPages - 2) {
         pages.push(1);
-        pages.push('...');
+        pages.push("...");
         for (let i = totalPages - 3; i <= totalPages; i++) pages.push(i);
       } else {
         pages.push(1);
-        pages.push('...');
+        pages.push("...");
         pages.push(currentPage - 1);
         pages.push(currentPage);
         pages.push(currentPage + 1);
-        pages.push('...');
+        pages.push("...");
         pages.push(totalPages);
       }
     }
@@ -58,70 +58,62 @@ export function AccessUsersTable({ users, onRevokeAccess, showSource = false }: 
   };
 
   if (users.length === 0) {
-    return (
-      <p className="text-muted-foreground p-4">No hay usuarios con acceso</p>
-    );
+    return <p className="text-muted-foreground p-4">No hay usuarios con acceso</p>;
   }
 
   return (
     <div className="space-y-4">
       <Card>
-        <CardContent className="p-0">
-          <div className="overflow-x-auto">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Usuario</TableHead>
-                  <TableHead>Email</TableHead>
-                  <TableHead>Nivel de Acceso</TableHead>
-                  {showSource && <TableHead>Fuente</TableHead>}
-                  <TableHead>Expira</TableHead>
-                  {onRevokeAccess && <TableHead className="text-right">Acciones</TableHead>}
+        <ScrollArea className="max-h-[400px]">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Usuario</TableHead>
+                <TableHead>Email</TableHead>
+                <TableHead>Nivel de Acceso</TableHead>
+                {showSource && <TableHead>Fuente</TableHead>}
+                <TableHead>Expira</TableHead>
+                {onRevokeAccess && <TableHead className="text-right">Acciones</TableHead>}
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {currentUsers.map((access) => (
+                <TableRow key={access.userId}>
+                  <TableCell className="font-medium">{access.userName || "Sin nombre"}</TableCell>
+                  <TableCell>{access.userEmail}</TableCell>
+                  <TableCell>
+                    <Badge variant="outline">{access.accessLevel}</Badge>
+                  </TableCell>
+                  {showSource && (
+                    <TableCell>
+                      <Badge variant={(access as any).source === "workspace" ? "default" : "secondary"}>
+                        {(access as any).source === "workspace" ? "Por Workspace" : "Directo"}
+                      </Badge>
+                    </TableCell>
+                  )}
+                  <TableCell>
+                    {access.expiresAt ? (
+                      <Badge variant="secondary">{new Date(access.expiresAt).toLocaleDateString()}</Badge>
+                    ) : (
+                      <span className="text-muted-foreground text-sm">Sin expiración</span>
+                    )}
+                  </TableCell>
+                  {onRevokeAccess && (
+                    <TableCell className="text-right">
+                      <Button
+                        variant="destructive"
+                        size="sm"
+                        onClick={() => onRevokeAccess(access.userId, access.userName || access.userEmail || "")}
+                      >
+                        <UserMinus className="h-4 w-4" />
+                      </Button>
+                    </TableCell>
+                  )}
                 </TableRow>
-              </TableHeader>
-              <TableBody>
-                {currentUsers.map((access) => (
-                  <TableRow key={access.userId}>
-                    <TableCell className="font-medium">
-                      {access.userName || 'Sin nombre'}
-                    </TableCell>
-                    <TableCell>{access.userEmail}</TableCell>
-                    <TableCell>
-                      <Badge variant="outline">{access.accessLevel}</Badge>
-                    </TableCell>
-                    {showSource && (
-                      <TableCell>
-                        <Badge variant={(access as any).source === 'workspace' ? 'default' : 'secondary'}>
-                          {(access as any).source === 'workspace' ? 'Por Workspace' : 'Directo'}
-                        </Badge>
-                      </TableCell>
-                    )}
-                    <TableCell>
-                      {access.expiresAt ? (
-                        <Badge variant="secondary">
-                          {new Date(access.expiresAt).toLocaleDateString()}
-                        </Badge>
-                      ) : (
-                        <span className="text-muted-foreground text-sm">Sin expiración</span>
-                      )}
-                    </TableCell>
-                    {onRevokeAccess && (
-                      <TableCell className="text-right">
-                        <Button
-                          variant="destructive"
-                          size="sm"
-                          onClick={() => onRevokeAccess(access.userId, access.userName || access.userEmail || '')}
-                        >
-                          <UserMinus className="h-4 w-4" />
-                        </Button>
-                      </TableCell>
-                    )}
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
-        </CardContent>
+              ))}
+            </TableBody>
+          </Table>
+        </ScrollArea>
       </Card>
 
       {/* Pagination */}
@@ -139,9 +131,11 @@ export function AccessUsersTable({ users, onRevokeAccess, showSource = false }: 
             >
               Anterior
             </Button>
-            {generatePageNumbers().map((page, index) => (
-              page === '...' ? (
-                <span key={`ellipsis-${index}`} className="px-2">...</span>
+            {generatePageNumbers().map((page, index) =>
+              page === "..." ? (
+                <span key={`ellipsis-${index}`} className="px-2">
+                  ...
+                </span>
               ) : (
                 <Button
                   key={page}
@@ -151,8 +145,8 @@ export function AccessUsersTable({ users, onRevokeAccess, showSource = false }: 
                 >
                   {page}
                 </Button>
-              )
-            ))}
+              ),
+            )}
             <Button
               variant="outline"
               size="sm"
