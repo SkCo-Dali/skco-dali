@@ -91,7 +91,7 @@ export function UserTableRow({
   return (
     <TableRow>
       <TableCell>
-        <div className="flex items-center space-x-3 px-2">
+        <div className="flex items-center space-x-3 px-2 h-20">
           <Avatar className="h-6 w-6">
             <AvatarImage src={user.avatar} />
             <AvatarFallback>
@@ -124,7 +124,7 @@ export function UserTableRow({
             type="email"
             value={editEmail}
             onChange={(e) => setEditEmail(e.target.value)}
-            className="h-8"
+            className="h-8 text-sm"
             placeholder="Email del usuario"
           />
         ) : (
