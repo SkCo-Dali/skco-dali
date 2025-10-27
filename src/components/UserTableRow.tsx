@@ -28,7 +28,15 @@ interface UserTableRowProps {
   onRoleUpdate: (userId: string, newRole: User["role"]) => void;
   onUserDelete: (userId: string) => void;
   onUserStatusToggle: (userId: string, isActive: boolean) => void;
-  onUserUpdate: (userId: string, name: string, email: string) => void;
+  onUserUpdate: (userId: string, updates: {
+    name: string;
+    email: string;
+    preferredName?: string | null;
+    whatsappNumber?: string | null;
+    countryCodeWhatsApp?: number | null;
+    dailyEmailLimit?: number | null;
+    dailyWhatsAppLimit?: number | null;
+  }) => void;
 }
 
 export function UserTableRow({
@@ -43,11 +51,24 @@ export function UserTableRow({
   const [isEditing, setIsEditing] = useState(false);
   const [editName, setEditName] = useState(user.name);
   const [editEmail, setEditEmail] = useState(user.email);
+  const [editPreferredName, setEditPreferredName] = useState(user.preferredName || "");
+  const [editWhatsappNumber, setEditWhatsappNumber] = useState(user.whatsappNumber || "");
+  const [editCountryCode, setEditCountryCode] = useState(user.countryCodeWhatsApp?.toString() || "57");
+  const [editEmailLimit, setEditEmailLimit] = useState(user.dailyEmailLimit?.toString() || "");
+  const [editWhatsAppLimit, setEditWhatsAppLimit] = useState(user.dailyWhatsAppLimit?.toString() || "");
   const isCurrentUser = user.id === currentUserId;
 
   const handleSaveEdit = () => {
     if (editName.trim() && editEmail.trim()) {
-      onUserUpdate(user.id, editName.trim(), editEmail.trim());
+      onUserUpdate(user.id, {
+        name: editName.trim(),
+        email: editEmail.trim(),
+        preferredName: editPreferredName.trim() || null,
+        whatsappNumber: editWhatsappNumber.trim() || null,
+        countryCodeWhatsApp: editCountryCode ? parseInt(editCountryCode) : null,
+        dailyEmailLimit: editEmailLimit ? parseInt(editEmailLimit) : null,
+        dailyWhatsAppLimit: editWhatsAppLimit ? parseInt(editWhatsAppLimit) : null,
+      });
       setIsEditing(false);
     }
   };
@@ -55,6 +76,11 @@ export function UserTableRow({
   const handleCancelEdit = () => {
     setEditName(user.name);
     setEditEmail(user.email);
+    setEditPreferredName(user.preferredName || "");
+    setEditWhatsappNumber(user.whatsappNumber || "");
+    setEditCountryCode(user.countryCodeWhatsApp?.toString() || "57");
+    setEditEmailLimit(user.dailyEmailLimit?.toString() || "");
+    setEditWhatsAppLimit(user.dailyWhatsAppLimit?.toString() || "");
     setIsEditing(false);
   };
 
@@ -106,14 +132,66 @@ export function UserTableRow({
         )}
       </TableCell>
       <TableCell>
-        <Badge variant="outline">{getRoleDisplayName(user.role)}</Badge>
+        {permissions?.canAssignRoles && !isCurrentUser ? (
+          <Select
+            value={user.role}
+            onValueChange={(newRole: User["role"]) => onRoleUpdate(user.id, newRole)}
+            disabled={isEditing}
+          >
+            <SelectTrigger className="w-32">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {roles.map((role) => (
+                <SelectItem key={role.value} value={role.value}>
+                  {role.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        ) : (
+          <Badge variant="outline">{getRoleDisplayName(user.role)}</Badge>
+        )}
       </TableCell>
-      <TableCell>{user.preferredName || "-"}</TableCell>
+      <TableCell>
+        {isEditing ? (
+          <Input
+            value={editPreferredName}
+            onChange={(e) => setEditPreferredName(e.target.value)}
+            className="h-8"
+            placeholder="Nombre preferido"
+          />
+        ) : (
+          user.preferredName || "-"
+        )}
+      </TableCell>
       <TableCell>
         {user.birthDate ? new Date(user.birthDate).toLocaleDateString('es-CO') : "-"}
       </TableCell>
       <TableCell>
-        {user.whatsappNumber ? `+${user.countryCodeWhatsApp || 57} ${user.whatsappNumber}` : "-"}
+        {isEditing ? (
+          <Input
+            value={editCountryCode}
+            onChange={(e) => setEditCountryCode(e.target.value)}
+            className="h-8 w-16"
+            placeholder="57"
+            type="number"
+          />
+        ) : (
+          user.countryCodeWhatsApp || "-"
+        )}
+      </TableCell>
+      <TableCell>
+        {isEditing ? (
+          <Input
+            value={editWhatsappNumber}
+            onChange={(e) => setEditWhatsappNumber(e.target.value)}
+            className="h-8"
+            placeholder="WhatsApp"
+          />
+        ) : (
+          user.whatsappNumber || "-"
+        )}
       </TableCell>
       <TableCell>{user.idAgte ?? "-"}</TableCell>
       <TableCell>{user.idSociedad ?? "-"}</TableCell>
@@ -121,8 +199,32 @@ export function UserTableRow({
       <TableCell>{user.idAliado ?? "-"}</TableCell>
       <TableCell>{user.wSaler || "-"}</TableCell>
       <TableCell>{user.idSupervisor ?? "-"}</TableCell>
-      <TableCell>{user.dailyEmailLimit ?? "-"}</TableCell>
-      <TableCell>{user.dailyWhatsAppLimit ?? "-"}</TableCell>
+      <TableCell>
+        {isEditing ? (
+          <Input
+            value={editEmailLimit}
+            onChange={(e) => setEditEmailLimit(e.target.value)}
+            className="h-8 w-20"
+            placeholder="100"
+            type="number"
+          />
+        ) : (
+          user.dailyEmailLimit ?? "-"
+        )}
+      </TableCell>
+      <TableCell>
+        {isEditing ? (
+          <Input
+            value={editWhatsAppLimit}
+            onChange={(e) => setEditWhatsAppLimit(e.target.value)}
+            className="h-8 w-20"
+            placeholder="20"
+            type="number"
+          />
+        ) : (
+          user.dailyWhatsAppLimit ?? "-"
+        )}
+      </TableCell>
       <TableCell>
         {user.createdAt ? new Date(user.createdAt).toLocaleDateString('es-CO') : "-"}
       </TableCell>
@@ -164,25 +266,6 @@ export function UserTableRow({
             </>
           ) : (
             <>
-              {permissions?.canAssignRoles && (
-                <Select
-                  value={user.role}
-                  onValueChange={(newRole: User["role"]) => onRoleUpdate(user.id, newRole)}
-                  disabled={isCurrentUser}
-                >
-                  <SelectTrigger className="w-32">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {roles.map((role) => (
-                      <SelectItem key={role.value} value={role.value}>
-                        {role.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              )}
-
               {permissions?.canAssignRoles && !isCurrentUser && (
                 <>
                   <Button

@@ -34,6 +34,11 @@ export interface UpdateUserRequest {
   email: string;
   role: string;
   isActive: boolean;
+  preferredName?: string | null;
+  whatsappNumber?: string | null;
+  countryCodeWhatsApp?: number | null;
+  dailyEmailLimit?: number | null;
+  dailyWhatsAppLimit?: number | null;
 }
 
 export interface ToggleUserStatusRequest {

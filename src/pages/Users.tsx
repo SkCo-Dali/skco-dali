@@ -364,16 +364,29 @@ export default function UsersPage() {
     }
   };
 
-  const handleUserUpdate = async (userId: string, name: string, email: string) => {
+  const handleUserUpdate = async (userId: string, updates: {
+    name: string;
+    email: string;
+    preferredName?: string | null;
+    whatsappNumber?: string | null;
+    countryCodeWhatsApp?: number | null;
+    dailyEmailLimit?: number | null;
+    dailyWhatsAppLimit?: number | null;
+  }) => {
     try {
       const user = users.find((u) => u.id === userId);
       if (!user) return;
 
       await updateUser(userId, {
-        name,
-        email,
+        name: updates.name,
+        email: updates.email,
         role: user.role,
         isActive: user.isActive ?? true,
+        preferredName: updates.preferredName,
+        whatsappNumber: updates.whatsappNumber,
+        countryCodeWhatsApp: updates.countryCodeWhatsApp,
+        dailyEmailLimit: updates.dailyEmailLimit,
+        dailyWhatsAppLimit: updates.dailyWhatsAppLimit,
       });
 
       await refreshUsers();
