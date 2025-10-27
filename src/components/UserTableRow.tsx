@@ -28,15 +28,18 @@ interface UserTableRowProps {
   onRoleUpdate: (userId: string, newRole: User["role"]) => void;
   onUserDelete: (userId: string) => void;
   onUserStatusToggle: (userId: string, isActive: boolean) => void;
-  onUserUpdate: (userId: string, updates: {
-    name: string;
-    email: string;
-    preferredName?: string | null;
-    whatsappNumber?: string | null;
-    countryCodeWhatsApp?: number | null;
-    dailyEmailLimit?: number | null;
-    dailyWhatsAppLimit?: number | null;
-  }) => void;
+  onUserUpdate: (
+    userId: string,
+    updates: {
+      name: string;
+      email: string;
+      preferredName?: string | null;
+      whatsappNumber?: string | null;
+      countryCodeWhatsApp?: number | null;
+      dailyEmailLimit?: number | null;
+      dailyWhatsAppLimit?: number | null;
+    },
+  ) => void;
 }
 
 export function UserTableRow({
@@ -91,7 +94,7 @@ export function UserTableRow({
   return (
     <TableRow>
       <TableCell>
-        <div className="flex items-center space-x-3 px-2 h-18">
+        <div className="flex items-center space-x-3 px-2 h-19">
           <Avatar className="h-10 w-10 mr-2">
             <AvatarImage src={user.avatar} />
             <AvatarFallback>
@@ -106,7 +109,7 @@ export function UserTableRow({
               <Input
                 value={editName}
                 onChange={(e) => setEditName(e.target.value)}
-                className="h-8 text-xs"
+                className="h-8 text-xs mx-2"
                 placeholder="Nombre del usuario"
               />
             ) : (
@@ -124,7 +127,7 @@ export function UserTableRow({
             type="email"
             value={editEmail}
             onChange={(e) => setEditEmail(e.target.value)}
-            className="text-xs"
+            className="text-xs mx-2"
             placeholder="Email del usuario"
           />
         ) : (
@@ -138,7 +141,7 @@ export function UserTableRow({
             onValueChange={(newRole: User["role"]) => onRoleUpdate(user.id, newRole)}
             disabled={isEditing}
           >
-            <SelectTrigger className="h-8 w-32 text-xs">
+            <SelectTrigger className="h-8 w-32 text-xs ring-0 mx-2">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -165,9 +168,7 @@ export function UserTableRow({
           user.preferredName || "-"
         )}
       </TableCell>
-      <TableCell>
-        {user.birthDate ? new Date(user.birthDate).toLocaleDateString('es-CO') : "-"}
-      </TableCell>
+      <TableCell>{user.birthDate ? new Date(user.birthDate).toLocaleDateString("es-CO") : "-"}</TableCell>
       <TableCell>
         {isEditing ? (
           <Input
@@ -209,7 +210,7 @@ export function UserTableRow({
             type="number"
           />
         ) : (
-          user.dailyEmailLimit ?? "-"
+          (user.dailyEmailLimit ?? "-")
         )}
       </TableCell>
       <TableCell>
@@ -222,15 +223,11 @@ export function UserTableRow({
             type="number"
           />
         ) : (
-          user.dailyWhatsAppLimit ?? "-"
+          (user.dailyWhatsAppLimit ?? "-")
         )}
       </TableCell>
-      <TableCell>
-        {user.createdAt ? new Date(user.createdAt).toLocaleDateString('es-CO') : "-"}
-      </TableCell>
-      <TableCell>
-        {user.updatedAt ? new Date(user.updatedAt).toLocaleDateString('es-CO') : "-"}
-      </TableCell>
+      <TableCell>{user.createdAt ? new Date(user.createdAt).toLocaleDateString("es-CO") : "-"}</TableCell>
+      <TableCell>{user.updatedAt ? new Date(user.updatedAt).toLocaleDateString("es-CO") : "-"}</TableCell>
       <TableCell>
         <div className="flex items-center gap-2">
           <Badge variant={user.isActive ? "default" : "secondary"}>{user.isActive ? "Activo" : "Inactivo"}</Badge>
