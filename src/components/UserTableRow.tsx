@@ -35,6 +35,7 @@ interface UserTableRowProps {
     updates: {
       name: string;
       email: string;
+      role: User["role"];
       preferredName?: string | null;
       whatsappNumber?: string | null;
       countryCodeWhatsApp?: number | null;
@@ -68,6 +69,7 @@ export function UserTableRow({
       onUserUpdate(user.id, {
         name: editName.trim(),
         email: editEmail.trim(),
+        role: user.role,
         preferredName: editPreferredName.trim() || null,
         whatsappNumber: editWhatsappNumber.trim() || null,
         countryCodeWhatsApp: editCountryCode ? parseInt(editCountryCode) : null,

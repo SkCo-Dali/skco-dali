@@ -15,6 +15,7 @@ interface UserTableProps {
     updates: {
       name: string;
       email: string;
+      role: User["role"];
       preferredName?: string | null;
       whatsappNumber?: string | null;
       countryCodeWhatsApp?: number | null;
