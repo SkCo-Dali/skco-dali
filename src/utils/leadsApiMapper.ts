@@ -159,6 +159,7 @@ export const mapApiLeadToLead = (apiLead: ApiLead): Lead => {
       portfolio: parseArrayField(apiLead.SelectedPortfolios)[0] || "Portfolio A",
       createdAt: apiLead.CreatedAt,
       updatedAt: apiLead.UpdatedAt,
+      lastInteractionAt: apiLead.LastInteractionAt || "",
       nextFollowUp: apiLead.NextFollowUp || "",
       notes: apiLead.Notes || "",
       tags: parseTagsField(apiLead.Tags),
