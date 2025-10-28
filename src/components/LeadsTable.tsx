@@ -764,7 +764,7 @@ Por favor, confirmar asistencia.`;
       case "assignedToName":
         return <EditableLeadCell lead={lead} field="assignedToName" onUpdate={() => onLeadUpdate?.()} />;
       case "lastInteraction":
-        return <span className="text-gray-700 text-xs text-center">{formatBogotaDate(lead.lastInteractionAt)}</span>;
+        return <span className="text-gray-700 text-xs text-center">{lead.lastInteractionAt ? formatBogotaDate(lead.lastInteractionAt) : '-'}</span>;
       case "value":
         return <span className="text-gray-800 font-medium text-xs text-center">${lead.value.toLocaleString()}</span>;
       case "priority":
