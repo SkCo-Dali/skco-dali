@@ -227,7 +227,7 @@ export const LeadCreateDialog = forwardRef<LeadCreateDialogRef, LeadCreateDialog
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogTrigger asChild>{children}</DialogTrigger>
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader className="pb-4">
+          <DialogHeader className="pb-0">
             <DialogTitle className="text-2xl font-bold text-center">¡Agrega tus leads!</DialogTitle>
           </DialogHeader>
 
