@@ -39,7 +39,7 @@ export interface ApiLead {
 export interface CreateLeadRequest {
   CreatedBy: string;
   name: string;
-  FirstName?: string | null;
+  firstName?: string | null;
   email: string;
   phone: string;
   documentNumber: number;
@@ -68,7 +68,7 @@ export interface CreateLeadRequest {
 export interface UpdateLeadRequest {
   CreatedBy: string;
   name: string;
-  FirstName?: string | null;
+  firstName?: string | null;
   email?: string;
   phone?: string;
   documentNumber?: number;
