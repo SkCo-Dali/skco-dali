@@ -4,6 +4,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Card, CardContent } from "@/components/ui/card";
 import { Edit, MoreHorizontal, Trash2 } from "lucide-react";
 import {
   DropdownMenu,
@@ -125,7 +126,8 @@ export function CommissionPlansTable({
   }
 
   return (
-    <>
+    <div className="space-y-4">
+      <Card>
       <ScrollArea className="max-h-[400px]">
         <Table>
           <TableHeader>
@@ -184,6 +186,8 @@ export function CommissionPlansTable({
           </TableBody>
         </Table>
       </ScrollArea>
+         </Card>
+    </div>
 
       <CommissionsPagination
         currentPage={currentPage}
