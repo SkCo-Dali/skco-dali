@@ -30,7 +30,7 @@ export function AccessUsersSearch({ searchTerm, onSearchChange }: AccessUsersSea
     <div className="relative w-full">
       <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
       <Input
-        placeholder="Buscar por nombre, correo, rol o estado..."
+        placeholder="Buscar por nombre o correo..."
         value={localValue}
         onChange={(e) => setLocalValue(e.target.value)}
         className="pl-10"
