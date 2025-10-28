@@ -5,6 +5,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Plus, Loader2, ArrowLeft } from "lucide-react";
 import { CommissionPlansTable } from "@/components/CommissionPlansTable";
 import { CreateCommissionPlanDialog } from "@/components/CreateCommissionPlanDialog";
+import { CommissionPlansSearch } from "@/components/CommissionPlansSearch";
 import { CommissionPlanStatus, STATUS_LABELS } from "@/data/commissionPlans";
 import { useCommissionPlans } from "@/hooks/useCommissionPlans";
 import { AccessDenied } from "@/components/AccessDenied";
@@ -32,11 +33,14 @@ export default function CompensationPlans() {
     inactivatePlan,
     getPaginatedPlansForStatus,
     getTabCount,
+    getFilteredTabCount,
     currentPage,
     itemsPerPage,
     totalCounts,
     handlePageChange,
     handleItemsPerPageChange,
+    searchTerm,
+    setSearchTerm,
   } = useCommissionPlans();
 
   return (
@@ -77,7 +81,15 @@ export default function CompensationPlans() {
           {/* Tabs with commission plans */}
           <Card>
             <CardHeader className="pb-3">
-              <CardTitle className="text-lg">Planes de Comisiones</CardTitle>
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                <CardTitle className="text-lg">Planes de Comisiones</CardTitle>
+                <div className="w-full sm:w-96">
+                  <CommissionPlansSearch 
+                    searchTerm={searchTerm}
+                    onSearchChange={setSearchTerm}
+                  />
+                </div>
+              </div>
             </CardHeader>
             <CardContent>
               {loading ? (
@@ -100,7 +112,7 @@ export default function CompensationPlans() {
                       >
                         {label}
                         <span className="ml-2 text-xs bg-muted px-1.5 py-0.5 rounded-full">
-                          {getTabCount(status as CommissionPlanStatus)}
+                          {searchTerm ? getFilteredTabCount(status as CommissionPlanStatus) : getTabCount(status as CommissionPlanStatus)}
                         </span>
                       </TabsTrigger>
                     ))}
@@ -109,8 +121,8 @@ export default function CompensationPlans() {
                   {Object.keys(STATUS_LABELS).map((status) => {
                     const statusKey = status as CommissionPlanStatus;
                     const paginatedPlans = getPaginatedPlansForStatus(statusKey);
-                    const totalCount = totalCounts[statusKey] || 0;
-                    const totalPages = Math.ceil(totalCount / itemsPerPage[statusKey]);
+                    const filteredCount = searchTerm ? getFilteredTabCount(statusKey) : totalCounts[statusKey] || 0;
+                    const totalPages = Math.ceil(filteredCount / itemsPerPage[statusKey]);
                     
                     return (
                       <TabsContent key={status} value={status} className="mt-6">
@@ -125,7 +137,7 @@ export default function CompensationPlans() {
                           onInactivatePlan={inactivatePlan}
                           currentPage={currentPage[statusKey]}
                           totalPages={totalPages}
-                          totalCount={totalCount}
+                          totalCount={filteredCount}
                           itemsPerPage={itemsPerPage[statusKey]}
                           onPageChange={(page) => handlePageChange(statusKey, page)}
                           onItemsPerPageChange={(items) => handleItemsPerPageChange(statusKey, items)}

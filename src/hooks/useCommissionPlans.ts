@@ -30,6 +30,7 @@ export const useCommissionPlans = () => {
     rejected: 0,
     inactive: 0,
   });
+  const [searchTerm, setSearchTerm] = useState<string>('');
 
   const fetchPlans = async (page: number = 1, pageSize: number = 100) => {
     try {
@@ -363,12 +364,30 @@ export const useCommissionPlans = () => {
     setCurrentPage(prev => ({ ...prev, [status]: 1 }));
   };
 
-  const getPaginatedPlansForStatus = (status: CommissionPlanStatus) => {
+  const getFilteredPlansForStatus = (status: CommissionPlanStatus) => {
     const statusPlans = plans.filter(plan => plan.status === status);
+    
+    if (!searchTerm.trim()) {
+      return statusPlans;
+    }
+    
+    const lowerSearchTerm = searchTerm.toLowerCase();
+    return statusPlans.filter(plan => 
+      plan.name.toLowerCase().includes(lowerSearchTerm) ||
+      plan.description.toLowerCase().includes(lowerSearchTerm)
+    );
+  };
+
+  const getPaginatedPlansForStatus = (status: CommissionPlanStatus) => {
+    const filteredPlans = getFilteredPlansForStatus(status);
     const page = currentPage[status];
     const items = itemsPerPage[status];
     const startIndex = (page - 1) * items;
-    return statusPlans.slice(startIndex, startIndex + items);
+    return filteredPlans.slice(startIndex, startIndex + items);
+  };
+
+  const getFilteredTabCount = (status: CommissionPlanStatus) => {
+    return getFilteredPlansForStatus(status).length;
   };
 
   useEffect(() => {
@@ -390,10 +409,13 @@ export const useCommissionPlans = () => {
     getPlansForStatus,
     getPaginatedPlansForStatus,
     getTabCount,
+    getFilteredTabCount,
     currentPage,
     itemsPerPage,
     totalCounts,
     handlePageChange,
     handleItemsPerPageChange,
+    searchTerm,
+    setSearchTerm,
   };
 };
