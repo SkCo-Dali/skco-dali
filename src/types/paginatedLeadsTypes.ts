@@ -13,6 +13,7 @@ export interface PaginatedLead {
   CreatedBy: string;
   Id: string;
   Name: string;
+  FirstName: string | null;
   Email: string;
   AlternateEmail: string | null;
   Phone: string;
@@ -117,6 +118,7 @@ export interface DistinctValuesParams {
 export const ALLOWED_SORT_FIELDS = [
   "Id",
   "Name",
+  "FirstName",
   "Email",
   "AlternateEmail",
   "Phone",

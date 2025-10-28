@@ -164,6 +164,7 @@ export function useDistinctValues(field: string, currentFilters: LeadsApiFilters
   const mapColumnNameToApi = (uiColumn: string): string => {
     const mapping: Record<string, string> = {
       name: "Name",
+      firstName: "FirstName",
       email: "Email",
       phone: "Phone",
       company: "Company",

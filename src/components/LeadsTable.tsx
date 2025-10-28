@@ -85,6 +85,7 @@ const defaultColumns: ColumnConfig[] = [
   { key: "campaign", label: "Campaña", visible: true, sortable: true },
   { key: "email", label: "Email", visible: true, sortable: true },
   { key: "alternateEmail", label: "Email Alternativo", visible: true, sortable: true },
+  { key: "firstName", label: "Primer Nombre", visible: true, sortable: true },
   { key: "phone", label: "Teléfono", visible: true, sortable: false },
   { key: "stage", label: "Etapa", visible: true, sortable: true },
   { key: "assignedToName", label: "Asignado a", visible: true, sortable: true },
@@ -425,6 +426,7 @@ export function LeadsTable({
       notes: "Notes",
       tags: "Tags",
       alternateEmail: "AlternateEmail",
+      firstName: "FirstName",
       lastGestorName: "LastGestorName",
       lastInteraction: "LastInteractionAt",
       lastGestorInteractionAt: "LastGestorInteractionAt",
@@ -812,6 +814,7 @@ Por favor, confirmar asistencia.`;
       case "gender":
       case "preferredContactChannel":
       case "documentType":
+      case "firstName":
       case "alternateEmail":
         return <span className="text-center text-gray-700 text-xs">{lead[columnKey] || "-"}</span>;
       case "lastGestorName":

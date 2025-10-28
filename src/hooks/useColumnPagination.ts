@@ -76,6 +76,7 @@ const mapPaginatedLeadToLead = (paginatedLead: PaginatedLead): Lead => {
     status: "New" as any,
     documentType: paginatedLead.DocumentType || undefined,
     alternateEmail: paginatedLead.AlternateEmail || undefined,
+    firstName: paginatedLead.FirstName || undefined,
     selectedPortfolios: portfolios,
     portfolio: paginatedLead.SelectedPortfolios || "",
     campaignOwnerName: paginatedLead.CampaignOwnerName || undefined,
