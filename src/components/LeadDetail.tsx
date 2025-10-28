@@ -717,7 +717,9 @@ Notas adicionales: ${lead.notes || "Ninguna"}`;
               {/* Tab General */}
               <TabsContent value="general" className="space-y-6">
                 <CardContent className="space-y-2 py-2 px-0">
-                  <CardTitle className="flex items-center pt-2">Información General</CardTitle>
+                  <CardTitle className="flex items-center pt-2">
+                    Información General{editedLead.campaign && ` - Campaña: ${editedLead.campaign}`}
+                  </CardTitle>
 
                   <div className="grid grid-cols-2 gap-2">
                     <div className="space-y-0 border-2 border-[#3d4b5c26] shadow-md rounded-md p-2.5">
@@ -729,38 +731,12 @@ Notas adicionales: ${lead.notes || "Ninguna"}`;
                       />
                     </div>
                     <div className="space-y-0 border-2 border-[#3d4b5c26] shadow-md rounded-md p-2.5">
-                      <Label className="p-0 text-sm text-gray-500 font-normal">Teléfono</Label>
+                      <Label className="p-0 text-sm text-gray-500 font-normal">Primer Nombre</Label>
                       <Input
-                        value={editedLead.phone || ""}
-                        onChange={(e) => handlePhoneChange(e.target.value)}
+                        value={capitalizeWords(editedLead.firstName || "")}
+                        onChange={(e) => handleGeneralChange("firstName", capitalizeWords(e.target.value))}
                         className="border-0 border-b border-gray-200 rounded-none px-0 py-0 m-0 text-base font-medium bg-transparent leading-none h-auto min-h-0 focus:border-gray-400 focus:shadow-none focus:ring-0"
                       />
-                    </div>
-                  </div>
-                  <div className="grid grid-cols-2 gap-2">
-                    <div className="space-y-0 border-2 border-[#3d4b5c26] shadow-md rounded-md p-2.5">
-                      <Label className="p-0 text-sm text-gray-500 font-normal">Email</Label>
-                      <Input
-                        type="email"
-                        value={(editedLead.email || "").toLowerCase()}
-                        onChange={(e) => handleEmailChange(e.target.value)}
-                        className={`border-0 border-b border-gray-200 rounded-none px-0 py-0 m-0 text-base font-medium bg-transparent leading-none h-auto min-h-0 focus:border-gray-400 focus:shadow-none focus:ring-0 ${editedLead.email && !isValidEmail(editedLead.email) ? "border-red-500" : ""}`}
-                      />
-                      {editedLead.email && !isValidEmail(editedLead.email) && (
-                        <p className="text-red-500 text-xs mt-1">Formato de correo inválido</p>
-                      )}
-                    </div>
-                    <div className="space-y-0 border-2 border-[#3d4b5c26] shadow-md rounded-md p-2.5">
-                      <Label className="p-0 text-sm text-gray-500 font-normal">Email Alternativo</Label>
-                      <Input
-                        type="email"
-                        value={(editedLead.alternateEmail || "").toLowerCase()}
-                        onChange={(e) => handleGeneralChange("alternateEmail", e.target.value.toLowerCase())}
-                        className={`border-0 border-b border-gray-200 rounded-none px-0 py-0 m-0 text-base font-medium bg-transparent leading-none h-auto min-h-0 focus:border-gray-400 focus:shadow-none focus:ring-0 ${editedLead.alternateEmail && !isValidEmail(editedLead.alternateEmail) ? "border-red-500" : ""}`}
-                      />
-                      {editedLead.alternateEmail && !isValidEmail(editedLead.alternateEmail) && (
-                        <p className="text-red-500 text-xs mt-1">Formato de correo inválido</p>
-                      )}
                     </div>
                   </div>
 
@@ -815,10 +791,37 @@ Notas adicionales: ${lead.notes || "Ninguna"}`;
 
                   <div className="grid grid-cols-2 gap-2">
                     <div className="space-y-0 border-2 border-[#3d4b5c26] shadow-md rounded-md p-2.5">
-                      <Label className="p-0 text-sm text-gray-500 font-normal">Empresa</Label>
+                      <Label className="p-0 text-sm text-gray-500 font-normal">Email</Label>
                       <Input
-                        value={editedLead.company || ""}
-                        onChange={(e) => handleGeneralChange("company", e.target.value)}
+                        type="email"
+                        value={(editedLead.email || "").toLowerCase()}
+                        onChange={(e) => handleEmailChange(e.target.value)}
+                        className={`border-0 border-b border-gray-200 rounded-none px-0 py-0 m-0 text-base font-medium bg-transparent leading-none h-auto min-h-0 focus:border-gray-400 focus:shadow-none focus:ring-0 ${editedLead.email && !isValidEmail(editedLead.email) ? "border-red-500" : ""}`}
+                      />
+                      {editedLead.email && !isValidEmail(editedLead.email) && (
+                        <p className="text-red-500 text-xs mt-1">Formato de correo inválido</p>
+                      )}
+                    </div>
+                    <div className="space-y-0 border-2 border-[#3d4b5c26] shadow-md rounded-md p-2.5">
+                      <Label className="p-0 text-sm text-gray-500 font-normal">Email Alternativo</Label>
+                      <Input
+                        type="email"
+                        value={(editedLead.alternateEmail || "").toLowerCase()}
+                        onChange={(e) => handleGeneralChange("alternateEmail", e.target.value.toLowerCase())}
+                        className={`border-0 border-b border-gray-200 rounded-none px-0 py-0 m-0 text-base font-medium bg-transparent leading-none h-auto min-h-0 focus:border-gray-400 focus:shadow-none focus:ring-0 ${editedLead.alternateEmail && !isValidEmail(editedLead.alternateEmail) ? "border-red-500" : ""}`}
+                      />
+                      {editedLead.alternateEmail && !isValidEmail(editedLead.alternateEmail) && (
+                        <p className="text-red-500 text-xs mt-1">Formato de correo inválido</p>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-2">
+                    <div className="space-y-0 border-2 border-[#3d4b5c26] shadow-md rounded-md p-2.5">
+                      <Label className="p-0 text-sm text-gray-500 font-normal">Teléfono</Label>
+                      <Input
+                        value={editedLead.phone || ""}
+                        onChange={(e) => handlePhoneChange(e.target.value)}
                         className="border-0 border-b border-gray-200 rounded-none px-0 py-0 m-0 text-base font-medium bg-transparent leading-none h-auto min-h-0 focus:border-gray-400 focus:shadow-none focus:ring-0"
                       />
                     </div>
@@ -832,6 +835,7 @@ Notas adicionales: ${lead.notes || "Ninguna"}`;
                       />
                     </div>
                   </div>
+
                   <div className="grid grid-cols-2 gap-2">
                     <CustomFieldSelect
                       label="Ocupación"
@@ -852,10 +856,10 @@ Notas adicionales: ${lead.notes || "Ninguna"}`;
                     />
 
                     <div className="space-y-0 border-2 border-[#3d4b5c26] shadow-md rounded-md p-2.5">
-                      <Label className="p-0 text-sm text-gray-500 font-normal">Campaña</Label>
+                      <Label className="p-0 text-sm text-gray-500 font-normal">Empresa</Label>
                       <Input
-                        value={editedLead.campaign || ""}
-                        onChange={(e) => handleGeneralChange("campaign", e.target.value)}
+                        value={editedLead.company || ""}
+                        onChange={(e) => handleGeneralChange("company", e.target.value)}
                         className="border-0 border-b border-gray-200 rounded-none px-0 py-0 m-0 text-base font-medium bg-transparent leading-none h-auto min-h-0 focus:border-gray-400 focus:shadow-none focus:ring-0"
                       />
                     </div>
