@@ -13,6 +13,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import {
   Calendar,
   MessageSquare,
@@ -732,11 +733,18 @@ Notas adicionales: ${lead.notes || "Ninguna"}`;
                     </div>
                     <div className="space-y-0 border-2 border-[#3d4b5c26] shadow-md rounded-md p-2.5">
                       <Label className="p-0 text-sm text-gray-500 font-normal">Primer Nombre</Label>
-                      <Input
-                        value={capitalizeWords(editedLead.firstName || "")}
-                        disabled
-                        className="border-0 border-b border-gray-200 rounded-none px-0 py-0 m-0 text-base font-medium bg-transparent leading-none h-auto min-h-0 focus:border-gray-400 focus:shadow-none focus:ring-0 cursor-not-allowed opacity-70"
-                      />
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Input
+                            value={capitalizeWords(editedLead.firstName || "")}
+                            disabled
+                            className="border-0 border-b border-gray-200 rounded-none px-0 py-0 m-0 text-base font-medium bg-transparent leading-none h-auto min-h-0 focus:border-gray-400 focus:shadow-none focus:ring-0 cursor-not-allowed opacity-70"
+                          />
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>Este campo se actualiza automáticamente al modificar el nombre completo</p>
+                        </TooltipContent>
+                      </Tooltip>
                     </div>
                   </div>
 
