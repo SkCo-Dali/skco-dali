@@ -45,8 +45,19 @@ export function ServerSideDateFilter({
   const [customCondition, setCustomCondition] = useState<DateRangeCondition>({ type: 'custom' });
   const [isDateTreeOpen, setIsDateTreeOpen] = useState(true);
   
-  // Map lastInteraction to updatedAt for API calls
-  const apiField = field === 'lastInteraction' ? 'updatedAt' : field;
+  // Map UI fields to API fields for API calls
+  const getApiField = (uiField: string): string => {
+    const mapping: Record<string, string> = {
+      'lastInteraction': 'LastInteractionAt',
+      'lastGestorInteractionAt': 'LastGestorInteractionAt',
+      'createdAt': 'CreatedAt',
+      'updatedAt': 'UpdatedAt',
+      'nextFollowUp': 'NextFollowUp'
+    };
+    return mapping[uiField] || uiField;
+  };
+  
+  const apiField = getApiField(field);
   
   // Usar el hook para obtener valores únicos de fechas
   const {

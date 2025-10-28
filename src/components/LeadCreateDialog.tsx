@@ -227,7 +227,7 @@ export const LeadCreateDialog = forwardRef<LeadCreateDialogRef, LeadCreateDialog
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogTrigger asChild>{children}</DialogTrigger>
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader className="pb-4">
+          <DialogHeader className="pb-0">
             <DialogTitle className="text-2xl font-bold text-center">¡Agrega tus leads!</DialogTitle>
           </DialogHeader>
 
@@ -555,12 +555,12 @@ export const LeadCreateDialog = forwardRef<LeadCreateDialogRef, LeadCreateDialog
             </TabsContent>
 
             <TabsContent value="bulk" className="space-y-6">
-              <div className="text-center mb-6">
+              <div className="text-center my-4">
                 <h3 className="text-xl font-semibold mb-2">Subir archivo</h3>
               </div>
 
               {/* Tres pasos */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
                 {/* Paso 1 */}
                 <div className="flex flex-col items-center text-center p-4 rounded-lg border bg-card">
                   <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mb-3">
@@ -602,9 +602,7 @@ export const LeadCreateDialog = forwardRef<LeadCreateDialogRef, LeadCreateDialog
               </div>
 
               {/* Área de subida de archivo */}
-              <div className="border-2 border-dashed rounded-lg p-6">
-                <h4 className="text-base font-medium mb-4">Subir archivo</h4>
-
+              <div className="border-2 border-dashed rounded-lg p-4">
                 {!uploadedFile ? (
                   <div className="text-center space-y-4">
                     <div className="flex justify-center">

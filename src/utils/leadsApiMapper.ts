@@ -139,6 +139,7 @@ export const mapApiLeadToLead = (apiLead: ApiLead): Lead => {
     const mappedLead = {
       id: apiLead.Id,
       name: apiLead.Name,
+      firstName: apiLead.FirstName,
       email: apiLead.Email,
       phone: apiLead.Phone,
       documentNumber: apiLead.DocumentNumber,
@@ -201,6 +202,7 @@ export const mapLeadToCreateRequest = (lead: Partial<Lead>, userId: string): Cre
   const createRequest: CreateLeadRequest = {
     CreatedBy: finalUserId, // Usuario autenticado (UUID de la API)
     name: lead.name || "",
+    firstName: lead.firstName || "",
     email: lead.email || "",
     phone: lead.phone || "",
     documentNumber: lead.documentNumber || 0,
@@ -263,6 +265,7 @@ export const mapLeadToUpdateRequest = (lead: Lead, userId: string): UpdateLeadRe
   const updateRequest: UpdateLeadRequest = {
     CreatedBy: finalUserId, // Usuario autenticado (UUID de la API)
     name: lead.name,
+    firstName: lead.firstName,
     email: lead.email,
     phone: lead.phone,
     documentNumber: lead.documentNumber,
@@ -329,6 +332,7 @@ export const mapLeadToApiFormat = (lead: Lead): any => {
   return {
     Id: lead.id,
     Name: lead.name,
+    firstName: lead.firstName,
     Email: lead.email,
     Phone: lead.phone,
     DocumentNumber: lead.documentNumber,

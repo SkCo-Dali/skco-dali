@@ -89,6 +89,7 @@ export const usePaginatedLeadsApi = () => {
     return {
       id: paginatedLead.Id,
       name: paginatedLead.Name,
+      firstName: paginatedLead.FirstName,
       email: paginatedLead.Email,
       alternateEmail: paginatedLead.AlternateEmail || "",
       phone: paginatedLead.Phone,
@@ -106,6 +107,7 @@ export const usePaginatedLeadsApi = () => {
       createdBy: paginatedLead.CreatedBy,
       createdAt: paginatedLead.CreatedAt,
       updatedAt: paginatedLead.UpdatedAt,
+      lastInteractionAt: paginatedLead.LastInteractionAt,
       nextFollowUp: paginatedLead.NextFollowUp,
       notes: paginatedLead.Notes,
       tags,
@@ -244,6 +246,7 @@ export const usePaginatedLeadsApi = () => {
       return (
         lead.name?.toLowerCase().includes(searchLower) ||
         lead.email?.toLowerCase().includes(searchLower) ||
+        lead.firstName?.toLowerCase().includes(searchLower) ||
         lead.alternateEmail?.toLowerCase().includes(searchLower) ||
         lead.phone?.toLowerCase().includes(searchLower) ||
         lead.campaign?.toLowerCase().includes(searchLower)
@@ -255,6 +258,7 @@ export const usePaginatedLeadsApi = () => {
   const mapColumnNameToApi = (uiColumn: string): string => {
     const mapping: Record<string, string> = {
       name: "Name",
+      firstName: "FirstName",
       email: "Email",
       phone: "Phone",
       company: "Company",

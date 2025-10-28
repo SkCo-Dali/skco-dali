@@ -13,6 +13,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import {
   Calendar,
   MessageSquare,
@@ -47,6 +48,9 @@ import { FaWhatsapp } from "react-icons/fa";
 import { SkAccordion, SkAccordionItem, SkAccordionTrigger, SkAccordionContent } from "@/components/ui/sk-accordion";
 import { InputSanitizer } from "@/utils/inputSanitizer";
 import { useFormPersistence } from "@/hooks/useFormPersistence";
+import { EditInteractionDialog } from "./EditInteractionDialog";
+import { InteractionResponse } from "@/utils/interactionsApiClient";
+import { Pencil, Trash2 } from "lucide-react";
 
 interface LeadDetailProps {
   lead: Lead;
@@ -211,6 +215,10 @@ export function LeadDetail({ lead, isOpen, onClose, onSave, onOpenMassEmail }: L
   const [result, setResult] = useState("");
   const [managementNotes, setManagementNotes] = useState("");
 
+  // Estados para el diálogo de edición de interacciones
+  const [editingInteraction, setEditingInteraction] = useState<InteractionResponse | null>(null);
+  const [showEditInteractionDialog, setShowEditInteractionDialog] = useState(false);
+
   // Form persistence para preservar datos entre cambios de pestañas SOLO durante la sesión actual
   const formPersistenceKey = `lead_detail_${lead.id}`;
 
@@ -230,6 +238,8 @@ export function LeadDetail({ lead, isOpen, onClose, onSave, onOpenMassEmail }: L
     loadLeadInteractions,
     loadClientHistory,
     createInteractionFromLead,
+    updateExistingInteraction,
+    deleteExistingInteraction,
   } = useInteractionsApi();
   const { updateExistingLead } = useLeadsApi();
   const { getLeadHistory } = useLeadAssignments();
@@ -354,6 +364,37 @@ export function LeadDetail({ lead, isOpen, onClose, onSave, onOpenMassEmail }: L
   // Función para verificar si el lead tiene duplicados
   const hasLikelyDuplicates = () => {
     return lead.email || lead.phone || lead.documentNumber;
+  };
+
+  // Funciones para manejar edición de interacciones
+  const handleEditInteraction = (interaction: InteractionResponse) => {
+    setEditingInteraction(interaction);
+    setShowEditInteractionDialog(true);
+  };
+
+  const handleSaveInteraction = async (interactionId: string, data: any) => {
+    const success = await updateExistingInteraction(interactionId, data);
+    if (success) {
+      // Recargar las interacciones después de actualizar
+      if (showingClientHistory) {
+        await loadClientHistory(lead);
+      } else {
+        await loadLeadInteractions(lead.id);
+      }
+    }
+    return success;
+  };
+
+  const handleDeleteInteraction = async (interaction: InteractionResponse) => {
+    const success = await deleteExistingInteraction(interaction.Id);
+    if (success) {
+      // Recargar las interacciones después de eliminar
+      if (showingClientHistory) {
+        await loadClientHistory(lead);
+      } else {
+        await loadLeadInteractions(lead.id);
+      }
+    }
   };
 
   // Función para manejar cambios en campos generales con persistencia
@@ -677,7 +718,9 @@ Notas adicionales: ${lead.notes || "Ninguna"}`;
               {/* Tab General */}
               <TabsContent value="general" className="space-y-6">
                 <CardContent className="space-y-2 py-2 px-0">
-                  <CardTitle className="flex items-center pt-2">Información General</CardTitle>
+                  <CardTitle className="flex items-center pt-2">
+                    Información General{editedLead.campaign && ` - Campaña: ${editedLead.campaign}`}
+                  </CardTitle>
 
                   <div className="grid grid-cols-2 gap-2">
                     <div className="space-y-0 border-2 border-[#3d4b5c26] shadow-md rounded-md p-2.5">
@@ -689,38 +732,19 @@ Notas adicionales: ${lead.notes || "Ninguna"}`;
                       />
                     </div>
                     <div className="space-y-0 border-2 border-[#3d4b5c26] shadow-md rounded-md p-2.5">
-                      <Label className="p-0 text-sm text-gray-500 font-normal">Teléfono</Label>
-                      <Input
-                        value={editedLead.phone || ""}
-                        onChange={(e) => handlePhoneChange(e.target.value)}
-                        className="border-0 border-b border-gray-200 rounded-none px-0 py-0 m-0 text-base font-medium bg-transparent leading-none h-auto min-h-0 focus:border-gray-400 focus:shadow-none focus:ring-0"
-                      />
-                    </div>
-                  </div>
-                  <div className="grid grid-cols-2 gap-2">
-                    <div className="space-y-0 border-2 border-[#3d4b5c26] shadow-md rounded-md p-2.5">
-                      <Label className="p-0 text-sm text-gray-500 font-normal">Email</Label>
-                      <Input
-                        type="email"
-                        value={(editedLead.email || "").toLowerCase()}
-                        onChange={(e) => handleEmailChange(e.target.value)}
-                        className={`border-0 border-b border-gray-200 rounded-none px-0 py-0 m-0 text-base font-medium bg-transparent leading-none h-auto min-h-0 focus:border-gray-400 focus:shadow-none focus:ring-0 ${editedLead.email && !isValidEmail(editedLead.email) ? "border-red-500" : ""}`}
-                      />
-                      {editedLead.email && !isValidEmail(editedLead.email) && (
-                        <p className="text-red-500 text-xs mt-1">Formato de correo inválido</p>
-                      )}
-                    </div>
-                    <div className="space-y-0 border-2 border-[#3d4b5c26] shadow-md rounded-md p-2.5">
-                      <Label className="p-0 text-sm text-gray-500 font-normal">Email Alternativo</Label>
-                      <Input
-                        type="email"
-                        value={(editedLead.alternateEmail || "").toLowerCase()}
-                        onChange={(e) => handleGeneralChange("alternateEmail", e.target.value.toLowerCase())}
-                        className={`border-0 border-b border-gray-200 rounded-none px-0 py-0 m-0 text-base font-medium bg-transparent leading-none h-auto min-h-0 focus:border-gray-400 focus:shadow-none focus:ring-0 ${editedLead.alternateEmail && !isValidEmail(editedLead.alternateEmail) ? "border-red-500" : ""}`}
-                      />
-                      {editedLead.alternateEmail && !isValidEmail(editedLead.alternateEmail) && (
-                        <p className="text-red-500 text-xs mt-1">Formato de correo inválido</p>
-                      )}
+                      <Label className="p-0 text-sm text-gray-500 font-normal">Primer Nombre</Label>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Input
+                            value={capitalizeWords(editedLead.firstName || "")}
+                            disabled
+                            className="border-0 border-b border-gray-200 rounded-none px-0 py-0 m-0 text-base font-medium bg-transparent leading-none h-auto min-h-0 focus:border-gray-400 focus:shadow-none focus:ring-0 cursor-not-allowed opacity-70"
+                          />
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>Este campo se actualiza automáticamente al modificar el nombre completo</p>
+                        </TooltipContent>
+                      </Tooltip>
                     </div>
                   </div>
 
@@ -775,10 +799,37 @@ Notas adicionales: ${lead.notes || "Ninguna"}`;
 
                   <div className="grid grid-cols-2 gap-2">
                     <div className="space-y-0 border-2 border-[#3d4b5c26] shadow-md rounded-md p-2.5">
-                      <Label className="p-0 text-sm text-gray-500 font-normal">Empresa</Label>
+                      <Label className="p-0 text-sm text-gray-500 font-normal">Email</Label>
                       <Input
-                        value={editedLead.company || ""}
-                        onChange={(e) => handleGeneralChange("company", e.target.value)}
+                        type="email"
+                        value={(editedLead.email || "").toLowerCase()}
+                        onChange={(e) => handleEmailChange(e.target.value)}
+                        className={`border-0 border-b border-gray-200 rounded-none px-0 py-0 m-0 text-base font-medium bg-transparent leading-none h-auto min-h-0 focus:border-gray-400 focus:shadow-none focus:ring-0 ${editedLead.email && !isValidEmail(editedLead.email) ? "border-red-500" : ""}`}
+                      />
+                      {editedLead.email && !isValidEmail(editedLead.email) && (
+                        <p className="text-red-500 text-xs mt-1">Formato de correo inválido</p>
+                      )}
+                    </div>
+                    <div className="space-y-0 border-2 border-[#3d4b5c26] shadow-md rounded-md p-2.5">
+                      <Label className="p-0 text-sm text-gray-500 font-normal">Email Alternativo</Label>
+                      <Input
+                        type="email"
+                        value={(editedLead.alternateEmail || "").toLowerCase()}
+                        onChange={(e) => handleGeneralChange("alternateEmail", e.target.value.toLowerCase())}
+                        className={`border-0 border-b border-gray-200 rounded-none px-0 py-0 m-0 text-base font-medium bg-transparent leading-none h-auto min-h-0 focus:border-gray-400 focus:shadow-none focus:ring-0 ${editedLead.alternateEmail && !isValidEmail(editedLead.alternateEmail) ? "border-red-500" : ""}`}
+                      />
+                      {editedLead.alternateEmail && !isValidEmail(editedLead.alternateEmail) && (
+                        <p className="text-red-500 text-xs mt-1">Formato de correo inválido</p>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-2">
+                    <div className="space-y-0 border-2 border-[#3d4b5c26] shadow-md rounded-md p-2.5">
+                      <Label className="p-0 text-sm text-gray-500 font-normal">Teléfono</Label>
+                      <Input
+                        value={editedLead.phone || ""}
+                        onChange={(e) => handlePhoneChange(e.target.value)}
                         className="border-0 border-b border-gray-200 rounded-none px-0 py-0 m-0 text-base font-medium bg-transparent leading-none h-auto min-h-0 focus:border-gray-400 focus:shadow-none focus:ring-0"
                       />
                     </div>
@@ -792,6 +843,7 @@ Notas adicionales: ${lead.notes || "Ninguna"}`;
                       />
                     </div>
                   </div>
+
                   <div className="grid grid-cols-2 gap-2">
                     <CustomFieldSelect
                       label="Ocupación"
@@ -812,10 +864,10 @@ Notas adicionales: ${lead.notes || "Ninguna"}`;
                     />
 
                     <div className="space-y-0 border-2 border-[#3d4b5c26] shadow-md rounded-md p-2.5">
-                      <Label className="p-0 text-sm text-gray-500 font-normal">Campaña</Label>
+                      <Label className="p-0 text-sm text-gray-500 font-normal">Empresa</Label>
                       <Input
-                        value={editedLead.campaign || ""}
-                        onChange={(e) => handleGeneralChange("campaign", e.target.value)}
+                        value={editedLead.company || ""}
+                        onChange={(e) => handleGeneralChange("company", e.target.value)}
                         className="border-0 border-b border-gray-200 rounded-none px-0 py-0 m-0 text-base font-medium bg-transparent leading-none h-auto min-h-0 focus:border-gray-400 focus:shadow-none focus:ring-0"
                       />
                     </div>
@@ -1225,7 +1277,7 @@ Notas adicionales: ${lead.notes || "Ninguna"}`;
                                 </p>
                               ) : (
                                 <div className="space-y-3">
-                                  {clientLead.Interactions.map((interaction) => (
+                                   {clientLead.Interactions.map((interaction) => (
                                     <div
                                       key={interaction.Id}
                                       className="flex items-start gap-3 p-3 bg-gray-50 rounded-xl"
@@ -1235,17 +1287,41 @@ Notas adicionales: ${lead.notes || "Ninguna"}`;
                                         {interaction.Type === "phone" && <Phone className="h-3 w-3" />}
                                         {interaction.Type === "whatsapp" && <MessageSquare className="h-3 w-3" />}
                                         {interaction.Type === "meeting" && <Calendar className="h-3 w-3" />}
+                                        {interaction.Type === "call" && <Phone className="h-3 w-3" />}
+                                        {interaction.Type === "note" && <MessageSquare className="h-3 w-3" />}
                                       </div>
                                       <div className="flex-1">
                                         <div className="flex items-center justify-between mb-1">
                                           <h5 className="text-sm font-medium">
                                             {interaction.Description || "Sin título"}
                                           </h5>
-                                          {interaction.UserName && (
-                                            <Badge variant="outline" className="text-xs">
-                                              {interaction.UserName}
-                                            </Badge>
-                                          )}
+                                           <div className="flex items-center gap-2">
+                                             {interaction.UserName && (
+                                               <Badge variant="outline" className="text-xs">
+                                                 {interaction.UserName}
+                                               </Badge>
+                                             )}
+                                             {user?.id === interaction.UserId && (
+                                               <>
+                                                 <Button
+                                                   variant="ghost"
+                                                   size="sm"
+                                                   onClick={() => handleEditInteraction(interaction)}
+                                                   className="h-6 w-6 p-0"
+                                                 >
+                                                   <Pencil className="h-3 w-3" />
+                                                 </Button>
+                                                 <Button
+                                                   variant="ghost"
+                                                   size="sm"
+                                                   onClick={() => handleDeleteInteraction(interaction)}
+                                                   className="h-6 w-6 p-0 text-destructive hover:text-destructive"
+                                                 >
+                                                   <Trash2 className="h-3 w-3" />
+                                                 </Button>
+                                               </>
+                                             )}
+                                           </div>
                                         </div>
                                         <div className="flex items-center gap-2 mt-1 text-xs text-muted-foreground flex-wrap">
                                           <span>Tipo: {interaction.Type}</span>
@@ -1290,15 +1366,39 @@ Notas adicionales: ${lead.notes || "Ninguna"}`;
                                         {interaction.Type === "phone" && <Phone className="h-4 w-4" />}
                                         {interaction.Type === "whatsapp" && <MessageSquare className="h-4 w-4" />}
                                         {interaction.Type === "meeting" && <Calendar className="h-4 w-4" />}
+                                        {interaction.Type === "call" && <Phone className="h-4 w-4" />}
+                                        {interaction.Type === "note" && <MessageSquare className="h-4 w-4" />}
                                       </div>
                                       <div className="flex-1">
                                         <div className="flex items-center justify-between mb-2">
                                           <h4 className="font-medium">{interaction.Description || "Sin título"}</h4>
-                                          {interaction.UserName && (
-                                            <Badge variant="outline" className="text-xs">
-                                              {interaction.UserName}
-                                            </Badge>
-                                          )}
+                                           <div className="flex items-center gap-2">
+                                             {interaction.UserName && (
+                                               <Badge variant="outline" className="text-xs">
+                                                 {interaction.UserName}
+                                               </Badge>
+                                             )}
+                                             {user?.id === interaction.UserId && (
+                                               <>
+                                                 <Button
+                                                   variant="ghost"
+                                                   size="sm"
+                                                   onClick={() => handleEditInteraction(interaction)}
+                                                   className="h-7 w-7 p-0"
+                                                 >
+                                                   <Pencil className="h-4 w-4" />
+                                                 </Button>
+                                                 <Button
+                                                   variant="ghost"
+                                                   size="sm"
+                                                   onClick={() => handleDeleteInteraction(interaction)}
+                                                   className="h-7 w-7 p-0 text-destructive hover:text-destructive"
+                                                 >
+                                                   <Trash2 className="h-4 w-4" />
+                                                 </Button>
+                                               </>
+                                             )}
+                                           </div>
                                         </div>
                                         <div className="flex items-center gap-3 mt-2 text-xs text-muted-foreground flex-wrap">
                                           <span>Tipo: {interaction.Type}</span>
@@ -1400,6 +1500,14 @@ Notas adicionales: ${lead.notes || "Ninguna"}`;
           onClose={() => setShowReassignDialog(false)}
           lead={editedLead}
           onSuccess={handleReassignSuccess}
+        />
+
+        {/* Dialog de edición de interacciones */}
+        <EditInteractionDialog
+          interaction={editingInteraction}
+          open={showEditInteractionDialog}
+          onOpenChange={setShowEditInteractionDialog}
+          onSave={handleSaveInteraction}
         />
 
         {/* Componente del Perfilador */}
