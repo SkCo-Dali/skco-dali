@@ -82,7 +82,7 @@ type SortConfig = {
 // Nueva configuración por defecto con solo 6 columnas visibles
 const defaultColumns: ColumnConfig[] = [
   { key: "name", label: "Nombre", visible: true, sortable: true },
-  { key: "firstName", label: "Primer Nombre", visible: false, sortable: true },
+  { key: "firstName", label: "Primer Nombre", visible: true, sortable: true },
   { key: "campaign", label: "Campaña", visible: true, sortable: true },
   { key: "email", label: "Email", visible: true, sortable: true },
   { key: "alternateEmail", label: "Email Alternativo", visible: true, sortable: true },
