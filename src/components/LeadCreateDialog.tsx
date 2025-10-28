@@ -602,9 +602,7 @@ export const LeadCreateDialog = forwardRef<LeadCreateDialogRef, LeadCreateDialog
               </div>
 
               {/* Área de subida de archivo */}
-              <div className="border-2 border-dashed rounded-lg p-6">
-                <h4 className="text-base font-medium mb-4">Subir archivo</h4>
-
+              <div className="border-2 border-dashed rounded-lg p-4">
                 {!uploadedFile ? (
                   <div className="text-center space-y-4">
                     <div className="flex justify-center">
