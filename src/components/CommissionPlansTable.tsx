@@ -127,7 +127,7 @@ export function CommissionPlansTable({
   return (
     <>
       <div className="rounded-md border">
-        <ScrollArea className="max-h-[400px]">
+        <ScrollArea className="max-h-[200px]">
           <Table>
             <TableHeader>
               <TableRow>
