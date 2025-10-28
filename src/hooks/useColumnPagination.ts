@@ -69,6 +69,7 @@ const mapPaginatedLeadToLead = (paginatedLead: PaginatedLead): Lead => {
     assignedToName: paginatedLead.AssignedToName || undefined,
     createdAt: paginatedLead.CreatedAt,
     updatedAt: paginatedLead.UpdatedAt,
+    lastInteractionAt: paginatedLead.LastInteractionAt || undefined,
     nextFollowUp: paginatedLead.NextFollowUp || undefined,
     notes: paginatedLead.Notes || undefined,
     tags,

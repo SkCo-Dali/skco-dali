@@ -274,8 +274,8 @@ function SortableHeader({
         {column.sortable && renderSortIcon(column.key)}
         {/* X button to clear filters - positioned after column name */}
         {(() => {
-          // Para lastInteraction, también buscar en updatedAt (debido al mapeo interno)
-          const effectiveKey = column.key === "lastInteraction" ? "updatedAt" : column.key;
+          // Para lastInteraction, buscar en lastInteractionAt
+          const effectiveKey = column.key === "lastInteraction" ? "lastInteractionAt" : column.key;
           return (
             (columnFilters[column.key] && columnFilters[column.key].length > 0) ||
             (columnFilters[effectiveKey] && columnFilters[effectiveKey].length > 0) ||
@@ -334,11 +334,13 @@ export function LeadsTable({
   const convertFiltersToApiFormat = useMemo((): LeadsApiFilters => {
     const apiFilters: LeadsApiFilters = {};
 
-    // Special handling for date columns: createdAt, updatedAt/lastInteraction, nextFollowUp
+    // Special handling for date columns: createdAt, updatedAt, lastInteraction, nextFollowUp
     const createdAtFrom = columnFilters?.createdAt?.[0];
     const createdAtTo = columnFilters?.createdAtEnd?.[0];
-    const updatedAtFrom = (columnFilters?.updatedAt || columnFilters?.lastInteraction)?.[0];
-    const updatedAtTo = (columnFilters?.updatedAtEnd || columnFilters?.lastInteractionEnd)?.[0];
+    const updatedAtFrom = columnFilters?.updatedAt?.[0];
+    const updatedAtTo = columnFilters?.updatedAtEnd?.[0];
+    const lastInteractionFrom = columnFilters?.lastInteraction?.[0];
+    const lastInteractionTo = columnFilters?.lastInteractionEnd?.[0];
     const nextFollowUpFrom = columnFilters?.nextFollowUp?.[0];
     const nextFollowUpTo = columnFilters?.nextFollowUpEnd?.[0];
 
@@ -347,7 +349,7 @@ export function LeadsTable({
       return d.length === 10 ? `${d}T23:59:59` : d;
     };
 
-    const applyDateFilter = (field: "CreatedAt" | "UpdatedAt" | "NextFollowUp", from?: string, to?: string) => {
+    const applyDateFilter = (field: "CreatedAt" | "UpdatedAt" | "LastInteractionAt" | "NextFollowUp", from?: string, to?: string) => {
       const toNorm = normalizeToEndOfDay(to);
       if (from && toNorm) {
         (apiFilters as any)[field] = { op: "between", from, to: toNorm };
@@ -360,6 +362,7 @@ export function LeadsTable({
 
     applyDateFilter("CreatedAt", createdAtFrom, createdAtTo);
     applyDateFilter("UpdatedAt", updatedAtFrom, updatedAtTo);
+    applyDateFilter("LastInteractionAt", lastInteractionFrom, lastInteractionTo);
     applyDateFilter("NextFollowUp", nextFollowUpFrom, nextFollowUpTo);
 
     // Convert non-date column filters (dropdown selections)
@@ -423,6 +426,7 @@ export function LeadsTable({
       tags: "Tags",
       alternateEmail: "AlternateEmail",
       lastGestorName: "LastGestorName",
+      lastInteraction: "LastInteractionAt",
       lastGestorInteractionAt: "LastGestorInteractionAt",
       lastGestorInteractionStage: "LastGestorInteractionStage",
       lastGestorInteractionDescription: "LastGestorInteractionDescription",
@@ -764,7 +768,7 @@ Por favor, confirmar asistencia.`;
       case "assignedToName":
         return <EditableLeadCell lead={lead} field="assignedToName" onUpdate={() => onLeadUpdate?.()} />;
       case "lastInteraction":
-        return <span className="text-gray-700 text-xs text-center">{formatBogotaDate(lead.updatedAt)}</span>;
+        return <span className="text-gray-700 text-xs text-center">{lead.lastInteractionAt ? formatBogotaDate(lead.lastInteractionAt) : "-"}</span>;
       case "value":
         return <span className="text-gray-800 font-medium text-xs text-center">${lead.value.toLocaleString()}</span>;
       case "priority":

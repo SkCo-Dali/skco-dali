@@ -183,6 +183,7 @@ export function useDistinctValues(field: string, currentFilters: LeadsApiFilters
       tags: "Tags",
       alternateEmail: "AlternateEmail",
       lastGestorName: "LastGestorName",
+      lastInteraction: "LastInteractionAt",
       lastGestorInteractionAt: "LastGestorInteractionAt",
       lastGestorInteractionStage: "LastGestorInteractionStage",
       lastGestorInteractionDescription: "LastGestorInteractionDescription",

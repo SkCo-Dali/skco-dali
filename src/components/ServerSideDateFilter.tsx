@@ -48,7 +48,7 @@ export function ServerSideDateFilter({
   // Map UI fields to API fields for API calls
   const getApiField = (uiField: string): string => {
     const mapping: Record<string, string> = {
-      'lastInteraction': 'updatedAt',
+      'lastInteraction': 'LastInteractionAt',
       'lastGestorInteractionAt': 'LastGestorInteractionAt',
       'createdAt': 'CreatedAt',
       'updatedAt': 'UpdatedAt',

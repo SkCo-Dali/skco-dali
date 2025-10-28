@@ -106,6 +106,7 @@ export const usePaginatedLeadsApi = () => {
       createdBy: paginatedLead.CreatedBy,
       createdAt: paginatedLead.CreatedAt,
       updatedAt: paginatedLead.UpdatedAt,
+      lastInteractionAt: paginatedLead.LastInteractionAt,
       nextFollowUp: paginatedLead.NextFollowUp,
       notes: paginatedLead.Notes,
       tags,

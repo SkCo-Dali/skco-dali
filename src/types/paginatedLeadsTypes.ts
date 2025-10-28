@@ -29,6 +29,7 @@ export interface PaginatedLead {
   AssignedToName: string | null;
   CreatedAt: string;
   UpdatedAt: string;
+  LastInteractionAt: string | null;
   NextFollowUp: string | null;
   Notes: string | null;
   Tags: string | null;
@@ -131,6 +132,7 @@ export const ALLOWED_SORT_FIELDS = [
   "AssignedTo",
   "CreatedAt",
   "UpdatedAt",
+  "LastInteractionAt",
   "NextFollowUp",
   "Notes",
   "Tags",

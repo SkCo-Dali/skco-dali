@@ -372,9 +372,9 @@ export default function Leads() {
   const handleColumnFilterChange = useCallback(
     (column: string, selectedValues: string[]) => {
       const dateColumns = new Set(["createdAt", "updatedAt", "nextFollowUp", "lastInteraction"]);
-      const normCol = column === "lastInteraction" ? "updatedAt" : column;
+      const normCol = column; // No more mapping - keep column as is
 
-      if (dateColumns.has(normCol)) {
+      if (dateColumns.has(column)) {
         const parseRange = (values: string[]) => {
           let from: string | undefined;
           let to: string | undefined;
@@ -465,7 +465,7 @@ export default function Leads() {
   const clearColumnFilter = useCallback(
     (column: string) => {
       const newColumnFilters = { ...filters.columnFilters };
-      const effectiveKey = column === "lastInteraction" ? "updatedAt" : column;
+      const effectiveKey = column; // No more mapping - keep column as is
 
       delete newColumnFilters[column];
       delete newColumnFilters[effectiveKey];
@@ -486,14 +486,11 @@ export default function Leads() {
 
   const hasFiltersForColumn = useCallback(
     (column: string) => {
-      const effectiveKey = column === "lastInteraction" ? "updatedAt" : column;
+      const effectiveKey = column; // No more mapping - keep column as is
       return (
         (filters.columnFilters[column] && filters.columnFilters[column].length > 0) ||
-        (filters.columnFilters[effectiveKey] && filters.columnFilters[effectiveKey].length > 0) ||
         (filters.columnFilters[`${column}End`] && filters.columnFilters[`${column}End`].length > 0) ||
-        (filters.columnFilters[`${effectiveKey}End`] && filters.columnFilters[`${effectiveKey}End`].length > 0) ||
-        (filters.textFilters[column] && filters.textFilters[column].length > 0) ||
-        (filters.textFilters[effectiveKey] && filters.textFilters[effectiveKey].length > 0)
+        (filters.textFilters[column] && filters.textFilters[column].length > 0)
       );
     },
     [filters.columnFilters, filters.textFilters],
