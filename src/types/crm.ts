@@ -511,7 +511,6 @@ export interface Lead {
   product: string; // Changed from Product[] to string
   createdAt: string; // Changed to string for consistency
   updatedAt: string; // Changed to string for consistency
-  lastInteractionAt?: string; // Última interacción realizada
   stage: string;
   assignedTo: string;
   assignedToName?: string; // Name of the assigned user from API

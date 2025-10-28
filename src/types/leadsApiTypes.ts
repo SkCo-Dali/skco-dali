@@ -19,7 +19,6 @@ export interface ApiLead {
   AssignedToName?: string; // Added from API response
   CreatedAt: string;
   UpdatedAt: string;
-  LastInteractionAt?: string; // Última interacción realizada
   NextFollowUp?: string;
   Notes: string;
   Tags: string | string[]; // Puede venir como string JSON o array
