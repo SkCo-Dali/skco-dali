@@ -145,7 +145,7 @@ const cleanProductField = (value: any): string => {
 // Función para cargar configuración de columnas desde sessionStorage
 const loadColumnConfig = (): ColumnConfig[] => {
   try {
-    const saved = sessionStorage.getItem("leads-table-columns");
+    const saved = sessionStorage.getItem("leads-table-columns-v2");
     if (saved) {
       const savedColumns = JSON.parse(saved);
       // Merge saved config with default columns to handle new columns
@@ -163,7 +163,7 @@ const loadColumnConfig = (): ColumnConfig[] => {
 // Función para guardar configuración de columnas en sessionStorage
 const saveColumnConfig = (columns: ColumnConfig[]) => {
   try {
-    sessionStorage.setItem("leads-table-columns", JSON.stringify(columns));
+    sessionStorage.setItem("leads-table-columns-v2", JSON.stringify(columns));
   } catch (error) {
     console.warn("Error saving column configuration:", error);
   }
