@@ -7,16 +7,18 @@ import {
   createInteraction, 
   getInteractionsByLead, 
   getClientHistory,
+  updateInteraction,
   InteractionResponse,
   ClientHistoryResponse,
-  CreateInteractionRequest 
+  CreateInteractionRequest,
+  UpdateInteractionRequest
 } from '@/utils/interactionsApiClient';
 
 export const useInteractionsApi = () => {
   const [loading, setLoading] = useState(false);
   const [interactions, setInteractions] = useState<InteractionResponse[]>([]);
   const [clientHistory, setClientHistory] = useState<ClientHistoryResponse[]>([]);
-  const { user } = useAuth();
+  const { user, accessToken, getAccessToken } = useAuth();
   const { toast } = useToast();
 
   // Crear nueva interacción desde un lead
@@ -97,6 +99,50 @@ export const useInteractionsApi = () => {
     }
   };
 
+  // Actualizar interacción existente
+  const updateExistingInteraction = async (
+    interactionId: string,
+    data: UpdateInteractionRequest
+  ): Promise<boolean> => {
+    // Obtener el token de acceso
+    let token = accessToken;
+    if (!token) {
+      const tokens = await getAccessToken();
+      token = tokens?.accessToken || null;
+    }
+
+    if (!token) {
+      toast({
+        title: "Error",
+        description: "No se pudo obtener el token de autenticación",
+        variant: "destructive",
+      });
+      return false;
+    }
+
+    setLoading(true);
+    try {
+      await updateInteraction(interactionId, data, token);
+      
+      toast({
+        title: "Éxito",
+        description: "Interacción actualizada exitosamente",
+      });
+      
+      return true;
+    } catch (error: any) {
+      console.error('❌ Error updating interaction:', error);
+      toast({
+        title: "Error",
+        description: error.message || "No se pudo actualizar la interacción",
+        variant: "destructive",
+      });
+      return false;
+    } finally {
+      setLoading(false);
+    }
+  };
+
   // Cargar historial completo del cliente
   const loadClientHistory = async (lead: Lead) => {
     setLoading(true);
@@ -148,6 +194,7 @@ export const useInteractionsApi = () => {
     clientHistory,
     createInteractionFromLead,
     loadLeadInteractions,
-    loadClientHistory
+    loadClientHistory,
+    updateExistingInteraction
   };
 };
