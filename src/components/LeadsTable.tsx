@@ -82,7 +82,6 @@ type SortConfig = {
 // Nueva configuración por defecto con solo 6 columnas visibles
 const defaultColumns: ColumnConfig[] = [
   { key: "name", label: "Nombre", visible: true, sortable: true },
-  { key: "firstName", label: "Primer Nombre", visible: true, sortable: true },
   { key: "campaign", label: "Campaña", visible: true, sortable: true },
   { key: "email", label: "Email", visible: true, sortable: true },
   { key: "alternateEmail", label: "Email Alternativo", visible: true, sortable: true },
@@ -145,7 +144,7 @@ const cleanProductField = (value: any): string => {
 // Función para cargar configuración de columnas desde sessionStorage
 const loadColumnConfig = (): ColumnConfig[] => {
   try {
-    const saved = sessionStorage.getItem("leads-table-columns-v2");
+    const saved = sessionStorage.getItem("leads-table-columns");
     if (saved) {
       const savedColumns = JSON.parse(saved);
       // Merge saved config with default columns to handle new columns
@@ -163,7 +162,7 @@ const loadColumnConfig = (): ColumnConfig[] => {
 // Función para guardar configuración de columnas en sessionStorage
 const saveColumnConfig = (columns: ColumnConfig[]) => {
   try {
-    sessionStorage.setItem("leads-table-columns-v2", JSON.stringify(columns));
+    sessionStorage.setItem("leads-table-columns", JSON.stringify(columns));
   } catch (error) {
     console.warn("Error saving column configuration:", error);
   }
@@ -746,8 +745,6 @@ Por favor, confirmar asistencia.`;
             </DropdownMenu>
           </div>
         );
-      case "firstName":
-        return <div className="text-gray-700 text-xs text-center">{lead.firstName || "-"}</div>;
       case "email":
         return <div className="text-gray-700 text-xs text-center">{(lead.email || "").toLowerCase()}</div>;
       case "phone":

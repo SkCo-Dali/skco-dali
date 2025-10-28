@@ -77,7 +77,7 @@ const generateDynamicColumns = (leads: Lead[]): ColumnConfig[] => {
 // Función para guardar configuración en sessionStorage
 const saveColumnConfig = (columns: ColumnConfig[]) => {
   try {
-    sessionStorage.setItem('leads-table-columns-v2', JSON.stringify(columns));
+    sessionStorage.setItem('leads-table-columns', JSON.stringify(columns));
     console.log('✅ Column configuration saved:', columns.map(c => `${c.key}: ${c.visible}`));
   } catch (error) {
     console.warn('Error saving column configuration:', error);
@@ -87,7 +87,7 @@ const saveColumnConfig = (columns: ColumnConfig[]) => {
 // Función para limpiar la configuración guardada (útil para resetear)
 const clearColumnConfig = () => {
   try {
-    sessionStorage.removeItem('leads-table-columns-v2');
+    sessionStorage.removeItem('leads-table-columns');
     console.log('🗑️ Column configuration cleared');
   } catch (error) {
     console.warn('Error clearing column configuration:', error);

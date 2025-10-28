@@ -23,7 +23,6 @@ export type UserRole =
 export interface User {
   id: string;
   name: string;
-  firstName?: string;
   email: string;
   role: UserRole;
   avatar?: string;
@@ -502,7 +501,6 @@ export interface Interaction {
 export interface Lead {
   id: string;
   name: string;
-  firstName?: string;
   email: string;
   phone: string;
   status: LeadStatus;
@@ -545,7 +543,6 @@ export interface Lead {
 export const LeadDefaultProperties: string[] = [
   "id",
   "name",
-  "firstName",
   "email",
   "phone",
   "status",
