@@ -128,66 +128,65 @@ export function CommissionPlansTable({
   return (
     <div className="space-y-4">
       <Card>
-      <ScrollArea className="max-h-[400px]">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Nombre</TableHead>
-              <TableHead>Descripción</TableHead>
-              <TableHead>Fecha Inicio</TableHead>
-              <TableHead>Fecha Fin</TableHead>
-              <TableHead>Asignado a</TableHead>
-              <TableHead>Publicado el</TableHead>
-              <TableHead className="w-[70px]">Acciones</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {plans.map((plan) => (
-              <TableRow key={plan.id}>
-                <TableCell className="font-medium">{plan.name}</TableCell>
-                <TableCell className="max-w-xs">
-                  <div className="truncate" title={plan.description}>
-                    {plan.description}
-                  </div>
-                </TableCell>
-                <TableCell>{formatDate(plan.startDate)}</TableCell>
-                <TableCell>{formatDate(plan.endDate)}</TableCell>
-                <TableCell>
-                  <Badge variant="outline">
-                    {ASSIGNMENT_LABELS[plan.assignmentType]}
-                    {plan.assignmentValue && ` - ${plan.assignmentValue}`}
-                  </Badge>
-                </TableCell>
-                <TableCell>{plan.publishedOn ? formatDateTime(plan.publishedOn) : "-"}</TableCell>
-                <TableCell>
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" className="h-8 w-8 p-0">
-                        <MoreHorizontal className="h-4 w-4" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="bg-background border shadow-md">
-                      <DropdownMenuItem onClick={() => handleEdit(plan)}>
-                        <Edit className="mr-2 h-4 w-4" />
-                        Editar
-                      </DropdownMenuItem>
-                      <DropdownMenuItem
-                        onClick={() => handleDelete(plan)}
-                        className="text-destructive focus:text-destructive"
-                      >
-                        <Trash2 className="mr-2 h-4 w-4" />
-                        Eliminar
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </TableCell>
+        <ScrollArea className="max-h-[400px]">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Nombre</TableHead>
+                <TableHead>Descripción</TableHead>
+                <TableHead>Fecha Inicio</TableHead>
+                <TableHead>Fecha Fin</TableHead>
+                <TableHead>Asignado a</TableHead>
+                <TableHead>Publicado el</TableHead>
+                <TableHead className="w-[70px]">Acciones</TableHead>
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </ScrollArea>
-         </Card>
-    </div>
+            </TableHeader>
+            <TableBody>
+              {plans.map((plan) => (
+                <TableRow key={plan.id}>
+                  <TableCell className="font-medium">{plan.name}</TableCell>
+                  <TableCell className="max-w-xs">
+                    <div className="truncate" title={plan.description}>
+                      {plan.description}
+                    </div>
+                  </TableCell>
+                  <TableCell>{formatDate(plan.startDate)}</TableCell>
+                  <TableCell>{formatDate(plan.endDate)}</TableCell>
+                  <TableCell>
+                    <Badge variant="outline">
+                      {ASSIGNMENT_LABELS[plan.assignmentType]}
+                      {plan.assignmentValue && ` - ${plan.assignmentValue}`}
+                    </Badge>
+                  </TableCell>
+                  <TableCell>{plan.publishedOn ? formatDateTime(plan.publishedOn) : "-"}</TableCell>
+                  <TableCell>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" className="h-8 w-8 p-0">
+                          <MoreHorizontal className="h-4 w-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end" className="bg-background border shadow-md">
+                        <DropdownMenuItem onClick={() => handleEdit(plan)}>
+                          <Edit className="mr-2 h-4 w-4" />
+                          Editar
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          onClick={() => handleDelete(plan)}
+                          className="text-destructive focus:text-destructive"
+                        >
+                          <Trash2 className="mr-2 h-4 w-4" />
+                          Eliminar
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </ScrollArea>
+      </Card>
 
       <CommissionsPagination
         currentPage={currentPage}
@@ -235,6 +234,6 @@ export function CommissionPlansTable({
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-    </>
+    </div>
   );
 }
