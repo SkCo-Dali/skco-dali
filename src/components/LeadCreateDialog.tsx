@@ -10,8 +10,8 @@ import { Progress } from "@/components/ui/progress";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Lead, Priority, getRolePermissions } from "@/types/crm";
-import { Plus, ChevronDown, Upload, FileText, RefreshCcw } from "lucide-react";
-import { uploadLeadsFile } from "@/utils/leadsApiClient";
+import { Plus, ChevronDown, Upload, FileText, RefreshCcw, FileSpreadsheet, Download, FileCheck, X } from "lucide-react";
+import { uploadLeadsFile, downloadLeadsTemplate } from "@/utils/leadsApiClient";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { InputSanitizer } from "@/utils/inputSanitizer";
@@ -137,6 +137,32 @@ export const LeadCreateDialog = forwardRef<LeadCreateDialogRef, LeadCreateDialog
       setUploadedFile(null);
       setUploadProgress(0);
       setIsUploading(false);
+    };
+
+    const handleDownloadTemplate = async () => {
+      try {
+        const blob = await downloadLeadsTemplate();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "plantilla_leads.xlsx";
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(a);
+
+        toast({
+          title: "Plantilla descargada",
+          description: "La plantilla ha sido descargada exitosamente",
+        });
+      } catch (error) {
+        console.error("Error al descargar plantilla:", error);
+        toast({
+          title: "Error",
+          description: "No se pudo descargar la plantilla",
+          variant: "destructive",
+        });
+      }
     };
 
     const handleBulkUpload = () => {
@@ -529,67 +555,125 @@ export const LeadCreateDialog = forwardRef<LeadCreateDialogRef, LeadCreateDialog
             </TabsContent>
 
             <TabsContent value="bulk" className="space-y-6">
-              <div className="flex items-center space-x-2 mb-4">
-                <div className="w-6 h-6 bg-[#00C73D] rounded-full flex items-center justify-center">
-                  <span className="w-2 h-2 bg-white rounded-full"></span>
-                </div>
-                <h3 className="text-lg font-semibold text-gray-800">Sube tu archivo de leads</h3>
+              <div className="text-center mb-6">
+                <h3 className="text-xl font-semibold mb-2">Subir archivo</h3>
               </div>
 
-              <div className="flex items-center text-blue-500 cursor-pointer hover:text-blue-600 mb-4">
-                <span className="mr-2">ℹ️</span>
-                <span className="text-sm">¿Cómo debes subir tus archivos?</span>
-              </div>
-
-              {!uploadedFile ? (
-                <div className="border-2 border-dashed border-green-300 rounded-xl p-8 text-center bg-green-50">
-                  <div className="flex flex-col items-center space-y-4">
-                    <Upload className="h-12 w-12 text-green-500" />
-                    <div>
-                      <p className="text-gray-600 mb-2">Arrastra y suelta tu archivo aquí o</p>
-                      <label className="cursor-pointer">
-                        <input type="file" accept=".xlsx,.xls,.csv" onChange={handleFileUpload} className="hidden" />
-                        <span className="text-blue-500 hover:text-blue-600 underline">selecciona un archivo</span>
-                      </label>
-                    </div>
-                    <p className="text-sm text-gray-500">Archivos soportados: .xlsx, .xls, .csv</p>
+              {/* Tres pasos */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                {/* Paso 1 */}
+                <div className="flex flex-col items-center text-center p-4 rounded-lg border bg-card">
+                  <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mb-3">
+                    <span className="text-primary font-bold text-lg">1</span>
                   </div>
+                  <FileSpreadsheet className="w-12 h-12 text-muted-foreground mb-3" />
+                  <p className="text-sm font-medium mb-2">Utiliza la plantilla en Excel</p>
+                  <Button
+                    type="button"
+                    variant="link"
+                    className="text-primary p-0 h-auto"
+                    onClick={handleDownloadTemplate}
+                  >
+                    <Download className="w-4 h-4 mr-1" />
+                    Descargar plantilla
+                  </Button>
                 </div>
-              ) : (
-                <div className="border-2 border-dashed border-green-300 rounded-xl p-4 bg-green-50">
-                  <div className="flex flex-col items-center space-y-4">
-                    <FileText className="h-12 w-12 text-blue-500" />
-                    <div className="text-center">
-                      <p className="font-semibold text-gray-800">Carga completa</p>
-                      <p className="text-gray-600">{uploadedFile.name}</p>
-                    </div>
 
-                    <div className="w-full max-w-md">
-                      <Progress value={uploadProgress} className="h-2" />
-                      <div className="text-right mt-1">
-                        <span className="text-sm font-medium">{uploadProgress}%</span>
+                {/* Paso 2 */}
+                <div className="flex flex-col items-center text-center p-4 rounded-lg border bg-card">
+                  <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mb-3">
+                    <span className="text-primary font-bold text-lg">2</span>
+                  </div>
+                  <FileCheck className="w-12 h-12 text-muted-foreground mb-3" />
+                  <p className="text-sm font-medium mb-2">Recuerda seguir las recomendaciones de la plantilla.</p>
+                </div>
+
+                {/* Paso 3 */}
+                <div className="flex flex-col items-center text-center p-4 rounded-lg border bg-card">
+                  <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mb-3">
+                    <span className="text-primary font-bold text-lg">3</span>
+                  </div>
+                  <Upload className="w-12 h-12 text-muted-foreground mb-3" />
+                  <p className="text-sm font-medium mb-2">
+                    Sube el <span className="font-bold">archivo de Excel</span>
+                  </p>
+                  <p className="text-sm font-medium">y dale a "Cargar leads".</p>
+                </div>
+              </div>
+
+              {/* Área de subida de archivo */}
+              <div className="border-2 border-dashed rounded-lg p-6">
+                <h4 className="text-base font-medium mb-4">Subir archivo</h4>
+
+                {!uploadedFile ? (
+                  <div className="text-center space-y-4">
+                    <div className="flex justify-center">
+                      <div className="w-16 h-16 rounded-lg bg-muted flex items-center justify-center">
+                        <Upload className="w-8 h-8 text-muted-foreground" />
                       </div>
                     </div>
-
-                    <button
-                      onClick={handleReplaceFile}
-                      className="flex items-center text-blue-500 hover:text-blue-600 text-sm"
-                    >
-                      <RefreshCcw className="h-4 w-4 mr-1" />
-                      Reemplazar archivo
-                    </button>
-
-                    <p className="text-sm text-gray-500">2/5 MB</p>
+                    <div>
+                      <p className="text-sm mb-1">
+                        Arrastra y suelta a <span className="text-primary font-medium">tu archivo</span> .XLSX, para
+                        cargarlo.
+                      </p>
+                      <p className="text-xs text-muted-foreground">Peso máx. 200 mb</p>
+                    </div>
+                    <input
+                      type="file"
+                      accept=".csv,.xlsx,.xls"
+                      onChange={handleFileUpload}
+                      className="hidden"
+                      id="file-upload-bulk"
+                    />
+                    <label htmlFor="file-upload-bulk">
+                      <Button type="button" variant="outline" asChild>
+                        <span className="cursor-pointer">Seleccionar archivo</span>
+                      </Button>
+                    </label>
                   </div>
-                </div>
-              )}
+                ) : (
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between p-4 bg-muted rounded-lg">
+                      <div className="flex items-center gap-3">
+                        <FileText className="w-8 h-8 text-primary" />
+                        <div className="flex-1">
+                          <p className="text-sm font-medium">{uploadedFile.name}</p>
+                          <p className="text-xs text-muted-foreground">
+                            {(uploadedFile.size / 1024 / 1024).toFixed(2)} MB
+                          </p>
+                        </div>
+                      </div>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        onClick={handleReplaceFile}
+                        disabled={isUploading}
+                      >
+                        <X className="w-4 h-4" />
+                      </Button>
+                    </div>
+
+                    {isUploading && (
+                      <div className="space-y-2">
+                        <div className="flex justify-between text-sm">
+                          <span>Subiendo archivo...</span>
+                          <span>{uploadProgress}%</span>
+                        </div>
+                        <Progress value={uploadProgress} className="w-full" />
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
 
               <Button
                 onClick={handleBulkUpload}
                 disabled={!uploadedFile || isUploading}
                 className="w-full bg-gradient-to-r from-[#00C73D] to-[#00a532] hover:from-[#00a532] hover:to-[#008c2a] text-white font-medium h-10 rounded-full text-base transition-all duration-200"
               >
-                Cargar leads
+                {isUploading ? "Cargando..." : "Cargar leads"}
               </Button>
             </TabsContent>
           </Tabs>

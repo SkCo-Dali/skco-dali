@@ -20,6 +20,8 @@ import {
 import { Trash2, Edit2, Check, X } from "lucide-react";
 import { User, UserPermissions, getRoleDisplayName } from "@/types/crm";
 import { roles } from "@/utils/userRoleUtils";
+import { formatBogotaDateTime } from "@/utils/dateUtils";
+import { format } from "date-fns";
 
 interface UserTableRowProps {
   user: User;
@@ -33,6 +35,7 @@ interface UserTableRowProps {
     updates: {
       name: string;
       email: string;
+      role: User["role"];
       preferredName?: string | null;
       whatsappNumber?: string | null;
       countryCodeWhatsApp?: number | null;
@@ -66,6 +69,7 @@ export function UserTableRow({
       onUserUpdate(user.id, {
         name: editName.trim(),
         email: editEmail.trim(),
+        role: user.role,
         preferredName: editPreferredName.trim() || null,
         whatsappNumber: editWhatsappNumber.trim() || null,
         countryCodeWhatsApp: editCountryCode ? parseInt(editCountryCode) : null,
@@ -169,7 +173,7 @@ export function UserTableRow({
         )}
       </TableCell>
       <TableCell className="text-xs text-center mx-2">
-        {user.birthDate ? new Date(user.birthDate).toLocaleDateString("es-CO") : "-"}
+        {user.birthDate ? user.birthDate.split('T')[0].split('-').reverse().join('/') : "-"}
       </TableCell>
       <TableCell className="text-xs text-center mx-2">
         {isEditing ? (
@@ -229,10 +233,10 @@ export function UserTableRow({
         )}
       </TableCell>
       <TableCell className="text-xs text-center mx-2">
-        {user.createdAt ? new Date(user.createdAt).toLocaleDateString("es-CO") : "-"}
+        {user.createdAt ? formatBogotaDateTime(user.createdAt, "dd/MM/yyyy HH:mm") : "-"}
       </TableCell>
       <TableCell className="text-xs text-center mx-2">
-        {user.updatedAt ? new Date(user.updatedAt).toLocaleDateString("es-CO") : "-"}
+        {user.updatedAt ? formatBogotaDateTime(user.updatedAt, "dd/MM/yyyy HH:mm") : "-"}
       </TableCell>
       <TableCell className="text-xs text-center mx-2">
         <div className="flex items-center gap-2">

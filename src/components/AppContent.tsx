@@ -35,13 +35,14 @@ export function AppContent() {
   const chatSamiRef = useRef<ChatSamiHandle>(null);
   const location = useLocation();
   const navigate = useNavigate();
-  
+
   // Check if user has ChatSami permissions
   const hasChatSamiPermissions = user ? getRolePermissions(user.role)?.chatSami : false;
   const [chatSamiOpen, setChatSamiOpen] = useState(false);
-  
+
   // Verificar si estamos en la página de Users
-  const isUsersPage = location.pathname === '/users' || location.pathname === '/admin/users';
+  const isUsersPage =
+    location.pathname === "/users" || location.pathname === "/admin/users" || location.pathname === "/admin/reports";
 
   // Abrir ChatSami por defecto para usuarios con permisos (excepto en página de Users)
   useEffect(() => {
