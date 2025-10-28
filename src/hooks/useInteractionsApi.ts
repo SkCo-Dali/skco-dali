@@ -8,6 +8,7 @@ import {
   getInteractionsByLead, 
   getClientHistory,
   updateInteraction,
+  deleteInteraction,
   InteractionResponse,
   ClientHistoryResponse,
   CreateInteractionRequest,
@@ -143,6 +144,49 @@ export const useInteractionsApi = () => {
     }
   };
 
+  // Eliminar interacción existente
+  const deleteExistingInteraction = async (
+    interactionId: string
+  ): Promise<boolean> => {
+    // Obtener el token de acceso
+    let token = accessToken;
+    if (!token) {
+      const tokens = await getAccessToken();
+      token = tokens?.accessToken || null;
+    }
+
+    if (!token) {
+      toast({
+        title: "Error",
+        description: "No se pudo obtener el token de autenticación",
+        variant: "destructive",
+      });
+      return false;
+    }
+
+    setLoading(true);
+    try {
+      await deleteInteraction(interactionId, token);
+      
+      toast({
+        title: "Éxito",
+        description: "Interacción eliminada exitosamente",
+      });
+      
+      return true;
+    } catch (error: any) {
+      console.error('❌ Error deleting interaction:', error);
+      toast({
+        title: "Error",
+        description: error.message || "No se pudo eliminar la interacción",
+        variant: "destructive",
+      });
+      return false;
+    } finally {
+      setLoading(false);
+    }
+  };
+
   // Cargar historial completo del cliente
   const loadClientHistory = async (lead: Lead) => {
     setLoading(true);
@@ -195,6 +239,7 @@ export const useInteractionsApi = () => {
     createInteractionFromLead,
     loadLeadInteractions,
     loadClientHistory,
-    updateExistingInteraction
+    updateExistingInteraction,
+    deleteExistingInteraction
   };
 };

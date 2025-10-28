@@ -135,6 +135,40 @@ export const updateInteraction = async (
   return result;
 };
 
+// Eliminar interacción
+export const deleteInteraction = async (
+  interactionId: string,
+  token: string
+): Promise<any> => {
+  console.log('🔄 Deleting interaction via API...', { interactionId });
+
+  const response = await fetch(`${BASE_URL}/api/interactions/${interactionId}`, {
+    method: 'DELETE',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`,
+    },
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    console.error('❌ Error deleting interaction:', errorText);
+    
+    if (response.status === 403) {
+      throw new Error('No tienes permisos para eliminar esta interacción.');
+    }
+    if (response.status === 404) {
+      throw new Error('La interacción no existe o ya fue eliminada.');
+    }
+    
+    throw new Error(`Error deleting interaction: ${response.status} ${errorText}`);
+  }
+
+  const result = await response.json();
+  console.log('✅ Interaction deleted successfully:', result);
+  return result;
+};
+
 // Obtener historial del cliente
 export const getClientHistory = async (params: {
   email?: string;
