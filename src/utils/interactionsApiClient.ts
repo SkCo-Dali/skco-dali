@@ -5,7 +5,6 @@ const BASE_URL = ENV.CRM_API_BASE_URL;
 
 export interface CreateInteractionRequest {
   LeadId: string;
-  UserId: string;
   Type: string;
   Description: string;
   Stage: string;

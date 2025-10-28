@@ -87,7 +87,6 @@ export function useMassEmail() {
     try {
       await createInteraction({
         LeadId: leadId,
-        UserId: user.id,
         Type: 'email',
         Description: `Se envió un correo a través de Dali - Asunto: ${subject}`,
         Stage: '', // No se envía Stage según la documentación

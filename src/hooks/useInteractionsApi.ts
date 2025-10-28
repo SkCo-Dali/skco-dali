@@ -44,7 +44,6 @@ export const useInteractionsApi = () => {
     try {
       const interactionData: CreateInteractionRequest = {
         LeadId: lead.id,
-        UserId: user.id,
         Type: lead.type,
         Description: lead.notes,
         Stage: lead.stage,
