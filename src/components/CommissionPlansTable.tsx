@@ -133,34 +133,36 @@ export function CommissionPlansTable({
               <Table className="w-full">
                 <TableHeader className="sticky top-0 bg-card z-10">
                   <TableRow>
-                    <TableHead>Nombre</TableHead>
-                    <TableHead>Descripción</TableHead>
-                    <TableHead>Fecha Inicio</TableHead>
-                    <TableHead>Fecha Fin</TableHead>
-                    <TableHead>Asignado a</TableHead>
-                    <TableHead>Publicado el</TableHead>
+                    <TableHead className="text-md text-center">Nombre</TableHead>
+                    <TableHead className="text-md text-center">Descripción</TableHead>
+                    <TableHead className="text-md text-center">Fecha Inicio</TableHead>
+                    <TableHead className="text-md text-center">Fecha Fin</TableHead>
+                    <TableHead className="text-md text-center">Asignado a</TableHead>
+                    <TableHead className="text-md text-center">Publicado el</TableHead>
                     <TableHead className="w-[70px]">Acciones</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {plans.map((plan) => (
                     <TableRow key={plan.id}>
-                      <TableCell className="font-medium">{plan.name}</TableCell>
+                      <TableCell className="text-xs px-2">{plan.name}</TableCell>
                       <TableCell className="max-w-xs">
-                        <div className="truncate" title={plan.description}>
+                        <div className="text-xs px-2 truncate" title={plan.description}>
                           {plan.description}
                         </div>
                       </TableCell>
-                      <TableCell>{formatDate(plan.startDate)}</TableCell>
-                      <TableCell>{formatDate(plan.endDate)}</TableCell>
-                      <TableCell>
+                      <TableCell className="text-xs text-center px-2">{formatDate(plan.startDate)}</TableCell>
+                      <TableCell className="text-xs text-center px-2">{formatDate(plan.endDate)}</TableCell>
+                      <TableCell className="text-xs text-center px-2">
                         <Badge variant="outline">
                           {ASSIGNMENT_LABELS[plan.assignmentType]}
                           {plan.assignmentValue && ` - ${plan.assignmentValue}`}
                         </Badge>
                       </TableCell>
-                      <TableCell>{plan.publishedOn ? formatDateTime(plan.publishedOn) : "-"}</TableCell>
-                      <TableCell>
+                      <TableCell className="text-xs text-center px-2">
+                        {plan.publishedOn ? formatDate(plan.publishedOn) : "-"}
+                      </TableCell>
+                      <TableCell className="text-xs text-center px-2">
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
                             <Button variant="ghost" className="h-8 w-8 p-0">
