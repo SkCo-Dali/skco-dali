@@ -555,12 +555,12 @@ export const LeadCreateDialog = forwardRef<LeadCreateDialogRef, LeadCreateDialog
             </TabsContent>
 
             <TabsContent value="bulk" className="space-y-6">
-              <div className="text-center mb-6">
+              <div className="text-center my-4">
                 <h3 className="text-xl font-semibold mb-2">Subir archivo</h3>
               </div>
 
               {/* Tres pasos */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
                 {/* Paso 1 */}
                 <div className="flex flex-col items-center text-center p-4 rounded-lg border bg-card">
                   <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mb-3">
