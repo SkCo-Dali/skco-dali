@@ -143,20 +143,20 @@ export const LeadCreateDialog = forwardRef<LeadCreateDialogRef, LeadCreateDialog
       try {
         const blob = await downloadLeadsTemplate();
         const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
+        const a = document.createElement("a");
         a.href = url;
-        a.download = 'plantilla_leads.xlsx';
+        a.download = "plantilla_leads.xlsx";
         document.body.appendChild(a);
         a.click();
         window.URL.revokeObjectURL(url);
         document.body.removeChild(a);
-        
+
         toast({
           title: "Plantilla descargada",
           description: "La plantilla ha sido descargada exitosamente",
         });
       } catch (error) {
-        console.error('Error al descargar plantilla:', error);
+        console.error("Error al descargar plantilla:", error);
         toast({
           title: "Error",
           description: "No se pudo descargar la plantilla",
@@ -585,7 +585,7 @@ export const LeadCreateDialog = forwardRef<LeadCreateDialogRef, LeadCreateDialog
                     <span className="text-primary font-bold text-lg">2</span>
                   </div>
                   <FileCheck className="w-12 h-12 text-muted-foreground mb-3" />
-                  <p className="text-sm font-medium mb-2">Recuerda seguir las recomendaciones de la platilla.</p>
+                  <p className="text-sm font-medium mb-2">Recuerda seguir las recomendaciones de la plantilla.</p>
                 </div>
 
                 {/* Paso 3 */}
@@ -594,15 +594,17 @@ export const LeadCreateDialog = forwardRef<LeadCreateDialogRef, LeadCreateDialog
                     <span className="text-primary font-bold text-lg">3</span>
                   </div>
                   <Upload className="w-12 h-12 text-muted-foreground mb-3" />
-                  <p className="text-sm font-medium mb-2">Sube el <span className="font-bold">archivo de Excel</span></p>
-                  <p className="text-sm font-medium">y dale a "Siguiente".</p>
+                  <p className="text-sm font-medium mb-2">
+                    Sube el <span className="font-bold">archivo de Excel</span>
+                  </p>
+                  <p className="text-sm font-medium">y dale a "Cargar leads".</p>
                 </div>
               </div>
 
               {/* Área de subida de archivo */}
               <div className="border-2 border-dashed rounded-lg p-6">
                 <h4 className="text-base font-medium mb-4">Subir archivo</h4>
-                
+
                 {!uploadedFile ? (
                   <div className="text-center space-y-4">
                     <div className="flex justify-center">
@@ -612,7 +614,8 @@ export const LeadCreateDialog = forwardRef<LeadCreateDialogRef, LeadCreateDialog
                     </div>
                     <div>
                       <p className="text-sm mb-1">
-                        Arrastra y suelta a <span className="text-primary font-medium">tu archivo</span> .XLS, .XLSX, .XLS, .XLSX para cargarlo.
+                        Arrastra y suelta a <span className="text-primary font-medium">tu archivo</span> .XLSX, para
+                        cargarlo.
                       </p>
                       <p className="text-xs text-muted-foreground">Peso máx. 200 mb</p>
                     </div>
