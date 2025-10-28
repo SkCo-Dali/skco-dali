@@ -734,8 +734,8 @@ Notas adicionales: ${lead.notes || "Ninguna"}`;
                       <Label className="p-0 text-sm text-gray-500 font-normal">Primer Nombre</Label>
                       <Input
                         value={capitalizeWords(editedLead.firstName || "")}
-                        onChange={(e) => handleGeneralChange("firstName", capitalizeWords(e.target.value))}
-                        className="border-0 border-b border-gray-200 rounded-none px-0 py-0 m-0 text-base font-medium bg-transparent leading-none h-auto min-h-0 focus:border-gray-400 focus:shadow-none focus:ring-0"
+                        disabled
+                        className="border-0 border-b border-gray-200 rounded-none px-0 py-0 m-0 text-base font-medium bg-transparent leading-none h-auto min-h-0 focus:border-gray-400 focus:shadow-none focus:ring-0 cursor-not-allowed opacity-70"
                       />
                     </div>
                   </div>
