@@ -242,7 +242,7 @@ function SortableHeader({
             }}
             onClearFilter={onClearFilter}
           />
-        ) : ["createdAt", "updatedAt", "nextFollowUp", "lastInteraction"].includes(column.key) ? (
+        ) : ["createdAt", "updatedAt", "nextFollowUp", "lastInteraction", "lastGestorInteractionAt"].includes(column.key) ? (
           <ServerSideDateFilter
             field={column.key}
             label={column.label}
