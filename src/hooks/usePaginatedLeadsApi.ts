@@ -87,9 +87,10 @@ export const usePaginatedLeadsApi = () => {
     }
 
     return {
-      id: paginatedLead.Id,
-      name: paginatedLead.Name,
-      email: paginatedLead.Email,
+    id: paginatedLead.Id,
+    name: paginatedLead.Name,
+    firstName: paginatedLead.FirstName || undefined,
+    email: paginatedLead.Email,
       alternateEmail: paginatedLead.AlternateEmail || "",
       phone: paginatedLead.Phone,
       documentNumber: parseInt(paginatedLead.DocumentNumber) || 0,

@@ -82,6 +82,7 @@ type SortConfig = {
 // Nueva configuración por defecto con solo 6 columnas visibles
 const defaultColumns: ColumnConfig[] = [
   { key: "name", label: "Nombre", visible: true, sortable: true },
+  { key: "firstName", label: "Primer Nombre", visible: false, sortable: true },
   { key: "campaign", label: "Campaña", visible: true, sortable: true },
   { key: "email", label: "Email", visible: true, sortable: true },
   { key: "alternateEmail", label: "Email Alternativo", visible: true, sortable: true },
@@ -745,6 +746,8 @@ Por favor, confirmar asistencia.`;
             </DropdownMenu>
           </div>
         );
+      case "firstName":
+        return <div className="text-gray-700 text-xs text-center">{lead.firstName || "-"}</div>;
       case "email":
         return <div className="text-gray-700 text-xs text-center">{(lead.email || "").toLowerCase()}</div>;
       case "phone":

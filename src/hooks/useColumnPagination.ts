@@ -54,6 +54,7 @@ const mapPaginatedLeadToLead = (paginatedLead: PaginatedLead): Lead => {
   return {
     id: paginatedLead.Id,
     name: paginatedLead.Name,
+    firstName: paginatedLead.FirstName || undefined,
     email: paginatedLead.Email,
     phone: paginatedLead.Phone,
     documentNumber: parseInt(paginatedLead.DocumentNumber) || 0,
