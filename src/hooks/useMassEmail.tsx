@@ -20,7 +20,8 @@ export function useMassEmail() {
   const [emailLogs, setEmailLogs] = useState<EmailLog[]>([]);
 
   const dynamicFields = [
-    { key: 'name', label: 'Nombre', example: 'Juan Pérez' },
+    { key: 'name', label: 'Nombres y Apellidos', example: 'Juan Pérez' },
+    { key: 'firstName', label: 'Primer Nombre', example: 'Juan' },
     { key: 'email', label: 'Email', example: 'juan@ejemplo.com' },
     { key: 'company', label: 'Empresa', example: 'Acme Corp' },
     { key: 'phone', label: 'Teléfono', example: '+57 300 123 4567' },
