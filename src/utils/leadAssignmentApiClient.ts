@@ -1,4 +1,4 @@
-import { ReassignLeadRequest, ReassignLeadResponse, LeadAssignmentHistory, ReassignableLead } from '@/types/leadAssignmentTypes';
+import { ReassignLeadRequest, ReassignLeadResponse, LeadAssignmentHistory, ReassignableLead, BulkAssignLeadsRequest, BulkAssignLeadsResponse } from '@/types/leadAssignmentTypes';
 import { LeadsApiParams, PaginatedLeadsResponse, DistinctValuesParams, DistinctValuesResponse } from '@/types/paginatedLeadsTypes';
 import { ENV } from '@/config/environment';
 
@@ -42,6 +42,14 @@ const makeRequest = async <T>(
 // 1. Reasignar Lead
 export const reassignLead = async (request: ReassignLeadRequest): Promise<ReassignLeadResponse> => {
   return makeRequest<ReassignLeadResponse>('/api/lead-assignments/reassign', {
+    method: 'POST',
+    body: JSON.stringify(request),
+  });
+};
+
+// 1b. Reasignación masiva de leads
+export const bulkAssignLeads = async (request: BulkAssignLeadsRequest): Promise<BulkAssignLeadsResponse> => {
+  return makeRequest<BulkAssignLeadsResponse>('/api/leads/bulk-assign', {
     method: 'POST',
     body: JSON.stringify(request),
   });

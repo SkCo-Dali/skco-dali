@@ -22,6 +22,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { ENV } from "@/config/environment";
 import { UserAccessSelect } from "@/components/UserAccessSelect";
 import { AccessUsersTable } from "@/components/admin/AccessUsersTable";
+import { AccessUsersSearch } from "@/components/admin/AccessUsersSearch";
 
 // User type for search results
 interface SearchUser {
@@ -83,6 +84,11 @@ export function AccessTab() {
   const [selectedUser, setSelectedUser] = useState<string>("");
   const [userSearchLoading, setUserSearchLoading] = useState(false);
   const [userSearchError, setUserSearchError] = useState<string | null>(null);
+
+  // Search states for each tab
+  const [workspaceSearchTerm, setWorkspaceSearchTerm] = useState("");
+  const [reportSearchTerm, setReportSearchTerm] = useState("");
+  const [effectiveSearchTerm, setEffectiveSearchTerm] = useState("");
 
   useEffect(() => {
     fetchInitialData();
@@ -664,6 +670,23 @@ export function AccessTab() {
     return report ? report.name : "Reporte no encontrado";
   };
 
+  // Filter users based on search term
+  const filterUsers = (users: UserAccess[], searchTerm: string) => {
+    if (!searchTerm.trim()) return users;
+    
+    const lowerSearch = searchTerm.toLowerCase();
+    return users.filter((user) => {
+      const userName = (user.userName || "").toLowerCase();
+      const userEmail = (user.userEmail || "").toLowerCase();
+      return userName.includes(lowerSearch) || userEmail.includes(lowerSearch);
+    });
+  };
+
+  // Filtered user lists
+  const filteredWorkspaceAccess = filterUsers(workspaceAccess, workspaceSearchTerm);
+  const filteredReportAccess = filterUsers(reportAccess, reportSearchTerm);
+  const filteredEffectiveAccess = filterUsers(effectiveAccess, effectiveSearchTerm);
+
   if (loading) {
     return (
       <div className="flex items-center justify-center py-12">
@@ -721,7 +744,13 @@ export function AccessTab() {
                 </CardTitle>
                 <CardDescription>Lista de usuarios que tienen acceso directo al workspace</CardDescription>
               </CardHeader>
-              <AccessUsersTable users={workspaceAccess} onRevokeAccess={handleRevokeWorkspaceAccess} />
+              <div className="mb-4">
+                <AccessUsersSearch
+                  searchTerm={workspaceSearchTerm}
+                  onSearchChange={setWorkspaceSearchTerm}
+                />
+              </div>
+              <AccessUsersTable users={filteredWorkspaceAccess} onRevokeAccess={handleRevokeWorkspaceAccess} />
             </Card>
           )}
         </TabsContent>
@@ -788,7 +817,13 @@ export function AccessTab() {
                 <CardDescription>Lista de usuarios que tienen acceso directo al reporte</CardDescription>
               </CardHeader>
               <CardContent>
-                <AccessUsersTable users={reportAccess} onRevokeAccess={handleRevokeReportAccess} />
+                <div className="mb-4">
+                  <AccessUsersSearch
+                    searchTerm={reportSearchTerm}
+                    onSearchChange={setReportSearchTerm}
+                  />
+                </div>
+                <AccessUsersTable users={filteredReportAccess} onRevokeAccess={handleRevokeReportAccess} />
               </CardContent>
             </Card>
           )}
@@ -859,7 +894,13 @@ export function AccessTab() {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <AccessUsersTable users={effectiveAccess} showSource={true} />
+                <div className="mb-4">
+                  <AccessUsersSearch
+                    searchTerm={effectiveSearchTerm}
+                    onSearchChange={setEffectiveSearchTerm}
+                  />
+                </div>
+                <AccessUsersTable users={filteredEffectiveAccess} showSource={true} />
               </CardContent>
             </Card>
           )}
