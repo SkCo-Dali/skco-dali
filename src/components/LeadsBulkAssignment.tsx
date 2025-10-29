@@ -11,6 +11,7 @@ import { useAssignableUsers } from "@/contexts/AssignableUsersContext";
 import { useToast } from "@/hooks/use-toast";
 import { bulkAssignLeads } from "@/utils/leadAssignmentApiClient";
 import { getReassignableLeadsPaginated } from "@/utils/leadAssignmentApiClient";
+import { bulkChangeLeadStage } from "@/utils/leadsApiClient";
 import { PaginatedLead } from "@/types/paginatedLeadsTypes";
 
 interface LeadsBulkAssignmentProps {
@@ -318,6 +319,7 @@ export function LeadsBulkAssignment({ leads, onLeadsAssigned }: LeadsBulkAssignm
       let totalSuccess = 0;
       let totalSkipped = 0;
       let totalFailed = 0;
+      const successfulLeadIds: string[] = [];
 
       for (const assignment of userAssignments) {
         if (assignment.quantity > 0) {
@@ -339,6 +341,10 @@ export function LeadsBulkAssignment({ leads, onLeadsAssigned }: LeadsBulkAssignm
               totalSuccess += response.summary.success;
               totalSkipped += response.summary.skipped;
               totalFailed += response.summary.failed;
+              // Guardar los IDs de leads exitosamente asignados
+              if (response.successLeads && response.successLeads.length > 0) {
+                successfulLeadIds.push(...response.successLeads);
+              }
               return response;
             });
 
@@ -352,11 +358,28 @@ export function LeadsBulkAssignment({ leads, onLeadsAssigned }: LeadsBulkAssignm
       // Ejecutar todas las asignaciones masivas
       await Promise.all(bulkAssignPromises);
 
+      // Cambiar el stage de los leads exitosamente asignados a "Asignado"
+      if (successfulLeadIds.length > 0) {
+        console.log(`🔄 Changing stage to "Asignado" for ${successfulLeadIds.length} leads`);
+        try {
+          const stageResult = await bulkChangeLeadStage(successfulLeadIds, "Asignado");
+          console.log(`✅ Stage change result:`, stageResult);
+        } catch (stageError) {
+          console.error("❌ Error changing stage:", stageError);
+          // No fallar todo el proceso si solo falla el cambio de stage
+          toast({
+            title: "Advertencia",
+            description: "Leads asignados correctamente, pero hubo un error al actualizar su estado",
+            variant: "destructive",
+          });
+        }
+      }
+
       // Mostrar resultado consolidado
       if (totalFailed === 0 && totalSkipped === 0) {
         toast({
           title: "Éxito",
-          description: `${totalSuccess} leads asignados exitosamente`,
+          description: `${totalSuccess} leads asignados exitosamente y su estado actualizado a "Asignado"`,
         });
       } else if (totalSuccess > 0) {
         toast({
