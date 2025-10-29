@@ -17,6 +17,7 @@ import { useToast } from "@/hooks/use-toast";
 import { CommissionRulesTable } from "@/components/CommissionRulesTable";
 import { CreateRuleDialog } from "@/components/CreateRuleDialog";
 import { EditRuleDialog } from "@/components/EditRuleDialog";
+import { InactivatePlanDialog } from "@/components/InactivatePlanDialog";
 import { useCommissionRules } from "@/hooks/useCommissionRules";
 import { CommissionRule } from "@/data/commissionPlans";
 
@@ -37,6 +38,7 @@ export function EditCommissionPlanDialog({ plan, open, onOpenChange, onUpdatePla
   const [isEditRuleOpen, setIsEditRuleOpen] = useState(false);
   const [selectedRuleToEdit, setSelectedRuleToEdit] = useState<CommissionRule | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [isInactivateDialogOpen, setIsInactivateDialogOpen] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
     description: "",
@@ -109,17 +111,19 @@ export function EditCommissionPlanDialog({ plan, open, onOpenChange, onUpdatePla
     }
   };
 
-  const handleInactivate = async () => {
+  const handleInactivate = () => {
+    setIsInactivateDialogOpen(true);
+  };
+
+  const handleConfirmInactivate = async (reason?: string) => {
     if (!plan?.id || !onInactivatePlan) return;
     
-    const reason = prompt("Enter inactivation reason (optional):");
-    if (reason === null) return; // User cancelled
-    
     setIsLoading(true);
-    const success = await onInactivatePlan(plan.id, reason || undefined);
+    const success = await onInactivatePlan(plan.id, reason);
     setIsLoading(false);
     
     if (success) {
+      setIsInactivateDialogOpen(false);
       onOpenChange(false);
     }
   };
@@ -432,6 +436,13 @@ export function EditCommissionPlanDialog({ plan, open, onOpenChange, onUpdatePla
             description: "The rule has been successfully updated.",
           });
         }}
+      />
+
+      <InactivatePlanDialog
+        open={isInactivateDialogOpen}
+        onOpenChange={setIsInactivateDialogOpen}
+        onConfirm={handleConfirmInactivate}
+        isLoading={isLoading}
       />
     </>
   );
