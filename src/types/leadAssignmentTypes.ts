@@ -49,3 +49,34 @@ export interface ReassignableLead {
   updated_at: string;
   additional_info?: Record<string, any> | null;
 }
+
+// Bulk Assignment Types
+export interface BulkAssignLeadsRequest {
+  leadIds: string[];
+  toUserId: string;
+  reason: string;
+  notes?: string;
+}
+
+export interface BulkAssignmentSummary {
+  total: number;
+  success: number;
+  skipped: number;
+  failed: number;
+}
+
+export interface SkippedLead {
+  leadId: string;
+  reason: string;
+}
+
+export interface BulkAssignLeadsResponse {
+  message: string;
+  toUserId: string;
+  reason: string;
+  notes?: string;
+  summary: BulkAssignmentSummary;
+  successLeads: string[];
+  skippedLeads: SkippedLead[];
+  failedLeads: any[];
+}
