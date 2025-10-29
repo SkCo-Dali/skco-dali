@@ -7,6 +7,7 @@ import {
   getUserAssignmentHistory,
   getReassignableLeads,
 } from "@/utils/leadAssignmentApiClient";
+import { changeLeadStage } from "@/utils/leadsApiClient";
 import { ReassignLeadRequest, LeadAssignmentHistory, ReassignableLead } from "@/types/leadAssignmentTypes";
 
 export const useLeadAssignments = () => {
@@ -57,6 +58,24 @@ export const useLeadAssignments = () => {
       const response = await reassignLead(request);
 
       console.log("✅ Lead reassigned successfully:", response.message);
+
+      // Si el stage original era "Nuevo", actualizar a "Asignado"
+      if (shouldChangeToAssigned) {
+        try {
+          console.log(`🔄 Changing stage to "Asignado" for lead ${leadId}`);
+          await changeLeadStage(leadId, "Asignado");
+          console.log(`✅ Stage changed to "Asignado" successfully`);
+        } catch (stageError) {
+          console.error("❌ Error changing stage:", stageError);
+          // No fallar la reasignación si solo falla el cambio de stage
+          toast({
+            title: "Advertencia",
+            description: "Lead reasignado correctamente, pero hubo un error al actualizar su estado",
+            variant: "destructive",
+          });
+        }
+      }
+
       toast({
         title: "Éxito",
         description: "Lead reasignado exitosamente",
