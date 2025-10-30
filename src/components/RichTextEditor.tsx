@@ -27,6 +27,48 @@ interface RichTextEditorProps {
   value: string;
   onChange: (value: string) => void;
   placeholder?: string;
+  onImageInsert?: (file: File) => Promise<string>;
+}
+
+// Utilidades para procesamiento no bloqueante
+const runWhenIdle = (cb: () => void) =>
+  ('requestIdleCallback' in window)
+    ? (window as any).requestIdleCallback(cb)
+    : setTimeout(cb, 16);
+
+async function optimizeImageBlob(original: Blob, maxW = 1600, maxH = 1600): Promise<Blob> {
+  try {
+    const bmp = await createImageBitmap(original);
+    const scale = Math.min(1, maxW / bmp.width, maxH / bmp.height);
+    if (scale === 1) {
+      bmp.close?.();
+      return original;
+    }
+    const w = Math.round(bmp.width * scale);
+    const h = Math.round(bmp.height * scale);
+
+    if ('OffscreenCanvas' in window) {
+      const canvas = new OffscreenCanvas(w, h);
+      const ctx = canvas.getContext('2d');
+      if (!ctx) return original;
+      ctx.drawImage(bmp, 0, 0, w, h);
+      bmp.close?.();
+      const blob = await canvas.convertToBlob({ type: 'image/jpeg', quality: 0.9 });
+      return blob || original;
+    }
+
+    const canvas = document.createElement('canvas');
+    canvas.width = w; canvas.height = h;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return original;
+    ctx.drawImage(bmp, 0, 0, w, h);
+    bmp.close?.();
+    return await new Promise<Blob>((resolve) => {
+      canvas.toBlob((b) => resolve(b || original), 'image/jpeg', 0.9);
+    });
+  } catch {
+    return original;
+  }
 }
 
 const FONT_FAMILIES = [
@@ -51,7 +93,7 @@ const BULLET_STYLES = [
   { label: 'Números romanos', value: 'lower-roman' }
 ];
 
-export function RichTextEditor({ value, onChange, placeholder }: RichTextEditorProps) {
+export function RichTextEditor({ value, onChange, placeholder, onImageInsert }: RichTextEditorProps) {
   const editorRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const attachmentInputRef = useRef<HTMLInputElement>(null);
@@ -208,42 +250,61 @@ export function RichTextEditor({ value, onChange, placeholder }: RichTextEditorP
 
   const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
-    if (file) {
-      try {
-        // Inserta un preview temporal inmediato para no bloquear la UI
-        const tempUrl = URL.createObjectURL(file);
-        const tempHtml = `<span class="editable-image-wrapper" contenteditable="false" style="display:inline-block; max-width:100%; resize:both; overflow:auto;"><img src="${tempUrl}" class="editable-image" alt="Imagen insertada" style="display:block; width:100%; height:auto; cursor:pointer;" /></span>`;
-        executeCommand('insertHTML', tempHtml);
-        // Asegura listeners rápidamente
-        setTimeout(() => {
-          setupImageListeners();
-        }, 0);
+    event.target.value = '';
+    if (!file) return;
 
-        // Convierte a DataURL en background y reemplaza el src del preview
-        const reader = new FileReader();
-        reader.onload = () => {
-          const dataUrl = reader.result as string;
-          const editor = editorRef.current;
-          if (editor) {
-            const imgs = Array.from(editor.querySelectorAll('img')) as HTMLImageElement[];
-            const target = imgs.find(img => img.src === tempUrl);
-            if (target) {
-              target.src = dataUrl;
-              URL.revokeObjectURL(tempUrl);
-            }
+    const tempUrl = URL.createObjectURL(file);
+    const placeholderHtml = `
+      <span class="editable-image-wrapper" contenteditable="false" style="display:inline-block; max-width:100%; resize:both; overflow:auto;">
+        <img src="${tempUrl}" class="editable-image" alt="Imagen insertada" draggable="false" style="display:block; width:100%; height:auto; cursor:pointer;" />
+      </span>`;
+    executeCommand('insertHTML', placeholderHtml);
+
+    setTimeout(() => {
+      setupImageListeners();
+      handleContentChange();
+    }, 0);
+
+    runWhenIdle(async () => {
+      const optimized = await optimizeImageBlob(file);
+      const finalUrl = URL.createObjectURL(optimized);
+
+      const editor = editorRef.current;
+      if (!editor) return;
+
+      const imgs = Array.from(editor.querySelectorAll('img')) as HTMLImageElement[];
+      const target = imgs.find(img => img.src === tempUrl);
+      if (target) {
+        target.src = finalUrl;
+        URL.revokeObjectURL(tempUrl);
+      }
+
+      setTimeout(() => {
+        setupImageListeners();
+        handleContentChange();
+      }, 0);
+
+      // Si hay callback de CDN, intentar subir la imagen
+      if (onImageInsert) {
+        try {
+          const cdnUrl = await onImageInsert(file);
+          const editor2 = editorRef.current;
+          if (!editor2) return;
+          const imgs2 = Array.from(editor2.querySelectorAll('img')) as HTMLImageElement[];
+          const target2 = imgs2.find(img => img.src === finalUrl);
+          if (target2) {
+            target2.src = cdnUrl;
+            URL.revokeObjectURL(finalUrl);
           }
           setTimeout(() => {
             setupImageListeners();
             handleContentChange();
           }, 0);
-        };
-        reader.readAsDataURL(file);
-      } catch (e) {
-        // noop
+        } catch (err) {
+          console.error('Error uploading image:', err);
+        }
       }
-    }
-    // Limpiar el input para permitir seleccionar la misma imagen de nuevo
-    event.target.value = '';
+    });
   };
 
   const setupImageListeners = useCallback(() => {
@@ -277,45 +338,73 @@ export function RichTextEditor({ value, onChange, placeholder }: RichTextEditorP
   };
 
   const handlePaste = (e: React.ClipboardEvent<HTMLDivElement>) => {
-    // Si hay imágenes en el portapapeles, insertarlas de forma no bloqueante
     const items = e.clipboardData?.items;
     if (items) {
       const imageItems = Array.from(items).filter((it) => it.type.startsWith('image/'));
       if (imageItems.length > 0) {
         e.preventDefault();
+
         imageItems.forEach((it) => {
           const file = it.getAsFile();
           if (!file) return;
+
           const tempUrl = URL.createObjectURL(file);
-          const tempHtml = `<span class=\"editable-image-wrapper\" contenteditable=\"false\" style=\"display:inline-block; max-width:100%; resize:both; overflow:auto;\"><img src=\"${tempUrl}\" class=\"editable-image\" alt=\"Imagen insertada\" style=\"display:block; width:100%; height:auto; cursor:pointer;\" /></span>`;
+          const tempHtml = `
+            <span class="editable-image-wrapper" contenteditable="false" style="display:inline-block; max-width:100%; resize:both; overflow:auto;">
+              <img src="${tempUrl}" class="editable-image" alt="Imagen insertada" draggable="false" style="display:block; width:100%; height:auto; cursor:pointer;" />
+            </span>`;
           executeCommand('insertHTML', tempHtml);
+
           setTimeout(() => {
             setupImageListeners();
+            handleContentChange();
           }, 0);
 
-          const reader = new FileReader();
-          reader.onload = () => {
-            const dataUrl = reader.result as string;
+          runWhenIdle(async () => {
+            const optimized = await optimizeImageBlob(file);
+            const finalUrl = URL.createObjectURL(optimized);
+
             const editor = editorRef.current;
-            if (editor) {
-              const imgs = Array.from(editor.querySelectorAll('img')) as HTMLImageElement[];
-              const target = imgs.find(img => img.src === tempUrl);
-              if (target) {
-                target.src = dataUrl;
-                URL.revokeObjectURL(tempUrl);
-              }
+            if (!editor) return;
+
+            const imgs = Array.from(editor.querySelectorAll('img')) as HTMLImageElement[];
+            const target = imgs.find(img => img.src === tempUrl);
+            if (target) {
+              target.src = finalUrl;
+              URL.revokeObjectURL(tempUrl);
             }
+
             setTimeout(() => {
               setupImageListeners();
               handleContentChange();
             }, 0);
-          };
-          reader.readAsDataURL(file);
+
+            // Si hay callback de CDN, intentar subir la imagen
+            if (onImageInsert) {
+              try {
+                const cdnUrl = await onImageInsert(file);
+                const editor2 = editorRef.current;
+                if (!editor2) return;
+                const imgs2 = Array.from(editor2.querySelectorAll('img')) as HTMLImageElement[];
+                const target2 = imgs2.find(img => img.src === finalUrl);
+                if (target2) {
+                  target2.src = cdnUrl;
+                  URL.revokeObjectURL(finalUrl);
+                }
+                setTimeout(() => {
+                  setupImageListeners();
+                  handleContentChange();
+                }, 0);
+              } catch (err) {
+                console.error('Error uploading image:', err);
+              }
+            }
+          });
         });
         return;
       }
     }
-    // Si se pega HTML que contiene <img>, dejar que el navegador inserte y luego normalizar
+
     setTimeout(() => {
       setupImageListeners();
       handleContentChange();
@@ -657,6 +746,7 @@ export function RichTextEditor({ value, onChange, placeholder }: RichTextEditorP
             overflow: auto;
             max-width: 100%;
             display: inline-block;
+            user-select: none;
           }
           .editable-image-wrapper:hover {
             border-color: hsl(var(--primary));
