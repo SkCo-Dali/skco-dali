@@ -291,6 +291,7 @@ export default function UsersPage() {
         "analistaComisiones",
         "serviceDesk",
         "sac",
+        "fpSac",
       ];
       if (!validRoles.includes(newRole)) {
         toast({
