@@ -59,6 +59,8 @@ export function RichTextEditor({ value, onChange, placeholder }: RichTextEditorP
   const [showLinkPopover, setShowLinkPopover] = useState(false);
   const [currentSelection, setCurrentSelection] = useState<Range | null>(null);
   const [selectedImage, setSelectedImage] = useState<HTMLImageElement | null>(null);
+  const lastEmittedHtmlRef = useRef<string | null>(null);
+  const debounceTimerRef = useRef<number | null>(null);
 
   // Envuelve una imagen en un contenedor redimensionable y no editable
   const ensureWrapped = (imgElement: HTMLImageElement): HTMLElement => {
@@ -106,10 +108,11 @@ export function RichTextEditor({ value, onChange, placeholder }: RichTextEditorP
     
     document.execCommand(command, false, value);
     
-    if (editorRef.current) {
-      onChange(editorRef.current.innerHTML);
-    }
-  }, [onChange, currentSelection]);
+    // Unificar actualización de contenido (evita bucles)
+    setTimeout(() => {
+      handleContentChange();
+    }, 0);
+  }, [currentSelection]);
 
   const saveSelection = useCallback(() => {
     const selection = window.getSelection();
@@ -119,9 +122,15 @@ export function RichTextEditor({ value, onChange, placeholder }: RichTextEditorP
   }, []);
 
   const handleContentChange = useCallback(() => {
-    if (editorRef.current) {
-      onChange(editorRef.current.innerHTML);
+    if (!editorRef.current) return;
+    const html = editorRef.current.innerHTML;
+    lastEmittedHtmlRef.current = html;
+    if (debounceTimerRef.current) {
+      window.clearTimeout(debounceTimerRef.current);
     }
+    debounceTimerRef.current = window.setTimeout(() => {
+      onChange(html);
+    }, 100);
   }, [onChange]);
 
   const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
@@ -307,9 +316,15 @@ export function RichTextEditor({ value, onChange, placeholder }: RichTextEditorP
 
   // Inicializar el contenido del editor y configurar listeners
   useEffect(() => {
-    if (editorRef.current && value !== editorRef.current.innerHTML) {
-      editorRef.current.innerHTML = value;
+    const editor = editorRef.current;
+    if (!editor) return;
+
+    if (value !== editor.innerHTML && value !== lastEmittedHtmlRef.current) {
+      editor.innerHTML = value;
+      setupImageListeners();
+      return;
     }
+    // Si el cambio vino del editor, solo aseguramos listeners
     setupImageListeners();
   }, [value, setupImageListeners]);
 
@@ -331,14 +346,20 @@ export function RichTextEditor({ value, onChange, placeholder }: RichTextEditorP
     if (!editor) return;
 
     const observer = new MutationObserver((mutations) => {
-      let changed = false;
+      let needsSetup = false;
       for (const m of mutations) {
-        if (m.type === 'childList') changed = true;
-        if (m.type === 'attributes' && m.target instanceof HTMLImageElement) changed = true;
+        if (m.type === 'childList') needsSetup = true;
+        if (
+          m.type === 'attributes' &&
+          m.target instanceof HTMLImageElement &&
+          (m.attributeName === 'src' || m.attributeName === 'class')
+        ) {
+          needsSetup = true;
+        }
       }
-      if (changed) {
+      if (needsSetup) {
+        // Solo aseguramos listeners; la propagación de cambios la manejan onInput/execCommand/pegar
         setupImageListeners();
-        handleContentChange();
       }
     });
 
@@ -346,7 +367,7 @@ export function RichTextEditor({ value, onChange, placeholder }: RichTextEditorP
       childList: true,
       subtree: true,
       attributes: true,
-      attributeFilter: ['style', 'src', 'class']
+      attributeFilter: ['src', 'class']
     });
 
     return () => observer.disconnect();
