@@ -1,4 +1,3 @@
-
 import { useState, useRef, useCallback, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -7,18 +6,16 @@ import { Separator } from '@/components/ui/separator';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ColorPicker } from '@/components/ColorPicker';
-import { 
-  Bold, 
-  Italic, 
-  Underline, 
-  AlignLeft, 
-  AlignCenter, 
-  AlignRight, 
-  List, 
-  ListOrdered,
-  Link, 
-  Image, 
-  Paperclip,
+import {
+  Bold,
+  Italic,
+  Underline,
+  AlignLeft,
+  AlignCenter,
+  AlignRight,
+  List,
+  Link as LinkIcon,
+  Image as ImageIcon,
   Type,
   ChevronDown
 } from 'lucide-react';
@@ -27,15 +24,17 @@ interface RichTextEditorProps {
   value: string;
   onChange: (value: string) => void;
   placeholder?: string;
-  onImageInsert?: (file: File) => Promise<string>;
+  onImageInsert?: (file: File) => Promise<string>; // opcional: subir a CDN y reemplazar src
 }
 
-// Utilidades para procesamiento no bloqueante
+/* ===========================
+   Utilidades no bloqueantes
+=========================== */
 const runWhenIdle = (cb: () => void) =>
-  ('requestIdleCallback' in window)
-    ? (window as any).requestIdleCallback(cb)
-    : setTimeout(cb, 16);
+  'requestIdleCallback' in window ? (window as any).requestIdleCallback(cb) : setTimeout(cb, 16);
 
+// Reduce megapíxeles y peso si la imagen es muy grande.
+// Si no hace falta escalar, devuelve el blob original.
 async function optimizeImageBlob(original: Blob, maxW = 1600, maxH = 1600): Promise<Blob> {
   try {
     const bmp = await createImageBitmap(original);
@@ -71,6 +70,9 @@ async function optimizeImageBlob(original: Blob, maxW = 1600, maxH = 1600): Prom
   }
 }
 
+// id corto para marcar <img> y poder reemplazar src sin escanear todo el DOM
+const uid = () => `tmp-${Math.random().toString(36).slice(2, 9)}-${Date.now().toString(36)}`;
+
 const FONT_FAMILIES = [
   { label: 'Arial', value: 'Arial, sans-serif' },
   { label: 'Helvetica', value: 'Helvetica, sans-serif' },
@@ -96,16 +98,18 @@ const BULLET_STYLES = [
 export function RichTextEditor({ value, onChange, placeholder, onImageInsert }: RichTextEditorProps) {
   const editorRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const attachmentInputRef = useRef<HTMLInputElement>(null);
+
   const [linkUrl, setLinkUrl] = useState('');
   const [showLinkPopover, setShowLinkPopover] = useState(false);
   const [currentSelection, setCurrentSelection] = useState<Range | null>(null);
   const [selectedImage, setSelectedImage] = useState<HTMLImageElement | null>(null);
+
   const lastEmittedHtmlRef = useRef<string | null>(null);
   const debounceTimerRef = useRef<number | null>(null);
+  const isSettingUpRef = useRef(false);
 
   // Envuelve una imagen en un contenedor redimensionable y no editable
-  const ensureWrapped = (imgElement: HTMLImageElement): HTMLElement => {
+  const ensureWrapped = useCallback((imgElement: HTMLImageElement): HTMLElement => {
     let wrapper = imgElement.closest('.editable-image-wrapper') as HTMLElement | null;
     if (!wrapper) {
       wrapper = document.createElement('div');
@@ -127,6 +131,8 @@ export function RichTextEditor({ value, onChange, placeholder, onImageInsert }: 
       imgElement.style.cursor = 'pointer';
       imgElement.removeAttribute('contenteditable');
       if (!imgElement.alt) imgElement.alt = 'Imagen insertada';
+      imgElement.setAttribute('draggable', 'false');
+      (imgElement as any).decoding = 'async';
     } else {
       // Normalizar estilos si ya está envuelta
       imgElement.classList.add('editable-image');
@@ -134,12 +140,13 @@ export function RichTextEditor({ value, onChange, placeholder, onImageInsert }: 
       imgElement.style.width = '100%';
       imgElement.style.height = 'auto';
       imgElement.style.cursor = 'pointer';
+      imgElement.setAttribute('draggable', 'false');
+      (imgElement as any).decoding = 'async';
     }
     return wrapper;
-  };
+  }, []);
 
   const executeCommand = useCallback((command: string, value?: string) => {
-    // Restaurar la selección antes de ejecutar el comando
     if (currentSelection) {
       const selection = window.getSelection();
       if (selection) {
@@ -147,13 +154,8 @@ export function RichTextEditor({ value, onChange, placeholder, onImageInsert }: 
         selection.addRange(currentSelection);
       }
     }
-    
     document.execCommand(command, false, value);
-    
-    // Unificar actualización de contenido (evita bucles)
-    setTimeout(() => {
-      handleContentChange();
-    }, 0);
+    setTimeout(() => handleContentChange(), 0);
   }, [currentSelection]);
 
   const saveSelection = useCallback(() => {
@@ -185,56 +187,19 @@ export function RichTextEditor({ value, onChange, placeholder, onImageInsert }: 
       handleContentChange();
       return;
     }
-    
-    // Prevenir comportamientos extraños del contentEditable
+    // Enter suave
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       document.execCommand('insertHTML', false, '<br><br>');
       handleContentChange();
     }
-  }, [handleContentChange, selectedImage]);
-
-  const handleImageClick = useCallback((e: MouseEvent) => {
-    const target = e.target as HTMLElement;
-    const isImg = target.tagName === 'IMG';
-    const wrapperEl = isImg
-      ? (target as HTMLImageElement).closest('.editable-image-wrapper') as HTMLElement | null
-      : target.closest('.editable-image-wrapper') as HTMLElement | null;
-
-    if (isImg || wrapperEl) {
-      e.preventDefault();
-      e.stopPropagation();
-
-      const imgEl = isImg
-        ? (target as HTMLImageElement)
-        : (wrapperEl!.querySelector('img') as HTMLImageElement);
-
-      const wrapper = ensureWrapped(imgEl);
-
-      // Deseleccionar imagen anterior
-      if (selectedImage && selectedImage !== imgEl) {
-        const prevWrapper = (selectedImage.closest('.editable-image-wrapper') as HTMLElement) || selectedImage;
-        prevWrapper.classList.remove('image-selected');
-      }
-
-      setSelectedImage(imgEl);
-      wrapper.classList.add('image-selected');
-
-      // Asegurar que el editor reciba los eventos de teclado
-      editorRef.current?.focus();
-    }
-  }, [selectedImage]);
-
-  const handleEditorClick = useCallback((e: MouseEvent) => {
-    const target = e.target as HTMLElement;
-    const insideWrapper = target.closest('.editable-image-wrapper');
-    // Si se hace click fuera de la imagen o su contenedor, deseleccionar
-    if (!insideWrapper && target.tagName !== 'IMG' && selectedImage) {
+    // Escape: deselecciona imagen
+    if (e.key === 'Escape' && selectedImage) {
       const prevWrapper = (selectedImage.closest('.editable-image-wrapper') as HTMLElement) || selectedImage;
       prevWrapper.classList.remove('image-selected');
       setSelectedImage(null);
     }
-  }, [selectedImage]);
+  }, [handleContentChange, selectedImage]);
 
   const insertLink = () => {
     if (linkUrl.trim()) {
@@ -248,93 +213,52 @@ export function RichTextEditor({ value, onChange, placeholder, onImageInsert }: 
     fileInputRef.current?.click();
   };
 
+  /* ===========================
+      Imagen: subir/pegar sin lag
+  ============================ */
   const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     event.target.value = '';
     if (!file) return;
 
     const tempUrl = URL.createObjectURL(file);
+    const id = uid();
+
     const placeholderHtml = `
       <span class="editable-image-wrapper" contenteditable="false" style="display:inline-block; max-width:100%; resize:both; overflow:auto;">
-        <img src="${tempUrl}" class="editable-image" alt="Imagen insertada" draggable="false" style="display:block; width:100%; height:auto; cursor:pointer;" />
+        <img src="${tempUrl}" data-temp-id="${id}" class="editable-image" alt="Imagen insertada" draggable="false" decoding="async" style="display:block; width:100%; height:auto; cursor:pointer;" />
       </span>`;
     executeCommand('insertHTML', placeholderHtml);
-
-    setTimeout(() => {
-      setupImageListeners();
-      handleContentChange();
-    }, 0);
 
     runWhenIdle(async () => {
       const optimized = await optimizeImageBlob(file);
       const finalUrl = URL.createObjectURL(optimized);
 
       const editor = editorRef.current;
-      if (!editor) return;
-
-      const imgs = Array.from(editor.querySelectorAll('img')) as HTMLImageElement[];
-      const target = imgs.find(img => img.src === tempUrl);
-      if (target) {
-        target.src = finalUrl;
-        URL.revokeObjectURL(tempUrl);
+      if (editor) {
+        const target = editor.querySelector(`img[data-temp-id="${id}"]`) as HTMLImageElement | null;
+        if (target) {
+          target.src = finalUrl;
+          URL.revokeObjectURL(tempUrl);
+        }
       }
 
-      setTimeout(() => {
-        setupImageListeners();
-        handleContentChange();
-      }, 0);
-
-      // Si hay callback de CDN, intentar subir la imagen
       if (onImageInsert) {
         try {
           const cdnUrl = await onImageInsert(file);
           const editor2 = editorRef.current;
-          if (!editor2) return;
-          const imgs2 = Array.from(editor2.querySelectorAll('img')) as HTMLImageElement[];
-          const target2 = imgs2.find(img => img.src === finalUrl);
-          if (target2) {
-            target2.src = cdnUrl;
-            URL.revokeObjectURL(finalUrl);
+          if (editor2) {
+            const target2 = editor2.querySelector(`img[data-temp-id="${id}"]`) as HTMLImageElement | null;
+            if (target2) {
+              target2.src = cdnUrl;
+              URL.revokeObjectURL(finalUrl);
+            }
           }
-          setTimeout(() => {
-            setupImageListeners();
-            handleContentChange();
-          }, 0);
         } catch (err) {
           console.error('Error uploading image:', err);
         }
       }
     });
-  };
-
-  const setupImageListeners = useCallback(() => {
-    if (!editorRef.current) return;
-
-    const images = editorRef.current.querySelectorAll('img');
-    images.forEach((img) => {
-      const imgElement = img as HTMLImageElement;
-      const wrapper = ensureWrapped(imgElement);
-
-      // Remover/añadir listeners para evitar duplicados
-      imgElement.removeEventListener('click', handleImageClick as any);
-      wrapper.removeEventListener('click', handleImageClick as any);
-      imgElement.addEventListener('click', handleImageClick as any);
-      wrapper.addEventListener('click', handleImageClick as any);
-    });
-  }, [handleImageClick]);
-
-  const handleAttachmentUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const files = event.target.files;
-    if (files && files.length > 0) {
-      const fileNames = Array.from(files).map(file => file.name).join(', ');
-      const attachmentHtml = `<p style="background-color: #f3f4f6; padding: 8px; border-radius: 4px; border-left: 4px solid #3b82f6;"><strong>📎 Archivos adjuntos:</strong> ${fileNames}</p>`;
-      executeCommand('insertHTML', attachmentHtml);
-    }
-    event.target.value = '';
-  };
-
-  const addAttachment = () => {
-    attachmentInputRef.current?.click();
   };
 
   const handlePaste = (e: React.ClipboardEvent<HTMLDivElement>) => {
@@ -349,52 +273,38 @@ export function RichTextEditor({ value, onChange, placeholder, onImageInsert }: 
           if (!file) return;
 
           const tempUrl = URL.createObjectURL(file);
+          const id = uid();
+
           const tempHtml = `
             <span class="editable-image-wrapper" contenteditable="false" style="display:inline-block; max-width:100%; resize:both; overflow:auto;">
-              <img src="${tempUrl}" class="editable-image" alt="Imagen insertada" draggable="false" style="display:block; width:100%; height:auto; cursor:pointer;" />
+              <img src="${tempUrl}" data-temp-id="${id}" class="editable-image" alt="Imagen insertada" draggable="false" decoding="async" style="display:block; width:100%; height:auto; cursor:pointer;" />
             </span>`;
           executeCommand('insertHTML', tempHtml);
-
-          setTimeout(() => {
-            setupImageListeners();
-            handleContentChange();
-          }, 0);
 
           runWhenIdle(async () => {
             const optimized = await optimizeImageBlob(file);
             const finalUrl = URL.createObjectURL(optimized);
 
             const editor = editorRef.current;
-            if (!editor) return;
-
-            const imgs = Array.from(editor.querySelectorAll('img')) as HTMLImageElement[];
-            const target = imgs.find(img => img.src === tempUrl);
-            if (target) {
-              target.src = finalUrl;
-              URL.revokeObjectURL(tempUrl);
+            if (editor) {
+              const target = editor.querySelector(`img[data-temp-id="${id}"]`) as HTMLImageElement | null;
+              if (target) {
+                target.src = finalUrl;
+                URL.revokeObjectURL(tempUrl);
+              }
             }
 
-            setTimeout(() => {
-              setupImageListeners();
-              handleContentChange();
-            }, 0);
-
-            // Si hay callback de CDN, intentar subir la imagen
             if (onImageInsert) {
               try {
                 const cdnUrl = await onImageInsert(file);
                 const editor2 = editorRef.current;
-                if (!editor2) return;
-                const imgs2 = Array.from(editor2.querySelectorAll('img')) as HTMLImageElement[];
-                const target2 = imgs2.find(img => img.src === finalUrl);
-                if (target2) {
-                  target2.src = cdnUrl;
-                  URL.revokeObjectURL(finalUrl);
+                if (editor2) {
+                  const target2 = editor2.querySelector(`img[data-temp-id="${id}"]`) as HTMLImageElement | null;
+                  if (target2) {
+                    target2.src = cdnUrl;
+                    URL.revokeObjectURL(finalUrl);
+                  }
                 }
-                setTimeout(() => {
-                  setupImageListeners();
-                  handleContentChange();
-                }, 0);
               } catch (err) {
                 console.error('Error uploading image:', err);
               }
@@ -405,22 +315,21 @@ export function RichTextEditor({ value, onChange, placeholder, onImageInsert }: 
       }
     }
 
-    setTimeout(() => {
-      setupImageListeners();
-      handleContentChange();
-    }, 50);
+    // Pegado normal: deja insertar y luego sincroniza
+    setTimeout(() => handleContentChange(), 50);
   };
+
+  /* ===========================
+        Listas con estilo
+  ============================ */
   const insertBulletList = (listStyle: string) => {
     if (listStyle === 'decimal' || listStyle === 'lower-alpha' || listStyle === 'upper-alpha' || listStyle === 'lower-roman') {
       executeCommand('insertOrderedList');
-      // Aplicar el estilo después de crear la lista
       setTimeout(() => {
         const selection = window.getSelection();
         if (selection && selection.anchorNode) {
           const listElement = selection.anchorNode.parentElement?.closest('ol');
-          if (listElement) {
-            listElement.style.listStyleType = listStyle;
-          }
+          if (listElement) listElement.style.listStyleType = listStyle;
         }
       }, 10);
     } else {
@@ -429,381 +338,6 @@ export function RichTextEditor({ value, onChange, placeholder, onImageInsert }: 
         const selection = window.getSelection();
         if (selection && selection.anchorNode) {
           const listElement = selection.anchorNode.parentElement?.closest('ul');
-          if (listElement) {
-            listElement.style.listStyleType = listStyle;
-          }
+          if (listElement) listElement.style.listStyleType = listStyle;
         }
-      }, 10);
-    }
-  };
-
-  // Inicializar el contenido del editor y configurar listeners
-  useEffect(() => {
-    const editor = editorRef.current;
-    if (!editor) return;
-
-    if (value !== editor.innerHTML && value !== lastEmittedHtmlRef.current) {
-      editor.innerHTML = value;
-      setupImageListeners();
-      return;
-    }
-    // Si el cambio vino del editor, solo aseguramos listeners
-    setupImageListeners();
-  }, [value, setupImageListeners]);
-
-  // Configurar listener para clicks en el editor
-  useEffect(() => {
-    const editor = editorRef.current;
-    if (!editor) return;
-
-    editor.addEventListener('click', handleEditorClick as any);
-    
-    return () => {
-      editor.removeEventListener('click', handleEditorClick as any);
-    };
-  }, [handleEditorClick]);
-
-  // Observar cambios dentro del editor para normalizar imágenes pegadas/inserciones y guardar cambios
-  useEffect(() => {
-    const editor = editorRef.current;
-    if (!editor) return;
-
-    const observer = new MutationObserver((mutations) => {
-      let needsSetup = false;
-      for (const m of mutations) {
-        if (m.type === 'childList') needsSetup = true;
-        if (
-          m.type === 'attributes' &&
-          m.target instanceof HTMLImageElement &&
-          (m.attributeName === 'src' || m.attributeName === 'class')
-        ) {
-          needsSetup = true;
-        }
-      }
-      if (needsSetup) {
-        // Solo aseguramos listeners; la propagación de cambios la manejan onInput/execCommand/pegar
-        setupImageListeners();
-      }
-    });
-
-    observer.observe(editor, {
-      childList: true,
-      subtree: true,
-      attributes: true,
-      attributeFilter: ['src', 'class']
-    });
-
-    return () => observer.disconnect();
-  }, [setupImageListeners, handleContentChange]);
-
-  return (
-    <div className="border rounded-md">
-      {/* Toolbar */}
-      <div className="border-b p-2 flex flex-wrap items-center gap-1">
-        {/* Formato de texto */}
-        <div className="flex items-center gap-1">
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            onMouseDown={(e) => {
-              e.preventDefault();
-              saveSelection();
-            }}
-            onClick={() => executeCommand('bold')}
-            className="h-8 w-8 p-0"
-          >
-            <Bold className="h-4 w-4" />
-          </Button>
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            onMouseDown={(e) => {
-              e.preventDefault();
-              saveSelection();
-            }}
-            onClick={() => executeCommand('italic')}
-            className="h-8 w-8 p-0"
-          >
-            <Italic className="h-4 w-4" />
-          </Button>
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            onMouseDown={(e) => {
-              e.preventDefault();
-              saveSelection();
-            }}
-            onClick={() => executeCommand('underline')}
-            className="h-8 w-8 p-0"
-          >
-            <Underline className="h-4 w-4" />
-          </Button>
-        </div>
-
-        <Separator orientation="vertical" className="h-6" />
-
-        {/* Tipo de fuente */}
-        <Select onValueChange={(fontFamily) => {
-          saveSelection();
-          executeCommand('fontName', fontFamily);
-        }}>
-          <SelectTrigger className="w-32 h-8">
-            <SelectValue placeholder="Fuente" />
-          </SelectTrigger>
-          <SelectContent>
-            {FONT_FAMILIES.map((font) => (
-              <SelectItem key={font.value} value={font.value} style={{ fontFamily: font.value }}>
-                {font.label}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-
-        {/* Tamaño de fuente */}
-        <Select onValueChange={(size) => {
-          saveSelection();
-          executeCommand('fontSize', size);
-        }}>
-          <SelectTrigger className="w-16 h-8">
-            <Type className="h-4 w-4" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="1">8pt</SelectItem>
-            <SelectItem value="2">10pt</SelectItem>
-            <SelectItem value="3">12pt</SelectItem>
-            <SelectItem value="4">14pt</SelectItem>
-            <SelectItem value="5">18pt</SelectItem>
-            <SelectItem value="6">24pt</SelectItem>
-            <SelectItem value="7">36pt</SelectItem>
-          </SelectContent>
-        </Select>
-
-        {/* Color de texto */}
-        <ColorPicker onColorSelect={(color) => {
-          saveSelection();
-          executeCommand('foreColor', color);
-        }} />
-
-        <Separator orientation="vertical" className="h-6" />
-
-        {/* Alineación */}
-        <div className="flex items-center gap-1">
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            onMouseDown={(e) => {
-              e.preventDefault();
-              saveSelection();
-            }}
-            onClick={() => executeCommand('justifyLeft')}
-            className="h-8 w-8 p-0"
-          >
-            <AlignLeft className="h-4 w-4" />
-          </Button>
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            onMouseDown={(e) => {
-              e.preventDefault();
-              saveSelection();
-            }}
-            onClick={() => executeCommand('justifyCenter')}
-            className="h-8 w-8 p-0"
-          >
-            <AlignCenter className="h-4 w-4" />
-          </Button>
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            onMouseDown={(e) => {
-              e.preventDefault();
-              saveSelection();
-            }}
-            onClick={() => executeCommand('justifyRight')}
-            className="h-8 w-8 p-0"
-          >
-            <AlignRight className="h-4 w-4" />
-          </Button>
-        </div>
-
-        <Separator orientation="vertical" className="h-6" />
-
-        {/* Listas con opciones */}
-        <Popover>
-          <PopoverTrigger asChild>
-            <Button type="button" variant="ghost" size="sm" className="h-8 px-2 gap-1">
-              <List className="h-4 w-4" />
-              <ChevronDown className="h-3 w-3" />
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent className="w-48">
-            <div className="space-y-1">
-              <Label className="text-sm font-medium">Tipo de lista</Label>
-              {BULLET_STYLES.map((style) => (
-                <Button
-                  key={style.value}
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  className="w-full justify-start text-sm"
-                  onMouseDown={(e) => {
-                    e.preventDefault();
-                    saveSelection();
-                  }}
-                  onClick={() => insertBulletList(style.value)}
-                >
-                  {style.label}
-                </Button>
-              ))}
-            </div>
-          </PopoverContent>
-        </Popover>
-
-        <Separator orientation="vertical" className="h-6" />
-
-        {/* Enlaces */}
-        <Popover open={showLinkPopover} onOpenChange={setShowLinkPopover}>
-          <PopoverTrigger asChild>
-            <Button 
-              type="button" 
-              variant="ghost" 
-              size="sm" 
-              className="h-8 w-8 p-0"
-              onMouseDown={(e) => {
-                e.preventDefault();
-                saveSelection();
-              }}
-            >
-              <Link className="h-4 w-4" />
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent className="w-80">
-            <div className="space-y-2">
-              <Label htmlFor="link-url">URL del enlace</Label>
-              <Input
-                id="link-url"
-                value={linkUrl}
-                onChange={(e) => setLinkUrl(e.target.value)}
-                placeholder="https://ejemplo.com"
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter') {
-                    e.preventDefault();
-                    insertLink();
-                  }
-                }}
-              />
-              <Button onClick={insertLink} size="sm">
-                Insertar enlace
-              </Button>
-            </div>
-          </PopoverContent>
-        </Popover>
-
-        {/* Imagen */}
-        <Button
-          type="button"
-          variant="ghost"
-          size="sm"
-          onMouseDown={(e) => {
-            e.preventDefault();
-            saveSelection();
-          }}
-          onClick={insertImage}
-          className="h-8 w-8 p-0"
-        >
-          <Image className="h-4 w-4" />
-        </Button>
-
-        {/* Archivos adjuntos 
-        <Button
-          type="button"
-          variant="ghost"
-          size="sm"
-          onMouseDown={(e) => {
-            e.preventDefault();
-            saveSelection();
-          }}
-          onClick={addAttachment}
-          className="h-8 w-8 p-0"
-        >
-          <Paperclip className="h-4 w-4" />
-        </Button>*/}
-      </div>
-
-      {/* Editor */}
-      <div className="relative">
-        <style>{`
-          .editable-image-wrapper {
-            border: 2px solid transparent;
-            transition: border-color 0.2s, box-shadow 0.2s;
-            resize: both;
-            overflow: auto;
-            max-width: 100%;
-            display: inline-block;
-            user-select: none;
-          }
-          .editable-image-wrapper:hover {
-            border-color: hsl(var(--primary));
-            box-shadow: 0 0 0 2px hsl(var(--primary) / 0.2);
-          }
-          .editable-image-wrapper.image-selected {
-            outline: none;
-            border-color: hsl(var(--primary));
-            box-shadow: 0 0 0 3px hsl(var(--primary) / 0.4);
-          }
-          .editable-image {
-            display: block;
-            width: 100%;
-            height: auto;
-            cursor: pointer;
-          }
-        `}</style>
-        <div
-          ref={editorRef}
-          contentEditable
-          tabIndex={0}
-          onPaste={handlePaste}
-          onInput={handleContentChange}
-          onKeyDown={handleKeyDown}
-          onMouseUp={saveSelection}
-          onKeyUp={saveSelection}
-          className="min-h-[200px] p-4 focus:outline-none prose prose-sm max-w-none"
-          style={{ 
-            whiteSpace: 'pre-wrap',
-            wordBreak: 'break-word'
-          }}
-          suppressContentEditableWarning={true}
-        />
-        
-        {/* Input ocultos para archivos */}
-        <input
-          type="file"
-          ref={fileInputRef}
-          onChange={handleImageUpload}
-          accept="image/*"
-          style={{ display: 'none' }}
-        />
-        
-        <input
-          type="file"
-          ref={attachmentInputRef}
-          onChange={handleAttachmentUpload}
-          multiple
-          style={{ display: 'none' }}
-        />
-        
-        {!value && (
-          <div className="absolute top-4 left-4 text-muted-foreground pointer-events-none">
-            {placeholder}
-          </div>
-        )}
-      </div>
-    </div>
-  );
-}
+      },
