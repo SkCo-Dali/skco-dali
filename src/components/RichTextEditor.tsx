@@ -210,32 +210,34 @@ export function RichTextEditor({ value, onChange, placeholder }: RichTextEditorP
     const file = event.target.files?.[0];
     if (file) {
       try {
-        const objectUrl = URL.createObjectURL(file);
-        const img = new window.Image();
-        img.onload = () => {
-          const maxWidth = 1200;
-          const ratio = Math.min(1, maxWidth / img.width);
-          const w = Math.round(img.width * ratio);
-          const h = Math.round(img.height * ratio);
-          const canvas = document.createElement('canvas');
-          canvas.width = w;
-          canvas.height = h;
-          const ctx = canvas.getContext('2d');
-          if (ctx) {
-            ctx.drawImage(img, 0, 0, w, h);
-            const compressedUrl = canvas.toDataURL('image/jpeg', 0.85);
-            const imageHtml = `<span class="editable-image-wrapper" contenteditable="false" style="display:inline-block; max-width:100%; resize:both; overflow:auto;"><img src="${compressedUrl}" class="editable-image" alt="Imagen insertada" style="display:block; width:100%; height:auto; cursor:pointer;" /></span>`;
-            executeCommand('insertHTML', imageHtml);
-            setTimeout(() => {
-              setupImageListeners();
-            }, 50);
+        // Inserta un preview temporal inmediato para no bloquear la UI
+        const tempUrl = URL.createObjectURL(file);
+        const tempHtml = `<span class="editable-image-wrapper" contenteditable="false" style="display:inline-block; max-width:100%; resize:both; overflow:auto;"><img src="${tempUrl}" class="editable-image" alt="Imagen insertada" style="display:block; width:100%; height:auto; cursor:pointer;" /></span>`;
+        executeCommand('insertHTML', tempHtml);
+        // Asegura listeners rápidamente
+        setTimeout(() => {
+          setupImageListeners();
+        }, 0);
+
+        // Convierte a DataURL en background y reemplaza el src del preview
+        const reader = new FileReader();
+        reader.onload = () => {
+          const dataUrl = reader.result as string;
+          const editor = editorRef.current;
+          if (editor) {
+            const imgs = Array.from(editor.querySelectorAll('img')) as HTMLImageElement[];
+            const target = imgs.find(img => img.src === tempUrl);
+            if (target) {
+              target.src = dataUrl;
+              URL.revokeObjectURL(tempUrl);
+            }
           }
-          URL.revokeObjectURL(objectUrl);
+          setTimeout(() => {
+            setupImageListeners();
+            handleContentChange();
+          }, 0);
         };
-        img.onerror = () => {
-          URL.revokeObjectURL(objectUrl);
-        };
-        img.src = objectUrl;
+        reader.readAsDataURL(file);
       } catch (e) {
         // noop
       }
@@ -275,47 +277,40 @@ export function RichTextEditor({ value, onChange, placeholder }: RichTextEditorP
   };
 
   const handlePaste = (e: React.ClipboardEvent<HTMLDivElement>) => {
-    // Si hay imágenes en el portapapeles, insertarlas como editable-image (comprimidas)
+    // Si hay imágenes en el portapapeles, insertarlas de forma no bloqueante
     const items = e.clipboardData?.items;
     if (items) {
       const imageItems = Array.from(items).filter((it) => it.type.startsWith('image/'));
       if (imageItems.length > 0) {
         e.preventDefault();
-        let pending = imageItems.length;
         imageItems.forEach((it) => {
           const file = it.getAsFile();
-          if (!file) { pending--; return; }
-          const objectUrl = URL.createObjectURL(file);
-          const img = new window.Image();
-          img.onload = () => {
-            const maxWidth = 1200;
-            const ratio = Math.min(1, maxWidth / img.width);
-            const w = Math.round(img.width * ratio);
-            const h = Math.round(img.height * ratio);
-            const canvas = document.createElement('canvas');
-            canvas.width = w;
-            canvas.height = h;
-            const ctx = canvas.getContext('2d');
-            if (ctx) {
-              ctx.drawImage(img, 0, 0, w, h);
-              const compressedUrl = canvas.toDataURL('image/jpeg', 0.85);
-              const imageHtml = `<span class=\"editable-image-wrapper\" contenteditable=\"false\" style=\"display:inline-block; max-width:100%; resize:both; overflow:auto;\"><img src=\"${compressedUrl}\" class=\"editable-image\" alt=\"Imagen insertada\" style=\"display:block; width:100%; height:auto; cursor:pointer;\" /></span>`;
-              executeCommand('insertHTML', imageHtml);
+          if (!file) return;
+          const tempUrl = URL.createObjectURL(file);
+          const tempHtml = `<span class=\"editable-image-wrapper\" contenteditable=\"false\" style=\"display:inline-block; max-width:100%; resize:both; overflow:auto;\"><img src=\"${tempUrl}\" class=\"editable-image\" alt=\"Imagen insertada\" style=\"display:block; width:100%; height:auto; cursor:pointer;\" /></span>`;
+          executeCommand('insertHTML', tempHtml);
+          setTimeout(() => {
+            setupImageListeners();
+          }, 0);
+
+          const reader = new FileReader();
+          reader.onload = () => {
+            const dataUrl = reader.result as string;
+            const editor = editorRef.current;
+            if (editor) {
+              const imgs = Array.from(editor.querySelectorAll('img')) as HTMLImageElement[];
+              const target = imgs.find(img => img.src === tempUrl);
+              if (target) {
+                target.src = dataUrl;
+                URL.revokeObjectURL(tempUrl);
+              }
             }
-            URL.revokeObjectURL(objectUrl);
-            pending--;
-            if (pending === 0) {
-              setTimeout(() => {
-                setupImageListeners();
-                handleContentChange();
-              }, 50);
-            }
+            setTimeout(() => {
+              setupImageListeners();
+              handleContentChange();
+            }, 0);
           };
-          img.onerror = () => {
-            URL.revokeObjectURL(objectUrl);
-            pending--;
-          };
-          img.src = objectUrl;
+          reader.readAsDataURL(file);
         });
         return;
       }
