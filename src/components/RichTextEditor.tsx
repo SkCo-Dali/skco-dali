@@ -58,6 +58,7 @@ export function RichTextEditor({ value, onChange, placeholder }: RichTextEditorP
   const [linkUrl, setLinkUrl] = useState('');
   const [showLinkPopover, setShowLinkPopover] = useState(false);
   const [currentSelection, setCurrentSelection] = useState<Range | null>(null);
+  const [selectedImage, setSelectedImage] = useState<HTMLImageElement | null>(null);
 
   const executeCommand = useCallback((command: string, value?: string) => {
     // Restaurar la selección antes de ejecutar el comando
@@ -90,13 +91,47 @@ export function RichTextEditor({ value, onChange, placeholder }: RichTextEditorP
   }, [onChange]);
 
   const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
+    // Eliminar imagen seleccionada con Delete o Backspace
+    if ((e.key === 'Delete' || e.key === 'Backspace') && selectedImage) {
+      e.preventDefault();
+      selectedImage.remove();
+      setSelectedImage(null);
+      handleContentChange();
+      return;
+    }
+    
     // Prevenir comportamientos extraños del contentEditable
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       document.execCommand('insertHTML', false, '<br><br>');
       handleContentChange();
     }
-  }, [handleContentChange]);
+  }, [handleContentChange, selectedImage]);
+
+  const handleImageClick = useCallback((e: MouseEvent) => {
+    const target = e.target as HTMLElement;
+    if (target.tagName === 'IMG' && target.classList.contains('editable-image')) {
+      e.preventDefault();
+      e.stopPropagation();
+      
+      // Deseleccionar imagen anterior
+      if (selectedImage && selectedImage !== target) {
+        selectedImage.classList.remove('image-selected');
+      }
+      
+      setSelectedImage(target as HTMLImageElement);
+      (target as HTMLImageElement).classList.add('image-selected');
+    }
+  }, [selectedImage]);
+
+  const handleEditorClick = useCallback((e: MouseEvent) => {
+    const target = e.target as HTMLElement;
+    // Si se hace click fuera de una imagen, deseleccionar
+    if (target.tagName !== 'IMG' && selectedImage) {
+      selectedImage.classList.remove('image-selected');
+      setSelectedImage(null);
+    }
+  }, [selectedImage]);
 
   const insertLink = () => {
     if (linkUrl.trim()) {
@@ -117,14 +152,31 @@ export function RichTextEditor({ value, onChange, placeholder }: RichTextEditorP
       reader.onload = (e) => {
         const imageUrl = e.target?.result as string;
         // Hacer las imágenes seleccionables, redimensionables y con borde al seleccionar
-        const imageHtml = `<img src="${imageUrl}" style="max-width: 100%; height: auto; cursor: pointer; display: inline-block;" class="editable-image" alt="Imagen insertada" draggable="true" />`;
+        const imageHtml = `<img src="${imageUrl}" style="max-width: 100%; height: auto; cursor: pointer; display: inline-block; resize: both; overflow: auto;" class="editable-image" alt="Imagen insertada" contenteditable="false" />`;
         executeCommand('insertHTML', imageHtml);
+        
+        // Esperar un momento para que la imagen se inserte en el DOM
+        setTimeout(() => {
+          setupImageListeners();
+        }, 100);
       };
       reader.readAsDataURL(file);
     }
     // Limpiar el input para permitir seleccionar la misma imagen de nuevo
     event.target.value = '';
   };
+
+  const setupImageListeners = useCallback(() => {
+    if (!editorRef.current) return;
+    
+    const images = editorRef.current.querySelectorAll('img.editable-image');
+    images.forEach((img) => {
+      // Remover listeners anteriores para evitar duplicados
+      const imgElement = img as HTMLImageElement;
+      imgElement.removeEventListener('click', handleImageClick as any);
+      imgElement.addEventListener('click', handleImageClick as any);
+    });
+  }, [handleImageClick]);
 
   const handleAttachmentUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;
@@ -167,12 +219,25 @@ export function RichTextEditor({ value, onChange, placeholder }: RichTextEditorP
     }
   };
 
-  // Inicializar el contenido del editor
+  // Inicializar el contenido del editor y configurar listeners
   useEffect(() => {
     if (editorRef.current && value !== editorRef.current.innerHTML) {
       editorRef.current.innerHTML = value;
     }
-  }, [value]);
+    setupImageListeners();
+  }, [value, setupImageListeners]);
+
+  // Configurar listener para clicks en el editor
+  useEffect(() => {
+    const editor = editorRef.current;
+    if (!editor) return;
+
+    editor.addEventListener('click', handleEditorClick as any);
+    
+    return () => {
+      editor.removeEventListener('click', handleEditorClick as any);
+    };
+  }, [handleEditorClick]);
 
   return (
     <div className="border rounded-md">
@@ -420,15 +485,18 @@ export function RichTextEditor({ value, onChange, placeholder }: RichTextEditorP
           .editable-image {
             border: 2px solid transparent;
             transition: border-color 0.2s;
+            resize: both;
+            overflow: auto;
           }
           .editable-image:hover {
             border-color: #3b82f6;
             box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
           }
-          .editable-image:focus {
+          .editable-image.image-selected {
             outline: none;
             border-color: #3b82f6;
-            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.3);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.4);
+            resize: both;
           }
         `}</style>
         <div
