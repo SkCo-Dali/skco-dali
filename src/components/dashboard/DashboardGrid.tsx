@@ -1,11 +1,10 @@
 import { DndContext, DragEndEvent, closestCenter, PointerSensor, useSensor, useSensors } from "@dnd-kit/core";
 import { SortableContext, arrayMove, rectSortingStrategy, useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { GripVertical } from "lucide-react";
+import { GripVertical, Minus, Plus } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { WidgetConfig, WIDGET_SIZE_MAP, WidgetSize } from "@/types/dashboard";
 import { Button } from "@/components/ui/button";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 interface DashboardGridProps {
   widgets: WidgetConfig[];
@@ -37,8 +36,24 @@ function SortableWidget({
     opacity: isDragging ? 0.5 : 1,
   };
 
-  const handleSizeChange = (size: WidgetSize) => {
-    onUpdateWidget(widget.id, { size });
+  const sizes: WidgetSize[] = ["small", "medium", "large", "full"];
+  const currentSizeIndex = sizes.indexOf(widget.size);
+  
+  const handleSizeIncrease = () => {
+    if (currentSizeIndex < sizes.length - 1) {
+      onUpdateWidget(widget.id, { size: sizes[currentSizeIndex + 1] });
+    }
+  };
+
+  const handleSizeDecrease = () => {
+    if (currentSizeIndex > 0) {
+      onUpdateWidget(widget.id, { size: sizes[currentSizeIndex - 1] });
+    }
+  };
+
+  const getSizeLabel = (size: WidgetSize) => {
+    const labels = { small: "1x", medium: "2x", large: "3x", full: "4x" };
+    return labels[size];
   };
 
   return (
@@ -52,28 +67,41 @@ function SortableWidget({
       )}
     >
       {isCustomizing && (
-        <div className="absolute -top-3 left-1/2 -translate-x-1/2 z-10 flex items-center gap-2 bg-background border rounded-lg shadow-lg p-1">
+        <div className="absolute -top-3 left-1/2 -translate-x-1/2 z-10 flex items-center gap-1 bg-background border rounded-lg shadow-lg p-1">
           <Button
             variant="ghost"
             size="sm"
-            className="h-7 w-7 p-0 cursor-grab active:cursor-grabbing"
+            className="h-7 w-7 p-0 cursor-grab active:cursor-grabbing hover:bg-accent"
             {...attributes}
             {...listeners}
           >
             <GripVertical className="h-4 w-4" />
           </Button>
           {widget.resizable && (
-            <Select value={widget.size} onValueChange={handleSizeChange}>
-              <SelectTrigger className="h-7 w-24 text-xs">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="small">Pequeño</SelectItem>
-                <SelectItem value="medium">Mediano</SelectItem>
-                <SelectItem value="large">Grande</SelectItem>
-                <SelectItem value="full">Completo</SelectItem>
-              </SelectContent>
-            </Select>
+            <>
+              <div className="h-5 w-px bg-border" />
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-7 w-7 p-0 hover:bg-accent"
+                onClick={handleSizeDecrease}
+                disabled={currentSizeIndex === 0}
+              >
+                <Minus className="h-3.5 w-3.5" />
+              </Button>
+              <span className="text-xs font-medium px-1 min-w-[28px] text-center">
+                {getSizeLabel(widget.size)}
+              </span>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-7 w-7 p-0 hover:bg-accent"
+                onClick={handleSizeIncrease}
+                disabled={currentSizeIndex === sizes.length - 1}
+              >
+                <Plus className="h-3.5 w-3.5" />
+              </Button>
+            </>
           )}
         </div>
       )}
