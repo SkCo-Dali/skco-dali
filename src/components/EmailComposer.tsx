@@ -52,10 +52,28 @@ export function EmailComposer({
 
   const convertHtmlToPlain = (html: string): string => {
     return html
+      // Preservar dobles saltos de línea primero
+      .replace(/<br\s*\/?>\s*<br\s*\/?>/gi, '\n\n')
+      // Luego convertir saltos simples
       .replace(/<br\s*\/?>/gi, '\n')
+      // Convertir párrafos con doble salto
+      .replace(/<\/p>\s*<p[^>]*>/gi, '\n\n')
+      .replace(/<p[^>]*>/gi, '')
       .replace(/<\/p>/gi, '\n')
+      // Convertir divs
+      .replace(/<\/div>\s*<div[^>]*>/gi, '\n')
+      .replace(/<div[^>]*>/gi, '')
+      .replace(/<\/div>/gi, '\n')
+      // Remover todas las demás etiquetas HTML
       .replace(/<[^>]*>/g, '')
+      // Convertir entidades HTML
       .replace(/&nbsp;/g, ' ')
+      .replace(/&amp;/g, '&')
+      .replace(/&lt;/g, '<')
+      .replace(/&gt;/g, '>')
+      .replace(/&quot;/g, '"')
+      // Preservar múltiples saltos de línea y limpiar exceso
+      .replace(/\n{3,}/g, '\n\n')
       .trim();
   };
 

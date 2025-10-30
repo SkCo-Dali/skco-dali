@@ -116,7 +116,8 @@ export function RichTextEditor({ value, onChange, placeholder }: RichTextEditorP
       const reader = new FileReader();
       reader.onload = (e) => {
         const imageUrl = e.target?.result as string;
-        const imageHtml = `<img src="${imageUrl}" style="max-width: 100%; height: auto;" alt="Imagen insertada" />`;
+        // Hacer las imágenes seleccionables, redimensionables y con borde al seleccionar
+        const imageHtml = `<img src="${imageUrl}" style="max-width: 100%; height: auto; cursor: pointer; display: inline-block;" class="editable-image" alt="Imagen insertada" draggable="true" />`;
         executeCommand('insertHTML', imageHtml);
       };
       reader.readAsDataURL(file);
@@ -415,6 +416,21 @@ export function RichTextEditor({ value, onChange, placeholder }: RichTextEditorP
 
       {/* Editor */}
       <div className="relative">
+        <style>{`
+          .editable-image {
+            border: 2px solid transparent;
+            transition: border-color 0.2s;
+          }
+          .editable-image:hover {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+          }
+          .editable-image:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.3);
+          }
+        `}</style>
         <div
           ref={editorRef}
           contentEditable
