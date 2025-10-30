@@ -110,17 +110,31 @@ export function RichTextEditor({ value, onChange, placeholder }: RichTextEditorP
 
   const handleImageClick = useCallback((e: MouseEvent) => {
     const target = e.target as HTMLElement;
-    if (target.tagName === 'IMG' && target.classList.contains('editable-image')) {
+    if (target.tagName === 'IMG') {
       e.preventDefault();
       e.stopPropagation();
-      
+
+      const imgEl = target as HTMLImageElement;
+      // Asegurar que cualquier imagen sea editable/seleccionable
+      if (!imgEl.classList.contains('editable-image')) {
+        imgEl.classList.add('editable-image');
+        imgEl.style.maxWidth = '100%';
+        imgEl.style.height = 'auto';
+        imgEl.style.cursor = 'pointer';
+        imgEl.style.display = 'inline-block';
+        imgEl.style.resize = 'both';
+        imgEl.style.overflow = 'auto';
+        imgEl.setAttribute('contenteditable', 'false');
+        if (!imgEl.alt) imgEl.alt = 'Imagen insertada';
+      }
+
       // Deseleccionar imagen anterior
-      if (selectedImage && selectedImage !== target) {
+      if (selectedImage && selectedImage !== imgEl) {
         selectedImage.classList.remove('image-selected');
       }
-      
-      setSelectedImage(target as HTMLImageElement);
-      (target as HTMLImageElement).classList.add('image-selected');
+
+      setSelectedImage(imgEl);
+      imgEl.classList.add('image-selected');
     }
   }, [selectedImage]);
 
@@ -168,11 +182,23 @@ export function RichTextEditor({ value, onChange, placeholder }: RichTextEditorP
 
   const setupImageListeners = useCallback(() => {
     if (!editorRef.current) return;
-    
-    const images = editorRef.current.querySelectorAll('img.editable-image');
+
+    const images = editorRef.current.querySelectorAll('img');
     images.forEach((img) => {
-      // Remover listeners anteriores para evitar duplicados
       const imgElement = img as HTMLImageElement;
+      // Asegurar clase/estilos necesarios en cualquier imagen
+      if (!imgElement.classList.contains('editable-image')) {
+        imgElement.classList.add('editable-image');
+        imgElement.style.maxWidth = '100%';
+        imgElement.style.height = 'auto';
+        imgElement.style.cursor = 'pointer';
+        imgElement.style.display = 'inline-block';
+        imgElement.style.resize = 'both';
+        imgElement.style.overflow = 'auto';
+        imgElement.setAttribute('contenteditable', 'false');
+        if (!imgElement.alt) imgElement.alt = 'Imagen insertada';
+      }
+      // Remover/añadir listeners para evitar duplicados
       imgElement.removeEventListener('click', handleImageClick as any);
       imgElement.addEventListener('click', handleImageClick as any);
     });
@@ -192,6 +218,36 @@ export function RichTextEditor({ value, onChange, placeholder }: RichTextEditorP
     attachmentInputRef.current?.click();
   };
 
+  const handlePaste = (e: React.ClipboardEvent<HTMLDivElement>) => {
+    // Si hay imágenes en el portapapeles, insertarlas como editable-image
+    const items = e.clipboardData?.items;
+    if (items) {
+      const imageItems = Array.from(items).filter((it) => it.type.startsWith('image/'));
+      if (imageItems.length > 0) {
+        e.preventDefault();
+        imageItems.forEach((it) => {
+          const file = it.getAsFile();
+          if (!file) return;
+          const reader = new FileReader();
+          reader.onload = (ev) => {
+            const imageUrl = ev.target?.result as string;
+            const imageHtml = `<img src="${imageUrl}" style="max-width: 100%; height: auto; cursor: pointer; display: inline-block; resize: both; overflow: auto;" class="editable-image" alt="Imagen insertada" contenteditable="false" />`;
+            executeCommand('insertHTML', imageHtml);
+            setTimeout(() => {
+              setupImageListeners();
+            }, 50);
+          };
+          reader.readAsDataURL(file);
+        });
+        return;
+      }
+    }
+    // Si se pega HTML que contiene <img>, dejar que el navegador inserte y luego normalizar
+    setTimeout(() => {
+      setupImageListeners();
+      handleContentChange();
+    }, 50);
+  };
   const insertBulletList = (listStyle: string) => {
     if (listStyle === 'decimal' || listStyle === 'lower-alpha' || listStyle === 'upper-alpha' || listStyle === 'lower-roman') {
       executeCommand('insertOrderedList');
@@ -238,6 +294,33 @@ export function RichTextEditor({ value, onChange, placeholder }: RichTextEditorP
       editor.removeEventListener('click', handleEditorClick as any);
     };
   }, [handleEditorClick]);
+
+  // Observar cambios dentro del editor para normalizar imágenes pegadas/inserciones y guardar cambios
+  useEffect(() => {
+    const editor = editorRef.current;
+    if (!editor) return;
+
+    const observer = new MutationObserver((mutations) => {
+      let changed = false;
+      for (const m of mutations) {
+        if (m.type === 'childList') changed = true;
+        if (m.type === 'attributes' && m.target instanceof HTMLImageElement) changed = true;
+      }
+      if (changed) {
+        setupImageListeners();
+        handleContentChange();
+      }
+    });
+
+    observer.observe(editor, {
+      childList: true,
+      subtree: true,
+      attributes: true,
+      attributeFilter: ['style', 'src', 'class']
+    });
+
+    return () => observer.disconnect();
+  }, [setupImageListeners, handleContentChange]);
 
   return (
     <div className="border rounded-md">
@@ -502,6 +585,7 @@ export function RichTextEditor({ value, onChange, placeholder }: RichTextEditorP
         <div
           ref={editorRef}
           contentEditable
+          onPaste={handlePaste}
           onInput={handleContentChange}
           onKeyDown={handleKeyDown}
           onMouseUp={saveSelection}
