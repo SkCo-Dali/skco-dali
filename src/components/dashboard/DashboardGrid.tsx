@@ -140,7 +140,7 @@ export function DashboardGrid({
   return (
     <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
       <SortableContext items={widgets.map((w) => w.id)} strategy={rectSortingStrategy}>
-        <div className="grid grid-cols-4 gap-4 auto-rows-min">
+        <div className="grid grid-cols-4 gap-4 auto-rows-fr">
           {widgets.map((widget) => (
             <SortableWidget
               key={widget.id}
