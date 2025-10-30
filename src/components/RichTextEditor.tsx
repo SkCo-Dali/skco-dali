@@ -130,7 +130,7 @@ export function RichTextEditor({ value, onChange, placeholder }: RichTextEditorP
     }
     debounceTimerRef.current = window.setTimeout(() => {
       onChange(html);
-    }, 100);
+    }, 300);
   }, [onChange]);
 
   const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
@@ -206,22 +206,39 @@ export function RichTextEditor({ value, onChange, placeholder }: RichTextEditorP
     fileInputRef.current?.click();
   };
 
-  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        const imageUrl = e.target?.result as string;
-        // Insertar imagen envuelta en un contenedor redimensionable
-        const imageHtml = `<span class="editable-image-wrapper" contenteditable="false" style="display:inline-block; max-width:100%; resize:both; overflow:auto;"><img src="${imageUrl}" class="editable-image" alt="Imagen insertada" style="display:block; width:100%; height:auto; cursor:pointer;" /></span>`;
-        executeCommand('insertHTML', imageHtml);
-        
-        // Esperar un momento para que la imagen se inserte en el DOM
-        setTimeout(() => {
-          setupImageListeners();
-        }, 100);
-      };
-      reader.readAsDataURL(file);
+      try {
+        const objectUrl = URL.createObjectURL(file);
+        const img = new window.Image();
+        img.onload = () => {
+          const maxWidth = 1200;
+          const ratio = Math.min(1, maxWidth / img.width);
+          const w = Math.round(img.width * ratio);
+          const h = Math.round(img.height * ratio);
+          const canvas = document.createElement('canvas');
+          canvas.width = w;
+          canvas.height = h;
+          const ctx = canvas.getContext('2d');
+          if (ctx) {
+            ctx.drawImage(img, 0, 0, w, h);
+            const compressedUrl = canvas.toDataURL('image/jpeg', 0.85);
+            const imageHtml = `<span class="editable-image-wrapper" contenteditable="false" style="display:inline-block; max-width:100%; resize:both; overflow:auto;"><img src="${compressedUrl}" class="editable-image" alt="Imagen insertada" style="display:block; width:100%; height:auto; cursor:pointer;" /></span>`;
+            executeCommand('insertHTML', imageHtml);
+            setTimeout(() => {
+              setupImageListeners();
+            }, 50);
+          }
+          URL.revokeObjectURL(objectUrl);
+        };
+        img.onerror = () => {
+          URL.revokeObjectURL(objectUrl);
+        };
+        img.src = objectUrl;
+      } catch (e) {
+        // noop
+      }
     }
     // Limpiar el input para permitir seleccionar la misma imagen de nuevo
     event.target.value = '';
@@ -258,25 +275,47 @@ export function RichTextEditor({ value, onChange, placeholder }: RichTextEditorP
   };
 
   const handlePaste = (e: React.ClipboardEvent<HTMLDivElement>) => {
-    // Si hay imágenes en el portapapeles, insertarlas como editable-image
+    // Si hay imágenes en el portapapeles, insertarlas como editable-image (comprimidas)
     const items = e.clipboardData?.items;
     if (items) {
       const imageItems = Array.from(items).filter((it) => it.type.startsWith('image/'));
       if (imageItems.length > 0) {
         e.preventDefault();
+        let pending = imageItems.length;
         imageItems.forEach((it) => {
           const file = it.getAsFile();
-          if (!file) return;
-          const reader = new FileReader();
-          reader.onload = (ev) => {
-            const imageUrl = ev.target?.result as string;
-            const imageHtml = `<span class=\"editable-image-wrapper\" contenteditable=\"false\" style=\"display:inline-block; max-width:100%; resize:both; overflow:auto;\"><img src=\"${imageUrl}\" class=\"editable-image\" alt=\"Imagen insertada\" style=\"display:block; width:100%; height:auto; cursor:pointer;\" /></span>`;
-            executeCommand('insertHTML', imageHtml);
-            setTimeout(() => {
-              setupImageListeners();
-            }, 50);
+          if (!file) { pending--; return; }
+          const objectUrl = URL.createObjectURL(file);
+          const img = new window.Image();
+          img.onload = () => {
+            const maxWidth = 1200;
+            const ratio = Math.min(1, maxWidth / img.width);
+            const w = Math.round(img.width * ratio);
+            const h = Math.round(img.height * ratio);
+            const canvas = document.createElement('canvas');
+            canvas.width = w;
+            canvas.height = h;
+            const ctx = canvas.getContext('2d');
+            if (ctx) {
+              ctx.drawImage(img, 0, 0, w, h);
+              const compressedUrl = canvas.toDataURL('image/jpeg', 0.85);
+              const imageHtml = `<span class=\"editable-image-wrapper\" contenteditable=\"false\" style=\"display:inline-block; max-width:100%; resize:both; overflow:auto;\"><img src=\"${compressedUrl}\" class=\"editable-image\" alt=\"Imagen insertada\" style=\"display:block; width:100%; height:auto; cursor:pointer;\" /></span>`;
+              executeCommand('insertHTML', imageHtml);
+            }
+            URL.revokeObjectURL(objectUrl);
+            pending--;
+            if (pending === 0) {
+              setTimeout(() => {
+                setupImageListeners();
+                handleContentChange();
+              }, 50);
+            }
           };
-          reader.readAsDataURL(file);
+          img.onerror = () => {
+            URL.revokeObjectURL(objectUrl);
+            pending--;
+          };
+          img.src = objectUrl;
         });
         return;
       }
