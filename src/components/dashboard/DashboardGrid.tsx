@@ -3,9 +3,9 @@ import { SortableContext, arrayMove, rectSortingStrategy, useSortable } from "@d
 import { CSS } from "@dnd-kit/utilities";
 import { GripVertical } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { WidgetConfig } from "@/types/dashboard";
+import { WidgetConfig, WIDGET_SIZE_MAP, WidgetSize } from "@/types/dashboard";
 import { Button } from "@/components/ui/button";
-import { useState, useRef, useEffect } from "react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 interface DashboardGridProps {
   widgets: WidgetConfig[];
@@ -31,112 +31,51 @@ function SortableWidget({
     disabled: !isCustomizing,
   });
 
-  const [isResizing, setIsResizing] = useState(false);
-  const [dimensions, setDimensions] = useState({ cols: widget.cols || 2, rows: widget.rows || 1 });
-  const widgetRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    setDimensions({ cols: widget.cols || 2, rows: widget.rows || 1 });
-  }, [widget.cols, widget.rows]);
-
-  const handleResizeStart = (e: React.MouseEvent, direction: 'right' | 'bottom' | 'corner') => {
-    if (!isCustomizing) return;
-    e.stopPropagation();
-    setIsResizing(true);
-
-    const startX = e.clientX;
-    const startY = e.clientY;
-    const startCols = dimensions.cols;
-    const startRows = dimensions.rows;
-    const cellWidth = widgetRef.current?.parentElement?.offsetWidth ? 
-      (widgetRef.current.parentElement.offsetWidth - 48) / 4 : 200; // 4 columns, gap-4 (16px * 3)
-    const cellHeight = 200;
-
-    const handleMouseMove = (moveEvent: MouseEvent) => {
-      const deltaX = moveEvent.clientX - startX;
-      const deltaY = moveEvent.clientY - startY;
-
-      if (direction === 'right' || direction === 'corner') {
-        const newCols = Math.max(1, Math.min(4, Math.round(startCols + deltaX / cellWidth)));
-        setDimensions(prev => ({ ...prev, cols: newCols }));
-      }
-
-      if (direction === 'bottom' || direction === 'corner') {
-        const newRows = Math.max(1, Math.round(startRows + deltaY / cellHeight));
-        setDimensions(prev => ({ ...prev, rows: newRows }));
-      }
-    };
-
-    const handleMouseUp = () => {
-      setIsResizing(false);
-      onUpdateWidget(widget.id, { 
-        cols: dimensions.cols, 
-        rows: dimensions.rows 
-      });
-      document.removeEventListener('mousemove', handleMouseMove);
-      document.removeEventListener('mouseup', handleMouseUp);
-    };
-
-    document.addEventListener('mousemove', handleMouseMove);
-    document.addEventListener('mouseup', handleMouseUp);
-  };
-
   const style = {
     transform: CSS.Transform.toString(transform),
-    transition: isResizing ? 'none' : transition,
+    transition,
     opacity: isDragging ? 0.5 : 1,
-    gridColumn: `span ${dimensions.cols}`,
-    gridRow: `span ${dimensions.rows}`,
+  };
+
+  const handleSizeChange = (size: WidgetSize) => {
+    onUpdateWidget(widget.id, { size });
   };
 
   return (
     <div
-      ref={(node) => {
-        setNodeRef(node);
-        if (node) (widgetRef as any).current = node;
-      }}
+      ref={setNodeRef}
       style={style}
       className={cn(
         "relative group",
+        WIDGET_SIZE_MAP[widget.size],
         isCustomizing && "ring-2 ring-primary/20 rounded-xl",
       )}
     >
       {isCustomizing && (
-        <>
-          <div className="absolute -top-3 left-1/2 -translate-x-1/2 z-10 flex items-center gap-1 bg-background border rounded-lg shadow-lg p-1">
-            <Button
-              variant="ghost"
-              size="sm"
-              className="h-7 w-7 p-0 cursor-grab active:cursor-grabbing hover:bg-accent"
-              {...attributes}
-              {...listeners}
-            >
-              <GripVertical className="h-4 w-4" />
-            </Button>
-          </div>
-          
+        <div className="absolute -top-3 left-1/2 -translate-x-1/2 z-10 flex items-center gap-2 bg-background border rounded-lg shadow-lg p-1">
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-7 w-7 p-0 cursor-grab active:cursor-grabbing"
+            {...attributes}
+            {...listeners}
+          >
+            <GripVertical className="h-4 w-4" />
+          </Button>
           {widget.resizable && (
-            <>
-              {/* Right resize handle */}
-              <div
-                className="absolute top-0 right-0 w-2 h-full cursor-ew-resize hover:bg-primary/20 transition-colors z-10"
-                onMouseDown={(e) => handleResizeStart(e, 'right')}
-              />
-              
-              {/* Bottom resize handle */}
-              <div
-                className="absolute bottom-0 left-0 w-full h-2 cursor-ns-resize hover:bg-primary/20 transition-colors z-10"
-                onMouseDown={(e) => handleResizeStart(e, 'bottom')}
-              />
-              
-              {/* Corner resize handle */}
-              <div
-                className="absolute bottom-0 right-0 w-4 h-4 cursor-nwse-resize hover:bg-primary/30 transition-colors z-10 rounded-tl-lg"
-                onMouseDown={(e) => handleResizeStart(e, 'corner')}
-              />
-            </>
+            <Select value={widget.size} onValueChange={handleSizeChange}>
+              <SelectTrigger className="h-7 w-24 text-xs">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="small">Pequeño</SelectItem>
+                <SelectItem value="medium">Mediano</SelectItem>
+                <SelectItem value="large">Grande</SelectItem>
+                <SelectItem value="full">Completo</SelectItem>
+              </SelectContent>
+            </Select>
           )}
-        </>
+        </div>
       )}
       {children}
     </div>
@@ -173,7 +112,7 @@ export function DashboardGrid({
   return (
     <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
       <SortableContext items={widgets.map((w) => w.id)} strategy={rectSortingStrategy}>
-        <div className="grid grid-cols-4 gap-4" style={{ gridAutoRows: '200px' }}>
+        <div className="grid grid-cols-4 gap-4 auto-rows-min">
           {widgets.map((widget) => (
             <SortableWidget
               key={widget.id}
