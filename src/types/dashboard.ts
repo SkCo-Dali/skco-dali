@@ -15,6 +15,8 @@ export interface WidgetConfig {
   type: WidgetType;
   title: string;
   size: WidgetSize;
+  cols?: number;
+  rows?: number;
   position: number;
   enabled: boolean;
   minSize?: WidgetSize;
@@ -32,6 +34,8 @@ export const DEFAULT_WIDGETS: WidgetConfig[] = [
     type: "banner",
     title: "Banner promocional",
     size: "full",
+    cols: 4,
+    rows: 1,
     position: 0,
     enabled: true,
     minSize: "full",
@@ -42,6 +46,8 @@ export const DEFAULT_WIDGETS: WidgetConfig[] = [
     type: "achievements",
     title: "Logros y progreso",
     size: "full",
+    cols: 4,
+    rows: 1,
     position: 1,
     enabled: true,
     minSize: "large",
@@ -52,6 +58,8 @@ export const DEFAULT_WIDGETS: WidgetConfig[] = [
     type: "metrics",
     title: "Métricas de leads",
     size: "large",
+    cols: 3,
+    rows: 1,
     position: 2,
     enabled: true,
     minSize: "medium",
@@ -62,6 +70,8 @@ export const DEFAULT_WIDGETS: WidgetConfig[] = [
     type: "commissions",
     title: "Comisiones",
     size: "medium",
+    cols: 2,
+    rows: 2,
     position: 3,
     enabled: true,
     minSize: "medium",
@@ -72,6 +82,8 @@ export const DEFAULT_WIDGETS: WidgetConfig[] = [
     type: "distribution",
     title: "Distribución de clientes",
     size: "medium",
+    cols: 2,
+    rows: 2,
     position: 4,
     enabled: true,
     minSize: "medium",
@@ -82,6 +94,8 @@ export const DEFAULT_WIDGETS: WidgetConfig[] = [
     type: "agenda",
     title: "Agenda de hoy",
     size: "medium",
+    cols: 2,
+    rows: 2,
     position: 5,
     enabled: true,
     minSize: "medium",
@@ -92,6 +106,8 @@ export const DEFAULT_WIDGETS: WidgetConfig[] = [
     type: "opportunities",
     title: "Oportunidades",
     size: "medium",
+    cols: 2,
+    rows: 2,
     position: 6,
     enabled: true,
     minSize: "medium",
@@ -102,6 +118,8 @@ export const DEFAULT_WIDGETS: WidgetConfig[] = [
     type: "leaderboard",
     title: "Ranking",
     size: "medium",
+    cols: 2,
+    rows: 2,
     position: 7,
     enabled: true,
     minSize: "small",
