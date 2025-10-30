@@ -60,6 +60,40 @@ export function RichTextEditor({ value, onChange, placeholder }: RichTextEditorP
   const [currentSelection, setCurrentSelection] = useState<Range | null>(null);
   const [selectedImage, setSelectedImage] = useState<HTMLImageElement | null>(null);
 
+  // Envuelve una imagen en un contenedor redimensionable y no editable
+  const ensureWrapped = (imgElement: HTMLImageElement): HTMLElement => {
+    let wrapper = imgElement.closest('.editable-image-wrapper') as HTMLElement | null;
+    if (!wrapper) {
+      wrapper = document.createElement('div');
+      wrapper.className = 'editable-image-wrapper';
+      wrapper.setAttribute('contenteditable', 'false');
+      wrapper.style.display = 'inline-block';
+      wrapper.style.maxWidth = '100%';
+      wrapper.style.resize = 'both';
+      wrapper.style.overflow = 'auto';
+
+      imgElement.parentElement?.insertBefore(wrapper, imgElement);
+      wrapper.appendChild(imgElement);
+
+      // Ajustes del <img>
+      imgElement.classList.add('editable-image');
+      imgElement.style.display = 'block';
+      imgElement.style.width = '100%';
+      imgElement.style.height = 'auto';
+      imgElement.style.cursor = 'pointer';
+      imgElement.removeAttribute('contenteditable');
+      if (!imgElement.alt) imgElement.alt = 'Imagen insertada';
+    } else {
+      // Normalizar estilos si ya está envuelta
+      imgElement.classList.add('editable-image');
+      imgElement.style.display = 'block';
+      imgElement.style.width = '100%';
+      imgElement.style.height = 'auto';
+      imgElement.style.cursor = 'pointer';
+    }
+    return wrapper;
+  };
+
   const executeCommand = useCallback((command: string, value?: string) => {
     // Restaurar la selección antes de ejecutar el comando
     if (currentSelection) {
@@ -94,7 +128,8 @@ export function RichTextEditor({ value, onChange, placeholder }: RichTextEditorP
     // Eliminar imagen seleccionada con Delete o Backspace
     if ((e.key === 'Delete' || e.key === 'Backspace') && selectedImage) {
       e.preventDefault();
-      selectedImage.remove();
+      const wrapper = (selectedImage.closest('.editable-image-wrapper') as HTMLElement) || selectedImage;
+      wrapper.remove();
       setSelectedImage(null);
       handleContentChange();
       return;
@@ -110,39 +145,42 @@ export function RichTextEditor({ value, onChange, placeholder }: RichTextEditorP
 
   const handleImageClick = useCallback((e: MouseEvent) => {
     const target = e.target as HTMLElement;
-    if (target.tagName === 'IMG') {
+    const isImg = target.tagName === 'IMG';
+    const wrapperEl = isImg
+      ? (target as HTMLImageElement).closest('.editable-image-wrapper') as HTMLElement | null
+      : target.closest('.editable-image-wrapper') as HTMLElement | null;
+
+    if (isImg || wrapperEl) {
       e.preventDefault();
       e.stopPropagation();
 
-      const imgEl = target as HTMLImageElement;
-      // Asegurar que cualquier imagen sea editable/seleccionable
-      if (!imgEl.classList.contains('editable-image')) {
-        imgEl.classList.add('editable-image');
-        imgEl.style.maxWidth = '100%';
-        imgEl.style.height = 'auto';
-        imgEl.style.cursor = 'pointer';
-        imgEl.style.display = 'inline-block';
-        imgEl.style.resize = 'both';
-        imgEl.style.overflow = 'auto';
-        imgEl.setAttribute('contenteditable', 'false');
-        if (!imgEl.alt) imgEl.alt = 'Imagen insertada';
-      }
+      const imgEl = isImg
+        ? (target as HTMLImageElement)
+        : (wrapperEl!.querySelector('img') as HTMLImageElement);
+
+      const wrapper = ensureWrapped(imgEl);
 
       // Deseleccionar imagen anterior
       if (selectedImage && selectedImage !== imgEl) {
-        selectedImage.classList.remove('image-selected');
+        const prevWrapper = (selectedImage.closest('.editable-image-wrapper') as HTMLElement) || selectedImage;
+        prevWrapper.classList.remove('image-selected');
       }
 
       setSelectedImage(imgEl);
-      imgEl.classList.add('image-selected');
+      wrapper.classList.add('image-selected');
+
+      // Asegurar que el editor reciba los eventos de teclado
+      editorRef.current?.focus();
     }
   }, [selectedImage]);
 
   const handleEditorClick = useCallback((e: MouseEvent) => {
     const target = e.target as HTMLElement;
-    // Si se hace click fuera de una imagen, deseleccionar
-    if (target.tagName !== 'IMG' && selectedImage) {
-      selectedImage.classList.remove('image-selected');
+    const insideWrapper = target.closest('.editable-image-wrapper');
+    // Si se hace click fuera de la imagen o su contenedor, deseleccionar
+    if (!insideWrapper && target.tagName !== 'IMG' && selectedImage) {
+      const prevWrapper = (selectedImage.closest('.editable-image-wrapper') as HTMLElement) || selectedImage;
+      prevWrapper.classList.remove('image-selected');
       setSelectedImage(null);
     }
   }, [selectedImage]);
@@ -165,8 +203,8 @@ export function RichTextEditor({ value, onChange, placeholder }: RichTextEditorP
       const reader = new FileReader();
       reader.onload = (e) => {
         const imageUrl = e.target?.result as string;
-        // Hacer las imágenes seleccionables, redimensionables y con borde al seleccionar
-        const imageHtml = `<img src="${imageUrl}" style="max-width: 100%; height: auto; cursor: pointer; display: inline-block; resize: both; overflow: auto;" class="editable-image" alt="Imagen insertada" contenteditable="false" />`;
+        // Insertar imagen envuelta en un contenedor redimensionable
+        const imageHtml = `<span class="editable-image-wrapper" contenteditable="false" style="display:inline-block; max-width:100%; resize:both; overflow:auto;"><img src="${imageUrl}" class="editable-image" alt="Imagen insertada" style="display:block; width:100%; height:auto; cursor:pointer;" /></span>`;
         executeCommand('insertHTML', imageHtml);
         
         // Esperar un momento para que la imagen se inserte en el DOM
@@ -186,21 +224,13 @@ export function RichTextEditor({ value, onChange, placeholder }: RichTextEditorP
     const images = editorRef.current.querySelectorAll('img');
     images.forEach((img) => {
       const imgElement = img as HTMLImageElement;
-      // Asegurar clase/estilos necesarios en cualquier imagen
-      if (!imgElement.classList.contains('editable-image')) {
-        imgElement.classList.add('editable-image');
-        imgElement.style.maxWidth = '100%';
-        imgElement.style.height = 'auto';
-        imgElement.style.cursor = 'pointer';
-        imgElement.style.display = 'inline-block';
-        imgElement.style.resize = 'both';
-        imgElement.style.overflow = 'auto';
-        imgElement.setAttribute('contenteditable', 'false');
-        if (!imgElement.alt) imgElement.alt = 'Imagen insertada';
-      }
+      const wrapper = ensureWrapped(imgElement);
+
       // Remover/añadir listeners para evitar duplicados
       imgElement.removeEventListener('click', handleImageClick as any);
+      wrapper.removeEventListener('click', handleImageClick as any);
       imgElement.addEventListener('click', handleImageClick as any);
+      wrapper.addEventListener('click', handleImageClick as any);
     });
   }, [handleImageClick]);
 
@@ -231,7 +261,7 @@ export function RichTextEditor({ value, onChange, placeholder }: RichTextEditorP
           const reader = new FileReader();
           reader.onload = (ev) => {
             const imageUrl = ev.target?.result as string;
-            const imageHtml = `<img src="${imageUrl}" style="max-width: 100%; height: auto; cursor: pointer; display: inline-block; resize: both; overflow: auto;" class="editable-image" alt="Imagen insertada" contenteditable="false" />`;
+            const imageHtml = `<span class=\"editable-image-wrapper\" contenteditable=\"false\" style=\"display:inline-block; max-width:100%; resize:both; overflow:auto;\"><img src=\"${imageUrl}\" class=\"editable-image\" alt=\"Imagen insertada\" style=\"display:block; width:100%; height:auto; cursor:pointer;\" /></span>`;
             executeCommand('insertHTML', imageHtml);
             setTimeout(() => {
               setupImageListeners();
@@ -565,26 +595,34 @@ export function RichTextEditor({ value, onChange, placeholder }: RichTextEditorP
       {/* Editor */}
       <div className="relative">
         <style>{`
-          .editable-image {
+          .editable-image-wrapper {
             border: 2px solid transparent;
-            transition: border-color 0.2s;
+            transition: border-color 0.2s, box-shadow 0.2s;
             resize: both;
             overflow: auto;
+            max-width: 100%;
+            display: inline-block;
           }
-          .editable-image:hover {
-            border-color: #3b82f6;
-            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+          .editable-image-wrapper:hover {
+            border-color: hsl(var(--primary));
+            box-shadow: 0 0 0 2px hsl(var(--primary) / 0.2);
           }
-          .editable-image.image-selected {
+          .editable-image-wrapper.image-selected {
             outline: none;
-            border-color: #3b82f6;
-            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.4);
-            resize: both;
+            border-color: hsl(var(--primary));
+            box-shadow: 0 0 0 3px hsl(var(--primary) / 0.4);
+          }
+          .editable-image {
+            display: block;
+            width: 100%;
+            height: auto;
+            cursor: pointer;
           }
         `}</style>
         <div
           ref={editorRef}
           contentEditable
+          tabIndex={0}
           onPaste={handlePaste}
           onInput={handleContentChange}
           onKeyDown={handleKeyDown}
