@@ -10,11 +10,9 @@ import {
   AlignLeft,
   AlignCenter,
   AlignRight,
-  List,
   Link as LinkIcon,
   Image as ImageIcon,
   Type,
-  ChevronDown,
 } from "lucide-react";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 import { Select, SelectTrigger, SelectContent, SelectValue, SelectItem } from "@/components/ui/select";
@@ -72,25 +70,6 @@ async function optimizeImageBlob(original: Blob, maxW = 1600, maxH = 1600): Prom
 
 const uid = () => `tmp-${Math.random().toString(36).slice(2, 9)}-${Date.now().toString(36)}`;
 
-const FONT_FAMILIES = [
-  { label: "Arial", value: "Arial, sans-serif" },
-  { label: "Helvetica", value: "Helvetica, sans-serif" },
-  { label: "Times New Roman", value: "Times New Roman, serif" },
-  { label: "Georgia", value: "Georgia, serif" },
-  { label: "Verdana", value: "Verdana, sans-serif" },
-  { label: "Calibri", value: "Calibri, sans-serif" },
-  { label: "Tahoma", value: "Tahoma, sans-serif" },
-  { label: "Courier New", value: "Courier New, monospace" },
-];
-
-const BULLET_STYLES = [
-  { label: "Círculo relleno", value: "disc" },
-  { label: "Cuadrado", value: "square" },
-  { label: "Números", value: "decimal" },
-  { label: "Letras minúsculas", value: "lower-alpha" },
-  { label: "Letras mayúsculas", value: "upper-alpha" },
-];
-
 interface RichTextEditorProps {
   value: string;
   onChange: (v: string) => void;
@@ -100,10 +79,9 @@ interface RichTextEditorProps {
 export function RichTextEditor({ value, onChange, placeholder }: RichTextEditorProps) {
   const editorRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
-
+  const lastEmittedHtmlRef = useRef<string | null>(null);
   const [linkUrl, setLinkUrl] = useState("");
   const [showLinkPopover, setShowLinkPopover] = useState(false);
-  const lastEmittedHtmlRef = useRef<string | null>(null);
 
   const handleContentChange = useCallback(() => {
     if (!editorRef.current) return;
@@ -112,7 +90,7 @@ export function RichTextEditor({ value, onChange, placeholder }: RichTextEditorP
     onChange(html);
   }, [onChange]);
 
-  // Sincroniza valor externo → editor (sin loops)
+  // Sincronizar value externo
   useEffect(() => {
     const editor = editorRef.current;
     if (!editor) return;
@@ -122,7 +100,7 @@ export function RichTextEditor({ value, onChange, placeholder }: RichTextEditorP
   }, [value]);
 
   /* ===========================
-      Inserción de imágenes
+      Manejo de imágenes
   ============================ */
   const insertImage = () => fileInputRef.current?.click();
 
@@ -133,15 +111,12 @@ export function RichTextEditor({ value, onChange, placeholder }: RichTextEditorP
       const img = editor.querySelector(`img[data-temp-id="${id}"]`) as HTMLImageElement | null;
       if (!img) return;
       img.onload = () => {
-        const wrap = img.closest(".editable-image-wrapper") as HTMLElement | null;
-        if (!wrap) return;
         const w = img.clientWidth || img.naturalWidth || 600;
         img.style.width = `${w}px`;
         img.style.height = "auto";
-        img.style.maxWidth = "100%";
+        img.style.maxWidth = "none";
         img.setAttribute("width", String(w));
-        wrap.style.width = `${w}px`;
-        handleContentChange(); // persistir tamaño inicial
+        handleContentChange();
       };
     }, 0);
   };
@@ -153,18 +128,15 @@ export function RichTextEditor({ value, onChange, placeholder }: RichTextEditorP
 
     const tempUrl = URL.createObjectURL(file);
     const id = uid();
-
-    const placeholderHtml = `
+    const html = `
       <div class="editable-image-wrapper" contenteditable="false" style="resize:both;overflow:hidden;display:inline-block;position:relative;max-width:100%;">
         <img src="${tempUrl}" data-temp-id="${id}" style="width:100%;height:auto;cursor:pointer;object-fit:contain;display:block;" />
       </div>`;
-    document.execCommand("insertHTML", false, placeholderHtml);
+    document.execCommand("insertHTML", false, html);
 
-    // Persistir inmediatamente (evita “desaparecer”)
     handleContentChange();
     afterInsertSetInitialWidth(id);
 
-    // Optimiza en idle y reemplaza src
     runWhenIdle(async () => {
       const optimized = await optimizeImageBlob(file);
       const finalUrl = URL.createObjectURL(optimized);
@@ -183,19 +155,15 @@ export function RichTextEditor({ value, onChange, placeholder }: RichTextEditorP
   const handlePaste = (e: React.ClipboardEvent<HTMLDivElement>) => {
     const items = e.clipboardData?.items;
     if (!items) return;
-
     const imageItems = Array.from(items).filter((it) => it.type.startsWith("image/"));
     if (imageItems.length === 0) return;
-
     e.preventDefault();
 
     imageItems.forEach((it) => {
       const file = it.getAsFile();
       if (!file) return;
-
       const tempUrl = URL.createObjectURL(file);
       const id = uid();
-
       const html = `
         <div class="editable-image-wrapper" contenteditable="false" style="resize:both;overflow:hidden;display:inline-block;position:relative;max-width:100%;">
           <img src="${tempUrl}" data-temp-id="${id}" style="width:100%;height:auto;cursor:pointer;object-fit:contain;display:block;" />
@@ -222,7 +190,7 @@ export function RichTextEditor({ value, onChange, placeholder }: RichTextEditorP
   };
 
   /* ===========================
-      Redimensionamiento + persistencia
+      ResizeObserver (sin bucle)
   ============================ */
   useEffect(() => {
     const editor = editorRef.current;
@@ -241,18 +209,15 @@ export function RichTextEditor({ value, onChange, placeholder }: RichTextEditorP
         const w = Math.max(20, Math.round(width));
         img.style.width = `${w}px`;
         img.style.height = "auto";
-        img.style.maxWidth = "100%";
+        img.style.maxWidth = "none";
         img.setAttribute("width", String(w));
-        wrapper.style.width = `${w}px`;
         emitThrottled();
       });
     });
 
-    // observar existentes
     editor.querySelectorAll(".editable-image-wrapper").forEach((w) => ro.observe(w));
 
-    // observar nuevos
-    const mo = new MutationObserver((muts) =>
+    const mo = new MutationObserver((muts) => {
       muts.forEach((m) =>
         m.addedNodes.forEach((n) => {
           if (!(n instanceof HTMLElement)) return;
@@ -261,8 +226,8 @@ export function RichTextEditor({ value, onChange, placeholder }: RichTextEditorP
             : Array.from(n.querySelectorAll?.(".editable-image-wrapper") || []);
           list.forEach((wrap) => ro.observe(wrap));
         }),
-      ),
-    );
+      );
+    });
     mo.observe(editor, { childList: true, subtree: true });
 
     return () => {
@@ -283,18 +248,13 @@ export function RichTextEditor({ value, onChange, placeholder }: RichTextEditorP
         (t.tagName === "IMG" ? (t as HTMLImageElement) : null) ||
         (t.closest(".editable-image-wrapper")?.querySelector("img") as HTMLImageElement | null);
       if (!img) return;
-      const wrapper = img.closest(".editable-image-wrapper") as HTMLElement | null;
-      if (!wrapper) return;
-
       const natW = img.naturalWidth || 600;
-      const containerW = (wrapper.parentElement as HTMLElement)?.clientWidth || natW;
+      const containerW = (img.parentElement as HTMLElement)?.clientWidth || natW;
       const newW = Math.min(natW, containerW);
-
       img.style.width = `${newW}px`;
       img.style.height = "auto";
-      img.style.maxWidth = "100%";
+      img.style.maxWidth = "none";
       img.setAttribute("width", String(newW));
-      wrapper.style.width = `${newW}px`;
       handleContentChange();
     };
     editor.addEventListener("dblclick", onDblClick);
@@ -314,94 +274,9 @@ export function RichTextEditor({ value, onChange, placeholder }: RichTextEditorP
         <Button variant="ghost" size="sm" onClick={() => document.execCommand("underline", false)}>
           <Underline className="h-4 w-4" />
         </Button>
-
         <Separator orientation="vertical" className="h-6" />
-
-        <Select onValueChange={(fontFamily) => document.execCommand("fontName", false, fontFamily)}>
-          <SelectTrigger className="w-32 h-8">
-            <SelectValue placeholder="Fuente" />
-          </SelectTrigger>
-          <SelectContent>
-            {FONT_FAMILIES.map((f) => (
-              <SelectItem key={f.value} value={f.value} style={{ fontFamily: f.value }}>
-                {f.label}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-
-        <Select onValueChange={(size) => document.execCommand("fontSize", false, size)}>
-          <SelectTrigger className="w-16 h-8">
-            <Type className="h-4 w-4" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="1">8pt</SelectItem>
-            <SelectItem value="2">10pt</SelectItem>
-            <SelectItem value="3">12pt</SelectItem>
-            <SelectItem value="4">14pt</SelectItem>
-            <SelectItem value="5">18pt</SelectItem>
-            <SelectItem value="6">24pt</SelectItem>
-            <SelectItem value="7">36pt</SelectItem>
-          </SelectContent>
-        </Select>
-
         <ColorPicker onColorSelect={(c) => document.execCommand("foreColor", false, c)} />
-
         <Separator orientation="vertical" className="h-6" />
-
-        <div className="flex items-center gap-1">
-          <Button variant="ghost" size="sm" onClick={() => document.execCommand("justifyLeft", false)}>
-            <AlignLeft className="h-4 w-4" />
-          </Button>
-          <Button variant="ghost" size="sm" onClick={() => document.execCommand("justifyCenter", false)}>
-            <AlignCenter className="h-4 w-4" />
-          </Button>
-          <Button variant="ghost" size="sm" onClick={() => document.execCommand("justifyRight", false)}>
-            <AlignRight className="h-4 w-4" />
-          </Button>
-        </div>
-
-        <Separator orientation="vertical" className="h-6" />
-
-        <Popover open={showLinkPopover} onOpenChange={setShowLinkPopover}>
-          <PopoverTrigger asChild>
-            <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-              <LinkIcon className="h-4 w-4" />
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent className="w-80">
-            <div className="space-y-2">
-              <Label htmlFor="link-url">URL del enlace</Label>
-              <Input
-                id="link-url"
-                value={linkUrl}
-                onChange={(e) => setLinkUrl(e.target.value)}
-                placeholder="https://ejemplo.com"
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") {
-                    e.preventDefault();
-                    if (linkUrl.trim()) document.execCommand("createLink", false, linkUrl);
-                    setShowLinkPopover(false);
-                    setLinkUrl("");
-                    handleContentChange();
-                  }
-                }}
-              />
-              <Button
-                size="sm"
-                onClick={() => {
-                  if (linkUrl.trim()) document.execCommand("createLink", false, linkUrl);
-                  setShowLinkPopover(false);
-                  setLinkUrl("");
-                  handleContentChange();
-                }}
-              >
-                Insertar enlace
-              </Button>
-            </div>
-          </PopoverContent>
-        </Popover>
-
         <Button variant="ghost" size="sm" onClick={insertImage}>
           <ImageIcon className="h-4 w-4" />
         </Button>
@@ -420,6 +295,7 @@ export function RichTextEditor({ value, onChange, placeholder }: RichTextEditorP
             position: relative;
             user-select: none;
             contain: content;
+            box-sizing: border-box;
           }
           .editable-image-wrapper:hover {
             border-color: hsl(var(--primary));
@@ -435,6 +311,14 @@ export function RichTextEditor({ value, onChange, placeholder }: RichTextEditorP
             background: linear-gradient(135deg, transparent 0%, transparent 50%, hsl(var(--primary)) 50%, hsl(var(--primary)) 100%);
             opacity: 0.4;
             cursor: se-resize;
+          }
+          .editable-image {
+            display: block;
+            width: 100%;
+            height: auto;
+            max-width: none;
+            object-fit: contain;
+            cursor: pointer;
           }
         `}</style>
 
