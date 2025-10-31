@@ -152,6 +152,10 @@ export const usePaginatedLeadsApi = () => {
     const updatedAtTo = uiFilters.columnFilters.updatedAtEnd?.[0];
     const nextFollowUpFrom = uiFilters.columnFilters.nextFollowUp?.[0];
     const nextFollowUpTo = uiFilters.columnFilters.nextFollowUpEnd?.[0];
+    const lastInteractionFrom = uiFilters.columnFilters.lastInteraction?.[0];
+    const lastInteractionTo = uiFilters.columnFilters.lastInteractionEnd?.[0];
+    const lastGestorInteractionFrom = uiFilters.columnFilters.lastGestorInteractionAt?.[0];
+    const lastGestorInteractionTo = uiFilters.columnFilters.lastGestorInteractionAtEnd?.[0];
 
     // Convertir filtros de columna (excepto fechas especiales)
     Object.entries(uiFilters.columnFilters).forEach(([column, values]) => {
@@ -162,7 +166,11 @@ export const usePaginatedLeadsApi = () => {
         column === "updatedAt" ||
         column === "updatedAtEnd" ||
         column === "nextFollowUp" ||
-        column === "nextFollowUpEnd"
+        column === "nextFollowUpEnd" ||
+        column === "lastInteraction" ||
+        column === "lastInteractionEnd" ||
+        column === "lastGestorInteractionAt" ||
+        column === "lastGestorInteractionAtEnd"
       ) {
         return;
       }
@@ -186,7 +194,7 @@ export const usePaginatedLeadsApi = () => {
     });
 
     // Helper para asignar filtros de fecha
-    const applyDateFilter = (field: "CreatedAt" | "UpdatedAt" | "NextFollowUp", from?: string, to?: string) => {
+    const applyDateFilter = (field: "CreatedAt" | "UpdatedAt" | "NextFollowUp" | "LastInteractionAt" | "LastGestorInteractionAt", from?: string, to?: string) => {
       // Normalize boundaries to cover full days when UI provides date-only values
       const normalizeFromStartOfDay = (d?: string) => {
         if (!d) return undefined;
@@ -223,6 +231,8 @@ export const usePaginatedLeadsApi = () => {
     applyDateFilter("CreatedAt", createdAtFrom, createdAtTo);
     applyDateFilter("UpdatedAt", updatedAtFrom, updatedAtTo);
     applyDateFilter("NextFollowUp", nextFollowUpFrom, nextFollowUpTo);
+    applyDateFilter("LastInteractionAt", lastInteractionFrom, lastInteractionTo);
+    applyDateFilter("LastGestorInteractionAt", lastGestorInteractionFrom, lastGestorInteractionTo);
 
     // Convertir filtros de texto
     Object.entries(uiFilters.textFilters).forEach(([column, conditions]) => {
@@ -274,6 +284,8 @@ export const usePaginatedLeadsApi = () => {
       createdAt: "CreatedAt",
       updatedAt: "UpdatedAt",
       nextFollowUp: "NextFollowUp",
+      lastInteraction: "LastInteractionAt",
+      lastGestorInteractionAt: "LastGestorInteractionAt",
       notes: "Notes",
       tags: "Tags",
       documentNumber: "DocumentNumber",

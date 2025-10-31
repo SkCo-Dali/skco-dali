@@ -26,17 +26,18 @@ interface EditInteractionDialogProps {
 }
 
 const INTERACTION_TYPES = [
-  { value: 'note', label: 'Nota' },
-  { value: 'whatsapp', label: 'WhatsApp' },
-  { value: 'meeting', label: 'Reunión' },
-  { value: 'email', label: 'Email' },
-  { value: 'call', label: 'Llamada' },
+  { value: "call", label: "Teléfono" },
+                        { value: "email", label: "Email" },
+                        { value: "whatsapp", label: "WhatsApp" },
+                        { value: "meeting", label: "Reunión" },
 ];
 
 const OUTCOME_OPTIONS = [
-  { value: 'positive', label: 'Positivo' },
-  { value: 'neutral', label: 'Neutral' },
-  { value: 'negative', label: 'Negativo' },
+  { value: "Contacto exitoso", label: "Contacto exitoso" },
+                        { value: "No contesta", label: "No contesta" },
+                        { value: "Reagendar", label: "Reagendar" },
+                        { value: "No interesado", label: "No interesado" },
+                        { value: "Información enviada", label: "Información enviada" },
 ];
 
 export const EditInteractionDialog: React.FC<EditInteractionDialogProps> = ({
@@ -143,19 +144,24 @@ export const EditInteractionDialog: React.FC<EditInteractionDialogProps> = ({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="stage">Etapa</Label>
+            <Label htmlFor="stage">Estado</Label>
             <Select value={stage} onValueChange={setStage}>
               <SelectTrigger>
                 <SelectValue placeholder="Seleccionar etapa" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="Nuevo">Nuevo</SelectItem>
-                <SelectItem value="Contactado">Contactado</SelectItem>
-                <SelectItem value="Calificado">Calificado</SelectItem>
-                <SelectItem value="Propuesta">Propuesta</SelectItem>
-                <SelectItem value="Negociación">Negociación</SelectItem>
-                <SelectItem value="Cerrado">Cerrado</SelectItem>
-                <SelectItem value="Descartado">Descartado</SelectItem>
+                <SelectItem value="Asignado">Asignado</SelectItem>
+                <SelectItem value="Localizado: No interesado">Localizado: No interesado</SelectItem>
+                <SelectItem value="Localizado: Prospecto de venta FP">Localizado: Prospecto de venta FP</SelectItem>
+                <SelectItem value="Localizado: Prospecto de venta AD">Localizado: Prospecto de venta AD</SelectItem>
+                <SelectItem value="Localizado: Prospecto de venta - Pendiente">Localizado: Prospecto de venta - Pendiente</SelectItem>
+                <SelectItem value="Localizado: Volver a llamar">Localizado: Volver a llamar</SelectItem>
+                <SelectItem value="Localizado: No vuelve a contestar">Localizado: No vuelve a contestar</SelectItem>
+                <SelectItem value="No localizado: No contesta">No localizado: No contesta</SelectItem>
+                <SelectItem value="No localizado: Número equivocado">No localizado: Número equivocado</SelectItem>
+                <SelectItem value="Contrato Creado">Contrato Creado</SelectItem>
+                <SelectItem value="Registro de Venta (fondeado)">Registro de Venta (fondeado)</SelectItem>
               </SelectContent>
             </Select>
           </div>

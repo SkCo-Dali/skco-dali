@@ -464,7 +464,7 @@ export function LeadsBulkAssignment({ leads, onLeadsAssigned }: LeadsBulkAssignm
           </div>
 
           {/* Información de leads disponibles */}
-          <div className="p-4 bg-blue-50 rounded-xl">
+          <div className="p-2 bg-blue-50 rounded-xl">
             <p className="text-sm text-blue-800">
               <strong>Leads nuevos disponibles:</strong> {filteredLeads.length}
             </p>
@@ -521,7 +521,7 @@ export function LeadsBulkAssignment({ leads, onLeadsAssigned }: LeadsBulkAssignm
 
             <div className="space-y-3 max-h-60 overflow-y-auto">
               {userAssignments.map((assignment) => (
-                <div key={assignment.userId} className="flex items-center gap-3 p-3 border rounded-xl">
+                <div key={assignment.userId} className="flex items-center gap-3 p-2 border rounded-xl">
                   <div className="flex-1">
                     <p className="font-medium">{assignment.userName}</p>
                   </div>
@@ -579,7 +579,7 @@ export function LeadsBulkAssignment({ leads, onLeadsAssigned }: LeadsBulkAssignm
           </div>
 
           {/* Botones de acción */}
-          <div className="flex gap-2 pt-4">
+          <div className="flex gap-2 pt-2">
             <Button
               onClick={handleAssign}
               disabled={getTotalAssigned() === 0 || getTotalAssigned() > filteredLeads.length || isAssigning}

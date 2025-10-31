@@ -57,7 +57,20 @@ export function ServerSideDateFilter({
     return mapping[uiField] || uiField;
   };
   
+  // Map API fields back to UI fields for filter callbacks
+  const getUiField = (apiField: string): string => {
+    const mapping: Record<string, string> = {
+      'LastInteractionAt': 'lastInteraction',
+      'LastGestorInteractionAt': 'lastGestorInteractionAt',
+      'CreatedAt': 'createdAt',
+      'UpdatedAt': 'updatedAt',
+      'NextFollowUp': 'nextFollowUp'
+    };
+    return mapping[apiField] || apiField;
+  };
+  
   const apiField = getApiField(field);
+  const uiField = getUiField(apiField);
   
   // Usar el hook para obtener valores únicos de fechas
   const {
@@ -141,7 +154,7 @@ export function ServerSideDateFilter({
   const handleClear = () => {
     setSelectedDates([]);
     setCustomCondition({ type: 'custom' });
-    onFilterChange(apiField, []);
+    onFilterChange(uiField, []);
   };
 
   const handleCancel = () => {
@@ -156,18 +169,22 @@ export function ServerSideDateFilter({
       const sortedDates = selectedDates.sort();
       const minDate = sortedDates[0];
       const maxDate = sortedDates[sortedDates.length - 1];
-      onFilterChange(apiField, [minDate, maxDate]);
+      // Add time to dates for proper comparison: start of day for min, end of day for max
+      const minDateWithTime = `${minDate}T00:00:00`;
+      const maxDateWithTime = `${maxDate}T23:59:59`;
+      onFilterChange(uiField, [minDateWithTime, maxDateWithTime]);
     } else if (activeTab === 'custom' && (customCondition.from || customCondition.to)) {
       // Para rango personalizado
       const from = customCondition.from ? format(customCondition.from, 'yyyy-MM-dd') : undefined;
       const to = customCondition.to ? format(customCondition.to, 'yyyy-MM-dd') : undefined;
       
+      // Add time to dates for proper comparison
       if (from && to) {
-        onFilterChange(apiField, [from, to]);
+        onFilterChange(uiField, [`${from}T00:00:00`, `${to}T23:59:59`]);
       } else if (from) {
-        onFilterChange(apiField, [from, from]);
+        onFilterChange(uiField, [`${from}T00:00:00`, `${from}T23:59:59`]);
       } else if (to) {
-        onFilterChange(apiField, [to, to]);
+        onFilterChange(uiField, [`${to}T00:00:00`, `${to}T23:59:59`]);
       }
     }
     setIsOpen(false);
