@@ -372,7 +372,7 @@ export default function Leads() {
 
   const handleColumnFilterChange = useCallback(
     (column: string, selectedValues: string[]) => {
-      const dateColumns = new Set(["createdAt", "updatedAt", "nextFollowUp", "lastInteraction"]);
+      const dateColumns = new Set(["createdAt", "updatedAt", "nextFollowUp", "lastInteraction", "lastGestorInteractionAt"]);
       const normCol = column; // No more mapping - keep column as is
 
       if (dateColumns.has(column)) {
