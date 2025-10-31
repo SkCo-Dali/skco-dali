@@ -389,7 +389,8 @@ export default function Leads() {
             } catch {}
           }
 
-          const dayRegex = /^\d{4}-\d{2}-\d{2}$/;
+          // Match dates with or without time (YYYY-MM-DD or YYYY-MM-DDTHH:MM:SS)
+          const dayRegex = /^\d{4}-\d{2}-\d{2}(T\d{2}:\d{2}:\d{2})?$/;
           const days = values.filter((v) => dayRegex.test(v)).sort();
           if (days.length > 0) {
             from = from ? (from < days[0] ? from : days[0]) : days[0];
