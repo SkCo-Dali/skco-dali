@@ -4,8 +4,8 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Card } from '@/components/ui/card';
 import { useAuth } from '@/contexts/AuthContext';
-import { useSettings } from '@/contexts/SettingsContext';
 import { callAzureAgentApi } from '@/utils/azureApiService';
+import { AISettings } from '@/types/settings';
 
 interface Message {
   id: string;
@@ -17,12 +17,14 @@ interface EmailWritingAssistantProps {
   currentSubject: string;
   currentContent: string;
   onInsertText: (text: string) => void;
+  aiSettings?: AISettings;
 }
 
 export function EmailWritingAssistant({ 
   currentSubject, 
   currentContent, 
-  onInsertText 
+  onInsertText,
+  aiSettings 
 }: EmailWritingAssistantProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
@@ -30,7 +32,6 @@ export function EmailWritingAssistant({
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const { user } = useAuth();
-  const { aiSettings } = useSettings();
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -63,10 +64,17 @@ Mi pregunta: ${input}
 
 Por favor, ayúdame con sugerencias específicas para mejorar la redacción del email.`;
 
+      const defaultSettings: AISettings = {
+        model: 'gpt-4o',
+        temperature: 0.7,
+        maxTokens: 1000,
+        systemPrompt: 'Eres un asistente experto en redacción de emails profesionales.'
+      };
+
       const response = await callAzureAgentApi(
         contextPrompt,
         [],
-        aiSettings,
+        aiSettings || defaultSettings,
         user?.email || ''
       );
 
