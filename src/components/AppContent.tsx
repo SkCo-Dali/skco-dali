@@ -28,6 +28,7 @@ import { Login } from "@/components/Login";
 import { AuthenticatedTemplate, UnauthenticatedTemplate } from "@azure/msal-react";
 import ChatSami, { ChatSamiHandle } from "@/components/ChatSami";
 import { getRolePermissions } from "@/types/crm";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 export function AppContent() {
   const { user, loading } = useAuth();
@@ -35,6 +36,7 @@ export function AppContent() {
   const chatSamiRef = useRef<ChatSamiHandle>(null);
   const location = useLocation();
   const navigate = useNavigate();
+  const isMobile = useIsMobile();
 
   // Check if user has ChatSami permissions
   const hasChatSamiPermissions = user ? getRolePermissions(user.role)?.chatSami : false;
@@ -44,16 +46,16 @@ export function AppContent() {
   const isUsersPage =
     location.pathname === "/users" || location.pathname === "/admin/users" || location.pathname === "/admin/reports";
 
-  // Abrir ChatSami por defecto para usuarios con permisos (excepto en página de Users)
+  // Abrir ChatSami por defecto para usuarios con permisos (excepto en página de Users y móvil)
   useEffect(() => {
-    if (user && hasChatSamiPermissions && !chatSamiOpen && !isUsersPage) {
+    if (user && hasChatSamiPermissions && !chatSamiOpen && !isUsersPage && !isMobile) {
       setChatSamiOpen(true);
     }
     // Cerrar ChatSami si navegamos a la página de Users
     if (isUsersPage && chatSamiOpen) {
       setChatSamiOpen(false);
     }
-  }, [user, hasChatSamiPermissions, isUsersPage]);
+  }, [user, hasChatSamiPermissions, isUsersPage, isMobile]);
 
   if (loading) {
     return (
