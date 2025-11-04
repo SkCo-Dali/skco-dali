@@ -383,8 +383,145 @@ const ChatSamiContent = forwardRef<ChatSamiHandle, ChatSamiProps>(({ isOpen = fa
         </button>
       )}
 
-      {/* Panel lateral fijo */}
-      {isOpen && viewMode !== "maximized" && (
+      {/* Dialog fullscreen para móviles */}
+      {isOpen && isMobile && viewMode !== "maximized" && (
+        <Dialog open={isOpen} onOpenChange={handleToggle}>
+          <DialogContent className="max-w-full h-full w-full p-0 m-0 rounded-none flex flex-col">
+            {/* Header */}
+            <div className="flex items-center justify-between bg-[#fafafa] h-14 px-4 shrink-0 border-b">
+              <h2 className="text-lg font-semibold text-foreground">Dali</h2>
+              <div className="flex items-center gap-1">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => handleToggle(false)}
+                  className="h-8 w-8 hover:bg-muted"
+                  aria-label="Minimizar"
+                >
+                  <Minus className="h-4 w-4" />
+                </Button>
+                <ChatActionsButton
+                  onNewConversation={handleNewChat}
+                  onSearchConversations={handleSearchConversations}
+                  onViewTemplates={handleViewTemplates}
+                />
+              </div>
+            </div>
+
+            {/* Tip del día */}
+            <div className="px-4 py-3 space-y-3 shrink-0 border-b">
+              <div className="flex items-center gap-2 bg-[#e8f5e9] rounded-full p-2">
+                <div className="shrink-0 bg-black rounded-full p-1.5">
+                  <Lightbulb className="h-4 w-4 text-[#00c83c]" />
+                </div>
+                <span className="text-sm font-medium text-foreground">Oportunidad de hoy✨</span>
+              </div>
+
+              {opportunityLoading ? (
+                <div className="space-y-2 border rounded-xl p-3">
+                  <p className="text-sm text-muted-foreground">Cargando oportunidad...</p>
+                </div>
+              ) : topOpportunity ? (
+                <div className="space-y-2 border rounded-xl p-3">
+                  <p className="text-sm font-semibold text-foreground">{topOpportunity.title}</p>
+                  <p className="text-xs text-muted-foreground">
+                    Comisiones Potenciales{" "}
+                    <span className="font-semibold">
+                      ${topOpportunity.metrics?.estimatedSales?.toLocaleString() || "N/A"}
+                    </span>
+                  </p>
+                  <button
+                    onClick={handleViewOpportunity}
+                    className="w-full text-sm text-center text-secondary font-medium hover:underline"
+                  >
+                    Ver Oportunidad
+                  </button>
+                </div>
+              ) : (
+                <div className="space-y-2 border rounded-xl p-3">
+                  <p className="text-sm text-muted-foreground">No hay oportunidades disponibles</p>
+                </div>
+              )}
+            </div>
+
+            {/* Chat Dali */}
+            <div className="flex-1 min-h-0 flex flex-col">
+              {/* Messages area */}
+              <div ref={messagesContainerRef} className="flex-1 overflow-y-auto p-4 space-y-3">
+                {messages.length === 0 ? (
+                  <div className="flex items-center justify-center h-full">
+                    <p className="text-sm text-muted-foreground">Hola, ¡Qué gusto volver a hablar contigo!</p>
+                  </div>
+                ) : (
+                  messages.map((msg) => <SimpleMessage key={msg.id} message={msg} />)
+                )}
+                {isLoading && (
+                  <div className="flex justify-start">
+                    <div className="bg-muted rounded-2xl px-4 py-3 max-w-[85%]">
+                      <div className="flex space-x-2">
+                        <div className="w-2 h-2 bg-muted-foreground rounded-full animate-pulse"></div>
+                        <div className="w-2 h-2 bg-muted-foreground rounded-full animate-pulse [animation-delay:0.2s]"></div>
+                        <div className="w-2 h-2 bg-muted-foreground rounded-full animate-pulse [animation-delay:0.4s]"></div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+                <div ref={messagesEndRef} />
+              </div>
+
+              {/* Quick actions carousel */}
+              {messages.length === 0 && (
+                <div className="px-4 pb-3 shrink-0">
+                  <Carousel className="w-full">
+                    <CarouselContent className="-ml-2">
+                      {quickActions.map((action, index) => (
+                        <CarouselItem key={index} className="pl-2 basis-auto">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleQuickAction(action)}
+                            className="text-xs whitespace-nowrap"
+                          >
+                            {action}
+                          </Button>
+                        </CarouselItem>
+                      ))}
+                    </CarouselContent>
+                    <CarouselPrevious className="left-0" />
+                    <CarouselNext className="right-0" />
+                  </Carousel>
+                </div>
+              )}
+
+              {/* Input area */}
+              <div className="p-4 border-t shrink-0">
+                <div className="flex gap-2 items-end">
+                  <Textarea
+                    ref={textareaRef}
+                    value={inputMessage}
+                    onChange={(e) => setInputMessage(e.target.value)}
+                    onKeyDown={handleKeyDown}
+                    placeholder="Escribe tu mensaje..."
+                    className="min-h-[44px] max-h-[100px] resize-none"
+                    disabled={isLoading}
+                  />
+                  <Button
+                    onClick={handleSendMessage}
+                    disabled={!inputMessage.trim() || isLoading}
+                    size="icon"
+                    className="shrink-0 h-[44px] w-[44px]"
+                  >
+                    <Send className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
+      )}
+
+      {/* Panel lateral fijo para desktop */}
+      {isOpen && !isMobile && viewMode !== "maximized" && (
         <div className="fixed top-20 right-0 bottom-0 w-[360px] border-l bg-background shadow-none flex flex-col z-30">
           {/* Header */}
           <div className="flex items-center justify-between bg-[#fafafa] h-18 mb-2 p-2 shrink-0">
