@@ -469,7 +469,7 @@ const ChatSamiContent = forwardRef<ChatSamiHandle, ChatSamiProps>(({ isOpen = fa
                 <div ref={messagesEndRef} />
               </div>
 
-              {/* Quick actions carousel */}
+              {/* Quick actions carousel - oculto en móvil
               {messages.length === 0 && (
                 <div className="px-4 pb-3 shrink-0">
                   <Carousel className="w-full">
@@ -491,7 +491,7 @@ const ChatSamiContent = forwardRef<ChatSamiHandle, ChatSamiProps>(({ isOpen = fa
                     <CarouselNext className="right-0" />
                   </Carousel>
                 </div>
-              )}
+              )}*/}
 
               {/* Input area */}
               <div className="p-4 border-t shrink-0">
