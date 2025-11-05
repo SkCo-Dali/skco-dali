@@ -58,7 +58,7 @@ export function LeadCard({
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const { toast } = useToast();
   
-  const { isDeleting, canDeleteLead, deleteSingleLead } = useLeadDeletion({
+  const { isDeleting, deleteSingleLead } = useLeadDeletion({
     onLeadDeleted: onLeadUpdate
   });
 
@@ -83,15 +83,6 @@ export function LeadCard({
   };
 
   const handleDeleteClick = () => {
-    if (!canDeleteLead(lead)) {
-      const message = 'No tienes permisos para eliminar este lead. Solo puedes eliminar leads que hayas creado y tengas asignados.';
-      toast({
-        title: "Permisos insuficientes",
-        description: message,
-        variant: "destructive"
-      });
-      return;
-    }
     setShowDeleteDialog(true);
   };
 
