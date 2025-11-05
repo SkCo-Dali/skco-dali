@@ -2,6 +2,8 @@
 import { useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { deleteLead } from '@/utils/leadsApiClient';
+import { Lead } from '@/types/crm';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface UseLeadDeletionProps {
   onLeadDeleted?: () => void;
@@ -9,7 +11,41 @@ interface UseLeadDeletionProps {
 
 export function useLeadDeletion({ onLeadDeleted }: UseLeadDeletionProps = {}) {
   const [isDeleting, setIsDeleting] = useState(false);
+  const { user } = useAuth();
   const { toast } = useToast();
+
+  const canDeleteLead = (lead: Lead): boolean => {
+    if (!user) return false;
+
+    // El rol de administrador puede eliminar cualquier lead
+    if (user.role === 'admin') {
+      return true;
+    }
+
+    // Los roles con permisos canDelete pueden eliminar leads que hayan creado y tengan asignados
+    const allowedRoles = ['manager', 'supervisor', 'agent', 'gestor', 'fp', 'ais', 'director', 'promotor', 'aliado', 'socio'];
+    if (!allowedRoles.includes(user.role)) {
+      return false;
+    }
+
+    // Verificar que el lead esté asignado al usuario actual y que lo haya creado
+    return lead.assignedTo === user.id && lead.createdBy === user.id;
+  };
+
+  const canDeleteLeads = (leads: Lead[]): { canDelete: boolean; restrictedCount: number } => {
+    let restrictedCount = 0;
+    
+    for (const lead of leads) {
+      if (!canDeleteLead(lead)) {
+        restrictedCount++;
+      }
+    }
+
+    return {
+      canDelete: restrictedCount === 0,
+      restrictedCount
+    };
+  };
 
   const deleteSingleLead = async (leadId: string): Promise<boolean> => {
     setIsDeleting(true);
@@ -78,6 +114,8 @@ export function useLeadDeletion({ onLeadDeleted }: UseLeadDeletionProps = {}) {
 
   return {
     isDeleting,
+    canDeleteLead,
+    canDeleteLeads,
     deleteSingleLead,
     deleteMultipleLeads
   };

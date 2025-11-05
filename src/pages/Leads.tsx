@@ -162,7 +162,7 @@ export default function Leads() {
 
   const { toast } = useToast();
 
-  const { isDeleting, deleteMultipleLeads } = useLeadDeletion({
+  const { isDeleting, canDeleteLeads, deleteMultipleLeads } = useLeadDeletion({
     onLeadDeleted: handleLeadUpdate,
   });
 
@@ -651,10 +651,36 @@ export default function Leads() {
       return;
     }
 
-    console.log("🗑️ Leads: Proceeding with bulk delete for:", {
+    const { canDelete, restrictedCount } = canDeleteLeads(leadsToDelete);
+    console.log("🗑️ Leads: Bulk delete validation:", {
       totalLeads: leadsToDelete.length,
+      canDelete,
+      restrictedCount,
       leadIds: leadsToDelete.map((l) => l.id),
     });
+
+    if (!canDelete) {
+      if (restrictedCount === leadsToDelete.length) {
+        const message =
+          "No tienes permisos para eliminar ninguno de los leads seleccionados. Solo puedes eliminar leads que hayas creado y tengas asignados.";
+        console.log("❌ Leads: All leads restricted:", message);
+        toast({
+          title: "Permisos insuficientes",
+          description: message,
+          variant: "destructive",
+        });
+        return;
+      } else {
+        const message = `No puedes eliminar ${restrictedCount} de los ${leadsToDelete.length} leads seleccionados por falta de permisos. Solo puedes eliminar leads que hayas creado y tengas asignados.`;
+        console.log("❌ Leads: Some leads restricted:", message);
+        toast({
+          title: "Permisos insuficientes",
+          description: message,
+          variant: "destructive",
+        });
+        return;
+      }
+    }
 
     setShowDeleteDialog(true);
   };

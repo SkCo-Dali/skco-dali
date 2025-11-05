@@ -502,7 +502,7 @@ export function LeadsTable({
     }),
   );
 
-  const { isDeleting, deleteSingleLead } = useLeadDeletion({
+  const { isDeleting, canDeleteLead, deleteSingleLead } = useLeadDeletion({
     onLeadDeleted: onLeadUpdate,
   });
 
@@ -652,7 +652,18 @@ Por favor, confirmar asistencia.`;
   };
 
   const handleDeleteLead = (lead: Lead) => {
-    console.log("🗑️ LeadsTable: Attempting to delete lead:", lead.id);
+    console.log("🗑️ LeadsTable: Attempting to delete lead:", lead.id, "canDelete:", canDeleteLead(lead));
+    if (!canDeleteLead(lead)) {
+      const message =
+        "No tienes permisos para eliminar este lead. Solo puedes eliminar leads que hayas creado y tengas asignados.";
+      console.log("❌ LeadsTable: Permission denied:", message);
+      toast({
+        title: "Permisos insuficientes",
+        description: message,
+        variant: "destructive",
+      });
+      return;
+    }
     console.log("✅ LeadsTable: Permission granted, showing delete dialog");
     setLeadsToDelete([lead]);
     setShowDeleteDialog(true);
