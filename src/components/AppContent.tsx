@@ -76,7 +76,7 @@ export function AppContent() {
     <div className="App">
       <UnauthenticatedTemplate>
         <Routes>
-          <Route path="/login" element={<Login onLogin={() => {}} />} />
+          <Route path="/login" element={<Login onLogin={() => { }} />} />
           <Route
             path="*"
             element={
@@ -114,7 +114,7 @@ export function AppContent() {
                   <Route path="/motor-comisiones/compensation-plans" element={<CompensationPlans />} />
                   <Route path="/motor-comisiones/catalogs" element={<Catalogs />} />
                   <Route path="/voice-insights" element={<VoiceInsights />} />
-                  <Route path="/login" element={<div />} />
+                  <Route path="/login" element={<Login onLogin={() => { }} />} />
                   <Route path="*" element={<NotFound />} />
                 </Routes>
               </main>

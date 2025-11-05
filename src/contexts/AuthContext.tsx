@@ -54,20 +54,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
     const { toast } = useToast();
 
-    useEffect(() => {
-        const validateExistringSession = async () => {
-            if (!account && !isAuthenticated) {
-                const result = await msalInstance.handleRedirectPromise();
-                if (!result) {
-                    await msalInstance.loginRedirect({ ...loginRequest, prompt: "none" });
-                }
-            }
-
-        };
-
-        // validateExistringSession();
-
-    }, [msalInstance, account, isAuthenticated]);
 
     useEffect(() => {
         registerMsalFetchInterceptor(msalInstance);

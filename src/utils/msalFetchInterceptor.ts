@@ -44,10 +44,7 @@ export const registerMsalFetchInterceptor = (instance: IPublicClientApplication)
                     if (bearerToken) {
                         // Log token information for debugging
                         const tokenPreview = bearerToken.substring(0, 20) + '...' + bearerToken.substring(bearerToken.length - 20);
-                        console.log('🔑 MSAL INTERCEPTOR - Token being used:');
-                        console.log('   📍 URL:', reqUrl);
-                        console.log('   🎫 Token preview:', tokenPreview);
-                        console.log('   📏 Token length:', bearerToken.length);
+                       
                         
                         // Ensure headers object exists and set Authorization header
                         if (cfg.headers instanceof Headers) {
@@ -61,12 +58,12 @@ export const registerMsalFetchInterceptor = (instance: IPublicClientApplication)
 
                         // Check if the URL ends with /api/emails/send
                         if (reqUrl?.endsWith('/api/emails/send')) {
-                            console.log('Detected /api/emails/send endpoint - extracting idp_access_token');
+                            
 
                             const idpToken = extractIdpAccessToken(bearerToken);
 
                             if (idpToken) {
-                                console.log('Adding X-Graph-Token header with idp_access_token');
+                                
 
                                 if (cfg.headers instanceof Headers) {
                                     cfg.headers.set('X-Graph-Token', idpToken);
