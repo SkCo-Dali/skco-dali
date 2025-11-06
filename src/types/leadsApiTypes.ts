@@ -66,7 +66,7 @@ export interface CreateLeadRequest {
 }
 
 export interface UpdateLeadRequest {
-  CreatedBy: string;
+  CreatedBy?: string;
   name: string;
   firstName?: string | null;
   email?: string;

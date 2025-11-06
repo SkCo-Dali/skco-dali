@@ -263,7 +263,6 @@ export const mapLeadToUpdateRequest = (lead: Lead, userId: string): UpdateLeadRe
   console.log("  lead.occupation is empty?:", !lead.occupation);
 
   const updateRequest: UpdateLeadRequest = {
-    CreatedBy: finalUserId, // Usuario autenticado (UUID de la API)
     name: lead.name,
     firstName: lead.firstName,
     email: lead.email,
