@@ -9,6 +9,7 @@ import { Badge } from '@/components/ui/badge';
 import { Plus } from 'lucide-react';
 import { EmailTemplate, DynamicField } from '@/types/email';
 import { RichTextEditor } from '@/components/RichTextEditor';
+import { EmailWritingAssistant } from '@/components/EmailWritingAssistant';
 
 interface EmailComposerProps {
   template: EmailTemplate;
@@ -86,6 +87,13 @@ export function EmailComposer({
     onTemplateChange(newTemplate);
   };
 
+  const handleInsertTextFromAssistant = (text: string) => {
+    onTemplateChange({
+      ...template,
+      htmlContent: template.htmlContent + text
+    });
+  };
+
   return (
     <div className="space-y-6">
       <Card>
@@ -103,6 +111,13 @@ export function EmailComposer({
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
+          
+          {/* Asistente de Redacción con Dali */}
+          <EmailWritingAssistant
+            currentSubject={template.subject}
+            currentContent={template.htmlContent}
+            onInsertText={handleInsertTextFromAssistant}
+          />
           {showFieldsList && (
             <Card className="p-4 bg-muted/50">
               <h4 className="font-medium mb-3">Campos disponibles:</h4>
