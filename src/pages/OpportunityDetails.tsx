@@ -96,13 +96,15 @@ export const OpportunityDetails: React.FC = () => {
     loadOpportunity();
   };
 
-  const handleLoadAsLeads = async () => {
+  const handleLoadAsLeads = async (openEmailSender: boolean = true) => {
     if (!opportunity) return;
     try {
       setLoadingLeads(true);
       const leads = await opportunitiesService.loadAsLeads(opportunity.id);
       setLoadedLeads(leads);
-      setShowEmailSender(true);
+      if (openEmailSender) {
+        setShowEmailSender(true);
+      }
       toast({
         title: "Leads cargados exitosamente",
         description: `Se cargaron ${leads.length} clientes como leads`,
@@ -353,7 +355,7 @@ export const OpportunityDetails: React.FC = () => {
             </CardHeader>
             <CardContent className="space-y-4 pb-6">
               <TooltipProvider>
-                {isAuthorizedForMassEmail(user?.email) && (
+                {isAuthorizedForMassEmail(user?.email) ? (
                   <div className="relative">
                     <Tooltip>
                       <TooltipTrigger asChild>
@@ -361,7 +363,7 @@ export const OpportunityDetails: React.FC = () => {
                           variant="default"
                           className="w-full justify-start h-auto py-3 px-4 text-left bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 shadow-md hover:shadow-lg transition-all duration-200 group"
                           size="lg"
-                          onClick={handleLoadAsLeads}
+                          onClick={() => handleLoadAsLeads(true)}
                           disabled={loadingLeads}
                         >
                           <div className="flex items-center gap-3 w-full min-w-0">
@@ -384,6 +386,41 @@ export const OpportunityDetails: React.FC = () => {
                     </Tooltip>
                     <div className="absolute -top-2 -right-2 pointer-events-none">
                       <div className="bg-yellow-400 text-yellow-900 text-xs font-bold px-2 py-1 rounded-full shadow-sm">
+                        PRINCIPAL
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="relative">
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button
+                          variant="default"
+                          className="w-full justify-start h-auto py-3 px-4 text-left bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 shadow-md hover:shadow-lg transition-all duration-200 group"
+                          size="lg"
+                          onClick={() => handleLoadAsLeads(false)}
+                          disabled={loadingLeads}
+                        >
+                          <div className="flex items-center gap-3 w-full min-w-0">
+                            <div className="flex-shrink-0 p-2 bg-white/20 rounded-lg group-hover:bg-white/30 transition-colors">
+                              <Users className="h-4 w-4" />
+                            </div>
+                            <div className="flex flex-col items-start min-w-0 flex-1">
+                              <span className="font-semibold text-sm leading-tight truncate w-full">
+                                {loadingLeads ? "Cargando leads..." : "Cargar como leads"}
+                              </span>
+                              <span className="text-xs opacity-90 mt-0.5 truncate w-full">Importar a mi cartera</span>
+                            </div>
+                          </div>
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent side="left" className="max-w-xs">
+                        <p className="text-sm font-semibold">Cargar como leads</p>
+                        <p className="text-xs text-muted-foreground mt-1">Importar clientes a tu cartera de leads</p>
+                      </TooltipContent>
+                    </Tooltip>
+                    <div className="absolute -top-2 -right-2 pointer-events-none">
+                      <div className="bg-blue-400 text-blue-900 text-xs font-bold px-2 py-1 rounded-full shadow-sm">
                         PRINCIPAL
                       </div>
                     </div>
