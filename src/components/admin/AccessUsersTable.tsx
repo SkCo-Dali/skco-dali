@@ -88,7 +88,7 @@ export function AccessUsersTable({ users, onRevokeAccess, showSource = false }: 
                   {showSource && (
                     <TableCell className="text-xs text-center font-medium">
                       <Badge variant={(access as any).source === "workspace" ? "default" : "secondary"}>
-                        {(access as any).source === "workspace" ? "Por Workspace" : "Por Área"}
+                        {(access as any).source === "workspace" ? "Por Workspace" : (access as any).source === "area" ? "Por Área" : "Por Reporte"}
                       </Badge>
                     </TableCell>
                   )}
