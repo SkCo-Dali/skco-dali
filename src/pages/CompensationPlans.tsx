@@ -9,10 +9,15 @@ import { CommissionPlansSearch } from "@/components/CommissionPlansSearch";
 import { CommissionPlanStatus, STATUS_LABELS } from "@/data/commissionPlans";
 import { useCommissionPlans } from "@/hooks/useCommissionPlans";
 import { AccessDenied } from "@/components/AccessDenied";
+import { PageLoading } from "@/components/PageLoading";
 import { usePageAccess } from "@/hooks/usePageAccess";
 
 export default function CompensationPlans() {
-  const { hasAccess } = usePageAccess("motor-comisiones");
+  const { hasAccess, isLoading } = usePageAccess("motor-comisiones");
+
+  if (isLoading) {
+    return <PageLoading />;
+  }
 
   if (!hasAccess) {
     return <AccessDenied />;

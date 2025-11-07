@@ -3,10 +3,15 @@ import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Settings, Database, FileText, Calculator } from "lucide-react";
 import { AccessDenied } from "@/components/AccessDenied";
+import { PageLoading } from "@/components/PageLoading";
 import { usePageAccess } from "@/hooks/usePageAccess";
 
 export default function MotorComisionesIndex() {
-  const { hasAccess } = usePageAccess("motor-comisiones");
+  const { hasAccess, isLoading } = usePageAccess("motor-comisiones");
+
+  if (isLoading) {
+    return <PageLoading />;
+  }
 
   if (!hasAccess) {
     return <AccessDenied />;

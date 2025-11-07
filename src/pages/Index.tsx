@@ -3,10 +3,15 @@ import { DashboardOverview } from "@/components/DashboardOverview";
 import { useLeadsApi } from "@/hooks/useLeadsApi";
 import { useAuth } from "@/contexts/AuthContext";
 import { AccessDenied } from "@/components/AccessDenied";
+import { PageLoading } from "@/components/PageLoading";
 import { usePageAccess } from "@/hooks/usePageAccess";
 
 const Index = () => {
-  const { hasAccess, currentUser } = usePageAccess("index");
+  const { hasAccess, isLoading, currentUser } = usePageAccess("index");
+
+  if (isLoading) {
+    return <PageLoading />;
+  }
 
   if (!hasAccess) {
     return <AccessDenied />;

@@ -17,6 +17,7 @@ import { useMsal } from "@azure/msal-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { Lead } from "@/types/crm";
 import { AccessDenied } from "@/components/AccessDenied";
+import { PageLoading } from "@/components/PageLoading";
 import { usePageAccess } from "@/hooks/usePageAccess";
 
 const productOptions = [
@@ -34,8 +35,12 @@ const productOptions = [
 ];
 
 const VoiceInsights = () => {
-  const { hasAccess, currentUser } = usePageAccess("voice-insights");
+  const { hasAccess, isLoading, currentUser } = usePageAccess("voice-insights");
   const { user } = useAuth();
+
+  if (isLoading) {
+    return <PageLoading />;
+  }
 
   if (!hasAccess) {
     return <AccessDenied />;

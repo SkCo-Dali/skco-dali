@@ -25,6 +25,7 @@ import { ColumnConfig } from "@/components/LeadsTableColumnSelector";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { AccessDenied } from "@/components/AccessDenied";
+import { PageLoading } from "@/components/PageLoading";
 import { usePageAccess } from "@/hooks/usePageAccess";
 import {
   DropdownMenu,
@@ -87,7 +88,11 @@ const DEFAULT_COLUMNS: ColumnConfig[] = [
 ];
 
 export default function Leads() {
-  const { hasAccess } = usePageAccess("leads");
+  const { hasAccess, isLoading: isLoadingAccess } = usePageAccess("leads");
+
+  if (isLoadingAccess) {
+    return <PageLoading />;
+  }
 
   if (!hasAccess) {
     return <AccessDenied />;
