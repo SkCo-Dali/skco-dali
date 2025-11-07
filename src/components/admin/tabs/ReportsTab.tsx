@@ -38,6 +38,7 @@ const reportSchema = z.object({
 interface ReportFormData {
   name: string;
   description: string;
+  areaId: string;
   workspaceId: string;
   hasRowLevelSecurity: boolean;
   requireUserRole: boolean;
@@ -62,6 +63,7 @@ export function ReportsTab() {
   const [formData, setFormData] = useState<ReportFormData>({
     name: '',
     description: '',
+    areaId: '',
     workspaceId: '',
     hasRowLevelSecurity: false,
     requireUserRole: false,
@@ -349,9 +351,11 @@ export function ReportsTab() {
   const handleOpenDialog = async (report?: Report) => {
     if (report) {
       setEditingReport(report);
+      const workspace = workspaces.find(w => w.id === report.workspaceId);
       setFormData({
         name: report.name,
         description: report.description || '',
+        areaId: workspace?.areaId || '',
         workspaceId: report.workspaceId,
         hasRowLevelSecurity: report.hasRowLevelSecurity,
         requireUserRole: report.requireUserRole || false,
@@ -382,6 +386,7 @@ export function ReportsTab() {
     setFormData({
       name: '',
       description: '',
+      areaId: '',
       workspaceId: '',
       hasRowLevelSecurity: false,
       requireUserRole: false,
@@ -602,6 +607,7 @@ export function ReportsTab() {
           open={showCreateDialog}
           onOpenChange={setShowCreateDialog}
           onCreateReport={handleCreateReport}
+          areas={areas}
           workspaces={workspaces}
           idToken={currentIdToken}
         />

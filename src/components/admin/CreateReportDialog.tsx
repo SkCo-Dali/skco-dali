@@ -10,7 +10,7 @@ import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, Command
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Check, ChevronsUpDown } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { Report, Workspace } from '@/types/powerbi';
+import { Report, Workspace, Area } from '@/types/powerbi';
 import { ENV } from '@/config/environment';
 
 interface PowerBIReport {
@@ -29,15 +29,17 @@ interface CreateReportDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onCreateReport: (report: Omit<Report, 'id' | 'createdAt' | 'updatedAt'>) => void;
+  areas: Area[];
   workspaces: Workspace[];
   idToken: string;
 }
 
-export function CreateReportDialog({ open, onOpenChange, onCreateReport, workspaces, idToken }: CreateReportDialogProps) {
+export function CreateReportDialog({ open, onOpenChange, onCreateReport, areas, workspaces, idToken }: CreateReportDialogProps) {
   const [formData, setFormData] = useState({
     name: '',
     description: '',
     pbiReportId: '',
+    areaId: '',
     workspaceId: '',
     isActive: true,
     hasRowLevelSecurity: false,
@@ -168,10 +170,23 @@ export function CreateReportDialog({ open, onOpenChange, onCreateReport, workspa
     }
   };
 
+  const handleAreaChange = (areaId: string) => {
+    setFormData(prev => ({
+      ...prev,
+      areaId,
+      workspaceId: '',
+      pbiWorkspaceId: '',
+      pbiReportId: '',
+      datasetId: '',
+      webUrl: '',
+      name: ''
+    }));
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!formData.name.trim() || !formData.pbiReportId.trim() || !formData.workspaceId.trim()) {
+    if (!formData.name.trim() || !formData.pbiReportId.trim() || !formData.workspaceId.trim() || !formData.areaId.trim()) {
       return;
     }
 
@@ -182,6 +197,7 @@ export function CreateReportDialog({ open, onOpenChange, onCreateReport, workspa
       name: '',
       description: '',
       pbiReportId: '',
+      areaId: '',
       workspaceId: '',
       isActive: true,
       hasRowLevelSecurity: false,
@@ -201,22 +217,41 @@ export function CreateReportDialog({ open, onOpenChange, onCreateReport, workspa
         </DialogHeader>
         
         <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Workspace selector */}
+          {/* Area selector */}
           <div className="space-y-2">
-            <Label htmlFor="workspace">Workspace *</Label>
-            <Select value={formData.workspaceId} onValueChange={handleWorkspaceChange}>
+            <Label htmlFor="area">Área *</Label>
+            <Select value={formData.areaId} onValueChange={handleAreaChange}>
               <SelectTrigger>
-                <SelectValue placeholder="Selecciona un workspace" />
+                <SelectValue placeholder="Selecciona un área" />
               </SelectTrigger>
               <SelectContent>
-                {workspaces.filter(w => w.isActive).map(workspace => (
-                  <SelectItem key={workspace.id} value={workspace.id}>
-                    {workspace.name}
+                {areas.filter(a => a.isActive).map(area => (
+                  <SelectItem key={area.id} value={area.id}>
+                    {area.name}
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
           </div>
+
+          {/* Workspace selector */}
+          {formData.areaId && (
+            <div className="space-y-2">
+              <Label htmlFor="workspace">Workspace *</Label>
+              <Select value={formData.workspaceId} onValueChange={handleWorkspaceChange}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Selecciona un workspace" />
+                </SelectTrigger>
+                <SelectContent>
+                  {workspaces.filter(w => w.isActive && w.areaId === formData.areaId).map(workspace => (
+                    <SelectItem key={workspace.id} value={workspace.id}>
+                      {workspace.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
 
           {/* Power BI Workspace ID (read-only) */}
           {formData.pbiWorkspaceId && (
