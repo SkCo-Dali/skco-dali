@@ -172,6 +172,7 @@ export function ReportsTab() {
       const reportData = {
         name: formData.name,
         description: formData.description,
+        areaId: formData.areaId,
         workspaceId: formData.workspaceId,
         hasRowLevelSecurity: formData.hasRowLevelSecurity,
         requireUserRole: formData.requireUserRole,
@@ -649,26 +650,46 @@ export function ReportsTab() {
                 </div>
                 
                 <div className="space-y-2">
-                  <Label htmlFor="workspaceId">Workspace *</Label>
+                  <Label htmlFor="areaId">Área *</Label>
                   <Select 
-                    value={formData.workspaceId} 
-                    onValueChange={handleWorkspaceChange}
+                    value={formData.areaId} 
+                    onValueChange={(value) => setFormData(prev => ({ ...prev, areaId: value, workspaceId: '', pbiWorkspaceId: '', pbiReportId: '', datasetId: '', webUrl: '' }))}
                   >
-                    <SelectTrigger className={formErrors.workspaceId ? 'border-destructive' : ''}>
-                      <SelectValue placeholder="Seleccionar workspace" />
+                    <SelectTrigger>
+                      <SelectValue placeholder="Seleccionar área" />
                     </SelectTrigger>
                     <SelectContent>
-                      {workspaces.filter(w => w.isActive).map((workspace) => (
-                        <SelectItem key={workspace.id} value={workspace.id}>
-                          {workspace.name} ({getAreaName(workspace.id)})
+                      {areas.filter(a => a.isActive).map((area) => (
+                        <SelectItem key={area.id} value={area.id}>
+                          {area.name}
                         </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
-                  {formErrors.workspaceId && (
-                    <p className="text-sm text-destructive">{formErrors.workspaceId}</p>
-                  )}
                 </div>
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="workspaceId">Workspace *</Label>
+                <Select 
+                  value={formData.workspaceId} 
+                  onValueChange={handleWorkspaceChange}
+                  disabled={!formData.areaId}
+                >
+                  <SelectTrigger className={formErrors.workspaceId ? 'border-destructive' : ''}>
+                    <SelectValue placeholder={!formData.areaId ? "Selecciona un área primero" : "Seleccionar workspace"} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {workspaces.filter(w => w.isActive && w.areaId === formData.areaId).map((workspace) => (
+                      <SelectItem key={workspace.id} value={workspace.id}>
+                        {workspace.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                {formErrors.workspaceId && (
+                  <p className="text-sm text-destructive">{formErrors.workspaceId}</p>
+                )}
               </div>
               
               <div className="space-y-2">
