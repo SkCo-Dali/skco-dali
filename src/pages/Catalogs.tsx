@@ -9,10 +9,15 @@ import { CreateCatalogDialog } from "@/components/CreateCatalogDialog";
 import { CatalogDetailsPanel } from "@/components/CatalogDetailsPanel";
 import { Catalog } from "@/types/catalogsApi";
 import { AccessDenied } from "@/components/AccessDenied";
+import { PageLoading } from "@/components/PageLoading";
 import { usePageAccess } from "@/hooks/usePageAccess";
 
 export default function Catalogs() {
-  const { hasAccess } = usePageAccess("motor-comisiones");
+  const { hasAccess, isLoading } = usePageAccess("motor-comisiones");
+
+  if (isLoading) {
+    return <PageLoading />;
+  }
 
   if (!hasAccess) {
     return <AccessDenied />;

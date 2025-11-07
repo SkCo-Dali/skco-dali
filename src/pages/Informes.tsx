@@ -31,6 +31,7 @@ import { EffectiveReport, Area, Workspace } from "@/types/powerbi";
 import { toast } from "@/hooks/use-toast";
 import { ENV } from "@/config/environment";
 import { AccessDenied } from "@/components/AccessDenied";
+import { PageLoading } from "@/components/PageLoading";
 import { usePageAccess } from "@/hooks/usePageAccess";
 
 // Component state types
@@ -52,7 +53,11 @@ interface InformesState {
 }
 
 export default function Informes() {
-  const { hasAccess } = usePageAccess("informes");
+  const { hasAccess, isLoading } = usePageAccess("informes");
+
+  if (isLoading) {
+    return <PageLoading />;
+  }
 
   if (!hasAccess) {
     return <AccessDenied />;
