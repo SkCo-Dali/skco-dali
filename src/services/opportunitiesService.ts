@@ -224,41 +224,31 @@ class OpportunitiesService {
     }
 
     try {
+      // Paso 1: Cargar los leads desde la oportunidad (esto los crea en la BD)
+      console.log('📥 Cargando leads desde oportunidad...');
       const apiLeads = await loadLeadsFromOpportunity(numericId);
       
-      // Convert API response to Lead format
-      const leads: Lead[] = apiLeads.map(apiLead => ({
-        id: `${apiLead.documentNumber}`, // Using document number as unique ID
-        name: apiLead.name,
-        firstName: apiLead.name.split(' ')[0], // Extract first name from full name
-        email: apiLead.email,
-        phone: apiLead.phone,
-        status: 'New' as LeadStatus,
-        source: (apiLead.source || 'Other') as LeadSource,
-        priority: (apiLead.priority === 'Alta' ? 'High' : 
-                  apiLead.priority === 'Media' ? 'Medium' : 'Low') as Priority,
-        campaign: (apiLead.campaign || '') as Campaign,
-        portfolio: '' as Portfolio,
-        product: Array.isArray(apiLead.product) ? apiLead.product.join(', ') : '',
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-        stage: apiLead.stage,
-        assignedTo: apiLead.assignedTo,
-        createdBy: apiLead.CreatedBy,
-        company: apiLead.company || '',
-        value: apiLead.value,
-        notes: apiLead.notes || '',
-        documentType: apiLead.DocumentType,
-        documentNumber: apiLead.documentNumber,
-        age: apiLead.Age,
-        gender: apiLead.Gender,
-        preferredContactChannel: apiLead.PreferredContactChannel,
-        portfolios: apiLead.SelectedPortfolios || [],
-        tags: apiLead.tags || [],
-        nextFollowUp: apiLead.nextFollowUp,
-      }));
+      // Guardar los documentNumbers para buscar después
+      const documentNumbers = apiLeads.map(lead => lead.documentNumber);
+      console.log('✅ Leads cargados en BD. DocumentNumbers:', documentNumbers);
+      
+      // Paso 2: Esperar un momento para que la BD procese los campos automáticos (como firstName)
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      // Paso 3: Obtener los leads desde la BD (ahora con firstName procesado)
+      console.log('🔍 Obteniendo leads procesados desde BD...');
+      const { getAllLeads } = await import('@/utils/leadsApiClient');
+      const allLeads = await getAllLeads();
+      
+      // Paso 4: Filtrar solo los leads que acabamos de cargar
+      const loadedLeads = allLeads.filter(lead => 
+        documentNumbers.includes(parseInt(lead.id))
+      );
+      
+      console.log('✅ Leads procesados obtenidos:', loadedLeads.length);
+      console.log('📋 Primer lead con firstName:', loadedLeads[0]?.firstName);
 
-      return leads;
+      return loadedLeads;
     } catch (error) {
       console.error('Error loading leads from opportunity:', error);
       throw error;
