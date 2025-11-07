@@ -53,28 +53,6 @@ export function useMassEmail() {
     return result;
   }, []);
 
-  const generateEmailRecipients = useCallback(
-    (leads: Lead[], template: EmailTemplate, alternateEmail?: string): EmailRecipient[] => {
-      return leads.map((lead) => {
-        const processedHtmlContent = replaceDynamicFields(template.htmlContent, lead);
-        const processedPlainContent = replaceDynamicFields(template.plainContent, lead);
-
-        // Para envíos individuales, usar el email alternativo si está especificado
-        const targetEmail = leads.length === 1 && alternateEmail?.trim() ? alternateEmail.trim() : lead.email || "";
-
-        return {
-          LeadId: lead.id,
-          Campaign: lead.campaign || "Sin campaña",
-          to: targetEmail,
-          subject: replaceDynamicFields(template.subject, lead),
-          html_content: processedHtmlContent, // Enviar el HTML correctamente procesado
-          plain_content: processedPlainContent || convertHtmlToPlain(processedHtmlContent), // Usar plain o convertir HTML
-        };
-      });
-    },
-    [replaceDynamicFields],
-  );
-
   // Función para convertir HTML a texto plano
   const convertHtmlToPlain = useCallback((html: string): string => {
     return html
@@ -88,6 +66,43 @@ export function useMassEmail() {
       .replace(/&quot;/g, '"')
       .trim();
   }, []);
+
+  const generateEmailRecipients = useCallback(
+    (leads: Lead[], template: EmailTemplate, alternateEmail?: string): EmailRecipient[] => {
+      console.log("📧 Generando recipients con template:", {
+        subject: template.subject,
+        htmlContentLength: template.htmlContent?.length,
+        plainContentLength: template.plainContent?.length,
+      });
+
+      return leads.map((lead) => {
+        const processedHtmlContent = replaceDynamicFields(template.htmlContent || '', lead);
+        const processedPlainContent = replaceDynamicFields(template.plainContent || '', lead);
+
+        // Para envíos individuales, usar el email alternativo si está especificado
+        const targetEmail = leads.length === 1 && alternateEmail?.trim() ? alternateEmail.trim() : lead.email || "";
+
+        const recipient = {
+          LeadId: lead.id,
+          Campaign: lead.campaign || "Sin campaña",
+          to: targetEmail,
+          subject: replaceDynamicFields(template.subject || '', lead),
+          html_content: processedHtmlContent, // Enviar el HTML correctamente procesado
+          plain_content: processedPlainContent || convertHtmlToPlain(processedHtmlContent), // Usar plain o convertir HTML
+        };
+
+        console.log("📧 Recipient generado:", {
+          to: recipient.to,
+          subject: recipient.subject,
+          html_content_length: recipient.html_content.length,
+          plain_content_length: recipient.plain_content.length,
+        });
+
+        return recipient;
+      });
+    },
+    [replaceDynamicFields, convertHtmlToPlain],
+  );
 
   const createInteractionForEmailSent = useCallback(
     async (leadId: string, subject: string): Promise<void> => {
@@ -120,11 +135,31 @@ export function useMassEmail() {
   const sendMassEmail = useCallback(
     async (leads: Lead[], template: EmailTemplate, alternateEmail?: string): Promise<boolean> => {
       console.log("📧 === INICIANDO ENVÍO DE CORREOS MASIVOS ===");
+      console.log("📧 Template recibido:", {
+        subject: template.subject,
+        htmlContentLength: template.htmlContent?.length || 0,
+        plainContentLength: template.plainContent?.length || 0,
+        htmlPreview: template.htmlContent?.substring(0, 50),
+      });
 
       if (!user) {
         toast({
           title: "Error",
           description: "Usuario no autenticado",
+          variant: "destructive",
+        });
+        return false;
+      }
+
+      // Validar que el template tenga contenido
+      if (!template.subject?.trim() || !template.htmlContent?.trim()) {
+        console.error("📧 ERROR: Template sin contenido", {
+          subject: template.subject,
+          htmlContent: template.htmlContent,
+        });
+        toast({
+          title: "Error",
+          description: "Debes completar el asunto y contenido del email antes de enviar",
           variant: "destructive",
         });
         return false;
