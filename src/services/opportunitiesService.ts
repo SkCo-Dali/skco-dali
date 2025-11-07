@@ -230,6 +230,7 @@ class OpportunitiesService {
       const leads: Lead[] = apiLeads.map(apiLead => ({
         id: `${apiLead.documentNumber}`, // Using document number as unique ID
         name: apiLead.name,
+        firstName: apiLead.name.split(' ')[0], // Extract first name from full name
         email: apiLead.email,
         phone: apiLead.phone,
         status: 'New' as LeadStatus,
