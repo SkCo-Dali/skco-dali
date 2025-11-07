@@ -548,7 +548,7 @@ export default function Informes() {
                                 <div>
                                   <div className="font-medium">{report.reportName}</div>
                                   <div className="text-sm text-muted-foreground">
-                                    {report.source === "workspace" ? "Acceso por workspace" : "Acceso directo"}
+                                    {report.source === "workspace" ? "Acceso por workspace" : report.source === "area" ? "Acceso por área" : "Acceso por reporte"}
                                   </div>
                                 </div>
                               </div>
@@ -655,7 +655,7 @@ export default function Informes() {
                             )}
                           </div>
                           <span className="text-xs text-muted-foreground">
-                            {report.source === "workspace" ? "Por workspace" : "Directo"}
+                            {report.source === "workspace" ? "Por workspace" : report.source === "area" ? "Por área" : "Por reporte"}
                           </span>
                         </div>
 

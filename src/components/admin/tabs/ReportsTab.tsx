@@ -38,6 +38,7 @@ const reportSchema = z.object({
 interface ReportFormData {
   name: string;
   description: string;
+  areaId: string;
   workspaceId: string;
   hasRowLevelSecurity: boolean;
   requireUserRole: boolean;
@@ -62,6 +63,7 @@ export function ReportsTab() {
   const [formData, setFormData] = useState<ReportFormData>({
     name: '',
     description: '',
+    areaId: '',
     workspaceId: '',
     hasRowLevelSecurity: false,
     requireUserRole: false,
@@ -170,6 +172,7 @@ export function ReportsTab() {
       const reportData = {
         name: formData.name,
         description: formData.description,
+        areaId: formData.areaId,
         workspaceId: formData.workspaceId,
         hasRowLevelSecurity: formData.hasRowLevelSecurity,
         requireUserRole: formData.requireUserRole,
@@ -349,9 +352,11 @@ export function ReportsTab() {
   const handleOpenDialog = async (report?: Report) => {
     if (report) {
       setEditingReport(report);
+      const workspace = workspaces.find(w => w.id === report.workspaceId);
       setFormData({
         name: report.name,
         description: report.description || '',
+        areaId: workspace?.areaId || '',
         workspaceId: report.workspaceId,
         hasRowLevelSecurity: report.hasRowLevelSecurity,
         requireUserRole: report.requireUserRole || false,
@@ -382,6 +387,7 @@ export function ReportsTab() {
     setFormData({
       name: '',
       description: '',
+      areaId: '',
       workspaceId: '',
       hasRowLevelSecurity: false,
       requireUserRole: false,
@@ -602,6 +608,7 @@ export function ReportsTab() {
           open={showCreateDialog}
           onOpenChange={setShowCreateDialog}
           onCreateReport={handleCreateReport}
+          areas={areas}
           workspaces={workspaces}
           idToken={currentIdToken}
         />
@@ -643,26 +650,46 @@ export function ReportsTab() {
                 </div>
                 
                 <div className="space-y-2">
-                  <Label htmlFor="workspaceId">Workspace *</Label>
+                  <Label htmlFor="areaId">Área *</Label>
                   <Select 
-                    value={formData.workspaceId} 
-                    onValueChange={handleWorkspaceChange}
+                    value={formData.areaId} 
+                    onValueChange={(value) => setFormData(prev => ({ ...prev, areaId: value, workspaceId: '', pbiWorkspaceId: '', pbiReportId: '', datasetId: '', webUrl: '' }))}
                   >
-                    <SelectTrigger className={formErrors.workspaceId ? 'border-destructive' : ''}>
-                      <SelectValue placeholder="Seleccionar workspace" />
+                    <SelectTrigger>
+                      <SelectValue placeholder="Seleccionar área" />
                     </SelectTrigger>
                     <SelectContent>
-                      {workspaces.filter(w => w.isActive).map((workspace) => (
-                        <SelectItem key={workspace.id} value={workspace.id}>
-                          {workspace.name} ({getAreaName(workspace.id)})
+                      {areas.filter(a => a.isActive).map((area) => (
+                        <SelectItem key={area.id} value={area.id}>
+                          {area.name}
                         </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
-                  {formErrors.workspaceId && (
-                    <p className="text-sm text-destructive">{formErrors.workspaceId}</p>
-                  )}
                 </div>
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="workspaceId">Workspace *</Label>
+                <Select 
+                  value={formData.workspaceId} 
+                  onValueChange={handleWorkspaceChange}
+                  disabled={!formData.areaId}
+                >
+                  <SelectTrigger className={formErrors.workspaceId ? 'border-destructive' : ''}>
+                    <SelectValue placeholder={!formData.areaId ? "Selecciona un área primero" : "Seleccionar workspace"} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {workspaces.filter(w => w.isActive && w.areaId === formData.areaId).map((workspace) => (
+                      <SelectItem key={workspace.id} value={workspace.id}>
+                        {workspace.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                {formErrors.workspaceId && (
+                  <p className="text-sm text-destructive">{formErrors.workspaceId}</p>
+                )}
               </div>
               
               <div className="space-y-2">

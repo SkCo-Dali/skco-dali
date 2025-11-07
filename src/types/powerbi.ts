@@ -39,7 +39,7 @@ export interface EffectiveReport {
   workspaceName: string;
   areaId: string;
   areaName: string;
-  source: 'workspace' | 'report';
+  source: 'workspace' | 'area' | 'report';
   accessLevel: 'view';
   hasRowLevelSecurity: boolean;
   requireUserRole?: boolean;

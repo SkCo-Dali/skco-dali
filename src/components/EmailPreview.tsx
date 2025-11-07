@@ -16,7 +16,7 @@ export function EmailPreview({
   leads, 
   template, 
   replaceDynamicFields, 
-  maxPreviews = 1,
+  maxPreviews = 20,
   alternateEmail 
 }: EmailPreviewProps) {
   const previewLeads = leads.slice(0, maxPreviews);

@@ -1,6 +1,7 @@
 
 import React from "react";
 import { Button } from "@/components/ui/button";
+import { isAuthorizedForMassEmail } from "@/utils/emailDomainValidator";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -102,7 +103,7 @@ export function LeadsActionsButton({
               )}
             </DropdownMenuItem>
           )}
-          {permissions.canSendEmail && (
+          {permissions.canSendEmail && isAuthorizedForMassEmail(userEmail) && (
             <DropdownMenuItem onClick={handleMassEmail} className="cursor-pointer">
               <Mail className="h-4 w-4 mr-2" />
               Enviar email

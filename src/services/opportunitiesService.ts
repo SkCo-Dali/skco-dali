@@ -2,6 +2,7 @@ import { IOpportunity, ICustomer, OpportunityFilters, SortOption, OpportunitySta
 import { getOpportunitySummary, loadLeadsFromOpportunity, updateOpportunityFavourite } from '@/utils/opportunitiesApiClient';
 import { mapApiOpportunityToOpportunity } from '@/utils/opportunitiesApiMapper';
 import { Lead, LeadStatus, LeadSource, Priority, Campaign, Portfolio } from '@/types/crm';
+import { extractFirstName } from '@/utils/nameUtils';
 
 // Import mock data as fallback
 import mockOpportunities from '@/data/mockOpportunities.json';
@@ -230,6 +231,7 @@ class OpportunitiesService {
       const leads: Lead[] = apiLeads.map(apiLead => ({
         id: `${apiLead.documentNumber}`, // Using document number as unique ID
         name: apiLead.name,
+        firstName: extractFirstName(apiLead.name), // Extract firstName using the same logic as backend
         email: apiLead.email,
         phone: apiLead.phone,
         status: 'New' as LeadStatus,

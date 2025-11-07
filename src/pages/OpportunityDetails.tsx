@@ -1,12 +1,12 @@
 import React from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { createPortal } from "react-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 import {
   ArrowLeft,
   Users,
@@ -23,6 +23,8 @@ import {
 import { IOpportunity, OPPORTUNITY_TYPE_LABELS, PRIORITY_COLORS } from "@/types/opportunities";
 import { opportunitiesService } from "@/services/opportunitiesService";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/contexts/AuthContext";
+import { isAuthorizedForMassEmail } from "@/utils/emailDomainValidator";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { MassEmailSender } from "@/components/MassEmailSender";
 import { Lead } from "@/types/crm";
@@ -31,6 +33,7 @@ export const OpportunityDetails: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { user } = useAuth();
   const [opportunity, setOpportunity] = React.useState<IOpportunity | null>(null);
   const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState<string | null>(null);
@@ -63,20 +66,6 @@ export const OpportunityDetails: React.FC = () => {
     loadOpportunity();
   }, [loadOpportunity]);
 
-  // Bloquea scroll y permite cerrar con Escape cuando el modal está abierto
-  React.useEffect(() => {
-    if (!showEmailSender) return;
-    const prev = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setShowEmailSender(false);
-    };
-    document.addEventListener("keydown", onKey);
-    return () => {
-      document.body.style.overflow = prev;
-      document.removeEventListener("keydown", onKey);
-    };
-  }, [showEmailSender]);
 
   const handleBack = () => {
     navigate("/oportunidades");
@@ -107,13 +96,15 @@ export const OpportunityDetails: React.FC = () => {
     loadOpportunity();
   };
 
-  const handleLoadAsLeads = async () => {
+  const handleLoadAsLeads = async (openEmailSender: boolean = true) => {
     if (!opportunity) return;
     try {
       setLoadingLeads(true);
       const leads = await opportunitiesService.loadAsLeads(opportunity.id);
       setLoadedLeads(leads);
-      setShowEmailSender(true);
+      if (openEmailSender) {
+        setShowEmailSender(true);
+      }
       toast({
         title: "Leads cargados exitosamente",
         description: `Se cargaron ${leads.length} clientes como leads`,
@@ -364,40 +355,77 @@ export const OpportunityDetails: React.FC = () => {
             </CardHeader>
             <CardContent className="space-y-4 pb-6">
               <TooltipProvider>
-                <div className="relative">
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Button
-                        variant="default"
-                        className="w-full justify-start h-auto py-3 px-4 text-left bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 shadow-md hover:shadow-lg transition-all duration-200 group"
-                        size="lg"
-                        onClick={handleLoadAsLeads}
-                        disabled={loadingLeads}
-                      >
-                        <div className="flex items-center gap-3 w-full min-w-0">
-                          <div className="flex-shrink-0 p-2 bg-white/20 rounded-lg group-hover:bg-white/30 transition-colors">
-                            <Mail className="h-4 w-4" />
+                {isAuthorizedForMassEmail(user?.email) ? (
+                  <div className="relative">
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button
+                          variant="default"
+                          className="w-full justify-start h-auto py-3 px-4 text-left bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 shadow-md hover:shadow-lg transition-all duration-200 group"
+                          size="lg"
+                          onClick={() => handleLoadAsLeads(true)}
+                          disabled={loadingLeads}
+                        >
+                          <div className="flex items-center gap-3 w-full min-w-0">
+                            <div className="flex-shrink-0 p-2 bg-white/20 rounded-lg group-hover:bg-white/30 transition-colors">
+                              <Mail className="h-4 w-4" />
+                            </div>
+                            <div className="flex flex-col items-start min-w-0 flex-1">
+                              <span className="font-semibold text-sm leading-tight truncate w-full">
+                                {loadingLeads ? "Cargando leads..." : "Cargar como leads y enviar correo masivo"}
+                              </span>
+                              <span className="text-xs opacity-90 mt-0.5 truncate w-full">Acción recomendada</span>
+                            </div>
                           </div>
-                          <div className="flex flex-col items-start min-w-0 flex-1">
-                            <span className="font-semibold text-sm leading-tight truncate w-full">
-                              {loadingLeads ? "Cargando leads..." : "Cargar como leads y enviar correo masivo"}
-                            </span>
-                            <span className="text-xs opacity-90 mt-0.5 truncate w-full">Acción recomendada</span>
-                          </div>
-                        </div>
-                      </Button>
-                    </TooltipTrigger>
-                    <TooltipContent side="left" className="max-w-xs">
-                      <p className="text-sm font-semibold">Cargar como leads y enviar correo masivo</p>
-                      <p className="text-xs text-muted-foreground mt-1">Acción recomendada</p>
-                    </TooltipContent>
-                  </Tooltip>
-                  <div className="absolute -top-2 -right-2 pointer-events-none">
-                    <div className="bg-yellow-400 text-yellow-900 text-xs font-bold px-2 py-1 rounded-full shadow-sm">
-                      PRINCIPAL
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent side="left" className="max-w-xs">
+                        <p className="text-sm font-semibold">Cargar como leads y enviar correo masivo</p>
+                        <p className="text-xs text-muted-foreground mt-1">Acción recomendada</p>
+                      </TooltipContent>
+                    </Tooltip>
+                    <div className="absolute -top-2 -right-2 pointer-events-none">
+                      <div className="bg-yellow-400 text-yellow-900 text-xs font-bold px-2 py-1 rounded-full shadow-sm">
+                        PRINCIPAL
+                      </div>
                     </div>
                   </div>
-                </div>
+                ) : (
+                  <div className="relative">
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button
+                          variant="default"
+                          className="w-full justify-start h-auto py-3 px-4 text-left bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 shadow-md hover:shadow-lg transition-all duration-200 group"
+                          size="lg"
+                          onClick={() => handleLoadAsLeads(false)}
+                          disabled={loadingLeads}
+                        >
+                          <div className="flex items-center gap-3 w-full min-w-0">
+                            <div className="flex-shrink-0 p-2 bg-white/20 rounded-lg group-hover:bg-white/30 transition-colors">
+                              <Users className="h-4 w-4" />
+                            </div>
+                            <div className="flex flex-col items-start min-w-0 flex-1">
+                              <span className="font-semibold text-sm leading-tight truncate w-full">
+                                {loadingLeads ? "Cargando leads..." : "Cargar como leads"}
+                              </span>
+                              <span className="text-xs opacity-90 mt-0.5 truncate w-full">Importar a mi cartera</span>
+                            </div>
+                          </div>
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent side="left" className="max-w-xs">
+                        <p className="text-sm font-semibold">Cargar como leads</p>
+                        <p className="text-xs text-muted-foreground mt-1">Importar clientes a tu cartera de leads</p>
+                      </TooltipContent>
+                    </Tooltip>
+                    <div className="absolute -top-2 -right-2 pointer-events-none">
+                      <div className="bg-blue-400 text-blue-900 text-xs font-bold px-2 py-1 rounded-full shadow-sm">
+                        PRINCIPAL
+                      </div>
+                    </div>
+                  </div>
+                )}
                 <div className="relative">
                   <Tooltip>
                     <TooltipTrigger asChild>
@@ -467,37 +495,25 @@ export const OpportunityDetails: React.FC = () => {
       </div>
 
       {/* Email Sender Modal via Portal */}
-      {showEmailSender &&
-        createPortal(
-          <div
-            className="fixed inset-0 z-[9999] flex items-center justify-center p-4"
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="mass-email-title"
-            onClick={() => {
+      <Dialog 
+        open={showEmailSender} 
+        onOpenChange={(open) => {
+          setShowEmailSender(open);
+          if (!open) {
+            handleBack();
+          }
+        }}
+      >
+        <DialogContent className="max-w-6xl max-h-[90vh] overflow-auto">
+          <MassEmailSender
+            filteredLeads={loadedLeads}
+            onClose={() => {
               setShowEmailSender(false);
               handleBack();
             }}
-          >
-            <div className="absolute inset-0 bg-black/70" />
-            <div
-              className="relative w-full max-w-6xl max-h-[90vh] overflow-auto rounded-xl bg-background shadow-2xl ring-1 ring-black/10 p-4"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <h2 id="mass-email-title" className="sr-only">
-                Envío masivo de correos
-              </h2>
-              <MassEmailSender
-                filteredLeads={loadedLeads}
-                onClose={() => {
-                  setShowEmailSender(false);
-                  handleBack();
-                }}
-              />
-            </div>
-          </div>,
-          document.body,
-        )}
+          />
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

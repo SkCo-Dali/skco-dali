@@ -2,6 +2,7 @@ import React, { useState, useCallback, useMemo, useRef, useEffect } from "react"
 import { useToast } from "@/hooks/use-toast";
 import { Lead, getRolePermissions } from "@/types/crm";
 import { useAuth } from "@/contexts/AuthContext";
+import { isAuthorizedForMassEmail } from "@/utils/emailDomainValidator";
 import { LeadsSearch } from "@/components/LeadsSearch";
 import { LeadsFilters } from "@/components/LeadsFilters";
 import { LeadsStats } from "@/components/LeadsStats";
@@ -798,7 +799,7 @@ export default function Leads() {
                       <CheckCircle2 className="h-4 w-4" />
                     </Button>
                   )}
-                  {userPermissions?.canSendEmail && (
+                  {userPermissions?.canSendEmail && isAuthorizedForMassEmail(user?.email) && (
                     <Button
                       className="gap-1 w-8 h-8 bg-primary"
                       onClick={handleMassEmail}

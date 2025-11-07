@@ -9,6 +9,7 @@ import { EmailComposer } from '@/components/EmailComposer';
 import { EmailPreview } from '@/components/EmailPreview';
 import { EmailStatusLogs } from '@/components/EmailStatusLogs';
 import { EmailSendConfirmation } from '@/components/EmailSendConfirmation';
+import { EmailSendProgressModal } from '@/components/EmailSendProgressModal';
 import { useMassEmail } from '@/hooks/useMassEmail';
 import { useToast } from '@/hooks/use-toast';
 
@@ -51,11 +52,17 @@ export function MassEmailSender({ filteredLeads, onClose }: MassEmailSenderProps
     dynamicFields,
     replaceDynamicFields,
     sendMassEmail,
-    fetchEmailLogs
+    fetchEmailLogs,
+    sendProgress,
+    sendEvents,
+    pauseResumeSend,
+    cancelSend,
+    downloadReport,
   } = useMassEmail();
 
   const [activeTab, setActiveTab] = useState('compose');
   const [showConfirmation, setShowConfirmation] = useState(false);
+  const [showProgressModal, setShowProgressModal] = useState(false);
   const [template, setTemplate] = useState<EmailTemplate>({
     subject: '',
     htmlContent: '',
@@ -109,18 +116,18 @@ export function MassEmailSender({ filteredLeads, onClose }: MassEmailSenderProps
 
   const handleConfirmSend = async () => {
     setShowConfirmation(false);
+    setShowProgressModal(true);
     
-    const success = await sendMassEmail(leadsToShow, template, alternateEmail);
-    if (success) {
-      // Cambiar a la pestaña de historial para ver los resultados
-      setActiveTab('logs');
-      // Actualizar logs
-      fetchEmailLogs();
-      // Cerrar el modal después del envío exitoso
-      setTimeout(() => {
-        onClose();
-      }, 2000);
-    }
+    await sendMassEmail(leadsToShow, template, alternateEmail);
+  };
+
+  const handleCloseProgress = () => {
+    setShowProgressModal(false);
+    fetchEmailLogs();
+    // Close parent modal after a short delay
+    setTimeout(() => {
+      onClose();
+    }, 500);
   };
 
   const isReadyToSend = template.subject.trim() && template.htmlContent.trim() && validLeads.length > 0 && validLeads.length <= 20;
@@ -255,6 +262,16 @@ export function MassEmailSender({ filteredLeads, onClose }: MassEmailSenderProps
         onCancel={() => setShowConfirmation(false)}
         recipientCount={leadsToShow.length}
         isLoading={isLoading}
+      />
+
+      <EmailSendProgressModal
+        isOpen={showProgressModal}
+        progress={sendProgress}
+        events={sendEvents}
+        onPauseResume={pauseResumeSend}
+        onCancel={cancelSend}
+        onClose={handleCloseProgress}
+        onDownloadReport={downloadReport}
       />
     </>
   );
