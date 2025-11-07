@@ -115,13 +115,13 @@ class PowerBIService {
 
   async getAreas(params?: any, token?: string): Promise<Area[]> {
     if (!token) throw new Error('Token is required');
-    const response = await getAreas(token, params);
+    const response = await getAreas(token, { onlyActive: false, ...params });
     return response.items;
   }
 
   async getWorkspaces(params?: any, token?: string): Promise<Workspace[]> {
     if (!token) throw new Error('Token is required');
-    const response = await getWorkspaces(token, params);
+    const response = await getWorkspaces(token, { onlyActive: false, ...params });
     return response.items;
   }
 
