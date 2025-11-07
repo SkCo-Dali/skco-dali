@@ -226,18 +226,11 @@ export function EmailSendProgressModal({
                 </Button>
               </>
             ) : (
-              <>
-                <Button
-                  variant="outline"
-                  onClick={onDownloadReport}
-                >
-                  <Download className="h-4 w-4 mr-2" />
-                  Descargar Reporte
-                </Button>
+              <div className="flex-1 flex justify-end">
                 <Button onClick={onClose}>
                   Cerrar
                 </Button>
-              </>
+              </div>
             )}
           </div>
         </div>
