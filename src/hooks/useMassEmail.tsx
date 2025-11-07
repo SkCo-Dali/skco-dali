@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useRef } from "react";
 import { Lead } from "@/types/crm";
 import {
   EmailRecipient,
@@ -12,12 +12,24 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { createInteraction } from "@/utils/interactionsApiClient";
 import { ENV } from "@/config/environment";
+import { EmailSendEvent, EmailSendProgress } from "@/components/EmailSendProgressModal";
 
 export function useMassEmail() {
   const { user } = useAuth();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
   const [emailLogs, setEmailLogs] = useState<EmailLog[]>([]);
+  const [sendProgress, setSendProgress] = useState<EmailSendProgress>({
+    total: 0,
+    sent: 0,
+    failed: 0,
+    pending: 0,
+    isPaused: false,
+    isCompleted: false,
+  });
+  const [sendEvents, setSendEvents] = useState<EmailSendEvent[]>([]);
+  const isCancelledRef = useRef(false);
+  const isPausedRef = useRef(false);
 
   const dynamicFields = [
     { key: "name", label: "Nombres y Apellidos", example: "Juan Pérez" },
@@ -97,12 +109,19 @@ export function useMassEmail() {
     [user],
   );
 
+  const addEvent = useCallback((event: EmailSendEvent) => {
+    setSendEvents(prev => [event, ...prev]);
+  }, []);
+
+  const updateProgress = useCallback((updates: Partial<EmailSendProgress>) => {
+    setSendProgress(prev => ({ ...prev, ...updates }));
+  }, []);
+
   const sendMassEmail = useCallback(
     async (leads: Lead[], template: EmailTemplate, alternateEmail?: string): Promise<boolean> => {
       console.log("📧 === INICIANDO ENVÍO DE CORREOS MASIVOS ===");
 
       if (!user) {
-        console.log("❌ Usuario no autenticado");
         toast({
           title: "Error",
           description: "Usuario no autenticado",
@@ -111,15 +130,7 @@ export function useMassEmail() {
         return false;
       }
 
-      console.log("👤 Usuario autenticado:", {
-        id: user.id,
-        email: user.email,
-        name: user.name,
-      });
-
-      // Validación del límite de 20 correos
       if (leads.length > 20) {
-        console.log("❌ Límite de correos excedido:", leads.length);
         toast({
           title: "Error",
           description: "El máximo permitido es 20 correos por envío",
@@ -128,75 +139,149 @@ export function useMassEmail() {
         return false;
       }
 
-      console.log("📊 Número de leads a procesar:", leads.length);
+      // Reset state
+      isCancelledRef.current = false;
+      isPausedRef.current = false;
+      setSendEvents([]);
+      setSendProgress({
+        total: leads.length,
+        sent: 0,
+        failed: 0,
+        pending: leads.length,
+        isPaused: false,
+        isCompleted: false,
+      });
+
       setIsLoading(true);
+      const startTime = Date.now();
 
       try {
-        console.log("🔐 Obteniendo tokens de acceso...");
-
         const recipients = generateEmailRecipients(leads, template, alternateEmail);
-        console.log("📧 Recipients generados:", recipients.length);
+        let sentCount = 0;
+        let failedCount = 0;
 
-        // Payload simplificado - solo recipients
-        const payload = {
-          recipients,
-        };
+        // Send emails one by one
+        for (let i = 0; i < recipients.length; i++) {
+          // Check if cancelled
+          if (isCancelledRef.current) {
+            console.log("📧 Envío cancelado por el usuario");
+            toast({
+              title: "Envío cancelado",
+              description: `Se enviaron ${sentCount} correos antes de cancelar`,
+            });
+            break;
+          }
 
-        const endpoint = `${ENV.CRM_API_BASE_URL}/api/emails/send`;
+          // Check if paused
+          while (isPausedRef.current && !isCancelledRef.current) {
+            await new Promise(resolve => setTimeout(resolve, 100));
+          }
 
-        console.log("📧 Payload enviado:", JSON.stringify(payload, null, 2));
+          const recipient = recipients[i];
+          const lead = leads[i];
 
-        const response = await fetch(endpoint, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(payload),
-        });
+          // Add sending event
+          const eventId = `email-${Date.now()}-${i}`;
+          addEvent({
+            id: eventId,
+            leadId: lead.id,
+            leadName: lead.name,
+            email: recipient.to,
+            status: 'sending',
+            timestamp: new Date().toISOString(),
+          });
 
-        // LOG: Respuesta del servidor
-        console.log("📧 Response status:", response.status);
-        console.log("📧 Response ok:", response.ok);
+          try {
+            // Send individual email
+            const response = await fetch(`${ENV.CRM_API_BASE_URL}/api/emails/send`, {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({ recipients: [recipient] }),
+            });
 
-        if (!response.ok) {
-          const errorText = await response.text();
-          console.log("📧 Error response text:", errorText);
-          throw new Error(`Error en el envío: ${response.statusText}`);
+            if (!response.ok) {
+              throw new Error(`Error en el envío: ${response.statusText}`);
+            }
+
+            const result: EmailSendResponse = await response.json();
+            const emailResult = result.results[0];
+
+            if (emailResult.status === 'Success') {
+              sentCount++;
+              // Create interaction
+              await createInteractionForEmailSent(recipient.LeadId, recipient.subject);
+              
+              // Update event to success
+              setSendEvents(prev => 
+                prev.map(e => e.id === eventId 
+                  ? { ...e, status: 'success' as const, timestamp: new Date().toISOString() }
+                  : e
+                )
+              );
+            } else {
+              failedCount++;
+              // Update event to failed
+              setSendEvents(prev => 
+                prev.map(e => e.id === eventId 
+                  ? { ...e, status: 'failed' as const, error: emailResult.error || 'Error desconocido', timestamp: new Date().toISOString() }
+                  : e
+                )
+              );
+            }
+          } catch (error) {
+            failedCount++;
+            console.error("📧 Error sending email to", recipient.to, error);
+            
+            // Update event to failed
+            setSendEvents(prev => 
+              prev.map(e => e.id === eventId 
+                ? { ...e, status: 'failed' as const, error: error instanceof Error ? error.message : 'Error desconocido', timestamp: new Date().toISOString() }
+                : e
+              )
+            );
+          }
+
+          // Update progress
+          const pending = recipients.length - (sentCount + failedCount);
+          const elapsed = (Date.now() - startTime) / 1000;
+          const avgTimePerEmail = elapsed / (sentCount + failedCount);
+          const eta = Math.ceil(pending * avgTimePerEmail);
+
+          updateProgress({
+            sent: sentCount,
+            failed: failedCount,
+            pending,
+            eta,
+          });
+
+          // Small delay between emails to avoid overwhelming the server
+          await new Promise(resolve => setTimeout(resolve, 500));
         }
 
-        const result: EmailSendResponse = await response.json();
+        // Mark as completed
+        updateProgress({ isCompleted: true });
 
-        // LOG: Resultado de la API
-        console.log("📧 Response data:", JSON.stringify(result, null, 2));
-
-        // Crear interacciones para los correos enviados exitosamente
-        const successfulSends = result.results.filter((r) => r.status === "Success");
-
-        for (const successfulSend of successfulSends) {
-          const recipient = recipients.find((r) => r.to === successfulSend.to);
-          if (recipient) {
-            await createInteractionForEmailSent(recipient.LeadId, recipient.subject);
+        if (!isCancelledRef.current) {
+          if (failedCount > 0) {
+            toast({
+              title: "Envío completado con errores",
+              description: `${sentCount} correos enviados, ${failedCount} fallaron`,
+              variant: "destructive",
+            });
+          } else {
+            toast({
+              title: "Éxito",
+              description: `Se han enviado ${sentCount} correos exitosamente`,
+            });
           }
         }
 
-        const failedCount = result.results.filter((r) => r.status === "Failed").length;
-
-        if (failedCount > 0) {
-          toast({
-            title: "Envío parcialmente exitoso",
-            description: `${successfulSends.length} correos enviados, ${failedCount} fallaron`,
-            variant: "destructive",
-          });
-        } else {
-          toast({
-            title: "Éxito",
-            description: `Se han enviado ${successfulSends.length} correos exitosamente`,
-          });
-        }
-
-        return successfulSends.length > 0;
+        return sentCount > 0;
       } catch (error) {
         console.error("📧 Error sending mass email:", error);
+        updateProgress({ isCompleted: true });
         toast({
           title: "Error",
           description: error instanceof Error ? error.message : "Error desconocido al enviar correos",
@@ -207,8 +292,39 @@ export function useMassEmail() {
         setIsLoading(false);
       }
     },
-    [user, generateEmailRecipients, createInteractionForEmailSent, toast],
+    [user, generateEmailRecipients, createInteractionForEmailSent, toast, addEvent, updateProgress],
   );
+
+  const pauseResumeSend = useCallback(() => {
+    isPausedRef.current = !isPausedRef.current;
+    updateProgress({ isPaused: isPausedRef.current });
+  }, [updateProgress]);
+
+  const cancelSend = useCallback(() => {
+    isCancelledRef.current = true;
+    updateProgress({ isCompleted: true });
+  }, [updateProgress]);
+
+  const downloadReport = useCallback(() => {
+    const csv = [
+      ['Lead', 'Email', 'Estado', 'Error', 'Fecha'].join(','),
+      ...sendEvents.map(event => [
+        event.leadName,
+        event.email,
+        event.status === 'success' ? 'Enviado' : event.status === 'failed' ? 'Fallido' : 'Pendiente',
+        event.error || '',
+        event.timestamp
+      ].join(','))
+    ].join('\n');
+
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `reporte-envio-emails-${new Date().toISOString()}.csv`;
+    a.click();
+    window.URL.revokeObjectURL(url);
+  }, [sendEvents]);
 
   const fetchEmailLogs = useCallback(
     async (campaign?: string, status?: string, createdAt?: string): Promise<void> => {
@@ -280,5 +396,10 @@ export function useMassEmail() {
     generateEmailRecipients,
     sendMassEmail,
     fetchEmailLogs,
+    sendProgress,
+    sendEvents,
+    pauseResumeSend,
+    cancelSend,
+    downloadReport,
   };
 }
