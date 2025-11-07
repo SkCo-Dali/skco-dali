@@ -121,7 +121,7 @@ class PowerBIService {
 
   async getWorkspaces(params?: any, token?: string): Promise<Workspace[]> {
     if (!token) throw new Error('Token is required');
-    const response = await getWorkspaces(token, { onlyActive: true, ...params });
+    const response = await getWorkspaces(token, params);
     return response.items;
   }
 
