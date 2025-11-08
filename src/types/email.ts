@@ -56,3 +56,10 @@ export interface DynamicField {
   label: string;
   example: string;
 }
+
+export interface OutlookSignature {
+  id: string;
+  name: string;
+  content: string;
+  isDefault: boolean;
+}
