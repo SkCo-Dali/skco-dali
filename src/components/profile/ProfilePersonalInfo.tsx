@@ -1,0 +1,264 @@
+import { useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Card } from '@/components/ui/card';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { UserProfile } from '@/types/userProfile';
+import { Edit2, Save, X, Upload, User } from 'lucide-react';
+import { CountryPhoneSelector } from '@/components/onboarding/CountryPhoneSelector';
+import { RichTextEditor } from '@/components/RichTextEditor';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { ChevronDown } from 'lucide-react';
+import { toast } from 'sonner';
+
+interface Props {
+  profile: UserProfile;
+  updateProfile: (updates: Partial<UserProfile>) => void;
+}
+
+export function ProfilePersonalInfo({ profile, updateProfile }: Props) {
+  const [isEditing, setIsEditing] = useState(false);
+  const [localData, setLocalData] = useState(profile);
+  const [socialMediaOpen, setSocialMediaOpen] = useState(false);
+
+  const handleSave = () => {
+    updateProfile(localData);
+    setIsEditing(false);
+    toast.success('Información personal actualizada');
+  };
+
+  const handleCancel = () => {
+    setLocalData(profile);
+    setIsEditing(false);
+  };
+
+  return (
+    <div className="space-y-6 animate-fade-in">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-2xl font-semibold">Información Personal</h2>
+          <p className="text-sm text-muted-foreground mt-1">
+            Datos básicos y redes sociales
+          </p>
+        </div>
+        {!isEditing ? (
+          <Button onClick={() => setIsEditing(true)} variant="outline" className="gap-2">
+            <Edit2 className="h-4 w-4" />
+            Editar
+          </Button>
+        ) : (
+          <div className="flex gap-2">
+            <Button onClick={handleCancel} variant="outline" className="gap-2">
+              <X className="h-4 w-4" />
+              Cancelar
+            </Button>
+            <Button onClick={handleSave} className="gap-2">
+              <Save className="h-4 w-4" />
+              Guardar
+            </Button>
+          </div>
+        )}
+      </div>
+
+      {/* Photo */}
+      <Card className="p-6 border-border/40">
+        <div className="flex items-center gap-6">
+          <div className="relative group">
+            <div className="h-24 w-24 rounded-full bg-muted flex items-center justify-center overflow-hidden border-2 border-border">
+              {localData.photo ? (
+                <img src={localData.photo} alt="Profile" className="h-full w-full object-cover" />
+              ) : (
+                <User className="h-12 w-12 text-muted-foreground" />
+              )}
+            </div>
+            {isEditing && (
+              <button className="absolute inset-0 bg-black/50 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                <Upload className="h-6 w-6 text-white" />
+              </button>
+            )}
+          </div>
+          <div className="flex-1">
+            <h3 className="font-medium text-lg">{localData.preferredName || 'Sin nombre'}</h3>
+            <p className="text-sm text-muted-foreground">
+              {isEditing ? 'Haz clic en la foto para cambiarla' : 'Foto de perfil'}
+            </p>
+          </div>
+        </div>
+      </Card>
+
+      {/* Basic Info */}
+      <Card className="p-6 border-border/40 space-y-4">
+        <h3 className="font-medium text-lg mb-4">Datos Básicos</h3>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="space-y-2">
+            <Label htmlFor="preferredName">Nombre Preferido *</Label>
+            <Input
+              id="preferredName"
+              value={localData.preferredName || ''}
+              onChange={(e) => setLocalData({ ...localData, preferredName: e.target.value })}
+              disabled={!isEditing}
+              placeholder="¿Cómo quieres que te llame?"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="birthDate">Fecha de Nacimiento</Label>
+            <Input
+              id="birthDate"
+              type="date"
+              value={localData.birthDate || ''}
+              onChange={(e) => setLocalData({ ...localData, birthDate: e.target.value })}
+              disabled={!isEditing}
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="gender">Género</Label>
+            <Select
+              value={localData.gender || ''}
+              onValueChange={(value: any) => setLocalData({ ...localData, gender: value })}
+              disabled={!isEditing}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Selecciona tu género" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="male">Masculino</SelectItem>
+                <SelectItem value="female">Femenino</SelectItem>
+                <SelectItem value="other">Otro</SelectItem>
+                <SelectItem value="prefer_not_to_say">Prefiero no decir</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+      </Card>
+
+      {/* WhatsApp */}
+      <Card className="p-6 border-border/40 space-y-4">
+        <h3 className="font-medium text-lg mb-4">WhatsApp *</h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="space-y-2">
+            <Label htmlFor="countryCode">Código de País</Label>
+            <Input
+              id="countryCode"
+              value={localData.countryCode || ''}
+              onChange={(e) => setLocalData({ ...localData, countryCode: e.target.value })}
+              disabled={!isEditing}
+              placeholder="+57"
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="phone">Número de WhatsApp</Label>
+            <Input
+              id="phone"
+              value={localData.phone || ''}
+              onChange={(e) => setLocalData({ ...localData, phone: e.target.value })}
+              disabled={!isEditing}
+              placeholder="3001234567"
+            />
+          </div>
+        </div>
+      </Card>
+
+      {/* Social Media */}
+      <Card className="p-6 border-border/40 space-y-4">
+        <Collapsible open={socialMediaOpen} onOpenChange={setSocialMediaOpen}>
+          <div className="flex items-center justify-between">
+            <div>
+              <h3 className="font-medium text-lg">Redes Sociales</h3>
+              <p className="text-sm text-muted-foreground">Opcionales - se usarán en correos masivos</p>
+            </div>
+            <CollapsibleTrigger asChild>
+              <Button variant="ghost" size="sm" className="gap-2">
+                {socialMediaOpen ? 'Ocultar' : 'Mostrar'}
+                <ChevronDown className={`h-4 w-4 transition-transform ${socialMediaOpen ? 'rotate-180' : ''}`} />
+              </Button>
+            </CollapsibleTrigger>
+          </div>
+
+          <CollapsibleContent className="space-y-4 pt-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="facebook">Facebook</Label>
+                <Input
+                  id="facebook"
+                  value={localData.facebook || ''}
+                  onChange={(e) => setLocalData({ ...localData, facebook: e.target.value })}
+                  disabled={!isEditing}
+                  placeholder="facebook.com/tu-perfil"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="instagram">Instagram</Label>
+                <Input
+                  id="instagram"
+                  value={localData.instagram || ''}
+                  onChange={(e) => setLocalData({ ...localData, instagram: e.target.value })}
+                  disabled={!isEditing}
+                  placeholder="@usuario"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="linkedin">LinkedIn</Label>
+                <Input
+                  id="linkedin"
+                  value={localData.linkedin || ''}
+                  onChange={(e) => setLocalData({ ...localData, linkedin: e.target.value })}
+                  disabled={!isEditing}
+                  placeholder="linkedin.com/in/usuario"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="xTwitter">X (Twitter)</Label>
+                <Input
+                  id="xTwitter"
+                  value={localData.xTwitter || ''}
+                  onChange={(e) => setLocalData({ ...localData, xTwitter: e.target.value })}
+                  disabled={!isEditing}
+                  placeholder="@usuario"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="tiktok">TikTok</Label>
+                <Input
+                  id="tiktok"
+                  value={localData.tiktok || ''}
+                  onChange={(e) => setLocalData({ ...localData, tiktok: e.target.value })}
+                  disabled={!isEditing}
+                  placeholder="@usuario"
+                />
+              </div>
+            </div>
+          </CollapsibleContent>
+        </Collapsible>
+      </Card>
+
+      {/* Email Signature */}
+      <Card className="p-6 border-border/40 space-y-4">
+        <div>
+          <h3 className="font-medium text-lg">Firma de Correo</h3>
+          <p className="text-sm text-muted-foreground">Se usará en tus envíos masivos de correos</p>
+        </div>
+        {isEditing ? (
+          <RichTextEditor
+            value={localData.emailSignature || ''}
+            onChange={(value) => setLocalData({ ...localData, emailSignature: value })}
+            placeholder="Crea tu firma profesional aquí..."
+          />
+        ) : (
+          <div 
+            className="prose prose-sm max-w-none bg-muted/30 rounded-lg p-4 min-h-[100px]"
+            dangerouslySetInnerHTML={{ __html: localData.emailSignature || '<p class="text-muted-foreground">Sin firma configurada</p>' }}
+          />
+        )}
+      </Card>
+    </div>
+  );
+}
