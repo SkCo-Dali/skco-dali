@@ -7,12 +7,20 @@ import { Sparkles } from 'lucide-react';
 interface StepSingleWishProps {
   initialValue: string;
   preferredName: string;
+  isSubmitting?: boolean;
   onComplete: (wish: string) => void;
   onBack: () => void;
 }
 
-export function StepSingleWish({ initialValue, preferredName, onComplete, onBack }: StepSingleWishProps) {
+export function StepSingleWish({ 
+  initialValue, 
+  preferredName, 
+  isSubmitting = false,
+  onComplete, 
+  onBack 
+}: StepSingleWishProps) {
   const [wish, setWish] = useState(initialValue);
+  const maxLength = 240;
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -35,21 +43,25 @@ export function StepSingleWish({ initialValue, preferredName, onComplete, onBack
             id="wish"
             placeholder="Quisiera que me avisen a mi WhatsApp los clientes con riesgo de retiros o de cancelación."
             value={wish}
-            onChange={(e) => setWish(e.target.value.slice(0, 240))}
+            onChange={(e) => {
+              if (e.target.value.length <= maxLength) {
+                setWish(e.target.value);
+              }
+            }}
             rows={4}
-            maxLength={240}
+            disabled={isSubmitting}
           />
           <p className="text-xs text-muted-foreground text-right">
-            {wish.length}/240 caracteres
+            {wish.length}/{maxLength} caracteres
           </p>
         </div>
 
         <div className="flex gap-3">
-          <Button onClick={onBack} variant="outline" className="flex-1">
+          <Button onClick={onBack} variant="outline" className="flex-1" disabled={isSubmitting}>
             Atrás
           </Button>
-          <Button onClick={() => onComplete(wish)} className="flex-1">
-            Finalizar
+          <Button onClick={() => onComplete(wish)} className="flex-1" disabled={isSubmitting}>
+            {isSubmitting ? 'Guardando...' : 'Finalizar'}
           </Button>
         </div>
       </div>

@@ -10,6 +10,7 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import { NotificationProvider } from "@/contexts/NotificationContext";
 import { SimpleConversationProvider } from "@/contexts/SimpleConversationContext";
 import { AssignableUsersProvider } from "@/contexts/AssignableUsersContext";
+import { OnboardingProvider } from "@/components/onboarding/OnboardingProvider";
 import { AppContent } from "@/components/AppContent";
 import "./App.css";
 import { IPublicClientApplication } from "@azure/msal-browser";
@@ -29,11 +30,13 @@ function App({ pca }: AppProps) {
                         <NotificationProvider>
                             <AssignableUsersProvider>
                                 <SimpleConversationProvider>
-                                    <Router>
-                                        <AppContent />
-                                        <Toaster />
-                                        <SonnerToaster />
-                                    </Router>
+                                    <OnboardingProvider>
+                                        <Router>
+                                            <AppContent />
+                                            <Toaster />
+                                            <SonnerToaster />
+                                        </Router>
+                                    </OnboardingProvider>
                                 </SimpleConversationProvider>
                             </AssignableUsersProvider>
                         </NotificationProvider>
