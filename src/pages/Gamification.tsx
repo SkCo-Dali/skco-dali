@@ -9,16 +9,11 @@ import { GamificationCard } from "@/components/GamificationCard";
 import { RankingTable } from "@/components/RankingTable";
 import { GamificationStats } from "@/components/GamificationStats";
 import { AccessDenied } from "@/components/AccessDenied";
-import { PageLoading } from "@/components/PageLoading";
 import { usePageAccess } from "@/hooks/usePageAccess";
 import { toast } from "sonner";
 
 export default function Gamification() {
-  const { hasAccess, isLoading } = usePageAccess("gamification");
-
-  if (isLoading) {
-    return <PageLoading />;
-  }
+  const { hasAccess } = usePageAccess("gamification");
 
   if (!hasAccess) {
     return <AccessDenied />;

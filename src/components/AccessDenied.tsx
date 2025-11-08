@@ -1,23 +1,11 @@
-import { useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Shield } from "lucide-react";
 
 interface AccessDeniedProps {
   message?: string;
-  autoRetry?: boolean; // Retry once by reloading the page (useful for SSO deep-links)
 }
 
-export const AccessDenied = ({ message = "No tienes permisos para acceder a esta página.", autoRetry = false }: AccessDeniedProps) => {
-  useEffect(() => {
-    if (!autoRetry) return;
-    const key = "accessDeniedAutoRetry";
-    if (!sessionStorage.getItem(key)) {
-      sessionStorage.setItem(key, "1");
-      // Force a full reload once to recover from SSO race conditions
-      window.location.reload();
-    }
-  }, [autoRetry]);
-
+export const AccessDenied = ({ message = "No tienes permisos para acceder a esta página." }: AccessDeniedProps) => {
   return (
     <div className="container mx-auto py-5">
       <Card>

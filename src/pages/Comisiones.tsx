@@ -6,15 +6,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { PieChart, FileText, Receipt } from "lucide-react";
 import { CommissionsCategorySlicer, CommissionCategory } from "@/components/CommissionsCategorySlicer";
 import { AccessDenied } from "@/components/AccessDenied";
-import { PageLoading } from "@/components/PageLoading";
 import { usePageAccess } from "@/hooks/usePageAccess";
 
 export default function Comisiones() {
-  const { hasAccess, isLoading } = usePageAccess("comisiones");
-
-  if (isLoading) {
-    return <PageLoading />;
-  }
+  const { hasAccess } = usePageAccess("comisiones");
 
   if (!hasAccess) {
     return <AccessDenied />;

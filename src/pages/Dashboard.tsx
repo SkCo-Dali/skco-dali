@@ -2,16 +2,11 @@ import { DashboardHeader } from "@/components/DashboardHeader";
 import { DashboardOverview } from "@/components/DashboardOverview";
 import { useLeadsApi } from "@/hooks/useLeadsApi";
 import { AccessDenied } from "@/components/AccessDenied";
-import { PageLoading } from "@/components/PageLoading";
 import { usePageAccess } from "@/hooks/usePageAccess";
 
 export default function Dashboard() {
   const { leads, loading } = useLeadsApi();
-  const { hasAccess, isLoading, currentUser } = usePageAccess("dashboard");
-
-  if (isLoading) {
-    return <PageLoading />;
-  }
+  const { hasAccess, currentUser } = usePageAccess("dashboard");
 
   if (!hasAccess) {
     return <AccessDenied />;
