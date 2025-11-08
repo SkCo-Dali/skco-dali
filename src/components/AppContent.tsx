@@ -4,6 +4,7 @@ import { SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
 import { Header } from "@/components/Header";
 import { RoleBasedRedirect } from "@/components/RoleBasedRedirect";
+import { RestrictedRoute } from "@/components/RestrictedRoute";
 import Dashboard from "@/pages/Dashboard";
 import Leads from "@/pages/Leads";
 import Tasks from "@/pages/Tasks";
@@ -101,24 +102,26 @@ export function AppContent() {
               <main className="flex-1 pt-20">
                 <Routes>
                   <Route path="/" element={<RoleBasedRedirect />} />
-                  <Route path="/leads" element={<Leads />} />
-                  <Route path="/tasks" element={<Tasks />} />
-                  <Route path="/reports" element={<Reports />} />
-                  <Route path="/informes" element={<Informes />} />
-                  <Route path="/informes/:reportId" element={<ReportViewer />} />
-                  <Route path="/users" element={<Users />} />
-                  <Route path="/oportunidades" element={<Opportunities />} />
-                  <Route path="/oportunidades/:id" element={<OpportunityDetails />} />
-                  <Route path="/admin/users" element={<Users />} />
-                  <Route path="/admin/reports" element={<PowerBIReportsAdmin />} />
-                  <Route path="/gamification" element={<Gamification />} />
-                  <Route path="/index" element={<Index />} />
-                  <Route path="/comisiones" element={<Comisiones />} />
-                  <Route path="/motor-comisiones" element={<MotorComisionesIndex />} />
-                  <Route path="/motor-comisiones/compensation-plans" element={<CompensationPlans />} />
-                  <Route path="/motor-comisiones/catalogs" element={<Catalogs />} />
-                  <Route path="/voice-insights" element={<VoiceInsights />} />
-                  <Route path="/perfil" element={<UserProfile />} />
+                  <Route element={<RestrictedRoute />}>
+                    <Route path="/leads" element={<Leads />} />
+                    <Route path="/tasks" element={<Tasks />} />
+                    <Route path="/reports" element={<Reports />} />
+                    <Route path="/informes" element={<Informes />} />
+                    <Route path="/informes/:reportId" element={<ReportViewer />} />
+                    <Route path="/users" element={<Users />} />
+                    <Route path="/oportunidades" element={<Opportunities />} />
+                    <Route path="/oportunidades/:id" element={<OpportunityDetails />} />
+                    <Route path="/admin/users" element={<Users />} />
+                    <Route path="/admin/reports" element={<PowerBIReportsAdmin />} />
+                    <Route path="/gamification" element={<Gamification />} />
+                    <Route path="/index" element={<Index />} />
+                    <Route path="/comisiones" element={<Comisiones />} />
+                    <Route path="/motor-comisiones" element={<MotorComisionesIndex />} />
+                    <Route path="/motor-comisiones/compensation-plans" element={<CompensationPlans />} />
+                    <Route path="/motor-comisiones/catalogs" element={<Catalogs />} />
+                    <Route path="/voice-insights" element={<VoiceInsights />} />
+                    <Route path="/perfil" element={<UserProfile />} />
+                  </Route>
                   <Route path="/login" element={<Login onLogin={() => { }} />} />
                   <Route path="*" element={<NotFound />} />
                 </Routes>

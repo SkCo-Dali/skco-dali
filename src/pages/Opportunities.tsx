@@ -20,15 +20,8 @@ import {
   OPPORTUNITY_TYPE_LABELS,
 } from "@/types/opportunities";
 import { opportunitiesService } from "@/services/opportunitiesService";
-import { AccessDenied } from "@/components/AccessDenied";
-import { usePageAccess } from "@/hooks/usePageAccess";
 
 export const Opportunities: React.FC = () => {
-  const { hasAccess } = usePageAccess("opportunities");
-
-  if (!hasAccess) {
-    return <AccessDenied />;
-  }
   const navigate = useNavigate();
   const [opportunities, setOpportunities] = React.useState<IOpportunity[]>([]);
   const [highlightedOpportunities, setHighlightedOpportunities] = React.useState<IOpportunity[]>([]);

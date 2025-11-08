@@ -2,15 +2,10 @@ import { DashboardHeader } from "@/components/DashboardHeader";
 import { DashboardOverview } from "@/components/DashboardOverview";
 import { useLeadsApi } from "@/hooks/useLeadsApi";
 import { useAuth } from "@/contexts/AuthContext";
-import { AccessDenied } from "@/components/AccessDenied";
 import { usePageAccess } from "@/hooks/usePageAccess";
 
 const Index = () => {
-  const { hasAccess, currentUser } = usePageAccess("index");
-
-  if (!hasAccess) {
-    return <AccessDenied />;
-  }
+  const { currentUser } = usePageAccess("index");
   const { leads, loading } = useLeadsApi();
   const { user } = useAuth();
 

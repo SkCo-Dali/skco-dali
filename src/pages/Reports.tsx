@@ -1,12 +1,4 @@
-import { AccessDenied } from "@/components/AccessDenied";
-import { usePageAccess } from "@/hooks/usePageAccess";
-
 export default function Reports() {
-  const { hasAccess } = usePageAccess("reports");
-
-  if (!hasAccess) {
-    return <AccessDenied />;
-  }
   return (
     <div className="min-h-screen p-4">
       <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3 md:gap-4 mb-3 md:mb-4">

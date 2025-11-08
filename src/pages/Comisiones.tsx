@@ -5,15 +5,8 @@ import { CommissionsResumenTab } from "@/components/CommissionsResumenTab";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { PieChart, FileText, Receipt } from "lucide-react";
 import { CommissionsCategorySlicer, CommissionCategory } from "@/components/CommissionsCategorySlicer";
-import { AccessDenied } from "@/components/AccessDenied";
-import { usePageAccess } from "@/hooks/usePageAccess";
 
 export default function Comisiones() {
-  const { hasAccess } = usePageAccess("comisiones");
-
-  if (!hasAccess) {
-    return <AccessDenied />;
-  }
   const [selectedMonth, setSelectedMonth] = React.useState("2024-09");
   const [selectedYear, setSelectedYear] = React.useState("2025");
   const [selectedCategory, setSelectedCategory] = React.useState<CommissionCategory>("pensiones");
