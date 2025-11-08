@@ -12,15 +12,10 @@ import { useAuth } from '@/contexts/AuthContext';
 import { TaskFilters } from '@/types/tasks';
 import { getRolePermissions } from '@/types/crm';
 import { AccessDenied } from '@/components/AccessDenied';
-import { PageLoading } from '@/components/PageLoading';
 import { usePageAccess } from '@/hooks/usePageAccess';
 
 export default function Tasks() {
-  const { hasAccess, isLoading } = usePageAccess("tasks");
-
-  if (isLoading) {
-    return <PageLoading />;
-  }
+  const { hasAccess } = usePageAccess("tasks");
 
   if (!hasAccess) {
     return <AccessDenied />;

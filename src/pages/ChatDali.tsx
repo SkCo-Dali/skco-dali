@@ -13,15 +13,10 @@ import { OpportunityHighlights } from "../components/opportunities/OpportunityHi
 import { OpportunityDetailsModal } from "../components/opportunities/OpportunityDetailsModal";
 import { IOpportunity } from "../types/opportunities";
 import { AccessDenied } from "../components/AccessDenied";
-import { PageLoading } from "../components/PageLoading";
 import { usePageAccess } from "../hooks/usePageAccess";
 
 const IndexContent = forwardRef<any, {}>((props, ref) => {
-  const { hasAccess, isLoading } = usePageAccess("ChatDali");
-
-  if (isLoading) {
-    return <PageLoading />;
-  }
+  const { hasAccess } = usePageAccess("ChatDali");
 
   if (!hasAccess) {
     return <AccessDenied />;

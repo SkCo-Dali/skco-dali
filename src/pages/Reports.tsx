@@ -1,13 +1,8 @@
 import { AccessDenied } from "@/components/AccessDenied";
-import { PageLoading } from "@/components/PageLoading";
 import { usePageAccess } from "@/hooks/usePageAccess";
 
 export default function Reports() {
-  const { hasAccess, isLoading } = usePageAccess("reports");
-
-  if (isLoading) {
-    return <PageLoading />;
-  }
+  const { hasAccess } = usePageAccess("reports");
 
   if (!hasAccess) {
     return <AccessDenied />;
