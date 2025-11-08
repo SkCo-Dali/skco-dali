@@ -2,15 +2,8 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Settings, Database, FileText, Calculator } from "lucide-react";
-import { AccessDenied } from "@/components/AccessDenied";
-import { usePageAccess } from "@/hooks/usePageAccess";
 
 export default function MotorComisionesIndex() {
-  const { hasAccess } = usePageAccess("motor-comisiones");
-
-  if (!hasAccess) {
-    return <AccessDenied />;
-  }
   const navigate = useNavigate();
 
   const modules = [

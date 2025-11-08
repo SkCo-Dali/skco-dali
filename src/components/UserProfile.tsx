@@ -11,9 +11,11 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { User, Settings, LogOut, Briefcase } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
+import { useNavigate } from "react-router-dom";
 
 export function UserProfile() {
   const { user, logout } = useAuth();
+  const navigate = useNavigate();
 
   if (!user) return null;
 
@@ -23,6 +25,10 @@ export function UserProfile() {
 
   const handleViewAccount = () => {
     window.open('https://myaccount.microsoft.com/', '_blank');
+  };
+
+  const handleViewProfile = () => {
+    navigate('/perfil');
   };
 
   return (
@@ -51,9 +57,13 @@ export function UserProfile() {
           </div>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={handleViewAccount}>
+        <DropdownMenuItem onClick={handleViewProfile}>
           <User className="mr-2 h-4 w-4" />
-          <span>Ver cuenta</span>
+          <span>Mi Perfil</span>
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={handleViewAccount}>
+          <Settings className="mr-2 h-4 w-4" />
+          <span>Ver cuenta Microsoft</span>
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem onClick={handleLogout} className="text-[#3f3f3f]">

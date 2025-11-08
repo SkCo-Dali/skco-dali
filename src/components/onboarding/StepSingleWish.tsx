@@ -1,0 +1,58 @@
+import { useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { Textarea } from '@/components/ui/textarea';
+import { Label } from '@/components/ui/label';
+import { Sparkles } from 'lucide-react';
+
+interface StepSingleWishProps {
+  initialValue: string;
+  preferredName: string;
+  onComplete: (wish: string) => void;
+  onBack: () => void;
+}
+
+export function StepSingleWish({ initialValue, preferredName, onComplete, onBack }: StepSingleWishProps) {
+  const [wish, setWish] = useState(initialValue);
+
+  return (
+    <div className="space-y-6 animate-fade-in">
+      <div className="text-center space-y-2">
+        <div className="flex justify-center mb-4">
+          <div className="p-4 rounded-full bg-primary/10">
+            <Sparkles className="h-8 w-8 text-primary" />
+          </div>
+        </div>
+        <h2 className="text-3xl font-bold">Si pudieras pedir un único deseo para Dali, ¿cuál sería?</h2>
+        <p className="text-muted-foreground max-w-md mx-auto">
+          Algo que te ayude a vender mejor o ahorrar tiempo. Solo uno, por favor.
+        </p>
+      </div>
+
+      <div className="space-y-4 max-w-md mx-auto">
+        <div className="space-y-2">
+          <Label htmlFor="wish">Tu deseo (opcional)</Label>
+          <Textarea
+            id="wish"
+            placeholder="Quisiera que me avisen a mi WhatsApp los clientes con riesgo de retiros o de cancelación."
+            value={wish}
+            onChange={(e) => setWish(e.target.value.slice(0, 240))}
+            rows={4}
+            maxLength={240}
+          />
+          <p className="text-xs text-muted-foreground text-right">
+            {wish.length}/240 caracteres
+          </p>
+        </div>
+
+        <div className="flex gap-3">
+          <Button onClick={onBack} variant="outline" className="flex-1">
+            Atrás
+          </Button>
+          <Button onClick={() => onComplete(wish)} className="flex-1">
+            Finalizar
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
+}

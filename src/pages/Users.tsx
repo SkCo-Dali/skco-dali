@@ -6,7 +6,6 @@ import { UserTable } from "@/components/UserTable";
 import { UsersPagination } from "@/components/UsersPagination";
 import { UsersKPICards } from "@/components/UsersKPICards";
 import { AddUserDialog } from "@/components/AddUserDialog";
-import { AccessDenied } from "@/components/AccessDenied";
 import { usePageAccess } from "@/hooks/usePageAccess";
 import { useUsersApi } from "@/hooks/useUsersApi";
 import { getAllUsers, createUser, deleteUser, updateUser, toggleUserStatus } from "@/utils/userApiClient";
@@ -15,7 +14,7 @@ import { Button } from "@/components/ui/button";
 import { ChevronDown, ChevronUp } from "lucide-react";
 
 export default function UsersPage() {
-  const { hasAccess, permissions, currentUser } = usePageAccess("users");
+  const { permissions, currentUser } = usePageAccess("users");
   const { toast } = useToast();
   const [allUsers, setAllUsers] = useState<User[]>([]); // Para los KPIs - siempre todos los usuarios
   const [filteredUsers, setFilteredUsers] = useState<User[]>([]); // Para la tabla cuando hay múltiples roles
@@ -81,11 +80,6 @@ export default function UsersPage() {
       sortBy: "UpdatedAt",
       sortDir: "desc",
     });
-
-  // Verificar permisos de acceso
-  if (!hasAccess || !permissions?.canAccessUserManagement) {
-    return <AccessDenied message="No tienes permisos para acceder a la gestión de usuarios." />;
-  }
 
   // Aplicar filtros cuando cambian (solo para filtro simple o dropdown)
   useEffect(() => {
