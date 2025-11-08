@@ -1,6 +1,7 @@
 import { IPublicClientApplication } from '@azure/msal-browser';
 import { loginRequest } from '@/authConfig';
 import { OutlookSignature } from '@/types/email';
+import { extractIdpAccessToken } from '@/utils/tokenUtils';
 
 export class OutlookSignaturesService {
   private msalInstance: IPublicClientApplication;
@@ -19,17 +20,25 @@ export class OutlookSignaturesService {
         throw new Error('No hay una cuenta activa');
       }
 
-      // Adquirir token con el scope de MailboxSettings
+      // Obtener el token de B2C
       const tokenResponse = await this.msalInstance.acquireTokenSilent({
         ...loginRequest,
-        account,
-        scopes: ['MailboxSettings.Read']
+        account
       });
+
+      // Extraer el idp_access_token (token de Microsoft Graph)
+      const graphToken = extractIdpAccessToken(tokenResponse.accessToken);
+      
+      if (!graphToken) {
+        throw new Error('No se pudo obtener el token de Graph API');
+      }
+
+      console.log('🔐 Token de Graph API obtenido para firmas');
 
       // Consultar las configuraciones del buzón
       const response = await fetch('https://graph.microsoft.com/v1.0/me/mailboxSettings', {
         headers: {
-          'Authorization': `Bearer ${tokenResponse.accessToken}`,
+          'Authorization': `Bearer ${graphToken}`,
           'Content-Type': 'application/json'
         }
       });
@@ -100,16 +109,22 @@ export class OutlookSignaturesService {
 
       const tokenResponse = await this.msalInstance.acquireTokenSilent({
         ...loginRequest,
-        account,
-        scopes: ['https://outlook.office.com/Mail.ReadWrite']
+        account
       });
+
+      // Extraer el idp_access_token (token de Microsoft Graph)
+      const graphToken = extractIdpAccessToken(tokenResponse.accessToken);
+      
+      if (!graphToken) {
+        throw new Error('No se pudo obtener el token de Graph API');
+      }
 
       // Intentar obtener un mensaje de muestra para extraer la firma
       const response = await fetch(
         'https://outlook.office.com/api/v2.0/me/messages?$top=1&$select=Body',
         {
           headers: {
-            'Authorization': `Bearer ${tokenResponse.accessToken}`,
+            'Authorization': `Bearer ${graphToken}`,
             'Content-Type': 'application/json'
           }
         }
