@@ -7,7 +7,7 @@ import { getRolePermissions } from '@/types/crm';
  * @returns Object with hasAccess boolean and permissions object
  */
 export const usePageAccess = (pageName: string) => {
-  const { user: currentUser, loading } = useAuth();
+  const { user: currentUser, loading, isInitialized, isAuthenticated } = useAuth();
   const permissions = currentUser ? getRolePermissions(currentUser.role) : null;
   
   const hasAccess = permissions?.accessiblePages.includes(pageName) ?? false;
@@ -16,6 +16,6 @@ export const usePageAccess = (pageName: string) => {
     hasAccess,
     permissions,
     currentUser,
-    isLoading: loading
+    isLoading: loading || !isInitialized || (isAuthenticated && !currentUser)
   };
 };
