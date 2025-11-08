@@ -120,8 +120,8 @@ export function AppContent() {
                     <Route path="/motor-comisiones/compensation-plans" element={<CompensationPlans />} />
                     <Route path="/motor-comisiones/catalogs" element={<Catalogs />} />
                     <Route path="/voice-insights" element={<VoiceInsights />} />
-                    <Route path="/perfil" element={<UserProfile />} />
                   </Route>
+                  <Route path="/perfil" element={<UserProfile />} />
                   <Route path="/login" element={<Login onLogin={() => { }} />} />
                   <Route path="*" element={<NotFound />} />
                 </Routes>
