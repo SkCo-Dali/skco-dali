@@ -130,9 +130,12 @@ El `OnboardingProvider`:
 ## Configuración
 
 ### Variables de entorno
-```env
-VITE_API_BASE_URL=https://tu-backend.com
+La API de onboarding usa la misma base URL que el resto de las APIs del CRM, configurada en `src/config/environment.ts`:
+```typescript
+CRM_API_BASE_URL: import.meta.env.VITE_CRM_API_BASE_URL || 'https://skcodalilmdev.azurewebsites.net'
 ```
+
+No se requiere configuración adicional.
 
 ### Integración en App.tsx
 ```tsx

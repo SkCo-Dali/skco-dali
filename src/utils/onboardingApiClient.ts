@@ -4,8 +4,9 @@ import {
   OnboardingWelcomePayload, 
   OnboardingWelcomeResponse 
 } from '@/types/onboardingApi';
+import { ENV } from '@/config/environment';
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
+const API_BASE_URL = ENV.CRM_API_BASE_URL;
 const APP_VERSION = '1.0.0';
 
 class OnboardingApiClient {
