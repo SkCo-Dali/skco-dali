@@ -60,7 +60,7 @@ export default function Informes() {
   }
 
   if (!hasAccess) {
-    return <AccessDenied autoRetry />;
+    return <AccessDenied />;
   }
 
   const { user, getAccessToken } = useAuth();
