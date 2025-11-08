@@ -20,19 +20,6 @@ type AppProps = {
 };
 
 function App({ pca }: AppProps) {
-    useEffect(() => {
-        const hasRefreshed = sessionStorage.getItem('auto-refresh-done');
-        
-        if (!hasRefreshed) {
-            const timer = setTimeout(() => {
-                sessionStorage.setItem('auto-refresh-done', 'true');
-                window.location.reload();
-            }, 5000);
-            
-            return () => clearTimeout(timer);
-        }
-    }, []);
-
     return (
         <QueryClientProvider client={queryClient}>
             <ThemeProvider>
