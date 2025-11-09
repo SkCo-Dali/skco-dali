@@ -149,8 +149,17 @@ export function WelcomeOnboardingModal({ isOpen, userRole, onComplete }: Welcome
 
   // Completion screen
   if (isCompleted) {
+    const handleClose = () => {
+      // Navegar inmediatamente al cerrar
+      if (data.primaryAction?.route) {
+        navigate(data.primaryAction.route);
+      } else {
+        navigate('/dashboard');
+      }
+    };
+
     return (
-      <Dialog open={isOpen} modal>
+      <Dialog open={isOpen} onOpenChange={handleClose}>
         <DialogContent 
           className="max-w-md"
           aria-describedby="completion-message"
