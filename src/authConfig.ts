@@ -38,5 +38,4 @@ export const msalConfig: Configuration = {
 // Scopes optimizados para Microsoft Graph API
 export const loginRequest: RedirectRequest = {
   scopes: ENV.REQUIRED_SCOPES,
-
 };

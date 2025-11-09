@@ -15,6 +15,7 @@ export interface OnboardingData {
   primaryAction?: {
     label: string;
     route: string;
+    code?: string;
   };
   singleWish?: string;
 }

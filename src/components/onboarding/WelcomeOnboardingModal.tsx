@@ -3,41 +3,69 @@ import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Progress } from '@/components/ui/progress';
 import { StepPreferredName } from './StepPreferredName';
 import { StepContactChannels } from './StepContactChannels';
-import { StepEmailSignature } from './StepEmailSignature';
 import { StepPrimaryAction } from './StepPrimaryAction';
 import { StepSingleWish } from './StepSingleWish';
 import { OnboardingData } from '@/types/onboarding';
 import { useNavigate } from 'react-router-dom';
-import { Sparkles } from 'lucide-react';
+import { Sparkles, Loader2 } from 'lucide-react';
+import { useInAppMessaging } from '@/hooks/useInAppMessaging';
+import { toast } from 'sonner';
 
 interface WelcomeOnboardingModalProps {
   isOpen: boolean;
   userRole: string;
-  onComplete: (data: OnboardingData) => void;
+  onComplete: (data: OnboardingData) => Promise<boolean>;
+  onClose?: () => void;
 }
 
-export function WelcomeOnboardingModal({ isOpen, userRole, onComplete }: WelcomeOnboardingModalProps) {
+export function WelcomeOnboardingModal({ isOpen, userRole, onComplete, onClose }: WelcomeOnboardingModalProps) {
   const navigate = useNavigate();
+  const { registerEvent } = useInAppMessaging();
   const [currentStep, setCurrentStep] = useState(1);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isCompleted, setIsCompleted] = useState(false);
   const [data, setData] = useState<Partial<OnboardingData>>({
     whatsapp: {
-      countryCode: 'CO',
+      countryCode: '+57',
       phone: '',
     },
   });
 
-  const totalSteps = 5;
+  const totalSteps = 4;
   const progress = (currentStep / totalSteps) * 100;
 
-  const handleComplete = (finalData: OnboardingData) => {
-    onComplete(finalData);
+  const handleComplete = async (finalData: OnboardingData) => {
+    setIsSubmitting(true);
     
-    // Show completion message briefly
-    setTimeout(() => {
-      if (finalData.primaryAction?.route) {
-        navigate(finalData.primaryAction.route);
+    try {
+      const success = await onComplete(finalData);
+      
+      if (success) {
+        // Registrar evento click
+        await registerEvent({
+          message_id: 'cmp_onboarding_welcome_v1',
+          event: 'click',
+          context: 'login',
+          route: finalData.primaryAction?.route || '/dashboard',
+        });
+
+        setIsCompleted(true);
+        
+        // Mostrar mensaje de éxito y redirigir
+        setTimeout(() => {
+          if (finalData.primaryAction?.route) {
+            navigate(finalData.primaryAction.route);
+          }
+        }, 1500);
+      } else {
+        toast.error('Error al guardar tus datos. Por favor intenta de nuevo.');
+        setIsSubmitting(false);
       }
-    }, 1500);
+    } catch (error: any) {
+      console.error('Error completing onboarding:', error);
+      toast.error(error.message || 'Error al guardar. Por favor intenta de nuevo.');
+      setIsSubmitting(false);
+    }
   };
 
   const renderStep = () => {
@@ -70,10 +98,11 @@ export function WelcomeOnboardingModal({ isOpen, userRole, onComplete }: Welcome
 
       case 3:
         return (
-          <StepEmailSignature
-            initialValue={data.emailSignature || ''}
-            onNext={(signature) => {
-              setData({ ...data, emailSignature: signature });
+          <StepPrimaryAction
+            userRole={userRole}
+            initialValue={data.primaryAction}
+            onNext={(action) => {
+              setData({ ...data, primaryAction: action });
               setCurrentStep(4);
             }}
             onBack={() => setCurrentStep(2)}
@@ -82,22 +111,10 @@ export function WelcomeOnboardingModal({ isOpen, userRole, onComplete }: Welcome
 
       case 4:
         return (
-          <StepPrimaryAction
-            userRole={userRole}
-            initialValue={data.primaryAction}
-            onNext={(action) => {
-              setData({ ...data, primaryAction: action });
-              setCurrentStep(5);
-            }}
-            onBack={() => setCurrentStep(3)}
-          />
-        );
-
-      case 5:
-        return (
           <StepSingleWish
             initialValue={data.singleWish || ''}
             preferredName={data.preferredName || ''}
+            isSubmitting={isSubmitting}
             onComplete={(wish) => {
               const finalData: OnboardingData = {
                 preferredName: data.preferredName!,
@@ -109,7 +126,7 @@ export function WelcomeOnboardingModal({ isOpen, userRole, onComplete }: Welcome
               };
               handleComplete(finalData);
             }}
-            onBack={() => setCurrentStep(4)}
+            onBack={() => setCurrentStep(3)}
           />
         );
 
@@ -119,9 +136,18 @@ export function WelcomeOnboardingModal({ isOpen, userRole, onComplete }: Welcome
   };
 
   // Completion screen
-  if (currentStep > totalSteps) {
+  if (isCompleted) {
+    const handleClose = () => {
+      // Navegar inmediatamente al cerrar
+      if (data.primaryAction?.route) {
+        navigate(data.primaryAction.route);
+      } else {
+        navigate('/dashboard');
+      }
+    };
+
     return (
-      <Dialog open={isOpen} modal>
+      <Dialog open={isOpen} onOpenChange={(open) => { if (!open) { onClose?.(); handleClose(); } }}>
         <DialogContent 
           className="max-w-md"
           aria-describedby="completion-message"

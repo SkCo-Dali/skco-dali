@@ -5,6 +5,7 @@ import { Label } from '@/components/ui/label';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { CountryPhoneSelector } from './CountryPhoneSelector';
 import { Facebook, Instagram, Linkedin, Twitter, Music } from 'lucide-react';
+import { countries } from '@/data/countries';
 
 interface ContactData {
   whatsapp: {
@@ -39,7 +40,7 @@ export function StepContactChannels({ initialValue, onNext, onBack }: StepContac
     }
 
     // Validación específica para Colombia
-    if (countryCode === 'CO') {
+    if (countryCode === '+57') {
       if (phone.length !== 10) {
         setPhoneError('Debe tener 10 dígitos');
         return false;
@@ -64,6 +65,10 @@ export function StepContactChannels({ initialValue, onNext, onBack }: StepContac
     onNext(data);
   };
 
+  // Encontrar el país basado en el countryCode (dialCode)
+  const selectedCountry = countries.find(c => c.dialCode === data.whatsapp.countryCode);
+  const selectedCountryCode = selectedCountry?.code || 'CO';
+
   return (
     <div className="space-y-6 animate-fade-in">
       <div className="text-center space-y-2">
@@ -77,12 +82,12 @@ export function StepContactChannels({ initialValue, onNext, onBack }: StepContac
         <div className="space-y-2">
           <Label>WhatsApp (requerido)</Label>
           <CountryPhoneSelector
-            selectedCountryCode={data.whatsapp.countryCode}
+            selectedCountryCode={selectedCountryCode}
             phone={data.whatsapp.phone}
             onCountryChange={(code, dialCode) => {
               setData({
                 ...data,
-                whatsapp: { ...data.whatsapp, countryCode: code },
+                whatsapp: { ...data.whatsapp, countryCode: dialCode },
               });
               setPhoneError('');
             }}

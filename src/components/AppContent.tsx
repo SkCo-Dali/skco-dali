@@ -31,8 +31,6 @@ import { AuthenticatedTemplate, UnauthenticatedTemplate } from "@azure/msal-reac
 import ChatSami, { ChatSamiHandle } from "@/components/ChatSami";
 import { getRolePermissions } from "@/types/crm";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { useOnboarding } from "@/hooks/useOnboarding";
-import { WelcomeOnboardingModal } from "./onboarding/WelcomeOnboardingModal";
 
 export function AppContent() {
   const { user, loading } = useAuth();
@@ -41,7 +39,6 @@ export function AppContent() {
   const location = useLocation();
   const navigate = useNavigate();
   const isMobile = useIsMobile();
-  const { isCompleted, completeOnboarding } = useOnboarding();
 
   // Check if user has ChatSami permissions
   const hasChatSamiPermissions = user ? getRolePermissions(user.role)?.chatSami : false;
@@ -120,8 +117,8 @@ export function AppContent() {
                     <Route path="/motor-comisiones/compensation-plans" element={<CompensationPlans />} />
                     <Route path="/motor-comisiones/catalogs" element={<Catalogs />} />
                     <Route path="/voice-insights" element={<VoiceInsights />} />
-                    <Route path="/perfil" element={<UserProfile />} />
                   </Route>
+                  <Route path="/perfil" element={<UserProfile />} />
                   <Route path="/login" element={<Login onLogin={() => { }} />} />
                   <Route path="*" element={<NotFound />} />
                 </Routes>
@@ -134,15 +131,6 @@ export function AppContent() {
             )}
           </div>
         </SidebarProvider>
-
-        {/* Welcome Onboarding Modal */}
-        {user && !isCompleted && (
-          <WelcomeOnboardingModal
-            isOpen={!isCompleted}
-            userRole={user.role}
-            onComplete={completeOnboarding}
-          />
-        )}
       </AuthenticatedTemplate>
     </div>
   );
