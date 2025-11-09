@@ -30,13 +30,13 @@ function App({ pca }: AppProps) {
                         <NotificationProvider>
                             <AssignableUsersProvider>
                                 <SimpleConversationProvider>
-                                    <OnboardingProvider>
-                                        <Router>
+                                    <Router>
+                                        <OnboardingProvider>
                                             <AppContent />
                                             <Toaster />
                                             <SonnerToaster />
-                                        </Router>
-                                    </OnboardingProvider>
+                                        </OnboardingProvider>
+                                    </Router>
                                 </SimpleConversationProvider>
                             </AssignableUsersProvider>
                         </NotificationProvider>
