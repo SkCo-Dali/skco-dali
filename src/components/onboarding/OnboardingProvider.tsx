@@ -19,7 +19,9 @@ export function OnboardingProvider({ children }: OnboardingProviderProps) {
 
   useEffect(() => {
     const checkOnboarding = async () => {
-      if (!isAuthenticated || !user || !accessToken || isCompleted) {
+      // Solo verificar si está autenticado, NO revisar isCompleted aquí
+      // El API decidirá si debe mostrar el onboarding
+      if (!isAuthenticated || !user || !accessToken) {
         setIsChecking(false);
         return;
       }

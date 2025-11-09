@@ -39,10 +39,8 @@ export function useInAppMessaging() {
   const checkOnboardingRequired = useCallback(async (route: string = '/'): Promise<boolean> => {
     if (!accessToken) return false;
 
-    // Verificar localStorage primero
-    const completed = localStorage.getItem('dali_onboarding_completed');
-    if (completed === 'true') return false;
-
+    // NO verificar localStorage - confiar en la respuesta del API
+    // El API sabe si el usuario ya completó el onboarding en el backend
     try {
       const messages = await fetchMessages({ 
         context: 'login', 
