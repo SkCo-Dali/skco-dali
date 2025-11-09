@@ -3,7 +3,6 @@ import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Progress } from '@/components/ui/progress';
 import { StepPreferredName } from './StepPreferredName';
 import { StepContactChannels } from './StepContactChannels';
-import { StepEmailSignature } from './StepEmailSignature';
 import { StepPrimaryAction } from './StepPrimaryAction';
 import { StepSingleWish } from './StepSingleWish';
 import { OnboardingData } from '@/types/onboarding';
@@ -32,7 +31,7 @@ export function WelcomeOnboardingModal({ isOpen, userRole, onComplete, onClose }
     },
   });
 
-  const totalSteps = 5;
+  const totalSteps = 4;
   const progress = (currentStep / totalSteps) * 100;
 
   const handleComplete = async (finalData: OnboardingData) => {
@@ -99,10 +98,11 @@ export function WelcomeOnboardingModal({ isOpen, userRole, onComplete, onClose }
 
       case 3:
         return (
-          <StepEmailSignature
-            initialValue={data.emailSignature || ''}
-            onNext={(signature) => {
-              setData({ ...data, emailSignature: signature });
+          <StepPrimaryAction
+            userRole={userRole}
+            initialValue={data.primaryAction}
+            onNext={(action) => {
+              setData({ ...data, primaryAction: action });
               setCurrentStep(4);
             }}
             onBack={() => setCurrentStep(2)}
@@ -110,19 +110,6 @@ export function WelcomeOnboardingModal({ isOpen, userRole, onComplete, onClose }
         );
 
       case 4:
-        return (
-          <StepPrimaryAction
-            userRole={userRole}
-            initialValue={data.primaryAction}
-            onNext={(action) => {
-              setData({ ...data, primaryAction: action });
-              setCurrentStep(5);
-            }}
-            onBack={() => setCurrentStep(3)}
-          />
-        );
-
-      case 5:
         return (
           <StepSingleWish
             initialValue={data.singleWish || ''}
@@ -139,7 +126,7 @@ export function WelcomeOnboardingModal({ isOpen, userRole, onComplete, onClose }
               };
               handleComplete(finalData);
             }}
-            onBack={() => setCurrentStep(4)}
+            onBack={() => setCurrentStep(3)}
           />
         );
 
