@@ -16,9 +16,10 @@ interface WelcomeOnboardingModalProps {
   isOpen: boolean;
   userRole: string;
   onComplete: (data: OnboardingData) => Promise<boolean>;
+  onClose?: () => void;
 }
 
-export function WelcomeOnboardingModal({ isOpen, userRole, onComplete }: WelcomeOnboardingModalProps) {
+export function WelcomeOnboardingModal({ isOpen, userRole, onComplete, onClose }: WelcomeOnboardingModalProps) {
   const navigate = useNavigate();
   const { registerEvent } = useInAppMessaging();
   const [currentStep, setCurrentStep] = useState(1);
@@ -159,7 +160,7 @@ export function WelcomeOnboardingModal({ isOpen, userRole, onComplete }: Welcome
     };
 
     return (
-      <Dialog open={isOpen} onOpenChange={handleClose}>
+      <Dialog open={isOpen} onOpenChange={(open) => { if (!open) { onClose?.(); handleClose(); } }}>
         <DialogContent 
           className="max-w-md"
           aria-describedby="completion-message"

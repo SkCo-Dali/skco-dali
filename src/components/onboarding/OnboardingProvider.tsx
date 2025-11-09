@@ -62,6 +62,7 @@ export function OnboardingProvider({ children }: OnboardingProviderProps) {
           isOpen={showOnboarding}
           userRole={user?.role || 'agent'}
           onComplete={completeOnboarding}
+          onClose={() => setShowOnboarding(false)}
         />
       )}
     </>
