@@ -24,13 +24,13 @@ export default function MotorComisionesIndex() {
       bgColor: "bg-green-50",
     },
     {
-      title: "Reglas",
-      description: "Configura fórmulas y condiciones para cálculos de comisiones",
+      title: "Info Gerencial de Comisiones",
+      description: "Dashboard con métricas y análisis de comisiones para supervisores",
       icon: Calculator,
-      path: "/motor-comisiones/rules",
+      path: "/motor-comisiones/info-gerencial",
       color: "text-purple-600",
       bgColor: "bg-purple-50",
-      disabled: true,
+      disabled: false,
     },
     {
       title: "Contabilidad",
