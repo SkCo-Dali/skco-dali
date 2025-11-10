@@ -85,7 +85,7 @@ Guarda los datos del wizard de bienvenida.
     "route": "/leads"
   },
   "emailSignatureHtml": "<p>Juan Pérez<br/>Asesor Comercial<br/>+57 310 000 0000</p>",
-  "singleWish": "Quisiera que me avisen a mi WhatsApp los clientes con riesgo..."
+  "singleWish": "Quisiera que..."
 }
 ```
 

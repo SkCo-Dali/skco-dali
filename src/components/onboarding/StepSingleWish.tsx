@@ -1,8 +1,8 @@
-import { useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
-import { Label } from '@/components/ui/label';
-import { Sparkles } from 'lucide-react';
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import { Sparkles } from "lucide-react";
 
 interface StepSingleWishProps {
   initialValue: string;
@@ -12,12 +12,12 @@ interface StepSingleWishProps {
   onBack: () => void;
 }
 
-export function StepSingleWish({ 
-  initialValue, 
-  preferredName, 
+export function StepSingleWish({
+  initialValue,
+  preferredName,
   isSubmitting = false,
-  onComplete, 
-  onBack 
+  onComplete,
+  onBack,
 }: StepSingleWishProps) {
   const [wish, setWish] = useState(initialValue);
   const maxLength = 240;
@@ -41,7 +41,7 @@ export function StepSingleWish({
           <Label htmlFor="wish">Tu deseo (opcional)</Label>
           <Textarea
             id="wish"
-            placeholder="Quisiera que me avisen a mi WhatsApp los clientes con riesgo de retiros o de cancelación."
+            placeholder="Quisiera que ..."
             value={wish}
             onChange={(e) => {
               if (e.target.value.length <= maxLength) {
@@ -61,7 +61,7 @@ export function StepSingleWish({
             Atrás
           </Button>
           <Button onClick={() => onComplete(wish)} className="flex-1" disabled={isSubmitting}>
-            {isSubmitting ? 'Guardando...' : 'Finalizar'}
+            {isSubmitting ? "Guardando..." : "Finalizar"}
           </Button>
         </div>
       </div>
