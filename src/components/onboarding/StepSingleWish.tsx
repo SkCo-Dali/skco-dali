@@ -41,7 +41,7 @@ export function StepSingleWish({
           <Label htmlFor="wish">Tu deseo (opcional)</Label>
           <Textarea
             id="wish"
-            placeholder="Quisiera que me avisen a mi WhatsApp los clientes con riesgo de retiros o de cancelación."
+            placeholder="Quisiera que ..."
             value={wish}
             onChange={(e) => {
               if (e.target.value.length <= maxLength) {
