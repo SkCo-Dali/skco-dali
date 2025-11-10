@@ -4,6 +4,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { CommissionsResumenTab } from "@/components/CommissionsResumenTab";
 import { InfoGerencialTable } from "@/components/InfoGerencialTable";
 import { mockCommissions } from "@/data/commissions";
+import { PieChart, FileText } from "lucide-react";
 
 export default function InfoGerencialComisiones() {
   const [selectedCategory, setSelectedCategory] = useState<CommissionCategory>("pensiones");
@@ -28,11 +29,19 @@ export default function InfoGerencialComisiones() {
 
         {/* Tabs */}
         <Tabs defaultValue="resumen" className="w-full">
-          <TabsList className="grid w-full max-w-[700px] mx-auto grid-cols-2 mb-6">
-            <TabsTrigger value="resumen" className="text-sm md:text-base">
+          <TabsList className="grid w-full grid-cols-2 h-[37px] bg-transparent gap-0 rounded-none p-0">
+            <TabsTrigger
+              value="resumen"
+              className="data-[state=active]:bg-[#00c73d] data-[state=active]:shadow-sm data-[state=active]:text-white rounded-t-xl flex items-center gap-2 h-full mx-0"
+            >
+              <PieChart className="h-4 w-4" />
               Resumen
             </TabsTrigger>
-            <TabsTrigger value="detalle" className="text-sm md:text-base">
+            <TabsTrigger
+              value="detalle"
+              className="data-[state=active]:bg-[#00c73d] data-[state=active]:shadow-sm data-[state=active]:text-white rounded-t-xl flex items-center gap-2 h-full mx-2"
+            >
+              <FileText className="h-4 w-4" />
               Detalle de comisiones
             </TabsTrigger>
           </TabsList>
