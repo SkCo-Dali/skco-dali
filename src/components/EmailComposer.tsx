@@ -1,23 +1,18 @@
-
-import { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Label } from '@/components/ui/label';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Plus, FileSignature, Loader2 } from 'lucide-react';
-import { EmailTemplate, DynamicField, OutlookSignature } from '@/types/email';
-import { RichTextEditor } from '@/components/RichTextEditor';
-import { EmailWritingAssistant } from '@/components/EmailWritingAssistant';
-import { OutlookSignaturesService } from '@/services/outlookSignaturesService';
-import { useMsal } from '@azure/msal-react';
-import { useToast } from '@/hooks/use-toast';
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from '@/components/ui/popover';
+import { useState, useEffect } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Plus, FileSignature, Loader2 } from "lucide-react";
+import { EmailTemplate, DynamicField, OutlookSignature } from "@/types/email";
+import { RichTextEditor } from "@/components/RichTextEditor";
+import { EmailWritingAssistant } from "@/components/EmailWritingAssistant";
+import { OutlookSignaturesService } from "@/services/outlookSignaturesService";
+import { useMsal } from "@azure/msal-react";
+import { useToast } from "@/hooks/use-toast";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 
 interface EmailComposerProps {
   template: EmailTemplate;
@@ -28,13 +23,13 @@ interface EmailComposerProps {
   onAlternateEmailChange?: (email: string) => void;
 }
 
-export function EmailComposer({ 
-  template, 
-  onTemplateChange, 
-  dynamicFields, 
+export function EmailComposer({
+  template,
+  onTemplateChange,
+  dynamicFields,
   isIndividual = false,
-  alternateEmail = '',
-  onAlternateEmailChange
+  alternateEmail = "",
+  onAlternateEmailChange,
 }: EmailComposerProps) {
   const [showFieldsList, setShowFieldsList] = useState(false);
   const [signatures, setSignatures] = useState<OutlookSignature[]>([]);
@@ -43,59 +38,61 @@ export function EmailComposer({
   const { instance } = useMsal();
   const { toast } = useToast();
 
-  const insertDynamicField = (field: DynamicField, targetField: 'subject' | 'htmlContent' | 'plainContent') => {
+  const insertDynamicField = (field: DynamicField, targetField: "subject" | "htmlContent" | "plainContent") => {
     const fieldTag = `{${field.key}}`;
-    
-    if (targetField === 'subject') {
+
+    if (targetField === "subject") {
       onTemplateChange({
         ...template,
-        subject: template.subject + fieldTag
+        subject: template.subject + fieldTag,
       });
-    } else if (targetField === 'htmlContent') {
+    } else if (targetField === "htmlContent") {
       onTemplateChange({
         ...template,
-        htmlContent: template.htmlContent + fieldTag
+        htmlContent: template.htmlContent + fieldTag,
       });
     } else {
       onTemplateChange({
         ...template,
-        plainContent: template.plainContent + fieldTag
+        plainContent: template.plainContent + fieldTag,
       });
     }
   };
 
   const convertHtmlToPlain = (html: string): string => {
-    return html
-      // Preservar dobles saltos de línea primero
-      .replace(/<br\s*\/?>\s*<br\s*\/?>/gi, '\n\n')
-      // Luego convertir saltos simples
-      .replace(/<br\s*\/?>/gi, '\n')
-      // Convertir párrafos con doble salto
-      .replace(/<\/p>\s*<p[^>]*>/gi, '\n\n')
-      .replace(/<p[^>]*>/gi, '')
-      .replace(/<\/p>/gi, '\n')
-      // Convertir divs
-      .replace(/<\/div>\s*<div[^>]*>/gi, '\n')
-      .replace(/<div[^>]*>/gi, '')
-      .replace(/<\/div>/gi, '\n')
-      // Remover todas las demás etiquetas HTML
-      .replace(/<[^>]*>/g, '')
-      // Convertir entidades HTML
-      .replace(/&nbsp;/g, ' ')
-      .replace(/&amp;/g, '&')
-      .replace(/&lt;/g, '<')
-      .replace(/&gt;/g, '>')
-      .replace(/&quot;/g, '"')
-      // Preservar múltiples saltos de línea y limpiar exceso
-      .replace(/\n{3,}/g, '\n\n')
-      .trim();
+    return (
+      html
+        // Preservar dobles saltos de línea primero
+        .replace(/<br\s*\/?>\s*<br\s*\/?>/gi, "\n\n")
+        // Luego convertir saltos simples
+        .replace(/<br\s*\/?>/gi, "\n")
+        // Convertir párrafos con doble salto
+        .replace(/<\/p>\s*<p[^>]*>/gi, "\n\n")
+        .replace(/<p[^>]*>/gi, "")
+        .replace(/<\/p>/gi, "\n")
+        // Convertir divs
+        .replace(/<\/div>\s*<div[^>]*>/gi, "\n")
+        .replace(/<div[^>]*>/gi, "")
+        .replace(/<\/div>/gi, "\n")
+        // Remover todas las demás etiquetas HTML
+        .replace(/<[^>]*>/g, "")
+        // Convertir entidades HTML
+        .replace(/&nbsp;/g, " ")
+        .replace(/&amp;/g, "&")
+        .replace(/&lt;/g, "<")
+        .replace(/&gt;/g, ">")
+        .replace(/&quot;/g, '"')
+        // Preservar múltiples saltos de línea y limpiar exceso
+        .replace(/\n{3,}/g, "\n\n")
+        .trim()
+    );
   };
 
   const handleHtmlContentChange = (value: string) => {
     const newTemplate = {
       ...template,
       htmlContent: value,
-      plainContent: convertHtmlToPlain(value)
+      plainContent: convertHtmlToPlain(value),
     };
     onTemplateChange(newTemplate);
   };
@@ -103,34 +100,35 @@ export function EmailComposer({
   const handleInsertTextFromAssistant = (text: string) => {
     onTemplateChange({
       ...template,
-      htmlContent: template.htmlContent + text
+      htmlContent: template.htmlContent + text,
     });
   };
 
   const loadSignatures = async () => {
     if (signaturesLoaded) return;
-    
+
     setLoadingSignatures(true);
     try {
       const signatureService = new OutlookSignaturesService(instance);
       const userSignatures = await signatureService.getUserSignatures();
-      
+
       setSignatures(userSignatures);
       setSignaturesLoaded(true);
-      
+
       if (userSignatures.length === 0) {
         toast({
           title: "Sin firmas disponibles",
-          description: "No se encontraron firmas guardadas en tu cuenta de Outlook. Esta es una limitación conocida de Microsoft Graph API.",
-          variant: "default"
+          description:
+            "No se encontraron firmas guardadas en tu cuenta de Outlook. Esta es una limitación conocida de Microsoft Graph API.",
+          variant: "default",
         });
       }
     } catch (error) {
-      console.error('Error al cargar firmas:', error);
+      console.error("Error al cargar firmas:", error);
       toast({
         title: "Error al cargar firmas",
         description: "No se pudieron obtener las firmas de Outlook. Verifica los permisos de la aplicación.",
-        variant: "destructive"
+        variant: "destructive",
       });
     } finally {
       setLoadingSignatures(false);
@@ -138,9 +136,9 @@ export function EmailComposer({
   };
 
   const insertSignature = (signature: OutlookSignature) => {
-    const newContent = template.htmlContent + '\n\n' + signature.content;
+    const newContent = template.htmlContent + "\n\n" + signature.content;
     handleHtmlContentChange(newContent);
-    
+
     toast({
       title: "Firma insertada",
       description: `La firma "${signature.name}" se ha agregado al correo.`,
@@ -156,12 +154,7 @@ export function EmailComposer({
             <div className="flex gap-2">
               <Popover>
                 <PopoverTrigger asChild>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={loadSignatures}
-                    disabled={loadingSignatures}
-                  >
+                  <Button variant="outline" size="sm" onClick={loadSignatures} disabled={loadingSignatures}>
                     {loadingSignatures ? (
                       <Loader2 className="h-4 w-4 mr-2 animate-spin" />
                     ) : (
@@ -208,12 +201,8 @@ export function EmailComposer({
                   </div>
                 </PopoverContent>
               </Popover>
-              
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setShowFieldsList(!showFieldsList)}
-              >
+
+              <Button variant="outline" size="sm" onClick={() => setShowFieldsList(!showFieldsList)}>
                 <Plus className="h-4 w-4 mr-2" />
                 Campos Dinámicos
               </Button>
@@ -221,13 +210,12 @@ export function EmailComposer({
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          
-          {/* Asistente de Redacción con Dali */}
+          {/* Asistente de Redacción con Dali 
           <EmailWritingAssistant
             currentSubject={template.subject}
             currentContent={template.htmlContent}
             onInsertText={handleInsertTextFromAssistant}
-          />
+          />*/}
           {showFieldsList && (
             <Card className="p-4 bg-muted/50">
               <h4 className="font-medium mb-3">Campos disponibles:</h4>
@@ -238,7 +226,7 @@ export function EmailComposer({
                     className="cursor-pointer bg-[#EBF4FF] text-[#3f3f3f]"
                     onClick={() => {
                       // Por defecto insertar en el contenido HTML
-                      insertDynamicField(field, 'htmlContent');
+                      insertDynamicField(field, "htmlContent");
                     }}
                     title={`Ejemplo: ${field.example}`}
                   >
