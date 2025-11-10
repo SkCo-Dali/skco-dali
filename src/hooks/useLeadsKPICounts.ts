@@ -25,6 +25,7 @@ const ALL_STAGES = [
   'Localizado: Prospecto de venta FP',
   'Localizado: Prospecto de venta AD',
   'Localizado: Prospecto de venta - Pendiente',
+  'Localizado: Volver a llamar',
   'Localizado: No interesado',
   'No localizado: No contesta',
   'No localizado: Número equivocado',
