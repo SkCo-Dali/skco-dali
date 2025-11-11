@@ -27,7 +27,7 @@ const UserProfile = () => {
         </div>
 
         {/* Profile Content */}
-        <Card className="border-border/40 shadow-lg max-w-7xl place-content-center">
+        <Card className="border-border/40 shadow-lg max-w-7xl place-content-between">
           <CardContent className="p-4">
             <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
               <TabsList className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-2 h-auto bg-muted/50 p-2">
