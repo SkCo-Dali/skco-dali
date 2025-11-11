@@ -7,6 +7,7 @@ import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
 import { onboardingApiClient } from '@/utils/onboardingApiClient';
 import { AvailableAction } from '@/types/onboardingApi';
+import Lottie from 'lottie-react';
 
 interface StepPrimaryActionProps {
   userRole: string;
@@ -26,6 +27,13 @@ export function StepPrimaryAction({
   const [loading, setLoading] = useState(true);
   const [selected, setSelected] = useState<AvailableAction | null>(null);
   const [error, setError] = useState('');
+  const [animationData, setAnimationData] = useState(null);
+
+  useEffect(() => {
+    fetch('/animations/choose_plan.json')
+      .then(res => res.json())
+      .then(data => setAnimationData(data));
+  }, []);
 
   useEffect(() => {
     const fetchActions = async () => {
@@ -90,6 +98,14 @@ export function StepPrimaryAction({
 
   return (
     <div className="space-y-6 animate-fade-in">
+      {animationData && (
+        <div className="flex justify-center">
+          <div className="w-64 h-64">
+            <Lottie animationData={animationData} loop={true} />
+          </div>
+        </div>
+      )}
+      
       <div className="text-center space-y-2">
         <h2 className="text-3xl font-bold">¿Qué quieres hacer primero?</h2>
         <p className="text-muted-foreground">

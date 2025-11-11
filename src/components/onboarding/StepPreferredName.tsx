@@ -1,7 +1,8 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
+import Lottie from 'lottie-react';
 
 interface StepPreferredNameProps {
   initialValue: string;
@@ -11,6 +12,13 @@ interface StepPreferredNameProps {
 export function StepPreferredName({ initialValue, onNext }: StepPreferredNameProps) {
   const [name, setName] = useState(initialValue);
   const [error, setError] = useState('');
+  const [animationData, setAnimationData] = useState(null);
+
+  useEffect(() => {
+    fetch('/animations/welcome.json')
+      .then(res => res.json())
+      .then(data => setAnimationData(data));
+  }, []);
 
   const handleNext = () => {
     const trimmed = name.trim();
@@ -35,6 +43,14 @@ export function StepPreferredName({ initialValue, onNext }: StepPreferredNamePro
 
   return (
     <div className="space-y-6 animate-fade-in">
+      {animationData && (
+        <div className="flex justify-center">
+          <div className="w-64 h-24">
+            <Lottie animationData={animationData} loop={true} />
+          </div>
+        </div>
+      )}
+      
       <div className="text-center space-y-2">
         <h2 className="text-3xl font-bold">Quiero dirigirme a ti como prefieras</h2>
         <p className="text-muted-foreground">
