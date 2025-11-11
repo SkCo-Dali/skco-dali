@@ -17,7 +17,7 @@ const UserProfile = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
-      <div className="container mx-auto py-4 px-4 max-w-full w-full flex justify-center">
+      <div className="container mx-auto py-4 px-4 max-w-full">
         {/* Header */}
         <div className="mb-4 space-y-2">
           <h1 className="text-4xl font-bold bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
@@ -26,6 +26,7 @@ const UserProfile = () => {
           <p className="text-muted-foreground text-md">Administra tu información personal y preferencias</p>
         </div>
 
+       <div className="w-full flex justify-center" 
         {/* Profile Content */}
         <Card className="border-border/40 shadow-lg max-w-7xl">
           <CardContent className="p-4">
@@ -91,6 +92,7 @@ const UserProfile = () => {
             </Tabs>
           </CardContent>
         </Card>
+       </div> 
       </div>
     </div>
   );
