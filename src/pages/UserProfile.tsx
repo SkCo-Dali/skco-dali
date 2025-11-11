@@ -27,37 +27,37 @@ const UserProfile = () => {
         </div>
 
         {/* Profile Content */}
-        <Card className="border-border/40 shadow-lg max-w-7xl">
+        <Card className="border-border/40 shadow-lg max-w-7xl place-content-center">
           <CardContent className="p-4">
             <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
               <TabsList className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-2 h-auto bg-muted/50 p-2">
                 <TabsTrigger value="personal" className="gap-2 data-[state=active]:bg-background">
                   <User className="h-4 w-4" />
-                  <span className="hidden sm:inline">Personal</span>
+                  <span className="text-truncate hidden sm:inline">Personal</span>
                 </TabsTrigger>
                 <TabsTrigger value="professional" className="gap-2 data-[state=active]:bg-background">
                   <Briefcase className="h-4 w-4" />
-                  <span className="hidden sm:inline">Profesional</span>
+                  <span className="text-truncate hidden sm:inline">Profesional</span>
                 </TabsTrigger>
                 <TabsTrigger value="family" className="gap-2 data-[state=active]:bg-background">
                   <Heart className="h-4 w-4" />
-                  <span className="hidden sm:inline">Familiar</span>
+                  <span className="text-truncate hidden sm:inline">Familiar</span>
                 </TabsTrigger>
                 <TabsTrigger value="contact" className="gap-2 data-[state=active]:bg-background">
                   <MapPin className="h-4 w-4" />
-                  <span className="hidden sm:inline">Contacto</span>
+                  <span className="text-truncate hidden sm:inline">Contacto</span>
                 </TabsTrigger>
                 <TabsTrigger value="notifications" className="gap-2 data-[state=active]:bg-background">
                   <Bell className="h-4 w-4" />
-                  <span className="hidden sm:inline">Notificaciones</span>
+                  <span className="text-truncate hidden sm:inline">Notificaciones</span>
                 </TabsTrigger>
                 <TabsTrigger value="suggestions" className="gap-2 data-[state=active]:bg-background">
                   <MessageSquare className="h-4 w-4" />
-                  <span className="hidden sm:inline">Sugerencias</span>
+                  <span className="text-truncate hidden sm:inline">Sugerencias</span>
                 </TabsTrigger>
                 <TabsTrigger value="preferences" className="gap-2 data-[state=active]:bg-background">
                   <Home className="h-4 w-4" />
-                  <span className="hidden sm:inline">Preferencias</span>
+                  <span className="text-truncate hidden sm:inline">Preferencias</span>
                 </TabsTrigger>
               </TabsList>
 
