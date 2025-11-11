@@ -61,7 +61,7 @@ const UserProfile = () => {
                 </TabsTrigger>
               </TabsList>
 
-              <TabsContent value="personal" className="space-y-6 mt-6">
+              <TabsContent value="personal" className="space-y-4 mt-4">
                 <ProfilePersonalInfo profile={profile} updateProfile={updateProfile} />
               </TabsContent>
 
