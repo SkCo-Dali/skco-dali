@@ -65,7 +65,7 @@ const UserProfile = () => {
                 <ProfilePersonalInfo profile={profile} updateProfile={updateProfile} />
               </TabsContent>
 
-              <TabsContent value="professional" className="space-y-6 mt-6">
+              <TabsContent value="professional" className="space-y-6 mt-4">
                 <ProfileProfessionalInfo profile={profile} updateProfile={updateProfile} />
               </TabsContent>
 
