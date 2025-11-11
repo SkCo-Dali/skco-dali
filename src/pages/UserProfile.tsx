@@ -19,7 +19,7 @@ const UserProfile = () => {
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
       <div className="container mx-auto py-4 px-4 max-w-full">
         {/* Header */}
-        <div className="mb-4 space-y-2">
+        <div className="mb-4 space-y-2 flex justify-center">
           <h1 className="text-4xl font-bold bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
             Mi Perfil
           </h1>
@@ -27,7 +27,7 @@ const UserProfile = () => {
         </div>
 
         {/* Profile Content */}
-        <Card className="border-border/40 shadow-lg max-w-7xl place-content-between">
+        <Card className="border-border/40 shadow-lg max-w-7xl">
           <CardContent className="p-4">
             <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
               <TabsList className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-2 h-auto bg-muted/50 p-2">
