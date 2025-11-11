@@ -1,11 +1,11 @@
-import { useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Card } from '@/components/ui/card';
-import { UserProfile } from '@/types/userProfile';
-import { Edit2, Save, X } from 'lucide-react';
-import { toast } from 'sonner';
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Card } from "@/components/ui/card";
+import { UserProfile } from "@/types/userProfile";
+import { Edit2, Save, X } from "lucide-react";
+import { toast } from "sonner";
 
 interface Props {
   profile: UserProfile;
@@ -19,7 +19,7 @@ export function ProfileContactInfo({ profile, updateProfile }: Props) {
   const handleSave = () => {
     updateProfile(localData);
     setIsEditing(false);
-    toast.success('Información de contacto actualizada');
+    toast.success("Información de contacto actualizada");
   };
 
   const handleCancel = () => {
@@ -33,9 +33,7 @@ export function ProfileContactInfo({ profile, updateProfile }: Props) {
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-2xl font-semibold">Datos de Contacto</h2>
-          <p className="text-sm text-muted-foreground mt-1">
-            Dirección y contactos alternativos
-          </p>
+          <p className="text-sm text-muted-foreground mt-1">Dirección y contactos alternativos</p>
         </div>
         {!isEditing ? (
           <Button onClick={() => setIsEditing(true)} variant="outline" className="gap-2">
@@ -57,26 +55,28 @@ export function ProfileContactInfo({ profile, updateProfile }: Props) {
       </div>
 
       {/* Address */}
-      <Card className="p-6 border-border/40 space-y-4">
+      <Card className="p-4 border-border/40 space-y-4">
         <h3 className="font-medium text-lg mb-4">Dirección</h3>
-        
+
         <div className="grid grid-cols-1 gap-4">
           <div className="space-y-2">
             <Label htmlFor="street">Dirección/Calle</Label>
             <Input
               id="street"
-              value={localData.address?.street || ''}
-              onChange={(e) => setLocalData({ 
-                ...localData, 
-                address: { 
-                  ...localData.address, 
-                  street: e.target.value,
-                  city: localData.address?.city || '',
-                  state: localData.address?.state || '',
-                  postalCode: localData.address?.postalCode || '',
-                  country: localData.address?.country || ''
-                }
-              })}
+              value={localData.address?.street || ""}
+              onChange={(e) =>
+                setLocalData({
+                  ...localData,
+                  address: {
+                    ...localData.address,
+                    street: e.target.value,
+                    city: localData.address?.city || "",
+                    state: localData.address?.state || "",
+                    postalCode: localData.address?.postalCode || "",
+                    country: localData.address?.country || "",
+                  },
+                })
+              }
               disabled={!isEditing}
               placeholder="Calle 123 #45-67"
             />
@@ -87,18 +87,20 @@ export function ProfileContactInfo({ profile, updateProfile }: Props) {
               <Label htmlFor="city">Ciudad</Label>
               <Input
                 id="city"
-                value={localData.address?.city || ''}
-                onChange={(e) => setLocalData({ 
-                  ...localData, 
-                  address: { 
-                    ...localData.address, 
-                    city: e.target.value,
-                    street: localData.address?.street || '',
-                    state: localData.address?.state || '',
-                    postalCode: localData.address?.postalCode || '',
-                    country: localData.address?.country || ''
-                  }
-                })}
+                value={localData.address?.city || ""}
+                onChange={(e) =>
+                  setLocalData({
+                    ...localData,
+                    address: {
+                      ...localData.address,
+                      city: e.target.value,
+                      street: localData.address?.street || "",
+                      state: localData.address?.state || "",
+                      postalCode: localData.address?.postalCode || "",
+                      country: localData.address?.country || "",
+                    },
+                  })
+                }
                 disabled={!isEditing}
                 placeholder="Bogotá"
               />
@@ -108,18 +110,20 @@ export function ProfileContactInfo({ profile, updateProfile }: Props) {
               <Label htmlFor="state">Departamento/Estado</Label>
               <Input
                 id="state"
-                value={localData.address?.state || ''}
-                onChange={(e) => setLocalData({ 
-                  ...localData, 
-                  address: { 
-                    ...localData.address, 
-                    state: e.target.value,
-                    street: localData.address?.street || '',
-                    city: localData.address?.city || '',
-                    postalCode: localData.address?.postalCode || '',
-                    country: localData.address?.country || ''
-                  }
-                })}
+                value={localData.address?.state || ""}
+                onChange={(e) =>
+                  setLocalData({
+                    ...localData,
+                    address: {
+                      ...localData.address,
+                      state: e.target.value,
+                      street: localData.address?.street || "",
+                      city: localData.address?.city || "",
+                      postalCode: localData.address?.postalCode || "",
+                      country: localData.address?.country || "",
+                    },
+                  })
+                }
                 disabled={!isEditing}
                 placeholder="Cundinamarca"
               />
@@ -129,18 +133,20 @@ export function ProfileContactInfo({ profile, updateProfile }: Props) {
               <Label htmlFor="postalCode">Código Postal</Label>
               <Input
                 id="postalCode"
-                value={localData.address?.postalCode || ''}
-                onChange={(e) => setLocalData({ 
-                  ...localData, 
-                  address: { 
-                    ...localData.address, 
-                    postalCode: e.target.value,
-                    street: localData.address?.street || '',
-                    city: localData.address?.city || '',
-                    state: localData.address?.state || '',
-                    country: localData.address?.country || ''
-                  }
-                })}
+                value={localData.address?.postalCode || ""}
+                onChange={(e) =>
+                  setLocalData({
+                    ...localData,
+                    address: {
+                      ...localData.address,
+                      postalCode: e.target.value,
+                      street: localData.address?.street || "",
+                      city: localData.address?.city || "",
+                      state: localData.address?.state || "",
+                      country: localData.address?.country || "",
+                    },
+                  })
+                }
                 disabled={!isEditing}
                 placeholder="110111"
               />
@@ -150,18 +156,20 @@ export function ProfileContactInfo({ profile, updateProfile }: Props) {
               <Label htmlFor="country">País</Label>
               <Input
                 id="country"
-                value={localData.address?.country || ''}
-                onChange={(e) => setLocalData({ 
-                  ...localData, 
-                  address: { 
-                    ...localData.address, 
-                    country: e.target.value,
-                    street: localData.address?.street || '',
-                    city: localData.address?.city || '',
-                    state: localData.address?.state || '',
-                    postalCode: localData.address?.postalCode || ''
-                  }
-                })}
+                value={localData.address?.country || ""}
+                onChange={(e) =>
+                  setLocalData({
+                    ...localData,
+                    address: {
+                      ...localData.address,
+                      country: e.target.value,
+                      street: localData.address?.street || "",
+                      city: localData.address?.city || "",
+                      state: localData.address?.state || "",
+                      postalCode: localData.address?.postalCode || "",
+                    },
+                  })
+                }
                 disabled={!isEditing}
                 placeholder="Colombia"
               />
@@ -171,15 +179,15 @@ export function ProfileContactInfo({ profile, updateProfile }: Props) {
       </Card>
 
       {/* Alternative Contacts */}
-      <Card className="p-6 border-border/40 space-y-4">
+      <Card className="p-4 border-border/40 space-y-4">
         <h3 className="font-medium text-lg mb-4">Contactos Alternativos</h3>
-        
+
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-2">
             <Label htmlFor="landline">Teléfono Fijo</Label>
             <Input
               id="landline"
-              value={localData.landline || ''}
+              value={localData.landline || ""}
               onChange={(e) => setLocalData({ ...localData, landline: e.target.value })}
               disabled={!isEditing}
               placeholder="+57 1 234 5678"
@@ -191,7 +199,7 @@ export function ProfileContactInfo({ profile, updateProfile }: Props) {
             <Input
               id="alternativeEmail"
               type="email"
-              value={localData.alternativeEmail || ''}
+              value={localData.alternativeEmail || ""}
               onChange={(e) => setLocalData({ ...localData, alternativeEmail: e.target.value })}
               disabled={!isEditing}
               placeholder="correo@ejemplo.com"
