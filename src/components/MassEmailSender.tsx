@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
@@ -12,6 +12,7 @@ import { EmailSendConfirmation } from '@/components/EmailSendConfirmation';
 import { EmailSendProgressModal } from '@/components/EmailSendProgressModal';
 import { useMassEmail } from '@/hooks/useMassEmail';
 import { useToast } from '@/hooks/use-toast';
+import { useFormPersistence } from '@/hooks/useFormPersistence';
 
 interface MassEmailSenderProps {
   filteredLeads: Lead[];
@@ -69,16 +70,41 @@ export function MassEmailSender({ filteredLeads, onClose }: MassEmailSenderProps
     plainContent: ''
   });
 
+  // Persistencia automática del borrador
+  const { hasBackup, restoreFromStorage, clearBackup } = useFormPersistence({
+    key: 'mass-email-draft',
+    data: template,
+    enabled: true,
+    autoSaveInterval: 5000, // Guardar cada 5 segundos
+  });
+
+  // Restaurar borrador al montar el componente
+  useEffect(() => {
+    const restored = restoreFromStorage();
+    if (restored && (restored.subject || restored.htmlContent)) {
+      setTemplate(restored);
+      toast({
+        title: "Borrador restaurado",
+        description: "Se ha recuperado tu borrador anterior",
+      });
+    }
+  }, []);
+
+  // Limpiar borrador cuando se envíe exitosamente
+  const handleSuccessfulSend = () => {
+    clearBackup();
+  };
+
   // Estado para mostrar/ocultar mensaje de info
   const [showInfoMessage, setShowInfoMessage] = useState(true);
   
   // Estado para email alternativo en envíos individuales
   const [alternateEmail, setAlternateEmail] = useState('');
 
-  // Filtrar leads que tengan email válido y limitar a 20
+  // Filtrar leads que tengan email válido y limitar a 50
   const validLeads = filteredLeads.filter(lead => lead.email && lead.email.trim() !== '');
-  const leadsToShow = validLeads.slice(0, 20);
-  const isOverLimit = validLeads.length > 20;
+  const leadsToShow = validLeads.slice(0, 50);
+  const isOverLimit = validLeads.length > 50;
   
   // Solo mostrar historial si hay exactamente un lead seleccionado
   const showHistoryTab = validLeads.length === 1;
@@ -102,10 +128,10 @@ export function MassEmailSender({ filteredLeads, onClose }: MassEmailSenderProps
       return;
     }
 
-    if (validLeads.length > 20) {
+    if (validLeads.length > 50) {
       toast({
         title: "Error",
-        description: "El máximo permitido es 20 correos por envío. Por favor, reduce la cantidad de destinatarios.",
+        description: "El máximo permitido es 50 correos por envío. Por favor, reduce la cantidad de destinatarios.",
         variant: "destructive"
       });
       return;
@@ -118,7 +144,10 @@ export function MassEmailSender({ filteredLeads, onClose }: MassEmailSenderProps
     setShowConfirmation(false);
     setShowProgressModal(true);
     
-    await sendMassEmail(leadsToShow, template, alternateEmail);
+    const success = await sendMassEmail(leadsToShow, template, alternateEmail);
+    if (success) {
+      handleSuccessfulSend();
+    }
   };
 
   const handleCloseProgress = () => {
@@ -130,7 +159,7 @@ export function MassEmailSender({ filteredLeads, onClose }: MassEmailSenderProps
     }, 500);
   };
 
-  const isReadyToSend = template.subject.trim() && template.htmlContent.trim() && validLeads.length > 0 && validLeads.length <= 20;
+  const isReadyToSend = template.subject.trim() && template.htmlContent.trim() && validLeads.length > 0 && validLeads.length <= 50;
 
   return (
     <>
@@ -147,7 +176,7 @@ export function MassEmailSender({ filteredLeads, onClose }: MassEmailSenderProps
               {isOverLimit && (
                 <Badge variant="destructive">
                   <AlertTriangle className="h-4 w-4 mr-1" />
-                  Máximo 20 correos
+                  Máximo 50 correos
                 </Badge>
               )}
             </div>
