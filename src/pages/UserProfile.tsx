@@ -65,27 +65,27 @@ const UserProfile = () => {
                 <ProfilePersonalInfo profile={profile} updateProfile={updateProfile} />
               </TabsContent>
 
-              <TabsContent value="professional" className="space-y-6 mt-4">
+              <TabsContent value="professional" className="space-y-4 mt-4">
                 <ProfileProfessionalInfo profile={profile} updateProfile={updateProfile} />
               </TabsContent>
 
-              <TabsContent value="family" className="space-y-6 mt-6">
+              <TabsContent value="family" className="space-y-4 mt-4">
                 <ProfileFamilyInfo profile={profile} updateProfile={updateProfile} />
               </TabsContent>
 
-              <TabsContent value="contact" className="space-y-6 mt-6">
+              <TabsContent value="contact" className="space-y-4 mt-4">
                 <ProfileContactInfo profile={profile} updateProfile={updateProfile} />
               </TabsContent>
 
-              <TabsContent value="notifications" className="space-y-6 mt-6">
+              <TabsContent value="notifications" className="space-y-4 mt-4">
                 <ProfileNotifications profile={profile} updateProfile={updateProfile} />
               </TabsContent>
 
-              <TabsContent value="suggestions" className="space-y-6 mt-6">
+              <TabsContent value="suggestions" className="space-y-4 mt-4">
                 <ProfileSuggestions profile={profile} updateProfile={updateProfile} />
               </TabsContent>
 
-              <TabsContent value="preferences" className="space-y-6 mt-6">
+              <TabsContent value="preferences" className="space-y-4 mt-4">
                 <ProfileAppPreferences profile={profile} updateProfile={updateProfile} />
               </TabsContent>
             </Tabs>
