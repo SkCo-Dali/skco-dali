@@ -137,17 +137,36 @@ export function ServerSideDateFilter({
 
   const handleYearChange = (year: string, checked: boolean) => {
     if (checked) {
-      setSelectedDates(prev => [...prev, `year:${year}`]);
+      // Seleccionar todos los días del año
+      const allDaysInYear: string[] = [];
+      Object.entries(groupedDates[year] || {}).forEach(([monthNum, days]) => {
+        Object.keys(days).forEach(day => {
+          allDaysInYear.push(`${year}-${monthNum}-${day}`);
+        });
+      });
+      setSelectedDates(prev => {
+        const filtered = prev.filter(d => !d.startsWith(`${year}-`));
+        return [...filtered, ...allDaysInYear];
+      });
     } else {
-      setSelectedDates(prev => prev.filter(d => d !== `year:${year}`));
+      // Deseleccionar todos los días del año
+      setSelectedDates(prev => prev.filter(d => !d.startsWith(`${year}-`)));
     }
   };
 
   const handleMonthChange = (year: string, monthNum: string, checked: boolean) => {
     if (checked) {
-      setSelectedDates(prev => [...prev, `month:${year}-${monthNum}`]);
+      // Seleccionar todos los días del mes
+      const allDaysInMonth = Object.keys(groupedDates[year]?.[monthNum] || {}).map(day => 
+        `${year}-${monthNum}-${day}`
+      );
+      setSelectedDates(prev => {
+        const filtered = prev.filter(d => !d.startsWith(`${year}-${monthNum}-`));
+        return [...filtered, ...allDaysInMonth];
+      });
     } else {
-      setSelectedDates(prev => prev.filter(d => d !== `month:${year}-${monthNum}`));
+      // Deseleccionar todos los días del mes
+      setSelectedDates(prev => prev.filter(d => !d.startsWith(`${year}-${monthNum}-`)));
     }
   };
 
@@ -285,7 +304,12 @@ export function ServerSideDateFilter({
                         <Collapsible key={year}>
                           <div className="flex items-center space-x-2 p-1 hover:bg-gray-50 w-full">
                             <Checkbox
-                              checked={selectedDates.includes(`year:${year}`)}
+                              checked={(() => {
+                                const allDaysInYear = Object.entries(months).flatMap(([monthNum, days]) => 
+                                  Object.keys(days).map(day => `${year}-${monthNum}-${day}`)
+                                );
+                                return allDaysInYear.length > 0 && allDaysInYear.every(d => selectedDates.includes(d));
+                              })()}
                               onCheckedChange={(checked) => handleYearChange(year, checked as boolean)}
                             />
                             <CollapsibleTrigger className="flex items-center space-x-2 flex-1 text-left">
@@ -302,7 +326,10 @@ export function ServerSideDateFilter({
                                 <Collapsible key={monthNum}>
                                   <div className="flex items-center space-x-2 p-1 hover:bg-gray-50 w-full">
                                     <Checkbox
-                                      checked={selectedDates.includes(`month:${year}-${monthNum}`)}
+                                      checked={(() => {
+                                        const allDaysInMonth = Object.keys(days).map(day => `${year}-${monthNum}-${day}`);
+                                        return allDaysInMonth.length > 0 && allDaysInMonth.every(d => selectedDates.includes(d));
+                                      })()}
                                       onCheckedChange={(checked) => handleMonthChange(year, monthNum, checked as boolean)}
                                     />
                                     <CollapsibleTrigger className="flex items-center space-x-2 flex-1 text-left">
