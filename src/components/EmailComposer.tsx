@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
@@ -35,6 +35,8 @@ export function EmailComposer({
   const [signatures, setSignatures] = useState<OutlookSignature[]>([]);
   const [loadingSignatures, setLoadingSignatures] = useState(false);
   const [signaturesLoaded, setSignaturesLoaded] = useState(false);
+  const [draggedField, setDraggedField] = useState<DynamicField | null>(null);
+  const subjectInputRef = useRef<HTMLInputElement>(null);
   const { instance } = useMsal();
   const { toast } = useToast();
 
@@ -145,6 +147,42 @@ export function EmailComposer({
     });
   };
 
+  const handleDragStart = (field: DynamicField) => (e: React.DragEvent) => {
+    setDraggedField(field);
+    e.dataTransfer.effectAllowed = "copy";
+    e.dataTransfer.setData("text/plain", `{${field.key}}`);
+  };
+
+  const handleDragEnd = () => {
+    setDraggedField(null);
+  };
+
+  const handleSubjectDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = "copy";
+  };
+
+  const handleSubjectDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    if (!draggedField) return;
+
+    const input = subjectInputRef.current;
+    if (!input) return;
+
+    const fieldTag = `{${draggedField.key}}`;
+    const cursorPosition = input.selectionStart || template.subject.length;
+    const newSubject = template.subject.slice(0, cursorPosition) + fieldTag + template.subject.slice(cursorPosition);
+
+    onTemplateChange({ ...template, subject: newSubject });
+    setDraggedField(null);
+
+    setTimeout(() => {
+      input.focus();
+      const newPosition = cursorPosition + fieldTag.length;
+      input.setSelectionRange(newPosition, newPosition);
+    }, 0);
+  };
+
   return (
     <div className="space-y-6">
       <Card>
@@ -154,14 +192,14 @@ export function EmailComposer({
             <div className="flex gap-2">
               <Popover>
                 <PopoverTrigger asChild>
-                  <Button variant="outline" size="sm" onClick={loadSignatures} disabled={loadingSignatures}>
+                  {/* <Button variant="outline" size="sm" onClick={loadSignatures} disabled={loadingSignatures}>
                     {loadingSignatures ? (
                       <Loader2 className="h-4 w-4 mr-2 animate-spin" />
                     ) : (
                       <FileSignature className="h-4 w-4 mr-2" />
                     )}
                     Firmas
-                  </Button>
+                  </Button>*/}
                 </PopoverTrigger>
                 <PopoverContent className="w-80">
                   <div className="space-y-2">
@@ -223,19 +261,18 @@ export function EmailComposer({
                 {dynamicFields.map((field) => (
                   <Badge
                     key={field.key}
-                    className="cursor-pointer bg-[#EBF4FF] text-[#3f3f3f]"
-                    onClick={() => {
-                      // Por defecto insertar en el contenido HTML
-                      insertDynamicField(field, "htmlContent");
-                    }}
-                    title={`Ejemplo: ${field.example}`}
+                    draggable
+                    onDragStart={handleDragStart(field)}
+                    onDragEnd={handleDragEnd}
+                    className="cursor-move bg-[#EBF4FF] text-[#3f3f3f] hover:bg-[#D6E9FF] transition-colors"
+                    title={`Arrastra al asunto o contenido. Ejemplo: ${field.example}`}
                   >
                     {field.label} ({`{${field.key}}`})
                   </Badge>
                 ))}
               </div>
               <p className="text-sm text-muted-foreground mt-2">
-                Haz clic en un campo para insertarlo en el contenido del email
+                Arrastra los campos al asunto o contenido del email para insertarlos
               </p>
             </Card>
           )}
@@ -260,9 +297,12 @@ export function EmailComposer({
           <div>
             <Label htmlFor="subject">Asunto del Email</Label>
             <Input
+              ref={subjectInputRef}
               id="subject"
               value={template.subject}
               onChange={(e) => onTemplateChange({ ...template, subject: e.target.value })}
+              onDragOver={handleSubjectDragOver}
+              onDrop={handleSubjectDrop}
               placeholder="Ej: Bienvenido {name} a Skandia"
               className="mt-2"
             />
@@ -278,6 +318,7 @@ export function EmailComposer({
                 value={template.htmlContent}
                 onChange={handleHtmlContentChange}
                 placeholder="Escribe el contenido de tu email aquí... Puedes usar las herramientas de formato y campos dinámicos como {name}"
+                allowDrop
               />
             </div>
             <p className="text-sm text-muted-foreground mt-1">

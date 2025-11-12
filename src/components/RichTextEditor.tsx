@@ -71,12 +71,13 @@ interface RichTextEditorProps {
   value: string;
   onChange: (v: string) => void;
   placeholder?: string;
+  allowDrop?: boolean;
 }
 
 /* ===========================
     Editor principal
 =========================== */
-export function RichTextEditor({ value, onChange, placeholder }: RichTextEditorProps) {
+export function RichTextEditor({ value, onChange, placeholder, allowDrop = false }: RichTextEditorProps) {
   const editorRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const lastEmittedHtmlRef = useRef<string | null>(null);
@@ -208,6 +209,61 @@ export function RichTextEditor({ value, onChange, placeholder }: RichTextEditorP
         }
       });
     });
+  };
+
+  const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
+    if (!allowDrop) return;
+    e.preventDefault();
+    e.dataTransfer.dropEffect = "copy";
+  };
+
+  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
+    if (!allowDrop) return;
+    e.preventDefault();
+    
+    const text = e.dataTransfer.getData("text/plain");
+    if (!text) return;
+
+    // Get the drop position using coordinates
+    let range: Range | null = null;
+    
+    // Try Chrome/Safari method
+    if (document.caretRangeFromPoint) {
+      range = document.caretRangeFromPoint(e.clientX, e.clientY);
+    } 
+    // Try Firefox method
+    else if ((document as any).caretPositionFromPoint) {
+      const position = (document as any).caretPositionFromPoint(e.clientX, e.clientY);
+      if (position) {
+        range = document.createRange();
+        range.setStart(position.offsetNode, position.offset);
+        range.collapse(true);
+      }
+    }
+
+    if (!range) {
+      // Fallback: insert at the end
+      editorRef.current?.focus();
+      const sel = window.getSelection();
+      if (sel) {
+        sel.selectAllChildren(editorRef.current!);
+        sel.collapseToEnd();
+      }
+      document.execCommand("insertText", false, text);
+      handleContentChange();
+      return;
+    }
+
+    // Set selection to the drop position
+    const sel = window.getSelection();
+    if (!sel) return;
+    
+    sel.removeAllRanges();
+    sel.addRange(range);
+
+    // Insert the text at the drop position
+    document.execCommand("insertText", false, text);
+    handleContentChange();
   };
 
   /* ===== ResizeObserver ===== */
@@ -422,6 +478,8 @@ export function RichTextEditor({ value, onChange, placeholder }: RichTextEditorP
           contentEditable
           onInput={handleContentChange}
           onPaste={handlePaste}
+          onDragOver={handleDragOver}
+          onDrop={handleDrop}
           onMouseUp={saveSelection}
           onKeyUp={saveSelection}
           className="min-h-[200px] p-4 focus:outline-none prose prose-sm max-w-none"
