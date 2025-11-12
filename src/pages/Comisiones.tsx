@@ -17,15 +17,15 @@ export default function Comisiones() {
 
   React.useEffect(() => {
     // Cargar la animación
-    fetch('/animations/money.json')
-      .then(response => response.json())
-      .then(data => setMoneyAnimation(data))
-      .catch(error => console.error('Error loading animation:', error));
+    fetch("/animations/money.json")
+      .then((response) => response.json())
+      .then((data) => setMoneyAnimation(data))
+      .catch((error) => console.error("Error loading animation:", error));
 
     // Simular carga de datos
     const timer = setTimeout(() => {
       setLoading(false);
-    }, 3000);
+    }, 4000);
 
     return () => clearTimeout(timer);
   }, []);
@@ -34,11 +34,7 @@ export default function Comisiones() {
     return (
       <div className="flex flex-col items-center justify-center h-screen bg-background">
         {moneyAnimation ? (
-          <Lottie
-            animationData={moneyAnimation}
-            loop={true}
-            style={{ width: 400, height: 400 }}
-          />
+          <Lottie animationData={moneyAnimation} loop={true} style={{ width: 400, height: 400 }} />
         ) : (
           <Loader2 className="h-8 w-8 animate-spin text-primary" />
         )}
