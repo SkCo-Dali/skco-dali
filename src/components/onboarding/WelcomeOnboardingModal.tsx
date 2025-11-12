@@ -164,7 +164,7 @@ export function WelcomeOnboardingModal({ isOpen, userRole, onComplete, onClose }
             <div className="flex justify-center">
               {successAnimation ? (
                 <div className="w-64 h-64">
-                  <Lottie animationData={successAnimation} loop={false} />
+                  <Lottie animationData={successAnimation} loop={true} />
                 </div>
               ) : (
                 <div className="p-6 rounded-full bg-primary/10">
