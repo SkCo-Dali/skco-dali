@@ -20,7 +20,7 @@ export default function MotorComisionesIndex() {
     // Simular carga de datos
     const timer = setTimeout(() => {
       setLoading(false);
-    }, 1500);
+    }, 2000);
     return () => clearTimeout(timer);
   }, []);
 
