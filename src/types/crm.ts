@@ -135,7 +135,7 @@ export const getRolePermissions = (role: UserRole): RolePermissions => {
         canSendWhatsApp: true,
         canSendmassiveWhatsApp: false,
         chatSami: false,
-        accessiblePages: ["leads", "ChatDali", "reports", "informes", "opportunities"],
+        accessiblePages: ["leads", "leadstabbed", "ChatDali", "reports", "informes", "opportunities"],
       };
     case "supervisor":
       return {
@@ -155,7 +155,7 @@ export const getRolePermissions = (role: UserRole): RolePermissions => {
         canSendWhatsApp: true,
         canSendmassiveWhatsApp: false,
         chatSami: false,
-        accessiblePages: ["leads", "ChatDali", "reports", "informes", "opportunities"],
+        accessiblePages: ["leads", "leadstabbed", "ChatDali", "reports", "informes", "opportunities"],
       };
     case "ejecutivo":
       return {
@@ -175,7 +175,7 @@ export const getRolePermissions = (role: UserRole): RolePermissions => {
         canSendWhatsApp: true,
         canSendmassiveWhatsApp: false,
         chatSami: true,
-        accessiblePages: ["leads", "ChatDali", "informes", "opportunities"],
+        accessiblePages: ["leads", "leadstabbed", "ChatDali", "informes", "opportunities"],
       };
     case "supervisorComisiones":
       return {
@@ -255,7 +255,7 @@ export const getRolePermissions = (role: UserRole): RolePermissions => {
         canSendWhatsApp: false,
         canSendmassiveWhatsApp: false,
         chatSami: true,
-        accessiblePages: ["leads", "ChatDali", "informes", "opportunities", "comisiones"],
+        accessiblePages: ["leads", "leadstabbed", "ChatDali", "informes", "opportunities", "comisiones"],
       };
     case "agent":
     case "gestor":
@@ -276,7 +276,7 @@ export const getRolePermissions = (role: UserRole): RolePermissions => {
         canSendWhatsApp: true,
         canSendmassiveWhatsApp: false,
         chatSami: false,
-        accessiblePages: ["leads", "ChatDali", "informes", "opportunities"],
+        accessiblePages: ["leads", "leadstabbed", "ChatDali", "informes", "opportunities"],
       };
     case "promotor":
       return {
@@ -337,7 +337,7 @@ export const getRolePermissions = (role: UserRole): RolePermissions => {
         canSendWhatsApp: true,
         canSendmassiveWhatsApp: false,
         chatSami: true,
-        accessiblePages: ["leads", "ChatDali", "informes", "opportunities"],
+        accessiblePages: ["leads", "leadstabbed", "ChatDali", "informes", "opportunities"],
       };
     case "fp":
       return {
@@ -357,7 +357,7 @@ export const getRolePermissions = (role: UserRole): RolePermissions => {
         canSendWhatsApp: true,
         canSendmassiveWhatsApp: false,
         chatSami: true,
-        accessiblePages: ["leads", "ChatDali", "informes", "opportunities"],
+        accessiblePages: ["leads", "leadstabbed", "ChatDali", "informes", "opportunities"],
       };
     case "fpSac":
       return {
@@ -377,7 +377,7 @@ export const getRolePermissions = (role: UserRole): RolePermissions => {
         canSendWhatsApp: true,
         canSendmassiveWhatsApp: false,
         chatSami: true,
-        accessiblePages: ["leads", "ChatDali", "informes", "opportunities"],
+        accessiblePages: ["leads", "leadstabbed", "ChatDali", "informes", "opportunities"],
       };
     case "ais":
       return {
@@ -417,7 +417,7 @@ export const getRolePermissions = (role: UserRole): RolePermissions => {
         canSendWhatsApp: false,
         canSendmassiveWhatsApp: false,
         chatSami: false,
-        accessiblePages: ["leads", "reports", "informes", "opportunities"],
+        accessiblePages: ["leads", "leadstabbed", "reports", "informes", "opportunities"],
       };
     case "viewer":
     case "seguridad":
@@ -438,7 +438,7 @@ export const getRolePermissions = (role: UserRole): RolePermissions => {
         canSendWhatsApp: true,
         canSendmassiveWhatsApp: false,
         chatSami: false,
-        accessiblePages: ["leads", "ChatDali", "informes", "opportunities"],
+        accessiblePages: ["leads", "leadstabbed", "ChatDali", "informes", "opportunities"],
       };
     default:
       return {

@@ -7,6 +7,7 @@ import { RoleBasedRedirect } from "@/components/RoleBasedRedirect";
 import { RestrictedRoute } from "@/components/RestrictedRoute";
 import Dashboard from "@/pages/Dashboard";
 import Leads from "@/pages/Leads";
+import LeadsTabbed from "@/pages/LeadsTabbed";
 import Tasks from "@/pages/Tasks";
 import Reports from "@/pages/Reports";
 import Informes from "@/pages/Informes";
@@ -102,6 +103,7 @@ export function AppContent() {
                   <Route path="/" element={<RoleBasedRedirect />} />
                   <Route element={<RestrictedRoute />}>
                     <Route path="/leads" element={<Leads />} />
+                    <Route path="/leadstabbed" element={<LeadsTabbed />} />
                     <Route path="/tasks" element={<Tasks />} />
                     <Route path="/reports" element={<Reports />} />
                     <Route path="/informes" element={<Informes />} />
