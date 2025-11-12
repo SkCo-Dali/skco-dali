@@ -1176,7 +1176,11 @@ export default function Leads() {
           </div>
         </div>
 
-        <LeadCreateDialog ref={leadCreateDialogRef} onLeadCreate={handleLeadCreate} />
+        <LeadCreateDialog 
+          ref={leadCreateDialogRef} 
+          onLeadCreate={handleLeadCreate}
+          onBulkUploadSuccess={refreshLeads}
+        />
 
         {selectedLead && (
           <LeadDetail

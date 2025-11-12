@@ -19,6 +19,7 @@ import { LeadsUploadProgressModal } from "./LeadsUploadProgressModal";
 
 interface LeadCreateDialogProps {
   onLeadCreate: (leadData: Partial<Lead>) => void;
+  onBulkUploadSuccess?: () => void;
   children?: React.ReactNode;
 }
 
@@ -41,7 +42,7 @@ const productOptions = [
 ];
 
 export const LeadCreateDialog = forwardRef<LeadCreateDialogRef, LeadCreateDialogProps>(
-  ({ onLeadCreate, children }, ref) => {
+  ({ onLeadCreate, onBulkUploadSuccess, children }, ref) => {
     const { user } = useAuth();
     const { toast } = useToast();
     const permissions = user ? getRolePermissions(user.role) : null;
@@ -237,6 +238,11 @@ export const LeadCreateDialog = forwardRef<LeadCreateDialogRef, LeadCreateDialog
     };
 
     const handleProgressModalClose = () => {
+      // Si la carga fue exitosa, notificar al padre para que recargue los leads
+      if (uploadSuccess && onBulkUploadSuccess) {
+        onBulkUploadSuccess();
+      }
+      
       setProgressModalOpen(false);
       setUploadSuccess(false);
       setUploadError(false);
