@@ -171,10 +171,7 @@ export function EmailComposer({
 
     const fieldTag = `{${draggedField.key}}`;
     const cursorPosition = input.selectionStart || template.subject.length;
-    const newSubject = 
-      template.subject.slice(0, cursorPosition) + 
-      fieldTag + 
-      template.subject.slice(cursorPosition);
+    const newSubject = template.subject.slice(0, cursorPosition) + fieldTag + template.subject.slice(cursorPosition);
 
     onTemplateChange({ ...template, subject: newSubject });
     setDraggedField(null);
@@ -195,14 +192,14 @@ export function EmailComposer({
             <div className="flex gap-2">
               <Popover>
                 <PopoverTrigger asChild>
-                  <Button variant="outline" size="sm" onClick={loadSignatures} disabled={loadingSignatures}>
+                  {/* <Button variant="outline" size="sm" onClick={loadSignatures} disabled={loadingSignatures}>
                     {loadingSignatures ? (
                       <Loader2 className="h-4 w-4 mr-2 animate-spin" />
                     ) : (
                       <FileSignature className="h-4 w-4 mr-2" />
                     )}
                     Firmas
-                  </Button>
+                  </Button>*/}
                 </PopoverTrigger>
                 <PopoverContent className="w-80">
                   <div className="space-y-2">
