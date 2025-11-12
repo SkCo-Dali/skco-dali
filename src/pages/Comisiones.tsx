@@ -63,7 +63,9 @@ export default function Comisiones() {
     );
   }
 
-  const totalPages = Math.ceil(commissionsData.total / commissionsData.pageSize);
+  const totalPages = commissionsData.pageSize > 0 
+    ? Math.ceil(commissionsData.total / commissionsData.pageSize) 
+    : 0;
 
   return (
     <div className="w-full max-w-full px-4 py-4 space-y-6">
@@ -153,25 +155,33 @@ export default function Comisiones() {
                       <Card>
                         <CardHeader className="pb-2">
                           <CardDescription>Comisiones Año</CardDescription>
-                          <CardTitle className="text-2xl">{formatCurrency(commissionsData.summary.total_year)}</CardTitle>
+                          <CardTitle className="text-2xl">
+                            {formatCurrency(commissionsData.summary.total_year ?? 0)}
+                          </CardTitle>
                         </CardHeader>
                       </Card>
                       <Card>
                         <CardHeader className="pb-2">
                           <CardDescription>Comisiones Mes</CardDescription>
-                          <CardTitle className="text-2xl">{formatCurrency(commissionsData.summary.total_month)}</CardTitle>
+                          <CardTitle className="text-2xl">
+                            {formatCurrency(commissionsData.summary.total_month ?? 0)}
+                          </CardTitle>
                         </CardHeader>
                       </Card>
                       <Card>
                         <CardHeader className="pb-2">
                           <CardDescription>Nuevos Clientes</CardDescription>
-                          <CardTitle className="text-2xl">{commissionsData.summary.new_clients}</CardTitle>
+                          <CardTitle className="text-2xl">
+                            {commissionsData.summary.new_clients ?? 0}
+                          </CardTitle>
                         </CardHeader>
                       </Card>
                       <Card>
                         <CardHeader className="pb-2">
                           <CardDescription>Tasa de Conversión</CardDescription>
-                          <CardTitle className="text-2xl">{formatPercentage(commissionsData.summary.conversion_rate)}</CardTitle>
+                          <CardTitle className="text-2xl">
+                            {formatPercentage(commissionsData.summary.conversion_rate ?? 0)}
+                          </CardTitle>
                         </CardHeader>
                       </Card>
                     </div>
@@ -179,51 +189,57 @@ export default function Comisiones() {
                     {/* Gráficas */}
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                       {/* Mix de Productos */}
-                      <Card>
-                        <CardHeader>
-                          <CardTitle>Mix de Productos</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                          <ResponsiveContainer width="100%" height={300}>
-                            <RechartsPieChart>
-                              <Pie
-                                data={commissionsData.summary.product_mix}
-                                dataKey="percentage"
-                                nameKey="label"
-                                cx="50%"
-                                cy="50%"
-                                outerRadius={100}
-                                label
-                              >
-                                {commissionsData.summary.product_mix.map((entry, index) => (
-                                  <Cell key={`cell-${index}`} fill={`hsl(${index * 45}, 70%, 50%)`} />
-                                ))}
-                              </Pie>
-                              <Tooltip formatter={(value: number) => `${value.toFixed(2)}%`} />
-                              <Legend />
-                            </RechartsPieChart>
-                          </ResponsiveContainer>
-                        </CardContent>
-                      </Card>
+                      {commissionsData.summary.product_mix && commissionsData.summary.product_mix.length > 0 && (
+                        <Card>
+                          <CardHeader>
+                            <CardTitle>Mix de Productos</CardTitle>
+                          </CardHeader>
+                          <CardContent>
+                            <ResponsiveContainer width="100%" height={300}>
+                              <RechartsPieChart>
+                                <Pie
+                                  data={commissionsData.summary.product_mix}
+                                  dataKey="percentage"
+                                  nameKey="label"
+                                  cx="50%"
+                                  cy="50%"
+                                  outerRadius={100}
+                                  label
+                                >
+                                  {commissionsData.summary.product_mix.map((entry, index) => (
+                                    <Cell key={`cell-${index}`} fill={`hsl(${index * 45}, 70%, 50%)`} />
+                                  ))}
+                                </Pie>
+                                <Tooltip formatter={(value: number) => `${value.toFixed(2)}%`} />
+                                <Legend />
+                              </RechartsPieChart>
+                            </ResponsiveContainer>
+                          </CardContent>
+                        </Card>
+                      )}
 
                       {/* Distribución del Equipo */}
-                      <Card>
-                        <CardHeader>
-                          <CardTitle>Distribución del Equipo</CardTitle>
-                          <CardDescription>Promedio del equipo: {formatCurrency(commissionsData.summary.team_avg)}</CardDescription>
-                        </CardHeader>
-                        <CardContent>
-                          <ResponsiveContainer width="100%" height={300}>
-                            <BarChart data={commissionsData.summary.team_distribution}>
-                              <CartesianGrid strokeDasharray="3 3" />
-                              <XAxis dataKey="name" />
-                              <YAxis />
-                              <Tooltip formatter={(value: number) => formatCurrency(value)} />
-                              <Bar dataKey="value" fill="hsl(var(--primary))" />
-                            </BarChart>
-                          </ResponsiveContainer>
-                        </CardContent>
-                      </Card>
+                      {commissionsData.summary.team_distribution && commissionsData.summary.team_distribution.length > 0 && (
+                        <Card>
+                          <CardHeader>
+                            <CardTitle>Distribución del Equipo</CardTitle>
+                            <CardDescription>
+                              Promedio del equipo: {formatCurrency(commissionsData.summary.team_avg ?? 0)}
+                            </CardDescription>
+                          </CardHeader>
+                          <CardContent>
+                            <ResponsiveContainer width="100%" height={300}>
+                              <BarChart data={commissionsData.summary.team_distribution}>
+                                <CartesianGrid strokeDasharray="3 3" />
+                                <XAxis dataKey="name" />
+                                <YAxis />
+                                <Tooltip formatter={(value: number) => formatCurrency(value)} />
+                                <Bar dataKey="value" fill="hsl(var(--primary))" />
+                              </BarChart>
+                            </ResponsiveContainer>
+                          </CardContent>
+                        </Card>
+                      )}
                     </div>
                   </>
                 ) : (

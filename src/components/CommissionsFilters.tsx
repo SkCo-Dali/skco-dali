@@ -70,11 +70,11 @@ export const CommissionsFilters: React.FC<CommissionsFiltersProps> = ({
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="">Todos</SelectItem>
-              {filters?.periods.map((period) => (
+              {filters?.periods?.map((period) => (
                 <SelectItem key={period} value={period.toString()}>
                   {period}
                 </SelectItem>
-              ))}
+              )) || null}
             </SelectContent>
           </Select>
         </div>
@@ -91,11 +91,11 @@ export const CommissionsFilters: React.FC<CommissionsFiltersProps> = ({
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="">Todos</SelectItem>
-              {filters?.periods.map((period) => (
+              {filters?.periods?.map((period) => (
                 <SelectItem key={period} value={period.toString()}>
                   {period}
                 </SelectItem>
-              ))}
+              )) || null}
             </SelectContent>
           </Select>
         </div>
@@ -109,11 +109,11 @@ export const CommissionsFilters: React.FC<CommissionsFiltersProps> = ({
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="">Todos</SelectItem>
-              {filters?.products.map((prod) => (
+              {filters?.products?.map((prod) => (
                 <SelectItem key={prod} value={prod}>
                   {prod}
                 </SelectItem>
-              ))}
+              )) || null}
             </SelectContent>
           </Select>
         </div>
@@ -127,11 +127,11 @@ export const CommissionsFilters: React.FC<CommissionsFiltersProps> = ({
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="">Todos</SelectItem>
-              {filters?.plans.map((p) => (
+              {filters?.plans?.map((p) => (
                 <SelectItem key={p} value={p}>
                   {p}
                 </SelectItem>
-              ))}
+              )) || null}
             </SelectContent>
           </Select>
         </div>
@@ -170,11 +170,11 @@ export const CommissionsFilters: React.FC<CommissionsFiltersProps> = ({
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="">Todos</SelectItem>
-                {filters?.agents.map((agent) => (
+                {filters?.agents?.map((agent) => (
                   <SelectItem key={agent} value={agent}>
                     {agent}
                   </SelectItem>
-                ))}
+                )) || null}
               </SelectContent>
             </Select>
           </div>
@@ -190,11 +190,11 @@ export const CommissionsFilters: React.FC<CommissionsFiltersProps> = ({
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="">Todas</SelectItem>
-                {filters?.societies.map((society) => (
+                {filters?.societies?.map((society) => (
                   <SelectItem key={society} value={society}>
                     {society}
                   </SelectItem>
-                ))}
+                )) || null}
               </SelectContent>
             </Select>
           </div>
