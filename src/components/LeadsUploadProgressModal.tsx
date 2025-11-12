@@ -25,6 +25,10 @@ interface LeadsUploadProgressModalProps {
   isError: boolean;
   errorMessage?: string;
   successMessage?: string;
+  uploadStats?: {
+    inserted: number;
+    failed: number;
+  };
   onClose: () => void;
 }
 
@@ -36,6 +40,7 @@ export function LeadsUploadProgressModal({
   isError,
   errorMessage,
   successMessage,
+  uploadStats,
   onClose
 }: LeadsUploadProgressModalProps) {
   const [progress, setProgress] = useState(0);
@@ -145,16 +150,30 @@ export function LeadsUploadProgressModal({
           )}
 
           {/* Mensaje de éxito */}
-          {isSuccess && successMessage && (
+          {isSuccess && (
             <Card className="border-green-200 bg-green-50">
               <CardContent className="pt-6">
                 <div className="flex items-start gap-3">
                   <CheckCircle className="h-5 w-5 text-green-600 mt-0.5" />
                   <div className="flex-1">
                     <p className="font-medium text-green-900">Éxito</p>
-                    <p className="text-sm text-green-700 mt-1">
-                      {successMessage}
-                    </p>
+                    {successMessage && (
+                      <p className="text-sm text-green-700 mt-1">
+                        {successMessage}
+                      </p>
+                    )}
+                    {uploadStats && (
+                      <div className="mt-3 space-y-1">
+                        <div className="flex justify-between items-center text-sm">
+                          <span className="text-green-700">Leads insertados:</span>
+                          <span className="font-semibold text-green-900">{uploadStats.inserted}</span>
+                        </div>
+                        <div className="flex justify-between items-center text-sm">
+                          <span className="text-green-700">Leads fallidos:</span>
+                          <span className="font-semibold text-green-900">{uploadStats.failed}</span>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </div>
               </CardContent>

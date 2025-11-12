@@ -58,6 +58,7 @@ export const LeadCreateDialog = forwardRef<LeadCreateDialogRef, LeadCreateDialog
     const [uploadError, setUploadError] = useState(false);
     const [errorMessage, setErrorMessage] = useState('');
     const [successMessage, setSuccessMessage] = useState('');
+    const [uploadStats, setUploadStats] = useState<{ inserted: number; failed: number } | undefined>();
     const [formData, setFormData] = useState<Partial<Lead>>({
       name: "",
       email: "",
@@ -201,13 +202,17 @@ export const LeadCreateDialog = forwardRef<LeadCreateDialogRef, LeadCreateDialog
       });
 
       try {
-        await uploadLeadsFile(uploadedFile, user.id);
+        const result = await uploadLeadsFile(uploadedFile, user.id);
         
-        console.log('✅ Carga masiva completada exitosamente');
+        console.log('✅ Carga masiva completada exitosamente:', result);
         
-        // Marcar como exitoso
+        // Marcar como exitoso y guardar estadísticas
         setUploadSuccess(true);
-        setSuccessMessage(`Archivo "${uploadedFile.name}" cargado exitosamente`);
+        setSuccessMessage(result.message);
+        setUploadStats({
+          inserted: result.inserted,
+          failed: result.failed
+        });
         
         // Limpiar el archivo subido
         setUploadedFile(null);
@@ -237,6 +242,7 @@ export const LeadCreateDialog = forwardRef<LeadCreateDialogRef, LeadCreateDialog
       setUploadError(false);
       setErrorMessage('');
       setSuccessMessage('');
+      setUploadStats(undefined);
     };
 
     const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -732,6 +738,7 @@ export const LeadCreateDialog = forwardRef<LeadCreateDialogRef, LeadCreateDialog
         isError={uploadError}
         errorMessage={errorMessage}
         successMessage={successMessage}
+        uploadStats={uploadStats}
         onClose={handleProgressModalClose}
       />
     </>

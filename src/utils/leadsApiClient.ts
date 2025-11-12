@@ -351,7 +351,7 @@ export const downloadLeadsTemplate = async (): Promise<Blob> => {
   }
 };
 
-export const uploadLeadsFile = async (file: File, userId: string): Promise<void> => {
+export const uploadLeadsFile = async (file: File, userId: string): Promise<{ inserted: number; failed: number; message: string }> => {
   console.log('🚀 === UPLOAD LEADS FILE API CALL STARTED ===');
   console.log('📁 File details:', {
     name: file.name,
@@ -406,6 +406,7 @@ export const uploadLeadsFile = async (file: File, userId: string): Promise<void>
     
     const result = await response.json();
     console.log('✅ Upload successful, response data:', result);
+    return result;
   } catch (error) {
     throw error;
   }
