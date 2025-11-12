@@ -27,7 +27,8 @@ export function StepPrimaryAction({
   const [loading, setLoading] = useState(true);
   const [selected, setSelected] = useState<AvailableAction | null>(null);
   const [error, setError] = useState('');
-  const [animations, setAnimations] = useState<Record<string, any>>({});
+  const [defaultAnimation, setDefaultAnimation] = useState(null);
+  const [currentAnimation, setCurrentAnimation] = useState(null);
 
   // Mapeo de códigos de acción a archivos de animación
   const getAnimationPath = (code: string): string => {
@@ -41,33 +42,34 @@ export function StepPrimaryAction({
     return '/animations/choose_plan.json';
   };
 
-  // Cargar animaciones para todas las opciones
+  // Cargar la animación por defecto
   useEffect(() => {
-    if (options.length > 0) {
-      console.log('📋 Loading animations for options:', options.map(o => ({ code: o.code, label: o.label })));
+    fetch('/animations/choose_plan.json')
+      .then(res => res.json())
+      .then(data => {
+        setDefaultAnimation(data);
+        setCurrentAnimation(data);
+      })
+      .catch(err => console.error('Error loading default animation:', err));
+  }, []);
+
+  // Cargar animación según la opción seleccionada
+  useEffect(() => {
+    if (selected) {
+      const path = getAnimationPath(selected.code);
+      console.log(`🎬 Loading animation for selected option: ${selected.code} from ${path}`);
       
-      const loadAnimations = async () => {
-        const loadedAnimations: Record<string, any> = {};
-        
-        for (const option of options) {
-          const path = getAnimationPath(option.code);
-          console.log(`🎬 Loading animation for ${option.code} from ${path}`);
-          try {
-            const response = await fetch(path);
-            const data = await response.json();
-            loadedAnimations[option.code] = data;
-            console.log(`✅ Animation loaded for ${option.code}`);
-          } catch (error) {
-            console.error(`❌ Error loading animation for ${option.code}:`, error);
-          }
-        }
-        
-        setAnimations(loadedAnimations);
-      };
-      
-      loadAnimations();
+      fetch(path)
+        .then(res => res.json())
+        .then(data => setCurrentAnimation(data))
+        .catch(err => {
+          console.error('Error loading animation:', err);
+          setCurrentAnimation(defaultAnimation);
+        });
+    } else {
+      setCurrentAnimation(defaultAnimation);
     }
-  }, [options]);
+  }, [selected, defaultAnimation]);
 
   useEffect(() => {
     const fetchActions = async () => {
@@ -133,6 +135,14 @@ export function StepPrimaryAction({
 
   return (
     <div className="space-y-6 animate-fade-in">
+      {currentAnimation && (
+        <div className="flex justify-center transition-opacity duration-300">
+          <div className="w-64 h-64">
+            <Lottie animationData={currentAnimation} loop={true} />
+          </div>
+        </div>
+      )}
+      
       <div className="text-center space-y-2">
         <h2 className="text-3xl font-bold">¿Qué quieres hacer primero?</h2>
         <p className="text-muted-foreground">
@@ -163,13 +173,6 @@ export function StepPrimaryAction({
                 }}
               >
                 <CardContent className="p-6 space-y-3">
-                  {animations[option.code] && (
-                    <div className="flex justify-center mb-2">
-                      <div className="w-32 h-32">
-                        <Lottie animationData={animations[option.code]} loop={true} />
-                      </div>
-                    </div>
-                  )}
                   <div className="flex items-center gap-3">
                     <div className={cn(
                       'p-2 rounded-lg',
