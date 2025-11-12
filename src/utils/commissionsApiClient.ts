@@ -125,8 +125,22 @@ export const getCommissionsDetail = async (
       throw new Error(`Error al obtener detalle de comisiones: ${response.statusText}`);
     }
 
-    const result: CommissionDetailResponse = await response.json();
-    return result;
+    const text = await response.text();
+    let result: CommissionDetailResponse | null = null;
+    try {
+      result = text ? (JSON.parse(text) as CommissionDetailResponse) : null;
+    } catch (e) {
+      console.warn('Detalle de comisiones: respuesta no JSON o vacía, usando valores por defecto.');
+      result = null;
+    }
+    return (
+      result ?? {
+        data: [],
+        page: params.page || 1,
+        page_size: params.page_size || 10,
+        total: 0,
+      }
+    );
   } catch (error) {
     console.error('❌ Error in getCommissionsDetail:', error);
     throw error;
@@ -163,8 +177,25 @@ export const getCommissionsSummary = async (
       throw new Error(`Error al obtener resumen de comisiones: ${response.statusText}`);
     }
 
-    const result: CommissionSummaryResponse = await response.json();
-    return result;
+    const text = await response.text();
+    let result: CommissionSummaryResponse | null = null;
+    try {
+      result = text ? (JSON.parse(text) as CommissionSummaryResponse) : null;
+    } catch (e) {
+      console.warn('Resumen de comisiones: respuesta no JSON o vacía, usando valores por defecto.');
+      result = null;
+    }
+    return (
+      result ?? {
+        total_year: 0,
+        total_month: 0,
+        new_clients: 0,
+        conversion_rate: 0,
+        product_mix: [],
+        team_avg: 0,
+        team_distribution: [],
+      }
+    );
   } catch (error) {
     console.error('❌ Error in getCommissionsSummary:', error);
     throw error;
@@ -192,8 +223,24 @@ export const getCommissionsFilters = async (): Promise<CommissionFiltersResponse
       throw new Error(`Error al obtener filtros de comisiones: ${response.statusText}`);
     }
 
-    const result: CommissionFiltersResponse = await response.json();
-    return result;
+    const text = await response.text();
+    let result: CommissionFiltersResponse | null = null;
+    try {
+      result = text ? (JSON.parse(text) as CommissionFiltersResponse) : null;
+    } catch (e) {
+      console.warn('Filtros de comisiones: respuesta no JSON o vacía, usando valores por defecto.');
+      result = null;
+    }
+    return (
+      result ?? {
+        periods: [],
+        products: [],
+        plans: [],
+        agents: [],
+        companies: [],
+        societies: [],
+      }
+    );
   } catch (error) {
     console.error('❌ Error in getCommissionsFilters:', error);
     throw error;

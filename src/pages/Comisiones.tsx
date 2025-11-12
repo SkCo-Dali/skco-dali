@@ -1,4 +1,5 @@
 import React from "react";
+import { ErrorBoundary } from "@/components/ui/error-boundary";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { PieChart, FileText, Receipt } from "lucide-react";
 import { CommissionsCategorySlicer, CommissionCategory } from "@/components/CommissionsCategorySlicer";
@@ -68,7 +69,8 @@ export default function Comisiones() {
     : 0;
 
   return (
-    <div className="w-full max-w-full px-4 py-4 space-y-6">
+      <ErrorBoundary onReset={commissionsData.reload}>
+        <div className="w-full max-w-full px-4 py-4 space-y-6">
       <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3 md:gap-4 mb-3 md:mb-4">
         <div>
           <p className="text-[24px] font-bold mb-1 text-foreground">Visualiza las Comisiones por Compañía</p>
@@ -352,6 +354,7 @@ export default function Comisiones() {
           </Tabs>
         </>
       )}
-    </div>
+      </div>
+      </ErrorBoundary>
   );
 }
