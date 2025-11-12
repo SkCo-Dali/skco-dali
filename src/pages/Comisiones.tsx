@@ -25,7 +25,7 @@ export default function Comisiones() {
     // Simular carga de datos
     const timer = setTimeout(() => {
       setLoading(false);
-    }, 2000);
+    }, 3000);
 
     return () => clearTimeout(timer);
   }, []);
