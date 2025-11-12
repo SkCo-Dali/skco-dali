@@ -1,10 +1,28 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import Lottie from "lottie-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Settings, Database, FileText, Calculator } from "lucide-react";
 
 export default function MotorComisionesIndex() {
   const navigate = useNavigate();
+  const [loading, setLoading] = useState(true);
+  const [calculatorAnimation, setCalculatorAnimation] = useState(null);
+
+  useEffect(() => {
+    fetch('/animations/calculator_and_coin_dollar.json')
+      .then(res => res.json())
+      .then(data => setCalculatorAnimation(data))
+      .catch(err => console.error('Error loading calculator animation:', err));
+  }, []);
+
+  useEffect(() => {
+    // Simular carga de datos
+    const timer = setTimeout(() => {
+      setLoading(false);
+    }, 1500);
+    return () => clearTimeout(timer);
+  }, []);
 
   const modules = [
     {
@@ -42,6 +60,21 @@ export default function MotorComisionesIndex() {
       disabled: true,
     },
   ];
+
+  if (loading) {
+    return (
+      <div className="flex flex-col justify-center items-center min-h-[60vh] space-y-4">
+        {calculatorAnimation ? (
+          <div className="w-64 h-64">
+            <Lottie animationData={calculatorAnimation} loop={true} />
+          </div>
+        ) : (
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900" />
+        )}
+        <span className="text-lg text-muted-foreground">Cargando Motor de Comisiones...</span>
+      </div>
+    );
+  }
 
   return (
     <div className="w-full max-w-7xl mx-auto px-4 py-8 space-y-8">
