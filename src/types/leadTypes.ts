@@ -6,7 +6,7 @@ export interface TypedLead {
   tipoLead: LeadType;
   // PAC specific fields
   numeroEmpleadosAproximado?: number;
-  estadoLeadPac?: string;
+  estadoLeadPac?: 'Prospecto' | 'En Contacto' | 'En Negociación' | 'Cerrado Ganado' | 'Cerrado Perdido';
   sectorEmpresa?: string;
   // Corporate specific fields
   estadoLeadCorporativo?: string;
