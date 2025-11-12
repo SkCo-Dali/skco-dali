@@ -10,17 +10,17 @@ export default function MotorComisionesIndex() {
   const [calculatorAnimation, setCalculatorAnimation] = useState(null);
 
   useEffect(() => {
-    fetch('/animations/calculator_and_coin_dollar.json')
-      .then(res => res.json())
-      .then(data => setCalculatorAnimation(data))
-      .catch(err => console.error('Error loading calculator animation:', err));
+    fetch("/animations/calculator_and_coin_dollar.json")
+      .then((res) => res.json())
+      .then((data) => setCalculatorAnimation(data))
+      .catch((err) => console.error("Error loading calculator animation:", err));
   }, []);
 
   useEffect(() => {
     // Simular carga de datos
     const timer = setTimeout(() => {
       setLoading(false);
-    }, 2000);
+    }, 3000);
     return () => clearTimeout(timer);
   }, []);
 
@@ -110,9 +110,7 @@ export default function MotorComisionesIndex() {
                       </span>
                     )}
                   </CardTitle>
-                  <CardDescription className="text-sm">
-                    {module.description}
-                  </CardDescription>
+                  <CardDescription className="text-sm">{module.description}</CardDescription>
                 </div>
               </div>
             </CardHeader>
