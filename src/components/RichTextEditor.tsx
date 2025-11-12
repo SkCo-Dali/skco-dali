@@ -224,8 +224,18 @@ export function RichTextEditor({ value, onChange, placeholder, allowDrop = false
     const text = e.dataTransfer.getData("text/plain");
     if (!text) return;
 
-    // Focus the editor and insert at cursor position
-    editorRef.current?.focus();
+    // Get the drop position
+    const range = document.caretRangeFromPoint(e.clientX, e.clientY);
+    if (!range) return;
+
+    // Set the cursor at the drop position
+    const sel = window.getSelection();
+    if (!sel) return;
+    
+    sel.removeAllRanges();
+    sel.addRange(range);
+
+    // Insert the text at the cursor position
     document.execCommand("insertText", false, text);
     handleContentChange();
   };
