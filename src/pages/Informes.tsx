@@ -5,6 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { InformesSearch } from "@/components/InformesSearch";
+import Lottie from 'lottie-react';
 import {
   Search,
   Filter,
@@ -70,6 +71,15 @@ export default function Informes() {
     sortColumn: null,
     sortDirection: "asc",
   });
+
+  const [informesAnimation, setInformesAnimation] = useState(null);
+
+  useEffect(() => {
+    fetch('/animations/informes.json')
+      .then(res => res.json())
+      .then(data => setInformesAnimation(data))
+      .catch(err => console.error('Error loading informes animation:', err));
+  }, []);
 
   // Fetch initial data
   const fetchData = async () => {
@@ -322,9 +332,15 @@ export default function Informes() {
     return (
       <div className="pt-0">
         <div className="px-4 py-4">
-          <div className="flex items-center justify-center py-12">
-            <Loader2 className="h-8 w-8 animate-spin text-primary" />
-            <span className="ml-2">Cargando informes...</span>
+          <div className="flex flex-col items-center justify-center py-12 space-y-4">
+            {informesAnimation ? (
+              <div className="w-64 h-64">
+                <Lottie animationData={informesAnimation} loop={true} />
+              </div>
+            ) : (
+              <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            )}
+            <span className="text-lg text-muted-foreground">Cargando informes...</span>
           </div>
         </div>
       </div>

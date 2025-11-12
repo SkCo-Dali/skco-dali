@@ -7,6 +7,7 @@ import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
 import { onboardingApiClient } from '@/utils/onboardingApiClient';
 import { AvailableAction } from '@/types/onboardingApi';
+import Lottie from 'lottie-react';
 
 interface StepPrimaryActionProps {
   userRole: string;
@@ -26,6 +27,56 @@ export function StepPrimaryAction({
   const [loading, setLoading] = useState(true);
   const [selected, setSelected] = useState<AvailableAction | null>(null);
   const [error, setError] = useState('');
+  const [choosePlanAnimation, setChoosePlanAnimation] = useState(null);
+  const [optionAnimations, setOptionAnimations] = useState<Record<string, any>>({});
+
+  // Mapeo de códigos de acción a archivos de animación
+  const getAnimationPath = (code: string): string => {
+    const normalizedCode = code.toLowerCase();
+    console.log('🎬 Getting animation for code:', normalizedCode);
+    
+    if (normalizedCode.includes('lead')) return '/animations/leads.json';
+    if (normalizedCode.includes('oportunidad')) return '/animations/market_oportunidades.json';
+    if (normalizedCode.includes('informe') || normalizedCode.includes('report')) return '/animations/informes.json';
+    
+    return '/animations/choose_plan.json';
+  };
+
+  // Cargar la animación Choose Plan (siempre arriba)
+  useEffect(() => {
+    fetch('/animations/choose_plan.json')
+      .then(res => res.json())
+      .then(data => setChoosePlanAnimation(data))
+      .catch(err => console.error('Error loading choose plan animation:', err));
+  }, []);
+
+  // Cargar animaciones específicas para cada opción
+  useEffect(() => {
+    if (options.length > 0) {
+      console.log('📋 Loading animations for options:', options.map(o => ({ code: o.code, label: o.label })));
+      
+      const loadAnimations = async () => {
+        const loadedAnimations: Record<string, any> = {};
+        
+        for (const option of options) {
+          const path = getAnimationPath(option.code);
+          console.log(`🎬 Loading animation for ${option.code} from ${path}`);
+          try {
+            const response = await fetch(path);
+            const data = await response.json();
+            loadedAnimations[option.code] = data;
+            console.log(`✅ Animation loaded for ${option.code}`);
+          } catch (error) {
+            console.error(`❌ Error loading animation for ${option.code}:`, error);
+          }
+        }
+        
+        setOptionAnimations(loadedAnimations);
+      };
+      
+      loadAnimations();
+    }
+  }, [options]);
 
   useEffect(() => {
     const fetchActions = async () => {
@@ -37,6 +88,7 @@ export function StepPrimaryAction({
 
       try {
         const response = await onboardingApiClient.getAvailableActions(accessToken);
+        console.log('🎯 Available actions received:', response.actions);
         setOptions(response.actions);
 
         // Si solo hay una opción, seleccionarla automáticamente
@@ -90,6 +142,14 @@ export function StepPrimaryAction({
 
   return (
     <div className="space-y-6 animate-fade-in">
+      {choosePlanAnimation && (
+        <div className="flex justify-center">
+          <div className="w-64 h-64">
+            <Lottie animationData={choosePlanAnimation} loop={true} />
+          </div>
+        </div>
+      )}
+      
       <div className="text-center space-y-2">
         <h2 className="text-3xl font-bold">¿Qué quieres hacer primero?</h2>
         <p className="text-muted-foreground">
@@ -120,6 +180,13 @@ export function StepPrimaryAction({
                 }}
               >
                 <CardContent className="p-6 space-y-3">
+                  {optionAnimations[option.code] && (
+                    <div className="flex justify-center mb-2">
+                      <div className="w-32 h-32">
+                        <Lottie animationData={optionAnimations[option.code]} loop={true} />
+                      </div>
+                    </div>
+                  )}
                   <div className="flex items-center gap-3">
                     <div className={cn(
                       'p-2 rounded-lg',

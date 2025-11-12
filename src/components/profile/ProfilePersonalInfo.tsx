@@ -63,7 +63,7 @@ export function ProfilePersonalInfo({ profile, updateProfile }: Props) {
       </div>
 
       {/* Photo */}
-      <Card className="p-6 border-border/40">
+      <Card className="p-4 border-border/40">
         <div className="flex items-center gap-6">
           <div className="relative group">
             <div className="h-24 w-24 rounded-full bg-muted flex items-center justify-center overflow-hidden border-2 border-border">
@@ -89,7 +89,7 @@ export function ProfilePersonalInfo({ profile, updateProfile }: Props) {
       </Card>
 
       {/* Basic Info */}
-      <Card className="p-6 border-border/40 space-y-4">
+      <Card className="p-4 border-border/40 space-y-4">
         <h3 className="font-medium text-lg mb-4">Datos Básicos</h3>
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -137,7 +137,7 @@ export function ProfilePersonalInfo({ profile, updateProfile }: Props) {
       </Card>
 
       {/* WhatsApp */}
-      <Card className="p-6 border-border/40 space-y-4">
+      <Card className="p-4 border-border/40 space-y-4">
         <h3 className="font-medium text-lg mb-4">WhatsApp *</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-2">
@@ -164,7 +164,7 @@ export function ProfilePersonalInfo({ profile, updateProfile }: Props) {
       </Card>
 
       {/* Social Media */}
-      <Card className="p-6 border-border/40 space-y-4">
+      <Card className="p-4 border-border/40 space-y-4">
         <Collapsible open={socialMediaOpen} onOpenChange={setSocialMediaOpen}>
           <div className="flex items-center justify-between">
             <div>
@@ -241,7 +241,7 @@ export function ProfilePersonalInfo({ profile, updateProfile }: Props) {
       </Card>
 
       {/* Email Signature */}
-      <Card className="p-6 border-border/40 space-y-4">
+      <Card className="p-4 border-border/40 space-y-4">
         <div>
           <h3 className="font-medium text-lg">Firma de Correo</h3>
           <p className="text-sm text-muted-foreground">Se usará en tus envíos masivos de correos</p>

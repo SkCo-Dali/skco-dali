@@ -27,7 +27,7 @@ export function EmailSendConfirmation({
   recipientCount,
   isLoading = false
 }: EmailSendConfirmationProps) {
-  const isOverLimit = recipientCount > 20;
+  const isOverLimit = recipientCount > 50;
 
   return (
     <AlertDialog open={isOpen} onOpenChange={onCancel}>
@@ -50,7 +50,7 @@ export function EmailSendConfirmation({
               <div className="flex items-center gap-2 p-3 bg-red-50 border border-red-200 rounded-md">
                 <AlertTriangle className="h-4 w-4 text-red-600" />
                 <span className="text-red-800 text-sm">
-                  <strong>Límite excedido:</strong> El máximo permitido es 20 correos por envío. 
+                  <strong>Límite excedido:</strong> El máximo permitido es 50 correos por envío. 
                   Por favor, reduce la cantidad de destinatarios.
                 </span>
               </div>

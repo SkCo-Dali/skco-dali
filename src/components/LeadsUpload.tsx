@@ -6,6 +6,7 @@ import { Upload, FileSpreadsheet } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { uploadLeadsFile } from "@/utils/leadsApiClient";
 import { useAuth } from "@/contexts/AuthContext";
+import { LeadsUploadProgressModal } from "./LeadsUploadProgressModal";
 
 interface LeadsUploadProps {
   onLeadsUploaded: () => void;
@@ -14,6 +15,12 @@ interface LeadsUploadProps {
 export function LeadsUpload({ onLeadsUploaded }: LeadsUploadProps) {
   const [open, setOpen] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [progressModalOpen, setProgressModalOpen] = useState(false);
+  const [uploadSuccess, setUploadSuccess] = useState(false);
+  const [uploadError, setUploadError] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
+  const [successMessage, setSuccessMessage] = useState('');
+  const [currentFileName, setCurrentFileName] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
   const { user } = useAuth();
@@ -73,7 +80,20 @@ export function LeadsUpload({ onLeadsUploaded }: LeadsUploadProps) {
       return;
     }
 
+    // Guardar el nombre del archivo
+    setCurrentFileName(file.name);
+    
+    // Resetear estados
+    setUploadSuccess(false);
+    setUploadError(false);
+    setErrorMessage('');
+    setSuccessMessage('');
+    
+    // Cerrar el modal de selección y abrir el de progreso
+    setOpen(false);
+    setProgressModalOpen(true);
     setUploading(true);
+    
     console.log('🔄 Iniciando carga masiva de leads...');
     console.log('📁 Archivo seleccionado:', {
       name: file.name,
@@ -94,16 +114,14 @@ export function LeadsUpload({ onLeadsUploaded }: LeadsUploadProps) {
       
       console.log('✅ Carga masiva completada exitosamente');
       
-      toast({
-        title: "Éxito",
-        description: `Archivo "${file.name}" cargado exitosamente`,
-      });
+      // Marcar como exitoso
+      setUploadSuccess(true);
+      setSuccessMessage(`Archivo "${file.name}" cargado exitosamente`);
       
       // Notificar al componente padre para refrescar la lista
       onLeadsUploaded();
       
-      // Cerrar el modal y limpiar el input
-      setOpen(false);
+      // Limpiar el input
       if (fileInputRef.current) {
         fileInputRef.current.value = '';
       }
@@ -111,18 +129,17 @@ export function LeadsUpload({ onLeadsUploaded }: LeadsUploadProps) {
     } catch (error) {
       console.error('❌ Error en carga masiva:', error);
       
-      let errorMessage = "Error al cargar el archivo";
+      let errorMsg = "Error al cargar el archivo";
       if (error instanceof Error) {
-        errorMessage = error.message;
+        errorMsg = error.message;
         console.error('❌ Mensaje de error:', error.message);
         console.error('❌ Stack trace:', error.stack);
       }
       
-      toast({
-        title: "Error",
-        description: errorMessage,
-        variant: "destructive",
-      });
+      // Marcar como error
+      setUploadError(true);
+      setErrorMessage(errorMsg);
+      
     } finally {
       setUploading(false);
       console.log('🏁 Proceso de carga finalizado');
@@ -139,76 +156,89 @@ export function LeadsUpload({ onLeadsUploaded }: LeadsUploadProps) {
     }
   };
 
+  const handleProgressModalClose = () => {
+    setProgressModalOpen(false);
+    setUploadSuccess(false);
+    setUploadError(false);
+    setErrorMessage('');
+    setSuccessMessage('');
+    setCurrentFileName('');
+  };
+
   return (
-    <Dialog open={open} onOpenChange={handleDialogOpenChange}>
-      <DialogTrigger asChild>
-        <Button variant="outline" size="icon">
-          <Upload className="h-4 w-4" />
-        </Button>
-      </DialogTrigger>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>Subir Leads Masivamente</DialogTitle>
-        </DialogHeader>
-        <div className="space-y-4">
-          <div className="border-2 border-dashed border-gray-300 rounded-xl p-4 text-center">
-            <FileSpreadsheet className="mx-auto h-12 w-12 text-gray-400 mb-4" />
-            <p className="text-sm text-gray-600 mb-4">
-              Selecciona un archivo CSV o Excel con los leads
-            </p>
-            <p className="text-xs text-gray-500 mb-4">
-              Formatos permitidos: .csv, .xls, .xlsx (máx. 10MB)
-            </p>
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept=".csv,.xlsx,.xls"
-              onChange={(e) => {
-                console.log('🎯 === FILE INPUT CHANGE EVENT TRIGGERED ===');
-                console.log('📂 Event target files:', e.target.files);
-                console.log('📂 Files length:', e.target.files?.length);
-                if (e.target.files?.[0]) {
-                  console.log('📁 Selected file details:', {
-                    name: e.target.files[0].name,
-                    size: e.target.files[0].size,
-                    type: e.target.files[0].type
-                  });
-                }
-                handleFileUpload(e);
-              }}
-              className="hidden"
-              disabled={uploading}
-            />
-            <Button 
-              onClick={() => {
-                console.log('🔘 === CARGAR LEADS BUTTON CLICKED ===');
-                console.log('📁 fileInputRef.current:', fileInputRef.current);
-                console.log('⏳ uploading state:', uploading);
-                fileInputRef.current?.click();
-              }}
-              disabled={uploading}
-            >
-              {uploading ? "Subiendo..." : "Seleccionar Archivo"}
-            </Button>
-          </div>
-          
-          <div className="text-xs text-gray-500 space-y-1">
-            <p className="font-medium">Formato esperado del archivo:</p>
-            <p>• Nombre, Email, Teléfono, Empresa, Fuente</p>
-            <p>• La primera fila debe contener los encabezados</p>
-            <p>• El email es obligatorio para cada lead</p>
-          </div>
-          
-          {uploading && (
-            <div className="flex items-center justify-center p-4">
-              <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary mr-2"></div>
-              <span className="text-sm text-muted-foreground">
-                Procesando archivo, por favor espera...
-              </span>
+    <>
+      <Dialog open={open} onOpenChange={handleDialogOpenChange}>
+        <DialogTrigger asChild>
+          <Button variant="outline" size="icon">
+            <Upload className="h-4 w-4" />
+          </Button>
+        </DialogTrigger>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Subir Leads Masivamente</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="border-2 border-dashed border-gray-300 rounded-xl p-4 text-center">
+              <FileSpreadsheet className="mx-auto h-12 w-12 text-gray-400 mb-4" />
+              <p className="text-sm text-gray-600 mb-4">
+                Selecciona un archivo CSV o Excel con los leads
+              </p>
+              <p className="text-xs text-gray-500 mb-4">
+                Formatos permitidos: .csv, .xls, .xlsx (máx. 10MB)
+              </p>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept=".csv,.xlsx,.xls"
+                onChange={(e) => {
+                  console.log('🎯 === FILE INPUT CHANGE EVENT TRIGGERED ===');
+                  console.log('📂 Event target files:', e.target.files);
+                  console.log('📂 Files length:', e.target.files?.length);
+                  if (e.target.files?.[0]) {
+                    console.log('📁 Selected file details:', {
+                      name: e.target.files[0].name,
+                      size: e.target.files[0].size,
+                      type: e.target.files[0].type
+                    });
+                  }
+                  handleFileUpload(e);
+                }}
+                className="hidden"
+                disabled={uploading}
+              />
+              <Button 
+                onClick={() => {
+                  console.log('🔘 === CARGAR LEADS BUTTON CLICKED ===');
+                  console.log('📁 fileInputRef.current:', fileInputRef.current);
+                  console.log('⏳ uploading state:', uploading);
+                  fileInputRef.current?.click();
+                }}
+                disabled={uploading}
+              >
+                Seleccionar Archivo
+              </Button>
             </div>
-          )}
-        </div>
-      </DialogContent>
-    </Dialog>
+            
+            <div className="text-xs text-gray-500 space-y-1">
+              <p className="font-medium">Formato esperado del archivo:</p>
+              <p>• Nombre, Email, Teléfono, Empresa, Fuente</p>
+              <p>• La primera fila debe contener los encabezados</p>
+              <p>• El email es obligatorio para cada lead</p>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      <LeadsUploadProgressModal
+        isOpen={progressModalOpen}
+        fileName={currentFileName}
+        isUploading={uploading}
+        isSuccess={uploadSuccess}
+        isError={uploadError}
+        errorMessage={errorMessage}
+        successMessage={successMessage}
+        onClose={handleProgressModalClose}
+      />
+    </>
   );
 }

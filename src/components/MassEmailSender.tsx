@@ -1,8 +1,8 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
-import { Send, Eye, History, Filter, AlertTriangle, Info, X, Mail } from 'lucide-react';
+import { Send, Eye, History, Filter, AlertTriangle, Mail } from 'lucide-react';
 import { Lead } from '@/types/crm';
 import { EmailTemplate } from '@/types/email';
 import { EmailComposer } from '@/components/EmailComposer';
@@ -12,36 +12,11 @@ import { EmailSendConfirmation } from '@/components/EmailSendConfirmation';
 import { EmailSendProgressModal } from '@/components/EmailSendProgressModal';
 import { useMassEmail } from '@/hooks/useMassEmail';
 import { useToast } from '@/hooks/use-toast';
+import { useFormPersistence } from '@/hooks/useFormPersistence';
 
 interface MassEmailSenderProps {
   filteredLeads: Lead[];
   onClose: () => void;
-}
-
-function InfoMessage({ onClose }: { onClose: () => void }) {
-  return (
-    <div className="flex items-start gap-4 p-4 border border-blue-300 rounded-md bg-blue-50 text-gray-800 relative">
-      <div className="flex-shrink-0 text-blue-500">
-        <Info className="h-6 w-6" />
-      </div>
-
-      <div className="flex-1">
-        <p className="font-semibold text-gray-900 mb-1">Ejemplo de tu correo</p>
-        <p className="text-gray-700 text-sm">
-          Los demás correos se enviarán con el mismo formato y con los datos que personalizaste.
-        </p>
-      </div>
-
-      <button
-        type="button"
-        className="absolute top-2 right-2 text-gray-400 hover:text-gray-600"
-        aria-label="Cerrar"
-        onClick={onClose}
-      >
-        <X className="h-4 w-4" />
-      </button>
-    </div>
-  );
 }
 
 export function MassEmailSender({ filteredLeads, onClose }: MassEmailSenderProps) {
@@ -69,16 +44,48 @@ export function MassEmailSender({ filteredLeads, onClose }: MassEmailSenderProps
     plainContent: ''
   });
 
-  // Estado para mostrar/ocultar mensaje de info
-  const [showInfoMessage, setShowInfoMessage] = useState(true);
+  // Persistencia automática del borrador
+  const { hasBackup, restoreFromStorage, clearBackup } = useFormPersistence({
+    key: 'mass-email-draft',
+    data: template,
+    enabled: true,
+    autoSaveInterval: 5000, // Guardar cada 5 segundos
+  });
+
+  // Restaurar borrador al montar el componente
+  useEffect(() => {
+    const restored = restoreFromStorage();
+    if (restored && (restored.subject || restored.htmlContent)) {
+      setTemplate(restored);
+      toast({
+        title: "Borrador restaurado",
+        description: "Se ha recuperado tu borrador anterior",
+      });
+    }
+  }, []);
+
+  // Limpiar borrador cuando se envíe exitosamente
+  const handleSuccessfulSend = () => {
+    clearBackup();
+  };
   
   // Estado para email alternativo en envíos individuales
   const [alternateEmail, setAlternateEmail] = useState('');
 
-  // Filtrar leads que tengan email válido y limitar a 20
+  // Filtrar leads que tengan email válido
   const validLeads = filteredLeads.filter(lead => lead.email && lead.email.trim() !== '');
-  const leadsToShow = validLeads.slice(0, 20);
-  const isOverLimit = validLeads.length > 20;
+  
+  // Estado para trackear qué leads están seleccionados (por defecto todos)
+  const [selectedLeadIds, setSelectedLeadIds] = useState<Set<string>>(() => new Set(validLeads.map(l => l.id)));
+  
+  // Actualizar selección cuando cambien los validLeads
+  useEffect(() => {
+    setSelectedLeadIds(new Set(validLeads.map(l => l.id)));
+  }, [filteredLeads]);
+  
+  // Leads que realmente se enviarán (seleccionados y limitados a 50)
+  const leadsToSend = validLeads.filter(lead => selectedLeadIds.has(lead.id)).slice(0, 50);
+  const isOverLimit = leadsToSend.length > 50;
   
   // Solo mostrar historial si hay exactamente un lead seleccionado
   const showHistoryTab = validLeads.length === 1;
@@ -93,19 +100,19 @@ export function MassEmailSender({ filteredLeads, onClose }: MassEmailSenderProps
       return;
     }
 
-    if (validLeads.length === 0) {
+    if (leadsToSend.length === 0) {
       toast({
         title: "Error",
-        description: "No hay leads con email válido para enviar correos",
+        description: "No hay leads seleccionados para enviar correos",
         variant: "destructive"
       });
       return;
     }
 
-    if (validLeads.length > 20) {
+    if (leadsToSend.length > 50) {
       toast({
         title: "Error",
-        description: "El máximo permitido es 20 correos por envío. Por favor, reduce la cantidad de destinatarios.",
+        description: "El máximo permitido es 50 correos por envío. Por favor, reduce la cantidad de destinatarios.",
         variant: "destructive"
       });
       return;
@@ -118,7 +125,10 @@ export function MassEmailSender({ filteredLeads, onClose }: MassEmailSenderProps
     setShowConfirmation(false);
     setShowProgressModal(true);
     
-    await sendMassEmail(leadsToShow, template, alternateEmail);
+    const success = await sendMassEmail(leadsToSend, template, alternateEmail);
+    if (success) {
+      handleSuccessfulSend();
+    }
   };
 
   const handleCloseProgress = () => {
@@ -130,7 +140,19 @@ export function MassEmailSender({ filteredLeads, onClose }: MassEmailSenderProps
     }, 500);
   };
 
-  const isReadyToSend = template.subject.trim() && template.htmlContent.trim() && validLeads.length > 0 && validLeads.length <= 20;
+  const isReadyToSend = template.subject.trim() && template.htmlContent.trim() && leadsToSend.length > 0 && leadsToSend.length <= 50;
+  
+  const handleToggleLead = (leadId: string) => {
+    setSelectedLeadIds(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(leadId)) {
+        newSet.delete(leadId);
+      } else {
+        newSet.add(leadId);
+      }
+      return newSet;
+    });
+  };
 
   return (
     <>
@@ -142,12 +164,12 @@ export function MassEmailSender({ filteredLeads, onClose }: MassEmailSenderProps
             <div className="flex items-center gap-2">
               <Badge variant="secondary">
                 <Filter className="h-4 w-4 mr-1 text-white" />
-                <span className="text-white">{validLeads.length} leads con email válido</span>
+                <span className="text-white">{leadsToSend.length} de {validLeads.length} seleccionados</span>
               </Badge>
               {isOverLimit && (
                 <Badge variant="destructive">
                   <AlertTriangle className="h-4 w-4 mr-1" />
-                  Máximo 20 correos
+                  Máximo 50 correos
                 </Badge>
               )}
             </div>
@@ -194,7 +216,7 @@ export function MassEmailSender({ filteredLeads, onClose }: MassEmailSenderProps
             
             <div className="flex justify-between items-center pt-4 border-t">
               <div className="text-sm text-muted-foreground">
-                {leadsToShow.length} correo(s) listos para enviar
+                {leadsToSend.length} correo(s) listos para enviar
               </div>
               <div className="flex gap-2">
                 <Button
@@ -217,14 +239,13 @@ export function MassEmailSender({ filteredLeads, onClose }: MassEmailSenderProps
           </TabsContent>
 
           <TabsContent value="preview" className="space-y-6 mt-4">
-            {/* Mensaje info con control de visibilidad */}
-            {showInfoMessage && <InfoMessage onClose={() => setShowInfoMessage(false)} />}
-
             <EmailPreview
-              leads={leadsToShow}
+              leads={validLeads}
               template={template}
               replaceDynamicFields={replaceDynamicFields}
               alternateEmail={alternateEmail}
+              selectedLeadIds={selectedLeadIds}
+              onToggleLead={handleToggleLead}
             />
             
             <div className="flex justify-between items-center pt-4 border-t">
@@ -239,7 +260,7 @@ export function MassEmailSender({ filteredLeads, onClose }: MassEmailSenderProps
                 disabled={!isReadyToSend || isLoading}
               >
                 <Send className="h-4 w-4 mr-2" />
-                {isLoading ? 'Enviando...' : `Confirmar Envío (${leadsToShow.length} correos)`}
+                {isLoading ? 'Enviando...' : `Confirmar Envío (${leadsToSend.length} correos)`}
               </Button>
             </div>
           </TabsContent>
@@ -260,7 +281,7 @@ export function MassEmailSender({ filteredLeads, onClose }: MassEmailSenderProps
         isOpen={showConfirmation}
         onConfirm={handleConfirmSend}
         onCancel={() => setShowConfirmation(false)}
-        recipientCount={leadsToShow.length}
+        recipientCount={leadsToSend.length}
         isLoading={isLoading}
       />
 

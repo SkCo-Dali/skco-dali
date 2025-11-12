@@ -1,12 +1,12 @@
-import { useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { Card } from '@/components/ui/card';
-import { UserProfile } from '@/types/userProfile';
-import { Edit2, Save, X } from 'lucide-react';
-import { toast } from 'sonner';
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Card } from "@/components/ui/card";
+import { UserProfile } from "@/types/userProfile";
+import { Edit2, Save, X } from "lucide-react";
+import { toast } from "sonner";
 
 interface Props {
   profile: UserProfile;
@@ -20,7 +20,7 @@ export function ProfileProfessionalInfo({ profile, updateProfile }: Props) {
   const handleSave = () => {
     updateProfile(localData);
     setIsEditing(false);
-    toast.success('Información profesional actualizada');
+    toast.success("Información profesional actualizada");
   };
 
   const handleCancel = () => {
@@ -34,9 +34,7 @@ export function ProfileProfessionalInfo({ profile, updateProfile }: Props) {
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-2xl font-semibold">Información Profesional</h2>
-          <p className="text-sm text-muted-foreground mt-1">
-            Datos laborales y objetivos
-          </p>
+          <p className="text-sm text-muted-foreground mt-1">Datos laborales y objetivos</p>
         </div>
         {!isEditing ? (
           <Button onClick={() => setIsEditing(true)} variant="outline" className="gap-2">
@@ -57,13 +55,13 @@ export function ProfileProfessionalInfo({ profile, updateProfile }: Props) {
         )}
       </div>
 
-      <Card className="p-6 border-border/40 space-y-6">
+      <Card className="p-4 border-border/40 space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-2">
             <Label htmlFor="role">Cargo/Rol</Label>
             <Input
               id="role"
-              value={localData.role || ''}
+              value={localData.role || ""}
               onChange={(e) => setLocalData({ ...localData, role: e.target.value })}
               disabled={!isEditing}
               placeholder="Ej: Asesor Comercial"
@@ -74,7 +72,7 @@ export function ProfileProfessionalInfo({ profile, updateProfile }: Props) {
             <Label htmlFor="department">Departamento/Área</Label>
             <Input
               id="department"
-              value={localData.department || ''}
+              value={localData.department || ""}
               onChange={(e) => setLocalData({ ...localData, department: e.target.value })}
               disabled={!isEditing}
               placeholder="Ej: Ventas"
@@ -86,7 +84,7 @@ export function ProfileProfessionalInfo({ profile, updateProfile }: Props) {
             <Input
               id="startDate"
               type="date"
-              value={localData.startDate || ''}
+              value={localData.startDate || ""}
               onChange={(e) => setLocalData({ ...localData, startDate: e.target.value })}
               disabled={!isEditing}
             />
@@ -96,7 +94,7 @@ export function ProfileProfessionalInfo({ profile, updateProfile }: Props) {
             <Label htmlFor="manager">Supervisor/Manager</Label>
             <Input
               id="manager"
-              value={localData.manager || ''}
+              value={localData.manager || ""}
               onChange={(e) => setLocalData({ ...localData, manager: e.target.value })}
               disabled={!isEditing}
               placeholder="Nombre del supervisor"
@@ -107,7 +105,7 @@ export function ProfileProfessionalInfo({ profile, updateProfile }: Props) {
             <Label htmlFor="specialization">Especialización</Label>
             <Input
               id="specialization"
-              value={localData.specialization || ''}
+              value={localData.specialization || ""}
               onChange={(e) => setLocalData({ ...localData, specialization: e.target.value })}
               disabled={!isEditing}
               placeholder="Ej: Seguros de vida, Pensiones"
@@ -118,7 +116,7 @@ export function ProfileProfessionalInfo({ profile, updateProfile }: Props) {
             <Label htmlFor="monthlyGoals">Objetivos Mensuales</Label>
             <Textarea
               id="monthlyGoals"
-              value={localData.monthlyGoals || ''}
+              value={localData.monthlyGoals || ""}
               onChange={(e) => setLocalData({ ...localData, monthlyGoals: e.target.value })}
               disabled={!isEditing}
               placeholder="Describe tus metas mensuales..."
@@ -131,11 +129,17 @@ export function ProfileProfessionalInfo({ profile, updateProfile }: Props) {
             <Input
               id="workStart"
               type="time"
-              value={localData.workSchedule?.start || ''}
-              onChange={(e) => setLocalData({ 
-                ...localData, 
-                workSchedule: { ...localData.workSchedule, start: e.target.value, end: localData.workSchedule?.end || '' }
-              })}
+              value={localData.workSchedule?.start || ""}
+              onChange={(e) =>
+                setLocalData({
+                  ...localData,
+                  workSchedule: {
+                    ...localData.workSchedule,
+                    start: e.target.value,
+                    end: localData.workSchedule?.end || "",
+                  },
+                })
+              }
               disabled={!isEditing}
             />
           </div>
@@ -145,11 +149,17 @@ export function ProfileProfessionalInfo({ profile, updateProfile }: Props) {
             <Input
               id="workEnd"
               type="time"
-              value={localData.workSchedule?.end || ''}
-              onChange={(e) => setLocalData({ 
-                ...localData, 
-                workSchedule: { ...localData.workSchedule, end: e.target.value, start: localData.workSchedule?.start || '' }
-              })}
+              value={localData.workSchedule?.end || ""}
+              onChange={(e) =>
+                setLocalData({
+                  ...localData,
+                  workSchedule: {
+                    ...localData.workSchedule,
+                    end: e.target.value,
+                    start: localData.workSchedule?.start || "",
+                  },
+                })
+              }
               disabled={!isEditing}
             />
           </div>

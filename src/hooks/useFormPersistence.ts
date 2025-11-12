@@ -33,7 +33,7 @@ export const useFormPersistence = ({
         version: '1.0'
       };
 
-      sessionStorage.setItem(`form_backup_${key}`, JSON.stringify(storageData));
+      localStorage.setItem(`form_backup_${key}`, JSON.stringify(storageData));
       lastSavedDataRef.current = serializedData;
       
       console.log(`💾 FormPersistence: Datos guardados automáticamente para ${key}`);
@@ -46,7 +46,7 @@ export const useFormPersistence = ({
     if (!enabled) return null;
 
     try {
-      const saved = sessionStorage.getItem(`form_backup_${key}`);
+      const saved = localStorage.getItem(`form_backup_${key}`);
       if (!saved) return null;
 
       const parsedData = JSON.parse(saved);
@@ -68,7 +68,7 @@ export const useFormPersistence = ({
 
   const clearBackup = useCallback(() => {
     try {
-      sessionStorage.removeItem(`form_backup_${key}`);
+      localStorage.removeItem(`form_backup_${key}`);
       lastSavedDataRef.current = '';
       console.log(`🗑️ FormPersistence: Backup eliminado para ${key}`);
     } catch (error) {
@@ -78,7 +78,7 @@ export const useFormPersistence = ({
 
   const hasBackup = useCallback(() => {
     try {
-      const saved = sessionStorage.getItem(`form_backup_${key}`);
+      const saved = localStorage.getItem(`form_backup_${key}`);
       return saved !== null;
     } catch {
       return false;

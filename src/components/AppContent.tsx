@@ -21,6 +21,7 @@ import Comisiones from "@/pages/Comisiones";
 import MotorComisionesIndex from "@/pages/MotorComisionesIndex";
 import CompensationPlans from "@/pages/CompensationPlans";
 import Catalogs from "@/pages/Catalogs";
+import InfoGerencialComisiones from "@/pages/InfoGerencialComisiones";
 import VoiceInsights from "@/pages/VoiceInsights";
 import UserProfile from "@/pages/UserProfile";
 import NotFound from "@/pages/NotFound";
@@ -116,6 +117,7 @@ export function AppContent() {
                     <Route path="/motor-comisiones" element={<MotorComisionesIndex />} />
                     <Route path="/motor-comisiones/compensation-plans" element={<CompensationPlans />} />
                     <Route path="/motor-comisiones/catalogs" element={<Catalogs />} />
+                    <Route path="/motor-comisiones/info-gerencial" element={<InfoGerencialComisiones />} />
                     <Route path="/voice-insights" element={<VoiceInsights />} />
                   </Route>
                   <Route path="/perfil" element={<UserProfile />} />

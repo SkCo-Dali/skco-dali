@@ -16,6 +16,7 @@ interface UseLeadsKPICountsParams {
   apiFilters: LeadsApiFilters;
   duplicateFilter?: "all" | "duplicates" | "unique";
   searchTerm?: string;
+  refreshTrigger?: number;
 }
 
 // Todos los stages posibles en el sistema
@@ -40,7 +41,7 @@ const ALL_STAGES = [
  * Hace llamadas eficientes con page_size=1 para obtener solo el total
  */
 export const useLeadsKPICounts = (params: UseLeadsKPICountsParams): KPICountsResult => {
-  const { apiFilters: baseFilters, duplicateFilter = "all", searchTerm } = params;
+  const { apiFilters: baseFilters, duplicateFilter = "all", searchTerm, refreshTrigger } = params;
   const [counts, setCounts] = useState<KPICountsResult>({
     totalLeads: 0,
     newLeads: 0,
@@ -250,7 +251,7 @@ export const useLeadsKPICounts = (params: UseLeadsKPICountsParams): KPICountsRes
     };
 
     fetchCounts();
-  }, [JSON.stringify(baseFilters), duplicateFilter, searchTerm]); // Incluir duplicateFilter y searchTerm en dependencias
+  }, [JSON.stringify(baseFilters), duplicateFilter, searchTerm, refreshTrigger]); // Incluir duplicateFilter, searchTerm y refreshTrigger en dependencias
 
   return counts;
 };

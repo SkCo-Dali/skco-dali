@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
+import Lottie from 'lottie-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -33,9 +34,18 @@ export default function ReportViewer() {
   const [hasAccess, setHasAccess] = useState<boolean | null>(null);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [idToken, setIdToken] = useState<string>('');
+  const [informesAnimation, setInformesAnimation] = useState(null);
   
   // Diagnostic mode: skip RLS if ?no_rls=1
   const skipRls = searchParams.get('no_rls') === '1';
+
+  // Load animation
+  useEffect(() => {
+    fetch('/animations/informes.json')
+      .then(res => res.json())
+      .then(data => setInformesAnimation(data))
+      .catch(err => console.error('Error loading informes animation:', err));
+  }, []);
 
   // Power BI hook for embedding (only initialize when we have access and token)
   const powerBIHook = usePowerBIReport({
@@ -246,9 +256,15 @@ export default function ReportViewer() {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <Loader2 className="h-8 w-8 animate-spin text-primary mx-auto mb-4" />
-          <p className="text-muted-foreground">Cargando reporte...</p>
+        <div className="flex flex-col items-center justify-center space-y-4">
+          {informesAnimation ? (
+            <div className="w-64 h-64">
+              <Lottie animationData={informesAnimation} loop={true} />
+            </div>
+          ) : (
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          )}
+          <p className="text-lg text-muted-foreground">Cargando reporte...</p>
         </div>
       </div>
     );
@@ -379,9 +395,15 @@ export default function ReportViewer() {
                   <div className="w-full h-full">
                     {powerBIHook.status === 'loading' && (
                       <div className="w-full h-full flex items-center justify-center bg-muted/20 rounded-lg">
-                        <div className="text-center">
-                          <Loader2 className="h-8 w-8 animate-spin text-primary mx-auto mb-4" />
-                          <p className="text-muted-foreground">Cargando reporte Power BI...</p>
+                        <div className="flex flex-col items-center justify-center space-y-4">
+                          {informesAnimation ? (
+                            <div className="w-48 h-48">
+                              <Lottie animationData={informesAnimation} loop={true} />
+                            </div>
+                          ) : (
+                            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                          )}
+                          <p className="text-lg text-muted-foreground">Cargando reporte Power BI...</p>
                         </div>
                       </div>
                     )}

@@ -15,9 +15,11 @@ import { uploadLeadsFile, downloadLeadsTemplate } from "@/utils/leadsApiClient";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { InputSanitizer } from "@/utils/inputSanitizer";
+import { LeadsUploadProgressModal } from "./LeadsUploadProgressModal";
 
 interface LeadCreateDialogProps {
   onLeadCreate: (leadData: Partial<Lead>) => void;
+  onBulkUploadSuccess?: () => void;
   children?: React.ReactNode;
 }
 
@@ -40,7 +42,7 @@ const productOptions = [
 ];
 
 export const LeadCreateDialog = forwardRef<LeadCreateDialogRef, LeadCreateDialogProps>(
-  ({ onLeadCreate, children }, ref) => {
+  ({ onLeadCreate, onBulkUploadSuccess, children }, ref) => {
     const { user } = useAuth();
     const { toast } = useToast();
     const permissions = user ? getRolePermissions(user.role) : null;
@@ -52,6 +54,12 @@ export const LeadCreateDialog = forwardRef<LeadCreateDialogRef, LeadCreateDialog
     const [isUploading, setIsUploading] = useState(false);
     const [productSelectOpen, setProductSelectOpen] = useState(false);
     const [selectedProducts, setSelectedProducts] = useState<string[]>([]);
+    const [progressModalOpen, setProgressModalOpen] = useState(false);
+    const [uploadSuccess, setUploadSuccess] = useState(false);
+    const [uploadError, setUploadError] = useState(false);
+    const [errorMessage, setErrorMessage] = useState('');
+    const [successMessage, setSuccessMessage] = useState('');
+    const [uploadStats, setUploadStats] = useState<{ inserted: number; failed: number } | undefined>();
     const [formData, setFormData] = useState<Partial<Lead>>({
       name: "",
       email: "",
@@ -165,33 +173,82 @@ export const LeadCreateDialog = forwardRef<LeadCreateDialogRef, LeadCreateDialog
       }
     };
 
-    const handleBulkUpload = () => {
-      if (uploadedFile && user?.id) {
-        uploadLeadsFile(uploadedFile, user.id)
-          .then(() => {
-            // No llamar onLeadCreate después del bulk upload
-            setOpen(false);
-            toast({
-              title: "Éxito",
-              description: "Leads cargados exitosamente",
-            });
-          })
-          .catch((error) => {
-            console.error("❌ Upload failed:", error);
-            toast({
-              title: "Error",
-              description: "Error al cargar los leads",
-              variant: "destructive",
-            });
-          });
-      } else {
+    const handleBulkUpload = async () => {
+      if (!uploadedFile || !user?.id) {
         console.error("❌ Missing file or user ID");
         toast({
           title: "Error",
           description: "Archivo o usuario no válido",
           variant: "destructive",
         });
+        return;
       }
+
+      // Resetear estados
+      setUploadSuccess(false);
+      setUploadError(false);
+      setErrorMessage('');
+      setSuccessMessage('');
+      
+      // Cerrar el modal principal y abrir el de progreso
+      setOpen(false);
+      setProgressModalOpen(true);
+      setIsUploading(true);
+      
+      console.log('🔄 Iniciando carga masiva de leads desde LeadCreateDialog...');
+      console.log('📁 Archivo seleccionado:', {
+        name: uploadedFile.name,
+        size: uploadedFile.size,
+        type: uploadedFile.type
+      });
+
+      try {
+        const result = await uploadLeadsFile(uploadedFile, user.id);
+        
+        console.log('✅ Carga masiva completada exitosamente:', result);
+        
+        // Marcar como exitoso y guardar estadísticas
+        setUploadSuccess(true);
+        setSuccessMessage(result.message);
+        setUploadStats({
+          inserted: result.inserted,
+          failed: result.failed
+        });
+        
+        // Limpiar el archivo subido
+        setUploadedFile(null);
+        setUploadProgress(0);
+        
+      } catch (error) {
+        console.error('❌ Error en carga masiva:', error);
+        
+        let errorMsg = "Error al cargar el archivo";
+        if (error instanceof Error) {
+          errorMsg = error.message;
+        }
+        
+        // Marcar como error
+        setUploadError(true);
+        setErrorMessage(errorMsg);
+        
+      } finally {
+        setIsUploading(false);
+        console.log('🏁 Proceso de carga finalizado');
+      }
+    };
+
+    const handleProgressModalClose = () => {
+      // Si la carga fue exitosa, notificar al padre para que recargue los leads
+      if (uploadSuccess && onBulkUploadSuccess) {
+        onBulkUploadSuccess();
+      }
+      
+      setProgressModalOpen(false);
+      setUploadSuccess(false);
+      setUploadError(false);
+      setErrorMessage('');
+      setSuccessMessage('');
+      setUploadStats(undefined);
     };
 
     const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -224,6 +281,7 @@ export const LeadCreateDialog = forwardRef<LeadCreateDialogRef, LeadCreateDialog
     };
 
     return (
+      <>
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogTrigger asChild>{children}</DialogTrigger>
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
@@ -677,6 +735,19 @@ export const LeadCreateDialog = forwardRef<LeadCreateDialogRef, LeadCreateDialog
           </Tabs>
         </DialogContent>
       </Dialog>
+
+      <LeadsUploadProgressModal
+        isOpen={progressModalOpen}
+        fileName={uploadedFile?.name || ''}
+        isUploading={isUploading}
+        isSuccess={uploadSuccess}
+        isError={uploadError}
+        errorMessage={errorMessage}
+        successMessage={successMessage}
+        uploadStats={uploadStats}
+        onClose={handleProgressModalClose}
+      />
+    </>
     );
   },
 );

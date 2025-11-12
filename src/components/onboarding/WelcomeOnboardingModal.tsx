@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Progress } from '@/components/ui/progress';
 import { StepPreferredName } from './StepPreferredName';
@@ -10,6 +10,7 @@ import { useNavigate } from 'react-router-dom';
 import { Sparkles, Loader2 } from 'lucide-react';
 import { useInAppMessaging } from '@/hooks/useInAppMessaging';
 import { toast } from 'sonner';
+import Lottie from 'lottie-react';
 
 interface WelcomeOnboardingModalProps {
   isOpen: boolean;
@@ -24,12 +25,19 @@ export function WelcomeOnboardingModal({ isOpen, userRole, onComplete, onClose }
   const [currentStep, setCurrentStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isCompleted, setIsCompleted] = useState(false);
+  const [successAnimation, setSuccessAnimation] = useState(null);
   const [data, setData] = useState<Partial<OnboardingData>>({
     whatsapp: {
       countryCode: '+57',
       phone: '',
     },
   });
+
+  useEffect(() => {
+    fetch('/animations/successful.json')
+      .then(res => res.json())
+      .then(data => setSuccessAnimation(data));
+  }, []);
 
   const totalSteps = 4;
   const progress = (currentStep / totalSteps) * 100;
@@ -154,9 +162,15 @@ export function WelcomeOnboardingModal({ isOpen, userRole, onComplete, onClose }
         >
           <div className="text-center space-y-6 py-8 animate-scale-in">
             <div className="flex justify-center">
-              <div className="p-6 rounded-full bg-primary/10">
-                <Sparkles className="h-12 w-12 text-primary animate-pulse" />
-              </div>
+              {successAnimation ? (
+                <div className="w-64 h-64">
+                  <Lottie animationData={successAnimation} loop={true} />
+                </div>
+              ) : (
+                <div className="p-6 rounded-full bg-primary/10">
+                  <Sparkles className="h-12 w-12 text-primary animate-pulse" />
+                </div>
+              )}
             </div>
             <div>
               <h2 className="text-3xl font-bold mb-2">

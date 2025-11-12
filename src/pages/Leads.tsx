@@ -3,6 +3,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Lead, getRolePermissions } from "@/types/crm";
 import { useAuth } from "@/contexts/AuthContext";
 import { isAuthorizedForMassEmail } from "@/utils/emailDomainValidator";
+import Lottie from 'lottie-react';
 import { LeadsSearch } from "@/components/LeadsSearch";
 import { LeadsFilters } from "@/components/LeadsFilters";
 import { LeadsStats } from "@/components/LeadsStats";
@@ -106,6 +107,15 @@ export default function Leads() {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [showBulkStatusUpdate, setShowBulkStatusUpdate] = useState(false);
   const [isBulkUpdating, setIsBulkUpdating] = useState(false);
+  const [leadsAnimation, setLeadsAnimation] = useState(null);
+  const [kpiRefreshTrigger, setKpiRefreshTrigger] = useState(0);
+
+  useEffect(() => {
+    fetch('/animations/leads.json')
+      .then(res => res.json())
+      .then(data => setLeadsAnimation(data))
+      .catch(err => console.error('Error loading leads animation:', err));
+  }, []);
 
   const { user } = useAuth();
   const userPermissions = user ? getRolePermissions(user.role) : null;
@@ -130,6 +140,7 @@ export default function Leads() {
     apiFilters,
     duplicateFilter: filters.duplicateFilter,
     searchTerm: filters.searchTerm,
+    refreshTrigger: kpiRefreshTrigger,
   });
 
   const handleLeadUpdate = useCallback(
@@ -1114,8 +1125,15 @@ export default function Leads() {
             </div>
 
             {isLoading ? (
-              <div className="flex justify-center items-center py-5">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900" />
+              <div className="flex flex-col justify-center items-center py-12 space-y-4">
+                {leadsAnimation ? (
+                  <div className="w-64 h-64">
+                    <Lottie animationData={leadsAnimation} loop={true} />
+                  </div>
+                ) : (
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900" />
+                )}
+                <span className="text-lg text-muted-foreground">Cargando leads...</span>
               </div>
             ) : (
               <>
@@ -1160,7 +1178,14 @@ export default function Leads() {
           </div>
         </div>
 
-        <LeadCreateDialog ref={leadCreateDialogRef} onLeadCreate={handleLeadCreate} />
+        <LeadCreateDialog 
+          ref={leadCreateDialogRef} 
+          onLeadCreate={handleLeadCreate}
+          onBulkUploadSuccess={() => {
+            refreshLeads();
+            setKpiRefreshTrigger(prev => prev + 1);
+          }}
+        />
 
         {selectedLead && (
           <LeadDetail

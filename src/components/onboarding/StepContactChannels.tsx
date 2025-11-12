@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -6,6 +6,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/
 import { CountryPhoneSelector } from './CountryPhoneSelector';
 import { Facebook, Instagram, Linkedin, Twitter, Music } from 'lucide-react';
 import { countries } from '@/data/countries';
+import Lottie from 'lottie-react';
 
 interface ContactData {
   whatsapp: {
@@ -30,6 +31,17 @@ interface StepContactChannelsProps {
 export function StepContactChannels({ initialValue, onNext, onBack }: StepContactChannelsProps) {
   const [data, setData] = useState<ContactData>(initialValue);
   const [phoneError, setPhoneError] = useState('');
+  const [whatsappAnimation, setWhatsappAnimation] = useState(null);
+  const [socialAnimation, setSocialAnimation] = useState(null);
+
+  useEffect(() => {
+    fetch('/animations/whatsapp_loop.json')
+      .then(res => res.json())
+      .then(data => setWhatsappAnimation(data));
+    fetch('/animations/social_icons.json')
+      .then(res => res.json())
+      .then(data => setSocialAnimation(data));
+  }, []);
 
   const validatePhone = (): boolean => {
     const { countryCode, phone } = data.whatsapp;
@@ -71,6 +83,14 @@ export function StepContactChannels({ initialValue, onNext, onBack }: StepContac
 
   return (
     <div className="space-y-6 animate-fade-in">
+      {socialAnimation && (
+        <div className="flex justify-center">
+          <div className="w-48 h-48">
+            <Lottie animationData={socialAnimation} loop={true} />
+          </div>
+        </div>
+      )}
+      
       <div className="text-center space-y-2">
         <h2 className="text-3xl font-bold">Conecta tus canales de contacto</h2>
         <p className="text-muted-foreground">
@@ -80,7 +100,14 @@ export function StepContactChannels({ initialValue, onNext, onBack }: StepContac
 
       <div className="space-y-6 max-w-md mx-auto">
         <div className="space-y-2">
-          <Label>WhatsApp (requerido)</Label>
+          <Label className="flex items-center gap-2">
+            {whatsappAnimation && (
+              <div className="w-5 h-5">
+                <Lottie animationData={whatsappAnimation} loop={true} />
+              </div>
+            )}
+            WhatsApp (requerido)
+          </Label>
           <CountryPhoneSelector
             selectedCountryCode={selectedCountryCode}
             phone={data.whatsapp.phone}

@@ -1,12 +1,12 @@
-import { useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Card } from '@/components/ui/card';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { UserProfile } from '@/types/userProfile';
-import { Edit2, Save, X, Plus, Trash2 } from 'lucide-react';
-import { toast } from 'sonner';
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Card } from "@/components/ui/card";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { UserProfile } from "@/types/userProfile";
+import { Edit2, Save, X, Plus, Trash2 } from "lucide-react";
+import { toast } from "sonner";
 
 interface Props {
   profile: UserProfile;
@@ -20,7 +20,7 @@ export function ProfileFamilyInfo({ profile, updateProfile }: Props) {
   const handleSave = () => {
     updateProfile(localData);
     setIsEditing(false);
-    toast.success('Información familiar actualizada');
+    toast.success("Información familiar actualizada");
   };
 
   const handleCancel = () => {
@@ -31,9 +31,9 @@ export function ProfileFamilyInfo({ profile, updateProfile }: Props) {
   const addImportantDate = () => {
     const newDate = {
       id: Date.now().toString(),
-      name: '',
-      date: '',
-      type: 'birthday' as const,
+      name: "",
+      date: "",
+      type: "birthday" as const,
     };
     setLocalData({
       ...localData,
@@ -44,16 +44,14 @@ export function ProfileFamilyInfo({ profile, updateProfile }: Props) {
   const removeImportantDate = (id: string) => {
     setLocalData({
       ...localData,
-      importantDates: localData.importantDates?.filter(d => d.id !== id),
+      importantDates: localData.importantDates?.filter((d) => d.id !== id),
     });
   };
 
   const updateImportantDate = (id: string, field: string, value: string) => {
     setLocalData({
       ...localData,
-      importantDates: localData.importantDates?.map(d => 
-        d.id === id ? { ...d, [field]: value } : d
-      ),
+      importantDates: localData.importantDates?.map((d) => (d.id === id ? { ...d, [field]: value } : d)),
     });
   };
 
@@ -63,9 +61,7 @@ export function ProfileFamilyInfo({ profile, updateProfile }: Props) {
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-2xl font-semibold">Información Familiar</h2>
-          <p className="text-sm text-muted-foreground mt-1">
-            Datos familiares y contactos de emergencia
-          </p>
+          <p className="text-sm text-muted-foreground mt-1">Datos familiares y contactos de emergencia</p>
         </div>
         {!isEditing ? (
           <Button onClick={() => setIsEditing(true)} variant="outline" className="gap-2">
@@ -87,14 +83,14 @@ export function ProfileFamilyInfo({ profile, updateProfile }: Props) {
       </div>
 
       {/* Basic Family Info */}
-      <Card className="p-6 border-border/40 space-y-4">
+      <Card className="p-4 border-border/40 space-y-4">
         <h3 className="font-medium text-lg mb-4">Datos Básicos</h3>
-        
+
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-2">
             <Label htmlFor="maritalStatus">Estado Civil</Label>
             <Select
-              value={localData.maritalStatus || ''}
+              value={localData.maritalStatus || ""}
               onValueChange={(value: any) => setLocalData({ ...localData, maritalStatus: value })}
               disabled={!isEditing}
             >
@@ -117,7 +113,7 @@ export function ProfileFamilyInfo({ profile, updateProfile }: Props) {
               id="numberOfChildren"
               type="number"
               min="0"
-              value={localData.numberOfChildren || ''}
+              value={localData.numberOfChildren || ""}
               onChange={(e) => setLocalData({ ...localData, numberOfChildren: parseInt(e.target.value) || 0 })}
               disabled={!isEditing}
               placeholder="0"
@@ -127,24 +123,26 @@ export function ProfileFamilyInfo({ profile, updateProfile }: Props) {
       </Card>
 
       {/* Emergency Contact */}
-      <Card className="p-6 border-border/40 space-y-4">
+      <Card className="p-4 border-border/40 space-y-4">
         <h3 className="font-medium text-lg mb-4">Contacto de Emergencia</h3>
-        
+
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="space-y-2">
             <Label htmlFor="emergencyName">Nombre Completo</Label>
             <Input
               id="emergencyName"
-              value={localData.emergencyContact?.name || ''}
-              onChange={(e) => setLocalData({ 
-                ...localData, 
-                emergencyContact: { 
-                  ...localData.emergencyContact, 
-                  name: e.target.value,
-                  relationship: localData.emergencyContact?.relationship || '',
-                  phone: localData.emergencyContact?.phone || ''
-                }
-              })}
+              value={localData.emergencyContact?.name || ""}
+              onChange={(e) =>
+                setLocalData({
+                  ...localData,
+                  emergencyContact: {
+                    ...localData.emergencyContact,
+                    name: e.target.value,
+                    relationship: localData.emergencyContact?.relationship || "",
+                    phone: localData.emergencyContact?.phone || "",
+                  },
+                })
+              }
               disabled={!isEditing}
               placeholder="Nombre del contacto"
             />
@@ -154,16 +152,18 @@ export function ProfileFamilyInfo({ profile, updateProfile }: Props) {
             <Label htmlFor="emergencyRelationship">Parentesco</Label>
             <Input
               id="emergencyRelationship"
-              value={localData.emergencyContact?.relationship || ''}
-              onChange={(e) => setLocalData({ 
-                ...localData, 
-                emergencyContact: { 
-                  ...localData.emergencyContact, 
-                  relationship: e.target.value,
-                  name: localData.emergencyContact?.name || '',
-                  phone: localData.emergencyContact?.phone || ''
-                }
-              })}
+              value={localData.emergencyContact?.relationship || ""}
+              onChange={(e) =>
+                setLocalData({
+                  ...localData,
+                  emergencyContact: {
+                    ...localData.emergencyContact,
+                    relationship: e.target.value,
+                    name: localData.emergencyContact?.name || "",
+                    phone: localData.emergencyContact?.phone || "",
+                  },
+                })
+              }
               disabled={!isEditing}
               placeholder="Ej: Esposo/a, Padre/Madre"
             />
@@ -173,16 +173,18 @@ export function ProfileFamilyInfo({ profile, updateProfile }: Props) {
             <Label htmlFor="emergencyPhone">Teléfono</Label>
             <Input
               id="emergencyPhone"
-              value={localData.emergencyContact?.phone || ''}
-              onChange={(e) => setLocalData({ 
-                ...localData, 
-                emergencyContact: { 
-                  ...localData.emergencyContact, 
-                  phone: e.target.value,
-                  name: localData.emergencyContact?.name || '',
-                  relationship: localData.emergencyContact?.relationship || ''
-                }
-              })}
+              value={localData.emergencyContact?.phone || ""}
+              onChange={(e) =>
+                setLocalData({
+                  ...localData,
+                  emergencyContact: {
+                    ...localData.emergencyContact,
+                    phone: e.target.value,
+                    name: localData.emergencyContact?.name || "",
+                    relationship: localData.emergencyContact?.relationship || "",
+                  },
+                })
+              }
               disabled={!isEditing}
               placeholder="+57 300 123 4567"
             />
@@ -191,7 +193,7 @@ export function ProfileFamilyInfo({ profile, updateProfile }: Props) {
       </Card>
 
       {/* Important Dates */}
-      <Card className="p-6 border-border/40 space-y-4">
+      <Card className="p-4 border-border/40 space-y-4">
         <div className="flex items-center justify-between mb-4">
           <div>
             <h3 className="font-medium text-lg">Fechas Importantes</h3>
@@ -210,19 +212,19 @@ export function ProfileFamilyInfo({ profile, updateProfile }: Props) {
             <div key={date.id} className="grid grid-cols-1 md:grid-cols-4 gap-3 p-3 bg-muted/30 rounded-lg">
               <Input
                 value={date.name}
-                onChange={(e) => updateImportantDate(date.id, 'name', e.target.value)}
+                onChange={(e) => updateImportantDate(date.id, "name", e.target.value)}
                 disabled={!isEditing}
                 placeholder="Nombre"
               />
               <Input
                 type="date"
                 value={date.date}
-                onChange={(e) => updateImportantDate(date.id, 'date', e.target.value)}
+                onChange={(e) => updateImportantDate(date.id, "date", e.target.value)}
                 disabled={!isEditing}
               />
               <Select
                 value={date.type}
-                onValueChange={(value) => updateImportantDate(date.id, 'type', value)}
+                onValueChange={(value) => updateImportantDate(date.id, "type", value)}
                 disabled={!isEditing}
               >
                 <SelectTrigger>
@@ -235,21 +237,14 @@ export function ProfileFamilyInfo({ profile, updateProfile }: Props) {
                 </SelectContent>
               </Select>
               {isEditing && (
-                <Button
-                  onClick={() => removeImportantDate(date.id)}
-                  size="sm"
-                  variant="destructive"
-                  className="gap-2"
-                >
+                <Button onClick={() => removeImportantDate(date.id)} size="sm" variant="destructive" className="gap-2">
                   <Trash2 className="h-4 w-4" />
                 </Button>
               )}
             </div>
           ))}
           {(!localData.importantDates || localData.importantDates.length === 0) && (
-            <p className="text-sm text-muted-foreground text-center py-4">
-              No hay fechas importantes registradas
-            </p>
+            <p className="text-sm text-muted-foreground text-center py-4">No hay fechas importantes registradas</p>
           )}
         </div>
       </Card>
