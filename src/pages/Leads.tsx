@@ -108,6 +108,7 @@ export default function Leads() {
   const [showBulkStatusUpdate, setShowBulkStatusUpdate] = useState(false);
   const [isBulkUpdating, setIsBulkUpdating] = useState(false);
   const [leadsAnimation, setLeadsAnimation] = useState(null);
+  const [kpiRefreshTrigger, setKpiRefreshTrigger] = useState(0);
 
   useEffect(() => {
     fetch('/animations/leads.json')
@@ -139,6 +140,7 @@ export default function Leads() {
     apiFilters,
     duplicateFilter: filters.duplicateFilter,
     searchTerm: filters.searchTerm,
+    refreshTrigger: kpiRefreshTrigger,
   });
 
   const handleLeadUpdate = useCallback(
@@ -1179,7 +1181,10 @@ export default function Leads() {
         <LeadCreateDialog 
           ref={leadCreateDialogRef} 
           onLeadCreate={handleLeadCreate}
-          onBulkUploadSuccess={refreshLeads}
+          onBulkUploadSuccess={() => {
+            refreshLeads();
+            setKpiRefreshTrigger(prev => prev + 1);
+          }}
         />
 
         {selectedLead && (
