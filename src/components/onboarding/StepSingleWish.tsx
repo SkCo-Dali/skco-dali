@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Sparkles } from "lucide-react";
-import Lottie from 'lottie-react';
+import Lottie from "lottie-react";
 
 interface StepSingleWishProps {
   initialValue: string;
@@ -25,9 +25,9 @@ export function StepSingleWish({
   const [animationData, setAnimationData] = useState(null);
 
   useEffect(() => {
-    fetch('/animations/loading_magic.json')
-      .then(res => res.json())
-      .then(data => setAnimationData(data));
+    fetch("/animations/loading_magic.json")
+      .then((res) => res.json())
+      .then((data) => setAnimationData(data));
   }, []);
 
   return (
@@ -46,7 +46,7 @@ export function StepSingleWish({
         </div>
         <h2 className="text-3xl font-bold">Si pudieras pedir un único deseo para Dali, ¿cuál sería?</h2>
         <p className="text-muted-foreground max-w-md mx-auto">
-          Algo que te ayude a vender mejor o ahorrar tiempo. Solo uno, por favor.
+          Algo que te ayude a vender mejor o ahorrar tiempo. ¡No importa que tan loco sea! Sólo uno, por favor.
         </p>
       </div>
 
