@@ -45,6 +45,13 @@ const allMenuItems = [
     customIcon: "https://skcoblobresources.blob.core.windows.net/digital-assets/icons/icon-skandia/sk_profile_1_p.svg",
   },
   {
+    title: "LeadsTabbed",
+    url: "/leadstabbed",
+    iconClass: "",
+    page: "leadstabbed",
+    customIcon: "https://skcoblobresources.blob.core.windows.net/digital-assets/icons/icon-skandia/sk_profile_1_p.svg",
+  },
+  {
     title: "Market Dali",
     url: "/oportunidades",
     iconClass: "",

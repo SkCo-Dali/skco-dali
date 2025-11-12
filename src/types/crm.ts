@@ -101,6 +101,7 @@ export const getRolePermissions = (role: UserRole): RolePermissions => {
         accessiblePages: [
           "dashboard",
           "leads",
+          "leadstabbed",
           "ChatDali",
           "opportunities",
           "gamification",
