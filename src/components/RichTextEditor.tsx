@@ -224,18 +224,44 @@ export function RichTextEditor({ value, onChange, placeholder, allowDrop = false
     const text = e.dataTransfer.getData("text/plain");
     if (!text) return;
 
-    // Get the drop position
-    const range = document.caretRangeFromPoint(e.clientX, e.clientY);
-    if (!range) return;
+    // Get the drop position using coordinates
+    let range: Range | null = null;
+    
+    // Try Chrome/Safari method
+    if (document.caretRangeFromPoint) {
+      range = document.caretRangeFromPoint(e.clientX, e.clientY);
+    } 
+    // Try Firefox method
+    else if ((document as any).caretPositionFromPoint) {
+      const position = (document as any).caretPositionFromPoint(e.clientX, e.clientY);
+      if (position) {
+        range = document.createRange();
+        range.setStart(position.offsetNode, position.offset);
+        range.collapse(true);
+      }
+    }
 
-    // Set the cursor at the drop position
+    if (!range) {
+      // Fallback: insert at the end
+      editorRef.current?.focus();
+      const sel = window.getSelection();
+      if (sel) {
+        sel.selectAllChildren(editorRef.current!);
+        sel.collapseToEnd();
+      }
+      document.execCommand("insertText", false, text);
+      handleContentChange();
+      return;
+    }
+
+    // Set selection to the drop position
     const sel = window.getSelection();
     if (!sel) return;
     
     sel.removeAllRanges();
     sel.addRange(range);
 
-    // Insert the text at the cursor position
+    // Insert the text at the drop position
     document.execCommand("insertText", false, text);
     handleContentChange();
   };
