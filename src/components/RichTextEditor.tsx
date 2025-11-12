@@ -71,12 +71,13 @@ interface RichTextEditorProps {
   value: string;
   onChange: (v: string) => void;
   placeholder?: string;
+  allowDrop?: boolean;
 }
 
 /* ===========================
     Editor principal
 =========================== */
-export function RichTextEditor({ value, onChange, placeholder }: RichTextEditorProps) {
+export function RichTextEditor({ value, onChange, placeholder, allowDrop = false }: RichTextEditorProps) {
   const editorRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const lastEmittedHtmlRef = useRef<string | null>(null);
@@ -208,6 +209,25 @@ export function RichTextEditor({ value, onChange, placeholder }: RichTextEditorP
         }
       });
     });
+  };
+
+  const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
+    if (!allowDrop) return;
+    e.preventDefault();
+    e.dataTransfer.dropEffect = "copy";
+  };
+
+  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
+    if (!allowDrop) return;
+    e.preventDefault();
+    
+    const text = e.dataTransfer.getData("text/plain");
+    if (!text) return;
+
+    // Focus the editor and insert at cursor position
+    editorRef.current?.focus();
+    document.execCommand("insertText", false, text);
+    handleContentChange();
   };
 
   /* ===== ResizeObserver ===== */
@@ -422,6 +442,8 @@ export function RichTextEditor({ value, onChange, placeholder }: RichTextEditorP
           contentEditable
           onInput={handleContentChange}
           onPaste={handlePaste}
+          onDragOver={handleDragOver}
+          onDrop={handleDrop}
           onMouseUp={saveSelection}
           onKeyUp={saveSelection}
           className="min-h-[200px] p-4 focus:outline-none prose prose-sm max-w-none"
