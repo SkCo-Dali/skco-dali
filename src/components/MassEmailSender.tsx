@@ -101,10 +101,20 @@ export function MassEmailSender({ filteredLeads, onClose }: MassEmailSenderProps
   // Estado para email alternativo en envíos individuales
   const [alternateEmail, setAlternateEmail] = useState('');
 
-  // Filtrar leads que tengan email válido y limitar a 50
+  // Filtrar leads que tengan email válido
   const validLeads = filteredLeads.filter(lead => lead.email && lead.email.trim() !== '');
-  const leadsToShow = validLeads.slice(0, 50);
-  const isOverLimit = validLeads.length > 50;
+  
+  // Estado para trackear qué leads están seleccionados (por defecto todos)
+  const [selectedLeadIds, setSelectedLeadIds] = useState<Set<string>>(() => new Set(validLeads.map(l => l.id)));
+  
+  // Actualizar selección cuando cambien los validLeads
+  useEffect(() => {
+    setSelectedLeadIds(new Set(validLeads.map(l => l.id)));
+  }, [filteredLeads]);
+  
+  // Leads que realmente se enviarán (seleccionados y limitados a 50)
+  const leadsToSend = validLeads.filter(lead => selectedLeadIds.has(lead.id)).slice(0, 50);
+  const isOverLimit = leadsToSend.length > 50;
   
   // Solo mostrar historial si hay exactamente un lead seleccionado
   const showHistoryTab = validLeads.length === 1;
@@ -119,16 +129,16 @@ export function MassEmailSender({ filteredLeads, onClose }: MassEmailSenderProps
       return;
     }
 
-    if (validLeads.length === 0) {
+    if (leadsToSend.length === 0) {
       toast({
         title: "Error",
-        description: "No hay leads con email válido para enviar correos",
+        description: "No hay leads seleccionados para enviar correos",
         variant: "destructive"
       });
       return;
     }
 
-    if (validLeads.length > 50) {
+    if (leadsToSend.length > 50) {
       toast({
         title: "Error",
         description: "El máximo permitido es 50 correos por envío. Por favor, reduce la cantidad de destinatarios.",
@@ -144,7 +154,7 @@ export function MassEmailSender({ filteredLeads, onClose }: MassEmailSenderProps
     setShowConfirmation(false);
     setShowProgressModal(true);
     
-    const success = await sendMassEmail(leadsToShow, template, alternateEmail);
+    const success = await sendMassEmail(leadsToSend, template, alternateEmail);
     if (success) {
       handleSuccessfulSend();
     }
@@ -159,7 +169,19 @@ export function MassEmailSender({ filteredLeads, onClose }: MassEmailSenderProps
     }, 500);
   };
 
-  const isReadyToSend = template.subject.trim() && template.htmlContent.trim() && validLeads.length > 0 && validLeads.length <= 50;
+  const isReadyToSend = template.subject.trim() && template.htmlContent.trim() && leadsToSend.length > 0 && leadsToSend.length <= 50;
+  
+  const handleToggleLead = (leadId: string) => {
+    setSelectedLeadIds(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(leadId)) {
+        newSet.delete(leadId);
+      } else {
+        newSet.add(leadId);
+      }
+      return newSet;
+    });
+  };
 
   return (
     <>
@@ -171,7 +193,7 @@ export function MassEmailSender({ filteredLeads, onClose }: MassEmailSenderProps
             <div className="flex items-center gap-2">
               <Badge variant="secondary">
                 <Filter className="h-4 w-4 mr-1 text-white" />
-                <span className="text-white">{validLeads.length} leads con email válido</span>
+                <span className="text-white">{leadsToSend.length} de {validLeads.length} seleccionados</span>
               </Badge>
               {isOverLimit && (
                 <Badge variant="destructive">
@@ -223,7 +245,7 @@ export function MassEmailSender({ filteredLeads, onClose }: MassEmailSenderProps
             
             <div className="flex justify-between items-center pt-4 border-t">
               <div className="text-sm text-muted-foreground">
-                {leadsToShow.length} correo(s) listos para enviar
+                {leadsToSend.length} correo(s) listos para enviar
               </div>
               <div className="flex gap-2">
                 <Button
@@ -250,10 +272,12 @@ export function MassEmailSender({ filteredLeads, onClose }: MassEmailSenderProps
             {showInfoMessage && <InfoMessage onClose={() => setShowInfoMessage(false)} />}
 
             <EmailPreview
-              leads={leadsToShow}
+              leads={validLeads}
               template={template}
               replaceDynamicFields={replaceDynamicFields}
               alternateEmail={alternateEmail}
+              selectedLeadIds={selectedLeadIds}
+              onToggleLead={handleToggleLead}
             />
             
             <div className="flex justify-between items-center pt-4 border-t">
@@ -268,7 +292,7 @@ export function MassEmailSender({ filteredLeads, onClose }: MassEmailSenderProps
                 disabled={!isReadyToSend || isLoading}
               >
                 <Send className="h-4 w-4 mr-2" />
-                {isLoading ? 'Enviando...' : `Confirmar Envío (${leadsToShow.length} correos)`}
+                {isLoading ? 'Enviando...' : `Confirmar Envío (${leadsToSend.length} correos)`}
               </Button>
             </div>
           </TabsContent>
@@ -289,7 +313,7 @@ export function MassEmailSender({ filteredLeads, onClose }: MassEmailSenderProps
         isOpen={showConfirmation}
         onConfirm={handleConfirmSend}
         onCancel={() => setShowConfirmation(false)}
-        recipientCount={leadsToShow.length}
+        recipientCount={leadsToSend.length}
         isLoading={isLoading}
       />
 

@@ -1,6 +1,8 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Switch } from '@/components/ui/switch';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import { Lead } from '@/types/crm';
 import { EmailTemplate } from '@/types/email';
 
@@ -8,20 +10,22 @@ interface EmailPreviewProps {
   leads: Lead[];
   template: EmailTemplate;
   replaceDynamicFields: (template: string, lead: Lead) => string;
-  maxPreviews?: number;
   alternateEmail?: string;
+  selectedLeadIds: Set<string>;
+  onToggleLead: (leadId: string) => void;
 }
 
 export function EmailPreview({ 
   leads, 
   template, 
   replaceDynamicFields, 
-  maxPreviews = 20,
-  alternateEmail 
+  alternateEmail,
+  selectedLeadIds,
+  onToggleLead
 }: EmailPreviewProps) {
-  const previewLeads = leads.slice(0, maxPreviews);
+  const selectedCount = Array.from(selectedLeadIds).filter(id => leads.some(l => l.id === id)).length;
 
-  if (previewLeads.length === 0) {
+  if (leads.length === 0) {
     return (
       <Card>
         <CardHeader>
@@ -42,40 +46,55 @@ export function EmailPreview({
         <CardTitle className="flex items-center justify-between">
           Previsualización de Emails
           <Badge variant="secondary">
-            {leads.length} de {leads.length} leads
+            {selectedCount} de {leads.length} seleccionados
           </Badge>
         </CardTitle>
         <p className="text-sm text-muted-foreground pb-4">
-          Mostrando una vista previa del correo que se enviaría
+          Activa o desactiva el envío para cada destinatario
         </p>
       </CardHeader>
       <CardContent>
-        <div className="space-y-4 pb-4">
-          {previewLeads.map((lead, index) => {
-            const processedSubject = replaceDynamicFields(template.subject, lead);
-            const processedContent = replaceDynamicFields(template.htmlContent, lead);
-            
-            // Para envíos individuales, mostrar el email alternativo si está especificado
-            const displayEmail = (leads.length === 1 && alternateEmail?.trim()) 
-              ? alternateEmail.trim() 
-              : lead.email;
+        <ScrollArea className="h-[600px] pr-4">
+          <div className="space-y-4 pb-4">
+            {leads.map((lead, index) => {
+              const processedSubject = replaceDynamicFields(template.subject, lead);
+              const processedContent = replaceDynamicFields(template.htmlContent, lead);
+              
+              // Para envíos individuales, mostrar el email alternativo si está especificado
+              const displayEmail = (leads.length === 1 && alternateEmail?.trim()) 
+                ? alternateEmail.trim() 
+                : lead.email;
+              
+              const isSelected = selectedLeadIds.has(lead.id);
 
-            return (
-              <Card key={lead.id} className="border-l-4 border-l-primary pb-4">
-                <CardHeader className="pb-2">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="font-medium">{lead.name}</p>
-                      <p className="text-sm text-muted-foreground">{displayEmail}</p>
-                      {leads.length === 1 && alternateEmail?.trim() && alternateEmail !== lead.email && (
-                        <p className="text-xs text-blue-600 mt-1">
-                          Email alternativo especificado
-                        </p>
-                      )}
+              return (
+                <Card 
+                  key={lead.id} 
+                  className={`border-l-4 pb-4 transition-all ${
+                    isSelected ? 'border-l-primary' : 'border-l-gray-300 opacity-60'
+                  }`}
+                >
+                  <CardHeader className="pb-2">
+                    <div className="flex items-center justify-between gap-4">
+                      <div className="flex items-center gap-3 flex-1">
+                        <Switch
+                          checked={isSelected}
+                          onCheckedChange={() => onToggleLead(lead.id)}
+                          aria-label={`Enviar correo a ${lead.name}`}
+                        />
+                        <div>
+                          <p className="font-medium">{lead.name}</p>
+                          <p className="text-sm text-muted-foreground">{displayEmail}</p>
+                          {leads.length === 1 && alternateEmail?.trim() && alternateEmail !== lead.email && (
+                            <p className="text-xs text-blue-600 mt-1">
+                              Email alternativo especificado
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                      <Badge variant="outline">#{index + 1}</Badge>
                     </div>
-                    <Badge variant="outline">#{index + 1}</Badge>
-                  </div>
-                </CardHeader>
+                  </CardHeader>
                 <CardContent className="pt-0">
                   <div className="space-y-3">
                     <div>
@@ -95,19 +114,12 @@ export function EmailPreview({
                       />
                     </div>
                   </div>
-                </CardContent>
-              </Card>
-            );
-          })}
-        </div>
-        
-        {leads.length > maxPreviews && (
-          <div className="mt-4 p-3 bg-muted rounded-xl text-center">
-            <p className="text-sm text-muted-foreground">
-              ... y {leads.length - maxPreviews} correos más se enviarían con el mismo formato
-            </p>
+                  </CardContent>
+                </Card>
+              );
+            })}
           </div>
-        )}
+        </ScrollArea>
       </CardContent>
     </Card>
   );
