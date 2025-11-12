@@ -38,7 +38,8 @@ export function StepPrimaryAction({
     if (normalizedCode.includes('lead')) return '/animations/leads.json';
     if (normalizedCode.includes('oportunidad')) return '/animations/market_oportunidades.json';
     if (normalizedCode.includes('informe') || normalizedCode.includes('report')) return '/animations/informes.json';
-    if (normalizedCode.includes('comision') || normalizedCode.includes('motor')) return '/animations/calculator_and_coin_dollar.json';
+    if (normalizedCode.includes('motor')) return '/animations/calculator_and_coin_dollar.json';
+    if (normalizedCode.includes('comision')) return '/animations/money.json';
     
     return '/animations/choose_plan.json';
   };

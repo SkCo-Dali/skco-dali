@@ -5,11 +5,47 @@ import { CommissionsResumenTab } from "@/components/CommissionsResumenTab";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { PieChart, FileText, Receipt } from "lucide-react";
 import { CommissionsCategorySlicer, CommissionCategory } from "@/components/CommissionsCategorySlicer";
+import Lottie from "lottie-react";
+import { Loader2 } from "lucide-react";
 
 export default function Comisiones() {
   const [selectedMonth, setSelectedMonth] = React.useState("2024-09");
   const [selectedYear, setSelectedYear] = React.useState("2025");
   const [selectedCategory, setSelectedCategory] = React.useState<CommissionCategory>("pensiones");
+  const [loading, setLoading] = React.useState(true);
+  const [moneyAnimation, setMoneyAnimation] = React.useState<any>(null);
+
+  React.useEffect(() => {
+    // Cargar la animación
+    fetch('/animations/money.json')
+      .then(response => response.json())
+      .then(data => setMoneyAnimation(data))
+      .catch(error => console.error('Error loading animation:', error));
+
+    // Simular carga de datos
+    const timer = setTimeout(() => {
+      setLoading(false);
+    }, 2000);
+
+    return () => clearTimeout(timer);
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="flex flex-col items-center justify-center h-screen bg-background">
+        {moneyAnimation ? (
+          <Lottie
+            animationData={moneyAnimation}
+            loop={true}
+            style={{ width: 400, height: 400 }}
+          />
+        ) : (
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        )}
+        <p className="mt-4 text-lg text-muted-foreground">Cargando comisiones...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="w-full max-w-full px-4 py-4 space-y-6">
