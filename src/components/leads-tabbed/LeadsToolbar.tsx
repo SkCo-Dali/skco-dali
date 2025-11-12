@@ -4,7 +4,7 @@ import { LeadsViewControls } from "@/components/LeadsViewControls";
 import { LeadsTableColumnSelector } from "@/components/LeadsTableColumnSelector";
 import { LeadsFilters } from "@/components/LeadsFilters";
 import { LeadType } from "@/types/leadTypes";
-import { ColumnConfig } from "@/types/crm";
+import { ColumnConfig } from "@/components/LeadsTableColumnSelector";
 import { LeadsApiFilters } from "@/types/paginatedLeadsTypes";
 import { 
   Plus, 

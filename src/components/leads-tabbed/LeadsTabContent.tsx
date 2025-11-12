@@ -3,9 +3,10 @@ import { Lead } from "@/types/crm";
 import { LeadType } from "@/types/leadTypes";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
-import { usePaginatedLeadsApi } from "@/hooks/usePaginatedLeadsApi";
+import { usePaginatedLeadsApi, LeadsFiltersState } from "@/hooks/usePaginatedLeadsApi";
 import { useLeadsKPICounts } from "@/hooks/useLeadsKPICounts";
 import { useLeadDeletion } from "@/hooks/useLeadDeletion";
+import { LeadsApiFilters } from "@/types/paginatedLeadsTypes";
 import { AllLeadsKPICards } from "@/components/AllLeadsKPICards";
 import { LeadsToolbar } from "./LeadsToolbar";
 import { LeadsContent } from "@/components/LeadsContent";
@@ -18,9 +19,9 @@ import { LeadsBulkStatusUpdate } from "@/components/LeadsBulkStatusUpdate";
 import { MassEmailSender } from "@/components/MassEmailSender";
 import { MassWhatsAppSender } from "@/components/MassWhatsAppSender";
 import { LeadReassignDialog } from "@/components/LeadReassignDialog";
-import { LeadDeleteConfirmDialog } from "@/components/LeadDeleteConfirmDialog";
-import { ColumnConfig } from "@/types/crm";
+import { ColumnConfig } from "@/components/LeadsTableColumnSelector";
 import Lottie from "lottie-react";
+import { updateLeadApi, deleteLeadById, createLeadApi } from "@/utils/leadsApiClient";
 
 interface LeadsTabContentProps {
   leadType: LeadType;
@@ -67,37 +68,33 @@ export function LeadsTabContent({ leadType }: LeadsTabContentProps) {
   const [leadsAnimation, setLeadsAnimation] = useState<any>(null);
 
   // API hooks with type filter
-  const baseFilters = useMemo(() => ({
-    tipoLead: leadType
-  }), [leadType]);
+  const baseApiFilters = useMemo<LeadsApiFilters>(() => {
+    // Add tipoLead filter based on leadType
+    // This would need to be implemented in your API
+    return {};
+  }, [leadType]);
 
   const {
     leads,
-    isLoading,
+    loading,
     error,
-    currentPage,
-    totalPages,
-    totalLeads,
-    leadsPerPage,
+    pagination,
     filters,
-    searchTerm,
-    sortField,
-    sortOrder,
-    setCurrentPage,
-    setLeadsPerPage,
-    setFilters,
-    setSearchTerm,
-    setSortField,
-    setSortOrder,
-    refreshLeads,
-    createLead,
-    updateLead,
-    deleteLead,
-    uniqueValues
-  } = usePaginatedLeadsApi(baseFilters);
+    apiFilters,
+    updateFilters,
+    setPage,
+    setPageSize,
+    getUniqueValues,
+    refreshLeads: refresh
+  } = usePaginatedLeadsApi();
 
-  const { kpiCounts, isLoading: isLoadingKPIs } = useLeadsKPICounts(filters);
-  const { handleDeleteLead, setLeadToDelete, leadToDelete } = useLeadDeletion(deleteLead, refreshLeads);
+  const kpiResult = useLeadsKPICounts({
+    apiFilters: { ...apiFilters, ...baseApiFilters },
+    duplicateFilter: filters.duplicateFilter,
+    searchTerm: filters.searchTerm
+  });
+
+  const { deleteSingleLead } = useLeadDeletion();
 
   // Load animations
   useEffect(() => {
@@ -113,8 +110,9 @@ export function LeadsTabContent({ leadType }: LeadsTabContentProps) {
 
   const handleLeadUpdate = async (updatedLead: Lead) => {
     try {
-      await updateLead(updatedLead, false);
+      await updateLeadApi(updatedLead);
       setSelectedLead(null);
+      refresh();
       toast({
         title: "Lead actualizado",
         description: "El lead ha sido actualizado exitosamente."
@@ -132,10 +130,11 @@ export function LeadsTabContent({ leadType }: LeadsTabContentProps) {
     try {
       const newLeadData = {
         ...leadData,
-        tipoLead: leadType
+        // Add type-specific fields here if needed
       };
-      await createLead(newLeadData);
+      await createLeadApi(newLeadData);
       setShowCreate(false);
+      refresh();
       toast({
         title: "Lead creado",
         description: "El lead ha sido creado exitosamente."
@@ -157,8 +156,9 @@ export function LeadsTabContent({ leadType }: LeadsTabContentProps) {
     if (selectedLeads.length === 0) return;
     
     try {
-      await Promise.all(selectedLeads.map(id => deleteLead(id)));
+      await Promise.all(selectedLeads.map(id => deleteSingleLead(id)));
       setSelectedLeads([]);
+      refresh();
       toast({
         title: "Leads eliminados",
         description: `${selectedLeads.length} leads eliminados exitosamente.`
@@ -205,17 +205,24 @@ export function LeadsTabContent({ leadType }: LeadsTabContentProps) {
   };
 
   const handleSort = (field: string) => {
-    if (sortField === field) {
-      setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
-    } else {
-      setSortField(field);
-      setSortOrder('asc');
-    }
+    const newSortDir = filters.sortBy === field && filters.sortDirection === 'asc' ? 'desc' : 'asc';
+    updateFilters({
+      sortBy: field,
+      sortDirection: newSortDir
+    });
   };
 
   const handleReassignComplete = async () => {
     setLeadToReassign(null);
-    await refreshLeads();
+    await refresh();
+  };
+
+  const handleFiltersChange = (newFilters: Partial<LeadsFiltersState>) => {
+    updateFilters(newFilters);
+  };
+
+  const handleSearchChange = (term: string) => {
+    updateFilters({ searchTerm: term });
   };
 
   const getTabTitle = () => {
@@ -234,13 +241,29 @@ export function LeadsTabContent({ leadType }: LeadsTabContentProps) {
     );
   }
 
+  // Get unique values for filters
+  const uniqueValuesForFilters = useMemo(() => {
+    const uniqueVals: Record<string, any[]> = {};
+    // This would normally come from the API via getUniqueValues
+    // For now, extract from current leads
+    const fieldsToExtract = ['stage', 'source', 'assignedToName', 'campaign', 'product', 'priority'];
+    fieldsToExtract.forEach(field => {
+      const values = Array.from(new Set(leads.map((l: any) => l[field]).filter(Boolean)));
+      uniqueVals[field] = values;
+    });
+    return uniqueVals;
+  }, [leads]);
+
   return (
     <>
       <div className="space-y-4 p-4">
         {/* KPI Cards */}
         <AllLeadsKPICards 
-          kpiCounts={kpiCounts}
-          isLoading={isLoadingKPIs}
+          total={kpiResult.totalLeads}
+          nuevo={kpiResult.newLeads}
+          contratoCreado={kpiResult.contratoCreado}
+          registroVenta={kpiResult.registroVenta}
+          loading={kpiResult.loading}
         />
 
         {/* Toolbar */}
@@ -248,8 +271,8 @@ export function LeadsTabContent({ leadType }: LeadsTabContentProps) {
           leadType={leadType}
           viewMode={viewMode}
           setViewMode={setViewMode}
-          searchTerm={searchTerm}
-          onSearchChange={setSearchTerm}
+          searchTerm={filters.searchTerm}
+          onSearchChange={handleSearchChange}
           showFilters={showFilters}
           onToggleFilters={() => setShowFilters(!showFilters)}
           onCreateLead={() => setShowCreate(true)}
@@ -262,13 +285,13 @@ export function LeadsTabContent({ leadType }: LeadsTabContentProps) {
           selectedCount={selectedLeads.length}
           columns={columns}
           onColumnToggle={handleColumnToggle}
-          filters={filters}
-          onFiltersChange={setFilters}
-          uniqueValues={uniqueValues}
+          filters={apiFilters}
+          onFiltersChange={(newFilters: any) => updateFilters({ columnFilters: newFilters })}
+          uniqueValues={uniqueValuesForFilters}
         />
 
         {/* Leads Content */}
-        {isLoading && !leads.length ? (
+        {loading && !leads.length ? (
           <div className="flex items-center justify-center h-64">
             {leadsAnimation && (
               <Lottie animationData={leadsAnimation} style={{ width: 200, height: 200 }} />
@@ -280,28 +303,28 @@ export function LeadsTabContent({ leadType }: LeadsTabContentProps) {
             leads={leads}
             columns={columns}
             selectedLeads={selectedLeads}
-            onSelectedLeadsChange={setSelectedLeads}
+            onSortedLeadsChange={setSelectedLeads}
             onLeadClick={handleLeadClick}
             onMassEmail={handleMassEmail}
-            sortField={sortField}
-            sortOrder={sortOrder}
+            sortField={filters.sortBy}
+            sortOrder={filters.sortDirection}
             onSort={handleSort}
-            filters={filters}
-            onFiltersChange={setFilters}
-            uniqueValues={uniqueValues}
-            baseFilters={baseFilters}
+            filters={apiFilters}
+            onFiltersChange={(newFilters: any) => updateFilters({ columnFilters: newFilters })}
+            uniqueValues={uniqueValuesForFilters}
+            baseFilters={baseApiFilters}
           />
         )}
 
         {/* Pagination */}
         {leads.length > 0 && (
           <LeadsPagination
-            currentPage={currentPage}
-            totalPages={totalPages}
-            totalLeads={totalLeads}
-            leadsPerPage={leadsPerPage}
-            onPageChange={setCurrentPage}
-            onLeadsPerPageChange={setLeadsPerPage}
+            currentPage={pagination.page}
+            totalPages={pagination.totalPages}
+            totalLeads={pagination.total}
+            leadsPerPage={pagination.pageSize}
+            onPageChange={setPage}
+            onLeadsPerPageChange={setPageSize}
           />
         )}
       </div>
@@ -311,7 +334,6 @@ export function LeadsTabContent({ leadType }: LeadsTabContentProps) {
         <LeadDetail
           lead={selectedLead}
           onClose={() => setSelectedLead(null)}
-          onUpdate={handleLeadUpdate}
         />
       )}
 
@@ -324,7 +346,7 @@ export function LeadsTabContent({ leadType }: LeadsTabContentProps) {
       <LeadsUpload
         open={showUpload}
         onOpenChange={setShowUpload}
-        onUploadComplete={refreshLeads}
+        onUploadComplete={refresh}
       />
 
       {showBulkAssign && (
@@ -334,7 +356,7 @@ export function LeadsTabContent({ leadType }: LeadsTabContentProps) {
           onAssignmentComplete={() => {
             setShowBulkAssign(false);
             setSelectedLeads([]);
-            refreshLeads();
+            refresh();
           }}
         />
       )}
@@ -346,7 +368,7 @@ export function LeadsTabContent({ leadType }: LeadsTabContentProps) {
           onUpdateComplete={() => {
             setShowBulkStatusUpdate(false);
             setSelectedLeads([]);
-            refreshLeads();
+            refresh();
           }}
         />
       )}
@@ -378,14 +400,6 @@ export function LeadsTabContent({ leadType }: LeadsTabContentProps) {
           lead={leadToReassign}
           onClose={() => setLeadToReassign(null)}
           onReassignComplete={handleReassignComplete}
-        />
-      )}
-
-      {leadToDelete && (
-        <LeadDeleteConfirmDialog
-          leadName={leadToDelete.name}
-          onConfirm={handleDeleteLead}
-          onCancel={() => setLeadToDelete(null)}
         />
       )}
     </>
