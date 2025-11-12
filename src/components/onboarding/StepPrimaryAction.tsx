@@ -28,12 +28,34 @@ export function StepPrimaryAction({
   const [selected, setSelected] = useState<AvailableAction | null>(null);
   const [error, setError] = useState('');
   const [animationData, setAnimationData] = useState(null);
+  const [currentAnimation, setCurrentAnimation] = useState(null);
+
+  // Mapeo de códigos de acción a archivos de animación
+  const animationMap: Record<string, string> = {
+    'leads': '/animations/leads.json',
+    'oportunidades': '/animations/market_oportunidades.json',
+    'informes': '/animations/informes.json',
+    'default': '/animations/choose_plan.json',
+  };
 
   useEffect(() => {
     fetch('/animations/choose_plan.json')
       .then(res => res.json())
       .then(data => setAnimationData(data));
   }, []);
+
+  // Cargar animación según la opción seleccionada
+  useEffect(() => {
+    if (selected) {
+      const animationPath = animationMap[selected.code] || animationMap['default'];
+      fetch(animationPath)
+        .then(res => res.json())
+        .then(data => setCurrentAnimation(data))
+        .catch(() => setCurrentAnimation(animationData)); // Fallback a default
+    } else {
+      setCurrentAnimation(animationData);
+    }
+  }, [selected, animationData]);
 
   useEffect(() => {
     const fetchActions = async () => {
@@ -98,10 +120,10 @@ export function StepPrimaryAction({
 
   return (
     <div className="space-y-6 animate-fade-in">
-      {animationData && (
-        <div className="flex justify-center">
+      {currentAnimation && (
+        <div className="flex justify-center transition-opacity duration-300">
           <div className="w-64 h-64">
-            <Lottie animationData={animationData} loop={true} />
+            <Lottie animationData={currentAnimation} loop={true} />
           </div>
         </div>
       )}
