@@ -321,7 +321,13 @@ export function MassEmailSender({ filteredLeads, onClose }: MassEmailSenderProps
 
       <GraphAuthRequiredDialog
         open={showGraphAuthDialog}
-        onOpenChange={setShowGraphAuthDialog}
+        onOpenChange={(open) => {
+          setShowGraphAuthDialog(open);
+          // Si el usuario cierra el dialog sin autorizar, cerrar también el componente padre
+          if (!open) {
+            onClose();
+          }
+        }}
         onAuthorizationComplete={handleGraphAuthComplete}
       />
     </>
