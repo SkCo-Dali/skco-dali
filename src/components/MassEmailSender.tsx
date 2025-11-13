@@ -123,12 +123,27 @@ export function MassEmailSender({ filteredLeads, onClose }: MassEmailSenderProps
       return;
     }
 
+    // Debug: log del estado de autorización
+    console.log('Graph Authorization Status:', { isAuthorized, graphAuthLoading });
+
     // Verificar autorización de Graph antes de continuar
-    if (!isAuthorized && !graphAuthLoading) {
+    // Si está loading, esperar a que termine
+    if (graphAuthLoading) {
+      toast({
+        title: "Verificando autorización",
+        description: "Por favor espera...",
+      });
+      return;
+    }
+
+    // Si no está autorizado, mostrar el dialog
+    if (!isAuthorized) {
+      console.log('Usuario no autorizado, mostrando dialog de Graph Auth');
       setShowGraphAuthDialog(true);
       return;
     }
 
+    // Si está autorizado, proceder con la confirmación
     setShowConfirmation(true);
   };
 
