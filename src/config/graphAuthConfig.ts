@@ -38,7 +38,7 @@ export const graphScopes = [
   "Mail.Send", // Enviar correos
   "User.Read", // Leer perfil básico
   //"Calendars.ReadWrite",
-  "MailboxSettings.Read",
+  //"MailboxSettings.Read",
   //"openid",
   //"profile",
   "Mail.Read",
