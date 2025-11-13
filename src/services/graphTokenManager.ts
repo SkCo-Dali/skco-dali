@@ -106,7 +106,7 @@ export class GraphTokenManager {
    */
   static async getAuthorizationStatus(b2cIdToken: string, userId: string): Promise<GraphAuthorizationStatus> {
     try {
-      const response = await fetch(`${ENV.CRM_API_BASE_URL}/api/graph/status/${userId}`, {
+      const response = await fetch(`${ENV.CRM_API_BASE_URL}/api/graph/status`, {
         headers: {
           Authorization: `Bearer ${b2cIdToken}`,
         },
