@@ -40,7 +40,7 @@ export const graphScopes = [
   //"Calendars.ReadWrite",
   "MailboxSettings.Read",
   //"openid",
-  "profile",
+  //"profile",
   "Mail.Read",
 ];
 
