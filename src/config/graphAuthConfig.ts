@@ -39,7 +39,7 @@ export const graphScopes = [
   "User.Read", // Leer perfil básico
   //"Calendars.ReadWrite",
   "MailboxSettings.Read",
-  "openid",
+  //"openid",
   "profile",
   "Mail.Read",
 ];
