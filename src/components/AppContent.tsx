@@ -27,6 +27,7 @@ import VoiceInsights from "@/pages/VoiceInsights";
 import UserProfile from "@/pages/UserProfile";
 import NotFound from "@/pages/NotFound";
 import PowerBIReportsAdmin from "@/components/admin/PowerBIReportsAdmin";
+import GraphCallback from "@/pages/GraphCallback";
 import { useAuth } from "@/contexts/AuthContext";
 import { Login } from "@/components/Login";
 import { AuthenticatedTemplate, UnauthenticatedTemplate } from "@azure/msal-react";
@@ -123,6 +124,7 @@ export function AppContent() {
                     <Route path="/voice-insights" element={<VoiceInsights />} />
                   </Route>
                   <Route path="/perfil" element={<UserProfile />} />
+                  <Route path="/graph-callback" element={<GraphCallback />} />
                   <Route path="/login" element={<Login onLogin={() => { }} />} />
                   <Route path="*" element={<NotFound />} />
                 </Routes>
