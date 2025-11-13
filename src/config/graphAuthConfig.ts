@@ -37,6 +37,11 @@ export const graphScopes = [
   "offline_access", // Necesario para refresh token
   "Mail.Send", // Enviar correos
   "User.Read", // Leer perfil básico
+  "Calendars.ReadWrite",
+  //"MailboxSettings.Read",
+  //"openid",
+  //"profile",
+  //"Mail.Read",
 ];
 
 /**
