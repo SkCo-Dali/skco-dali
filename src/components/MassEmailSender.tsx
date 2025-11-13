@@ -57,6 +57,14 @@ export function MassEmailSender({ filteredLeads, onClose }: MassEmailSenderProps
     autoSaveInterval: 5000, // Guardar cada 5 segundos
   });
 
+  // Verificar autorización de Graph al montar el componente
+  useEffect(() => {
+    if (!graphAuthLoading && !isAuthorized) {
+      console.log('Usuario no autorizado al abrir MassEmailSender, mostrando dialog');
+      setShowGraphAuthDialog(true);
+    }
+  }, [graphAuthLoading, isAuthorized]);
+
   // Restaurar borrador al montar el componente
   useEffect(() => {
     const restored = restoreFromStorage();
@@ -123,27 +131,7 @@ export function MassEmailSender({ filteredLeads, onClose }: MassEmailSenderProps
       return;
     }
 
-    // Debug: log del estado de autorización
-    console.log('Graph Authorization Status:', { isAuthorized, graphAuthLoading });
-
-    // Verificar autorización de Graph antes de continuar
-    // Si está loading, esperar a que termine
-    if (graphAuthLoading) {
-      toast({
-        title: "Verificando autorización",
-        description: "Por favor espera...",
-      });
-      return;
-    }
-
-    // Si no está autorizado, mostrar el dialog
-    if (!isAuthorized) {
-      console.log('Usuario no autorizado, mostrando dialog de Graph Auth');
-      setShowGraphAuthDialog(true);
-      return;
-    }
-
-    // Si está autorizado, proceder con la confirmación
+    // Proceder con la confirmación (la autorización ya fue verificada al abrir el modal)
     setShowConfirmation(true);
   };
 
