@@ -1,13 +1,9 @@
-import { ENV } from '@/config/environment';
-import type { 
-  GraphTokenData, 
-  GraphAuthorizationStatus,
-  GraphTokenRefreshResponse 
-} from '@/types/graph';
+import { ENV } from "@/config/environment";
+import type { GraphTokenData, GraphAuthorizationStatus, GraphTokenRefreshResponse } from "@/types/graph";
 
 /**
  * Servicio para gestionar tokens de Microsoft Graph
- * 
+ *
  * Responsabilidades:
  * - Verificar si un usuario tiene autorización válida
  * - Renovar access tokens automáticamente usando refresh tokens
@@ -21,19 +17,16 @@ export class GraphTokenManager {
   /**
    * Obtiene un access token válido para el usuario
    * Si el token está por expirar, lo renueva automáticamente
-   * 
+   *
    * @param b2cIdToken - Token de ID de B2C para autenticar con el backend
    * @param userId - ID del usuario
    * @returns Access token válido de Microsoft Graph
    */
-  static async getValidAccessToken(
-    b2cIdToken: string,
-    userId: string
-  ): Promise<string> {
+  static async getValidAccessToken(b2cIdToken: string, userId: string): Promise<string> {
     const tokenData = await this.getStoredTokenData(b2cIdToken, userId);
 
     if (!tokenData) {
-      throw new Error('Usuario no ha autorizado acceso a Microsoft Graph');
+      throw new Error("Usuario no ha autorizado acceso a Microsoft Graph");
     }
 
     // Verificar si el token está por expirar
@@ -51,32 +44,24 @@ export class GraphTokenManager {
 
   /**
    * Renueva el access token usando el refresh token almacenado en el backend
-   * 
+   *
    * @param b2cIdToken - Token de ID de B2C para autenticar con el backend
    * @param userId - ID del usuario
    * @returns Nueva información del access token
    */
-  private static async refreshAccessToken(
-    b2cIdToken: string,
-    userId: string
-  ): Promise<GraphTokenRefreshResponse> {
-    const response = await fetch(
-      `${ENV.CRM_API_BASE_URL}/api/graph/refresh-token`,
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${b2cIdToken}`,
-        },
-        body: JSON.stringify({ userId }),
-      }
-    );
+  private static async refreshAccessToken(b2cIdToken: string, userId: string): Promise<GraphTokenRefreshResponse> {
+    const response = await fetch(`${ENV.CRM_API_BASE_URL}/api/graph/refresh-token`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${b2cIdToken}`,
+      },
+      body: JSON.stringify({ userId }),
+    });
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
-      throw new Error(
-        errorData.message || 'Error al renovar token de Microsoft Graph'
-      );
+      throw new Error(errorData.message || "Error al renovar token de Microsoft Graph");
     }
 
     const data: GraphTokenRefreshResponse = await response.json();
@@ -85,85 +70,70 @@ export class GraphTokenManager {
 
   /**
    * Obtiene los datos del token almacenados en el backend
-   * 
+   *
    * @param b2cIdToken - Token de ID de B2C para autenticar con el backend
    * @param userId - ID del usuario
    * @returns Datos del token o null si no existe autorización
    */
-  private static async getStoredTokenData(
-    b2cIdToken: string,
-    userId: string
-  ): Promise<GraphTokenData | null> {
+  private static async getStoredTokenData(b2cIdToken: string, userId: string): Promise<GraphTokenData | null> {
     try {
-      const response = await fetch(
-        `${ENV.CRM_API_BASE_URL}/api/graph/token-data/${userId}`,
-        {
-          headers: {
-            'Authorization': `Bearer ${b2cIdToken}`,
-          },
-        }
-      );
+      const response = await fetch(`${ENV.CRM_API_BASE_URL}/api/graph/token-data/${userId}`, {
+        headers: {
+          Authorization: `Bearer ${b2cIdToken}`,
+        },
+      });
 
       if (!response.ok) {
         if (response.status === 404) {
           return null; // Usuario no ha autorizado
         }
-        throw new Error('Error al obtener datos del token');
+        throw new Error("Error al obtener datos del token");
       }
 
       return await response.json();
     } catch (error) {
-      console.error('Error obteniendo token data:', error);
+      console.error("Error obteniendo token data:", error);
       return null;
     }
   }
 
   /**
    * Verifica si el usuario tiene una autorización válida de Microsoft Graph
-   * 
+   *
    * @param b2cIdToken - Token de ID de B2C para autenticar con el backend
    * @param userId - ID del usuario
    * @returns Estado de la autorización
    */
-  static async getAuthorizationStatus(
-    b2cIdToken: string,
-    userId: string
-  ): Promise<GraphAuthorizationStatus> {
+  static async getAuthorizationStatus(b2cIdToken: string, userId: string): Promise<GraphAuthorizationStatus> {
     try {
-      const response = await fetch(
-        `${ENV.CRM_API_BASE_URL}/api/graph/authorization-status/${userId}`,
-        {
-          headers: {
-            'Authorization': `Bearer ${b2cIdToken}`,
-          },
-        }
-      );
+      const response = await fetch(`${ENV.CRM_API_BASE_URL}/api/graph/status/${userId}`, {
+        headers: {
+          Authorization: `Bearer ${b2cIdToken}`,
+        },
+      });
 
       if (!response.ok) {
         if (response.status === 404) {
           return { isAuthorized: false };
         }
-        throw new Error('Error al verificar estado de autorización');
+        throw new Error("Error al verificar estado de autorización");
       }
 
       return await response.json();
     } catch (error) {
-      console.error('Error verificando autorización:', error);
+      console.error("Error verificando autorización:", error);
       return { isAuthorized: false };
     }
   }
 
   /**
    * Verifica si el usuario tiene autorización válida (método simplificado)
-   * 
+   *
    * @param b2cIdToken - Token de ID de B2C para autenticar con el backend
    * @param userId - ID del usuario
    * @returns true si tiene autorización válida
    */
-  static async hasValidAuthorization(
-    b2cIdToken: string,
-    userId: string
-  ): Promise<boolean> {
+  static async hasValidAuthorization(b2cIdToken: string, userId: string): Promise<boolean> {
     const status = await this.getAuthorizationStatus(b2cIdToken, userId);
     return status.isAuthorized;
   }
@@ -171,35 +141,27 @@ export class GraphTokenManager {
   /**
    * Revoca la autorización del usuario
    * Elimina los tokens almacenados en el backend
-   * 
+   *
    * @param b2cIdToken - Token de ID de B2C para autenticar con el backend
    * @param userId - ID del usuario
    */
-  static async revokeAuthorization(
-    b2cIdToken: string,
-    userId: string
-  ): Promise<void> {
-    const response = await fetch(
-      `${ENV.CRM_API_BASE_URL}/api/graph/revoke/${userId}`,
-      {
-        method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${b2cIdToken}`,
-        },
-      }
-    );
+  static async revokeAuthorization(b2cIdToken: string, userId: string): Promise<void> {
+    const response = await fetch(`${ENV.CRM_API_BASE_URL}/api/graph/revoke/${userId}`, {
+      method: "DELETE",
+      headers: {
+        Authorization: `Bearer ${b2cIdToken}`,
+      },
+    });
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
-      throw new Error(
-        errorData.message || 'Error al revocar autorización'
-      );
+      throw new Error(errorData.message || "Error al revocar autorización");
     }
   }
 
   /**
    * Envía un correo en nombre del usuario usando Microsoft Graph
-   * 
+   *
    * @param b2cIdToken - Token de ID de B2C para autenticar con el backend
    * @param userId - ID del usuario
    * @param emailData - Datos del correo a enviar
@@ -214,28 +176,23 @@ export class GraphTokenManager {
       isHtml?: boolean;
       cc?: string[];
       bcc?: string[];
-    }
+    },
   ): Promise<void> {
-    const response = await fetch(
-      `${ENV.CRM_API_BASE_URL}/api/graph/send-email`,
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${b2cIdToken}`,
-        },
-        body: JSON.stringify({
-          userId,
-          ...emailData,
-        }),
-      }
-    );
+    const response = await fetch(`${ENV.CRM_API_BASE_URL}/api/graph/send-email`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${b2cIdToken}`,
+      },
+      body: JSON.stringify({
+        userId,
+        ...emailData,
+      }),
+    });
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
-      throw new Error(
-        errorData.message || 'Error al enviar correo'
-      );
+      throw new Error(errorData.message || "Error al enviar correo");
     }
   }
 }
