@@ -42,8 +42,6 @@ export const graphScopes = [
   "MailboxSettings.ReadWrite",
   "openid",
   "profile",
-  "User.ReadBasic.All",
-  "User.ReadWrite",
   "Mail.Read",
 ];
 
