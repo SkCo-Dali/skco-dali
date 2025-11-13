@@ -10,9 +10,11 @@ import { EmailPreview } from '@/components/EmailPreview';
 import { EmailStatusLogs } from '@/components/EmailStatusLogs';
 import { EmailSendConfirmation } from '@/components/EmailSendConfirmation';
 import { EmailSendProgressModal } from '@/components/EmailSendProgressModal';
+import { GraphAuthRequiredDialog } from '@/components/GraphAuthRequiredDialog';
 import { useMassEmail } from '@/hooks/useMassEmail';
 import { useToast } from '@/hooks/use-toast';
 import { useFormPersistence } from '@/hooks/useFormPersistence';
+import { useGraphAuthorization } from '@/hooks/useGraphAuthorization';
 
 interface MassEmailSenderProps {
   filteredLeads: Lead[];
@@ -35,7 +37,10 @@ export function MassEmailSender({ filteredLeads, onClose }: MassEmailSenderProps
     downloadReport,
   } = useMassEmail();
 
+  const { isAuthorized, loading: graphAuthLoading, checkStatus } = useGraphAuthorization();
+
   const [activeTab, setActiveTab] = useState('compose');
+  const [showGraphAuthDialog, setShowGraphAuthDialog] = useState(false);
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [showProgressModal, setShowProgressModal] = useState(false);
   const [template, setTemplate] = useState<EmailTemplate>({
@@ -118,7 +123,23 @@ export function MassEmailSender({ filteredLeads, onClose }: MassEmailSenderProps
       return;
     }
 
+    // Verificar autorización de Graph antes de continuar
+    if (!isAuthorized && !graphAuthLoading) {
+      setShowGraphAuthDialog(true);
+      return;
+    }
+
     setShowConfirmation(true);
+  };
+
+  const handleGraphAuthComplete = async () => {
+    setShowGraphAuthDialog(false);
+    await checkStatus();
+    
+    // Después de autorizar, mostrar la confirmación
+    if (isAuthorized) {
+      setShowConfirmation(true);
+    }
   };
 
   const handleConfirmSend = async () => {
@@ -293,6 +314,12 @@ export function MassEmailSender({ filteredLeads, onClose }: MassEmailSenderProps
         onCancel={cancelSend}
         onClose={handleCloseProgress}
         onDownloadReport={downloadReport}
+      />
+
+      <GraphAuthRequiredDialog
+        open={showGraphAuthDialog}
+        onOpenChange={setShowGraphAuthDialog}
+        onAuthorizationComplete={handleGraphAuthComplete}
       />
     </>
   );
