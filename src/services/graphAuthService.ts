@@ -99,8 +99,8 @@ export class GraphAuthService {
       scope: graphScopeString,
       state: encodedState,
       prompt: 'consent', // Forzar pantalla de consentimiento para obtener refresh token
-      code_challenge: codeChallenge,
-      code_challenge_method: 'S256', // SHA-256
+      // code_challenge: codeChallenge,
+      // code_challenge_method: 'S256', // SHA-256
     });
 
     // Redirigir a Microsoft para autorización
@@ -124,10 +124,10 @@ export class GraphAuthService {
   ): Promise<GraphCodeExchangeResponse> {
     try {
       // Recuperar el code verifier almacenado
-      const codeVerifier = this.getCodeVerifier();
-      if (!codeVerifier) {
-        throw new Error('Code verifier no encontrado. El proceso de autorización puede haber expirado.');
-      }
+      // const codeVerifier = this.getCodeVerifier();
+      // if (!codeVerifier) {
+      //   throw new Error('Code verifier no encontrado. El proceso de autorización puede haber expirado.');
+      // }
 
       // Decodificar y validar state
       const stateData: GraphAuthState = JSON.parse(atob(state));
