@@ -10,7 +10,7 @@
 
 export const graphAuthConfig = {
   // ID de la aplicación registrada en Azure AD para Microsoft Graph
-  clientId: import.meta.env.VITE_GRAPH_CLIENT_ID || '',
+  clientId: import.meta.env.VITE_GRAPH_CLIENT_ID || '2cc89bfe-6192-40e2-80a8-fd218121c623',
   
   // Authority para autenticación multi-tenant
   // Permite que usuarios de cualquier organización de Microsoft autoricen
