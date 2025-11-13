@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { GraphAuthService } from '@/services/graphAuthService';
@@ -22,9 +22,13 @@ export default function GraphCallback() {
   const [status, setStatus] = useState<'processing' | 'success' | 'error'>('processing');
   const [errorMessage, setErrorMessage] = useState<string>('');
   const [accountEmail, setAccountEmail] = useState<string>('');
+  const hasProcessed = useRef(false);
 
   useEffect(() => {
-    processCallback();
+    if (!hasProcessed.current) {
+      hasProcessed.current = true;
+      processCallback();
+    }
   }, []);
 
   const processCallback = async () => {
