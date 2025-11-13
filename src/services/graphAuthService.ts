@@ -143,7 +143,7 @@ export class GraphAuthService {
         code,
         redirectUri: graphAuthConfig.redirectUri,
         userId: stateData.userId,
-        codeVerifier, // Agregar code verifier para PKCE
+        // codeVerifier, // Agregar code verifier para PKCE SPA
       };
 
       // Intercambiar código por tokens en el backend
