@@ -264,13 +264,6 @@ export function RichTextEditor({ value, onChange, placeholder, allowDrop = false
         document.execCommand("insertText", false, textData);
       }
       
-      // Make dynamic field badges non-editable
-      if (editorRef.current) {
-        editorRef.current.querySelectorAll('[data-field-key]').forEach(badge => {
-          badge.setAttribute('contenteditable', 'false');
-        });
-      }
-      
       handleContentChange();
       return;
     }
@@ -287,13 +280,6 @@ export function RichTextEditor({ value, onChange, placeholder, allowDrop = false
       document.execCommand("insertHTML", false, htmlData);
     } else {
       document.execCommand("insertText", false, textData);
-    }
-    
-    // Make dynamic field badges non-editable
-    if (editorRef.current) {
-      editorRef.current.querySelectorAll('[data-field-key]').forEach(badge => {
-        badge.setAttribute('contenteditable', 'false');
-      });
     }
     
     handleContentChange();

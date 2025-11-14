@@ -113,7 +113,7 @@ export function EmailComposer({
     e.dataTransfer.setData("text/plain", `{${field.key}}`);
     
     // Set HTML with proper badge structure (same as subject field) - inline without line breaks
-    const badgeHtml = `<span class="inline-flex items-center px-2 py-0.5 rounded-md text-sm bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300 select-none" data-field-key="${field.key}" contenteditable="false" style="display:inline-flex;white-space:nowrap;"><span class="pointer-events-none">${field.label}</span><button type="button" data-remove-badge class="ml-1 hover:text-blue-900 dark:hover:text-blue-100" style="display:inline;">×</button></span>`;
+    const badgeHtml = `<span class="inline-flex items-center px-2 py-0.5 rounded-md text-sm bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300" data-field-key="${field.key}" style="display:inline-flex;white-space:nowrap;user-select:all;"><span class="pointer-events-none">${field.label}</span><button type="button" data-remove-badge class="ml-1 hover:text-blue-900 dark:hover:text-blue-100" style="display:inline;">×</button></span>`;
     e.dataTransfer.setData("text/html", badgeHtml);
   };
 
