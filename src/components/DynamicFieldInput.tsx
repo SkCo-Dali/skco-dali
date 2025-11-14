@@ -116,15 +116,22 @@ export function DynamicFieldInput({
     const sel = window.getSelection();
     if (!sel || sel.rangeCount === 0) {
       editorRef.current?.appendChild(node);
+      // Add a space after if it's the last element
+      editorRef.current?.appendChild(document.createTextNode('\u00A0'));
       return;
     }
     const range = sel.getRangeAt(0);
     range.deleteContents();
     range.insertNode(node);
 
-    // Move caret after inserted node
+    // Insert a non-breaking space after the node to allow typing
+    const space = document.createTextNode('\u00A0');
     range.setStartAfter(node);
-    range.setEndAfter(node);
+    range.insertNode(space);
+    
+    // Move caret after the space
+    range.setStartAfter(space);
+    range.setEndAfter(space);
     sel.removeAllRanges();
     sel.addRange(range);
   };
