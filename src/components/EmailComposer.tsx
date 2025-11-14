@@ -237,6 +237,7 @@ export function EmailComposer({
               placeholder="Ej: Bienvenido {name} a Skandia"
               dynamicFields={dynamicFields}
               onDrop={handleSubjectDrop}
+              fieldColors={fieldColors}
             />
             <p className="text-sm text-muted-foreground mt-1">
               Arrastra campos dinámicos para personalizar
