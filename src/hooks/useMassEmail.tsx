@@ -51,10 +51,21 @@ export function useMassEmail() {
     
     // Primero reemplazar badges HTML (para contenido rich text)
     // Buscar el badge completo con data-field-key (incluye spans anidados y botón X)
+    // IMPORTANTE: Mantener los estilos aplicados al badge
     result = result.replace(
-      /<span[^>]*data-field-key="([^"]+)"[^>]*>(?:<span[^>]*>.*?<\/span>)?(?:<button[^>]*>.*?<\/button>)?<\/span>/g,
-      (match, key) => {
+      /<span([^>]*data-field-key="([^"]+)"[^>]*)>(?:<span[^>]*>.*?<\/span>)?(?:<button[^>]*>.*?<\/button>)?<\/span>/g,
+      (match, attributes, key) => {
         const value = fieldMap[key] || "";
+        
+        // Extraer el atributo style si existe para mantener el formato
+        const styleMatch = attributes.match(/style="([^"]*)"/);
+        const style = styleMatch ? styleMatch[1] : "";
+        
+        // Si hay estilos aplicados, envolver el valor en un span con esos estilos
+        if (style) {
+          return `<span style="${style}">${value}</span>`;
+        }
+        
         return value;
       }
     );
