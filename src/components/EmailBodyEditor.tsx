@@ -102,9 +102,20 @@ interface ToolbarProps {
 const Toolbar = ({ editor }: ToolbarProps) => {
   const [linkUrl, setLinkUrl] = useState('');
   const [showLinkPopover, setShowLinkPopover] = useState(false);
+  const [showFontSizePopover, setShowFontSizePopover] = useState(false);
+  const [fontSizeInput, setFontSizeInput] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const fontSizeInputRef = useRef<HTMLInputElement>(null);
 
   if (!editor) return null;
+
+  // Obtener el tamaño de fuente actual del texto seleccionado
+  const getCurrentFontSize = () => {
+    const fontSize = editor.getAttributes('textStyle').fontSize;
+    return fontSize ? fontSize.replace('px', '') : '';
+  };
+
+  const currentFontSize = getCurrentFontSize();
 
   const setLink = () => {
     if (!linkUrl) return;
@@ -132,7 +143,7 @@ const Toolbar = ({ editor }: ToolbarProps) => {
   };
 
   return (
-    <div className="flex flex-wrap items-center gap-1 rounded-t-lg border border-b-0 bg-muted/30 p-2">
+    <div className="flex flex-wrap items-center gap-1 rounded-t-lg border border-b-0 bg-muted/30 p-2" data-toolbar>
       <input
         ref={fileInputRef}
         type="file"
@@ -158,22 +169,75 @@ const Toolbar = ({ editor }: ToolbarProps) => {
         </SelectContent>
       </Select>
 
-      {/* Selector de tamaño */}
-      <Select
-        value={editor.getAttributes('textStyle').fontSize || '14px'}
-        onValueChange={(value) => editor.chain().focus().setMark('textStyle', { fontSize: value }).run()}
-      >
-        <SelectTrigger className="h-8 w-[80px] text-xs">
-          <SelectValue placeholder="Tamaño" />
-        </SelectTrigger>
-        <SelectContent>
-          {FONT_SIZES.map((size) => (
-            <SelectItem key={size} value={size} className="text-xs">
-              {size.replace('px', '')}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
+      {/* Selector de tamaño - estilo Outlook */}
+      <Popover open={showFontSizePopover} onOpenChange={setShowFontSizePopover}>
+        <PopoverTrigger asChild>
+          <Button
+            variant="outline"
+            className="h-8 w-[70px] justify-between text-xs px-2 font-normal"
+          >
+            <span>{currentFontSize || '14'}</span>
+            <svg className="h-3 w-3 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+            </svg>
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent className="w-[80px] p-0" align="start">
+          <div className="flex flex-col">
+            {/* Input manual en la parte superior */}
+            <Input
+              ref={fontSizeInputRef}
+              type="text"
+              value={fontSizeInput}
+              onChange={(e) => setFontSizeInput(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  e.preventDefault();
+                  const size = parseInt(fontSizeInput);
+                  if (size >= 8 && size <= 72) {
+                    editor.chain().focus().setMark('textStyle', { fontSize: `${size}px` }).run();
+                    setShowFontSizePopover(false);
+                    setFontSizeInput('');
+                  }
+                }
+                if (e.key === 'Escape') {
+                  setShowFontSizePopover(false);
+                  setFontSizeInput('');
+                }
+              }}
+              placeholder={currentFontSize || '14'}
+              className="h-8 text-xs border-0 border-b rounded-none focus-visible:ring-0 focus-visible:border-primary"
+              data-font-size-input
+            />
+            {/* Lista de tamaños en una columna */}
+            <div className="max-h-[300px] overflow-y-auto">
+              {FONT_SIZES.map((size) => {
+                const sizeValue = size.replace('px', '');
+                const isActive = currentFontSize === sizeValue;
+                return (
+                  <button
+                    key={size}
+                    onClick={() => {
+                      editor.chain().focus().setMark('textStyle', { fontSize: size }).run();
+                      setShowFontSizePopover(false);
+                      setFontSizeInput('');
+                    }}
+                    className={cn(
+                      "w-full text-left px-3 py-1.5 text-xs hover:bg-accent transition-colors relative",
+                      isActive && "bg-accent"
+                    )}
+                  >
+                    {isActive && (
+                      <span className="absolute left-1 top-1/2 -translate-y-1/2">✓</span>
+                    )}
+                    <span className={cn(isActive && "ml-4")}>{sizeValue}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        </PopoverContent>
+      </Popover>
 
       <Separator orientation="vertical" className="h-6" />
 
@@ -513,6 +577,22 @@ export function EmailBodyEditor({
       editor.commands.setContent(initialHtml);
     }
   }, [initialHtml, editor]);
+
+  // Auto-focus en el input de tamaño cuando se abre el popover
+  useEffect(() => {
+    const toolbar = document.querySelector('[data-toolbar]');
+    if (toolbar) {
+      const observer = new MutationObserver(() => {
+        const fontSizeInput = document.querySelector('[data-font-size-input]') as HTMLInputElement;
+        if (fontSizeInput) {
+          fontSizeInput.focus();
+          fontSizeInput.select();
+        }
+      });
+      observer.observe(toolbar, { childList: true, subtree: true });
+      return () => observer.disconnect();
+    }
+  }, []);
 
   // Manejar adjuntos
   const handleAttachmentChange = useCallback((newFiles: File[]) => {
