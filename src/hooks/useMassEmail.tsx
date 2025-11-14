@@ -32,24 +32,18 @@ export function useMassEmail() {
   const isPausedRef = useRef(false);
 
   const dynamicFields = [
-    { key: "name", label: "Nombres y Apellidos", example: "Juan Pérez" },
     { key: "firstName", label: "Primer Nombre", example: "Juan" },
-    { key: "email", label: "Email", example: "juan@ejemplo.com" },
+    { key: "name", label: "Nombres y Apellidos", example: "Juan Pérez" },
     { key: "company", label: "Empresa", example: "Acme Corp" },
     { key: "phone", label: "Teléfono", example: "+57 300 123 4567" },
-    { key: "campaign", label: "Campaña", example: "Campaña1" },
-    { key: "source", label: "Fuente", example: "web" },
   ];
 
   const replaceDynamicFields = useCallback((template: string, lead: Lead): string => {
     let result = template;
     result = result.replace(/\{name\}/g, lead.name);
     result = result.replace(/\{firstName\}/g, lead.firstName || "");
-    result = result.replace(/\{email\}/g, lead.email || "");
     result = result.replace(/\{company\}/g, lead.company || "");
     result = result.replace(/\{phone\}/g, lead.phone || "");
-    result = result.replace(/\{campaign\}/g, lead.campaign || "");
-    result = result.replace(/\{source\}/g, lead.source);
     return result;
   }, []);
 
