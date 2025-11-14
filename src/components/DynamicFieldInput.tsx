@@ -177,6 +177,26 @@ export function DynamicFieldInput({
       key = plain;
     }
 
+    // Get the exact drop position using coordinates
+    let range: Range | null = null;
+    if (document.caretRangeFromPoint) {
+      range = document.caretRangeFromPoint(e.clientX, e.clientY);
+    } else if ((document as any).caretPositionFromPoint) {
+      const pos = (document as any).caretPositionFromPoint(e.clientX, e.clientY);
+      if (pos) {
+        range = document.createRange();
+        range.setStart(pos.offsetNode, pos.offset);
+      }
+    }
+
+    if (range && editorRef.current?.contains(range.startContainer)) {
+      const sel = window.getSelection();
+      if (sel) {
+        sel.removeAllRanges();
+        sel.addRange(range);
+      }
+    }
+
     if (key) {
       const field = dynamicFields.find((f) => f.key === key);
       const label = field?.label || key;
