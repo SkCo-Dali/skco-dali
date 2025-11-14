@@ -84,15 +84,20 @@ export function DynamicFieldInput({
     onChange(newValue);
   };
 
-  const handleContainerClick = () => {
-    // Focus on the last text segment or create a new one
-    const lastTextIndex = segments.reduce((lastIdx, segment, idx) => {
-      return segment.type === "text" ? idx : lastIdx;
-    }, -1);
-    
-    if (lastTextIndex >= 0) {
-      setEditingIndex(lastTextIndex);
+  const handleContainerClick = (e: React.MouseEvent) => {
+    // If clicking on the container itself (not on inputs or badges), focus the trailing input
+    if (e.target === containerRef.current) {
+      const trailingInput = containerRef.current?.querySelector('input:last-of-type') as HTMLInputElement;
+      if (trailingInput) {
+        trailingInput.focus();
+      }
     }
+  };
+
+  const handleTrailingInputChange = (newText: string) => {
+    // Add or update the trailing text segment
+    const newValue = segments.map((s) => s.content).join("") + newText;
+    onChange(newValue);
   };
 
   return (
@@ -103,23 +108,24 @@ export function DynamicFieldInput({
       onDrop={onDrop}
       onDragOver={(e) => e.preventDefault()}
     >
-      {segments.length === 0 && (
-        <span className="text-muted-foreground text-sm">{placeholder}</span>
+      {segments.length === 0 && !value && (
+        <span className="text-muted-foreground text-sm pointer-events-none">{placeholder}</span>
       )}
       {segments.map((segment, index) => (
         <div key={index} className="inline-flex items-center">
           {segment.type === "field" ? (
             <Badge
               variant="secondary"
-              className="bg-blue-100 text-blue-700 hover:bg-blue-200 dark:bg-blue-900 dark:text-blue-300 cursor-default"
+              className="bg-blue-100 text-blue-700 hover:bg-blue-200 dark:bg-blue-900 dark:text-blue-300 cursor-default select-none"
             >
-              {segment.fieldLabel}
+              <span className="pointer-events-none">{segment.fieldLabel}</span>
               <button
                 onClick={(e) => {
                   e.stopPropagation();
                   handleRemoveField(index);
                 }}
                 className="ml-1 hover:text-blue-900 dark:hover:text-blue-100"
+                type="button"
               >
                 ×
               </button>
@@ -131,13 +137,19 @@ export function DynamicFieldInput({
               onChange={(e) => handleTextChange(index, e.target.value)}
               onFocus={() => setEditingIndex(index)}
               onBlur={() => setEditingIndex(null)}
-              className="bg-transparent border-none outline-none min-w-[20px] text-sm"
+              className="bg-transparent border-none outline-none min-w-[20px] text-sm px-0"
               style={{ width: `${Math.max(segment.content.length, 1)}ch` }}
-              placeholder={index === 0 && segments.length === 1 ? placeholder : ""}
             />
           )}
         </div>
       ))}
+      {/* Trailing input for easy typing at the end */}
+      <input
+        type="text"
+        onChange={(e) => handleTrailingInputChange(e.target.value)}
+        className="bg-transparent border-none outline-none flex-1 min-w-[40px] text-sm px-0"
+        placeholder={segments.length === 0 ? placeholder : ""}
+      />
     </div>
   );
 }
