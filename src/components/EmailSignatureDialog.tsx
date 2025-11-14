@@ -12,13 +12,17 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { RichTextEditor } from "@/components/RichTextEditor";
 import { useToast } from "@/hooks/use-toast";
-import { FileSignature, Save } from "lucide-react";
+import { FileSignature, Save, Loader2 } from "lucide-react";
+import {
+  fetchAllSignatures,
+  saveSignature,
+  deleteSignature,
+  EmailSignature as ApiEmailSignature,
+} from "@/utils/emailSignaturesApiClient";
 
 interface EmailSignature {
-  id: string;
   name: string;
   content: string;
-  isDefault: boolean;
 }
 
 interface EmailSignatureDialogProps {
@@ -37,37 +41,35 @@ export function EmailSignatureDialog({
   const [isCreating, setIsCreating] = useState(false);
   const [signatureName, setSignatureName] = useState("");
   const [signatureContent, setSignatureContent] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [saving, setSaving] = useState(false);
   const { toast } = useToast();
 
-  // Cargar firmas desde localStorage al abrir
+  // Cargar firmas desde el backend al abrir
   useEffect(() => {
     if (isOpen) {
       loadSignatures();
     }
   }, [isOpen]);
 
-  const loadSignatures = () => {
+  const loadSignatures = async () => {
+    setLoading(true);
     try {
-      const stored = localStorage.getItem("email_signatures");
-      if (stored) {
-        setSignatures(JSON.parse(stored));
-      }
+      const apiSignatures = await fetchAllSignatures();
+      const mappedSignatures: EmailSignature[] = apiSignatures.map((sig) => ({
+        name: sig.signature_name,
+        content: sig.html_signature,
+      }));
+      setSignatures(mappedSignatures);
     } catch (error) {
       console.error("Error loading signatures:", error);
-    }
-  };
-
-  const saveSignatures = (newSignatures: EmailSignature[]) => {
-    try {
-      localStorage.setItem("email_signatures", JSON.stringify(newSignatures));
-      setSignatures(newSignatures);
-    } catch (error) {
-      console.error("Error saving signatures:", error);
       toast({
         title: "Error",
-        description: "No se pudo guardar la firma",
+        description: error instanceof Error ? error.message : "No se pudieron cargar las firmas",
         variant: "destructive",
       });
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -85,7 +87,7 @@ export function EmailSignatureDialog({
     setSignatureContent(signature.content);
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!signatureName.trim()) {
       toast({
         title: "Error",
@@ -104,45 +106,53 @@ export function EmailSignatureDialog({
       return;
     }
 
-    let newSignatures: EmailSignature[];
+    setSaving(true);
+    try {
+      await saveSignature(signatureName.trim(), signatureContent);
+      
+      toast({
+        title: "Éxito",
+        description: `Firma '${signatureName}' guardada correctamente`,
+      });
 
-    if (editingSignature) {
-      // Actualizar firma existente
-      newSignatures = signatures.map((sig) =>
-        sig.id === editingSignature.id
-          ? { ...sig, name: signatureName, content: signatureContent }
-          : sig
-      );
-    } else {
-      // Crear nueva firma
-      const newSignature: EmailSignature = {
-        id: Date.now().toString(),
-        name: signatureName,
-        content: signatureContent,
-        isDefault: signatures.length === 0,
-      };
-      newSignatures = [...signatures, newSignature];
+      // Recargar la lista de firmas
+      await loadSignatures();
+      
+      setIsCreating(false);
+      setEditingSignature(null);
+      setSignatureName("");
+      setSignatureContent("");
+    } catch (error) {
+      console.error("Error saving signature:", error);
+      toast({
+        title: "Error",
+        description: error instanceof Error ? error.message : "No se pudo guardar la firma",
+        variant: "destructive",
+      });
+    } finally {
+      setSaving(false);
     }
-
-    saveSignatures(newSignatures);
-    setIsCreating(false);
-    setEditingSignature(null);
-    setSignatureName("");
-    setSignatureContent("");
-
-    toast({
-      title: "Éxito",
-      description: "Firma guardada correctamente",
-    });
   };
 
-  const handleDelete = (id: string) => {
-    const newSignatures = signatures.filter((sig) => sig.id !== id);
-    saveSignatures(newSignatures);
-    toast({
-      title: "Firma eliminada",
-      description: "La firma se eliminó correctamente",
-    });
+  const handleDelete = async (signatureName: string) => {
+    try {
+      const message = await deleteSignature(signatureName);
+      
+      toast({
+        title: "Firma eliminada",
+        description: message,
+      });
+
+      // Recargar la lista de firmas
+      await loadSignatures();
+    } catch (error) {
+      console.error("Error deleting signature:", error);
+      toast({
+        title: "Error",
+        description: error instanceof Error ? error.message : "No se pudo eliminar la firma",
+        variant: "destructive",
+      });
+    }
   };
 
   const handleInsert = (signature: EmailSignature) => {
@@ -175,7 +185,11 @@ export function EmailSignatureDialog({
         </DialogHeader>
 
         <div className="space-y-4">
-          {!isCreating && !editingSignature ? (
+          {loading ? (
+            <div className="flex items-center justify-center py-8">
+              <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
+            </div>
+          ) : !isCreating && !editingSignature ? (
             <>
               {/* Lista de firmas */}
               <div className="space-y-2">
@@ -188,7 +202,7 @@ export function EmailSignatureDialog({
                 ) : (
                   signatures.map((signature) => (
                     <div
-                      key={signature.id}
+                      key={signature.name}
                       className="flex items-center justify-between p-4 border rounded-lg hover:bg-accent/50 transition-colors"
                     >
                       <div className="font-medium">{signature.name}</div>
@@ -210,7 +224,7 @@ export function EmailSignatureDialog({
                         <Button
                           size="sm"
                           variant="outline"
-                          onClick={() => handleDelete(signature.id)}
+                          onClick={() => handleDelete(signature.name)}
                         >
                           Eliminar
                         </Button>
@@ -257,12 +271,21 @@ export function EmailSignatureDialog({
               </div>
 
               <DialogFooter className="gap-2">
-                <Button variant="outline" onClick={handleCancel}>
+                <Button variant="outline" onClick={handleCancel} disabled={saving}>
                   Cancelar
                 </Button>
-                <Button onClick={handleSave}>
-                  <Save className="w-4 h-4 mr-2" />
-                  Guardar Firma
+                <Button onClick={handleSave} disabled={saving}>
+                  {saving ? (
+                    <>
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      Guardando...
+                    </>
+                  ) : (
+                    <>
+                      <Save className="w-4 h-4 mr-2" />
+                      Guardar Firma
+                    </>
+                  )}
                 </Button>
               </DialogFooter>
             </>
