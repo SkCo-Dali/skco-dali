@@ -101,14 +101,24 @@ export function RichTextEditor({ value, onChange, placeholder, allowDrop = false
   ];
 
   const FONT_SIZES = [
-    { label: "8pt", value: "1" },
-    { label: "10pt", value: "2" },
-    { label: "12pt", value: "3" },
-    { label: "14pt", value: "4" },
-    { label: "18pt", value: "5" },
-    { label: "24pt", value: "6" },
-    { label: "36pt", value: "7" },
+    { label: "8", value: "8px" },
+    { label: "9", value: "9px" },
+    { label: "10", value: "10px" },
+    { label: "11", value: "11px" },
+    { label: "12", value: "12px" },
+    { label: "14", value: "14px" },
+    { label: "16", value: "16px" },
+    { label: "18", value: "18px" },
+    { label: "20", value: "20px" },
+    { label: "22", value: "22px" },
+    { label: "24", value: "24px" },
+    { label: "26", value: "26px" },
+    { label: "28", value: "28px" },
+    { label: "36", value: "36px" },
+    { label: "48", value: "48px" },
   ];
+
+  const [customFontSize, setCustomFontSize] = useState("");
 
   const handleContentChange = useCallback(() => {
     if (!editorRef.current) return;
@@ -179,12 +189,7 @@ export function RichTextEditor({ value, onChange, placeholder, allowDrop = false
     } else if (cmd === "fontName" && val) {
       badge.style.fontFamily = val;
     } else if (cmd === "fontSize" && val) {
-      // Convertir valor fontSize (1-7) a tamaño real
-      const sizeMap: Record<string, string> = {
-        "1": "10px", "2": "13px", "3": "16px", "4": "18px",
-        "5": "24px", "6": "32px", "7": "48px"
-      };
-      badge.style.fontSize = sizeMap[val] || val;
+      badge.style.fontSize = val;
     }
   };
 
@@ -214,21 +219,43 @@ export function RichTextEditor({ value, onChange, placeholder, allowDrop = false
     
     const range = sel.getRangeAt(0);
     const selectedBadges = getSelectedBadges(range);
-    
-    // Aplicar estilos a badges primero
-    selectedBadges.forEach(badge => applyStyleToBadge(badge, cmd, val));
-    
-    // Luego aplicar al texto si hay texto seleccionado
-    const selectedText = range.toString();
-    if (selectedText.trim()) {
-      if (cmd === "fontSize" || cmd === "fontName") {
+
+    // Aplicar estilo a los badges seleccionados
+    selectedBadges.forEach((badge) => applyStyleToBadge(badge, cmd, val));
+
+    // Para fontSize, usar style directo en lugar de execCommand
+    if (cmd === "fontSize" && val) {
+      document.execCommand("styleWithCSS", false, "true");
+      // Envolver selección en span con fontSize
+      const span = document.createElement("span");
+      span.style.fontSize = val;
+      try {
+        range.surroundContents(span);
+      } catch {
+        // Si falla surroundContents, insertar manualmente
+        const fragment = range.extractContents();
+        span.appendChild(fragment);
+        range.insertNode(span);
+      }
+    } else {
+      // Aplicar estilo al texto usando execCommand
+      if (cmd === "fontName") {
         document.execCommand("styleWithCSS", false, "true");
       }
       document.execCommand(cmd, false, val);
     }
     
-    handleContentChange();
-    saveSelection();
+    editor.focus();
+    runWhenIdle(handleContentChange);
+  };
+
+  const handleCustomFontSize = () => {
+    const size = parseInt(customFontSize);
+    if (!isNaN(size) && size > 0 && size <= 200) {
+      saveSelection();
+      exec("fontSize", `${size}px`);
+      setCustomFontSize("");
+    }
   };
 
   const insertLink = () => {
@@ -387,23 +414,58 @@ export function RichTextEditor({ value, onChange, placeholder, allowDrop = false
         </Select>
 
         {/* Tamaño */}
-        <Select
-          onValueChange={(s) => {
-            saveSelection();
-            exec("fontSize", s);
-          }}
-        >
-          <SelectTrigger className="h-8 w-[80px] text-xs">
-            <SelectValue placeholder="Tamaño" />
-          </SelectTrigger>
-          <SelectContent>
-            {FONT_SIZES.map((size) => (
-              <SelectItem key={size.value} value={size.value} className="text-xs">
-                {size.label}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        <Popover>
+          <PopoverTrigger asChild>
+            <Button variant="outline" size="sm" className="h-8 w-[80px] text-xs justify-between" onClick={saveSelection}>
+              Tamaño
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-[200px] p-2" align="start">
+            <div className="space-y-2">
+              <Label className="text-xs font-medium">Tamaño de fuente</Label>
+              <div className="flex gap-2">
+                <Input
+                  type="number"
+                  placeholder="Ej: 14"
+                  value={customFontSize}
+                  onChange={(e) => setCustomFontSize(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      handleCustomFontSize();
+                    }
+                  }}
+                  className="h-8 text-xs flex-1"
+                  min="1"
+                  max="200"
+                />
+                <Button
+                  size="sm"
+                  className="h-8"
+                  onClick={handleCustomFontSize}
+                >
+                  OK
+                </Button>
+              </div>
+              <Separator />
+              <div className="grid grid-cols-3 gap-1 max-h-[200px] overflow-y-auto">
+                {FONT_SIZES.map((size) => (
+                  <Button
+                    key={size.value}
+                    variant="ghost"
+                    size="sm"
+                    className="h-8 text-xs justify-start"
+                    onClick={() => {
+                      restoreSelection();
+                      exec("fontSize", size.value);
+                    }}
+                  >
+                    {size.label}
+                  </Button>
+                ))}
+              </div>
+            </div>
+          </PopoverContent>
+        </Popover>
 
         <Separator orientation="vertical" className="h-6" />
 
