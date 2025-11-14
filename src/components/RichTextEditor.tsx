@@ -110,10 +110,6 @@ export function RichTextEditor({ value, onChange, placeholder, allowDrop = false
     if (!editor) return;
     if (value != null && value !== "" && value !== lastEmittedHtmlRef.current && value !== editor.innerHTML) {
       editor.innerHTML = value;
-      // Make all dynamic field badges non-editable
-      editor.querySelectorAll('[data-field-key]').forEach(badge => {
-        badge.setAttribute('contenteditable', 'false');
-      });
     }
   }, [value]);
 
