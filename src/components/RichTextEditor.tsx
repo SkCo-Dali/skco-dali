@@ -135,20 +135,35 @@ export function RichTextEditor({ value, onChange, placeholder, allowDrop = false
     "7": "36pt",
   };
 
-  const applyStyleToBadge = (badge: HTMLElement, cmd: string, val?: string) => {
+  const applyStyleToBadge = (badge: HTMLElement, cmd: string, val?: string, shouldToggleOff = false) => {
     switch (cmd) {
       case "foreColor":
         badge.style.color = val || "";
         break;
       case "bold":
-        badge.style.fontWeight = badge.style.fontWeight === "700" || badge.style.fontWeight === "bold" ? "normal" : "700";
+        // If shouldToggleOff is true, remove bold; otherwise toggle
+        if (shouldToggleOff) {
+          badge.style.fontWeight = "normal";
+        } else {
+          badge.style.fontWeight = badge.style.fontWeight === "700" || badge.style.fontWeight === "bold" ? "normal" : "700";
+        }
         break;
       case "italic":
-        badge.style.fontStyle = badge.style.fontStyle === "italic" ? "normal" : "italic";
+        // If shouldToggleOff is true, remove italic; otherwise toggle
+        if (shouldToggleOff) {
+          badge.style.fontStyle = "normal";
+        } else {
+          badge.style.fontStyle = badge.style.fontStyle === "italic" ? "normal" : "italic";
+        }
         break;
       case "underline": {
         const td = badge.style.textDecoration || "";
-        badge.style.textDecoration = td.includes("underline") ? td.replace("underline", "").trim() : (td ? td + " underline" : "underline");
+        // If shouldToggleOff is true, remove underline; otherwise toggle
+        if (shouldToggleOff) {
+          badge.style.textDecoration = td.replace("underline", "").trim();
+        } else {
+          badge.style.textDecoration = td.includes("underline") ? td.replace("underline", "").trim() : (td ? td + " underline" : "underline");
+        }
         break;
       }
       case "fontName":
@@ -228,6 +243,10 @@ export function RichTextEditor({ value, onChange, placeholder, allowDrop = false
       }
     }
 
+    // Check the current state BEFORE applying execCommand
+    // This tells us if we're removing or adding the format
+    const isCurrentlyActive = document.queryCommandState(cmd);
+    
     // Apply command to text normally
     document.execCommand(cmd, false, val);
 
@@ -251,7 +270,8 @@ export function RichTextEditor({ value, onChange, placeholder, allowDrop = false
 
       badges.forEach((b) => {
         if (intersects(b)) {
-          applyStyleToBadge(b, cmd, val);
+          // If the format was active and we're toggling it off, pass true
+          applyStyleToBadge(b, cmd, val, isCurrentlyActive);
         }
       });
     }
