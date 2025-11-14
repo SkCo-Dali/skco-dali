@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { GraphAuthService } from '@/services/graphAuthService';
@@ -22,13 +22,26 @@ export default function GraphCallback() {
   const [status, setStatus] = useState<'processing' | 'success' | 'error'>('processing');
   const [errorMessage, setErrorMessage] = useState<string>('');
   const [accountEmail, setAccountEmail] = useState<string>('');
-  const hasProcessed = useRef(false);
 
   useEffect(() => {
-    if (!hasProcessed.current) {
-      hasProcessed.current = true;
-      processCallback();
+    const code = searchParams.get('code');
+    const callbackKey = `graph_callback_${code}`;
+    
+    // Verificar si ya procesamos este código
+    if (sessionStorage.getItem(callbackKey)) {
+      console.log('Callback ya procesado, ignorando...');
+      return;
     }
+    
+    // Marcar como procesado inmediatamente
+    sessionStorage.setItem(callbackKey, 'processing');
+    
+    processCallback().finally(() => {
+      // Limpiar después de 5 minutos
+      setTimeout(() => {
+        sessionStorage.removeItem(callbackKey);
+      }, 5 * 60 * 1000);
+    });
   }, []);
 
   const processCallback = async () => {
