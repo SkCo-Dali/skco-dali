@@ -49,21 +49,44 @@ export function useMassEmail() {
       phone: lead.phone || "",
     };
     
+    // Función para filtrar estilos y mantener solo los de formato (no visualización de badge)
+    const filterStyles = (styleString: string): string => {
+      const styleObj: Record<string, string> = {};
+      styleString.split(';').forEach(s => {
+        const [prop, val] = s.split(':').map(x => x.trim());
+        if (prop && val) {
+          // Mantener solo estilos de formato aplicados por el usuario
+          // Excluir estilos de visualización del badge
+          const allowedProps = ['font-weight', 'font-style', 'text-decoration', 'font-family', 'font-size'];
+          if (allowedProps.includes(prop)) {
+            styleObj[prop] = val;
+          }
+        }
+      });
+      
+      return Object.entries(styleObj)
+        .map(([k, v]) => `${k}: ${v}`)
+        .join('; ');
+    };
+    
     // Primero reemplazar badges HTML (para contenido rich text)
     // Buscar el badge completo con data-field-key (incluye spans anidados y botón X)
-    // IMPORTANTE: Mantener los estilos aplicados al badge
+    // IMPORTANTE: Mantener SOLO los estilos de formato, no los de visualización
     result = result.replace(
       /<span([^>]*data-field-key="([^"]+)"[^>]*)>(?:<span[^>]*>.*?<\/span>)?(?:<button[^>]*>.*?<\/button>)?<\/span>/g,
       (match, attributes, key) => {
         const value = fieldMap[key] || "";
         
-        // Extraer el atributo style si existe para mantener el formato
+        // Extraer el atributo style si existe
         const styleMatch = attributes.match(/style="([^"]*)"/);
         const style = styleMatch ? styleMatch[1] : "";
         
-        // Si hay estilos aplicados, envolver el valor en un span con esos estilos
-        if (style) {
-          return `<span style="${style}">${value}</span>`;
+        // Filtrar estilos para mantener solo los de formato
+        const filteredStyle = filterStyles(style);
+        
+        // Si hay estilos de formato aplicados, envolver el valor en un span con esos estilos
+        if (filteredStyle) {
+          return `<span style="${filteredStyle}">${value}</span>`;
         }
         
         return value;
