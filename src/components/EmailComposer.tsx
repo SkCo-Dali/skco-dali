@@ -32,6 +32,18 @@ export function EmailComposer({
   const [showSignatureDialog, setShowSignatureDialog] = useState(false);
   const [draggedField, setDraggedField] = useState<DynamicField | null>(null);
 
+  // Color mapping for each field type
+  const fieldColors: Record<string, { bg: string; text: string }> = {
+    firstName: { bg: "#dbeafe", text: "#1e40af" }, // azul
+    name: { bg: "#e5e7eb", text: "#374151" }, // gris
+    company: { bg: "#fef3c7", text: "#92400e" }, // amarillo
+    phone: { bg: "#e9d5ff", text: "#6b21a8" }, // morado
+  };
+
+  const getFieldColor = (fieldKey: string) => {
+    return fieldColors[fieldKey] || { bg: "#e5e7eb", text: "#374151" };
+  };
+
   const insertDynamicField = (field: DynamicField, targetField: "subject" | "htmlContent" | "plainContent") => {
     const fieldTag = `{${field.key}}`;
 
@@ -112,8 +124,11 @@ export function EmailComposer({
     // Set plain text for plain text contexts
     e.dataTransfer.setData("text/plain", `{${field.key}}`);
     
-    // Set HTML with proper badge structure (same as subject field) - inline without line breaks
-    const badgeHtml = `<span class="inline-flex items-center px-2 py-0.5 rounded-md text-sm bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300" data-field-key="${field.key}" contenteditable="false" style="display:inline-flex;white-space:nowrap;user-select:all;vertical-align:baseline;line-height:1;"><span class="pointer-events-none">${field.label}</span><button type="button" data-remove-badge class="ml-1 hover:text-blue-900 dark:hover:text-blue-100" style="display:inline;line-height:1;">×</button></span>`;
+    // Get field-specific colors
+    const colors = getFieldColor(field.key);
+    
+    // Set HTML with proper badge structure - inline without line breaks
+    const badgeHtml = `<span class="inline-flex items-center px-2 py-0.5 rounded-md text-sm" data-field-key="${field.key}" contenteditable="false" style="display:inline-flex;white-space:nowrap;user-select:all;vertical-align:baseline;line-height:1;background-color:${colors.bg};color:${colors.text};"><span class="pointer-events-none">${field.label}</span><button type="button" data-remove-badge class="ml-1 opacity-70 hover:opacity-100" style="display:inline;line-height:1;">×</button></span>`;
     e.dataTransfer.setData("text/html", badgeHtml);
   };
 
@@ -171,18 +186,25 @@ export function EmailComposer({
             <Card className="p-4 bg-muted/50">
               <h4 className="font-medium mb-3">Campos disponibles:</h4>
               <div className="flex flex-wrap gap-2">
-                {dynamicFields.map((field) => (
-                  <Badge
-                    key={field.key}
-                    draggable
-                    onDragStart={handleDragStart(field)}
-                    onDragEnd={handleDragEnd}
-                    className="cursor-move bg-[#EBF4FF] text-[#3f3f3f] hover:bg-[#D6E9FF] transition-colors"
-                    title={`Arrastra al asunto o contenido. Ejemplo: ${field.example}`}
-                  >
-                    {field.label} ({`{${field.key}}`})
-                  </Badge>
-                ))}
+                {dynamicFields.map((field) => {
+                  const colors = getFieldColor(field.key);
+                  return (
+                    <Badge
+                      key={field.key}
+                      draggable
+                      onDragStart={handleDragStart(field)}
+                      onDragEnd={handleDragEnd}
+                      className="cursor-move transition-opacity hover:opacity-80"
+                      style={{ 
+                        backgroundColor: colors.bg, 
+                        color: colors.text,
+                      }}
+                      title={`Arrastra al asunto o contenido. Ejemplo: ${field.example}`}
+                    >
+                      {field.label}
+                    </Badge>
+                  );
+                })}
               </div>
               <p className="text-sm text-muted-foreground mt-2">
                 Arrastra los campos al asunto o contenido del email para insertarlos
