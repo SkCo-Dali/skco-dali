@@ -126,8 +126,8 @@ export function EmailComposer({
     // Get field-specific colors
     const colors = getFieldColor(field.key);
     
-    // Set HTML with proper badge structure - inline without line breaks
-    const badgeHtml = `<span class="inline-flex items-center px-2 py-0.5 rounded-md text-sm" data-field-key="${field.key}" contenteditable="false" style="display:inline-flex;white-space:nowrap;user-select:all;vertical-align:baseline;line-height:1;background-color:${colors.bg};color:${colors.text};"><span class="pointer-events-none">${field.label}</span><button type="button" data-remove-badge class="ml-1 opacity-70 hover:opacity-100" style="display:inline;line-height:1;">×</button></span>`;
+    // Set HTML with proper badge structure - inline without line breaks, with trailing space
+    const badgeHtml = `<span class="inline-flex items-center px-2 py-0.5 rounded-md text-sm" data-field-key="${field.key}" contenteditable="false" style="display:inline-flex;white-space:nowrap;user-select:all;vertical-align:baseline;line-height:1;background-color:${colors.bg};color:${colors.text};"><span class="pointer-events-none">${field.label}</span><button type="button" data-remove-badge class="ml-1 opacity-70 hover:opacity-100" style="display:inline;line-height:1;">×</button></span>&nbsp;`;
     e.dataTransfer.setData("text/html", badgeHtml);
   };
 
