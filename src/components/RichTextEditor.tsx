@@ -87,14 +87,17 @@ export function RichTextEditor({ value, onChange, placeholder, allowDrop = false
 
   const FONT_FAMILIES = [
     { label: "Arial", value: "Arial, sans-serif" },
-    { label: "Helvetica", value: "Helvetica, sans-serif" },
-    { label: "Times New Roman", value: "Times New Roman, serif" },
-    { label: "Georgia", value: "Georgia, serif" },
-    { label: "Verdana", value: "Verdana, sans-serif" },
-    { label: "Calibri", value: "Calibri, sans-serif" },
-    { label: "Tahoma", value: "Tahoma, sans-serif" },
-    { label: "Trebuchet MS", value: "Trebuchet MS, sans-serif" },
     { label: "Courier New", value: "Courier New, monospace" },
+    { label: "Georgia", value: "Georgia, serif" },
+    { label: "Lato", value: "Lato, sans-serif" },
+    { label: "Merriweather", value: "Merriweather, serif" },
+    { label: "Montserrat", value: "Montserrat, sans-serif" },
+    { label: "Open Sans", value: "Open Sans, sans-serif" },
+    { label: "Playfair Display", value: "Playfair Display, serif" },
+    { label: "Poppins", value: "Poppins, sans-serif" },
+    { label: "Roboto", value: "Roboto, sans-serif" },
+    { label: "Times New Roman", value: "Times New Roman, serif" },
+    { label: "Verdana", value: "Verdana, sans-serif" },
   ];
 
   const FONT_SIZES = [
