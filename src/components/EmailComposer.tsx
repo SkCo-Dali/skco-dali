@@ -1,18 +1,14 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useRef } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Plus, FileSignature, Loader2 } from "lucide-react";
-import { EmailTemplate, DynamicField, OutlookSignature } from "@/types/email";
+import { Plus, FileSignature } from "lucide-react";
+import { EmailTemplate, DynamicField } from "@/types/email";
 import { RichTextEditor } from "@/components/RichTextEditor";
 import { EmailWritingAssistant } from "@/components/EmailWritingAssistant";
-import { OutlookSignaturesService } from "@/services/outlookSignaturesService";
-import { useMsal } from "@azure/msal-react";
-import { useToast } from "@/hooks/use-toast";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { EmailSignatureDialog } from "@/components/EmailSignatureDialog";
 
 interface EmailComposerProps {
   template: EmailTemplate;
@@ -32,13 +28,9 @@ export function EmailComposer({
   onAlternateEmailChange,
 }: EmailComposerProps) {
   const [showFieldsList, setShowFieldsList] = useState(false);
-  const [signatures, setSignatures] = useState<OutlookSignature[]>([]);
-  const [loadingSignatures, setLoadingSignatures] = useState(false);
-  const [signaturesLoaded, setSignaturesLoaded] = useState(false);
+  const [showSignatureDialog, setShowSignatureDialog] = useState(false);
   const [draggedField, setDraggedField] = useState<DynamicField | null>(null);
   const subjectInputRef = useRef<HTMLInputElement>(null);
-  const { instance } = useMsal();
-  const { toast } = useToast();
 
   const insertDynamicField = (field: DynamicField, targetField: "subject" | "htmlContent" | "plainContent") => {
     const fieldTag = `{${field.key}}`;
@@ -106,45 +98,9 @@ export function EmailComposer({
     });
   };
 
-  const loadSignatures = async () => {
-    if (signaturesLoaded) return;
-
-    setLoadingSignatures(true);
-    try {
-      const signatureService = new OutlookSignaturesService(instance);
-      const userSignatures = await signatureService.getUserSignatures();
-
-      setSignatures(userSignatures);
-      setSignaturesLoaded(true);
-
-      if (userSignatures.length === 0) {
-        toast({
-          title: "Sin firmas disponibles",
-          description:
-            "No se encontraron firmas guardadas en tu cuenta de Outlook. Esta es una limitación conocida de Microsoft Graph API.",
-          variant: "default",
-        });
-      }
-    } catch (error) {
-      console.error("Error al cargar firmas:", error);
-      toast({
-        title: "Error al cargar firmas",
-        description: "No se pudieron obtener las firmas de Outlook. Verifica los permisos de la aplicación.",
-        variant: "destructive",
-      });
-    } finally {
-      setLoadingSignatures(false);
-    }
-  };
-
-  const insertSignature = (signature: OutlookSignature) => {
-    const newContent = template.htmlContent + "\n\n" + signature.content;
+  const handleInsertSignature = (content: string) => {
+    const newContent = template.htmlContent + "\n\n" + content;
     handleHtmlContentChange(newContent);
-
-    toast({
-      title: "Firma insertada",
-      description: `La firma "${signature.name}" se ha agregado al correo.`,
-    });
   };
 
   const handleDragStart = (field: DynamicField) => (e: React.DragEvent) => {
@@ -184,61 +140,20 @@ export function EmailComposer({
   };
 
   return (
-    <div className="space-y-6">
+    <>
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center justify-between">
             Composición del Email
             <div className="flex gap-2">
-              <Popover>
-                <PopoverTrigger asChild>
-                  {/* <Button variant="outline" size="sm" onClick={loadSignatures} disabled={loadingSignatures}>
-                    {loadingSignatures ? (
-                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                    ) : (
-                      <FileSignature className="h-4 w-4 mr-2" />
-                    )}
-                    Firmas
-                  </Button>*/}
-                </PopoverTrigger>
-                <PopoverContent className="w-80">
-                  <div className="space-y-2">
-                    <h4 className="font-medium text-sm">Firmas de Outlook</h4>
-                    {loadingSignatures ? (
-                      <div className="flex items-center justify-center py-6">
-                        <Loader2 className="h-6 w-6 animate-spin" />
-                      </div>
-                    ) : signatures.length === 0 ? (
-                      <div className="text-sm text-muted-foreground py-4">
-                        <p className="mb-2">No se encontraron firmas disponibles.</p>
-                        <p className="text-xs">
-                          Nota: Microsoft Graph API tiene limitaciones para acceder a firmas personalizadas de Outlook.
-                        </p>
-                      </div>
-                    ) : (
-                      <div className="space-y-2">
-                        {signatures.map((signature) => (
-                          <Button
-                            key={signature.id}
-                            variant="ghost"
-                            size="sm"
-                            className="w-full justify-start"
-                            onClick={() => insertSignature(signature)}
-                          >
-                            <FileSignature className="h-4 w-4 mr-2" />
-                            {signature.name}
-                            {signature.isDefault && (
-                              <Badge variant="secondary" className="ml-auto">
-                                Predeterminada
-                              </Badge>
-                            )}
-                          </Button>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                </PopoverContent>
-              </Popover>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={() => setShowSignatureDialog(true)}
+              >
+                <FileSignature className="h-4 w-4 mr-2" />
+                Firmas
+              </Button>
 
               <Button variant="outline" size="sm" onClick={() => setShowFieldsList(!showFieldsList)}>
                 <Plus className="h-4 w-4 mr-2" />
@@ -327,6 +242,12 @@ export function EmailComposer({
           </div>
         </CardContent>
       </Card>
-    </div>
+
+      <EmailSignatureDialog
+        isOpen={showSignatureDialog}
+        onClose={() => setShowSignatureDialog(false)}
+        onInsertSignature={handleInsertSignature}
+      />
+    </>
   );
 }
