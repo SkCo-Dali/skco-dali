@@ -7,6 +7,7 @@ interface DynamicFieldInputProps {
   placeholder?: string;
   dynamicFields: DynamicField[];
   onDrop?: (e: React.DragEvent) => void;
+  fieldColors?: Record<string, { bg: string; text: string }>;
 }
 
 // Minimal, robust serializer: DOM -> template string with {key}
@@ -36,7 +37,11 @@ function serializeEditor(root: HTMLElement): string {
 }
 
 // Render value -> HTML (badges for {key})
-function renderValueToHTML(value: string, fields: DynamicField[]): string {
+function renderValueToHTML(
+  value: string, 
+  fields: DynamicField[],
+  fieldColors?: Record<string, { bg: string; text: string }>
+): string {
   if (!value) return "";
   const parts = value.split(/(\{[^}]+\})/g).filter(Boolean);
   const html = parts
@@ -46,11 +51,15 @@ function renderValueToHTML(value: string, fields: DynamicField[]): string {
         const key = match[1];
         const field = fields.find((f) => f.key === key);
         const label = field?.label || key;
+        
+        // Get custom colors if available, otherwise use defaults
+        const colors = fieldColors?.[key] || { bg: "#dbeafe", text: "#1e40af" };
+        
         // contenteditable=false makes it atomic and non-editable
         return `
-          <span class="inline-flex items-center px-2 py-0.5 rounded-md text-sm bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300 select-none" data-field-key="${key}" contenteditable="false" style="display:inline-flex;white-space:nowrap;">
+          <span class="inline-flex items-center px-2 py-0.5 rounded-md text-sm select-none" data-field-key="${key}" contenteditable="false" style="display:inline-flex;white-space:nowrap;background-color:${colors.bg};color:${colors.text};">
             <span class="pointer-events-none">${label}</span>
-            <button type="button" data-remove-badge class="ml-1 hover:text-blue-900 dark:hover:text-blue-100" style="display:inline;">×</button>
+            <button type="button" data-remove-badge class="ml-1 opacity-70 hover:opacity-100" style="display:inline;">×</button>
           </span>
         `;
       }
@@ -70,6 +79,7 @@ export function DynamicFieldInput({
   placeholder,
   dynamicFields,
   onDrop,
+  fieldColors,
 }: DynamicFieldInputProps) {
   const editorRef = useRef<HTMLDivElement>(null);
   const lastValueRef = useRef<string>("");
@@ -78,8 +88,8 @@ export function DynamicFieldInput({
   useEffect(() => {
     if (!editorRef.current) return;
     if (value === lastValueRef.current) return; // ignore local changes we just made
-    editorRef.current.innerHTML = renderValueToHTML(value, dynamicFields);
-  }, [value, dynamicFields]);
+    editorRef.current.innerHTML = renderValueToHTML(value, dynamicFields, fieldColors);
+  }, [value, dynamicFields, fieldColors]);
 
   // Delegate clicks on remove buttons inside badges
   useEffect(() => {
