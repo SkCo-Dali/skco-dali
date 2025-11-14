@@ -12,18 +12,27 @@ export const graphAuthConfig = {
   // ID de la aplicación registrada en Azure AD para Microsoft Graph
   clientId: import.meta.env.VITE_GRAPH_CLIENT_ID || "2cc89bfe-6192-40e2-80a8-fd218121c623",
 
-  // Authority para autenticación multi-tenant
-  // Permite que usuarios de cualquier organización de Microsoft autoricen
-  authority: "https://login.microsoftonline.com/common",
+  // Tenant ID de Skandia Colombia (obtener desde Azure AD Portal)
+  tenantId: import.meta.env.VITE_GRAPH_TENANT_ID || "common",
+
+  // Authority para autenticación single-tenant
+  // Usa el tenant ID específico de la organización
+  get authority() {
+    return `https://login.microsoftonline.com/${this.tenantId}`;
+  },
 
   // URL de redirección después de la autorización
   redirectUri: typeof window !== "undefined" ? `${window.location.origin}/graph-callback` : "",
 
   // URL para el endpoint de tokens
-  tokenEndpoint: "https://login.microsoftonline.com/common/oauth2/v2.0/token",
+  get tokenEndpoint() {
+    return `https://login.microsoftonline.com/${this.tenantId}/oauth2/v2.0/token`;
+  },
 
   // URL para el endpoint de autorización
-  authEndpoint: "https://login.microsoftonline.com/common/oauth2/v2.0/authorize",
+  get authEndpoint() {
+    return `https://login.microsoftonline.com/${this.tenantId}/oauth2/v2.0/authorize`;
+  },
 };
 
 /**
