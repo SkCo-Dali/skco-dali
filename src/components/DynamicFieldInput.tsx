@@ -48,9 +48,9 @@ function renderValueToHTML(value: string, fields: DynamicField[]): string {
         const label = field?.label || key;
         // contenteditable=false makes it atomic and non-editable
         return `
-          <span class="inline-flex items-center px-2 py-0.5 rounded-md text-sm bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300 select-none" data-field-key="${key}" contenteditable="false">
+          <span class="inline-flex items-center px-2 py-0.5 rounded-md text-sm bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300 select-none" data-field-key="${key}" contenteditable="false" style="display:inline-flex;white-space:nowrap;">
             <span class="pointer-events-none">${label}</span>
-            <button type="button" data-remove-badge class="ml-1 hover:text-blue-900 dark:hover:text-blue-100">×</button>
+            <button type="button" data-remove-badge class="ml-1 hover:text-blue-900 dark:hover:text-blue-100" style="display:inline;">×</button>
           </span>
         `;
       }
@@ -141,6 +141,7 @@ export function DynamicFieldInput({
     span.className = "inline-flex items-center px-2 py-0.5 rounded-md text-sm bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300 select-none";
     span.setAttribute("data-field-key", key);
     span.setAttribute("contenteditable", "false");
+    span.style.cssText = "display:inline-flex;white-space:nowrap;";
 
     const labelSpan = document.createElement("span");
     labelSpan.className = "pointer-events-none";
@@ -150,6 +151,7 @@ export function DynamicFieldInput({
     btn.type = "button";
     btn.setAttribute("data-remove-badge", "");
     btn.className = "ml-1 hover:text-blue-900 dark:hover:text-blue-100";
+    btn.style.cssText = "display:inline;";
     btn.textContent = "×";
 
     span.appendChild(labelSpan);
