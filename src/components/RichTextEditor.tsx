@@ -170,12 +170,26 @@ export function RichTextEditor({ value, onChange, placeholder, allowDrop = false
       badge.style.whiteSpace = "nowrap";
       if (!badge.style.display) badge.style.display = "inline-flex";
       badge.style.verticalAlign = "baseline";
+      badge.style.lineHeight = "1";
+      
       // ensure the close button stays inline
       const btn = badge.querySelector<HTMLElement>('[data-remove-badge]');
       if (btn) {
         btn.style.display = "inline";
         btn.style.lineHeight = "1";
       }
+      
+      // If badge is wrapped in a block-level element (p, div), unwrap it
+      const parent = badge.parentElement;
+      if (parent && (parent.tagName === "P" || parent.tagName === "DIV")) {
+        const grandParent = parent.parentElement;
+        if (grandParent && parent.childNodes.length === 1 && parent.childNodes[0] === badge) {
+          // If the parent only contains the badge, replace parent with badge
+          grandParent.insertBefore(badge, parent);
+          parent.remove();
+        }
+      }
+      
       // remove stray breaks/whitespace inserted BEFORE the badge
       let prev = badge.previousSibling;
       while (prev && ((prev.nodeType === Node.TEXT_NODE && !(prev.textContent || "").trim()) || (prev.nodeType === Node.ELEMENT_NODE && (prev as Element).tagName === "BR"))) {

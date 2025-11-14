@@ -59,13 +59,8 @@ function renderValueToHTML(value: string, fields: DynamicField[]): string {
         const field = fields.find((f) => f.key === key);
         const label = field?.label || key;
         const colors = getFieldColor(key);
-        // contenteditable=false makes it atomic and non-editable
-        return `
-          <span class="inline-flex items-center px-2 py-0.5 rounded-md text-sm select-none" data-field-key="${key}" contenteditable="false" style="display:inline-flex;white-space:nowrap;background-color:${colors.bg};color:${colors.text};">
-            <span class="pointer-events-none">${label}</span>
-            <button type="button" data-remove-badge class="ml-1 opacity-70 hover:opacity-100" style="display:inline;">×</button>
-          </span>
-        `;
+        // contenteditable=false makes it atomic and non-editable - all inline, no line breaks
+        return `<span class="inline-flex items-center px-2 py-0.5 rounded-md text-sm select-none" data-field-key="${key}" contenteditable="false" style="display:inline-flex;white-space:nowrap;background-color:${colors.bg};color:${colors.text};"><span class="pointer-events-none">${label}</span><button type="button" data-remove-badge class="ml-1 opacity-70 hover:opacity-100" style="display:inline;">×</button></span>`;
       }
       // Escape HTML entities for plain text
       return part
