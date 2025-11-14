@@ -191,13 +191,7 @@ export function EmailSignatureDialog({
                       key={signature.id}
                       className="flex items-center justify-between p-4 border rounded-lg hover:bg-accent/50 transition-colors"
                     >
-                      <div className="flex-1">
-                        <div className="font-medium">{signature.name}</div>
-                        <div
-                          className="text-sm text-muted-foreground mt-1 line-clamp-2"
-                          dangerouslySetInnerHTML={{ __html: signature.content }}
-                        />
-                      </div>
+                      <div className="font-medium">{signature.name}</div>
                       <div className="flex gap-2 ml-4">
                         <Button
                           size="sm"
