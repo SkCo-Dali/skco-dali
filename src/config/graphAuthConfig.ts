@@ -1,4 +1,4 @@
-import { ENV } from './environment';
+import { ENV } from "./environment";
 
 /**
  * Configuración de Microsoft Graph OAuth 2.0
@@ -52,7 +52,7 @@ export const graphScopes = [
   "Mail.Send", // Enviar correos
   "Mail.Read", // Leer correos
   "User.Read", // Leer perfil básico
-  "MailboxSettings.Read", // Leer configuración de buzón y firmas
+  //"MailboxSettings.Read", // Leer configuración de buzón y firmas
   "Calendars.Read", // Leer calendario
   "openid", // OpenID Connect
 ];
