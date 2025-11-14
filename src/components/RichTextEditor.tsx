@@ -110,6 +110,7 @@ export function RichTextEditor({ value, onChange, placeholder, allowDrop = false
     if (!editor) return;
     if (value != null && value !== "" && value !== lastEmittedHtmlRef.current && value !== editor.innerHTML) {
       editor.innerHTML = value;
+      normalizeBadges();
     }
   }, [value]);
 
@@ -124,9 +125,86 @@ export function RichTextEditor({ value, onChange, placeholder, allowDrop = false
     sel.removeAllRanges();
     sel.addRange(savedRange);
   }, [savedRange]);
+  const FONT_SIZE_MAP: Record<string, string> = {
+    "1": "8pt",
+    "2": "10pt",
+    "3": "12pt",
+    "4": "14pt",
+    "5": "18pt",
+    "6": "24pt",
+    "7": "36pt",
+  };
+
+  const applyStyleToBadge = (badge: HTMLElement, cmd: string, val?: string) => {
+    switch (cmd) {
+      case "foreColor":
+        badge.style.color = val || "";
+        break;
+      case "bold":
+        badge.style.fontWeight = badge.style.fontWeight === "700" || badge.style.fontWeight === "bold" ? "normal" : "700";
+        break;
+      case "italic":
+        badge.style.fontStyle = badge.style.fontStyle === "italic" ? "normal" : "italic";
+        break;
+      case "underline": {
+        const td = badge.style.textDecoration || "";
+        badge.style.textDecoration = td.includes("underline") ? td.replace("underline", "").trim() : (td ? td + " underline" : "underline");
+        break;
+      }
+      case "fontName":
+        if (val) badge.style.fontFamily = val;
+        break;
+      case "fontSize":
+        if (val && FONT_SIZE_MAP[val]) badge.style.fontSize = FONT_SIZE_MAP[val];
+        break;
+    }
+  };
+
+  const normalizeBadges = useCallback(() => {
+    const editor = editorRef.current;
+    if (!editor) return;
+    editor.querySelectorAll<HTMLElement>('[data-field-key]').forEach((badge) => {
+      // lock editing but allow selection
+      badge.setAttribute("contenteditable", "false");
+      badge.style.userSelect = "all";
+      badge.style.whiteSpace = "nowrap";
+      if (!badge.style.display) badge.style.display = "inline-flex";
+      badge.style.verticalAlign = "baseline";
+      // ensure the close button stays inline
+      const btn = badge.querySelector<HTMLElement>('[data-remove-badge]');
+      if (btn) {
+        btn.style.display = "inline";
+        btn.style.lineHeight = "1";
+      }
+      // remove stray breaks/whitespace inserted right after the badge
+      let next = badge.nextSibling;
+      while (next && ((next.nodeType === Node.TEXT_NODE && !(next.textContent || "").trim()) || (next.nodeType === Node.ELEMENT_NODE && (next as Element).tagName === "BR"))) {
+        const toRemove = next;
+        next = next.nextSibling;
+        toRemove.parentNode?.removeChild(toRemove);
+      }
+    });
+  }, []);
+
   const exec = (cmd: string, val?: string) => {
     restoreSelection();
+    const sel = window.getSelection?.();
+    const editor = editorRef.current;
+    if (sel && editor && sel.rangeCount > 0) {
+      const range = sel.getRangeAt(0);
+      const container = range.startContainer as any;
+      const badge =
+        (container?.nodeType === 1 ? (container as Element).closest?.('[data-field-key]') : null) ||
+        (container?.parentElement?.closest?.('[data-field-key]') as HTMLElement | null);
+      if (badge) {
+        applyStyleToBadge(badge as HTMLElement, cmd, val);
+        handleContentChange();
+        saveSelection();
+        return;
+      }
+    }
     document.execCommand(cmd, false, val);
+    normalizeBadges();
     handleContentChange();
     saveSelection();
   };
@@ -259,7 +337,8 @@ export function RichTextEditor({ value, onChange, placeholder, allowDrop = false
       } else {
         document.execCommand("insertText", false, textData);
       }
-      
+
+      normalizeBadges();
       handleContentChange();
       return;
     }
@@ -278,6 +357,7 @@ export function RichTextEditor({ value, onChange, placeholder, allowDrop = false
       document.execCommand("insertText", false, textData);
     }
     
+    normalizeBadges();
     handleContentChange();
   };
 
