@@ -50,7 +50,7 @@ export const graphAuthConfig = {
 export const graphScopes = [
   "offline_access", // Necesario para refresh token
   "Mail.Send", // Enviar correos
-  "Mail.Read", // Leer correos
+  //"Mail.Read", // Leer correos
   "User.Read", // Leer perfil básico
   //"MailboxSettings.Read", // Leer configuración de buzón y firmas
   //"Calendars.Read", // Leer calendario
