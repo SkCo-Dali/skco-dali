@@ -1,3 +1,5 @@
+import { ENV } from './environment';
+
 /**
  * Configuración de Microsoft Graph OAuth 2.0
  *
@@ -12,8 +14,8 @@ export const graphAuthConfig = {
   // ID de la aplicación registrada en Azure AD para Microsoft Graph
   clientId: import.meta.env.VITE_GRAPH_CLIENT_ID || "2cc89bfe-6192-40e2-80a8-fd218121c623",
 
-  // Tenant ID de Skandia Colombia (obtener desde Azure AD Portal)
-  tenantId: import.meta.env.VITE_GRAPH_TENANT_ID || "common",
+  // Tenant ID de Skandia Colombia
+  tenantId: ENV.AZURE_TENANT_ID,
 
   // Authority para autenticación single-tenant
   // Usa el tenant ID específico de la organización
