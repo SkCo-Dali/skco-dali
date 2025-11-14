@@ -1,4 +1,4 @@
-name: DALI Azure Static Web Apps CI/CD
+name: DALI Azure Static Web Apps MX
 
 on:
   push:
