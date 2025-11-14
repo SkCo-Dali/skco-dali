@@ -40,10 +40,31 @@ export function useMassEmail() {
 
   const replaceDynamicFields = useCallback((template: string, lead: Lead): string => {
     let result = template;
+    
+    // Mapeo de campos dinámicos a valores del lead
+    const fieldMap: Record<string, string> = {
+      name: lead.name,
+      firstName: lead.firstName || "",
+      company: lead.company || "",
+      phone: lead.phone || "",
+    };
+    
+    // Primero reemplazar badges HTML (para contenido rich text)
+    // Buscar spans con data-field-key y reemplazarlos con el valor real
+    result = result.replace(
+      /<span[^>]*data-field-key="([^"]+)"[^>]*>.*?<\/span>/g,
+      (match, key) => {
+        const value = fieldMap[key] || "";
+        return value;
+      }
+    );
+    
+    // Luego reemplazar patrones de texto plano {key} (para asunto y texto plano)
     result = result.replace(/\{name\}/g, lead.name);
     result = result.replace(/\{firstName\}/g, lead.firstName || "");
     result = result.replace(/\{company\}/g, lead.company || "");
     result = result.replace(/\{phone\}/g, lead.phone || "");
+    
     return result;
   }, []);
 
