@@ -116,7 +116,14 @@ export function RichTextEditor({ value, onChange, placeholder, allowDrop = false
 
   const saveSelection = useCallback(() => {
     const sel = window.getSelection?.();
-    if (sel && sel.rangeCount > 0) setSavedRange(sel.getRangeAt(0));
+    if (sel && sel.rangeCount > 0) {
+      const range = sel.getRangeAt(0);
+      // Only save if the selection is within our editor
+      const editor = editorRef.current;
+      if (editor && editor.contains(range.commonAncestorContainer)) {
+        setSavedRange(range.cloneRange());
+      }
+    }
   }, []);
   const restoreSelection = useCallback(() => {
     if (!savedRange) return;
@@ -236,15 +243,33 @@ export function RichTextEditor({ value, onChange, placeholder, allowDrop = false
     const editor = editorRef.current;
     if (!editor) return;
 
-    // If a single badge is selected, toggle style directly on it
+    // Enable CSS-based styling for fontSize and fontName
+    if (cmd === 'fontSize' || cmd === 'fontName') {
+      document.execCommand('styleWithCSS', false, 'true');
+    }
+
+    // If a single badge is selected, apply style directly to it
     if (sel && sel.rangeCount > 0) {
       const range = sel.getRangeAt(0);
-      const container = range.startContainer as any;
-      const badgeOnly =
-        (container?.nodeType === 1 ? (container as Element).closest?.('[data-field-key]') : null) ||
-        (container?.parentElement?.closest?.('[data-field-key]') as HTMLElement | null);
-      if (badgeOnly && range.collapsed) {
-        applyStyleToBadge(badgeOnly as HTMLElement, cmd, val);
+      const badges = Array.from(editor.querySelectorAll<HTMLElement>('[data-field-key]'));
+      
+      // Check if ONLY one badge is fully selected
+      const selectedBadges = badges.filter(badge => {
+        try {
+          return range.intersectsNode && range.intersectsNode(badge);
+        } catch {
+          const r2 = document.createRange();
+          r2.selectNode(badge);
+          return !(
+            range.compareBoundaryPoints(Range.END_TO_START, r2) <= 0 ||
+            range.compareBoundaryPoints(Range.START_TO_END, r2) >= 0
+          );
+        }
+      });
+
+      // If only one badge is in the selection and no text is selected, apply directly to badge
+      if (selectedBadges.length === 1 && range.toString().trim() === '') {
+        applyStyleToBadge(selectedBadges[0], cmd, val);
         handleContentChange();
         saveSelection();
         return;
@@ -560,6 +585,16 @@ export function RichTextEditor({ value, onChange, placeholder, allowDrop = false
     return () => editor.removeEventListener("dblclick", onDblClick);
   }, [handleContentChange]);
 
+  /* ===== Track selection changes ===== */
+  useEffect(() => {
+    const handleSelectionChange = throttle(() => {
+      saveSelection();
+    }, 100);
+    
+    document.addEventListener('selectionchange', handleSelectionChange);
+    return () => document.removeEventListener('selectionchange', handleSelectionChange);
+  }, [saveSelection]);
+
   /* ===== Remove badge button click handler ===== */
   useEffect(() => {
     const editor = editorRef.current;
@@ -598,8 +633,10 @@ export function RichTextEditor({ value, onChange, placeholder, allowDrop = false
 
         {/* Fuente */}
         <Select
+          onOpenChange={(open) => {
+            if (open) saveSelection();
+          }}
           onValueChange={(f) => {
-            saveSelection();
             exec("fontName", f);
           }}
         >
@@ -617,8 +654,10 @@ export function RichTextEditor({ value, onChange, placeholder, allowDrop = false
 
         {/* Tamaño */}
         <Select
+          onOpenChange={(open) => {
+            if (open) saveSelection();
+          }}
           onValueChange={(s) => {
-            saveSelection();
             exec("fontSize", s);
           }}
         >
