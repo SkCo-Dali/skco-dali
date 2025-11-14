@@ -31,12 +31,19 @@ export const graphAuthConfig = {
  *
  * - offline_access: CRÍTICO - Necesario para obtener refresh tokens
  * - Mail.Send: Permite enviar correos como el usuario
+ * - Mail.Read: Permite leer correos del usuario
  * - User.Read: Permite leer el perfil básico del usuario
+ * - MailboxSettings.Read: Permite leer configuración de buzón (firmas de Outlook)
+ * - Calendars.Read: Permite leer calendario del usuario
  */
 export const graphScopes = [
   "offline_access", // Necesario para refresh token
   "Mail.Send", // Enviar correos
+  "Mail.Read", // Leer correos
   "User.Read", // Leer perfil básico
+  "MailboxSettings.Read", // Leer configuración de buzón y firmas
+  "Calendars.Read", // Leer calendario
+  "openid", // OpenID Connect
 ];
 
 /**
