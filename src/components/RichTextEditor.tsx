@@ -200,33 +200,52 @@ export function RichTextEditor({ value, onChange, placeholder, allowDrop = false
     if (sel && editor && sel.rangeCount > 0) {
       const range = sel.getRangeAt(0);
       
-      // Check if a badge is selected (the badge itself is in the range)
-      let badge: HTMLElement | null = null;
-      
-      // Check if the range contains a badge node
+      // Check if the selection contains badges
       const fragment = range.cloneContents();
-      const badgeInFragment = fragment.querySelector('[data-field-key]') as HTMLElement | null;
-      if (badgeInFragment) {
-        // Find the actual badge in the editor
-        badge = editor.querySelector(`[data-field-key="${badgeInFragment.getAttribute('data-field-key')}"]`);
-      }
+      const badgesInFragment = fragment.querySelectorAll('[data-field-key]');
       
-      // Also check if cursor is inside a badge
-      if (!badge) {
+      // Check if selection is ONLY a single badge (nothing else selected)
+      const isOnlyBadge = badgesInFragment.length === 1 && 
+        range.startContainer === range.endContainer &&
+        range.startContainer.nodeType === Node.ELEMENT_NODE &&
+        (range.startContainer as Element).closest('[data-field-key]');
+      
+      if (isOnlyBadge) {
+        // Only a badge is selected, apply style only to the badge
         const container = range.startContainer as any;
-        badge =
+        const badge =
           (container?.nodeType === 1 ? (container as Element).closest?.('[data-field-key]') : null) ||
           (container?.parentElement?.closest?.('[data-field-key]') as HTMLElement | null);
-      }
-      
-      if (badge) {
-        applyStyleToBadge(badge as HTMLElement, cmd, val);
-        handleContentChange();
-        saveSelection();
-        return;
+        
+        if (badge) {
+          applyStyleToBadge(badge as HTMLElement, cmd, val);
+          handleContentChange();
+          saveSelection();
+          return;
+        }
       }
     }
+    
+    // Apply format to all content (including text and badges)
     document.execCommand(cmd, false, val);
+    
+    // Also apply the style to any badges within the selection
+    if (sel && sel.rangeCount > 0) {
+      const range = sel.getRangeAt(0);
+      const fragment = range.cloneContents();
+      const badgesInFragment = fragment.querySelectorAll('[data-field-key]');
+      
+      badgesInFragment.forEach((badgeFragment) => {
+        const key = badgeFragment.getAttribute('data-field-key');
+        if (key && editor) {
+          const actualBadge = editor.querySelector(`[data-field-key="${key}"]`) as HTMLElement;
+          if (actualBadge) {
+            applyStyleToBadge(actualBadge, cmd, val);
+          }
+        }
+      });
+    }
+    
     normalizeBadges();
     handleContentChange();
     saveSelection();
