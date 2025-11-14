@@ -26,6 +26,7 @@ export function DynamicFieldInput({
   const [segments, setSegments] = useState<ParsedSegment[]>([]);
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+  const trailingInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     parseValue(value);
@@ -86,18 +87,20 @@ export function DynamicFieldInput({
 
   const handleContainerClick = (e: React.MouseEvent) => {
     // If clicking on the container itself (not on inputs or badges), focus the trailing input
-    if (e.target === containerRef.current) {
-      const trailingInput = containerRef.current?.querySelector('input:last-of-type') as HTMLInputElement;
-      if (trailingInput) {
-        trailingInput.focus();
-      }
+    if (e.target === containerRef.current && trailingInputRef.current) {
+      trailingInputRef.current.focus();
     }
   };
 
   const handleTrailingInputChange = (newText: string) => {
-    // Add or update the trailing text segment
+    // Add the new text to the end
     const newValue = segments.map((s) => s.content).join("") + newText;
     onChange(newValue);
+    
+    // Clear the trailing input
+    if (trailingInputRef.current) {
+      trailingInputRef.current.value = "";
+    }
   };
 
   return (
@@ -145,7 +148,9 @@ export function DynamicFieldInput({
       ))}
       {/* Trailing input for easy typing at the end */}
       <input
+        ref={trailingInputRef}
         type="text"
+        defaultValue=""
         onChange={(e) => handleTrailingInputChange(e.target.value)}
         className="bg-transparent border-none outline-none flex-1 min-w-[40px] text-sm px-0"
         placeholder={segments.length === 0 ? placeholder : ""}
