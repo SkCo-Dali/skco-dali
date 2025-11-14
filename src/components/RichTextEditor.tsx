@@ -176,7 +176,14 @@ export function RichTextEditor({ value, onChange, placeholder, allowDrop = false
         btn.style.display = "inline";
         btn.style.lineHeight = "1";
       }
-      // remove stray breaks/whitespace inserted right after the badge
+      // remove stray breaks/whitespace inserted BEFORE the badge
+      let prev = badge.previousSibling;
+      while (prev && ((prev.nodeType === Node.TEXT_NODE && !(prev.textContent || "").trim()) || (prev.nodeType === Node.ELEMENT_NODE && (prev as Element).tagName === "BR"))) {
+        const toRemove = prev;
+        prev = prev.previousSibling;
+        toRemove.parentNode?.removeChild(toRemove);
+      }
+      // remove stray breaks/whitespace inserted AFTER the badge
       let next = badge.nextSibling;
       while (next && ((next.nodeType === Node.TEXT_NODE && !(next.textContent || "").trim()) || (next.nodeType === Node.ELEMENT_NODE && (next as Element).tagName === "BR"))) {
         const toRemove = next;
@@ -192,10 +199,26 @@ export function RichTextEditor({ value, onChange, placeholder, allowDrop = false
     const editor = editorRef.current;
     if (sel && editor && sel.rangeCount > 0) {
       const range = sel.getRangeAt(0);
-      const container = range.startContainer as any;
-      const badge =
-        (container?.nodeType === 1 ? (container as Element).closest?.('[data-field-key]') : null) ||
-        (container?.parentElement?.closest?.('[data-field-key]') as HTMLElement | null);
+      
+      // Check if a badge is selected (the badge itself is in the range)
+      let badge: HTMLElement | null = null;
+      
+      // Check if the range contains a badge node
+      const fragment = range.cloneContents();
+      const badgeInFragment = fragment.querySelector('[data-field-key]') as HTMLElement | null;
+      if (badgeInFragment) {
+        // Find the actual badge in the editor
+        badge = editor.querySelector(`[data-field-key="${badgeInFragment.getAttribute('data-field-key')}"]`);
+      }
+      
+      // Also check if cursor is inside a badge
+      if (!badge) {
+        const container = range.startContainer as any;
+        badge =
+          (container?.nodeType === 1 ? (container as Element).closest?.('[data-field-key]') : null) ||
+          (container?.parentElement?.closest?.('[data-field-key]') as HTMLElement | null);
+      }
+      
       if (badge) {
         applyStyleToBadge(badge as HTMLElement, cmd, val);
         handleContentChange();
