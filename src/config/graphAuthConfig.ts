@@ -53,7 +53,7 @@ export const graphScopes = [
   "Mail.Read", // Leer correos
   "User.Read", // Leer perfil básico
   //"MailboxSettings.Read", // Leer configuración de buzón y firmas
-  "Calendars.Read", // Leer calendario
+  //"Calendars.Read", // Leer calendario
   "openid", // OpenID Connect
 ];
 
