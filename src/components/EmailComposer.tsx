@@ -112,8 +112,8 @@ export function EmailComposer({
     // Set plain text for plain text contexts
     e.dataTransfer.setData("text/plain", `{${field.key}}`);
     
-    // Set HTML with badge styling for rich text contexts
-    const badgeHtml = `<span style="display: inline-block; background-color: #dbeafe; color: #1e40af; padding: 2px 8px; border-radius: 12px; font-size: 0.875rem; font-weight: 500; margin: 0 2px;">{${field.key}}</span>&nbsp;`;
+    // Set HTML with proper badge structure (same as subject field)
+    const badgeHtml = `<span class="inline-flex items-center px-2 py-0.5 rounded-md text-sm bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300 select-none" data-field-key="${field.key}" contenteditable="false"><span class="pointer-events-none">${field.label}</span><button type="button" data-remove-badge class="ml-1 hover:text-blue-900 dark:hover:text-blue-100">×</button></span>&nbsp;`;
     e.dataTransfer.setData("text/html", badgeHtml);
   };
 

@@ -361,6 +361,25 @@ export function RichTextEditor({ value, onChange, placeholder, allowDrop = false
     return () => editor.removeEventListener("dblclick", onDblClick);
   }, [handleContentChange]);
 
+  /* ===== Remove badge button click handler ===== */
+  useEffect(() => {
+    const editor = editorRef.current;
+    if (!editor) return;
+    const handleClick = (e: MouseEvent) => {
+      const target = e.target as HTMLElement;
+      if (target && target.closest('[data-remove-badge]')) {
+        e.preventDefault();
+        const badge = target.closest('[data-field-key]') as HTMLElement | null;
+        if (badge && editor.contains(badge)) {
+          badge.remove();
+          handleContentChange();
+        }
+      }
+    };
+    editor.addEventListener("click", handleClick);
+    return () => editor.removeEventListener("click", handleClick);
+  }, [handleContentChange]);
+
   return (
     <div className="border rounded-md">
       {/* Toolbar */}
