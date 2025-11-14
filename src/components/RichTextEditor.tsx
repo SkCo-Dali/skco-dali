@@ -211,55 +211,51 @@ export function RichTextEditor({ value, onChange, placeholder, allowDrop = false
     restoreSelection();
     const sel = window.getSelection?.();
     const editor = editorRef.current;
-    if (sel && editor && sel.rangeCount > 0) {
-      const range = sel.getRangeAt(0);
-      
-      // Check if the selection contains badges
-      const fragment = range.cloneContents();
-      const badgesInFragment = fragment.querySelectorAll('[data-field-key]');
-      
-      // Check if selection is ONLY a single badge (nothing else selected)
-      const isOnlyBadge = badgesInFragment.length === 1 && 
-        range.startContainer === range.endContainer &&
-        range.startContainer.nodeType === Node.ELEMENT_NODE &&
-        (range.startContainer as Element).closest('[data-field-key]');
-      
-      if (isOnlyBadge) {
-        // Only a badge is selected, apply style only to the badge
-        const container = range.startContainer as any;
-        const badge =
-          (container?.nodeType === 1 ? (container as Element).closest?.('[data-field-key]') : null) ||
-          (container?.parentElement?.closest?.('[data-field-key]') as HTMLElement | null);
-        
-        if (badge) {
-          applyStyleToBadge(badge as HTMLElement, cmd, val);
-          handleContentChange();
-          saveSelection();
-          return;
-        }
-      }
-    }
-    
-    // Apply format to all content (including text and badges)
-    document.execCommand(cmd, false, val);
-    
-    // Also apply the style to any badges within the selection
+    if (!editor) return;
+
+    // If a single badge is selected, toggle style directly on it
     if (sel && sel.rangeCount > 0) {
       const range = sel.getRangeAt(0);
-      const fragment = range.cloneContents();
-      const badgesInFragment = fragment.querySelectorAll('[data-field-key]');
-      
-      badgesInFragment.forEach((badgeFragment) => {
-        const key = badgeFragment.getAttribute('data-field-key');
-        if (key && editor) {
-          const actualBadge = editor.querySelector(`[data-field-key="${key}"]`) as HTMLElement;
-          if (actualBadge) {
-            applyStyleToBadge(actualBadge, cmd, val);
-          }
+      const container = range.startContainer as any;
+      const badgeOnly =
+        (container?.nodeType === 1 ? (container as Element).closest?.('[data-field-key]') : null) ||
+        (container?.parentElement?.closest?.('[data-field-key]') as HTMLElement | null);
+      if (badgeOnly && range.collapsed) {
+        applyStyleToBadge(badgeOnly as HTMLElement, cmd, val);
+        handleContentChange();
+        saveSelection();
+        return;
+      }
+    }
+
+    // Apply command to text normally
+    document.execCommand(cmd, false, val);
+
+    // Also apply the same style to any badges intersecting the selection
+    if (sel && sel.rangeCount > 0) {
+      const range = sel.getRangeAt(0);
+      const badges = Array.from(editor.querySelectorAll<HTMLElement>('[data-field-key]'));
+
+      const intersects = (node: Node) => {
+        if (typeof (range as any).intersectsNode === 'function') {
+          try { return (range as any).intersectsNode(node); } catch { /* fall through */ }
+        }
+        // Fallback for browsers without intersectsNode
+        const r2 = document.createRange();
+        r2.selectNode(node);
+        return !(
+          range.compareBoundaryPoints(Range.END_TO_START, r2) <= 0 ||
+          range.compareBoundaryPoints(Range.START_TO_END, r2) >= 0
+        );
+      };
+
+      badges.forEach((b) => {
+        if (intersects(b)) {
+          applyStyleToBadge(b, cmd, val);
         }
       });
     }
-    
+
     normalizeBadges();
     handleContentChange();
     saveSelection();
