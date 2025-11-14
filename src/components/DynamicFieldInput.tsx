@@ -1,5 +1,4 @@
-import { useRef, useState, useEffect } from "react";
-import { Badge } from "@/components/ui/badge";
+import { useEffect, useRef } from "react";
 import { DynamicField } from "@/types/email";
 
 interface DynamicFieldInputProps {
@@ -10,10 +9,59 @@ interface DynamicFieldInputProps {
   onDrop?: (e: React.DragEvent) => void;
 }
 
-interface ParsedSegment {
-  type: "text" | "field";
-  content: string;
-  fieldLabel?: string;
+// Minimal, robust serializer: DOM -> template string with {key}
+function serializeEditor(root: HTMLElement): string {
+  let result = "";
+
+  const visit = (n: Node) => {
+    if (n.nodeType === Node.TEXT_NODE) {
+      result += n.textContent || "";
+      return;
+    }
+    if (n instanceof HTMLElement) {
+      if (n.dataset && n.dataset.fieldKey) {
+        result += `{${n.dataset.fieldKey}}`;
+        return; // atomic badge, do not descend
+      }
+      if (n.tagName === "BR") {
+        return;
+      }
+      // Recurse into children
+      n.childNodes.forEach(visit as any);
+    }
+  };
+
+  root.childNodes.forEach(visit as any);
+  return result;
+}
+
+// Render value -> HTML (badges for {key})
+function renderValueToHTML(value: string, fields: DynamicField[]): string {
+  if (!value) return "";
+  const parts = value.split(/(\{[^}]+\})/g).filter(Boolean);
+  const html = parts
+    .map((part) => {
+      const match = part.match(/^\{([^}]+)\}$/);
+      if (match) {
+        const key = match[1];
+        const field = fields.find((f) => f.key === key);
+        const label = field?.label || key;
+        // contenteditable=false makes it atomic and non-editable
+        return `
+          <span class="inline-flex items-center px-2 py-0.5 rounded-md text-sm bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300 select-none" data-field-key="${key}" contenteditable="false">
+            <span class="pointer-events-none">${label}</span>
+            <button type="button" data-remove-badge class="ml-1 hover:text-blue-900 dark:hover:text-blue-100">×</button>
+          </span>
+        `;
+      }
+      // Escape HTML entities for plain text
+      return part
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;");
+    })
+    .join("");
+  return html;
 }
 
 export function DynamicFieldInput({
@@ -23,138 +71,144 @@ export function DynamicFieldInput({
   dynamicFields,
   onDrop,
 }: DynamicFieldInputProps) {
-  const [segments, setSegments] = useState<ParsedSegment[]>([]);
-  const [editingIndex, setEditingIndex] = useState<number | null>(null);
-  const containerRef = useRef<HTMLDivElement>(null);
-  const trailingInputRef = useRef<HTMLInputElement>(null);
+  const editorRef = useRef<HTMLDivElement>(null);
+  const lastValueRef = useRef<string>("");
 
+  // Keep DOM in sync only when value changes from outside
   useEffect(() => {
-    parseValue(value);
+    if (!editorRef.current) return;
+    if (value === lastValueRef.current) return; // ignore local changes we just made
+    editorRef.current.innerHTML = renderValueToHTML(value, dynamicFields);
   }, [value, dynamicFields]);
 
-  const parseValue = (text: string) => {
-    const parsed: ParsedSegment[] = [];
-    const regex = /\{([^}]+)\}/g;
-    let lastIndex = 0;
-    let match;
-
-    while ((match = regex.exec(text)) !== null) {
-      // Add text before the field
-      if (match.index > lastIndex) {
-        const textContent = text.substring(lastIndex, match.index);
-        if (textContent) {
-          parsed.push({ type: "text", content: textContent });
+  // Delegate clicks on remove buttons inside badges
+  useEffect(() => {
+    const el = editorRef.current;
+    if (!el) return;
+    const handleClick = (e: MouseEvent) => {
+      const target = e.target as HTMLElement;
+      if (target && target.closest('[data-remove-badge]')) {
+        const badge = target.closest('[data-field-key]') as HTMLElement | null;
+        if (badge && el.contains(badge)) {
+          badge.remove();
+          const newValue = serializeEditor(el);
+          lastValueRef.current = newValue;
+          onChange(newValue);
         }
       }
+    };
+    el.addEventListener("click", handleClick);
+    return () => el.removeEventListener("click", handleClick);
+  }, [onChange]);
 
-      // Add the field
-      const fieldKey = match[1];
-      const field = dynamicFields.find((f) => f.key === fieldKey);
-      parsed.push({
-        type: "field",
-        content: `{${fieldKey}}`,
-        fieldLabel: field?.label || fieldKey,
-      });
-
-      lastIndex = regex.lastIndex;
-    }
-
-    // Add remaining text
-    if (lastIndex < text.length) {
-      const textContent = text.substring(lastIndex);
-      if (textContent) {
-        parsed.push({ type: "text", content: textContent });
-      }
-    }
-
-    setSegments(parsed);
+  const focusEditor = () => {
+    editorRef.current?.focus();
   };
 
-  const handleTextChange = (index: number, newText: string) => {
-    const newSegments = [...segments];
-    newSegments[index].content = newText;
-
-    // Reconstruct the full value
-    const newValue = newSegments.map((s) => s.content).join("");
+  const handleInput = () => {
+    if (!editorRef.current) return;
+    const newValue = serializeEditor(editorRef.current);
+    lastValueRef.current = newValue;
     onChange(newValue);
   };
 
-  const handleRemoveField = (index: number) => {
-    const newSegments = segments.filter((_, i) => i !== index);
-    const newValue = newSegments.map((s) => s.content).join("");
-    onChange(newValue);
+  const insertNodeAtCaret = (node: Node) => {
+    const sel = window.getSelection();
+    if (!sel || sel.rangeCount === 0) {
+      editorRef.current?.appendChild(node);
+      return;
+    }
+    const range = sel.getRangeAt(0);
+    range.deleteContents();
+    range.insertNode(node);
+
+    // Move caret after inserted node
+    range.setStartAfter(node);
+    range.setEndAfter(node);
+    sel.removeAllRanges();
+    sel.addRange(range);
   };
 
-  const handleContainerClick = (e: React.MouseEvent) => {
-    // If clicking on the container itself (not on inputs or badges), focus the trailing input
-    if (e.target === containerRef.current && trailingInputRef.current) {
-      trailingInputRef.current.focus();
+  const createBadgeNode = (key: string, label: string): HTMLElement => {
+    const span = document.createElement("span");
+    span.className = "inline-flex items-center px-2 py-0.5 rounded-md text-sm bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300 select-none";
+    span.setAttribute("data-field-key", key);
+    span.setAttribute("contenteditable", "false");
+
+    const labelSpan = document.createElement("span");
+    labelSpan.className = "pointer-events-none";
+    labelSpan.textContent = label;
+
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.setAttribute("data-remove-badge", "");
+    btn.className = "ml-1 hover:text-blue-900 dark:hover:text-blue-100";
+    btn.textContent = "×";
+
+    span.appendChild(labelSpan);
+    span.appendChild(btn);
+    return span;
+  };
+
+  const handlePaste: React.ClipboardEventHandler<HTMLDivElement> = (e) => {
+    e.preventDefault();
+    const text = e.clipboardData.getData("text/plain");
+    insertNodeAtCaret(document.createTextNode(text));
+    handleInput();
+  };
+
+  const handleDrop: React.DragEventHandler<HTMLDivElement> = (e) => {
+    e.preventDefault();
+    // Allow parent to react to drop if needed
+    onDrop?.(e);
+
+    const plain = e.dataTransfer.getData("text/plain");
+    let key = "";
+    if (/^\{[^}]+\}$/.test(plain)) {
+      key = plain.slice(1, -1);
+    } else if (plain && dynamicFields.some((f) => f.key === plain)) {
+      key = plain;
+    }
+
+    if (key) {
+      const field = dynamicFields.find((f) => f.key === key);
+      const label = field?.label || key;
+      const badge = createBadgeNode(key, label);
+      insertNodeAtCaret(badge);
+      handleInput();
+    } else {
+      // Fallback: insert raw text
+      insertNodeAtCaret(document.createTextNode(plain));
+      handleInput();
     }
   };
 
-  const handleTrailingInputChange = (newText: string) => {
-    // Add the new text to the end
-    const newValue = segments.map((s) => s.content).join("") + newText;
-    onChange(newValue);
-    
-    // Clear the trailing input
-    if (trailingInputRef.current) {
-      trailingInputRef.current.value = "";
-    }
-  };
+  const isEmpty = !value || value.trim().length === 0;
 
   return (
     <div
-      ref={containerRef}
-      className="flex flex-wrap items-center gap-1 min-h-10 px-3 py-2 border border-input bg-background rounded-md cursor-text focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2"
-      onClick={handleContainerClick}
-      onDrop={onDrop}
-      onDragOver={(e) => e.preventDefault()}
+      className="flex items-center min-h-10 px-3 py-2 border border-input bg-background rounded-md cursor-text focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2 relative"
+      onClick={focusEditor}
     >
-      {segments.length === 0 && !value && (
-        <span className="text-muted-foreground text-sm pointer-events-none">{placeholder}</span>
-      )}
-      {segments.map((segment, index) => (
-        <div key={index} className="inline-flex items-center">
-          {segment.type === "field" ? (
-            <Badge
-              variant="secondary"
-              className="bg-blue-100 text-blue-700 hover:bg-blue-200 dark:bg-blue-900 dark:text-blue-300 cursor-default select-none"
-            >
-              <span className="pointer-events-none">{segment.fieldLabel}</span>
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleRemoveField(index);
-                }}
-                className="ml-1 hover:text-blue-900 dark:hover:text-blue-100"
-                type="button"
-              >
-                ×
-              </button>
-            </Badge>
-          ) : (
-            <input
-              type="text"
-              value={segment.content}
-              onChange={(e) => handleTextChange(index, e.target.value)}
-              onFocus={() => setEditingIndex(index)}
-              onBlur={() => setEditingIndex(null)}
-              className="bg-transparent border-none outline-none min-w-[20px] text-sm px-0"
-              style={{ width: `${Math.max(segment.content.length, 1)}ch` }}
-            />
-          )}
-        </div>
-      ))}
-      {/* Trailing input for easy typing at the end */}
-      <input
-        ref={trailingInputRef}
-        type="text"
-        defaultValue=""
-        onChange={(e) => handleTrailingInputChange(e.target.value)}
-        className="bg-transparent border-none outline-none flex-1 min-w-[40px] text-sm px-0"
-        placeholder={segments.length === 0 ? placeholder : ""}
+      {/* ContentEditable editor */}
+      <div
+        ref={editorRef}
+        className="flex flex-wrap gap-1 outline-none text-sm w-full"
+        contentEditable
+        role="textbox"
+        aria-label={placeholder || "Subject"}
+        onInput={handleInput}
+        onPaste={handlePaste}
+        onDrop={handleDrop}
+        onDragOver={(e) => e.preventDefault()}
+        suppressContentEditableWarning
       />
+      {/* Placeholder overlay */}
+      {isEmpty && (
+        <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">
+          {placeholder}
+        </span>
+      )}
     </div>
   );
 }
