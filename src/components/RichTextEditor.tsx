@@ -221,8 +221,12 @@ export function RichTextEditor({ value, onChange, placeholder, allowDrop = false
     if (!allowDrop) return;
     e.preventDefault();
     
-    const text = e.dataTransfer.getData("text/plain");
-    if (!text) return;
+    // Try to get HTML data first, then fall back to plain text
+    const htmlData = e.dataTransfer.getData("text/html");
+    const textData = e.dataTransfer.getData("text/plain");
+    const dataToInsert = htmlData || textData;
+    
+    if (!dataToInsert) return;
 
     // Get the drop position using coordinates
     let range: Range | null = null;
@@ -249,7 +253,12 @@ export function RichTextEditor({ value, onChange, placeholder, allowDrop = false
         sel.selectAllChildren(editorRef.current!);
         sel.collapseToEnd();
       }
-      document.execCommand("insertText", false, text);
+      
+      if (htmlData) {
+        document.execCommand("insertHTML", false, htmlData);
+      } else {
+        document.execCommand("insertText", false, textData);
+      }
       handleContentChange();
       return;
     }
@@ -261,8 +270,12 @@ export function RichTextEditor({ value, onChange, placeholder, allowDrop = false
     sel.removeAllRanges();
     sel.addRange(range);
 
-    // Insert the text at the drop position
-    document.execCommand("insertText", false, text);
+    // Insert the data at the drop position
+    if (htmlData) {
+      document.execCommand("insertHTML", false, htmlData);
+    } else {
+      document.execCommand("insertText", false, textData);
+    }
     handleContentChange();
   };
 
