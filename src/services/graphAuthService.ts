@@ -99,8 +99,8 @@ export class GraphAuthService {
       scope: graphScopeString,
       state: encodedState,
       prompt: 'consent', // Forzar pantalla de consentimiento para obtener refresh token
-      code_challenge: codeChallenge,
-      code_challenge_method: 'S256', // SHA-256
+      // code_challenge: codeChallenge,
+      // code_challenge_method: 'S256', // SHA-256
     });
 
     // Redirigir a Microsoft para autorización
