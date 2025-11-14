@@ -170,7 +170,15 @@ export function RichTextEditor({ value, onChange, placeholder, allowDrop = false
         if (val) badge.style.fontFamily = val;
         break;
       case "fontSize":
-        if (val && FONT_SIZE_MAP[val]) badge.style.fontSize = FONT_SIZE_MAP[val];
+        // Aceptar tanto el formato de FONT_SIZE_MAP (1-7) como valores directos (px, pt, em, etc.)
+        if (val) {
+          if (FONT_SIZE_MAP[val]) {
+            badge.style.fontSize = FONT_SIZE_MAP[val];
+          } else {
+            // Aplicar directamente el valor (puede ser px, pt, em, rem, etc.)
+            badge.style.fontSize = val;
+          }
+        }
         break;
     }
   };
@@ -250,6 +258,34 @@ export function RichTextEditor({ value, onChange, placeholder, allowDrop = false
     // Apply command to text normally
     document.execCommand(cmd, false, val);
 
+    // For fontSize and fontName, get the actual applied value after execCommand
+    let appliedValue = val;
+    if ((cmd === 'fontSize' || cmd === 'fontName') && sel && sel.rangeCount > 0) {
+      // Get the first text node in the selection to check what was actually applied
+      const range = sel.getRangeAt(0);
+      const walker = document.createTreeWalker(
+        range.commonAncestorContainer,
+        NodeFilter.SHOW_ELEMENT | NodeFilter.SHOW_TEXT
+      );
+      
+      let node = walker.currentNode;
+      while (node) {
+        if (node.nodeType === Node.ELEMENT_NODE) {
+          const elem = node as HTMLElement;
+          const style = window.getComputedStyle(elem);
+          if (cmd === 'fontSize' && style.fontSize) {
+            appliedValue = style.fontSize;
+            break;
+          } else if (cmd === 'fontName' && style.fontFamily) {
+            appliedValue = style.fontFamily;
+            break;
+          }
+        }
+        node = walker.nextNode();
+        if (node && range.intersectsNode && !range.intersectsNode(node)) break;
+      }
+    }
+
     // Also apply the same style to any badges intersecting the selection
     if (sel && sel.rangeCount > 0) {
       const range = sel.getRangeAt(0);
@@ -270,8 +306,8 @@ export function RichTextEditor({ value, onChange, placeholder, allowDrop = false
 
       badges.forEach((b) => {
         if (intersects(b)) {
-          // If the format was active and we're toggling it off, pass true
-          applyStyleToBadge(b, cmd, val, isCurrentlyActive);
+          // For fontSize and fontName, use the applied value; for toggle commands use isCurrentlyActive
+          applyStyleToBadge(b, cmd, appliedValue, isCurrentlyActive);
         }
       });
     }
