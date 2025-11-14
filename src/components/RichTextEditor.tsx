@@ -97,6 +97,16 @@ export function RichTextEditor({ value, onChange, placeholder, allowDrop = false
     { label: "Courier New", value: "Courier New, monospace" },
   ];
 
+  const FONT_SIZES = [
+    { label: "8pt", value: "1" },
+    { label: "10pt", value: "2" },
+    { label: "12pt", value: "3" },
+    { label: "14pt", value: "4" },
+    { label: "18pt", value: "5" },
+    { label: "24pt", value: "6" },
+    { label: "36pt", value: "7" },
+  ];
+
   const handleContentChange = useCallback(() => {
     if (!editorRef.current) return;
     const html = editorRef.current.innerHTML;
@@ -108,93 +118,32 @@ export function RichTextEditor({ value, onChange, placeholder, allowDrop = false
   useEffect(() => {
     const editor = editorRef.current;
     if (!editor) return;
-    if (value != null && value !== "" && value !== lastEmittedHtmlRef.current && value !== editor.innerHTML) {
-      editor.innerHTML = value;
+    if (lastEmittedHtmlRef.current !== value) {
+      editor.innerHTML = value || "";
+      lastEmittedHtmlRef.current = value;
       normalizeBadges();
     }
   }, [value]);
 
   const saveSelection = useCallback(() => {
-    const sel = window.getSelection?.();
+    const sel = window.getSelection();
     if (sel && sel.rangeCount > 0) {
-      const range = sel.getRangeAt(0);
-      // Only save if the selection is within our editor
-      const editor = editorRef.current;
-      if (editor && editor.contains(range.commonAncestorContainer)) {
-        setSavedRange(range.cloneRange());
-      }
+      setSavedRange(sel.getRangeAt(0).cloneRange());
     }
   }, []);
+
   const restoreSelection = useCallback(() => {
     if (!savedRange) return;
-    const sel = window.getSelection?.();
+    const sel = window.getSelection();
     if (!sel) return;
     sel.removeAllRanges();
     sel.addRange(savedRange);
   }, [savedRange]);
-  const FONT_SIZE_MAP: Record<string, string> = {
-    "1": "8pt",
-    "2": "10pt",
-    "3": "12pt",
-    "4": "14pt",
-    "5": "18pt",
-    "6": "24pt",
-    "7": "36pt",
-  };
-
-  const applyStyleToBadge = (badge: HTMLElement, cmd: string, val?: string, shouldToggleOff = false) => {
-    switch (cmd) {
-      case "foreColor":
-        badge.style.color = val || "";
-        break;
-      case "bold":
-        // If shouldToggleOff is true, remove bold; otherwise toggle
-        if (shouldToggleOff) {
-          badge.style.fontWeight = "normal";
-        } else {
-          badge.style.fontWeight = badge.style.fontWeight === "700" || badge.style.fontWeight === "bold" ? "normal" : "700";
-        }
-        break;
-      case "italic":
-        // If shouldToggleOff is true, remove italic; otherwise toggle
-        if (shouldToggleOff) {
-          badge.style.fontStyle = "normal";
-        } else {
-          badge.style.fontStyle = badge.style.fontStyle === "italic" ? "normal" : "italic";
-        }
-        break;
-      case "underline": {
-        const td = badge.style.textDecoration || "";
-        // If shouldToggleOff is true, remove underline; otherwise toggle
-        if (shouldToggleOff) {
-          badge.style.textDecoration = td.replace("underline", "").trim();
-        } else {
-          badge.style.textDecoration = td.includes("underline") ? td.replace("underline", "").trim() : (td ? td + " underline" : "underline");
-        }
-        break;
-      }
-      case "fontName":
-        if (val) badge.style.fontFamily = val;
-        break;
-      case "fontSize":
-        // Aceptar tanto el formato de FONT_SIZE_MAP (1-7) como valores directos (px, pt, em, etc.)
-        if (val) {
-          if (FONT_SIZE_MAP[val]) {
-            badge.style.fontSize = FONT_SIZE_MAP[val];
-          } else {
-            // Aplicar directamente el valor (puede ser px, pt, em, rem, etc.)
-            badge.style.fontSize = val;
-          }
-        }
-        break;
-    }
-  };
 
   const normalizeBadges = useCallback(() => {
     const editor = editorRef.current;
     if (!editor) return;
     editor.querySelectorAll<HTMLElement>('[data-field-key]').forEach((badge) => {
-      // lock editing but allow selection
       badge.setAttribute("contenteditable", "false");
       badge.style.userSelect = "all";
       badge.style.whiteSpace = "nowrap";
@@ -202,451 +151,233 @@ export function RichTextEditor({ value, onChange, placeholder, allowDrop = false
       badge.style.verticalAlign = "baseline";
       badge.style.lineHeight = "1";
       
-      // ensure the close button stays inline
       const btn = badge.querySelector<HTMLElement>('[data-remove-badge]');
       if (btn) {
         btn.style.display = "inline";
         btn.style.lineHeight = "1";
       }
-      
-      // If badge is wrapped in a block-level element (p, div), unwrap it
-      const parent = badge.parentElement;
-      if (parent && (parent.tagName === "P" || parent.tagName === "DIV")) {
-        const grandParent = parent.parentElement;
-        if (grandParent && parent.childNodes.length === 1 && parent.childNodes[0] === badge) {
-          // If the parent only contains the badge, replace parent with badge
-          grandParent.insertBefore(badge, parent);
-          parent.remove();
-        }
-      }
-      
-      // remove stray breaks/whitespace inserted BEFORE the badge
-      let prev = badge.previousSibling;
-      while (prev && ((prev.nodeType === Node.TEXT_NODE && !(prev.textContent || "").trim()) || (prev.nodeType === Node.ELEMENT_NODE && (prev as Element).tagName === "BR"))) {
-        const toRemove = prev;
-        prev = prev.previousSibling;
-        toRemove.parentNode?.removeChild(toRemove);
-      }
-      // remove stray breaks/whitespace inserted AFTER the badge
-      let next = badge.nextSibling;
-      while (next && ((next.nodeType === Node.TEXT_NODE && !(next.textContent || "").trim()) || (next.nodeType === Node.ELEMENT_NODE && (next as Element).tagName === "BR"))) {
-        const toRemove = next;
-        next = next.nextSibling;
-        toRemove.parentNode?.removeChild(toRemove);
-      }
     });
   }, []);
 
+  // Función simplificada para aplicar estilos a badges
+  const applyStyleToBadge = (badge: HTMLElement, cmd: string, val?: string) => {
+    if (cmd === "bold") {
+      const isBold = badge.style.fontWeight === "700" || badge.style.fontWeight === "bold";
+      badge.style.fontWeight = isBold ? "normal" : "700";
+    } else if (cmd === "italic") {
+      badge.style.fontStyle = badge.style.fontStyle === "italic" ? "normal" : "italic";
+    } else if (cmd === "underline") {
+      const td = badge.style.textDecoration || "";
+      badge.style.textDecoration = td.includes("underline") 
+        ? td.replace("underline", "").trim() 
+        : (td ? td + " underline" : "underline");
+    } else if (cmd === "foreColor" && val) {
+      badge.style.color = val;
+    } else if (cmd === "fontName" && val) {
+      badge.style.fontFamily = val;
+    } else if (cmd === "fontSize" && val) {
+      // Convertir valor fontSize (1-7) a tamaño real
+      const sizeMap: Record<string, string> = {
+        "1": "10px", "2": "13px", "3": "16px", "4": "18px",
+        "5": "24px", "6": "32px", "7": "48px"
+      };
+      badge.style.fontSize = sizeMap[val] || val;
+    }
+  };
+
+  // Función para obtener todos los badges en la selección
+  const getSelectedBadges = (range: Range): HTMLElement[] => {
+    const editor = editorRef.current;
+    if (!editor) return [];
+    
+    const badges = Array.from(editor.querySelectorAll<HTMLElement>('[data-field-key]'));
+    return badges.filter(badge => {
+      try {
+        return range.intersectsNode(badge);
+      } catch {
+        return false;
+      }
+    });
+  };
+
+  // Función exec simplificada
   const exec = (cmd: string, val?: string) => {
-    restoreSelection();
-    const sel = window.getSelection?.();
     const editor = editorRef.current;
     if (!editor) return;
-
-    // Enable CSS-based styling for fontSize and fontName
-    if (cmd === 'fontSize' || cmd === 'fontName') {
-      document.execCommand('styleWithCSS', false, 'true');
-    }
-
-    // If a single badge is selected, apply style directly to it
-    if (sel && sel.rangeCount > 0) {
-      const range = sel.getRangeAt(0);
-      const badges = Array.from(editor.querySelectorAll<HTMLElement>('[data-field-key]'));
-      
-      // Check if ONLY one badge is fully selected
-      const selectedBadges = badges.filter(badge => {
-        try {
-          return range.intersectsNode && range.intersectsNode(badge);
-        } catch {
-          const r2 = document.createRange();
-          r2.selectNode(badge);
-          return !(
-            range.compareBoundaryPoints(Range.END_TO_START, r2) <= 0 ||
-            range.compareBoundaryPoints(Range.START_TO_END, r2) >= 0
-          );
-        }
-      });
-
-      // If only one badge is in the selection and no text is selected, apply directly to badge
-      if (selectedBadges.length === 1 && range.toString().trim() === '') {
-        applyStyleToBadge(selectedBadges[0], cmd, val);
-        handleContentChange();
-        saveSelection();
-        return;
-      }
-    }
-
-    // Check the current state BEFORE applying execCommand
-    // This tells us if we're removing or adding the format
-    const isCurrentlyActive = document.queryCommandState(cmd);
     
-    // Apply command to text normally
-    document.execCommand(cmd, false, val);
-
-    // For fontSize and fontName, get the actual applied value after execCommand
-    let appliedValue = val;
-    if ((cmd === 'fontSize' || cmd === 'fontName') && sel && sel.rangeCount > 0) {
-      // Get the first text node in the selection to check what was actually applied
-      const range = sel.getRangeAt(0);
-      const walker = document.createTreeWalker(
-        range.commonAncestorContainer,
-        NodeFilter.SHOW_ELEMENT | NodeFilter.SHOW_TEXT
-      );
-      
-      let node = walker.currentNode;
-      while (node) {
-        if (node.nodeType === Node.ELEMENT_NODE) {
-          const elem = node as HTMLElement;
-          const style = window.getComputedStyle(elem);
-          if (cmd === 'fontSize' && style.fontSize) {
-            appliedValue = style.fontSize;
-            break;
-          } else if (cmd === 'fontName' && style.fontFamily) {
-            appliedValue = style.fontFamily;
-            break;
-          }
-        }
-        node = walker.nextNode();
-        if (node && range.intersectsNode && !range.intersectsNode(node)) break;
+    restoreSelection();
+    const sel = window.getSelection();
+    if (!sel || sel.rangeCount === 0) return;
+    
+    const range = sel.getRangeAt(0);
+    const selectedBadges = getSelectedBadges(range);
+    
+    // Aplicar estilos a badges primero
+    selectedBadges.forEach(badge => applyStyleToBadge(badge, cmd, val));
+    
+    // Luego aplicar al texto si hay texto seleccionado
+    const selectedText = range.toString();
+    if (selectedText.trim()) {
+      if (cmd === "fontSize" || cmd === "fontName") {
+        document.execCommand("styleWithCSS", false, "true");
       }
+      document.execCommand(cmd, false, val);
     }
-
-    // Also apply the same style to any badges intersecting the selection
-    if (sel && sel.rangeCount > 0) {
-      const range = sel.getRangeAt(0);
-      const badges = Array.from(editor.querySelectorAll<HTMLElement>('[data-field-key]'));
-
-      const intersects = (node: Node) => {
-        if (typeof (range as any).intersectsNode === 'function') {
-          try { return (range as any).intersectsNode(node); } catch { /* fall through */ }
-        }
-        // Fallback for browsers without intersectsNode
-        const r2 = document.createRange();
-        r2.selectNode(node);
-        return !(
-          range.compareBoundaryPoints(Range.END_TO_START, r2) <= 0 ||
-          range.compareBoundaryPoints(Range.START_TO_END, r2) >= 0
-        );
-      };
-
-      badges.forEach((b) => {
-        if (intersects(b)) {
-          // For fontSize and fontName, use the applied value; for toggle commands use isCurrentlyActive
-          applyStyleToBadge(b, cmd, appliedValue, isCurrentlyActive);
-        }
-      });
-    }
-
-    normalizeBadges();
+    
     handleContentChange();
     saveSelection();
   };
 
-  /* ===== Imágenes ===== */
-  const insertImage = () => fileInputRef.current?.click();
-  const afterInsertSetInitialWidth = (id: string) => {
-    setTimeout(() => {
-      const editor = editorRef.current;
-      if (!editor) return;
-      const img = editor.querySelector(`img[data-temp-id="${id}"]`) as HTMLImageElement | null;
-      if (!img) return;
-      img.onload = () => {
-        const w = img.clientWidth || img.naturalWidth || 600;
-        img.style.width = `${w}px`;
-        img.style.height = "auto";
-        img.style.maxWidth = "none";
-        img.setAttribute("width", String(w));
+  const insertLink = () => {
+    if (!linkUrl.trim()) return;
+    restoreSelection();
+    exec("createLink", linkUrl);
+    setLinkUrl("");
+    setShowLinkPopover(false);
+  };
+
+  const insertImage = useCallback(() => {
+    fileInputRef.current?.click();
+  }, []);
+
+  const handleImageFile = useCallback(
+    async (file: File) => {
+      if (!file.type.startsWith("image/")) return;
+      const optimized = await optimizeImageBlob(file);
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const dataUrl = e.target?.result as string;
+        if (!dataUrl) return;
+        restoreSelection();
+        const tmpId = uid();
+        document.execCommand("insertHTML", false, `<img id="${tmpId}" src="${dataUrl}" style="max-width:100%;height:auto;" />`);
         handleContentChange();
       };
-    }, 0);
-  };
-  const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    event.target.value = "";
-    if (!file) return;
-    const tempUrl = URL.createObjectURL(file);
-    const id = uid();
-    const html = `
-      <div class="editable-image-wrapper" contenteditable="false" style="resize:both;overflow:hidden;display:inline-block;position:relative;max-width:100%;">
-        <img src="${tempUrl}" data-temp-id="${id}" style="width:100%;height:auto;cursor:pointer;object-fit:contain;display:block;" />
-      </div>`;
-    document.execCommand("insertHTML", false, html);
-    handleContentChange();
-    afterInsertSetInitialWidth(id);
-    runWhenIdle(async () => {
-      const optimized = await optimizeImageBlob(file);
-      const finalUrl = URL.createObjectURL(optimized);
-      const editor = editorRef.current;
-      if (editor) {
-        const target = editor.querySelector(`img[data-temp-id="${id}"]`) as HTMLImageElement | null;
-        if (target) {
-          target.src = finalUrl;
-          URL.revokeObjectURL(tempUrl);
-          handleContentChange();
-        }
-      }
-    });
-  };
+      reader.readAsDataURL(optimized);
+    },
+    [handleContentChange],
+  );
 
-  const handlePaste = (e: React.ClipboardEvent<HTMLDivElement>) => {
-    const items = e.clipboardData?.items;
-    if (!items) return;
-    const imageItems = Array.from(items).filter((it) => it.type.startsWith("image/"));
-    if (imageItems.length === 0) return;
-    e.preventDefault();
-    imageItems.forEach((it) => {
-      const file = it.getAsFile();
-      if (!file) return;
-      const tempUrl = URL.createObjectURL(file);
-      const id = uid();
-      const html = `
-        <div class="editable-image-wrapper" contenteditable="false" style="resize:both;overflow:hidden;display:inline-block;position:relative;max-width:100%;">
-          <img src="${tempUrl}" data-temp-id="${id}" style="width:100%;height:auto;cursor:pointer;object-fit:contain;display:block;" />
-        </div>`;
-      document.execCommand("insertHTML", false, html);
-      handleContentChange();
-      afterInsertSetInitialWidth(id);
-      runWhenIdle(async () => {
-        const optimized = await optimizeImageBlob(file);
-        const finalUrl = URL.createObjectURL(optimized);
-        const editor = editorRef.current;
-        if (editor) {
-          const target = editor.querySelector(`img[data-temp-id="${id}"]`) as HTMLImageElement | null;
-          if (target) {
-            target.src = finalUrl;
-            URL.revokeObjectURL(tempUrl);
-            handleContentChange();
-          }
-        }
-      });
-    });
-  };
+  const handleImageInput = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const file = e.target.files?.[0];
+      if (file) handleImageFile(file);
+      e.target.value = "";
+    },
+    [handleImageFile],
+  );
 
-  const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
-    if (!allowDrop) return;
-    e.preventDefault();
-    e.dataTransfer.dropEffect = "copy";
-  };
-
-  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
-    if (!allowDrop) return;
-    e.preventDefault();
-    
-    const htmlData = e.dataTransfer.getData("text/html");
-    const textData = e.dataTransfer.getData("text/plain");
-    if (!htmlData && !textData) return;
-
-    // Compute drop caret position
-    let range: Range | null = null;
-    if (document.caretRangeFromPoint) {
-      range = document.caretRangeFromPoint(e.clientX, e.clientY);
-    } else if ((document as any).caretPositionFromPoint) {
-      const position = (document as any).caretPositionFromPoint(e.clientX, e.clientY);
-      if (position) {
-        range = document.createRange();
-        range.setStart(position.offsetNode, position.offset);
-        range.collapse(true);
-      }
-    }
-
-    const editor = editorRef.current;
-    if (!editor) return;
-
-    // Fallback to end of content
-    if (!range) {
-      editor.focus();
-      const sel = window.getSelection();
-      if (sel) {
-        sel.selectAllChildren(editor);
-        sel.collapseToEnd();
-        range = sel.getRangeAt(0);
-      }
-    }
-    if (!range) return;
-
-    // Helper to clean wrapper blocks and stray breaks/whitespace
-    const sanitizeNode = (node: Node): Node | null => {
-      if (node.nodeType === Node.TEXT_NODE) {
-        // Keep non-empty text, drop pure whitespace line-breaks
-        return (node.textContent || "").trim() === "" ? null : node;
-      }
-      if (node instanceof HTMLElement) {
-        // If wrapped in P/DIV containing only our badge, unwrap
-        if ((node.tagName === "P" || node.tagName === "DIV") && node.childNodes.length === 1) {
-          const only = node.childNodes[0] as Node;
-          if (only instanceof HTMLElement && only.hasAttribute("data-field-key")) {
-            return only;
-          }
-        }
-        // Remove leading/trailing BRs inside containers
-        while (node.firstChild && node.firstChild.nodeType === Node.ELEMENT_NODE && (node.firstChild as Element).tagName === 'BR') {
-          node.removeChild(node.firstChild);
-        }
-        while (node.lastChild && node.lastChild.nodeType === Node.ELEMENT_NODE && (node.lastChild as Element).tagName === 'BR') {
-          node.removeChild(node.lastChild);
-        }
-        return node;
-      }
-      return null;
-    };
-
-    // Insert content manually to avoid browser adding block paragraphs
-    const sel = window.getSelection();
-    if (!sel) return;
-
-    range.deleteContents();
-
-    if (htmlData) {
-      const container = document.createElement('div');
-      container.innerHTML = htmlData;
-      const fragment = document.createDocumentFragment();
-      Array.from(container.childNodes).forEach((n) => {
-        const clean = sanitizeNode(n.cloneNode(true));
-        if (clean) fragment.appendChild(clean);
-      });
-      range.insertNode(fragment);
-    } else {
-      range.insertNode(document.createTextNode(textData));
-    }
-
-    // Move caret to end of inserted content
-    sel.removeAllRanges();
-    const newRange = document.createRange();
-    if (range.endContainer) {
-      newRange.setStartAfter(range.endContainer);
-      newRange.collapse(true);
-      sel.addRange(newRange);
-    }
-
-    // Cleanup any accidental breaks around badges
+  /* ===== Placeholder ===== */
+  const handleInput = throttle(() => {
     normalizeBadges();
     handleContentChange();
-  };
+  }, 100);
 
-  /* ===== ResizeObserver ===== */
+  /* ===== Paste events ===== */
   useEffect(() => {
     const editor = editorRef.current;
     if (!editor) return;
-    const emitThrottled = throttle(handleContentChange, 200);
-    const ro = new ResizeObserver((entries) => {
-      entries.forEach((entry) => {
-        const wrapper = entry.target as HTMLElement;
-        if (!wrapper.classList.contains("editable-image-wrapper")) return;
-        const img = wrapper.querySelector("img") as HTMLImageElement | null;
-        if (!img) return;
-        const { width } = entry.contentRect;
-        const w = Math.max(20, Math.round(width));
-        img.style.width = `${w}px`;
-        img.style.height = "auto";
-        img.style.maxWidth = "none";
-        img.setAttribute("width", String(w));
-        emitThrottled();
-      });
-    });
-    editor.querySelectorAll(".editable-image-wrapper").forEach((w) => ro.observe(w));
-    const mo = new MutationObserver((muts) => {
-      muts.forEach((m) =>
-        m.addedNodes.forEach((n) => {
-          if (!(n instanceof HTMLElement)) return;
-          const list: HTMLElement[] = n.classList?.contains("editable-image-wrapper")
-            ? [n]
-            : Array.from(n.querySelectorAll?.(".editable-image-wrapper") || []);
-          list.forEach((wrap) => ro.observe(wrap));
-        }),
-      );
-    });
-    mo.observe(editor, { childList: true, subtree: true });
+    const onPaste = (e: ClipboardEvent) => {
+      e.preventDefault();
+      const items = e.clipboardData?.items;
+      if (!items) return;
+      for (const item of Array.from(items)) {
+        if (item.type.startsWith("image/")) {
+          const file = item.getAsFile();
+          if (file) handleImageFile(file);
+          return;
+        }
+      }
+      const text = e.clipboardData?.getData("text/plain") || "";
+      if (text) document.execCommand("insertText", false, text);
+    };
+    editor.addEventListener("paste", onPaste);
+    return () => editor.removeEventListener("paste", onPaste);
+  }, [handleImageFile]);
+
+  /* ===== Drop events ===== */
+  useEffect(() => {
+    const editor = editorRef.current;
+    if (!editor || !allowDrop) return;
+    const onDrop = (e: DragEvent) => {
+      e.preventDefault();
+      const file = e.dataTransfer?.files?.[0];
+      if (file?.type.startsWith("image/")) handleImageFile(file);
+    };
+    const onDragOver = (e: DragEvent) => e.preventDefault();
+    editor.addEventListener("drop", onDrop);
+    editor.addEventListener("dragover", onDragOver);
     return () => {
-      mo.disconnect();
-      ro.disconnect();
+      editor.removeEventListener("drop", onDrop);
+      editor.removeEventListener("dragover", onDragOver);
     };
-  }, [handleContentChange]);
+  }, [allowDrop, handleImageFile]);
 
-  /* ===== Doble clic reset tamaño ===== */
+  /* ===== Remove badge button ===== */
   useEffect(() => {
     const editor = editorRef.current;
     if (!editor) return;
-    const onDblClick = (e: MouseEvent) => {
-      const t = e.target as HTMLElement;
-      const img =
-        (t.tagName === "IMG" ? (t as HTMLImageElement) : null) ||
-        (t.closest(".editable-image-wrapper")?.querySelector("img") as HTMLImageElement | null);
-      if (!img) return;
-      const natW = img.naturalWidth || 600;
-      const containerW = (img.parentElement as HTMLElement)?.clientWidth || natW;
-      const newW = Math.min(natW, containerW);
-      img.style.width = `${newW}px`;
-      img.style.height = "auto";
-      img.style.maxWidth = "none";
-      img.setAttribute("width", String(newW));
-      handleContentChange();
-    };
-    editor.addEventListener("dblclick", onDblClick);
-    return () => editor.removeEventListener("dblclick", onDblClick);
-  }, [handleContentChange]);
-
-  /* ===== Track selection changes ===== */
-  useEffect(() => {
-    const handleSelectionChange = throttle(() => {
-      saveSelection();
-    }, 100);
-    
-    document.addEventListener('selectionchange', handleSelectionChange);
-    return () => document.removeEventListener('selectionchange', handleSelectionChange);
-  }, [saveSelection]);
-
-  /* ===== Remove badge button click handler ===== */
-  useEffect(() => {
-    const editor = editorRef.current;
-    if (!editor) return;
-    const handleClick = (e: MouseEvent) => {
+    const onClick = (e: MouseEvent) => {
       const target = e.target as HTMLElement;
-      if (target && target.closest('[data-remove-badge]')) {
+      if (target.hasAttribute("data-remove-badge")) {
         e.preventDefault();
-        const badge = target.closest('[data-field-key]') as HTMLElement | null;
-        if (badge && editor.contains(badge)) {
+        e.stopPropagation();
+        const badge = target.closest('[data-field-key]');
+        if (badge) {
           badge.remove();
           handleContentChange();
         }
       }
     };
-    editor.addEventListener("click", handleClick);
-    return () => editor.removeEventListener("click", handleClick);
+    editor.addEventListener("click", onClick);
+    return () => editor.removeEventListener("click", onClick);
+  }, [handleContentChange]);
+
+  /* ===== Double-click images ===== */
+  useEffect(() => {
+    const editor = editorRef.current;
+    if (!editor) return;
+    const onDblClick = (e: MouseEvent) => {
+      const target = e.target as HTMLElement;
+      if (target.tagName === "IMG") {
+        e.preventDefault();
+        const newSrc = prompt("URL de la nueva imagen:", target.getAttribute("src") || "");
+        if (newSrc) {
+          target.setAttribute("src", newSrc);
+          runWhenIdle(handleContentChange);
+        }
+      }
+    };
+    editor.addEventListener("dblclick", onDblClick);
+    return () => editor.removeEventListener("dblclick", onDblClick);
   }, [handleContentChange]);
 
   return (
-    <div className="border rounded-md">
-      {/* Toolbar */}
-      <div className="border-b p-2 flex flex-wrap items-center gap-1">
-        {/* Texto básico */}
-        <Button variant="ghost" size="sm" onMouseDown={(e) => e.preventDefault()} onClick={() => exec("bold")}>
-          <Bold className="h-4 w-4" />
-        </Button>
-        <Button variant="ghost" size="sm" onMouseDown={(e) => e.preventDefault()} onClick={() => exec("italic")}>
-          <Italic className="h-4 w-4" />
-        </Button>
-        <Button variant="ghost" size="sm" onMouseDown={(e) => e.preventDefault()} onClick={() => exec("underline")}>
-          <Underline className="h-4 w-4" />
-        </Button>
+    <div className="space-y-2">
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept="image/*"
+        style={{ display: "none" }}
+        onChange={handleImageInput}
+      />
 
-        <Separator orientation="vertical" className="h-6" />
-
+      {/* Barra de herramientas */}
+      <div className="flex flex-wrap items-center gap-1 rounded-md border bg-muted/30 p-2">
         {/* Fuente */}
         <Select
-          onOpenChange={(open) => {
-            if (open) saveSelection();
-          }}
           onValueChange={(f) => {
+            saveSelection();
             exec("fontName", f);
           }}
         >
-          <SelectTrigger className="w-40 h-8">
+          <SelectTrigger className="h-8 w-[140px] text-xs">
             <SelectValue placeholder="Fuente" />
           </SelectTrigger>
           <SelectContent>
-            {FONT_FAMILIES.map((f) => (
-              <SelectItem key={f.value} value={f.value} style={{ fontFamily: f.value }}>
-                {f.label}
+            {FONT_FAMILIES.map((font) => (
+              <SelectItem key={font.value} value={font.value} className="text-xs">
+                {font.label}
               </SelectItem>
             ))}
           </SelectContent>
@@ -654,54 +385,74 @@ export function RichTextEditor({ value, onChange, placeholder, allowDrop = false
 
         {/* Tamaño */}
         <Select
-          onOpenChange={(open) => {
-            if (open) saveSelection();
-          }}
           onValueChange={(s) => {
+            saveSelection();
             exec("fontSize", s);
           }}
         >
-          <SelectTrigger className="w-16 h-8">
-            <Type className="h-4 w-4" />
+          <SelectTrigger className="h-8 w-[80px] text-xs">
+            <SelectValue placeholder="Tamaño" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="1">8pt</SelectItem>
-            <SelectItem value="2">10pt</SelectItem>
-            <SelectItem value="3">12pt</SelectItem>
-            <SelectItem value="4">14pt</SelectItem>
-            <SelectItem value="5">18pt</SelectItem>
-            <SelectItem value="6">24pt</SelectItem>
-            <SelectItem value="7">36pt</SelectItem>
+            {FONT_SIZES.map((size) => (
+              <SelectItem key={size.value} value={size.value} className="text-xs">
+                {size.label}
+              </SelectItem>
+            ))}
           </SelectContent>
         </Select>
 
+        <Separator orientation="vertical" className="h-6" />
+
+        {/* Negrita, Cursiva, Subrayado */}
+        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => exec("bold")}>
+          <Bold className="h-4 w-4" />
+        </Button>
+        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => exec("italic")}>
+          <Italic className="h-4 w-4" />
+        </Button>
+        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => exec("underline")}>
+          <Underline className="h-4 w-4" />
+        </Button>
+
+        <Separator orientation="vertical" className="h-6" />
+
         {/* Color */}
-        <ColorPicker
-          onColorSelect={(c) => {
-            saveSelection();
-            exec("foreColor", c);
-          }}
-        />
+        <Popover>
+          <PopoverTrigger asChild>
+            <Button variant="ghost" size="icon" className="h-8 w-8" onClick={saveSelection}>
+              <Type className="h-4 w-4" />
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-auto p-3">
+            <ColorPicker
+              onColorSelect={(color) => {
+                restoreSelection();
+                exec("foreColor", color);
+              }}
+            />
+          </PopoverContent>
+        </Popover>
 
         <Separator orientation="vertical" className="h-6" />
 
         {/* Alineación */}
-        <Button variant="ghost" size="sm" onMouseDown={(e) => e.preventDefault()} onClick={() => exec("justifyLeft")}>
+        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => exec("justifyLeft")}>
           <AlignLeft className="h-4 w-4" />
         </Button>
-        <Button variant="ghost" size="sm" onMouseDown={(e) => e.preventDefault()} onClick={() => exec("justifyCenter")}>
+        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => exec("justifyCenter")}>
           <AlignCenter className="h-4 w-4" />
         </Button>
-        <Button variant="ghost" size="sm" onMouseDown={(e) => e.preventDefault()} onClick={() => exec("justifyRight")}>
+        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => exec("justifyRight")}>
           <AlignRight className="h-4 w-4" />
         </Button>
 
         <Separator orientation="vertical" className="h-6" />
 
-        {/* Enlace */}
+        {/* Link */}
         <Popover open={showLinkPopover} onOpenChange={setShowLinkPopover}>
           <PopoverTrigger asChild>
-            <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onMouseDown={(e) => e.preventDefault()}>
+            <Button variant="ghost" size="icon" className="h-8 w-8" onClick={saveSelection}>
               <LinkIcon className="h-4 w-4" />
             </Button>
           </PopoverTrigger>
@@ -710,83 +461,72 @@ export function RichTextEditor({ value, onChange, placeholder, allowDrop = false
               <Label htmlFor="link-url">URL del enlace</Label>
               <Input
                 id="link-url"
+                placeholder="https://ejemplo.com"
                 value={linkUrl}
                 onChange={(e) => setLinkUrl(e.target.value)}
-                placeholder="https://ejemplo.com"
                 onKeyDown={(e) => {
                   if (e.key === "Enter") {
                     e.preventDefault();
-                    if (linkUrl.trim()) exec("createLink", linkUrl);
-                    setShowLinkPopover(false);
-                    setLinkUrl("");
+                    insertLink();
                   }
                 }}
               />
-              <Button
-                size="sm"
-                onClick={() => {
-                  if (linkUrl.trim()) exec("createLink", linkUrl);
-                  setShowLinkPopover(false);
-                  setLinkUrl("");
-                }}
-              >
-                Insertar enlace
+              <Button onClick={insertLink} size="sm" className="w-full">
+                Insertar
               </Button>
             </div>
           </PopoverContent>
         </Popover>
 
-        <Button variant="ghost" size="sm" onClick={insertImage}>
+        {/* Imagen */}
+        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={insertImage}>
           <ImageIcon className="h-4 w-4" />
         </Button>
       </div>
 
       {/* Editor */}
-      <div className="relative">
-        <style>{`
-          .editable-image-wrapper {
-            border: 2px solid transparent;
-            transition: border-color 0.2s, box-shadow 0.2s;
-            resize: both;
-            overflow: hidden;
-            max-width: 100%;
-            display: inline-block;
-            position: relative;
-            user-select: none;
-            contain: content;
-            box-sizing: border-box;
-          }
-          .editable-image-wrapper:hover {
-            border-color: hsl(var(--primary));
-            box-shadow: 0 0 0 2px hsl(var(--primary) / 0.2);
-          }
-          .prose :where(img){ max-width:none; }
-        `}</style>
+      <div
+        ref={editorRef}
+        contentEditable
+        suppressContentEditableWarning
+        onInput={handleInput}
+        onFocus={saveSelection}
+        onMouseUp={saveSelection}
+        onKeyUp={saveSelection}
+        className="min-h-[200px] rounded-md border bg-background p-4 focus:outline-none focus:ring-2 focus:ring-ring"
+        style={{ whiteSpace: "pre-wrap", wordWrap: "break-word" }}
+        data-placeholder={placeholder}
+      />
 
-        <div
-          ref={editorRef}
-          contentEditable
-          onInput={handleContentChange}
-          onPaste={handlePaste}
-          onDragOver={handleDragOver}
-          onDrop={handleDrop}
-          onMouseUp={saveSelection}
-          onKeyUp={saveSelection}
-          className="min-h-[200px] p-4 focus:outline-none prose prose-sm max-w-none"
-          style={{ whiteSpace: "pre-wrap", wordBreak: "break-word" }}
-          suppressContentEditableWarning
-        />
-
-        <input
-          type="file"
-          ref={fileInputRef}
-          accept="image/*"
-          onChange={handleImageUpload}
-          style={{ display: "none" }}
-        />
-
-        {!value && <div className="absolute top-4 left-4 text-muted-foreground pointer-events-none">{placeholder}</div>}
-      </div>
+      <style>{`
+        [contenteditable][data-placeholder]:empty:before {
+          content: attr(data-placeholder);
+          color: hsl(var(--muted-foreground));
+          pointer-events: none;
+        }
+        [data-field-key] {
+          display: inline-flex;
+          align-items: center;
+          background: hsl(var(--primary) / 0.1);
+          border: 1px solid hsl(var(--primary) / 0.3);
+          border-radius: 4px;
+          padding: 2px 6px;
+          margin: 0 2px;
+          font-size: inherit;
+          font-family: inherit;
+          color: inherit;
+          vertical-align: baseline;
+        }
+        [data-remove-badge] {
+          margin-left: 4px;
+          cursor: pointer;
+          color: hsl(var(--primary));
+          font-weight: bold;
+        }
+        [data-remove-badge]:hover {
+          color: hsl(var(--destructive));
+        }
+      `}</style>
     </div>
   );
 }
