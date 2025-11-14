@@ -355,22 +355,15 @@ export function RichTextEditor({ value, onChange, placeholder, allowDrop = false
     if (!allowDrop) return;
     e.preventDefault();
     
-    // Try to get HTML data first, then fall back to plain text
     const htmlData = e.dataTransfer.getData("text/html");
     const textData = e.dataTransfer.getData("text/plain");
-    const dataToInsert = htmlData || textData;
-    
-    if (!dataToInsert) return;
+    if (!htmlData && !textData) return;
 
-    // Get the drop position using coordinates
+    // Compute drop caret position
     let range: Range | null = null;
-    
-    // Try Chrome/Safari method
     if (document.caretRangeFromPoint) {
       range = document.caretRangeFromPoint(e.clientX, e.clientY);
-    } 
-    // Try Firefox method
-    else if ((document as any).caretPositionFromPoint) {
+    } else if ((document as any).caretPositionFromPoint) {
       const position = (document as any).caretPositionFromPoint(e.clientX, e.clientY);
       if (position) {
         range = document.createRange();
@@ -379,40 +372,76 @@ export function RichTextEditor({ value, onChange, placeholder, allowDrop = false
       }
     }
 
+    const editor = editorRef.current;
+    if (!editor) return;
+
+    // Fallback to end of content
     if (!range) {
-      // Fallback: insert at the end
-      editorRef.current?.focus();
+      editor.focus();
       const sel = window.getSelection();
       if (sel) {
-        sel.selectAllChildren(editorRef.current!);
+        sel.selectAllChildren(editor);
         sel.collapseToEnd();
+        range = sel.getRangeAt(0);
       }
-      
-      if (htmlData) {
-        document.execCommand("insertHTML", false, htmlData);
-      } else {
-        document.execCommand("insertText", false, textData);
-      }
-
-      normalizeBadges();
-      handleContentChange();
-      return;
     }
+    if (!range) return;
 
-    // Set selection to the drop position
+    // Helper to clean wrapper blocks and stray breaks/whitespace
+    const sanitizeNode = (node: Node): Node | null => {
+      if (node.nodeType === Node.TEXT_NODE) {
+        // Keep non-empty text, drop pure whitespace line-breaks
+        return (node.textContent || "").trim() === "" ? null : node;
+      }
+      if (node instanceof HTMLElement) {
+        // If wrapped in P/DIV containing only our badge, unwrap
+        if ((node.tagName === "P" || node.tagName === "DIV") && node.childNodes.length === 1) {
+          const only = node.childNodes[0] as Node;
+          if (only instanceof HTMLElement && only.hasAttribute("data-field-key")) {
+            return only;
+          }
+        }
+        // Remove leading/trailing BRs inside containers
+        while (node.firstChild && node.firstChild.nodeType === Node.ELEMENT_NODE && (node.firstChild as Element).tagName === 'BR') {
+          node.removeChild(node.firstChild);
+        }
+        while (node.lastChild && node.lastChild.nodeType === Node.ELEMENT_NODE && (node.lastChild as Element).tagName === 'BR') {
+          node.removeChild(node.lastChild);
+        }
+        return node;
+      }
+      return null;
+    };
+
+    // Insert content manually to avoid browser adding block paragraphs
     const sel = window.getSelection();
     if (!sel) return;
-    
-    sel.removeAllRanges();
-    sel.addRange(range);
 
-    // Insert the data at the drop position
+    range.deleteContents();
+
     if (htmlData) {
-      document.execCommand("insertHTML", false, htmlData);
+      const container = document.createElement('div');
+      container.innerHTML = htmlData;
+      const fragment = document.createDocumentFragment();
+      Array.from(container.childNodes).forEach((n) => {
+        const clean = sanitizeNode(n.cloneNode(true));
+        if (clean) fragment.appendChild(clean);
+      });
+      range.insertNode(fragment);
     } else {
-      document.execCommand("insertText", false, textData);
+      range.insertNode(document.createTextNode(textData));
     }
-    
+
+    // Move caret to end of inserted content
+    sel.removeAllRanges();
+    const newRange = document.createRange();
+    if (range.endContainer) {
+      newRange.setStartAfter(range.endContainer);
+      newRange.collapse(true);
+      sel.addRange(newRange);
+    }
+
+    // Cleanup any accidental breaks around badges
     normalizeBadges();
     handleContentChange();
   };
