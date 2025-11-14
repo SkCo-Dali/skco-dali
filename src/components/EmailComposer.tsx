@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
@@ -9,6 +9,7 @@ import { EmailTemplate, DynamicField } from "@/types/email";
 import { RichTextEditor } from "@/components/RichTextEditor";
 import { EmailWritingAssistant } from "@/components/EmailWritingAssistant";
 import { EmailSignatureDialog } from "@/components/EmailSignatureDialog";
+import { DynamicFieldInput } from "@/components/DynamicFieldInput";
 
 interface EmailComposerProps {
   template: EmailTemplate;
@@ -30,7 +31,6 @@ export function EmailComposer({
   const [showFieldsList, setShowFieldsList] = useState(false);
   const [showSignatureDialog, setShowSignatureDialog] = useState(false);
   const [draggedField, setDraggedField] = useState<DynamicField | null>(null);
-  const subjectInputRef = useRef<HTMLInputElement>(null);
 
   const insertDynamicField = (field: DynamicField, targetField: "subject" | "htmlContent" | "plainContent") => {
     const fieldTag = `{${field.key}}`;
@@ -41,9 +41,11 @@ export function EmailComposer({
         subject: template.subject + fieldTag,
       });
     } else if (targetField === "htmlContent") {
+      // Insert field tag wrapped in a styled badge for visual representation
+      const badgeHtml = `<span style="display: inline-block; background-color: #dbeafe; color: #1e40af; padding: 2px 8px; border-radius: 12px; font-size: 0.875rem; font-weight: 500; margin: 0 2px;">${fieldTag}</span>&nbsp;`;
       onTemplateChange({
         ...template,
-        htmlContent: template.htmlContent + fieldTag,
+        htmlContent: template.htmlContent + badgeHtml,
       });
     } else {
       onTemplateChange({
@@ -106,7 +108,13 @@ export function EmailComposer({
   const handleDragStart = (field: DynamicField) => (e: React.DragEvent) => {
     setDraggedField(field);
     e.dataTransfer.effectAllowed = "copy";
+    
+    // Set plain text for plain text contexts
     e.dataTransfer.setData("text/plain", `{${field.key}}`);
+    
+    // Set HTML with badge styling for rich text contexts
+    const badgeHtml = `<span style="display: inline-block; background-color: #dbeafe; color: #1e40af; padding: 2px 8px; border-radius: 12px; font-size: 0.875rem; font-weight: 500; margin: 0 2px;">{${field.key}}</span>&nbsp;`;
+    e.dataTransfer.setData("text/html", badgeHtml);
   };
 
   const handleDragEnd = () => {
@@ -122,21 +130,11 @@ export function EmailComposer({
     e.preventDefault();
     if (!draggedField) return;
 
-    const input = subjectInputRef.current;
-    if (!input) return;
-
     const fieldTag = `{${draggedField.key}}`;
-    const cursorPosition = input.selectionStart || template.subject.length;
-    const newSubject = template.subject.slice(0, cursorPosition) + fieldTag + template.subject.slice(cursorPosition);
+    const newSubject = template.subject + fieldTag;
 
     onTemplateChange({ ...template, subject: newSubject });
     setDraggedField(null);
-
-    setTimeout(() => {
-      input.focus();
-      const newPosition = cursorPosition + fieldTag.length;
-      input.setSelectionRange(newPosition, newPosition);
-    }, 0);
   };
 
   return (
@@ -211,18 +209,15 @@ export function EmailComposer({
 
           <div>
             <Label htmlFor="subject">Asunto del Email</Label>
-            <Input
-              ref={subjectInputRef}
-              id="subject"
+            <DynamicFieldInput
               value={template.subject}
-              onChange={(e) => onTemplateChange({ ...template, subject: e.target.value })}
-              onDragOver={handleSubjectDragOver}
-              onDrop={handleSubjectDrop}
+              onChange={(newSubject) => onTemplateChange({ ...template, subject: newSubject })}
               placeholder="Ej: Bienvenido {name} a Skandia"
-              className="mt-2"
+              dynamicFields={dynamicFields}
+              onDrop={handleSubjectDrop}
             />
             <p className="text-sm text-muted-foreground mt-1">
-              Usa {`{name}, {email}, {company}`} etc. para personalizar
+              Arrastra campos dinámicos para personalizar
             </p>
           </div>
 
