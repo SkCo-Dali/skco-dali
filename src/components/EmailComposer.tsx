@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { Plus, FileSignature } from "lucide-react";
 import { EmailTemplate, DynamicField } from "@/types/email";
 import { RichTextEditor } from "@/components/RichTextEditor";
@@ -188,12 +189,12 @@ export function EmailComposer({
                 {dynamicFields.map((field) => {
                   const colors = getFieldColor(field.key);
                   return (
-                    <div
+                    <Badge
                       key={field.key}
                       draggable
                       onDragStart={handleDragStart(field)}
                       onDragEnd={handleDragEnd}
-                      className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold cursor-move transition-opacity hover:opacity-80"
+                      className="cursor-move transition-opacity hover:opacity-80"
                       style={{ 
                         backgroundColor: colors.bg, 
                         color: colors.text,
@@ -201,7 +202,7 @@ export function EmailComposer({
                       title={`Arrastra al asunto o contenido. Ejemplo: ${field.example}`}
                     >
                       {field.label}
-                    </div>
+                    </Badge>
                   );
                 })}
               </div>

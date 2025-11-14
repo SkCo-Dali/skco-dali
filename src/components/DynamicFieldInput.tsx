@@ -35,18 +35,6 @@ function serializeEditor(root: HTMLElement): string {
   return result;
 }
 
-// Color mapping for each field type
-const fieldColors: Record<string, { bg: string; text: string }> = {
-  firstName: { bg: "#dbeafe", text: "#1e40af" }, // azul
-  name: { bg: "#e5e7eb", text: "#374151" }, // gris
-  company: { bg: "#fef3c7", text: "#92400e" }, // amarillo
-  phone: { bg: "#e9d5ff", text: "#6b21a8" }, // morado
-};
-
-const getFieldColor = (fieldKey: string) => {
-  return fieldColors[fieldKey] || { bg: "#e5e7eb", text: "#374151" };
-};
-
 // Render value -> HTML (badges for {key})
 function renderValueToHTML(value: string, fields: DynamicField[]): string {
   if (!value) return "";
@@ -58,12 +46,11 @@ function renderValueToHTML(value: string, fields: DynamicField[]): string {
         const key = match[1];
         const field = fields.find((f) => f.key === key);
         const label = field?.label || key;
-        const colors = getFieldColor(key);
         // contenteditable=false makes it atomic and non-editable
         return `
-          <span class="inline-flex items-center px-2 py-0.5 rounded-md text-sm select-none" data-field-key="${key}" contenteditable="false" style="display:inline-flex;white-space:nowrap;background-color:${colors.bg};color:${colors.text};">
+          <span class="inline-flex items-center px-2 py-0.5 rounded-md text-sm bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300 select-none" data-field-key="${key}" contenteditable="false" style="display:inline-flex;white-space:nowrap;">
             <span class="pointer-events-none">${label}</span>
-            <button type="button" data-remove-badge class="ml-1 opacity-70 hover:opacity-100" style="display:inline;">×</button>
+            <button type="button" data-remove-badge class="ml-1 hover:text-blue-900 dark:hover:text-blue-100" style="display:inline;">×</button>
           </span>
         `;
       }
@@ -150,12 +137,11 @@ export function DynamicFieldInput({
   };
 
   const createBadgeNode = (key: string, label: string): HTMLElement => {
-    const colors = getFieldColor(key);
     const span = document.createElement("span");
-    span.className = "inline-flex items-center px-2 py-0.5 rounded-md text-sm select-none";
+    span.className = "inline-flex items-center px-2 py-0.5 rounded-md text-sm bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300 select-none";
     span.setAttribute("data-field-key", key);
     span.setAttribute("contenteditable", "false");
-    span.style.cssText = `display:inline-flex;white-space:nowrap;background-color:${colors.bg};color:${colors.text};`;
+    span.style.cssText = "display:inline-flex;white-space:nowrap;";
 
     const labelSpan = document.createElement("span");
     labelSpan.className = "pointer-events-none";
@@ -164,7 +150,7 @@ export function DynamicFieldInput({
     const btn = document.createElement("button");
     btn.type = "button";
     btn.setAttribute("data-remove-badge", "");
-    btn.className = "ml-1 opacity-70 hover:opacity-100";
+    btn.className = "ml-1 hover:text-blue-900 dark:hover:text-blue-100";
     btn.style.cssText = "display:inline;";
     btn.textContent = "×";
 
