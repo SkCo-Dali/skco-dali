@@ -240,6 +240,31 @@ export function RichTextEditor({ value, onChange, placeholder, allowDrop = false
     // Identificar badges en la selección ANTES de modificar el DOM
     const selectedBadges = getSelectedBadges(range);
 
+    // Incluir badges que están justo en los bordes de la selección (al ser contenteditable=false
+    // a veces el Range no los incluye aunque visualmente estén seleccionados)
+    const edgeBadges: HTMLElement[] = [];
+    const collectEdgeBadge = (node: Node | null, atStart: boolean) => {
+      if (!node) return;
+      let element: HTMLElement | null = null;
+      if (node.nodeType === Node.ELEMENT_NODE) element = node as HTMLElement;
+      else if ((node as any).parentElement) element = (node as any).parentElement as HTMLElement;
+      const checkNode = (n: Node | null) => {
+        if (n && n.nodeType === Node.ELEMENT_NODE) {
+          const e = n as HTMLElement;
+          if (e.hasAttribute && e.hasAttribute('data-field-key')) edgeBadges.push(e);
+        }
+      };
+      if (element && element.hasAttribute && element.hasAttribute('data-field-key')) edgeBadges.push(element);
+      const sib = atStart ? (node as any).previousSibling : (node as any).nextSibling;
+      checkNode(sib);
+      const elSib = element ? (atStart ? element.previousElementSibling : element.nextElementSibling) : null;
+      checkNode(elSib as any);
+    };
+    collectEdgeBadge(range.startContainer, true);
+    collectEdgeBadge(range.endContainer, false);
+
+    const badgesToStyle = Array.from(new Set<HTMLElement>([...selectedBadges, ...edgeBadges]));
+
     // Guardar información de la selección antes del comando
     const startContainer = range.startContainer;
     const startOffset = range.startOffset;
