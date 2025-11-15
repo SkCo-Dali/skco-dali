@@ -141,17 +141,27 @@ export function RichTextEditor({ value, onChange, placeholder, allowDrop = false
 
   const saveSelection = useCallback(() => {
     const sel = window.getSelection();
-    if (sel && sel.rangeCount > 0) {
-      setSavedRange(sel.getRangeAt(0).cloneRange());
-    }
+    const editor = editorRef.current;
+    if (!editor || !sel || sel.rangeCount === 0) return;
+    const range = sel.getRangeAt(0);
+    if (range.collapsed) return;
+    const start = range.startContainer;
+    const end = range.endContainer;
+    if (!editor.contains(start) || !editor.contains(end)) return;
+    setSavedRange(range.cloneRange());
   }, []);
 
   const restoreSelection = useCallback(() => {
-    if (!savedRange) return;
+    const editor = editorRef.current;
+    if (!editor || !savedRange) return false;
+    const { startContainer, endContainer } = savedRange;
+    if (!startContainer.isConnected || !endContainer.isConnected) return false;
+    if (!editor.contains(startContainer) || !editor.contains(endContainer)) return false;
     const sel = window.getSelection();
-    if (!sel) return;
+    if (!sel) return false;
     sel.removeAllRanges();
     sel.addRange(savedRange);
+    return true;
   }, [savedRange]);
 
   const normalizeBadges = useCallback(() => {
@@ -214,12 +224,18 @@ export function RichTextEditor({ value, onChange, placeholder, allowDrop = false
     const editor = editorRef.current;
     if (!editor) return;
     
-    // Restaurar la selección guardada
-    restoreSelection();
-    const sel = window.getSelection();
-    if (!sel || sel.rangeCount === 0) return;
-    
-    const range = sel.getRangeAt(0);
+    // Usar selección actual si es válida; de lo contrario, intentar restaurar
+    let sel = window.getSelection();
+    let range: Range | null = null;
+    if (sel && sel.rangeCount > 0 && editor.contains(sel.anchorNode) && editor.contains(sel.focusNode)) {
+      range = sel.getRangeAt(0);
+    } else {
+      const restored = restoreSelection();
+      sel = window.getSelection();
+      if (!restored || !sel || sel.rangeCount === 0) return;
+      range = sel.getRangeAt(0);
+    }
+    if (!range) return;
     const selectedBadges = getSelectedBadges(range);
 
     // Aplicar estilo a los badges seleccionados
@@ -579,13 +595,13 @@ export function RichTextEditor({ value, onChange, placeholder, allowDrop = false
         <Separator orientation="vertical" className="h-6" />
 
         {/* Negrita, Cursiva, Subrayado */}
-        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => exec("bold")}>
+        <Button variant="ghost" size="icon" className="h-8 w-8" onMouseDown={saveSelection} onClick={() => exec("bold")}>
           <Bold className="h-4 w-4" />
         </Button>
-        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => exec("italic")}>
+        <Button variant="ghost" size="icon" className="h-8 w-8" onMouseDown={saveSelection} onClick={() => exec("italic")}>
           <Italic className="h-4 w-4" />
         </Button>
-        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => exec("underline")}>
+        <Button variant="ghost" size="icon" className="h-8 w-8" onMouseDown={saveSelection} onClick={() => exec("underline")}>
           <Underline className="h-4 w-4" />
         </Button>
 
@@ -611,13 +627,13 @@ export function RichTextEditor({ value, onChange, placeholder, allowDrop = false
         <Separator orientation="vertical" className="h-6" />
 
         {/* Alineación */}
-        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => exec("justifyLeft")}>
+        <Button variant="ghost" size="icon" className="h-8 w-8" onMouseDown={saveSelection} onClick={() => exec("justifyLeft")}>
           <AlignLeft className="h-4 w-4" />
         </Button>
-        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => exec("justifyCenter")}>
+        <Button variant="ghost" size="icon" className="h-8 w-8" onMouseDown={saveSelection} onClick={() => exec("justifyCenter")}>
           <AlignCenter className="h-4 w-4" />
         </Button>
-        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => exec("justifyRight")}>
+        <Button variant="ghost" size="icon" className="h-8 w-8" onMouseDown={saveSelection} onClick={() => exec("justifyRight")}>
           <AlignRight className="h-4 w-4" />
         </Button>
 
