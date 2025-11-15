@@ -1,0 +1,8 @@
+[
+  {"campaignId":"CMP-2025-Q4-GEN","advisorId":"A-1001","cuota":20,"leadsAsignados":150,"leadsAtendidos":132},
+  {"campaignId":"CMP-2025-Q4-GEN","advisorId":"A-1002","cuota":18,"leadsAsignados":120,"leadsAtendidos":100},
+  {"campaignId":"CMP-2025-Black","advisorId":"A-1001","cuota":10,"leadsAsignados":60,"leadsAtendidos":52},
+  {"campaignId":"CMP-2025-Black","advisorId":"A-1003","cuota":12,"leadsAsignados":80,"leadsAtendidos":70},
+  {"campaignId":"CMP-2025-Retail","advisorId":"A-1004","cuota":15,"leadsAsignados":90,"leadsAtendidos":72},
+  {"campaignId":"CMP-2025-Retail","advisorId":"A-1005","cuota":12,"leadsAsignados":70,"leadsAtendidos":65}
+]
