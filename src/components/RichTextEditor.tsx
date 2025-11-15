@@ -236,10 +236,9 @@ export function RichTextEditor({ value, onChange, placeholder, allowDrop = false
       range = sel.getRangeAt(0);
     }
     if (!range) return;
+    
+    // Identificar badges en la selección ANTES de modificar el DOM
     const selectedBadges = getSelectedBadges(range);
-
-    // Aplicar estilo a los badges seleccionados
-    selectedBadges.forEach((badge) => applyStyleToBadge(badge, cmd, val));
 
     // Guardar información de la selección antes del comando
     const startContainer = range.startContainer;
@@ -262,6 +261,14 @@ export function RichTextEditor({ value, onChange, placeholder, allowDrop = false
         
         if (node.nodeType === Node.ELEMENT_NODE) {
           const element = node as HTMLElement;
+          
+          // PRESERVAR badges (campos dinámicos) y aplicarles el fontSize
+          if (element.hasAttribute('data-field-key')) {
+            const clonedBadge = element.cloneNode(true) as HTMLElement;
+            // Aplicar fontSize al badge
+            clonedBadge.style.fontSize = val;
+            return clonedBadge;
+          }
           
           // Si es un span con fontSize, extraer solo su contenido
           if (element.tagName === 'SPAN' && element.style.fontSize) {
@@ -339,6 +346,15 @@ export function RichTextEditor({ value, onChange, placeholder, allowDrop = false
         } catch {}
       });
     } else {
+      // Para otros comandos (negrita, cursiva, etc.)
+      // Primero aplicar estilo a los badges
+      selectedBadges.forEach((badge) => {
+        // Temporalmente hacer editables para que puedan recibir el estilo
+        badge.setAttribute('contenteditable', 'true');
+        applyStyleToBadge(badge, cmd, val);
+        badge.setAttribute('contenteditable', 'false');
+      });
+      
       // Aplicar estilo al texto usando execCommand
       if (cmd === "fontName") {
         document.execCommand("styleWithCSS", false, "true");
