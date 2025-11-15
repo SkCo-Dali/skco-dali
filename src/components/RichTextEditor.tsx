@@ -84,6 +84,7 @@ export function RichTextEditor({ value, onChange, placeholder, allowDrop = false
   const [linkUrl, setLinkUrl] = useState("");
   const [showLinkPopover, setShowLinkPopover] = useState(false);
   const [savedRange, setSavedRange] = useState<Range | null>(null);
+  const [isDragOver, setIsDragOver] = useState(false);
 
   const FONT_FAMILIES = [
     { label: "Arial", value: "Arial, sans-serif" },
@@ -302,6 +303,55 @@ export function RichTextEditor({ value, onChange, placeholder, allowDrop = false
     normalizeBadges();
     handleContentChange();
   }, 100);
+
+  /* ===== Drag and Drop ===== */
+  const handleDragOver = useCallback((e: React.DragEvent) => {
+    if (!allowDrop) return;
+    e.preventDefault();
+    e.stopPropagation();
+    e.dataTransfer.dropEffect = "copy";
+    setIsDragOver(true);
+  }, [allowDrop]);
+
+  const handleDragLeave = useCallback((e: React.DragEvent) => {
+    if (!allowDrop) return;
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragOver(false);
+  }, [allowDrop]);
+
+  const handleDrop = useCallback((e: React.DragEvent) => {
+    if (!allowDrop) return;
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragOver(false);
+
+    const htmlData = e.dataTransfer.getData("text/html");
+    const textData = e.dataTransfer.getData("text/plain");
+
+    if (!htmlData && !textData) return;
+
+    // Get the drop position
+    const selection = window.getSelection();
+    if (!selection) return;
+
+    // Insert at drop position
+    const range = document.caretRangeFromPoint(e.clientX, e.clientY);
+    if (!range) return;
+
+    selection.removeAllRanges();
+    selection.addRange(range);
+
+    // Insert the HTML content (which includes the badge)
+    if (htmlData) {
+      document.execCommand("insertHTML", false, htmlData);
+    } else if (textData) {
+      document.execCommand("insertText", false, textData);
+    }
+
+    // Emit change
+    handleContentChange();
+  }, [allowDrop, handleContentChange]);
 
   /* ===== Paste events ===== */
   useEffect(() => {
@@ -558,7 +608,10 @@ export function RichTextEditor({ value, onChange, placeholder, allowDrop = false
         onFocus={saveSelection}
         onMouseUp={saveSelection}
         onKeyUp={saveSelection}
-        className="min-h-[200px] rounded-md border bg-background p-4 focus:outline-none focus:ring-2 focus:ring-ring"
+        onDragOver={handleDragOver}
+        onDragLeave={handleDragLeave}
+        onDrop={handleDrop}
+        className={`min-h-[200px] rounded-md border bg-background p-4 focus:outline-none focus:ring-2 focus:ring-ring ${isDragOver ? 'ring-2 ring-primary bg-primary/5' : ''}`}
         style={{ whiteSpace: "pre-wrap", wordWrap: "break-word" }}
         data-placeholder={placeholder}
       />
