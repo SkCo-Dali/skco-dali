@@ -150,6 +150,15 @@
     @apply font-bold;
   }
 
+  /* Base para contenido del editor de email */
+  .email-editor-content {
+    font-size: 12px;
+    line-height: 1.4;
+  }
+  .email-editor-content * {
+    line-height: inherit;
+  }
+
   /* Skandia Accordion V2 Styles */
   .sk-accordion-v2 {
     @apply w-full;
