@@ -49,42 +49,33 @@ export function useMassEmail() {
       phone: lead.phone || "",
     };
     
-    // Función para filtrar estilos y mantener solo los de formato (no visualización de badge)
-    const filterStyles = (styleString: string): string => {
-      const styleObj: Record<string, string> = {};
-      styleString.split(';').forEach(s => {
-        const [prop, val] = s.split(':').map(x => x.trim());
-        if (prop && val) {
-          // Mantener solo estilos de formato aplicados por el usuario
-          // Excluir estilos de visualización del badge
-          const allowedProps = ['font-weight', 'font-style', 'text-decoration', 'text-decoration-color', 'font-family', 'font-size', 'color'];
-          if (allowedProps.includes(prop)) {
-            styleObj[prop] = val;
-          }
-        }
-      });
-      
-      return Object.entries(styleObj)
-        .map(([k, v]) => `${k}: ${v}`)
-        .join('; ');
-    };
-    
-    // Reemplazar nodos de campos dinámicos de TipTap (formato: <span data-field-key="key">)
+    // Reemplazar nodos de campos dinámicos de TipTap con atributos data-*
     result = result.replace(
       /<span([^>]*data-field-key="([^"]+)"[^>]*)>([^<]*)<\/span>/g,
       (match, attributes, key, content) => {
         const value = fieldMap[key] || "";
         
-        // Extraer el atributo style si existe
-        const styleMatch = attributes.match(/style="([^"]*)"/);
-        const style = styleMatch ? styleMatch[1] : "";
+        // Extraer todos los atributos de formato
+        const boldMatch = attributes.match(/data-bold="true"/);
+        const italicMatch = attributes.match(/data-italic="true"/);
+        const underlineMatch = attributes.match(/data-underline="true"/);
+        const colorMatch = attributes.match(/data-color="([^"]*)"/);
+        const fontSizeMatch = attributes.match(/data-font-size="([^"]*)"/);
+        const fontFamilyMatch = attributes.match(/data-font-family="([^"]*)"/);
         
-        // Filtrar estilos para mantener solo los de formato
-        const filteredStyle = filterStyles(style);
+        // Construir estilos inline basados en los atributos
+        const styles: string[] = [];
+        
+        if (boldMatch) styles.push('font-weight: bold');
+        if (italicMatch) styles.push('font-style: italic');
+        if (underlineMatch) styles.push('text-decoration: underline; text-decoration-color: currentColor');
+        if (colorMatch && colorMatch[1]) styles.push(`color: ${colorMatch[1]}`);
+        if (fontSizeMatch && fontSizeMatch[1]) styles.push(`font-size: ${fontSizeMatch[1]}`);
+        if (fontFamilyMatch && fontFamilyMatch[1]) styles.push(`font-family: ${fontFamilyMatch[1]}`);
         
         // Si hay estilos de formato aplicados, envolver el valor en un span con esos estilos
-        if (filteredStyle) {
-          return `<span style="${filteredStyle}">${value}</span>`;
+        if (styles.length > 0) {
+          return `<span style="${styles.join('; ')}">${value}</span>`;
         }
         
         return value;

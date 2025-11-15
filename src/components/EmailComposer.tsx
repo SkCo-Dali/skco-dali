@@ -1,14 +1,15 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Plus, FileSignature } from "lucide-react";
+import { Plus, FileSignature, X } from "lucide-react";
 import { EmailTemplate, DynamicField } from "@/types/email";
 import { RichTextEditor } from "@/components/RichTextEditor";
 import { EmailWritingAssistant } from "@/components/EmailWritingAssistant";
 import { EmailSignatureDialog } from "@/components/EmailSignatureDialog";
 import { DynamicFieldInput } from "@/components/DynamicFieldInput";
+import { Editor } from '@tiptap/react';
 
 interface EmailComposerProps {
   template: EmailTemplate;
@@ -31,6 +32,7 @@ export function EmailComposer({
   const [showSignatureDialog, setShowSignatureDialog] = useState(false);
   const [draggedField, setDraggedField] = useState<DynamicField | null>(null);
   const [attachments, setAttachments] = useState<File[]>([]);
+  const editorRef = useRef<Editor | null>(null);
 
   // Color mapping for each field type
   const fieldColors: Record<string, { bg: string; text: string }> = {
@@ -121,15 +123,14 @@ export function EmailComposer({
     setDraggedField(field);
     e.dataTransfer.effectAllowed = "copy";
     
-    // Set plain text for plain text contexts
-    e.dataTransfer.setData("text/plain", `{${field.key}}`);
+    // Set data for drag and drop
+    e.dataTransfer.setData("fieldKey", field.key);
+    e.dataTransfer.setData("fieldLabel", field.label);
     
     // Get field-specific colors
     const colors = getFieldColor(field.key);
-    
-    // Set HTML with proper badge structure - inline without line breaks, with trailing space
-    const badgeHtml = `<span class="inline-flex items-center px-2 py-0.5 rounded-md text-sm" data-field-key="${field.key}" data-label="${field.label}" data-bg-color="${colors.bg}" data-text-color="${colors.text}" contenteditable="false" style="display:inline-flex;white-space:nowrap;user-select:all;vertical-align:baseline;line-height:1;background-color:${colors.bg};color:${colors.text};"><span class="pointer-events-none">${field.label}</span><button type="button" data-remove-badge class="ml-1 opacity-70 hover:opacity-100" style="display:inline;line-height:1;">×</button></span>&nbsp;`;
-    e.dataTransfer.setData("text/html", badgeHtml);
+    e.dataTransfer.setData("bgColor", colors.bg);
+    e.dataTransfer.setData("textColor", colors.text);
   };
 
   const handleDragEnd = () => {
@@ -152,6 +153,67 @@ export function EmailComposer({
     setDraggedField(null);
   };
 
+  const handleContentDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = "copy";
+  };
+
+  const handleContentDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    const fieldKey = e.dataTransfer.getData('fieldKey');
+    const fieldLabel = e.dataTransfer.getData('fieldLabel');
+    const bgColor = e.dataTransfer.getData('bgColor');
+    const textColor = e.dataTransfer.getData('textColor');
+    
+    if (fieldKey && editorRef.current) {
+      const editor = editorRef.current;
+      
+      // Get current marks from the editor to capture active formatting
+      const marks = editor.state.storedMarks || editor.state.selection.$from.marks();
+      const attrs: any = {
+        fieldKey,
+        label: fieldLabel,
+        bgColor,
+        textColor,
+      };
+
+      // Extract formatting from marks
+      marks.forEach((mark: any) => {
+        if (mark.type.name === 'bold') {
+          attrs.bold = true;
+        }
+        if (mark.type.name === 'italic') {
+          attrs.italic = true;
+        }
+        if (mark.type.name === 'underline') {
+          attrs.underline = true;
+        }
+        if (mark.type.name === 'textStyle') {
+          if (mark.attrs.color) attrs.color = mark.attrs.color;
+          if (mark.attrs.fontSize) attrs.fontSize = mark.attrs.fontSize;
+          if (mark.attrs.fontFamily) attrs.fontFamily = mark.attrs.fontFamily;
+        }
+      });
+
+      editor
+        .chain()
+        .focus()
+        .insertContent({
+          type: 'dynamicField',
+          attrs,
+        })
+        .run();
+    }
+  };
+
+  const handleAttachmentsChange = (newFiles: File[]) => {
+    setAttachments(prev => [...prev, ...newFiles]);
+  };
+
+  const handleRemoveAttachment = (index: number) => {
+    setAttachments(prev => prev.filter((_, i) => i !== index));
+  };
+
   return (
     <>
       <Card>
@@ -167,8 +229,11 @@ export function EmailComposer({
                 <FileSignature className="h-4 w-4 mr-2" />
                 Firmas
               </Button>
-
-              <Button variant="outline" size="sm" onClick={() => setShowFieldsList(!showFieldsList)}>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShowFieldsList(!showFieldsList)}
+              >
                 <Plus className="h-4 w-4 mr-2" />
                 Campos Dinámicos
               </Button>
@@ -176,16 +241,9 @@ export function EmailComposer({
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          {/* Asistente de Redacción con Dali 
-          <EmailWritingAssistant
-            currentSubject={template.subject}
-            currentContent={template.htmlContent}
-            onInsertText={handleInsertTextFromAssistant}
-          />*/}
           {showFieldsList && (
-            <Card className="p-4 bg-muted/50">
-              <h4 className="font-medium mb-3">Campos disponibles:</h4>
-              <div className="flex flex-wrap gap-2">
+            <Card className="bg-muted/30">
+              <div className="p-4 space-y-2">
                 {dynamicFields.map((field) => {
                   const colors = getFieldColor(field.key);
                   return (
@@ -194,9 +252,9 @@ export function EmailComposer({
                       draggable
                       onDragStart={handleDragStart(field)}
                       onDragEnd={handleDragEnd}
-                      className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold cursor-move transition-opacity hover:opacity-80"
-                      style={{ 
-                        backgroundColor: colors.bg, 
+                      className="inline-flex items-center px-3 py-1.5 rounded-lg text-sm font-medium cursor-move mr-2 mb-2 transition-transform hover:scale-105"
+                      style={{
+                        backgroundColor: colors.bg,
                         color: colors.text,
                       }}
                       title={`Arrastra al asunto o contenido. Ejemplo: ${field.example}`}
@@ -206,7 +264,7 @@ export function EmailComposer({
                   );
                 })}
               </div>
-              <p className="text-sm text-muted-foreground mt-2">
+              <p className="text-sm text-muted-foreground mt-2 px-4 pb-4">
                 Arrastra los campos al asunto o contenido del email para insertarlos
               </p>
             </Card>
@@ -243,49 +301,55 @@ export function EmailComposer({
             </p>
           </div>
 
-          <div>
+          <div
+            onDragOver={handleContentDragOver}
+            onDrop={handleContentDrop}
+          >
             <Label htmlFor="htmlContent">Contenido del Email</Label>
             <div className="mt-2">
               <RichTextEditor
                 value={template.htmlContent}
                 onChange={handleHtmlContentChange}
-                placeholder="Escribe el contenido de tu email aquí... Puedes usar las herramientas de formato y campos dinámicos como {name}"
-                allowDrop
-                onAttachmentsChange={(files) => {
-                  setAttachments((prev) => [...prev, ...files]);
-                }}
+                placeholder="Escribe el contenido de tu email aquí..."
+                onAttachmentsChange={handleAttachmentsChange}
+                editorRef={editorRef}
               />
             </div>
-            {attachments.length > 0 && (
-              <div className="mt-2">
-                <p className="text-sm font-medium mb-1">Archivos adjuntos:</p>
-                <div className="flex flex-wrap gap-2">
-                  {attachments.map((file, index) => (
-                    <div
-                      key={index}
-                      className="flex items-center gap-2 bg-muted px-2 py-1 rounded text-sm"
-                    >
-                      <span>{file.name}</span>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setAttachments((prev) => prev.filter((_, i) => i !== index));
-                        }}
-                        className="text-destructive hover:text-destructive/80"
-                      >
-                        ×
-                      </button>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
             <p className="text-sm text-muted-foreground mt-1">
-              Usa la barra de herramientas para dar formato a tu texto, insertar imágenes y agregar archivos adjuntos
+              Arrastra campos dinámicos aquí para insertarlos con formato
             </p>
           </div>
+
+          {attachments.length > 0 && (
+            <div className="space-y-2">
+              <Label>Archivos Adjuntos ({attachments.length})</Label>
+              <div className="space-y-1">
+                {attachments.map((file, index) => (
+                  <div
+                    key={index}
+                    className="flex items-center justify-between p-2 bg-muted rounded-md text-sm"
+                  >
+                    <span className="truncate flex-1">{file.name}</span>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleRemoveAttachment(index)}
+                    >
+                      <X className="h-4 w-4" />
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </CardContent>
       </Card>
+
+      <EmailWritingAssistant
+        currentSubject={template.subject}
+        currentContent={template.htmlContent}
+        onInsertText={handleInsertTextFromAssistant}
+      />
 
       <EmailSignatureDialog
         isOpen={showSignatureDialog}
