@@ -109,6 +109,20 @@ const Toolbar = ({ editor }: ToolbarProps) => {
 
   if (!editor) return null;
 
+  // Helper para cambiar tamaño de fuente limpiando estilos anteriores
+  const applyFontSize = (size: string | number) => {
+    if (!editor) return;
+    const sizePx = typeof size === 'number' ? `${size}px` : size;
+
+    editor
+      .chain()
+      .focus()
+      // limpiar cualquier textStyle previo en el rango seleccionado
+      .unsetMark('textStyle')
+      .setMark('textStyle', { fontSize: sizePx })
+      .run();
+  };
+
   // Obtener el tamaño de fuente actual del texto seleccionado
   const getCurrentFontSize = () => {
     const fontSize = editor.getAttributes('textStyle').fontSize;
@@ -195,7 +209,7 @@ const Toolbar = ({ editor }: ToolbarProps) => {
                   e.preventDefault();
                   const size = parseInt(fontSizeInput);
                   if (size >= 8 && size <= 72) {
-                    editor.chain().focus().setMark('textStyle', { fontSize: `${size}px` }).run();
+                    applyFontSize(size);
                     setShowFontSizePopover(false);
                     setFontSizeInput('');
                   }
@@ -218,7 +232,7 @@ const Toolbar = ({ editor }: ToolbarProps) => {
                   <button
                     key={size}
                     onClick={() => {
-                      editor.chain().focus().setMark('textStyle', { fontSize: size }).run();
+                      applyFontSize(size);
                       setShowFontSizePopover(false);
                       setFontSizeInput('');
                     }}
@@ -651,7 +665,7 @@ export function EmailBodyEditor({
       <div className="rounded-lg border shadow-sm overflow-hidden focus-within:ring-2 focus-within:ring-primary/20 transition-all">
         <Toolbar editor={editor} />
         <div className="bg-background">
-          <EditorContent editor={editor} />
+          <EditorContent editor={editor} className="email-editor-content" />
         </div>
 
         {/* Firma (read-only) */}
