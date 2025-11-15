@@ -10,6 +10,7 @@ import { EmailWritingAssistant } from "@/components/EmailWritingAssistant";
 import { EmailSignatureDialog } from "@/components/EmailSignatureDialog";
 import { DynamicFieldInput } from "@/components/DynamicFieldInput";
 import { Editor } from '@tiptap/react';
+import { useToast } from "@/hooks/use-toast";
 
 interface EmailComposerProps {
   template: EmailTemplate;
@@ -18,6 +19,8 @@ interface EmailComposerProps {
   isIndividual?: boolean;
   alternateEmail?: string;
   onAlternateEmailChange?: (email: string) => void;
+  attachments?: File[];
+  onAttachmentsChange?: (files: File[]) => void;
 }
 
 export function EmailComposer({
@@ -27,11 +30,13 @@ export function EmailComposer({
   isIndividual = false,
   alternateEmail = "",
   onAlternateEmailChange,
+  attachments = [],
+  onAttachmentsChange,
 }: EmailComposerProps) {
+  const { toast } = useToast();
   const [showFieldsList, setShowFieldsList] = useState(false);
   const [showSignatureDialog, setShowSignatureDialog] = useState(false);
   const [draggedField, setDraggedField] = useState<DynamicField | null>(null);
-  const [attachments, setAttachments] = useState<File[]>([]);
   const editorRef = useRef<Editor | null>(null);
 
   // Color mapping for each field type
@@ -210,11 +215,29 @@ export function EmailComposer({
   };
 
   const handleAttachmentsChange = (newFiles: File[]) => {
-    setAttachments(prev => [...prev, ...newFiles]);
+    const currentSize = attachments.reduce((sum, file) => sum + file.size, 0);
+    const newFilesSize = newFiles.reduce((sum, file) => sum + file.size, 0);
+    const totalSize = currentSize + newFilesSize;
+    
+    // Límite de 20 MB (20 * 1024 * 1024 bytes)
+    const MAX_SIZE = 20 * 1024 * 1024;
+    
+    if (totalSize > MAX_SIZE) {
+      toast({
+        title: "Límite de tamaño excedido",
+        description: `El tamaño total de los adjuntos no puede superar los 20 MB. Actualmente: ${(currentSize / 1024 / 1024).toFixed(2)} MB, intentando agregar: ${(newFilesSize / 1024 / 1024).toFixed(2)} MB`,
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    const updatedAttachments = [...attachments, ...newFiles];
+    onAttachmentsChange?.(updatedAttachments);
   };
 
   const handleRemoveAttachment = (index: number) => {
-    setAttachments(prev => prev.filter((_, i) => i !== index));
+    const updatedAttachments = attachments.filter((_, i) => i !== index);
+    onAttachmentsChange?.(updatedAttachments);
   };
 
   return (
