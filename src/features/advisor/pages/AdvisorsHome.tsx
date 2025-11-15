@@ -78,29 +78,22 @@ export const AdvisorsHome = () => {
   };
 
   return (
-    <div className="container mx-auto py-6 space-y-6">
+    <div className="w-full max-w-full px-4 py-4 space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <Users className="h-8 w-8 text-primary" />
-          <div>
-            <h1 className="text-3xl font-bold text-foreground">Ficha 360° de Asesores</h1>
-            <p className="text-sm text-muted-foreground">
-              Gestión integral de asesores y desempeño
-            </p>
-          </div>
+      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3 md:gap-4 mb-3 md:mb-4">
+        <div>
+          <h1 className="text-xl md:text-2xl lg:text-3xl font-bold mb-1 text-primary">
+            Ficha 360° de Asesores
+          </h1>
+          <p className="text-sm md:text-base text-muted-foreground">
+            Gestión integral de asesores y desempeño
+          </p>
         </div>
       </div>
 
       {/* Filters Card */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-lg flex items-center gap-2">
-            <Filter className="h-5 w-5" />
-            Filtros
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
+      <Card className="border-border/40 shadow-sm">
+        <CardContent className="pt-6">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <div className="md:col-span-2">
               <Input
@@ -149,20 +142,20 @@ export const AdvisorsHome = () => {
       </Card>
 
       {/* Table */}
-      <Card>
+      <Card className="border-border/40 shadow-sm">
         <CardContent className="p-0">
           <div className="overflow-x-auto">
             <Table>
               <TableHeader>
-                <TableRow>
-                  <TableHead>ID</TableHead>
-                  <TableHead>Documento</TableHead>
-                  <TableHead>Nombre</TableHead>
-                  <TableHead>Región</TableHead>
-                  <TableHead>Zona</TableHead>
-                  <TableHead>Jefe</TableHead>
-                  <TableHead>Canal</TableHead>
-                  <TableHead>Estado</TableHead>
+                <TableRow className="hover:bg-transparent border-b border-border/40">
+                  <TableHead className="font-semibold">ID</TableHead>
+                  <TableHead className="font-semibold">Documento</TableHead>
+                  <TableHead className="font-semibold">Nombre</TableHead>
+                  <TableHead className="font-semibold">Región</TableHead>
+                  <TableHead className="font-semibold">Zona</TableHead>
+                  <TableHead className="font-semibold">Jefe</TableHead>
+                  <TableHead className="font-semibold">Canal</TableHead>
+                  <TableHead className="font-semibold">Estado</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -170,32 +163,38 @@ export const AdvisorsHome = () => {
                   Array.from({ length: 5 }).map((_, idx) => (
                     <TableRow key={idx}>
                       <TableCell colSpan={8}>
-                        <Skeleton className="h-10 w-full" />
+                        <Skeleton className="h-12 w-full" />
                       </TableCell>
                     </TableRow>
                   ))
                 ) : advisors.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={8} className="text-center py-8">
-                      <p className="text-muted-foreground">
-                        No se encontraron asesores
-                      </p>
+                    <TableCell colSpan={8} className="text-center py-12">
+                      <div className="flex flex-col items-center gap-2">
+                        <Users className="h-12 w-12 text-muted-foreground/50" />
+                        <p className="text-muted-foreground font-medium">
+                          No se encontraron asesores
+                        </p>
+                        <p className="text-sm text-muted-foreground">
+                          Intenta ajustar los filtros de búsqueda
+                        </p>
+                      </div>
                     </TableCell>
                   </TableRow>
                 ) : (
                   advisors.map((advisor) => (
                     <TableRow
                       key={advisor.id}
-                      className="cursor-pointer hover:bg-muted/50"
+                      className="cursor-pointer hover:bg-primary/5 transition-colors border-b border-border/30"
                       onClick={() => handleRowClick(advisor)}
                     >
-                      <TableCell className="font-medium">{advisor.id}</TableCell>
-                      <TableCell>{advisor.doc}</TableCell>
-                      <TableCell>{advisor.nombre}</TableCell>
-                      <TableCell>{advisor.region}</TableCell>
-                      <TableCell>{advisor.zona}</TableCell>
-                      <TableCell>{advisor.jefe || "-"}</TableCell>
-                      <TableCell>{advisor.canal || "-"}</TableCell>
+                      <TableCell className="font-medium text-primary">{advisor.id}</TableCell>
+                      <TableCell className="text-foreground">{advisor.doc}</TableCell>
+                      <TableCell className="font-medium text-foreground">{advisor.nombre}</TableCell>
+                      <TableCell className="text-muted-foreground">{advisor.region}</TableCell>
+                      <TableCell className="text-muted-foreground">{advisor.zona}</TableCell>
+                      <TableCell className="text-muted-foreground">{advisor.jefe || "-"}</TableCell>
+                      <TableCell className="text-muted-foreground">{advisor.canal || "-"}</TableCell>
                       <TableCell>{getEstadoBadge(advisor.estado)}</TableCell>
                     </TableRow>
                   ))
