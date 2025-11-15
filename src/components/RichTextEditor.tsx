@@ -331,25 +331,54 @@ export function RichTextEditor({ value, onChange, placeholder, allowDrop = false
 
     if (!htmlData && !textData) return;
 
-    // Get the drop position
-    const selection = window.getSelection();
-    if (!selection) return;
+    const editor = editorRef.current;
+    if (!editor) return;
 
-    // Insert at drop position
-    const range = document.caretRangeFromPoint(e.clientX, e.clientY);
+    // Get the drop position
+    let range = document.caretRangeFromPoint?.(e.clientX, e.clientY);
+    
+    // Fallback for browsers that don't support caretRangeFromPoint
+    if (!range && document.caretPositionFromPoint) {
+      const position = document.caretPositionFromPoint(e.clientX, e.clientY);
+      if (position) {
+        range = document.createRange();
+        range.setStart(position.offsetNode, position.offset);
+        range.collapse(true);
+      }
+    }
+
     if (!range) return;
 
+    // Clear selection and set cursor at drop point
+    const selection = window.getSelection();
+    if (!selection) return;
+    
     selection.removeAllRanges();
     selection.addRange(range);
 
-    // Insert the HTML content (which includes the badge)
+    // Insert content as inline element without creating new blocks
     if (htmlData) {
-      document.execCommand("insertHTML", false, htmlData);
+      // Create a temporary container to parse the HTML
+      const temp = document.createElement('div');
+      temp.innerHTML = htmlData;
+      
+      // Get the badge element
+      const badge = temp.firstChild;
+      if (badge) {
+        // Insert the node directly at the cursor position
+        range.insertNode(badge);
+        
+        // Move cursor after the inserted badge
+        range.setStartAfter(badge);
+        range.collapse(true);
+        selection.removeAllRanges();
+        selection.addRange(range);
+      }
     } else if (textData) {
       document.execCommand("insertText", false, textData);
     }
 
-    // Emit change
+    editor.focus();
     handleContentChange();
   }, [allowDrop, handleContentChange]);
 
