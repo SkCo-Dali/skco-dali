@@ -57,7 +57,7 @@ export function useMassEmail() {
         if (prop && val) {
           // Mantener solo estilos de formato aplicados por el usuario
           // Excluir estilos de visualización del badge
-          const allowedProps = ['font-weight', 'font-style', 'text-decoration', 'font-family', 'font-size', 'color'];
+          const allowedProps = ['font-weight', 'font-style', 'text-decoration', 'text-decoration-color', 'font-family', 'font-size', 'color'];
           if (allowedProps.includes(prop)) {
             styleObj[prop] = val;
           }
@@ -69,12 +69,10 @@ export function useMassEmail() {
         .join('; ');
     };
     
-    // Primero reemplazar badges HTML (para contenido rich text)
-    // Buscar el badge completo con data-field-key (incluye spans anidados y botón X)
-    // IMPORTANTE: Mantener SOLO los estilos de formato, no los de visualización
+    // Reemplazar nodos de campos dinámicos de TipTap (formato: <span data-field-key="key">)
     result = result.replace(
-      /<span([^>]*data-field-key="([^"]+)"[^>]*)>(?:<span[^>]*>.*?<\/span>)?(?:<button[^>]*>.*?<\/button>)?<\/span>/g,
-      (match, attributes, key) => {
+      /<span([^>]*data-field-key="([^"]+)"[^>]*)>([^<]*)<\/span>/g,
+      (match, attributes, key, content) => {
         const value = fieldMap[key] || "";
         
         // Extraer el atributo style si existe

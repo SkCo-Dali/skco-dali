@@ -30,6 +30,7 @@ export function EmailComposer({
   const [showFieldsList, setShowFieldsList] = useState(false);
   const [showSignatureDialog, setShowSignatureDialog] = useState(false);
   const [draggedField, setDraggedField] = useState<DynamicField | null>(null);
+  const [attachments, setAttachments] = useState<File[]>([]);
 
   // Color mapping for each field type
   const fieldColors: Record<string, { bg: string; text: string }> = {
@@ -250,8 +251,35 @@ export function EmailComposer({
                 onChange={handleHtmlContentChange}
                 placeholder="Escribe el contenido de tu email aquí... Puedes usar las herramientas de formato y campos dinámicos como {name}"
                 allowDrop
+                onAttachmentsChange={(files) => {
+                  setAttachments((prev) => [...prev, ...files]);
+                }}
               />
             </div>
+            {attachments.length > 0 && (
+              <div className="mt-2">
+                <p className="text-sm font-medium mb-1">Archivos adjuntos:</p>
+                <div className="flex flex-wrap gap-2">
+                  {attachments.map((file, index) => (
+                    <div
+                      key={index}
+                      className="flex items-center gap-2 bg-muted px-2 py-1 rounded text-sm"
+                    >
+                      <span>{file.name}</span>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setAttachments((prev) => prev.filter((_, i) => i !== index));
+                        }}
+                        className="text-destructive hover:text-destructive/80"
+                      >
+                        ×
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
             <p className="text-sm text-muted-foreground mt-1">
               Usa la barra de herramientas para dar formato a tu texto, insertar imágenes y agregar archivos adjuntos
             </p>
