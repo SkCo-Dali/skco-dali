@@ -72,56 +72,103 @@ export const AdvisorProfile = () => {
   }
 
   return (
-    <div className="container mx-auto py-6 space-y-6">
+    <div className="w-full max-w-full px-4 py-4 space-y-6">
       {/* Header */}
-      <Card>
-        <CardHeader>
-          <div className="flex items-center gap-4">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => navigate("/ficha-360")}
-            >
-              <ArrowLeft className="h-5 w-5" />
-            </Button>
-            <div className="flex-1">
-              <CardTitle className="text-2xl">{currentAdvisor.nombre}</CardTitle>
-              <p className="text-sm text-muted-foreground mt-1">
-                {currentAdvisor.id} | Doc: {currentAdvisor.doc} | {currentAdvisor.region} - {currentAdvisor.zona}
-              </p>
-            </div>
+      <div className="flex items-center gap-4 mb-4">
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => navigate("/ficha-360")}
+          className="hover:bg-primary/10"
+        >
+          <ArrowLeft className="h-5 w-5" />
+        </Button>
+        <div className="flex-1">
+          <div className="flex items-center gap-3">
+            <h1 className="text-xl md:text-2xl font-bold text-foreground">
+              {currentAdvisor.nombre}
+            </h1>
+            <span className="text-sm text-muted-foreground">
+              {currentAdvisor.id}
+            </span>
           </div>
-        </CardHeader>
-      </Card>
+          <p className="text-sm text-muted-foreground mt-1">
+            Doc: {currentAdvisor.doc} | {currentAdvisor.region} - {currentAdvisor.zona}
+          </p>
+        </div>
+      </div>
+
+      {/* KPI Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <Card className="border-border/40 shadow-sm">
+          <CardContent className="pt-6">
+            <div className="space-y-2">
+              <p className="text-sm text-muted-foreground">Producción Mensual</p>
+              <p className="text-2xl font-bold text-foreground">$42.5M</p>
+              <p className="text-xs text-primary">+12.5% vs mes anterior</p>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="border-border/40 shadow-sm">
+          <CardContent className="pt-6">
+            <div className="space-y-2">
+              <p className="text-sm text-muted-foreground">Conversión</p>
+              <p className="text-2xl font-bold text-foreground">28.4%</p>
+              <p className="text-xs text-primary">+3.2% vs promedio</p>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="border-border/40 shadow-sm">
+          <CardContent className="pt-6">
+            <div className="space-y-2">
+              <p className="text-sm text-muted-foreground">Leads Activos</p>
+              <p className="text-2xl font-bold text-foreground">24</p>
+              <p className="text-xs text-muted-foreground">18 en seguimiento</p>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="border-border/40 shadow-sm">
+          <CardContent className="pt-6">
+            <div className="space-y-2">
+              <p className="text-sm text-muted-foreground">Meta del Mes</p>
+              <p className="text-2xl font-bold text-foreground">85%</p>
+              <p className="text-xs text-primary">En buen camino</p>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
 
       {/* Tabs */}
       <Tabs value={activeTab} onValueChange={handleTabChange}>
-        <TabsList className="grid w-full grid-cols-7">
-          <TabsTrigger value="resumen" className="gap-2">
+        <TabsList className="grid w-full grid-cols-7 bg-muted/30">
+          <TabsTrigger value="resumen" className="gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
             <User className="h-4 w-4" />
             <span className="hidden sm:inline">Resumen</span>
           </TabsTrigger>
-          <TabsTrigger value="ventas" className="gap-2">
+          <TabsTrigger value="ventas" className="gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
             <TrendingUp className="h-4 w-4" />
             <span className="hidden sm:inline">Ventas</span>
           </TabsTrigger>
-          <TabsTrigger value="formacion" className="gap-2">
+          <TabsTrigger value="formacion" className="gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
             <GraduationCap className="h-4 w-4" />
             <span className="hidden sm:inline">Formación</span>
           </TabsTrigger>
-          <TabsTrigger value="datos" className="gap-2">
+          <TabsTrigger value="datos" className="gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
             <FileText className="h-4 w-4" />
             <span className="hidden sm:inline">Datos</span>
           </TabsTrigger>
-          <TabsTrigger value="metas" className="gap-2">
+          <TabsTrigger value="metas" className="gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
             <Target className="h-4 w-4" />
             <span className="hidden sm:inline">Metas</span>
           </TabsTrigger>
-          <TabsTrigger value="historial" className="gap-2">
+          <TabsTrigger value="historial" className="gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
             <History className="h-4 w-4" />
             <span className="hidden sm:inline">Historial</span>
           </TabsTrigger>
-          <TabsTrigger value="campanas" className="gap-2">
+          <TabsTrigger value="campanas" className="gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
             <Megaphone className="h-4 w-4" />
             <span className="hidden sm:inline">Campañas</span>
           </TabsTrigger>
