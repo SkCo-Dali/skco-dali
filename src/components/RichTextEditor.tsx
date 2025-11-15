@@ -541,7 +541,15 @@ export function RichTextEditor({ value, onChange, placeholder, allowDrop = false
         {/* Tamaño */}
         <Popover>
           <PopoverTrigger asChild>
-            <Button variant="outline" size="sm" className="h-8 w-[80px] text-xs justify-between" onClick={saveSelection}>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="h-8 w-[80px] text-xs justify-between" 
+              onMouseDown={(e) => {
+                e.preventDefault();
+                saveSelection();
+              }}
+            >
               Tamaño
             </Button>
           </PopoverTrigger>
@@ -610,7 +618,15 @@ export function RichTextEditor({ value, onChange, placeholder, allowDrop = false
         {/* Color */}
         <Popover>
           <PopoverTrigger asChild>
-            <Button variant="ghost" size="icon" className="h-8 w-8" onClick={saveSelection}>
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              className="h-8 w-8" 
+              onMouseDown={(e) => {
+                e.preventDefault();
+                saveSelection();
+              }}
+            >
               <Type className="h-4 w-4" />
             </Button>
           </PopoverTrigger>
