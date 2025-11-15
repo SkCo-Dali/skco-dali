@@ -57,15 +57,17 @@ function ResizableImageComponent({ node, updateAttributes, selected }: NodeViewP
           break;
         case 'n':
         case 's':
-          // Top/bottom handles - adjust height
+          // Top/bottom handles - adjust height only (free resize)
           const deltaH = currentHandle === 's' ? deltaY : -deltaY;
           newHeight = Math.max(50, startPos.current.height + deltaH);
+          newWidth = startPos.current.width; // Keep width unchanged
           break;
         case 'w':
         case 'e':
-          // Left/right handles - adjust width
+          // Left/right handles - adjust width only (free resize)
           const deltaW = currentHandle === 'e' ? deltaX : -deltaX;
           newWidth = Math.max(50, startPos.current.width + deltaW);
+          newHeight = startPos.current.height; // Keep height unchanged
           break;
       }
 
@@ -99,12 +101,12 @@ function ResizableImageComponent({ node, updateAttributes, selected }: NodeViewP
 
   return (
     <NodeViewWrapper
-      as="div"
+      as="span"
       className="resizable-image-wrapper"
       style={{
         position: 'relative',
         display: 'inline-block',
-        maxWidth: '100%',
+        verticalAlign: 'bottom',
       }}
     >
       <img
@@ -114,8 +116,7 @@ function ResizableImageComponent({ node, updateAttributes, selected }: NodeViewP
         width={width || 'auto'}
         height={height || 'auto'}
         style={{
-          display: 'block',
-          maxWidth: '100%',
+          display: 'inline-block',
           outline: selected ? '2px solid #3b82f6' : 'none',
         }}
       />
@@ -167,7 +168,9 @@ function ResizableImageComponent({ node, updateAttributes, selected }: NodeViewP
 export const ResizableImageExtension = Node.create({
   name: 'image',
 
-  group: 'block',
+  group: 'inline',
+
+  inline: true,
 
   draggable: true,
 
