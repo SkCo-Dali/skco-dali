@@ -117,8 +117,11 @@ const Toolbar = ({ editor }: ToolbarProps) => {
     editor
       .chain()
       .focus()
-      // limpiar cualquier textStyle previo en el rango seleccionado
+      // Extiende la selección a TODO el rango donde exista textStyle
+      .extendMarkRange('textStyle')
+      // Limpia cualquier textStyle previo en ese rango completo
       .unsetMark('textStyle')
+      // Aplica el nuevo tamaño
       .setMark('textStyle', { fontSize: sizePx })
       .run();
   };
