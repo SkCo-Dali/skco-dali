@@ -115,6 +115,7 @@ export const getRolePermissions = (role: UserRole): RolePermissions => {
           "voice-insights",
           "calendar",
           "tasks",
+          "ficha-360",
         ],
       };
     case "manager":

@@ -115,6 +115,13 @@ const allMenuItems = [
     page: "voice-insights",
     customIcon: "https://skcoblobresources.blob.core.windows.net/digital-assets/icons/icon-skandia/sk_globo_p.svg",
   },
+  {
+    title: "Ficha 360",
+    url: "/ficha-360",
+    iconClass: "",
+    page: "ficha-360",
+    customIcon: "https://skcoblobresources.blob.core.windows.net/digital-assets/icons/icon-skandia/sk_profile_1_p.svg",
+  },
 ];
 
 const allAdminItems = [
@@ -124,13 +131,6 @@ const allAdminItems = [
     iconClass: "",
     page: "users",
     customIcon: "https://skcoblobresources.blob.core.windows.net/digital-assets/icons/icon-skandia/sk_grupo_1_p.svg",
-  },
-  {
-    title: "Ficha 360",
-    url: "/ficha-360",
-    iconClass: "",
-    page: "ficha-360",
-    customIcon: "https://skcoblobresources.blob.core.windows.net/digital-assets/icons/icon-skandia/sk_profile_1_p.svg",
   },
   { title: "Configuración", url: "/admin/settings", iconClass: "typcn typcn-cog", page: "settings" },
 ];
