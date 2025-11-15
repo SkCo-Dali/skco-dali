@@ -35,6 +35,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { useRef, useEffect } from 'react';
+import { Editor } from '@tiptap/react';
 
 interface RichTextEditorProps {
   value: string;
@@ -42,6 +43,7 @@ interface RichTextEditorProps {
   placeholder?: string;
   allowDrop?: boolean;
   onAttachmentsChange?: (files: File[]) => void;
+  editorRef?: React.MutableRefObject<Editor | null>;
 }
 
 const FONT_FAMILIES = [
@@ -61,6 +63,7 @@ export function RichTextEditor({
   placeholder = 'Escribe aquí...',
   allowDrop = false,
   onAttachmentsChange,
+  editorRef,
 }: RichTextEditorProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -107,6 +110,13 @@ export function RichTextEditor({
       editor.commands.setContent(value, { emitUpdate: false });
     }
   }, [value, editor]);
+
+  // Expose editor instance through ref
+  useEffect(() => {
+    if (editorRef && editor) {
+      editorRef.current = editor;
+    }
+  }, [editor, editorRef]);
 
   if (!editor) {
     return null;
