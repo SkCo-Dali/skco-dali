@@ -7,6 +7,7 @@ import {
   EmailLog,
   EmailLogsResponse,
   EmailTemplate,
+  EmailAttachment,
 } from "@/types/email";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
@@ -105,13 +106,38 @@ export function useMassEmail() {
       .trim();
   }, []);
 
+  const convertFileToBase64 = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => {
+        const base64 = (reader.result as string).split(',')[1];
+        resolve(base64);
+      };
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  };
+
   const generateEmailRecipients = useCallback(
-    (leads: Lead[], template: EmailTemplate, alternateEmail?: string): EmailRecipient[] => {
+    async (leads: Lead[], template: EmailTemplate, alternateEmail?: string, attachments?: File[]): Promise<EmailRecipient[]> => {
       console.log("📧 Generando recipients con template:", {
         subject: template.subject,
         htmlContentLength: template.htmlContent?.length,
         plainContentLength: template.plainContent?.length,
+        attachmentsCount: attachments?.length || 0,
       });
+
+      // Convertir archivos a base64 si hay adjuntos
+      let emailAttachments: EmailAttachment[] = [];
+      if (attachments && attachments.length > 0) {
+        emailAttachments = await Promise.all(
+          attachments.map(async (file) => ({
+            filename: file.name,
+            content: await convertFileToBase64(file),
+            contentType: file.type || 'application/octet-stream',
+          }))
+        );
+      }
 
       return leads.map((lead) => {
         const processedHtmlContent = replaceDynamicFields(template.htmlContent || '', lead);
@@ -120,7 +146,7 @@ export function useMassEmail() {
         // Para envíos individuales, usar el email alternativo si está especificado
         const targetEmail = leads.length === 1 && alternateEmail?.trim() ? alternateEmail.trim() : lead.email || "";
 
-        const recipient = {
+        const recipient: EmailRecipient = {
           LeadId: lead.id,
           Campaign: lead.campaign || "Sin campaña",
           to: targetEmail,
@@ -129,11 +155,16 @@ export function useMassEmail() {
           plain_content: processedPlainContent || convertHtmlToPlain(processedHtmlContent), // Usar plain o convertir HTML
         };
 
+        if (emailAttachments.length > 0) {
+          recipient.attachments = emailAttachments;
+        }
+
         console.log("📧 Recipient generado:", {
           to: recipient.to,
           subject: recipient.subject,
           html_content_length: recipient.html_content.length,
           plain_content_length: recipient.plain_content.length,
+          attachments_count: recipient.attachments?.length || 0,
         });
 
         return recipient;
@@ -171,12 +202,13 @@ export function useMassEmail() {
   }, []);
 
   const sendMassEmail = useCallback(
-    async (leads: Lead[], template: EmailTemplate, alternateEmail?: string): Promise<boolean> => {
+    async (leads: Lead[], template: EmailTemplate, alternateEmail?: string, attachments?: File[]): Promise<boolean> => {
       console.log("📧 === INICIANDO ENVÍO DE CORREOS MASIVOS ===");
       console.log("📧 Template recibido:", {
         subject: template.subject,
         htmlContentLength: template.htmlContent?.length || 0,
         plainContentLength: template.plainContent?.length || 0,
+        attachmentsCount: attachments?.length || 0,
         htmlPreview: template.htmlContent?.substring(0, 50),
       });
 
@@ -229,7 +261,7 @@ export function useMassEmail() {
       const startTime = Date.now();
 
       try {
-        const recipients = generateEmailRecipients(leads, template, alternateEmail);
+        const recipients = await generateEmailRecipients(leads, template, alternateEmail, attachments);
         let sentCount = 0;
         let failedCount = 0;
 
@@ -466,7 +498,6 @@ export function useMassEmail() {
     emailLogs,
     dynamicFields,
     replaceDynamicFields,
-    generateEmailRecipients,
     sendMassEmail,
     fetchEmailLogs,
     sendProgress,

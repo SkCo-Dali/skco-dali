@@ -1,4 +1,10 @@
 
+export interface EmailAttachment {
+  filename: string;
+  content: string; // base64 encoded
+  contentType: string;
+}
+
 export interface EmailRecipient {
   LeadId: string;
   Campaign: string;
@@ -6,6 +12,7 @@ export interface EmailRecipient {
   subject: string;
   html_content: string;
   plain_content: string;
+  attachments?: EmailAttachment[];
 }
 
 export interface EmailSendRequest {

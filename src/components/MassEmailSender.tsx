@@ -48,6 +48,8 @@ export function MassEmailSender({ filteredLeads, onClose }: MassEmailSenderProps
     htmlContent: '',
     plainContent: ''
   });
+  
+  const [attachments, setAttachments] = useState<File[]>([]);
 
   // Persistencia automática del borrador
   const { hasBackup, restoreFromStorage, clearBackup } = useFormPersistence({
@@ -149,7 +151,7 @@ export function MassEmailSender({ filteredLeads, onClose }: MassEmailSenderProps
     setShowConfirmation(false);
     setShowProgressModal(true);
     
-    const success = await sendMassEmail(leadsToSend, template, alternateEmail);
+    const success = await sendMassEmail(leadsToSend, template, alternateEmail, attachments);
     if (success) {
       handleSuccessfulSend();
     }
@@ -234,6 +236,8 @@ export function MassEmailSender({ filteredLeads, onClose }: MassEmailSenderProps
               onTemplateChange={setTemplate}
               dynamicFields={dynamicFields}
               isIndividual={validLeads.length === 1}
+              attachments={attachments}
+              onAttachmentsChange={setAttachments}
               alternateEmail={alternateEmail}
               onAlternateEmailChange={setAlternateEmail}
             />
