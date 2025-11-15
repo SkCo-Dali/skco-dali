@@ -202,46 +202,51 @@ export const DynamicFieldExtension = Node.create({
               // Get marks at current selection
               const marks = newState.storedMarks || selection.$from.marks();
               
+              // Create a set of active mark names
+              const activeMarkNames = new Set(marks.map((m: any) => m.type.name));
+              
               newState.doc.nodesBetween(from, to, (node, pos) => {
                 if (node.type.name === 'dynamicField') {
                   const attrs = { ...node.attrs };
                   let changed = false;
 
-                  // Update attributes based on marks
-                  marks.forEach(mark => {
-                    if (mark.type.name === 'bold') {
-                      if (!attrs.bold) {
-                        attrs.bold = true;
-                        changed = true;
-                      }
+                  // Check for bold - activate or deactivate
+                  const hasBoldMark = activeMarkNames.has('bold');
+                  if (hasBoldMark !== attrs.bold) {
+                    attrs.bold = hasBoldMark;
+                    changed = true;
+                  }
+
+                  // Check for italic - activate or deactivate
+                  const hasItalicMark = activeMarkNames.has('italic');
+                  if (hasItalicMark !== attrs.italic) {
+                    attrs.italic = hasItalicMark;
+                    changed = true;
+                  }
+
+                  // Check for underline - activate or deactivate
+                  const hasUnderlineMark = activeMarkNames.has('underline');
+                  if (hasUnderlineMark !== attrs.underline) {
+                    attrs.underline = hasUnderlineMark;
+                    changed = true;
+                  }
+
+                  // Update textStyle attributes (color, fontSize, fontFamily)
+                  const textStyleMark = marks.find((m: any) => m.type.name === 'textStyle');
+                  if (textStyleMark) {
+                    if (textStyleMark.attrs.color && attrs.color !== textStyleMark.attrs.color) {
+                      attrs.color = textStyleMark.attrs.color;
+                      changed = true;
                     }
-                    if (mark.type.name === 'italic') {
-                      if (!attrs.italic) {
-                        attrs.italic = true;
-                        changed = true;
-                      }
+                    if (textStyleMark.attrs.fontSize && attrs.fontSize !== textStyleMark.attrs.fontSize) {
+                      attrs.fontSize = textStyleMark.attrs.fontSize;
+                      changed = true;
                     }
-                    if (mark.type.name === 'underline') {
-                      if (!attrs.underline) {
-                        attrs.underline = true;
-                        changed = true;
-                      }
+                    if (textStyleMark.attrs.fontFamily && attrs.fontFamily !== textStyleMark.attrs.fontFamily) {
+                      attrs.fontFamily = textStyleMark.attrs.fontFamily;
+                      changed = true;
                     }
-                    if (mark.type.name === 'textStyle') {
-                      if (mark.attrs.color && attrs.color !== mark.attrs.color) {
-                        attrs.color = mark.attrs.color;
-                        changed = true;
-                      }
-                      if (mark.attrs.fontSize && attrs.fontSize !== mark.attrs.fontSize) {
-                        attrs.fontSize = mark.attrs.fontSize;
-                        changed = true;
-                      }
-                      if (mark.attrs.fontFamily && attrs.fontFamily !== mark.attrs.fontFamily) {
-                        attrs.fontFamily = mark.attrs.fontFamily;
-                        changed = true;
-                      }
-                    }
-                  });
+                  }
 
                   if (changed) {
                     tr.setNodeMarkup(pos, undefined, attrs);

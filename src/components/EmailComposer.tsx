@@ -168,6 +168,13 @@ export function EmailComposer({
     if (fieldKey && editorRef.current) {
       const editor = editorRef.current;
       
+      // Get drop position from the editor view
+      const view = editor.view;
+      const coords = { left: e.clientX, top: e.clientY };
+      const pos = view.posAtCoords(coords);
+      
+      if (!pos) return;
+      
       // Get current marks from the editor to capture active formatting
       const marks = editor.state.storedMarks || editor.state.selection.$from.marks();
       const attrs: any = {
@@ -195,14 +202,10 @@ export function EmailComposer({
         }
       });
 
-      editor
-        .chain()
-        .focus()
-        .insertContent({
-          type: 'dynamicField',
-          attrs,
-        })
-        .run();
+      // Insert at the drop position
+      const tr = editor.state.tr.insert(pos.pos, editor.schema.nodes.dynamicField.create(attrs));
+      editor.view.dispatch(tr);
+      editor.commands.focus();
     }
   };
 
