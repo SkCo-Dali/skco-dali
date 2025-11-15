@@ -250,52 +250,82 @@ export function RichTextEditor({ value, onChange, placeholder, allowDrop = false
     // Para fontSize, usar style directo en lugar de execCommand
     if (cmd === "fontSize" && val) {
       document.execCommand("styleWithCSS", false, "true");
-      // Envolver selección en span con fontSize
+      
+      // Extraer el contenido y limpiar spans anidados de fontSize
+      const fragment = range.extractContents();
+      
+      // Función para limpiar spans anidados y normalizar
+      const cleanFragment = (node: Node): Node => {
+        if (node.nodeType === Node.TEXT_NODE) {
+          return node.cloneNode(true);
+        }
+        
+        if (node.nodeType === Node.ELEMENT_NODE) {
+          const element = node as HTMLElement;
+          
+          // Si es un span con fontSize, extraer solo su contenido
+          if (element.tagName === 'SPAN' && element.style.fontSize) {
+            const cleaned = document.createDocumentFragment();
+            Array.from(element.childNodes).forEach(child => {
+              cleaned.appendChild(cleanFragment(child));
+            });
+            return cleaned;
+          }
+          
+          // Para otros elementos, clonar y limpiar sus hijos
+          const cloned = element.cloneNode(false) as HTMLElement;
+          Array.from(element.childNodes).forEach(child => {
+            const cleanedChild = cleanFragment(child);
+            if (cleanedChild.nodeType === Node.DOCUMENT_FRAGMENT_NODE) {
+              Array.from(cleanedChild.childNodes).forEach(n => cloned.appendChild(n));
+            } else {
+              cloned.appendChild(cleanedChild);
+            }
+          });
+          return cloned;
+        }
+        
+        return node.cloneNode(true);
+      };
+      
+      // Limpiar el fragmento
+      const cleanedFragment = document.createDocumentFragment();
+      Array.from(fragment.childNodes).forEach(child => {
+        const cleaned = cleanFragment(child);
+        if (cleaned.nodeType === Node.DOCUMENT_FRAGMENT_NODE) {
+          Array.from(cleaned.childNodes).forEach(n => cleanedFragment.appendChild(n));
+        } else {
+          cleanedFragment.appendChild(cleaned);
+        }
+      });
+      
+      // Crear nuevo span con el fontSize
       const span = document.createElement("span");
       span.style.fontSize = val;
       span.style.lineHeight = "normal";
-      try {
-        range.surroundContents(span);
-        // Restaurar selección dentro del span
-        const newRange = document.createRange();
-        newRange.selectNodeContents(span);
-        sel.removeAllRanges();
-        sel.addRange(newRange);
-        // Forzar reflow y re-aplicar selección en el próximo frame
-        void span.offsetHeight;
-        requestAnimationFrame(() => {
-          try {
-            const s = window.getSelection();
-            if (!s) return;
-            const r = document.createRange();
-            r.selectNodeContents(span);
-            s.removeAllRanges();
-            s.addRange(r);
-          } catch {}
-        });
-      } catch {
-        // Si falla surroundContents, insertar manualmente
-        const fragment = range.extractContents();
-        span.appendChild(fragment);
-        range.insertNode(span);
-        // Seleccionar el contenido del span
-        const newRange = document.createRange();
-        newRange.selectNodeContents(span);
-        sel.removeAllRanges();
-        sel.addRange(newRange);
-        // Forzar reflow y re-aplicar selección en el próximo frame
-        void span.offsetHeight;
-        requestAnimationFrame(() => {
-          try {
-            const s = window.getSelection();
-            if (!s) return;
-            const r = document.createRange();
-            r.selectNodeContents(span);
-            s.removeAllRanges();
-            s.addRange(r);
-          } catch {}
-        });
-      }
+      span.appendChild(cleanedFragment);
+      
+      // Insertar el span
+      range.insertNode(span);
+      
+      // Seleccionar el contenido del span
+      const newRange = document.createRange();
+      newRange.selectNodeContents(span);
+      sel.removeAllRanges();
+      sel.addRange(newRange);
+      
+      // Forzar reflow y re-aplicar selección
+      void span.offsetHeight;
+      requestAnimationFrame(() => {
+        try {
+          const s = window.getSelection();
+          if (!s) return;
+          const r = document.createRange();
+          r.selectNodeContents(span);
+          s.removeAllRanges();
+          s.addRange(r);
+        } catch {}
+      });
     } else {
       // Aplicar estilo al texto usando execCommand
       if (cmd === "fontName") {
