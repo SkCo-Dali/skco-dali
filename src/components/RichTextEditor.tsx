@@ -274,10 +274,22 @@ export function RichTextEditor({ value, onChange, placeholder, allowDrop = false
           
           // Para otros elementos, clonar y limpiar sus hijos
           const cloned = element.cloneNode(false) as HTMLElement;
+
+          // Limpiar estilos conflictivos que puedan inflar el line box
+          try {
+            cloned.style.lineHeight = '';
+            cloned.style.height = '';
+            (cloned.style as any).minHeight = '';
+            (cloned.style as any).maxHeight = '';
+            cloned.style.fontSize = '';
+          } catch {}
+
+          if (cloned.hasAttribute('size')) cloned.removeAttribute('size');
+
           Array.from(element.childNodes).forEach(child => {
             const cleanedChild = cleanFragment(child);
             if (cleanedChild.nodeType === Node.DOCUMENT_FRAGMENT_NODE) {
-              Array.from(cleanedChild.childNodes).forEach(n => cloned.appendChild(n));
+              Array.from((cleanedChild as DocumentFragment).childNodes).forEach(n => cloned.appendChild(n));
             } else {
               cloned.appendChild(cleanedChild);
             }
@@ -302,7 +314,7 @@ export function RichTextEditor({ value, onChange, placeholder, allowDrop = false
       // Crear nuevo span con el fontSize
       const span = document.createElement("span");
       span.style.fontSize = val;
-      span.style.lineHeight = "normal";
+      span.style.lineHeight = "inherit";
       span.appendChild(cleanedFragment);
       
       // Insertar el span
@@ -757,7 +769,7 @@ export function RichTextEditor({ value, onChange, placeholder, allowDrop = false
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
-        className={`min-h-[200px] rounded-md border bg-background p-4 focus:outline-none focus:ring-2 focus:ring-ring ${isDragOver ? 'ring-2 ring-primary bg-primary/5' : ''}`}
+        className={`email-editor-content min-h-[200px] rounded-md border bg-background p-4 focus:outline-none focus:ring-2 focus:ring-ring ${isDragOver ? 'ring-2 ring-primary bg-primary/5' : ''}`}
         style={{ whiteSpace: "pre-wrap", wordWrap: "break-word" }}
         data-placeholder={placeholder}
       />
