@@ -57,7 +57,7 @@ export function useMassEmail() {
         if (prop && val) {
           // Mantener solo estilos de formato aplicados por el usuario
           // Excluir estilos de visualización del badge
-          const allowedProps = ['font-weight', 'font-style', 'text-decoration', 'font-family', 'font-size'];
+          const allowedProps = ['font-weight', 'font-style', 'text-decoration', 'font-family', 'font-size', 'color'];
           if (allowedProps.includes(prop)) {
             styleObj[prop] = val;
           }
