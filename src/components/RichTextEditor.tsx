@@ -261,6 +261,18 @@ export function RichTextEditor({ value, onChange, placeholder, allowDrop = false
         newRange.selectNodeContents(span);
         sel.removeAllRanges();
         sel.addRange(newRange);
+        // Forzar reflow y re-aplicar selección en el próximo frame
+        void span.offsetHeight;
+        requestAnimationFrame(() => {
+          try {
+            const s = window.getSelection();
+            if (!s) return;
+            const r = document.createRange();
+            r.selectNodeContents(span);
+            s.removeAllRanges();
+            s.addRange(r);
+          } catch {}
+        });
       } catch {
         // Si falla surroundContents, insertar manualmente
         const fragment = range.extractContents();
@@ -271,6 +283,18 @@ export function RichTextEditor({ value, onChange, placeholder, allowDrop = false
         newRange.selectNodeContents(span);
         sel.removeAllRanges();
         sel.addRange(newRange);
+        // Forzar reflow y re-aplicar selección en el próximo frame
+        void span.offsetHeight;
+        requestAnimationFrame(() => {
+          try {
+            const s = window.getSelection();
+            if (!s) return;
+            const r = document.createRange();
+            r.selectNodeContents(span);
+            s.removeAllRanges();
+            s.addRange(r);
+          } catch {}
+        });
       }
     } else {
       // Aplicar estilo al texto usando execCommand
