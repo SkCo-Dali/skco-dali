@@ -724,29 +724,14 @@ export function RichTextEditor({ value, onChange, placeholder, allowDrop = false
         <Separator orientation="vertical" className="h-6" />
 
         {/* Color */}
-        <Popover>
-          <PopoverTrigger asChild>
-            <Button 
-              variant="ghost" 
-              size="icon" 
-              className="h-8 w-8" 
-              onMouseDown={(e) => {
-                e.preventDefault();
-                saveSelection();
-              }}
-            >
-              <Palette className="h-4 w-4" />
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent className="w-auto p-3">
-            <ColorPicker
-              onColorSelect={(color) => {
-                restoreSelection();
-                exec("foreColor", color);
-              }}
-            />
-          </PopoverContent>
-        </Popover>
+        <div onMouseDown={(e) => { e.preventDefault(); saveSelection(); }}>
+          <ColorPicker
+            onColorSelect={(color) => {
+              restoreSelection();
+              exec("foreColor", color);
+            }}
+          />
+        </div>
 
         <Separator orientation="vertical" className="h-6" />
 
