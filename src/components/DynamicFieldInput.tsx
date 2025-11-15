@@ -180,12 +180,17 @@ export function DynamicFieldInput({
     // Allow parent to react to drop if needed
     onDrop?.(e);
 
-    const plain = e.dataTransfer.getData("text/plain");
-    let key = "";
-    if (/^\{[^}]+\}$/.test(plain)) {
-      key = plain.slice(1, -1);
-    } else if (plain && dynamicFields.some((f) => f.key === plain)) {
-      key = plain;
+    // First try to get the fieldKey directly from dataTransfer
+    let key = e.dataTransfer.getData("fieldKey");
+    
+    // Fallback to parsing text/plain if fieldKey not found
+    if (!key) {
+      const plain = e.dataTransfer.getData("text/plain");
+      if (/^\{[^}]+\}$/.test(plain)) {
+        key = plain.slice(1, -1);
+      } else if (plain && dynamicFields.some((f) => f.key === plain)) {
+        key = plain;
+      }
     }
 
     // Get the exact drop position using coordinates
@@ -215,9 +220,12 @@ export function DynamicFieldInput({
       insertNodeAtCaret(badge);
       handleInput();
     } else {
-      // Fallback: insert raw text
-      insertNodeAtCaret(document.createTextNode(plain));
-      handleInput();
+      // Fallback: insert raw text if available
+      const plain = e.dataTransfer.getData("text/plain");
+      if (plain) {
+        insertNodeAtCaret(document.createTextNode(plain));
+        handleInput();
+      }
     }
   };
 
