@@ -12,7 +12,7 @@ import {
   AlignRight,
   Link as LinkIcon,
   Image as ImageIcon,
-  Type,
+  Palette,
 } from "lucide-react";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 import { Select, SelectTrigger, SelectContent, SelectValue, SelectItem } from "@/components/ui/select";
@@ -735,7 +735,7 @@ export function RichTextEditor({ value, onChange, placeholder, allowDrop = false
                 saveSelection();
               }}
             >
-              <Type className="h-4 w-4" />
+              <Palette className="h-4 w-4" />
             </Button>
           </PopoverTrigger>
           <PopoverContent className="w-auto p-3">
