@@ -34,7 +34,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { useRef } from 'react';
+import { useRef, useEffect } from 'react';
 
 interface RichTextEditorProps {
   value: string;
@@ -100,6 +100,13 @@ export function RichTextEditor({
       onChange(editor.getHTML());
     },
   });
+
+  // Sync external content changes (like signature insertion)
+  useEffect(() => {
+    if (editor && value !== editor.getHTML()) {
+      editor.commands.setContent(value, { emitUpdate: false });
+    }
+  }, [value, editor]);
 
   if (!editor) {
     return null;
