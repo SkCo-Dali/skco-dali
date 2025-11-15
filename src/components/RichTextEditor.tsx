@@ -253,6 +253,7 @@ export function RichTextEditor({ value, onChange, placeholder, allowDrop = false
       // Envolver selección en span con fontSize
       const span = document.createElement("span");
       span.style.fontSize = val;
+      span.style.lineHeight = "normal";
       try {
         range.surroundContents(span);
         // Restaurar selección dentro del span
