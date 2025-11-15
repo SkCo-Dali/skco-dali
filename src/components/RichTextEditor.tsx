@@ -209,11 +209,12 @@ export function RichTextEditor({ value, onChange, placeholder, allowDrop = false
     });
   };
 
-  // Función exec simplificada
+  // Función exec mejorada para preservar selección
   const exec = (cmd: string, val?: string) => {
     const editor = editorRef.current;
     if (!editor) return;
     
+    // Restaurar la selección guardada
     restoreSelection();
     const sel = window.getSelection();
     if (!sel || sel.rangeCount === 0) return;
@@ -224,6 +225,12 @@ export function RichTextEditor({ value, onChange, placeholder, allowDrop = false
     // Aplicar estilo a los badges seleccionados
     selectedBadges.forEach((badge) => applyStyleToBadge(badge, cmd, val));
 
+    // Guardar información de la selección antes del comando
+    const startContainer = range.startContainer;
+    const startOffset = range.startOffset;
+    const endContainer = range.endContainer;
+    const endOffset = range.endOffset;
+
     // Para fontSize, usar style directo en lugar de execCommand
     if (cmd === "fontSize" && val) {
       document.execCommand("styleWithCSS", false, "true");
@@ -232,11 +239,21 @@ export function RichTextEditor({ value, onChange, placeholder, allowDrop = false
       span.style.fontSize = val;
       try {
         range.surroundContents(span);
+        // Restaurar selección dentro del span
+        const newRange = document.createRange();
+        newRange.selectNodeContents(span);
+        sel.removeAllRanges();
+        sel.addRange(newRange);
       } catch {
         // Si falla surroundContents, insertar manualmente
         const fragment = range.extractContents();
         span.appendChild(fragment);
         range.insertNode(span);
+        // Seleccionar el contenido del span
+        const newRange = document.createRange();
+        newRange.selectNodeContents(span);
+        sel.removeAllRanges();
+        sel.addRange(newRange);
       }
     } else {
       // Aplicar estilo al texto usando execCommand
@@ -244,8 +261,21 @@ export function RichTextEditor({ value, onChange, placeholder, allowDrop = false
         document.execCommand("styleWithCSS", false, "true");
       }
       document.execCommand(cmd, false, val);
+      
+      // Intentar restaurar la selección después del comando
+      try {
+        const newRange = document.createRange();
+        newRange.setStart(startContainer, startOffset);
+        newRange.setEnd(endContainer, endOffset);
+        sel.removeAllRanges();
+        sel.addRange(newRange);
+      } catch {
+        // Si falla, mantener la selección actual
+      }
     }
     
+    // Guardar la nueva selección
+    saveSelection();
     editor.focus();
     runWhenIdle(handleContentChange);
   };
