@@ -1,5 +1,4 @@
-
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -8,6 +7,8 @@ import { RefreshCw, Eye, CheckCircle, Paperclip, ChevronLeft, ChevronRight } fro
 import { EmailLog, EmailLogDetail } from '@/types/email';
 import { formatBogotaDateTime } from "@/utils/dateUtils";
 import { EmailDetailDialog } from '@/components/EmailDetailDialog';
+import { EmailLogsFilters } from '@/components/EmailLogsFilters';
+import { EmailLogsKPIs } from '@/components/EmailLogsKPIs';
 
 interface EmailStatusLogsProps {
   logs: EmailLog[];
@@ -15,13 +16,72 @@ interface EmailStatusLogsProps {
   onRefresh: (page?: number, pageSize?: number) => void;
   onFetchDetail: (logId: string) => Promise<EmailLogDetail | null>;
   onDownloadAttachment: (logId: string, fileName: string) => Promise<void>;
+  onResendEmail?: (email: EmailLogDetail) => void;
 }
 
-export function EmailStatusLogs({ logs, isLoading, onRefresh, onFetchDetail, onDownloadAttachment }: EmailStatusLogsProps) {
+export function EmailStatusLogs({ logs, isLoading, onRefresh, onFetchDetail, onDownloadAttachment, onResendEmail }: EmailStatusLogsProps) {
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize] = useState(20);
   const [selectedEmailDetail, setSelectedEmailDetail] = useState<EmailLogDetail | null>(null);
   const [isLoadingDetail, setIsLoadingDetail] = useState(false);
+
+  // Filtros
+  const [searchTerm, setSearchTerm] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [campaignFilter, setCampaignFilter] = useState("all");
+  const [dateFrom, setDateFrom] = useState<Date | undefined>();
+  const [dateTo, setDateTo] = useState<Date | undefined>();
+
+  // Obtener campañas únicas
+  const uniqueCampaigns = useMemo(() => {
+    const campaigns = logs.map(log => log.Campaign).filter(Boolean);
+    return Array.from(new Set(campaigns));
+  }, [logs]);
+
+  // Aplicar filtros
+  const filteredLogs = useMemo(() => {
+    return logs.filter(log => {
+      // Búsqueda por texto
+      if (searchTerm) {
+        const search = searchTerm.toLowerCase();
+        const matchesEmail = log.ToEmail?.toLowerCase().includes(search);
+        const matchesSubject = log.Subject?.toLowerCase().includes(search);
+        if (!matchesEmail && !matchesSubject) return false;
+      }
+
+      // Filtro por estado
+      if (statusFilter !== 'all' && log.Status !== statusFilter) {
+        return false;
+      }
+
+      // Filtro por campaña
+      if (campaignFilter !== 'all' && log.Campaign !== campaignFilter) {
+        return false;
+      }
+
+      // Filtro por rango de fechas
+      if (dateFrom || dateTo) {
+        const logDate = new Date(log.CreatedAt);
+        if (dateFrom && logDate < dateFrom) return false;
+        if (dateTo) {
+          const endOfDay = new Date(dateTo);
+          endOfDay.setHours(23, 59, 59, 999);
+          if (logDate > endOfDay) return false;
+        }
+      }
+
+      return true;
+    });
+  }, [logs, searchTerm, statusFilter, campaignFilter, dateFrom, dateTo]);
+
+  const handleClearFilters = () => {
+    setSearchTerm("");
+    setStatusFilter("all");
+    setCampaignFilter("all");
+    setDateFrom(undefined);
+    setDateTo(undefined);
+    setCurrentPage(1);
+  };
 
   const getStatusColor = (status: EmailLog['Status']) => {
     switch (status) {
@@ -55,22 +115,50 @@ export function EmailStatusLogs({ logs, isLoading, onRefresh, onFetchDetail, onD
 
   return (
     <>
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center justify-between">
-            Historial de Correos Enviados
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handleRefresh}
-              disabled={isLoading}
-            >
-              <RefreshCw className={`h-4 w-4 mr-2 ${isLoading ? 'animate-spin' : ''}`} />
-              Actualizar
-            </Button>
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
+      <div className="space-y-6">
+        {/* KPIs */}
+        <EmailLogsKPIs logs={filteredLogs} />
+
+        {/* Filtros */}
+        <Card className="p-6">
+          <EmailLogsFilters
+            searchTerm={searchTerm}
+            onSearchChange={setSearchTerm}
+            statusFilter={statusFilter}
+            onStatusChange={setStatusFilter}
+            campaignFilter={campaignFilter}
+            onCampaignChange={setCampaignFilter}
+            dateFrom={dateFrom}
+            onDateFromChange={setDateFrom}
+            dateTo={dateTo}
+            onDateToChange={setDateTo}
+            campaigns={uniqueCampaigns}
+            onClearFilters={handleClearFilters}
+          />
+        </Card>
+
+        {/* Tabla */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center justify-between">
+              <div>
+                <h2 className="text-xl font-semibold">Historial de Correos Enviados</h2>
+                <p className="text-sm text-muted-foreground mt-1">
+                  Mostrando {filteredLogs.length} resultados
+                </p>
+              </div>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleRefresh}
+                disabled={isLoading}
+              >
+                <RefreshCw className={`h-4 w-4 mr-2 ${isLoading ? 'animate-spin' : ''}`} />
+                Actualizar
+              </Button>
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
           <div className="space-y-4">
 
             {/* Tabla de logs */}
@@ -103,7 +191,7 @@ export function EmailStatusLogs({ logs, isLoading, onRefresh, onFetchDetail, onD
                       </TableCell>
                     </TableRow>
                   ) : (
-                    logs.map((log) => (
+                    filteredLogs.map((log) => (
                       <TableRow 
                         key={log.Id} 
                         className="cursor-pointer hover:bg-muted/50"
@@ -185,6 +273,7 @@ export function EmailStatusLogs({ logs, isLoading, onRefresh, onFetchDetail, onD
           </div>
         </CardContent>
       </Card>
+      </div>
 
       <EmailDetailDialog
         email={selectedEmailDetail}
@@ -192,6 +281,7 @@ export function EmailStatusLogs({ logs, isLoading, onRefresh, onFetchDetail, onD
         onClose={() => setSelectedEmailDetail(null)}
         isLoading={isLoadingDetail}
         onDownloadAttachment={onDownloadAttachment}
+        onResendEmail={onResendEmail}
       />
     </>
   );

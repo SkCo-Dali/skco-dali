@@ -32,6 +32,7 @@ export function MassEmailSender({ filteredLeads, onClose }: MassEmailSenderProps
     fetchEmailLogs,
     fetchEmailLogDetail,
     downloadEmailAttachment,
+    resendEmail,
     sendProgress,
     sendEvents,
     pauseResumeSend,
@@ -303,6 +304,7 @@ export function MassEmailSender({ filteredLeads, onClose }: MassEmailSenderProps
                 onRefresh={fetchEmailLogs}
                 onFetchDetail={fetchEmailLogDetail}
                 onDownloadAttachment={downloadEmailAttachment}
+                onResendEmail={resendEmail}
               />
             </TabsContent>
           )}
