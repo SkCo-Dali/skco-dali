@@ -236,6 +236,7 @@ export function EmailTemplatesModal({
                     className="group relative cursor-pointer hover:shadow-lg transition-all duration-300 overflow-hidden"
                     onMouseEnter={() => setHoveredTemplate(template.id)}
                     onMouseLeave={() => setHoveredTemplate(null)}
+                    onClick={() => handleSelectTemplate(template)}
                   >
                     <div className="aspect-video bg-muted flex items-center justify-center overflow-hidden">
                       <div 
@@ -267,18 +268,21 @@ export function EmailTemplatesModal({
 
                     {hoveredTemplate === template.id && (
                       <div
-                        className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-background/95 backdrop-blur-sm p-4 overflow-auto"
+                        className="absolute inset-0 bg-background/98 backdrop-blur-sm p-4 overflow-auto z-10 flex flex-col"
+                        onClick={(e) => e.stopPropagation()}
                       >
-                        <div className="space-y-3">
+                        <div className="space-y-3 flex-1">
                           <div>
                             <h4 className="font-semibold text-base mb-1">{template.template_name}</h4>
                             <p className="text-sm text-muted-foreground">{template.subject}</p>
                           </div>
                           
-                          <div 
-                            className="text-xs prose prose-sm max-w-none"
-                            dangerouslySetInnerHTML={{ __html: template.html_content }}
-                          />
+                          <ScrollArea className="flex-1 max-h-[200px]">
+                            <div 
+                              className="text-xs prose prose-sm max-w-none pr-4"
+                              dangerouslySetInnerHTML={{ __html: template.html_content }}
+                            />
+                          </ScrollArea>
 
                           <div className="flex gap-2 pt-2">
                             <Button
@@ -293,7 +297,10 @@ export function EmailTemplatesModal({
                               <Button
                                 size="sm"
                                 variant="destructive"
-                                onClick={() => handleDeleteTemplate(template.id, template.template_name)}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleDeleteTemplate(template.id, template.template_name);
+                                }}
                               >
                                 <Trash2 className="h-4 w-4" />
                               </Button>
