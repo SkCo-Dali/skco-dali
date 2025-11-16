@@ -59,14 +59,6 @@ export function EmailTemplatesModal({
     }
   }, [open]);
 
-  useEffect(() => {
-    if (hoveredTemplate && autoplayPlugin.current) {
-      autoplayPlugin.current.stop();
-    } else if (!hoveredTemplate && autoplayPlugin.current) {
-      autoplayPlugin.current.play();
-    }
-  }, [hoveredTemplate]);
-
   const loadData = async () => {
     setIsLoading(true);
     try {
