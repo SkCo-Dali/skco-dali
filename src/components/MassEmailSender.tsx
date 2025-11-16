@@ -30,6 +30,8 @@ export function MassEmailSender({ filteredLeads, onClose }: MassEmailSenderProps
     replaceDynamicFields,
     sendMassEmail,
     fetchEmailLogs,
+    fetchEmailLogDetail,
+    downloadEmailAttachment,
     sendProgress,
     sendEvents,
     pauseResumeSend,
@@ -299,6 +301,8 @@ export function MassEmailSender({ filteredLeads, onClose }: MassEmailSenderProps
                 logs={emailLogs.filter(log => log.LeadId === validLeads[0]?.id)}
                 isLoading={isLoading}
                 onRefresh={fetchEmailLogs}
+                onFetchDetail={fetchEmailLogDetail}
+                onDownloadAttachment={downloadEmailAttachment}
               />
             </TabsContent>
           )}

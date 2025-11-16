@@ -5,26 +5,26 @@ import { Separator } from '@/components/ui/separator';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { CheckCircle, Eye, Calendar, User, Mail, FileText, Globe } from 'lucide-react';
-import { EmailLog } from '@/types/email';
-import { format } from 'date-fns';
-import { es } from 'date-fns/locale';
+import { CheckCircle, Eye, Calendar, User, Mail, FileText, Globe, Download, Paperclip } from 'lucide-react';
+import { EmailLogDetail } from '@/types/email';
 import { formatBogotaDateTime } from "@/utils/dateUtils";
 
 interface EmailDetailDialogProps {
-  email: EmailLog | null;
+  email: EmailLogDetail | null;
   isOpen: boolean;
   onClose: () => void;
+  isLoading?: boolean;
+  onDownloadAttachment: (logId: string, fileName: string) => Promise<void>;
 }
 
-export function EmailDetailDialog({ email, isOpen, onClose }: EmailDetailDialogProps) {
-  if (!email) return null;
+export function EmailDetailDialog({ email, isOpen, onClose, isLoading, onDownloadAttachment }: EmailDetailDialogProps) {
+  if (!email && !isLoading) return null;
 
-  const getStatusColor = (status: EmailLog['Status']) => {
+  const getStatusColor = (status: EmailLogDetail['Status']) => {
     switch (status) {
-      case 'Success':
+      case 'SENT':
         return 'bg-green-100 text-green-800';
-      case 'Failed':
+      case 'ERROR':
         return 'bg-red-100 text-red-800';
       default:
         return 'bg-gray-100 text-gray-800';
@@ -40,9 +40,14 @@ export function EmailDetailDialog({ email, isOpen, onClose }: EmailDetailDialogP
           </DialogTitle>
         </DialogHeader>
         
-        <div className="space-y-4">
-          {/* Información general */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {isLoading ? (
+          <div className="flex items-center justify-center py-8">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+          </div>
+        ) : email ? (
+          <div className="space-y-4">
+            {/* Información general */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <div className="flex items-center gap-2">
                 <Mail className="h-4 w-4 text-muted-foreground" />
@@ -96,10 +101,50 @@ export function EmailDetailDialog({ email, isOpen, onClose }: EmailDetailDialogP
                   <span className="text-sm">{email.OpenedFromIP}</span>
                 </div>
               )}
+              <div className="flex items-center gap-2">
+                <span className="text-sm font-medium">Estado:</span>
+                <Badge className={getStatusColor(email.Status)} variant="secondary">
+                  {email.Status === 'SENT' ? 'Exitoso' : 'Fallido'}
+                </Badge>
+              </div>
             </div>
           </div>
 
           <Separator />
+
+          {/* Adjuntos */}
+          {email.attachments && email.attachments.length > 0 && (
+            <>
+              <div>
+                <h3 className="text-sm font-medium mb-3 flex items-center gap-2">
+                  <Paperclip className="h-4 w-4" />
+                  Archivos Adjuntos ({email.attachments.length})
+                </h3>
+                <div className="space-y-2">
+                  {email.attachments.map((attachment, index) => (
+                    <div
+                      key={index}
+                      className="flex items-center justify-between p-3 border rounded-lg hover:bg-muted/50 transition-colors"
+                    >
+                      <div className="flex items-center gap-2">
+                        <FileText className="h-4 w-4 text-muted-foreground" />
+                        <span className="text-sm font-medium">{attachment.fileName}</span>
+                      </div>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => onDownloadAttachment(email.Id, attachment.fileName)}
+                      >
+                        <Download className="h-4 w-4 mr-2" />
+                        Descargar
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <Separator />
+            </>
+          )}
 
           {/* Asunto */}
           <div>
@@ -164,6 +209,7 @@ export function EmailDetailDialog({ email, isOpen, onClose }: EmailDetailDialogP
             </div>
           )}
         </div>
+        ) : null}
       </DialogContent>
     </Dialog>
   );
