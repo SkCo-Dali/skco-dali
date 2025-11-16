@@ -268,45 +268,64 @@ export function EmailTemplatesModal({
 
                     {hoveredTemplate === template.id && (
                       <div
-                        className="absolute inset-0 bg-background/98 backdrop-blur-sm p-4 overflow-auto z-10 flex flex-col"
-                        onClick={(e) => e.stopPropagation()}
+                        className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setHoveredTemplate(null);
+                        }}
                       >
-                        <div className="space-y-3 flex-1">
-                          <div>
-                            <h4 className="font-semibold text-base mb-1">{template.template_name}</h4>
-                            <p className="text-sm text-muted-foreground">{template.subject}</p>
-                          </div>
-                          
-                          <ScrollArea className="flex-1 max-h-[200px]">
-                            <div 
-                              className="text-xs prose prose-sm max-w-none pr-4"
-                              dangerouslySetInnerHTML={{ __html: template.html_content }}
-                            />
-                          </ScrollArea>
+                        <Card 
+                          className="w-[90vw] max-w-4xl max-h-[85vh] flex flex-col"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          <div className="p-6 space-y-4 flex flex-col h-full">
+                            <div>
+                              <div className="flex items-start justify-between mb-2">
+                                <div className="flex-1">
+                                  <h4 className="font-semibold text-xl mb-1">{template.template_name}</h4>
+                                  <p className="text-sm text-muted-foreground">{template.subject}</p>
+                                </div>
+                                <Badge variant={template.is_system_template ? "secondary" : "default"}>
+                                  {template.type === 'system' ? "Sistema" : "Propia"}
+                                </Badge>
+                              </div>
+                              {template.category && (
+                                <Badge variant="outline" className="text-xs">
+                                  {template.category}
+                                </Badge>
+                              )}
+                            </div>
+                            
+                            <ScrollArea className="flex-1 border rounded-lg">
+                              <div 
+                                className="p-6 prose prose-sm max-w-none"
+                                dangerouslySetInnerHTML={{ __html: template.html_content }}
+                              />
+                            </ScrollArea>
 
-                          <div className="flex gap-2 pt-2">
-                            <Button
-                              size="sm"
-                              onClick={() => handleSelectTemplate(template)}
-                              className="flex-1"
-                            >
-                              <CheckCircle className="h-4 w-4 mr-1" />
-                              Usar esta plantilla
-                            </Button>
-                            {template.type === 'own' && (
+                            <div className="flex gap-2 pt-2">
                               <Button
-                                size="sm"
-                                variant="destructive"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  handleDeleteTemplate(template.id, template.template_name);
-                                }}
+                                onClick={() => handleSelectTemplate(template)}
+                                className="flex-1"
                               >
-                                <Trash2 className="h-4 w-4" />
+                                <CheckCircle className="h-4 w-4 mr-2" />
+                                Usar esta plantilla
                               </Button>
-                            )}
+                              {template.type === 'own' && (
+                                <Button
+                                  variant="destructive"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleDeleteTemplate(template.id, template.template_name);
+                                  }}
+                                >
+                                  <Trash2 className="h-4 w-4 mr-2" />
+                                  Eliminar
+                                </Button>
+                              )}
+                            </div>
                           </div>
-                        </div>
+                        </Card>
                       </div>
                     )}
                   </Card>
