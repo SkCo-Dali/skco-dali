@@ -1,43 +1,33 @@
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Search, RefreshCw, Eye, CheckCircle } from 'lucide-react';
-import { EmailLog } from '@/types/email';
+import { RefreshCw, Eye, CheckCircle, Paperclip, ChevronLeft, ChevronRight } from 'lucide-react';
+import { EmailLog, EmailLogDetail } from '@/types/email';
 import { formatBogotaDateTime } from "@/utils/dateUtils";
 import { EmailDetailDialog } from '@/components/EmailDetailDialog';
 
 interface EmailStatusLogsProps {
   logs: EmailLog[];
   isLoading: boolean;
-  onRefresh: (campaign?: string, status?: string, createdAt?: string) => void;
+  onRefresh: (page?: number, pageSize?: number) => void;
+  onFetchDetail: (logId: string) => Promise<EmailLogDetail | null>;
+  onDownloadAttachment: (logId: string, fileName: string) => Promise<void>;
 }
 
-export function EmailStatusLogs({ logs, isLoading, onRefresh }: EmailStatusLogsProps) {
-  const [campaignFilter, setCampaignFilter] = useState('');
-  const [statusFilter, setStatusFilter] = useState('');
-  const [dateFilter, setDateFilter] = useState('');
-  const [searchTerm, setSearchTerm] = useState('');
-  const [selectedEmail, setSelectedEmail] = useState<EmailLog | null>(null);
+export function EmailStatusLogs({ logs, isLoading, onRefresh, onFetchDetail, onDownloadAttachment }: EmailStatusLogsProps) {
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize] = useState(20);
+  const [selectedEmailDetail, setSelectedEmailDetail] = useState<EmailLogDetail | null>(null);
+  const [isLoadingDetail, setIsLoadingDetail] = useState(false);
 
-  const filteredLogs = logs.filter(log => {
-    const matchesSearch = !searchTerm || 
-      log.ToEmail.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      log.Subject.toLowerCase().includes(searchTerm.toLowerCase());
-    
-    return matchesSearch;
-  });
-
-  
   const getStatusColor = (status: EmailLog['Status']) => {
     switch (status) {
-      case 'Success':
+      case 'SENT':
         return 'bg-green-100 text-green-800';
-      case 'Failed':
+      case 'ERROR':
         return 'bg-red-100 text-red-800';
       default:
         return 'bg-gray-100 text-gray-800';
@@ -45,21 +35,23 @@ export function EmailStatusLogs({ logs, isLoading, onRefresh }: EmailStatusLogsP
   };
 
   const handleRefresh = () => {
-    onRefresh(
-      campaignFilter || undefined,
-      statusFilter || undefined,
-      dateFilter || undefined
-    );
+    setCurrentPage(1);
+    onRefresh(1, pageSize);
   };
 
-  useEffect(() => {
-    // Auto-refresh cuando cambian los filtros
-    const timeoutId = setTimeout(() => {
-      handleRefresh();
-    }, 500);
+  const handlePageChange = (newPage: number) => {
+    setCurrentPage(newPage);
+    onRefresh(newPage, pageSize);
+  };
 
-    return () => clearTimeout(timeoutId);
-  }, [campaignFilter, statusFilter, dateFilter]);
+  const handleRowClick = async (log: EmailLog) => {
+    setIsLoadingDetail(true);
+    const detail = await onFetchDetail(log.Id);
+    setIsLoadingDetail(false);
+    if (detail) {
+      setSelectedEmailDetail(detail);
+    }
+  };
 
   return (
     <>
@@ -80,32 +72,6 @@ export function EmailStatusLogs({ logs, isLoading, onRefresh }: EmailStatusLogsP
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            {/* Filtros */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-              <Input
-                type="text"
-                placeholder="Filtrar por campaña"
-                value={campaignFilter}
-                onChange={(e) => setCampaignFilter(e.target.value)}
-              />
-              
-              <Select value={statusFilter || "all"} onValueChange={(value) => setStatusFilter(value === "all" ? "" : value)}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Filtrar por estado" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Todos los estados</SelectItem>
-                  <SelectItem value="Success">Exitoso</SelectItem>
-                  <SelectItem value="Failed">Fallido</SelectItem>
-                </SelectContent>
-              </Select>
-              
-              <Input
-                type="date"
-                value={dateFilter}
-                onChange={(e) => setDateFilter(e.target.value)}
-              />
-            </div>
 
             {/* Tabla de logs */}
             <div className="border rounded-xl">
@@ -117,7 +83,7 @@ export function EmailStatusLogs({ logs, isLoading, onRefresh }: EmailStatusLogsP
                     <TableHead>Estado</TableHead>
                     <TableHead>Fecha Envío</TableHead>
                     <TableHead>Apertura</TableHead>
-                    <TableHead>Error</TableHead>
+                    <TableHead>Adjuntos</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -130,18 +96,18 @@ export function EmailStatusLogs({ logs, isLoading, onRefresh }: EmailStatusLogsP
                         </div>
                       </TableCell>
                     </TableRow>
-                  ) : filteredLogs.length === 0 ? (
+                  ) : logs.length === 0 ? (
                     <TableRow>
                       <TableCell colSpan={7} className="text-center py-5 text-muted-foreground">
                         No se encontraron registros de correos
                       </TableCell>
                     </TableRow>
                   ) : (
-                    filteredLogs.map((log) => (
+                    logs.map((log) => (
                       <TableRow 
                         key={log.Id} 
                         className="cursor-pointer hover:bg-muted/50"
-                        onClick={() => setSelectedEmail(log)}
+                        onClick={() => handleRowClick(log)}
                       >
                         <TableCell className="max-w-xs truncate" title={log.Subject}>
                           {log.Subject}
@@ -153,7 +119,7 @@ export function EmailStatusLogs({ logs, isLoading, onRefresh }: EmailStatusLogsP
                         </TableCell>
                         <TableCell>
                           <Badge className={getStatusColor(log.Status)} variant="secondary">
-                            {log.Status === 'Success' ? 'Exitoso' : 'Fallido'}
+                            {log.Status === 'SENT' ? 'Exitoso' : 'Fallido'}
                           </Badge>
                         </TableCell>
                         <TableCell>
@@ -176,11 +142,11 @@ export function EmailStatusLogs({ logs, isLoading, onRefresh }: EmailStatusLogsP
                             )}
                           </div>
                         </TableCell>
-                        <TableCell className="max-w-10">
-                          {log.ErrorMessage && (
-                            <span className="text-red-600 text-sm truncate block" title={log.ErrorMessage}>
-                              {log.ErrorMessage}
-                            </span>
+                        <TableCell>
+                          {log.hasAttachments && (
+                            <div className="flex items-center gap-1 text-muted-foreground">
+                              <Paperclip className="h-4 w-4" />
+                            </div>
                           )}
                         </TableCell>
                       </TableRow>
@@ -189,14 +155,43 @@ export function EmailStatusLogs({ logs, isLoading, onRefresh }: EmailStatusLogsP
                 </TableBody>
               </Table>
             </div>
+
+            {/* Paginación */}
+            <div className="flex items-center justify-between">
+              <div className="text-sm text-muted-foreground">
+                Página {currentPage}
+              </div>
+              <div className="flex gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handlePageChange(currentPage - 1)}
+                  disabled={currentPage === 1 || isLoading}
+                >
+                  <ChevronLeft className="h-4 w-4" />
+                  Anterior
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handlePageChange(currentPage + 1)}
+                  disabled={logs.length < pageSize || isLoading}
+                >
+                  Siguiente
+                  <ChevronRight className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
           </div>
         </CardContent>
       </Card>
 
       <EmailDetailDialog
-        email={selectedEmail}
-        isOpen={!!selectedEmail}
-        onClose={() => setSelectedEmail(null)}
+        email={selectedEmailDetail}
+        isOpen={!!selectedEmailDetail}
+        onClose={() => setSelectedEmailDetail(null)}
+        isLoading={isLoadingDetail}
+        onDownloadAttachment={onDownloadAttachment}
       />
     </>
   );

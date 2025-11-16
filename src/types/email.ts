@@ -30,7 +30,40 @@ export interface EmailSendResponse {
   results: EmailSendResult[];
 }
 
+// Log ligero para listado
 export interface EmailLog {
+  Id: string;
+  UserId: string;
+  LeadId: string;
+  Campaign: string;
+  FromEmail: string;
+  ToEmail: string;
+  Subject: string;
+  Status: 'SENT' | 'ERROR';
+  ErrorMessage: string | null;
+  CreatedAt: string;
+  OpenedAt: string | null;
+  OpenedFromIP: string | null;
+  OpenedFromUserAgent: string | null;
+  hasAttachments: boolean;
+}
+
+// Respuesta paginada de logs
+export interface EmailLogsResponse {
+  page: number;
+  pageSize: number;
+  logs: EmailLog[];
+}
+
+// Adjunto del log detallado
+export interface EmailLogAttachment {
+  fileName: string;
+  blobPath: string;
+  downloadUrl: string;
+}
+
+// Log completo con contenido y adjuntos
+export interface EmailLogDetail {
   Id: string;
   UserId: string;
   LeadId: string;
@@ -40,16 +73,19 @@ export interface EmailLog {
   Subject: string;
   HtmlContent: string;
   PlainContent: string;
-  Status: 'Success' | 'Failed';
+  Status: 'SENT' | 'ERROR';
   ErrorMessage: string | null;
   CreatedAt: string;
   OpenedAt: string | null;
   OpenedFromIP: string | null;
   OpenedFromUserAgent: string | null;
+  AttachmentNames: string | null;
+  AttachmentsPath: string | null;
+  attachments: EmailLogAttachment[];
 }
 
-export interface EmailLogsResponse {
-  logs: EmailLog[];
+export interface EmailLogDetailResponse {
+  log: EmailLogDetail;
 }
 
 export interface EmailTemplate {

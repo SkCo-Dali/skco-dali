@@ -6,6 +6,8 @@ import {
   EmailSendResponse,
   EmailLog,
   EmailLogsResponse,
+  EmailLogDetail,
+  EmailLogDetailResponse,
   EmailTemplate,
   EmailAttachment,
 } from "@/types/email";
@@ -432,39 +434,31 @@ export function useMassEmail() {
   }, [sendEvents]);
 
   const fetchEmailLogs = useCallback(
-    async (campaign?: string, status?: string, createdAt?: string): Promise<void> => {
+    async (page: number = 1, pageSize: number = 20): Promise<void> => {
       if (!user) return;
 
       setIsLoading(true);
 
       try {
-        // Construir parámetros sin userId
         const params = new URLSearchParams({
-          ...(campaign && { campaign }),
-          ...(status && { status }),
-          ...(createdAt && { createdAt }),
+          page: page.toString(),
+          pageSize: pageSize.toString(),
         });
 
-        const endpoint = `${ENV.CRM_API_BASE_URL}/api/emails/logs${params.toString() ? `?${params}` : ""}`;
+        const authToken = localStorage.getItem("authToken") || "";
+        const endpoint = `${ENV.CRM_API_BASE_URL}/api/emails/logs?${params}`;
 
-        // LOG: Endpoint y parámetros para obtener logs
         console.log("📧 OBTENER LOGS DE CORREOS - API CALL");
         console.log("📧 Endpoint:", endpoint);
-        console.log("📧 Method: GET");
-        console.log("📧 Params:", {
-          ...(campaign && { campaign }),
-          ...(status && { status }),
-          ...(createdAt && { createdAt }),
-        });
 
         const response = await fetch(endpoint, {
           method: "GET",
-          headers: {},
+          headers: {
+            "Authorization": `Bearer ${authToken}`,
+          },
         });
 
-        // LOG: Respuesta del servidor
         console.log("📧 Logs Response status:", response.status);
-        console.log("📧 Logs Response ok:", response.ok);
 
         if (!response.ok) {
           const errorText = await response.text();
@@ -474,7 +468,6 @@ export function useMassEmail() {
 
         const data: EmailLogsResponse = await response.json();
 
-        // LOG: Datos recibidos
         console.log("📧 Logs Response data:", JSON.stringify(data, null, 2));
         console.log("📧 Número de logs recibidos:", data.logs.length);
 
@@ -493,6 +486,93 @@ export function useMassEmail() {
     [user, toast],
   );
 
+  const fetchEmailLogDetail = useCallback(
+    async (logId: string): Promise<EmailLogDetail | null> => {
+      if (!user) return null;
+
+      try {
+        const authToken = localStorage.getItem("authToken") || "";
+        const endpoint = `${ENV.CRM_API_BASE_URL}/api/emails/logs/${logId}`;
+
+        console.log("📧 OBTENER DETALLE DE LOG - API CALL");
+        console.log("📧 Endpoint:", endpoint);
+
+        const response = await fetch(endpoint, {
+          method: "GET",
+          headers: {
+            "Authorization": `Bearer ${authToken}`,
+          },
+        });
+
+        if (!response.ok) {
+          throw new Error(`Error al obtener detalle: ${response.statusText}`);
+        }
+
+        const data: EmailLogDetailResponse = await response.json();
+        console.log("📧 Log Detail Response:", data);
+
+        return data.log;
+      } catch (error) {
+        console.error("📧 Error fetching email log detail:", error);
+        toast({
+          title: "Error",
+          description: "Error al obtener los detalles del correo",
+          variant: "destructive",
+        });
+        return null;
+      }
+    },
+    [user, toast],
+  );
+
+  const downloadEmailAttachment = useCallback(
+    async (logId: string, fileName: string): Promise<void> => {
+      if (!user) return;
+
+      try {
+        const authToken = localStorage.getItem("authToken") || "";
+        const encodedName = encodeURIComponent(fileName);
+        const endpoint = `${ENV.CRM_API_BASE_URL}/api/emails/logs/${logId}/attachments/${encodedName}/download`;
+
+        console.log("📧 DESCARGAR ADJUNTO - API CALL");
+        console.log("📧 Endpoint:", endpoint);
+
+        const response = await fetch(endpoint, {
+          method: "GET",
+          headers: {
+            "Authorization": `Bearer ${authToken}`,
+          },
+        });
+
+        if (!response.ok) {
+          throw new Error(`Error al descargar adjunto: ${response.statusText}`);
+        }
+
+        const blob = await response.blob();
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(blob);
+        link.download = fileName;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(link.href);
+
+        toast({
+          title: "Éxito",
+          description: `Archivo "${fileName}" descargado`,
+        });
+      } catch (error) {
+        console.error("📧 Error downloading attachment:", error);
+        toast({
+          title: "Error",
+          description: "Error al descargar el archivo adjunto",
+          variant: "destructive",
+        });
+      }
+    },
+    [user, toast],
+  );
+
   return {
     isLoading,
     emailLogs,
@@ -500,6 +580,8 @@ export function useMassEmail() {
     replaceDynamicFields,
     sendMassEmail,
     fetchEmailLogs,
+    fetchEmailLogDetail,
+    downloadEmailAttachment,
     sendProgress,
     sendEvents,
     pauseResumeSend,
