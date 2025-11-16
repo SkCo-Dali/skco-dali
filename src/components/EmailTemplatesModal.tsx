@@ -17,18 +17,10 @@ import {
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-  CarouselNext,
-  CarouselPrevious,
-} from '@/components/ui/carousel';
 import { useToast } from '@/hooks/use-toast';
 import { emailTemplatesService } from '@/services/emailTemplatesService';
 import { EmailTemplateData, EmailTemplateCategory } from '@/types/emailTemplates';
 import { Search, Loader2, FileText, Trash2, CheckCircle } from 'lucide-react';
-import Autoplay from "embla-carousel-autoplay";
 
 interface EmailTemplatesModalProps {
   open: boolean;
@@ -49,15 +41,22 @@ export function EmailTemplatesModal({
   const [selectedCategory, setSelectedCategory] = useState<string>('');
   const [templateType, setTemplateType] = useState<'all' | 'own' | 'system'>('all');
   const [hoveredTemplate, setHoveredTemplate] = useState<string | null>(null);
-  const autoplayPlugin = useRef(
-    Autoplay({ delay: 3000, stopOnInteraction: true, stopOnMouseEnter: true })
-  );
+  const carouselRef = useRef<HTMLDivElement>(null);
+  const [isCarouselPaused, setIsCarouselPaused] = useState(false);
 
   useEffect(() => {
     if (open) {
       loadData();
     }
   }, [open]);
+
+  useEffect(() => {
+    if (hoveredTemplate) {
+      setIsCarouselPaused(true);
+    } else {
+      setIsCarouselPaused(false);
+    }
+  }, [hoveredTemplate]);
 
   const loadData = async () => {
     setIsLoading(true);
@@ -229,121 +228,111 @@ export function EmailTemplatesModal({
               </div>
             </div>
           ) : (
-            <Carousel
-              opts={{
-                align: "start",
-                loop: true,
-              }}
-              plugins={[autoplayPlugin.current]}
-              className="w-full"
-            >
-              <CarouselContent className="-ml-4">
+            <ScrollArea className="flex-1">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 pr-4">
                 {filteredTemplates.map((template) => (
-                  <CarouselItem key={template.id} className="pl-4 md:basis-1/2 lg:basis-1/3">
-                    <Card
-                      className="group relative cursor-pointer hover:shadow-lg transition-all duration-300 overflow-hidden h-full"
-                      onMouseEnter={() => setHoveredTemplate(template.id)}
-                      onMouseLeave={() => setHoveredTemplate(null)}
-                      onClick={() => handleSelectTemplate(template)}
-                    >
-                      <div className="aspect-video bg-muted flex items-center justify-center overflow-hidden">
-                        <div 
-                          className="w-full h-full p-4 text-xs overflow-hidden"
-                          dangerouslySetInnerHTML={{ __html: template.html_content }}
-                          style={{ 
-                            transform: 'scale(0.5)',
-                            transformOrigin: 'top left',
-                            width: '200%',
-                            height: '200%'
-                          }}
-                        />
+                  <Card
+                    key={template.id}
+                    className="group relative cursor-pointer hover:shadow-lg transition-all duration-300 overflow-hidden"
+                    onMouseEnter={() => setHoveredTemplate(template.id)}
+                    onMouseLeave={() => setHoveredTemplate(null)}
+                    onClick={() => handleSelectTemplate(template)}
+                  >
+                    <div className="aspect-video bg-muted flex items-center justify-center overflow-hidden">
+                      <div 
+                        className="w-full h-full p-4 text-xs overflow-hidden"
+                        dangerouslySetInnerHTML={{ __html: template.html_content }}
+                        style={{ 
+                          transform: 'scale(0.5)',
+                          transformOrigin: 'top left',
+                          width: '200%',
+                          height: '200%'
+                        }}
+                      />
+                    </div>
+
+                    <div className="p-4 space-y-2">
+                      <div className="flex items-start justify-between">
+                        <h4 className="font-semibold text-sm line-clamp-1">{template.template_name}</h4>
+                        <Badge variant={template.is_system_template ? "secondary" : "default"} className="ml-2 shrink-0">
+                          {template.type === 'system' ? "Sistema" : "Propia"}
+                        </Badge>
                       </div>
-
-                      <div className="p-4 space-y-2">
-                        <div className="flex items-start justify-between">
-                          <h4 className="font-semibold text-sm line-clamp-1">{template.template_name}</h4>
-                          <Badge variant={template.is_system_template ? "secondary" : "default"} className="ml-2 shrink-0">
-                            {template.type === 'system' ? "Sistema" : "Propia"}
-                          </Badge>
-                        </div>
-                        <p className="text-xs text-muted-foreground line-clamp-1">{template.subject}</p>
-                        {template.category && (
-                          <Badge variant="outline" className="text-xs">
-                            {template.category}
-                          </Badge>
-                        )}
-                      </div>
-
-                      {hoveredTemplate === template.id && (
-                        <div
-                          className="fixed inset-0 z-50 bg-background/95 backdrop-blur-sm animate-fade-in"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setHoveredTemplate(null);
-                          }}
-                        >
-                          <div className="relative w-full h-full" onClick={(e) => e.stopPropagation()}>
-                            {/* Template name overlay - top right */}
-                            <div className="absolute top-4 right-4 z-10 bg-background/90 backdrop-blur-sm px-4 py-2 rounded-lg shadow-lg border animate-slide-in-right">
-                              <div className="flex items-center gap-2">
-                                <h4 className="font-semibold text-sm">{template.template_name}</h4>
-                                <Badge variant={template.is_system_template ? "secondary" : "default"}>
-                                  {template.type === 'system' ? "Sistema" : "Propia"}
-                                </Badge>
-                              </div>
-                            </div>
-
-                            {/* Subject overlay - bottom */}
-                            <div className="absolute bottom-20 left-1/2 -translate-x-1/2 z-10 bg-background/90 backdrop-blur-sm px-6 py-3 rounded-lg shadow-lg border max-w-2xl animate-fade-in">
-                              <p className="text-sm text-center">
-                                <span className="font-medium">Asunto: </span>
-                                {template.subject}
-                              </p>
-                            </div>
-
-                            {/* Action buttons - bottom center */}
-                            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-10 flex gap-2 animate-fade-in">
-                              <Button
-                                onClick={() => handleSelectTemplate(template)}
-                                size="lg"
-                              >
-                                <CheckCircle className="h-4 w-4 mr-2" />
-                                Usar esta plantilla
-                              </Button>
-                              {template.type === 'own' && (
-                                <Button
-                                  variant="destructive"
-                                  size="lg"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    handleDeleteTemplate(template.id, template.template_name);
-                                  }}
-                                >
-                                  <Trash2 className="h-4 w-4 mr-2" />
-                                  Eliminar
-                                </Button>
-                              )}
-                            </div>
-
-                            {/* HTML Content - full screen with scroll */}
-                            <ScrollArea className="h-full w-full">
-                              <div className="flex items-start justify-center min-h-full p-8">
-                                <div 
-                                  className="bg-white shadow-2xl max-w-4xl w-full animate-scale-in"
-                                  dangerouslySetInnerHTML={{ __html: template.html_content }}
-                                />
-                              </div>
-                            </ScrollArea>
-                          </div>
-                        </div>
+                      <p className="text-xs text-muted-foreground line-clamp-1">{template.subject}</p>
+                      {template.category && (
+                        <Badge variant="outline" className="text-xs">
+                          {template.category}
+                        </Badge>
                       )}
-                    </Card>
-                  </CarouselItem>
+                    </div>
+
+                    {hoveredTemplate === template.id && (
+                      <div
+                        className="fixed inset-0 z-50 bg-background/95 backdrop-blur-sm"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setHoveredTemplate(null);
+                        }}
+                      >
+                        <div className="relative w-full h-full" onClick={(e) => e.stopPropagation()}>
+                          {/* Template name overlay - top right */}
+                          <div className="absolute top-4 right-4 z-10 bg-background/90 backdrop-blur-sm px-4 py-2 rounded-lg shadow-lg border">
+                            <div className="flex items-center gap-2">
+                              <h4 className="font-semibold text-sm">{template.template_name}</h4>
+                              <Badge variant={template.is_system_template ? "secondary" : "default"}>
+                                {template.type === 'system' ? "Sistema" : "Propia"}
+                              </Badge>
+                            </div>
+                          </div>
+
+                          {/* Subject overlay - bottom */}
+                          <div className="absolute bottom-20 left-1/2 -translate-x-1/2 z-10 bg-background/90 backdrop-blur-sm px-6 py-3 rounded-lg shadow-lg border max-w-2xl">
+                            <p className="text-sm text-center">
+                              <span className="font-medium">Asunto: </span>
+                              {template.subject}
+                            </p>
+                          </div>
+
+                          {/* Action buttons - bottom center */}
+                          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-10 flex gap-2">
+                            <Button
+                              onClick={() => handleSelectTemplate(template)}
+                              size="lg"
+                            >
+                              <CheckCircle className="h-4 w-4 mr-2" />
+                              Usar esta plantilla
+                            </Button>
+                            {template.type === 'own' && (
+                              <Button
+                                variant="destructive"
+                                size="lg"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleDeleteTemplate(template.id, template.template_name);
+                                }}
+                              >
+                                <Trash2 className="h-4 w-4 mr-2" />
+                                Eliminar
+                              </Button>
+                            )}
+                          </div>
+
+                          {/* HTML Content - full screen with scroll */}
+                          <ScrollArea className="h-full w-full">
+                            <div className="flex items-start justify-center min-h-full p-8">
+                              <div 
+                                className="bg-white shadow-2xl max-w-4xl w-full"
+                                dangerouslySetInnerHTML={{ __html: template.html_content }}
+                              />
+                            </div>
+                          </ScrollArea>
+                        </div>
+                      </div>
+                    )}
+                  </Card>
                 ))}
-              </CarouselContent>
-              <CarouselPrevious className="left-2" />
-              <CarouselNext className="right-2" />
-            </Carousel>
+              </div>
+            </ScrollArea>
           )}
         </div>
       </DialogContent>
