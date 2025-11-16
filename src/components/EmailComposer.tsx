@@ -3,12 +3,14 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Plus, FileSignature, X } from "lucide-react";
+import { Plus, FileSignature, X, FileText, Save } from "lucide-react";
 import { EmailTemplate, DynamicField } from "@/types/email";
 import { RichTextEditor } from "@/components/RichTextEditor";
 import { EmailWritingAssistant } from "@/components/EmailWritingAssistant";
 import { EmailSignatureDialog } from "@/components/EmailSignatureDialog";
 import { DynamicFieldInput } from "@/components/DynamicFieldInput";
+import { SaveEmailTemplateDialog } from "@/components/SaveEmailTemplateDialog";
+import { EmailTemplatesModal } from "@/components/EmailTemplatesModal";
 import { Editor } from '@tiptap/react';
 import { useToast } from "@/hooks/use-toast";
 
@@ -36,6 +38,8 @@ export function EmailComposer({
   const { toast } = useToast();
   const [showFieldsList, setShowFieldsList] = useState(false);
   const [showSignatureDialog, setShowSignatureDialog] = useState(false);
+  const [showSaveTemplateDialog, setShowSaveTemplateDialog] = useState(false);
+  const [showTemplatesModal, setShowTemplatesModal] = useState(false);
   const [draggedField, setDraggedField] = useState<DynamicField | null>(null);
   const editorRef = useRef<Editor | null>(null);
 
@@ -250,6 +254,14 @@ export function EmailComposer({
               <Button 
                 variant="outline" 
                 size="sm" 
+                onClick={() => setShowTemplatesModal(true)}
+              >
+                <FileText className="h-4 w-4 mr-2" />
+                Plantillas
+              </Button>
+              <Button 
+                variant="outline" 
+                size="sm" 
                 onClick={() => setShowSignatureDialog(true)}
               >
                 <FileSignature className="h-4 w-4 mr-2" />
@@ -368,6 +380,17 @@ export function EmailComposer({
               </div>
             </div>
           )}
+
+          <div className="flex justify-end pt-2 border-t">
+            <Button
+              variant="outline"
+              onClick={() => setShowSaveTemplateDialog(true)}
+              disabled={!template.subject.trim() || !template.htmlContent.trim()}
+            >
+              <Save className="h-4 w-4 mr-2" />
+              Guardar como Plantilla
+            </Button>
+          </div>
         </CardContent>
       </Card>
 
@@ -381,6 +404,32 @@ export function EmailComposer({
         isOpen={showSignatureDialog}
         onClose={() => setShowSignatureDialog(false)}
         onInsertSignature={handleInsertSignature}
+      />
+
+      <SaveEmailTemplateDialog
+        open={showSaveTemplateDialog}
+        onOpenChange={setShowSaveTemplateDialog}
+        subject={template.subject}
+        htmlContent={template.htmlContent}
+        plainContent={template.plainContent}
+        onSaved={() => {
+          toast({
+            title: 'Plantilla guardada',
+            description: 'Ahora puedes acceder a ella desde el botón de Plantillas',
+          });
+        }}
+      />
+
+      <EmailTemplatesModal
+        open={showTemplatesModal}
+        onOpenChange={setShowTemplatesModal}
+        onSelectTemplate={(selectedTemplate) => {
+          onTemplateChange({
+            subject: selectedTemplate.subject,
+            htmlContent: selectedTemplate.htmlContent,
+            plainContent: selectedTemplate.plainContent,
+          });
+        }}
       />
     </>
   );
