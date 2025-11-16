@@ -1,44 +1,35 @@
 export interface EmailTemplateCategory {
-  id: string;
-  name: string;
-  description?: string;
-  createdBy?: string;
-  isSystem: boolean;
+  category: string;
 }
 
 export interface EmailTemplateData {
   id: string;
-  name: string;
+  template_name: string;
+  category: string;
   subject: string;
-  htmlContent: string;
-  plainContent: string;
-  categoryId: string;
-  categoryName?: string;
-  isSystem: boolean;
-  createdBy?: string;
-  createdAt: Date;
-  updatedAt?: Date;
-  usageCount: number;
-  previewImage?: string;
+  html_content: string;
+  plain_text_content: string | null;
+  is_system_template: boolean;
+  is_active: boolean;
+  owner_email: string | null;
+  created_at: string;
+  updated_at: string;
+  type: 'own' | 'system';
 }
 
 export interface CreateEmailTemplateRequest {
-  name: string;
+  template_name: string;
+  category?: string;
   subject: string;
-  htmlContent: string;
-  plainContent: string;
-  categoryId: string;
+  html_content: string;
+  plain_text_content?: string | null;
 }
 
 export interface UpdateEmailTemplateRequest {
-  name?: string;
+  template_name?: string;
+  category?: string;
   subject?: string;
-  htmlContent?: string;
-  plainContent?: string;
-  categoryId?: string;
-}
-
-export interface EmailTemplatesResponse {
-  templates: EmailTemplateData[];
-  categories: EmailTemplateCategory[];
+  html_content?: string;
+  plain_text_content?: string | null;
+  is_active?: boolean;
 }

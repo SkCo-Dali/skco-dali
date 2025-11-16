@@ -4,7 +4,6 @@ import {
   EmailTemplateCategory,
   CreateEmailTemplateRequest,
   UpdateEmailTemplateRequest,
-  EmailTemplatesResponse,
 } from '@/types/emailTemplates';
 
 class EmailTemplatesService {
@@ -23,13 +22,17 @@ class EmailTemplatesService {
    */
   async getTemplates(filters?: {
     search?: string;
-    categoryId?: string;
-    isSystem?: boolean;
-  }): Promise<EmailTemplatesResponse> {
+    category?: string;
+    template_type?: 'all' | 'own' | 'system';
+    include_inactive?: boolean;
+  }): Promise<EmailTemplateData[]> {
     const params = new URLSearchParams();
     if (filters?.search) params.append('search', filters.search);
-    if (filters?.categoryId) params.append('categoryId', filters.categoryId);
-    if (filters?.isSystem !== undefined) params.append('isSystem', String(filters.isSystem));
+    if (filters?.category) params.append('category', filters.category);
+    if (filters?.template_type) params.append('template_type', filters.template_type);
+    if (filters?.include_inactive !== undefined) {
+      params.append('include_inactive', String(filters.include_inactive));
+    }
 
     const response = await fetch(`${this.baseUrl}/api/email-templates?${params}`, {
       headers: this.getAuthHeaders(),
@@ -106,10 +109,10 @@ class EmailTemplatesService {
   }
 
   /**
-   * Obtiene todas las categorías
+   * Obtiene todas las categorías disponibles
    */
   async getCategories(): Promise<EmailTemplateCategory[]> {
-    const response = await fetch(`${this.baseUrl}/api/email-templates/categories`, {
+    const response = await fetch(`${this.baseUrl}/api/email-templates/categories/list`, {
       headers: this.getAuthHeaders(),
     });
 
@@ -118,37 +121,6 @@ class EmailTemplatesService {
     }
 
     return response.json();
-  }
-
-  /**
-   * Crea una nueva categoría
-   */
-  async createCategory(name: string, description?: string): Promise<EmailTemplateCategory> {
-    const response = await fetch(`${this.baseUrl}/api/email-templates/categories`, {
-      method: 'POST',
-      headers: this.getAuthHeaders(),
-      body: JSON.stringify({ name, description }),
-    });
-
-    if (!response.ok) {
-      throw new Error('Error al crear categoría');
-    }
-
-    return response.json();
-  }
-
-  /**
-   * Registra el uso de una plantilla
-   */
-  async recordUsage(id: string): Promise<void> {
-    const response = await fetch(`${this.baseUrl}/api/email-templates/${id}/usage`, {
-      method: 'POST',
-      headers: this.getAuthHeaders(),
-    });
-
-    if (!response.ok) {
-      throw new Error('Error al registrar uso de plantilla');
-    }
   }
 }
 
