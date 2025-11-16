@@ -130,13 +130,13 @@ export function useMassEmail() {
       // Convertir archivos a base64 si hay adjuntos
       let emailAttachments: EmailAttachment[] = [];
       if (attachments && attachments.length > 0) {
-        emailAttachments = await Promise.all(
-          attachments.map(async (file) => ({
-            filename: file.name,
-            content: await convertFileToBase64(file),
-            contentType: file.type || 'application/octet-stream',
-          }))
-        );
+      emailAttachments = await Promise.all(
+        attachments.map(async (file) => ({
+          filename: file.name,
+          content_bytes: await convertFileToBase64(file),
+          content_type: file.type || 'application/octet-stream',
+        }))
+      );
       }
 
       return leads.map((lead) => {
