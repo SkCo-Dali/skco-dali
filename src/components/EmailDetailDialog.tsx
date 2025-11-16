@@ -1,11 +1,10 @@
-
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { CheckCircle, Eye, Calendar, User, Mail, FileText, Globe, Download, Paperclip } from 'lucide-react';
+import { CheckCircle, Eye, Calendar, User, Mail, FileText, Globe, Download, Paperclip, Send, FileImage } from 'lucide-react';
 import { EmailLogDetail } from '@/types/email';
 import { formatBogotaDateTime } from "@/utils/dateUtils";
 
@@ -15,10 +14,16 @@ interface EmailDetailDialogProps {
   onClose: () => void;
   isLoading?: boolean;
   onDownloadAttachment: (logId: string, fileName: string) => Promise<void>;
+  onResendEmail?: (email: EmailLogDetail) => void;
 }
 
-export function EmailDetailDialog({ email, isOpen, onClose, isLoading, onDownloadAttachment }: EmailDetailDialogProps) {
+export function EmailDetailDialog({ email, isOpen, onClose, isLoading, onDownloadAttachment, onResendEmail }: EmailDetailDialogProps) {
   if (!email && !isLoading) return null;
+
+  const isImageAttachment = (fileName: string) => {
+    const imageExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.bmp', '.webp', '.svg'];
+    return imageExtensions.some(ext => fileName.toLowerCase().endsWith(ext));
+  };
 
   const getStatusColor = (status: EmailLogDetail['Status']) => {
     switch (status) {
@@ -33,13 +38,14 @@ export function EmailDetailDialog({ email, isOpen, onClose, isLoading, onDownloa
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl max-h-[80vh] overflow-hidden">
+      <DialogContent className="max-w-4xl max-h-[90vh]">
         <DialogHeader>
           <DialogTitle className="flex items-center justify-between">
             <span>Detalles del Correo</span>
           </DialogTitle>
         </DialogHeader>
         
+        <ScrollArea className="h-[calc(90vh-120px)] pr-4">
         {isLoading ? (
           <div className="flex items-center justify-center py-8">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
@@ -208,8 +214,23 @@ export function EmailDetailDialog({ email, isOpen, onClose, isLoading, onDownloa
               </p>
             </div>
           )}
+
+          {/* Botón de reenviar */}
+          {onResendEmail && (
+            <div className="mt-6 flex justify-end">
+              <Button
+                onClick={() => onResendEmail(email)}
+                variant="default"
+                className="gap-2"
+              >
+                <Send className="h-4 w-4" />
+                Reenviar este correo
+              </Button>
+            </div>
+          )}
         </div>
         ) : null}
+        </ScrollArea>
       </DialogContent>
     </Dialog>
   );

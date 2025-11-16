@@ -573,6 +573,64 @@ export function useMassEmail() {
     [user, toast],
   );
 
+  /**
+   * Reenviar un correo desde el historial
+   */
+  const resendEmail = async (emailDetail: EmailLogDetail) => {
+    try {
+      const token = localStorage.getItem("authToken");
+      if (!token) {
+        toast({
+          title: "Error",
+          description: "No se encontró el token de autenticación",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      // Preparar el payload para reenviar
+      const recipients: EmailRecipient[] = [{
+        LeadId: emailDetail.LeadId,
+        Campaign: emailDetail.Campaign,
+        to: emailDetail.ToEmail,
+        subject: emailDetail.Subject,
+        html_content: emailDetail.HtmlContent,
+        plain_content: emailDetail.PlainContent || "",
+        attachments: [] // Los adjuntos ya están en el servidor, podrían re-incluirse si es necesario
+      }];
+
+      const response = await fetch(`${ENV.CRM_API_BASE_URL}/api/emails/send`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
+        },
+        body: JSON.stringify({ recipients }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Error al reenviar el correo");
+      }
+
+      const data = await response.json();
+      
+      toast({
+        title: "Correo reenviado",
+        description: `El correo fue reenviado exitosamente a ${emailDetail.ToEmail}`,
+      });
+
+      // Refrescar el historial
+      await fetchEmailLogs();
+    } catch (error) {
+      console.error("Error al reenviar correo:", error);
+      toast({
+        title: "Error",
+        description: "No se pudo reenviar el correo",
+        variant: "destructive",
+      });
+    }
+  };
+
   return {
     isLoading,
     emailLogs,
@@ -582,6 +640,7 @@ export function useMassEmail() {
     fetchEmailLogs,
     fetchEmailLogDetail,
     downloadEmailAttachment,
+    resendEmail,
     sendProgress,
     sendEvents,
     pauseResumeSend,
