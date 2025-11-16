@@ -40,11 +40,11 @@ export function SaveEmailTemplateDialog({
   onSaved,
 }: SaveEmailTemplateDialogProps) {
   const { toast } = useToast();
-  const [name, setName] = useState('');
-  const [categoryId, setCategoryId] = useState('');
+  const [templateName, setTemplateName] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState('');
   const [categories, setCategories] = useState<EmailTemplateCategory[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [showNewCategory, setShowNewCategory] = useState(false);
+  const [showNewCategoryInput, setShowNewCategoryInput] = useState(false);
   const [newCategoryName, setNewCategoryName] = useState('');
 
   useEffect(() => {
@@ -55,95 +55,78 @@ export function SaveEmailTemplateDialog({
 
   const loadCategories = async () => {
     try {
-      const cats = await emailTemplatesService.getCategories();
-      setCategories(cats);
+      const categories = await emailTemplatesService.getCategories();
+      setCategories(categories);
     } catch (error) {
       console.error('Error loading categories:', error);
       toast({
-        title: 'Error',
-        description: 'No se pudieron cargar las categorías',
-        variant: 'destructive',
+        title: "Error",
+        description: "No se pudieron cargar las categorías",
+        variant: "destructive",
       });
     }
   };
 
-  const handleCreateCategory = async () => {
+  const handleCreateCategory = () => {
     if (!newCategoryName.trim()) {
       toast({
-        title: 'Error',
-        description: 'El nombre de la categoría es obligatorio',
-        variant: 'destructive',
+        title: "Error",
+        description: "El nombre de la categoría no puede estar vacío",
+        variant: "destructive",
       });
       return;
     }
 
-    try {
-      setIsLoading(true);
-      const newCategory = await emailTemplatesService.createCategory(newCategoryName.trim());
-      setCategories([...categories, newCategory]);
-      setCategoryId(newCategory.id);
-      setNewCategoryName('');
-      setShowNewCategory(false);
-      toast({
-        title: 'Categoría creada',
-        description: 'La categoría se creó exitosamente',
-      });
-    } catch (error) {
-      console.error('Error creating category:', error);
-      toast({
-        title: 'Error',
-        description: 'No se pudo crear la categoría',
-        variant: 'destructive',
-      });
-    } finally {
-      setIsLoading(false);
-    }
+    const newCategory: EmailTemplateCategory = {
+      category: newCategoryName.trim(),
+    };
+    setCategories([...categories, newCategory]);
+    setSelectedCategory(newCategoryName.trim());
+    setNewCategoryName('');
+    setShowNewCategoryInput(false);
+    toast({
+      title: "Éxito",
+      description: "Categoría agregada correctamente",
+    });
   };
 
   const handleSave = async () => {
-    if (!name.trim()) {
+    if (!templateName.trim()) {
       toast({
-        title: 'Error',
-        description: 'El nombre de la plantilla es obligatorio',
-        variant: 'destructive',
+        title: "Error",
+        description: "El nombre de la plantilla es obligatorio",
+        variant: "destructive",
       });
       return;
     }
 
-    if (!categoryId) {
-      toast({
-        title: 'Error',
-        description: 'Debes seleccionar una categoría',
-        variant: 'destructive',
-      });
-      return;
-    }
-
+    setIsLoading(true);
     try {
-      setIsLoading(true);
       await emailTemplatesService.createTemplate({
-        name: name.trim(),
+        template_name: templateName.trim(),
+        category: selectedCategory || undefined,
         subject,
-        htmlContent,
-        plainContent,
-        categoryId,
+        html_content: htmlContent,
+        plain_text_content: plainContent || null,
       });
 
       toast({
-        title: 'Plantilla guardada',
-        description: 'La plantilla se guardó exitosamente',
+        title: "Éxito",
+        description: "Plantilla guardada correctamente",
       });
 
-      setName('');
-      setCategoryId('');
       onOpenChange(false);
+      setTemplateName('');
+      setSelectedCategory('');
+      
       onSaved?.();
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error saving template:', error);
+      const errorMessage = error?.detail || error?.message || "No se pudo guardar la plantilla";
       toast({
-        title: 'Error',
-        description: 'No se pudo guardar la plantilla',
-        variant: 'destructive',
+        title: "Error",
+        description: errorMessage,
+        variant: "destructive",
       });
     } finally {
       setIsLoading(false);
@@ -156,87 +139,91 @@ export function SaveEmailTemplateDialog({
         <DialogHeader>
           <DialogTitle>Guardar como Plantilla</DialogTitle>
           <DialogDescription>
-            Guarda este correo como plantilla para reutilizarlo en el futuro
+            Guarda el contenido actual del correo como una plantilla reutilizable
           </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4 py-4">
           <div className="space-y-2">
-            <Label htmlFor="template-name">Nombre de la plantilla *</Label>
+            <Label htmlFor="template-name">
+              Nombre de la plantilla <span className="text-destructive">*</span>
+            </Label>
             <Input
               id="template-name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
+              value={templateName}
+              onChange={(e) => setTemplateName(e.target.value)}
               placeholder="Ej: Bienvenida nuevos clientes"
-              disabled={isLoading}
             />
           </div>
 
           <div className="space-y-2">
-            <div className="flex items-center justify-between">
-              <Label htmlFor="template-category">Categoría *</Label>
-              {!showNewCategory && (
+            <Label htmlFor="category">Categoría (opcional)</Label>
+            {!showNewCategoryInput ? (
+              <div className="flex gap-2">
+                <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+                  <SelectTrigger className="flex-1">
+                    <SelectValue placeholder="Seleccionar categoría (opcional)" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {categories.map((category) => (
+                      <SelectItem key={category.category} value={category.category}>
+                        {category.category}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
                 <Button
                   type="button"
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setShowNewCategory(true)}
-                  disabled={isLoading}
+                  variant="outline"
+                  size="icon"
+                  onClick={() => setShowNewCategoryInput(true)}
+                  title="Crear nueva categoría"
                 >
-                  <Plus className="h-4 w-4 mr-1" />
-                  Nueva
+                  <Plus className="h-4 w-4" />
                 </Button>
-              )}
-            </div>
-
-            {showNewCategory ? (
+              </div>
+            ) : (
               <div className="flex gap-2">
                 <Input
                   value={newCategoryName}
                   onChange={(e) => setNewCategoryName(e.target.value)}
-                  placeholder="Nombre de la categoría"
-                  disabled={isLoading}
+                  placeholder="Nombre de la nueva categoría"
                 />
                 <Button
                   type="button"
-                  onClick={handleCreateCategory}
-                  disabled={isLoading}
                   size="sm"
+                  onClick={handleCreateCategory}
+                  disabled={!newCategoryName.trim()}
                 >
-                  Crear
+                  <Plus className="h-4 w-4 mr-1" />
+                  Agregar
                 </Button>
                 <Button
                   type="button"
-                  variant="ghost"
+                  size="sm"
+                  variant="outline"
                   onClick={() => {
-                    setShowNewCategory(false);
+                    setShowNewCategoryInput(false);
                     setNewCategoryName('');
                   }}
-                  disabled={isLoading}
-                  size="sm"
                 >
                   Cancelar
                 </Button>
               </div>
-            ) : (
-              <Select value={categoryId} onValueChange={setCategoryId} disabled={isLoading}>
-                <SelectTrigger id="template-category">
-                  <SelectValue placeholder="Selecciona una categoría" />
-                </SelectTrigger>
-                <SelectContent>
-                  {categories.map((cat) => (
-                    <SelectItem key={cat.id} value={cat.id}>
-                      {cat.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
             )}
+          </div>
+
+          <div className="space-y-2">
+            <Label>Vista previa del asunto</Label>
+            <div className="p-3 bg-muted rounded-md text-sm">
+              {subject || <span className="text-muted-foreground">Sin asunto</span>}
+            </div>
           </div>
         </div>
 
         <DialogFooter>
           <Button
+            type="button"
             variant="outline"
             onClick={() => onOpenChange(false)}
             disabled={isLoading}
@@ -244,7 +231,7 @@ export function SaveEmailTemplateDialog({
             Cancelar
           </Button>
           <Button onClick={handleSave} disabled={isLoading}>
-            {isLoading && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+            {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
             Guardar Plantilla
           </Button>
         </DialogFooter>
