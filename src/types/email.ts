@@ -1,8 +1,8 @@
 
 export interface EmailAttachment {
   filename: string;
-  content: string; // base64 encoded
-  contentType: string;
+  content_bytes: string; // base64 encoded
+  content_type: string;
 }
 
 export interface EmailRecipient {
