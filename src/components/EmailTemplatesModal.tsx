@@ -268,64 +268,65 @@ export function EmailTemplatesModal({
 
                     {hoveredTemplate === template.id && (
                       <div
-                        className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm"
+                        className="fixed inset-0 z-50 bg-background/95 backdrop-blur-sm"
                         onClick={(e) => {
                           e.stopPropagation();
                           setHoveredTemplate(null);
                         }}
                       >
-                        <Card 
-                          className="w-[90vw] max-w-4xl max-h-[85vh] flex flex-col"
-                          onClick={(e) => e.stopPropagation()}
-                        >
-                          <div className="p-6 space-y-4 flex flex-col h-full">
-                            <div>
-                              <div className="flex items-start justify-between mb-2">
-                                <div className="flex-1">
-                                  <h4 className="font-semibold text-xl mb-1">{template.template_name}</h4>
-                                  <p className="text-sm text-muted-foreground">{template.subject}</p>
-                                </div>
-                                <Badge variant={template.is_system_template ? "secondary" : "default"}>
-                                  {template.type === 'system' ? "Sistema" : "Propia"}
-                                </Badge>
-                              </div>
-                              {template.category && (
-                                <Badge variant="outline" className="text-xs">
-                                  {template.category}
-                                </Badge>
-                              )}
-                            </div>
-                            
-                            <ScrollArea className="flex-1 border rounded-lg">
-                              <div 
-                                className="p-6 prose prose-sm max-w-none"
-                                dangerouslySetInnerHTML={{ __html: template.html_content }}
-                              />
-                            </ScrollArea>
-
-                            <div className="flex gap-2 pt-2">
-                              <Button
-                                onClick={() => handleSelectTemplate(template)}
-                                className="flex-1"
-                              >
-                                <CheckCircle className="h-4 w-4 mr-2" />
-                                Usar esta plantilla
-                              </Button>
-                              {template.type === 'own' && (
-                                <Button
-                                  variant="destructive"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    handleDeleteTemplate(template.id, template.template_name);
-                                  }}
-                                >
-                                  <Trash2 className="h-4 w-4 mr-2" />
-                                  Eliminar
-                                </Button>
-                              )}
+                        <div className="relative w-full h-full" onClick={(e) => e.stopPropagation()}>
+                          {/* Template name overlay - top right */}
+                          <div className="absolute top-4 right-4 z-10 bg-background/90 backdrop-blur-sm px-4 py-2 rounded-lg shadow-lg border">
+                            <div className="flex items-center gap-2">
+                              <h4 className="font-semibold text-sm">{template.template_name}</h4>
+                              <Badge variant={template.is_system_template ? "secondary" : "default"}>
+                                {template.type === 'system' ? "Sistema" : "Propia"}
+                              </Badge>
                             </div>
                           </div>
-                        </Card>
+
+                          {/* Subject overlay - bottom */}
+                          <div className="absolute bottom-20 left-1/2 -translate-x-1/2 z-10 bg-background/90 backdrop-blur-sm px-6 py-3 rounded-lg shadow-lg border max-w-2xl">
+                            <p className="text-sm text-center">
+                              <span className="font-medium">Asunto: </span>
+                              {template.subject}
+                            </p>
+                          </div>
+
+                          {/* Action buttons - bottom center */}
+                          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-10 flex gap-2">
+                            <Button
+                              onClick={() => handleSelectTemplate(template)}
+                              size="lg"
+                            >
+                              <CheckCircle className="h-4 w-4 mr-2" />
+                              Usar esta plantilla
+                            </Button>
+                            {template.type === 'own' && (
+                              <Button
+                                variant="destructive"
+                                size="lg"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleDeleteTemplate(template.id, template.template_name);
+                                }}
+                              >
+                                <Trash2 className="h-4 w-4 mr-2" />
+                                Eliminar
+                              </Button>
+                            )}
+                          </div>
+
+                          {/* HTML Content - full screen with scroll */}
+                          <ScrollArea className="h-full w-full">
+                            <div className="flex items-start justify-center min-h-full p-8">
+                              <div 
+                                className="bg-white shadow-2xl max-w-4xl w-full"
+                                dangerouslySetInnerHTML={{ __html: template.html_content }}
+                              />
+                            </div>
+                          </ScrollArea>
+                        </div>
                       </div>
                     )}
                   </Card>
