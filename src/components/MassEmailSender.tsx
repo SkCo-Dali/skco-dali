@@ -82,6 +82,13 @@ export function MassEmailSender({ filteredLeads, onClose }: MassEmailSenderProps
     }
   }, []);
 
+  // Cargar historial de correos cuando se activa la pestaña de logs
+  useEffect(() => {
+    if (activeTab === 'logs') {
+      fetchEmailLogs();
+    }
+  }, [activeTab]);
+
   // Limpiar borrador cuando se envíe exitosamente
   const handleSuccessfulSend = () => {
     clearBackup();
