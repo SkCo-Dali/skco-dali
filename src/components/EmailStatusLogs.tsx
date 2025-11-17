@@ -86,11 +86,24 @@ export function EmailStatusLogs({ logs, isLoading, onRefresh, onFetchDetail, onD
   const getStatusColor = (status: EmailLog['Status']) => {
     switch (status) {
       case 'SENT':
+      case 'Success':
         return 'bg-green-100 text-green-800';
       case 'ERROR':
         return 'bg-red-100 text-red-800';
       default:
         return 'bg-gray-100 text-gray-800';
+    }
+  };
+  
+  const getStatusText = (status: EmailLog['Status']) => {
+    switch (status) {
+      case 'SENT':
+      case 'Success':
+        return 'Exitoso';
+      case 'ERROR':
+        return 'Fallido';
+      default:
+        return status;
     }
   };
 
@@ -167,6 +180,7 @@ export function EmailStatusLogs({ logs, isLoading, onRefresh, onFetchDetail, onD
                 <TableHeader>
                   <TableRow>
                     <TableHead>Asunto</TableHead>
+                    <TableHead>Destinatario</TableHead>
                     <TableHead>Campaña</TableHead>
                     <TableHead>Estado</TableHead>
                     <TableHead>Fecha Envío</TableHead>
@@ -177,7 +191,7 @@ export function EmailStatusLogs({ logs, isLoading, onRefresh, onFetchDetail, onD
                 <TableBody>
                   {isLoading ? (
                     <TableRow>
-                      <TableCell colSpan={7} className="text-center py-5">
+                      <TableCell colSpan={8} className="text-center py-5">
                         <div className="flex items-center justify-center">
                           <RefreshCw className="h-4 w-4 animate-spin mr-2" />
                           Cargando...
@@ -186,7 +200,7 @@ export function EmailStatusLogs({ logs, isLoading, onRefresh, onFetchDetail, onD
                     </TableRow>
                   ) : logs.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={7} className="text-center py-5 text-muted-foreground">
+                      <TableCell colSpan={8} className="text-center py-5 text-muted-foreground">
                         No se encontraron registros de correos
                       </TableCell>
                     </TableRow>
@@ -200,6 +214,9 @@ export function EmailStatusLogs({ logs, isLoading, onRefresh, onFetchDetail, onD
                         <TableCell className="max-w-xs truncate" title={log.Subject}>
                           {log.Subject}
                         </TableCell>
+                        <TableCell className="max-w-xs truncate" title={log.ToEmail}>
+                          {log.ToEmail}
+                        </TableCell>
                         <TableCell>
                           <Badge variant="outline">
                             {log.Campaign || 'Sin campaña'}
@@ -207,7 +224,7 @@ export function EmailStatusLogs({ logs, isLoading, onRefresh, onFetchDetail, onD
                         </TableCell>
                         <TableCell>
                           <Badge className={getStatusColor(log.Status)} variant="secondary">
-                            {log.Status === 'SENT' ? 'Exitoso' : 'Fallido'}
+                            {getStatusText(log.Status)}
                           </Badge>
                         </TableCell>
                         <TableCell>
