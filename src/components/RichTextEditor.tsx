@@ -10,6 +10,8 @@ import Link from '@tiptap/extension-link';
 import Highlight from '@tiptap/extension-highlight';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Textarea } from '@/components/ui/textarea';
 import {
   Bold,
   Italic,
@@ -23,6 +25,8 @@ import {
   Image as ImageIcon,
   Paperclip,
   ChevronDown,
+  Code,
+  Eye,
 } from 'lucide-react';
 import { ColorPicker } from './ColorPicker';
 import { DynamicFieldExtension } from '@/extensions/DynamicFieldExtension';
@@ -34,7 +38,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { useRef, useEffect } from 'react';
+import { useRef, useEffect, useState } from 'react';
 import { Editor } from '@tiptap/react';
 
 interface RichTextEditorProps {
@@ -66,6 +70,8 @@ export function RichTextEditor({
   editorRef,
 }: RichTextEditorProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [activeTab, setActiveTab] = useState<'visual' | 'code'>('visual');
+  const [htmlCode, setHtmlCode] = useState(value);
 
   const editor = useEditor({
     extensions: [
@@ -108,8 +114,16 @@ export function RichTextEditor({
   useEffect(() => {
     if (editor && value !== editor.getHTML()) {
       editor.commands.setContent(value, { emitUpdate: false });
+      setHtmlCode(value);
     }
   }, [value, editor]);
+
+  // Update HTML code when switching to code view
+  useEffect(() => {
+    if (activeTab === 'code' && editor) {
+      setHtmlCode(editor.getHTML());
+    }
+  }, [activeTab, editor]);
 
   // Expose editor instance through ref
   useEffect(() => {
@@ -155,187 +169,224 @@ export function RichTextEditor({
     }
   };
 
+  const handleHtmlCodeChange = (newCode: string) => {
+    setHtmlCode(newCode);
+    if (editor) {
+      editor.commands.setContent(newCode, { emitUpdate: false });
+      onChange(newCode);
+    }
+  };
+
+  const handleTabChange = (tab: string) => {
+    if (tab === 'code' && editor) {
+      // Update HTML code from editor before switching
+      setHtmlCode(editor.getHTML());
+    } else if (tab === 'visual' && editor) {
+      // Update editor from HTML code before switching
+      editor.commands.setContent(htmlCode, { emitUpdate: false });
+    }
+    setActiveTab(tab as 'visual' | 'code');
+  };
+
   return (
     <div className="border rounded-lg overflow-hidden bg-background">
-      {/* Toolbar */}
-      <div className="border-b bg-muted/30 p-2 flex flex-wrap gap-1 items-center">
-        {/* Format buttons */}
-        <Button
-          type="button"
-          variant={editor.isActive('bold') ? 'secondary' : 'ghost'}
-          size="icon"
-          className="h-8 w-8"
-          onClick={() => editor.chain().focus().toggleBold().run()}
-        >
-          <Bold className="h-4 w-4" />
-        </Button>
+      <Tabs value={activeTab} onValueChange={handleTabChange}>
+        {/* Toolbar with Tab Selector */}
+        <div className="border-b bg-muted/30 p-2 flex flex-wrap gap-1 items-center">
+          <TabsList className="h-8">
+            <TabsTrigger value="visual" className="h-7 text-xs">
+              <Eye className="h-3 w-3 mr-1" />
+              Visual
+            </TabsTrigger>
+            <TabsTrigger value="code" className="h-7 text-xs">
+              <Code className="h-3 w-3 mr-1" />
+              HTML
+            </TabsTrigger>
+          </TabsList>
 
-        <Button
-          type="button"
-          variant={editor.isActive('italic') ? 'secondary' : 'ghost'}
-          size="icon"
-          className="h-8 w-8"
-          onClick={() => editor.chain().focus().toggleItalic().run()}
-        >
-          <Italic className="h-4 w-4" />
-        </Button>
+          <Separator orientation="vertical" className="h-6 mx-1" />
 
-        <Button
-          type="button"
-          variant={editor.isActive('underline') ? 'secondary' : 'ghost'}
-          size="icon"
-          className="h-8 w-8"
-          onClick={() => editor.chain().focus().toggleUnderline().run()}
-        >
-          <UnderlineIcon className="h-4 w-4" />
-        </Button>
-
-        <Separator orientation="vertical" className="h-6" />
-
-        {/* Font Family */}
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button type="button" variant="ghost" size="sm" className="h-8">
-              <span className="text-sm">Fuente</span>
-              <ChevronDown className="h-3 w-3 ml-1" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent>
-            {FONT_FAMILIES.map((font) => (
-              <DropdownMenuItem
-                key={font.value}
-                onClick={() => editor.chain().focus().setFontFamily(font.value).run()}
-                className={editor.isActive('textStyle', { fontFamily: font.value }) ? 'bg-accent' : ''}
+          {/* Format buttons - Only show in visual mode */}
+          {activeTab === 'visual' && (
+            <>
+              <Button
+                type="button"
+                variant={editor.isActive('bold') ? 'secondary' : 'ghost'}
+                size="icon"
+                className="h-8 w-8"
+                onClick={() => editor.chain().focus().toggleBold().run()}
               >
-                <span style={{ fontFamily: font.value }}>{font.label}</span>
-              </DropdownMenuItem>
-            ))}
-          </DropdownMenuContent>
-        </DropdownMenu>
+                <Bold className="h-4 w-4" />
+              </Button>
 
-        {/* Font Size */}
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button type="button" variant="ghost" size="sm" className="h-8">
-              <span className="text-sm">Tamaño</span>
-              <ChevronDown className="h-3 w-3 ml-1" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent>
-            {FONT_SIZES.map((size) => (
-              <DropdownMenuItem
-                key={size}
-                onClick={() => editor.chain().focus().setFontSize(size).run()}
-                className={editor.isActive('textStyle', { fontSize: size }) ? 'bg-accent' : ''}
+              <Button
+                type="button"
+                variant={editor.isActive('italic') ? 'secondary' : 'ghost'}
+                size="icon"
+                className="h-8 w-8"
+                onClick={() => editor.chain().focus().toggleItalic().run()}
               >
-                {size}
-              </DropdownMenuItem>
-            ))}
-          </DropdownMenuContent>
-        </DropdownMenu>
+                <Italic className="h-4 w-4" />
+              </Button>
 
-        <Separator orientation="vertical" className="h-6" />
+              <Button
+                type="button"
+                variant={editor.isActive('underline') ? 'secondary' : 'ghost'}
+                size="icon"
+                className="h-8 w-8"
+                onClick={() => editor.chain().focus().toggleUnderline().run()}
+              >
+                <UnderlineIcon className="h-4 w-4" />
+              </Button>
 
-        {/* Color Picker */}
-        <ColorPicker
-          onColorSelect={(color) => {
-            editor.chain().focus().setColor(color).run();
-          }}
-        />
+              <Separator orientation="vertical" className="h-6" />
 
-        <Separator orientation="vertical" className="h-6" />
+              {/* Font Family */}
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button type="button" variant="ghost" size="sm" className="h-8">
+                    <span className="text-sm">Fuente</span>
+                    <ChevronDown className="h-3 w-3 ml-1" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent>
+                  {FONT_FAMILIES.map((font) => (
+                    <DropdownMenuItem
+                      key={font.value}
+                      onClick={() => editor.chain().focus().setFontFamily(font.value).run()}
+                      className={editor.isActive('textStyle', { fontFamily: font.value }) ? 'bg-accent' : ''}
+                    >
+                      <span style={{ fontFamily: font.value }}>{font.label}</span>
+                    </DropdownMenuItem>
+                  ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
 
-        {/* Lists */}
-        <Button
-          type="button"
-          variant={editor.isActive('bulletList') ? 'secondary' : 'ghost'}
-          size="icon"
-          className="h-8 w-8"
-          onClick={() => editor.chain().focus().toggleBulletList().run()}
-        >
-          <List className="h-4 w-4" />
-        </Button>
+              {/* Font Size */}
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button type="button" variant="ghost" size="sm" className="h-8">
+                    <span className="text-sm">Tamaño</span>
+                    <ChevronDown className="h-3 w-3 ml-1" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent>
+                  {FONT_SIZES.map((size) => (
+                    <DropdownMenuItem
+                      key={size}
+                      onClick={() => editor.chain().focus().setFontSize(size).run()}
+                      className={editor.isActive('textStyle', { fontSize: size }) ? 'bg-accent' : ''}
+                    >
+                      {size}
+                    </DropdownMenuItem>
+                  ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
 
-        <Button
-          type="button"
-          variant={editor.isActive('orderedList') ? 'secondary' : 'ghost'}
-          size="icon"
-          className="h-8 w-8"
-          onClick={() => editor.chain().focus().toggleOrderedList().run()}
-        >
-          <ListOrdered className="h-4 w-4" />
-        </Button>
+              <Separator orientation="vertical" className="h-6" />
 
-        <Separator orientation="vertical" className="h-6" />
+              {/* Color Picker */}
+              <ColorPicker
+                onColorSelect={(color) => {
+                  editor.chain().focus().setColor(color).run();
+                }}
+              />
 
-        {/* Alignment */}
-        <Button
-          type="button"
-          variant={editor.isActive({ textAlign: 'left' }) ? 'secondary' : 'ghost'}
-          size="icon"
-          className="h-8 w-8"
-          onClick={() => editor.chain().focus().setTextAlign('left').run()}
-        >
-          <AlignLeft className="h-4 w-4" />
-        </Button>
+              <Separator orientation="vertical" className="h-6" />
 
-        <Button
-          type="button"
-          variant={editor.isActive({ textAlign: 'center' }) ? 'secondary' : 'ghost'}
-          size="icon"
-          className="h-8 w-8"
-          onClick={() => editor.chain().focus().setTextAlign('center').run()}
-        >
-          <AlignCenter className="h-4 w-4" />
-        </Button>
+              {/* Lists */}
+              <Button
+                type="button"
+                variant={editor.isActive('bulletList') ? 'secondary' : 'ghost'}
+                size="icon"
+                className="h-8 w-8"
+                onClick={() => editor.chain().focus().toggleBulletList().run()}
+              >
+                <List className="h-4 w-4" />
+              </Button>
 
-        <Button
-          type="button"
-          variant={editor.isActive({ textAlign: 'right' }) ? 'secondary' : 'ghost'}
-          size="icon"
-          className="h-8 w-8"
-          onClick={() => editor.chain().focus().setTextAlign('right').run()}
-        >
-          <AlignRight className="h-4 w-4" />
-        </Button>
+              <Button
+                type="button"
+                variant={editor.isActive('orderedList') ? 'secondary' : 'ghost'}
+                size="icon"
+                className="h-8 w-8"
+                onClick={() => editor.chain().focus().toggleOrderedList().run()}
+              >
+                <ListOrdered className="h-4 w-4" />
+              </Button>
 
-        <Button
-          type="button"
-          variant={editor.isActive({ textAlign: 'justify' }) ? 'secondary' : 'ghost'}
-          size="icon"
-          className="h-8 w-8"
-          onClick={() => editor.chain().focus().setTextAlign('justify').run()}
-        >
-          <AlignJustify className="h-4 w-4" />
-        </Button>
+              <Separator orientation="vertical" className="h-6" />
 
-        <Separator orientation="vertical" className="h-6" />
+              {/* Alignment */}
+              <Button
+                type="button"
+                variant={editor.isActive({ textAlign: 'left' }) ? 'secondary' : 'ghost'}
+                size="icon"
+                className="h-8 w-8"
+                onClick={() => editor.chain().focus().setTextAlign('left').run()}
+              >
+                <AlignLeft className="h-4 w-4" />
+              </Button>
 
-        {/* Image */}
-        <Button
-          type="button"
-          variant="ghost"
-          size="icon"
-          className="h-8 w-8"
-          onClick={handleImageUpload}
-          title="Insertar imagen"
-        >
-          <ImageIcon className="h-4 w-4" />
-        </Button>
+              <Button
+                type="button"
+                variant={editor.isActive({ textAlign: 'center' }) ? 'secondary' : 'ghost'}
+                size="icon"
+                className="h-8 w-8"
+                onClick={() => editor.chain().focus().setTextAlign('center').run()}
+              >
+                <AlignCenter className="h-4 w-4" />
+              </Button>
 
-        {/* Attachments */}
-        {onAttachmentsChange && (
-          <Button
-            type="button"
-            variant="ghost"
-            size="icon"
-            className="h-8 w-8"
-            onClick={handleAttachmentUpload}
-            title="Adjuntar archivos"
-          >
-            <Paperclip className="h-4 w-4" />
-          </Button>
-        )}
+              <Button
+                type="button"
+                variant={editor.isActive({ textAlign: 'right' }) ? 'secondary' : 'ghost'}
+                size="icon"
+                className="h-8 w-8"
+                onClick={() => editor.chain().focus().setTextAlign('right').run()}
+              >
+                <AlignRight className="h-4 w-4" />
+              </Button>
+
+              <Button
+                type="button"
+                variant={editor.isActive({ textAlign: 'justify' }) ? 'secondary' : 'ghost'}
+                size="icon"
+                className="h-8 w-8"
+                onClick={() => editor.chain().focus().setTextAlign('justify').run()}
+              >
+                <AlignJustify className="h-4 w-4" />
+              </Button>
+
+              <Separator orientation="vertical" className="h-6" />
+
+              {/* Image */}
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8"
+                onClick={handleImageUpload}
+                title="Insertar imagen"
+              >
+                <ImageIcon className="h-4 w-4" />
+              </Button>
+
+              {/* Attachments */}
+              {onAttachmentsChange && (
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  className="h-8 w-8"
+                  onClick={handleAttachmentUpload}
+                  title="Adjuntar archivos"
+                >
+                  <Paperclip className="h-4 w-4" />
+                </Button>
+              )}
+            </>
+          )}
 
         {/* Hidden file input for attachments */}
         <input
@@ -347,8 +398,20 @@ export function RichTextEditor({
         />
       </div>
 
-      {/* Editor Content */}
-      <EditorContent editor={editor} />
+      {/* Tab Contents */}
+      <TabsContent value="visual" className="m-0">
+        <EditorContent editor={editor} />
+      </TabsContent>
+
+      <TabsContent value="code" className="m-0">
+        <Textarea
+          value={htmlCode}
+          onChange={(e) => handleHtmlCodeChange(e.target.value)}
+          className="min-h-[300px] font-mono text-sm border-0 rounded-none resize-none focus-visible:ring-0"
+          placeholder="Código HTML..."
+        />
+      </TabsContent>
+      </Tabs>
     </div>
   );
 }
