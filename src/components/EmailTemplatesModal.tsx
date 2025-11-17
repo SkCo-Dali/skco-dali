@@ -338,7 +338,11 @@ export function EmailTemplatesModal({
                         <div className="flex flex-wrap gap-1.5">
                           <Badge 
                             variant={template.is_system_template ? "secondary" : "default"} 
-                            className={`text-xs ${template.type === 'system' ? 'bg-[hsl(25,95%,53%)] text-white hover:bg-[hsl(25,95%,53%)]' : ''}`}
+                            className={`text-xs ${
+                              template.type === 'system' 
+                                ? 'bg-green-600 text-white hover:bg-green-600' 
+                                : 'bg-[hsl(25,95%,53%)] text-white hover:bg-[hsl(25,95%,53%)]'
+                            }`}
                           >
                             {template.type === 'system' ? "Skandia" : "Propia"}
                           </Badge>
