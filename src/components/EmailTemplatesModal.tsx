@@ -190,8 +190,8 @@ export function EmailTemplatesModal({
     }}>
       <DialogContent className="max-w-6xl max-h-[90vh] flex flex-col bg-muted/30">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2 text-2xl">
-            <FileText className="h-6 w-6" />
+          <DialogTitle className="flex items-center gap-2 text-2xl text-white">
+            <FileText className="h-6 w-6 text-white" />
             Plantillas de Correo
           </DialogTitle>
         </DialogHeader>
