@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -20,7 +20,12 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { useToast } from '@/hooks/use-toast';
 import { emailTemplatesService } from '@/services/emailTemplatesService';
 import { EmailTemplateData, EmailTemplateCategory } from '@/types/emailTemplates';
-import { Search, Loader2, FileText, Trash2, CheckCircle } from 'lucide-react';
+import { Search, Loader2, FileText, Trash2, X } from 'lucide-react';
+import { Swiper, SwiperSlide } from 'swiper/react';
+import { Navigation, Pagination } from 'swiper/modules';
+import 'swiper/css';
+import 'swiper/css/navigation';
+import 'swiper/css/pagination';
 
 interface EmailTemplatesModalProps {
   open: boolean;
@@ -40,23 +45,13 @@ export function EmailTemplatesModal({
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('');
   const [templateType, setTemplateType] = useState<'all' | 'own' | 'system'>('all');
-  const [hoveredTemplate, setHoveredTemplate] = useState<string | null>(null);
-  const carouselRef = useRef<HTMLDivElement>(null);
-  const [isCarouselPaused, setIsCarouselPaused] = useState(false);
+  const [selectedTemplate, setSelectedTemplate] = useState<EmailTemplateData | null>(null);
 
   useEffect(() => {
     if (open) {
       loadData();
     }
   }, [open]);
-
-  useEffect(() => {
-    if (hoveredTemplate) {
-      setIsCarouselPaused(true);
-    } else {
-      setIsCarouselPaused(false);
-    }
-  }, [hoveredTemplate]);
 
   const loadData = async () => {
     setIsLoading(true);
@@ -117,7 +112,15 @@ export function EmailTemplatesModal({
     }
   };
 
-  const handleSelectTemplate = async (template: EmailTemplateData) => {
+  const handleTemplateClick = (template: EmailTemplateData) => {
+    setSelectedTemplate(template);
+  };
+
+  const closePreview = () => {
+    setSelectedTemplate(null);
+  };
+
+  const handleUseTemplate = async (template: EmailTemplateData) => {
     try {
       const fullTemplate = await emailTemplatesService.getTemplateById(template.id);
       
@@ -128,6 +131,7 @@ export function EmailTemplatesModal({
       });
 
       onOpenChange(false);
+      setSelectedTemplate(null);
 
       toast({
         title: "Plantilla aplicada",
@@ -147,195 +151,229 @@ export function EmailTemplatesModal({
   const filteredTemplates = templates;
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-5xl max-h-[90vh] flex flex-col">
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            <FileText className="h-5 w-5" />
-            Plantillas de Correo
-          </DialogTitle>
-        </DialogHeader>
+    <>
+      <Dialog open={open} onOpenChange={onOpenChange}>
+        <DialogContent className="max-w-6xl max-h-[90vh] flex flex-col bg-muted/30">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-2xl">
+              <FileText className="h-6 w-6" />
+              Plantillas de Correo
+            </DialogTitle>
+          </DialogHeader>
 
-        <div className="flex-1 overflow-hidden flex flex-col gap-4">
-          <div className="space-y-4">
-            <div className="flex gap-2">
-              <div className="flex-1">
-                <Input
-                  placeholder="Buscar plantillas..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter') {
-                      loadData();
+          <div className="flex-1 overflow-hidden flex flex-col gap-6">
+            {/* Filtros */}
+            <div className="space-y-4">
+              <div className="flex gap-2">
+                <div className="flex-1">
+                  <Input
+                    placeholder="Buscar plantillas..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        loadData();
+                      }
+                    }}
+                    className="w-full"
+                  />
+                </div>
+                <Button onClick={loadData} disabled={isLoading}>
+                  <Search className="h-4 w-4 mr-2" />
+                  Buscar
+                </Button>
+              </div>
+              
+              <div className="grid grid-cols-2 gap-4">
+                <Select 
+                  value={selectedCategory || 'all'} 
+                  onValueChange={(value) => {
+                    setSelectedCategory(value === 'all' ? '' : value);
+                  }}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Todas las categorías" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Todas las categorías</SelectItem>
+                    {categories.map((category) => (
+                      <SelectItem key={category.category} value={category.category}>
+                        {category.category}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+
+                <Select 
+                  value={templateType} 
+                  onValueChange={(value: 'all' | 'own' | 'system') => {
+                    setTemplateType(value);
+                  }}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Tipo de plantilla" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Todas</SelectItem>
+                    <SelectItem value="own">Mis plantillas</SelectItem>
+                    <SelectItem value="system">Del sistema</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            {/* Carrusel */}
+            {isLoading ? (
+              <div className="flex-1 flex items-center justify-center">
+                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+              </div>
+            ) : filteredTemplates.length === 0 ? (
+              <div className="flex-1 flex items-center justify-center">
+                <div className="text-center space-y-4">
+                  <FileText className="h-16 w-16 text-muted-foreground mx-auto" />
+                  <div>
+                    <p className="text-lg font-semibold">No se encontraron plantillas</p>
+                    <p className="text-sm text-muted-foreground">Intenta ajustar los filtros de búsqueda</p>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div className="flex-1 -mx-6 px-6">
+                <Swiper
+                  modules={[Navigation, Pagination]}
+                  loop={true}
+                  grabCursor={true}
+                  spaceBetween={16}
+                  breakpoints={{
+                    0: {
+                      slidesPerView: 1.3,
+                      spaceBetween: 12,
+                      navigation: { enabled: false },
+                    },
+                    480: {
+                      slidesPerView: 2.2,
+                      spaceBetween: 14,
+                      navigation: { enabled: false },
+                    },
+                    768: {
+                      slidesPerView: 3.2,
+                      spaceBetween: 16,
+                      navigation: { enabled: false },
+                    },
+                    1024: {
+                      slidesPerView: 4,
+                      spaceBetween: 18,
+                      navigation: { enabled: true },
                     }
                   }}
-                  className="w-full"
-                />
-              </div>
-              <Button onClick={loadData} disabled={isLoading}>
-                <Search className="h-4 w-4 mr-2" />
-                Buscar
-              </Button>
-            </div>
-            
-            <div className="grid grid-cols-2 gap-4">
-              <Select 
-                value={selectedCategory || 'all'} 
-                onValueChange={(value) => {
-                  setSelectedCategory(value === 'all' ? '' : value);
-                }}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Todas las categorías" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Todas las categorías</SelectItem>
-                  {categories.map((category) => (
-                    <SelectItem key={category.category} value={category.category}>
-                      {category.category}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-
-              <Select 
-                value={templateType} 
-                onValueChange={(value: 'all' | 'own' | 'system') => {
-                  setTemplateType(value);
-                }}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Tipo de plantilla" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Todas</SelectItem>
-                  <SelectItem value="own">Mis plantillas</SelectItem>
-                  <SelectItem value="system">Del sistema</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-
-          {isLoading ? (
-            <div className="flex-1 flex items-center justify-center">
-              <Loader2 className="h-8 w-8 animate-spin text-primary" />
-            </div>
-          ) : filteredTemplates.length === 0 ? (
-            <div className="flex-1 flex items-center justify-center">
-              <div className="text-center space-y-2">
-                <FileText className="h-12 w-12 text-muted-foreground mx-auto" />
-                <p className="text-muted-foreground">No se encontraron plantillas</p>
-              </div>
-            </div>
-          ) : (
-            <ScrollArea className="flex-1">
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 pr-4">
-                {filteredTemplates.map((template) => (
-                  <Card
-                    key={template.id}
-                    className="group relative cursor-pointer hover:shadow-lg transition-all duration-300 overflow-hidden"
-                    onMouseEnter={() => setHoveredTemplate(template.id)}
-                    onMouseLeave={() => setHoveredTemplate(null)}
-                    onClick={() => handleSelectTemplate(template)}
-                  >
-                    <div className="aspect-video bg-muted flex items-center justify-center overflow-hidden">
-                      <div 
-                        className="w-full h-full p-4 text-xs overflow-hidden"
-                        dangerouslySetInnerHTML={{ __html: template.html_content }}
-                        style={{ 
-                          transform: 'scale(0.5)',
-                          transformOrigin: 'top left',
-                          width: '200%',
-                          height: '200%'
-                        }}
-                      />
-                    </div>
-
-                    <div className="p-4 space-y-2">
-                      <div className="flex items-start justify-between">
-                        <h4 className="font-semibold text-sm line-clamp-1">{template.template_name}</h4>
-                        <Badge variant={template.is_system_template ? "secondary" : "default"} className="ml-2 shrink-0">
-                          {template.type === 'system' ? "Sistema" : "Propia"}
-                        </Badge>
-                      </div>
-                      <p className="text-xs text-muted-foreground line-clamp-1">{template.subject}</p>
-                      {template.category && (
-                        <Badge variant="outline" className="text-xs">
-                          {template.category}
-                        </Badge>
-                      )}
-                    </div>
-
-                    {hoveredTemplate === template.id && (
-                      <div
-                        className="fixed inset-0 z-50 bg-background/95 backdrop-blur-sm"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setHoveredTemplate(null);
-                        }}
+                  className="w-full h-full"
+                >
+                  {filteredTemplates.map((template) => (
+                    <SwiperSlide key={template.id}>
+                      <Card
+                        className="group cursor-pointer transition-all duration-200 hover:scale-105 hover:shadow-xl overflow-hidden bg-card/80 backdrop-blur border-border/50 h-full"
+                        onClick={() => handleTemplateClick(template)}
                       >
-                        <div className="relative w-full h-full" onClick={(e) => e.stopPropagation()}>
-                          {/* Template name overlay - top right */}
-                          <div className="absolute top-4 right-4 z-10 bg-background/90 backdrop-blur-sm px-4 py-2 rounded-lg shadow-lg border">
-                            <div className="flex items-center gap-2">
-                              <h4 className="font-semibold text-sm">{template.template_name}</h4>
-                              <Badge variant={template.is_system_template ? "secondary" : "default"}>
-                                {template.type === 'system' ? "Sistema" : "Propia"}
-                              </Badge>
-                            </div>
-                          </div>
+                        {/* Miniatura */}
+                        <div className="w-full aspect-[3/4] rounded-t-xl overflow-hidden bg-muted">
+                          <div 
+                            className="w-full h-full p-2 text-xs overflow-hidden"
+                            dangerouslySetInnerHTML={{ __html: template.html_content }}
+                            style={{ 
+                              transform: 'scale(0.3)',
+                              transformOrigin: 'top left',
+                              width: '333.33%',
+                              height: '333.33%'
+                            }}
+                          />
+                        </div>
 
-                          {/* Subject overlay - bottom */}
-                          <div className="absolute bottom-20 left-1/2 -translate-x-1/2 z-10 bg-background/90 backdrop-blur-sm px-6 py-3 rounded-lg shadow-lg border max-w-2xl">
-                            <p className="text-sm text-center">
-                              <span className="font-medium">Asunto: </span>
-                              {template.subject}
-                            </p>
-                          </div>
-
-                          {/* Action buttons - bottom center */}
-                          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-10 flex gap-2">
-                            <Button
-                              onClick={() => handleSelectTemplate(template)}
-                              size="lg"
+                        {/* Info */}
+                        <div className="p-3 space-y-2">
+                          <h4 className="font-semibold text-sm line-clamp-2 min-h-[2.5rem]">
+                            {template.template_name}
+                          </h4>
+                          <p className="text-xs text-muted-foreground line-clamp-1">
+                            {template.subject}
+                          </p>
+                          <div className="flex flex-wrap gap-1.5">
+                            <Badge 
+                              variant={template.is_system_template ? "secondary" : "default"} 
+                              className="text-xs"
                             >
-                              <CheckCircle className="h-4 w-4 mr-2" />
-                              Usar esta plantilla
-                            </Button>
-                            {template.type === 'own' && (
-                              <Button
-                                variant="destructive"
-                                size="lg"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  handleDeleteTemplate(template.id, template.template_name);
-                                }}
-                              >
-                                <Trash2 className="h-4 w-4 mr-2" />
-                                Eliminar
-                              </Button>
+                              {template.type === 'system' ? "Sistema" : "Propia"}
+                            </Badge>
+                            {template.category && (
+                              <Badge variant="outline" className="text-xs">
+                                {template.category}
+                              </Badge>
                             )}
                           </div>
-
-                          {/* HTML Content - full screen with scroll */}
-                          <ScrollArea className="h-full w-full">
-                            <div className="flex items-start justify-center min-h-full p-8">
-                              <div 
-                                className="bg-white shadow-2xl max-w-4xl w-full"
-                                dangerouslySetInnerHTML={{ __html: template.html_content }}
-                              />
-                            </div>
-                          </ScrollArea>
                         </div>
-                      </div>
-                    )}
-                  </Card>
-                ))}
+                      </Card>
+                    </SwiperSlide>
+                  ))}
+                </Swiper>
+              </div>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Preview Modal */}
+      {selectedTemplate && (
+        <div 
+          className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm animate-in fade-in duration-200"
+          onClick={closePreview}
+        >
+          <div 
+            className="relative max-h-[90vh] w-full max-w-4xl mx-4 overflow-hidden rounded-2xl bg-background shadow-2xl animate-in zoom-in-95 slide-in-from-bottom-4 duration-300"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Botón cerrar */}
+            <button
+              className="absolute right-4 top-4 z-10 rounded-full bg-black/60 hover:bg-black/80 p-2 text-white transition-colors"
+              onClick={closePreview}
+            >
+              <X className="h-4 w-4" />
+            </button>
+
+            {/* Contenido con scroll */}
+            <ScrollArea className="max-h-[90vh]">
+              <div className="p-6 md:p-8">
+                {/* HTML de la plantilla */}
+                <div 
+                  className="prose prose-sm max-w-none"
+                  dangerouslySetInnerHTML={{ __html: selectedTemplate.html_content }}
+                />
+
+                {/* Barra de acciones */}
+                <div className="mt-6 pt-6 border-t flex flex-col sm:flex-row gap-3 sm:justify-end">
+                  <Button
+                    size="lg"
+                    onClick={() => handleUseTemplate(selectedTemplate)}
+                  >
+                    Usar esta plantilla
+                  </Button>
+                  {selectedTemplate.type === 'own' && (
+                    <Button
+                      variant="destructive"
+                      size="lg"
+                      onClick={() => {
+                        handleDeleteTemplate(selectedTemplate.id, selectedTemplate.template_name);
+                        closePreview();
+                      }}
+                    >
+                      <Trash2 className="h-4 w-4 mr-2" />
+                      Eliminar
+                    </Button>
+                  )}
+                </div>
               </div>
             </ScrollArea>
-          )}
+          </div>
         </div>
-      </DialogContent>
-    </Dialog>
+      )}
+    </>
   );
 }
