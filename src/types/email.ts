@@ -73,7 +73,7 @@ export interface EmailLogDetail {
   Subject: string;
   HtmlContent: string;
   PlainContent: string;
-  Status: 'SENT' | 'ERROR';
+  Status: 'SENT' | 'ERROR' | 'Success';
   ErrorMessage: string | null;
   CreatedAt: string;
   OpenedAt: string | null;

@@ -28,11 +28,24 @@ export function EmailDetailDialog({ email, isOpen, onClose, isLoading, onDownloa
   const getStatusColor = (status: EmailLogDetail['Status']) => {
     switch (status) {
       case 'SENT':
+      case 'Success':
         return 'bg-green-100 text-green-800';
       case 'ERROR':
         return 'bg-red-100 text-red-800';
       default:
         return 'bg-gray-100 text-gray-800';
+    }
+  };
+
+  const getStatusText = (status: EmailLogDetail['Status']) => {
+    switch (status) {
+      case 'SENT':
+      case 'Success':
+        return 'Exitoso';
+      case 'ERROR':
+        return 'Fallido';
+      default:
+        return status;
     }
   };
 
@@ -110,7 +123,7 @@ export function EmailDetailDialog({ email, isOpen, onClose, isLoading, onDownloa
               <div className="flex items-center gap-2">
                 <span className="text-sm font-medium">Estado:</span>
                 <Badge className={getStatusColor(email.Status)} variant="secondary">
-                  {email.Status === 'SENT' ? 'Exitoso' : 'Fallido'}
+                  {getStatusText(email.Status)}
                 </Badge>
               </div>
             </div>
