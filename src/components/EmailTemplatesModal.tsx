@@ -321,57 +321,48 @@ export function EmailTemplatesModal({
         </DialogContent>
       </Dialog>
 
-      {/* Preview Modal */}
+      {/* Preview Modal (rebuilt from scratch) */}
       {selectedTemplate &&
         createPortal(
-          <div 
-            className="fixed inset-0 z-[1000] flex items-center justify-center bg-black/60 backdrop-blur-sm animate-in fade-in duration-200"
+          <div
+            className="fixed inset-0 z-[1100] bg-black/60 backdrop-blur-sm animate-in fade-in duration-200"
             onClick={closePreview}
           >
-          <div 
-            className="relative max-h-[90vh] w-full max-w-4xl mx-4 rounded-2xl bg-background shadow-2xl animate-in zoom-in-95 slide-in-from-bottom-4 duration-300 flex flex-col"
-            onClick={(e) => e.stopPropagation()}
-          >
-            {/* Botón cerrar */}
+            {/* Close button */}
             <button
-              className="absolute right-4 top-4 z-20 pointer-events-auto rounded-full bg-black/60 hover:bg-black/80 p-2 text-white transition-colors"
+              className="fixed right-4 top-4 z-[1110] rounded-full bg-black/60 hover:bg-black/80 p-2 text-white transition-colors pointer-events-auto"
               onClick={closePreview}
             >
-              <X className="h-4 w-4" />
+              <X className="h-5 w-5" />
             </button>
 
-            {/* Contenido con scroll */}
-            <div className="max-h-[90vh] overflow-y-auto p-6 md:p-8 pt-12">
-              {/* HTML de la plantilla */}
-              <div 
-                className="prose prose-sm max-w-none"
-                dangerouslySetInnerHTML={{ __html: selectedTemplate.html_content }}
-              />
-
-              {/* Barra de acciones */}
-              <div className="mt-6 pt-6 border-t flex flex-col sm:flex-row gap-3 sm:justify-end">
-                <Button
-                  size="lg"
-                  onClick={() => handleUseTemplate(selectedTemplate)}
-                >
-                  Usar esta plantilla
-                </Button>
-                {selectedTemplate.type === 'own' && (
-                  <Button
-                    variant="destructive"
-                    size="lg"
-                    onClick={() => {
-                      handleDeleteTemplate(selectedTemplate.id, selectedTemplate.template_name);
-                      closePreview();
-                    }}
-                  >
-                    <Trash2 className="h-4 w-4 mr-2" />
-                    Eliminar
-                  </Button>
-                )}
+            {/* Name and subject overlay (top-right) */}
+            <div className="fixed right-16 top-4 z-[1105] flex flex-col items-end gap-1 pointer-events-none">
+              <div className="rounded-full bg-background/80 text-foreground px-3 py-1 text-xs md:text-sm shadow-md backdrop-blur-sm pointer-events-auto">
+                {selectedTemplate.template_name}
+              </div>
+              <div className="rounded-full bg-background/70 text-muted-foreground px-3 py-1 text-[11px] md:text-xs shadow backdrop-blur-sm pointer-events-auto">
+                {selectedTemplate.subject}
               </div>
             </div>
-          </div>
+
+            {/* Use template CTA (bottom-center) */}
+            <div className="fixed inset-x-0 bottom-4 z-[1105] flex justify-center pointer-events-none">
+              <Button
+                size="lg"
+                className="pointer-events-auto"
+                onClick={() => selectedTemplate && handleUseTemplate(selectedTemplate)}
+              >
+                Usar esta plantilla
+              </Button>
+            </div>
+
+            {/* Scrollable content - only the template HTML, no extra white/grey wrappers */}
+            <div className="absolute inset-0 overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+              <div className="mx-auto w-full max-w-5xl px-4 md:px-6 py-8 md:py-10">
+                <div dangerouslySetInnerHTML={{ __html: selectedTemplate.html_content }} />
+              </div>
+            </div>
           </div>,
           document.body
         )
