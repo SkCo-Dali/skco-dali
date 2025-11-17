@@ -152,12 +152,7 @@ export function EmailTemplatesModal({
 
   return (
     <>
-      <Dialog open={open} onOpenChange={(isOpen) => {
-        if (!isOpen) {
-          setSelectedTemplate(null);
-        }
-        onOpenChange(isOpen);
-      }}>
+      <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogContent className="max-w-6xl max-h-[90vh] flex flex-col bg-muted/30">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2 text-2xl">
@@ -167,13 +162,166 @@ export function EmailTemplatesModal({
           </DialogHeader>
 
           <div className="flex-1 overflow-hidden flex flex-col gap-6">
-...
+            {/* Filtros */}
+            <div className="space-y-4">
+              <div className="flex gap-2">
+                <div className="flex-1">
+                  <Input
+                    placeholder="Buscar plantillas..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        loadData();
+                      }
+                    }}
+                    className="w-full"
+                  />
+                </div>
+                <Button onClick={loadData} disabled={isLoading}>
+                  <Search className="h-4 w-4 mr-2" />
+                  Buscar
+                </Button>
+              </div>
+              
+              <div className="grid grid-cols-2 gap-4">
+                <Select 
+                  value={selectedCategory || 'all'} 
+                  onValueChange={(value) => {
+                    setSelectedCategory(value === 'all' ? '' : value);
+                  }}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Todas las categorías" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Todas las categorías</SelectItem>
+                    {categories.map((category) => (
+                      <SelectItem key={category.category} value={category.category}>
+                        {category.category}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+
+                <Select 
+                  value={templateType} 
+                  onValueChange={(value: 'all' | 'own' | 'system') => {
+                    setTemplateType(value);
+                  }}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Tipo de plantilla" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Todas</SelectItem>
+                    <SelectItem value="own">Mis plantillas</SelectItem>
+                    <SelectItem value="system">Del sistema</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            {/* Carrusel */}
+            {isLoading ? (
+              <div className="flex-1 flex items-center justify-center">
+                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+              </div>
+            ) : filteredTemplates.length === 0 ? (
+              <div className="flex-1 flex items-center justify-center">
+                <div className="text-center space-y-4">
+                  <FileText className="h-16 w-16 text-muted-foreground mx-auto" />
+                  <div>
+                    <p className="text-lg font-semibold">No se encontraron plantillas</p>
+                    <p className="text-sm text-muted-foreground">Intenta ajustar los filtros de búsqueda</p>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div className="flex-1 -mx-6 px-6">
+                <Swiper
+                  modules={[Navigation, Pagination]}
+                  loop={true}
+                  grabCursor={true}
+                  spaceBetween={16}
+                  breakpoints={{
+                    0: {
+                      slidesPerView: 1.3,
+                      spaceBetween: 12,
+                      navigation: { enabled: false },
+                    },
+                    480: {
+                      slidesPerView: 2.2,
+                      spaceBetween: 14,
+                      navigation: { enabled: false },
+                    },
+                    768: {
+                      slidesPerView: 3.2,
+                      spaceBetween: 16,
+                      navigation: { enabled: false },
+                    },
+                    1024: {
+                      slidesPerView: 4,
+                      spaceBetween: 18,
+                      navigation: { enabled: true },
+                    }
+                  }}
+                  className="w-full h-full"
+                >
+                  {filteredTemplates.map((template) => (
+                    <SwiperSlide key={template.id}>
+                      <Card
+                        className="group cursor-pointer transition-all duration-200 hover:scale-105 hover:shadow-xl overflow-hidden bg-card/80 backdrop-blur border-border/50 h-full"
+                        onClick={() => handleTemplateClick(template)}
+                      >
+                        {/* Miniatura */}
+                        <div className="w-full aspect-[3/4] rounded-t-xl overflow-hidden bg-muted">
+                          <div 
+                            className="w-full h-full p-2 text-xs overflow-hidden"
+                            dangerouslySetInnerHTML={{ __html: template.html_content }}
+                            style={{ 
+                              transform: 'scale(0.3)',
+                              transformOrigin: 'top left',
+                              width: '333.33%',
+                              height: '333.33%'
+                            }}
+                          />
+                        </div>
+
+                        {/* Info */}
+                        <div className="p-3 space-y-2">
+                          <h4 className="font-semibold text-sm line-clamp-2 min-h-[2.5rem]">
+                            {template.template_name}
+                          </h4>
+                          <p className="text-xs text-muted-foreground line-clamp-1">
+                            {template.subject}
+                          </p>
+                          <div className="flex flex-wrap gap-1.5">
+                            <Badge 
+                              variant={template.is_system_template ? "secondary" : "default"} 
+                              className="text-xs"
+                            >
+                              {template.type === 'system' ? "Sistema" : "Propia"}
+                            </Badge>
+                            {template.category && (
+                              <Badge variant="outline" className="text-xs">
+                                {template.category}
+                              </Badge>
+                            )}
+                          </div>
+                        </div>
+                      </Card>
+                    </SwiperSlide>
+                  ))}
+                </Swiper>
+              </div>
+            )}
           </div>
         </DialogContent>
       </Dialog>
 
-      {/* Preview Modal - Rendered outside Dialog to have independent z-index */}
-      {selectedTemplate && open && (
+      {/* Preview Modal */}
+      {selectedTemplate && (
         <div 
           className="fixed inset-0 z-[200] flex items-center justify-center bg-black/60 backdrop-blur-sm animate-in fade-in duration-200"
           onClick={closePreview}
