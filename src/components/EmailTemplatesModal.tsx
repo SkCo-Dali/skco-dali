@@ -22,10 +22,11 @@ import { emailTemplatesService } from '@/services/emailTemplatesService';
 import { EmailTemplateData, EmailTemplateCategory } from '@/types/emailTemplates';
 import { Search, Loader2, FileText, Trash2, X } from 'lucide-react';
 import { Swiper, SwiperSlide } from 'swiper/react';
-import { Navigation, Pagination } from 'swiper/modules';
+import { Navigation, Autoplay, FreeMode, Mousewheel } from 'swiper/modules';
 import 'swiper/css';
 import 'swiper/css/navigation';
-import 'swiper/css/pagination';
+import 'swiper/css/autoplay';
+import 'swiper/css/free-mode';
 
 interface EmailTemplatesModalProps {
   open: boolean;
@@ -274,50 +275,54 @@ export function EmailTemplatesModal({
           ) : (
             <div className="flex-1 -mx-6 px-6">
               <Swiper
-                modules={[Navigation, Pagination]}
+                modules={[Navigation, Autoplay, FreeMode, Mousewheel]}
                 loop={true}
                 grabCursor={true}
+                freeMode={{ enabled: true, momentumRatio: 0.3 }}
+                mousewheel={{ forceToAxis: true }}
+                autoplay={{
+                  delay: 4500,
+                  disableOnInteraction: true,
+                  pauseOnMouseEnter: true,
+                }}
                 spaceBetween={16}
+                slidesPerView={1.3}
                 breakpoints={{
-                  0: {
-                    slidesPerView: 1.3,
-                    spaceBetween: 12,
-                    navigation: { enabled: false },
-                  },
-                  480: {
+                  640: { 
                     slidesPerView: 2.2,
                     spaceBetween: 14,
                     navigation: { enabled: false },
                   },
-                  768: {
+                  1024: { 
                     slidesPerView: 3.2,
                     spaceBetween: 16,
-                    navigation: { enabled: false },
+                    navigation: { enabled: true },
                   },
-                  1024: {
-                    slidesPerView: 4,
+                  1440: { 
+                    slidesPerView: 4.2,
                     spaceBetween: 18,
                     navigation: { enabled: true },
                   }
                 }}
-                className="w-full h-full"
+                navigation={true}
+                className="w-full h-full [&_.swiper-button-next]:hidden [&_.swiper-button-prev]:hidden md:[&_.swiper-button-next]:flex md:[&_.swiper-button-prev]:flex"
               >
                 {filteredTemplates.map((template) => (
-                  <SwiperSlide key={template.id}>
+                  <SwiperSlide key={template.id} className="h-auto">
                     <Card
-                      className="group cursor-pointer transition-all duration-200 hover:scale-105 hover:shadow-xl overflow-hidden bg-card/80 backdrop-blur border-border/50 h-full"
+                      className="group cursor-pointer transition-all duration-200 hover:scale-105 hover:shadow-xl overflow-hidden bg-card/80 backdrop-blur border-border/50 h-full flex flex-col"
                       onClick={() => handleTemplateClick(template)}
                     >
                       {/* Miniatura */}
-                      <div className="w-full aspect-[3/4] rounded-t-xl overflow-hidden bg-muted">
+                      <div className="w-full h-40 md:h-48 lg:h-52 rounded-t-xl overflow-hidden bg-muted relative">
                         <div 
-                          className="w-full h-full p-2 text-xs overflow-hidden"
+                          className="absolute inset-0 p-2 text-xs overflow-hidden"
                           dangerouslySetInnerHTML={{ __html: template.html_content }}
                           style={{ 
-                            transform: 'scale(0.3)',
+                            transform: 'scale(0.25)',
                             transformOrigin: 'top left',
-                            width: '333.33%',
-                            height: '333.33%'
+                            width: '400%',
+                            height: '400%'
                           }}
                         />
                       </div>
