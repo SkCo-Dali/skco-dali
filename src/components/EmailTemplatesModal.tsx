@@ -20,7 +20,7 @@ import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { emailTemplatesService } from '@/services/emailTemplatesService';
 import { EmailTemplateData, EmailTemplateCategory } from '@/types/emailTemplates';
-import { Search, Loader2, FileText, Trash2, X } from 'lucide-react';
+import { Search, Loader2, FileText, Trash2, X, Edit } from 'lucide-react';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation, Autoplay, FreeMode, Mousewheel } from 'swiper/modules';
 import 'swiper/css';
@@ -401,6 +401,39 @@ export function EmailTemplatesModal({
                 >
                   Usar esta plantilla
                 </Button>
+                
+                {/* Botones solo para plantillas propias */}
+                {selectedTemplate.type !== 'system' && !selectedTemplate.is_system_template && (
+                  <>
+                    <Button
+                      size="lg"
+                      variant="outline"
+                      onClick={() => {
+                        closePreview();
+                        toast({
+                          title: "Editar plantilla",
+                          description: "Funcionalidad de edición en desarrollo",
+                        });
+                      }}
+                    >
+                      <Edit className="h-4 w-4 mr-2" />
+                      Editar Plantilla
+                    </Button>
+                    
+                    <Button
+                      size="lg"
+                      variant="destructive"
+                      className="bg-red-600 hover:bg-red-700 text-white"
+                      onClick={() => {
+                        closePreview();
+                        handleDeleteTemplate(selectedTemplate.id, selectedTemplate.template_name);
+                      }}
+                    >
+                      <Trash2 className="h-4 w-4 mr-2" />
+                      Eliminar Plantilla
+                    </Button>
+                  </>
+                )}
               </div>
             </div>
           </div>
