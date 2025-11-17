@@ -120,6 +120,17 @@
   }
 }
 
+/* Swiper Navigation Arrows - Orange Color */
+.swiper-button-next,
+.swiper-button-prev {
+  color: hsl(25 95% 53%) !important;
+}
+
+.swiper-button-next:after,
+.swiper-button-prev:after {
+  color: hsl(25 95% 53%) !important;
+}
+
 /* Skandia Typography Styles */
 @layer components {
   .sk-h1 {
