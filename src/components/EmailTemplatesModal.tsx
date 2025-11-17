@@ -5,6 +5,16 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
@@ -47,6 +57,8 @@ export function EmailTemplatesModal({
   const [selectedCategory, setSelectedCategory] = useState<string>('');
   const [templateType, setTemplateType] = useState<'all' | 'own' | 'system'>('all');
   const [selectedTemplate, setSelectedTemplate] = useState<EmailTemplateData | null>(null);
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+  const [templateToDelete, setTemplateToDelete] = useState<{ id: string; name: string } | null>(null);
   const overlayRef = useRef<HTMLDivElement>(null);
   const suppressDialogCloseRef = useRef(false);
 
@@ -93,13 +105,11 @@ export function EmailTemplatesModal({
       return;
     }
 
-    if (!confirm(`¿Estás seguro de que deseas eliminar la plantilla "${templateName}"?`)) {
-      return;
-    }
-
     try {
       await emailTemplatesService.deleteTemplate(templateId);
       setTemplates(templates.filter(t => t.id !== templateId));
+      setDeleteConfirmOpen(false);
+      setTemplateToDelete(null);
       toast({
         title: "Éxito",
         description: "Plantilla eliminada correctamente",
@@ -113,6 +123,11 @@ export function EmailTemplatesModal({
         variant: "destructive",
       });
     }
+  };
+
+  const openDeleteConfirm = (templateId: string, templateName: string) => {
+    setTemplateToDelete({ id: templateId, name: templateName });
+    setDeleteConfirmOpen(true);
   };
 
   const handleTemplateClick = (template: EmailTemplateData) => {
@@ -181,6 +196,7 @@ export function EmailTemplatesModal({
   const filteredTemplates = templates;
 
   return (
+    <>
     <Dialog open={open} onOpenChange={(next) => {
       if (selectedTemplate && next === false) {
         setSelectedTemplate(null);
@@ -426,7 +442,7 @@ export function EmailTemplatesModal({
                       className="bg-red-600 hover:bg-red-700 text-white"
                       onClick={() => {
                         closePreview();
-                        handleDeleteTemplate(selectedTemplate.id, selectedTemplate.template_name);
+                        openDeleteConfirm(selectedTemplate.id, selectedTemplate.template_name);
                       }}
                     >
                       <Trash2 className="h-4 w-4 mr-2" />
@@ -440,5 +456,33 @@ export function EmailTemplatesModal({
         )}
       </DialogContent>
     </Dialog>
+
+    {/* Modal de confirmación de eliminación */}
+    <AlertDialog open={deleteConfirmOpen} onOpenChange={setDeleteConfirmOpen}>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>¿Eliminar plantilla?</AlertDialogTitle>
+          <AlertDialogDescription>
+            ¿Estás seguro de que deseas eliminar la plantilla <strong>"{templateToDelete?.name}"</strong>? 
+            Esta acción no se puede deshacer.
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel>Cancelar</AlertDialogCancel>
+          <AlertDialogAction
+            className="bg-red-600 hover:bg-red-700 text-white"
+            onClick={() => {
+              if (templateToDelete) {
+                handleDeleteTemplate(templateToDelete.id, templateToDelete.name);
+              }
+            }}
+          >
+            <Trash2 className="h-4 w-4 mr-2" />
+            Eliminar
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+    </>
   );
 }
