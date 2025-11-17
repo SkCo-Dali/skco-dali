@@ -121,6 +121,30 @@ export function EmailTemplatesModal({
     setSelectedTemplate(null);
   };
 
+  // Lock background scroll and handle Escape while preview is open
+  useEffect(() => {
+    if (!selectedTemplate) return;
+
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        e.stopPropagation();
+        closePreview();
+      } else {
+        // prevent Radix Dialog behind from reacting to keys
+        e.stopPropagation();
+      }
+    };
+
+    window.addEventListener('keydown', onKeyDown, true);
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+
+    return () => {
+      window.removeEventListener('keydown', onKeyDown, true);
+      document.body.style.overflow = prevOverflow;
+    };
+  }, [selectedTemplate]);
   const handleUseTemplate = async (template: EmailTemplateData) => {
     try {
       const fullTemplate = await emailTemplatesService.getTemplateById(template.id);
@@ -326,7 +350,9 @@ export function EmailTemplatesModal({
         createPortal(
           <div
             className="fixed inset-0 z-[1100] bg-black/60 backdrop-blur-sm animate-in fade-in duration-200"
-            onClick={closePreview}
+            onMouseDownCapture={(e) => e.stopPropagation()}
+            onTouchStartCapture={(e) => e.stopPropagation()}
+            onClick={(e) => { e.stopPropagation(); closePreview(); }}
           >
             {/* Close button */}
             <button
@@ -358,7 +384,7 @@ export function EmailTemplatesModal({
             </div>
 
             {/* Scrollable content - only the template HTML, no extra white/grey wrappers */}
-            <div className="absolute inset-0 overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+            <div className="absolute inset-0 overflow-y-auto overscroll-contain touch-pan-y" onClick={(e) => e.stopPropagation()}>
               <div className="mx-auto w-full max-w-5xl px-4 md:px-6 py-8 md:py-10">
                 <div dangerouslySetInnerHTML={{ __html: selectedTemplate.html_content }} />
               </div>
