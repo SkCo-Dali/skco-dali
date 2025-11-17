@@ -281,7 +281,7 @@ export function EmailTemplatesModal({
                 freeMode={{ enabled: true, momentumRatio: 0.3 }}
                 mousewheel={{ forceToAxis: true }}
                 autoplay={{
-                  delay: 4500,
+                  delay: 3000,
                   disableOnInteraction: true,
                   pauseOnMouseEnter: true,
                 }}
