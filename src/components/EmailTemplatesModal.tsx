@@ -191,7 +191,7 @@ export function EmailTemplatesModal({
         }
         onOpenChange(next);
       }}>
-        <DialogContent className="max-w-6xl max-h-[90vh] flex flex-col bg-muted/30">
+        <DialogContent className={`max-w-6xl max-h-[90vh] flex flex-col bg-muted/30 ${selectedTemplate ? 'pointer-events-none select-none' : ''}`}>
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2 text-2xl">
               <FileText className="h-6 w-6" />
@@ -366,18 +366,20 @@ export function EmailTemplatesModal({
             role="dialog"
             aria-modal="true"
             tabIndex={-1}
-            className="fixed inset-0 z-[1100] bg-black/60 backdrop-blur-sm animate-in fade-in duration-200"
-            onMouseDownCapture={(e) => e.stopPropagation()}
-            onTouchStartCapture={(e) => e.stopPropagation()}
-            onWheelCapture={(e) => e.stopPropagation()}
+            className="fixed inset-0 z-[99999] isolate bg-black/60 backdrop-blur-sm animate-in fade-in duration-200 pointer-events-auto"
+            onPointerDownCapture={(e) => { e.stopPropagation(); }}
+            onClick={(e) => e.stopPropagation()}
           >
+
             {/* Close button */}
             <button
               className="fixed right-4 top-4 z-[1110] rounded-full bg-black/60 hover:bg-black/80 p-2 text-white transition-colors pointer-events-auto"
-              onClick={closePreview}
+              onMouseDown={(e) => e.stopPropagation()}
+              onClick={(e) => { e.stopPropagation(); closePreview(); }}
             >
               <X className="h-5 w-5" />
             </button>
+
 
             {/* Name and subject overlay (top-right) */}
             <div className="fixed right-16 top-4 z-[1105] flex flex-col items-end gap-1 pointer-events-none">
