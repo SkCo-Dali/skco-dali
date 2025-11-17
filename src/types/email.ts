@@ -39,7 +39,7 @@ export interface EmailLog {
   FromEmail: string;
   ToEmail: string;
   Subject: string;
-  Status: 'SENT' | 'ERROR';
+  Status: 'SENT' | 'ERROR' | 'Success';
   ErrorMessage: string | null;
   CreatedAt: string;
   OpenedAt: string | null;
