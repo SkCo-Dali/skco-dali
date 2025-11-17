@@ -179,6 +179,7 @@ export function EditTemplateDialog({
             <Label>Contenido del correo</Label>
             <div className="border border-border rounded-lg overflow-hidden">
               <RichTextEditor
+                key={template?.id || 'edit-template'}
                 value={htmlContent}
                 onChange={setHtmlContent}
                 placeholder="Escribe el contenido de tu plantilla de correo aquí..."
