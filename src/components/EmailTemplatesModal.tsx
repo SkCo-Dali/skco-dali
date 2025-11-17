@@ -33,6 +33,7 @@ import { EmailTemplateData, EmailTemplateCategory } from '@/types/emailTemplates
 import { Search, Loader2, FileText, Trash2, X, Edit } from 'lucide-react';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation, Autoplay, FreeMode, Mousewheel } from 'swiper/modules';
+import { EditTemplateDialog } from '@/components/EditTemplateDialog';
 import 'swiper/css';
 import 'swiper/css/navigation';
 import 'swiper/css/autoplay';
@@ -59,6 +60,8 @@ export function EmailTemplatesModal({
   const [selectedTemplate, setSelectedTemplate] = useState<EmailTemplateData | null>(null);
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [templateToDelete, setTemplateToDelete] = useState<{ id: string; name: string } | null>(null);
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [templateToEdit, setTemplateToEdit] = useState<EmailTemplateData | null>(null);
   const overlayRef = useRef<HTMLDivElement>(null);
   const suppressDialogCloseRef = useRef(false);
 
@@ -128,6 +131,15 @@ export function EmailTemplatesModal({
   const openDeleteConfirm = (templateId: string, templateName: string) => {
     setTemplateToDelete({ id: templateId, name: templateName });
     setDeleteConfirmOpen(true);
+  };
+
+  const openEditDialog = (template: EmailTemplateData) => {
+    setTemplateToEdit(template);
+    setEditDialogOpen(true);
+  };
+
+  const handleEditSuccess = () => {
+    loadData(); // Recargar las plantillas después de editar
   };
 
   const handleTemplateClick = (template: EmailTemplateData) => {
@@ -426,10 +438,7 @@ export function EmailTemplatesModal({
                       variant="outline"
                       onClick={() => {
                         closePreview();
-                        toast({
-                          title: "Editar plantilla",
-                          description: "Funcionalidad de edición en desarrollo",
-                        });
+                        openEditDialog(selectedTemplate);
                       }}
                     >
                       <Edit className="h-4 w-4 mr-2" />
@@ -483,6 +492,15 @@ export function EmailTemplatesModal({
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>
+
+    {/* Diálogo de edición de plantilla */}
+    <EditTemplateDialog
+      open={editDialogOpen}
+      onOpenChange={setEditDialogOpen}
+      template={templateToEdit}
+      categories={categories}
+      onSuccess={handleEditSuccess}
+    />
     </>
   );
 }
