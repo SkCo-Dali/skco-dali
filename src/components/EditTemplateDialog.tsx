@@ -7,15 +7,6 @@ import {
   DialogFooter,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
 import { RichTextEditor } from '@/components/RichTextEditor';
 import { useToast } from '@/hooks/use-toast';
 import { emailTemplatesService } from '@/services/emailTemplatesService';
@@ -26,6 +17,7 @@ interface EditTemplateDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   template: EmailTemplateData | null;
+  // Mantener props existentes para compatibilidad con llamadas actuales
   categories: EmailTemplateCategory[];
   onSuccess: () => void;
 }
@@ -34,87 +26,50 @@ export function EditTemplateDialog({
   open,
   onOpenChange,
   template,
-  categories,
+  categories, // no usado, pero se mantiene por compatibilidad
   onSuccess,
 }: EditTemplateDialogProps) {
   const { toast } = useToast();
-  const [isLoading, setIsLoading] = useState(false);
-  const [templateName, setTemplateName] = useState('');
-  const [subject, setSubject] = useState('');
-  const [htmlContent, setHtmlContent] = useState('');
-  const [category, setCategory] = useState('');
+  const [content, setContent] = useState<string>('');
+  const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
-    if (template && open) {
-      setTemplateName(template.template_name);
-      setSubject(template.subject);
-      setHtmlContent(template.html_content || '');
-      setCategory(template.category || '');
-    } else if (!open) {
-      // Reset form when dialog closes
-      setTemplateName('');
-      setSubject('');
-      setHtmlContent('');
-      setCategory('');
+    if (open && template) {
+      setContent(template.html_content || '');
     }
-  }, [template, open]);
+    if (!open) {
+      setContent('');
+    }
+  }, [open, template]);
 
-  const handleSave = async () => {
+  const handleUpdate = async () => {
     if (!template) return;
 
-    if (!templateName.trim()) {
+    const trimmed = (content || '').trim();
+    if (!trimmed) {
       toast({
-        title: "Error",
-        description: "El nombre de la plantilla es obligatorio",
-        variant: "destructive",
+        title: 'Contenido requerido',
+        description: 'El contenido del correo no puede estar vacío.',
+        variant: 'destructive',
       });
       return;
     }
 
-    if (!subject.trim()) {
-      toast({
-        title: "Error",
-        description: "El asunto es obligatorio",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    if (!htmlContent.trim()) {
-      toast({
-        title: "Error",
-        description: "El contenido de la plantilla es obligatorio",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    setIsLoading(true);
     try {
+      setIsSaving(true);
       await emailTemplatesService.updateTemplate(template.id, {
-        template_name: templateName.trim(),
-        subject: subject.trim(),
-        html_content: htmlContent,
-        category: category || undefined,
+        html_content: content,
       });
 
-      toast({
-        title: "Éxito",
-        description: "Plantilla actualizada correctamente",
-      });
-
-      onSuccess();
+      toast({ title: 'Plantilla actualizada', description: 'Los cambios se guardaron correctamente.' });
+      onSuccess?.();
       onOpenChange(false);
     } catch (error: any) {
-      console.error('Error updating template:', error);
-      const errorMessage = error?.detail || error?.message || "No se pudo actualizar la plantilla";
-      toast({
-        title: "Error",
-        description: errorMessage,
-        variant: "destructive",
-      });
+      console.error('Error al actualizar la plantilla', error);
+      const msg = error?.detail || error?.message || 'No se pudo actualizar la plantilla';
+      toast({ title: 'Error', description: msg, variant: 'destructive' });
     } finally {
-      setIsLoading(false);
+      setIsSaving(false);
     }
   };
 
@@ -122,97 +77,53 @@ export function EditTemplateDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-5xl max-h-[90vh] flex flex-col">
         <DialogHeader>
-          <DialogTitle className="text-2xl">Editar Plantilla</DialogTitle>
+          <DialogTitle className="text-2xl">
+            {template ? `Editar plantilla: ${template.template_name}` : 'Cargando plantilla...'}
+          </DialogTitle>
         </DialogHeader>
 
         {!template ? (
-          <div className="flex items-center justify-center py-8">
+          <div className="flex items-center justify-center py-12">
             <Loader2 className="h-8 w-8 animate-spin text-primary" />
           </div>
         ) : (
           <>
             <div className="flex-1 overflow-y-auto space-y-4 py-4">
-          {/* Nombre de la plantilla */}
-          <div className="space-y-2">
-            <Label htmlFor="template-name">Nombre de la plantilla</Label>
-            <Input
-              id="template-name"
-              value={templateName}
-              onChange={(e) => setTemplateName(e.target.value)}
-              placeholder="Ej: Bienvenida a nuevos clientes"
-              maxLength={200}
-            />
-          </div>
-
-          {/* Categoría */}
-          <div className="space-y-2">
-            <Label htmlFor="category">Categoría (opcional)</Label>
-            <Select value={category} onValueChange={setCategory}>
-              <SelectTrigger id="category">
-                <SelectValue placeholder="Selecciona una categoría" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="">Sin categoría</SelectItem>
-                {categories.map((cat) => (
-                  <SelectItem key={cat.category} value={cat.category}>
-                    {cat.category}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          {/* Asunto */}
-          <div className="space-y-2">
-            <Label htmlFor="subject">Asunto del correo</Label>
-            <Input
-              id="subject"
-              value={subject}
-              onChange={(e) => setSubject(e.target.value)}
-              placeholder="Ej: ¡Bienvenido a nuestra comunidad!"
-              maxLength={300}
-            />
-          </div>
-
-          {/* Editor de contenido */}
-          <div className="space-y-2">
-            <Label>Contenido del correo</Label>
-            <div className="border border-border rounded-lg overflow-hidden">
-              <RichTextEditor
-                key={template?.id || 'edit-template'}
-                value={htmlContent}
-                onChange={setHtmlContent}
-                placeholder="Escribe el contenido de tu plantilla de correo aquí..."
-              />
+              {/* Editor de contenido */}
+              <div className="space-y-2">
+                <div className="border border-border rounded-lg overflow-hidden">
+                  <RichTextEditor
+                    key={template.id}
+                    value={content}
+                    onChange={setContent}
+                    placeholder="Escribe el contenido de tu plantilla de correo aquí..."
+                  />
+                </div>
+              </div>
             </div>
-          </div>
-          </div>
 
-          <DialogFooter className="gap-2">
-            <Button
-              variant="outline"
-              onClick={() => onOpenChange(false)}
-              disabled={isLoading}
-            >
-              Cancelar
-            </Button>
-            <Button onClick={handleSave} disabled={isLoading}>
-              {isLoading ? (
-                <>
-                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                  Guardando...
-                </>
-              ) : (
-                <>
-                  <Save className="h-4 w-4 mr-2" />
-                  Guardar cambios
-                </>
-              )}
-            </Button>
-          </DialogFooter>
+            <DialogFooter className="gap-2">
+              <Button variant="outline" onClick={() => onOpenChange(false)} disabled={isSaving}>
+                Cancelar
+              </Button>
+              <Button onClick={handleUpdate} disabled={isSaving}>
+                {isSaving ? (
+                  <>
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    Actualizando...
+                  </>
+                ) : (
+                  <>
+                    <Save className="h-4 w-4 mr-2" />
+                    Actualizar
+                  </>
+                )}
+              </Button>
+            </DialogFooter>
           </>
         )}
       </DialogContent>
     </Dialog>
   );
 }
+
