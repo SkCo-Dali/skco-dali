@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import {
   Dialog,
@@ -47,6 +47,8 @@ export function EmailTemplatesModal({
   const [selectedCategory, setSelectedCategory] = useState<string>('');
   const [templateType, setTemplateType] = useState<'all' | 'own' | 'system'>('all');
   const [selectedTemplate, setSelectedTemplate] = useState<EmailTemplateData | null>(null);
+  const overlayRef = useRef<HTMLDivElement>(null);
+  const suppressDialogCloseRef = useRef(false);
 
   useEffect(() => {
     if (open) {
@@ -121,7 +123,7 @@ export function EmailTemplatesModal({
     setSelectedTemplate(null);
   };
 
-  // Lock background scroll and handle Escape while preview is open
+  // Lock background scroll, focus the overlay, and handle Escape while preview is open
   useEffect(() => {
     if (!selectedTemplate) return;
 
@@ -139,6 +141,9 @@ export function EmailTemplatesModal({
     window.addEventListener('keydown', onKeyDown, true);
     const prevOverflow = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
+
+    // focus overlay to capture keyboard input
+    setTimeout(() => overlayRef.current?.focus(), 0);
 
     return () => {
       window.removeEventListener('keydown', onKeyDown, true);
@@ -177,7 +182,15 @@ export function EmailTemplatesModal({
 
   return (
     <>
-      <Dialog open={open} onOpenChange={onOpenChange}>
+      <Dialog open={open} onOpenChange={(next) => {
+        // Evitar que el modal principal se cierre mientras el preview está abierto
+        if (selectedTemplate && next === false) {
+          // Solo cierra el preview, mantén el modal principal abierto
+          setSelectedTemplate(null);
+          return;
+        }
+        onOpenChange(next);
+      }}>
         <DialogContent className="max-w-6xl max-h-[90vh] flex flex-col bg-muted/30">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2 text-2xl">
@@ -349,10 +362,14 @@ export function EmailTemplatesModal({
       {selectedTemplate &&
         createPortal(
           <div
+            ref={overlayRef}
+            role="dialog"
+            aria-modal="true"
+            tabIndex={-1}
             className="fixed inset-0 z-[1100] bg-black/60 backdrop-blur-sm animate-in fade-in duration-200"
             onMouseDownCapture={(e) => e.stopPropagation()}
             onTouchStartCapture={(e) => e.stopPropagation()}
-            onClick={(e) => { e.stopPropagation(); closePreview(); }}
+            onWheelCapture={(e) => e.stopPropagation()}
           >
             {/* Close button */}
             <button
