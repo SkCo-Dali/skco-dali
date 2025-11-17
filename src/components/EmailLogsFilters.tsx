@@ -40,38 +40,38 @@ export function EmailLogsFilters({
   const hasActiveFilters = searchTerm || statusFilter !== 'all' || campaignFilter !== 'all' || dateFrom || dateTo;
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-2">
       <div className="flex items-center gap-2">
-        <Filter className="h-5 w-5 text-muted-foreground" />
-        <h3 className="text-lg font-semibold">Filtros</h3>
+        <Filter className="h-4 w-4 text-muted-foreground" />
+        <h3 className="text-sm font-semibold">Filtros</h3>
         {hasActiveFilters && (
           <Button
             variant="ghost"
             size="sm"
             onClick={onClearFilters}
-            className="ml-auto gap-2"
+            className="ml-auto gap-1 h-7 text-xs"
           >
-            <X className="h-4 w-4" />
-            Limpiar filtros
+            <X className="h-3 w-3" />
+            Limpiar
           </Button>
         )}
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-4 gap-2">
         {/* Búsqueda por destinatario/asunto */}
         <div className="relative">
-          <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+          <Search className="absolute left-2 top-2 h-3.5 w-3.5 text-muted-foreground" />
           <Input
             placeholder="Buscar por destinatario o asunto..."
             value={searchTerm}
             onChange={(e) => onSearchChange(e.target.value)}
-            className="pl-10"
+            className="pl-8 h-8 text-xs"
           />
         </div>
 
         {/* Filtro por estado */}
         <Select value={statusFilter} onValueChange={onStatusChange}>
-          <SelectTrigger>
+          <SelectTrigger className="h-8 text-xs">
             <SelectValue placeholder="Estado" />
           </SelectTrigger>
           <SelectContent>
@@ -83,7 +83,7 @@ export function EmailLogsFilters({
 
         {/* Filtro por campaña */}
         <Select value={campaignFilter} onValueChange={onCampaignChange}>
-          <SelectTrigger>
+          <SelectTrigger className="h-8 text-xs">
             <SelectValue placeholder="Campaña" />
           </SelectTrigger>
           <SelectContent>
@@ -103,11 +103,11 @@ export function EmailLogsFilters({
               <Button
                 variant="outline"
                 className={cn(
-                  "flex-1 justify-start text-left font-normal",
+                  "flex-1 justify-start text-left font-normal h-8 text-xs px-2",
                   !dateFrom && "text-muted-foreground"
                 )}
               >
-                <CalendarIcon className="mr-2 h-4 w-4" />
+                <CalendarIcon className="mr-1 h-3 w-3" />
                 {dateFrom ? format(dateFrom, "dd/MM/yyyy", { locale: es }) : "Desde"}
               </Button>
             </PopoverTrigger>
@@ -126,11 +126,11 @@ export function EmailLogsFilters({
               <Button
                 variant="outline"
                 className={cn(
-                  "flex-1 justify-start text-left font-normal",
+                  "flex-1 justify-start text-left font-normal h-8 text-xs px-2",
                   !dateTo && "text-muted-foreground"
                 )}
               >
-                <CalendarIcon className="mr-2 h-4 w-4" />
+                <CalendarIcon className="mr-1 h-3 w-3" />
                 {dateTo ? format(dateTo, "dd/MM/yyyy", { locale: es }) : "Hasta"}
               </Button>
             </PopoverTrigger>

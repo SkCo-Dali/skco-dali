@@ -49,28 +49,28 @@ export function EmailLogsKPIs({ logs }: EmailLogsKPIsProps) {
   ];
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+    <div className="grid grid-cols-4 gap-2">
       {kpis.map((kpi, index) => {
         const Icon = kpi.icon;
         return (
           <Card key={index}>
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div className="space-y-1">
-                  <p className="text-sm font-medium text-muted-foreground">
+            <CardContent className="p-3">
+              <div className="flex items-center justify-between gap-2">
+                <div className="space-y-0.5 min-w-0">
+                  <p className="text-xs font-medium text-muted-foreground truncate">
                     {kpi.title}
                   </p>
-                  <p className="text-2xl font-bold">
+                  <p className="text-lg font-bold">
                     {kpi.value}
                   </p>
                   {kpi.subtitle && (
-                    <p className="text-xs text-muted-foreground">
+                    <p className="text-[10px] text-muted-foreground truncate">
                       {kpi.subtitle}
                     </p>
                   )}
                 </div>
-                <div className={`p-3 rounded-full ${kpi.bgColor}`}>
-                  <Icon className={`h-6 w-6 ${kpi.color}`} />
+                <div className={`p-2 rounded-full ${kpi.bgColor} flex-shrink-0`}>
+                  <Icon className={`h-4 w-4 ${kpi.color}`} />
                 </div>
               </div>
             </CardContent>
