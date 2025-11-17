@@ -358,7 +358,7 @@ export function EmailTemplatesModal({
         </DialogContent>
       </Dialog>
 
-      {/* Preview Modal (rebuilt from scratch) */}
+      {/* Preview Modal */}
       {selectedTemplate &&
         createPortal(
           <div
@@ -366,46 +366,39 @@ export function EmailTemplatesModal({
             role="dialog"
             aria-modal="true"
             tabIndex={-1}
-            className="fixed inset-0 z-[99999] isolate bg-black/60 backdrop-blur-sm animate-in fade-in duration-200 pointer-events-auto"
-            onPointerDownCapture={(e) => { e.stopPropagation(); }}
-            onClick={(e) => e.stopPropagation()}
+            className="fixed inset-0 z-[99999] flex items-center justify-center bg-black/70"
+            onClick={() => closePreview()}
+            onWheel={(e) => e.stopPropagation()}
+            onTouchMove={(e) => e.stopPropagation()}
           >
-
-            {/* Close button */}
-            <button
-              className="fixed right-4 top-4 z-[1110] rounded-full bg-black/60 hover:bg-black/80 p-2 text-white transition-colors pointer-events-auto"
-              onMouseDown={(e) => e.stopPropagation()}
-              onClick={(e) => { e.stopPropagation(); closePreview(); }}
+            {/* Panel que SÍ tiene scroll */}
+            <div
+              className="relative w-full max-w-5xl max-h-[90vh] overflow-y-auto rounded-xl bg-background shadow-2xl"
+              onClick={(e) => e.stopPropagation()} // para que click dentro no cierre
             >
-              <X className="h-5 w-5" />
-            </button>
-
-
-            {/* Name and subject overlay (top-right) */}
-            <div className="fixed right-16 top-4 z-[1105] flex flex-col items-end gap-1 pointer-events-none">
-              <div className="rounded-full bg-background/80 text-foreground px-3 py-1 text-xs md:text-sm shadow-md backdrop-blur-sm pointer-events-auto">
-                {selectedTemplate.template_name}
-              </div>
-              <div className="rounded-full bg-background/70 text-muted-foreground px-3 py-1 text-[11px] md:text-xs shadow backdrop-blur-sm pointer-events-auto">
-                {selectedTemplate.subject}
-              </div>
-            </div>
-
-            {/* Use template CTA (bottom-center) */}
-            <div className="fixed inset-x-0 bottom-4 z-[1105] flex justify-center pointer-events-none">
-              <Button
-                size="lg"
-                className="pointer-events-auto"
-                onClick={() => selectedTemplate && handleUseTemplate(selectedTemplate)}
+              {/* Botón cerrar */}
+              <button
+                className="absolute right-3 top-3 z-10 rounded-full bg-black/60 hover:bg-black/80 p-2 text-white transition-colors"
+                onClick={closePreview}
               >
-                Usar esta plantilla
-              </Button>
-            </div>
+                <X className="h-4 w-4" />
+              </button>
 
-            {/* Scrollable content - only the template HTML, no extra white/grey wrappers */}
-            <div className="absolute inset-0 overflow-y-auto overscroll-contain touch-pan-y" onClick={(e) => e.stopPropagation()}>
-              <div className="mx-auto w-full max-w-5xl px-4 md:px-6 py-8 md:py-10">
-                <div dangerouslySetInnerHTML={{ __html: selectedTemplate.html_content }} />
+              {/* Contenido de la plantilla */}
+              <div className="px-4 py-6 md:px-8 md:py-8">
+                <div
+                  dangerouslySetInnerHTML={{ __html: selectedTemplate.html_content }}
+                />
+              </div>
+
+              {/* CTA inferior: usar plantilla */}
+              <div className="sticky bottom-0 left-0 right-0 flex justify-center bg-gradient-to-t from-background/95 to-background/40 px-4 pb-4 pt-4">
+                <Button
+                  size="lg"
+                  onClick={() => handleUseTemplate(selectedTemplate)}
+                >
+                  Usar esta plantilla
+                </Button>
               </div>
             </div>
           </div>,
