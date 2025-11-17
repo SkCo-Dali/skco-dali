@@ -328,52 +328,52 @@ export function EmailTemplatesModal({
             className="fixed inset-0 z-[1000] flex items-center justify-center bg-black/60 backdrop-blur-sm animate-in fade-in duration-200"
             onClick={closePreview}
           >
-            <div 
-              className="relative max-h-[90vh] w-full max-w-4xl mx-4 overflow-hidden rounded-2xl bg-background shadow-2xl animate-in zoom-in-95 slide-in-from-bottom-4 duration-300"
-              onClick={(e) => e.stopPropagation()}
+          <div 
+            className="relative max-h-[90vh] w-full max-w-4xl mx-4 rounded-2xl bg-background shadow-2xl animate-in zoom-in-95 slide-in-from-bottom-4 duration-300 flex flex-col"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Botón cerrar */}
+            <button
+              className="absolute right-4 top-4 z-10 rounded-full bg-black/60 hover:bg-black/80 p-2 text-white transition-colors"
+              onClick={closePreview}
             >
-              {/* Botón cerrar */}
-              <button
-                className="absolute right-4 top-4 z-10 rounded-full bg-black/60 hover:bg-black/80 p-2 text-white transition-colors"
-                onClick={closePreview}
-              >
-                <X className="h-4 w-4" />
-              </button>
+              <X className="h-4 w-4" />
+            </button>
 
-              {/* Contenido con scroll */}
-              <ScrollArea className="max-h-[90vh]">
-                <div className="p-6 md:p-8">
-                  {/* HTML de la plantilla */}
-                  <div 
-                    className="prose prose-sm max-w-none"
-                    dangerouslySetInnerHTML={{ __html: selectedTemplate.html_content }}
-                  />
+            {/* Contenido con scroll */}
+            <ScrollArea className="max-h-[90vh] overflow-y-auto">
+              <div className="p-6 md:p-8 pt-12">
+                {/* HTML de la plantilla */}
+                <div 
+                  className="prose prose-sm max-w-none"
+                  dangerouslySetInnerHTML={{ __html: selectedTemplate.html_content }}
+                />
 
-                  {/* Barra de acciones */}
-                  <div className="mt-6 pt-6 border-t flex flex-col sm:flex-row gap-3 sm:justify-end">
+                {/* Barra de acciones */}
+                <div className="mt-6 pt-6 border-t flex flex-col sm:flex-row gap-3 sm:justify-end">
+                  <Button
+                    size="lg"
+                    onClick={() => handleUseTemplate(selectedTemplate)}
+                  >
+                    Usar esta plantilla
+                  </Button>
+                  {selectedTemplate.type === 'own' && (
                     <Button
+                      variant="destructive"
                       size="lg"
-                      onClick={() => handleUseTemplate(selectedTemplate)}
+                      onClick={() => {
+                        handleDeleteTemplate(selectedTemplate.id, selectedTemplate.template_name);
+                        closePreview();
+                      }}
                     >
-                      Usar esta plantilla
+                      <Trash2 className="h-4 w-4 mr-2" />
+                      Eliminar
                     </Button>
-                    {selectedTemplate.type === 'own' && (
-                      <Button
-                        variant="destructive"
-                        size="lg"
-                        onClick={() => {
-                          handleDeleteTemplate(selectedTemplate.id, selectedTemplate.template_name);
-                          closePreview();
-                        }}
-                      >
-                        <Trash2 className="h-4 w-4 mr-2" />
-                        Eliminar
-                      </Button>
-                    )}
-                  </div>
+                  )}
                 </div>
-              </ScrollArea>
-            </div>
+              </div>
+            </ScrollArea>
+          </div>
           </div>,
           document.body
         )
