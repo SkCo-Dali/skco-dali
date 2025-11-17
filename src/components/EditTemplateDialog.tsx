@@ -48,8 +48,14 @@ export function EditTemplateDialog({
     if (template && open) {
       setTemplateName(template.template_name);
       setSubject(template.subject);
-      setHtmlContent(template.html_content);
+      setHtmlContent(template.html_content || '');
       setCategory(template.category || '');
+    } else if (!open) {
+      // Reset form when dialog closes
+      setTemplateName('');
+      setSubject('');
+      setHtmlContent('');
+      setCategory('');
     }
   }, [template, open]);
 
@@ -119,7 +125,13 @@ export function EditTemplateDialog({
           <DialogTitle className="text-2xl">Editar Plantilla</DialogTitle>
         </DialogHeader>
 
-        <div className="flex-1 overflow-y-auto space-y-4 py-4">
+        {!template ? (
+          <div className="flex items-center justify-center py-8">
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          </div>
+        ) : (
+          <>
+            <div className="flex-1 overflow-y-auto space-y-4 py-4">
           {/* Nombre de la plantilla */}
           <div className="space-y-2">
             <Label htmlFor="template-name">Nombre de la plantilla</Label>
@@ -173,30 +185,32 @@ export function EditTemplateDialog({
               />
             </div>
           </div>
-        </div>
+          </div>
 
-        <DialogFooter className="gap-2">
-          <Button
-            variant="outline"
-            onClick={() => onOpenChange(false)}
-            disabled={isLoading}
-          >
-            Cancelar
-          </Button>
-          <Button onClick={handleSave} disabled={isLoading}>
-            {isLoading ? (
-              <>
-                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                Guardando...
-              </>
-            ) : (
-              <>
-                <Save className="h-4 w-4 mr-2" />
-                Guardar cambios
-              </>
-            )}
-          </Button>
-        </DialogFooter>
+          <DialogFooter className="gap-2">
+            <Button
+              variant="outline"
+              onClick={() => onOpenChange(false)}
+              disabled={isLoading}
+            >
+              Cancelar
+            </Button>
+            <Button onClick={handleSave} disabled={isLoading}>
+              {isLoading ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  Guardando...
+                </>
+              ) : (
+                <>
+                  <Save className="h-4 w-4 mr-2" />
+                  Guardar cambios
+                </>
+              )}
+            </Button>
+          </DialogFooter>
+          </>
+        )}
       </DialogContent>
     </Dialog>
   );
