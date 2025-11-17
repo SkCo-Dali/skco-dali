@@ -38,7 +38,9 @@ import {
   X,
   FileText,
   Upload,
+  Smile,
 } from 'lucide-react';
+import EmojiPicker, { EmojiClickData } from 'emoji-picker-react';
 import { cn } from '@/lib/utils';
 
 /**
@@ -103,6 +105,7 @@ const Toolbar = ({ editor }: ToolbarProps) => {
   const [linkUrl, setLinkUrl] = useState('');
   const [showLinkPopover, setShowLinkPopover] = useState(false);
   const [showFontSizePopover, setShowFontSizePopover] = useState(false);
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [fontSizeInput, setFontSizeInput] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
   const fontSizeInputRef = useRef<HTMLInputElement>(null);
@@ -474,6 +477,30 @@ const Toolbar = ({ editor }: ToolbarProps) => {
       >
         <ImageIcon className="h-4 w-4" />
       </Button>
+
+      {/* Emojis */}
+      <Popover open={showEmojiPicker} onOpenChange={setShowEmojiPicker}>
+        <PopoverTrigger asChild>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-8 w-8"
+            title="Insertar emoji"
+          >
+            <Smile className="h-4 w-4" />
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent className="w-auto p-0 border-0" align="start">
+          <EmojiPicker
+            onEmojiClick={(emojiData: EmojiClickData) => {
+              editor.chain().focus().insertContent(emojiData.emoji).run();
+              setShowEmojiPicker(false);
+            }}
+            width={350}
+            height={400}
+          />
+        </PopoverContent>
+      </Popover>
 
       <Separator orientation="vertical" className="h-6" />
 
