@@ -27,7 +27,10 @@ import {
   ChevronDown,
   Code,
   Eye,
+  Smile,
 } from 'lucide-react';
+import EmojiPicker, { EmojiClickData } from 'emoji-picker-react';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { ColorPicker } from './ColorPicker';
 import { DynamicFieldExtension } from '@/extensions/DynamicFieldExtension';
 import { ResizableImageExtension } from '@/extensions/ResizableImageExtension';
@@ -72,6 +75,7 @@ export function RichTextEditor({
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [activeTab, setActiveTab] = useState<'visual' | 'code'>('visual');
   const [htmlCode, setHtmlCode] = useState(value);
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
 
   const editor = useEditor({
     extensions: [
@@ -371,6 +375,31 @@ export function RichTextEditor({
               >
                 <ImageIcon className="h-4 w-4" />
               </Button>
+
+              {/* Emojis */}
+              <Popover open={showEmojiPicker} onOpenChange={setShowEmojiPicker}>
+                <PopoverTrigger asChild>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8"
+                    title="Insertar emoji"
+                  >
+                    <Smile className="h-4 w-4" />
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0 border-0" align="start">
+                  <EmojiPicker
+                    onEmojiClick={(emojiData: EmojiClickData) => {
+                      editor.chain().focus().insertContent(emojiData.emoji).run();
+                      setShowEmojiPicker(false);
+                    }}
+                    width={350}
+                    height={400}
+                  />
+                </PopoverContent>
+              </Popover>
 
               {/* Attachments */}
               {onAttachmentsChange && (
