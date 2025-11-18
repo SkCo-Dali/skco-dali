@@ -10,6 +10,8 @@ import { CountryPhoneSelector } from '@/components/onboarding/CountryPhoneSelect
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { ChevronDown } from 'lucide-react';
 import { toast } from 'sonner';
+import { useAuth } from '@/contexts/AuthContext';
+import { userProfileApiClient } from '@/utils/userProfileApiClient';
 
 interface Props {
   profile: UserProfile;
@@ -20,11 +22,93 @@ export function ProfilePersonalInfo({ profile, updateProfile }: Props) {
   const [isEditing, setIsEditing] = useState(false);
   const [localData, setLocalData] = useState(profile);
   const [socialMediaOpen, setSocialMediaOpen] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const { getAccessToken } = useAuth();
 
-  const handleSave = () => {
-    updateProfile(localData);
-    setIsEditing(false);
-    toast.success('Información personal actualizada');
+  const handleSave = async () => {
+    setIsSaving(true);
+    try {
+      const token = await getAccessToken();
+      if (!token) throw new Error('No access token');
+
+      // Save basic info
+      await userProfileApiClient.updateBasic(token.accessToken, {
+        preferredName: localData.preferredName,
+        birthDate: localData.birthDate || null,
+        gender: localData.gender || null,
+        maritalStatus: localData.maritalStatus || null,
+        childrenCount: localData.numberOfChildren || 0,
+      });
+
+      // Save contact channels
+      const channels = [];
+      if (localData.phone) {
+        channels.push({
+          channelType: 'WhatsApp' as const,
+          countryCode: localData.countryCode || null,
+          channelValue: localData.phone,
+          isPrimary: true,
+          isPublic: true,
+          isWhatsAppForMassEmails: true,
+        });
+      }
+      if (localData.facebook) {
+        channels.push({
+          channelType: 'Facebook' as const,
+          channelValue: localData.facebook,
+          isPrimary: false,
+          isPublic: true,
+          isWhatsAppForMassEmails: false,
+        });
+      }
+      if (localData.instagram) {
+        channels.push({
+          channelType: 'Instagram' as const,
+          channelValue: localData.instagram,
+          isPrimary: false,
+          isPublic: true,
+          isWhatsAppForMassEmails: false,
+        });
+      }
+      if (localData.linkedin) {
+        channels.push({
+          channelType: 'LinkedIn' as const,
+          channelValue: localData.linkedin,
+          isPrimary: false,
+          isPublic: true,
+          isWhatsAppForMassEmails: false,
+        });
+      }
+      if (localData.xTwitter) {
+        channels.push({
+          channelType: 'X' as const,
+          channelValue: localData.xTwitter,
+          isPrimary: false,
+          isPublic: true,
+          isWhatsAppForMassEmails: false,
+        });
+      }
+      if (localData.tiktok) {
+        channels.push({
+          channelType: 'TikTok' as const,
+          channelValue: localData.tiktok,
+          isPrimary: false,
+          isPublic: true,
+          isWhatsAppForMassEmails: false,
+        });
+      }
+
+      await userProfileApiClient.updateContactChannels(token.accessToken, { channels });
+
+      updateProfile(localData);
+      setIsEditing(false);
+      toast.success('Información personal actualizada');
+    } catch (error) {
+      console.error('Error saving personal info:', error);
+      toast.error('Error al guardar la información');
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const handleCancel = () => {
@@ -53,9 +137,9 @@ export function ProfilePersonalInfo({ profile, updateProfile }: Props) {
               <X className="h-4 w-4" />
               Cancelar
             </Button>
-            <Button onClick={handleSave} className="gap-2">
+            <Button onClick={handleSave} className="gap-2" disabled={isSaving}>
               <Save className="h-4 w-4" />
-              Guardar
+              {isSaving ? 'Guardando...' : 'Guardar'}
             </Button>
           </div>
         )}
