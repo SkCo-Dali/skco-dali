@@ -2,7 +2,19 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { IdCard, User, MapPin, Network, TrendingUp, Pencil, Mail, Phone, Calendar, Building, Users } from "lucide-react";
+import {
+  IdCard,
+  User,
+  MapPin,
+  Network,
+  TrendingUp,
+  Pencil,
+  Mail,
+  Phone,
+  Calendar,
+  Building,
+  Users,
+} from "lucide-react";
 import type { Advisor } from "@/core/api/dto";
 
 interface Props {
@@ -16,27 +28,31 @@ export const AdvisorResumenTab = ({ advisor }: Props) => {
   };
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-[400px_1fr] gap-6">
+    <div className="grid grid-cols-1 lg:grid-cols-8 gap-6">
       {/* Left Side - Basic Info */}
-      <div className="space-y-6">
+      <div className="col-span-3 space-y-6">
         {/* Avatar and Name */}
-        <Card className="border-border/40">
-          <CardContent className="pt-6">
+        <Card className="bg-[#EDFEFA] rounded-lg">
+          <CardContent className="pt-4">
             <div className="flex flex-col items-center space-y-4">
               <div className="relative">
                 <Avatar className="h-32 w-32 border-4 border-primary/20">
                   <AvatarFallback className="bg-muted text-3xl font-semibold text-foreground">
-                    {advisor.nombre.split(" ").map(n => n[0]).join("").slice(0, 2)}
+                    {advisor.nombre
+                      .split(" ")
+                      .map((n) => n[0])
+                      .join("")
+                      .slice(0, 2)}
                   </AvatarFallback>
                 </Avatar>
-                <button 
+                <button
                   onClick={handleEdit}
                   className="absolute bottom-0 right-0 h-10 w-10 rounded-full bg-primary text-primary-foreground flex items-center justify-center shadow-lg hover:bg-primary/90 transition-colors"
                 >
                   <Pencil className="h-4 w-4" />
                 </button>
               </div>
-              
+
               <div className="text-center space-y-2 w-full">
                 <h2 className="text-2xl font-bold text-foreground">{advisor.nombre}</h2>
                 <p className="text-sm text-muted-foreground">Perfil de asesor</p>
@@ -124,12 +140,7 @@ export const AdvisorResumenTab = ({ advisor }: Props) => {
               <User className="h-5 w-5 text-muted-foreground" />
               <CardTitle className="text-lg">Datos personales</CardTitle>
             </div>
-            <Button 
-              variant="outline" 
-              size="sm"
-              onClick={handleEdit}
-              className="gap-2"
-            >
+            <Button variant="outline" size="sm" onClick={handleEdit} className="gap-2">
               <Pencil className="h-3.5 w-3.5" />
               Editar
             </Button>
