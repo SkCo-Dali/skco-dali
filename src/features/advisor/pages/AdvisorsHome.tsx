@@ -3,21 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { Search, Filter, Users } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -28,8 +15,7 @@ import type { Advisor } from "@/core/api/dto";
 export const AdvisorsHome = () => {
   const navigate = useNavigate();
   const { advisors: advisorProvider } = useProviders();
-  const { advisors, setAdvisors, filters, setFilters, isLoading, setIsLoading } =
-    useAdvisorStore();
+  const { advisors, setAdvisors, filters, setFilters, isLoading, setIsLoading } = useAdvisorStore();
 
   const [searchTerm, setSearchTerm] = useState(filters.q || "");
   const [selectedRegion, setSelectedRegion] = useState(filters.region || "");
@@ -82,64 +68,59 @@ export const AdvisorsHome = () => {
       {/* Header */}
       <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3 md:gap-4 mb-3 md:mb-4">
         <div>
-          <h1 className="text-xl md:text-2xl lg:text-3xl font-bold mb-1 text-primary">
-            Ficha 360° de Asesores
-          </h1>
-          <p className="text-sm md:text-base text-muted-foreground">
-            Gestión integral de asesores y desempeño
-          </p>
+          <h1 className="text-xl md:text-2xl lg:text-3xl font-bold mb-1 text-primary">Ficha 360° de Asesores</h1>
+          <p className="text-sm md:text-base text-muted-foreground">Gestión integral de asesores y desempeño</p>
         </div>
       </div>
 
       {/* Filters Card */}
-      <Card className="border-border/40 shadow-sm">
-        <CardContent className="pt-6">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <div className="md:col-span-2">
-              <Input
-                placeholder="Buscar por nombre, documento o ID..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && handleSearch()}
-                className="w-full"
-              />
-            </div>
-            <Select value={selectedRegion} onValueChange={setSelectedRegion}>
-              <SelectTrigger>
-                <SelectValue placeholder="Región" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Todas</SelectItem>
-                <SelectItem value="Andina">Andina</SelectItem>
-                <SelectItem value="Pacífico">Pacífico</SelectItem>
-                <SelectItem value="Caribe">Caribe</SelectItem>
-              </SelectContent>
-            </Select>
-            <Select value={selectedZona} onValueChange={setSelectedZona}>
-              <SelectTrigger>
-                <SelectValue placeholder="Zona" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Todas</SelectItem>
-                <SelectItem value="Centro">Centro</SelectItem>
-                <SelectItem value="Norte">Norte</SelectItem>
-                <SelectItem value="Occidente">Occidente</SelectItem>
-                <SelectItem value="Costa">Costa</SelectItem>
-                <SelectItem value="Sur">Sur</SelectItem>
-              </SelectContent>
-            </Select>
+
+      <CardContent className="p-0">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <div className="md:col-span-2">
+            <Input
+              placeholder="Buscar por nombre, documento o ID..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && handleSearch()}
+              className="w-full"
+            />
           </div>
-          <div className="flex gap-2 mt-4">
-            <Button onClick={handleSearch} className="gap-2">
-              <Search className="h-4 w-4" />
-              Buscar
-            </Button>
-            <Button variant="outline" onClick={handleClearFilters}>
-              Limpiar filtros
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
+          <Select value={selectedRegion} onValueChange={setSelectedRegion}>
+            <SelectTrigger>
+              <SelectValue placeholder="Región" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Todas</SelectItem>
+              <SelectItem value="Andina">Andina</SelectItem>
+              <SelectItem value="Pacífico">Pacífico</SelectItem>
+              <SelectItem value="Caribe">Caribe</SelectItem>
+            </SelectContent>
+          </Select>
+          <Select value={selectedZona} onValueChange={setSelectedZona}>
+            <SelectTrigger>
+              <SelectValue placeholder="Zona" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Todas</SelectItem>
+              <SelectItem value="Centro">Centro</SelectItem>
+              <SelectItem value="Norte">Norte</SelectItem>
+              <SelectItem value="Occidente">Occidente</SelectItem>
+              <SelectItem value="Costa">Costa</SelectItem>
+              <SelectItem value="Sur">Sur</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+        <div className="flex gap-2 mt-4">
+          <Button onClick={handleSearch} className="gap-2">
+            <Search className="h-4 w-4" />
+            Buscar
+          </Button>
+          <Button variant="outline" onClick={handleClearFilters}>
+            Limpiar filtros
+          </Button>
+        </div>
+      </CardContent>
 
       {/* Table */}
       <Card className="border-border/40 shadow-sm">
@@ -172,12 +153,8 @@ export const AdvisorsHome = () => {
                     <TableCell colSpan={8} className="text-center py-12">
                       <div className="flex flex-col items-center gap-2">
                         <Users className="h-12 w-12 text-muted-foreground/50" />
-                        <p className="text-muted-foreground font-medium">
-                          No se encontraron asesores
-                        </p>
-                        <p className="text-sm text-muted-foreground">
-                          Intenta ajustar los filtros de búsqueda
-                        </p>
+                        <p className="text-muted-foreground font-medium">No se encontraron asesores</p>
+                        <p className="text-sm text-muted-foreground">Intenta ajustar los filtros de búsqueda</p>
                       </div>
                     </TableCell>
                   </TableRow>
