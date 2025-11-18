@@ -66,6 +66,7 @@ jobs:
           VITE_ENTRA_TENANT_NAME: ${{ vars.ENTRA_TENANT_NAME }}
           VITE_REQUIRED_SCOPES: ${{ vars.ENTRA_REQUIRED_SCOPES }}
           VITE_USER_INFO_URL: ${{ vars.USER_INFO_URL }}
+          VITE_GRAPH_CLIENT_ID: ${{ vars.GRAPH_CLIENT_ID }}
 
   close_pull_request_job:
     if: github.event_name == 'pull_request' && github.event.action == 'closed'
