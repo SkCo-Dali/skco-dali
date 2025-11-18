@@ -71,7 +71,7 @@ export const AdvisorResumenTab = ({ advisor }: Props) => {
         </Card>
 
         {/* Basic Data Card */}
-        <Card className="border-border/40 m-4">
+        <Card className="border-border/40 mx-4 mb-4">
           <CardContent className="p-4">
             <div className="grid grid-cols-2 gap-4">
               {/* Documento */}
