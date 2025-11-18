@@ -3,7 +3,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { MetricCard } from "@/components/dashboard/MetricCard";
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, ResponsiveContainer, Legend } from "recharts";
-import { DollarSign, TrendingUp, Target, Percent, Receipt } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Calendar } from "lucide-react";
 
 interface Props {
   advisorId: string;
@@ -18,9 +19,12 @@ interface SalesKPI {
   ticket: number;
 }
 
+type DateFilter = '7days' | '30days' | 'currentMonth';
+
 export const AdvisorVentasTab = ({ advisorId }: Props) => {
   const [salesData, setSalesData] = useState<SalesKPI[]>([]);
   const [loading, setLoading] = useState(true);
+  const [dateFilter, setDateFilter] = useState<DateFilter>('7days');
 
   useEffect(() => {
     const loadSalesData = async () => {
@@ -48,15 +52,49 @@ export const AdvisorVentasTab = ({ advisorId }: Props) => {
     );
   }
 
+  // Filtrar datos según el período seleccionado
+  const getFilteredData = () => {
+    const today = new Date('2025-11-08'); // Fecha de referencia para mockup
+    let startDate: Date;
+
+    switch (dateFilter) {
+      case '7days':
+        startDate = new Date(today);
+        startDate.setDate(today.getDate() - 6);
+        break;
+      case '30days':
+        startDate = new Date(today);
+        startDate.setDate(today.getDate() - 29);
+        break;
+      case 'currentMonth':
+        startDate = new Date(today.getFullYear(), today.getMonth(), 1);
+        break;
+      default:
+        startDate = new Date(today);
+        startDate.setDate(today.getDate() - 6);
+    }
+
+    return salesData.filter(d => {
+      const dataDate = new Date(d.fecha);
+      return dataDate >= startDate && dataDate <= today;
+    });
+  };
+
+  const filteredData = getFilteredData();
+
   // Calcular métricas agregadas
-  const totalProduccion = salesData.reduce((sum, d) => sum + d.produccion, 0);
-  const totalPrimas = salesData.reduce((sum, d) => sum + d.primas, 0);
-  const totalNegocios = salesData.reduce((sum, d) => sum + d.negocios, 0);
-  const avgConversion = salesData.reduce((sum, d) => sum + d.conversion, 0) / salesData.length;
-  const avgTicket = salesData.reduce((sum, d) => sum + d.ticket, 0) / salesData.length;
+  const totalProduccion = filteredData.reduce((sum, d) => sum + d.produccion, 0);
+  const totalPrimas = filteredData.reduce((sum, d) => sum + d.primas, 0);
+  const totalNegocios = filteredData.reduce((sum, d) => sum + d.negocios, 0);
+  const avgConversion = filteredData.length > 0 
+    ? filteredData.reduce((sum, d) => sum + d.conversion, 0) / filteredData.length 
+    : 0;
+  const avgTicket = filteredData.length > 0 
+    ? filteredData.reduce((sum, d) => sum + d.ticket, 0) / filteredData.length 
+    : 0;
 
   // Preparar datos para gráficos con formato más legible
-  const chartData = salesData.map((d) => ({
+  const chartData = filteredData.map((d) => ({
     fecha: new Date(d.fecha).toLocaleDateString('es-ES', { day: '2-digit', month: 'short' }),
     produccion: d.produccion / 1000000, // En millones
     primas: d.primas,
@@ -65,14 +103,60 @@ export const AdvisorVentasTab = ({ advisorId }: Props) => {
     ticket: d.ticket / 1000, // En miles
   }));
 
+  const getFilterLabel = () => {
+    switch (dateFilter) {
+      case '7days':
+        return 'Últimos 7 días';
+      case '30days':
+        return 'Últimos 30 días';
+      case 'currentMonth':
+        return 'Mes actual';
+    }
+  };
+
   return (
     <div className="space-y-6">
+      {/* Filtros de Fecha */}
+      <Card>
+        <CardContent className="pt-6">
+          <div className="flex flex-wrap items-center gap-3">
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <Calendar className="h-4 w-4" />
+              <span>Período:</span>
+            </div>
+            <div className="flex gap-2">
+              <Button
+                variant={dateFilter === '7days' ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => setDateFilter('7days')}
+              >
+                Últimos 7 días
+              </Button>
+              <Button
+                variant={dateFilter === '30days' ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => setDateFilter('30days')}
+              >
+                Últimos 30 días
+              </Button>
+              <Button
+                variant={dateFilter === 'currentMonth' ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => setDateFilter('currentMonth')}
+              >
+                Mes actual
+              </Button>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
       {/* KPI Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
         <MetricCard
           title="Producción Total"
           value={`$${(totalProduccion / 1000000).toFixed(1)}M`}
-          description="Últimos 8 días"
+          description={getFilterLabel()}
           variant="success"
         />
         <MetricCard
