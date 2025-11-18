@@ -93,8 +93,8 @@ export function useUnifiedLeadsFilters(leads: Lead[]) {
   const applyDateRangeFilter = (lead: Lead, column: string, selectedRanges: string[]) => {
     if (selectedRanges.length === 0) return true;
 
-    // Map lastInteraction column to updatedAt field
-    const dateField = column === 'lastInteraction' ? 'updatedAt' : column;
+    // Map lastInteraction column to lastInteractionAt field
+    const dateField = column === 'lastInteraction' ? 'lastInteractionAt' : column;
     const dateValue = lead[dateField as keyof Lead] as string;
     if (!dateValue) return false;
 
@@ -445,8 +445,8 @@ export function useUnifiedLeadsFilters(leads: Lead[]) {
       
       // Handle special date field mappings
       if (sortBy === 'lastInteraction') {
-        aValue = a.updatedAt;
-        bValue = b.updatedAt;
+        aValue = a.lastInteractionAt;
+        bValue = b.lastInteractionAt;
       } else if (sortBy === 'created') {
         aValue = a.createdAt;
         bValue = b.createdAt;

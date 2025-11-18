@@ -1,0 +1,12 @@
+[
+  {"id":"A-1001","doc":"10184321","nombre":"Laura Méndez","region":"Andina","zona":"Centro","jefe":"Carlos Jara","canal":"Directo","estado":"activo"},
+  {"id":"A-1002","doc":"10329876","nombre":"Andrés Pardo","region":"Andina","zona":"Norte","jefe":"Carlos Jara","canal":"Alianzas","estado":"activo"},
+  {"id":"A-1003","doc":"98765432","nombre":"María Fernanda Ruiz","region":"Pacífico","zona":"Occidente","jefe":"Luisa Cárdenas","canal":"Digital","estado":"activo"},
+  {"id":"A-1004","doc":"11223344","nombre":"Julián Castaño","region":"Caribe","zona":"Costa","jefe":"Luisa Cárdenas","canal":"Directo","estado":"activo"},
+  {"id":"A-1005","doc":"55667788","nombre":"Diana Torres","region":"Caribe","zona":"Costa","jefe":"Luisa Cárdenas","canal":"Alianzas","estado":"activo"},
+  {"id":"A-1006","doc":"44445555","nombre":"Ricardo Pineda","region":"Andina","zona":"Sur","jefe":"Carlos Jara","canal":"Digital","estado":"activo"},
+  {"id":"A-1007","doc":"66667777","nombre":"Natalia Ibáñez","region":"Pacífico","zona":"Occidente","jefe":"Luisa Cárdenas","canal":"Directo","estado":"activo"},
+  {"id":"A-1008","doc":"77778888","nombre":"Felipe Mora","region":"Andina","zona":"Centro","jefe":"Carlos Jara","canal":"Alianzas","estado":"activo"},
+  {"id":"A-1009","doc":"88889999","nombre":"Sofía Ramírez","region":"Andina","zona":"Norte","jefe":"Carlos Jara","canal":"Digital","estado":"activo"},
+  {"id":"A-1010","doc":"99990000","nombre":"Camilo Peña","region":"Pacífico","zona":"Occidente","jefe":"Luisa Cárdenas","canal":"Directo","estado":"activo"}
+]

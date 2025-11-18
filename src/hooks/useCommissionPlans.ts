@@ -9,15 +9,51 @@ export const useCommissionPlans = () => {
   const [plans, setPlans] = useState<CommissionPlan[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [currentPage, setCurrentPage] = useState<Record<CommissionPlanStatus, number>>({
+    published: 1,
+    ready_to_approve: 1,
+    draft: 1,
+    rejected: 1,
+    inactive: 1,
+  });
+  const [itemsPerPage, setItemsPerPage] = useState<Record<CommissionPlanStatus, number>>({
+    published: 20,
+    ready_to_approve: 20,
+    draft: 20,
+    rejected: 20,
+    inactive: 20,
+  });
+  const [totalCounts, setTotalCounts] = useState<Record<CommissionPlanStatus, number>>({
+    published: 0,
+    ready_to_approve: 0,
+    draft: 0,
+    rejected: 0,
+    inactive: 0,
+  });
+  const [searchTerm, setSearchTerm] = useState<string>('');
 
-  const fetchPlans = async () => {
+  const fetchPlans = async (page: number = 1, pageSize: number = 100) => {
     try {
       setLoading(true);
       setError(null);
       
-      const response = await commissionPlansApi.getCommissionPlans();
+      const response = await commissionPlansApi.getCommissionPlans(page, pageSize);
       const mappedPlans = response.items.map(commissionPlansMapper.mapApiCommissionPlanToUI);
       setPlans(mappedPlans);
+      
+      // Calculate total counts for each status from the fetched plans
+      const counts = mappedPlans.reduce((acc, plan) => {
+        acc[plan.status] = (acc[plan.status] || 0) + 1;
+        return acc;
+      }, {
+        published: 0,
+        ready_to_approve: 0,
+        draft: 0,
+        rejected: 0,
+        inactive: 0,
+      } as Record<CommissionPlanStatus, number>);
+      
+      setTotalCounts(counts);
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Failed to fetch commission plans';
       setError(errorMessage);
@@ -316,7 +352,42 @@ export const useCommissionPlans = () => {
   };
 
   const getTabCount = (status: CommissionPlanStatus) => {
-    return getPlansForStatus(status).length;
+    return totalCounts[status] || 0;
+  };
+
+  const handlePageChange = (status: CommissionPlanStatus, page: number) => {
+    setCurrentPage(prev => ({ ...prev, [status]: page }));
+  };
+
+  const handleItemsPerPageChange = (status: CommissionPlanStatus, items: number) => {
+    setItemsPerPage(prev => ({ ...prev, [status]: items }));
+    setCurrentPage(prev => ({ ...prev, [status]: 1 }));
+  };
+
+  const getFilteredPlansForStatus = (status: CommissionPlanStatus) => {
+    const statusPlans = plans.filter(plan => plan.status === status);
+    
+    if (!searchTerm.trim()) {
+      return statusPlans;
+    }
+    
+    const lowerSearchTerm = searchTerm.toLowerCase();
+    return statusPlans.filter(plan => 
+      plan.name.toLowerCase().includes(lowerSearchTerm) ||
+      plan.description.toLowerCase().includes(lowerSearchTerm)
+    );
+  };
+
+  const getPaginatedPlansForStatus = (status: CommissionPlanStatus) => {
+    const filteredPlans = getFilteredPlansForStatus(status);
+    const page = currentPage[status];
+    const items = itemsPerPage[status];
+    const startIndex = (page - 1) * items;
+    return filteredPlans.slice(startIndex, startIndex + items);
+  };
+
+  const getFilteredTabCount = (status: CommissionPlanStatus) => {
+    return getFilteredPlansForStatus(status).length;
   };
 
   useEffect(() => {
@@ -336,6 +407,15 @@ export const useCommissionPlans = () => {
     publishPlan,
     inactivatePlan,
     getPlansForStatus,
+    getPaginatedPlansForStatus,
     getTabCount,
+    getFilteredTabCount,
+    currentPage,
+    itemsPerPage,
+    totalCounts,
+    handlePageChange,
+    handleItemsPerPageChange,
+    searchTerm,
+    setSearchTerm,
   };
 };

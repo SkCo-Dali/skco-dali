@@ -31,8 +31,8 @@ export interface User {
   phone?: string;
   department?: string;
   manager?: string;
-  createdAt: string; // Changed to string for consistency
-  updatedAt?: string; // Changed to string for consistency
+  createdAt: string;
+  updatedAt?: string;
   zone?: string;
   team?: string;
   jobTitle?: string;
@@ -40,6 +40,29 @@ export interface User {
     full_name?: string;
     name?: string;
   };
+  // Additional fields from API
+  countryCodeWhatsApp?: number;
+  whatsappNumber?: string;
+  idAgte?: number | null;
+  idSociedad?: number | null;
+  idPromotor?: number | null;
+  idAliado?: number | null;
+  wSaler?: string | null;
+  preferredName?: string | null;
+  birthDate?: string | null;
+  dailyEmailLimit?: number;
+  dailyWhatsAppLimit?: number;
+  idSupervisor?: number | null;
+  
+  // Profile data from GET /api/profile
+  gender?: string | null;
+  maritalStatus?: string | null;
+  childrenCount?: number;
+  whatsappCountryCode?: string | null;
+  whatsappPhone?: string | null;
+  emailSignatureHtml?: string | null;
+  primaryActionCode?: string | null;
+  primaryActionRoute?: string | null;
 }
 
 export interface RolePermissions {
@@ -88,6 +111,7 @@ export const getRolePermissions = (role: UserRole): RolePermissions => {
         accessiblePages: [
           "dashboard",
           "leads",
+          "leadstabbed",
           "ChatDali",
           "opportunities",
           "gamification",
@@ -101,6 +125,7 @@ export const getRolePermissions = (role: UserRole): RolePermissions => {
           "voice-insights",
           "calendar",
           "tasks",
+          "ficha-360",
         ],
       };
     case "manager":
@@ -232,7 +257,7 @@ export const getRolePermissions = (role: UserRole): RolePermissions => {
         canViewAll: true,
         canManageUsers: false,
         canAccessReports: false,
-        canUploadLeads: false,
+        canUploadLeads: true,
         canBulkAssignLeads: true,
         canBulkUpdateStage: false,
         canAccessUserManagement: false,
@@ -253,7 +278,7 @@ export const getRolePermissions = (role: UserRole): RolePermissions => {
         canViewAll: false,
         canManageUsers: false,
         canAccessReports: false,
-        canUploadLeads: false,
+        canUploadLeads: true,
         canBulkAssignLeads: true,
         canBulkUpdateStage: false,
         canAccessUserManagement: false,
@@ -273,7 +298,7 @@ export const getRolePermissions = (role: UserRole): RolePermissions => {
         canViewAll: false,
         canManageUsers: false,
         canAccessReports: false,
-        canUploadLeads: false,
+        canUploadLeads: true,
         canBulkAssignLeads: false,
         canBulkUpdateStage: false,
         canAccessUserManagement: false,
@@ -293,7 +318,7 @@ export const getRolePermissions = (role: UserRole): RolePermissions => {
         canViewAll: false,
         canManageUsers: false,
         canAccessReports: false,
-        canUploadLeads: false,
+        canUploadLeads: true,
         canBulkAssignLeads: false,
         canBulkUpdateStage: false,
         canAccessUserManagement: false,
@@ -314,7 +339,7 @@ export const getRolePermissions = (role: UserRole): RolePermissions => {
         canViewAll: false,
         canManageUsers: false,
         canAccessReports: false,
-        canUploadLeads: false,
+        canUploadLeads: true,
         canBulkAssignLeads: true,
         canBulkUpdateStage: false,
         canAccessUserManagement: false,
@@ -334,7 +359,7 @@ export const getRolePermissions = (role: UserRole): RolePermissions => {
         canViewAll: false,
         canManageUsers: false,
         canAccessReports: false,
-        canUploadLeads: false,
+        canUploadLeads: true,
         canBulkAssignLeads: false,
         canBulkUpdateStage: false,
         canAccessUserManagement: false,
@@ -354,7 +379,7 @@ export const getRolePermissions = (role: UserRole): RolePermissions => {
         canViewAll: false,
         canManageUsers: false,
         canAccessReports: false,
-        canUploadLeads: false,
+        canUploadLeads: true,
         canBulkAssignLeads: false,
         canBulkUpdateStage: false,
         canAccessUserManagement: false,
@@ -374,7 +399,7 @@ export const getRolePermissions = (role: UserRole): RolePermissions => {
         canViewAll: false,
         canManageUsers: false,
         canAccessReports: false,
-        canUploadLeads: false,
+        canUploadLeads: true,
         canBulkAssignLeads: false,
         canBulkUpdateStage: false,
         canAccessUserManagement: false,
@@ -488,6 +513,7 @@ export interface Interaction {
 export interface Lead {
   id: string;
   name: string;
+  firstName?: string; // Primer Nombre
   email: string;
   phone: string;
   status: LeadStatus;
@@ -498,6 +524,7 @@ export interface Lead {
   product: string; // Changed from Product[] to string
   createdAt: string; // Changed to string for consistency
   updatedAt: string; // Changed to string for consistency
+  lastInteractionAt?: string; // Última fecha de interacción
   stage: string;
   assignedTo: string;
   assignedToName?: string; // Name of the assigned user from API
@@ -529,6 +556,7 @@ export interface Lead {
 export const LeadDefaultProperties: string[] = [
   "id",
   "name",
+  "firstName",
   "email",
   "phone",
   "status",

@@ -1,5 +1,5 @@
 
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useState, useCallback } from 'react';
 import { Conversation, ConversationSummary } from '../types/conversation';
 import { ChatMessage } from '../types/chat';
 import { azureConversationService } from '../services/azureConversationService';
@@ -14,6 +14,7 @@ interface SimpleConversationContextType {
   addMessage: (message: ChatMessage) => void;
   createNewConversation: () => void;
   deleteConversation: (id: string) => Promise<void>;
+  updateConversationId: (newId: string) => void;
 }
 
 const SimpleConversationContext = createContext<SimpleConversationContextType | undefined>(undefined);
@@ -26,18 +27,13 @@ export const SimpleConversationProvider: React.FC<{ children: React.ReactNode }>
 
   const userEmail = user?.email || '';
 
-  const loadConversationsList = async () => {
+  const loadConversationsList = useCallback(async () => {
     if (!userEmail) return;
-    
     try {
       setIsLoading(true);
       console.log('SimpleConversationContext: Loading conversations list for:', userEmail);
-      
       const azureConversations = await azureConversationService.listUserConversations(userEmail);
-      const summaries = azureConversations.map(conv => 
-        azureConversationService.convertToSummary(conv)
-      );
-      
+      const summaries = azureConversations.map(conv => azureConversationService.convertToSummary(conv));
       setConversations(summaries);
       console.log('SimpleConversationContext: Loaded', summaries.length, 'conversations');
     } catch (error) {
@@ -46,7 +42,7 @@ export const SimpleConversationProvider: React.FC<{ children: React.ReactNode }>
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [userEmail]);
 
   const loadConversation = async (id: string) => {
     if (!userEmail || !id) return;
@@ -128,6 +124,14 @@ export const SimpleConversationProvider: React.FC<{ children: React.ReactNode }>
     }
   };
 
+  const updateConversationId = (newId: string) => {
+    console.log('SimpleConversationContext: Updating conversation ID to:', newId);
+    setCurrentConversation(prev => {
+      if (!prev) return null;
+      return { ...prev, id: newId };
+    });
+  };
+
   return (
     <SimpleConversationContext.Provider value={{
       conversations,
@@ -137,7 +141,8 @@ export const SimpleConversationProvider: React.FC<{ children: React.ReactNode }>
       loadConversation,
       addMessage,
       createNewConversation,
-      deleteConversation
+      deleteConversation,
+      updateConversationId
     }}>
       {children}
     </SimpleConversationContext.Provider>

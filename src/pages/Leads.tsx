@@ -2,6 +2,8 @@ import React, { useState, useCallback, useMemo, useRef, useEffect } from "react"
 import { useToast } from "@/hooks/use-toast";
 import { Lead, getRolePermissions } from "@/types/crm";
 import { useAuth } from "@/contexts/AuthContext";
+import { isAuthorizedForMassEmail } from "@/utils/emailDomainValidator";
+import Lottie from 'lottie-react';
 import { LeadsSearch } from "@/components/LeadsSearch";
 import { LeadsFilters } from "@/components/LeadsFilters";
 import { LeadsStats } from "@/components/LeadsStats";
@@ -23,8 +25,6 @@ import { useIsMobile, useIsMedium } from "@/hooks/use-mobile";
 import { ColumnConfig } from "@/components/LeadsTableColumnSelector";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
-import { AccessDenied } from "@/components/AccessDenied";
-import { usePageAccess } from "@/hooks/usePageAccess";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -56,6 +56,7 @@ import { bulkChangeLeadStage } from "@/utils/leadsApiClient";
 
 const DEFAULT_COLUMNS: ColumnConfig[] = [
   { key: "name", label: "Nombre", visible: true, sortable: true },
+  { key: "firstName", label: "Primer Nombre", visible: true, sortable: true },
   { key: "campaign", label: "Campaña", visible: true, sortable: true },
   { key: "email", label: "Email", visible: true, sortable: true },
   { key: "alternateEmail", label: "Email Alternativo", visible: true, sortable: true },
@@ -85,12 +86,6 @@ const DEFAULT_COLUMNS: ColumnConfig[] = [
 ];
 
 export default function Leads() {
-  const { hasAccess } = usePageAccess("leads");
-
-  if (!hasAccess) {
-    return <AccessDenied />;
-  }
-
   const isMobile = useIsMobile();
   const isMedium = useIsMedium();
   const isSmallScreen = isMobile || isMedium;
@@ -112,6 +107,15 @@ export default function Leads() {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [showBulkStatusUpdate, setShowBulkStatusUpdate] = useState(false);
   const [isBulkUpdating, setIsBulkUpdating] = useState(false);
+  const [leadsAnimation, setLeadsAnimation] = useState(null);
+  const [kpiRefreshTrigger, setKpiRefreshTrigger] = useState(0);
+
+  useEffect(() => {
+    fetch('/animations/leads.json')
+      .then(res => res.json())
+      .then(data => setLeadsAnimation(data))
+      .catch(err => console.error('Error loading leads animation:', err));
+  }, []);
 
   const { user } = useAuth();
   const userPermissions = user ? getRolePermissions(user.role) : null;
@@ -136,6 +140,7 @@ export default function Leads() {
     apiFilters,
     duplicateFilter: filters.duplicateFilter,
     searchTerm: filters.searchTerm,
+    refreshTrigger: kpiRefreshTrigger,
   });
 
   const handleLeadUpdate = useCallback(
@@ -371,10 +376,10 @@ export default function Leads() {
 
   const handleColumnFilterChange = useCallback(
     (column: string, selectedValues: string[]) => {
-      const dateColumns = new Set(["createdAt", "updatedAt", "nextFollowUp", "lastInteraction"]);
-      const normCol = column === "lastInteraction" ? "updatedAt" : column;
+      const dateColumns = new Set(["createdAt", "updatedAt", "nextFollowUp", "lastInteraction", "lastGestorInteractionAt"]);
+      const normCol = column; // No more mapping - keep column as is
 
-      if (dateColumns.has(normCol)) {
+      if (dateColumns.has(column)) {
         const parseRange = (values: string[]) => {
           let from: string | undefined;
           let to: string | undefined;
@@ -388,7 +393,8 @@ export default function Leads() {
             } catch {}
           }
 
-          const dayRegex = /^\d{4}-\d{2}-\d{2}$/;
+          // Match dates with or without time (YYYY-MM-DD or YYYY-MM-DDTHH:MM:SS)
+          const dayRegex = /^\d{4}-\d{2}-\d{2}(T\d{2}:\d{2}:\d{2})?$/;
           const days = values.filter((v) => dayRegex.test(v)).sort();
           if (days.length > 0) {
             from = from ? (from < days[0] ? from : days[0]) : days[0];
@@ -465,7 +471,7 @@ export default function Leads() {
   const clearColumnFilter = useCallback(
     (column: string) => {
       const newColumnFilters = { ...filters.columnFilters };
-      const effectiveKey = column === "lastInteraction" ? "updatedAt" : column;
+      const effectiveKey = column; // No more mapping - keep column as is
 
       delete newColumnFilters[column];
       delete newColumnFilters[effectiveKey];
@@ -486,14 +492,11 @@ export default function Leads() {
 
   const hasFiltersForColumn = useCallback(
     (column: string) => {
-      const effectiveKey = column === "lastInteraction" ? "updatedAt" : column;
+      const effectiveKey = column; // No more mapping - keep column as is
       return (
         (filters.columnFilters[column] && filters.columnFilters[column].length > 0) ||
-        (filters.columnFilters[effectiveKey] && filters.columnFilters[effectiveKey].length > 0) ||
         (filters.columnFilters[`${column}End`] && filters.columnFilters[`${column}End`].length > 0) ||
-        (filters.columnFilters[`${effectiveKey}End`] && filters.columnFilters[`${effectiveKey}End`].length > 0) ||
-        (filters.textFilters[column] && filters.textFilters[column].length > 0) ||
-        (filters.textFilters[effectiveKey] && filters.textFilters[effectiveKey].length > 0)
+        (filters.textFilters[column] && filters.textFilters[column].length > 0)
       );
     },
     [filters.columnFilters, filters.textFilters],
@@ -799,7 +802,7 @@ export default function Leads() {
                       <CheckCircle2 className="h-4 w-4" />
                     </Button>
                   )}
-                  {userPermissions?.canSendEmail && (
+                  {userPermissions?.canSendEmail && isAuthorizedForMassEmail(user?.email) && (
                     <Button
                       className="gap-1 w-8 h-8 bg-primary"
                       onClick={handleMassEmail}
@@ -1122,8 +1125,15 @@ export default function Leads() {
             </div>
 
             {isLoading ? (
-              <div className="flex justify-center items-center py-5">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900" />
+              <div className="flex flex-col justify-center items-center py-12 space-y-4">
+                {leadsAnimation ? (
+                  <div className="w-64 h-64">
+                    <Lottie animationData={leadsAnimation} loop={true} />
+                  </div>
+                ) : (
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900" />
+                )}
+                <span className="text-lg text-muted-foreground">Cargando leads...</span>
               </div>
             ) : (
               <>
@@ -1168,7 +1178,14 @@ export default function Leads() {
           </div>
         </div>
 
-        <LeadCreateDialog ref={leadCreateDialogRef} onLeadCreate={handleLeadCreate} />
+        <LeadCreateDialog 
+          ref={leadCreateDialogRef} 
+          onLeadCreate={handleLeadCreate}
+          onBulkUploadSuccess={() => {
+            refreshLeads();
+            setKpiRefreshTrigger(prev => prev + 1);
+          }}
+        />
 
         {selectedLead && (
           <LeadDetail

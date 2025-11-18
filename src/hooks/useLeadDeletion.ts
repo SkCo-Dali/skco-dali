@@ -23,7 +23,7 @@ export function useLeadDeletion({ onLeadDeleted }: UseLeadDeletionProps = {}) {
     }
 
     // Los roles con permisos canDelete pueden eliminar leads que hayan creado y tengan asignados
-    const allowedRoles = ['manager', 'supervisor', 'agent', 'gestor', 'fp', 'ais', 'director', 'promotor', 'aliado', 'socio'];
+    const allowedRoles = ['manager', 'supervisor', 'agent', 'gestor', 'fp', 'fpSac', 'ais', 'director', 'promotor', 'aliado', 'socio'];
     if (!allowedRoles.includes(user.role)) {
       return false;
     }

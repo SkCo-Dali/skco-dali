@@ -1,17 +1,28 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import Lottie from "lottie-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Settings, Database, FileText, Calculator } from "lucide-react";
-import { AccessDenied } from "@/components/AccessDenied";
-import { usePageAccess } from "@/hooks/usePageAccess";
 
 export default function MotorComisionesIndex() {
-  const { hasAccess } = usePageAccess("motor-comisiones");
-
-  if (!hasAccess) {
-    return <AccessDenied />;
-  }
   const navigate = useNavigate();
+  const [loading, setLoading] = useState(true);
+  const [calculatorAnimation, setCalculatorAnimation] = useState(null);
+
+  useEffect(() => {
+    fetch("/animations/calculator_and_coin_dollar.json")
+      .then((res) => res.json())
+      .then((data) => setCalculatorAnimation(data))
+      .catch((err) => console.error("Error loading calculator animation:", err));
+  }, []);
+
+  useEffect(() => {
+    // Simular carga de datos
+    const timer = setTimeout(() => {
+      setLoading(false);
+    }, 3000);
+    return () => clearTimeout(timer);
+  }, []);
 
   const modules = [
     {
@@ -31,13 +42,13 @@ export default function MotorComisionesIndex() {
       bgColor: "bg-green-50",
     },
     {
-      title: "Reglas",
-      description: "Configura fórmulas y condiciones para cálculos de comisiones",
+      title: "Info Gerencial de Comisiones",
+      description: "Dashboard con métricas y análisis de comisiones para supervisores",
       icon: Calculator,
-      path: "/motor-comisiones/rules",
+      path: "/motor-comisiones/info-gerencial",
       color: "text-purple-600",
       bgColor: "bg-purple-50",
-      disabled: true,
+      disabled: false,
     },
     {
       title: "Contabilidad",
@@ -49,6 +60,21 @@ export default function MotorComisionesIndex() {
       disabled: true,
     },
   ];
+
+  if (loading) {
+    return (
+      <div className="flex flex-col justify-center items-center min-h-[60vh] space-y-4">
+        {calculatorAnimation ? (
+          <div className="w-64 h-64">
+            <Lottie animationData={calculatorAnimation} loop={true} />
+          </div>
+        ) : (
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900" />
+        )}
+        <span className="text-lg text-muted-foreground">Cargando Motor de Comisiones...</span>
+      </div>
+    );
+  }
 
   return (
     <div className="w-full max-w-7xl mx-auto px-4 py-8 space-y-8">
@@ -84,9 +110,7 @@ export default function MotorComisionesIndex() {
                       </span>
                     )}
                   </CardTitle>
-                  <CardDescription className="text-sm">
-                    {module.description}
-                  </CardDescription>
+                  <CardDescription className="text-sm">{module.description}</CardDescription>
                 </div>
               </div>
             </CardHeader>

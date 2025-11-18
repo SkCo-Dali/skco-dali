@@ -5,6 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { InformesSearch } from "@/components/InformesSearch";
+import Lottie from 'lottie-react';
 import {
   Search,
   Filter,
@@ -30,8 +31,6 @@ import { powerbiService } from "@/services/powerbiService";
 import { EffectiveReport, Area, Workspace } from "@/types/powerbi";
 import { toast } from "@/hooks/use-toast";
 import { ENV } from "@/config/environment";
-import { AccessDenied } from "@/components/AccessDenied";
-import { usePageAccess } from "@/hooks/usePageAccess";
 
 // Component state types
 interface InformesState {
@@ -52,12 +51,6 @@ interface InformesState {
 }
 
 export default function Informes() {
-  const { hasAccess } = usePageAccess("informes");
-
-  if (!hasAccess) {
-    return <AccessDenied />;
-  }
-
   const { user, getAccessToken } = useAuth();
   const navigate = useNavigate();
   const hasAdminRole = useHasRole("admin", "seguridad");
@@ -78,6 +71,15 @@ export default function Informes() {
     sortColumn: null,
     sortDirection: "asc",
   });
+
+  const [informesAnimation, setInformesAnimation] = useState(null);
+
+  useEffect(() => {
+    fetch('/animations/informes.json')
+      .then(res => res.json())
+      .then(data => setInformesAnimation(data))
+      .catch(err => console.error('Error loading informes animation:', err));
+  }, []);
 
   // Fetch initial data
   const fetchData = async () => {
@@ -330,9 +332,15 @@ export default function Informes() {
     return (
       <div className="pt-0">
         <div className="px-4 py-4">
-          <div className="flex items-center justify-center py-12">
-            <Loader2 className="h-8 w-8 animate-spin text-primary" />
-            <span className="ml-2">Cargando informes...</span>
+          <div className="flex flex-col items-center justify-center py-12 space-y-4">
+            {informesAnimation ? (
+              <div className="w-64 h-64">
+                <Lottie animationData={informesAnimation} loop={true} />
+              </div>
+            ) : (
+              <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            )}
+            <span className="text-lg text-muted-foreground">Cargando informes...</span>
           </div>
         </div>
       </div>
@@ -340,9 +348,9 @@ export default function Informes() {
   }
 
   return (
-    <div className="m-4 pt-0">
+    <div className="w-full max-w-full px-4 py-4 space-y-6">
       {/* Contenido principal */}
-      <div className="flex-1 px-4">
+      <div className="flex-1 px-0">
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <div>
@@ -548,7 +556,7 @@ export default function Informes() {
                                 <div>
                                   <div className="font-medium">{report.reportName}</div>
                                   <div className="text-sm text-muted-foreground">
-                                    {report.source === "workspace" ? "Acceso por workspace" : "Acceso directo"}
+                                    {report.source === "workspace" ? "Acceso por workspace" : report.source === "area" ? "Acceso por área" : "Acceso por reporte"}
                                   </div>
                                 </div>
                               </div>
@@ -655,7 +663,7 @@ export default function Informes() {
                             )}
                           </div>
                           <span className="text-xs text-muted-foreground">
-                            {report.source === "workspace" ? "Por workspace" : "Directo"}
+                            {report.source === "workspace" ? "Por workspace" : report.source === "area" ? "Por área" : "Por reporte"}
                           </span>
                         </div>
 

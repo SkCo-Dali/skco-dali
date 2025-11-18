@@ -20,6 +20,8 @@ import {
 import { Trash2, Edit2, Check, X } from "lucide-react";
 import { User, UserPermissions, getRoleDisplayName } from "@/types/crm";
 import { roles } from "@/utils/userRoleUtils";
+import { formatBogotaDateTime } from "@/utils/dateUtils";
+import { format } from "date-fns";
 
 interface UserTableRowProps {
   user: User;
@@ -28,7 +30,14 @@ interface UserTableRowProps {
   onRoleUpdate: (userId: string, newRole: User["role"]) => void;
   onUserDelete: (userId: string) => void;
   onUserStatusToggle: (userId: string, isActive: boolean) => void;
-  onUserUpdate: (userId: string, name: string, email: string) => void;
+  onUserUpdate: (
+    userId: string,
+    updates: {
+      name: string;
+      email: string;
+      role: User["role"];
+    },
+  ) => void;
 }
 
 export function UserTableRow({
@@ -47,7 +56,11 @@ export function UserTableRow({
 
   const handleSaveEdit = () => {
     if (editName.trim() && editEmail.trim()) {
-      onUserUpdate(user.id, editName.trim(), editEmail.trim());
+      onUserUpdate(user.id, {
+        name: editName.trim(),
+        email: editEmail.trim(),
+        role: user.role,
+      });
       setIsEditing(false);
     }
   };
@@ -65,22 +78,22 @@ export function UserTableRow({
   return (
     <TableRow>
       <TableCell>
-        <div className="flex items-center space-x-3">
-          <Avatar className="h-6 w-6">
+        <div className="flex items-center space-x-4 px-2 h-18">
+          <Avatar className="h-10 w-10 text-xs mx-2">
             <AvatarImage src={user.avatar} />
-            <AvatarFallback>
+            <AvatarFallback className="text-xs mx-2">
               {user.name
                 .split(" ")
                 .map((n) => n[0])
                 .join("")}
             </AvatarFallback>
           </Avatar>
-          <div className="flex-1">
+          <div className="flex-1 text-xs mx-2">
             {isEditing ? (
               <Input
                 value={editName}
                 onChange={(e) => setEditName(e.target.value)}
-                className="h-8"
+                className="h-8 text-xs"
                 placeholder="Nombre del usuario"
               />
             ) : (
@@ -92,13 +105,13 @@ export function UserTableRow({
           </div>
         </div>
       </TableCell>
-      <TableCell>
+      <TableCell className="h-8 !text-xs !mx-2">
         {isEditing ? (
           <Input
             type="email"
             value={editEmail}
             onChange={(e) => setEditEmail(e.target.value)}
-            className="h-8"
+            className="h-8 text-xs"
             placeholder="Email del usuario"
           />
         ) : (
@@ -106,10 +119,40 @@ export function UserTableRow({
         )}
       </TableCell>
       <TableCell>
-        <Badge variant="outline">{getRoleDisplayName(user.role)}</Badge>
+        {permissions?.canAssignRoles && !isCurrentUser ? (
+          <Select
+            value={user.role}
+            onValueChange={(newRole: User["role"]) => onRoleUpdate(user.id, newRole)}
+            disabled={isEditing}
+          >
+            <SelectTrigger className="h-8 w-32 !text-xs !ring-0 !mx-2">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {roles.map((role) => (
+                <SelectItem key={role.value} value={role.value}>
+                  {role.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        ) : (
+          <Badge variant="outline">{getRoleDisplayName(user.role)}</Badge>
+        )}
       </TableCell>
-      <TableCell>{user.jobTitle || "-"}</TableCell>
-      <TableCell>
+      <TableCell className="text-xs text-center mx-2">{user.idAgte ?? "-"} </TableCell>
+      <TableCell className="text-xs text-center mx-2">{user.idSociedad ?? "-"}</TableCell>
+      <TableCell className="text-xs text-center mx-2">{user.idPromotor ?? "-"}</TableCell>
+      <TableCell className="text-xs text-center mx-2">{user.idAliado ?? "-"}</TableCell>
+      <TableCell className="text-xs text-center mx-2">{user.wSaler || "-"}</TableCell>
+      <TableCell className="text-xs text-center mx-2">{user.idSupervisor ?? "-"}</TableCell>
+      <TableCell className="text-xs text-center mx-2">
+        {user.createdAt ? formatBogotaDateTime(user.createdAt, "dd/MM/yyyy HH:mm") : "-"}
+      </TableCell>
+      <TableCell className="text-xs text-center mx-2">
+        {user.updatedAt ? formatBogotaDateTime(user.updatedAt, "dd/MM/yyyy HH:mm") : "-"}
+      </TableCell>
+      <TableCell className="text-xs text-center mx-2">
         <div className="flex items-center gap-2">
           <Badge variant={user.isActive ? "default" : "secondary"}>{user.isActive ? "Activo" : "Inactivo"}</Badge>
           {permissions?.canAssignRoles && !isCurrentUser && (
@@ -120,7 +163,7 @@ export function UserTableRow({
           )}
         </div>
       </TableCell>
-      <TableCell>
+      <TableCell className="text-xs text-center mx-2">
         <div className="flex items-center gap-2">
           {isEditing ? (
             <>
@@ -144,25 +187,6 @@ export function UserTableRow({
             </>
           ) : (
             <>
-              {permissions?.canAssignRoles && (
-                <Select
-                  value={user.role}
-                  onValueChange={(newRole: User["role"]) => onRoleUpdate(user.id, newRole)}
-                  disabled={isCurrentUser}
-                >
-                  <SelectTrigger className="w-32">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {roles.map((role) => (
-                      <SelectItem key={role.value} value={role.value}>
-                        {role.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              )}
-
               {permissions?.canAssignRoles && !isCurrentUser && (
                 <>
                   <Button

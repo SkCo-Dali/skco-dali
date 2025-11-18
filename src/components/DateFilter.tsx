@@ -153,8 +153,8 @@ export function DateFilter({
   // Group dates by year, month, and day for the tree view
   const groupedDates = useMemo(() => {
     const dates = data.map(lead => {
-      // Mapear "lastInteraction" al campo real "updatedAt" para poder agrupar fechas
-      const effectiveColumn = column === 'lastInteraction' ? 'updatedAt' : column;
+      // Mapear "lastInteraction" al campo real "lastInteractionAt" para poder agrupar fechas
+      const effectiveColumn = column === 'lastInteraction' ? 'lastInteractionAt' : column;
       const dateValue = lead[effectiveColumn as keyof Lead] as string;
       if (!dateValue) return null;
       
@@ -264,7 +264,7 @@ export function DateFilter({
         });
     }
     
-    const targetColumn = column === 'lastInteraction' ? 'updatedAt' : column;
+    const targetColumn = column === 'lastInteraction' ? 'lastInteractionAt' : column;
     onFilterChange(targetColumn, finalFilters);
     setIsOpen(false);
   };

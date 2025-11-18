@@ -5,19 +5,23 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Report } from '@/types/powerbi';
 
 interface EditReportDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   report: Report;
+  areas: { id: string; name: string; isActive: boolean }[];
+  workspaces: { id: string; name: string; areaId: string; isActive: boolean }[];
   onEditReport: (report: Report) => void;
 }
 
-export function EditReportDialog({ open, onOpenChange, report, onEditReport }: EditReportDialogProps) {
+export function EditReportDialog({ open, onOpenChange, report, areas, workspaces, onEditReport }: EditReportDialogProps) {
   const [formData, setFormData] = useState({
     name: '',
     description: '',
+    areaId: '',
     pbiReportId: '',
     workspaceId: '',
     isActive: true,
@@ -26,21 +30,23 @@ export function EditReportDialog({ open, onOpenChange, report, onEditReport }: E
 
   useEffect(() => {
     if (report) {
+      const workspace = workspaces.find(w => w.id === report.workspaceId);
       setFormData({
         name: report.name,
         description: report.description || '',
+        areaId: workspace?.areaId || '',
         pbiReportId: report.pbiReportId || '',
         workspaceId: report.workspaceId || '',
         isActive: report.isActive,
         hasRowLevelSecurity: report.hasRowLevelSecurity
       });
     }
-  }, [report]);
+  }, [report, workspaces]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!formData.name.trim() || !formData.pbiReportId.trim() || !formData.workspaceId.trim()) {
+    if (!formData.name.trim() || !formData.pbiReportId.trim() || !formData.workspaceId.trim() || !formData.areaId.trim()) {
       return;
     }
 
@@ -49,6 +55,10 @@ export function EditReportDialog({ open, onOpenChange, report, onEditReport }: E
       ...formData
     });
   };
+
+  const filteredWorkspaces = formData.areaId 
+    ? workspaces.filter(w => w.areaId === formData.areaId && w.isActive)
+    : [];
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -82,15 +92,45 @@ export function EditReportDialog({ open, onOpenChange, report, onEditReport }: E
             </div>
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="workspaceId">Workspace ID *</Label>
-            <Input
-              id="workspaceId"
-              value={formData.workspaceId}
-              onChange={(e) => setFormData(prev => ({ ...prev, workspaceId: e.target.value }))}
-              placeholder="GUID del workspace en Power BI"
-              required
-            />
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="areaId">Área *</Label>
+              <Select
+                value={formData.areaId}
+                onValueChange={(value) => setFormData(prev => ({ ...prev, areaId: value, workspaceId: '' }))}
+              >
+                <SelectTrigger id="areaId">
+                  <SelectValue placeholder="Selecciona un área" />
+                </SelectTrigger>
+                <SelectContent>
+                  {areas.filter(a => a.isActive).map((area) => (
+                    <SelectItem key={area.id} value={area.id}>
+                      {area.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="workspaceId">Workspace *</Label>
+              <Select
+                value={formData.workspaceId}
+                onValueChange={(value) => setFormData(prev => ({ ...prev, workspaceId: value }))}
+                disabled={!formData.areaId}
+              >
+                <SelectTrigger id="workspaceId">
+                  <SelectValue placeholder="Selecciona un workspace" />
+                </SelectTrigger>
+                <SelectContent>
+                  {filteredWorkspaces.map((workspace) => (
+                    <SelectItem key={workspace.id} value={workspace.id}>
+                      {workspace.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
           </div>
 
           <div className="space-y-2">

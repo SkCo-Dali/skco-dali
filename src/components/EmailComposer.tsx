@@ -1,14 +1,19 @@
-
-import { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Label } from '@/components/ui/label';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Plus } from 'lucide-react';
-import { EmailTemplate, DynamicField } from '@/types/email';
-import { RichTextEditor } from '@/components/RichTextEditor';
+import { useState, useRef } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Plus, FileSignature, X, FileText, Save, Share2 } from "lucide-react";
+import { EmailTemplate, DynamicField } from "@/types/email";
+import { RichTextEditor } from "@/components/RichTextEditor";
+import { EmailWritingAssistant } from "@/components/EmailWritingAssistant";
+import { EmailSignatureDialog } from "@/components/EmailSignatureDialog";
+import { DynamicFieldInput } from "@/components/DynamicFieldInput";
+import { SaveEmailTemplateDialog } from "@/components/SaveEmailTemplateDialog";
+import { EmailTemplatesModal } from "@/components/EmailTemplatesModal";
+import { Editor } from '@tiptap/react';
+import { useToast } from "@/hooks/use-toast";
+import { useUserProfile } from "@/hooks/useUserProfile";
 
 interface EmailComposerProps {
   template: EmailTemplate;
@@ -17,94 +22,410 @@ interface EmailComposerProps {
   isIndividual?: boolean;
   alternateEmail?: string;
   onAlternateEmailChange?: (email: string) => void;
+  attachments?: File[];
+  onAttachmentsChange?: (files: File[]) => void;
 }
 
-export function EmailComposer({ 
-  template, 
-  onTemplateChange, 
-  dynamicFields, 
+export function EmailComposer({
+  template,
+  onTemplateChange,
+  dynamicFields,
   isIndividual = false,
-  alternateEmail = '',
-  onAlternateEmailChange
+  alternateEmail = "",
+  onAlternateEmailChange,
+  attachments = [],
+  onAttachmentsChange,
 }: EmailComposerProps) {
+  const { toast } = useToast();
+  const { profile } = useUserProfile();
   const [showFieldsList, setShowFieldsList] = useState(false);
+  const [showSocialNetworks, setShowSocialNetworks] = useState(false);
+  const [showSignatureDialog, setShowSignatureDialog] = useState(false);
+  const [showSaveTemplateDialog, setShowSaveTemplateDialog] = useState(false);
+  const [showTemplatesModal, setShowTemplatesModal] = useState(false);
+  const [draggedField, setDraggedField] = useState<DynamicField | null>(null);
+  const [draggedSocialNetwork, setDraggedSocialNetwork] = useState<string | null>(null);
+  const editorRef = useRef<Editor | null>(null);
 
-  const insertDynamicField = (field: DynamicField, targetField: 'subject' | 'htmlContent' | 'plainContent') => {
+  // Color mapping for each field type
+  const fieldColors: Record<string, { bg: string; text: string }> = {
+    firstName: { bg: "#dbeafe", text: "#1e40af" }, // azul
+    name: { bg: "#e5e7eb", text: "#374151" }, // gris
+    company: { bg: "#fef3c7", text: "#92400e" }, // amarillo
+    phone: { bg: "#e9d5ff", text: "#6b21a8" }, // morado
+  };
+
+  const getFieldColor = (fieldKey: string) => {
+    return fieldColors[fieldKey] || { bg: "#e5e7eb", text: "#374151" };
+  };
+
+  const insertDynamicField = (field: DynamicField, targetField: "subject" | "htmlContent" | "plainContent") => {
     const fieldTag = `{${field.key}}`;
-    
-    if (targetField === 'subject') {
+
+    if (targetField === "subject") {
       onTemplateChange({
         ...template,
-        subject: template.subject + fieldTag
+        subject: template.subject + fieldTag,
       });
-    } else if (targetField === 'htmlContent') {
+    } else if (targetField === "htmlContent") {
+      // Insert field tag wrapped in a styled badge for visual representation
+      const badgeHtml = `<span style="display: inline-block; background-color: #dbeafe; color: #1e40af; padding: 2px 8px; border-radius: 12px; font-size: 0.875rem; font-weight: 500; margin: 0 2px;">${fieldTag}</span>&nbsp;`;
       onTemplateChange({
         ...template,
-        htmlContent: template.htmlContent + fieldTag
+        htmlContent: template.htmlContent + badgeHtml,
       });
     } else {
       onTemplateChange({
         ...template,
-        plainContent: template.plainContent + fieldTag
+        plainContent: template.plainContent + fieldTag,
       });
     }
   };
 
   const convertHtmlToPlain = (html: string): string => {
-    return html
-      .replace(/<br\s*\/?>/gi, '\n')
-      .replace(/<\/p>/gi, '\n')
-      .replace(/<[^>]*>/g, '')
-      .replace(/&nbsp;/g, ' ')
-      .trim();
+    return (
+      html
+        // Preservar dobles saltos de línea primero
+        .replace(/<br\s*\/?>\s*<br\s*\/?>/gi, "\n\n")
+        // Luego convertir saltos simples
+        .replace(/<br\s*\/?>/gi, "\n")
+        // Convertir párrafos con doble salto
+        .replace(/<\/p>\s*<p[^>]*>/gi, "\n\n")
+        .replace(/<p[^>]*>/gi, "")
+        .replace(/<\/p>/gi, "\n")
+        // Convertir divs
+        .replace(/<\/div>\s*<div[^>]*>/gi, "\n")
+        .replace(/<div[^>]*>/gi, "")
+        .replace(/<\/div>/gi, "\n")
+        // Remover todas las demás etiquetas HTML
+        .replace(/<[^>]*>/g, "")
+        // Convertir entidades HTML
+        .replace(/&nbsp;/g, " ")
+        .replace(/&amp;/g, "&")
+        .replace(/&lt;/g, "<")
+        .replace(/&gt;/g, ">")
+        .replace(/&quot;/g, '"')
+        // Preservar múltiples saltos de línea y limpiar exceso
+        .replace(/\n{3,}/g, "\n\n")
+        .trim()
+    );
   };
 
   const handleHtmlContentChange = (value: string) => {
     const newTemplate = {
       ...template,
       htmlContent: value,
-      plainContent: convertHtmlToPlain(value)
+      plainContent: convertHtmlToPlain(value),
     };
     onTemplateChange(newTemplate);
   };
 
+  const handleInsertTextFromAssistant = (text: string) => {
+    onTemplateChange({
+      ...template,
+      htmlContent: template.htmlContent + text,
+    });
+  };
+
+  const handleInsertSignature = (content: string) => {
+    const newContent = template.htmlContent + "<br><br>" + content;
+    handleHtmlContentChange(newContent);
+  };
+
+  const handleDragStart = (field: DynamicField) => (e: React.DragEvent) => {
+    setDraggedField(field);
+    e.dataTransfer.effectAllowed = "copy";
+    
+    // Set data for drag and drop
+    e.dataTransfer.setData("fieldKey", field.key);
+    e.dataTransfer.setData("fieldLabel", field.label);
+    
+    // Get field-specific colors
+    const colors = getFieldColor(field.key);
+    e.dataTransfer.setData("bgColor", colors.bg);
+    e.dataTransfer.setData("textColor", colors.text);
+  };
+
+  const handleDragEnd = () => {
+    setDraggedField(null);
+  };
+
+  const handleSubjectDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = "copy";
+  };
+
+  const handleSubjectDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    if (!draggedField) return;
+
+    const fieldTag = `{${draggedField.key}}`;
+    const newSubject = template.subject + fieldTag;
+
+    onTemplateChange({ ...template, subject: newSubject });
+    setDraggedField(null);
+  };
+
+  const handleContentDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = "copy";
+  };
+
+  const handleContentDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    const fieldKey = e.dataTransfer.getData('fieldKey');
+    const fieldLabel = e.dataTransfer.getData('fieldLabel');
+    const bgColor = e.dataTransfer.getData('bgColor');
+    const textColor = e.dataTransfer.getData('textColor');
+    
+    if (fieldKey && editorRef.current) {
+      const editor = editorRef.current;
+      
+      // Get drop position from the editor view
+      const view = editor.view;
+      const coords = { left: e.clientX, top: e.clientY };
+      const pos = view.posAtCoords(coords);
+      
+      if (!pos) return;
+      
+      // Get current marks from the editor to capture active formatting
+      const marks = editor.state.storedMarks || editor.state.selection.$from.marks();
+      const attrs: any = {
+        fieldKey,
+        label: fieldLabel,
+        bgColor,
+        textColor,
+      };
+
+      // Extract formatting from marks
+      marks.forEach((mark: any) => {
+        if (mark.type.name === 'bold') {
+          attrs.bold = true;
+        }
+        if (mark.type.name === 'italic') {
+          attrs.italic = true;
+        }
+        if (mark.type.name === 'underline') {
+          attrs.underline = true;
+        }
+        if (mark.type.name === 'textStyle') {
+          if (mark.attrs.color) attrs.color = mark.attrs.color;
+          if (mark.attrs.fontSize) attrs.fontSize = mark.attrs.fontSize;
+          if (mark.attrs.fontFamily) attrs.fontFamily = mark.attrs.fontFamily;
+        }
+      });
+
+      // Insert at the drop position
+      const tr = editor.state.tr.insert(pos.pos, editor.schema.nodes.dynamicField.create(attrs));
+      editor.view.dispatch(tr);
+      editor.commands.focus();
+    }
+  };
+
+  const handleAttachmentsChange = (newFiles: File[]) => {
+    const currentSize = attachments.reduce((sum, file) => sum + file.size, 0);
+    const newFilesSize = newFiles.reduce((sum, file) => sum + file.size, 0);
+    const totalSize = currentSize + newFilesSize;
+    
+    // Límite de 20 MB (20 * 1024 * 1024 bytes)
+    const MAX_SIZE = 20 * 1024 * 1024;
+    
+    if (totalSize > MAX_SIZE) {
+      toast({
+        title: "Límite de tamaño excedido",
+        description: `El tamaño total de los adjuntos no puede superar los 20 MB. Actualmente: ${(currentSize / 1024 / 1024).toFixed(2)} MB, intentando agregar: ${(newFilesSize / 1024 / 1024).toFixed(2)} MB`,
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    const updatedAttachments = [...attachments, ...newFiles];
+    onAttachmentsChange?.(updatedAttachments);
+  };
+
+  const handleRemoveAttachment = (index: number) => {
+    const updatedAttachments = attachments.filter((_, i) => i !== index);
+    onAttachmentsChange?.(updatedAttachments);
+  };
+
+  const getSocialNetworkButton = (network: string): string => {
+    if (network === 'whatsapp') {
+      const countryCode = profile?.countryCode?.replace('+', '') || '57';
+      const number = profile?.phone || '';
+      const whatsappUrl = `https://wa.me/${countryCode}${number}`;
+      
+      return `
+        <table cellpadding="0" cellspacing="0" border="0" style="margin: 16px 0;">
+          <tbody>
+            <tr>
+              <td align="center" bgcolor="#00A859" style="border-radius: 24px; padding: 12px 28px; font-family: Arial, sans-serif;">
+                <a href="${whatsappUrl}" 
+                   target="_blank" 
+                   rel="noopener noreferrer nofollow"
+                   style="color: #ffffff !important; text-decoration: none !important; font-weight: 600; font-size: 15px; display: inline-block; line-height: 1.4;">
+                  <span style="color: #ffffff !important; text-decoration: none !important;">📱 Hablemos por WhatsApp</span>
+                </a>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      `;
+    } else if (network === 'instagram') {
+      const instagramHandle = profile?.instagram || '';
+      if (!instagramHandle) {
+        toast({
+          title: "Instagram no configurado",
+          description: "Por favor configura tu usuario de Instagram en tu perfil primero",
+          variant: "destructive"
+        });
+        return '';
+      }
+      const instagramUrl = `https://instagram.com/${instagramHandle}`;
+      
+      return `
+        <table cellpadding="0" cellspacing="0" border="0" style="margin: 16px 0;">
+          <tbody>
+            <tr>
+              <td align="center" style="border-radius: 24px; padding: 12px 28px; font-family: Arial, sans-serif; background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);">
+                <a href="${instagramUrl}" 
+                   target="_blank" 
+                   rel="noopener noreferrer nofollow"
+                   style="color: #ffffff !important; text-decoration: none !important; font-weight: 600; font-size: 15px; display: inline-block; line-height: 1.4;">
+                  <span style="color: #ffffff !important; text-decoration: none !important;">📸 Conoce más en mi Instagram</span>
+                </a>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      `;
+    }
+    return '';
+  };
+
+  const handleSocialNetworkDragStart = (network: string) => (e: React.DragEvent) => {
+    setDraggedSocialNetwork(network);
+    e.dataTransfer.effectAllowed = "copy";
+    e.dataTransfer.setData("socialNetwork", network);
+  };
+
+  const handleSocialNetworkDragEnd = () => {
+    setDraggedSocialNetwork(null);
+  };
+
+  const handleSocialNetworkDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    const network = e.dataTransfer.getData('socialNetwork');
+    
+    if (network && editorRef.current) {
+      const buttonHtml = getSocialNetworkButton(network);
+      if (!buttonHtml) return;
+
+      const editor = editorRef.current;
+      
+      // Insert the button HTML at the current cursor position or at the end
+      editor.commands.insertContent(buttonHtml);
+      editor.commands.focus();
+    }
+    
+    setDraggedSocialNetwork(null);
+  };
+
   return (
-    <div className="space-y-6">
+    <>
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center justify-between">
             Composición del Email
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setShowFieldsList(!showFieldsList)}
-            >
-              <Plus className="h-4 w-4 mr-2" />
-              Campos Dinámicos
-            </Button>
+            <div className="flex gap-2">
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={() => setShowTemplatesModal(true)}
+              >
+                <FileText className="h-4 w-4 mr-2" />
+                Plantillas
+              </Button>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={() => setShowSignatureDialog(true)}
+              >
+                <FileSignature className="h-4 w-4 mr-2" />
+                Firmas
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShowFieldsList(!showFieldsList)}
+              >
+                <Plus className="h-4 w-4 mr-2" />
+                Campos Dinámicos
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShowSocialNetworks(!showSocialNetworks)}
+              >
+                <Share2 className="h-4 w-4 mr-2" />
+                Redes Sociales
+              </Button>
+            </div>
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           {showFieldsList && (
-            <Card className="p-4 bg-muted/50">
-              <h4 className="font-medium mb-3">Campos disponibles:</h4>
-              <div className="flex flex-wrap gap-2">
-                {dynamicFields.map((field) => (
-                  <Badge
-                    key={field.key}
-                    className="cursor-pointer bg-[#EBF4FF] text-[#3f3f3f]"
-                    onClick={() => {
-                      // Por defecto insertar en el contenido HTML
-                      insertDynamicField(field, 'htmlContent');
-                    }}
-                    title={`Ejemplo: ${field.example}`}
-                  >
-                    {field.label} ({`{${field.key}}`})
-                  </Badge>
-                ))}
+            <Card className="bg-muted/30">
+              <div className="p-4 space-y-2">
+                {dynamicFields.map((field) => {
+                  const colors = getFieldColor(field.key);
+                  return (
+                    <div
+                      key={field.key}
+                      draggable
+                      onDragStart={handleDragStart(field)}
+                      onDragEnd={handleDragEnd}
+                      className="inline-flex items-center px-3 py-1.5 rounded-lg text-sm font-medium cursor-move mr-2 mb-2 transition-transform hover:scale-105"
+                      style={{
+                        backgroundColor: colors.bg,
+                        color: colors.text,
+                      }}
+                      title={`Arrastra al asunto o contenido. Ejemplo: ${field.example}`}
+                    >
+                      {field.label}
+                    </div>
+                  );
+                })}
               </div>
-              <p className="text-sm text-muted-foreground mt-2">
-                Haz clic en un campo para insertarlo en el contenido del email
+              <p className="text-sm text-muted-foreground mt-2 px-4 pb-4">
+                Arrastra los campos al asunto o contenido del email para insertarlos
+              </p>
+            </Card>
+          )}
+
+          {showSocialNetworks && (
+            <Card className="bg-muted/30">
+              <div className="p-4 space-y-2">
+                <div
+                  draggable
+                  onDragStart={handleSocialNetworkDragStart('whatsapp')}
+                  onDragEnd={handleSocialNetworkDragEnd}
+                  className="inline-flex items-center px-4 py-2 rounded-lg text-sm font-medium cursor-move mr-2 mb-2 transition-transform hover:scale-105 bg-[#00A859] text-white"
+                  title="Arrastra al contenido del email para insertar botón de WhatsApp"
+                >
+                  📱 WhatsApp
+                </div>
+                <div
+                  draggable
+                  onDragStart={handleSocialNetworkDragStart('instagram')}
+                  onDragEnd={handleSocialNetworkDragEnd}
+                  className="inline-flex items-center px-4 py-2 rounded-lg text-sm font-medium cursor-move mr-2 mb-2 transition-transform hover:scale-105 bg-gradient-to-r from-purple-500 via-pink-500 to-orange-500 text-white"
+                  title="Arrastra al contenido del email para insertar botón de Instagram"
+                >
+                  📸 Instagram
+                </div>
+              </div>
+              <p className="text-sm text-muted-foreground mt-2 px-4 pb-4">
+                Arrastra las redes sociales al contenido del email para insertar botones clicables
               </p>
             </Card>
           )}
@@ -128,33 +449,118 @@ export function EmailComposer({
 
           <div>
             <Label htmlFor="subject">Asunto del Email</Label>
-            <Input
-              id="subject"
+            <DynamicFieldInput
               value={template.subject}
-              onChange={(e) => onTemplateChange({ ...template, subject: e.target.value })}
+              onChange={(newSubject) => onTemplateChange({ ...template, subject: newSubject })}
               placeholder="Ej: Bienvenido {name} a Skandia"
-              className="mt-2"
+              dynamicFields={dynamicFields}
+              onDrop={handleSubjectDrop}
             />
             <p className="text-sm text-muted-foreground mt-1">
-              Usa {`{name}, {email}, {company}`} etc. para personalizar
+              Arrastra campos dinámicos para personalizar
             </p>
           </div>
 
-          <div>
+          <div
+            onDragOver={handleContentDragOver}
+            onDrop={(e) => {
+              // Handle both dynamic fields and social networks
+              const socialNetwork = e.dataTransfer.getData('socialNetwork');
+              if (socialNetwork) {
+                handleSocialNetworkDrop(e);
+              } else {
+                handleContentDrop(e);
+              }
+            }}
+          >
             <Label htmlFor="htmlContent">Contenido del Email</Label>
             <div className="mt-2">
               <RichTextEditor
                 value={template.htmlContent}
                 onChange={handleHtmlContentChange}
-                placeholder="Escribe el contenido de tu email aquí... Puedes usar las herramientas de formato y campos dinámicos como {name}"
+                placeholder="Escribe el contenido de tu email aquí..."
+                onAttachmentsChange={handleAttachmentsChange}
+                editorRef={editorRef}
               />
             </div>
             <p className="text-sm text-muted-foreground mt-1">
-              Usa la barra de herramientas para dar formato a tu texto, insertar imágenes y agregar archivos adjuntos
+              Arrastra campos dinámicos o botones de redes sociales aquí para insertarlos
             </p>
+          </div>
+
+          {attachments.length > 0 && (
+            <div className="space-y-2">
+              <Label>Archivos Adjuntos ({attachments.length})</Label>
+              <div className="space-y-1">
+                {attachments.map((file, index) => (
+                  <div
+                    key={index}
+                    className="flex items-center justify-between p-2 bg-muted rounded-md text-sm"
+                  >
+                    <span className="truncate flex-1">{file.name}</span>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleRemoveAttachment(index)}
+                    >
+                      <X className="h-4 w-4" />
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          <div className="flex justify-end pt-2 border-t">
+            <Button
+              variant="outline"
+              onClick={() => setShowSaveTemplateDialog(true)}
+              disabled={!template.subject.trim() || !template.htmlContent.trim()}
+            >
+              <Save className="h-4 w-4 mr-2" />
+              Guardar como Plantilla
+            </Button>
           </div>
         </CardContent>
       </Card>
-    </div>
+
+      <EmailWritingAssistant
+        currentSubject={template.subject}
+        currentContent={template.htmlContent}
+        onInsertText={handleInsertTextFromAssistant}
+      />
+
+      <EmailSignatureDialog
+        isOpen={showSignatureDialog}
+        onClose={() => setShowSignatureDialog(false)}
+        onInsertSignature={handleInsertSignature}
+      />
+
+      <SaveEmailTemplateDialog
+        open={showSaveTemplateDialog}
+        onOpenChange={setShowSaveTemplateDialog}
+        subject={template.subject}
+        htmlContent={template.htmlContent}
+        plainContent={template.plainContent}
+        onSaved={() => {
+          toast({
+            title: 'Plantilla guardada',
+            description: 'Ahora puedes acceder a ella desde el botón de Plantillas',
+          });
+        }}
+      />
+
+      <EmailTemplatesModal
+        open={showTemplatesModal}
+        onOpenChange={setShowTemplatesModal}
+        onSelectTemplate={(selectedTemplate) => {
+          onTemplateChange({
+            subject: selectedTemplate.subject,
+            htmlContent: selectedTemplate.htmlContent,
+            plainContent: selectedTemplate.plainContent,
+          });
+        }}
+      />
+    </>
   );
 }

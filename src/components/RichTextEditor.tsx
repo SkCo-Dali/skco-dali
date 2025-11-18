@@ -1,458 +1,462 @@
-
-import { useState, useRef, useCallback, useEffect } from 'react';
+import { useEditor, EditorContent } from '@tiptap/react';
+import StarterKit from '@tiptap/starter-kit';
+import Underline from '@tiptap/extension-underline';
+import { TextStyle } from '@tiptap/extension-text-style';
+import { Color } from '@tiptap/extension-color';
+import Image from '@tiptap/extension-image';
+import TextAlign from '@tiptap/extension-text-align';
+import FontFamily from '@tiptap/extension-font-family';
+import Link from '@tiptap/extension-link';
+import Highlight from '@tiptap/extension-highlight';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ColorPicker } from '@/components/ColorPicker';
-import { 
-  Bold, 
-  Italic, 
-  Underline, 
-  AlignLeft, 
-  AlignCenter, 
-  AlignRight, 
-  List, 
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Textarea } from '@/components/ui/textarea';
+import {
+  Bold,
+  Italic,
+  Underline as UnderlineIcon,
+  List,
   ListOrdered,
-  Link, 
-  Image, 
+  AlignLeft,
+  AlignCenter,
+  AlignRight,
+  AlignJustify,
+  Image as ImageIcon,
   Paperclip,
-  Type,
-  ChevronDown
+  ChevronDown,
+  Code,
+  Eye,
+  Smile,
 } from 'lucide-react';
+import EmojiPicker, { EmojiClickData } from 'emoji-picker-react';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { ColorPicker } from './ColorPicker';
+import { DynamicFieldExtension } from '@/extensions/DynamicFieldExtension';
+import { ResizableImageExtension } from '@/extensions/ResizableImageExtension';
+import { FontSize } from '@/extensions/FontSizeExtension';
+import { PreserveStylesExtension } from '@/extensions/PreserveStylesExtension';
+import { DivExtension } from '@/extensions/DivExtension';
+import { TableWithStyles, TableRow, TableCell } from '@/extensions/TableWithStylesExtension';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { useRef, useEffect, useState } from 'react';
+import { Editor } from '@tiptap/react';
 
 interface RichTextEditorProps {
   value: string;
   onChange: (value: string) => void;
   placeholder?: string;
+  allowDrop?: boolean;
+  onAttachmentsChange?: (files: File[]) => void;
+  editorRef?: React.MutableRefObject<Editor | null>;
 }
 
 const FONT_FAMILIES = [
   { label: 'Arial', value: 'Arial, sans-serif' },
-  { label: 'Helvetica', value: 'Helvetica, sans-serif' },
   { label: 'Times New Roman', value: 'Times New Roman, serif' },
+  { label: 'Courier New', value: 'Courier New, monospace' },
   { label: 'Georgia', value: 'Georgia, serif' },
   { label: 'Verdana', value: 'Verdana, sans-serif' },
-  { label: 'Calibri', value: 'Calibri, sans-serif' },
   { label: 'Tahoma', value: 'Tahoma, sans-serif' },
-  { label: 'Trebuchet MS', value: 'Trebuchet MS, sans-serif' },
-  { label: 'Courier New', value: 'Courier New, monospace' }
 ];
 
-const BULLET_STYLES = [
-  { label: 'Círculo relleno', value: 'disc' },
-  { label: 'Círculo vacío', value: 'circle' },
-  { label: 'Cuadrado', value: 'square' },
-  { label: 'Números', value: 'decimal' },
-  { label: 'Letras minúsculas', value: 'lower-alpha' },
-  { label: 'Letras mayúsculas', value: 'upper-alpha' },
-  { label: 'Números romanos', value: 'lower-roman' }
-];
+const FONT_SIZES = ['12px', '14px', '16px', '18px', '20px', '24px', '28px', '32px'];
 
-export function RichTextEditor({ value, onChange, placeholder }: RichTextEditorProps) {
-  const editorRef = useRef<HTMLDivElement>(null);
+export function RichTextEditor({
+  value,
+  onChange,
+  placeholder = 'Escribe aquí...',
+  allowDrop = false,
+  onAttachmentsChange,
+  editorRef,
+}: RichTextEditorProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const attachmentInputRef = useRef<HTMLInputElement>(null);
-  const [linkUrl, setLinkUrl] = useState('');
-  const [showLinkPopover, setShowLinkPopover] = useState(false);
-  const [currentSelection, setCurrentSelection] = useState<Range | null>(null);
+  const [activeTab, setActiveTab] = useState<'visual' | 'code'>('visual');
+  const [htmlCode, setHtmlCode] = useState(value);
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
 
-  const executeCommand = useCallback((command: string, value?: string) => {
-    // Restaurar la selección antes de ejecutar el comando
-    if (currentSelection) {
-      const selection = window.getSelection();
-      if (selection) {
-        selection.removeAllRanges();
-        selection.addRange(currentSelection);
+  const editor = useEditor({
+    extensions: [
+      StarterKit.configure({
+        heading: false, // Deshabilitamos headings para emails
+      }),
+      Underline,
+      TextStyle,
+      Color,
+      Highlight.configure({
+        multicolor: true,
+      }),
+      FontFamily,
+      FontSize,
+      TextAlign.configure({
+        types: ['paragraph'],
+      }),
+      Link.configure({
+        openOnClick: false,
+        HTMLAttributes: {
+          // Preservar todos los atributos del link
+          class: null,
+        },
+      }),
+      ResizableImageExtension,
+      DynamicFieldExtension.configure({
+        HTMLAttributes: {
+          class: 'dynamic-field-node',
+        },
+      }),
+      PreserveStylesExtension,
+      DivExtension,
+      TableWithStyles,
+      TableRow,
+      TableCell,
+    ],
+    content: value,
+    editorProps: {
+      attributes: {
+        class: 'prose prose-sm max-w-none focus:outline-none min-h-[300px] p-4',
+      },
+    },
+    onUpdate: ({ editor }) => {
+      onChange(editor.getHTML());
+    },
+    // Importante: preservar estilos inline de plantillas
+    parseOptions: {
+      preserveWhitespace: 'full',
+    },
+  });
+
+  // Sync external content changes (like signature insertion)
+  useEffect(() => {
+    if (editor && value !== editor.getHTML()) {
+      editor.commands.setContent(value, { emitUpdate: false });
+      setHtmlCode(value);
+    }
+  }, [value, editor]);
+
+  // Update HTML code when switching to code view
+  useEffect(() => {
+    if (activeTab === 'code' && editor) {
+      setHtmlCode(editor.getHTML());
+    }
+  }, [activeTab, editor]);
+
+  // Expose editor instance through ref
+  useEffect(() => {
+    if (editorRef && editor) {
+      editorRef.current = editor;
+    }
+  }, [editor, editorRef]);
+
+  if (!editor) {
+    return null;
+  }
+
+  const handleImageUpload = () => {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'image/*';
+    input.onchange = (e) => {
+      const file = (e.target as HTMLInputElement).files?.[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = () => {
+          const url = reader.result as string;
+          editor.chain().focus().setImage({ src: url }).run();
+        };
+        reader.readAsDataURL(file);
       }
-    }
-    
-    document.execCommand(command, false, value);
-    
-    if (editorRef.current) {
-      onChange(editorRef.current.innerHTML);
-    }
-  }, [onChange, currentSelection]);
-
-  const saveSelection = useCallback(() => {
-    const selection = window.getSelection();
-    if (selection && selection.rangeCount > 0) {
-      setCurrentSelection(selection.getRangeAt(0));
-    }
-  }, []);
-
-  const handleContentChange = useCallback(() => {
-    if (editorRef.current) {
-      onChange(editorRef.current.innerHTML);
-    }
-  }, [onChange]);
-
-  const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
-    // Prevenir comportamientos extraños del contentEditable
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      document.execCommand('insertHTML', false, '<br><br>');
-      handleContentChange();
-    }
-  }, [handleContentChange]);
-
-  const insertLink = () => {
-    if (linkUrl.trim()) {
-      executeCommand('createLink', linkUrl);
-      setLinkUrl('');
-      setShowLinkPopover(false);
-    }
+    };
+    input.click();
   };
 
-  const insertImage = () => {
+  const handleAttachmentUpload = () => {
     fileInputRef.current?.click();
   };
 
-  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        const imageUrl = e.target?.result as string;
-        const imageHtml = `<img src="${imageUrl}" style="max-width: 100%; height: auto;" alt="Imagen insertada" />`;
-        executeCommand('insertHTML', imageHtml);
-      };
-      reader.readAsDataURL(file);
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+    if (files.length > 0 && onAttachmentsChange) {
+      onAttachmentsChange(files);
     }
-    // Limpiar el input para permitir seleccionar la misma imagen de nuevo
-    event.target.value = '';
-  };
-
-  const handleAttachmentUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const files = event.target.files;
-    if (files && files.length > 0) {
-      const fileNames = Array.from(files).map(file => file.name).join(', ');
-      const attachmentHtml = `<p style="background-color: #f3f4f6; padding: 8px; border-radius: 4px; border-left: 4px solid #3b82f6;"><strong>📎 Archivos adjuntos:</strong> ${fileNames}</p>`;
-      executeCommand('insertHTML', attachmentHtml);
-    }
-    event.target.value = '';
-  };
-
-  const addAttachment = () => {
-    attachmentInputRef.current?.click();
-  };
-
-  const insertBulletList = (listStyle: string) => {
-    if (listStyle === 'decimal' || listStyle === 'lower-alpha' || listStyle === 'upper-alpha' || listStyle === 'lower-roman') {
-      executeCommand('insertOrderedList');
-      // Aplicar el estilo después de crear la lista
-      setTimeout(() => {
-        const selection = window.getSelection();
-        if (selection && selection.anchorNode) {
-          const listElement = selection.anchorNode.parentElement?.closest('ol');
-          if (listElement) {
-            listElement.style.listStyleType = listStyle;
-          }
-        }
-      }, 10);
-    } else {
-      executeCommand('insertUnorderedList');
-      setTimeout(() => {
-        const selection = window.getSelection();
-        if (selection && selection.anchorNode) {
-          const listElement = selection.anchorNode.parentElement?.closest('ul');
-          if (listElement) {
-            listElement.style.listStyleType = listStyle;
-          }
-        }
-      }, 10);
+    // Reset input para permitir seleccionar el mismo archivo nuevamente
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
     }
   };
 
-  // Inicializar el contenido del editor
-  useEffect(() => {
-    if (editorRef.current && value !== editorRef.current.innerHTML) {
-      editorRef.current.innerHTML = value;
+  const handleHtmlCodeChange = (newCode: string) => {
+    setHtmlCode(newCode);
+    if (editor) {
+      editor.commands.setContent(newCode, { emitUpdate: false });
+      onChange(newCode);
     }
-  }, [value]);
+  };
+
+  const handleTabChange = (tab: string) => {
+    if (tab === 'code' && editor) {
+      // Update HTML code from editor before switching
+      setHtmlCode(editor.getHTML());
+    } else if (tab === 'visual' && editor) {
+      // Update editor from HTML code before switching
+      editor.commands.setContent(htmlCode, { emitUpdate: false });
+    }
+    setActiveTab(tab as 'visual' | 'code');
+  };
 
   return (
-    <div className="border rounded-md">
-      {/* Toolbar */}
-      <div className="border-b p-2 flex flex-wrap items-center gap-1">
-        {/* Formato de texto */}
-        <div className="flex items-center gap-1">
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            onMouseDown={(e) => {
-              e.preventDefault();
-              saveSelection();
-            }}
-            onClick={() => executeCommand('bold')}
-            className="h-8 w-8 p-0"
-          >
-            <Bold className="h-4 w-4" />
-          </Button>
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            onMouseDown={(e) => {
-              e.preventDefault();
-              saveSelection();
-            }}
-            onClick={() => executeCommand('italic')}
-            className="h-8 w-8 p-0"
-          >
-            <Italic className="h-4 w-4" />
-          </Button>
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            onMouseDown={(e) => {
-              e.preventDefault();
-              saveSelection();
-            }}
-            onClick={() => executeCommand('underline')}
-            className="h-8 w-8 p-0"
-          >
-            <Underline className="h-4 w-4" />
-          </Button>
-        </div>
+    <div className="border rounded-lg overflow-hidden bg-background">
+      <Tabs value={activeTab} onValueChange={handleTabChange}>
+        {/* Toolbar with Tab Selector */}
+        <div className="border-b bg-muted/30 p-2 flex flex-wrap gap-1 items-center">
+          <TabsList className="h-8">
+            <TabsTrigger value="visual" className="h-7 text-xs">
+              <Eye className="h-3 w-3 mr-1" />
+              Visual
+            </TabsTrigger>
+            <TabsTrigger value="code" className="h-7 text-xs">
+              <Code className="h-3 w-3 mr-1" />
+              HTML
+            </TabsTrigger>
+          </TabsList>
 
-        <Separator orientation="vertical" className="h-6" />
+          <Separator orientation="vertical" className="h-6 mx-1" />
 
-        {/* Tipo de fuente */}
-        <Select onValueChange={(fontFamily) => {
-          saveSelection();
-          executeCommand('fontName', fontFamily);
-        }}>
-          <SelectTrigger className="w-32 h-8">
-            <SelectValue placeholder="Fuente" />
-          </SelectTrigger>
-          <SelectContent>
-            {FONT_FAMILIES.map((font) => (
-              <SelectItem key={font.value} value={font.value} style={{ fontFamily: font.value }}>
-                {font.label}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+          {/* Format buttons - Only show in visual mode */}
+          {activeTab === 'visual' && (
+            <>
+              <Button
+                type="button"
+                variant={editor.isActive('bold') ? 'secondary' : 'ghost'}
+                size="icon"
+                className="h-8 w-8"
+                onClick={() => editor.chain().focus().toggleBold().run()}
+              >
+                <Bold className="h-4 w-4" />
+              </Button>
 
-        {/* Tamaño de fuente */}
-        <Select onValueChange={(size) => {
-          saveSelection();
-          executeCommand('fontSize', size);
-        }}>
-          <SelectTrigger className="w-16 h-8">
-            <Type className="h-4 w-4" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="1">8pt</SelectItem>
-            <SelectItem value="2">10pt</SelectItem>
-            <SelectItem value="3">12pt</SelectItem>
-            <SelectItem value="4">14pt</SelectItem>
-            <SelectItem value="5">18pt</SelectItem>
-            <SelectItem value="6">24pt</SelectItem>
-            <SelectItem value="7">36pt</SelectItem>
-          </SelectContent>
-        </Select>
+              <Button
+                type="button"
+                variant={editor.isActive('italic') ? 'secondary' : 'ghost'}
+                size="icon"
+                className="h-8 w-8"
+                onClick={() => editor.chain().focus().toggleItalic().run()}
+              >
+                <Italic className="h-4 w-4" />
+              </Button>
 
-        {/* Color de texto */}
-        <ColorPicker onColorSelect={(color) => {
-          saveSelection();
-          executeCommand('foreColor', color);
-        }} />
+              <Button
+                type="button"
+                variant={editor.isActive('underline') ? 'secondary' : 'ghost'}
+                size="icon"
+                className="h-8 w-8"
+                onClick={() => editor.chain().focus().toggleUnderline().run()}
+              >
+                <UnderlineIcon className="h-4 w-4" />
+              </Button>
 
-        <Separator orientation="vertical" className="h-6" />
+              <Separator orientation="vertical" className="h-6" />
 
-        {/* Alineación */}
-        <div className="flex items-center gap-1">
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            onMouseDown={(e) => {
-              e.preventDefault();
-              saveSelection();
-            }}
-            onClick={() => executeCommand('justifyLeft')}
-            className="h-8 w-8 p-0"
-          >
-            <AlignLeft className="h-4 w-4" />
-          </Button>
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            onMouseDown={(e) => {
-              e.preventDefault();
-              saveSelection();
-            }}
-            onClick={() => executeCommand('justifyCenter')}
-            className="h-8 w-8 p-0"
-          >
-            <AlignCenter className="h-4 w-4" />
-          </Button>
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            onMouseDown={(e) => {
-              e.preventDefault();
-              saveSelection();
-            }}
-            onClick={() => executeCommand('justifyRight')}
-            className="h-8 w-8 p-0"
-          >
-            <AlignRight className="h-4 w-4" />
-          </Button>
-        </div>
+              {/* Font Family */}
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button type="button" variant="ghost" size="sm" className="h-8">
+                    <span className="text-sm">Fuente</span>
+                    <ChevronDown className="h-3 w-3 ml-1" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent>
+                  {FONT_FAMILIES.map((font) => (
+                    <DropdownMenuItem
+                      key={font.value}
+                      onClick={() => editor.chain().focus().setFontFamily(font.value).run()}
+                      className={editor.isActive('textStyle', { fontFamily: font.value }) ? 'bg-accent' : ''}
+                    >
+                      <span style={{ fontFamily: font.value }}>{font.label}</span>
+                    </DropdownMenuItem>
+                  ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
 
-        <Separator orientation="vertical" className="h-6" />
+              {/* Font Size */}
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button type="button" variant="ghost" size="sm" className="h-8">
+                    <span className="text-sm">Tamaño</span>
+                    <ChevronDown className="h-3 w-3 ml-1" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent>
+                  {FONT_SIZES.map((size) => (
+                    <DropdownMenuItem
+                      key={size}
+                      onClick={() => editor.chain().focus().setFontSize(size).run()}
+                      className={editor.isActive('textStyle', { fontSize: size }) ? 'bg-accent' : ''}
+                    >
+                      {size}
+                    </DropdownMenuItem>
+                  ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
 
-        {/* Listas con opciones */}
-        <Popover>
-          <PopoverTrigger asChild>
-            <Button type="button" variant="ghost" size="sm" className="h-8 px-2 gap-1">
-              <List className="h-4 w-4" />
-              <ChevronDown className="h-3 w-3" />
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent className="w-48">
-            <div className="space-y-1">
-              <Label className="text-sm font-medium">Tipo de lista</Label>
-              {BULLET_STYLES.map((style) => (
-                <Button
-                  key={style.value}
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  className="w-full justify-start text-sm"
-                  onMouseDown={(e) => {
-                    e.preventDefault();
-                    saveSelection();
-                  }}
-                  onClick={() => insertBulletList(style.value)}
-                >
-                  {style.label}
-                </Button>
-              ))}
-            </div>
-          </PopoverContent>
-        </Popover>
+              <Separator orientation="vertical" className="h-6" />
 
-        <Separator orientation="vertical" className="h-6" />
-
-        {/* Enlaces */}
-        <Popover open={showLinkPopover} onOpenChange={setShowLinkPopover}>
-          <PopoverTrigger asChild>
-            <Button 
-              type="button" 
-              variant="ghost" 
-              size="sm" 
-              className="h-8 w-8 p-0"
-              onMouseDown={(e) => {
-                e.preventDefault();
-                saveSelection();
-              }}
-            >
-              <Link className="h-4 w-4" />
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent className="w-80">
-            <div className="space-y-2">
-              <Label htmlFor="link-url">URL del enlace</Label>
-              <Input
-                id="link-url"
-                value={linkUrl}
-                onChange={(e) => setLinkUrl(e.target.value)}
-                placeholder="https://ejemplo.com"
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter') {
-                    e.preventDefault();
-                    insertLink();
-                  }
+              {/* Color Picker */}
+              <ColorPicker
+                onColorSelect={(color) => {
+                  editor.chain().focus().setColor(color).run();
                 }}
               />
-              <Button onClick={insertLink} size="sm">
-                Insertar enlace
+
+              <Separator orientation="vertical" className="h-6" />
+
+              {/* Lists */}
+              <Button
+                type="button"
+                variant={editor.isActive('bulletList') ? 'secondary' : 'ghost'}
+                size="icon"
+                className="h-8 w-8"
+                onClick={() => editor.chain().focus().toggleBulletList().run()}
+              >
+                <List className="h-4 w-4" />
               </Button>
-            </div>
-          </PopoverContent>
-        </Popover>
 
-        {/* Imagen */}
-        <Button
-          type="button"
-          variant="ghost"
-          size="sm"
-          onMouseDown={(e) => {
-            e.preventDefault();
-            saveSelection();
-          }}
-          onClick={insertImage}
-          className="h-8 w-8 p-0"
-        >
-          <Image className="h-4 w-4" />
-        </Button>
+              <Button
+                type="button"
+                variant={editor.isActive('orderedList') ? 'secondary' : 'ghost'}
+                size="icon"
+                className="h-8 w-8"
+                onClick={() => editor.chain().focus().toggleOrderedList().run()}
+              >
+                <ListOrdered className="h-4 w-4" />
+              </Button>
 
-        {/* Archivos adjuntos 
-        <Button
-          type="button"
-          variant="ghost"
-          size="sm"
-          onMouseDown={(e) => {
-            e.preventDefault();
-            saveSelection();
-          }}
-          onClick={addAttachment}
-          className="h-8 w-8 p-0"
-        >
-          <Paperclip className="h-4 w-4" />
-        </Button>*/}
-      </div>
+              <Separator orientation="vertical" className="h-6" />
 
-      {/* Editor */}
-      <div className="relative">
-        <div
-          ref={editorRef}
-          contentEditable
-          onInput={handleContentChange}
-          onKeyDown={handleKeyDown}
-          onMouseUp={saveSelection}
-          onKeyUp={saveSelection}
-          className="min-h-[200px] p-4 focus:outline-none prose prose-sm max-w-none"
-          style={{ 
-            whiteSpace: 'pre-wrap',
-            wordBreak: 'break-word'
-          }}
-          suppressContentEditableWarning={true}
-        />
-        
-        {/* Input ocultos para archivos */}
+              {/* Alignment */}
+              <Button
+                type="button"
+                variant={editor.isActive({ textAlign: 'left' }) ? 'secondary' : 'ghost'}
+                size="icon"
+                className="h-8 w-8"
+                onClick={() => editor.chain().focus().setTextAlign('left').run()}
+              >
+                <AlignLeft className="h-4 w-4" />
+              </Button>
+
+              <Button
+                type="button"
+                variant={editor.isActive({ textAlign: 'center' }) ? 'secondary' : 'ghost'}
+                size="icon"
+                className="h-8 w-8"
+                onClick={() => editor.chain().focus().setTextAlign('center').run()}
+              >
+                <AlignCenter className="h-4 w-4" />
+              </Button>
+
+              <Button
+                type="button"
+                variant={editor.isActive({ textAlign: 'right' }) ? 'secondary' : 'ghost'}
+                size="icon"
+                className="h-8 w-8"
+                onClick={() => editor.chain().focus().setTextAlign('right').run()}
+              >
+                <AlignRight className="h-4 w-4" />
+              </Button>
+
+              <Button
+                type="button"
+                variant={editor.isActive({ textAlign: 'justify' }) ? 'secondary' : 'ghost'}
+                size="icon"
+                className="h-8 w-8"
+                onClick={() => editor.chain().focus().setTextAlign('justify').run()}
+              >
+                <AlignJustify className="h-4 w-4" />
+              </Button>
+
+              <Separator orientation="vertical" className="h-6" />
+
+              {/* Image */}
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8"
+                onClick={handleImageUpload}
+                title="Insertar imagen"
+              >
+                <ImageIcon className="h-4 w-4" />
+              </Button>
+
+              {/* Emojis */}
+              <Popover open={showEmojiPicker} onOpenChange={setShowEmojiPicker}>
+                <PopoverTrigger asChild>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8"
+                    title="Insertar emoji"
+                  >
+                    <Smile className="h-4 w-4" />
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0 border-0" align="start">
+                  <EmojiPicker
+                    onEmojiClick={(emojiData: EmojiClickData) => {
+                      editor.chain().focus().insertContent(emojiData.emoji).run();
+                      setShowEmojiPicker(false);
+                    }}
+                    width={350}
+                    height={400}
+                  />
+                </PopoverContent>
+              </Popover>
+
+              {/* Attachments */}
+              {onAttachmentsChange && (
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  className="h-8 w-8"
+                  onClick={handleAttachmentUpload}
+                  title="Adjuntar archivos"
+                >
+                  <Paperclip className="h-4 w-4" />
+                </Button>
+              )}
+            </>
+          )}
+
+        {/* Hidden file input for attachments */}
         <input
-          type="file"
           ref={fileInputRef}
-          onChange={handleImageUpload}
-          accept="image/*"
-          style={{ display: 'none' }}
-        />
-        
-        <input
           type="file"
-          ref={attachmentInputRef}
-          onChange={handleAttachmentUpload}
           multiple
-          style={{ display: 'none' }}
+          className="hidden"
+          onChange={handleFileChange}
         />
-        
-        {!value && (
-          <div className="absolute top-4 left-4 text-muted-foreground pointer-events-none">
-            {placeholder}
-          </div>
-        )}
       </div>
+
+      {/* Tab Contents */}
+      <TabsContent value="visual" className="m-0">
+        <EditorContent editor={editor} />
+      </TabsContent>
+
+      <TabsContent value="code" className="m-0">
+        <Textarea
+          value={htmlCode}
+          onChange={(e) => handleHtmlCodeChange(e.target.value)}
+          className="min-h-[300px] font-mono text-sm border-0 rounded-none resize-none focus-visible:ring-0"
+          placeholder="Código HTML..."
+        />
+      </TabsContent>
+      </Tabs>
     </div>
   );
 }

@@ -6,180 +6,110 @@ import { UserTable } from "@/components/UserTable";
 import { UsersPagination } from "@/components/UsersPagination";
 import { UsersKPICards } from "@/components/UsersKPICards";
 import { AddUserDialog } from "@/components/AddUserDialog";
-import { AccessDenied } from "@/components/AccessDenied";
 import { usePageAccess } from "@/hooks/usePageAccess";
+import { useUsersApi } from "@/hooks/useUsersApi";
 import { getAllUsers, createUser, deleteUser, updateUser, toggleUserStatus } from "@/utils/userApiClient";
 import { roles } from "@/utils/userRoleUtils";
+import { Button } from "@/components/ui/button";
+import { ChevronDown, ChevronUp } from "lucide-react";
 
 export default function UsersPage() {
-  const { hasAccess, permissions, currentUser } = usePageAccess("users");
+  const { permissions, currentUser } = usePageAccess("users");
   const { toast } = useToast();
-  const [users, setUsers] = useState<User[]>([]);
-  const [allUsers, setAllUsers] = useState<User[]>([]); // Para los KPIs
+  const [allUsers, setAllUsers] = useState<User[]>([]); // Para los KPIs - siempre todos los usuarios
+  const [filteredUsers, setFilteredUsers] = useState<User[]>([]); // Para la tabla cuando hay múltiples roles
   const [searchTerm, setSearchTerm] = useState("");
   const [roleFilter, setRoleFilter] = useState<string>("all");
-  const [selectedRoles, setSelectedRoles] = useState<string[]>([]); // Para filtrado por múltiples roles
-  const [loading, setLoading] = useState(true);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [usersPerPage, setUsersPerPage] = useState(50);
-  const [totalUsers, setTotalUsers] = useState(0);
-  const [totalPages, setTotalPages] = useState(0);
+  const [kpiRoleFilters, setKpiRoleFilters] = useState<string[]>([]); // Filtros múltiples desde KPI Cards
   const [sortBy, setSortBy] = useState<"CreatedAt" | "UpdatedAt" | "Name" | "Email" | "Role" | "IsActive">("UpdatedAt");
   const [sortDir, setSortDir] = useState<"asc" | "desc">("desc");
+  const [showKPIs, setShowKPIs] = useState(true); // Mostrar KPIs por defecto
 
-  // Verificar permisos de acceso
-  if (!hasAccess || !permissions?.canAccessUserManagement) {
-    return <AccessDenied message="No tienes permisos para acceder a la gestión de usuarios." />;
-  }
+  // Construir filtros dinámicos basados en el searchTerm y filtros activos
+  const getFiltersFromSearch = () => {
+    const filters: any = {
+      sortBy,
+      sortDir,
+      // Limpiar explícitamente los filtros de búsqueda cuando searchTerm está vacío
+      name: undefined,
+      email: undefined,
+      isActive: undefined,
+    };
 
-  const loadUsers = async () => {
-    try {
-      setLoading(true);
+    if (searchTerm && searchTerm.trim()) {
+      const term = searchTerm.toLowerCase().trim();
 
-      // Detectar tipo de búsqueda según el término
-      let searchParams: {
-        page: number;
-        pageSize: number;
-        sortBy: "CreatedAt" | "UpdatedAt" | "Name" | "Email" | "Role" | "IsActive";
-        sortDir: "asc" | "desc";
-        name?: string;
-        email?: string;
-        role?: string;
-        isActive?: boolean;
-      } = {
-        page: currentPage,
-        pageSize: usersPerPage,
-        sortBy,
-        sortDir,
-      };
+      if (term.includes("@")) {
+        filters.email = searchTerm;
+      } else if (term === "activo" || term === "active") {
+        filters.isActive = true;
+      } else if (term === "inactivo" || term === "inactive" || term === "desactivado") {
+        filters.isActive = false;
+      } else {
+        const matchingRole = roles.find(
+          (r) => r.label.toLowerCase().includes(term) || r.value.toLowerCase().includes(term),
+        );
 
-      // Si hay término de búsqueda, determinar qué buscar
-      if (searchTerm) {
-        const term = searchTerm.toLowerCase().trim();
-        
-        // Buscar por email si contiene @
-        if (term.includes('@')) {
-          searchParams.email = searchTerm;
-        }
-        // Buscar por estado si dice "activo" o "inactivo"
-        else if (term === 'activo' || term === 'active') {
-          searchParams.isActive = true;
-        }
-        else if (term === 'inactivo' || term === 'inactive' || term === 'desactivado') {
-          searchParams.isActive = false;
-        }
-        // Buscar por rol si coincide con algún rol
-        else {
-          const matchingRole = roles.find(r => 
-            r.label.toLowerCase().includes(term) || 
-            r.value.toLowerCase().includes(term)
-          );
-          
-          if (matchingRole) {
-            searchParams.role = matchingRole.value;
-          } else {
-            // Si no coincide con nada específico, buscar por nombre
-            searchParams.name = searchTerm;
-          }
+        if (matchingRole) {
+          filters.role = matchingRole.value;
+        } else {
+          filters.name = searchTerm;
         }
       }
-
-      // Agregar filtro de rol del dropdown si está seleccionado
-      if (roleFilter !== "all") {
-        searchParams.role = roleFilter;
-      }
-
-      const result = await getAllUsers(searchParams);
-
-      setUsers(result.users);
-      setTotalUsers(result.total);
-      setTotalPages(result.totalPages);
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : "No se pudieron cargar los usuarios";
-      toast({
-        title: "Error",
-        description: errorMessage,
-        variant: "destructive",
-      });
-    } finally {
-      setLoading(false);
     }
+
+    // Priorizar filtro de KPI sobre filtro de dropdown
+    // Si hay múltiples roles desde KPI, usar el primero (la lógica de múltiples roles se maneja aparte)
+    if (kpiRoleFilters.length === 1) {
+      filters.role = kpiRoleFilters[0];
+    } else if (roleFilter !== "all") {
+      filters.role = roleFilter;
+    } else {
+      // Si no hay filtro de rol, limpiarlo explícitamente
+      filters.role = undefined;
+    }
+
+    return filters;
   };
 
+  // Usar el hook para manejar la paginación
+  const { users, loading, error, totalUsers, totalPages, currentPage, refreshUsers, setPage, setPageSize, setFilters } =
+    useUsersApi({
+      page: 1,
+      pageSize: 50,
+      sortBy: "UpdatedAt",
+      sortDir: "desc",
+    });
+
+  // Aplicar filtros cuando cambian (solo para filtro simple o dropdown)
+  useEffect(() => {
+    // Solo aplicar filtros normales si no hay múltiples roles seleccionados desde KPI
+    if (kpiRoleFilters.length <= 1) {
+      const filters = getFiltersFromSearch();
+      setFilters(filters);
+    }
+  }, [searchTerm, roleFilter, kpiRoleFilters, sortBy, sortDir]);
+
+  // Cargar todos los usuarios para KPIs (separado de la paginación)
+  // IMPORTANTE: Siempre carga TODOS los usuarios sin filtros para que los KPIs sean correctos
   const loadAllUsersForKPIs = async () => {
     try {
-      // Detectar tipo de búsqueda según el término
-      let searchParams: {
-        page: number;
-        pageSize: number;
-        sortBy: "CreatedAt" | "UpdatedAt" | "Name" | "Email" | "Role" | "IsActive";
-        sortDir: "asc" | "desc";
-        name?: string;
-        email?: string;
-        role?: string;
-        isActive?: boolean;
-      } = {
+      const searchParams = {
         page: 1,
         pageSize: 200,
-        sortBy: "CreatedAt",
-        sortDir: "desc",
+        sortBy: "CreatedAt" as const,
+        sortDir: "desc" as const,
+        // NO aplicar filtros aquí - queremos TODOS los usuarios para los KPIs
       };
 
-      // Si hay término de búsqueda, determinar qué buscar
-      if (searchTerm) {
-        const term = searchTerm.toLowerCase().trim();
-        
-        if (term.includes('@')) {
-          searchParams.email = searchTerm;
-        }
-        else if (term === 'activo' || term === 'active') {
-          searchParams.isActive = true;
-        }
-        else if (term === 'inactivo' || term === 'inactive' || term === 'desactivado') {
-          searchParams.isActive = false;
-        }
-        else {
-          const matchingRole = roles.find(r => 
-            r.label.toLowerCase().includes(term) || 
-            r.value.toLowerCase().includes(term)
-          );
-          
-          if (matchingRole) {
-            searchParams.role = matchingRole.value;
-          } else {
-            searchParams.name = searchTerm;
-          }
-        }
-      }
-
-      // Agregar filtro de rol del dropdown si está seleccionado
-      if (roleFilter !== "all") {
-        searchParams.role = roleFilter;
-      }
-
-      // 1) Primera página para conocer total de páginas
       const first = await getAllUsers(searchParams);
-
       let aggregated: User[] = [...first.users];
 
       if (first.totalPages > 1) {
-        const requests = [] as Promise<{
-          users: User[];
-          page: number;
-          pageSize: number;
-          total: number;
-          totalPages: number;
-        }>[];
-
+        const requests = [];
         for (let p = 2; p <= first.totalPages; p++) {
-          requests.push(
-            getAllUsers({
-              ...searchParams,
-              page: p,
-            })
-          );
+          requests.push(getAllUsers({ ...searchParams, page: p }));
         }
-
         const results = await Promise.all(requests);
         results.forEach((r) => {
           aggregated = aggregated.concat(r.users);
@@ -189,46 +119,104 @@ export default function UsersPage() {
       setAllUsers(aggregated);
     } catch (error) {
       console.error("Error loading all users for KPIs:", error);
-      // Fallback: usar los usuarios visibles para evitar mostrar 0
-      setAllUsers(users);
+      setAllUsers([]);
     }
   };
 
+  // Cargar usuarios con múltiples roles cuando se seleccionan desde KPI
   useEffect(() => {
-    loadUsers();
-    loadAllUsersForKPIs(); // Cargar KPIs con los mismos filtros
-  }, [currentPage, usersPerPage, sortBy, sortDir, searchTerm, roleFilter]);
+    const loadUsersWithMultipleRoles = async () => {
+      if (kpiRoleFilters.length > 1) {
+        try {
+          // Hacer llamadas paralelas al API para cada rol
+          const allRolePromises = kpiRoleFilters.map((role) =>
+            getAllUsers({
+              page: 1,
+              pageSize: 200, // Cargar suficientes usuarios de cada rol
+              sortBy,
+              sortDir,
+              role,
+              ...(searchTerm && { name: searchTerm }),
+            }),
+          );
+
+          const results = await Promise.all(allRolePromises);
+
+          // Combinar todos los usuarios de los diferentes roles
+          const combinedUsers: User[] = [];
+          const seenIds = new Set<string>();
+
+          results.forEach((result) => {
+            result.users.forEach((user) => {
+              if (!seenIds.has(user.id)) {
+                seenIds.add(user.id);
+                combinedUsers.push(user);
+              }
+            });
+          });
+
+          // Actualizar el estado con los usuarios combinados para la tabla
+          setFilteredUsers(combinedUsers);
+        } catch (error) {
+          console.error("Error loading users with multiple roles:", error);
+          toast({
+            title: "Error",
+            description: "No se pudieron cargar los usuarios filtrados",
+            variant: "destructive",
+          });
+        }
+      } else {
+        // Limpiar usuarios filtrados cuando no hay múltiples roles
+        setFilteredUsers([]);
+      }
+    };
+
+    loadUsersWithMultipleRoles();
+  }, [kpiRoleFilters, searchTerm, sortBy, sortDir]);
+
+  // Cargar todos los usuarios para KPIs al montar el componente
+  useEffect(() => {
+    loadAllUsersForKPIs();
+  }, []); // Solo cargar una vez al inicio
 
   const handlePageChange = (page: number) => {
-    setCurrentPage(page);
+    setPage(page);
   };
 
   const handleUsersPerPageChange = (perPage: number) => {
-    setUsersPerPage(perPage);
-    setCurrentPage(1);
+    setPageSize(perPage);
   };
 
   const handleSearchChange = (value: string) => {
     setSearchTerm(value);
-    setCurrentPage(1);
   };
 
   const handleRoleFilterChange = (value: string) => {
     setRoleFilter(value);
-    setSelectedRoles([]); // Limpiar filtro de múltiples roles al usar el dropdown
-    setCurrentPage(1);
+    setKpiRoleFilters([]); // Limpiar filtros de KPI
   };
 
-  const handleKPIRoleFilter = (roles: string[]) => {
-    setSelectedRoles(roles);
-    setRoleFilter("all"); // Resetear el filtro del dropdown
-    setCurrentPage(1);
+  const handleKPIRoleFilter = (rolesToFilter: string[]) => {
+    if (rolesToFilter.length > 0) {
+      setKpiRoleFilters(rolesToFilter);
+      setRoleFilter("all"); // Resetear el filtro del dropdown
+    } else {
+      // Limpiar TODO y volver a página 1 cuando se hace clic en "Total Usuarios"
+      setKpiRoleFilters([]);
+      setRoleFilter("all");
+      setSearchTerm("");
+      setFilteredUsers([]); // Limpiar usuarios filtrados
+      setPage(1);
+      setFilters({
+        sortBy,
+        sortDir,
+        name: undefined,
+        email: undefined,
+        role: undefined,
+        isActive: undefined,
+      });
+    }
   };
-
-  // Filtrar usuarios mostrados si hay roles seleccionados desde KPI
-  const displayedUsers = selectedRoles.length > 0 
-    ? users.filter(user => selectedRoles.includes(user.role))
-    : users;
 
   const handleAddUser = async (email: string, role: User["role"]) => {
     try {
@@ -242,7 +230,8 @@ export default function UsersPage() {
         isActive: true,
       });
 
-      await loadUsers();
+      await refreshUsers();
+      await loadAllUsersForKPIs();
 
       toast({
         title: "Usuario agregado",
@@ -285,6 +274,7 @@ export default function UsersPage() {
         "analistaComisiones",
         "serviceDesk",
         "sac",
+        "fpSac",
       ];
       if (!validRoles.includes(newRole)) {
         toast({
@@ -304,7 +294,8 @@ export default function UsersPage() {
 
       await updateUser(userId, updateData);
 
-      await loadUsers();
+      await refreshUsers();
+      await loadAllUsersForKPIs();
 
       toast({
         title: "Éxito",
@@ -322,7 +313,8 @@ export default function UsersPage() {
   const handleUserDelete = async (userId: string) => {
     try {
       await deleteUser(userId);
-      await loadUsers();
+      await refreshUsers();
+      await loadAllUsersForKPIs();
 
       toast({
         title: "Usuario eliminado",
@@ -340,7 +332,8 @@ export default function UsersPage() {
   const handleUserStatusToggle = async (userId: string, isActive: boolean) => {
     try {
       await toggleUserStatus(userId, isActive);
-      await loadUsers();
+      await refreshUsers();
+      await loadAllUsersForKPIs();
 
       toast({
         title: "Estado actualizado",
@@ -355,19 +348,27 @@ export default function UsersPage() {
     }
   };
 
-  const handleUserUpdate = async (userId: string, name: string, email: string) => {
+  const handleUserUpdate = async (
+    userId: string,
+    updates: {
+      name: string;
+      email: string;
+      role: User["role"];
+    },
+  ) => {
     try {
       const user = users.find((u) => u.id === userId);
       if (!user) return;
 
       await updateUser(userId, {
-        name,
-        email,
-        role: user.role,
+        name: updates.name,
+        email: updates.email,
+        role: updates.role,
         isActive: user.isActive ?? true,
       });
 
-      await loadUsers();
+      await refreshUsers();
+      await loadAllUsersForKPIs();
 
       toast({
         title: "Usuario actualizado",
@@ -394,19 +395,26 @@ export default function UsersPage() {
     <div className="min-h-screen pt-0">
       <div className="p-4 pb-2">
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-2 mb-4">
-          <div>
-            <h1 className="text-3xl font-bold text-primary">Gestión de Usuarios</h1>
-            <p className="text-muted-foreground text-sm">Administra usuarios y roles del sistema</p>
+          <div className="flex items-center gap-3">
+            <div>
+              <h1 className="text-3xl font-bold text-primary">Gestión de Usuarios</h1>
+              <p className="text-muted-foreground text-sm">Administra usuarios y roles del sistema</p>
+            </div>
+            <Button variant="ghost" size="sm" onClick={() => setShowKPIs(!showKPIs)} className="self-start mt-1">
+              {showKPIs ? <ChevronUp className="h-5 w-5" /> : <ChevronDown className="h-5 w-5" />}
+            </Button>
           </div>
           {permissions?.canAssignRoles && <AddUserDialog onUserAdd={handleAddUser} />}
         </div>
 
-        <UsersKPICards 
-          users={allUsers} 
-          totalUsers={totalUsers}
-          onRoleFilter={handleKPIRoleFilter}
-          selectedRoles={selectedRoles}
-        />
+        {showKPIs && (
+          <UsersKPICards
+            users={allUsers}
+            totalUsers={allUsers.length}
+            onRoleFilter={handleKPIRoleFilter}
+            selectedRoles={kpiRoleFilters}
+          />
+        )}
       </div>
 
       <div className="px-4">
@@ -418,29 +426,33 @@ export default function UsersPage() {
         />
       </div>
 
-      <div className="px-4 pb-4 mt-4 flex flex-col" style={{ height: "calc(100vh - 480px)" }}>
-        <div className="flex-1 min-h-0">
-          <UserTable
-            users={displayedUsers}
-            permissions={permissions}
-            currentUserId={currentUser?.id || ""}
-            onRoleUpdate={handleRoleUpdate}
-            onUserDelete={handleUserDelete}
-            onUserStatusToggle={handleUserStatusToggle}
-            onUserUpdate={handleUserUpdate}
-          />
-        </div>
+      <div className="px-4 flex-1 min-h-0">
+        <UserTable
+          users={kpiRoleFilters.length > 1 ? filteredUsers : users}
+          permissions={permissions}
+          currentUserId={currentUser?.id || ""}
+          onRoleUpdate={handleRoleUpdate}
+          onUserDelete={handleUserDelete}
+          onUserStatusToggle={handleUserStatusToggle}
+          onUserUpdate={handleUserUpdate}
+        />
+      </div>
 
-        <div className="flex-shrink-0 mt-2">
+      <div className="flex-shrink-0 mt-2">
+        {kpiRoleFilters.length > 1 ? (
+          <div className="text-sm text-muted-foreground text-center">
+            Mostrando {filteredUsers.length} usuarios con roles: {kpiRoleFilters.join(", ")}
+          </div>
+        ) : (
           <UsersPagination
             currentPage={currentPage}
             totalPages={totalPages}
             totalUsers={totalUsers}
-            usersPerPage={usersPerPage}
+            usersPerPage={users.length}
             onPageChange={handlePageChange}
             onUsersPerPageChange={handleUsersPerPageChange}
           />
-        </div>
+        )}
       </div>
     </div>
   );

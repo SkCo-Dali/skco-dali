@@ -1,0 +1,336 @@
+import { useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Card } from '@/components/ui/card';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { UserProfile } from '@/types/userProfile';
+import { Edit2, Save, X, User } from 'lucide-react';
+import { CountryPhoneSelector } from '@/components/onboarding/CountryPhoneSelector';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { ChevronDown } from 'lucide-react';
+import { toast } from 'sonner';
+import { useAuth } from '@/contexts/AuthContext';
+import { userProfileApiClient } from '@/utils/userProfileApiClient';
+import { DatePicker } from '@/components/ui/date-picker';
+import { format, parse } from 'date-fns';
+
+interface Props {
+  profile: UserProfile;
+  updateProfile: (updates: Partial<UserProfile>) => void;
+}
+
+export function ProfilePersonalInfo({ profile, updateProfile }: Props) {
+  const [isEditing, setIsEditing] = useState(false);
+  const [localData, setLocalData] = useState(profile);
+  const [socialMediaOpen, setSocialMediaOpen] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const { getAccessToken, updateUserProfile } = useAuth();
+
+  const handleSave = async () => {
+    setIsSaving(true);
+    try {
+      const token = await getAccessToken();
+      if (!token) throw new Error('No access token');
+
+      // Save basic info
+      await userProfileApiClient.updateBasic(token.accessToken, {
+        preferredName: localData.preferredName,
+        birthDate: localData.birthDate ? format(new Date(localData.birthDate), 'yyyy-MM-dd') : null,
+        gender: localData.gender || null,
+        maritalStatus: localData.maritalStatus || null,
+        childrenCount: localData.numberOfChildren || 0,
+      });
+
+      // Save contact channels
+      const channels = [];
+      if (localData.phone) {
+        channels.push({
+          channelType: 'WhatsApp' as const,
+          countryCode: localData.countryCode || null,
+          channelValue: localData.phone,
+          isPrimary: true,
+          isPublic: true,
+          isWhatsAppForMassEmails: true,
+        });
+      }
+      if (localData.facebook) {
+        channels.push({
+          channelType: 'Facebook' as const,
+          channelValue: localData.facebook,
+          isPrimary: false,
+          isPublic: true,
+          isWhatsAppForMassEmails: false,
+        });
+      }
+      if (localData.instagram) {
+        channels.push({
+          channelType: 'Instagram' as const,
+          channelValue: localData.instagram,
+          isPrimary: false,
+          isPublic: true,
+          isWhatsAppForMassEmails: false,
+        });
+      }
+      if (localData.linkedin) {
+        channels.push({
+          channelType: 'LinkedIn' as const,
+          channelValue: localData.linkedin,
+          isPrimary: false,
+          isPublic: true,
+          isWhatsAppForMassEmails: false,
+        });
+      }
+      if (localData.xTwitter) {
+        channels.push({
+          channelType: 'X' as const,
+          channelValue: localData.xTwitter,
+          isPrimary: false,
+          isPublic: true,
+          isWhatsAppForMassEmails: false,
+        });
+      }
+      if (localData.tiktok) {
+        channels.push({
+          channelType: 'TikTok' as const,
+          channelValue: localData.tiktok,
+          isPrimary: false,
+          isPublic: true,
+          isWhatsAppForMassEmails: false,
+        });
+      }
+
+      await userProfileApiClient.updateContactChannels(token.accessToken, { channels });
+
+      updateProfile(localData);
+      
+      // IMPORTANT: Update AuthContext user object with new WhatsApp data
+      updateUserProfile({
+        preferredName: localData.preferredName,
+        birthDate: localData.birthDate,
+        gender: localData.gender,
+        maritalStatus: localData.maritalStatus,
+        childrenCount: localData.numberOfChildren,
+        whatsappCountryCode: localData.countryCode || null,
+        whatsappPhone: localData.phone || null,
+      });
+      
+      setIsEditing(false);
+      toast.success('Información personal actualizada');
+    } catch (error) {
+      console.error('Error saving personal info:', error);
+      toast.error('Error al guardar la información');
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleCancel = () => {
+    setLocalData(profile);
+    setIsEditing(false);
+  };
+
+  return (
+    <div className="space-y-6 animate-fade-in">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-2xl font-semibold">Información Personal</h2>
+          <p className="text-sm text-muted-foreground mt-1">
+            Datos básicos y redes sociales
+          </p>
+        </div>
+        {!isEditing ? (
+          <Button onClick={() => setIsEditing(true)} variant="outline" className="gap-2">
+            <Edit2 className="h-4 w-4" />
+            Editar
+          </Button>
+        ) : (
+          <div className="flex gap-2">
+            <Button onClick={handleCancel} variant="outline" className="gap-2">
+              <X className="h-4 w-4" />
+              Cancelar
+            </Button>
+            <Button onClick={handleSave} className="gap-2" disabled={isSaving}>
+              <Save className="h-4 w-4" />
+              {isSaving ? 'Guardando...' : 'Guardar'}
+            </Button>
+          </div>
+        )}
+      </div>
+
+      {/* Photo */}
+      <Card className="p-4 border-border/40">
+        <div className="flex items-center gap-6">
+          <div className="h-24 w-24 rounded-full bg-muted flex items-center justify-center overflow-hidden border-2 border-border">
+            {localData.photo ? (
+              <img src={localData.photo} alt="Profile" className="h-full w-full object-cover" />
+            ) : (
+              <User className="h-12 w-12 text-muted-foreground" />
+            )}
+          </div>
+          <div className="flex-1">
+            <h3 className="font-medium text-lg">{localData.preferredName || 'Sin nombre'}</h3>
+            <p className="text-sm text-muted-foreground">Foto de perfil</p>
+          </div>
+        </div>
+      </Card>
+
+      {/* Basic Info */}
+      <Card className="p-4 border-border/40 space-y-4">
+        <h3 className="font-medium text-lg mb-4">Datos Básicos</h3>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="space-y-2">
+            <Label htmlFor="preferredName">Nombre Preferido *</Label>
+            <Input
+              id="preferredName"
+              value={localData.preferredName || ''}
+              onChange={(e) => setLocalData({ ...localData, preferredName: e.target.value })}
+              disabled={!isEditing}
+              placeholder="¿Cómo quieres que te llame?"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="birthDate">Fecha de Nacimiento</Label>
+            <DatePicker
+              date={localData.birthDate ? parse(localData.birthDate, 'yyyy-MM-dd', new Date()) : undefined}
+              onDateChange={(date) => setLocalData({ 
+                ...localData, 
+                birthDate: date ? format(date, 'yyyy-MM-dd') : undefined 
+              })}
+              placeholder="dd/MM/yyyy"
+              disabled={(date) => date > new Date() || date < new Date('1900-01-01')}
+              className={!isEditing ? 'pointer-events-none opacity-50' : ''}
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="gender">Género</Label>
+            <Select
+              value={localData.gender || ''}
+              onValueChange={(value: any) => setLocalData({ ...localData, gender: value })}
+              disabled={!isEditing}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Selecciona tu género" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="male">Masculino</SelectItem>
+                <SelectItem value="female">Femenino</SelectItem>
+                <SelectItem value="other">Otro</SelectItem>
+                <SelectItem value="prefer_not_to_say">Prefiero no decir</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+      </Card>
+
+      {/* WhatsApp */}
+      <Card className="p-4 border-border/40 space-y-4">
+        <h3 className="font-medium text-lg mb-4">WhatsApp *</h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="space-y-2">
+            <Label htmlFor="countryCode">Código de País</Label>
+            <Input
+              id="countryCode"
+              value={localData.countryCode || ''}
+              onChange={(e) => setLocalData({ ...localData, countryCode: e.target.value })}
+              disabled={!isEditing}
+              placeholder="+57"
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="phone">Número de WhatsApp</Label>
+            <Input
+              id="phone"
+              value={localData.phone || ''}
+              onChange={(e) => setLocalData({ ...localData, phone: e.target.value })}
+              disabled={!isEditing}
+              placeholder="3001234567"
+            />
+          </div>
+        </div>
+      </Card>
+
+      {/* Social Media */}
+      <Card className="p-4 border-border/40 space-y-4">
+        <Collapsible open={socialMediaOpen} onOpenChange={setSocialMediaOpen}>
+          <div className="flex items-center justify-between">
+            <div>
+              <h3 className="font-medium text-lg">Redes Sociales</h3>
+              <p className="text-sm text-muted-foreground">Opcionales - se usarán en correos masivos</p>
+            </div>
+            <CollapsibleTrigger asChild>
+              <Button variant="ghost" size="sm" className="gap-2">
+                {socialMediaOpen ? 'Ocultar' : 'Mostrar'}
+                <ChevronDown className={`h-4 w-4 transition-transform ${socialMediaOpen ? 'rotate-180' : ''}`} />
+              </Button>
+            </CollapsibleTrigger>
+          </div>
+
+          <CollapsibleContent className="space-y-4 pt-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="facebook">Facebook</Label>
+                <Input
+                  id="facebook"
+                  value={localData.facebook || ''}
+                  onChange={(e) => setLocalData({ ...localData, facebook: e.target.value })}
+                  disabled={!isEditing}
+                  placeholder="facebook.com/tu-perfil"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="instagram">Instagram</Label>
+                <Input
+                  id="instagram"
+                  value={localData.instagram || ''}
+                  onChange={(e) => setLocalData({ ...localData, instagram: e.target.value })}
+                  disabled={!isEditing}
+                  placeholder="@usuario"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="linkedin">LinkedIn</Label>
+                <Input
+                  id="linkedin"
+                  value={localData.linkedin || ''}
+                  onChange={(e) => setLocalData({ ...localData, linkedin: e.target.value })}
+                  disabled={!isEditing}
+                  placeholder="linkedin.com/in/usuario"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="xTwitter">X (Twitter)</Label>
+                <Input
+                  id="xTwitter"
+                  value={localData.xTwitter || ''}
+                  onChange={(e) => setLocalData({ ...localData, xTwitter: e.target.value })}
+                  disabled={!isEditing}
+                  placeholder="@usuario"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="tiktok">TikTok</Label>
+                <Input
+                  id="tiktok"
+                  value={localData.tiktok || ''}
+                  onChange={(e) => setLocalData({ ...localData, tiktok: e.target.value })}
+                  disabled={!isEditing}
+                  placeholder="@usuario"
+                />
+              </div>
+            </div>
+          </CollapsibleContent>
+        </Collapsible>
+      </Card>
+
+    </div>
+  );
+}

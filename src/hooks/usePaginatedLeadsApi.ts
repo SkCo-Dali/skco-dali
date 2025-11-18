@@ -89,6 +89,7 @@ export const usePaginatedLeadsApi = () => {
     return {
       id: paginatedLead.Id,
       name: paginatedLead.Name,
+      firstName: paginatedLead.FirstName,
       email: paginatedLead.Email,
       alternateEmail: paginatedLead.AlternateEmail || "",
       phone: paginatedLead.Phone,
@@ -106,6 +107,7 @@ export const usePaginatedLeadsApi = () => {
       createdBy: paginatedLead.CreatedBy,
       createdAt: paginatedLead.CreatedAt,
       updatedAt: paginatedLead.UpdatedAt,
+      lastInteractionAt: paginatedLead.LastInteractionAt,
       nextFollowUp: paginatedLead.NextFollowUp,
       notes: paginatedLead.Notes,
       tags,
@@ -150,6 +152,10 @@ export const usePaginatedLeadsApi = () => {
     const updatedAtTo = uiFilters.columnFilters.updatedAtEnd?.[0];
     const nextFollowUpFrom = uiFilters.columnFilters.nextFollowUp?.[0];
     const nextFollowUpTo = uiFilters.columnFilters.nextFollowUpEnd?.[0];
+    const lastInteractionFrom = uiFilters.columnFilters.lastInteraction?.[0];
+    const lastInteractionTo = uiFilters.columnFilters.lastInteractionEnd?.[0];
+    const lastGestorInteractionFrom = uiFilters.columnFilters.lastGestorInteractionAt?.[0];
+    const lastGestorInteractionTo = uiFilters.columnFilters.lastGestorInteractionAtEnd?.[0];
 
     // Convertir filtros de columna (excepto fechas especiales)
     Object.entries(uiFilters.columnFilters).forEach(([column, values]) => {
@@ -160,7 +166,11 @@ export const usePaginatedLeadsApi = () => {
         column === "updatedAt" ||
         column === "updatedAtEnd" ||
         column === "nextFollowUp" ||
-        column === "nextFollowUpEnd"
+        column === "nextFollowUpEnd" ||
+        column === "lastInteraction" ||
+        column === "lastInteractionEnd" ||
+        column === "lastGestorInteractionAt" ||
+        column === "lastGestorInteractionAtEnd"
       ) {
         return;
       }
@@ -184,7 +194,7 @@ export const usePaginatedLeadsApi = () => {
     });
 
     // Helper para asignar filtros de fecha
-    const applyDateFilter = (field: "CreatedAt" | "UpdatedAt" | "NextFollowUp", from?: string, to?: string) => {
+    const applyDateFilter = (field: "CreatedAt" | "UpdatedAt" | "NextFollowUp" | "LastInteractionAt" | "LastGestorInteractionAt", from?: string, to?: string) => {
       // Normalize boundaries to cover full days when UI provides date-only values
       const normalizeFromStartOfDay = (d?: string) => {
         if (!d) return undefined;
@@ -221,6 +231,8 @@ export const usePaginatedLeadsApi = () => {
     applyDateFilter("CreatedAt", createdAtFrom, createdAtTo);
     applyDateFilter("UpdatedAt", updatedAtFrom, updatedAtTo);
     applyDateFilter("NextFollowUp", nextFollowUpFrom, nextFollowUpTo);
+    applyDateFilter("LastInteractionAt", lastInteractionFrom, lastInteractionTo);
+    applyDateFilter("LastGestorInteractionAt", lastGestorInteractionFrom, lastGestorInteractionTo);
 
     // Convertir filtros de texto
     Object.entries(uiFilters.textFilters).forEach(([column, conditions]) => {
@@ -244,6 +256,7 @@ export const usePaginatedLeadsApi = () => {
       return (
         lead.name?.toLowerCase().includes(searchLower) ||
         lead.email?.toLowerCase().includes(searchLower) ||
+        lead.firstName?.toLowerCase().includes(searchLower) ||
         lead.alternateEmail?.toLowerCase().includes(searchLower) ||
         lead.phone?.toLowerCase().includes(searchLower) ||
         lead.campaign?.toLowerCase().includes(searchLower)
@@ -255,6 +268,7 @@ export const usePaginatedLeadsApi = () => {
   const mapColumnNameToApi = (uiColumn: string): string => {
     const mapping: Record<string, string> = {
       name: "Name",
+      firstName: "FirstName",
       email: "Email",
       phone: "Phone",
       company: "Company",
@@ -270,6 +284,8 @@ export const usePaginatedLeadsApi = () => {
       createdAt: "CreatedAt",
       updatedAt: "UpdatedAt",
       nextFollowUp: "NextFollowUp",
+      lastInteraction: "LastInteractionAt",
+      lastGestorInteractionAt: "LastGestorInteractionAt",
       notes: "Notes",
       tags: "Tags",
       documentNumber: "DocumentNumber",

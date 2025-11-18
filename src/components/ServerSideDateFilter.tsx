@@ -45,8 +45,32 @@ export function ServerSideDateFilter({
   const [customCondition, setCustomCondition] = useState<DateRangeCondition>({ type: 'custom' });
   const [isDateTreeOpen, setIsDateTreeOpen] = useState(true);
   
-  // Map lastInteraction to updatedAt for API calls
-  const apiField = field === 'lastInteraction' ? 'updatedAt' : field;
+  // Map UI fields to API fields for API calls
+  const getApiField = (uiField: string): string => {
+    const mapping: Record<string, string> = {
+      'lastInteraction': 'LastInteractionAt',
+      'lastGestorInteractionAt': 'LastGestorInteractionAt',
+      'createdAt': 'CreatedAt',
+      'updatedAt': 'UpdatedAt',
+      'nextFollowUp': 'NextFollowUp'
+    };
+    return mapping[uiField] || uiField;
+  };
+  
+  // Map API fields back to UI fields for filter callbacks
+  const getUiField = (apiField: string): string => {
+    const mapping: Record<string, string> = {
+      'LastInteractionAt': 'lastInteraction',
+      'LastGestorInteractionAt': 'lastGestorInteractionAt',
+      'CreatedAt': 'createdAt',
+      'UpdatedAt': 'updatedAt',
+      'NextFollowUp': 'nextFollowUp'
+    };
+    return mapping[apiField] || apiField;
+  };
+  
+  const apiField = getApiField(field);
+  const uiField = getUiField(apiField);
   
   // Usar el hook para obtener valores únicos de fechas
   const {
@@ -113,24 +137,43 @@ export function ServerSideDateFilter({
 
   const handleYearChange = (year: string, checked: boolean) => {
     if (checked) {
-      setSelectedDates(prev => [...prev, `year:${year}`]);
+      // Seleccionar todos los días del año
+      const allDaysInYear: string[] = [];
+      Object.entries(groupedDates[year] || {}).forEach(([monthNum, days]) => {
+        Object.keys(days).forEach(day => {
+          allDaysInYear.push(`${year}-${monthNum}-${day}`);
+        });
+      });
+      setSelectedDates(prev => {
+        const filtered = prev.filter(d => !d.startsWith(`${year}-`));
+        return [...filtered, ...allDaysInYear];
+      });
     } else {
-      setSelectedDates(prev => prev.filter(d => d !== `year:${year}`));
+      // Deseleccionar todos los días del año
+      setSelectedDates(prev => prev.filter(d => !d.startsWith(`${year}-`)));
     }
   };
 
   const handleMonthChange = (year: string, monthNum: string, checked: boolean) => {
     if (checked) {
-      setSelectedDates(prev => [...prev, `month:${year}-${monthNum}`]);
+      // Seleccionar todos los días del mes
+      const allDaysInMonth = Object.keys(groupedDates[year]?.[monthNum] || {}).map(day => 
+        `${year}-${monthNum}-${day}`
+      );
+      setSelectedDates(prev => {
+        const filtered = prev.filter(d => !d.startsWith(`${year}-${monthNum}-`));
+        return [...filtered, ...allDaysInMonth];
+      });
     } else {
-      setSelectedDates(prev => prev.filter(d => d !== `month:${year}-${monthNum}`));
+      // Deseleccionar todos los días del mes
+      setSelectedDates(prev => prev.filter(d => !d.startsWith(`${year}-${monthNum}-`)));
     }
   };
 
   const handleClear = () => {
     setSelectedDates([]);
     setCustomCondition({ type: 'custom' });
-    onFilterChange(apiField, []);
+    onFilterChange(uiField, []);
   };
 
   const handleCancel = () => {
@@ -145,18 +188,22 @@ export function ServerSideDateFilter({
       const sortedDates = selectedDates.sort();
       const minDate = sortedDates[0];
       const maxDate = sortedDates[sortedDates.length - 1];
-      onFilterChange(apiField, [minDate, maxDate]);
+      // Add time to dates for proper comparison: start of day for min, end of day for max
+      const minDateWithTime = `${minDate}T00:00:00`;
+      const maxDateWithTime = `${maxDate}T23:59:59`;
+      onFilterChange(uiField, [minDateWithTime, maxDateWithTime]);
     } else if (activeTab === 'custom' && (customCondition.from || customCondition.to)) {
       // Para rango personalizado
       const from = customCondition.from ? format(customCondition.from, 'yyyy-MM-dd') : undefined;
       const to = customCondition.to ? format(customCondition.to, 'yyyy-MM-dd') : undefined;
       
+      // Add time to dates for proper comparison
       if (from && to) {
-        onFilterChange(apiField, [from, to]);
+        onFilterChange(uiField, [`${from}T00:00:00`, `${to}T23:59:59`]);
       } else if (from) {
-        onFilterChange(apiField, [from, from]);
+        onFilterChange(uiField, [`${from}T00:00:00`, `${from}T23:59:59`]);
       } else if (to) {
-        onFilterChange(apiField, [to, to]);
+        onFilterChange(uiField, [`${to}T00:00:00`, `${to}T23:59:59`]);
       }
     }
     setIsOpen(false);
@@ -257,7 +304,12 @@ export function ServerSideDateFilter({
                         <Collapsible key={year}>
                           <div className="flex items-center space-x-2 p-1 hover:bg-gray-50 w-full">
                             <Checkbox
-                              checked={selectedDates.includes(`year:${year}`)}
+                              checked={(() => {
+                                const allDaysInYear = Object.entries(months).flatMap(([monthNum, days]) => 
+                                  Object.keys(days).map(day => `${year}-${monthNum}-${day}`)
+                                );
+                                return allDaysInYear.length > 0 && allDaysInYear.every(d => selectedDates.includes(d));
+                              })()}
                               onCheckedChange={(checked) => handleYearChange(year, checked as boolean)}
                             />
                             <CollapsibleTrigger className="flex items-center space-x-2 flex-1 text-left">
@@ -274,7 +326,10 @@ export function ServerSideDateFilter({
                                 <Collapsible key={monthNum}>
                                   <div className="flex items-center space-x-2 p-1 hover:bg-gray-50 w-full">
                                     <Checkbox
-                                      checked={selectedDates.includes(`month:${year}-${monthNum}`)}
+                                      checked={(() => {
+                                        const allDaysInMonth = Object.keys(days).map(day => `${year}-${monthNum}-${day}`);
+                                        return allDaysInMonth.length > 0 && allDaysInMonth.every(d => selectedDates.includes(d));
+                                      })()}
                                       onCheckedChange={(checked) => handleMonthChange(year, monthNum, checked as boolean)}
                                     />
                                     <CollapsibleTrigger className="flex items-center space-x-2 flex-1 text-left">

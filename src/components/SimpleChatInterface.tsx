@@ -7,6 +7,7 @@ import { useSimpleConversation } from '../contexts/SimpleConversationContext';
 import { ChatMessage } from '../types/chat';
 import { useAuth } from '../contexts/AuthContext';
 import { callAzureAgentApi } from '../utils/azureApiService';
+import { azureConversationService } from '../services/azureConversationService';
 import { useSettings } from '../contexts/SettingsContext';
 import { templatesService } from '../services/templatesService';
 import { PromptTemplate } from '../types/templates';
@@ -43,7 +44,7 @@ export const SimpleChatInterface = forwardRef<any, {}>((props, ref) => {
   const [showTemplatesModal, setShowTemplatesModal] = useState(false);
   const [showScrollToBottom, setShowScrollToBottom] = useState(false);
 
-  const { currentConversation, addMessage, createNewConversation } = useSimpleConversation();
+  const { currentConversation, addMessage, createNewConversation, updateConversationId } = useSimpleConversation();
   const { user } = useAuth();
   const { aiSettings } = useSettings();
   const isMobile = useIsMobile();
@@ -144,76 +145,45 @@ export const SimpleChatInterface = forwardRef<any, {}>((props, ref) => {
         ? generateConversationTitle(content)
         : currentConversation.title;
 
-      // Crear/actualizar conversación en tu backend
+      let conversationId = currentConversation.id;
+
+      // PASO 1: Si es nueva conversación, crearla en Azure primero
       if (isNewConversation) {
-        const conversationData = {
-          id: currentConversation.id,
-          userId: userEmail,
-          title: conversationTitle,
-          messages: [{
-            messageId: userMessage.id,
-            role: 'user' as const,
-            content: userMessage.content,
-            timestamp: userMessage.timestamp.toISOString()
-          }],
-          createdAt: currentConversation.createdAt.toISOString(),
-          updatedAt: new Date().toISOString(),
-          tags: [],
-          isArchived: false,
-          totalTokens: 0,
-          attachments: []
-        };
-
-        const headers: Record<string, string> = { 'Content-Type': 'application/json' };
-
-        const res = await fetch(`${ENV.AI_API_BASE_URL}/api/conversations`, {
-          method: 'POST',
-          headers,
-          body: JSON.stringify(conversationData)
-        });
-        if (!res.ok) {
-          const errorText = await res.text();
-          throw new Error(`Failed to create conversation: ${res.status} ${res.statusText} - ${errorText}`);
-        }
-      } else {
-        const updatedMessages = [...messages, userMessage];
-        const conversationUpdate = {
-          id: currentConversation.id,
-          userId: userEmail,
-          title: currentConversation.title,
-          messages: updatedMessages.map(msg => ({
-            messageId: msg.id,
-            role: msg.type === 'user' ? 'user' as const : 'assistant' as const,
-            content: msg.content,
-            timestamp: msg.timestamp.toISOString(),
-            data: (msg as any).data,
-            chart: (msg as any).chart,
-            downloadLink: (msg as any).downloadLink,
-            videoPreview: (msg as any).videoPreview,
-            metadata: (msg as any).metadata
-          })),
-          updatedAt: new Date().toISOString(),
-          tags: currentConversation.tags,
-          isArchived: currentConversation.isArchived,
-          totalTokens: currentConversation.totalTokens
-        };
-
-        const headers: Record<string, string> = { 'Content-Type': 'application/json' };
-
-        const res = await fetch(
-          `${ENV.AI_API_BASE_URL}/api/conversations/${currentConversation.id}?user_id=${encodeURIComponent(userEmail)}`,
-          { method: 'PUT', headers, body: JSON.stringify(conversationUpdate) }
+        console.log('📝 Creando nueva conversación en Azure...', { userEmail, conversationTitle });
+        conversationId = await azureConversationService.createConversation(
+          userEmail,
+          conversationTitle
         );
-        if (!res.ok) {
-          const errorText = await res.text();
-          console.error('Error updating conversation:', res.status, errorText);
-        }
+        console.log('✅ Conversación creada en Azure con ID:', conversationId);
+        // Actualizar el ID local de la conversación con el ID real de Azure
+        updateConversationId(conversationId);
       }
 
-      // Llamada al agente
-      const response = await callAzureAgentApi('', [], aiSettings, userEmail, currentConversation.id);
+      // PASO 2: Guardar en Azure el mensaje del usuario antes de llamar al maestro
+      console.log('💾 Guardando mensaje del usuario en Azure...', { conversationId, count: (messages?.length || 0) + 1 });
+      const messagesBeforeAssistant = [...messages, userMessage];
+      await azureConversationService.updateConversation(conversationId, userEmail, {
+        title: conversationTitle,
+        messages: messagesBeforeAssistant.map(msg => ({
+          role: msg.type === 'user' ? 'user' as const : 'assistant' as const,
+          content: msg.content,
+          timestamp: msg.timestamp.toISOString(),
+          data: (msg as any).data,
+          chart: (msg as any).chart,
+          downloadLink: (msg as any).downloadLink,
+          videoPreview: (msg as any).videoPreview,
+          metadata: (msg as any).metadata
+        })),
+        updatedAt: new Date().toISOString()
+      });
+      console.log('✅ Mensaje del usuario guardado en Azure');
+
+      // PASO 3: Llamar al agente maestro (lee del historial por conversationId)
+      console.log('📞 Llamando al agente maestro...');
+      const response = await callAzureAgentApi('', [], aiSettings, userEmail, conversationId);
 
       // Preparar respuesta del asistente
+      console.log('✅ Respuesta recibida del agente maestro');
       let aiResponseContent = '';
       if ((response as any).text) {
         aiResponseContent = (response as any).text;
@@ -241,14 +211,13 @@ export const SimpleChatInterface = forwardRef<any, {}>((props, ref) => {
 
       addMessage(aiMessage);
 
-      // Update final con el título (si cambió) y mensajes finales
-      const finalMessages = [...messages, userMessage, aiMessage];
-      const conversationFinalUpdate = {
-        id: currentConversation.id,
-        userId: userEmail,
+      // PASO 4: Actualizar la conversación en Azure con ambos mensajes (user y assistant)
+      console.log('💾 Actualizando conversación en Azure con ambos mensajes...');
+      const finalMessages = [...messagesBeforeAssistant, aiMessage];
+      
+      await azureConversationService.updateConversation(conversationId, userEmail, {
         title: conversationTitle,
         messages: finalMessages.map(msg => ({
-          messageId: msg.id,
           role: msg.type === 'user' ? 'user' as const : 'assistant' as const,
           content: msg.content,
           timestamp: msg.timestamp.toISOString(),
@@ -258,22 +227,10 @@ export const SimpleChatInterface = forwardRef<any, {}>((props, ref) => {
           videoPreview: (msg as any).videoPreview,
           metadata: (msg as any).metadata
         })),
-        updatedAt: new Date().toISOString(),
-        tags: currentConversation.tags,
-        isArchived: currentConversation.isArchived,
-        totalTokens: currentConversation.totalTokens
-      };
-
-      const finalHeaders: Record<string, string> = { 'Content-Type': 'application/json' };
-
-      const finalRes = await fetch(
-        `${ENV.AI_API_BASE_URL}/api/conversations/${currentConversation.id}?user_id=${encodeURIComponent(userEmail)}`,
-        { method: 'PUT', headers: finalHeaders, body: JSON.stringify(conversationFinalUpdate) }
-      );
-      if (!finalRes.ok) {
-        const errorText = await finalRes.text();
-        console.error('Error in final conversation update:', finalRes.status, errorText);
-      }
+        updatedAt: new Date().toISOString()
+      });
+      
+      console.log('✅ Conversación actualizada en Azure');
     } catch (error) {
       console.error('Error in handleSendMessage:', error);
       addMessage({

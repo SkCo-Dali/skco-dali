@@ -1,0 +1,7 @@
+[
+  {"advisorId":"A-1001","cursoId":"LMS-AML-01","nombre":"Prevención LA/FT","horas":6,"score":92,"fecha":"2025-10-10","estado":"completo"},
+  {"advisorId":"A-1001","cursoId":"LMS-ETI-02","nombre":"Ética Comercial","horas":3,"score":88,"fecha":"2025-09-22","estado":"completo"},
+  {"advisorId":"A-1002","cursoId":"LMS-INV-03","nombre":"Fondos de Inversión","horas":5,"score":90,"fecha":"2025-10-20","estado":"completo"},
+  {"advisorId":"A-1003","cursoId":"LMS-SEG-01","nombre":"Productos de Seguros","horas":4,"score":95,"fecha":"2025-10-05","estado":"completo"},
+  {"advisorId":"A-1004","cursoId":"LMS-VENT-01","nombre":"Técnicas de Venta Consultiva","horas":4,"score":86,"fecha":"2025-09-15","estado":"completo"}
+]

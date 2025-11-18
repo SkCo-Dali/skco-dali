@@ -4,8 +4,10 @@ import { SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
 import { Header } from "@/components/Header";
 import { RoleBasedRedirect } from "@/components/RoleBasedRedirect";
+import { RestrictedRoute } from "@/components/RestrictedRoute";
 import Dashboard from "@/pages/Dashboard";
 import Leads from "@/pages/Leads";
+import LeadsTabbed from "@/pages/LeadsTabbed";
 import Tasks from "@/pages/Tasks";
 import Reports from "@/pages/Reports";
 import Informes from "@/pages/Informes";
@@ -20,14 +22,20 @@ import Comisiones from "@/pages/Comisiones";
 import MotorComisionesIndex from "@/pages/MotorComisionesIndex";
 import CompensationPlans from "@/pages/CompensationPlans";
 import Catalogs from "@/pages/Catalogs";
+import InfoGerencialComisiones from "@/pages/InfoGerencialComisiones";
 import VoiceInsights from "@/pages/VoiceInsights";
+import UserProfile from "@/pages/UserProfile";
 import NotFound from "@/pages/NotFound";
 import PowerBIReportsAdmin from "@/components/admin/PowerBIReportsAdmin";
+import GraphCallback from "@/pages/GraphCallback";
+import { AdvisorsHome } from "@/features/advisor/pages/AdvisorsHome";
+import { AdvisorProfile } from "@/features/advisor/pages/AdvisorProfile";
 import { useAuth } from "@/contexts/AuthContext";
 import { Login } from "@/components/Login";
 import { AuthenticatedTemplate, UnauthenticatedTemplate } from "@azure/msal-react";
 import ChatSami, { ChatSamiHandle } from "@/components/ChatSami";
 import { getRolePermissions } from "@/types/crm";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 export function AppContent() {
   const { user, loading } = useAuth();
@@ -35,24 +43,26 @@ export function AppContent() {
   const chatSamiRef = useRef<ChatSamiHandle>(null);
   const location = useLocation();
   const navigate = useNavigate();
-  
+  const isMobile = useIsMobile();
+
   // Check if user has ChatSami permissions
   const hasChatSamiPermissions = user ? getRolePermissions(user.role)?.chatSami : false;
   const [chatSamiOpen, setChatSamiOpen] = useState(false);
-  
-  // Verificar si estamos en la página de Users
-  const isUsersPage = location.pathname === '/users' || location.pathname === '/admin/users';
 
-  // Abrir ChatSami por defecto para usuarios con permisos (excepto en página de Users)
+  // Verificar si estamos en la página de Users
+  const isUsersPage =
+    location.pathname === "/users" || location.pathname === "/admin/users" || location.pathname === "/admin/reports";
+
+  // Abrir ChatSami por defecto para usuarios con permisos (excepto en página de Users y móvil)
   useEffect(() => {
-    if (user && hasChatSamiPermissions && !chatSamiOpen && !isUsersPage) {
+    if (user && hasChatSamiPermissions && !chatSamiOpen && !isUsersPage && !isMobile) {
       setChatSamiOpen(true);
     }
     // Cerrar ChatSami si navegamos a la página de Users
     if (isUsersPage && chatSamiOpen) {
       setChatSamiOpen(false);
     }
-  }, [user, hasChatSamiPermissions, isUsersPage]);
+  }, [user, hasChatSamiPermissions, isUsersPage, isMobile]);
 
   if (loading) {
     return (
@@ -73,7 +83,7 @@ export function AppContent() {
     <div className="App">
       <UnauthenticatedTemplate>
         <Routes>
-          <Route path="/login" element={<Login onLogin={() => {}} />} />
+          <Route path="/login" element={<Login onLogin={() => { }} />} />
           <Route
             path="*"
             element={
@@ -94,24 +104,32 @@ export function AppContent() {
               <main className="flex-1 pt-20">
                 <Routes>
                   <Route path="/" element={<RoleBasedRedirect />} />
-                  <Route path="/leads" element={<Leads />} />
-                  <Route path="/tasks" element={<Tasks />} />
-                  <Route path="/reports" element={<Reports />} />
-                  <Route path="/informes" element={<Informes />} />
-                  <Route path="/informes/:reportId" element={<ReportViewer />} />
-                  <Route path="/users" element={<Users />} />
-                  <Route path="/oportunidades" element={<Opportunities />} />
-                  <Route path="/oportunidades/:id" element={<OpportunityDetails />} />
-                  <Route path="/admin/users" element={<Users />} />
-                  <Route path="/admin/reports" element={<PowerBIReportsAdmin />} />
-                  <Route path="/gamification" element={<Gamification />} />
-                  <Route path="/index" element={<Index />} />
-                  <Route path="/comisiones" element={<Comisiones />} />
-                  <Route path="/motor-comisiones" element={<MotorComisionesIndex />} />
-                  <Route path="/motor-comisiones/compensation-plans" element={<CompensationPlans />} />
-                  <Route path="/motor-comisiones/catalogs" element={<Catalogs />} />
+                  <Route element={<RestrictedRoute />}>
+                    <Route path="/leads" element={<Leads />} />
+                    <Route path="/leadstabbed" element={<LeadsTabbed />} />
+                    <Route path="/tasks" element={<Tasks />} />
+                    <Route path="/reports" element={<Reports />} />
+                    <Route path="/informes" element={<Informes />} />
+                    <Route path="/informes/:reportId" element={<ReportViewer />} />
+                    <Route path="/users" element={<Users />} />
+                    <Route path="/oportunidades" element={<Opportunities />} />
+                    <Route path="/oportunidades/:id" element={<OpportunityDetails />} />
+                    <Route path="/admin/users" element={<Users />} />
+                    <Route path="/admin/reports" element={<PowerBIReportsAdmin />} />
+                    <Route path="/gamification" element={<Gamification />} />
+                    <Route path="/index" element={<Index />} />
+                    <Route path="/comisiones" element={<Comisiones />} />
+                    <Route path="/motor-comisiones" element={<MotorComisionesIndex />} />
+                    <Route path="/motor-comisiones/compensation-plans" element={<CompensationPlans />} />
+                    <Route path="/motor-comisiones/catalogs" element={<Catalogs />} />
+                  <Route path="/motor-comisiones/info-gerencial" element={<InfoGerencialComisiones />} />
                   <Route path="/voice-insights" element={<VoiceInsights />} />
-                  <Route path="/login" element={<div />} />
+                  <Route path="/ficha-360" element={<AdvisorsHome />} />
+                  <Route path="/ficha-360/:id" element={<AdvisorProfile />} />
+                </Route>
+                  <Route path="/perfil" element={<UserProfile />} />
+                  <Route path="/graph-callback" element={<GraphCallback />} />
+                  <Route path="/login" element={<Login onLogin={() => { }} />} />
                   <Route path="*" element={<NotFound />} />
                 </Routes>
               </main>

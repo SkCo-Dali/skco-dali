@@ -7,16 +7,19 @@ import {
   createInteraction, 
   getInteractionsByLead, 
   getClientHistory,
+  updateInteraction,
+  deleteInteraction,
   InteractionResponse,
   ClientHistoryResponse,
-  CreateInteractionRequest 
+  CreateInteractionRequest,
+  UpdateInteractionRequest
 } from '@/utils/interactionsApiClient';
 
 export const useInteractionsApi = () => {
   const [loading, setLoading] = useState(false);
   const [interactions, setInteractions] = useState<InteractionResponse[]>([]);
   const [clientHistory, setClientHistory] = useState<ClientHistoryResponse[]>([]);
-  const { user } = useAuth();
+  const { user, accessToken, getAccessToken } = useAuth();
   const { toast } = useToast();
 
   // Crear nueva interacción desde un lead
@@ -44,7 +47,6 @@ export const useInteractionsApi = () => {
     try {
       const interactionData: CreateInteractionRequest = {
         LeadId: lead.id,
-        UserId: user.id,
         Type: lead.type,
         Description: lead.notes,
         Stage: lead.stage,
@@ -93,6 +95,93 @@ export const useInteractionsApi = () => {
         description: "No se pudieron cargar las interacciones del lead",
         variant: "destructive",
       });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Actualizar interacción existente
+  const updateExistingInteraction = async (
+    interactionId: string,
+    data: UpdateInteractionRequest
+  ): Promise<boolean> => {
+    // Obtener el token de acceso
+    let token = accessToken;
+    if (!token) {
+      const tokens = await getAccessToken();
+      token = tokens?.accessToken || null;
+    }
+
+    if (!token) {
+      toast({
+        title: "Error",
+        description: "No se pudo obtener el token de autenticación",
+        variant: "destructive",
+      });
+      return false;
+    }
+
+    setLoading(true);
+    try {
+      await updateInteraction(interactionId, data, token);
+      
+      toast({
+        title: "Éxito",
+        description: "Interacción actualizada exitosamente",
+      });
+      
+      return true;
+    } catch (error: any) {
+      console.error('❌ Error updating interaction:', error);
+      toast({
+        title: "Error",
+        description: error.message || "No se pudo actualizar la interacción",
+        variant: "destructive",
+      });
+      return false;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Eliminar interacción existente
+  const deleteExistingInteraction = async (
+    interactionId: string
+  ): Promise<boolean> => {
+    // Obtener el token de acceso
+    let token = accessToken;
+    if (!token) {
+      const tokens = await getAccessToken();
+      token = tokens?.accessToken || null;
+    }
+
+    if (!token) {
+      toast({
+        title: "Error",
+        description: "No se pudo obtener el token de autenticación",
+        variant: "destructive",
+      });
+      return false;
+    }
+
+    setLoading(true);
+    try {
+      await deleteInteraction(interactionId, token);
+      
+      toast({
+        title: "Éxito",
+        description: "Interacción eliminada exitosamente",
+      });
+      
+      return true;
+    } catch (error: any) {
+      console.error('❌ Error deleting interaction:', error);
+      toast({
+        title: "Error",
+        description: error.message || "No se pudo eliminar la interacción",
+        variant: "destructive",
+      });
+      return false;
     } finally {
       setLoading(false);
     }
@@ -149,6 +238,8 @@ export const useInteractionsApi = () => {
     clientHistory,
     createInteractionFromLead,
     loadLeadInteractions,
-    loadClientHistory
+    loadClientHistory,
+    updateExistingInteraction,
+    deleteExistingInteraction
   };
 };

@@ -4,6 +4,7 @@ export interface ApiLead {
   CreatedBy: string;
   Id: string;
   Name: string;
+  FirstName?: string | null; // Prmer Nombre
   Email: string;
   Phone: string;
   DocumentNumber: number;
@@ -38,6 +39,7 @@ export interface ApiLead {
 export interface CreateLeadRequest {
   CreatedBy: string;
   name: string;
+  firstName?: string | null;
   email: string;
   phone: string;
   documentNumber: number;
@@ -64,8 +66,9 @@ export interface CreateLeadRequest {
 }
 
 export interface UpdateLeadRequest {
-  CreatedBy: string;
+  CreatedBy?: string;
   name: string;
+  firstName?: string | null;
   email?: string;
   phone?: string;
   documentNumber?: number;

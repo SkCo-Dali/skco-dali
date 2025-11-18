@@ -9,9 +9,9 @@ import { Plus, Trash2, Loader2 } from "lucide-react";
 import { Lead, LeadStatus } from "@/types/crm";
 import { useAssignableUsers } from "@/contexts/AssignableUsersContext";
 import { useToast } from "@/hooks/use-toast";
-import { useLeadAssignments } from "@/hooks/useLeadAssignments";
-import { bulkAssignLeads } from "@/utils/leadsApiClient";
+import { bulkAssignLeads } from "@/utils/leadAssignmentApiClient";
 import { getReassignableLeadsPaginated } from "@/utils/leadAssignmentApiClient";
+import { bulkChangeLeadStage } from "@/utils/leadsApiClient";
 import { PaginatedLead } from "@/types/paginatedLeadsTypes";
 
 interface LeadsBulkAssignmentProps {
@@ -34,7 +34,6 @@ export function LeadsBulkAssignment({ leads, onLeadsAssigned }: LeadsBulkAssignm
   const [isLoadingLeads, setIsLoadingLeads] = useState(false);
   const { users } = useAssignableUsers();
   const { toast } = useToast();
-  const { handleReassignLead } = useLeadAssignments();
 
   // Filtrar solo usuarios con rol de gestor
   const gestorUsers = users.filter((user) => user.Role === "gestor");
@@ -314,11 +313,13 @@ export function LeadsBulkAssignment({ leads, onLeadsAssigned }: LeadsBulkAssignm
     setIsAssigning(true);
 
     try {
-      // Paso 1: Asignación masiva real usando bulk-assign
+      // Usar la nueva API de asignación masiva
       let leadIndex = 0;
-      const bulkAssignPromises: Promise<void>[] = [];
-      const historicPromises: Promise<boolean>[] = [];
-      const allLeadsToAssign: Array<{ lead: Lead; toUserId: string; toUserName: string }> = [];
+      const bulkAssignPromises: Promise<any>[] = [];
+      let totalSuccess = 0;
+      let totalSkipped = 0;
+      let totalFailed = 0;
+      const successfulLeadIds: string[] = [];
 
       for (const assignment of userAssignments) {
         if (assignment.quantity > 0) {
@@ -328,18 +329,26 @@ export function LeadsBulkAssignment({ leads, onLeadsAssigned }: LeadsBulkAssignm
 
           console.log(`Assigning ${leadIds.length} leads to user ${assignment.userName}`);
 
-          // Guardar info para el histórico
-          leadsToAssign.forEach((lead) => {
-            allLeadsToAssign.push({
-              lead,
-              toUserId: assignment.userId,
-              toUserName: assignment.userName,
-            });
-          });
-
-          // Llamar a bulk-assign para hacer la asignación real
+          // Llamar a la nueva API de bulk-assign
           if (leadIds.length > 0) {
-            bulkAssignPromises.push(bulkAssignLeads(leadIds, assignment.userId));
+            const assignmentPromise = bulkAssignLeads({
+              leadIds,
+              toUserId: assignment.userId,
+              reason: "Asignación masiva",
+              notes: `Asignado masivamente a ${assignment.userName}`,
+            }).then((response) => {
+              console.log(`✅ Bulk assignment response:`, response);
+              totalSuccess += response.summary.success;
+              totalSkipped += response.summary.skipped;
+              totalFailed += response.summary.failed;
+              // Guardar los IDs de leads exitosamente asignados
+              if (response.successLeads && response.successLeads.length > 0) {
+                successfulLeadIds.push(...response.successLeads);
+              }
+              return response;
+            });
+
+            bulkAssignPromises.push(assignmentPromise);
           }
 
           leadIndex += assignment.quantity;
@@ -349,35 +358,38 @@ export function LeadsBulkAssignment({ leads, onLeadsAssigned }: LeadsBulkAssignm
       // Ejecutar todas las asignaciones masivas
       await Promise.all(bulkAssignPromises);
 
-      // Paso 2: Guardar histórico de cada asignación
-      allLeadsToAssign.forEach(({ lead, toUserId, toUserName }) => {
-        historicPromises.push(
-          handleReassignLead(
-            lead.id,
-            toUserId,
-            "Asignación masiva",
-            `Asignado masivamente a ${toUserName}`,
-            lead.stage,
-            lead.assignedTo, // from_user_id: usuario actual del lead
-          ),
-        );
-      });
+      // Cambiar el stage de los leads exitosamente asignados a "Asignado"
+      if (successfulLeadIds.length > 0) {
+        console.log(`🔄 Changing stage to "Asignado" for ${successfulLeadIds.length} leads`);
+        try {
+          const stageResult = await bulkChangeLeadStage(successfulLeadIds, "Asignado");
+          console.log(`✅ Stage change result:`, stageResult);
+        } catch (stageError) {
+          console.error("❌ Error changing stage:", stageError);
+          // No fallar todo el proceso si solo falla el cambio de stage
+          toast({
+            title: "Advertencia",
+            description: "Leads asignados correctamente, pero hubo un error al actualizar su estado",
+            variant: "destructive",
+          });
+        }
+      }
 
-      // Ejecutar todas las guardadas de histórico
-      const results = await Promise.all(historicPromises);
-
-      // Verificar si todas fueron exitosas
-      const successCount = results.filter((success) => success).length;
-
-      if (successCount === totalAssigned) {
+      // Mostrar resultado consolidado
+      if (totalFailed === 0 && totalSkipped === 0) {
         toast({
           title: "Éxito",
-          description: `${totalAssigned} leads asignados exitosamente con histórico guardado`,
+          description: `${totalSuccess} leads asignados exitosamente y su estado actualizado a "Asignado"`,
+        });
+      } else if (totalSuccess > 0) {
+        toast({
+          title: "Asignación completada",
+          description: `Exitosos: ${totalSuccess} | Omitidos: ${totalSkipped} | Fallidos: ${totalFailed}`,
         });
       } else {
         toast({
-          title: "Asignación parcial",
-          description: `${successCount} de ${totalAssigned} leads con histórico guardado`,
+          title: "Error",
+          description: `No se pudo asignar ningún lead. Fallidos: ${totalFailed}`,
           variant: "destructive",
         });
       }
@@ -452,7 +464,7 @@ export function LeadsBulkAssignment({ leads, onLeadsAssigned }: LeadsBulkAssignm
           </div>
 
           {/* Información de leads disponibles */}
-          <div className="p-4 bg-blue-50 rounded-xl">
+          <div className="p-2 bg-blue-50 rounded-xl">
             <p className="text-sm text-blue-800">
               <strong>Leads nuevos disponibles:</strong> {filteredLeads.length}
             </p>
@@ -509,7 +521,7 @@ export function LeadsBulkAssignment({ leads, onLeadsAssigned }: LeadsBulkAssignm
 
             <div className="space-y-3 max-h-60 overflow-y-auto">
               {userAssignments.map((assignment) => (
-                <div key={assignment.userId} className="flex items-center gap-3 p-3 border rounded-xl">
+                <div key={assignment.userId} className="flex items-center gap-3 p-2 border rounded-xl">
                   <div className="flex-1">
                     <p className="font-medium">{assignment.userName}</p>
                   </div>
@@ -567,7 +579,7 @@ export function LeadsBulkAssignment({ leads, onLeadsAssigned }: LeadsBulkAssignm
           </div>
 
           {/* Botones de acción */}
-          <div className="flex gap-2 pt-4">
+          <div className="flex gap-2 pt-2">
             <Button
               onClick={handleAssign}
               disabled={getTotalAssigned() === 0 || getTotalAssigned() > filteredLeads.length || isAssigning}

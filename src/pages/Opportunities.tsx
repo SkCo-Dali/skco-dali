@@ -1,5 +1,6 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
+import Lottie from "lottie-react";
 import { OpportunityCard } from "@/components/opportunities/OpportunityCard";
 import { OpportunityFiltersComponent } from "@/components/opportunities/OpportunityFilters";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -20,15 +21,8 @@ import {
   OPPORTUNITY_TYPE_LABELS,
 } from "@/types/opportunities";
 import { opportunitiesService } from "@/services/opportunitiesService";
-import { AccessDenied } from "@/components/AccessDenied";
-import { usePageAccess } from "@/hooks/usePageAccess";
 
 export const Opportunities: React.FC = () => {
-  const { hasAccess } = usePageAccess("opportunities");
-
-  if (!hasAccess) {
-    return <AccessDenied />;
-  }
   const navigate = useNavigate();
   const [opportunities, setOpportunities] = React.useState<IOpportunity[]>([]);
   const [highlightedOpportunities, setHighlightedOpportunities] = React.useState<IOpportunity[]>([]);
@@ -37,6 +31,14 @@ export const Opportunities: React.FC = () => {
   const [error, setError] = React.useState<string | null>(null);
   const [filters, setFilters] = React.useState<OpportunityFilters>({});
   const [sortBy, setSortBy] = React.useState<SortOption>("relevance");
+  const [marketAnimation, setMarketAnimation] = React.useState(null);
+
+  React.useEffect(() => {
+    fetch('/animations/market_oportunidades.json')
+      .then(res => res.json())
+      .then(data => setMarketAnimation(data))
+      .catch(err => console.error('Error loading market animation:', err));
+  }, []);
 
   const loadData = React.useCallback(async () => {
     try {
@@ -98,17 +100,16 @@ export const Opportunities: React.FC = () => {
   }
 
   return (
-    <div className="bg-gray-50 min-h-screen">
-      <div className="container mx-auto px-4 py-5">
+    <div className="bg-transparent min-h-screen">
+      <div className="w-full max-w-full px-4 py-4">
         {/* Header */}
-        <div className="space-y-3 mb-6">
-          <h1 className="text-3xl font-bold bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
-            Market Dali
-          </h1>
-          <p className="text-muted-foreground max-w-2xl">
-            El mercado de tus clientes ideales. Descubre oportunidades comerciales personalizadas para maximizar tu
-            impacto.
-          </p>
+        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3 md:gap-4 mb-3 md:mb-4">
+          <div>
+            <h1 className="text-xl md:text-2xl lg:text-3xl font-bold mb-1 text-[#00C73D]">Market Dali</h1>
+            <p className="text-sm md:text-base text-muted-foreground">
+              Descubre oportunidades comerciales personalizadas para maximizar tu impacto.
+            </p>
+          </div>
         </div>
 
         {/* Stats Cards */}
@@ -249,26 +250,15 @@ export const Opportunities: React.FC = () => {
           {/* Opportunities Grid */}
           <div className="flex-1 space-y-3">
             {loading ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
-                {Array.from({ length: 8 }).map((_, index) => (
-                  <Card key={index} className="p-3 bg-white">
-                    <div className="space-y-3">
-                      <div className="flex items-center gap-2">
-                        <Skeleton className="h-8 w-8 rounded-lg" />
-                        <div className="space-y-1 flex-1">
-                          <Skeleton className="h-3 w-3/4" />
-                          <Skeleton className="h-3 w-1/2" />
-                        </div>
-                      </div>
-                      <div className="flex gap-1">
-                        <Skeleton className="h-5 w-12" />
-                        <Skeleton className="h-5 w-16" />
-                      </div>
-                      <Skeleton className="h-3 w-full" />
-                      <Skeleton className="h-6 w-full" />
-                    </div>
-                  </Card>
-                ))}
+              <div className="flex flex-col justify-center items-center py-12 space-y-4">
+                {marketAnimation ? (
+                  <div className="w-64 h-64">
+                    <Lottie animationData={marketAnimation} loop={true} />
+                  </div>
+                ) : (
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900" />
+                )}
+                <span className="text-lg text-muted-foreground">Cargando oportunidades...</span>
               </div>
             ) : opportunities.length === 0 ? (
               <Card className="p-8 text-center bg-white">

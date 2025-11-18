@@ -45,11 +45,18 @@ const allMenuItems = [
     customIcon: "https://skcoblobresources.blob.core.windows.net/digital-assets/icons/icon-skandia/sk_profile_1_p.svg",
   },
   {
+    title: "LeadsTabbed",
+    url: "/leadstabbed",
+    iconClass: "",
+    page: "leadstabbed",
+    customIcon: "https://skcoblobresources.blob.core.windows.net/digital-assets/icons/icon-skandia/sk_profile_1_p.svg",
+  },
+  {
     title: "Market Dali",
     url: "/oportunidades",
     iconClass: "",
     page: "opportunities",
-    customIcon: "https://skcoblobresources.blob.core.windows.net/digital-assets/icons/icon-skandia/sk_maletin_1_p.svg",
+    customIcon: "https://aistudiojarvis0534199251.blob.core.windows.net/skandia-icons/shop.png",
   },
   {
     title: "Gamificación",
@@ -107,6 +114,13 @@ const allMenuItems = [
     iconClass: "",
     page: "voice-insights",
     customIcon: "https://skcoblobresources.blob.core.windows.net/digital-assets/icons/icon-skandia/sk_globo_p.svg",
+  },
+  {
+    title: "Ficha 360",
+    url: "/ficha-360",
+    iconClass: "",
+    page: "ficha-360",
+    customIcon: "https://skcoblobresources.blob.core.windows.net/digital-assets/icons/icon-skandia/sk_profile_1_p.svg",
   },
 ];
 
@@ -174,7 +188,7 @@ export function AppSidebar({ onTemplateSelect }: AppSidebarProps) {
                   <div className="flex items-center space-x-3">
                     <UserProfile />
                     <div className="text-accent">
-                      <div className="text-sm font-medium">Hola, {user?.name?.split(" ")[2] || "Usuario"}</div>
+                      <div className="text-sm font-medium">Hola, {user?.preferredName || user?.name || "Usuario"}</div>
                     </div>
                   </div>
                   <Button
@@ -194,7 +208,7 @@ export function AppSidebar({ onTemplateSelect }: AppSidebarProps) {
                 <>
                   {showText && !isMobileDevice && (
                     <div className="text-accent">
-                      <div className="text-sm font-medium">Hola, {user?.name?.split(" ")[2] || "Usuario"}</div>
+                      <div className="text-sm font-medium">Hola, {user?.preferredName || user?.name || "Usuario"}</div>
                     </div>
                   )}
                   <Button

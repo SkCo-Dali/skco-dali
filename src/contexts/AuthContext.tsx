@@ -25,6 +25,7 @@ interface AuthContextType {
     signInWithAzure: () => Promise<void>;
     getAccessToken: () => Promise<{ accessToken: string; idToken: string } | null>;
     accessToken: string | null;
+    updateUserProfile: (updates: Partial<User>) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -54,20 +55,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
     const { toast } = useToast();
 
-    useEffect(() => {
-        const validateExistringSession = async () => {
-            if (!account && !isAuthenticated) {
-                const result = await msalInstance.handleRedirectPromise();
-                if (!result) {
-                    await msalInstance.loginRedirect({ ...loginRequest, prompt: "none" });
-                }
-            }
-
-        };
-
-        // validateExistringSession();
-
-    }, [msalInstance, account, isAuthenticated]);
 
     useEffect(() => {
         registerMsalFetchInterceptor(msalInstance);
@@ -78,23 +65,41 @@ export function AuthProvider({ children }: AuthProviderProps) {
             const userEmail = account.username || account.idTokenClaims?.email as string || '';
             const userName = account.name || userEmail;
 
-            getUserPhoto().then(photoUrl => {
-                // Fetch or create user in backend
-                findOrCreateUser(userEmail, userName).then((dbUser) => {
+            getUserPhoto().then(async photoUrl => {
+                try {
+                    // Fetch or create user in backend
+                    const dbUser = await findOrCreateUser(userEmail, userName);
+                    
+                    // Load profile data BEFORE creating user object
+                    let profileData: Partial<User> = {};
+                    try {
+                        const token = await getAccessToken();
+                        if (token) {
+                            profileData = await loadProfileData(token.accessToken);
+                            console.log('✅ Perfil cargado antes de login:', profileData);
+                        }
+                    } catch (profileError) {
+                        console.error('❌ Error al cargar perfil inicial:', profileError);
+                        // Continue with login even if profile loading fails
+                    }
+
                     const user = {
                         id: dbUser.id,
                         name: dbUser.name,
                         email: dbUser.email,
                         role: dbUser.role,
-                        avatar: photoUrl, // TODO: fetch actual photo if needed
+                        avatar: photoUrl,
                         zone: dbUser.zone || "Skandia",
                         team: dbUser.team || "Equipo Skandia",
                         jobTitle: "Usuario",
                         isActive: dbUser.isActive,
                         createdAt: dbUser.createdAt || new Date().toISOString(),
+                        // Include profile data from API
+                        ...profileData,
                     };
+                    
                     login(user);
-                }).catch((error) => {
+                } catch (error) {
                     console.error('Error during user retrieval/creation:', error);
                     toast({
                         title: "Authentication Error",
@@ -104,12 +109,10 @@ export function AuthProvider({ children }: AuthProviderProps) {
                     msalInstance.logoutPopup({
                         mainWindowRedirectUri: window.location.origin
                     });
-                }).finally(() => {
+                } finally {
                     setLoading(false);
-                });
+                }
             });
-
-
         }
 
     }, [msalInstance, account, isAuthenticated]);
@@ -153,6 +156,34 @@ export function AuthProvider({ children }: AuthProviderProps) {
         } catch (error) {
             console.error('❌ Error al registrar sesión:', error);
             // No bloqueamos el login si falla el registro de sesión
+        }
+    };
+
+    const loadProfileData = async (accessToken: string): Promise<Partial<User>> => {
+        try {
+            const { userProfileApiClient } = await import('@/utils/userProfileApiClient');
+            const profileData = await userProfileApiClient.getProfile(accessToken);
+            
+            // Find WhatsApp contact channel
+            const whatsappChannel = profileData.contactChannels.find(
+                channel => channel.channelType === 'WhatsApp'
+            );
+
+            return {
+                preferredName: profileData.basic.preferredName,
+                birthDate: profileData.basic.birthDate,
+                gender: profileData.basic.gender,
+                maritalStatus: profileData.basic.maritalStatus,
+                childrenCount: profileData.basic.childrenCount,
+                whatsappCountryCode: whatsappChannel?.countryCode || null,
+                whatsappPhone: whatsappChannel?.channelValue || null,
+                emailSignatureHtml: profileData.appPreferences.emailSignatureHtml,
+                primaryActionCode: profileData.appPreferences.primaryActionCode,
+                primaryActionRoute: profileData.appPreferences.primaryActionRoute,
+            };
+        } catch (error) {
+            console.error('❌ Error al cargar datos de perfil:', error);
+            return {};
         }
     };
 
@@ -240,6 +271,14 @@ export function AuthProvider({ children }: AuthProviderProps) {
         }
     };
 
+    const updateUserProfile = (updates: Partial<User>) => {
+        if (user) {
+            const updatedUser = { ...user, ...updates };
+            setUser(updatedUser);
+            sessionStorage.setItem('skandia-crm-user', JSON.stringify(updatedUser));
+        }
+    };
+
     const value = {
         user,
         login,
@@ -252,6 +291,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
         signInWithAzure,
         getAccessToken,
         accessToken,
+        updateUserProfile,
     };
 
     return (

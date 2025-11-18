@@ -8,26 +8,19 @@ import { useGamification } from "@/hooks/useGamification";
 import { GamificationCard } from "@/components/GamificationCard";
 import { RankingTable } from "@/components/RankingTable";
 import { GamificationStats } from "@/components/GamificationStats";
-import { AccessDenied } from "@/components/AccessDenied";
-import { usePageAccess } from "@/hooks/usePageAccess";
 import { toast } from "sonner";
 
 export default function Gamification() {
-  const { hasAccess } = usePageAccess("gamification");
-
-  if (!hasAccess) {
-    return <AccessDenied />;
-  }
-  const { 
-    profile, 
-    rankings, 
-    stats, 
+  const {
+    profile,
+    rankings,
+    stats,
     notifications,
-    loading, 
+    loading,
     error,
     getProgressToNextLevel,
     recordChatDaliUsage,
-    setNotifications
+    setNotifications,
   } = useGamification();
 
   const [activeTab, setActiveTab] = useState("overview");
@@ -46,7 +39,7 @@ export default function Gamification() {
   };
 
   const dismissNotification = (id: string) => {
-    setNotifications(prev => prev.filter(n => n.id !== id));
+    setNotifications((prev) => prev.filter((n) => n.id !== id));
   };
 
   if (loading) {
@@ -69,9 +62,7 @@ export default function Gamification() {
           <CardContent className="p-4">
             <div className="text-center">
               <p className="text-destructive mb-4">{error || "Error al cargar datos"}</p>
-              <Button onClick={() => window.location.reload()}>
-                Reintentar
-              </Button>
+              <Button onClick={() => window.location.reload()}>Reintentar</Button>
             </div>
           </CardContent>
         </Card>
@@ -84,12 +75,10 @@ export default function Gamification() {
   return (
     <div className="w-full max-w-full px-4 py-4 space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3 md:gap-4 mb-3 md:mb-4">
         <div>
-          <h1 className="text-xl md:text-2xl lg:text-3xl font-bold mb-1 tracking-tight text-[#00c73d]">Gamificación</h1>
-          <p className="text-muted-foreground">
-            Compite, mejora y alcanza nuevos niveles
-          </p>
+          <h1 className="text-xl md:text-2xl lg:text-3xl font-bold mb-1 text-[#00C73D]">Gamificación</h1>
+          <p className="text-sm md:text-base text-muted-foreground">Compite, mejora y alcanza nuevos niveles</p>
         </div>
       </div>
 
@@ -104,16 +93,10 @@ export default function Gamification() {
                     <span className="text-xl">{notification.icon}</span>
                     <div>
                       <p className="font-medium">{notification.title}</p>
-                      <p className="text-sm text-muted-foreground">
-                        {notification.message}
-                      </p>
+                      <p className="text-sm text-muted-foreground">{notification.message}</p>
                     </div>
                   </div>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => dismissNotification(notification.id)}
-                  >
+                  <Button variant="ghost" size="sm" onClick={() => dismissNotification(notification.id)}>
                     ✕
                   </Button>
                 </div>
@@ -128,20 +111,32 @@ export default function Gamification() {
 
       {/* Main Content */}
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid w-full grid-cols-4 bg-gray-100 rounded-full px-0 py-0 my-0">  
-          <TabsTrigger value="overview" className="w-full h-full data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#00c73d] data-[state=active]:to-[#A3E40B] data-[state=active]:text-white rounded-full px-4 py-2 mt-0 text-sm font-medium transition-all duration-200">
+        <TabsList className="grid w-full grid-cols-4 bg-gray-100 rounded-full px-0 py-0 my-0">
+          <TabsTrigger
+            value="overview"
+            className="w-full h-full data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#00c73d] data-[state=active]:to-[#A3E40B] data-[state=active]:text-white rounded-full px-4 py-2 mt-0 text-sm font-medium transition-all duration-200"
+          >
             <Target className="h-4 w-4 mr-2" />
             Resumen
           </TabsTrigger>
-          <TabsTrigger value="ranking" className="w-full h-full data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#00c73d] data-[state=active]:to-[#A3E40B] data-[state=active]:text-white rounded-full px-4 py-2 mt-0 text-sm font-medium transition-all duration-200">
+          <TabsTrigger
+            value="ranking"
+            className="w-full h-full data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#00c73d] data-[state=active]:to-[#A3E40B] data-[state=active]:text-white rounded-full px-4 py-2 mt-0 text-sm font-medium transition-all duration-200"
+          >
             <Trophy className="h-4 w-4 mr-2" />
             Ranking
           </TabsTrigger>
-          <TabsTrigger value="weekly" className="w-full h-full data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#00c73d] data-[state=active]:to-[#A3E40B] data-[state=active]:text-white rounded-full px-4 py-2 mt-0 text-sm font-medium transition-all duration-200">
+          <TabsTrigger
+            value="weekly"
+            className="w-full h-full data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#00c73d] data-[state=active]:to-[#A3E40B] data-[state=active]:text-white rounded-full px-4 py-2 mt-0 text-sm font-medium transition-all duration-200"
+          >
             <Calendar className="h-4 w-4 mr-2" />
             Semanal
           </TabsTrigger>
-          <TabsTrigger value="progress" className="w-full h-full data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#00c73d] data-[state=active]:to-[#A3E40B] data-[state=active]:text-white rounded-full px-4 py-2 mt-0 text-sm font-medium transition-all duration-200">
+          <TabsTrigger
+            value="progress"
+            className="w-full h-full data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#00c73d] data-[state=active]:to-[#A3E40B] data-[state=active]:text-white rounded-full px-4 py-2 mt-0 text-sm font-medium transition-all duration-200"
+          >
             <Clock className="h-4 w-4 mr-2" />
             Mi Progreso
           </TabsTrigger>
@@ -150,10 +145,7 @@ export default function Gamification() {
         <TabsContent value="overview" className="space-y-6">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-2">
             <div className="lg:col-span-1">
-              <GamificationCard 
-                profile={profile} 
-                nextLevel={nextLevelProgress} 
-              />
+              <GamificationCard profile={profile} nextLevel={nextLevelProgress} />
             </div>
             <div className="lg:col-span-2">
               <RankingTable rankings={rankings.slice(0, 5)} />
@@ -171,11 +163,8 @@ export default function Gamification() {
 
         <TabsContent value="progress" className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <GamificationCard 
-              profile={profile} 
-              nextLevel={nextLevelProgress} 
-            />
-            
+            <GamificationCard profile={profile} nextLevel={nextLevelProgress} />
+
             <Card>
               <CardHeader>
                 <CardTitle className="text-lg">Métricas Detalladas</CardTitle>
@@ -220,10 +209,10 @@ export default function Gamification() {
                       </span>
                     </div>
                     <div className="w-full bg-secondary rounded-full h-2">
-                      <div 
-                        className="bg-primary h-2 rounded-full transition-all" 
-                        style={{ 
-                          width: `${(profile.chatDaliUsedToday / profile.chatDaliDailyLimit) * 100}%` 
+                      <div
+                        className="bg-primary h-2 rounded-full transition-all"
+                        style={{
+                          width: `${(profile.chatDaliUsedToday / profile.chatDaliDailyLimit) * 100}%`,
                         }}
                       ></div>
                     </div>
