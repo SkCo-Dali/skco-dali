@@ -67,12 +67,29 @@ export function WelcomeOnboardingModal({ isOpen, userRole, onComplete, onClose }
         setTimeout(async () => {
           try {
             if (accessToken) {
-              // Cargar nombre preferido recién capturado en el onboarding
+              // Cargar perfil completo recién capturado en el onboarding
               try {
-                const preferredNameData = await userProfileApiClient.getPreferredName(accessToken);
-                updateUserProfile({ preferredName: preferredNameData.preferredName });
+                const profileData = await userProfileApiClient.getProfile(accessToken);
+                
+                // Find WhatsApp contact channel
+                const whatsappChannel = profileData.contactChannels.find(
+                  channel => channel.channelType === 'WhatsApp'
+                );
+
+                updateUserProfile({
+                  preferredName: profileData.basic.preferredName,
+                  birthDate: profileData.basic.birthDate,
+                  gender: profileData.basic.gender,
+                  maritalStatus: profileData.basic.maritalStatus,
+                  childrenCount: profileData.basic.childrenCount,
+                  whatsappCountryCode: whatsappChannel?.countryCode || null,
+                  whatsappPhone: whatsappChannel?.channelValue || null,
+                  emailSignatureHtml: profileData.appPreferences.emailSignatureHtml,
+                  primaryActionCode: profileData.appPreferences.primaryActionCode,
+                  primaryActionRoute: profileData.appPreferences.primaryActionRoute,
+                });
               } catch (error) {
-                console.error('Error fetching preferred name:', error);
+                console.error('Error fetching profile:', error);
               }
 
               // Obtener página de inicio y redirigir
