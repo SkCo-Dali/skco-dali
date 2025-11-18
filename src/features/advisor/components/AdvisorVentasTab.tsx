@@ -234,7 +234,7 @@ export const AdvisorVentasTab = ({ advisorId }: Props) => {
                   <XAxis dataKey="fecha" />
                   <YAxis />
                   <ChartTooltip content={<ChartTooltipContent />} />
-                  <Bar dataKey="negocios" fill="hsl(var(--secondary))" radius={[4, 4, 0, 0]} name="Negocios" />
+                  <Bar dataKey="negocios" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} name="Negocios" />
                 </BarChart>
               </ResponsiveContainer>
             </ChartContainer>
