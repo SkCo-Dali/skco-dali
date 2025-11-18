@@ -146,9 +146,9 @@ export const AdvisorResumenTab = ({ advisor }: Props) => {
             </Button>
           </CardHeader>
           <CardContent className="p-0">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-x-6 gap-y-5">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-x-4 gap-y-4">
               {/* Email */}
-              <div className="bg-[#F7F7F7] rounded-md p-2 space-y-1 md:col-span-2">
+              <div className="bg-[#F7F7F7] rounded-md p-3 space-y-1 md:col-span-2">
                 <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
                   <Mail className="h-3 w-3" />
                   <span>Email</span>
