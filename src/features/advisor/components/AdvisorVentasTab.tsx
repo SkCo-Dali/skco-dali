@@ -106,8 +106,8 @@ export const AdvisorVentasTab = ({ advisorId }: Props) => {
   return (
     <div className="space-y-6">
       {/* Filtros de Fecha */}
-      <Card>
-        <CardContent className="pt-4 border-0 shadow-none">
+      <Card className="border-0 shadow-none">
+        <CardContent className="pt-6">
           <div className="flex flex-wrap items-center gap-3">
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <Calendar className="h-4 w-4" />
