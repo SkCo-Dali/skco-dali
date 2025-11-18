@@ -7,7 +7,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { UserProfile } from '@/types/userProfile';
 import { Edit2, Save, X, Upload, User } from 'lucide-react';
 import { CountryPhoneSelector } from '@/components/onboarding/CountryPhoneSelector';
-import { RichTextEditor } from '@/components/RichTextEditor';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { ChevronDown } from 'lucide-react';
 import { toast } from 'sonner';
@@ -240,25 +239,6 @@ export function ProfilePersonalInfo({ profile, updateProfile }: Props) {
         </Collapsible>
       </Card>
 
-      {/* Email Signature */}
-      <Card className="p-4 border-border/40 space-y-4">
-        <div>
-          <h3 className="font-medium text-lg">Firma de Correo</h3>
-          <p className="text-sm text-muted-foreground">Se usará en tus envíos masivos de correos</p>
-        </div>
-        {isEditing ? (
-          <RichTextEditor
-            value={localData.emailSignature || ''}
-            onChange={(value) => setLocalData({ ...localData, emailSignature: value })}
-            placeholder="Crea tu firma profesional aquí..."
-          />
-        ) : (
-          <div 
-            className="prose prose-sm max-w-none bg-muted/30 rounded-lg p-4 min-h-[100px]"
-            dangerouslySetInnerHTML={{ __html: localData.emailSignature || '<p class="text-muted-foreground">Sin firma configurada</p>' }}
-          />
-        )}
-      </Card>
     </div>
   );
 }
