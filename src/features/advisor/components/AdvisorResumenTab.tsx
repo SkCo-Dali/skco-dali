@@ -30,9 +30,9 @@ export const AdvisorResumenTab = ({ advisor }: Props) => {
   return (
     <div className="grid grid-cols-1 lg:grid-cols-8 gap-6">
       {/* Left Side - Basic Info */}
-      <div className="col-span-3 space-y-6">
+      <div className="col-span-3 space-y-6 bg-[#EDFEFA] rounded-lg">
         {/* Avatar and Name */}
-        <Card className="bg-[#EDFEFA] rounded-lg">
+        <Card>
           <CardContent className="pt-4">
             <div className="flex flex-col items-center space-y-4">
               <div className="relative">
@@ -71,7 +71,7 @@ export const AdvisorResumenTab = ({ advisor }: Props) => {
         </Card>
 
         {/* Basic Data Card */}
-        <Card className="border-border/40">
+        <Card className="col-span-5 space-y-6 border-border/40">
           <CardContent className="pt-6">
             <div className="grid grid-cols-2 gap-4">
               {/* Documento */}
