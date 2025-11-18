@@ -32,7 +32,7 @@ export const AdvisorResumenTab = ({ advisor }: Props) => {
       {/* Left Side - Basic Info */}
       <div className="col-span-3 space-y-6 bg-[#EDFEFA] rounded-lg">
         {/* Avatar and Name */}
-        <Card className="bg-transparent border-0">
+        <Card className="bg-transparent border-0 shadow-none">
           <CardContent className="p-4">
             <div className="flex flex-col items-center space-y-4">
               <div className="relative">
