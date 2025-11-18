@@ -12,6 +12,7 @@ import { useInAppMessaging } from '@/hooks/useInAppMessaging';
 import { toast } from 'sonner';
 import Lottie from 'lottie-react';
 import { onboardingApiClient } from '@/utils/onboardingApiClient';
+import { userProfileApiClient } from '@/utils/userProfileApiClient';
 import { useAuth } from '@/contexts/AuthContext';
 
 interface WelcomeOnboardingModalProps {
@@ -24,7 +25,7 @@ interface WelcomeOnboardingModalProps {
 export function WelcomeOnboardingModal({ isOpen, userRole, onComplete, onClose }: WelcomeOnboardingModalProps) {
   const navigate = useNavigate();
   const { registerEvent } = useInAppMessaging();
-  const { accessToken } = useAuth();
+  const { accessToken, updateUserProfile } = useAuth();
   const [currentStep, setCurrentStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isCompleted, setIsCompleted] = useState(false);
@@ -62,10 +63,19 @@ export function WelcomeOnboardingModal({ isOpen, userRole, onComplete, onClose }
 
         setIsCompleted(true);
         
-        // Obtener la página de inicio del API y redirigir
+        // Cargar datos de perfil después de completar onboarding
         setTimeout(async () => {
           try {
             if (accessToken) {
+              // Cargar nombre preferido recién capturado en el onboarding
+              try {
+                const preferredNameData = await userProfileApiClient.getPreferredName(accessToken);
+                updateUserProfile({ preferredName: preferredNameData.preferredName });
+              } catch (error) {
+                console.error('Error fetching preferred name:', error);
+              }
+
+              // Obtener página de inicio y redirigir
               const startPage = await onboardingApiClient.getStartPage(accessToken);
               navigate(startPage.route);
             } else {

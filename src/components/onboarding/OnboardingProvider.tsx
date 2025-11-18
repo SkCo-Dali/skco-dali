@@ -5,6 +5,7 @@ import { useOnboarding } from '@/hooks/useOnboarding';
 import { useInAppMessaging } from '@/hooks/useInAppMessaging';
 import { WelcomeOnboardingModal } from './WelcomeOnboardingModal';
 import { onboardingApiClient } from '@/utils/onboardingApiClient';
+import { userProfileApiClient } from '@/utils/userProfileApiClient';
 
 interface OnboardingProviderProps {
   children: React.ReactNode;
@@ -13,7 +14,7 @@ interface OnboardingProviderProps {
 export function OnboardingProvider({ children }: OnboardingProviderProps) {
   const location = useLocation();
   const navigate = useNavigate();
-  const { user, isAuthenticated, accessToken } = useAuth();
+  const { user, isAuthenticated, accessToken, updateUserProfile } = useAuth();
   const { isCompleted, completeOnboarding } = useOnboarding();
   const { checkOnboardingRequired, registerEvent } = useInAppMessaging();
   const [showOnboarding, setShowOnboarding] = useState(false);
@@ -42,9 +43,18 @@ export function OnboardingProvider({ children }: OnboardingProviderProps) {
           
           setShowOnboarding(true);
         } else {
-          // Si no se requiere onboarding, obtener la página de inicio y redirigir
+          // Si no se requiere onboarding, cargar datos de perfil y redirigir
           if (location.pathname === '/login' || location.pathname === '/auth') {
             try {
+              // Cargar nombre preferido (el usuario ya completó el onboarding antes)
+              try {
+                const preferredNameData = await userProfileApiClient.getPreferredName(accessToken);
+                updateUserProfile({ preferredName: preferredNameData.preferredName });
+              } catch (error) {
+                console.error('Error fetching preferred name:', error);
+              }
+
+              // Obtener página de inicio y redirigir
               const startPage = await onboardingApiClient.getStartPage(accessToken);
               navigate(startPage.route, { replace: true });
             } catch (error) {
