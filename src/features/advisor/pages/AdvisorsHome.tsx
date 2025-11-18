@@ -124,7 +124,7 @@ export const AdvisorsHome = () => {
 
       {/* Table */}
       <Card className="border-border/40 shadow-sm">
-        <CardContent className="p-0">
+        <CardContent className="p-2">
           <div className="overflow-x-auto">
             <Table>
               <TableHeader>
@@ -162,7 +162,7 @@ export const AdvisorsHome = () => {
                   advisors.map((advisor) => (
                     <TableRow
                       key={advisor.id}
-                      className="cursor-pointer hover:bg-primary/5 transition-colors border-b border-border/30"
+                      className="p-2 cursor-pointer hover:bg-primary/5 transition-colors border-b border-border/30"
                       onClick={() => handleRowClick(advisor)}
                     >
                       <TableCell className="font-medium text-primary">{advisor.id}</TableCell>
