@@ -28,6 +28,32 @@ export function ProfileFamilyInfo({ profile, updateProfile }: Props) {
     setIsEditing(false);
   };
 
+  const addImportantDate = () => {
+    const newDate = {
+      id: Date.now().toString(),
+      name: "",
+      date: "",
+      type: "birthday" as const,
+    };
+    setLocalData({
+      ...localData,
+      importantDates: [...(localData.importantDates || []), newDate],
+    });
+  };
+
+  const removeImportantDate = (id: string) => {
+    setLocalData({
+      ...localData,
+      importantDates: localData.importantDates?.filter((d) => d.id !== id),
+    });
+  };
+
+  const updateImportantDate = (id: string, field: string, value: string) => {
+    setLocalData({
+      ...localData,
+      importantDates: localData.importantDates?.map((d) => (d.id === id ? { ...d, [field]: value } : d)),
+    });
+  };
 
   return (
     <div className="space-y-6 animate-fade-in">

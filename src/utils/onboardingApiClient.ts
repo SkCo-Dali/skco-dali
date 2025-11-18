@@ -5,7 +5,6 @@ import {
   OnboardingWelcomeResponse,
   StartPageResponse
 } from '@/types/onboardingApi';
-import { PreferredNameResponse } from '@/types/profileApi';
 import { ENV } from '@/config/environment';
 
 const API_BASE_URL = ENV.CRM_API_BASE_URL;
@@ -95,19 +94,6 @@ class OnboardingApiClient {
 
     if (!response.ok) {
       throw new Error(`Error fetching start page: ${response.statusText}`);
-    }
-
-    return response.json();
-  }
-
-  async getPreferredName(token: string): Promise<PreferredNameResponse> {
-    const response = await fetch(`${API_BASE_URL}/api/preferred-name`, {
-      method: 'GET',
-      headers: await this.getAuthHeaders(token),
-    });
-
-    if (!response.ok) {
-      throw new Error(`Error fetching preferred name: ${response.statusText}`);
     }
 
     return response.json();

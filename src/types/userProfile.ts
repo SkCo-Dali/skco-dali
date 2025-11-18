@@ -5,9 +5,7 @@ export interface UserProfile extends Omit<OnboardingData, 'whatsapp' | 'socialMe
   // Personal Information (from onboarding + additional)
   photo?: string;
   birthDate?: string;
-  gender?: string;
-  maritalStatus?: string;
-  childrenCount?: number;
+  gender?: 'male' | 'female' | 'other' | 'prefer_not_to_say';
   
   // WhatsApp (flattened from onboarding)
   countryCode?: string;
@@ -21,30 +19,42 @@ export interface UserProfile extends Omit<OnboardingData, 'whatsapp' | 'socialMe
   tiktok?: string;
   
   // Professional Information
-  jobTitle?: string;
+  role?: string;
   department?: string;
-  hireDate?: string;
-  managerName?: string;
+  startDate?: string;
+  manager?: string;
   specialization?: string;
   monthlyGoals?: string;
-  workdayStart?: string;
-  workdayEnd?: string;
+  workSchedule?: {
+    start: string;
+    end: string;
+  };
   
   // Family Information
-  emergencyContactName?: string;
-  emergencyContactRelation?: string;
-  emergencyContactPhone?: string;
+  maritalStatus?: 'single' | 'married' | 'divorced' | 'widowed' | 'other';
+  numberOfChildren?: number;
+  emergencyContact?: {
+    name: string;
+    relationship: string;
+    phone: string;
+  };
+  importantDates?: Array<{
+    id: string;
+    name: string;
+    date: string;
+    type: 'birthday' | 'anniversary' | 'other';
+  }>;
   
-  // Contact Information (Address)
-  street?: string;
-  city?: string;
-  state?: string;
-  postalCode?: string;
-  country?: string;
-  
-  // Alternate Contact
-  alternateEmail?: string;
-  alternatePhone?: string;
+  // Contact Information
+  address?: {
+    street: string;
+    city: string;
+    state: string;
+    postalCode: string;
+    country: string;
+  };
+  landline?: string;
+  alternativeEmail?: string;
   
   // Notification Preferences
   notificationPreferences?: {
@@ -88,6 +98,9 @@ export interface UserProfile extends Omit<OnboardingData, 'whatsapp' | 'socialMe
     createdAt: string;
     status?: 'pending' | 'reviewed' | 'implemented';
   }>;
+  
+  // App Preferences
+  customHomepage?: string;
 }
 
 export interface NotificationCategory {
