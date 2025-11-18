@@ -37,6 +37,7 @@ export function useUserProfile() {
       countryCode: user.whatsappCountryCode || undefined,
       phone: user.whatsappPhone || undefined,
       emailSignature: user.emailSignatureHtml || undefined,
+      photo: user.avatar || undefined,
     } : {};
     
     const flattenedOnboarding = {
@@ -65,6 +66,7 @@ export function useUserProfile() {
       countryCode: user.whatsappCountryCode || undefined,
       phone: user.whatsappPhone || undefined,
       emailSignature: user.emailSignatureHtml || undefined,
+      photo: user.avatar || undefined,
     } : {};
     
     const flattenedOnboarding = {
