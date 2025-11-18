@@ -25,7 +25,7 @@ export function ProfilePersonalInfo({ profile, updateProfile }: Props) {
   const [localData, setLocalData] = useState(profile);
   const [socialMediaOpen, setSocialMediaOpen] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
-  const { getAccessToken } = useAuth();
+  const { getAccessToken, updateUserProfile } = useAuth();
 
   const handleSave = async () => {
     setIsSaving(true);
@@ -103,6 +103,18 @@ export function ProfilePersonalInfo({ profile, updateProfile }: Props) {
       await userProfileApiClient.updateContactChannels(token.accessToken, { channels });
 
       updateProfile(localData);
+      
+      // IMPORTANT: Update AuthContext user object with new WhatsApp data
+      updateUserProfile({
+        preferredName: localData.preferredName,
+        birthDate: localData.birthDate,
+        gender: localData.gender,
+        maritalStatus: localData.maritalStatus,
+        childrenCount: localData.numberOfChildren,
+        whatsappCountryCode: localData.countryCode || null,
+        whatsappPhone: localData.phone || null,
+      });
+      
       setIsEditing(false);
       toast.success('Información personal actualizada');
     } catch (error) {
