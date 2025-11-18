@@ -12,6 +12,8 @@ import { ChevronDown } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
 import { userProfileApiClient } from '@/utils/userProfileApiClient';
+import { DatePicker } from '@/components/ui/date-picker';
+import { format } from 'date-fns';
 
 interface Props {
   profile: UserProfile;
@@ -34,7 +36,7 @@ export function ProfilePersonalInfo({ profile, updateProfile }: Props) {
       // Save basic info
       await userProfileApiClient.updateBasic(token.accessToken, {
         preferredName: localData.preferredName,
-        birthDate: localData.birthDate || null,
+        birthDate: localData.birthDate ? format(new Date(localData.birthDate), 'yyyy-MM-dd') : null,
         gender: localData.gender || null,
         maritalStatus: localData.maritalStatus || null,
         childrenCount: localData.numberOfChildren || 0,
@@ -189,12 +191,15 @@ export function ProfilePersonalInfo({ profile, updateProfile }: Props) {
 
           <div className="space-y-2">
             <Label htmlFor="birthDate">Fecha de Nacimiento</Label>
-            <Input
-              id="birthDate"
-              type="date"
-              value={localData.birthDate || ''}
-              onChange={(e) => setLocalData({ ...localData, birthDate: e.target.value })}
-              disabled={!isEditing}
+            <DatePicker
+              date={localData.birthDate ? new Date(localData.birthDate) : undefined}
+              onDateChange={(date) => setLocalData({ 
+                ...localData, 
+                birthDate: date ? format(date, 'yyyy-MM-dd') : undefined 
+              })}
+              placeholder="dd/MM/yyyy"
+              disabled={(date) => date > new Date() || date < new Date('1900-01-01')}
+              className={!isEditing ? 'pointer-events-none opacity-50' : ''}
             />
           </div>
 

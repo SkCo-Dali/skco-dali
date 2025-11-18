@@ -31,34 +31,55 @@ const UserProfile = () => {
           <Card className="border-border/40 shadow-lg max-w-7xl">
             <CardContent className="p-4">
               <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-                <TabsList className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-2 h-auto bg-muted/50 p-2">
-                  <TabsTrigger value="personal" className="gap-2 data-[state=active]:bg-background">
+                <TabsList className="inline-flex h-12 items-center justify-center rounded-lg bg-transparent p-0 gap-1">
+                  <TabsTrigger 
+                    value="personal" 
+                    className="gap-2 rounded-lg px-4 py-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-sm data-[state=inactive]:text-muted-foreground"
+                  >
                     <User className="h-4 w-4" />
-                    <span className="text-truncate hidden sm:inline">Personal</span>
+                    <span className="hidden sm:inline font-medium">Personal</span>
                   </TabsTrigger>
-                  <TabsTrigger value="professional" className="gap-2 data-[state=active]:bg-background">
+                  <TabsTrigger 
+                    value="professional" 
+                    className="gap-2 rounded-lg px-4 py-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-sm data-[state=inactive]:text-muted-foreground"
+                  >
                     <Briefcase className="h-4 w-4" />
-                    <span className="text-truncate hidden sm:inline">Profesional</span>
+                    <span className="hidden sm:inline font-medium">Profesional</span>
                   </TabsTrigger>
-                  <TabsTrigger value="family" className="gap-2 data-[state=active]:bg-background">
+                  <TabsTrigger 
+                    value="family" 
+                    className="gap-2 rounded-lg px-4 py-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-sm data-[state=inactive]:text-muted-foreground"
+                  >
                     <Heart className="h-4 w-4" />
-                    <span className="text-truncate hidden sm:inline">Familiar</span>
+                    <span className="hidden sm:inline font-medium">Familiar</span>
                   </TabsTrigger>
-                  <TabsTrigger value="contact" className="gap-2 data-[state=active]:bg-background">
+                  <TabsTrigger 
+                    value="contact" 
+                    className="gap-2 rounded-lg px-4 py-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-sm data-[state=inactive]:text-muted-foreground"
+                  >
                     <MapPin className="h-4 w-4" />
-                    <span className="text-truncate hidden sm:inline">Contacto</span>
+                    <span className="hidden sm:inline font-medium">Contacto</span>
                   </TabsTrigger>
-                  <TabsTrigger value="notifications" className="gap-2 data-[state=active]:bg-background">
+                  <TabsTrigger 
+                    value="notifications" 
+                    className="gap-2 rounded-lg px-4 py-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-sm data-[state=inactive]:text-muted-foreground"
+                  >
                     <Bell className="h-4 w-4" />
-                    <span className="text-truncate hidden sm:inline">Notificaciones</span>
+                    <span className="hidden sm:inline font-medium">Notificaciones</span>
                   </TabsTrigger>
-                  <TabsTrigger value="suggestions" className="gap-2 data-[state=active]:bg-background">
+                  <TabsTrigger 
+                    value="suggestions" 
+                    className="gap-2 rounded-lg px-4 py-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-sm data-[state=inactive]:text-muted-foreground"
+                  >
                     <MessageSquare className="h-4 w-4" />
-                    <span className="text-truncate hidden sm:inline">Sugerencias</span>
+                    <span className="hidden sm:inline font-medium">Sugerencias</span>
                   </TabsTrigger>
-                  <TabsTrigger value="preferences" className="gap-2 data-[state=active]:bg-background">
+                  <TabsTrigger 
+                    value="preferences" 
+                    className="gap-2 rounded-lg px-4 py-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-sm data-[state=inactive]:text-muted-foreground"
+                  >
                     <Home className="h-4 w-4" />
-                    <span className="text-truncate hidden sm:inline">Preferencias</span>
+                    <span className="hidden sm:inline font-medium">Preferencias</span>
                   </TabsTrigger>
                 </TabsList>
 
