@@ -31,8 +31,8 @@ export interface User {
   phone?: string;
   department?: string;
   manager?: string;
-  createdAt: string; // Changed to string for consistency
-  updatedAt?: string; // Changed to string for consistency
+  createdAt: string;
+  updatedAt?: string;
   zone?: string;
   team?: string;
   jobTitle?: string;
@@ -53,6 +53,16 @@ export interface User {
   dailyEmailLimit?: number;
   dailyWhatsAppLimit?: number;
   idSupervisor?: number | null;
+  
+  // Profile data from GET /api/profile
+  gender?: string | null;
+  maritalStatus?: string | null;
+  childrenCount?: number;
+  whatsappCountryCode?: string | null;
+  whatsappPhone?: string | null;
+  emailSignatureHtml?: string | null;
+  primaryActionCode?: string | null;
+  primaryActionRoute?: string | null;
 }
 
 export interface RolePermissions {
@@ -101,6 +111,7 @@ export const getRolePermissions = (role: UserRole): RolePermissions => {
         accessiblePages: [
           "dashboard",
           "leads",
+          "leadstabbed",
           "ChatDali",
           "opportunities",
           "gamification",
@@ -114,6 +125,7 @@ export const getRolePermissions = (role: UserRole): RolePermissions => {
           "voice-insights",
           "calendar",
           "tasks",
+          "ficha-360",
         ],
       };
     case "manager":

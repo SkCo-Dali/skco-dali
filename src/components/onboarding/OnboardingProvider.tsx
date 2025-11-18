@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { useOnboarding } from '@/hooks/useOnboarding';
 import { useInAppMessaging } from '@/hooks/useInAppMessaging';
 import { WelcomeOnboardingModal } from './WelcomeOnboardingModal';
+import { onboardingApiClient } from '@/utils/onboardingApiClient';
 
 interface OnboardingProviderProps {
   children: React.ReactNode;
@@ -11,6 +12,7 @@ interface OnboardingProviderProps {
 
 export function OnboardingProvider({ children }: OnboardingProviderProps) {
   const location = useLocation();
+  const navigate = useNavigate();
   const { user, isAuthenticated, accessToken } = useAuth();
   const { isCompleted, completeOnboarding } = useOnboarding();
   const { checkOnboardingRequired, registerEvent } = useInAppMessaging();
@@ -39,6 +41,18 @@ export function OnboardingProvider({ children }: OnboardingProviderProps) {
           });
           
           setShowOnboarding(true);
+        } else {
+          // Si no se requiere onboarding, redirigir a la página de inicio
+          if (location.pathname === '/login' || location.pathname === '/auth') {
+            try {
+              // Obtener página de inicio y redirigir (el perfil ya se cargó en el login)
+              const startPage = await onboardingApiClient.getStartPage(accessToken);
+              navigate(startPage.route, { replace: true });
+            } catch (error) {
+              console.error('Error fetching start page:', error);
+              // En caso de error, no hacer nada para evitar loops infinitos
+            }
+          }
         }
       } catch (error) {
         console.error('Error checking onboarding:', error);

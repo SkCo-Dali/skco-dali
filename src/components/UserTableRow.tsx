@@ -36,11 +36,6 @@ interface UserTableRowProps {
       name: string;
       email: string;
       role: User["role"];
-      preferredName?: string | null;
-      whatsappNumber?: string | null;
-      countryCodeWhatsApp?: number | null;
-      dailyEmailLimit?: number | null;
-      dailyWhatsAppLimit?: number | null;
     },
   ) => void;
 }
@@ -57,11 +52,6 @@ export function UserTableRow({
   const [isEditing, setIsEditing] = useState(false);
   const [editName, setEditName] = useState(user.name);
   const [editEmail, setEditEmail] = useState(user.email);
-  const [editPreferredName, setEditPreferredName] = useState(user.preferredName || "");
-  const [editWhatsappNumber, setEditWhatsappNumber] = useState(user.whatsappNumber || "");
-  const [editCountryCode, setEditCountryCode] = useState(user.countryCodeWhatsApp?.toString() || "57");
-  const [editEmailLimit, setEditEmailLimit] = useState(user.dailyEmailLimit?.toString() || "");
-  const [editWhatsAppLimit, setEditWhatsAppLimit] = useState(user.dailyWhatsAppLimit?.toString() || "");
   const isCurrentUser = user.id === currentUserId;
 
   const handleSaveEdit = () => {
@@ -70,11 +60,6 @@ export function UserTableRow({
         name: editName.trim(),
         email: editEmail.trim(),
         role: user.role,
-        preferredName: editPreferredName.trim() || null,
-        whatsappNumber: editWhatsappNumber.trim() || null,
-        countryCodeWhatsApp: editCountryCode ? parseInt(editCountryCode) : null,
-        dailyEmailLimit: editEmailLimit ? parseInt(editEmailLimit) : null,
-        dailyWhatsAppLimit: editWhatsAppLimit ? parseInt(editWhatsAppLimit) : null,
       });
       setIsEditing(false);
     }
@@ -83,11 +68,6 @@ export function UserTableRow({
   const handleCancelEdit = () => {
     setEditName(user.name);
     setEditEmail(user.email);
-    setEditPreferredName(user.preferredName || "");
-    setEditWhatsappNumber(user.whatsappNumber || "");
-    setEditCountryCode(user.countryCodeWhatsApp?.toString() || "57");
-    setEditEmailLimit(user.dailyEmailLimit?.toString() || "");
-    setEditWhatsAppLimit(user.dailyWhatsAppLimit?.toString() || "");
     setIsEditing(false);
   };
 
@@ -160,78 +140,12 @@ export function UserTableRow({
           <Badge variant="outline">{getRoleDisplayName(user.role)}</Badge>
         )}
       </TableCell>
-      <TableCell className="!text-xs !mx-2">
-        {isEditing ? (
-          <Input
-            value={editPreferredName}
-            onChange={(e) => setEditPreferredName(e.target.value)}
-            className="h-8 text-xs"
-            placeholder="Nombre preferido"
-          />
-        ) : (
-          user.preferredName || "-"
-        )}
-      </TableCell>
-      <TableCell className="text-xs text-center mx-2">
-        {user.birthDate ? user.birthDate.split('T')[0].split('-').reverse().join('/') : "-"}
-      </TableCell>
-      <TableCell className="text-xs text-center mx-2">
-        {isEditing ? (
-          <Input
-            value={editCountryCode}
-            onChange={(e) => setEditCountryCode(e.target.value)}
-            className="h-8 w-16 text-xs"
-            placeholder="57"
-            type="number"
-          />
-        ) : (
-          user.countryCodeWhatsApp || "-"
-        )}
-      </TableCell>
-      <TableCell className="text-xs text-center mx-2">
-        {isEditing ? (
-          <Input
-            value={editWhatsappNumber}
-            onChange={(e) => setEditWhatsappNumber(e.target.value)}
-            className="h-8 text-xs"
-            placeholder="WhatsApp"
-          />
-        ) : (
-          user.whatsappNumber || "-"
-        )}
-      </TableCell>
       <TableCell className="text-xs text-center mx-2">{user.idAgte ?? "-"} </TableCell>
       <TableCell className="text-xs text-center mx-2">{user.idSociedad ?? "-"}</TableCell>
       <TableCell className="text-xs text-center mx-2">{user.idPromotor ?? "-"}</TableCell>
       <TableCell className="text-xs text-center mx-2">{user.idAliado ?? "-"}</TableCell>
       <TableCell className="text-xs text-center mx-2">{user.wSaler || "-"}</TableCell>
       <TableCell className="text-xs text-center mx-2">{user.idSupervisor ?? "-"}</TableCell>
-      <TableCell className="text-xs text-center mx-2">
-        {isEditing ? (
-          <Input
-            value={editEmailLimit}
-            onChange={(e) => setEditEmailLimit(e.target.value)}
-            className="h-8 w-20 text-xs"
-            placeholder="100"
-            type="number"
-          />
-        ) : (
-          (user.dailyEmailLimit ?? "-")
-        )}
-      </TableCell>
-      <TableCell className="text-xs text-center mx-2">
-        {isEditing ? (
-          <Input
-            value={editWhatsAppLimit}
-            onChange={(e) => setEditWhatsAppLimit(e.target.value)}
-            className="h-8 w-20 text-xs"
-            placeholder="20"
-            type="number"
-          />
-        ) : (
-          (user.dailyWhatsAppLimit ?? "-")
-        )}
-      </TableCell>
       <TableCell className="text-xs text-center mx-2">
         {user.createdAt ? formatBogotaDateTime(user.createdAt, "dd/MM/yyyy HH:mm") : "-"}
       </TableCell>

@@ -120,6 +120,17 @@
   }
 }
 
+/* Swiper Navigation Arrows - Orange Color */
+.swiper-button-next,
+.swiper-button-prev {
+  color: hsl(25 95% 53%) !important;
+}
+
+.swiper-button-next:after,
+.swiper-button-prev:after {
+  color: hsl(25 95% 53%) !important;
+}
+
 /* Skandia Typography Styles */
 @layer components {
   .sk-h1 {
@@ -148,6 +159,15 @@
 
   .bold {
     @apply font-bold;
+  }
+
+  /* Base para contenido del editor de email */
+  .email-editor-content {
+    font-size: 12px;
+    line-height: 1.4;
+  }
+  .email-editor-content * {
+    line-height: inherit;
   }
 
   /* Skandia Accordion V2 Styles */
@@ -644,3 +664,68 @@
     }
   }
 }
+
+/* TipTap Editor Styles */
+.ProseMirror {
+  outline: none;
+}
+
+.ProseMirror p {
+  margin: 0.5em 0;
+}
+
+.ProseMirror ul,
+.ProseMirror ol {
+  padding-left: 1.5em;
+  margin: 0.5em 0;
+}
+
+.ProseMirror li {
+  margin: 0.25em 0;
+}
+
+.ProseMirror a {
+  color: hsl(var(--primary));
+  text-decoration: underline;
+}
+
+.ProseMirror img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* Dynamic Field Node Styles */
+.dynamic-field-badge {
+  display: inline-block;
+  background-color: #dbeafe;
+  color: #1e40af;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  margin: 0 2px;
+  cursor: default;
+  user-select: none;
+}
+
+.resizable-image-wrapper {
+  position: relative;
+  display: inline-block;
+  max-width: 100%;
+}
+
+/* Ensure underline color follows text color in TipTap */
+.ProseMirror u,
+.ProseMirror [style*="text-decoration: underline"],
+.ProseMirror [style*="text-decoration:underline"] {
+  text-decoration-color: currentColor !important;
+}
+
+/* Apply color to underline decoration */
+.ProseMirror [style*="color:"] u,
+.ProseMirror [style*="color:"][style*="text-decoration: underline"],
+.ProseMirror [style*="color:"][style*="text-decoration:underline"] {
+  text-decoration-color: inherit !important;
+}
+

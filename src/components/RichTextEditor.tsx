@@ -1,502 +1,462 @@
-import { useState, useRef, useCallback, useEffect } from "react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Separator } from "@/components/ui/separator";
+import { useEditor, EditorContent } from '@tiptap/react';
+import StarterKit from '@tiptap/starter-kit';
+import Underline from '@tiptap/extension-underline';
+import { TextStyle } from '@tiptap/extension-text-style';
+import { Color } from '@tiptap/extension-color';
+import Image from '@tiptap/extension-image';
+import TextAlign from '@tiptap/extension-text-align';
+import FontFamily from '@tiptap/extension-font-family';
+import Link from '@tiptap/extension-link';
+import Highlight from '@tiptap/extension-highlight';
+import { Button } from '@/components/ui/button';
+import { Separator } from '@/components/ui/separator';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Textarea } from '@/components/ui/textarea';
 import {
   Bold,
   Italic,
-  Underline,
+  Underline as UnderlineIcon,
+  List,
+  ListOrdered,
   AlignLeft,
   AlignCenter,
   AlignRight,
-  Link as LinkIcon,
+  AlignJustify,
   Image as ImageIcon,
-  Type,
-} from "lucide-react";
-import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
-import { Select, SelectTrigger, SelectContent, SelectValue, SelectItem } from "@/components/ui/select";
-import { ColorPicker } from "@/components/ColorPicker";
-
-/* ===========================
-      Utilidades
-=========================== */
-const runWhenIdle = (cb: () => void) =>
-  "requestIdleCallback" in window ? (window as any).requestIdleCallback(cb) : setTimeout(cb, 16);
-
-const throttle = <T extends (...args: any[]) => void>(fn: T, ms = 150) => {
-  let last = 0,
-    timer: number | undefined;
-  return (...args: Parameters<T>) => {
-    const now = Date.now();
-    const run = () => {
-      last = now;
-      timer = undefined;
-      fn(...args);
-    };
-    if (now - last >= ms) run();
-    else if (!timer) timer = window.setTimeout(run, ms - (now - last));
-  };
-};
-
-async function optimizeImageBlob(original: Blob, maxW = 1600, maxH = 1600): Promise<Blob> {
-  try {
-    const bmp = await createImageBitmap(original);
-    const scale = Math.min(1, maxW / bmp.width, maxH / bmp.height);
-    if (scale === 1) {
-      bmp.close?.();
-      return original;
-    }
-    const w = Math.round(bmp.width * scale);
-    const h = Math.round(bmp.height * scale);
-    const canvas = "OffscreenCanvas" in window ? new OffscreenCanvas(w, h) : document.createElement("canvas");
-    (canvas as any).width = w;
-    (canvas as any).height = h;
-    const ctx = (canvas as any).getContext("2d");
-    ctx.drawImage(bmp, 0, 0, w, h);
-    bmp.close?.();
-    if ("convertToBlob" in canvas)
-      return (await (canvas as any).convertToBlob({ type: "image/jpeg", quality: 0.9 })) || original;
-    return await new Promise<Blob>((resolve) =>
-      (canvas as HTMLCanvasElement).toBlob((b) => resolve(b || original), "image/jpeg", 0.9),
-    );
-  } catch {
-    return original;
-  }
-}
-
-const uid = () => `tmp-${Math.random().toString(36).slice(2, 9)}-${Date.now().toString(36)}`;
+  Paperclip,
+  ChevronDown,
+  Code,
+  Eye,
+  Smile,
+} from 'lucide-react';
+import EmojiPicker, { EmojiClickData } from 'emoji-picker-react';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { ColorPicker } from './ColorPicker';
+import { DynamicFieldExtension } from '@/extensions/DynamicFieldExtension';
+import { ResizableImageExtension } from '@/extensions/ResizableImageExtension';
+import { FontSize } from '@/extensions/FontSizeExtension';
+import { PreserveStylesExtension } from '@/extensions/PreserveStylesExtension';
+import { DivExtension } from '@/extensions/DivExtension';
+import { TableWithStyles, TableRow, TableCell } from '@/extensions/TableWithStylesExtension';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { useRef, useEffect, useState } from 'react';
+import { Editor } from '@tiptap/react';
 
 interface RichTextEditorProps {
   value: string;
-  onChange: (v: string) => void;
+  onChange: (value: string) => void;
   placeholder?: string;
   allowDrop?: boolean;
+  onAttachmentsChange?: (files: File[]) => void;
+  editorRef?: React.MutableRefObject<Editor | null>;
 }
 
-/* ===========================
-    Editor principal
-=========================== */
-export function RichTextEditor({ value, onChange, placeholder, allowDrop = false }: RichTextEditorProps) {
-  const editorRef = useRef<HTMLDivElement>(null);
+const FONT_FAMILIES = [
+  { label: 'Arial', value: 'Arial, sans-serif' },
+  { label: 'Times New Roman', value: 'Times New Roman, serif' },
+  { label: 'Courier New', value: 'Courier New, monospace' },
+  { label: 'Georgia', value: 'Georgia, serif' },
+  { label: 'Verdana', value: 'Verdana, sans-serif' },
+  { label: 'Tahoma', value: 'Tahoma, sans-serif' },
+];
+
+const FONT_SIZES = ['12px', '14px', '16px', '18px', '20px', '24px', '28px', '32px'];
+
+export function RichTextEditor({
+  value,
+  onChange,
+  placeholder = 'Escribe aquí...',
+  allowDrop = false,
+  onAttachmentsChange,
+  editorRef,
+}: RichTextEditorProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const lastEmittedHtmlRef = useRef<string | null>(null);
-  const [linkUrl, setLinkUrl] = useState("");
-  const [showLinkPopover, setShowLinkPopover] = useState(false);
-  const [savedRange, setSavedRange] = useState<Range | null>(null);
+  const [activeTab, setActiveTab] = useState<'visual' | 'code'>('visual');
+  const [htmlCode, setHtmlCode] = useState(value);
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
 
-  const FONT_FAMILIES = [
-    { label: "Arial", value: "Arial, sans-serif" },
-    { label: "Helvetica", value: "Helvetica, sans-serif" },
-    { label: "Times New Roman", value: "Times New Roman, serif" },
-    { label: "Georgia", value: "Georgia, serif" },
-    { label: "Verdana", value: "Verdana, sans-serif" },
-    { label: "Calibri", value: "Calibri, sans-serif" },
-    { label: "Tahoma", value: "Tahoma, sans-serif" },
-    { label: "Trebuchet MS", value: "Trebuchet MS, sans-serif" },
-    { label: "Courier New", value: "Courier New, monospace" },
-  ];
+  const editor = useEditor({
+    extensions: [
+      StarterKit.configure({
+        heading: false, // Deshabilitamos headings para emails
+      }),
+      Underline,
+      TextStyle,
+      Color,
+      Highlight.configure({
+        multicolor: true,
+      }),
+      FontFamily,
+      FontSize,
+      TextAlign.configure({
+        types: ['paragraph'],
+      }),
+      Link.configure({
+        openOnClick: false,
+        HTMLAttributes: {
+          // Preservar todos los atributos del link
+          class: null,
+        },
+      }),
+      ResizableImageExtension,
+      DynamicFieldExtension.configure({
+        HTMLAttributes: {
+          class: 'dynamic-field-node',
+        },
+      }),
+      PreserveStylesExtension,
+      DivExtension,
+      TableWithStyles,
+      TableRow,
+      TableCell,
+    ],
+    content: value,
+    editorProps: {
+      attributes: {
+        class: 'prose prose-sm max-w-none focus:outline-none min-h-[300px] p-4',
+      },
+    },
+    onUpdate: ({ editor }) => {
+      onChange(editor.getHTML());
+    },
+    // Importante: preservar estilos inline de plantillas
+    parseOptions: {
+      preserveWhitespace: 'full',
+    },
+  });
 
-  const handleContentChange = useCallback(() => {
-    if (!editorRef.current) return;
-    const html = editorRef.current.innerHTML;
-    lastEmittedHtmlRef.current = html;
-    onChange(html);
-  }, [onChange]);
-
-  // sincronizar value externo
+  // Sync external content changes (like signature insertion)
   useEffect(() => {
-    const editor = editorRef.current;
-    if (!editor) return;
-    if (value != null && value !== "" && value !== lastEmittedHtmlRef.current && value !== editor.innerHTML) {
-      editor.innerHTML = value;
+    if (editor && value !== editor.getHTML()) {
+      editor.commands.setContent(value, { emitUpdate: false });
+      setHtmlCode(value);
     }
-  }, [value]);
+  }, [value, editor]);
 
-  const saveSelection = useCallback(() => {
-    const sel = window.getSelection?.();
-    if (sel && sel.rangeCount > 0) setSavedRange(sel.getRangeAt(0));
-  }, []);
-  const restoreSelection = useCallback(() => {
-    if (!savedRange) return;
-    const sel = window.getSelection?.();
-    if (!sel) return;
-    sel.removeAllRanges();
-    sel.addRange(savedRange);
-  }, [savedRange]);
-  const exec = (cmd: string, val?: string) => {
-    restoreSelection();
-    document.execCommand(cmd, false, val);
-    handleContentChange();
-    saveSelection();
-  };
-
-  /* ===== Imágenes ===== */
-  const insertImage = () => fileInputRef.current?.click();
-  const afterInsertSetInitialWidth = (id: string) => {
-    setTimeout(() => {
-      const editor = editorRef.current;
-      if (!editor) return;
-      const img = editor.querySelector(`img[data-temp-id="${id}"]`) as HTMLImageElement | null;
-      if (!img) return;
-      img.onload = () => {
-        const w = img.clientWidth || img.naturalWidth || 600;
-        img.style.width = `${w}px`;
-        img.style.height = "auto";
-        img.style.maxWidth = "none";
-        img.setAttribute("width", String(w));
-        handleContentChange();
-      };
-    }, 0);
-  };
-  const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    event.target.value = "";
-    if (!file) return;
-    const tempUrl = URL.createObjectURL(file);
-    const id = uid();
-    const html = `
-      <div class="editable-image-wrapper" contenteditable="false" style="resize:both;overflow:hidden;display:inline-block;position:relative;max-width:100%;">
-        <img src="${tempUrl}" data-temp-id="${id}" style="width:100%;height:auto;cursor:pointer;object-fit:contain;display:block;" />
-      </div>`;
-    document.execCommand("insertHTML", false, html);
-    handleContentChange();
-    afterInsertSetInitialWidth(id);
-    runWhenIdle(async () => {
-      const optimized = await optimizeImageBlob(file);
-      const finalUrl = URL.createObjectURL(optimized);
-      const editor = editorRef.current;
-      if (editor) {
-        const target = editor.querySelector(`img[data-temp-id="${id}"]`) as HTMLImageElement | null;
-        if (target) {
-          target.src = finalUrl;
-          URL.revokeObjectURL(tempUrl);
-          handleContentChange();
-        }
-      }
-    });
-  };
-
-  const handlePaste = (e: React.ClipboardEvent<HTMLDivElement>) => {
-    const items = e.clipboardData?.items;
-    if (!items) return;
-    const imageItems = Array.from(items).filter((it) => it.type.startsWith("image/"));
-    if (imageItems.length === 0) return;
-    e.preventDefault();
-    imageItems.forEach((it) => {
-      const file = it.getAsFile();
-      if (!file) return;
-      const tempUrl = URL.createObjectURL(file);
-      const id = uid();
-      const html = `
-        <div class="editable-image-wrapper" contenteditable="false" style="resize:both;overflow:hidden;display:inline-block;position:relative;max-width:100%;">
-          <img src="${tempUrl}" data-temp-id="${id}" style="width:100%;height:auto;cursor:pointer;object-fit:contain;display:block;" />
-        </div>`;
-      document.execCommand("insertHTML", false, html);
-      handleContentChange();
-      afterInsertSetInitialWidth(id);
-      runWhenIdle(async () => {
-        const optimized = await optimizeImageBlob(file);
-        const finalUrl = URL.createObjectURL(optimized);
-        const editor = editorRef.current;
-        if (editor) {
-          const target = editor.querySelector(`img[data-temp-id="${id}"]`) as HTMLImageElement | null;
-          if (target) {
-            target.src = finalUrl;
-            URL.revokeObjectURL(tempUrl);
-            handleContentChange();
-          }
-        }
-      });
-    });
-  };
-
-  const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
-    if (!allowDrop) return;
-    e.preventDefault();
-    e.dataTransfer.dropEffect = "copy";
-  };
-
-  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
-    if (!allowDrop) return;
-    e.preventDefault();
-    
-    const text = e.dataTransfer.getData("text/plain");
-    if (!text) return;
-
-    // Get the drop position using coordinates
-    let range: Range | null = null;
-    
-    // Try Chrome/Safari method
-    if (document.caretRangeFromPoint) {
-      range = document.caretRangeFromPoint(e.clientX, e.clientY);
-    } 
-    // Try Firefox method
-    else if ((document as any).caretPositionFromPoint) {
-      const position = (document as any).caretPositionFromPoint(e.clientX, e.clientY);
-      if (position) {
-        range = document.createRange();
-        range.setStart(position.offsetNode, position.offset);
-        range.collapse(true);
-      }
-    }
-
-    if (!range) {
-      // Fallback: insert at the end
-      editorRef.current?.focus();
-      const sel = window.getSelection();
-      if (sel) {
-        sel.selectAllChildren(editorRef.current!);
-        sel.collapseToEnd();
-      }
-      document.execCommand("insertText", false, text);
-      handleContentChange();
-      return;
-    }
-
-    // Set selection to the drop position
-    const sel = window.getSelection();
-    if (!sel) return;
-    
-    sel.removeAllRanges();
-    sel.addRange(range);
-
-    // Insert the text at the drop position
-    document.execCommand("insertText", false, text);
-    handleContentChange();
-  };
-
-  /* ===== ResizeObserver ===== */
+  // Update HTML code when switching to code view
   useEffect(() => {
-    const editor = editorRef.current;
-    if (!editor) return;
-    const emitThrottled = throttle(handleContentChange, 200);
-    const ro = new ResizeObserver((entries) => {
-      entries.forEach((entry) => {
-        const wrapper = entry.target as HTMLElement;
-        if (!wrapper.classList.contains("editable-image-wrapper")) return;
-        const img = wrapper.querySelector("img") as HTMLImageElement | null;
-        if (!img) return;
-        const { width } = entry.contentRect;
-        const w = Math.max(20, Math.round(width));
-        img.style.width = `${w}px`;
-        img.style.height = "auto";
-        img.style.maxWidth = "none";
-        img.setAttribute("width", String(w));
-        emitThrottled();
-      });
-    });
-    editor.querySelectorAll(".editable-image-wrapper").forEach((w) => ro.observe(w));
-    const mo = new MutationObserver((muts) => {
-      muts.forEach((m) =>
-        m.addedNodes.forEach((n) => {
-          if (!(n instanceof HTMLElement)) return;
-          const list: HTMLElement[] = n.classList?.contains("editable-image-wrapper")
-            ? [n]
-            : Array.from(n.querySelectorAll?.(".editable-image-wrapper") || []);
-          list.forEach((wrap) => ro.observe(wrap));
-        }),
-      );
-    });
-    mo.observe(editor, { childList: true, subtree: true });
-    return () => {
-      mo.disconnect();
-      ro.disconnect();
+    if (activeTab === 'code' && editor) {
+      setHtmlCode(editor.getHTML());
+    }
+  }, [activeTab, editor]);
+
+  // Expose editor instance through ref
+  useEffect(() => {
+    if (editorRef && editor) {
+      editorRef.current = editor;
+    }
+  }, [editor, editorRef]);
+
+  if (!editor) {
+    return null;
+  }
+
+  const handleImageUpload = () => {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'image/*';
+    input.onchange = (e) => {
+      const file = (e.target as HTMLInputElement).files?.[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = () => {
+          const url = reader.result as string;
+          editor.chain().focus().setImage({ src: url }).run();
+        };
+        reader.readAsDataURL(file);
+      }
     };
-  }, [handleContentChange]);
+    input.click();
+  };
 
-  /* ===== Doble clic reset tamaño ===== */
-  useEffect(() => {
-    const editor = editorRef.current;
-    if (!editor) return;
-    const onDblClick = (e: MouseEvent) => {
-      const t = e.target as HTMLElement;
-      const img =
-        (t.tagName === "IMG" ? (t as HTMLImageElement) : null) ||
-        (t.closest(".editable-image-wrapper")?.querySelector("img") as HTMLImageElement | null);
-      if (!img) return;
-      const natW = img.naturalWidth || 600;
-      const containerW = (img.parentElement as HTMLElement)?.clientWidth || natW;
-      const newW = Math.min(natW, containerW);
-      img.style.width = `${newW}px`;
-      img.style.height = "auto";
-      img.style.maxWidth = "none";
-      img.setAttribute("width", String(newW));
-      handleContentChange();
-    };
-    editor.addEventListener("dblclick", onDblClick);
-    return () => editor.removeEventListener("dblclick", onDblClick);
-  }, [handleContentChange]);
+  const handleAttachmentUpload = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+    if (files.length > 0 && onAttachmentsChange) {
+      onAttachmentsChange(files);
+    }
+    // Reset input para permitir seleccionar el mismo archivo nuevamente
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
+
+  const handleHtmlCodeChange = (newCode: string) => {
+    setHtmlCode(newCode);
+    if (editor) {
+      editor.commands.setContent(newCode, { emitUpdate: false });
+      onChange(newCode);
+    }
+  };
+
+  const handleTabChange = (tab: string) => {
+    if (tab === 'code' && editor) {
+      // Update HTML code from editor before switching
+      setHtmlCode(editor.getHTML());
+    } else if (tab === 'visual' && editor) {
+      // Update editor from HTML code before switching
+      editor.commands.setContent(htmlCode, { emitUpdate: false });
+    }
+    setActiveTab(tab as 'visual' | 'code');
+  };
 
   return (
-    <div className="border rounded-md">
-      {/* Toolbar */}
-      <div className="border-b p-2 flex flex-wrap items-center gap-1">
-        {/* Texto básico */}
-        <Button variant="ghost" size="sm" onMouseDown={(e) => e.preventDefault()} onClick={() => exec("bold")}>
-          <Bold className="h-4 w-4" />
-        </Button>
-        <Button variant="ghost" size="sm" onMouseDown={(e) => e.preventDefault()} onClick={() => exec("italic")}>
-          <Italic className="h-4 w-4" />
-        </Button>
-        <Button variant="ghost" size="sm" onMouseDown={(e) => e.preventDefault()} onClick={() => exec("underline")}>
-          <Underline className="h-4 w-4" />
-        </Button>
+    <div className="border rounded-lg overflow-hidden bg-background">
+      <Tabs value={activeTab} onValueChange={handleTabChange}>
+        {/* Toolbar with Tab Selector */}
+        <div className="border-b bg-muted/30 p-2 flex flex-wrap gap-1 items-center">
+          <TabsList className="h-8">
+            <TabsTrigger value="visual" className="h-7 text-xs">
+              <Eye className="h-3 w-3 mr-1" />
+              Visual
+            </TabsTrigger>
+            <TabsTrigger value="code" className="h-7 text-xs">
+              <Code className="h-3 w-3 mr-1" />
+              HTML
+            </TabsTrigger>
+          </TabsList>
 
-        <Separator orientation="vertical" className="h-6" />
+          <Separator orientation="vertical" className="h-6 mx-1" />
 
-        {/* Fuente */}
-        <Select
-          onValueChange={(f) => {
-            saveSelection();
-            exec("fontName", f);
-          }}
-        >
-          <SelectTrigger className="w-40 h-8">
-            <SelectValue placeholder="Fuente" />
-          </SelectTrigger>
-          <SelectContent>
-            {FONT_FAMILIES.map((f) => (
-              <SelectItem key={f.value} value={f.value} style={{ fontFamily: f.value }}>
-                {f.label}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+          {/* Format buttons - Only show in visual mode */}
+          {activeTab === 'visual' && (
+            <>
+              <Button
+                type="button"
+                variant={editor.isActive('bold') ? 'secondary' : 'ghost'}
+                size="icon"
+                className="h-8 w-8"
+                onClick={() => editor.chain().focus().toggleBold().run()}
+              >
+                <Bold className="h-4 w-4" />
+              </Button>
 
-        {/* Tamaño */}
-        <Select
-          onValueChange={(s) => {
-            saveSelection();
-            exec("fontSize", s);
-          }}
-        >
-          <SelectTrigger className="w-16 h-8">
-            <Type className="h-4 w-4" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="1">8pt</SelectItem>
-            <SelectItem value="2">10pt</SelectItem>
-            <SelectItem value="3">12pt</SelectItem>
-            <SelectItem value="4">14pt</SelectItem>
-            <SelectItem value="5">18pt</SelectItem>
-            <SelectItem value="6">24pt</SelectItem>
-            <SelectItem value="7">36pt</SelectItem>
-          </SelectContent>
-        </Select>
+              <Button
+                type="button"
+                variant={editor.isActive('italic') ? 'secondary' : 'ghost'}
+                size="icon"
+                className="h-8 w-8"
+                onClick={() => editor.chain().focus().toggleItalic().run()}
+              >
+                <Italic className="h-4 w-4" />
+              </Button>
 
-        {/* Color */}
-        <ColorPicker
-          onColorSelect={(c) => {
-            saveSelection();
-            exec("foreColor", c);
-          }}
-        />
+              <Button
+                type="button"
+                variant={editor.isActive('underline') ? 'secondary' : 'ghost'}
+                size="icon"
+                className="h-8 w-8"
+                onClick={() => editor.chain().focus().toggleUnderline().run()}
+              >
+                <UnderlineIcon className="h-4 w-4" />
+              </Button>
 
-        <Separator orientation="vertical" className="h-6" />
+              <Separator orientation="vertical" className="h-6" />
 
-        {/* Alineación */}
-        <Button variant="ghost" size="sm" onMouseDown={(e) => e.preventDefault()} onClick={() => exec("justifyLeft")}>
-          <AlignLeft className="h-4 w-4" />
-        </Button>
-        <Button variant="ghost" size="sm" onMouseDown={(e) => e.preventDefault()} onClick={() => exec("justifyCenter")}>
-          <AlignCenter className="h-4 w-4" />
-        </Button>
-        <Button variant="ghost" size="sm" onMouseDown={(e) => e.preventDefault()} onClick={() => exec("justifyRight")}>
-          <AlignRight className="h-4 w-4" />
-        </Button>
+              {/* Font Family */}
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button type="button" variant="ghost" size="sm" className="h-8">
+                    <span className="text-sm">Fuente</span>
+                    <ChevronDown className="h-3 w-3 ml-1" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent>
+                  {FONT_FAMILIES.map((font) => (
+                    <DropdownMenuItem
+                      key={font.value}
+                      onClick={() => editor.chain().focus().setFontFamily(font.value).run()}
+                      className={editor.isActive('textStyle', { fontFamily: font.value }) ? 'bg-accent' : ''}
+                    >
+                      <span style={{ fontFamily: font.value }}>{font.label}</span>
+                    </DropdownMenuItem>
+                  ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
 
-        <Separator orientation="vertical" className="h-6" />
+              {/* Font Size */}
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button type="button" variant="ghost" size="sm" className="h-8">
+                    <span className="text-sm">Tamaño</span>
+                    <ChevronDown className="h-3 w-3 ml-1" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent>
+                  {FONT_SIZES.map((size) => (
+                    <DropdownMenuItem
+                      key={size}
+                      onClick={() => editor.chain().focus().setFontSize(size).run()}
+                      className={editor.isActive('textStyle', { fontSize: size }) ? 'bg-accent' : ''}
+                    >
+                      {size}
+                    </DropdownMenuItem>
+                  ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
 
-        {/* Enlace */}
-        <Popover open={showLinkPopover} onOpenChange={setShowLinkPopover}>
-          <PopoverTrigger asChild>
-            <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onMouseDown={(e) => e.preventDefault()}>
-              <LinkIcon className="h-4 w-4" />
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent className="w-80">
-            <div className="space-y-2">
-              <Label htmlFor="link-url">URL del enlace</Label>
-              <Input
-                id="link-url"
-                value={linkUrl}
-                onChange={(e) => setLinkUrl(e.target.value)}
-                placeholder="https://ejemplo.com"
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") {
-                    e.preventDefault();
-                    if (linkUrl.trim()) exec("createLink", linkUrl);
-                    setShowLinkPopover(false);
-                    setLinkUrl("");
-                  }
+              <Separator orientation="vertical" className="h-6" />
+
+              {/* Color Picker */}
+              <ColorPicker
+                onColorSelect={(color) => {
+                  editor.chain().focus().setColor(color).run();
                 }}
               />
+
+              <Separator orientation="vertical" className="h-6" />
+
+              {/* Lists */}
               <Button
-                size="sm"
-                onClick={() => {
-                  if (linkUrl.trim()) exec("createLink", linkUrl);
-                  setShowLinkPopover(false);
-                  setLinkUrl("");
-                }}
+                type="button"
+                variant={editor.isActive('bulletList') ? 'secondary' : 'ghost'}
+                size="icon"
+                className="h-8 w-8"
+                onClick={() => editor.chain().focus().toggleBulletList().run()}
               >
-                Insertar enlace
+                <List className="h-4 w-4" />
               </Button>
-            </div>
-          </PopoverContent>
-        </Popover>
 
-        <Button variant="ghost" size="sm" onClick={insertImage}>
-          <ImageIcon className="h-4 w-4" />
-        </Button>
-      </div>
+              <Button
+                type="button"
+                variant={editor.isActive('orderedList') ? 'secondary' : 'ghost'}
+                size="icon"
+                className="h-8 w-8"
+                onClick={() => editor.chain().focus().toggleOrderedList().run()}
+              >
+                <ListOrdered className="h-4 w-4" />
+              </Button>
 
-      {/* Editor */}
-      <div className="relative">
-        <style>{`
-          .editable-image-wrapper {
-            border: 2px solid transparent;
-            transition: border-color 0.2s, box-shadow 0.2s;
-            resize: both;
-            overflow: hidden;
-            max-width: 100%;
-            display: inline-block;
-            position: relative;
-            user-select: none;
-            contain: content;
-            box-sizing: border-box;
-          }
-          .editable-image-wrapper:hover {
-            border-color: hsl(var(--primary));
-            box-shadow: 0 0 0 2px hsl(var(--primary) / 0.2);
-          }
-          .prose :where(img){ max-width:none; }
-        `}</style>
+              <Separator orientation="vertical" className="h-6" />
 
-        <div
-          ref={editorRef}
-          contentEditable
-          onInput={handleContentChange}
-          onPaste={handlePaste}
-          onDragOver={handleDragOver}
-          onDrop={handleDrop}
-          onMouseUp={saveSelection}
-          onKeyUp={saveSelection}
-          className="min-h-[200px] p-4 focus:outline-none prose prose-sm max-w-none"
-          style={{ whiteSpace: "pre-wrap", wordBreak: "break-word" }}
-          suppressContentEditableWarning
-        />
+              {/* Alignment */}
+              <Button
+                type="button"
+                variant={editor.isActive({ textAlign: 'left' }) ? 'secondary' : 'ghost'}
+                size="icon"
+                className="h-8 w-8"
+                onClick={() => editor.chain().focus().setTextAlign('left').run()}
+              >
+                <AlignLeft className="h-4 w-4" />
+              </Button>
 
+              <Button
+                type="button"
+                variant={editor.isActive({ textAlign: 'center' }) ? 'secondary' : 'ghost'}
+                size="icon"
+                className="h-8 w-8"
+                onClick={() => editor.chain().focus().setTextAlign('center').run()}
+              >
+                <AlignCenter className="h-4 w-4" />
+              </Button>
+
+              <Button
+                type="button"
+                variant={editor.isActive({ textAlign: 'right' }) ? 'secondary' : 'ghost'}
+                size="icon"
+                className="h-8 w-8"
+                onClick={() => editor.chain().focus().setTextAlign('right').run()}
+              >
+                <AlignRight className="h-4 w-4" />
+              </Button>
+
+              <Button
+                type="button"
+                variant={editor.isActive({ textAlign: 'justify' }) ? 'secondary' : 'ghost'}
+                size="icon"
+                className="h-8 w-8"
+                onClick={() => editor.chain().focus().setTextAlign('justify').run()}
+              >
+                <AlignJustify className="h-4 w-4" />
+              </Button>
+
+              <Separator orientation="vertical" className="h-6" />
+
+              {/* Image */}
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8"
+                onClick={handleImageUpload}
+                title="Insertar imagen"
+              >
+                <ImageIcon className="h-4 w-4" />
+              </Button>
+
+              {/* Emojis */}
+              <Popover open={showEmojiPicker} onOpenChange={setShowEmojiPicker}>
+                <PopoverTrigger asChild>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8"
+                    title="Insertar emoji"
+                  >
+                    <Smile className="h-4 w-4" />
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0 border-0" align="start">
+                  <EmojiPicker
+                    onEmojiClick={(emojiData: EmojiClickData) => {
+                      editor.chain().focus().insertContent(emojiData.emoji).run();
+                      setShowEmojiPicker(false);
+                    }}
+                    width={350}
+                    height={400}
+                  />
+                </PopoverContent>
+              </Popover>
+
+              {/* Attachments */}
+              {onAttachmentsChange && (
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  className="h-8 w-8"
+                  onClick={handleAttachmentUpload}
+                  title="Adjuntar archivos"
+                >
+                  <Paperclip className="h-4 w-4" />
+                </Button>
+              )}
+            </>
+          )}
+
+        {/* Hidden file input for attachments */}
         <input
-          type="file"
           ref={fileInputRef}
-          accept="image/*"
-          onChange={handleImageUpload}
-          style={{ display: "none" }}
+          type="file"
+          multiple
+          className="hidden"
+          onChange={handleFileChange}
         />
-
-        {!value && <div className="absolute top-4 left-4 text-muted-foreground pointer-events-none">{placeholder}</div>}
       </div>
+
+      {/* Tab Contents */}
+      <TabsContent value="visual" className="m-0">
+        <EditorContent editor={editor} />
+      </TabsContent>
+
+      <TabsContent value="code" className="m-0">
+        <Textarea
+          value={htmlCode}
+          onChange={(e) => handleHtmlCodeChange(e.target.value)}
+          className="min-h-[300px] font-mono text-sm border-0 rounded-none resize-none focus-visible:ring-0"
+          placeholder="Código HTML..."
+        />
+      </TabsContent>
+      </Tabs>
     </div>
   );
 }

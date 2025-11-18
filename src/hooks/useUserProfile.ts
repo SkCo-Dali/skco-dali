@@ -1,15 +1,45 @@
 import { useState, useEffect } from 'react';
 import { UserProfile } from '@/types/userProfile';
 import { useOnboarding } from './useOnboarding';
+import { useAuth } from '@/contexts/AuthContext';
 import { OnboardingData } from '@/types/onboarding';
 
-const PROFILE_KEY = 'dali-user-profile';
+// Helper to safely cast gender to UserProfile type
+const castGender = (gender: string | null | undefined): UserProfile['gender'] => {
+  if (!gender) return undefined;
+  const validGenders = ['male', 'female', 'other', 'prefer_not_to_say'];
+  return validGenders.includes(gender.toLowerCase()) 
+    ? (gender.toLowerCase() as UserProfile['gender']) 
+    : undefined;
+};
+
+// Helper to safely cast marital status
+const castMaritalStatus = (status: string | null | undefined): UserProfile['maritalStatus'] => {
+  if (!status) return undefined;
+  const validStatuses = ['single', 'married', 'divorced', 'widowed', 'other'];
+  return validStatuses.includes(status.toLowerCase()) 
+    ? (status.toLowerCase() as UserProfile['maritalStatus']) 
+    : undefined;
+};
 
 export function useUserProfile() {
   const { data: onboardingData, saveData: saveOnboardingData } = useOnboarding();
+  const { user } = useAuth();
   
   const [profile, setProfile] = useState<UserProfile>(() => {
-    const stored = localStorage.getItem(PROFILE_KEY);
+    // Obtener datos solo del usuario autenticado (del API)
+    const userDataFromAuth: Partial<UserProfile> = user ? {
+      preferredName: user.preferredName || undefined,
+      birthDate: user.birthDate || undefined,
+      gender: castGender(user.gender),
+      maritalStatus: castMaritalStatus(user.maritalStatus),
+      numberOfChildren: user.childrenCount,
+      countryCode: user.whatsappCountryCode || undefined,
+      phone: user.whatsappPhone || undefined,
+      emailSignature: user.emailSignatureHtml || undefined,
+      photo: user.avatar || undefined,
+    } : {};
+    
     const flattenedOnboarding = {
       ...onboardingData,
       countryCode: onboardingData.whatsapp?.countryCode,
@@ -21,14 +51,24 @@ export function useUserProfile() {
       tiktok: onboardingData.socialMedia?.tiktok,
     };
     
-    if (stored) {
-      return { ...flattenedOnboarding, ...JSON.parse(stored) };
-    }
-    return flattenedOnboarding as UserProfile;
+    // Priorizar datos del API sobre datos temporales del onboarding
+    return { ...flattenedOnboarding, ...userDataFromAuth } as UserProfile;
   });
 
   useEffect(() => {
-    // Sync with onboarding data when it changes
+    // Sync with user auth data and onboarding data when they change
+    const userDataFromAuth: Partial<UserProfile> = user ? {
+      preferredName: user.preferredName || undefined,
+      birthDate: user.birthDate || undefined,
+      gender: castGender(user.gender),
+      maritalStatus: castMaritalStatus(user.maritalStatus),
+      numberOfChildren: user.childrenCount,
+      countryCode: user.whatsappCountryCode || undefined,
+      phone: user.whatsappPhone || undefined,
+      emailSignature: user.emailSignatureHtml || undefined,
+      photo: user.avatar || undefined,
+    } : {};
+    
     const flattenedOnboarding = {
       ...onboardingData,
       countryCode: onboardingData.whatsapp?.countryCode,
@@ -39,15 +79,17 @@ export function useUserProfile() {
       xTwitter: onboardingData.socialMedia?.xTwitter,
       tiktok: onboardingData.socialMedia?.tiktok,
     };
-    setProfile(prev => ({ ...prev, ...flattenedOnboarding }));
-  }, [onboardingData]);
+    
+    // Priorizar datos del usuario autenticado sobre onboarding
+    setProfile(prev => ({ ...prev, ...flattenedOnboarding, ...userDataFromAuth }));
+  }, [onboardingData, user]);
 
   const updateProfile = (updates: Partial<UserProfile>) => {
     const updated = { ...profile, ...updates };
     setProfile(updated);
-    localStorage.setItem(PROFILE_KEY, JSON.stringify(updated));
+    // NO guardamos en localStorage, los datos deben actualizarse en el API
     
-    // Also update onboarding data if relevant fields changed
+    // Sincronizar con onboarding data solo campos relevantes durante el onboarding
     const onboardingUpdates: Partial<OnboardingData> = {};
     
     if ('preferredName' in updates) {
@@ -90,8 +132,8 @@ export function useUserProfile() {
   };
 
   const resetProfile = () => {
-    localStorage.removeItem(PROFILE_KEY);
-    setProfile(onboardingData as UserProfile);
+    // NO usamos localStorage, los datos vienen del API
+    setProfile({ ...onboardingData } as UserProfile);
   };
 
   return {

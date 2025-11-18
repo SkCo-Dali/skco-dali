@@ -1,0 +1,5 @@
+[
+  {"campaignId":"CMP-2025-Q4-GEN","nombre":"Q4 Generación","objetivo":"Generar leads de inversión","producto":"Inversión","canal":"Digital","fechaInicio":"2025-10-01","fechaFin":"2025-12-31","estado":"activa","owner":"Marketing","presupuesto":80000000},
+  {"campaignId":"CMP-2025-Black","nombre":"Black Week Pensiones","objetivo":"Impulsar aportes voluntarios","producto":"Pensión Voluntaria","canal":"Alianzas","fechaInicio":"2025-11-20","fechaFin":"2025-11-30","estado":"activa","owner":"Marketing","presupuesto":35000000},
+  {"campaignId":"CMP-2025-Retail","nombre":"Retail Navideño","objetivo":"Venta cruzada seguros","producto":"Seguros","canal":"Directo","fechaInicio":"2025-11-15","fechaFin":"2025-12-24","estado":"activa","owner":"Retail","presupuesto":42000000}
+]

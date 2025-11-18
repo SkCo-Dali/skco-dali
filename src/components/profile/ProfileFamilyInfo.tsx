@@ -7,6 +7,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { UserProfile } from "@/types/userProfile";
 import { Edit2, Save, X, Plus, Trash2 } from "lucide-react";
 import { toast } from "sonner";
+import { useAuth } from "@/contexts/AuthContext";
+import { userProfileApiClient } from "@/utils/userProfileApiClient";
 
 interface Props {
   profile: UserProfile;
@@ -16,11 +18,37 @@ interface Props {
 export function ProfileFamilyInfo({ profile, updateProfile }: Props) {
   const [isEditing, setIsEditing] = useState(false);
   const [localData, setLocalData] = useState(profile);
+  const [isSaving, setIsSaving] = useState(false);
+  const { getAccessToken } = useAuth();
 
-  const handleSave = () => {
-    updateProfile(localData);
-    setIsEditing(false);
-    toast.success("Información familiar actualizada");
+  const handleSave = async () => {
+    setIsSaving(true);
+    try {
+      const token = await getAccessToken();
+      if (!token) throw new Error('No access token');
+
+      await userProfileApiClient.updateFamily(token.accessToken, {
+        emergencyContacts: localData.emergencyContact ? [{
+          fullName: localData.emergencyContact.name,
+          relationship: localData.emergencyContact.relationship,
+          phone: localData.emergencyContact.phone,
+        }] : [],
+        importantDates: (localData.importantDates || []).map(date => ({
+          name: date.name,
+          date: date.date,
+          type: date.type,
+        })),
+      });
+
+      updateProfile(localData);
+      setIsEditing(false);
+      toast.success("Información familiar actualizada");
+    } catch (error) {
+      console.error('Error saving family info:', error);
+      toast.error('Error al guardar la información');
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const handleCancel = () => {
@@ -74,9 +102,9 @@ export function ProfileFamilyInfo({ profile, updateProfile }: Props) {
               <X className="h-4 w-4" />
               Cancelar
             </Button>
-            <Button onClick={handleSave} className="gap-2">
+            <Button onClick={handleSave} className="gap-2" disabled={isSaving}>
               <Save className="h-4 w-4" />
-              Guardar
+              {isSaving ? 'Guardando...' : 'Guardar'}
             </Button>
           </div>
         )}

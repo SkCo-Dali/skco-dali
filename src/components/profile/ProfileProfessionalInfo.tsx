@@ -7,6 +7,8 @@ import { Card } from "@/components/ui/card";
 import { UserProfile } from "@/types/userProfile";
 import { Edit2, Save, X } from "lucide-react";
 import { toast } from "sonner";
+import { useAuth } from "@/contexts/AuthContext";
+import { userProfileApiClient } from "@/utils/userProfileApiClient";
 
 interface Props {
   profile: UserProfile;
@@ -16,11 +18,35 @@ interface Props {
 export function ProfileProfessionalInfo({ profile, updateProfile }: Props) {
   const [isEditing, setIsEditing] = useState(false);
   const [localData, setLocalData] = useState(profile);
+  const [isSaving, setIsSaving] = useState(false);
+  const { getAccessToken } = useAuth();
 
-  const handleSave = () => {
-    updateProfile(localData);
-    setIsEditing(false);
-    toast.success("Información profesional actualizada");
+  const handleSave = async () => {
+    setIsSaving(true);
+    try {
+      const token = await getAccessToken();
+      if (!token) throw new Error('No access token');
+
+      await userProfileApiClient.updateProfessional(token.accessToken, {
+        jobTitle: localData.role || null,
+        department: localData.department || null,
+        hireDate: localData.startDate || null,
+        managerName: localData.manager || null,
+        specialization: localData.specialization || null,
+        monthlyGoals: localData.monthlyGoals || null,
+        workdayStart: localData.workSchedule?.start || null,
+        workdayEnd: localData.workSchedule?.end || null,
+      });
+
+      updateProfile(localData);
+      setIsEditing(false);
+      toast.success("Información profesional actualizada");
+    } catch (error) {
+      console.error('Error saving professional info:', error);
+      toast.error('Error al guardar la información');
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const handleCancel = () => {
@@ -47,9 +73,9 @@ export function ProfileProfessionalInfo({ profile, updateProfile }: Props) {
               <X className="h-4 w-4" />
               Cancelar
             </Button>
-            <Button onClick={handleSave} className="gap-2">
+            <Button onClick={handleSave} className="gap-2" disabled={isSaving}>
               <Save className="h-4 w-4" />
-              Guardar
+              {isSaving ? 'Guardando...' : 'Guardar'}
             </Button>
           </div>
         )}

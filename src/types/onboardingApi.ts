@@ -36,3 +36,8 @@ export interface OnboardingWelcomeResponse {
   userId: string;
   onboardingCompleted: boolean;
 }
+
+export interface StartPageResponse {
+  code: string;
+  route: string;
+}

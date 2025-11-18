@@ -353,11 +353,7 @@ export default function UsersPage() {
     updates: {
       name: string;
       email: string;
-      preferredName?: string | null;
-      whatsappNumber?: string | null;
-      countryCodeWhatsApp?: number | null;
-      dailyEmailLimit?: number | null;
-      dailyWhatsAppLimit?: number | null;
+      role: User["role"];
     },
   ) => {
     try {
@@ -367,13 +363,8 @@ export default function UsersPage() {
       await updateUser(userId, {
         name: updates.name,
         email: updates.email,
-        role: user.role,
+        role: updates.role,
         isActive: user.isActive ?? true,
-        preferredName: updates.preferredName,
-        whatsappNumber: updates.whatsappNumber,
-        countryCodeWhatsApp: updates.countryCodeWhatsApp,
-        dailyEmailLimit: updates.dailyEmailLimit,
-        dailyWhatsAppLimit: updates.dailyWhatsAppLimit,
       });
 
       await refreshUsers();

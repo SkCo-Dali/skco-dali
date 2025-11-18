@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
@@ -8,6 +8,8 @@ import { UserProfile, notificationCategories } from "@/types/userProfile";
 import { Save, X, Bell, Mail, MessageSquare, Smartphone } from "lucide-react";
 import { toast } from "sonner";
 import { Input } from "@/components/ui/input";
+import { useAuth } from "@/contexts/AuthContext";
+import { userProfileApiClient } from "@/utils/userProfileApiClient";
 
 interface Props {
   profile: UserProfile;
@@ -17,11 +19,77 @@ interface Props {
 export function ProfileNotifications({ profile, updateProfile }: Props) {
   const [isEditing, setIsEditing] = useState(false);
   const [localData, setLocalData] = useState(profile);
+  const [isSaving, setIsSaving] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const { getAccessToken } = useAuth();
 
-  const handleSave = () => {
-    updateProfile(localData);
-    setIsEditing(false);
-    toast.success("Preferencias de notificaciones actualizadas");
+  useEffect(() => {
+    loadNotifications();
+  }, []);
+
+  const loadNotifications = async () => {
+    try {
+      const token = await getAccessToken();
+      if (!token) return;
+
+      const notificationsData = await userProfileApiClient.getNotifications(token.accessToken);
+      
+      // Map API data to local format
+      const preferences: any = {};
+      notificationsData.items.forEach(item => {
+        preferences[item.code.toLowerCase()] = {
+          enabled: item.isEnabled,
+          channels: ['inapp'],
+          frequency: 'immediate',
+        };
+      });
+
+      setLocalData({
+        ...localData,
+        notificationPreferences: {
+          ...preferences,
+          quietHours: {
+            enabled: !!(notificationsData.quietHoursFrom && notificationsData.quietHoursTo),
+            start: notificationsData.quietHoursFrom || '',
+            end: notificationsData.quietHoursTo || '',
+          },
+        },
+      });
+    } catch (error) {
+      console.error('Error loading notifications:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleSave = async () => {
+    setIsSaving(true);
+    try {
+      const token = await getAccessToken();
+      if (!token) throw new Error('No access token');
+
+      const items = Object.entries(localData.notificationPreferences || {})
+        .filter(([key]) => key !== 'quietHours')
+        .map(([code, pref]: [string, any]) => ({
+          code: code.toUpperCase(),
+          isEnabled: pref.enabled,
+        }));
+
+      await userProfileApiClient.updateNotifications(token.accessToken, {
+        items,
+        quietHoursFrom: localData.notificationPreferences?.quietHours?.start || null,
+        quietHoursTo: localData.notificationPreferences?.quietHours?.end || null,
+      });
+
+      updateProfile(localData);
+      setIsEditing(false);
+      toast.success("Preferencias de notificaciones actualizadas");
+    } catch (error) {
+      console.error('Error saving notifications:', error);
+      toast.error('Error al guardar las notificaciones');
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const handleCancel = () => {
@@ -102,9 +170,9 @@ export function ProfileNotifications({ profile, updateProfile }: Props) {
               <X className="h-4 w-4" />
               Cancelar
             </Button>
-            <Button onClick={handleSave} className="gap-2">
+            <Button onClick={handleSave} className="gap-2" disabled={isSaving}>
               <Save className="h-4 w-4" />
-              Guardar
+              {isSaving ? 'Guardando...' : 'Guardar'}
             </Button>
           </div>
         )}

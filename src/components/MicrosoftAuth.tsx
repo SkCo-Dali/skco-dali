@@ -61,11 +61,28 @@ export function MicrosoftAuth() {
         }
 
         // No hay cuenta activa ni token silencioso disponible
-        // Hacer login automático con redirect
+        // Hacer login automático con redirect (o popup si estamos en un iframe)
         console.log("Intentando login automático con redirect...");
         const { from } = location.state || {};
 
-        // Usar loginRedirect en lugar de acquireTokenPopup para evitar bloqueadores de popup
+        const isInIframe = (() => {
+          try {
+            return window.self !== window.top;
+          } catch {
+            return true;
+          }
+        })();
+
+        if (isInIframe) {
+          // En iframes los redirects no están soportados: usar popup
+          const result = await msalInstance.loginPopup({
+            ...loginRequest,
+          });
+          msalInstance.setActiveAccount(result.account);
+          setShowLoginButton(false);
+          return;
+        }
+
         await msalInstance.loginRedirect({
           ...loginRequest,
           state: from ? JSON.stringify({ from }) : undefined,
@@ -87,6 +104,26 @@ export function MicrosoftAuth() {
     setIsLoading(true);
     try {
       const { from } = location.state || {};
+
+      const isInIframe = (() => {
+        try {
+          return window.self !== window.top;
+        } catch {
+          return true;
+        }
+      })();
+
+      if (isInIframe) {
+        // En iframes los redirects no están soportados: usar popup
+        const result = await msalInstance.loginPopup({
+          ...loginRequest,
+        });
+        msalInstance.setActiveAccount(result.account);
+        setIsLoading(false);
+        const target = from ? from.path + (from.query || "") : "/";
+        navigate(target, { replace: true });
+        return;
+      }
 
       // Usar loginRedirect en lugar de acquireTokenPopup para evitar bloqueadores de popup
       await msalInstance.loginRedirect({

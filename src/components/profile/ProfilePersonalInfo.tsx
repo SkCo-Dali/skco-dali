@@ -5,12 +5,15 @@ import { Label } from '@/components/ui/label';
 import { Card } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { UserProfile } from '@/types/userProfile';
-import { Edit2, Save, X, Upload, User } from 'lucide-react';
+import { Edit2, Save, X, User } from 'lucide-react';
 import { CountryPhoneSelector } from '@/components/onboarding/CountryPhoneSelector';
-import { RichTextEditor } from '@/components/RichTextEditor';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { ChevronDown } from 'lucide-react';
 import { toast } from 'sonner';
+import { useAuth } from '@/contexts/AuthContext';
+import { userProfileApiClient } from '@/utils/userProfileApiClient';
+import { DatePicker } from '@/components/ui/date-picker';
+import { format, parse } from 'date-fns';
 
 interface Props {
   profile: UserProfile;
@@ -21,11 +24,105 @@ export function ProfilePersonalInfo({ profile, updateProfile }: Props) {
   const [isEditing, setIsEditing] = useState(false);
   const [localData, setLocalData] = useState(profile);
   const [socialMediaOpen, setSocialMediaOpen] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const { getAccessToken, updateUserProfile } = useAuth();
 
-  const handleSave = () => {
-    updateProfile(localData);
-    setIsEditing(false);
-    toast.success('Información personal actualizada');
+  const handleSave = async () => {
+    setIsSaving(true);
+    try {
+      const token = await getAccessToken();
+      if (!token) throw new Error('No access token');
+
+      // Save basic info
+      await userProfileApiClient.updateBasic(token.accessToken, {
+        preferredName: localData.preferredName,
+        birthDate: localData.birthDate ? format(new Date(localData.birthDate), 'yyyy-MM-dd') : null,
+        gender: localData.gender || null,
+        maritalStatus: localData.maritalStatus || null,
+        childrenCount: localData.numberOfChildren || 0,
+      });
+
+      // Save contact channels
+      const channels = [];
+      if (localData.phone) {
+        channels.push({
+          channelType: 'WhatsApp' as const,
+          countryCode: localData.countryCode || null,
+          channelValue: localData.phone,
+          isPrimary: true,
+          isPublic: true,
+          isWhatsAppForMassEmails: true,
+        });
+      }
+      if (localData.facebook) {
+        channels.push({
+          channelType: 'Facebook' as const,
+          channelValue: localData.facebook,
+          isPrimary: false,
+          isPublic: true,
+          isWhatsAppForMassEmails: false,
+        });
+      }
+      if (localData.instagram) {
+        channels.push({
+          channelType: 'Instagram' as const,
+          channelValue: localData.instagram,
+          isPrimary: false,
+          isPublic: true,
+          isWhatsAppForMassEmails: false,
+        });
+      }
+      if (localData.linkedin) {
+        channels.push({
+          channelType: 'LinkedIn' as const,
+          channelValue: localData.linkedin,
+          isPrimary: false,
+          isPublic: true,
+          isWhatsAppForMassEmails: false,
+        });
+      }
+      if (localData.xTwitter) {
+        channels.push({
+          channelType: 'X' as const,
+          channelValue: localData.xTwitter,
+          isPrimary: false,
+          isPublic: true,
+          isWhatsAppForMassEmails: false,
+        });
+      }
+      if (localData.tiktok) {
+        channels.push({
+          channelType: 'TikTok' as const,
+          channelValue: localData.tiktok,
+          isPrimary: false,
+          isPublic: true,
+          isWhatsAppForMassEmails: false,
+        });
+      }
+
+      await userProfileApiClient.updateContactChannels(token.accessToken, { channels });
+
+      updateProfile(localData);
+      
+      // IMPORTANT: Update AuthContext user object with new WhatsApp data
+      updateUserProfile({
+        preferredName: localData.preferredName,
+        birthDate: localData.birthDate,
+        gender: localData.gender,
+        maritalStatus: localData.maritalStatus,
+        childrenCount: localData.numberOfChildren,
+        whatsappCountryCode: localData.countryCode || null,
+        whatsappPhone: localData.phone || null,
+      });
+      
+      setIsEditing(false);
+      toast.success('Información personal actualizada');
+    } catch (error) {
+      console.error('Error saving personal info:', error);
+      toast.error('Error al guardar la información');
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const handleCancel = () => {
@@ -54,9 +151,9 @@ export function ProfilePersonalInfo({ profile, updateProfile }: Props) {
               <X className="h-4 w-4" />
               Cancelar
             </Button>
-            <Button onClick={handleSave} className="gap-2">
+            <Button onClick={handleSave} className="gap-2" disabled={isSaving}>
               <Save className="h-4 w-4" />
-              Guardar
+              {isSaving ? 'Guardando...' : 'Guardar'}
             </Button>
           </div>
         )}
@@ -65,25 +162,16 @@ export function ProfilePersonalInfo({ profile, updateProfile }: Props) {
       {/* Photo */}
       <Card className="p-4 border-border/40">
         <div className="flex items-center gap-6">
-          <div className="relative group">
-            <div className="h-24 w-24 rounded-full bg-muted flex items-center justify-center overflow-hidden border-2 border-border">
-              {localData.photo ? (
-                <img src={localData.photo} alt="Profile" className="h-full w-full object-cover" />
-              ) : (
-                <User className="h-12 w-12 text-muted-foreground" />
-              )}
-            </div>
-            {isEditing && (
-              <button className="absolute inset-0 bg-black/50 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                <Upload className="h-6 w-6 text-white" />
-              </button>
+          <div className="h-24 w-24 rounded-full bg-muted flex items-center justify-center overflow-hidden border-2 border-border">
+            {localData.photo ? (
+              <img src={localData.photo} alt="Profile" className="h-full w-full object-cover" />
+            ) : (
+              <User className="h-12 w-12 text-muted-foreground" />
             )}
           </div>
           <div className="flex-1">
             <h3 className="font-medium text-lg">{localData.preferredName || 'Sin nombre'}</h3>
-            <p className="text-sm text-muted-foreground">
-              {isEditing ? 'Haz clic en la foto para cambiarla' : 'Foto de perfil'}
-            </p>
+            <p className="text-sm text-muted-foreground">Foto de perfil</p>
           </div>
         </div>
       </Card>
@@ -106,12 +194,15 @@ export function ProfilePersonalInfo({ profile, updateProfile }: Props) {
 
           <div className="space-y-2">
             <Label htmlFor="birthDate">Fecha de Nacimiento</Label>
-            <Input
-              id="birthDate"
-              type="date"
-              value={localData.birthDate || ''}
-              onChange={(e) => setLocalData({ ...localData, birthDate: e.target.value })}
-              disabled={!isEditing}
+            <DatePicker
+              date={localData.birthDate ? parse(localData.birthDate, 'yyyy-MM-dd', new Date()) : undefined}
+              onDateChange={(date) => setLocalData({ 
+                ...localData, 
+                birthDate: date ? format(date, 'yyyy-MM-dd') : undefined 
+              })}
+              placeholder="dd/MM/yyyy"
+              disabled={(date) => date > new Date() || date < new Date('1900-01-01')}
+              className={!isEditing ? 'pointer-events-none opacity-50' : ''}
             />
           </div>
 
@@ -240,25 +331,6 @@ export function ProfilePersonalInfo({ profile, updateProfile }: Props) {
         </Collapsible>
       </Card>
 
-      {/* Email Signature */}
-      <Card className="p-4 border-border/40 space-y-4">
-        <div>
-          <h3 className="font-medium text-lg">Firma de Correo</h3>
-          <p className="text-sm text-muted-foreground">Se usará en tus envíos masivos de correos</p>
-        </div>
-        {isEditing ? (
-          <RichTextEditor
-            value={localData.emailSignature || ''}
-            onChange={(value) => setLocalData({ ...localData, emailSignature: value })}
-            placeholder="Crea tu firma profesional aquí..."
-          />
-        ) : (
-          <div 
-            className="prose prose-sm max-w-none bg-muted/30 rounded-lg p-4 min-h-[100px]"
-            dangerouslySetInnerHTML={{ __html: localData.emailSignature || '<p class="text-muted-foreground">Sin firma configurada</p>' }}
-          />
-        )}
-      </Card>
     </div>
   );
 }

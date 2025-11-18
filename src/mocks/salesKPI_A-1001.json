@@ -1,0 +1,10 @@
+[
+  {"fecha":"2025-11-01","produccion":14000000,"primas":20,"negocios":7,"conversion":0.31,"ticket":700000},
+  {"fecha":"2025-11-02","produccion":9000000,"primas":12,"negocios":4,"conversion":0.28,"ticket":750000},
+  {"fecha":"2025-11-03","produccion":11000000,"primas":16,"negocios":5,"conversion":0.30,"ticket":687500},
+  {"fecha":"2025-11-04","produccion":8000000,"primas":10,"negocios":3,"conversion":0.26,"ticket":800000},
+  {"fecha":"2025-11-05","produccion":12500000,"primas":18,"negocios":6,"conversion":0.32,"ticket":694444},
+  {"fecha":"2025-11-06","produccion":15000000,"primas":22,"negocios":8,"conversion":0.33,"ticket":687500},
+  {"fecha":"2025-11-07","produccion":10000000,"primas":14,"negocios":5,"conversion":0.29,"ticket":714285},
+  {"fecha":"2025-11-08","produccion":13500000,"primas":19,"negocios":7,"conversion":0.31,"ticket":675000}
+]

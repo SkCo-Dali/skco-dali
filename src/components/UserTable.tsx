@@ -16,11 +16,6 @@ interface UserTableProps {
       name: string;
       email: string;
       role: User["role"];
-      preferredName?: string | null;
-      whatsappNumber?: string | null;
-      countryCodeWhatsApp?: number | null;
-      dailyEmailLimit?: number | null;
-      dailyWhatsAppLimit?: number | null;
     },
   ) => void;
 }
@@ -45,18 +40,12 @@ export function UserTable({
                   <TableHead className="text-center text-md">Usuario</TableHead>
                   <TableHead className="text-center text-md">Email</TableHead>
                   <TableHead className="text-center text-md">Rol</TableHead>
-                  <TableHead className="text-center text-md">Nombre Preferido</TableHead>
-                  <TableHead className="text-center text-md">Fecha Nacimiento</TableHead>
-                  <TableHead className="text-center text-md">Cód. País</TableHead>
-                  <TableHead className="text-center text-md">WhatsApp</TableHead>
                   <TableHead className="text-center text-md">ID Agente</TableHead>
                   <TableHead className="text-center text-md">ID Sociedad</TableHead>
                   <TableHead className="text-center text-md">ID Promotor</TableHead>
                   <TableHead className="text-center text-md">ID Aliado</TableHead>
                   <TableHead className="text-center text-md">WSaler</TableHead>
                   <TableHead className="text-center text-md">ID Supervisor</TableHead>
-                  <TableHead className="text-center text-md">Límite Email</TableHead>
-                  <TableHead className="text-center text-md">Límite WA</TableHead>
                   <TableHead className="text-center text-md">Fecha Creación</TableHead>
                   <TableHead className="text-center text-md">Última Act.</TableHead>
                   <TableHead className="text-center text-md">Estado</TableHead>

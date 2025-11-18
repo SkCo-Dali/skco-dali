@@ -4,24 +4,15 @@ import { useAuth } from '@/contexts/AuthContext';
 import { onboardingApiClient } from '@/utils/onboardingApiClient';
 import { OnboardingWelcomePayload } from '@/types/onboardingApi';
 
-const ONBOARDING_KEY = 'dali_onboarding_completed';
-const ONBOARDING_DATA_KEY = 'dali-onboarding-data';
-
 export function useOnboarding() {
   const { accessToken } = useAuth();
-  const [isCompleted, setIsCompleted] = useState<boolean>(() => {
-    return localStorage.getItem(ONBOARDING_KEY) === 'true';
-  });
-
-  const [data, setData] = useState<Partial<OnboardingData>>(() => {
-    const stored = localStorage.getItem(ONBOARDING_DATA_KEY);
-    return stored ? JSON.parse(stored) : {};
-  });
+  const [isCompleted, setIsCompleted] = useState<boolean>(false);
+  const [data, setData] = useState<Partial<OnboardingData>>({});
 
   const saveData = (newData: Partial<OnboardingData>) => {
     const updated = { ...data, ...newData };
     setData(updated);
-    localStorage.setItem(ONBOARDING_DATA_KEY, JSON.stringify(updated));
+    // NO guardamos en localStorage, los datos vienen del API
   };
 
   const completeOnboarding = useCallback(async (finalData: OnboardingData): Promise<boolean> => {
@@ -56,8 +47,7 @@ export function useOnboarding() {
       const response = await onboardingApiClient.submitWelcomeOnboarding(accessToken, payload);
 
       if (response.success) {
-        localStorage.setItem(ONBOARDING_DATA_KEY, JSON.stringify(finalData));
-        localStorage.setItem(ONBOARDING_KEY, 'true');
+        // NO guardamos en localStorage, los datos se obtienen del API
         setIsCompleted(true);
         return true;
       }
@@ -70,8 +60,7 @@ export function useOnboarding() {
   }, [accessToken]);
 
   const resetOnboarding = () => {
-    localStorage.removeItem(ONBOARDING_KEY);
-    localStorage.removeItem(ONBOARDING_DATA_KEY);
+    // NO usamos localStorage
     setIsCompleted(false);
     setData({});
   };

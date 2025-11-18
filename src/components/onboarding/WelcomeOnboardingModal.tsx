@@ -11,6 +11,8 @@ import { Sparkles, Loader2 } from 'lucide-react';
 import { useInAppMessaging } from '@/hooks/useInAppMessaging';
 import { toast } from 'sonner';
 import Lottie from 'lottie-react';
+import { onboardingApiClient } from '@/utils/onboardingApiClient';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface WelcomeOnboardingModalProps {
   isOpen: boolean;
@@ -22,6 +24,7 @@ interface WelcomeOnboardingModalProps {
 export function WelcomeOnboardingModal({ isOpen, userRole, onComplete, onClose }: WelcomeOnboardingModalProps) {
   const navigate = useNavigate();
   const { registerEvent } = useInAppMessaging();
+  const { accessToken } = useAuth();
   const [currentStep, setCurrentStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isCompleted, setIsCompleted] = useState(false);
@@ -59,10 +62,25 @@ export function WelcomeOnboardingModal({ isOpen, userRole, onComplete, onClose }
 
         setIsCompleted(true);
         
-        // Mostrar mensaje de éxito y redirigir
-        setTimeout(() => {
-          if (finalData.primaryAction?.route) {
-            navigate(finalData.primaryAction.route);
+        // Redirigir a la página de inicio (el perfil ya se cargó en el login)
+        setTimeout(async () => {
+          try {
+            if (accessToken) {
+              // Obtener página de inicio y redirigir
+              const startPage = await onboardingApiClient.getStartPage(accessToken);
+              navigate(startPage.route);
+            } else {
+              // Fallback a la ruta de primaryAction si no hay token
+              if (finalData.primaryAction?.route) {
+                navigate(finalData.primaryAction.route);
+              }
+            }
+          } catch (error) {
+            console.error('Error fetching start page:', error);
+            // Fallback a la ruta de primaryAction en caso de error
+            if (finalData.primaryAction?.route) {
+              navigate(finalData.primaryAction.route);
+            }
           }
         }, 1500);
       } else {

@@ -10,9 +10,11 @@ import { EmailPreview } from '@/components/EmailPreview';
 import { EmailStatusLogs } from '@/components/EmailStatusLogs';
 import { EmailSendConfirmation } from '@/components/EmailSendConfirmation';
 import { EmailSendProgressModal } from '@/components/EmailSendProgressModal';
+import { GraphAuthRequiredDialog } from '@/components/GraphAuthRequiredDialog';
 import { useMassEmail } from '@/hooks/useMassEmail';
 import { useToast } from '@/hooks/use-toast';
 import { useFormPersistence } from '@/hooks/useFormPersistence';
+import { useGraphAuthorization } from '@/hooks/useGraphAuthorization';
 
 interface MassEmailSenderProps {
   filteredLeads: Lead[];
@@ -28,6 +30,9 @@ export function MassEmailSender({ filteredLeads, onClose }: MassEmailSenderProps
     replaceDynamicFields,
     sendMassEmail,
     fetchEmailLogs,
+    fetchEmailLogDetail,
+    downloadEmailAttachment,
+    resendEmail,
     sendProgress,
     sendEvents,
     pauseResumeSend,
@@ -35,7 +40,10 @@ export function MassEmailSender({ filteredLeads, onClose }: MassEmailSenderProps
     downloadReport,
   } = useMassEmail();
 
+  const { isAuthorized, loading: graphAuthLoading, checkStatus } = useGraphAuthorization();
+
   const [activeTab, setActiveTab] = useState('compose');
+  const [showGraphAuthDialog, setShowGraphAuthDialog] = useState(false);
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [showProgressModal, setShowProgressModal] = useState(false);
   const [template, setTemplate] = useState<EmailTemplate>({
@@ -43,6 +51,8 @@ export function MassEmailSender({ filteredLeads, onClose }: MassEmailSenderProps
     htmlContent: '',
     plainContent: ''
   });
+  
+  const [attachments, setAttachments] = useState<File[]>([]);
 
   // Persistencia automática del borrador
   const { hasBackup, restoreFromStorage, clearBackup } = useFormPersistence({
@@ -51,6 +61,14 @@ export function MassEmailSender({ filteredLeads, onClose }: MassEmailSenderProps
     enabled: true,
     autoSaveInterval: 5000, // Guardar cada 5 segundos
   });
+
+  // Verificar autorización de Graph al montar el componente
+  useEffect(() => {
+    if (!graphAuthLoading && !isAuthorized) {
+      console.log('Usuario no autorizado al abrir MassEmailSender, mostrando dialog');
+      setShowGraphAuthDialog(true);
+    }
+  }, [graphAuthLoading, isAuthorized]);
 
   // Restaurar borrador al montar el componente
   useEffect(() => {
@@ -63,6 +81,13 @@ export function MassEmailSender({ filteredLeads, onClose }: MassEmailSenderProps
       });
     }
   }, []);
+
+  // Cargar historial de correos cuando se activa la pestaña de logs
+  useEffect(() => {
+    if (activeTab === 'logs') {
+      fetchEmailLogs();
+    }
+  }, [activeTab]);
 
   // Limpiar borrador cuando se envíe exitosamente
   const handleSuccessfulSend = () => {
@@ -86,9 +111,6 @@ export function MassEmailSender({ filteredLeads, onClose }: MassEmailSenderProps
   // Leads que realmente se enviarán (seleccionados y limitados a 50)
   const leadsToSend = validLeads.filter(lead => selectedLeadIds.has(lead.id)).slice(0, 50);
   const isOverLimit = leadsToSend.length > 50;
-  
-  // Solo mostrar historial si hay exactamente un lead seleccionado
-  const showHistoryTab = validLeads.length === 1;
 
   const handleSendEmails = async () => {
     if (!template.subject.trim() || !template.htmlContent.trim()) {
@@ -118,14 +140,25 @@ export function MassEmailSender({ filteredLeads, onClose }: MassEmailSenderProps
       return;
     }
 
+    // Proceder con la confirmación (la autorización ya fue verificada al abrir el modal)
     setShowConfirmation(true);
+  };
+
+  const handleGraphAuthComplete = async () => {
+    setShowGraphAuthDialog(false);
+    await checkStatus();
+    
+    // Después de autorizar, mostrar la confirmación
+    if (isAuthorized) {
+      setShowConfirmation(true);
+    }
   };
 
   const handleConfirmSend = async () => {
     setShowConfirmation(false);
     setShowProgressModal(true);
     
-    const success = await sendMassEmail(leadsToSend, template, alternateEmail);
+    const success = await sendMassEmail(leadsToSend, template, alternateEmail, attachments);
     if (success) {
       handleSuccessfulSend();
     }
@@ -178,7 +211,7 @@ export function MassEmailSender({ filteredLeads, onClose }: MassEmailSenderProps
 
         {/* Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className={`grid w-full ${showHistoryTab ? 'grid-cols-3' : 'grid-cols-2'} mb-4 bg-gray-100 rounded-full px-0 py-0 my-0`}>
+          <TabsList className="grid w-full grid-cols-3 mb-4 bg-gray-100 rounded-full px-0 py-0 my-0">
             <TabsTrigger 
               value="compose" 
               className="w-full h-full data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#00C73D] data-[state=active]:to-[#A3E40B] data-[state=active]:text-white rounded-full px-4 py-2 mt-0 text-sm font-medium transition-all duration-200"
@@ -193,15 +226,13 @@ export function MassEmailSender({ filteredLeads, onClose }: MassEmailSenderProps
               <Eye className="h-4 w-4" />
               Previsualizar
             </TabsTrigger>
-            {showHistoryTab && (
-              <TabsTrigger 
-                value="logs" 
-                className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#00C73D] data-[state=active]:to-[#A3E40B] data-[state=active]:text-white rounded-full px-10 py-2 h-full text-sm font-medium transition-all duration-200"
-              >
-                <History className="h-4 w-4" />
-                Historial
-              </TabsTrigger>
-            )}
+            <TabsTrigger 
+              value="logs" 
+              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#00C73D] data-[state=active]:to-[#A3E40B] data-[state=active]:text-white rounded-full px-10 py-2 h-full text-sm font-medium transition-all duration-200"
+            >
+              <History className="h-4 w-4" />
+              Historial
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="compose" className="space-y-6 mt-4">
@@ -210,6 +241,8 @@ export function MassEmailSender({ filteredLeads, onClose }: MassEmailSenderProps
               onTemplateChange={setTemplate}
               dynamicFields={dynamicFields}
               isIndividual={validLeads.length === 1}
+              attachments={attachments}
+              onAttachmentsChange={setAttachments}
               alternateEmail={alternateEmail}
               onAlternateEmailChange={setAlternateEmail}
             />
@@ -265,15 +298,16 @@ export function MassEmailSender({ filteredLeads, onClose }: MassEmailSenderProps
             </div>
           </TabsContent>
 
-          {showHistoryTab && (
-            <TabsContent value="logs" className="space-y-6 mt-4">
-              <EmailStatusLogs
-                logs={emailLogs.filter(log => log.LeadId === validLeads[0]?.id)}
-                isLoading={isLoading}
-                onRefresh={fetchEmailLogs}
-              />
-            </TabsContent>
-          )}
+          <TabsContent value="logs" className="space-y-6 mt-4">
+            <EmailStatusLogs
+              logs={validLeads.length === 1 ? emailLogs.filter(log => log.LeadId === validLeads[0]?.id) : emailLogs}
+              isLoading={isLoading}
+              onRefresh={fetchEmailLogs}
+              onFetchDetail={fetchEmailLogDetail}
+              onDownloadAttachment={downloadEmailAttachment}
+              onResendEmail={resendEmail}
+            />
+          </TabsContent>
         </Tabs>
       </div>
 
@@ -293,6 +327,18 @@ export function MassEmailSender({ filteredLeads, onClose }: MassEmailSenderProps
         onCancel={cancelSend}
         onClose={handleCloseProgress}
         onDownloadReport={downloadReport}
+      />
+
+      <GraphAuthRequiredDialog
+        open={showGraphAuthDialog}
+        onOpenChange={(open) => {
+          setShowGraphAuthDialog(open);
+          // Si el usuario cierra el dialog sin autorizar, cerrar también el componente padre
+          if (!open) {
+            onClose();
+          }
+        }}
+        onAuthorizationComplete={handleGraphAuthComplete}
       />
     </>
   );

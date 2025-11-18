@@ -1,0 +1,5 @@
+[
+  {"advisorId":"A-1001","certId":"LIC-AML-2025","nombre":"Licencia AML","entidad":"SFC","expide":"2025-02-10","expira":"2026-02-10","estado":"vigente","archivoUrl":"https://example.com/certs/LIC-AML-2025.pdf"},
+  {"advisorId":"A-1002","certId":"LIC-ETI-2025","nombre":"Ética Profesional","entidad":"SFC","expide":"2025-04-01","expira":"2026-04-01","estado":"vigente"},
+  {"advisorId":"A-1003","certId":"LIC-INV-2025","nombre":"Inversiones Nivel II","entidad":"AMV","expide":"2025-03-12","expira":"2026-03-12","estado":"por_vencer"}
+]
