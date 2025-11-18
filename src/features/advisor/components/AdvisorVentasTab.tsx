@@ -143,33 +143,33 @@ export const AdvisorVentasTab = ({ advisorId }: Props) => {
       {/* KPI Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
         <MetricCard
-          title="Producción Total"
+          title="APE"
           value={`$${(totalProduccion / 1000000).toFixed(1)}M`}
           description={getFilterLabel()}
           variant="success"
         />
         <MetricCard
-          title="Total Primas"
+          title="Pólizas Emitidas"
           value={totalPrimas.toString()}
           description="Número de primas"
           variant="neutral"
         />
         <MetricCard
-          title="Negocios Cerrados"
+          title="Pólizas Fondeadas"
           value={totalNegocios.toString()}
           description="Total de negocios"
           variant="success"
         />
         <MetricCard
-          title="Conversión Promedio"
-          value={`${(avgConversion * 100).toFixed(1)}%`}
+          title="NCCF"
+          value={`${(avgConversion * 100).toFixed(1)}K`}
           description="Tasa de conversión"
           variant="neutral"
         />
         <MetricCard
-          title="Ticket Promedio"
+          title="AUMS"
           value={`$${(avgTicket / 1000).toFixed(0)}K`}
-          description="Por negocio"
+          description="Activos bajo administración"
           variant="neutral"
         />
       </div>
@@ -179,7 +179,7 @@ export const AdvisorVentasTab = ({ advisorId }: Props) => {
         {/* Producción y Primas */}
         <Card>
           <CardHeader>
-            <CardTitle className="text-lg font-semibold">Evolución de Producción y Primas</CardTitle>
+            <CardTitle className="text-lg font-semibold">Evolución de Pólizas Emitidas</CardTitle>
           </CardHeader>
           <CardContent>
             <ChartContainer
@@ -187,10 +187,6 @@ export const AdvisorVentasTab = ({ advisorId }: Props) => {
                 produccion: {
                   label: "Producción (M)",
                   color: "hsl(var(--primary))",
-                },
-                primas: {
-                  label: "Primas",
-                  color: "hsl(var(--chart-2))",
                 },
               }}
               className="h-[300px] w-full"
@@ -211,14 +207,6 @@ export const AdvisorVentasTab = ({ advisorId }: Props) => {
                     strokeWidth={2}
                     name="Producción (M)"
                   />
-                  <Line
-                    yAxisId="right"
-                    type="monotone"
-                    dataKey="primas"
-                    stroke="hsl(var(--chart-2))"
-                    strokeWidth={2}
-                    name="Primas"
-                  />
                 </LineChart>
               </ResponsiveContainer>
             </ChartContainer>
@@ -228,7 +216,7 @@ export const AdvisorVentasTab = ({ advisorId }: Props) => {
         {/* Negocios Cerrados */}
         <Card>
           <CardHeader>
-            <CardTitle className="text-lg font-semibold">Evolución de Negocios Cerrados</CardTitle>
+            <CardTitle className="text-lg font-semibold">Evolución de Pólizas Fondeadas</CardTitle>
           </CardHeader>
           <CardContent>
             <ChartContainer
@@ -246,7 +234,7 @@ export const AdvisorVentasTab = ({ advisorId }: Props) => {
                   <XAxis dataKey="fecha" />
                   <YAxis />
                   <ChartTooltip content={<ChartTooltipContent />} />
-                  <Bar dataKey="negocios" fill="hsl(var(--chart-3))" radius={[4, 4, 0, 0]} name="Negocios" />
+                  <Bar dataKey="negocios" fill="hsl(var(--secondary))" radius={[4, 4, 0, 0]} name="Negocios" />
                 </BarChart>
               </ResponsiveContainer>
             </ChartContainer>
