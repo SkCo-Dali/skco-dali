@@ -36,7 +36,7 @@ export const AdvisorResumenTab = ({ advisor }: Props) => {
           <CardContent className="p-4">
             <div className="flex flex-col items-center space-y-4">
               <div className="relative">
-                <Avatar className="h-32 w-32 border-4 border-primary/20">
+                <Avatar className="h-32 w-32 rounded-full bg-gradient-to-r from-[#8FE000] to-[#00C73D] p-1">
                   <AvatarFallback className="bg-muted text-3xl font-semibold text-foreground">
                     {advisor.nombre
                       .split(" ")
