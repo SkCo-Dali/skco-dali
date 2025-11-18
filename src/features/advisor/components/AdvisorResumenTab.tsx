@@ -135,7 +135,7 @@ export const AdvisorResumenTab = ({ advisor }: Props) => {
       {/* Right Side - Detailed Personal Data */}
       <div className="col-span-5 space-y-6">
         <Card className="border-border/40 p-4">
-          <CardHeader className="flex flex-row items-center justify-between pb-3">
+          <CardHeader className="flex flex-row items-center justify-between p-0 pb-3">
             <div className="flex items-center gap-2">
               <User className="h-5 w-5 text-muted-foreground" />
               <CardTitle className="text-lg">Datos personales</CardTitle>
@@ -145,7 +145,7 @@ export const AdvisorResumenTab = ({ advisor }: Props) => {
               Editar
             </Button>
           </CardHeader>
-          <CardContent>
+          <CardContent className="p-0">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-x-6 gap-y-5">
               {/* Email */}
               <div className="space-y-1 md:col-span-2">
