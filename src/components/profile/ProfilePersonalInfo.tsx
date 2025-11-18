@@ -13,7 +13,7 @@ import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
 import { userProfileApiClient } from '@/utils/userProfileApiClient';
 import { DatePicker } from '@/components/ui/date-picker';
-import { format } from 'date-fns';
+import { format, parse } from 'date-fns';
 
 interface Props {
   profile: UserProfile;
@@ -192,7 +192,7 @@ export function ProfilePersonalInfo({ profile, updateProfile }: Props) {
           <div className="space-y-2">
             <Label htmlFor="birthDate">Fecha de Nacimiento</Label>
             <DatePicker
-              date={localData.birthDate ? new Date(localData.birthDate) : undefined}
+              date={localData.birthDate ? parse(localData.birthDate, 'yyyy-MM-dd', new Date()) : undefined}
               onDateChange={(date) => setLocalData({ 
                 ...localData, 
                 birthDate: date ? format(date, 'yyyy-MM-dd') : undefined 
