@@ -262,8 +262,8 @@ export function EmailComposer({
                 <a href="${whatsappUrl}" 
                    target="_blank" 
                    rel="noopener noreferrer nofollow"
-                   style="color: #ffffff; text-decoration: none; font-weight: 600; font-size: 15px; display: inline-block; line-height: 1.4;">
-                  📱 Hablemos por WhatsApp
+                   style="color: #ffffff !important; text-decoration: none !important; font-weight: 600; font-size: 15px; display: inline-block; line-height: 1.4;">
+                  <span style="color: #ffffff !important; text-decoration: none !important;">📱 Hablemos por WhatsApp</span>
                 </a>
               </td>
             </tr>
@@ -290,8 +290,8 @@ export function EmailComposer({
                 <a href="${instagramUrl}" 
                    target="_blank" 
                    rel="noopener noreferrer nofollow"
-                   style="color: #ffffff; text-decoration: none; font-weight: 600; font-size: 15px; display: inline-block; line-height: 1.4;">
-                  📸 Conoce más en mi Instagram
+                   style="color: #ffffff !important; text-decoration: none !important; font-weight: 600; font-size: 15px; display: inline-block; line-height: 1.4;">
+                  <span style="color: #ffffff !important; text-decoration: none !important;">📸 Conoce más en mi Instagram</span>
                 </a>
               </td>
             </tr>
