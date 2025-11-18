@@ -25,6 +25,7 @@ interface AuthContextType {
     signInWithAzure: () => Promise<void>;
     getAccessToken: () => Promise<{ accessToken: string; idToken: string } | null>;
     accessToken: string | null;
+    updateUserProfile: (updates: Partial<User>) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -226,6 +227,14 @@ export function AuthProvider({ children }: AuthProviderProps) {
         }
     };
 
+    const updateUserProfile = (updates: Partial<User>) => {
+        if (user) {
+            const updatedUser = { ...user, ...updates };
+            setUser(updatedUser);
+            sessionStorage.setItem('user', JSON.stringify(updatedUser));
+        }
+    };
+
     const value = {
         user,
         login,
@@ -238,6 +247,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
         signInWithAzure,
         getAccessToken,
         accessToken,
+        updateUserProfile,
     };
 
     return (
