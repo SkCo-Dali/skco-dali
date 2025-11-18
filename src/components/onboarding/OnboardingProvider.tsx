@@ -5,7 +5,6 @@ import { useOnboarding } from '@/hooks/useOnboarding';
 import { useInAppMessaging } from '@/hooks/useInAppMessaging';
 import { WelcomeOnboardingModal } from './WelcomeOnboardingModal';
 import { onboardingApiClient } from '@/utils/onboardingApiClient';
-import { userProfileApiClient } from '@/utils/userProfileApiClient';
 
 interface OnboardingProviderProps {
   children: React.ReactNode;
@@ -14,7 +13,7 @@ interface OnboardingProviderProps {
 export function OnboardingProvider({ children }: OnboardingProviderProps) {
   const location = useLocation();
   const navigate = useNavigate();
-  const { user, isAuthenticated, accessToken, updateUserProfile } = useAuth();
+  const { user, isAuthenticated, accessToken } = useAuth();
   const { isCompleted, completeOnboarding } = useOnboarding();
   const { checkOnboardingRequired, registerEvent } = useInAppMessaging();
   const [showOnboarding, setShowOnboarding] = useState(false);
@@ -43,35 +42,10 @@ export function OnboardingProvider({ children }: OnboardingProviderProps) {
           
           setShowOnboarding(true);
         } else {
-          // Si no se requiere onboarding, cargar datos de perfil completo y redirigir
+          // Si no se requiere onboarding, redirigir a la página de inicio
           if (location.pathname === '/login' || location.pathname === '/auth') {
             try {
-              // Cargar perfil completo (el usuario ya completó el onboarding antes)
-              try {
-                const profileData = await userProfileApiClient.getProfile(accessToken);
-                
-                // Find WhatsApp contact channel
-                const whatsappChannel = profileData.contactChannels.find(
-                  channel => channel.channelType === 'WhatsApp'
-                );
-
-                updateUserProfile({
-                  preferredName: profileData.basic.preferredName,
-                  birthDate: profileData.basic.birthDate,
-                  gender: profileData.basic.gender,
-                  maritalStatus: profileData.basic.maritalStatus,
-                  childrenCount: profileData.basic.childrenCount,
-                  whatsappCountryCode: whatsappChannel?.countryCode || null,
-                  whatsappPhone: whatsappChannel?.channelValue || null,
-                  emailSignatureHtml: profileData.appPreferences.emailSignatureHtml,
-                  primaryActionCode: profileData.appPreferences.primaryActionCode,
-                  primaryActionRoute: profileData.appPreferences.primaryActionRoute,
-                });
-              } catch (error) {
-                console.error('Error fetching profile:', error);
-              }
-
-              // Obtener página de inicio y redirigir
+              // Obtener página de inicio y redirigir (el perfil ya se cargó en el login)
               const startPage = await onboardingApiClient.getStartPage(accessToken);
               navigate(startPage.route, { replace: true });
             } catch (error) {
