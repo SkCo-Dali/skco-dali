@@ -5,6 +5,7 @@ import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, ResponsiveContainer, Legend } from "recharts";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "lucide-react";
+import salesKPIData from "@/mocks/salesKPI_A-1001.json";
 
 interface Props {
   advisorId: string;
@@ -27,19 +28,9 @@ export const AdvisorVentasTab = ({ advisorId }: Props) => {
   const [dateFilter, setDateFilter] = useState<DateFilter>('7days');
 
   useEffect(() => {
-    const loadSalesData = async () => {
-      try {
-        const response = await fetch(`/src/mocks/salesKPI_${advisorId}.json`);
-        const data = await response.json();
-        setSalesData(data);
-      } catch (error) {
-        console.error("Error loading sales data:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    loadSalesData();
+    // Cargar datos mock directamente
+    setSalesData(salesKPIData as SalesKPI[]);
+    setLoading(false);
   }, [advisorId]);
 
   if (loading) {
