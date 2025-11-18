@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Plus, FileSignature, X, FileText, Save } from "lucide-react";
+import { Plus, FileSignature, X, FileText, Save, Share2 } from "lucide-react";
 import { EmailTemplate, DynamicField } from "@/types/email";
 import { RichTextEditor } from "@/components/RichTextEditor";
 import { EmailWritingAssistant } from "@/components/EmailWritingAssistant";
@@ -13,6 +13,7 @@ import { SaveEmailTemplateDialog } from "@/components/SaveEmailTemplateDialog";
 import { EmailTemplatesModal } from "@/components/EmailTemplatesModal";
 import { Editor } from '@tiptap/react';
 import { useToast } from "@/hooks/use-toast";
+import { useUserProfile } from "@/hooks/useUserProfile";
 
 interface EmailComposerProps {
   template: EmailTemplate;
@@ -36,11 +37,14 @@ export function EmailComposer({
   onAttachmentsChange,
 }: EmailComposerProps) {
   const { toast } = useToast();
+  const { profile } = useUserProfile();
   const [showFieldsList, setShowFieldsList] = useState(false);
+  const [showSocialNetworks, setShowSocialNetworks] = useState(false);
   const [showSignatureDialog, setShowSignatureDialog] = useState(false);
   const [showSaveTemplateDialog, setShowSaveTemplateDialog] = useState(false);
   const [showTemplatesModal, setShowTemplatesModal] = useState(false);
   const [draggedField, setDraggedField] = useState<DynamicField | null>(null);
+  const [draggedSocialNetwork, setDraggedSocialNetwork] = useState<string | null>(null);
   const editorRef = useRef<Editor | null>(null);
 
   // Color mapping for each field type
@@ -244,6 +248,87 @@ export function EmailComposer({
     onAttachmentsChange?.(updatedAttachments);
   };
 
+  const getSocialNetworkButton = (network: string): string => {
+    if (network === 'whatsapp') {
+      const countryCode = profile?.countryCode?.replace('+', '') || '57';
+      const number = profile?.phone || '';
+      const whatsappUrl = `https://wa.me/${countryCode}${number}`;
+      
+      return `
+        <a href="${whatsappUrl}" 
+           target="_blank" 
+           rel="noopener noreferrer"
+           style="display: inline-block; background-color: #00A859; color: white; padding: 12px 24px; border-radius: 8px; text-decoration: none; font-weight: 500; margin: 8px 0; transition: background-color 0.3s ease;"
+           onmouseover="this.style.backgroundColor='#FF6B35'"
+           onmouseout="this.style.backgroundColor='#00A859'">
+          📱 Hablemos por WhatsApp
+        </a>
+      `;
+    } else if (network === 'instagram') {
+      const instagramHandle = profile?.instagram || '';
+      if (!instagramHandle) {
+        toast({
+          title: "Instagram no configurado",
+          description: "Por favor configura tu usuario de Instagram en tu perfil primero",
+          variant: "destructive"
+        });
+        return '';
+      }
+      const instagramUrl = `https://instagram.com/${instagramHandle}`;
+      
+      return `
+        <a href="${instagramUrl}" 
+           target="_blank" 
+           rel="noopener noreferrer"
+           style="display: inline-block; background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%); color: white; padding: 12px 24px; border-radius: 8px; text-decoration: none; font-weight: 500; margin: 8px 0; transition: opacity 0.3s ease;"
+           onmouseover="this.style.opacity='0.85'"
+           onmouseout="this.style.opacity='1'">
+          📸 Conoce más en mi Instagram
+        </a>
+      `;
+    }
+    return '';
+  };
+
+  const handleSocialNetworkDragStart = (network: string) => (e: React.DragEvent) => {
+    setDraggedSocialNetwork(network);
+    e.dataTransfer.effectAllowed = "copy";
+    e.dataTransfer.setData("socialNetwork", network);
+  };
+
+  const handleSocialNetworkDragEnd = () => {
+    setDraggedSocialNetwork(null);
+  };
+
+  const handleSocialNetworkDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    const network = e.dataTransfer.getData('socialNetwork');
+    
+    if (network && editorRef.current) {
+      const buttonHtml = getSocialNetworkButton(network);
+      if (!buttonHtml) return;
+
+      const editor = editorRef.current;
+      const view = editor.view;
+      const coords = { left: e.clientX, top: e.clientY };
+      const pos = view.posAtCoords(coords);
+      
+      if (!pos) return;
+
+      // Insert the button HTML at the drop position
+      const tr = editor.state.tr.insertText(buttonHtml, pos.pos);
+      editor.view.dispatch(tr);
+      
+      // Update the template content
+      const newContent = editor.getHTML();
+      handleHtmlContentChange(newContent);
+      
+      editor.commands.focus();
+    }
+    
+    setDraggedSocialNetwork(null);
+  };
+
   return (
     <>
       <Card>
@@ -275,6 +360,14 @@ export function EmailComposer({
                 <Plus className="h-4 w-4 mr-2" />
                 Campos Dinámicos
               </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShowSocialNetworks(!showSocialNetworks)}
+              >
+                <Share2 className="h-4 w-4 mr-2" />
+                Redes Sociales
+              </Button>
             </div>
           </CardTitle>
         </CardHeader>
@@ -304,6 +397,34 @@ export function EmailComposer({
               </div>
               <p className="text-sm text-muted-foreground mt-2 px-4 pb-4">
                 Arrastra los campos al asunto o contenido del email para insertarlos
+              </p>
+            </Card>
+          )}
+
+          {showSocialNetworks && (
+            <Card className="bg-muted/30">
+              <div className="p-4 space-y-2">
+                <div
+                  draggable
+                  onDragStart={handleSocialNetworkDragStart('whatsapp')}
+                  onDragEnd={handleSocialNetworkDragEnd}
+                  className="inline-flex items-center px-4 py-2 rounded-lg text-sm font-medium cursor-move mr-2 mb-2 transition-transform hover:scale-105 bg-[#00A859] text-white"
+                  title="Arrastra al contenido del email para insertar botón de WhatsApp"
+                >
+                  📱 WhatsApp
+                </div>
+                <div
+                  draggable
+                  onDragStart={handleSocialNetworkDragStart('instagram')}
+                  onDragEnd={handleSocialNetworkDragEnd}
+                  className="inline-flex items-center px-4 py-2 rounded-lg text-sm font-medium cursor-move mr-2 mb-2 transition-transform hover:scale-105 bg-gradient-to-r from-purple-500 via-pink-500 to-orange-500 text-white"
+                  title="Arrastra al contenido del email para insertar botón de Instagram"
+                >
+                  📸 Instagram
+                </div>
+              </div>
+              <p className="text-sm text-muted-foreground mt-2 px-4 pb-4">
+                Arrastra las redes sociales al contenido del email para insertar botones clicables
               </p>
             </Card>
           )}
@@ -341,7 +462,15 @@ export function EmailComposer({
 
           <div
             onDragOver={handleContentDragOver}
-            onDrop={handleContentDrop}
+            onDrop={(e) => {
+              // Handle both dynamic fields and social networks
+              const socialNetwork = e.dataTransfer.getData('socialNetwork');
+              if (socialNetwork) {
+                handleSocialNetworkDrop(e);
+              } else {
+                handleContentDrop(e);
+              }
+            }}
           >
             <Label htmlFor="htmlContent">Contenido del Email</Label>
             <div className="mt-2">
@@ -354,7 +483,7 @@ export function EmailComposer({
               />
             </div>
             <p className="text-sm text-muted-foreground mt-1">
-              Arrastra campos dinámicos aquí para insertarlos con formato
+              Arrastra campos dinámicos o botones de redes sociales aquí para insertarlos
             </p>
           </div>
 
