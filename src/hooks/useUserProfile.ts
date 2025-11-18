@@ -4,8 +4,6 @@ import { useOnboarding } from './useOnboarding';
 import { useAuth } from '@/contexts/AuthContext';
 import { OnboardingData } from '@/types/onboarding';
 
-const PROFILE_KEY = 'dali-user-profile';
-
 // Helper to safely cast gender to UserProfile type
 const castGender = (gender: string | null | undefined): UserProfile['gender'] => {
   if (!gender) return undefined;
@@ -29,9 +27,7 @@ export function useUserProfile() {
   const { user } = useAuth();
   
   const [profile, setProfile] = useState<UserProfile>(() => {
-    const stored = localStorage.getItem(PROFILE_KEY);
-    
-    // Priorizar datos del usuario autenticado (del API)
+    // Obtener datos solo del usuario autenticado (del API)
     const userDataFromAuth: Partial<UserProfile> = user ? {
       preferredName: user.preferredName || undefined,
       birthDate: user.birthDate || undefined,
@@ -54,10 +50,7 @@ export function useUserProfile() {
       tiktok: onboardingData.socialMedia?.tiktok,
     };
     
-    if (stored) {
-      // Combinar: onboarding < localStorage < datos del usuario autenticado
-      return { ...flattenedOnboarding, ...JSON.parse(stored), ...userDataFromAuth } as UserProfile;
-    }
+    // Priorizar datos del API sobre datos temporales del onboarding
     return { ...flattenedOnboarding, ...userDataFromAuth } as UserProfile;
   });
 
@@ -92,9 +85,9 @@ export function useUserProfile() {
   const updateProfile = (updates: Partial<UserProfile>) => {
     const updated = { ...profile, ...updates };
     setProfile(updated);
-    localStorage.setItem(PROFILE_KEY, JSON.stringify(updated));
+    // NO guardamos en localStorage, los datos deben actualizarse en el API
     
-    // Also update onboarding data if relevant fields changed
+    // Sincronizar con onboarding data solo campos relevantes durante el onboarding
     const onboardingUpdates: Partial<OnboardingData> = {};
     
     if ('preferredName' in updates) {
@@ -137,8 +130,8 @@ export function useUserProfile() {
   };
 
   const resetProfile = () => {
-    localStorage.removeItem(PROFILE_KEY);
-    setProfile(onboardingData as UserProfile);
+    // NO usamos localStorage, los datos vienen del API
+    setProfile({ ...onboardingData } as UserProfile);
   };
 
   return {
