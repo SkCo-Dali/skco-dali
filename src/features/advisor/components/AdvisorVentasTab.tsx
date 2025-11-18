@@ -20,12 +20,12 @@ interface SalesKPI {
   ticket: number;
 }
 
-type DateFilter = '7days' | '30days' | 'currentMonth';
+type DateFilter = "7days" | "30days" | "currentMonth";
 
 export const AdvisorVentasTab = ({ advisorId }: Props) => {
   const [salesData, setSalesData] = useState<SalesKPI[]>([]);
   const [loading, setLoading] = useState(true);
-  const [dateFilter, setDateFilter] = useState<DateFilter>('7days');
+  const [dateFilter, setDateFilter] = useState<DateFilter>("7days");
 
   useEffect(() => {
     // Cargar datos mock directamente
@@ -45,19 +45,19 @@ export const AdvisorVentasTab = ({ advisorId }: Props) => {
 
   // Filtrar datos según el período seleccionado
   const getFilteredData = () => {
-    const today = new Date('2025-11-08'); // Fecha de referencia para mockup
+    const today = new Date("2025-11-08"); // Fecha de referencia para mockup
     let startDate: Date;
 
     switch (dateFilter) {
-      case '7days':
+      case "7days":
         startDate = new Date(today);
         startDate.setDate(today.getDate() - 6);
         break;
-      case '30days':
+      case "30days":
         startDate = new Date(today);
         startDate.setDate(today.getDate() - 29);
         break;
-      case 'currentMonth':
+      case "currentMonth":
         startDate = new Date(today.getFullYear(), today.getMonth(), 1);
         break;
       default:
@@ -65,7 +65,7 @@ export const AdvisorVentasTab = ({ advisorId }: Props) => {
         startDate.setDate(today.getDate() - 6);
     }
 
-    return salesData.filter(d => {
+    return salesData.filter((d) => {
       const dataDate = new Date(d.fecha);
       return dataDate >= startDate && dataDate <= today;
     });
@@ -77,16 +77,14 @@ export const AdvisorVentasTab = ({ advisorId }: Props) => {
   const totalProduccion = filteredData.reduce((sum, d) => sum + d.produccion, 0);
   const totalPrimas = filteredData.reduce((sum, d) => sum + d.primas, 0);
   const totalNegocios = filteredData.reduce((sum, d) => sum + d.negocios, 0);
-  const avgConversion = filteredData.length > 0 
-    ? filteredData.reduce((sum, d) => sum + d.conversion, 0) / filteredData.length 
-    : 0;
-  const avgTicket = filteredData.length > 0 
-    ? filteredData.reduce((sum, d) => sum + d.ticket, 0) / filteredData.length 
-    : 0;
+  const avgConversion =
+    filteredData.length > 0 ? filteredData.reduce((sum, d) => sum + d.conversion, 0) / filteredData.length : 0;
+  const avgTicket =
+    filteredData.length > 0 ? filteredData.reduce((sum, d) => sum + d.ticket, 0) / filteredData.length : 0;
 
   // Preparar datos para gráficos con formato más legible
   const chartData = filteredData.map((d) => ({
-    fecha: new Date(d.fecha).toLocaleDateString('es-ES', { day: '2-digit', month: 'short' }),
+    fecha: new Date(d.fecha).toLocaleDateString("es-ES", { day: "2-digit", month: "short" }),
     produccion: d.produccion / 1000000, // En millones
     primas: d.primas,
     negocios: d.negocios,
@@ -96,12 +94,12 @@ export const AdvisorVentasTab = ({ advisorId }: Props) => {
 
   const getFilterLabel = () => {
     switch (dateFilter) {
-      case '7days':
-        return 'Últimos 7 días';
-      case '30days':
-        return 'Últimos 30 días';
-      case 'currentMonth':
-        return 'Mes actual';
+      case "7days":
+        return "Últimos 7 días";
+      case "30days":
+        return "Últimos 30 días";
+      case "currentMonth":
+        return "Mes actual";
     }
   };
 
@@ -109,7 +107,7 @@ export const AdvisorVentasTab = ({ advisorId }: Props) => {
     <div className="space-y-6">
       {/* Filtros de Fecha */}
       <Card>
-        <CardContent className="pt-6">
+        <CardContent className="pt-4 border-0 shadow-none">
           <div className="flex flex-wrap items-center gap-3">
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <Calendar className="h-4 w-4" />
@@ -117,23 +115,23 @@ export const AdvisorVentasTab = ({ advisorId }: Props) => {
             </div>
             <div className="flex gap-2">
               <Button
-                variant={dateFilter === '7days' ? 'default' : 'outline'}
+                variant={dateFilter === "7days" ? "default" : "outline"}
                 size="sm"
-                onClick={() => setDateFilter('7days')}
+                onClick={() => setDateFilter("7days")}
               >
                 Últimos 7 días
               </Button>
               <Button
-                variant={dateFilter === '30days' ? 'default' : 'outline'}
+                variant={dateFilter === "30days" ? "default" : "outline"}
                 size="sm"
-                onClick={() => setDateFilter('30days')}
+                onClick={() => setDateFilter("30days")}
               >
                 Últimos 30 días
               </Button>
               <Button
-                variant={dateFilter === 'currentMonth' ? 'default' : 'outline'}
+                variant={dateFilter === "currentMonth" ? "default" : "outline"}
                 size="sm"
-                onClick={() => setDateFilter('currentMonth')}
+                onClick={() => setDateFilter("currentMonth")}
               >
                 Mes actual
               </Button>
@@ -181,9 +179,7 @@ export const AdvisorVentasTab = ({ advisorId }: Props) => {
         {/* Producción y Primas */}
         <Card>
           <CardHeader>
-            <CardTitle className="text-lg font-semibold">
-              Evolución de Producción y Primas
-            </CardTitle>
+            <CardTitle className="text-lg font-semibold">Evolución de Producción y Primas</CardTitle>
           </CardHeader>
           <CardContent>
             <ChartContainer
@@ -232,9 +228,7 @@ export const AdvisorVentasTab = ({ advisorId }: Props) => {
         {/* Negocios Cerrados */}
         <Card>
           <CardHeader>
-            <CardTitle className="text-lg font-semibold">
-              Evolución de Negocios Cerrados
-            </CardTitle>
+            <CardTitle className="text-lg font-semibold">Evolución de Negocios Cerrados</CardTitle>
           </CardHeader>
           <CardContent>
             <ChartContainer
@@ -262,9 +256,7 @@ export const AdvisorVentasTab = ({ advisorId }: Props) => {
         {/* Conversión */}
         <Card>
           <CardHeader>
-            <CardTitle className="text-lg font-semibold">
-              Evolución de Tasa de Conversión
-            </CardTitle>
+            <CardTitle className="text-lg font-semibold">Evolución de Tasa de Conversión</CardTitle>
           </CardHeader>
           <CardContent>
             <ChartContainer
@@ -301,9 +293,7 @@ export const AdvisorVentasTab = ({ advisorId }: Props) => {
         {/* Ticket Promedio */}
         <Card>
           <CardHeader>
-            <CardTitle className="text-lg font-semibold">
-              Evolución de Ticket Promedio
-            </CardTitle>
+            <CardTitle className="text-lg font-semibold">Evolución de Ticket Promedio</CardTitle>
           </CardHeader>
           <CardContent>
             <ChartContainer
