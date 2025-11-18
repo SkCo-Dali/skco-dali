@@ -111,7 +111,7 @@ export const AdvisorResumenTab = ({ advisor }: Props) => {
               </div>
 
               {/* Jefe */}
-              <div className="space-y-1 col-span-2">
+              <div className="space-y-1">
                 <div className="flex items-center gap-2 text-xs text-muted-foreground">
                   <Network className="h-3.5 w-3.5" />
                   <span>Jefe directo</span>
@@ -120,7 +120,7 @@ export const AdvisorResumenTab = ({ advisor }: Props) => {
               </div>
 
               {/* Canal */}
-              <div className="space-y-1 col-span-2">
+              <div className="space-y-1">
                 <div className="flex items-center gap-2 text-xs text-muted-foreground">
                   <TrendingUp className="h-3.5 w-3.5" />
                   <span>Canal de distribución</span>
