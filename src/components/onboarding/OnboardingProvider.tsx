@@ -5,6 +5,7 @@ import { useOnboarding } from '@/hooks/useOnboarding';
 import { useInAppMessaging } from '@/hooks/useInAppMessaging';
 import { WelcomeOnboardingModal } from './WelcomeOnboardingModal';
 import { onboardingApiClient } from '@/utils/onboardingApiClient';
+import { profileApiClient } from '@/utils/profileApiClient';
 
 interface OnboardingProviderProps {
   children: React.ReactNode;
@@ -42,13 +43,19 @@ export function OnboardingProvider({ children }: OnboardingProviderProps) {
           
           setShowOnboarding(true);
         } else {
-          // Si no se requiere onboarding, obtener la página de inicio y redirigir
+          // Si no se requiere onboarding, cargar datos del perfil y redirigir
           if (location.pathname === '/login' || location.pathname === '/auth') {
             try {
-              const startPage = await onboardingApiClient.getStartPage(accessToken);
+              // Cargar nombre preferido y página de inicio en paralelo
+              const [preferredName, startPage] = await Promise.all([
+                onboardingApiClient.getPreferredName(accessToken),
+                onboardingApiClient.getStartPage(accessToken)
+              ]);
+              
+              console.log('User preferred name:', preferredName.preferredName);
               navigate(startPage.route, { replace: true });
             } catch (error) {
-              console.error('Error fetching start page:', error);
+              console.error('Error fetching start page or profile:', error);
               // En caso de error, no hacer nada para evitar loops infinitos
             }
           }
