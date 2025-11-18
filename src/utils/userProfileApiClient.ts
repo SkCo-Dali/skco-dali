@@ -1,4 +1,4 @@
-import { PreferredNameResponse } from '@/types/userProfileApi';
+import { PreferredNameResponse, ProfileResponse } from '@/types/userProfileApi';
 import { ENV } from '@/config/environment';
 
 const API_BASE_URL = ENV.CRM_API_BASE_URL;
@@ -19,6 +19,19 @@ class UserProfileApiClient {
 
     if (!response.ok) {
       throw new Error(`Error fetching preferred name: ${response.statusText}`);
+    }
+
+    return response.json();
+  }
+
+  async getProfile(token: string): Promise<ProfileResponse> {
+    const response = await fetch(`${API_BASE_URL}/api/profile`, {
+      method: 'GET',
+      headers: await this.getAuthHeaders(token),
+    });
+
+    if (!response.ok) {
+      throw new Error(`Error fetching profile: ${response.statusText}`);
     }
 
     return response.json();

@@ -143,6 +143,34 @@ export function AuthProvider({ children }: AuthProviderProps) {
         }
     };
 
+    const loadProfileData = async (accessToken: string): Promise<Partial<User>> => {
+        try {
+            const { userProfileApiClient } = await import('@/utils/userProfileApiClient');
+            const profileData = await userProfileApiClient.getProfile(accessToken);
+            
+            // Find WhatsApp contact channel
+            const whatsappChannel = profileData.contactChannels.find(
+                channel => channel.channelType === 'WhatsApp'
+            );
+
+            return {
+                preferredName: profileData.basic.preferredName,
+                birthDate: profileData.basic.birthDate,
+                gender: profileData.basic.gender,
+                maritalStatus: profileData.basic.maritalStatus,
+                childrenCount: profileData.basic.childrenCount,
+                whatsappCountryCode: whatsappChannel?.countryCode || null,
+                whatsappPhone: whatsappChannel?.channelValue || null,
+                emailSignatureHtml: profileData.appPreferences.emailSignatureHtml,
+                primaryActionCode: profileData.appPreferences.primaryActionCode,
+                primaryActionRoute: profileData.appPreferences.primaryActionRoute,
+            };
+        } catch (error) {
+            console.error('❌ Error al cargar datos de perfil:', error);
+            return {};
+        }
+    };
+
     const getUserPhoto = async (): Promise<string | null> => {
         try {
             const token = await getAccessToken();
