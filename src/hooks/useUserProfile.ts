@@ -1,15 +1,48 @@
 import { useState, useEffect } from 'react';
 import { UserProfile } from '@/types/userProfile';
 import { useOnboarding } from './useOnboarding';
+import { useAuth } from '@/contexts/AuthContext';
 import { OnboardingData } from '@/types/onboarding';
 
 const PROFILE_KEY = 'dali-user-profile';
 
+// Helper to safely cast gender to UserProfile type
+const castGender = (gender: string | null | undefined): UserProfile['gender'] => {
+  if (!gender) return undefined;
+  const validGenders = ['male', 'female', 'other', 'prefer_not_to_say'];
+  return validGenders.includes(gender.toLowerCase()) 
+    ? (gender.toLowerCase() as UserProfile['gender']) 
+    : undefined;
+};
+
+// Helper to safely cast marital status
+const castMaritalStatus = (status: string | null | undefined): UserProfile['maritalStatus'] => {
+  if (!status) return undefined;
+  const validStatuses = ['single', 'married', 'divorced', 'widowed', 'other'];
+  return validStatuses.includes(status.toLowerCase()) 
+    ? (status.toLowerCase() as UserProfile['maritalStatus']) 
+    : undefined;
+};
+
 export function useUserProfile() {
   const { data: onboardingData, saveData: saveOnboardingData } = useOnboarding();
+  const { user } = useAuth();
   
   const [profile, setProfile] = useState<UserProfile>(() => {
     const stored = localStorage.getItem(PROFILE_KEY);
+    
+    // Priorizar datos del usuario autenticado (del API)
+    const userDataFromAuth: Partial<UserProfile> = user ? {
+      preferredName: user.preferredName || undefined,
+      birthDate: user.birthDate || undefined,
+      gender: castGender(user.gender),
+      maritalStatus: castMaritalStatus(user.maritalStatus),
+      numberOfChildren: user.childrenCount,
+      countryCode: user.whatsappCountryCode || undefined,
+      phone: user.whatsappPhone || undefined,
+      emailSignature: user.emailSignatureHtml || undefined,
+    } : {};
+    
     const flattenedOnboarding = {
       ...onboardingData,
       countryCode: onboardingData.whatsapp?.countryCode,
@@ -22,13 +55,25 @@ export function useUserProfile() {
     };
     
     if (stored) {
-      return { ...flattenedOnboarding, ...JSON.parse(stored) };
+      // Combinar: onboarding < localStorage < datos del usuario autenticado
+      return { ...flattenedOnboarding, ...JSON.parse(stored), ...userDataFromAuth } as UserProfile;
     }
-    return flattenedOnboarding as UserProfile;
+    return { ...flattenedOnboarding, ...userDataFromAuth } as UserProfile;
   });
 
   useEffect(() => {
-    // Sync with onboarding data when it changes
+    // Sync with user auth data and onboarding data when they change
+    const userDataFromAuth: Partial<UserProfile> = user ? {
+      preferredName: user.preferredName || undefined,
+      birthDate: user.birthDate || undefined,
+      gender: castGender(user.gender),
+      maritalStatus: castMaritalStatus(user.maritalStatus),
+      numberOfChildren: user.childrenCount,
+      countryCode: user.whatsappCountryCode || undefined,
+      phone: user.whatsappPhone || undefined,
+      emailSignature: user.emailSignatureHtml || undefined,
+    } : {};
+    
     const flattenedOnboarding = {
       ...onboardingData,
       countryCode: onboardingData.whatsapp?.countryCode,
@@ -39,8 +84,10 @@ export function useUserProfile() {
       xTwitter: onboardingData.socialMedia?.xTwitter,
       tiktok: onboardingData.socialMedia?.tiktok,
     };
-    setProfile(prev => ({ ...prev, ...flattenedOnboarding }));
-  }, [onboardingData]);
+    
+    // Priorizar datos del usuario autenticado sobre onboarding
+    setProfile(prev => ({ ...prev, ...flattenedOnboarding, ...userDataFromAuth }));
+  }, [onboardingData, user]);
 
   const updateProfile = (updates: Partial<UserProfile>) => {
     const updated = { ...profile, ...updates };
