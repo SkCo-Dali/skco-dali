@@ -309,20 +309,9 @@ export function EmailComposer({
       if (!buttonHtml) return;
 
       const editor = editorRef.current;
-      const view = editor.view;
-      const coords = { left: e.clientX, top: e.clientY };
-      const pos = view.posAtCoords(coords);
       
-      if (!pos) return;
-
-      // Insert the button HTML at the drop position
-      const tr = editor.state.tr.insertText(buttonHtml, pos.pos);
-      editor.view.dispatch(tr);
-      
-      // Update the template content
-      const newContent = editor.getHTML();
-      handleHtmlContentChange(newContent);
-      
+      // Insert the button HTML at the current cursor position or at the end
+      editor.commands.insertContent(buttonHtml);
       editor.commands.focus();
     }
     
