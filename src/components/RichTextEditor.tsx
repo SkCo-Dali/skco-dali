@@ -35,6 +35,9 @@ import { ColorPicker } from './ColorPicker';
 import { DynamicFieldExtension } from '@/extensions/DynamicFieldExtension';
 import { ResizableImageExtension } from '@/extensions/ResizableImageExtension';
 import { FontSize } from '@/extensions/FontSizeExtension';
+import { PreserveStylesExtension } from '@/extensions/PreserveStylesExtension';
+import { DivExtension } from '@/extensions/DivExtension';
+import { TableWithStyles, TableRow, TableCell } from '@/extensions/TableWithStylesExtension';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -95,6 +98,10 @@ export function RichTextEditor({
       }),
       Link.configure({
         openOnClick: false,
+        HTMLAttributes: {
+          // Preservar todos los atributos del link
+          class: null,
+        },
       }),
       ResizableImageExtension,
       DynamicFieldExtension.configure({
@@ -102,6 +109,11 @@ export function RichTextEditor({
           class: 'dynamic-field-node',
         },
       }),
+      PreserveStylesExtension,
+      DivExtension,
+      TableWithStyles,
+      TableRow,
+      TableCell,
     ],
     content: value,
     editorProps: {
@@ -111,6 +123,10 @@ export function RichTextEditor({
     },
     onUpdate: ({ editor }) => {
       onChange(editor.getHTML());
+    },
+    // Importante: preservar estilos inline de plantillas
+    parseOptions: {
+      preserveWhitespace: 'full',
     },
   });
 
