@@ -5,7 +5,7 @@ import { Label } from '@/components/ui/label';
 import { Card } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { UserProfile } from '@/types/userProfile';
-import { Edit2, Save, X, Upload, User } from 'lucide-react';
+import { Edit2, Save, X, User } from 'lucide-react';
 import { CountryPhoneSelector } from '@/components/onboarding/CountryPhoneSelector';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { ChevronDown } from 'lucide-react';
@@ -150,25 +150,16 @@ export function ProfilePersonalInfo({ profile, updateProfile }: Props) {
       {/* Photo */}
       <Card className="p-4 border-border/40">
         <div className="flex items-center gap-6">
-          <div className="relative group">
-            <div className="h-24 w-24 rounded-full bg-muted flex items-center justify-center overflow-hidden border-2 border-border">
-              {localData.photo ? (
-                <img src={localData.photo} alt="Profile" className="h-full w-full object-cover" />
-              ) : (
-                <User className="h-12 w-12 text-muted-foreground" />
-              )}
-            </div>
-            {isEditing && (
-              <button className="absolute inset-0 bg-black/50 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                <Upload className="h-6 w-6 text-white" />
-              </button>
+          <div className="h-24 w-24 rounded-full bg-muted flex items-center justify-center overflow-hidden border-2 border-border">
+            {localData.photo ? (
+              <img src={localData.photo} alt="Profile" className="h-full w-full object-cover" />
+            ) : (
+              <User className="h-12 w-12 text-muted-foreground" />
             )}
           </div>
           <div className="flex-1">
             <h3 className="font-medium text-lg">{localData.preferredName || 'Sin nombre'}</h3>
-            <p className="text-sm text-muted-foreground">
-              {isEditing ? 'Haz clic en la foto para cambiarla' : 'Foto de perfil'}
-            </p>
+            <p className="text-sm text-muted-foreground">Foto de perfil</p>
           </div>
         </div>
       </Card>
