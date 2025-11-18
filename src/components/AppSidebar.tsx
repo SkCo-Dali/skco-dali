@@ -188,7 +188,7 @@ export function AppSidebar({ onTemplateSelect }: AppSidebarProps) {
                   <div className="flex items-center space-x-3">
                     <UserProfile />
                     <div className="text-accent">
-                      <div className="text-sm font-medium">Hola, {user?.name?.split(" ")[2] || "Usuario"}</div>
+                      <div className="text-sm font-medium">Hola, {user?.preferredName || user?.name || "Usuario"}</div>
                     </div>
                   </div>
                   <Button
@@ -208,7 +208,7 @@ export function AppSidebar({ onTemplateSelect }: AppSidebarProps) {
                 <>
                   {showText && !isMobileDevice && (
                     <div className="text-accent">
-                      <div className="text-sm font-medium">Hola, {user?.name?.split(" ")[2] || "Usuario"}</div>
+                      <div className="text-sm font-medium">Hola, {user?.preferredName || user?.name || "Usuario"}</div>
                     </div>
                   )}
                   <Button
