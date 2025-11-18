@@ -28,12 +28,12 @@ export const AdvisorResumenTab = ({ advisor }: Props) => {
   };
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-8 gap-6">
+    <div className="grid-cols-8 gap-6">
       {/* Left Side - Basic Info */}
       <div className="col-span-3 space-y-6 bg-[#EDFEFA] rounded-lg">
         {/* Avatar and Name */}
-        <Card>
-          <CardContent className="pt-4">
+        <Card className="bg-transparent border-0">
+          <CardContent className="p-4">
             <div className="flex flex-col items-center space-y-4">
               <div className="relative">
                 <Avatar className="h-32 w-32 border-4 border-primary/20">
@@ -71,8 +71,8 @@ export const AdvisorResumenTab = ({ advisor }: Props) => {
         </Card>
 
         {/* Basic Data Card */}
-        <Card className="col-span-5 space-y-6 border-border/40">
-          <CardContent className="pt-6">
+        <Card className="border-border/40 p-4">
+          <CardContent className="p-4">
             <div className="grid grid-cols-2 gap-4">
               {/* Documento */}
               <div className="space-y-1">
@@ -133,7 +133,7 @@ export const AdvisorResumenTab = ({ advisor }: Props) => {
       </div>
 
       {/* Right Side - Detailed Personal Data */}
-      <div className="space-y-6">
+      <div className="col-span-5 space-y-6">
         <Card className="border-border/40">
           <CardHeader className="flex flex-row items-center justify-between pb-3">
             <div className="flex items-center gap-2">
