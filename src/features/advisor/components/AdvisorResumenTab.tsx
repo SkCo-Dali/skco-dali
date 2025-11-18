@@ -134,7 +134,7 @@ export const AdvisorResumenTab = ({ advisor }: Props) => {
 
       {/* Right Side - Detailed Personal Data */}
       <div className="col-span-5 space-y-6">
-        <Card className="border-border/40">
+        <Card className="border-border/40 p-4">
           <CardHeader className="flex flex-row items-center justify-between pb-3">
             <div className="flex items-center gap-2">
               <User className="h-5 w-5 text-muted-foreground" />
