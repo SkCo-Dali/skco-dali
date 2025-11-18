@@ -157,13 +157,6 @@ export const AdvisorProfile = () => {
             <span className="hidden sm:inline">Formación</span>
           </TabsTrigger>
           <TabsTrigger
-            value="datos"
-            className="gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
-          >
-            <FileText className="h-4 w-4" />
-            <span className="hidden sm:inline">Datos</span>
-          </TabsTrigger>
-          <TabsTrigger
             value="metas"
             className="gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
           >
