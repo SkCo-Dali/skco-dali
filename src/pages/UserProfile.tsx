@@ -31,83 +31,83 @@ const UserProfile = () => {
           <Card className="border-border/40 shadow-lg max-w-7xl">
             <CardContent className="p-4">
               <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-                <TabsList className="inline-flex h-12 items-center justify-center rounded-lg bg-transparent p-0 gap-1">
+                <TabsList className="grid w-full grid-cols-2 md:grid-cols-4 lg:grid-cols-7 h-[37px] bg-transparent gap-0 rounded-none p-0">
                   <TabsTrigger 
                     value="personal" 
-                    className="gap-2 rounded-lg px-4 py-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-sm data-[state=inactive]:text-muted-foreground"
+                    className="data-[state=active]:bg-primary data-[state=active]:shadow-sm data-[state=active]:text-primary-foreground rounded-t-xl flex items-center gap-2 h-full text-muted-foreground"
                   >
                     <User className="h-4 w-4" />
                     <span className="hidden sm:inline font-medium">Personal</span>
                   </TabsTrigger>
                   <TabsTrigger 
                     value="professional" 
-                    className="gap-2 rounded-lg px-4 py-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-sm data-[state=inactive]:text-muted-foreground"
+                    className="data-[state=active]:bg-primary data-[state=active]:shadow-sm data-[state=active]:text-primary-foreground rounded-t-xl flex items-center gap-2 h-full text-muted-foreground mx-1"
                   >
                     <Briefcase className="h-4 w-4" />
                     <span className="hidden sm:inline font-medium">Profesional</span>
                   </TabsTrigger>
                   <TabsTrigger 
                     value="family" 
-                    className="gap-2 rounded-lg px-4 py-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-sm data-[state=inactive]:text-muted-foreground"
+                    className="data-[state=active]:bg-primary data-[state=active]:shadow-sm data-[state=active]:text-primary-foreground rounded-t-xl flex items-center gap-2 h-full text-muted-foreground mx-1"
                   >
                     <Heart className="h-4 w-4" />
                     <span className="hidden sm:inline font-medium">Familiar</span>
                   </TabsTrigger>
                   <TabsTrigger 
                     value="contact" 
-                    className="gap-2 rounded-lg px-4 py-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-sm data-[state=inactive]:text-muted-foreground"
+                    className="data-[state=active]:bg-primary data-[state=active]:shadow-sm data-[state=active]:text-primary-foreground rounded-t-xl flex items-center gap-2 h-full text-muted-foreground mx-1"
                   >
                     <MapPin className="h-4 w-4" />
                     <span className="hidden sm:inline font-medium">Contacto</span>
                   </TabsTrigger>
                   <TabsTrigger 
                     value="notifications" 
-                    className="gap-2 rounded-lg px-4 py-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-sm data-[state=inactive]:text-muted-foreground"
+                    className="data-[state=active]:bg-primary data-[state=active]:shadow-sm data-[state=active]:text-primary-foreground rounded-t-xl flex items-center gap-2 h-full text-muted-foreground mx-1"
                   >
                     <Bell className="h-4 w-4" />
                     <span className="hidden sm:inline font-medium">Notificaciones</span>
                   </TabsTrigger>
                   <TabsTrigger 
                     value="suggestions" 
-                    className="gap-2 rounded-lg px-4 py-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-sm data-[state=inactive]:text-muted-foreground"
+                    className="data-[state=active]:bg-primary data-[state=active]:shadow-sm data-[state=active]:text-primary-foreground rounded-t-xl flex items-center gap-2 h-full text-muted-foreground mx-1"
                   >
                     <MessageSquare className="h-4 w-4" />
                     <span className="hidden sm:inline font-medium">Sugerencias</span>
                   </TabsTrigger>
                   <TabsTrigger 
                     value="preferences" 
-                    className="gap-2 rounded-lg px-4 py-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-sm data-[state=inactive]:text-muted-foreground"
+                    className="data-[state=active]:bg-primary data-[state=active]:shadow-sm data-[state=active]:text-primary-foreground rounded-t-xl flex items-center gap-2 h-full text-muted-foreground mx-1"
                   >
                     <Home className="h-4 w-4" />
                     <span className="hidden sm:inline font-medium">Preferencias</span>
                   </TabsTrigger>
                 </TabsList>
 
-                <TabsContent value="personal" className="space-y-4 mt-4">
+                <TabsContent value="personal" className="space-y-4 mt-0">
                   <ProfilePersonalInfo profile={profile} updateProfile={updateProfile} />
                 </TabsContent>
 
-                <TabsContent value="professional" className="space-y-4 mt-4">
+                <TabsContent value="professional" className="space-y-4 mt-0">
                   <ProfileProfessionalInfo profile={profile} updateProfile={updateProfile} />
                 </TabsContent>
 
-                <TabsContent value="family" className="space-y-4 mt-4">
+                <TabsContent value="family" className="space-y-4 mt-0">
                   <ProfileFamilyInfo profile={profile} updateProfile={updateProfile} />
                 </TabsContent>
 
-                <TabsContent value="contact" className="space-y-4 mt-4">
+                <TabsContent value="contact" className="space-y-4 mt-0">
                   <ProfileContactInfo profile={profile} updateProfile={updateProfile} />
                 </TabsContent>
 
-                <TabsContent value="notifications" className="space-y-4 mt-4">
+                <TabsContent value="notifications" className="space-y-4 mt-0">
                   <ProfileNotifications profile={profile} updateProfile={updateProfile} />
                 </TabsContent>
 
-                <TabsContent value="suggestions" className="space-y-4 mt-4">
+                <TabsContent value="suggestions" className="space-y-4 mt-0">
                   <ProfileSuggestions profile={profile} updateProfile={updateProfile} />
                 </TabsContent>
 
-                <TabsContent value="preferences" className="space-y-4 mt-4">
+                <TabsContent value="preferences" className="space-y-4 mt-0">
                   <ProfileAppPreferences profile={profile} updateProfile={updateProfile} />
                 </TabsContent>
               </Tabs>
