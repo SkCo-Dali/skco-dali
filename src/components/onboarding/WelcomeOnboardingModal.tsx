@@ -62,11 +62,14 @@ export function WelcomeOnboardingModal({ isOpen, userRole, onComplete, onClose }
 
         setIsCompleted(true);
         
-        // Obtener la página de inicio del API y redirigir
+        // Obtener la página de inicio y perfil del API y redirigir
         setTimeout(async () => {
           try {
             if (accessToken) {
-              const startPage = await onboardingApiClient.getStartPage(accessToken);
+              const [startPage] = await Promise.all([
+                onboardingApiClient.getStartPage(accessToken),
+                onboardingApiClient.getPreferredName(accessToken)
+              ]);
               navigate(startPage.route);
             } else {
               // Fallback a la ruta de primaryAction si no hay token
