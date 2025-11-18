@@ -141,21 +141,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
             console.error('❌ Error al registrar sesión:', error);
             // No bloqueamos el login si falla el registro de sesión
         }
-
-        // Fetch preferred name after login
-        try {
-            const token = await getAccessToken();
-            if (token) {
-                const { userProfileApiClient } = await import('@/utils/userProfileApiClient');
-                const preferredNameData = await userProfileApiClient.getPreferredName(token.accessToken);
-                const updatedUser = { ...userData, preferredName: preferredNameData.preferredName };
-                setUser(updatedUser);
-                sessionStorage.setItem('skandia-crm-user', JSON.stringify(updatedUser));
-            }
-        } catch (error) {
-            console.error('❌ Error al obtener nombre preferido:', error);
-            // No bloqueamos el login si falla la carga del nombre preferido
-        }
     };
 
     const getUserPhoto = async (): Promise<string | null> => {
