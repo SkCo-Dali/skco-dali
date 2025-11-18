@@ -134,7 +134,7 @@ export const AdvisorProfile = () => {
 
       {/* Tabs */}
       <Tabs value={activeTab} onValueChange={handleTabChange}>
-        <TabsList className="grid w-full grid-cols-7 bg-muted/30">
+        <TabsList className="grid w-full grid-cols-6 bg-muted/30">
           <TabsTrigger
             value="resumen"
             className="gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
@@ -187,9 +187,6 @@ export const AdvisorProfile = () => {
         </TabsContent>
         <TabsContent value="formacion">
           <AdvisorFormacionTab advisorId={currentAdvisor.id} />
-        </TabsContent>
-        <TabsContent value="datos">
-          <AdvisorDatosTab advisor={currentAdvisor} />
         </TabsContent>
         <TabsContent value="metas">
           <AdvisorMetasTab advisorId={currentAdvisor.id} />
