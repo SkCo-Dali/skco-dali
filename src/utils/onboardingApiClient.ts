@@ -2,7 +2,8 @@ import { InAppMessage, InAppMessagesParams, InAppEvent } from '@/types/inAppMess
 import { 
   AvailableActionsResponse, 
   OnboardingWelcomePayload, 
-  OnboardingWelcomeResponse 
+  OnboardingWelcomeResponse,
+  StartPageResponse
 } from '@/types/onboardingApi';
 import { ENV } from '@/config/environment';
 
@@ -80,6 +81,19 @@ class OnboardingApiClient {
     if (!response.ok) {
       const errorData = await response.json().catch(() => null);
       throw new Error(errorData?.message || `Error submitting onboarding: ${response.statusText}`);
+    }
+
+    return response.json();
+  }
+
+  async getStartPage(token: string): Promise<StartPageResponse> {
+    const response = await fetch(`${API_BASE_URL}/api/start-page`, {
+      method: 'GET',
+      headers: await this.getAuthHeaders(token),
+    });
+
+    if (!response.ok) {
+      throw new Error(`Error fetching start page: ${response.statusText}`);
     }
 
     return response.json();
