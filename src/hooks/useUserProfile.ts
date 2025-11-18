@@ -140,7 +140,7 @@ function mapApiProfileToUserProfile(data: UserProfileResponse): UserProfile {
     emergencyContactName: data.emergencyContacts[0]?.fullName || undefined,
     emergencyContactRelation: data.emergencyContacts[0]?.relationship || undefined,
     emergencyContactPhone: data.emergencyContacts[0]?.phone || undefined,
-    primaryAction: data.appPreferences.primaryActionRoute || undefined,
+    primaryAction: data.appPreferences.primaryActionCode || undefined,
     emailSignature: data.appPreferences.emailSignatureHtml || undefined,
     singleWish: undefined, // Este campo no viene del API de perfil
   };

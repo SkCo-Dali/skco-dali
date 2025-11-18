@@ -63,20 +63,8 @@ export function ProfileContactInfo({ profile, updateProfile }: Props) {
             <Label htmlFor="street">Dirección/Calle</Label>
             <Input
               id="street"
-              value={localData.address?.street || ""}
-              onChange={(e) =>
-                setLocalData({
-                  ...localData,
-                  address: {
-                    ...localData.address,
-                    street: e.target.value,
-                    city: localData.address?.city || "",
-                    state: localData.address?.state || "",
-                    postalCode: localData.address?.postalCode || "",
-                    country: localData.address?.country || "",
-                  },
-                })
-              }
+              value={localData.street || ""}
+              onChange={(e) => setLocalData({ ...localData, street: e.target.value })}
               disabled={!isEditing}
               placeholder="Calle 123 #45-67"
             />
@@ -87,20 +75,8 @@ export function ProfileContactInfo({ profile, updateProfile }: Props) {
               <Label htmlFor="city">Ciudad</Label>
               <Input
                 id="city"
-                value={localData.address?.city || ""}
-                onChange={(e) =>
-                  setLocalData({
-                    ...localData,
-                    address: {
-                      ...localData.address,
-                      city: e.target.value,
-                      street: localData.address?.street || "",
-                      state: localData.address?.state || "",
-                      postalCode: localData.address?.postalCode || "",
-                      country: localData.address?.country || "",
-                    },
-                  })
-                }
+                value={localData.city || ""}
+                onChange={(e) => setLocalData({ ...localData, city: e.target.value })}
                 disabled={!isEditing}
                 placeholder="Bogotá"
               />
@@ -110,20 +86,8 @@ export function ProfileContactInfo({ profile, updateProfile }: Props) {
               <Label htmlFor="state">Departamento/Estado</Label>
               <Input
                 id="state"
-                value={localData.address?.state || ""}
-                onChange={(e) =>
-                  setLocalData({
-                    ...localData,
-                    address: {
-                      ...localData.address,
-                      state: e.target.value,
-                      street: localData.address?.street || "",
-                      city: localData.address?.city || "",
-                      postalCode: localData.address?.postalCode || "",
-                      country: localData.address?.country || "",
-                    },
-                  })
-                }
+                value={localData.state || ""}
+                onChange={(e) => setLocalData({ ...localData, state: e.target.value })}
                 disabled={!isEditing}
                 placeholder="Cundinamarca"
               />
@@ -133,20 +97,8 @@ export function ProfileContactInfo({ profile, updateProfile }: Props) {
               <Label htmlFor="postalCode">Código Postal</Label>
               <Input
                 id="postalCode"
-                value={localData.address?.postalCode || ""}
-                onChange={(e) =>
-                  setLocalData({
-                    ...localData,
-                    address: {
-                      ...localData.address,
-                      postalCode: e.target.value,
-                      street: localData.address?.street || "",
-                      city: localData.address?.city || "",
-                      state: localData.address?.state || "",
-                      country: localData.address?.country || "",
-                    },
-                  })
-                }
+                value={localData.postalCode || ""}
+                onChange={(e) => setLocalData({ ...localData, postalCode: e.target.value })}
                 disabled={!isEditing}
                 placeholder="110111"
               />
@@ -156,20 +108,8 @@ export function ProfileContactInfo({ profile, updateProfile }: Props) {
               <Label htmlFor="country">País</Label>
               <Input
                 id="country"
-                value={localData.address?.country || ""}
-                onChange={(e) =>
-                  setLocalData({
-                    ...localData,
-                    address: {
-                      ...localData.address,
-                      country: e.target.value,
-                      street: localData.address?.street || "",
-                      city: localData.address?.city || "",
-                      state: localData.address?.state || "",
-                      postalCode: localData.address?.postalCode || "",
-                    },
-                  })
-                }
+                value={localData.country || ""}
+                onChange={(e) => setLocalData({ ...localData, country: e.target.value })}
                 disabled={!isEditing}
                 placeholder="Colombia"
               />

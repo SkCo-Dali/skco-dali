@@ -80,10 +80,10 @@ export function ProfileAppPreferences({ profile, updateProfile }: Props) {
             </div>
           </div>
 
-          <Label htmlFor="customHomepage">Tu página de inicio</Label>
+          <Label htmlFor="primaryAction">Tu página de inicio</Label>
           <Select
-            value={localData.customHomepage || localData.primaryAction?.route || "/home"}
-            onValueChange={(value) => setLocalData({ ...localData, customHomepage: value })}
+            value={localData.primaryAction || "/home"}
+            onValueChange={(value) => setLocalData({ ...localData, primaryAction: value })}
             disabled={!isEditing}
           >
             <SelectTrigger className="w-full">
