@@ -141,6 +141,40 @@ export function AuthProvider({ children }: AuthProviderProps) {
             console.error('❌ Error al registrar sesión:', error);
             // No bloqueamos el login si falla el registro de sesión
         }
+
+        // Load profile data from API after successful login
+        try {
+            const token = await getAccessToken();
+            if (token) {
+                const { userProfileApiClient } = await import('@/utils/userProfileApiClient');
+                const profileData = await userProfileApiClient.getProfile(token.accessToken);
+                
+                console.log('✅ Perfil cargado desde API:', profileData);
+                
+                // Find WhatsApp contact channel
+                const whatsappChannel = profileData.contactChannels.find(
+                    channel => channel.channelType === 'WhatsApp'
+                );
+
+                const profileUpdates: Partial<User> = {
+                    preferredName: profileData.basic.preferredName || undefined,
+                    birthDate: profileData.basic.birthDate || undefined,
+                    gender: profileData.basic.gender || undefined,
+                    maritalStatus: profileData.basic.maritalStatus || undefined,
+                    childrenCount: profileData.basic.childrenCount,
+                    whatsappCountryCode: whatsappChannel?.countryCode || undefined,
+                    whatsappPhone: whatsappChannel?.channelValue || undefined,
+                    emailSignatureHtml: profileData.appPreferences.emailSignatureHtml || undefined,
+                    primaryActionCode: profileData.appPreferences.primaryActionCode || undefined,
+                    primaryActionRoute: profileData.appPreferences.primaryActionRoute || undefined,
+                };
+
+                updateUserProfile(profileUpdates);
+            }
+        } catch (error) {
+            console.error('❌ Error al cargar perfil desde API:', error);
+            // No bloqueamos el login si falla la carga del perfil
+        }
     };
 
     const loadProfileData = async (accessToken: string): Promise<Partial<User>> => {
