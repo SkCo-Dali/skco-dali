@@ -255,14 +255,20 @@ export function EmailComposer({
       const whatsappUrl = `https://wa.me/${countryCode}${number}`;
       
       return `
-        <a href="${whatsappUrl}" 
-           target="_blank" 
-           rel="noopener noreferrer"
-           style="display: inline-block; background-color: #00A859; color: white; padding: 12px 24px; border-radius: 8px; text-decoration: none; font-weight: 500; margin: 8px 0; transition: background-color 0.3s ease;"
-           onmouseover="this.style.backgroundColor='#FF6B35'"
-           onmouseout="this.style.backgroundColor='#00A859'">
-          📱 Hablemos por WhatsApp
-        </a>
+        <table cellpadding="0" cellspacing="0" border="0" style="margin: 16px 0;">
+          <tbody>
+            <tr>
+              <td align="center" bgcolor="#00A859" style="border-radius: 24px; padding: 12px 28px; font-family: Arial, sans-serif;">
+                <a href="${whatsappUrl}" 
+                   target="_blank" 
+                   rel="noopener noreferrer nofollow"
+                   style="color: #ffffff; text-decoration: none; font-weight: 600; font-size: 15px; display: inline-block; line-height: 1.4;">
+                  📱 Hablemos por WhatsApp
+                </a>
+              </td>
+            </tr>
+          </tbody>
+        </table>
       `;
     } else if (network === 'instagram') {
       const instagramHandle = profile?.instagram || '';
@@ -277,14 +283,20 @@ export function EmailComposer({
       const instagramUrl = `https://instagram.com/${instagramHandle}`;
       
       return `
-        <a href="${instagramUrl}" 
-           target="_blank" 
-           rel="noopener noreferrer"
-           style="display: inline-block; background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%); color: white; padding: 12px 24px; border-radius: 8px; text-decoration: none; font-weight: 500; margin: 8px 0; transition: opacity 0.3s ease;"
-           onmouseover="this.style.opacity='0.85'"
-           onmouseout="this.style.opacity='1'">
-          📸 Conoce más en mi Instagram
-        </a>
+        <table cellpadding="0" cellspacing="0" border="0" style="margin: 16px 0;">
+          <tbody>
+            <tr>
+              <td align="center" style="border-radius: 24px; padding: 12px 28px; font-family: Arial, sans-serif; background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);">
+                <a href="${instagramUrl}" 
+                   target="_blank" 
+                   rel="noopener noreferrer nofollow"
+                   style="color: #ffffff; text-decoration: none; font-weight: 600; font-size: 15px; display: inline-block; line-height: 1.4;">
+                  📸 Conoce más en mi Instagram
+                </a>
+              </td>
+            </tr>
+          </tbody>
+        </table>
       `;
     }
     return '';
