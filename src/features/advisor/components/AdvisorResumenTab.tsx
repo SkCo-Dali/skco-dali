@@ -28,9 +28,9 @@ export const AdvisorResumenTab = ({ advisor }: Props) => {
   };
 
   return (
-    <div className="grid grid-cols-8 gap-6">
+    <div className="grid grid-cols-8 gap-6 p-4 border-border/40 rounded-xl">
       {/* Left Side - Basic Info */}
-      <div className="col-span-3 space-y-6 bg-[#EDFEFA] rounded-lg">
+      <div className="col-span-3 space-y-6 bg-[#EDFEFA] rounded-xl">
         {/* Avatar and Name */}
         <Card className="bg-transparent border-0 shadow-none">
           <CardContent className="p-4">
