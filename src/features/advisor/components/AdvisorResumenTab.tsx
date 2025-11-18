@@ -157,7 +157,7 @@ export const AdvisorResumenTab = ({ advisor }: Props) => {
               </div>
 
               {/* Celular */}
-              <div className="bg-[#F7F7F7] rounded-md p-2 space-y-1">
+              <div className="bg-[#F7F7F7] rounded-md p-3 space-y-1">
                 <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
                   <Phone className="h-3 w-3" />
                   <span>Celular</span>
@@ -166,19 +166,19 @@ export const AdvisorResumenTab = ({ advisor }: Props) => {
               </div>
 
               {/* Teléfono */}
-              <div className="bg-[#F7F7F7] rounded-md space-y-1">
+              <div className="bg-[#F7F7F7] rounded-md p-3 space-y-1">
                 <p className="text-xs text-muted-foreground">Teléfono</p>
                 <p className="text-sm font-medium text-foreground">601 234 5678</p>
               </div>
 
               {/* Género */}
-              <div className="bg-[#F7F7F7] rounded-md space-y-1">
+              <div className="bg-[#F7F7F7] rounded-md p-3 space-y-1">
                 <p className="text-xs text-muted-foreground">Género</p>
                 <p className="text-sm font-medium text-foreground">Masculino</p>
               </div>
 
               {/* Fecha de nacimiento */}
-              <div className="bg-[#F7F7F7] rounded-md space-y-1">
+              <div className="bg-[#F7F7F7] rounded-md p-3 space-y-1">
                 <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
                   <Calendar className="h-3 w-3" />
                   <span>Fecha de nacimiento</span>
@@ -187,7 +187,7 @@ export const AdvisorResumenTab = ({ advisor }: Props) => {
               </div>
 
               {/* Dirección */}
-              <div className="bg-[#F7F7F7] rounded-md space-y-1 md:col-span-3">
+              <div className="bg-[#F7F7F7] rounded-md p-3 space-y-1 md:col-span-3">
                 <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
                   <Building className="h-3 w-3" />
                   <span>Dirección de residencia</span>
@@ -196,19 +196,19 @@ export const AdvisorResumenTab = ({ advisor }: Props) => {
               </div>
 
               {/* País */}
-              <div className="bg-[#F7F7F7] rounded-md space-y-1">
+              <div className="bg-[#F7F7F7] rounded-md p-3 space-y-1">
                 <p className="text-xs text-muted-foreground">País de residencia</p>
                 <p className="text-sm font-medium text-foreground">Colombia</p>
               </div>
 
               {/* Departamento */}
-              <div className="bg-[#F7F7F7] rounded-md space-y-1">
+              <div className="bg-[#F7F7F7] rounded-md p-3 space-y-1">
                 <p className="text-xs text-muted-foreground">Departamento</p>
                 <p className="text-sm font-medium text-foreground">Cundinamarca</p>
               </div>
 
               {/* Ciudad */}
-              <div className="bg-[#F7F7F7] rounded-md space-y-1">
+              <div className="bg-[#F7F7F7] rounded-md p-3 space-y-1">
                 <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
                   <MapPin className="h-3 w-3" />
                   <span>Ciudad de residencia</span>
@@ -217,7 +217,7 @@ export const AdvisorResumenTab = ({ advisor }: Props) => {
               </div>
 
               {/* Fecha de vinculación */}
-              <div className="bg-[#F7F7F7] rounded-md space-y-1 md:col-span-2">
+              <div className="bg-[#F7F7F7] rounded-md p-3 space-y-1 md:col-span-2">
                 <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
                   <Calendar className="h-3 w-3" />
                   <span>Fecha de vinculación</span>
@@ -226,7 +226,7 @@ export const AdvisorResumenTab = ({ advisor }: Props) => {
               </div>
 
               {/* Personas a cargo */}
-              <div className="bg-[#F7F7F7] rounded-md space-y-1">
+              <div className="bg-[#F7F7F7] rounded-md p-3 space-y-1">
                 <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
                   <Users className="h-3 w-3" />
                   <span>Personas a cargo</span>
