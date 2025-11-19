@@ -108,7 +108,7 @@ export const LoadLeadsProgressModal: React.FC<LoadLeadsProgressModalProps> = ({
 
                   <div className="space-y-3 pl-2">
                     <div className="flex gap-3">
-                      <span className="text-lg">📋</span>
+                      <span className="text-lg">📧</span>
                       <div>
                         <p className="text-base font-medium text-foreground">
                           Opción 1: Preparar un correo masivo para ellos.
@@ -121,7 +121,7 @@ export const LoadLeadsProgressModal: React.FC<LoadLeadsProgressModalProps> = ({
                     </div>
 
                     <div className="flex gap-3">
-                      <span className="text-lg">📧</span>
+                      <span className="text-lg">📋</span>
                       <div>
                         <p className="text-base font-medium text-foreground">
                           Opción 2: Revisarlos en el módulo de leads.
