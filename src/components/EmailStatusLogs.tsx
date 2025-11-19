@@ -134,7 +134,7 @@ export function EmailStatusLogs({
 
   return (
     <>
-      <Card className="space-y-3">
+      <Card className="space-y-3 max-w-full w-full">
         <CardHeader className="pb-2">
           <CardTitle className="flex items-center justify-between gap-4">
             <div>
@@ -180,9 +180,9 @@ export function EmailStatusLogs({
           </div>
 
           {/* Tabla con scroll vertical + horizontal */}
-          <div className="border rounded-xl overflow-hidden">
+          <div className="border rounded-xl overflow-hidden max-w-full">
             <ScrollArea className="h-[380px]">
-              <div className="overflow-x-auto">
+              <div className="overflow-x-auto max-w-full">
                 <div className="min-w-[1100px]">
                   <Table>
                     <TableHeader>
