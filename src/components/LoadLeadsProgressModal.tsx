@@ -60,14 +60,6 @@ export const LoadLeadsProgressModal: React.FC<LoadLeadsProgressModalProps> = ({
 
             {/* Contenido scrollable */}
             <div className="flex-1 overflow-y-auto pr-1 space-y-4">
-              <div className="rounded-lg bg-green-50 dark:bg-green-950/20 p-4 space-y-2">
-                <p className="font-semibold">Se cargaron {leads.length} clientes en el módulo de leads</p>
-                <p className="text-sm text-muted-foreground">
-                  Podrás consultarlos en el módulo de leads filtrando por la campaña:{" "}
-                  <span className="font-medium text-foreground">{campaignName}</span>
-                </p>
-              </div>
-
               <div className="space-y-2">
                 <p className="text-sm font-medium">Clientes cargados:</p>
                 <div className="rounded-md border">
@@ -98,7 +90,14 @@ export const LoadLeadsProgressModal: React.FC<LoadLeadsProgressModalProps> = ({
                 </div>
               </div>
 
-              <div className="rounded-lg bg-blue-50 dark:bg-blue-950/20 p-5 space-y-4">
+              <div className="rounded-lg bg-green-50 dark:bg-green-950/20 p-5 space-y-4">
+                <p className="text-base font-semibold text-foreground">
+                  Se cargaron {leads.length} clientes en el módulo de leads
+                </p>
+                <p className="text-sm text-foreground/80">
+                  Podrás consultarlos en el módulo de leads filtrando por la campaña:{" "}
+                  <span className="font-medium text-foreground">{campaignName}</span>
+                </p>
                 <p className="text-base font-medium text-foreground">
                   Estos son los clientes que acabas de cargar desde la oportunidad seleccionada.
                 </p>
@@ -136,15 +135,15 @@ export const LoadLeadsProgressModal: React.FC<LoadLeadsProgressModalProps> = ({
               </div>
             </div>
 
-            {/* Footer fijo con los botones */}
-            <DialogFooter className="mt-4 flex flex-col sm:flex-row gap-2 sm:justify-end">
-              <Button onClick={onSendEmails} className="w-full sm:w-auto">
+            {/* Footer fijo con los botones centrados */}
+            <div className="flex flex-col items-center gap-2 w-full mt-4">
+              <Button onClick={onSendEmails} className="w-full max-w-md">
                 Preparar correo masivo
               </Button>
-              <Button variant="outline" onClick={onGoToLeads} className="w-full sm:w-auto">
+              <Button variant="outline" onClick={onGoToLeads} className="w-full max-w-md">
                 Ver estos clientes en el módulo de leads
               </Button>
-            </DialogFooter>
+            </div>
           </>
         )}
       </DialogContent>
