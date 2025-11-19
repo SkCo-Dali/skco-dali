@@ -52,9 +52,9 @@ export const LoadLeadsProgressModal: React.FC<LoadLeadsProgressModalProps> = ({
             </DialogHeader>
             <div className="space-y-4">
               <div className="rounded-lg bg-green-50 dark:bg-green-950/20 p-4 space-y-2">
-                <p className="font-semibold">Se cargaron {leads.length} oportunidades en el módulo de leads</p>
+                <p className="font-semibold">Se cargaron {leads.length} clientes en el módulo de leads</p>
                 <p className="text-sm text-muted-foreground">
-                  Podrás consultarlas en el módulo de leads filtrando por la campaña:{" "}
+                  Podrás consultarlos en el módulo de leads filtrando por la campaña:{" "}
                   <span className="font-medium text-foreground">{campaignName}</span>
                 </p>
               </div>
@@ -93,33 +93,32 @@ export const LoadLeadsProgressModal: React.FC<LoadLeadsProgressModalProps> = ({
                 <p className="text-base font-medium text-foreground">
                   Estos son los clientes que acabas de cargar desde la oportunidad seleccionada.
                 </p>
-                
+
                 <div className="space-y-3">
-                  <p className="text-base font-semibold text-foreground">
-                    Puedes continuar de dos maneras:
-                  </p>
-                  
+                  <p className="text-base font-semibold text-foreground">Puedes continuar de dos maneras:</p>
+
                   <div className="space-y-3 pl-2">
                     <div className="flex gap-3">
                       <span className="text-lg">📋</span>
                       <div>
                         <p className="text-base font-medium text-foreground">
-                          1. Revisarlos en el módulo de leads.
+                          Opción 1: Preparar un correo masivo para ellos.
                         </p>
                         <p className="text-sm text-foreground/80 mt-1">
-                          Allí verás solo estos clientes, ya filtrados automáticamente por la campaña.
+                          Podrás escoger una plantilla, personalizar el mensaje y decidir a quiénes se enviará. Nada se
+                          enviará sin tu confirmación.
                         </p>
                       </div>
                     </div>
-                    
+
                     <div className="flex gap-3">
                       <span className="text-lg">📧</span>
                       <div>
                         <p className="text-base font-medium text-foreground">
-                          2. Preparar un correo masivo para ellos.
+                          Opción 2: Revisarlos en el módulo de leads.
                         </p>
                         <p className="text-sm text-foreground/80 mt-1">
-                          Podrás escoger una plantilla, personalizar el mensaje y decidir a quiénes se enviará. Nada se enviará sin tu confirmación.
+                          Allí verás sólo estos clientes, ya filtrados automáticamente por la campaña.
                         </p>
                       </div>
                     </div>
