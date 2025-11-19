@@ -181,8 +181,8 @@ export function EmailStatusLogs({
 
           {/* Tabla con scroll vertical + horizontal */}
           <div className="border rounded-xl overflow-hidden">
-            <div className="overflow-x-auto">
-              <ScrollArea className="h-[380px]">
+            <ScrollArea className="h-[380px]">
+              <div className="overflow-x-auto">
                 <div className="min-w-[1100px]">
                   <Table>
                     <TableHeader>
@@ -272,8 +272,8 @@ export function EmailStatusLogs({
                     </TableBody>
                   </Table>
                 </div>
-              </ScrollArea>
-            </div>
+              </div>
+            </ScrollArea>
           </div>
 
           {/* Paginación */}
