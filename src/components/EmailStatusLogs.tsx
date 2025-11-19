@@ -3,7 +3,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { RefreshCw, CheckCircle, Paperclip, ChevronLeft, ChevronRight, Eye } from "lucide-react";
 import { EmailLog, EmailLogDetail } from "@/types/email";
 import { formatBogotaDateTime } from "@/utils/dateUtils";
@@ -164,88 +163,92 @@ export function EmailStatusLogs({
               />
             </div>
 
-            {/* Tabla con scroll vertical + horizontal dentro del mismo área */}
-            <div className="border rounded-xl overflow-hidden">
-              <ScrollArea className="h-[380px] w-full">
-                <Table className="w-full min-w-[1100px]">
-                  <TableHeader>
-                    <TableRow className="sticky top-0 z-20 bg-background">
-                      <TableHead className="w-[250px] bg-background">Asunto</TableHead>
-                      <TableHead className="w-[220px] bg-background">Destinatario</TableHead>
-                      <TableHead className="w-[200px] bg-background">Campaña</TableHead>
-                      <TableHead className="w-[110px] bg-background">Estado</TableHead>
-                      <TableHead className="w-[160px] bg-background">Fecha Envío</TableHead>
-                      <TableHead className="w-[190px] bg-background">Apertura</TableHead>
-                      <TableHead className="w-[90px] bg-background">Adjuntos</TableHead>
-                    </TableRow>
-                  </TableHeader>
+            {/* Tabla con mismo comportamiento que la de Leads */}
+            <div className="leads-table-container-scroll">
+              <div className="leads-table-scroll-wrapper border rounded-xl">
+                {/* Este div es el que maneja el scroll y tiene los estilos del scrollbar verde */}
+                <div className="leads-table-inner-scroll max-h-[380px]">
+                  <Table className="w-full min-w-[1100px]">
+                    {/* Header fijo usando la MISMA clase que en Leads */}
+                    <TableHeader className="leads-table-header-sticky">
+                      <TableRow className="bg-[#fafafa] border-b border-[#fafafa]">
+                        <TableHead className="w-[250px]">Asunto</TableHead>
+                        <TableHead className="w-[220px]">Destinatario</TableHead>
+                        <TableHead className="w-[200px]">Campaña</TableHead>
+                        <TableHead className="w-[110px]">Estado</TableHead>
+                        <TableHead className="w-[160px]">Fecha Envío</TableHead>
+                        <TableHead className="w-[190px]">Apertura</TableHead>
+                        <TableHead className="w-[90px]">Adjuntos</TableHead>
+                      </TableRow>
+                    </TableHeader>
 
-                  <TableBody>
-                    {isLoading ? (
-                      <TableRow>
-                        <TableCell colSpan={7} className="text-center py-5">
-                          <div className="flex items-center justify-center">
-                            <RefreshCw className="h-4 w-4 animate-spin mr-2" />
-                            Cargando...
-                          </div>
-                        </TableCell>
-                      </TableRow>
-                    ) : logs.length === 0 ? (
-                      <TableRow>
-                        <TableCell colSpan={7} className="text-center py-5 text-muted-foreground">
-                          No se encontraron registros de correos
-                        </TableCell>
-                      </TableRow>
-                    ) : (
-                      filteredLogs.map((log) => (
-                        <TableRow
-                          key={log.Id}
-                          className="cursor-pointer hover:bg-muted/50"
-                          onClick={() => handleRowClick(log)}
-                        >
-                          <TableCell className="max-w-xs truncate" title={log.Subject}>
-                            {log.Subject}
-                          </TableCell>
-                          <TableCell className="max-w-xs truncate" title={log.ToEmail}>
-                            {log.ToEmail}
-                          </TableCell>
-                          <TableCell>
-                            <Badge variant="outline">{log.Campaign || "Sin campaña"}</Badge>
-                          </TableCell>
-                          <TableCell>
-                            <Badge className={getStatusColor(log.Status)} variant="secondary">
-                              {getStatusText(log.Status)}
-                            </Badge>
-                          </TableCell>
-                          <TableCell>{formatBogotaDateTime(log.CreatedAt)}</TableCell>
-                          <TableCell>
-                            <div className="flex items-center gap-2">
-                              {log.OpenedAt ? (
-                                <>
-                                  <CheckCircle className="h-4 w-4 text-green-600" />
-                                  <span className="text-xs text-green-600">{formatBogotaDateTime(log.OpenedAt)}</span>
-                                </>
-                              ) : (
-                                <span className="text-xs text-muted-foreground flex items-center gap-1">
-                                  <Eye className="h-4 w-4" />
-                                  No abierto
-                                </span>
-                              )}
+                    <TableBody>
+                      {isLoading ? (
+                        <TableRow>
+                          <TableCell colSpan={7} className="text-center py-5">
+                            <div className="flex items-center justify-center">
+                              <RefreshCw className="h-4 w-4 animate-spin mr-2" />
+                              Cargando...
                             </div>
                           </TableCell>
-                          <TableCell>
-                            {log.hasAttachments && (
-                              <div className="flex items-center gap-1 text-muted-foreground">
-                                <Paperclip className="h-4 w-4" />
-                              </div>
-                            )}
+                        </TableRow>
+                      ) : logs.length === 0 ? (
+                        <TableRow>
+                          <TableCell colSpan={7} className="text-center py-5 text-muted-foreground">
+                            No se encontraron registros de correos
                           </TableCell>
                         </TableRow>
-                      ))
-                    )}
-                  </TableBody>
-                </Table>
-              </ScrollArea>
+                      ) : (
+                        filteredLogs.map((log) => (
+                          <TableRow
+                            key={log.Id}
+                            className="cursor-pointer hover:bg-muted/50"
+                            onClick={() => handleRowClick(log)}
+                          >
+                            <TableCell className="max-w-xs truncate" title={log.Subject}>
+                              {log.Subject}
+                            </TableCell>
+                            <TableCell className="max-w-xs truncate" title={log.ToEmail}>
+                              {log.ToEmail}
+                            </TableCell>
+                            <TableCell>
+                              <Badge variant="outline">{log.Campaign || "Sin campaña"}</Badge>
+                            </TableCell>
+                            <TableCell>
+                              <Badge className={getStatusColor(log.Status)} variant="secondary">
+                                {getStatusText(log.Status)}
+                              </Badge>
+                            </TableCell>
+                            <TableCell>{formatBogotaDateTime(log.CreatedAt)}</TableCell>
+                            <TableCell>
+                              <div className="flex items-center gap-2">
+                                {log.OpenedAt ? (
+                                  <>
+                                    <CheckCircle className="h-4 w-4 text-green-600" />
+                                    <span className="text-xs text-green-600">{formatBogotaDateTime(log.OpenedAt)}</span>
+                                  </>
+                                ) : (
+                                  <span className="text-xs text-muted-foreground flex items-center gap-1">
+                                    <Eye className="h-4 w-4" />
+                                    No abierto
+                                  </span>
+                                )}
+                              </div>
+                            </TableCell>
+                            <TableCell>
+                              {log.hasAttachments && (
+                                <div className="flex items-center gap-1 text-muted-foreground">
+                                  <Paperclip className="h-4 w-4" />
+                                </div>
+                              )}
+                            </TableCell>
+                          </TableRow>
+                        ))
+                      )}
+                    </TableBody>
+                  </Table>
+                </div>
+              </div>
             </div>
 
             {/* Paginación */}
