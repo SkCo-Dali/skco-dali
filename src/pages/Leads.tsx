@@ -5,6 +5,7 @@ import { Lead, getRolePermissions } from "@/types/crm";
 import { useAuth } from "@/contexts/AuthContext";
 import { isAuthorizedForMassEmail } from "@/utils/emailDomainValidator";
 import Lottie from 'lottie-react';
+import { useAutoFilterAnimation } from "@/hooks/useAutoFilterAnimation";
 import { LeadsSearch } from "@/components/LeadsSearch";
 import { LeadsFilters } from "@/components/LeadsFilters";
 import { LeadsStats } from "@/components/LeadsStats";
@@ -121,6 +122,10 @@ export default function Leads() {
   const { user } = useAuth();
   const userPermissions = user ? getRolePermissions(user.role) : null;
   const [searchParams, setSearchParams] = useSearchParams();
+
+  // Get auto-filter campaign from URL parameter
+  const autoFilterCampaign = searchParams.get('autoFilterCampaign');
+
 
   const {
     leads: leadsData,
@@ -514,6 +519,20 @@ export default function Leads() {
     },
     [filters.columnFilters, filters.textFilters],
   );
+
+  // Auto-filter animation when coming from Market Dali
+  useAutoFilterAnimation({
+    campaignName: autoFilterCampaign,
+    onApplyFilter: (campaign: string) => {
+      handleColumnFilterChange('campaign', [campaign]);
+      // Remove the parameter from URL after applying filter
+      setSearchParams((params) => {
+        params.delete('autoFilterCampaign');
+        return params;
+      });
+    },
+    enabled: !!autoFilterCampaign && !isLoading,
+  });
 
   const handleLeadClick = useCallback((lead: Lead) => {
     setSelectedLead(lead);
