@@ -387,7 +387,7 @@ export const OpportunityDetails: React.FC = () => {
                             </div>
                             <div className="flex flex-col items-start min-w-0 flex-1">
                               <span className="font-semibold text-sm leading-tight truncate w-full">
-                                {loadingLeads ? "Cargando leads..." : "Cargar como leads y enviar correo masivo"}
+                                {loadingLeads ? "Cargando leads..." : "Cargar en el módulo de leads"}
                               </span>
                               <span className="text-xs opacity-90 mt-0.5 truncate w-full">Acción recomendada</span>
                             </div>
