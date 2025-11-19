@@ -1,10 +1,11 @@
 import React from 'react';
-import { Heart, Users, TrendingUp, ChevronDown, ChevronUp, Eye, X } from 'lucide-react';
+import { Heart, Users, TrendingUp, ChevronDown, ChevronUp, Eye, CheckCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { IOpportunity, OPPORTUNITY_TYPE_LABELS, PRIORITY_COLORS } from '@/types/opportunities';
 import { opportunitiesService } from '@/services/opportunitiesService';
 import { useToast } from '@/hooks/use-toast';
@@ -134,18 +135,17 @@ export const OpportunityHighlights: React.FC<OpportunityHighlightsProps> = ({
               onClick={() => opportunity.isActive && onViewDetails(opportunity)}
             >
               <CardContent className={`p-4 space-y-3 ${!opportunity.isActive ? 'grayscale' : ''}`}>
-                {/* Inactive overlay */}
+                {/* Inactive alert */}
                 {!opportunity.isActive && (
-                  <div className="absolute inset-0 z-10 flex items-center justify-center bg-black/20 rounded-lg">
-                    <div className="bg-red-600 text-white px-2 py-1.5 rounded shadow-lg text-center transform -rotate-12">
-                      <div className="flex items-center gap-1 mb-0.5">
-                        <X className="h-3 w-3" />
-                        <span className="font-bold text-xs">Ya fue aprovechada</span>
-                      </div>
-                      <div className="text-xs opacity-90 leading-tight">
-                        Regresa pronto para nuevos Leads
-                      </div>
-                    </div>
+                  <div className="absolute inset-0 z-10 flex items-center justify-center bg-black/20 rounded-lg p-4">
+                    <Alert className="bg-blue-50 border-blue-200 max-w-[240px]">
+                      <CheckCircle className="h-4 w-4 text-blue-600" />
+                      <AlertDescription className="text-blue-900">
+                        <p className="font-semibold text-sm mb-1">✓ Clientes ya cargados</p>
+                        <p className="text-xs mb-1">Estos clientes ya están en el módulo de Leads</p>
+                        <p className="text-xs font-medium">Filtra por: {opportunity.title}</p>
+                      </AlertDescription>
+                    </Alert>
                   </div>
                 )}
 
