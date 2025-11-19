@@ -521,64 +521,116 @@ export default function Leads() {
 
   // Auto-filter when coming from Market Dali with animation
   useEffect(() => {
-    if (!autoFilterCampaign || isLoading) return;
+    if (!autoFilterCampaign) return;
+    
+    // Only run when page is fully loaded (not loading anymore)
+    if (isLoading) return;
 
     const runAnimation = async () => {
-      // Wait for page to render
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      console.log('🎯 Iniciando filtrado automático para campaña:', autoFilterCampaign);
       
-      // Start visual animation - click on campaign filter button
+      // Paso 2: Esperar a que la página cargue completamente (APIs terminadas)
+      console.log('⏳ Paso 2: Esperando a que la página termine de cargar...');
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      
+      // Paso 3: Abrir el filtro de la columna Campaña usando ServerSideColumnFilter
+      console.log('🔍 Paso 3: Buscando botón de filtro de campaña...');
       const campaignFilterButton = document.querySelector('[data-filter-field="campaign"]') as HTMLElement;
-      if (campaignFilterButton) {
-        campaignFilterButton.click();
-        
-        await new Promise(resolve => setTimeout(resolve, 1200));
-        
-        const searchInput = document.querySelector('input[placeholder*="Buscar"]') as HTMLInputElement;
-        if (searchInput) {
-          // Type the campaign name character by character
-          const chars = autoFilterCampaign.split('');
-          for (let i = 0; i < chars.length; i++) {
-            searchInput.value = autoFilterCampaign.substring(0, i + 1);
-            searchInput.dispatchEvent(new Event('input', { bubbles: true }));
-            await new Promise(resolve => setTimeout(resolve, 100));
-          }
-          
-          await new Promise(resolve => setTimeout(resolve, 1200));
-          
-          // Find and click the checkbox for the campaign
-          const checkboxes = document.querySelectorAll('[role="checkbox"]');
-          for (const checkbox of checkboxes) {
-            const parent = checkbox.closest('label');
-            if (parent && parent.textContent?.includes(autoFilterCampaign)) {
-              (checkbox as HTMLElement).click();
-              break;
-            }
-          }
-          
-          await new Promise(resolve => setTimeout(resolve, 1200));
-          
-          // Click the Apply button to actually apply the filter
-          const applyButton = Array.from(document.querySelectorAll('button')).find(
-            btn => btn.textContent?.trim() === 'Aplicar'
-          );
-          if (applyButton) {
-            applyButton.click();
-            
-            // Wait for filter to be applied before removing URL parameter
-            await new Promise(resolve => setTimeout(resolve, 500));
-          }
-        }
+      
+      if (!campaignFilterButton) {
+        console.error('❌ No se encontró el botón de filtro de campaña');
+        // Remove parameter and exit
+        setSearchParams((params) => {
+          params.delete('autoFilterCampaign');
+          return params;
+        });
+        return;
       }
       
-      // Remove parameter from URL after animation completes
+      console.log('✅ Botón de filtro encontrado, haciendo clic...');
+      campaignFilterButton.click();
+      
+      // Esperar a que se abra el popover
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      
+      // Paso 4: Esperar a que el hook useDistinctValues cargue los valores
+      console.log('⏳ Paso 4: Esperando a que carguen los valores de campaña...');
+      
+      // Esperar a que desaparezca el estado de carga en el popover
+      let loadingSpinner = document.querySelector('.animate-spin');
+      let attempts = 0;
+      while (loadingSpinner && attempts < 20) {
+        await new Promise(resolve => setTimeout(resolve, 300));
+        loadingSpinner = document.querySelector('.animate-spin');
+        attempts++;
+      }
+      
+      console.log('✅ Valores cargados, buscando campaña específica...');
+      
+      // Escribir el nombre de la campaña en el input de búsqueda
+      const searchInput = document.querySelector('input[placeholder*="Buscar"]') as HTMLInputElement;
+      if (searchInput) {
+        console.log('⌨️ Escribiendo nombre de campaña character por character...');
+        const chars = autoFilterCampaign.split('');
+        for (let i = 0; i < chars.length; i++) {
+          searchInput.value = autoFilterCampaign.substring(0, i + 1);
+          searchInput.dispatchEvent(new Event('input', { bubbles: true }));
+          await new Promise(resolve => setTimeout(resolve, 100));
+        }
+        
+        // Esperar a que se filtren los resultados
+        await new Promise(resolve => setTimeout(resolve, 800));
+        
+        // Buscar y marcar el checkbox de la campaña
+        console.log('✅ Buscando checkbox de la campaña...');
+        const checkboxes = document.querySelectorAll('[role="checkbox"]');
+        let found = false;
+        
+        for (const checkbox of checkboxes) {
+          const parent = checkbox.closest('label');
+          if (parent && parent.textContent?.includes(autoFilterCampaign)) {
+            console.log('✅ Checkbox encontrado, marcando...');
+            (checkbox as HTMLElement).click();
+            found = true;
+            break;
+          }
+        }
+        
+        if (!found) {
+          console.warn('⚠️ No se encontró el checkbox para la campaña:', autoFilterCampaign);
+        }
+        
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        
+        // Paso 5: Aplicar el filtro
+        console.log('🎯 Paso 5: Aplicando filtro...');
+        const applyButton = Array.from(document.querySelectorAll('button')).find(
+          btn => btn.textContent?.trim() === 'Aplicar'
+        );
+        
+        if (applyButton) {
+          console.log('✅ Botón "Aplicar" encontrado, haciendo clic...');
+          applyButton.click();
+          
+          // Esperar a que el filtro se aplique
+          await new Promise(resolve => setTimeout(resolve, 1000));
+          console.log('🎉 Filtro aplicado exitosamente!');
+        } else {
+          console.error('❌ No se encontró el botón "Aplicar"');
+        }
+      } else {
+        console.error('❌ No se encontró el input de búsqueda en el popover');
+      }
+      
+      // Remover el parámetro de la URL después de completar la animación
+      console.log('🧹 Limpiando parámetro de URL...');
       setSearchParams((params) => {
         params.delete('autoFilterCampaign');
         return params;
       });
     };
 
-    runAnimation().catch(err => console.error('Error during auto-filter:', err));
+    runAnimation().catch(err => console.error('💥 Error durante auto-filtrado:', err));
   }, [autoFilterCampaign, isLoading, setSearchParams]);
 
   const handleLeadClick = useCallback((lead: Lead) => {
