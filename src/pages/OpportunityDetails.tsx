@@ -445,40 +445,6 @@ export const OpportunityDetails: React.FC = () => {
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <Button
-                        variant="outline"
-                        className="w-full justify-start h-auto py-3 px-3 text-left border-2 hover:bg-green-50 hover:border-green-200 hover:text-green-700 transition-all duration-200 group"
-                        size="lg"
-                      >
-                        <div className="flex items-center gap-2 w-full min-w-0">
-                          <div className="flex-shrink-0 p-2 bg-green-100 rounded-lg group-hover:bg-green-200 transition-colors">
-                            <MessageSquare className="h-4 w-4 text-green-600" />
-                          </div>
-                          <div className="flex flex-col items-start min-w-0 flex-1">
-                            <span className="text-xs leading-tight font-medium truncate w-full">
-                              Cargar como leads y enviar WhatsApp masivo
-                            </span>
-                            <span className="text-xs text-muted-foreground mt-0.5 truncate w-full">
-                              Mensajería directa
-                            </span>
-                          </div>
-                        </div>
-                      </Button>
-                    </TooltipTrigger>
-                    <TooltipContent side="left" className="max-w-xs">
-                      <p className="text-sm font-medium">Cargar como leads y enviar WhatsApp masivo</p>
-                      <p className="text-xs text-muted-foreground mt-1">Mensajería directa</p>
-                    </TooltipContent>
-                  </Tooltip>
-                  <div className="absolute -top-2 -right-2 pointer-events-none">
-                    <div className="bg-primary text-white text-xs font-bold px-2 py-1 rounded-full shadow-sm">
-                      PROXIMAMENTE
-                    </div>
-                  </div>
-                </div>
-                <div className="relative">
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Button
                         variant="secondary"
                         className="w-full justify-start h-auto py-3 px-4 text-left bg-blue-50 hover:bg-blue-100 border border-blue-200 hover:border-blue-300 text-blue-700 hover:text-blue-800 transition-all duration-200 group"
                         size="lg"
