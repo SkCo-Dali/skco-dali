@@ -89,13 +89,42 @@ export const LoadLeadsProgressModal: React.FC<LoadLeadsProgressModalProps> = ({
                 </div>
               </div>
 
-              <div className="rounded-lg bg-blue-50 dark:bg-blue-950/20 p-4">
-                <p className="text-sm text-muted-foreground">
-                  Estos son los clientes que acabas de cargar desde la oportunidad seleccionada. Puedes continuar de dos
-                  maneras: 1. Revisarlos en el módulo de leads. Allí verás solo estos clientes, ya filtrados
-                  automáticamente por la campaña. 2. Preparar un correo masivo para ellos. Podrás escoger una plantilla,
-                  personalizar el mensaje y decidir a quiénes se enviará. Nada se enviará sin tu confirmación.
+              <div className="rounded-lg bg-blue-50 dark:bg-blue-950/20 p-5 space-y-4">
+                <p className="text-base font-medium text-foreground">
+                  Estos son los clientes que acabas de cargar desde la oportunidad seleccionada.
                 </p>
+                
+                <div className="space-y-3">
+                  <p className="text-base font-semibold text-foreground">
+                    Puedes continuar de dos maneras:
+                  </p>
+                  
+                  <div className="space-y-3 pl-2">
+                    <div className="flex gap-3">
+                      <span className="text-lg">📋</span>
+                      <div>
+                        <p className="text-base font-medium text-foreground">
+                          1. Revisarlos en el módulo de leads.
+                        </p>
+                        <p className="text-sm text-foreground/80 mt-1">
+                          Allí verás solo estos clientes, ya filtrados automáticamente por la campaña.
+                        </p>
+                      </div>
+                    </div>
+                    
+                    <div className="flex gap-3">
+                      <span className="text-lg">📧</span>
+                      <div>
+                        <p className="text-base font-medium text-foreground">
+                          2. Preparar un correo masivo para ellos.
+                        </p>
+                        <p className="text-sm text-foreground/80 mt-1">
+                          Podrás escoger una plantilla, personalizar el mensaje y decidir a quiénes se enviará. Nada se enviará sin tu confirmación.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
 
