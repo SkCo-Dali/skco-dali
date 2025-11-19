@@ -69,7 +69,6 @@ export const OpportunityDetails: React.FC = () => {
     loadOpportunity();
   }, [loadOpportunity]);
 
-
   const handleBack = () => {
     navigate("/oportunidades");
   };
@@ -106,13 +105,13 @@ export const OpportunityDetails: React.FC = () => {
       setLoadingLeads(true);
       const leads = await opportunitiesService.loadAsLeads(opportunity.id);
       setLoadedLeads(leads);
-      
+
       // Extract campaign name from the first lead
       const campaign = leads.length > 0 ? leads[0].campaign : "";
       setCampaignName(campaign);
-      
+
       setLoadingLeads(false);
-      
+
       // Don't automatically open email sender anymore
       // Let user choose from the modal
     } catch (error) {
@@ -396,7 +395,7 @@ export const OpportunityDetails: React.FC = () => {
                         </Button>
                       </TooltipTrigger>
                       <TooltipContent side="left" className="max-w-xs">
-                        <p className="text-sm font-semibold">Cargar como leads y enviar correo masivo</p>
+                        <p className="text-sm font-semibold">Cargar como leads</p>
                         <p className="text-xs text-muted-foreground mt-1">Acción recomendada</p>
                       </TooltipContent>
                     </Tooltip>
@@ -458,7 +457,9 @@ export const OpportunityDetails: React.FC = () => {
                             <span className="text-xs leading-tight font-medium truncate w-full">
                               Cargar como leads y enviar WhatsApp masivo
                             </span>
-                            <span className="text-xs text-muted-foreground mt-0.5 truncate w-full">Mensajería directa</span>
+                            <span className="text-xs text-muted-foreground mt-0.5 truncate w-full">
+                              Mensajería directa
+                            </span>
                           </div>
                         </div>
                       </Button>
@@ -487,7 +488,9 @@ export const OpportunityDetails: React.FC = () => {
                             <GraduationCap className="h-4 w-4 text-blue-600" />
                           </div>
                           <div className="flex flex-col items-start min-w-0 flex-1">
-                            <span className="font-medium text-sm leading-tight truncate w-full">Aprende a pedir esta base en Chat Dali</span>
+                            <span className="font-medium text-sm leading-tight truncate w-full">
+                              Aprende a pedir esta base en Chat Dali
+                            </span>
                             <span className="text-xs text-blue-600 mt-0.5 truncate w-full">Guía interactiva</span>
                           </div>
                         </div>
@@ -521,8 +524,8 @@ export const OpportunityDetails: React.FC = () => {
       />
 
       {/* Email Sender Modal via Portal */}
-      <Dialog 
-        open={showEmailSender} 
+      <Dialog
+        open={showEmailSender}
         onOpenChange={(open) => {
           setShowEmailSender(open);
           if (!open) {
