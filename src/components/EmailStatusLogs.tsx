@@ -176,21 +176,22 @@ export function EmailStatusLogs({ logs, isLoading, onRefresh, onFetchDetail, onD
           <div className="space-y-4">
 
             {/* Tabla de logs */}
-            <div className="border rounded-xl">
+            <div className="border rounded-xl overflow-hidden">
               <ScrollArea className="h-[400px]">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead className="min-w-[250px]">Asunto</TableHead>
-                      <TableHead className="min-w-[200px]">Destinatario</TableHead>
-                      <TableHead className="min-w-[180px]">Campaña</TableHead>
-                      <TableHead className="min-w-[100px]">Estado</TableHead>
-                      <TableHead className="min-w-[150px]">Fecha Envío</TableHead>
-                      <TableHead className="min-w-[180px]">Apertura</TableHead>
-                      <TableHead className="min-w-[80px]">Adjuntos</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
+                <div className="min-w-[1200px]">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead className="w-[250px]">Asunto</TableHead>
+                        <TableHead className="w-[200px]">Destinatario</TableHead>
+                        <TableHead className="w-[180px]">Campaña</TableHead>
+                        <TableHead className="w-[100px]">Estado</TableHead>
+                        <TableHead className="w-[150px]">Fecha Envío</TableHead>
+                        <TableHead className="w-[180px]">Apertura</TableHead>
+                        <TableHead className="w-[80px]">Adjuntos</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
                   {isLoading ? (
                     <TableRow>
                       <TableCell colSpan={8} className="text-center py-5">
@@ -259,8 +260,9 @@ export function EmailStatusLogs({ logs, isLoading, onRefresh, onFetchDetail, onD
                       </TableRow>
                     ))
                   )}
-                </TableBody>
-              </Table>
+                  </TableBody>
+                </Table>
+                </div>
               </ScrollArea>
             </div>
 
