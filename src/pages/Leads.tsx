@@ -5,7 +5,6 @@ import { Lead, getRolePermissions } from "@/types/crm";
 import { useAuth } from "@/contexts/AuthContext";
 import { isAuthorizedForMassEmail } from "@/utils/emailDomainValidator";
 import Lottie from 'lottie-react';
-import { useAutoFilterAnimation } from "@/hooks/useAutoFilterAnimation";
 import { LeadsSearch } from "@/components/LeadsSearch";
 import { LeadsFilters } from "@/components/LeadsFilters";
 import { LeadsStats } from "@/components/LeadsStats";
@@ -520,19 +519,64 @@ export default function Leads() {
     [filters.columnFilters, filters.textFilters],
   );
 
-  // Auto-filter animation when coming from Market Dali
-  useAutoFilterAnimation({
-    campaignName: autoFilterCampaign,
-    onApplyFilter: (campaign: string) => {
-      handleColumnFilterChange('campaign', [campaign]);
-      // Remove the parameter from URL after applying filter
+  // Auto-filter when coming from Market Dali with animation
+  useEffect(() => {
+    if (!autoFilterCampaign || isLoading) return;
+
+    const runAnimation = async () => {
+      // Wait for page to render
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      // Apply filter and trigger animation
+      handleColumnFilterChange('campaign', [autoFilterCampaign]);
+      
+      // Start visual animation
+      const campaignFilterButton = document.querySelector('[data-filter-field="campaign"]') as HTMLElement;
+      if (campaignFilterButton) {
+        campaignFilterButton.click();
+        
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        
+        const searchInput = document.querySelector('input[placeholder*="Buscar"]') as HTMLInputElement;
+        if (searchInput) {
+          const chars = autoFilterCampaign.split('');
+          for (let i = 0; i < chars.length; i++) {
+            searchInput.value = autoFilterCampaign.substring(0, i + 1);
+            searchInput.dispatchEvent(new Event('input', { bubbles: true }));
+            await new Promise(resolve => setTimeout(resolve, 100));
+          }
+          
+          await new Promise(resolve => setTimeout(resolve, 1000));
+          
+          const checkboxes = document.querySelectorAll('[role="checkbox"]');
+          for (const checkbox of checkboxes) {
+            const parent = checkbox.closest('label');
+            if (parent && parent.textContent?.includes(autoFilterCampaign)) {
+              (checkbox as HTMLElement).click();
+              break;
+            }
+          }
+          
+          await new Promise(resolve => setTimeout(resolve, 1000));
+          
+          const applyButton = Array.from(document.querySelectorAll('button')).find(
+            btn => btn.textContent?.trim() === 'Aplicar'
+          );
+          if (applyButton) {
+            applyButton.click();
+          }
+        }
+      }
+      
+      // Remove parameter from URL after animation
       setSearchParams((params) => {
         params.delete('autoFilterCampaign');
         return params;
       });
-    },
-    enabled: !!autoFilterCampaign && !isLoading,
-  });
+    };
+
+    runAnimation().catch(err => console.error('Error during auto-filter:', err));
+  }, [autoFilterCampaign, isLoading, handleColumnFilterChange, setSearchParams]);
 
   const handleLeadClick = useCallback((lead: Lead) => {
     setSelectedLead(lead);
