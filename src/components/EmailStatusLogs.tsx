@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import { RefreshCw, Eye, CheckCircle, Paperclip, ChevronLeft, ChevronRight } from 'lucide-react';
 import { EmailLog, EmailLogDetail } from '@/types/email';
 import { formatBogotaDateTime } from "@/utils/dateUtils";
@@ -176,19 +177,20 @@ export function EmailStatusLogs({ logs, isLoading, onRefresh, onFetchDetail, onD
 
             {/* Tabla de logs */}
             <div className="border rounded-xl">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Asunto</TableHead>
-                    <TableHead>Destinatario</TableHead>
-                    <TableHead>Campaña</TableHead>
-                    <TableHead>Estado</TableHead>
-                    <TableHead>Fecha Envío</TableHead>
-                    <TableHead>Apertura</TableHead>
-                    <TableHead>Adjuntos</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
+              <ScrollArea className="h-[400px]">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead className="min-w-[250px]">Asunto</TableHead>
+                      <TableHead className="min-w-[200px]">Destinatario</TableHead>
+                      <TableHead className="min-w-[180px]">Campaña</TableHead>
+                      <TableHead className="min-w-[100px]">Estado</TableHead>
+                      <TableHead className="min-w-[150px]">Fecha Envío</TableHead>
+                      <TableHead className="min-w-[180px]">Apertura</TableHead>
+                      <TableHead className="min-w-[80px]">Adjuntos</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
                   {isLoading ? (
                     <TableRow>
                       <TableCell colSpan={8} className="text-center py-5">
@@ -259,6 +261,7 @@ export function EmailStatusLogs({ logs, isLoading, onRefresh, onFetchDetail, onD
                   )}
                 </TableBody>
               </Table>
+              </ScrollArea>
             </div>
 
             {/* Paginación */}

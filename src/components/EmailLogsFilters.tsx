@@ -40,7 +40,7 @@ export function EmailLogsFilters({
   const hasActiveFilters = searchTerm || statusFilter !== 'all' || campaignFilter !== 'all' || dateFrom || dateTo;
 
   return (
-    <div className="space-y-2">
+    <div className="flex flex-col gap-2">
       <div className="flex items-center gap-2">
         <Filter className="h-4 w-4 text-muted-foreground" />
         <h3 className="text-sm font-semibold">Filtros</h3>
