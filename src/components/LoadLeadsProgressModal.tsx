@@ -91,19 +91,20 @@ export const LoadLeadsProgressModal: React.FC<LoadLeadsProgressModalProps> = ({
 
               <div className="rounded-lg bg-blue-50 dark:bg-blue-950/20 p-4">
                 <p className="text-sm text-muted-foreground">
-                  A continuación se abrirá la ventana de envío de correos masivos por si deseas abordarlos de inmediato.
-                  Desde allí podrás ver uno a uno estos clientes con oportunidades y seleccionar todos o descartar los
-                  que desees.
+                  Estos son los clientes que acabas de cargar desde la oportunidad seleccionada. Puedes continuar de dos
+                  maneras: 1. Revisarlos en el módulo de leads. Allí verás solo estos clientes, ya filtrados
+                  automáticamente por la campaña. 2. Preparar un correo masivo para ellos. Podrás escoger una plantilla,
+                  personalizar el mensaje y decidir a quiénes se enviará. Nada se enviará sin tu confirmación.
                 </p>
               </div>
             </div>
 
             <DialogFooter className="flex-col gap-2 sm:flex-col">
               <Button onClick={onSendEmails} className="w-full">
-                Vamos a enviarle correos a estos {leads.length} clientes con oportunidades
+                Preparar correo masivo
               </Button>
               <Button variant="outline" onClick={onGoToLeads} className="w-full">
-                Llévame directo a ver esas oportunidades en el módulo de leads
+                Ver estos clientes en el módulo de leads
               </Button>
             </DialogFooter>
           </>
