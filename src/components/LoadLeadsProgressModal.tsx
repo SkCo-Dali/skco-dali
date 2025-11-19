@@ -95,38 +95,45 @@ export const LoadLeadsProgressModal: React.FC<LoadLeadsProgressModalProps> = ({
                   Se cargaron {leads.length} clientes en el módulo de leads
                 </p>
                 <p className="text-sm text-foreground/80">
-                  Podrás consultarlos en el módulo de leads filtrando por la campaña:{" "}
+                  Los encontrarás filtrando por la campaña:{" "}
                   <span className="font-medium text-foreground">{campaignName}</span>
                 </p>
-                <p className="text-base font-medium text-foreground">
+                <p className="text-sm text-foreground/80">
                   Estos son los clientes que acabas de cargar desde la oportunidad seleccionada.
                 </p>
 
-                <div className="space-y-3">
-                  <p className="text-base font-semibold text-foreground">Puedes continuar de dos maneras:</p>
+                <div className="space-y-4 mt-4">
+                  <p className="text-base font-semibold text-foreground">¿Qué quieres hacer ahora?</p>
 
-                  <div className="space-y-3 pl-2">
+                  <div className="space-y-4">
                     <div className="flex gap-3">
-                      <span className="text-lg">📧</span>
+                      <span className="text-lg flex-shrink-0">📧</span>
                       <div>
                         <p className="text-base font-medium text-foreground">
-                          Opción 1: Preparar un correo masivo para ellos.
+                          Opción 1: Preparar un correo para ellos
                         </p>
                         <p className="text-sm text-foreground/80 mt-1">
-                          Podrás escoger una plantilla, personalizar el mensaje y decidir a quiénes se enviará. Nada se
-                          enviará sin tu confirmación.
+                          Se abrirá el editor de correos donde podrás:
+                        </p>
+                        <ul className="text-sm text-foreground/80 mt-1 ml-4 list-disc space-y-0.5">
+                          <li>Escoger una plantilla o escribir tu mensaje</li>
+                          <li>Decidir a cuáles clientes enviarles</li>
+                          <li>Revisar todo antes de enviar</li>
+                        </ul>
+                        <p className="text-sm text-foreground/90 mt-2 italic font-medium">
+                          Nada se envía sin tu confirmación final.
                         </p>
                       </div>
                     </div>
 
                     <div className="flex gap-3">
-                      <span className="text-lg">📋</span>
+                      <span className="text-lg flex-shrink-0">📋</span>
                       <div>
                         <p className="text-base font-medium text-foreground">
-                          Opción 2: Revisarlos en el módulo de leads.
+                          Opción 2: Ir al módulo de leads
                         </p>
                         <p className="text-sm text-foreground/80 mt-1">
-                          Allí verás sólo estos clientes, ya filtrados automáticamente por la campaña.
+                          Verás estos clientes ya filtrados automáticamente por la campaña para que puedas revisar su información.
                         </p>
                       </div>
                     </div>
@@ -138,10 +145,10 @@ export const LoadLeadsProgressModal: React.FC<LoadLeadsProgressModalProps> = ({
             {/* Footer fijo con los botones centrados */}
             <div className="flex flex-col items-center gap-2 w-full mt-4">
               <Button onClick={onSendEmails} className="w-full max-w-md">
-                Preparar correo masivo
+                Preparar correo
               </Button>
               <Button variant="outline" onClick={onGoToLeads} className="w-full max-w-md">
-                Ver estos clientes en el módulo de leads
+                Ir al módulo de leads
               </Button>
             </div>
           </>
