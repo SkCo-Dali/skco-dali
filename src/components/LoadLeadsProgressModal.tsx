@@ -26,7 +26,7 @@ export const LoadLeadsProgressModal: React.FC<LoadLeadsProgressModalProps> = ({
   return (
     <Dialog open={open} onOpenChange={() => {}}>
       <DialogContent 
-        className="max-w-4xl max-h-[90vh]"
+        className="max-w-4xl max-h-[90vh] flex flex-col"
         onPointerDownOutside={(e) => e.preventDefault()}
         onEscapeKeyDown={(e) => e.preventDefault()}
       >
@@ -65,30 +65,34 @@ export const LoadLeadsProgressModal: React.FC<LoadLeadsProgressModalProps> = ({
 
               <div className="space-y-2">
                 <p className="text-sm font-medium">Clientes cargados:</p>
-                <ScrollArea className="h-[300px] rounded-md border">
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>Documento</TableHead>
-                        <TableHead>Nombre</TableHead>
-                        <TableHead>Email</TableHead>
-                        <TableHead>Teléfono</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {leads.map((lead) => (
-                        <TableRow key={lead.id}>
-                          <TableCell className="font-medium">
-                            {lead.documentNumber || "N/A"}
-                          </TableCell>
-                          <TableCell>{lead.name}</TableCell>
-                          <TableCell className="text-sm">{lead.email || "N/A"}</TableCell>
-                          <TableCell>{lead.phone || "N/A"}</TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </ScrollArea>
+                <div className="rounded-md border">
+                  <ScrollArea className="h-[300px] w-full">
+                    <div className="min-w-[600px]">
+                      <Table>
+                        <TableHeader>
+                          <TableRow>
+                            <TableHead className="w-[120px]">Documento</TableHead>
+                            <TableHead className="w-[180px]">Nombre</TableHead>
+                            <TableHead className="w-[200px]">Email</TableHead>
+                            <TableHead className="w-[120px]">Teléfono</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {leads.map((lead) => (
+                            <TableRow key={lead.id}>
+                              <TableCell className="font-medium">
+                                {lead.documentNumber || "N/A"}
+                              </TableCell>
+                              <TableCell>{lead.name}</TableCell>
+                              <TableCell className="text-sm">{lead.email || "N/A"}</TableCell>
+                              <TableCell>{lead.phone || "N/A"}</TableCell>
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
+                    </div>
+                  </ScrollArea>
+                </div>
               </div>
 
               <div className="rounded-lg bg-blue-50 dark:bg-blue-950/20 p-4">
@@ -100,19 +104,19 @@ export const LoadLeadsProgressModal: React.FC<LoadLeadsProgressModalProps> = ({
               </div>
             </div>
 
-            <DialogFooter className="flex-col sm:flex-row gap-2">
+            <DialogFooter className="flex-col gap-2 sm:flex-col">
+              <Button
+                onClick={onSendEmails}
+                className="w-full"
+              >
+                Vamos a enviarle correos a estos {leads.length} clientes con oportunidades
+              </Button>
               <Button
                 variant="outline"
                 onClick={onGoToLeads}
-                className="w-full sm:w-auto"
+                className="w-full"
               >
                 Prefiero revisar esas oportunidades en el módulo de leads antes de enviar correos
-              </Button>
-              <Button
-                onClick={onSendEmails}
-                className="w-full sm:w-auto"
-              >
-                Vamos a enviarle correos a estos {leads.length} clientes con oportunidades
               </Button>
             </DialogFooter>
           </>
