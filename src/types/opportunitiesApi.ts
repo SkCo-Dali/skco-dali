@@ -37,6 +37,7 @@ export interface LoadLeadsFromOpportunityRequest {
 }
 
 export interface LoadLeadsFromOpportunityResponse {
+  id: string;
   CreatedBy: string;
   name: string;
   email: string;
