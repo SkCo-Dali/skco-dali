@@ -533,12 +533,25 @@ export default function Leads() {
       console.log('⏳ Paso 2: Esperando a que la página termine de cargar...');
       await new Promise(resolve => setTimeout(resolve, 2000));
       
+      // Esperar a que la tabla se renderice completamente
+      console.log('⏳ Esperando a que la tabla se renderice...');
+      let retries = 0;
+      let campaignFilterButton: HTMLElement | null = null;
+      
+      while (!campaignFilterButton && retries < 10) {
+        campaignFilterButton = document.querySelector('[data-filter-field="campaign"]') as HTMLElement;
+        if (!campaignFilterButton) {
+          await new Promise(resolve => setTimeout(resolve, 500));
+          retries++;
+        }
+      }
+      
       // Paso 3: Abrir el filtro de la columna Campaña usando ServerSideColumnFilter
       console.log('🔍 Paso 3: Buscando botón de filtro de campaña...');
-      const campaignFilterButton = document.querySelector('[data-filter-field="campaign"]') as HTMLElement;
       
       if (!campaignFilterButton) {
-        console.error('❌ No se encontró el botón de filtro de campaña');
+        console.error('❌ No se encontró el botón de filtro de campaña después de', retries, 'intentos');
+        console.log('Columnas visibles en la tabla:', Array.from(document.querySelectorAll('[data-filter-field]')).map(el => el.getAttribute('data-filter-field')));
         // Remove parameter and exit
         setSearchParams((params) => {
           params.delete('autoFilterCampaign');
@@ -547,7 +560,7 @@ export default function Leads() {
         return;
       }
       
-      console.log('✅ Botón de filtro encontrado, haciendo clic...');
+      console.log('✅ Botón de filtro encontrado después de', retries, 'intentos, haciendo clic...');
       campaignFilterButton.click();
       
       // Esperar a que se abra el popover
