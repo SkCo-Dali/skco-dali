@@ -1,4 +1,5 @@
 import React, { useState, useCallback, useMemo, useRef, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { Lead, getRolePermissions } from "@/types/crm";
 import { useAuth } from "@/contexts/AuthContext";
@@ -119,6 +120,7 @@ export default function Leads() {
 
   const { user } = useAuth();
   const userPermissions = user ? getRolePermissions(user.role) : null;
+  const [searchParams, setSearchParams] = useSearchParams();
 
   const {
     leads: leadsData,
@@ -298,6 +300,17 @@ export default function Leads() {
     },
     [updateFilters, filters.columnFilters],
   );
+
+  // Apply campaign filter from URL params
+  useEffect(() => {
+    const campaignParam = searchParams.get('campaign');
+    if (campaignParam) {
+      console.log('📌 Applying campaign filter from URL:', campaignParam);
+      setFilterCampaign(campaignParam);
+      // Clear the URL param after applying the filter
+      setSearchParams({}, { replace: true });
+    }
+  }, [searchParams, setFilterCampaign, setSearchParams]);
 
   const clearFilters = useCallback(() => {
     updateFilters({
