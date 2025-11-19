@@ -25,7 +25,7 @@ export const LoadLeadsProgressModal: React.FC<LoadLeadsProgressModalProps> = ({
 }) => {
   return (
     <Dialog open={open} onOpenChange={() => {}}>
-      <DialogContent 
+      <DialogContent
         className="max-w-4xl max-h-[90vh] flex flex-col"
         onPointerDownOutside={(e) => e.preventDefault()}
         onEscapeKeyDown={(e) => e.preventDefault()}
@@ -39,9 +39,7 @@ export const LoadLeadsProgressModal: React.FC<LoadLeadsProgressModalProps> = ({
               </DialogTitle>
             </DialogHeader>
             <div className="py-8 text-center">
-              <p className="text-muted-foreground">
-                Por favor espera mientras se cargan las oportunidades...
-              </p>
+              <p className="text-muted-foreground">Por favor espera mientras se cargan las oportunidades...</p>
             </div>
           </>
         ) : (
@@ -54,9 +52,7 @@ export const LoadLeadsProgressModal: React.FC<LoadLeadsProgressModalProps> = ({
             </DialogHeader>
             <div className="space-y-4">
               <div className="rounded-lg bg-green-50 dark:bg-green-950/20 p-4 space-y-2">
-                <p className="font-semibold">
-                  Se cargaron {leads.length} oportunidades en el módulo de leads
-                </p>
+                <p className="font-semibold">Se cargaron {leads.length} oportunidades en el módulo de leads</p>
                 <p className="text-sm text-muted-foreground">
                   Podrás consultarlas en el módulo de leads filtrando por la campaña:{" "}
                   <span className="font-medium text-foreground">{campaignName}</span>
@@ -80,9 +76,7 @@ export const LoadLeadsProgressModal: React.FC<LoadLeadsProgressModalProps> = ({
                         <TableBody>
                           {leads.map((lead) => (
                             <TableRow key={lead.id}>
-                              <TableCell className="font-medium">
-                                {lead.documentNumber || "N/A"}
-                              </TableCell>
+                              <TableCell className="font-medium">{lead.documentNumber || "N/A"}</TableCell>
                               <TableCell>{lead.name}</TableCell>
                               <TableCell className="text-sm">{lead.email || "N/A"}</TableCell>
                               <TableCell>{lead.phone || "N/A"}</TableCell>
@@ -97,26 +91,19 @@ export const LoadLeadsProgressModal: React.FC<LoadLeadsProgressModalProps> = ({
 
               <div className="rounded-lg bg-blue-50 dark:bg-blue-950/20 p-4">
                 <p className="text-sm text-muted-foreground">
-                  A continuación se abrirá la ventana de envío de correos masivos por si deseas 
-                  abordarlos de inmediato. Desde allí podrás ver uno a uno estos clientes con 
-                  oportunidades y seleccionar todos o descartar los que desees.
+                  A continuación se abrirá la ventana de envío de correos masivos por si deseas abordarlos de inmediato.
+                  Desde allí podrás ver uno a uno estos clientes con oportunidades y seleccionar todos o descartar los
+                  que desees.
                 </p>
               </div>
             </div>
 
             <DialogFooter className="flex-col gap-2 sm:flex-col">
-              <Button
-                onClick={onSendEmails}
-                className="w-full"
-              >
+              <Button onClick={onSendEmails} className="w-full">
                 Vamos a enviarle correos a estos {leads.length} clientes con oportunidades
               </Button>
-              <Button
-                variant="outline"
-                onClick={onGoToLeads}
-                className="w-full"
-              >
-                Prefiero revisar esas oportunidades en el módulo de leads antes de enviar correos
+              <Button variant="outline" onClick={onGoToLeads} className="w-full">
+                Llévame directo a ver esas oportunidades en el módulo de leads
               </Button>
             </DialogFooter>
           </>
