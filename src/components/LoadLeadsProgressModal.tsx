@@ -125,16 +125,15 @@ export const LoadLeadsProgressModal: React.FC<LoadLeadsProgressModalProps> = ({
                   </div>
                 </div>
               </div>
+              <DialogFooter className="flex-col gap-2 sm:flex-col">
+                <Button onClick={onSendEmails} className="w-full">
+                  Preparar correo masivo
+                </Button>
+                <Button variant="outline" onClick={onGoToLeads} className="w-full">
+                  Ver estos clientes en el módulo de leads
+                </Button>
+              </DialogFooter>
             </div>
-
-            <DialogFooter className="flex-col gap-2 sm:flex-col">
-              <Button onClick={onSendEmails} className="w-full">
-                Preparar correo masivo
-              </Button>
-              <Button variant="outline" onClick={onGoToLeads} className="w-full">
-                Ver estos clientes en el módulo de leads
-              </Button>
-            </DialogFooter>
           </>
         )}
       </DialogContent>
