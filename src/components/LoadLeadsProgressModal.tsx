@@ -32,6 +32,7 @@ export const LoadLeadsProgressModal: React.FC<LoadLeadsProgressModalProps> = ({
           max-h-[80vh] 
           flex 
           flex-col
+          [&>button]:hidden
         "
         onPointerDownOutside={(e) => e.preventDefault()}
         onEscapeKeyDown={(e) => e.preventDefault()}
