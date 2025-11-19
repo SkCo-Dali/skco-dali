@@ -583,16 +583,12 @@ export default function Leads() {
       // Escribir el nombre de la campaña en el input de búsqueda
       const searchInput = document.querySelector('input[placeholder*="Buscar"]') as HTMLInputElement;
       if (searchInput) {
-        console.log('⌨️ Escribiendo nombre de campaña character por character...');
-        const chars = autoFilterCampaign.split('');
-        for (let i = 0; i < chars.length; i++) {
-          searchInput.value = autoFilterCampaign.substring(0, i + 1);
-          searchInput.dispatchEvent(new Event('input', { bubbles: true }));
-          await new Promise(resolve => setTimeout(resolve, 100));
-        }
+        console.log('⌨️ Asignando nombre de campaña completo...');
+        searchInput.value = autoFilterCampaign;
+        searchInput.dispatchEvent(new Event('input', { bubbles: true }));
         
-        // Esperar a que se filtren los resultados
-        await new Promise(resolve => setTimeout(resolve, 800));
+        // Esperar 3 segundos antes de continuar
+        await new Promise(resolve => setTimeout(resolve, 3000));
         
         // Buscar y marcar el checkbox de la campaña
         console.log('✅ Buscando checkbox de la campaña...');
