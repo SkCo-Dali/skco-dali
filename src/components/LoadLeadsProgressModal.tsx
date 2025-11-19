@@ -26,7 +26,13 @@ export const LoadLeadsProgressModal: React.FC<LoadLeadsProgressModalProps> = ({
   return (
     <Dialog open={open} onOpenChange={() => {}}>
       <DialogContent
-        className="max-w-4xl max-h-[90vh] flex flex-col"
+        className="
+          w-full 
+          max-w-3xl 
+          max-h-[80vh] 
+          flex 
+          flex-col
+        "
         onPointerDownOutside={(e) => e.preventDefault()}
         onEscapeKeyDown={(e) => e.preventDefault()}
       >
@@ -50,7 +56,9 @@ export const LoadLeadsProgressModal: React.FC<LoadLeadsProgressModalProps> = ({
                 ¡Cargue exitoso!
               </DialogTitle>
             </DialogHeader>
-            <div className="space-y-4">
+
+            {/* Contenido scrollable */}
+            <div className="flex-1 overflow-y-auto pr-1 space-y-4">
               <div className="rounded-lg bg-green-50 dark:bg-green-950/20 p-4 space-y-2">
                 <p className="font-semibold">Se cargaron {leads.length} clientes en el módulo de leads</p>
                 <p className="text-sm text-muted-foreground">
@@ -62,7 +70,7 @@ export const LoadLeadsProgressModal: React.FC<LoadLeadsProgressModalProps> = ({
               <div className="space-y-2">
                 <p className="text-sm font-medium">Clientes cargados:</p>
                 <div className="rounded-md border">
-                  <ScrollArea className="h-[300px] w-full">
+                  <ScrollArea className="h-[260px] w-full">
                     <div className="min-w-[600px]">
                       <Table>
                         <TableHeader>
@@ -125,15 +133,17 @@ export const LoadLeadsProgressModal: React.FC<LoadLeadsProgressModalProps> = ({
                   </div>
                 </div>
               </div>
-              <div className="flex flex-col gap-2 w-full mt-4">
-                <Button onClick={onSendEmails} className="w-full">
-                  Preparar correo masivo
-                </Button>
-                <Button variant="outline" onClick={onGoToLeads} className="w-full">
-                  Ver estos clientes en el módulo de leads
-                </Button>
-              </div>
             </div>
+
+            {/* Footer fijo con los botones */}
+            <DialogFooter className="mt-4 flex flex-col sm:flex-row gap-2 sm:justify-end">
+              <Button onClick={onSendEmails} className="w-full sm:w-auto">
+                Preparar correo masivo
+              </Button>
+              <Button variant="outline" onClick={onGoToLeads} className="w-full sm:w-auto">
+                Ver estos clientes en el módulo de leads
+              </Button>
+            </DialogFooter>
           </>
         )}
       </DialogContent>
