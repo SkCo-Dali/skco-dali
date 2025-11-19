@@ -525,20 +525,18 @@ export default function Leads() {
 
     const runAnimation = async () => {
       // Wait for page to render
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      await new Promise(resolve => setTimeout(resolve, 1500));
       
-      // Apply filter and trigger animation
-      handleColumnFilterChange('campaign', [autoFilterCampaign]);
-      
-      // Start visual animation
+      // Start visual animation - click on campaign filter button
       const campaignFilterButton = document.querySelector('[data-filter-field="campaign"]') as HTMLElement;
       if (campaignFilterButton) {
         campaignFilterButton.click();
         
-        await new Promise(resolve => setTimeout(resolve, 1000));
+        await new Promise(resolve => setTimeout(resolve, 1200));
         
         const searchInput = document.querySelector('input[placeholder*="Buscar"]') as HTMLInputElement;
         if (searchInput) {
+          // Type the campaign name character by character
           const chars = autoFilterCampaign.split('');
           for (let i = 0; i < chars.length; i++) {
             searchInput.value = autoFilterCampaign.substring(0, i + 1);
@@ -546,8 +544,9 @@ export default function Leads() {
             await new Promise(resolve => setTimeout(resolve, 100));
           }
           
-          await new Promise(resolve => setTimeout(resolve, 1000));
+          await new Promise(resolve => setTimeout(resolve, 1200));
           
+          // Find and click the checkbox for the campaign
           const checkboxes = document.querySelectorAll('[role="checkbox"]');
           for (const checkbox of checkboxes) {
             const parent = checkbox.closest('label');
@@ -557,18 +556,22 @@ export default function Leads() {
             }
           }
           
-          await new Promise(resolve => setTimeout(resolve, 1000));
+          await new Promise(resolve => setTimeout(resolve, 1200));
           
+          // Click the Apply button to actually apply the filter
           const applyButton = Array.from(document.querySelectorAll('button')).find(
             btn => btn.textContent?.trim() === 'Aplicar'
           );
           if (applyButton) {
             applyButton.click();
+            
+            // Wait for filter to be applied before removing URL parameter
+            await new Promise(resolve => setTimeout(resolve, 500));
           }
         }
       }
       
-      // Remove parameter from URL after animation
+      // Remove parameter from URL after animation completes
       setSearchParams((params) => {
         params.delete('autoFilterCampaign');
         return params;
@@ -576,7 +579,7 @@ export default function Leads() {
     };
 
     runAnimation().catch(err => console.error('Error during auto-filter:', err));
-  }, [autoFilterCampaign, isLoading, handleColumnFilterChange, setSearchParams]);
+  }, [autoFilterCampaign, isLoading, setSearchParams]);
 
   const handleLeadClick = useCallback((lead: Lead) => {
     setSelectedLead(lead);
