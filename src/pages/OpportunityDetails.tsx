@@ -135,8 +135,8 @@ export const OpportunityDetails: React.FC = () => {
 
   const handleGoToLeadsModule = () => {
     setShowLoadLeadsModal(false);
-    // Navigate to leads with campaign filter
-    navigate(`/leads?campaign=${encodeURIComponent(campaignName)}`);
+    // Navigate to leads with auto-filter animation
+    navigate(`/leads?autoFilterCampaign=${encodeURIComponent(campaignName)}`);
   };
 
   if (loading) {
