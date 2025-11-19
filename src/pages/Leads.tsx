@@ -519,128 +519,42 @@ export default function Leads() {
     [filters.columnFilters, filters.textFilters],
   );
 
-  // Auto-filter when coming from Market Dali with animation
+  // Auto-filter when coming from Market Dali - Aplicar filtro programáticamente
   useEffect(() => {
     if (!autoFilterCampaign) return;
     
     // Only run when page is fully loaded (not loading anymore)
     if (isLoading) return;
 
-    const runAnimation = async () => {
-      console.log('🎯 Iniciando filtrado automático para campaña:', autoFilterCampaign);
+    const applyFilter = async () => {
+      console.log('🎯 Aplicando filtro automático para campaña:', autoFilterCampaign); // NOSONAR
       
-      // Paso 2: Esperar a que la página cargue completamente (APIs terminadas)
-      console.log('⏳ Paso 2: Esperando a que la página termine de cargar...');
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      // Esperar a que la tabla se renderice completamente
-      console.log('⏳ Esperando a que la tabla se renderice...');
-      let retries = 0;
-      let campaignFilterButton: HTMLElement | null = null;
-      
-      while (!campaignFilterButton && retries < 10) {
-        campaignFilterButton = document.querySelector('[data-filter-field="campaign"]') as HTMLElement;
-        if (!campaignFilterButton) {
-          await new Promise(resolve => setTimeout(resolve, 500));
-          retries++;
-        }
-      }
-      
-      // Paso 3: Abrir el filtro de la columna Campaña usando ServerSideColumnFilter
-      console.log('🔍 Paso 3: Buscando botón de filtro de campaña...');
-      
-      if (!campaignFilterButton) {
-        console.error('❌ No se encontró el botón de filtro de campaña después de', retries, 'intentos');
-        console.log('Columnas visibles en la tabla:', Array.from(document.querySelectorAll('[data-filter-field]')).map(el => el.getAttribute('data-filter-field')));
-        // Remove parameter and exit
-        setSearchParams((params) => {
-          params.delete('autoFilterCampaign');
-          return params;
-        });
-        return;
-      }
-      
-      console.log('✅ Botón de filtro encontrado después de', retries, 'intentos, haciendo clic...');
-      campaignFilterButton.click();
-      
-      // Esperar a que se abra el popover
+      // Esperar a que la página cargue completamente
       await new Promise(resolve => setTimeout(resolve, 1500));
       
-      // Paso 4: Esperar a que el hook useDistinctValues cargue los valores
-      console.log('⏳ Paso 4: Esperando a que carguen los valores de campaña...');
+      // Aplicar el filtro directamente usando la función handleColumnFilterChange
+      console.log('✅ Aplicando filtro de campaña:', autoFilterCampaign); // NOSONAR
+      handleColumnFilterChange('campaign', [autoFilterCampaign]);
       
-      // Esperar a que desaparezca el estado de carga en el popover
-      let loadingSpinner = document.querySelector('.animate-spin');
-      let attempts = 0;
-      while (loadingSpinner && attempts < 20) {
-        await new Promise(resolve => setTimeout(resolve, 300));
-        loadingSpinner = document.querySelector('.animate-spin');
-        attempts++;
-      }
+      // Mostrar toast de confirmación
+      toast({
+        title: "Filtro aplicado",
+        description: `Mostrando leads de: ${autoFilterCampaign}`,
+      });
       
-      console.log('✅ Valores cargados, buscando campaña específica...');
-      
-      // Escribir el nombre de la campaña en el input de búsqueda
-      const searchInput = document.querySelector('input[placeholder*="Buscar"]') as HTMLInputElement;
-      if (searchInput) {
-        console.log('⌨️ Asignando nombre de campaña completo...');
-        searchInput.value = autoFilterCampaign;
-        searchInput.dispatchEvent(new Event('input', { bubbles: true }));
-        
-        // Esperar 3 segundos antes de continuar
-        await new Promise(resolve => setTimeout(resolve, 3000));
-        
-        // Buscar y marcar el checkbox de la campaña
-        console.log('✅ Buscando checkbox de la campaña...');
-        const checkboxes = document.querySelectorAll('[role="checkbox"]');
-        let found = false;
-        
-        for (const checkbox of checkboxes) {
-          const parent = checkbox.closest('label');
-          if (parent && parent.textContent?.includes(autoFilterCampaign)) {
-            console.log('✅ Checkbox encontrado, marcando...');
-            (checkbox as HTMLElement).click();
-            found = true;
-            break;
-          }
-        }
-        
-        if (!found) {
-          console.warn('⚠️ No se encontró el checkbox para la campaña:', autoFilterCampaign);
-        }
-        
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        
-        // Paso 5: Aplicar el filtro
-        console.log('🎯 Paso 5: Aplicando filtro...');
-        const applyButton = Array.from(document.querySelectorAll('button')).find(
-          btn => btn.textContent?.trim() === 'Aplicar'
-        );
-        
-        if (applyButton) {
-          console.log('✅ Botón "Aplicar" encontrado, haciendo clic...');
-          applyButton.click();
-          
-          // Esperar a que el filtro se aplique
-          await new Promise(resolve => setTimeout(resolve, 1000));
-          console.log('🎉 Filtro aplicado exitosamente!');
-        } else {
-          console.error('❌ No se encontró el botón "Aplicar"');
-        }
-      } else {
-        console.error('❌ No se encontró el input de búsqueda en el popover');
-      }
-      
-      // Remover el parámetro de la URL después de completar la animación
-      console.log('🧹 Limpiando parámetro de URL...');
+      // Esperar un momento y limpiar el parámetro de URL
+      await new Promise(resolve => setTimeout(resolve, 500));
+      console.log('🧹 Limpiando parámetro de URL...'); // NOSONAR
       setSearchParams((params) => {
         params.delete('autoFilterCampaign');
         return params;
       });
+      
+      console.log('🎉 Filtro aplicado exitosamente!'); // NOSONAR
     };
 
-    runAnimation().catch(err => console.error('💥 Error durante auto-filtrado:', err));
-  }, [autoFilterCampaign, isLoading, setSearchParams]);
+    applyFilter().catch(err => console.error('💥 Error durante auto-filtrado:', err)); // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [autoFilterCampaign, isLoading, handleColumnFilterChange, setSearchParams, toast]);
 
   const handleLeadClick = useCallback((lead: Lead) => {
     setSelectedLead(lead);
