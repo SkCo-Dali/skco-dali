@@ -27,6 +27,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { isAuthorizedForMassEmail } from "@/utils/emailDomainValidator";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { MassEmailSender } from "@/components/MassEmailSender";
+import { LoadLeadsProgressModal } from "@/components/LoadLeadsProgressModal";
 import { Lead } from "@/types/crm";
 
 export const OpportunityDetails: React.FC = () => {
@@ -41,6 +42,8 @@ export const OpportunityDetails: React.FC = () => {
   const [loadingLeads, setLoadingLeads] = React.useState(false);
   const [showEmailSender, setShowEmailSender] = React.useState(false);
   const [loadedLeads, setLoadedLeads] = React.useState<Lead[]>([]);
+  const [showLoadLeadsModal, setShowLoadLeadsModal] = React.useState(false);
+  const [campaignName, setCampaignName] = React.useState("");
 
   const loadOpportunity = React.useCallback(async () => {
     if (!id) return;
@@ -99,28 +102,41 @@ export const OpportunityDetails: React.FC = () => {
   const handleLoadAsLeads = async (openEmailSender: boolean = true) => {
     if (!opportunity) return;
     try {
+      setShowLoadLeadsModal(true);
       setLoadingLeads(true);
       const leads = await opportunitiesService.loadAsLeads(opportunity.id);
       setLoadedLeads(leads);
-      if (openEmailSender) {
-        setShowEmailSender(true);
-      }
-      toast({
-        title: "Leads cargados exitosamente",
-        description: `Se cargaron ${leads.length} clientes como leads`,
-        duration: 3000,
-      });
+      
+      // Extract campaign name from the first lead
+      const campaign = leads.length > 0 ? leads[0].campaign : "";
+      setCampaignName(campaign);
+      
+      setLoadingLeads(false);
+      
+      // Don't automatically open email sender anymore
+      // Let user choose from the modal
     } catch (error) {
       console.error("Error loading leads:", error);
+      setShowLoadLeadsModal(false);
+      setLoadingLeads(false);
       toast({
         title: "Error al cargar leads",
         description: "No se pudieron cargar los clientes como leads",
         variant: "destructive",
         duration: 5000,
       });
-    } finally {
-      setLoadingLeads(false);
     }
+  };
+
+  const handleSendEmailsFromModal = () => {
+    setShowLoadLeadsModal(false);
+    setShowEmailSender(true);
+  };
+
+  const handleGoToLeadsModule = () => {
+    setShowLoadLeadsModal(false);
+    // Navigate to leads with campaign filter
+    navigate(`/leads?campaign=${encodeURIComponent(campaignName)}`);
   };
 
   if (loading) {
@@ -493,6 +509,16 @@ export const OpportunityDetails: React.FC = () => {
           </Card>
         </div>
       </div>
+
+      {/* Load Leads Progress Modal */}
+      <LoadLeadsProgressModal
+        open={showLoadLeadsModal}
+        loading={loadingLeads}
+        leads={loadedLeads}
+        campaignName={campaignName}
+        onSendEmails={handleSendEmailsFromModal}
+        onGoToLeads={handleGoToLeadsModule}
+      />
 
       {/* Email Sender Modal via Portal */}
       <Dialog 
