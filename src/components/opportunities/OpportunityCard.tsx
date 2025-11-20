@@ -79,7 +79,7 @@ export const OpportunityCard: React.FC<OpportunityCardProps> = ({ opportunity, o
                   <AlertDescription className="text-blue-900">
                     <p className="font-semibold text-sm mb-1">✓ Clientes ya cargados en el Módulo de Leads</p>
                     <p className="text-xs mb-1">Búscalos filtrando la Campaña:</p>
-                    <p className="text-xs font-medium">{opportunity.lastCampaignName || opportunity.title}</p>
+                    <p className="text-xs font-medium break-words">{opportunity.lastCampaignName || opportunity.title}</p>
                   </AlertDescription>
                 </Alert>
               </div>
