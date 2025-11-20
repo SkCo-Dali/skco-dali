@@ -67,6 +67,7 @@ export const mapApiOpportunityToOpportunity = (apiOpportunity: ApiOpportunity): 
     isActive: apiOpportunity.IsActive,
     createdAt: new Date().toISOString(),
     expiresAt: apiOpportunity.End,
+    lastCampaignName: apiOpportunity.LastCampaignName,
   };
 
   return mappedOpportunity;
