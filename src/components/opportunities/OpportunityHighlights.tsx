@@ -1,22 +1,20 @@
-import React from 'react';
-import { Heart, Users, TrendingUp, ChevronDown, ChevronUp, Eye, CheckCircle } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Card, CardContent } from '@/components/ui/card';
-import { Progress } from '@/components/ui/progress';
-import { Skeleton } from '@/components/ui/skeleton';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { IOpportunity, OPPORTUNITY_TYPE_LABELS, PRIORITY_COLORS } from '@/types/opportunities';
-import { opportunitiesService } from '@/services/opportunitiesService';
-import { useToast } from '@/hooks/use-toast';
+import React from "react";
+import { Heart, Users, TrendingUp, ChevronDown, ChevronUp, Eye, CheckCircle } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent } from "@/components/ui/card";
+import { Progress } from "@/components/ui/progress";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { IOpportunity, OPPORTUNITY_TYPE_LABELS, PRIORITY_COLORS } from "@/types/opportunities";
+import { opportunitiesService } from "@/services/opportunitiesService";
+import { useToast } from "@/hooks/use-toast";
 
 interface OpportunityHighlightsProps {
   onViewDetails: (opportunity: IOpportunity) => void;
 }
 
-export const OpportunityHighlights: React.FC<OpportunityHighlightsProps> = ({
-  onViewDetails
-}) => {
+export const OpportunityHighlights: React.FC<OpportunityHighlightsProps> = ({ onViewDetails }) => {
   const { toast } = useToast();
   const [opportunities, setOpportunities] = React.useState<IOpportunity[]>([]);
   const [loading, setLoading] = React.useState(true);
@@ -28,7 +26,7 @@ export const OpportunityHighlights: React.FC<OpportunityHighlightsProps> = ({
         const data = await opportunitiesService.getHighlightedOpportunities();
         setOpportunities(data);
       } catch (error) {
-        console.error('Error loading highlighted opportunities:', error);
+        console.error("Error loading highlighted opportunities:", error);
       } finally {
         setLoading(false);
       }
@@ -39,11 +37,11 @@ export const OpportunityHighlights: React.FC<OpportunityHighlightsProps> = ({
 
   const handleFavoriteToggle = (e: React.MouseEvent, opportunityId: string) => {
     e.stopPropagation();
-    const opportunity = opportunities.find(opp => opp.id === opportunityId);
+    const opportunity = opportunities.find((opp) => opp.id === opportunityId);
     if (!opportunity || !opportunity.isActive) return;
 
     const newFavoriteState = opportunitiesService.toggleFavorite(opportunityId);
-    
+
     toast({
       title: newFavoriteState ? "Agregado a favoritas" : "Removido de favoritas",
       description: opportunity.title,
@@ -100,12 +98,8 @@ export const OpportunityHighlights: React.FC<OpportunityHighlightsProps> = ({
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-lg font-semibold text-foreground">
-            🌟 Oportunidades Destacadas
-          </h2>
-          <p className="text-sm text-muted-foreground">
-            Las mejores oportunidades comerciales para hoy
-          </p>
+          <h2 className="text-lg font-semibold text-foreground">🌟 Oportunidades Destacadas</h2>
+          <p className="text-sm text-muted-foreground">Las mejores oportunidades comerciales para hoy</p>
         </div>
         <Button
           variant="ghost"
@@ -113,11 +107,7 @@ export const OpportunityHighlights: React.FC<OpportunityHighlightsProps> = ({
           onClick={() => setIsCollapsed(!isCollapsed)}
           className="h-8 w-8 hover:bg-muted"
         >
-          {isCollapsed ? (
-            <ChevronDown className="h-4 w-4" />
-          ) : (
-            <ChevronUp className="h-4 w-4" />
-          )}
+          {isCollapsed ? <ChevronDown className="h-4 w-4" /> : <ChevronUp className="h-4 w-4" />}
         </Button>
       </div>
 
@@ -125,27 +115,25 @@ export const OpportunityHighlights: React.FC<OpportunityHighlightsProps> = ({
       {!isCollapsed && (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {opportunities.map((opportunity) => (
-            <Card 
-              key={opportunity.id} 
+            <Card
+              key={opportunity.id}
               className={`group transition-all duration-200 border-border/50 relative ${
-                opportunity.isActive 
-                  ? 'hover:shadow-md hover:border-primary/20 cursor-pointer' 
-                  : 'bg-gray-50 opacity-75 cursor-not-allowed'
+                opportunity.isActive
+                  ? "hover:shadow-md hover:border-primary/20 cursor-pointer"
+                  : "bg-gray-50 opacity-75 cursor-not-allowed"
               }`}
               onClick={() => opportunity.isActive && onViewDetails(opportunity)}
             >
-              <CardContent className={`p-4 space-y-3 ${!opportunity.isActive ? 'grayscale' : ''}`}>
+              <CardContent className={`p-4 space-y-3 ${!opportunity.isActive ? "grayscale" : ""}`}>
                 {/* Inactive alert */}
                 {!opportunity.isActive && (
                   <div className="absolute inset-0 z-10 flex items-center justify-center bg-black/20 rounded-lg p-4">
                     <Alert className="bg-blue-50 border-blue-200 max-w-[240px]">
                       <CheckCircle className="h-4 w-4 text-blue-600" />
                       <AlertDescription className="text-blue-900">
-                        <p className="font-semibold text-sm mb-1">✓ Clientes ya cargados</p>
-                        <p className="text-xs mb-1">Estos clientes ya están en el módulo de Leads</p>
-                        <p className="text-xs font-medium">
-                          Filtra por: {opportunity.lastCampaignName || opportunity.title}
-                        </p>
+                        <p className="font-semibold text-sm mb-1">✓ Clientes ya cargados en el Módulo de Leads</p>
+                        <p className="text-xs mb-1">Búscalos filtrando la Campaña:</p>
+                        <p className="text-xs font-medium">{opportunity.lastCampaignName || opportunity.title}</p>
                       </AlertDescription>
                     </Alert>
                   </div>
@@ -154,17 +142,19 @@ export const OpportunityHighlights: React.FC<OpportunityHighlightsProps> = ({
                 {/* Header */}
                 <div className="flex items-start justify-between">
                   <div className="flex items-center gap-2 flex-1">
-                    <div className={`text-lg w-8 h-8 flex items-center justify-center rounded-full ${
-                      opportunity.isActive ? 'bg-primary/10' : 'bg-gray-100'
-                    }`}>
+                    <div
+                      className={`text-lg w-8 h-8 flex items-center justify-center rounded-full ${
+                        opportunity.isActive ? "bg-primary/10" : "bg-gray-100"
+                      }`}
+                    >
                       {opportunity.icon}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <h3 className={`font-medium text-sm line-clamp-1 transition-colors ${
-                        opportunity.isActive 
-                          ? 'group-hover:text-primary' 
-                          : 'text-gray-500'
-                      }`}>
+                      <h3
+                        className={`font-medium text-sm line-clamp-1 transition-colors ${
+                          opportunity.isActive ? "group-hover:text-primary" : "text-gray-500"
+                        }`}
+                      >
                         {opportunity.title}
                       </h3>
                     </div>
@@ -176,20 +166,18 @@ export const OpportunityHighlights: React.FC<OpportunityHighlightsProps> = ({
                     className="h-6 w-6 shrink-0 hover:bg-red-50 hover:text-red-500"
                     disabled={!opportunity.isActive}
                   >
-                    <Heart 
+                    <Heart
                       className={`h-3 w-3 ${
-                        opportunity.isFavorite 
-                          ? 'fill-red-500 text-red-500' 
-                          : 'text-muted-foreground'
-                      }`} 
+                        opportunity.isFavorite ? "fill-red-500 text-red-500" : "text-muted-foreground"
+                      }`}
                     />
                   </Button>
                 </div>
 
                 {/* Tags */}
                 <div className="flex flex-wrap gap-1">
-                  <Badge 
-                    variant="outline" 
+                  <Badge
+                    variant="outline"
                     className={`text-xs px-1.5 py-0.5 ${getPriorityColor(opportunity.priority)}`}
                   >
                     {opportunity.priority.toUpperCase()}
@@ -206,7 +194,7 @@ export const OpportunityHighlights: React.FC<OpportunityHighlightsProps> = ({
                     <span className="font-medium">{formatCustomerCount(opportunity.customerCount)}</span>
                     <span className="text-muted-foreground">clientes</span>
                   </div>
-                  
+
                   <div className="space-y-1">
                     <div className="flex justify-between items-center text-xs">
                       <span className="text-muted-foreground">Score</span>
@@ -217,12 +205,10 @@ export const OpportunityHighlights: React.FC<OpportunityHighlightsProps> = ({
                 </div>
 
                 {/* CTA */}
-                <Button 
-                  size="sm" 
+                <Button
+                  size="sm"
                   variant={opportunity.isActive ? "outline" : "secondary"}
-                  className={`w-full text-xs h-7 ${
-                    !opportunity.isActive ? 'cursor-not-allowed text-gray-500' : ''
-                  }`}
+                  className={`w-full text-xs h-7 ${!opportunity.isActive ? "cursor-not-allowed text-gray-500" : ""}`}
                   onClick={(e) => {
                     e.stopPropagation();
                     if (opportunity.isActive) {
@@ -232,7 +218,7 @@ export const OpportunityHighlights: React.FC<OpportunityHighlightsProps> = ({
                   disabled={!opportunity.isActive}
                 >
                   <Eye className="h-3 w-3 mr-1" />
-                  {opportunity.isActive ? 'Ver detalles' : 'No disponible'}
+                  {opportunity.isActive ? "Ver detalles" : "No disponible"}
                 </Button>
               </CardContent>
             </Card>
@@ -245,12 +231,7 @@ export const OpportunityHighlights: React.FC<OpportunityHighlightsProps> = ({
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
           <TrendingUp className="h-4 w-4" />
           <span>{opportunities.length} oportunidades destacadas disponibles</span>
-          <Button 
-            variant="ghost" 
-            size="sm" 
-            onClick={() => setIsCollapsed(false)}
-            className="text-xs h-6 px-2 ml-auto"
-          >
+          <Button variant="ghost" size="sm" onClick={() => setIsCollapsed(false)} className="text-xs h-6 px-2 ml-auto">
             Mostrar
           </Button>
         </div>
