@@ -40,6 +40,7 @@ export interface IOpportunity {
   isActive: boolean;
   createdAt: string;
   expiresAt?: string;
+  lastCampaignName?: string | null;
 }
 
 export interface ICustomer {
