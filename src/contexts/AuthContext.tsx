@@ -113,7 +113,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
             });
         }
 
-    }, [account, isAuthenticated]);
+    }, [user, account, isAuthenticated]);
     const findOrCreateUser = async (email: string, name: string) => {
 
         // Buscar usuario existente
