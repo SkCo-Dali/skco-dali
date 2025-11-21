@@ -73,11 +73,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
                     // Load profile data BEFORE creating user object
                     let profileData: Partial<User> = {};
                     try {
-                        const token = await getAccessToken();
-                        if (token) {
-                            profileData = await loadProfileData(token.accessToken);
+                            profileData = await loadProfileData();
                             console.log('✅ Perfil cargado antes de login:', profileData);
-                        }
+                        
                     } catch (profileError) {
                         console.error('❌ Error al cargar perfil inicial:', profileError);
                         // Continue with login even if profile loading fails
@@ -159,7 +157,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
         }
     };
 
-    const loadProfileData = async (accessToken: string): Promise<Partial<User>> => {
+    const loadProfileData = async (): Promise<Partial<User>> => {
         try {
             const { userProfileApiClient } = await import('@/utils/userProfileApiClient');
             const profileData = await userProfileApiClient.getProfile(accessToken);

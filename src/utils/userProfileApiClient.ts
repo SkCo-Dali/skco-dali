@@ -17,7 +17,6 @@ const API_BASE_URL = ENV.CRM_API_BASE_URL;
 class UserProfileApiClient {
   private async getAuthHeaders(token: string): Promise<HeadersInit> {
     return {
-      'Authorization': `Bearer ${token}`,
       'Content-Type': 'application/json',
     };
   }
