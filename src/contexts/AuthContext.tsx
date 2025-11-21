@@ -59,7 +59,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     useEffect(() => {
         registerMsalFetchInterceptor(msalInstance);
 
-        if (account && !user) {
+        if (isAuthenticated && !user) {
             setLoading(true);
             // Extraer información del usuario desde la cuenta activa
             const userEmail = account.username || account.idTokenClaims?.email as string || '';
@@ -113,7 +113,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
             });
         }
 
-    }, [msalInstance, account, isAuthenticated]);
+    }, [user, isAuthenticated]);
     const findOrCreateUser = async (email: string, name: string) => {
 
         // Buscar usuario existente
@@ -222,7 +222,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
         try {
             const accounts = msalInstance.getAllAccounts();
             if (accounts.length > 0) {
-                await msalInstance.logoutPopup({
+                await msalInstance.logoutRedirect({
                     account: accounts[0],
                     mainWindowRedirectUri: window.location.origin
                 });
