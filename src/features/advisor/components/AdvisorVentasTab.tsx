@@ -5,6 +5,7 @@ import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, ResponsiveContainer, Legend } from "recharts";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "lucide-react";
+import salesKPIData from "@/mocks/salesKPI_A-1001.json";
 
 interface Props {
   advisorId: string;
@@ -19,27 +20,17 @@ interface SalesKPI {
   ticket: number;
 }
 
-type DateFilter = '7days' | '30days' | 'currentMonth';
+type DateFilter = "7days" | "30days" | "currentMonth";
 
 export const AdvisorVentasTab = ({ advisorId }: Props) => {
   const [salesData, setSalesData] = useState<SalesKPI[]>([]);
   const [loading, setLoading] = useState(true);
-  const [dateFilter, setDateFilter] = useState<DateFilter>('7days');
+  const [dateFilter, setDateFilter] = useState<DateFilter>("7days");
 
   useEffect(() => {
-    const loadSalesData = async () => {
-      try {
-        const response = await fetch(`/src/mocks/salesKPI_${advisorId}.json`);
-        const data = await response.json();
-        setSalesData(data);
-      } catch (error) {
-        console.error("Error loading sales data:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    loadSalesData();
+    // Cargar datos mock directamente
+    setSalesData(salesKPIData as SalesKPI[]);
+    setLoading(false);
   }, [advisorId]);
 
   if (loading) {
@@ -54,19 +45,19 @@ export const AdvisorVentasTab = ({ advisorId }: Props) => {
 
   // Filtrar datos según el período seleccionado
   const getFilteredData = () => {
-    const today = new Date('2025-11-08'); // Fecha de referencia para mockup
+    const today = new Date("2025-11-08"); // Fecha de referencia para mockup
     let startDate: Date;
 
     switch (dateFilter) {
-      case '7days':
+      case "7days":
         startDate = new Date(today);
         startDate.setDate(today.getDate() - 6);
         break;
-      case '30days':
+      case "30days":
         startDate = new Date(today);
         startDate.setDate(today.getDate() - 29);
         break;
-      case 'currentMonth':
+      case "currentMonth":
         startDate = new Date(today.getFullYear(), today.getMonth(), 1);
         break;
       default:
@@ -74,7 +65,7 @@ export const AdvisorVentasTab = ({ advisorId }: Props) => {
         startDate.setDate(today.getDate() - 6);
     }
 
-    return salesData.filter(d => {
+    return salesData.filter((d) => {
       const dataDate = new Date(d.fecha);
       return dataDate >= startDate && dataDate <= today;
     });
@@ -86,16 +77,14 @@ export const AdvisorVentasTab = ({ advisorId }: Props) => {
   const totalProduccion = filteredData.reduce((sum, d) => sum + d.produccion, 0);
   const totalPrimas = filteredData.reduce((sum, d) => sum + d.primas, 0);
   const totalNegocios = filteredData.reduce((sum, d) => sum + d.negocios, 0);
-  const avgConversion = filteredData.length > 0 
-    ? filteredData.reduce((sum, d) => sum + d.conversion, 0) / filteredData.length 
-    : 0;
-  const avgTicket = filteredData.length > 0 
-    ? filteredData.reduce((sum, d) => sum + d.ticket, 0) / filteredData.length 
-    : 0;
+  const avgConversion =
+    filteredData.length > 0 ? filteredData.reduce((sum, d) => sum + d.conversion, 0) / filteredData.length : 0;
+  const avgTicket =
+    filteredData.length > 0 ? filteredData.reduce((sum, d) => sum + d.ticket, 0) / filteredData.length : 0;
 
   // Preparar datos para gráficos con formato más legible
   const chartData = filteredData.map((d) => ({
-    fecha: new Date(d.fecha).toLocaleDateString('es-ES', { day: '2-digit', month: 'short' }),
+    fecha: new Date(d.fecha).toLocaleDateString("es-ES", { day: "2-digit", month: "short" }),
     produccion: d.produccion / 1000000, // En millones
     primas: d.primas,
     negocios: d.negocios,
@@ -105,19 +94,19 @@ export const AdvisorVentasTab = ({ advisorId }: Props) => {
 
   const getFilterLabel = () => {
     switch (dateFilter) {
-      case '7days':
-        return 'Últimos 7 días';
-      case '30days':
-        return 'Últimos 30 días';
-      case 'currentMonth':
-        return 'Mes actual';
+      case "7days":
+        return "Últimos 7 días";
+      case "30days":
+        return "Últimos 30 días";
+      case "currentMonth":
+        return "Mes actual";
     }
   };
 
   return (
     <div className="space-y-6">
       {/* Filtros de Fecha */}
-      <Card>
+      <Card className="border-0 shadow-none">
         <CardContent className="pt-6">
           <div className="flex flex-wrap items-center gap-3">
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
@@ -126,23 +115,23 @@ export const AdvisorVentasTab = ({ advisorId }: Props) => {
             </div>
             <div className="flex gap-2">
               <Button
-                variant={dateFilter === '7days' ? 'default' : 'outline'}
+                variant={dateFilter === "7days" ? "default" : "outline"}
                 size="sm"
-                onClick={() => setDateFilter('7days')}
+                onClick={() => setDateFilter("7days")}
               >
                 Últimos 7 días
               </Button>
               <Button
-                variant={dateFilter === '30days' ? 'default' : 'outline'}
+                variant={dateFilter === "30days" ? "default" : "outline"}
                 size="sm"
-                onClick={() => setDateFilter('30days')}
+                onClick={() => setDateFilter("30days")}
               >
                 Últimos 30 días
               </Button>
               <Button
-                variant={dateFilter === 'currentMonth' ? 'default' : 'outline'}
+                variant={dateFilter === "currentMonth" ? "default" : "outline"}
                 size="sm"
-                onClick={() => setDateFilter('currentMonth')}
+                onClick={() => setDateFilter("currentMonth")}
               >
                 Mes actual
               </Button>
@@ -154,33 +143,33 @@ export const AdvisorVentasTab = ({ advisorId }: Props) => {
       {/* KPI Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
         <MetricCard
-          title="Producción Total"
+          title="APE"
           value={`$${(totalProduccion / 1000000).toFixed(1)}M`}
           description={getFilterLabel()}
           variant="success"
         />
         <MetricCard
-          title="Total Primas"
+          title="Pólizas Emitidas"
           value={totalPrimas.toString()}
           description="Número de primas"
           variant="neutral"
         />
         <MetricCard
-          title="Negocios Cerrados"
+          title="Pólizas Fondeadas"
           value={totalNegocios.toString()}
           description="Total de negocios"
           variant="success"
         />
         <MetricCard
-          title="Conversión Promedio"
-          value={`${(avgConversion * 100).toFixed(1)}%`}
+          title="NCCF"
+          value={`${(avgConversion * 100).toFixed(1)}K`}
           description="Tasa de conversión"
           variant="neutral"
         />
         <MetricCard
-          title="Ticket Promedio"
+          title="AUMS"
           value={`$${(avgTicket / 1000).toFixed(0)}K`}
-          description="Por negocio"
+          description="Activos bajo administración"
           variant="neutral"
         />
       </div>
@@ -190,9 +179,7 @@ export const AdvisorVentasTab = ({ advisorId }: Props) => {
         {/* Producción y Primas */}
         <Card>
           <CardHeader>
-            <CardTitle className="text-lg font-semibold">
-              Evolución de Producción y Primas
-            </CardTitle>
+            <CardTitle className="text-lg font-semibold">Evolución de Pólizas Emitidas</CardTitle>
           </CardHeader>
           <CardContent>
             <ChartContainer
@@ -200,10 +187,6 @@ export const AdvisorVentasTab = ({ advisorId }: Props) => {
                 produccion: {
                   label: "Producción (M)",
                   color: "hsl(var(--primary))",
-                },
-                primas: {
-                  label: "Primas",
-                  color: "hsl(var(--chart-2))",
                 },
               }}
               className="h-[300px] w-full"
@@ -224,14 +207,6 @@ export const AdvisorVentasTab = ({ advisorId }: Props) => {
                     strokeWidth={2}
                     name="Producción (M)"
                   />
-                  <Line
-                    yAxisId="right"
-                    type="monotone"
-                    dataKey="primas"
-                    stroke="hsl(var(--chart-2))"
-                    strokeWidth={2}
-                    name="Primas"
-                  />
                 </LineChart>
               </ResponsiveContainer>
             </ChartContainer>
@@ -241,9 +216,7 @@ export const AdvisorVentasTab = ({ advisorId }: Props) => {
         {/* Negocios Cerrados */}
         <Card>
           <CardHeader>
-            <CardTitle className="text-lg font-semibold">
-              Evolución de Negocios Cerrados
-            </CardTitle>
+            <CardTitle className="text-lg font-semibold">Evolución de Pólizas Fondeadas</CardTitle>
           </CardHeader>
           <CardContent>
             <ChartContainer
@@ -261,7 +234,7 @@ export const AdvisorVentasTab = ({ advisorId }: Props) => {
                   <XAxis dataKey="fecha" />
                   <YAxis />
                   <ChartTooltip content={<ChartTooltipContent />} />
-                  <Bar dataKey="negocios" fill="hsl(var(--chart-3))" radius={[4, 4, 0, 0]} name="Negocios" />
+                  <Bar dataKey="negocios" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} name="Negocios" />
                 </BarChart>
               </ResponsiveContainer>
             </ChartContainer>
@@ -271,9 +244,7 @@ export const AdvisorVentasTab = ({ advisorId }: Props) => {
         {/* Conversión */}
         <Card>
           <CardHeader>
-            <CardTitle className="text-lg font-semibold">
-              Evolución de Tasa de Conversión
-            </CardTitle>
+            <CardTitle className="text-lg font-semibold">Evolución de Tasa de Conversión</CardTitle>
           </CardHeader>
           <CardContent>
             <ChartContainer
@@ -310,9 +281,7 @@ export const AdvisorVentasTab = ({ advisorId }: Props) => {
         {/* Ticket Promedio */}
         <Card>
           <CardHeader>
-            <CardTitle className="text-lg font-semibold">
-              Evolución de Ticket Promedio
-            </CardTitle>
+            <CardTitle className="text-lg font-semibold">Evolución de Ticket Promedio</CardTitle>
           </CardHeader>
           <CardContent>
             <ChartContainer

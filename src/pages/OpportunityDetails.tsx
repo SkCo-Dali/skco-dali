@@ -27,6 +27,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { isAuthorizedForMassEmail } from "@/utils/emailDomainValidator";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { MassEmailSender } from "@/components/MassEmailSender";
+import { LoadLeadsProgressModal } from "@/components/LoadLeadsProgressModal";
 import { Lead } from "@/types/crm";
 
 export const OpportunityDetails: React.FC = () => {
@@ -41,6 +42,8 @@ export const OpportunityDetails: React.FC = () => {
   const [loadingLeads, setLoadingLeads] = React.useState(false);
   const [showEmailSender, setShowEmailSender] = React.useState(false);
   const [loadedLeads, setLoadedLeads] = React.useState<Lead[]>([]);
+  const [showLoadLeadsModal, setShowLoadLeadsModal] = React.useState(false);
+  const [campaignName, setCampaignName] = React.useState("");
 
   const loadOpportunity = React.useCallback(async () => {
     if (!id) return;
@@ -65,7 +68,6 @@ export const OpportunityDetails: React.FC = () => {
   React.useEffect(() => {
     loadOpportunity();
   }, [loadOpportunity]);
-
 
   const handleBack = () => {
     navigate("/oportunidades");
@@ -99,28 +101,41 @@ export const OpportunityDetails: React.FC = () => {
   const handleLoadAsLeads = async (openEmailSender: boolean = true) => {
     if (!opportunity) return;
     try {
+      setShowLoadLeadsModal(true);
       setLoadingLeads(true);
       const leads = await opportunitiesService.loadAsLeads(opportunity.id);
       setLoadedLeads(leads);
-      if (openEmailSender) {
-        setShowEmailSender(true);
-      }
-      toast({
-        title: "Leads cargados exitosamente",
-        description: `Se cargaron ${leads.length} clientes como leads`,
-        duration: 3000,
-      });
+
+      // Extract campaign name from the first lead
+      const campaign = leads.length > 0 ? leads[0].campaign : "";
+      setCampaignName(campaign);
+
+      setLoadingLeads(false);
+
+      // Don't automatically open email sender anymore
+      // Let user choose from the modal
     } catch (error) {
       console.error("Error loading leads:", error);
+      setShowLoadLeadsModal(false);
+      setLoadingLeads(false);
       toast({
         title: "Error al cargar leads",
         description: "No se pudieron cargar los clientes como leads",
         variant: "destructive",
         duration: 5000,
       });
-    } finally {
-      setLoadingLeads(false);
     }
+  };
+
+  const handleSendEmailsFromModal = () => {
+    setShowLoadLeadsModal(false);
+    setShowEmailSender(true);
+  };
+
+  const handleGoToLeadsModule = () => {
+    setShowLoadLeadsModal(false);
+    // Navigate to leads with auto-filter animation
+    navigate(`/leads?autoFilterCampaign=${encodeURIComponent(campaignName)}`);
   };
 
   if (loading) {
@@ -372,7 +387,7 @@ export const OpportunityDetails: React.FC = () => {
                             </div>
                             <div className="flex flex-col items-start min-w-0 flex-1">
                               <span className="font-semibold text-sm leading-tight truncate w-full">
-                                {loadingLeads ? "Cargando leads..." : "Cargar como leads y enviar correo masivo"}
+                                {loadingLeads ? "Cargando leads..." : "Cargar en Módulo de leads"}
                               </span>
                               <span className="text-xs opacity-90 mt-0.5 truncate w-full">Acción recomendada</span>
                             </div>
@@ -380,7 +395,7 @@ export const OpportunityDetails: React.FC = () => {
                         </Button>
                       </TooltipTrigger>
                       <TooltipContent side="left" className="max-w-xs">
-                        <p className="text-sm font-semibold">Cargar como leads y enviar correo masivo</p>
+                        <p className="text-sm font-semibold">Cargar como leads</p>
                         <p className="text-xs text-muted-foreground mt-1">Acción recomendada</p>
                       </TooltipContent>
                     </Tooltip>
@@ -430,38 +445,6 @@ export const OpportunityDetails: React.FC = () => {
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <Button
-                        variant="outline"
-                        className="w-full justify-start h-auto py-3 px-3 text-left border-2 hover:bg-green-50 hover:border-green-200 hover:text-green-700 transition-all duration-200 group"
-                        size="lg"
-                      >
-                        <div className="flex items-center gap-2 w-full min-w-0">
-                          <div className="flex-shrink-0 p-2 bg-green-100 rounded-lg group-hover:bg-green-200 transition-colors">
-                            <MessageSquare className="h-4 w-4 text-green-600" />
-                          </div>
-                          <div className="flex flex-col items-start min-w-0 flex-1">
-                            <span className="text-xs leading-tight font-medium truncate w-full">
-                              Cargar como leads y enviar WhatsApp masivo
-                            </span>
-                            <span className="text-xs text-muted-foreground mt-0.5 truncate w-full">Mensajería directa</span>
-                          </div>
-                        </div>
-                      </Button>
-                    </TooltipTrigger>
-                    <TooltipContent side="left" className="max-w-xs">
-                      <p className="text-sm font-medium">Cargar como leads y enviar WhatsApp masivo</p>
-                      <p className="text-xs text-muted-foreground mt-1">Mensajería directa</p>
-                    </TooltipContent>
-                  </Tooltip>
-                  <div className="absolute -top-2 -right-2 pointer-events-none">
-                    <div className="bg-primary text-white text-xs font-bold px-2 py-1 rounded-full shadow-sm">
-                      PROXIMAMENTE
-                    </div>
-                  </div>
-                </div>
-                <div className="relative">
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Button
                         variant="secondary"
                         className="w-full justify-start h-auto py-3 px-4 text-left bg-blue-50 hover:bg-blue-100 border border-blue-200 hover:border-blue-300 text-blue-700 hover:text-blue-800 transition-all duration-200 group"
                         size="lg"
@@ -471,7 +454,9 @@ export const OpportunityDetails: React.FC = () => {
                             <GraduationCap className="h-4 w-4 text-blue-600" />
                           </div>
                           <div className="flex flex-col items-start min-w-0 flex-1">
-                            <span className="font-medium text-sm leading-tight truncate w-full">Aprende a pedir esta base en Chat Dali</span>
+                            <span className="font-medium text-sm leading-tight truncate w-full">
+                              Aprende a pedir esta base en Chat Dali
+                            </span>
                             <span className="text-xs text-blue-600 mt-0.5 truncate w-full">Guía interactiva</span>
                           </div>
                         </div>
@@ -494,9 +479,19 @@ export const OpportunityDetails: React.FC = () => {
         </div>
       </div>
 
+      {/* Load Leads Progress Modal */}
+      <LoadLeadsProgressModal
+        open={showLoadLeadsModal}
+        loading={loadingLeads}
+        leads={loadedLeads}
+        campaignName={campaignName}
+        onSendEmails={handleSendEmailsFromModal}
+        onGoToLeads={handleGoToLeadsModule}
+      />
+
       {/* Email Sender Modal via Portal */}
-      <Dialog 
-        open={showEmailSender} 
+      <Dialog
+        open={showEmailSender}
         onOpenChange={(open) => {
           setShowEmailSender(open);
           if (!open) {

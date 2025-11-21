@@ -229,7 +229,7 @@ class OpportunitiesService {
       
       // Convert API response to Lead format
       const leads: Lead[] = apiLeads.map(apiLead => ({
-        id: `${apiLead.documentNumber}`, // Using document number as unique ID
+        id: apiLead.id, // Using the correct Lead ID from API
         name: apiLead.name,
         firstName: extractFirstName(apiLead.name), // Extract firstName using the same logic as backend
         email: apiLead.email,

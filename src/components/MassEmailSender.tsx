@@ -103,10 +103,16 @@ export function MassEmailSender({ filteredLeads, onClose }: MassEmailSenderProps
   // Estado para trackear qué leads están seleccionados (por defecto todos)
   const [selectedLeadIds, setSelectedLeadIds] = useState<Set<string>>(() => new Set(validLeads.map(l => l.id)));
   
-  // Actualizar selección cuando cambien los validLeads
+  // Actualizar selección SOLO cuando cambie la lista de IDs de validLeads
   useEffect(() => {
-    setSelectedLeadIds(new Set(validLeads.map(l => l.id)));
-  }, [filteredLeads]);
+    const validLeadIds = validLeads.map(l => l.id).sort().join(',');
+    const currentIds = Array.from(selectedLeadIds).sort().join(',');
+    
+    // Solo actualizar si la lista de leads cambió (no solo la referencia)
+    if (validLeadIds !== currentIds && validLeads.length > 0) {
+      setSelectedLeadIds(new Set(validLeads.map(l => l.id)));
+    }
+  }, [validLeads.map(l => l.id).join(',')]); // Depender de los IDs reales, no de la referencia
   
   // Leads que realmente se enviarán (seleccionados y limitados a 50)
   const leadsToSend = validLeads.filter(lead => selectedLeadIds.has(lead.id)).slice(0, 50);

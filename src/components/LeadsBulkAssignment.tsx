@@ -181,6 +181,16 @@ export function LeadsBulkAssignment({ leads, onLeadsAssigned }: LeadsBulkAssignm
   console.log("Filtered leads for assignment:", filteredLeads.length);
   console.log("Gestor users:", gestorUsers);
 
+  // Función helper para mezclar arrays aleatoriamente (Fisher-Yates shuffle)
+  const shuffleArray = <T,>(array: T[]): T[] => {
+    const shuffled = [...array];
+    for (let i = shuffled.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
+    return shuffled;
+  };
+
   // Inicializar asignaciones cuando cambien los usuarios gestores
   useEffect(() => {
     if (gestorUsers.length > 0) {
@@ -219,15 +229,18 @@ export function LeadsBulkAssignment({ leads, onLeadsAssigned }: LeadsBulkAssignm
     const baseQuantity = Math.floor(totalLeads / gestorUsers.length);
     const remainder = totalLeads % gestorUsers.length;
 
-    console.log("Distributing equitably:", { totalLeads, baseQuantity, remainder });
+    console.log("Distributing equitably and randomly:", { totalLeads, baseQuantity, remainder });
 
-    const newAssignments = gestorUsers.map((user, index) => ({
+    // Aleatorizar el orden de los gestores para distribución justa
+    const randomizedGestors = shuffleArray(gestorUsers);
+
+    const newAssignments = randomizedGestors.map((user, index) => ({
       userId: user.Id,
       userName: user.Name,
       quantity: baseQuantity + (index < remainder ? 1 : 0),
     }));
 
-    console.log("New equitable assignments:", newAssignments);
+    console.log("New random equitable assignments:", newAssignments);
     setUserAssignments(newAssignments);
   };
 
@@ -313,6 +326,10 @@ export function LeadsBulkAssignment({ leads, onLeadsAssigned }: LeadsBulkAssignm
     setIsAssigning(true);
 
     try {
+      // Aleatorizar los leads antes de distribuir para asignación justa
+      const randomizedLeads = shuffleArray(filteredLeads);
+      console.log("Leads randomized for fair distribution");
+
       // Usar la nueva API de asignación masiva
       let leadIndex = 0;
       const bulkAssignPromises: Promise<any>[] = [];
@@ -323,8 +340,8 @@ export function LeadsBulkAssignment({ leads, onLeadsAssigned }: LeadsBulkAssignm
 
       for (const assignment of userAssignments) {
         if (assignment.quantity > 0) {
-          // Tomar los leads necesarios para este usuario
-          const leadsToAssign = filteredLeads.slice(leadIndex, leadIndex + assignment.quantity);
+          // Tomar los leads necesarios para este usuario (ahora aleatorizados)
+          const leadsToAssign = randomizedLeads.slice(leadIndex, leadIndex + assignment.quantity);
           const leadIds = leadsToAssign.map((lead) => lead.id);
 
           console.log(`Assigning ${leadIds.length} leads to user ${assignment.userName}`);

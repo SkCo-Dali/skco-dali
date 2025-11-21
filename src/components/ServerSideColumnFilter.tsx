@@ -118,6 +118,7 @@ export function ServerSideColumnFilter({
             onClick={(e) => {
               e.stopPropagation();
             }}
+            data-filter-field={field}
           >
             <Filter className="h-3 w-3" />
           </Button>

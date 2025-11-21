@@ -1,9 +1,10 @@
 import React from "react";
-import { Heart, Users, X, DollarSign } from "lucide-react";
+import { Heart, Users, CheckCircle, DollarSign } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { IOpportunity, OPPORTUNITY_TYPE_LABELS, PRIORITY_COLORS } from "@/types/opportunities";
 import { opportunitiesService } from "@/services/opportunitiesService";
 import { useToast } from "@/hooks/use-toast";
@@ -70,16 +71,17 @@ export const OpportunityCard: React.FC<OpportunityCardProps> = ({ opportunity, o
             }`}
             onClick={handleViewDetails}
           >
-            {/* Inactive overlay */}
+            {/* Inactive alert */}
             {!opportunity.isActive && (
-              <div className="absolute inset-0 z-10 flex items-center justify-center bg-black/20 rounded-lg">
-                <div className="bg-red-600 text-white px-3 py-2 rounded-lg shadow-lg text-center transform -rotate-12">
-                  <div className="flex items-center gap-1 mb-1">
-                    <X className="h-4 w-4" />
-                    <span className="font-bold text-sm">Ya fue aprovechada</span>
-                  </div>
-                  <div className="text-xs opacity-90">Regresa pronto para nuevos Leads</div>
-                </div>
+              <div className="absolute inset-0 z-10 flex items-center justify-center bg-black/20 rounded-lg p-4">
+                <Alert className="bg-blue-50 border-blue-200 max-w-[240px]">
+                  <CheckCircle className="h-4 w-4 text-blue-600" />
+                  <AlertDescription className="text-blue-900">
+                    <p className="font-semibold text-sm mb-1">✓ Clientes ya cargados en el Módulo de Leads</p>
+                    <p className="text-xs mb-1">Búscalos filtrando la Campaña:</p>
+                    <p className="text-xs font-medium break-words">{opportunity.lastCampaignName || opportunity.title}</p>
+                  </AlertDescription>
+                </Alert>
               </div>
             )}
 

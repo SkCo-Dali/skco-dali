@@ -14,6 +14,8 @@ export interface ApiOpportunity {
   IsActive: boolean;
   IsFavourite: boolean;
   ComisionPotencial: number;
+  DaliPrompt?: string;
+  LastCampaignName?: string | null;
 }
 
 export interface OpportunityFiltersApi {
@@ -37,6 +39,7 @@ export interface LoadLeadsFromOpportunityRequest {
 }
 
 export interface LoadLeadsFromOpportunityResponse {
+  id: string;
   CreatedBy: string;
   name: string;
   email: string;
