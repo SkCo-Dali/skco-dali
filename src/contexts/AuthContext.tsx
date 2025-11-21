@@ -59,7 +59,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     useEffect(() => {
         registerMsalFetchInterceptor(msalInstance);
 
-        if (isAuthenticated && !user) {
+        if (account && !user) {
             setLoading(true);
             // Extraer información del usuario desde la cuenta activa
             const userEmail = account.username || account.idTokenClaims?.email as string || '';
@@ -113,7 +113,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
             });
         }
 
-    }, [user, isAuthenticated]);
+    }, [user, account, isAuthenticated]);
     const findOrCreateUser = async (email: string, name: string) => {
 
         // Buscar usuario existente
