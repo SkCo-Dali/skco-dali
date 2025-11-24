@@ -64,7 +64,7 @@ export const OpportunityCard: React.FC<OpportunityCardProps> = ({ opportunity, o
       <Tooltip>
         <TooltipTrigger asChild>
           <Card
-            className={`group transition-all duration-300 shadow-md border-0 h-fit w-full max-w-[280px] relative ${
+            className={`group transition-all duration-300 shadow-md border-0 h-fit w-full max-w-[280px] relative overflow-hidden ${
               opportunity.isActive
                 ? "hover:shadow-xl hover:-translate-y-1 hover:shadow-lg bg-white cursor-pointer"
                 : "bg-gray-50 opacity-75 cursor-not-allowed"
@@ -73,9 +73,9 @@ export const OpportunityCard: React.FC<OpportunityCardProps> = ({ opportunity, o
           >
             {/* Inactive alert */}
             {!opportunity.isActive && (
-              <div className="absolute inset-0 z-10 flex items-center justify-center bg-black/20 rounded-lg p-4">
-                <Alert className="bg-blue-50 border-blue-200 max-w-[240px]">
-                  <CheckCircle className="h-4 w-4 text-blue-600" />
+              <div className="absolute inset-0 z-10 flex items-center justify-center bg-black/20 rounded-lg p-5">
+                <Alert className="bg-blue-50 border-blue-200 w-full shadow-sm">
+                  <CheckCircle className="h-4 w-4 text-blue-600 shrink-0" />
                   <AlertDescription className="text-blue-900">
                     <p className="font-semibold text-sm mb-1">✓ Clientes ya cargados en el Módulo de Leads</p>
                     <p className="text-xs mb-1">Búscalos filtrando la Campaña:</p>
