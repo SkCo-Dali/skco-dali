@@ -224,7 +224,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
             if (accounts.length > 0) {
                 await msalInstance.logoutRedirect({
                     account: accounts[0],
-                    mainWindowRedirectUri: window.location.origin
+                    postLogoutRedirectUri: window.location.origin
                 });
             }
         } catch (error) {
