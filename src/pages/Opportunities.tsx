@@ -12,12 +12,14 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Users, TrendingUp, Heart, Award, RefreshCw, Search, X, SlidersHorizontal, ChevronLeft, ChevronRight } from "lucide-react";
+import { Users, TrendingUp, Heart, Award, RefreshCw, Search, X } from "lucide-react";
 import {
   IOpportunity,
   OpportunityFilters,
   SortOption,
   OpportunityStats,
+  OpportunityType,
+  Priority,
   OPPORTUNITY_TYPE_LABELS,
 } from "@/types/opportunities";
 import { opportunitiesService } from "@/services/opportunitiesService";
@@ -32,7 +34,6 @@ export const Opportunities: React.FC = () => {
   const [filters, setFilters] = React.useState<OpportunityFilters>({});
   const [sortBy, setSortBy] = React.useState<SortOption>("relevance");
   const [marketAnimation, setMarketAnimation] = React.useState(null);
-  const [filtersCollapsed, setFiltersCollapsed] = React.useState(false);
 
   React.useEffect(() => {
     fetch('/animations/market_oportunidades.json')
@@ -222,29 +223,99 @@ export const Opportunities: React.FC = () => {
           </h2>
         </div>
 
-        {/* Search and Sort Controls */}
-        <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center justify-between mb-4">
-          <div className="relative flex-1 max-w-md">
-            <Input
-              placeholder="Buscar oportunidades..."
-              value={filters.search || ""}
-              onChange={(e) => setFilters({ ...filters, search: e.target.value || undefined })}
-              className="pl-10 bg-white"
-            />
+        {/* Search, Sort, and Filters Bar */}
+        <div className="mb-6 flex flex-col gap-4">
+          {/* First row: Search and Sort */}
+          <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center">
+            <div className="relative flex-1 max-w-md">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+              <Input
+                placeholder="Buscar oportunidades..."
+                value={filters.search || ""}
+                onChange={(e) => setFilters({ ...filters, search: e.target.value || undefined })}
+                className="pl-10 bg-white"
+              />
+            </div>
+
+            <div className="flex items-center gap-2">
+              <label className="text-sm text-muted-foreground whitespace-nowrap">Ordenar por:</label>
+              <Select value={sortBy} onValueChange={(value) => setSortBy(value as SortOption)}>
+                <SelectTrigger className="w-[180px] bg-white">
+                  <SelectValue placeholder="Ordenar por" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="relevance">Relevancia</SelectItem>
+                  <SelectItem value="customers">Más clientes</SelectItem>
+                  <SelectItem value="recent">Más reciente</SelectItem>
+                  <SelectItem value="expiring">Próximos a vencer</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
           </div>
 
-          <Select value={sortBy} onValueChange={(value) => setSortBy(value as SortOption)}>
-            <label className="pr-2">Ordenar por:</label>
-            <SelectTrigger className="w-[180px] bg-white">
-              <SelectValue placeholder="Ordenar por" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="relevance">Relevancia</SelectItem>
-              <SelectItem value="customers">Más clientes</SelectItem>
-              <SelectItem value="recent">Más reciente</SelectItem>
-              <SelectItem value="expiring">Próximos a vencer</SelectItem>
-            </SelectContent>
-          </Select>
+          {/* Second row: Additional Filters */}
+          <div className="flex flex-wrap gap-3 items-center">
+            {/* Favorites Toggle */}
+            <Button
+              variant={filters.onlyFavorites ? "default" : "outline"}
+              size="sm"
+              onClick={() => setFilters({ ...filters, onlyFavorites: !filters.onlyFavorites })}
+              className="gap-2"
+            >
+              <Heart className={`h-4 w-4 ${filters.onlyFavorites ? 'fill-current' : ''}`} />
+              Solo favoritos
+            </Button>
+
+            {/* Type Filter */}
+            <Select
+              value={filters.type?.[0] || "all"}
+              onValueChange={(value) => 
+                setFilters({ ...filters, type: value === "all" ? undefined : [value as OpportunityType] })
+              }
+            >
+              <SelectTrigger className="w-[200px] bg-white">
+                <SelectValue placeholder="Tipo de oportunidad" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todos los tipos</SelectItem>
+                <SelectItem value="cross-sell">Cross-sell</SelectItem>
+                <SelectItem value="retention">Retención</SelectItem>
+                <SelectItem value="reactivation">Reactivación</SelectItem>
+                <SelectItem value="churn-risk">Riesgo Cancelación</SelectItem>
+              </SelectContent>
+            </Select>
+
+            {/* Priority Filter */}
+            <Select
+              value={filters.priority?.[0] || "all"}
+              onValueChange={(value) => 
+                setFilters({ ...filters, priority: value === "all" ? undefined : [value as Priority] })
+              }
+            >
+              <SelectTrigger className="w-[180px] bg-white">
+                <SelectValue placeholder="Prioridad" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todas las prioridades</SelectItem>
+                <SelectItem value="alta">Alta</SelectItem>
+                <SelectItem value="media">Media</SelectItem>
+                <SelectItem value="baja">Baja</SelectItem>
+              </SelectContent>
+            </Select>
+
+            {/* Clear Filters */}
+            {(filters.search || filters.onlyFavorites || filters.type?.length || filters.priority?.length) && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleClearFilters}
+                className="gap-2"
+              >
+                <X className="h-4 w-4" />
+                Limpiar filtros
+              </Button>
+            )}
+          </div>
         </div>
 
         <div className="flex gap-6">
@@ -288,122 +359,6 @@ export const Opportunities: React.FC = () => {
             )}
           </div>
 
-          {/* Filters Sidebar - Collapsible on desktop */}
-          <div 
-            className={`hidden lg:block shrink-0 transition-all duration-300 ${
-              filtersCollapsed ? 'w-0 opacity-0' : 'w-80 opacity-100'
-            }`}
-          >
-            <Card className="bg-white shadow-sm sticky top-4 overflow-hidden">
-              <CardHeader className="pb-3 flex flex-row items-center justify-between">
-                <h3 className="font-semibold text-lg">Filtros</h3>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => setFiltersCollapsed(true)}
-                  className="h-8 w-8"
-                  title="Ocultar filtros"
-                >
-                  <ChevronRight className="h-4 w-4" />
-                </Button>
-              </CardHeader>
-              <CardContent className="space-y-4 pb-4">
-                {/* Only Favorites */}
-                <div className="space-y-2">
-                  <Label className="text-sm font-medium">Filtros especiales</Label>
-                  <div className="flex items-center space-x-2">
-                    <Checkbox
-                      id="favorites"
-                      checked={filters.onlyFavorites || false}
-                      onCheckedChange={(checked) =>
-                        setFilters({ ...filters, onlyFavorites: checked === true || undefined })
-                      }
-                    />
-                    <Label htmlFor="favorites" className="text-sm">
-                      Solo favoritas
-                    </Label>
-                  </div>
-                </div>
-
-                {/* Type Filter */}
-                <div className="space-y-2">
-                  <Label className="text-sm font-medium">Tipo de oportunidad</Label>
-                  <div className="space-y-1 max-h-32 overflow-y-auto">
-                    {Object.entries(OPPORTUNITY_TYPE_LABELS).map(([type, label]) => (
-                      <div key={type} className="flex items-center space-x-2">
-                        <Checkbox
-                          id={`type-${type}`}
-                          checked={filters.type?.includes(type as any) || false}
-                          onCheckedChange={(checked) => {
-                            const currentTypes = filters.type || [];
-                            const newTypes = checked
-                              ? [...currentTypes, type as any]
-                              : currentTypes.filter((t) => t !== type);
-                            setFilters({
-                              ...filters,
-                              type: newTypes.length > 0 ? newTypes : undefined,
-                            });
-                          }}
-                        />
-                        <Label htmlFor={`type-${type}`} className="text-xs">
-                          {label}
-                        </Label>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Priority Filter */}
-                <div className="space-y-2">
-                  <Label className="text-sm font-medium">Prioridad</Label>
-                  <div className="space-y-1">
-                    {["alta", "media", "baja"].map((priority) => (
-                      <div key={priority} className="flex items-center space-x-2">
-                        <Checkbox
-                          id={`priority-${priority}`}
-                          checked={filters.priority?.includes(priority as any) || false}
-                          onCheckedChange={(checked) => {
-                            const currentPriorities = filters.priority || [];
-                            const newPriorities = checked
-                              ? [...currentPriorities, priority as any]
-                              : currentPriorities.filter((p) => p !== priority);
-                            setFilters({
-                              ...filters,
-                              priority: newPriorities.length > 0 ? newPriorities : undefined,
-                            });
-                          }}
-                        />
-                        <Label htmlFor={`priority-${priority}`} className="text-sm capitalize">
-                          {priority}
-                        </Label>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Clear Filters */}
-                {(filters.type?.length || filters.priority?.length || filters.onlyFavorites) && (
-                  <Button variant="outline" onClick={handleClearFilters} className="w-full" size="sm">
-                    <X className="h-4 w-4 mr-2" />
-                    Limpiar filtros
-                  </Button>
-                )}
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Floating Filter Button - Shows when filters are collapsed */}
-          {filtersCollapsed && (
-            <Button
-              onClick={() => setFiltersCollapsed(false)}
-              className="hidden lg:flex fixed right-6 top-24 z-50 shadow-lg animate-scale-in"
-              size="lg"
-              title="Mostrar filtros"
-            >
-              <SlidersHorizontal className="h-5 w-5 mr-2" />
-              Filtros
-            </Button>
-          )}
         </div>
 
         {/* Mobile Filters */}
