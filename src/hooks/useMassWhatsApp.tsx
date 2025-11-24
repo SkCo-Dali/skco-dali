@@ -2,9 +2,11 @@ import { useState, useCallback } from 'react';
 import { Lead } from '@/types/crm';
 import { WhatsAppTemplate, WhatsAppUserInfo, WhatsAppMessage, WhatsAppSendLog, WhatsAppValidationError } from '@/types/whatsapp';
 import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/contexts/AuthContext';
 
 export function useMassWhatsApp() {
   const { toast } = useToast();
+  const { user } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [templates, setTemplates] = useState<WhatsAppTemplate[]>([]);
   const [userInfo, setUserInfo] = useState<WhatsAppUserInfo>({
@@ -52,13 +54,23 @@ export function useMassWhatsApp() {
   const replaceTemplateVariables = useCallback((template: WhatsAppTemplate, lead: Lead): string => {
     let content = template.content;
     
+    // Generar URL de WhatsApp del asesor
+    const countryCode = (user?.whatsappCountryCode || user?.countryCodeWhatsApp?.toString() || '57').replace('+', '');
+    const advisorPhone = user?.whatsappPhone || user?.whatsappNumber || user?.phone || '';
+    const whatsappUrl = `https://wa.me/${countryCode}${advisorPhone}`;
+    
     // Variables disponibles
     const variables: { [key: string]: string } = {
       '{nombre}': lead.name || '',
       '{email}': lead.email || '',
       '{telefono}': lead.phone || '',
       '{empresa}': lead.company || '',
-      '{producto}': lead.product || '' // Now it's a string, no need to join
+      '{producto}': lead.product || '', // Now it's a string, no need to join
+      '{WHATSAPP_URL}': whatsappUrl,
+      '{NOMBRE_ASESOR}': user?.name || '',
+      '{CARGO_ASESOR}': user?.jobTitle || '',
+      '{CELULAR_ASESOR}': advisorPhone || '',
+      '{CORREO_ASESOR}': user?.email || ''
     };
 
     // Reemplazar cada variable
@@ -67,7 +79,7 @@ export function useMassWhatsApp() {
     });
 
     return content;
-  }, []);
+  }, [user]);
 
   // Obtener plantillas (mock por ahora)
   const fetchTemplates = useCallback(async () => {
