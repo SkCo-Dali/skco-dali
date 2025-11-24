@@ -178,6 +178,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
                 emailSignatureHtml: profileData.appPreferences.emailSignatureHtml,
                 primaryActionCode: profileData.appPreferences.primaryActionCode,
                 primaryActionRoute: profileData.appPreferences.primaryActionRoute,
+                jobTitle: profileData.professional.role || null,
+                department: profileData.professional.department || null,
             };
         } catch (error) {
             console.error('❌ Error al cargar datos de perfil:', error);
@@ -224,7 +226,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
             if (accounts.length > 0) {
                 await msalInstance.logoutRedirect({
                     account: accounts[0],
-                    mainWindowRedirectUri: window.location.origin
+                    postLogoutRedirectUri: window.location.origin
                 });
             }
         } catch (error) {

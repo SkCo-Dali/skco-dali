@@ -44,6 +44,11 @@ export function useMassEmail() {
   const replaceDynamicFields = useCallback((template: string, lead: Lead): string => {
     let result = template;
     
+    // Generar URL de WhatsApp del asesor
+    const countryCode = (user?.whatsappCountryCode || user?.countryCodeWhatsApp?.toString() || '57').replace('+', '');
+    const advisorPhone = user?.whatsappPhone || user?.whatsappNumber || user?.phone || '';
+    const whatsappUrl = `https://wa.me/${countryCode}${advisorPhone}`;
+    
     // Mapeo de campos dinámicos a valores del lead
     const fieldMap: Record<string, string> = {
       name: lead.name,
@@ -85,14 +90,21 @@ export function useMassEmail() {
       }
     );
     
-    // Luego reemplazar patrones de texto plano {key} (para asunto y texto plano)
+    // Reemplazar patrones de texto plano {key} para datos del lead
     result = result.replace(/\{name\}/g, lead.name);
     result = result.replace(/\{firstName\}/g, lead.firstName || "");
     result = result.replace(/\{company\}/g, lead.company || "");
     result = result.replace(/\{phone\}/g, lead.phone || "");
     
+    // Reemplazar variables del asesor
+    result = result.replace(/\{WHATSAPP_URL\}/g, whatsappUrl);
+    result = result.replace(/\{NOMBRE_ASESOR\}/g, user?.name || "");
+    result = result.replace(/\{CARGO_ASESOR\}/g, user?.jobTitle || "");
+    result = result.replace(/\{CELULAR_ASESOR\}/g, advisorPhone || "");
+    result = result.replace(/\{CORREO_ASESOR\}/g, user?.email || "");
+    
     return result;
-  }, []);
+  }, [user]);
 
   // Función para convertir HTML a texto plano
   const convertHtmlToPlain = useCallback((html: string): string => {

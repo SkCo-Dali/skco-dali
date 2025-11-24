@@ -18,6 +18,7 @@ import {
 } from '@/services/waSelfSender';
 import { WhatsAppExtensionCommunicator } from '@/utils/whatsapp-extension';
 import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/contexts/AuthContext';
 
 export interface UseWhatsAppPropioReturn {
   sendProgress: SendProgress;
@@ -41,6 +42,7 @@ export interface SendMessagesConfig {
 
 export function useWhatsAppPropio(): UseWhatsAppPropioReturn {
   const { toast } = useToast();
+  const { user } = useAuth();
   const [sendProgress, setSendProgress] = useState<SendProgress>({
     total: 0,
     sent: 0,
@@ -72,12 +74,22 @@ export function useWhatsAppPropio(): UseWhatsAppPropioReturn {
   }, []);
 
   const renderMessage = useCallback((template: string, lead: Lead): string => {
+    // Generar URL de WhatsApp del asesor
+    const countryCode = (user?.whatsappCountryCode || user?.countryCodeWhatsApp?.toString() || '57').replace('+', '');
+    const advisorPhone = user?.whatsappPhone || user?.whatsappNumber || user?.phone || '';
+    const whatsappUrl = `https://wa.me/${countryCode}${advisorPhone}`;
+    
     return template
       .replace(/{name}/g, lead.name || 'N/A')
       .replace(/{company}/g, lead.company || 'N/A')  
       .replace(/{email}/g, lead.email || 'N/A')
-      .replace(/{phone}/g, lead.phone || 'N/A');
-  }, []);
+      .replace(/{phone}/g, lead.phone || 'N/A')
+      .replace(/{WHATSAPP_URL}/g, whatsappUrl)
+      .replace(/{NOMBRE_ASESOR}/g, user?.name || '')
+      .replace(/{CARGO_ASESOR}/g, user?.jobTitle || '')
+      .replace(/{CELULAR_ASESOR}/g, advisorPhone || '')
+      .replace(/{CORREO_ASESOR}/g, user?.email || '');
+  }, [user]);
 
   const sendMessages = useCallback(async (config: SendMessagesConfig) => {
     try {
