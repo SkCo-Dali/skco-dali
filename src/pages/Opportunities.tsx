@@ -12,7 +12,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Users, TrendingUp, Heart, Award, RefreshCw, Search, X } from "lucide-react";
+import { Users, TrendingUp, Heart, Award, RefreshCw, Search, X, SlidersHorizontal, ChevronLeft, ChevronRight } from "lucide-react";
 import {
   IOpportunity,
   OpportunityFilters,
@@ -32,6 +32,7 @@ export const Opportunities: React.FC = () => {
   const [filters, setFilters] = React.useState<OpportunityFilters>({});
   const [sortBy, setSortBy] = React.useState<SortOption>("relevance");
   const [marketAnimation, setMarketAnimation] = React.useState(null);
+  const [filtersCollapsed, setFiltersCollapsed] = React.useState(false);
 
   React.useEffect(() => {
     fetch('/animations/market_oportunidades.json')
@@ -287,11 +288,24 @@ export const Opportunities: React.FC = () => {
             )}
           </div>
 
-          {/* Filters Sidebar - Always visible on desktop */}
-          <div className="hidden lg:block w-80 shrink-0">
-            <Card className="bg-white shadow-sm sticky top-4">
-              <CardHeader className="pb-3">
+          {/* Filters Sidebar - Collapsible on desktop */}
+          <div 
+            className={`hidden lg:block shrink-0 transition-all duration-300 ${
+              filtersCollapsed ? 'w-0 opacity-0' : 'w-80 opacity-100'
+            }`}
+          >
+            <Card className="bg-white shadow-sm sticky top-4 overflow-hidden">
+              <CardHeader className="pb-3 flex flex-row items-center justify-between">
                 <h3 className="font-semibold text-lg">Filtros</h3>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => setFiltersCollapsed(true)}
+                  className="h-8 w-8"
+                  title="Ocultar filtros"
+                >
+                  <ChevronRight className="h-4 w-4" />
+                </Button>
               </CardHeader>
               <CardContent className="space-y-4 pb-4">
                 {/* Only Favorites */}
@@ -377,6 +391,19 @@ export const Opportunities: React.FC = () => {
               </CardContent>
             </Card>
           </div>
+
+          {/* Floating Filter Button - Shows when filters are collapsed */}
+          {filtersCollapsed && (
+            <Button
+              onClick={() => setFiltersCollapsed(false)}
+              className="hidden lg:flex fixed right-6 top-24 z-50 shadow-lg animate-scale-in"
+              size="lg"
+              title="Mostrar filtros"
+            >
+              <SlidersHorizontal className="h-5 w-5 mr-2" />
+              Filtros
+            </Button>
+          )}
         </div>
 
         {/* Mobile Filters */}
