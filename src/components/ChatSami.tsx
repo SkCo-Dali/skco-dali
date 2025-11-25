@@ -370,7 +370,7 @@ const ChatSamiContent = forwardRef<ChatSamiHandle, ChatSamiProps>(({ isOpen = fa
       setTimeout(() => {
         onOpenChange?.(newState);
         setIsClosing(false);
-      }, 300); // Duración de la animación
+      }, 350); // Duración de la animación
     } else {
       onOpenChange?.(newState);
     }
@@ -519,26 +519,20 @@ const ChatSamiContent = forwardRef<ChatSamiHandle, ChatSamiProps>(({ isOpen = fa
         </Dialog>
       )}
 
-      {/* Panel lateral fijo para desktop */}
+      {/* Panel flotante para desktop */}
       {isOpen && !isMobile && viewMode !== "maximized" && (
         <div 
-          className={`fixed top-20 right-0 bottom-0 w-[360px] border-l bg-background shadow-none flex flex-col z-30 ${
-            isClosing ? 'animate-slide-out-right' : 'animate-slide-in-right'
+          className={`fixed bottom-6 right-6 w-96 h-[600px] border bg-background rounded-2xl shadow-2xl flex flex-col z-50 ${
+            isClosing ? 'animate-chat-minimize' : 'animate-chat-maximize'
           }`}
+          style={{
+            transformOrigin: "bottom right"
+          }}
         >
           {/* Header */}
-          <div className="flex items-center justify-between bg-[#fafafa] h-18 mb-2 p-2 shrink-0">
+          <div className="flex items-center justify-between bg-[#fafafa] h-14 px-4 shrink-0 border-b rounded-t-2xl">
             <h2 className="text-lg font-semibold text-foreground">Dali</h2>
-            <div className="flex items-end gap-1">
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => setViewMode("maximized")}
-                className="h-8 w-8 hover:bg-muted"
-                aria-label="Maximizar"
-              >
-                <Maximize2 className="h-4 w-4" />
-              </Button>
+            <div className="flex items-center gap-1">
               <Button
                 variant="ghost"
                 size="icon"
@@ -548,7 +542,6 @@ const ChatSamiContent = forwardRef<ChatSamiHandle, ChatSamiProps>(({ isOpen = fa
               >
                 <Minus className="h-4 w-4" />
               </Button>
-              {/* Botón de acciones */}
               <ChatActionsButton
                 onNewConversation={handleNewChat}
                 onSearchConversations={handleSearchConversations}
