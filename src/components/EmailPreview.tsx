@@ -132,7 +132,7 @@ export function EmailPreview({
                         <div>
                           <Label className="text-xs font-medium text-muted-foreground">CONTENIDO:</Label>
                           <div
-                            className="border rounded p-3 bg-muted/30 text-sm"
+                            className="border rounded p-3 bg-muted/30 text-sm [&_p]:mb-3 [&_p:last-child]:mb-0"
                             style={{
                               lineHeight: '1.6'
                             }}
