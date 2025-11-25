@@ -53,16 +53,12 @@ export function AppContent() {
   const isUsersPage =
     location.pathname === "/users" || location.pathname === "/admin/users" || location.pathname === "/admin/reports";
 
-  // Abrir ChatSami por defecto para usuarios con permisos (excepto en página de Users y móvil)
+  // Cerrar ChatSami si navegamos a la página de Users
   useEffect(() => {
-    if (user && hasChatSamiPermissions && !chatSamiOpen && !isUsersPage && !isMobile) {
-      setChatSamiOpen(true);
-    }
-    // Cerrar ChatSami si navegamos a la página de Users
     if (isUsersPage && chatSamiOpen) {
       setChatSamiOpen(false);
     }
-  }, [user, hasChatSamiPermissions, isUsersPage, isMobile]);
+  }, [isUsersPage, chatSamiOpen]);
 
   if (loading) {
     return (
@@ -102,7 +98,6 @@ export function AppContent() {
             <AppSidebar />
             <div
               className="flex-1 flex flex-col transition-all duration-300"
-              style={{ marginRight: chatSamiOpen && hasChatSamiPermissions && !isUsersPage ? "380px" : "0" }}
             >
               <Header onSamiToggle={handleSamiToggle} />
               <main className="flex-1 pt-20">
