@@ -37,14 +37,14 @@ export function ProfileNotifications({ profile, updateProfile, onBack }: Props) 
       if (!token) return;
 
       const notificationsData = await userProfileApiClient.getNotifications(token.accessToken);
-      
+
       // Map API data to local format
       const preferences: any = {};
-      notificationsData.items.forEach(item => {
+      notificationsData.items.forEach((item) => {
         preferences[item.code.toLowerCase()] = {
           enabled: item.isEnabled,
-          channels: ['inapp'],
-          frequency: 'immediate',
+          channels: ["inapp"],
+          frequency: "immediate",
         };
       });
 
@@ -54,13 +54,13 @@ export function ProfileNotifications({ profile, updateProfile, onBack }: Props) 
           ...preferences,
           quietHours: {
             enabled: !!(notificationsData.quietHoursFrom && notificationsData.quietHoursTo),
-            start: notificationsData.quietHoursFrom || '',
-            end: notificationsData.quietHoursTo || '',
+            start: notificationsData.quietHoursFrom || "",
+            end: notificationsData.quietHoursTo || "",
           },
         },
       });
     } catch (error) {
-      console.error('Error loading notifications:', error);
+      console.error("Error loading notifications:", error);
     } finally {
       setIsLoading(false);
     }
@@ -70,10 +70,10 @@ export function ProfileNotifications({ profile, updateProfile, onBack }: Props) 
     setIsSaving(true);
     try {
       const token = await getAccessToken();
-      if (!token) throw new Error('No access token');
+      if (!token) throw new Error("No access token");
 
       const items = Object.entries(localData.notificationPreferences || {})
-        .filter(([key]) => key !== 'quietHours')
+        .filter(([key]) => key !== "quietHours")
         .map(([code, pref]: [string, any]) => ({
           code: code.toUpperCase(),
           isEnabled: pref.enabled,
@@ -88,13 +88,12 @@ export function ProfileNotifications({ profile, updateProfile, onBack }: Props) 
       updateProfile(localData);
       toast.success("Preferencias de notificaciones actualizadas");
     } catch (error) {
-      console.error('Error saving notifications:', error);
-      toast.error('Error al guardar las notificaciones');
+      console.error("Error saving notifications:", error);
+      toast.error("Error al guardar las notificaciones");
     } finally {
       setIsSaving(false);
     }
   };
-
 
   const toggleCategory = (category: string, enabled: boolean) => {
     const currentPref = localData.notificationPreferences?.[category as keyof typeof localData.notificationPreferences];
@@ -176,10 +175,7 @@ export function ProfileNotifications({ profile, updateProfile, onBack }: Props) 
                     <Label className="text-base font-medium">{category.label}</Label>
                     <p className="text-sm text-muted-foreground">{category.description}</p>
                   </div>
-                  <Switch
-                    checked={isEnabled}
-                    onCheckedChange={(checked) => toggleCategory(category.id, checked)}
-                  />
+                  <Switch checked={isEnabled} onCheckedChange={(checked) => toggleCategory(category.id, checked)} />
                 </div>
 
                 {/* Channel Selection */}
@@ -266,9 +262,9 @@ export function ProfileNotifications({ profile, updateProfile, onBack }: Props) 
                     end: localData.notificationPreferences?.quietHours?.end || "08:00",
                   },
                 },
-                  })
-                }
-              />
+              })
+            }
+          />
         </div>
 
         {localData.notificationPreferences?.quietHours?.enabled && (
@@ -289,9 +285,9 @@ export function ProfileNotifications({ profile, updateProfile, onBack }: Props) 
                         start: e.target.value,
                       },
                     },
-              })
-            }
-          />
+                  })
+                }
+              />
             </div>
             <div className="space-y-2">
               <Label htmlFor="quietEnd">Hasta</Label>
@@ -318,13 +314,12 @@ export function ProfileNotifications({ profile, updateProfile, onBack }: Props) 
       </Card>
 
       {/* Action Buttons */}
-      <div className="flex gap-3 justify-end pt-4">
-        <Button onClick={onBack} variant="outline" className="gap-2">
+      <div className="flex gap-3 pt-4">
+        <Button variant="outline" className="flex-1" onClick={onBack}>
           Regresar
         </Button>
-        <Button onClick={handleSave} variant="secondary" className="gap-2" disabled={!hasChanges || isSaving}>
-          <Save className="h-4 w-4" />
-          {isSaving ? 'Guardando...' : 'Guardar'}
+        <Button variant="default" className="flex-1" onClick={handleSave} disabled={!hasChanges || isSaving}>
+          {isSaving ? "Guardando..." : "Guardar"}
         </Button>
       </div>
     </div>

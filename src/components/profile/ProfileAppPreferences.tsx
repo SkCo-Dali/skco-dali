@@ -38,10 +38,10 @@ export function ProfileAppPreferences({ profile, updateProfile, onBack }: Props)
     setIsSaving(true);
     try {
       const token = await getAccessToken();
-      if (!token) throw new Error('No access token');
+      if (!token) throw new Error("No access token");
 
-      const selectedRoute = availableRoutes.find(r => r.value === localData.customHomepage);
-      
+      const selectedRoute = availableRoutes.find((r) => r.value === localData.customHomepage);
+
       await userProfileApiClient.updatePreferences(token.accessToken, {
         primaryActionCode: selectedRoute?.label || null,
         primaryActionRoute: localData.customHomepage || null,
@@ -53,8 +53,8 @@ export function ProfileAppPreferences({ profile, updateProfile, onBack }: Props)
       updateProfile(localData);
       toast.success("Preferencias de aplicación actualizadas");
     } catch (error) {
-      console.error('Error saving preferences:', error);
-      toast.error('Error al guardar las preferencias');
+      console.error("Error saving preferences:", error);
+      toast.error("Error al guardar las preferencias");
     } finally {
       setIsSaving(false);
     }
@@ -131,13 +131,12 @@ export function ProfileAppPreferences({ profile, updateProfile, onBack }: Props)
       </Card>
 
       {/* Action Buttons */}
-      <div className="flex gap-3 justify-end pt-4">
-        <Button onClick={onBack} variant="outline" className="gap-2">
+      <div className="flex gap-3 pt-4">
+        <Button variant="outline" className="flex-1" onClick={onBack}>
           Regresar
         </Button>
-        <Button onClick={handleSave} variant="secondary" className="gap-2" disabled={!hasChanges || isSaving}>
-          <Save className="h-4 w-4" />
-          {isSaving ? 'Guardando...' : 'Guardar'}
+        <Button variant="default" className="flex-1" onClick={handleSave} disabled={!hasChanges || isSaving}>
+          {isSaving ? "Guardando..." : "Guardar"}
         </Button>
       </div>
     </div>
