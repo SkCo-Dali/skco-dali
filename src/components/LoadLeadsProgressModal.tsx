@@ -3,8 +3,6 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { Button } from "@/components/ui/button";
 import { Loader2, CheckCircle2 } from "lucide-react";
 import { Lead } from "@/types/crm";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface LoadLeadsProgressModalProps {
   open: boolean;
@@ -59,38 +57,8 @@ export const LoadLeadsProgressModal: React.FC<LoadLeadsProgressModalProps> = ({
               </DialogTitle>
             </DialogHeader>
 
-            {/* Contenido scrollable */}
-            <div className="flex-1 overflow-y-auto pr-1 space-y-4">
-              <div className="space-y-2">
-                <p className="text-sm font-medium">Clientes cargados:</p>
-                <div className="rounded-md border">
-                  <ScrollArea className="h-[260px] w-full">
-                    <div className="min-w-[600px]">
-                      <Table>
-                        <TableHeader>
-                          <TableRow>
-                            <TableHead className="w-[120px]">Documento</TableHead>
-                            <TableHead className="w-[180px]">Nombre</TableHead>
-                            <TableHead className="w-[200px]">Email</TableHead>
-                            <TableHead className="w-[120px]">Teléfono</TableHead>
-                          </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                          {leads.map((lead) => (
-                            <TableRow key={lead.id}>
-                              <TableCell className="font-medium">{lead.documentNumber || "N/A"}</TableCell>
-                              <TableCell>{lead.name}</TableCell>
-                              <TableCell className="text-sm">{lead.email || "N/A"}</TableCell>
-                              <TableCell>{lead.phone || "N/A"}</TableCell>
-                            </TableRow>
-                          ))}
-                        </TableBody>
-                      </Table>
-                    </div>
-                  </ScrollArea>
-                </div>
-              </div>
-
+            {/* Contenido */}
+            <div className="space-y-4">
               <div className="rounded-lg bg-green-50 dark:bg-green-950/20 p-5 space-y-4">
                 <p className="text-base font-semibold text-foreground">
                   Se cargaron {leads.length} clientes en el módulo de leads
