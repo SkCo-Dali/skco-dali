@@ -25,19 +25,12 @@ export const LoadLeadsProgressModal: React.FC<LoadLeadsProgressModalProps> = ({
   return (
     <Dialog open={open} onOpenChange={() => {}}>
       <DialogContent
-        className="
-          w-full 
-          max-w-3xl 
-          max-h-[80vh] 
-          flex 
-          flex-col
-          [&>button]:hidden
-        "
+        className="w-full max-w-3xl [&>button]:hidden p-0 gap-0"
         onPointerDownOutside={(e) => e.preventDefault()}
         onEscapeKeyDown={(e) => e.preventDefault()}
       >
         {loading ? (
-          <>
+          <div className="p-6">
             <DialogHeader>
               <DialogTitle className="flex items-center gap-3">
                 <Loader2 className="h-6 w-6 animate-spin text-primary" />
@@ -47,18 +40,20 @@ export const LoadLeadsProgressModal: React.FC<LoadLeadsProgressModalProps> = ({
             <div className="py-8 text-center">
               <p className="text-muted-foreground">Por favor espera mientras se cargan las oportunidades...</p>
             </div>
-          </>
+          </div>
         ) : (
           <>
-            <DialogHeader>
-              <DialogTitle className="flex items-center gap-3 text-green-600">
-                <CheckCircle2 className="h-6 w-6" />
-                ¡Cargue exitoso!
-              </DialogTitle>
-            </DialogHeader>
+            <div className="p-6 pb-0">
+              <DialogHeader>
+                <DialogTitle className="flex items-center gap-3 text-green-600">
+                  <CheckCircle2 className="h-6 w-6" />
+                  ¡Cargue exitoso!
+                </DialogTitle>
+              </DialogHeader>
+            </div>
 
-            {/* Contenido */}
-            <div className="space-y-4">
+            {/* Contenido scrolleable */}
+            <div className="px-6 py-4 overflow-y-auto max-h-[60vh]">
               <div className="rounded-lg bg-green-50 dark:bg-green-950/20 p-5 space-y-4">
                 <p className="text-base font-semibold text-foreground">
                   Se cargaron {leads.length} clientes en el módulo de leads
@@ -111,8 +106,8 @@ export const LoadLeadsProgressModal: React.FC<LoadLeadsProgressModalProps> = ({
               </div>
             </div>
 
-            {/* Footer fijo con los botones centrados */}
-            <div className="flex flex-col items-center gap-2 w-full mt-4">
+            {/* Footer fijo con los botones */}
+            <div className="p-6 pt-4 border-t flex flex-col items-center gap-2 w-full">
               <Button onClick={onSendEmails} className="w-full max-w-md">
                 Preparar correo
               </Button>
