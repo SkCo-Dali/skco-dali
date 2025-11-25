@@ -370,7 +370,7 @@ const ChatSamiContent = forwardRef<ChatSamiHandle, ChatSamiProps>(({ isOpen = fa
       setTimeout(() => {
         onOpenChange?.(newState);
         setIsClosing(false);
-      }, 350); // Duración de la animación
+      }, 300); // Duración de la animación
     } else {
       onOpenChange?.(newState);
     }
@@ -523,11 +523,8 @@ const ChatSamiContent = forwardRef<ChatSamiHandle, ChatSamiProps>(({ isOpen = fa
       {isOpen && !isMobile && viewMode !== "maximized" && (
         <div 
           className={`fixed top-20 right-0 bottom-0 w-[360px] border-l bg-background shadow-none flex flex-col z-30 ${
-            isClosing ? 'animate-chat-minimize' : 'animate-chat-maximize'
+            isClosing ? 'animate-slide-out-right' : 'animate-slide-in-right'
           }`}
-          style={{
-            transformOrigin: "top right"
-          }}
         >
           {/* Header */}
           <div className="flex items-center justify-between bg-[#fafafa] h-18 mb-2 p-2 shrink-0">
@@ -551,6 +548,7 @@ const ChatSamiContent = forwardRef<ChatSamiHandle, ChatSamiProps>(({ isOpen = fa
               >
                 <Minus className="h-4 w-4" />
               </Button>
+              {/* Botón de acciones */}
               <ChatActionsButton
                 onNewConversation={handleNewChat}
                 onSearchConversations={handleSearchConversations}

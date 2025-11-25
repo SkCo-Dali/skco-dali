@@ -53,12 +53,16 @@ export function AppContent() {
   const isUsersPage =
     location.pathname === "/users" || location.pathname === "/admin/users" || location.pathname === "/admin/reports";
 
-  // Cerrar ChatSami si navegamos a la página de Users
+  // Abrir ChatSami por defecto para usuarios con permisos (excepto en página de Users y móvil)
   useEffect(() => {
+    if (user && hasChatSamiPermissions && !chatSamiOpen && !isUsersPage && !isMobile) {
+      setChatSamiOpen(true);
+    }
+    // Cerrar ChatSami si navegamos a la página de Users
     if (isUsersPage && chatSamiOpen) {
       setChatSamiOpen(false);
     }
-  }, [isUsersPage, chatSamiOpen]);
+  }, [user, hasChatSamiPermissions, isUsersPage, isMobile]);
 
   if (loading) {
     return (
