@@ -151,12 +151,6 @@ export function ProfileNotifications({ profile, updateProfile, onBack }: Props) 
 
   return (
     <div className="space-y-6 animate-fade-in">
-      {/* Header */}
-      <div>
-        <h2 className="text-2xl font-semibold">Preferencias de Notificaciones</h2>
-        <p className="text-sm text-muted-foreground mt-1">Configura cómo y cuándo quieres recibir notificaciones</p>
-      </div>
-
       {/* Notification Categories */}
       <div className="space-y-4">
         {notificationCategories.map((category) => {

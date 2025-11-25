@@ -65,12 +65,6 @@ export function ProfileAppPreferences({ profile, updateProfile, onBack }: Props)
 
   return (
     <div className="space-y-6 animate-fade-in">
-      {/* Header */}
-      <div>
-        <h2 className="text-2xl font-semibold">Preferencias de Aplicación</h2>
-        <p className="text-sm text-muted-foreground mt-1">Personaliza tu experiencia en Dali</p>
-      </div>
-
       {/* Homepage Selection */}
       <Card className="p-4 border-border/40 space-y-4">
         <div className="space-y-2">

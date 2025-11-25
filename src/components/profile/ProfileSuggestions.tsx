@@ -67,12 +67,6 @@ export function ProfileSuggestions({ profile, updateProfile, onBack }: Props) {
 
   return (
     <div className="space-y-6 animate-fade-in">
-      {/* Header */}
-      <div>
-        <h2 className="text-2xl font-semibold">Sugerencias y Feedback</h2>
-        <p className="text-sm text-muted-foreground mt-1">Ayúdanos a mejorar Dali con tus ideas</p>
-      </div>
-
       {/* New Suggestion Form */}
       <Card className="p-4 border-border/40 space-y-4">
         <div className="flex items-center gap-3">
