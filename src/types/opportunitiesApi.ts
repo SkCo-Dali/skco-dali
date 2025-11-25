@@ -74,3 +74,31 @@ export interface UpdateFavouriteResponse {
   success: boolean;
   message?: string;
 }
+
+export interface PreviewLeadFromOpportunity {
+  id: string | null;
+  CreatedBy: string;
+  name: string;
+  email: string;
+  phone: string;
+  documentNumber: number;
+  company: string | null;
+  source: string;
+  campaign: string | null;
+  product: any[];
+  stage: string;
+  priority: string;
+  value: number;
+  assignedTo: string;
+  nextFollowUp: string | null;
+  notes: string | null;
+  tags: any[];
+  DocumentType: string;
+  SelectedPortfolios: any[];
+  CampaignOwnerName: string | null;
+  Age: number;
+  Gender: string;
+  PreferredContactChannel: string | null;
+  AdditionalInfo: Record<string, any>;
+  OpportunityId: number;
+}
