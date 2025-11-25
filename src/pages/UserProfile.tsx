@@ -28,10 +28,12 @@ import { ProfileSuggestions } from "@/components/profile/ProfileSuggestions";
 import { ProfileAppPreferences } from "@/components/profile/ProfileAppPreferences";
 import { useUserProfile } from "@/hooks/useUserProfile";
 import { useAuth } from "@/contexts/AuthContext";
+import { useNavigate } from "react-router-dom";
 
 const UserProfile = () => {
   const { profile, updateProfile } = useUserProfile();
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [activeSection, setActiveSection] = useState<string | null>(null);
 
   // Calculate completion for each section
@@ -154,7 +156,12 @@ const UserProfile = () => {
       <div className="container mx-auto py-4 px-4">
         {/* Breadcrumb */}
         <div className="mb-4 flex items-center gap-2 text-sm">
-          <span className="text-muted-foreground cursor-pointer hover:text-foreground">Inicio</span>
+          <span 
+            className="text-muted-foreground cursor-pointer hover:text-foreground transition-colors" 
+            onClick={() => navigate('/')}
+          >
+            Inicio
+          </span>
           <span className="text-muted-foreground">/</span>
           <span className="text-primary font-medium">Mis datos</span>
         </div>
