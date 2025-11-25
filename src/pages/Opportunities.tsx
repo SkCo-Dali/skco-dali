@@ -313,47 +313,43 @@ export const Opportunities: React.FC = () => {
           </div>
         </div>
 
-        <div className="flex gap-6">
-          {/* Opportunities Grid */}
-          <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-3">
-            {loading ? (
-              <div className="flex flex-col justify-center items-center py-12 space-y-4">
-                {marketAnimation ? (
-                  <div className="w-64 h-64">
-                    <Lottie animationData={marketAnimation} loop={true} />
-                  </div>
-                ) : (
-                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900" />
-                )}
-                <span className="text-lg text-muted-foreground">Cargando oportunidades...</span>
+        {/* Opportunities Grid */}
+        {loading ? (
+          <div className="flex flex-col justify-center items-center py-12 space-y-4">
+            {marketAnimation ? (
+              <div className="w-64 h-64">
+                <Lottie animationData={marketAnimation} loop={true} />
               </div>
-            ) : opportunities.length === 0 ? (
-              <Card className="p-8 text-center bg-white">
-                <div className="space-y-3">
-                  <div className="text-4xl">🔍</div>
-                  <h3 className="text-lg font-semibold">No se encontraron oportunidades</h3>
-                  <p className="text-muted-foreground text-sm">
-                    Intenta ajustar los filtros o buscar con diferentes términos.
-                  </p>
-                  <Button variant="outline" onClick={handleClearFilters}>
-                    Limpiar filtros
-                  </Button>
-                </div>
-              </Card>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
-                {opportunities.map((opportunity) => (
-                  <OpportunityCard
-                    key={opportunity.id}
-                    opportunity={opportunity}
-                    onViewDetails={handleViewDetails}
-                    onFavoriteChange={handleFavoriteChange}
-                  />
-                ))}
-              </div>
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900" />
             )}
+            <span className="text-lg text-muted-foreground">Cargando oportunidades...</span>
           </div>
-        </div>
+        ) : opportunities.length === 0 ? (
+          <Card className="p-8 text-center bg-white">
+            <div className="space-y-3">
+              <div className="text-4xl">🔍</div>
+              <h3 className="text-lg font-semibold">No se encontraron oportunidades</h3>
+              <p className="text-muted-foreground text-sm">
+                Intenta ajustar los filtros o buscar con diferentes términos.
+              </p>
+              <Button variant="outline" onClick={handleClearFilters}>
+                Limpiar filtros
+              </Button>
+            </div>
+          </Card>
+        ) : (
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+            {opportunities.map((opportunity) => (
+              <OpportunityCard
+                key={opportunity.id}
+                opportunity={opportunity}
+                onViewDetails={handleViewDetails}
+                onFavoriteChange={handleFavoriteChange}
+              />
+            ))}
+          </div>
+        )}
 
         {/* Mobile Filters */}
         <div className="lg:hidden">
