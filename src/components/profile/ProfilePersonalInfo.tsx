@@ -39,7 +39,7 @@ export function ProfilePersonalInfo({ profile, updateProfile, onBack }: Props) {
       // Save basic info
       await userProfileApiClient.updateBasic(token.accessToken, {
         preferredName: localData.preferredName,
-        birthDate: localData.birthDate ? format(new Date(localData.birthDate), "yyyy-MM-dd") : null,
+        birthDate: localData.birthDate || null,
         gender: localData.gender || null,
         maritalStatus: localData.maritalStatus || null,
         childrenCount: localData.numberOfChildren || 0,
