@@ -5,7 +5,6 @@ import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { UserProfile } from "@/types/userProfile";
-import { CountryPhoneSelector } from "@/components/onboarding/CountryPhoneSelector";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { ChevronDown } from "lucide-react";
 import { toast } from "sonner";
@@ -13,6 +12,8 @@ import { useAuth } from "@/contexts/AuthContext";
 import { userProfileApiClient } from "@/utils/userProfileApiClient";
 import { DatePicker } from "@/components/ui/date-picker";
 import { format, parse } from "date-fns";
+import { CountryPhoneSelector } from "@/components/onboarding/CountryPhoneSelector";
+import { normalizarTelefonoColombia, getMotivoDescripcion } from "@/utils/whatsapp-phone";
 
 interface Props {
   profile: UserProfile;
@@ -24,6 +25,7 @@ export function ProfilePersonalInfo({ profile, updateProfile, onBack }: Props) {
   const [localData, setLocalData] = useState(profile);
   const [socialMediaOpen, setSocialMediaOpen] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [phoneError, setPhoneError] = useState<string | undefined>(undefined);
   const { getAccessToken, updateUserProfile } = useAuth();
 
   const hasChanges = useMemo(() => {
@@ -31,6 +33,19 @@ export function ProfilePersonalInfo({ profile, updateProfile, onBack }: Props) {
   }, [localData, profile]);
 
   const handleSave = async () => {
+    // Validate phone before saving
+    if (localData.phone) {
+      const phoneWithCountry = `${localData.countryCode || '+57'}${localData.phone}`;
+      const validation = normalizarTelefonoColombia(phoneWithCountry);
+      
+      if (!validation.ok) {
+        setPhoneError(getMotivoDescripcion(validation.motivo || ''));
+        toast.error("Por favor corrige el número de WhatsApp");
+        return;
+      }
+      setPhoneError(undefined);
+    }
+
     setIsSaving(true);
     try {
       const token = await getAccessToken();
@@ -118,7 +133,10 @@ export function ProfilePersonalInfo({ profile, updateProfile, onBack }: Props) {
         whatsappPhone: localData.phone || null,
       });
 
-      toast.success("Información personal actualizada");
+      toast.success("✓ Información personal actualizada correctamente", {
+        duration: 4000,
+        position: "top-center",
+      });
     } catch (error) {
       console.error("Error saving personal info:", error);
       toast.error("Error al guardar la información");
@@ -182,26 +200,22 @@ export function ProfilePersonalInfo({ profile, updateProfile, onBack }: Props) {
       {/* WhatsApp */}
       <Card className="p-4 border-border/40 space-y-4">
         <h3 className="font-medium text-lg mb-4">WhatsApp *</h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="space-y-2">
-            <Label htmlFor="countryCode">Código de País</Label>
-            <Input
-              id="countryCode"
-              value={localData.countryCode || ""}
-              onChange={(e) => setLocalData({ ...localData, countryCode: e.target.value })}
-              placeholder="+57"
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="phone">Número de WhatsApp</Label>
-            <Input
-              id="phone"
-              value={localData.phone || ""}
-              onChange={(e) => setLocalData({ ...localData, phone: e.target.value })}
-              placeholder="3001234567"
-            />
-          </div>
-        </div>
+        <p className="text-sm text-muted-foreground mb-4">
+          Este número se usará para contactarte y en correos masivos
+        </p>
+        <CountryPhoneSelector
+          selectedCountryCode={localData.countryCode || "+57"}
+          phone={localData.phone || ""}
+          onCountryChange={(countryCode) => {
+            setLocalData({ ...localData, countryCode });
+            setPhoneError(undefined);
+          }}
+          onPhoneChange={(phone) => {
+            setLocalData({ ...localData, phone });
+            setPhoneError(undefined);
+          }}
+          error={phoneError}
+        />
       </Card>
 
       {/* Social Media */}

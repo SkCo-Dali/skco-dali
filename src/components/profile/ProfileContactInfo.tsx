@@ -44,7 +44,10 @@ export function ProfileContactInfo({ profile, updateProfile, onBack }: Props) {
       });
 
       updateProfile(localData);
-      toast.success("Información de contacto actualizada");
+      toast.success("✓ Información de contacto actualizada correctamente", {
+        duration: 4000,
+        position: "top-center",
+      });
     } catch (error) {
       console.error("Error saving contact info:", error);
       toast.error("Error al guardar la información");
