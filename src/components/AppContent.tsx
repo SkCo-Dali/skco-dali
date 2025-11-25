@@ -79,6 +79,10 @@ export function AppContent() {
     }
   };
 
+  const handleSamiToggle = () => {
+    setChatSamiOpen(!chatSamiOpen);
+  };
+
   return (
     <div className="App">
       <UnauthenticatedTemplate>
@@ -100,7 +104,7 @@ export function AppContent() {
               className="flex-1 flex flex-col transition-all duration-300"
               style={{ marginRight: chatSamiOpen && hasChatSamiPermissions && !isUsersPage ? "380px" : "0" }}
             >
-              <Header onBannerMessage={handleBannerMessage} />
+              <Header onSamiToggle={handleSamiToggle} />
               <main className="flex-1 pt-20">
                 <Routes>
                   <Route path="/" element={<RoleBasedRedirect />} />
