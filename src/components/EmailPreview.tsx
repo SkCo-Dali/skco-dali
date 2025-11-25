@@ -132,7 +132,7 @@ export function EmailPreview({
                         <div>
                           <Label className="text-xs font-medium text-muted-foreground">CONTENIDO:</Label>
                           <div
-                            className="border rounded p-3 bg-muted/30 text-sm"
+                            className="border rounded p-3 bg-muted/30 text-sm whitespace-pre-wrap [&_p]:my-2 [&_br]:block"
                             dangerouslySetInnerHTML={{ __html: processedContent }}
                           />
                         </div>
