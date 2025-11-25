@@ -79,12 +79,12 @@ export const LoadLeadsProgressModal: React.FC<LoadLeadsProgressModalProps> = ({
                         <p className="text-base font-medium text-foreground">Opción 1: Preparar un correo para ellos</p>
                         <p className="text-sm text-foreground/80 mt-1">Se abrirá el editor de correos donde podrás:</p>
                         <ul className="text-sm text-foreground/80 mt-1 ml-4 list-disc space-y-0.5">
-                          <li>Escoger una plantilla o escribir tu mensaje</li>
-                          <li>Decidir a cuáles clientes enviarles</li>
-                          <li>Revisar todo antes de enviar</li>
+                          <li>Escoger una plantilla (aunque ya te sugerimos una 😉) o escribir tu mensaje</li>
+                          <li>Decidir a cuáles clientes enviarles 🤔</li>
+                          <li>Revisar todo antes de enviar 🔎</li>
                         </ul>
                         <p className="text-sm text-foreground/90 mt-2 italic font-medium">
-                          Nada se envía sin tu confirmación final.
+                          NADA se envía sin tu confirmación final.
                         </p>
                       </div>
                     </div>
