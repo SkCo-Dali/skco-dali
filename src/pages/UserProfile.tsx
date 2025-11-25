@@ -152,13 +152,13 @@ const UserProfile = () => {
   };
 
   return (
-    <div className="min-h-screen bg-muted/30">
+    <div className="min-h-screen bg-white">
       <div className="container mx-auto py-4 px-4">
         {/* Breadcrumb */}
         <div className="mb-4 flex items-center gap-2 text-sm">
-          <span 
-            className="text-muted-foreground cursor-pointer hover:text-foreground transition-colors" 
-            onClick={() => navigate('/')}
+          <span
+            className="text-muted-foreground cursor-pointer hover:text-foreground transition-colors"
+            onClick={() => navigate("/")}
           >
             Inicio
           </span>
