@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
@@ -18,11 +18,14 @@ interface Props {
 }
 
 export function ProfileNotifications({ profile, updateProfile, onBack }: Props) {
-  const [isEditing, setIsEditing] = useState(false);
   const [localData, setLocalData] = useState(profile);
   const [isSaving, setIsSaving] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const { getAccessToken } = useAuth();
+
+  const hasChanges = useMemo(() => {
+    return JSON.stringify(localData.notificationPreferences) !== JSON.stringify(profile.notificationPreferences);
+  }, [localData.notificationPreferences, profile.notificationPreferences]);
 
   useEffect(() => {
     loadNotifications();
@@ -83,7 +86,6 @@ export function ProfileNotifications({ profile, updateProfile, onBack }: Props) 
       });
 
       updateProfile(localData);
-      setIsEditing(false);
       toast.success("Preferencias de notificaciones actualizadas");
     } catch (error) {
       console.error('Error saving notifications:', error);
@@ -93,10 +95,6 @@ export function ProfileNotifications({ profile, updateProfile, onBack }: Props) 
     }
   };
 
-  const handleCancel = () => {
-    setLocalData(profile);
-    setIsEditing(false);
-  };
 
   const toggleCategory = (category: string, enabled: boolean) => {
     const currentPref = localData.notificationPreferences?.[category as keyof typeof localData.notificationPreferences];
@@ -155,28 +153,9 @@ export function ProfileNotifications({ profile, updateProfile, onBack }: Props) 
   return (
     <div className="space-y-6 animate-fade-in">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-2xl font-semibold">Preferencias de Notificaciones</h2>
-          <p className="text-sm text-muted-foreground mt-1">Configura cómo y cuándo quieres recibir notificaciones</p>
-        </div>
-        {!isEditing ? (
-          <Button onClick={() => setIsEditing(true)} variant="outline" className="gap-2">
-            <Bell className="h-4 w-4" />
-            Editar
-          </Button>
-        ) : (
-          <div className="flex gap-2">
-            <Button onClick={handleCancel} variant="outline" className="gap-2">
-              <X className="h-4 w-4" />
-              Cancelar
-            </Button>
-            <Button onClick={handleSave} className="gap-2" disabled={isSaving}>
-              <Save className="h-4 w-4" />
-              {isSaving ? 'Guardando...' : 'Guardar'}
-            </Button>
-          </div>
-        )}
+      <div>
+        <h2 className="text-2xl font-semibold">Preferencias de Notificaciones</h2>
+        <p className="text-sm text-muted-foreground mt-1">Configura cómo y cuándo quieres recibir notificaciones</p>
       </div>
 
       {/* Notification Categories */}
@@ -200,7 +179,6 @@ export function ProfileNotifications({ profile, updateProfile, onBack }: Props) 
                   <Switch
                     checked={isEnabled}
                     onCheckedChange={(checked) => toggleCategory(category.id, checked)}
-                    disabled={!isEditing}
                   />
                 </div>
 
@@ -215,7 +193,6 @@ export function ProfileNotifications({ profile, updateProfile, onBack }: Props) 
                         size="sm"
                         className="gap-2"
                         onClick={() => toggleChannel(category.id, "whatsapp")}
-                        disabled={!isEditing}
                       >
                         <Smartphone className="h-4 w-4" />
                         WhatsApp
@@ -226,7 +203,6 @@ export function ProfileNotifications({ profile, updateProfile, onBack }: Props) 
                         size="sm"
                         className="gap-2"
                         onClick={() => toggleChannel(category.id, "email")}
-                        disabled={!isEditing}
                       >
                         <Mail className="h-4 w-4" />
                         Email
@@ -237,7 +213,6 @@ export function ProfileNotifications({ profile, updateProfile, onBack }: Props) 
                         size="sm"
                         className="gap-2"
                         onClick={() => toggleChannel(category.id, "inapp")}
-                        disabled={!isEditing}
                       >
                         <MessageSquare className="h-4 w-4" />
                         In-app
@@ -251,7 +226,6 @@ export function ProfileNotifications({ profile, updateProfile, onBack }: Props) 
                         <Select
                           value={(prefs as any)?.frequency || "immediate"}
                           onValueChange={(value: any) => setFrequency(category.id, value)}
-                          disabled={!isEditing}
                         >
                           <SelectTrigger className="w-full md:w-[200px]">
                             <SelectValue />
@@ -292,10 +266,9 @@ export function ProfileNotifications({ profile, updateProfile, onBack }: Props) 
                     end: localData.notificationPreferences?.quietHours?.end || "08:00",
                   },
                 },
-              })
-            }
-            disabled={!isEditing}
-          />
+                  })
+                }
+              />
         </div>
 
         {localData.notificationPreferences?.quietHours?.enabled && (
@@ -316,10 +289,9 @@ export function ProfileNotifications({ profile, updateProfile, onBack }: Props) 
                         start: e.target.value,
                       },
                     },
-                  })
-                }
-                disabled={!isEditing}
-              />
+              })
+            }
+          />
             </div>
             <div className="space-y-2">
               <Label htmlFor="quietEnd">Hasta</Label>
@@ -339,12 +311,22 @@ export function ProfileNotifications({ profile, updateProfile, onBack }: Props) 
                     },
                   })
                 }
-                disabled={!isEditing}
               />
             </div>
           </div>
         )}
       </Card>
+
+      {/* Action Buttons */}
+      <div className="flex gap-3 justify-end pt-4">
+        <Button onClick={onBack} variant="outline" className="gap-2">
+          Regresar
+        </Button>
+        <Button onClick={handleSave} variant="secondary" className="gap-2" disabled={!hasChanges || isSaving}>
+          <Save className="h-4 w-4" />
+          {isSaving ? 'Guardando...' : 'Guardar'}
+        </Button>
+      </div>
     </div>
   );
 }
