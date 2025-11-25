@@ -139,10 +139,7 @@ export function ProfilePersonalInfo({ profile, updateProfile, onBack }: Props) {
         whatsappPhone: localData.phone || null,
       });
 
-      toast.success("✓ Información personal actualizada correctamente", {
-        duration: 4000,
-        position: "top-center",
-      });
+      toast.success("✓ Información personal actualizada correctamente");
       
       // Force re-sync localData with saved values to disable Save button
       // This ensures hasChanges becomes false after successful save
