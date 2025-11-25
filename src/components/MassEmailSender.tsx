@@ -19,9 +19,10 @@ import { useGraphAuthorization } from '@/hooks/useGraphAuthorization';
 interface MassEmailSenderProps {
   filteredLeads: Lead[];
   onClose: () => void;
+  opportunityId?: number;
 }
 
-export function MassEmailSender({ filteredLeads, onClose }: MassEmailSenderProps) {
+export function MassEmailSender({ filteredLeads, onClose, opportunityId }: MassEmailSenderProps) {
   const { toast } = useToast();
   const {
     isLoading,
@@ -70,17 +71,45 @@ export function MassEmailSender({ filteredLeads, onClose }: MassEmailSenderProps
     }
   }, [graphAuthLoading, isAuthorized]);
 
-  // Restaurar borrador al montar el componente
+  // Cargar plantilla por opportunity_id si existe, o restaurar borrador
   useEffect(() => {
-    const restored = restoreFromStorage();
-    if (restored && (restored.subject || restored.htmlContent)) {
-      setTemplate(restored);
-      toast({
-        title: "Borrador restaurado",
-        description: "Se ha recuperado tu borrador anterior",
-      });
-    }
-  }, []);
+    const loadTemplateByOpportunity = async () => {
+      if (opportunityId) {
+        try {
+          const { emailTemplatesService } = await import('@/services/emailTemplatesService');
+          const template = await emailTemplatesService.getTemplateByOpportunityId(opportunityId);
+          
+          if (template) {
+            setTemplate({
+              subject: template.subject,
+              htmlContent: template.html_content,
+              plainContent: template.plain_text_content || ''
+            });
+            clearBackup(); // Limpiar cualquier borrador anterior
+            toast({
+              title: "Plantilla cargada",
+              description: `Se ha cargado la plantilla "${template.template_name}"`,
+            });
+            return;
+          }
+        } catch (error) {
+          console.error('Error loading template by opportunity_id:', error);
+        }
+      }
+      
+      // Si no hay plantilla de oportunidad, restaurar borrador
+      const restored = restoreFromStorage();
+      if (restored && (restored.subject || restored.htmlContent)) {
+        setTemplate(restored);
+        toast({
+          title: "Borrador restaurado",
+          description: "Se ha recuperado tu borrador anterior",
+        });
+      }
+    };
+    
+    loadTemplateByOpportunity();
+  }, [opportunityId]);
 
   // Cargar historial de correos cuando se activa la pestaña de logs
   useEffect(() => {
