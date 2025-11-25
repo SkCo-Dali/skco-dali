@@ -54,10 +54,7 @@ export function ProfileFamilyInfo({ profile, updateProfile, onBack }: Props) {
       });
 
       updateProfile(localData);
-      toast.success("✓ Información familiar actualizada correctamente", {
-        duration: 4000,
-        position: "top-center",
-      });
+      toast.success("✓ Información familiar actualizada correctamente");
     } catch (error) {
       console.error("Error saving family info:", error);
       toast.error("Error al guardar la información");

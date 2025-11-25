@@ -47,10 +47,7 @@ export function ProfileProfessionalInfo({ profile, updateProfile, onBack }: Prop
       });
 
       updateProfile(localData);
-      toast.success("✓ Información profesional actualizada correctamente", {
-        duration: 4000,
-        position: "top-center",
-      });
+      toast.success("✓ Información profesional actualizada correctamente");
       
       // Re-render will sync localData with updated profile prop via useEffect
     } catch (error) {
