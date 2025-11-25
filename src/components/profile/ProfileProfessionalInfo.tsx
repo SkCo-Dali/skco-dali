@@ -28,7 +28,7 @@ export function ProfileProfessionalInfo({ profile, updateProfile, onBack }: Prop
     setIsSaving(true);
     try {
       const token = await getAccessToken();
-      if (!token) throw new Error('No access token');
+      if (!token) throw new Error("No access token");
 
       await userProfileApiClient.updateProfessional(token.accessToken, {
         jobTitle: localData.role || null,
@@ -44,8 +44,8 @@ export function ProfileProfessionalInfo({ profile, updateProfile, onBack }: Prop
       updateProfile(localData);
       toast.success("Información profesional actualizada");
     } catch (error) {
-      console.error('Error saving professional info:', error);
-      toast.error('Error al guardar la información');
+      console.error("Error saving professional info:", error);
+      toast.error("Error al guardar la información");
     } finally {
       setIsSaving(false);
     }
@@ -158,19 +158,10 @@ export function ProfileProfessionalInfo({ profile, updateProfile, onBack }: Prop
 
       {/* Action Buttons */}
       <div className="flex gap-3 pt-4">
-        <Button 
-          variant="outline" 
-          className="flex-1"
-          onClick={onBack}
-        >
+        <Button variant="outline" className="flex-1" onClick={onBack}>
           Regresar
         </Button>
-        <Button 
-          variant="secondary" 
-          className="flex-1"
-          onClick={handleSave}
-          disabled={!hasChanges || isSaving}
-        >
+        <Button variant="primary" className="flex-1" onClick={handleSave} disabled={!hasChanges || isSaving}>
           {isSaving ? "Guardando..." : "Guardar"}
         </Button>
       </div>

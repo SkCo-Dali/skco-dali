@@ -27,7 +27,7 @@ export function ProfileContactInfo({ profile, updateProfile, onBack }: Props) {
     setIsSaving(true);
     try {
       const token = await getAccessToken();
-      if (!token) throw new Error('No access token');
+      if (!token) throw new Error("No access token");
 
       await userProfileApiClient.updateAddress(token.accessToken, {
         address: {
@@ -46,8 +46,8 @@ export function ProfileContactInfo({ profile, updateProfile, onBack }: Props) {
       updateProfile(localData);
       toast.success("Información de contacto actualizada");
     } catch (error) {
-      console.error('Error saving contact info:', error);
-      toast.error('Error al guardar la información');
+      console.error("Error saving contact info:", error);
+      toast.error("Error al guardar la información");
     } finally {
       setIsSaving(false);
     }
@@ -55,7 +55,6 @@ export function ProfileContactInfo({ profile, updateProfile, onBack }: Props) {
 
   return (
     <div className="space-y-6 animate-fade-in">
-
       {/* Address */}
       <Card className="p-4 border-border/40 space-y-4">
         <h3 className="font-medium text-lg mb-4">Dirección</h3>
@@ -205,19 +204,10 @@ export function ProfileContactInfo({ profile, updateProfile, onBack }: Props) {
 
       {/* Action Buttons */}
       <div className="flex gap-3 pt-4">
-        <Button 
-          variant="outline" 
-          className="flex-1"
-          onClick={onBack}
-        >
+        <Button variant="outline" className="flex-1" onClick={onBack}>
           Regresar
         </Button>
-        <Button 
-          variant="secondary" 
-          className="flex-1"
-          onClick={handleSave}
-          disabled={!hasChanges || isSaving}
-        >
+        <Button variant="primary" className="flex-1" onClick={handleSave} disabled={!hasChanges || isSaving}>
           {isSaving ? "Guardando..." : "Guardar"}
         </Button>
       </div>
