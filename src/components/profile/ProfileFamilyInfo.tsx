@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -16,9 +17,14 @@ interface Props {
 }
 
 export function ProfileFamilyInfo({ profile, updateProfile }: Props) {
+  const navigate = useNavigate();
   const [localData, setLocalData] = useState(profile);
   const [isSaving, setIsSaving] = useState(false);
   const { getAccessToken } = useAuth();
+
+  const hasChanges = useMemo(() => {
+    return JSON.stringify(localData) !== JSON.stringify(profile);
+  }, [localData, profile]);
 
   const handleSave = async () => {
     setIsSaving(true);
@@ -239,7 +245,7 @@ export function ProfileFamilyInfo({ profile, updateProfile }: Props) {
         <Button 
           variant="outline" 
           className="flex-1"
-          onClick={() => window.history.back()}
+          onClick={() => navigate('/perfil')}
         >
           Regresar
         </Button>
@@ -247,7 +253,7 @@ export function ProfileFamilyInfo({ profile, updateProfile }: Props) {
           variant="secondary" 
           className="flex-1"
           onClick={handleSave}
-          disabled={isSaving}
+          disabled={!hasChanges || isSaving}
         >
           {isSaving ? "Guardando..." : "Guardar"}
         </Button>
