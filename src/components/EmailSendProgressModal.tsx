@@ -169,19 +169,19 @@ export function EmailSendProgressModal({
                       key={event.id}
                       className="flex items-start gap-3 p-3 bg-background rounded-lg border"
                     >
-                      <div className="mt-0.5">
+                      <div className="mt-0.5 flex-shrink-0">
                         {getStatusIcon(event.status)}
                       </div>
-                      <div className="flex-1 min-w-0">
+                      <div className="flex-1 min-w-0 overflow-hidden">
                         <div className="flex items-start justify-between gap-2 mb-1">
-                          <div className="font-medium truncate">{event.leadName}</div>
-                          {getStatusBadge(event.status)}
+                          <div className="font-medium truncate flex-1 min-w-0">{event.leadName}</div>
+                          <div className="flex-shrink-0">{getStatusBadge(event.status)}</div>
                         </div>
                         <div className="text-sm text-muted-foreground truncate">
                           {event.email}
                         </div>
                         {event.error && (
-                          <div className="text-xs text-red-600 mt-1">
+                          <div className="text-xs text-red-600 mt-1 break-words">
                             Error: {event.error}
                           </div>
                         )}
