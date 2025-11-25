@@ -129,7 +129,6 @@ export function ProfilePersonalInfo({ profile, updateProfile, onBack }: Props) {
 
   return (
     <div className="space-y-6 animate-fade-in">
-
       {/* Basic Info */}
       <Card className="p-4 border-border/40 space-y-4">
         <h3 className="font-medium text-lg mb-4">Datos Básicos</h3>
@@ -279,19 +278,10 @@ export function ProfilePersonalInfo({ profile, updateProfile, onBack }: Props) {
 
       {/* Action Buttons */}
       <div className="flex gap-3 pt-4">
-        <Button 
-          variant="outline" 
-          className="flex-1"
-          onClick={onBack}
-        >
+        <Button variant="outline" className="flex-1" onClick={onBack}>
           Regresar
         </Button>
-        <Button 
-          variant="secondary" 
-          className="flex-1"
-          onClick={handleSave}
-          disabled={!hasChanges || isSaving}
-        >
+        <Button variant="primary" className="flex-1" onClick={handleSave} disabled={!hasChanges || isSaving}>
           {isSaving ? "Guardando..." : "Guardar"}
         </Button>
       </div>
