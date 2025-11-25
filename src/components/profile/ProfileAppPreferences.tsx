@@ -51,7 +51,10 @@ export function ProfileAppPreferences({ profile, updateProfile, onBack }: Props)
       });
 
       updateProfile(localData);
-      toast.success("Preferencias de aplicación actualizadas");
+      toast.success("✓ Preferencias de aplicación actualizadas correctamente", {
+        duration: 4000,
+        position: "top-center",
+      });
     } catch (error) {
       console.error("Error saving preferences:", error);
       toast.error("Error al guardar las preferencias");

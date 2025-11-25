@@ -42,7 +42,10 @@ export function ProfileProfessionalInfo({ profile, updateProfile, onBack }: Prop
       });
 
       updateProfile(localData);
-      toast.success("Información profesional actualizada");
+      toast.success("✓ Información profesional actualizada correctamente", {
+        duration: 4000,
+        position: "top-center",
+      });
     } catch (error) {
       console.error("Error saving professional info:", error);
       toast.error("Error al guardar la información");

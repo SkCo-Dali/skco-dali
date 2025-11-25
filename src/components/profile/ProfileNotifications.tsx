@@ -86,7 +86,10 @@ export function ProfileNotifications({ profile, updateProfile, onBack }: Props) 
       });
 
       updateProfile(localData);
-      toast.success("Preferencias de notificaciones actualizadas");
+      toast.success("✓ Preferencias de notificaciones actualizadas correctamente", {
+        duration: 4000,
+        position: "top-center",
+      });
     } catch (error) {
       console.error("Error saving notifications:", error);
       toast.error("Error al guardar las notificaciones");
