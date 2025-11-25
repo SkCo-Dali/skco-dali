@@ -31,6 +31,7 @@ export const LoadLeadsProgressModal: React.FC<LoadLeadsProgressModalProps> = ({
           max-h-[80vh] 
           flex 
           flex-col
+          overflow-y-auto
           [&>button]:hidden
         "
         onPointerDownOutside={(e) => e.preventDefault()}
