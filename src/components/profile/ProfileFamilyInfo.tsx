@@ -5,7 +5,7 @@ import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { UserProfile } from "@/types/userProfile";
-import { Edit2, Save, X, Plus, Trash2 } from "lucide-react";
+import { Plus, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
 import { userProfileApiClient } from "@/utils/userProfileApiClient";
@@ -16,7 +16,6 @@ interface Props {
 }
 
 export function ProfileFamilyInfo({ profile, updateProfile }: Props) {
-  const [isEditing, setIsEditing] = useState(false);
   const [localData, setLocalData] = useState(profile);
   const [isSaving, setIsSaving] = useState(false);
   const { getAccessToken } = useAuth();
@@ -41,7 +40,6 @@ export function ProfileFamilyInfo({ profile, updateProfile }: Props) {
       });
 
       updateProfile(localData);
-      setIsEditing(false);
       toast.success("Información familiar actualizada");
     } catch (error) {
       console.error('Error saving family info:', error);
@@ -49,11 +47,6 @@ export function ProfileFamilyInfo({ profile, updateProfile }: Props) {
     } finally {
       setIsSaving(false);
     }
-  };
-
-  const handleCancel = () => {
-    setLocalData(profile);
-    setIsEditing(false);
   };
 
   const addImportantDate = () => {
@@ -85,30 +78,6 @@ export function ProfileFamilyInfo({ profile, updateProfile }: Props) {
 
   return (
     <div className="space-y-6 animate-fade-in">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-2xl font-semibold">Información Familiar</h2>
-          <p className="text-sm text-muted-foreground mt-1">Datos familiares y contactos de emergencia</p>
-        </div>
-        {!isEditing ? (
-          <Button onClick={() => setIsEditing(true)} variant="outline" className="gap-2">
-            <Edit2 className="h-4 w-4" />
-            Editar
-          </Button>
-        ) : (
-          <div className="flex gap-2">
-            <Button onClick={handleCancel} variant="outline" className="gap-2">
-              <X className="h-4 w-4" />
-              Cancelar
-            </Button>
-            <Button onClick={handleSave} className="gap-2" disabled={isSaving}>
-              <Save className="h-4 w-4" />
-              {isSaving ? 'Guardando...' : 'Guardar'}
-            </Button>
-          </div>
-        )}
-      </div>
 
       {/* Basic Family Info */}
       <Card className="p-4 border-border/40 space-y-4">
@@ -120,7 +89,6 @@ export function ProfileFamilyInfo({ profile, updateProfile }: Props) {
             <Select
               value={localData.maritalStatus || ""}
               onValueChange={(value: any) => setLocalData({ ...localData, maritalStatus: value })}
-              disabled={!isEditing}
             >
               <SelectTrigger>
                 <SelectValue placeholder="Selecciona tu estado civil" />
@@ -143,7 +111,6 @@ export function ProfileFamilyInfo({ profile, updateProfile }: Props) {
               min="0"
               value={localData.numberOfChildren || ""}
               onChange={(e) => setLocalData({ ...localData, numberOfChildren: parseInt(e.target.value) || 0 })}
-              disabled={!isEditing}
               placeholder="0"
             />
           </div>
@@ -171,7 +138,6 @@ export function ProfileFamilyInfo({ profile, updateProfile }: Props) {
                   },
                 })
               }
-              disabled={!isEditing}
               placeholder="Nombre del contacto"
             />
           </div>
@@ -192,7 +158,6 @@ export function ProfileFamilyInfo({ profile, updateProfile }: Props) {
                   },
                 })
               }
-              disabled={!isEditing}
               placeholder="Ej: Esposo/a, Padre/Madre"
             />
           </div>
@@ -213,7 +178,6 @@ export function ProfileFamilyInfo({ profile, updateProfile }: Props) {
                   },
                 })
               }
-              disabled={!isEditing}
               placeholder="+57 300 123 4567"
             />
           </div>
@@ -227,12 +191,10 @@ export function ProfileFamilyInfo({ profile, updateProfile }: Props) {
             <h3 className="font-medium text-lg">Fechas Importantes</h3>
             <p className="text-sm text-muted-foreground">Cumpleaños, aniversarios, etc.</p>
           </div>
-          {isEditing && (
-            <Button onClick={addImportantDate} size="sm" variant="outline" className="gap-2">
-              <Plus className="h-4 w-4" />
-              Agregar Fecha
-            </Button>
-          )}
+          <Button onClick={addImportantDate} size="sm" variant="outline" className="gap-2">
+            <Plus className="h-4 w-4" />
+            Agregar Fecha
+          </Button>
         </div>
 
         <div className="space-y-3">
@@ -241,19 +203,16 @@ export function ProfileFamilyInfo({ profile, updateProfile }: Props) {
               <Input
                 value={date.name}
                 onChange={(e) => updateImportantDate(date.id, "name", e.target.value)}
-                disabled={!isEditing}
                 placeholder="Nombre"
               />
               <Input
                 type="date"
                 value={date.date}
                 onChange={(e) => updateImportantDate(date.id, "date", e.target.value)}
-                disabled={!isEditing}
               />
               <Select
                 value={date.type}
                 onValueChange={(value) => updateImportantDate(date.id, "type", value)}
-                disabled={!isEditing}
               >
                 <SelectTrigger>
                   <SelectValue />
@@ -264,11 +223,9 @@ export function ProfileFamilyInfo({ profile, updateProfile }: Props) {
                   <SelectItem value="other">Otro</SelectItem>
                 </SelectContent>
               </Select>
-              {isEditing && (
-                <Button onClick={() => removeImportantDate(date.id)} size="sm" variant="destructive" className="gap-2">
-                  <Trash2 className="h-4 w-4" />
-                </Button>
-              )}
+              <Button onClick={() => removeImportantDate(date.id)} size="sm" variant="destructive" className="gap-2">
+                <Trash2 className="h-4 w-4" />
+              </Button>
             </div>
           ))}
           {(!localData.importantDates || localData.importantDates.length === 0) && (
@@ -276,6 +233,25 @@ export function ProfileFamilyInfo({ profile, updateProfile }: Props) {
           )}
         </div>
       </Card>
+
+      {/* Action Buttons */}
+      <div className="flex gap-3 pt-4">
+        <Button 
+          variant="outline" 
+          className="flex-1"
+          onClick={() => window.history.back()}
+        >
+          Regresar
+        </Button>
+        <Button 
+          variant="secondary" 
+          className="flex-1"
+          onClick={handleSave}
+          disabled={isSaving}
+        >
+          {isSaving ? "Guardando..." : "Guardar"}
+        </Button>
+      </div>
     </div>
   );
 }
