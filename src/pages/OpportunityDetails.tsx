@@ -28,7 +28,10 @@ import { isAuthorizedForMassEmail } from "@/utils/emailDomainValidator";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { MassEmailSender } from "@/components/MassEmailSender";
 import { LoadLeadsProgressModal } from "@/components/LoadLeadsProgressModal";
+import { LeadsPreviewModal } from "@/components/LeadsPreviewModal";
 import { Lead } from "@/types/crm";
+import { PreviewLeadFromOpportunity } from "@/types/opportunitiesApi";
+import { previewLeadsFromOpportunity } from "@/utils/opportunitiesApiClient";
 
 export const OpportunityDetails: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -44,6 +47,9 @@ export const OpportunityDetails: React.FC = () => {
   const [loadedLeads, setLoadedLeads] = React.useState<Lead[]>([]);
   const [showLoadLeadsModal, setShowLoadLeadsModal] = React.useState(false);
   const [campaignName, setCampaignName] = React.useState("");
+  const [showPreviewModal, setShowPreviewModal] = React.useState(false);
+  const [previewLeads, setPreviewLeads] = React.useState<PreviewLeadFromOpportunity[]>([]);
+  const [loadingPreview, setLoadingPreview] = React.useState(false);
 
   const loadOpportunity = React.useCallback(async () => {
     if (!id) return;
@@ -136,6 +142,37 @@ export const OpportunityDetails: React.FC = () => {
     setShowLoadLeadsModal(false);
     // Navigate to leads with auto-filter animation
     navigate(`/leads?autoFilterCampaign=${encodeURIComponent(campaignName)}`);
+  };
+
+  const handleReviewClients = async () => {
+    if (!opportunity) return;
+    try {
+      setShowPreviewModal(true);
+      setLoadingPreview(true);
+      const leads = await previewLeadsFromOpportunity(parseInt(opportunity.id));
+      setPreviewLeads(leads);
+      setLoadingPreview(false);
+    } catch (error) {
+      console.error("Error loading preview:", error);
+      setShowPreviewModal(false);
+      setLoadingPreview(false);
+      toast({
+        title: "Error al cargar previsualización",
+        description: "No se pudo cargar la previsualización de clientes",
+        variant: "destructive",
+        duration: 5000,
+      });
+    }
+  };
+
+  const handleLoadFromPreview = () => {
+    setShowPreviewModal(false);
+    handleLoadAsLeads(true);
+  };
+
+  const handleCancelPreview = () => {
+    setShowPreviewModal(false);
+    setPreviewLeads([]);
   };
 
   if (loading) {
@@ -378,16 +415,16 @@ export const OpportunityDetails: React.FC = () => {
                           variant="default"
                           className="w-full justify-start h-auto py-3 px-4 text-left bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 shadow-md hover:shadow-lg transition-all duration-200 group"
                           size="lg"
-                          onClick={() => handleLoadAsLeads(true)}
-                          disabled={loadingLeads}
+                          onClick={handleReviewClients}
+                          disabled={loadingPreview}
                         >
                           <div className="flex items-center gap-3 w-full min-w-0">
                             <div className="flex-shrink-0 p-2 bg-white/20 rounded-lg group-hover:bg-white/30 transition-colors">
-                              <Mail className="h-4 w-4" />
+                              <Users className="h-4 w-4" />
                             </div>
                             <div className="flex flex-col items-start min-w-0 flex-1">
                               <span className="font-semibold text-sm leading-tight truncate w-full">
-                                {loadingLeads ? "Cargando leads..." : "Cargar en Módulo de leads"}
+                                {loadingPreview ? "Cargando..." : "Revisar Clientes"}
                               </span>
                               <span className="text-xs opacity-90 mt-0.5 truncate w-full">Acción recomendada</span>
                             </div>
@@ -395,7 +432,7 @@ export const OpportunityDetails: React.FC = () => {
                         </Button>
                       </TooltipTrigger>
                       <TooltipContent side="left" className="max-w-xs">
-                        <p className="text-sm font-semibold">Cargar como leads</p>
+                        <p className="text-sm font-semibold">Revisar Clientes</p>
                         <p className="text-xs text-muted-foreground mt-1">Acción recomendada</p>
                       </TooltipContent>
                     </Tooltip>
@@ -487,6 +524,15 @@ export const OpportunityDetails: React.FC = () => {
         campaignName={campaignName}
         onSendEmails={handleSendEmailsFromModal}
         onGoToLeads={handleGoToLeadsModule}
+      />
+
+      {/* Leads Preview Modal */}
+      <LeadsPreviewModal
+        open={showPreviewModal}
+        loading={loadingPreview}
+        leads={previewLeads}
+        onLoadAsLeads={handleLoadFromPreview}
+        onCancel={handleCancelPreview}
       />
 
       {/* Email Sender Modal via Portal */}
