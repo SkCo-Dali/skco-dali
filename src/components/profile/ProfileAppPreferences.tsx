@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
@@ -29,6 +29,11 @@ export function ProfileAppPreferences({ profile, updateProfile, onBack }: Props)
   const [localData, setLocalData] = useState(profile);
   const [isSaving, setIsSaving] = useState(false);
   const { getAccessToken } = useAuth();
+
+  // Sync localData when profile changes (after successful save)
+  useEffect(() => {
+    setLocalData(profile);
+  }, [profile]);
 
   const hasChanges = useMemo(() => {
     return localData.customHomepage !== profile.customHomepage;

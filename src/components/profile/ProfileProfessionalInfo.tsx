@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -19,6 +19,11 @@ export function ProfileProfessionalInfo({ profile, updateProfile, onBack }: Prop
   const [localData, setLocalData] = useState(profile);
   const [isSaving, setIsSaving] = useState(false);
   const { getAccessToken } = useAuth();
+
+  // Sync localData when profile changes (after successful save)
+  useEffect(() => {
+    setLocalData(profile);
+  }, [profile]);
 
   const hasChanges = useMemo(() => {
     return JSON.stringify(localData) !== JSON.stringify(profile);
@@ -46,6 +51,8 @@ export function ProfileProfessionalInfo({ profile, updateProfile, onBack }: Prop
         duration: 4000,
         position: "top-center",
       });
+      
+      // Re-render will sync localData with updated profile prop via useEffect
     } catch (error) {
       console.error("Error saving professional info:", error);
       toast.error("Error al guardar la información");
