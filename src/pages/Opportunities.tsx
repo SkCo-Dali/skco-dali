@@ -315,7 +315,7 @@ export const Opportunities: React.FC = () => {
 
         <div className="flex gap-6">
           {/* Opportunities Grid */}
-          <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-3">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
             {loading ? (
               <div className="flex flex-col justify-center items-center py-12 space-y-4">
                 {marketAnimation ? (
