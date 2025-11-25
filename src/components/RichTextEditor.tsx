@@ -38,6 +38,7 @@ import { FontSize } from '@/extensions/FontSizeExtension';
 import { PreserveStylesExtension } from '@/extensions/PreserveStylesExtension';
 import { DivExtension } from '@/extensions/DivExtension';
 import { TableWithStyles, TableRow, TableCell } from '@/extensions/TableWithStylesExtension';
+import { ParagraphWithSpacing } from '@/extensions/ParagraphExtension';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -84,12 +85,12 @@ export function RichTextEditor({
     extensions: [
       StarterKit.configure({
         heading: false, // Deshabilitamos headings para emails
-        paragraph: {
-          HTMLAttributes: {
-            style: 'margin-bottom: 1em;',
-          },
+        paragraph: false, // Deshabilitamos el párrafo por defecto
+        hardBreak: {
+          keepMarks: true,
         },
       }),
+      ParagraphWithSpacing, // Usamos nuestra extensión personalizada
       Underline,
       TextStyle,
       Color,
