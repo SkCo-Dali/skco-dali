@@ -84,6 +84,11 @@ export function RichTextEditor({
     extensions: [
       StarterKit.configure({
         heading: false, // Deshabilitamos headings para emails
+        paragraph: {
+          HTMLAttributes: {
+            style: 'margin-bottom: 1em;',
+          },
+        },
       }),
       Underline,
       TextStyle,
