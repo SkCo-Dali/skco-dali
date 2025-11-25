@@ -51,8 +51,16 @@ export function Header({ onSamiToggle }: HeaderProps = {}) {
           {/* Espacio central vacío */}
           <div className="flex-1"></div>
 
-          {/* Botón Tu Sami y perfil de usuario */}
+          {/* Perfil de usuario, saludo y botón Tu Sami */}
           <div className="flex items-center space-x-2 md:space-x-3">
+            {!isMobile && <UserProfile />}
+            {!isMobile && user && (
+              <div className="text-sm font-medium text-foreground">
+                <span>Hola, </span>
+                <span className="text-[#00A859]">{user.preferredName || user.name || "Usuario"}</span>
+                <span> 👋</span>
+              </div>
+            )}
             <Button
               onClick={onSamiToggle}
               variant="ghost"
@@ -66,7 +74,6 @@ export function Header({ onSamiToggle }: HeaderProps = {}) {
               />
               <span className="text-sm font-medium text-foreground hidden md:inline">Tu Sami</span>
             </Button>
-            {!isMobile && <UserProfile />}
           </div>
         </div>
       </header>
