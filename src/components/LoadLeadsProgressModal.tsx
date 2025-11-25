@@ -67,9 +67,6 @@ export const LoadLeadsProgressModal: React.FC<LoadLeadsProgressModalProps> = ({
                   Los encontrarás filtrando por la campaña:{" "}
                   <span className="font-medium text-foreground">{campaignName}</span>
                 </p>
-                <p className="text-sm text-foreground/80">
-                  Estos son los clientes que acabas de cargar desde la oportunidad seleccionada.
-                </p>
 
                 <div className="space-y-4 mt-4">
                   <p className="text-base font-semibold text-foreground">¿Qué quieres hacer ahora?</p>
@@ -78,12 +75,8 @@ export const LoadLeadsProgressModal: React.FC<LoadLeadsProgressModalProps> = ({
                     <div className="flex gap-3">
                       <span className="text-lg flex-shrink-0">📧</span>
                       <div>
-                        <p className="text-base font-medium text-foreground">
-                          Opción 1: Preparar un correo para ellos
-                        </p>
-                        <p className="text-sm text-foreground/80 mt-1">
-                          Se abrirá el editor de correos donde podrás:
-                        </p>
+                        <p className="text-base font-medium text-foreground">Opción 1: Preparar un correo para ellos</p>
+                        <p className="text-sm text-foreground/80 mt-1">Se abrirá el editor de correos donde podrás:</p>
                         <ul className="text-sm text-foreground/80 mt-1 ml-4 list-disc space-y-0.5">
                           <li>Escoger una plantilla o escribir tu mensaje</li>
                           <li>Decidir a cuáles clientes enviarles</li>
@@ -98,27 +91,25 @@ export const LoadLeadsProgressModal: React.FC<LoadLeadsProgressModalProps> = ({
                     <div className="flex gap-3">
                       <span className="text-lg flex-shrink-0">📋</span>
                       <div>
-                        <p className="text-base font-medium text-foreground">
-                          Opción 2: Ir al módulo de leads
-                        </p>
+                        <p className="text-base font-medium text-foreground">Opción 2: Ir al módulo de leads</p>
                         <p className="text-sm text-foreground/80 mt-1">
-                          Verás estos clientes ya filtrados automáticamente por la campaña para que puedas revisar su información.
+                          Verás estos clientes ya filtrados automáticamente por la campaña para que puedas revisar su
+                          información.
                         </p>
                       </div>
                     </div>
                   </div>
                 </div>
               </div>
-            </div>
-
-            {/* Footer fijo con los botones centrados */}
-            <div className="flex flex-col items-center gap-2 w-full mt-4">
-              <Button onClick={onSendEmails} className="w-full max-w-md">
-                Preparar correo
-              </Button>
-              <Button variant="outline" onClick={onGoToLeads} className="w-full max-w-md">
-                Ir al módulo de leads
-              </Button>
+              {/* Footer fijo con los botones centrados */}
+              <div className="flex flex-col items-center gap-2 w-full mt-4">
+                <Button onClick={onSendEmails} className="w-full max-w-md">
+                  Preparar correo
+                </Button>
+                <Button variant="outline" onClick={onGoToLeads} className="w-full max-w-md">
+                  Ir al módulo de leads
+                </Button>
+              </div>
             </div>
           </>
         )}
