@@ -1,5 +1,4 @@
 import { useState, useMemo } from "react";
-import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -12,10 +11,10 @@ import { userProfileApiClient } from "@/utils/userProfileApiClient";
 interface Props {
   profile: UserProfile;
   updateProfile: (updates: Partial<UserProfile>) => void;
+  onBack: () => void;
 }
 
-export function ProfileContactInfo({ profile, updateProfile }: Props) {
-  const navigate = useNavigate();
+export function ProfileContactInfo({ profile, updateProfile, onBack }: Props) {
   const [localData, setLocalData] = useState(profile);
   const [isSaving, setIsSaving] = useState(false);
   const { getAccessToken } = useAuth();
@@ -209,7 +208,7 @@ export function ProfileContactInfo({ profile, updateProfile }: Props) {
         <Button 
           variant="outline" 
           className="flex-1"
-          onClick={() => navigate('/perfil')}
+          onClick={onBack}
         >
           Regresar
         </Button>

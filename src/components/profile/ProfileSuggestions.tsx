@@ -13,9 +13,10 @@ import { Badge } from "@/components/ui/badge";
 interface Props {
   profile: UserProfile;
   updateProfile: (updates: Partial<UserProfile>) => void;
+  onBack: () => void;
 }
 
-export function ProfileSuggestions({ profile, updateProfile }: Props) {
+export function ProfileSuggestions({ profile, updateProfile, onBack }: Props) {
   const [newSuggestion, setNewSuggestion] = useState("");
   const [category, setCategory] = useState("general");
 

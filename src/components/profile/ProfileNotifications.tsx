@@ -14,9 +14,10 @@ import { userProfileApiClient } from "@/utils/userProfileApiClient";
 interface Props {
   profile: UserProfile;
   updateProfile: (updates: Partial<UserProfile>) => void;
+  onBack: () => void;
 }
 
-export function ProfileNotifications({ profile, updateProfile }: Props) {
+export function ProfileNotifications({ profile, updateProfile, onBack }: Props) {
   const [isEditing, setIsEditing] = useState(false);
   const [localData, setLocalData] = useState(profile);
   const [isSaving, setIsSaving] = useState(false);
