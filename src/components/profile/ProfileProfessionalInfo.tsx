@@ -161,7 +161,7 @@ export function ProfileProfessionalInfo({ profile, updateProfile, onBack }: Prop
         <Button variant="outline" className="flex-1" onClick={onBack}>
           Regresar
         </Button>
-        <Button variant="primary" className="flex-1" onClick={handleSave} disabled={!hasChanges || isSaving}>
+        <Button variant="default" className="flex-1" onClick={handleSave} disabled={!hasChanges || isSaving}>
           {isSaving ? "Guardando..." : "Guardar"}
         </Button>
       </div>
