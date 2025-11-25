@@ -51,11 +51,13 @@ export function Header({ onSamiToggle }: HeaderProps = {}) {
             )}
           </div>
 
-          {/* Saludo del usuario */}
-          <div className="flex-1 flex items-center justify-center md:justify-start md:ml-4">
-            <span className="text-sm md:text-base font-medium text-foreground">
-              Hola, <span className="text-[#00C73D]">{firstName}</span> 👋
-            </span>
+          {/* Espacio flexible */}
+          <div className="flex-1 flex items-center justify-end md:justify-start md:ml-4">
+            {!isMobile && (
+              <span className="text-sm font-medium text-foreground">
+                Hola, <span className="text-[#00C73D]">{firstName}</span> 👋
+              </span>
+            )}
           </div>
 
           {/* Botón Tu Sami y perfil de usuario */}
