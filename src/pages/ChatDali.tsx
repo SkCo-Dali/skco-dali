@@ -85,9 +85,7 @@ const IndexContent = forwardRef<any, {}>((props, ref) => {
       {/* Header fijo en móvil */}
       {isMobile && (
         <div className="fixed top-0 left-0 right-0 z-50 bg-white">
-          <Header 
-            onBannerMessage={handleBannerMessage}
-          />
+          <Header />
         </div>
       )}
       
