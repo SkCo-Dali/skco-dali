@@ -12,6 +12,7 @@ import { userProfileApiClient } from "@/utils/userProfileApiClient";
 interface Props {
   profile: UserProfile;
   updateProfile: (updates: Partial<UserProfile>) => void;
+  onBack: () => void;
 }
 
 const availableRoutes = [
@@ -24,7 +25,7 @@ const availableRoutes = [
   { value: "/chat-dali", label: "Chat con Dali", description: "Asistente virtual" },
 ];
 
-export function ProfileAppPreferences({ profile, updateProfile }: Props) {
+export function ProfileAppPreferences({ profile, updateProfile, onBack }: Props) {
   const [isEditing, setIsEditing] = useState(false);
   const [localData, setLocalData] = useState(profile);
   const [isSaving, setIsSaving] = useState(false);

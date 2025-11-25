@@ -121,22 +121,26 @@ const UserProfile = () => {
   const completedFields = sections.reduce((acc, s) => acc + s.completion.completed, 0);
   const completionPercentage = Math.round((completedFields / totalFields) * 100);
 
+  const handleBackToSections = () => {
+    setActiveSection(null);
+  };
+
   const renderSectionContent = () => {
     switch (activeSection) {
       case "personal":
-        return <ProfilePersonalInfo profile={profile} updateProfile={updateProfile} />;
+        return <ProfilePersonalInfo profile={profile} updateProfile={updateProfile} onBack={handleBackToSections} />;
       case "professional":
-        return <ProfileProfessionalInfo profile={profile} updateProfile={updateProfile} />;
+        return <ProfileProfessionalInfo profile={profile} updateProfile={updateProfile} onBack={handleBackToSections} />;
       case "family":
-        return <ProfileFamilyInfo profile={profile} updateProfile={updateProfile} />;
+        return <ProfileFamilyInfo profile={profile} updateProfile={updateProfile} onBack={handleBackToSections} />;
       case "contact":
-        return <ProfileContactInfo profile={profile} updateProfile={updateProfile} />;
+        return <ProfileContactInfo profile={profile} updateProfile={updateProfile} onBack={handleBackToSections} />;
       case "notifications":
-        return <ProfileNotifications profile={profile} updateProfile={updateProfile} />;
+        return <ProfileNotifications profile={profile} updateProfile={updateProfile} onBack={handleBackToSections} />;
       case "suggestions":
-        return <ProfileSuggestions profile={profile} updateProfile={updateProfile} />;
+        return <ProfileSuggestions profile={profile} updateProfile={updateProfile} onBack={handleBackToSections} />;
       case "preferences":
-        return <ProfileAppPreferences profile={profile} updateProfile={updateProfile} />;
+        return <ProfileAppPreferences profile={profile} updateProfile={updateProfile} onBack={handleBackToSections} />;
       default:
         return null;
     }
