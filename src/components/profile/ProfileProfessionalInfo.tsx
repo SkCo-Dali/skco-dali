@@ -1,11 +1,10 @@
-import { useState } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Card } from "@/components/ui/card";
 import { UserProfile } from "@/types/userProfile";
-import { Edit2, Save, X } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
 import { userProfileApiClient } from "@/utils/userProfileApiClient";
@@ -13,19 +12,28 @@ import { userProfileApiClient } from "@/utils/userProfileApiClient";
 interface Props {
   profile: UserProfile;
   updateProfile: (updates: Partial<UserProfile>) => void;
+  onBack: () => void;
 }
 
-export function ProfileProfessionalInfo({ profile, updateProfile }: Props) {
-  const [isEditing, setIsEditing] = useState(false);
+export function ProfileProfessionalInfo({ profile, updateProfile, onBack }: Props) {
   const [localData, setLocalData] = useState(profile);
   const [isSaving, setIsSaving] = useState(false);
   const { getAccessToken } = useAuth();
+
+  // Sync localData when profile changes (after successful save)
+  useEffect(() => {
+    setLocalData(profile);
+  }, [profile]);
+
+  const hasChanges = useMemo(() => {
+    return JSON.stringify(localData) !== JSON.stringify(profile);
+  }, [localData, profile]);
 
   const handleSave = async () => {
     setIsSaving(true);
     try {
       const token = await getAccessToken();
-      if (!token) throw new Error('No access token');
+      if (!token) throw new Error("No access token");
 
       await userProfileApiClient.updateProfessional(token.accessToken, {
         jobTitle: localData.role || null,
@@ -39,48 +47,19 @@ export function ProfileProfessionalInfo({ profile, updateProfile }: Props) {
       });
 
       updateProfile(localData);
-      setIsEditing(false);
-      toast.success("Información profesional actualizada");
+      toast.success("✓ Información profesional actualizada correctamente");
+      
+      // Re-render will sync localData with updated profile prop via useEffect
     } catch (error) {
-      console.error('Error saving professional info:', error);
-      toast.error('Error al guardar la información');
+      console.error("Error saving professional info:", error);
+      toast.error("Error al guardar la información");
     } finally {
       setIsSaving(false);
     }
   };
 
-  const handleCancel = () => {
-    setLocalData(profile);
-    setIsEditing(false);
-  };
-
   return (
     <div className="space-y-6 animate-fade-in">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-2xl font-semibold">Información Profesional</h2>
-          <p className="text-sm text-muted-foreground mt-1">Datos laborales y objetivos</p>
-        </div>
-        {!isEditing ? (
-          <Button onClick={() => setIsEditing(true)} variant="outline" className="gap-2">
-            <Edit2 className="h-4 w-4" />
-            Editar
-          </Button>
-        ) : (
-          <div className="flex gap-2">
-            <Button onClick={handleCancel} variant="outline" className="gap-2">
-              <X className="h-4 w-4" />
-              Cancelar
-            </Button>
-            <Button onClick={handleSave} className="gap-2" disabled={isSaving}>
-              <Save className="h-4 w-4" />
-              {isSaving ? 'Guardando...' : 'Guardar'}
-            </Button>
-          </div>
-        )}
-      </div>
-
       <Card className="p-4 border-border/40 space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-2">
@@ -89,7 +68,6 @@ export function ProfileProfessionalInfo({ profile, updateProfile }: Props) {
               id="role"
               value={localData.role || ""}
               onChange={(e) => setLocalData({ ...localData, role: e.target.value })}
-              disabled={!isEditing}
               placeholder="Ej: Asesor Comercial"
             />
           </div>
@@ -100,7 +78,6 @@ export function ProfileProfessionalInfo({ profile, updateProfile }: Props) {
               id="department"
               value={localData.department || ""}
               onChange={(e) => setLocalData({ ...localData, department: e.target.value })}
-              disabled={!isEditing}
               placeholder="Ej: Ventas"
             />
           </div>
@@ -112,7 +89,6 @@ export function ProfileProfessionalInfo({ profile, updateProfile }: Props) {
               type="date"
               value={localData.startDate || ""}
               onChange={(e) => setLocalData({ ...localData, startDate: e.target.value })}
-              disabled={!isEditing}
             />
           </div>
 
@@ -122,7 +98,6 @@ export function ProfileProfessionalInfo({ profile, updateProfile }: Props) {
               id="manager"
               value={localData.manager || ""}
               onChange={(e) => setLocalData({ ...localData, manager: e.target.value })}
-              disabled={!isEditing}
               placeholder="Nombre del supervisor"
             />
           </div>
@@ -133,7 +108,6 @@ export function ProfileProfessionalInfo({ profile, updateProfile }: Props) {
               id="specialization"
               value={localData.specialization || ""}
               onChange={(e) => setLocalData({ ...localData, specialization: e.target.value })}
-              disabled={!isEditing}
               placeholder="Ej: Seguros de vida, Pensiones"
             />
           </div>
@@ -144,7 +118,6 @@ export function ProfileProfessionalInfo({ profile, updateProfile }: Props) {
               id="monthlyGoals"
               value={localData.monthlyGoals || ""}
               onChange={(e) => setLocalData({ ...localData, monthlyGoals: e.target.value })}
-              disabled={!isEditing}
               placeholder="Describe tus metas mensuales..."
               rows={3}
             />
@@ -166,7 +139,6 @@ export function ProfileProfessionalInfo({ profile, updateProfile }: Props) {
                   },
                 })
               }
-              disabled={!isEditing}
             />
           </div>
 
@@ -186,11 +158,20 @@ export function ProfileProfessionalInfo({ profile, updateProfile }: Props) {
                   },
                 })
               }
-              disabled={!isEditing}
             />
           </div>
         </div>
       </Card>
+
+      {/* Action Buttons */}
+      <div className="flex gap-3 pt-4">
+        <Button variant="outline" className="flex-1" onClick={onBack}>
+          Regresar
+        </Button>
+        <Button variant="default" className="flex-1" onClick={handleSave} disabled={!hasChanges || isSaving}>
+          {isSaving ? "Guardando..." : "Guardar"}
+        </Button>
+      </div>
     </div>
   );
 }

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
@@ -14,14 +14,25 @@ import { userProfileApiClient } from "@/utils/userProfileApiClient";
 interface Props {
   profile: UserProfile;
   updateProfile: (updates: Partial<UserProfile>) => void;
+  onBack: () => void;
 }
 
-export function ProfileNotifications({ profile, updateProfile }: Props) {
-  const [isEditing, setIsEditing] = useState(false);
+export function ProfileNotifications({ profile, updateProfile, onBack }: Props) {
   const [localData, setLocalData] = useState(profile);
   const [isSaving, setIsSaving] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const { getAccessToken } = useAuth();
+
+  // Sync localData when profile changes (after successful save)
+  useEffect(() => {
+    if (!isLoading) {
+      setLocalData(profile);
+    }
+  }, [profile, isLoading]);
+
+  const hasChanges = useMemo(() => {
+    return JSON.stringify(localData.notificationPreferences) !== JSON.stringify(profile.notificationPreferences);
+  }, [localData.notificationPreferences, profile.notificationPreferences]);
 
   useEffect(() => {
     loadNotifications();
@@ -33,14 +44,14 @@ export function ProfileNotifications({ profile, updateProfile }: Props) {
       if (!token) return;
 
       const notificationsData = await userProfileApiClient.getNotifications(token.accessToken);
-      
+
       // Map API data to local format
       const preferences: any = {};
-      notificationsData.items.forEach(item => {
+      notificationsData.items.forEach((item) => {
         preferences[item.code.toLowerCase()] = {
           enabled: item.isEnabled,
-          channels: ['inapp'],
-          frequency: 'immediate',
+          channels: ["inapp"],
+          frequency: "immediate",
         };
       });
 
@@ -50,13 +61,13 @@ export function ProfileNotifications({ profile, updateProfile }: Props) {
           ...preferences,
           quietHours: {
             enabled: !!(notificationsData.quietHoursFrom && notificationsData.quietHoursTo),
-            start: notificationsData.quietHoursFrom || '',
-            end: notificationsData.quietHoursTo || '',
+            start: notificationsData.quietHoursFrom || "",
+            end: notificationsData.quietHoursTo || "",
           },
         },
       });
     } catch (error) {
-      console.error('Error loading notifications:', error);
+      console.error("Error loading notifications:", error);
     } finally {
       setIsLoading(false);
     }
@@ -66,10 +77,10 @@ export function ProfileNotifications({ profile, updateProfile }: Props) {
     setIsSaving(true);
     try {
       const token = await getAccessToken();
-      if (!token) throw new Error('No access token');
+      if (!token) throw new Error("No access token");
 
       const items = Object.entries(localData.notificationPreferences || {})
-        .filter(([key]) => key !== 'quietHours')
+        .filter(([key]) => key !== "quietHours")
         .map(([code, pref]: [string, any]) => ({
           code: code.toUpperCase(),
           isEnabled: pref.enabled,
@@ -82,19 +93,13 @@ export function ProfileNotifications({ profile, updateProfile }: Props) {
       });
 
       updateProfile(localData);
-      setIsEditing(false);
-      toast.success("Preferencias de notificaciones actualizadas");
+      toast.success("✓ Preferencias de notificaciones actualizadas correctamente");
     } catch (error) {
-      console.error('Error saving notifications:', error);
-      toast.error('Error al guardar las notificaciones');
+      console.error("Error saving notifications:", error);
+      toast.error("Error al guardar las notificaciones");
     } finally {
       setIsSaving(false);
     }
-  };
-
-  const handleCancel = () => {
-    setLocalData(profile);
-    setIsEditing(false);
   };
 
   const toggleCategory = (category: string, enabled: boolean) => {
@@ -153,31 +158,6 @@ export function ProfileNotifications({ profile, updateProfile }: Props) {
 
   return (
     <div className="space-y-6 animate-fade-in">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-2xl font-semibold">Preferencias de Notificaciones</h2>
-          <p className="text-sm text-muted-foreground mt-1">Configura cómo y cuándo quieres recibir notificaciones</p>
-        </div>
-        {!isEditing ? (
-          <Button onClick={() => setIsEditing(true)} variant="outline" className="gap-2">
-            <Bell className="h-4 w-4" />
-            Editar
-          </Button>
-        ) : (
-          <div className="flex gap-2">
-            <Button onClick={handleCancel} variant="outline" className="gap-2">
-              <X className="h-4 w-4" />
-              Cancelar
-            </Button>
-            <Button onClick={handleSave} className="gap-2" disabled={isSaving}>
-              <Save className="h-4 w-4" />
-              {isSaving ? 'Guardando...' : 'Guardar'}
-            </Button>
-          </div>
-        )}
-      </div>
-
       {/* Notification Categories */}
       <div className="space-y-4">
         {notificationCategories.map((category) => {
@@ -196,11 +176,7 @@ export function ProfileNotifications({ profile, updateProfile }: Props) {
                     <Label className="text-base font-medium">{category.label}</Label>
                     <p className="text-sm text-muted-foreground">{category.description}</p>
                   </div>
-                  <Switch
-                    checked={isEnabled}
-                    onCheckedChange={(checked) => toggleCategory(category.id, checked)}
-                    disabled={!isEditing}
-                  />
+                  <Switch checked={isEnabled} onCheckedChange={(checked) => toggleCategory(category.id, checked)} />
                 </div>
 
                 {/* Channel Selection */}
@@ -214,7 +190,6 @@ export function ProfileNotifications({ profile, updateProfile }: Props) {
                         size="sm"
                         className="gap-2"
                         onClick={() => toggleChannel(category.id, "whatsapp")}
-                        disabled={!isEditing}
                       >
                         <Smartphone className="h-4 w-4" />
                         WhatsApp
@@ -225,7 +200,6 @@ export function ProfileNotifications({ profile, updateProfile }: Props) {
                         size="sm"
                         className="gap-2"
                         onClick={() => toggleChannel(category.id, "email")}
-                        disabled={!isEditing}
                       >
                         <Mail className="h-4 w-4" />
                         Email
@@ -236,7 +210,6 @@ export function ProfileNotifications({ profile, updateProfile }: Props) {
                         size="sm"
                         className="gap-2"
                         onClick={() => toggleChannel(category.id, "inapp")}
-                        disabled={!isEditing}
                       >
                         <MessageSquare className="h-4 w-4" />
                         In-app
@@ -250,7 +223,6 @@ export function ProfileNotifications({ profile, updateProfile }: Props) {
                         <Select
                           value={(prefs as any)?.frequency || "immediate"}
                           onValueChange={(value: any) => setFrequency(category.id, value)}
-                          disabled={!isEditing}
                         >
                           <SelectTrigger className="w-full md:w-[200px]">
                             <SelectValue />
@@ -293,7 +265,6 @@ export function ProfileNotifications({ profile, updateProfile }: Props) {
                 },
               })
             }
-            disabled={!isEditing}
           />
         </div>
 
@@ -317,7 +288,6 @@ export function ProfileNotifications({ profile, updateProfile }: Props) {
                     },
                   })
                 }
-                disabled={!isEditing}
               />
             </div>
             <div className="space-y-2">
@@ -338,12 +308,21 @@ export function ProfileNotifications({ profile, updateProfile }: Props) {
                     },
                   })
                 }
-                disabled={!isEditing}
               />
             </div>
           </div>
         )}
       </Card>
+
+      {/* Action Buttons */}
+      <div className="flex gap-3 pt-4">
+        <Button variant="outline" className="flex-1" onClick={onBack}>
+          Regresar
+        </Button>
+        <Button variant="default" className="flex-1" onClick={handleSave} disabled={!hasChanges || isSaving}>
+          {isSaving ? "Guardando..." : "Guardar"}
+        </Button>
+      </div>
     </div>
   );
 }

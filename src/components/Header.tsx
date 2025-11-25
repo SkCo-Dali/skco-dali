@@ -4,22 +4,15 @@ import { Button } from "@/components/ui/button";
 import { useSidebar } from "@/components/ui/sidebar";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useAuth } from "@/contexts/AuthContext";
-import { DynamicBanner } from "@/components/DynamicBanner";
 
 interface HeaderProps {
-  onBannerMessage?: (automaticReply: string) => void;
+  onSamiToggle?: () => void;
 }
 
-export function Header({ onBannerMessage }: HeaderProps = {}) {
+export function Header({ onSamiToggle }: HeaderProps = {}) {
   const { toggleSidebar } = useSidebar();
   const isMobile = useIsMobile();
   const { user } = useAuth();
-
-  const handleBannerAction = (automaticReply: string) => {
-    if (onBannerMessage) {
-      onBannerMessage(automaticReply);
-    }
-  };
 
   return (
     <>
@@ -33,12 +26,12 @@ export function Header({ onBannerMessage }: HeaderProps = {}) {
                 size="icon"
                 onClick={toggleSidebar}
                 className="text-foreground flex-shrink-0 p-1 h-8 w-8"
-                style={{ marginLeft: 0 }} // Opcional para asegurar que no haya margen
+                style={{ marginLeft: 0 }}
               >
                 <img
                   src="https://skcoblobresources.blob.core.windows.net/digital-assets/icons/icon-skandia/sk_header_menu_resposive.svg"
                   alt="Menu"
-                  className="h-5 w-5" // un poco más grande para mejor clic
+                  className="h-5 w-5"
                 />
               </Button>
             ) : (
@@ -55,23 +48,32 @@ export function Header({ onBannerMessage }: HeaderProps = {}) {
             )}
           </div>
 
-          {/* Banner dinámico en el centro, que crezca para ocupar más espacio */}
-          {isMobile ? (
-            <div className="flex-grow mx-2 md:mx-3 max-w-full min-w-0">
-              <DynamicBanner onClose={() => {}} onBannerAction={handleBannerAction} />
-            </div>
-          ) : (
-            <div className="hidden lg:flex flex-grow justify-center items-center px-2 xl:px-4">
-              <div className="w-full max-w-4xl mx-auto">
-                <DynamicBanner onClose={() => {}} onBannerAction={handleBannerAction} />
-              </div>
-            </div>
-          )}
+          {/* Espacio central vacío */}
+          <div className="flex-1"></div>
 
-          {/* Campana de notificaciones a la derecha, sin margen lateral extra */}
-          <div className="flex items-center space-x-2 md:space-x-4 pr-2 sm:pr-4 md:pr-6">
-            {/*<NotificationCenter />*/}
+          {/* Perfil de usuario, saludo y botón Tu Sami */}
+          <div className="flex items-center space-x-1 sm:space-x-2 md:space-x-3">
             {!isMobile && <UserProfile />}
+            {user && (
+              <div className="text-xs sm:text-sm font-medium text-foreground">
+                <span>Hola, </span>
+                <span className="text-[#00A859]">{user.preferredName || user.name || "Usuario"}</span>
+                <span> 👋</span>
+              </div>
+            )}
+            <Button
+              onClick={onSamiToggle}
+              variant="ghost"
+              className="flex items-center gap-2 h-10 px-3 rounded-full bg-[#e8f5e9] hover:bg-[#d4eed6] transition-colors"
+              id="tu-sami-button"
+            >
+              <img
+                src="https://skcoblobresources.blob.core.windows.net/digital-assets/animations/sk-sami-contigo.gif"
+                alt="Sami"
+                className="w-6 h-6"
+              />
+              <span className="text-sm font-medium text-foreground hidden md:inline">Tu Sami</span>
+            </Button>
           </div>
         </div>
       </header>

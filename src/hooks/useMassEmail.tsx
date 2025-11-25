@@ -41,70 +41,73 @@ export function useMassEmail() {
     { key: "phone", label: "Teléfono", example: "+57 300 123 4567" },
   ];
 
-  const replaceDynamicFields = useCallback((template: string, lead: Lead): string => {
-    let result = template;
-    
-    // Generar URL de WhatsApp del asesor
-    const countryCode = (user?.whatsappCountryCode || user?.countryCodeWhatsApp?.toString() || '57').replace('+', '');
-    const advisorPhone = user?.whatsappPhone || user?.whatsappNumber || user?.phone || '';
-    const whatsappUrl = `https://wa.me/${countryCode}${advisorPhone}`;
-    
-    // Mapeo de campos dinámicos a valores del lead
-    const fieldMap: Record<string, string> = {
-      name: lead.name,
-      firstName: lead.firstName || "",
-      company: lead.company || "",
-      phone: lead.phone || "",
-    };
-    
-    // Reemplazar nodos de campos dinámicos de TipTap con atributos data-*
-    result = result.replace(
-      /<span([^>]*data-field-key="([^"]+)"[^>]*)>([^<]*)<\/span>/g,
-      (match, attributes, key, content) => {
-        const value = fieldMap[key] || "";
-        
-        // Extraer todos los atributos de formato
-        const boldMatch = attributes.match(/data-bold="true"/);
-        const italicMatch = attributes.match(/data-italic="true"/);
-        const underlineMatch = attributes.match(/data-underline="true"/);
-        const colorMatch = attributes.match(/data-color="([^"]*)"/);
-        const fontSizeMatch = attributes.match(/data-font-size="([^"]*)"/);
-        const fontFamilyMatch = attributes.match(/data-font-family="([^"]*)"/);
-        
-        // Construir estilos inline basados en los atributos
-        const styles: string[] = [];
-        
-        if (boldMatch) styles.push('font-weight: bold');
-        if (italicMatch) styles.push('font-style: italic');
-        if (underlineMatch) styles.push('text-decoration: underline; text-decoration-color: currentColor');
-        if (colorMatch && colorMatch[1]) styles.push(`color: ${colorMatch[1]}`);
-        if (fontSizeMatch && fontSizeMatch[1]) styles.push(`font-size: ${fontSizeMatch[1]}`);
-        if (fontFamilyMatch && fontFamilyMatch[1]) styles.push(`font-family: ${fontFamilyMatch[1]}`);
-        
-        // Si hay estilos de formato aplicados, envolver el valor en un span con esos estilos
-        if (styles.length > 0) {
-          return `<span style="${styles.join('; ')}">${value}</span>`;
-        }
-        
-        return value;
-      }
-    );
-    
-    // Reemplazar patrones de texto plano {key} para datos del lead
-    result = result.replace(/\{name\}/g, lead.name);
-    result = result.replace(/\{firstName\}/g, lead.firstName || "");
-    result = result.replace(/\{company\}/g, lead.company || "");
-    result = result.replace(/\{phone\}/g, lead.phone || "");
-    
-    // Reemplazar variables del asesor
-    result = result.replace(/\{WHATSAPP_URL\}/g, whatsappUrl);
-    result = result.replace(/\{NOMBRE_ASESOR\}/g, user?.name || "");
-    result = result.replace(/\{CARGO_ASESOR\}/g, user?.jobTitle || "");
-    result = result.replace(/\{CELULAR_ASESOR\}/g, advisorPhone || "");
-    result = result.replace(/\{CORREO_ASESOR\}/g, user?.email || "");
-    
-    return result;
-  }, [user]);
+  const replaceDynamicFields = useCallback(
+    (template: string, lead: Lead): string => {
+      let result = template;
+
+      // Generar URL de WhatsApp del asesor
+      const countryCode = (user?.whatsappCountryCode || user?.countryCodeWhatsApp?.toString() || "57").replace("+", "");
+      const advisorPhone = user?.whatsappPhone || user?.whatsappNumber || user?.phone || "";
+      const whatsappUrl = `https://wa.me/${countryCode}${advisorPhone}`;
+
+      // Mapeo de campos dinámicos a valores del lead
+      const fieldMap: Record<string, string> = {
+        name: lead.name,
+        firstName: lead.firstName || "",
+        company: lead.company || "",
+        phone: lead.phone || "",
+      };
+
+      // Reemplazar nodos de campos dinámicos de TipTap con atributos data-*
+      result = result.replace(
+        /<span([^>]*data-field-key="([^"]+)"[^>]*)>([^<]*)<\/span>/g,
+        (match, attributes, key, content) => {
+          const value = fieldMap[key] || "";
+
+          // Extraer todos los atributos de formato
+          const boldMatch = attributes.match(/data-bold="true"/);
+          const italicMatch = attributes.match(/data-italic="true"/);
+          const underlineMatch = attributes.match(/data-underline="true"/);
+          const colorMatch = attributes.match(/data-color="([^"]*)"/);
+          const fontSizeMatch = attributes.match(/data-font-size="([^"]*)"/);
+          const fontFamilyMatch = attributes.match(/data-font-family="([^"]*)"/);
+
+          // Construir estilos inline basados en los atributos
+          const styles: string[] = [];
+
+          if (boldMatch) styles.push("font-weight: bold");
+          if (italicMatch) styles.push("font-style: italic");
+          if (underlineMatch) styles.push("text-decoration: underline; text-decoration-color: currentColor");
+          if (colorMatch && colorMatch[1]) styles.push(`color: ${colorMatch[1]}`);
+          if (fontSizeMatch && fontSizeMatch[1]) styles.push(`font-size: ${fontSizeMatch[1]}`);
+          if (fontFamilyMatch && fontFamilyMatch[1]) styles.push(`font-family: ${fontFamilyMatch[1]}`);
+
+          // Si hay estilos de formato aplicados, envolver el valor en un span con esos estilos
+          if (styles.length > 0) {
+            return `<span style="${styles.join("; ")}">${value}</span>`;
+          }
+
+          return value;
+        },
+      );
+
+      // Reemplazar patrones de texto plano {key} para datos del lead
+      result = result.replace(/\{name\}/g, lead.name);
+      result = result.replace(/\{firstName\}/g, lead.firstName || "");
+      result = result.replace(/\{company\}/g, lead.company || "");
+      result = result.replace(/\{phone\}/g, lead.phone || "");
+
+      // Reemplazar variables del asesor
+      result = result.replace(/\{WHATSAPP_URL\}/g, whatsappUrl);
+      result = result.replace(/\{NOMBRE_ASESOR\}/g, user?.name || "");
+      result = result.replace(/\{CARGO_ASESOR\}/g, user?.jobTitle || "");
+      result = result.replace(/\{CELULAR_ASESOR\}/g, advisorPhone || "");
+      result = result.replace(/\{CORREO_ASESOR\}/g, user?.email || "");
+
+      return result;
+    },
+    [user],
+  );
 
   // Función para convertir HTML a texto plano
   const convertHtmlToPlain = useCallback((html: string): string => {
@@ -124,7 +127,7 @@ export function useMassEmail() {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
       reader.onload = () => {
-        const base64 = (reader.result as string).split(',')[1];
+        const base64 = (reader.result as string).split(",")[1];
         resolve(base64);
       };
       reader.onerror = reject;
@@ -133,7 +136,12 @@ export function useMassEmail() {
   };
 
   const generateEmailRecipients = useCallback(
-    async (leads: Lead[], template: EmailTemplate, alternateEmail?: string, attachments?: File[]): Promise<EmailRecipient[]> => {
+    async (
+      leads: Lead[],
+      template: EmailTemplate,
+      alternateEmail?: string,
+      attachments?: File[],
+    ): Promise<EmailRecipient[]> => {
       console.log("📧 Generando recipients con template:", {
         subject: template.subject,
         htmlContentLength: template.htmlContent?.length,
@@ -144,18 +152,18 @@ export function useMassEmail() {
       // Convertir archivos a base64 si hay adjuntos
       let emailAttachments: EmailAttachment[] = [];
       if (attachments && attachments.length > 0) {
-      emailAttachments = await Promise.all(
-        attachments.map(async (file) => ({
-          filename: file.name,
-          content_bytes: await convertFileToBase64(file),
-          content_type: file.type || 'application/octet-stream',
-        }))
-      );
+        emailAttachments = await Promise.all(
+          attachments.map(async (file) => ({
+            filename: file.name,
+            content_bytes: await convertFileToBase64(file),
+            content_type: file.type || "application/octet-stream",
+          })),
+        );
       }
 
       return leads.map((lead) => {
-        const processedHtmlContent = replaceDynamicFields(template.htmlContent || '', lead);
-        const processedPlainContent = replaceDynamicFields(template.plainContent || '', lead);
+        const processedHtmlContent = replaceDynamicFields(template.htmlContent || "", lead);
+        const processedPlainContent = replaceDynamicFields(template.plainContent || "", lead);
 
         // Para envíos individuales, usar el email alternativo si está especificado
         const targetEmail = leads.length === 1 && alternateEmail?.trim() ? alternateEmail.trim() : lead.email || "";
@@ -164,7 +172,7 @@ export function useMassEmail() {
           LeadId: lead.id,
           Campaign: lead.campaign || "Sin campaña",
           to: targetEmail,
-          subject: replaceDynamicFields(template.subject || '', lead),
+          subject: replaceDynamicFields(template.subject || "", lead),
           html_content: processedHtmlContent, // Enviar el HTML correctamente procesado
           plain_content: processedPlainContent || convertHtmlToPlain(processedHtmlContent), // Usar plain o convertir HTML
         };
@@ -208,11 +216,11 @@ export function useMassEmail() {
   );
 
   const addEvent = useCallback((event: EmailSendEvent) => {
-    setSendEvents(prev => [event, ...prev]);
+    setSendEvents((prev) => [event, ...prev]);
   }, []);
 
   const updateProgress = useCallback((updates: Partial<EmailSendProgress>) => {
-    setSendProgress(prev => ({ ...prev, ...updates }));
+    setSendProgress((prev) => ({ ...prev, ...updates }));
   }, []);
 
   const sendMassEmail = useCallback(
@@ -249,10 +257,10 @@ export function useMassEmail() {
         return false;
       }
 
-      if (leads.length > 20) {
+      if (leads.length > 50) {
         toast({
           title: "Error",
-          description: "El máximo permitido es 20 correos por envío",
+          description: "El máximo permitido es 50 correos por envío",
           variant: "destructive",
         });
         return false;
@@ -293,7 +301,7 @@ export function useMassEmail() {
 
           // Check if paused
           while (isPausedRef.current && !isCancelledRef.current) {
-            await new Promise(resolve => setTimeout(resolve, 100));
+            await new Promise((resolve) => setTimeout(resolve, 100));
           }
 
           const recipient = recipients[i];
@@ -306,7 +314,7 @@ export function useMassEmail() {
             leadId: lead.id,
             leadName: lead.name,
             email: recipient.to,
-            status: 'sending',
+            status: "sending",
             timestamp: new Date().toISOString(),
           });
 
@@ -327,38 +335,49 @@ export function useMassEmail() {
             const result: EmailSendResponse = await response.json();
             const emailResult = result.results[0];
 
-            if (emailResult.status === 'Success') {
+            if (emailResult.status === "Success") {
               sentCount++;
               // Create interaction
               await createInteractionForEmailSent(recipient.LeadId, recipient.subject);
-              
+
               // Update event to success
-              setSendEvents(prev => 
-                prev.map(e => e.id === eventId 
-                  ? { ...e, status: 'success' as const, timestamp: new Date().toISOString() }
-                  : e
-                )
+              setSendEvents((prev) =>
+                prev.map((e) =>
+                  e.id === eventId ? { ...e, status: "success" as const, timestamp: new Date().toISOString() } : e,
+                ),
               );
             } else {
               failedCount++;
               // Update event to failed
-              setSendEvents(prev => 
-                prev.map(e => e.id === eventId 
-                  ? { ...e, status: 'failed' as const, error: emailResult.error || 'Error desconocido', timestamp: new Date().toISOString() }
-                  : e
-                )
+              setSendEvents((prev) =>
+                prev.map((e) =>
+                  e.id === eventId
+                    ? {
+                        ...e,
+                        status: "failed" as const,
+                        error: emailResult.error || "Error desconocido",
+                        timestamp: new Date().toISOString(),
+                      }
+                    : e,
+                ),
               );
             }
           } catch (error) {
             failedCount++;
             console.error("📧 Error sending email to", recipient.to, error);
-            
+
             // Update event to failed
-            setSendEvents(prev => 
-              prev.map(e => e.id === eventId 
-                ? { ...e, status: 'failed' as const, error: error instanceof Error ? error.message : 'Error desconocido', timestamp: new Date().toISOString() }
-                : e
-              )
+            setSendEvents((prev) =>
+              prev.map((e) =>
+                e.id === eventId
+                  ? {
+                      ...e,
+                      status: "failed" as const,
+                      error: error instanceof Error ? error.message : "Error desconocido",
+                      timestamp: new Date().toISOString(),
+                    }
+                  : e,
+              ),
             );
           }
 
@@ -376,7 +395,7 @@ export function useMassEmail() {
           });
 
           // Small delay between emails to avoid overwhelming the server
-          await new Promise(resolve => setTimeout(resolve, 500));
+          await new Promise((resolve) => setTimeout(resolve, 500));
         }
 
         // Mark as completed
@@ -426,19 +445,21 @@ export function useMassEmail() {
 
   const downloadReport = useCallback(() => {
     const csv = [
-      ['Lead', 'Email', 'Estado', 'Error', 'Fecha'].join(','),
-      ...sendEvents.map(event => [
-        event.leadName,
-        event.email,
-        event.status === 'success' ? 'Enviado' : event.status === 'failed' ? 'Fallido' : 'Pendiente',
-        event.error || '',
-        event.timestamp
-      ].join(','))
-    ].join('\n');
+      ["Lead", "Email", "Estado", "Error", "Fecha"].join(","),
+      ...sendEvents.map((event) =>
+        [
+          event.leadName,
+          event.email,
+          event.status === "success" ? "Enviado" : event.status === "failed" ? "Fallido" : "Pendiente",
+          event.error || "",
+          event.timestamp,
+        ].join(","),
+      ),
+    ].join("\n");
 
-    const blob = new Blob([csv], { type: 'text/csv' });
+    const blob = new Blob([csv], { type: "text/csv" });
     const url = window.URL.createObjectURL(blob);
-    const a = document.createElement('a');
+    const a = document.createElement("a");
     a.href = url;
     a.download = `reporte-envio-emails-${new Date().toISOString()}.csv`;
     a.click();
@@ -466,7 +487,7 @@ export function useMassEmail() {
         const response = await fetch(endpoint, {
           method: "GET",
           headers: {
-            "Authorization": `Bearer ${authToken}`,
+            Authorization: `Bearer ${authToken}`,
           },
         });
 
@@ -512,7 +533,7 @@ export function useMassEmail() {
         const response = await fetch(endpoint, {
           method: "GET",
           headers: {
-            "Authorization": `Bearer ${authToken}`,
+            Authorization: `Bearer ${authToken}`,
           },
         });
 
@@ -552,7 +573,7 @@ export function useMassEmail() {
         const response = await fetch(endpoint, {
           method: "GET",
           headers: {
-            "Authorization": `Bearer ${authToken}`,
+            Authorization: `Bearer ${authToken}`,
           },
         });
 
@@ -601,21 +622,23 @@ export function useMassEmail() {
       }
 
       // Preparar el payload para reenviar
-      const recipients: EmailRecipient[] = [{
-        LeadId: emailDetail.LeadId,
-        Campaign: emailDetail.Campaign,
-        to: emailDetail.ToEmail,
-        subject: emailDetail.Subject,
-        html_content: emailDetail.HtmlContent,
-        plain_content: emailDetail.PlainContent || "",
-        attachments: [] // Los adjuntos ya están en el servidor, podrían re-incluirse si es necesario
-      }];
+      const recipients: EmailRecipient[] = [
+        {
+          LeadId: emailDetail.LeadId,
+          Campaign: emailDetail.Campaign,
+          to: emailDetail.ToEmail,
+          subject: emailDetail.Subject,
+          html_content: emailDetail.HtmlContent,
+          plain_content: emailDetail.PlainContent || "",
+          attachments: [], // Los adjuntos ya están en el servidor, podrían re-incluirse si es necesario
+        },
+      ];
 
       const response = await fetch(`${ENV.CRM_API_BASE_URL}/api/emails/send`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`,
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({ recipients }),
       });
@@ -625,7 +648,7 @@ export function useMassEmail() {
       }
 
       const data = await response.json();
-      
+
       toast({
         title: "Correo reenviado",
         description: `El correo fue reenviado exitosamente a ${emailDetail.ToEmail}`,

@@ -39,7 +39,7 @@ export function CountryPhoneSelector({
           <PopoverTrigger asChild>
             <Button variant="outline" role="combobox" aria-expanded={open} className="w-[180px] justify-between">
               <span className="flex items-center gap-2">
-                <span className="text-2xl">{selectedCountry.flag}</span>
+                <span className="text-2xl font-emoji">{selectedCountry.flag}</span>
                 <span className="text-sm">{selectedCountry.dialCode}</span>
               </span>
               <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
@@ -61,7 +61,7 @@ export function CountryPhoneSelector({
                         setSearchQuery("");
                       }}
                     >
-                      <span className="text-2xl mr-2">{country.flag}</span>
+                      <span className="text-2xl mr-2 font-emoji">{country.flag}</span>
                       <span className="flex-1">{country.name}</span>
                       <span className="text-muted-foreground">{country.dialCode}</span>
                       <Check

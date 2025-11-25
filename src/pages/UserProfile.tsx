@@ -3,7 +3,22 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { User, Briefcase, Heart, MapPin, Bell, MessageSquare, Home, ChevronRight, Check, Mail, Phone, IdCard, Calendar } from "lucide-react";
+import {
+  User,
+  Briefcase,
+  Heart,
+  MapPin,
+  Bell,
+  MessageSquare,
+  Home,
+  ChevronRight,
+  ChevronLeft,
+  Check,
+  Mail,
+  Phone,
+  IdCard,
+  Calendar,
+} from "lucide-react";
 import { ProfilePersonalInfo } from "@/components/profile/ProfilePersonalInfo";
 import { ProfileProfessionalInfo } from "@/components/profile/ProfileProfessionalInfo";
 import { ProfileFamilyInfo } from "@/components/profile/ProfileFamilyInfo";
@@ -13,34 +28,36 @@ import { ProfileSuggestions } from "@/components/profile/ProfileSuggestions";
 import { ProfileAppPreferences } from "@/components/profile/ProfileAppPreferences";
 import { useUserProfile } from "@/hooks/useUserProfile";
 import { useAuth } from "@/contexts/AuthContext";
+import { useNavigate } from "react-router-dom";
 
 const UserProfile = () => {
   const { profile, updateProfile } = useUserProfile();
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [activeSection, setActiveSection] = useState<string | null>(null);
 
   // Calculate completion for each section
   const calculatePersonalCompletion = () => {
     const fields = [profile.preferredName, profile.birthDate, profile.gender, profile.phone, profile.countryCode];
-    const completed = fields.filter(f => f).length;
+    const completed = fields.filter((f) => f).length;
     return { completed, total: fields.length };
   };
 
   const calculateProfessionalCompletion = () => {
     const fields = [profile.role, profile.department, profile.startDate, profile.manager, profile.specialization];
-    const completed = fields.filter(f => f).length;
+    const completed = fields.filter((f) => f).length;
     return { completed, total: fields.length };
   };
 
   const calculateFamilyCompletion = () => {
     const fields = [profile.maritalStatus, profile.emergencyContact?.name];
-    const completed = fields.filter(f => f).length;
+    const completed = fields.filter((f) => f).length;
     return { completed, total: fields.length };
   };
 
   const calculateContactCompletion = () => {
     const fields = [profile.address?.street, profile.address?.city, profile.address?.country];
-    const completed = fields.filter(f => f).length;
+    const completed = fields.filter((f) => f).length;
     return { completed, total: fields.length };
   };
 
@@ -54,7 +71,7 @@ const UserProfile = () => {
 
   const calculatePreferencesCompletion = () => {
     const fields = [profile.customHomepage, profile.emailSignature];
-    const completed = fields.filter(f => f).length;
+    const completed = fields.filter((f) => f).length;
     return { completed, total: fields.length };
   };
 
@@ -107,45 +124,56 @@ const UserProfile = () => {
   const completedFields = sections.reduce((acc, s) => acc + s.completion.completed, 0);
   const completionPercentage = Math.round((completedFields / totalFields) * 100);
 
+  const handleBackToSections = () => {
+    setActiveSection(null);
+  };
+
   const renderSectionContent = () => {
     switch (activeSection) {
       case "personal":
-        return <ProfilePersonalInfo profile={profile} updateProfile={updateProfile} />;
+        return <ProfilePersonalInfo profile={profile} updateProfile={updateProfile} onBack={handleBackToSections} />;
       case "professional":
-        return <ProfileProfessionalInfo profile={profile} updateProfile={updateProfile} />;
+        return (
+          <ProfileProfessionalInfo profile={profile} updateProfile={updateProfile} onBack={handleBackToSections} />
+        );
       case "family":
-        return <ProfileFamilyInfo profile={profile} updateProfile={updateProfile} />;
+        return <ProfileFamilyInfo profile={profile} updateProfile={updateProfile} onBack={handleBackToSections} />;
       case "contact":
-        return <ProfileContactInfo profile={profile} updateProfile={updateProfile} />;
+        return <ProfileContactInfo profile={profile} updateProfile={updateProfile} onBack={handleBackToSections} />;
       case "notifications":
-        return <ProfileNotifications profile={profile} updateProfile={updateProfile} />;
+        return <ProfileNotifications profile={profile} updateProfile={updateProfile} onBack={handleBackToSections} />;
       case "suggestions":
-        return <ProfileSuggestions profile={profile} updateProfile={updateProfile} />;
+        return <ProfileSuggestions profile={profile} updateProfile={updateProfile} onBack={handleBackToSections} />;
       case "preferences":
-        return <ProfileAppPreferences profile={profile} updateProfile={updateProfile} />;
+        return <ProfileAppPreferences profile={profile} updateProfile={updateProfile} onBack={handleBackToSections} />;
       default:
         return null;
     }
   };
 
   return (
-    <div className="min-h-screen bg-muted/30">
-      <div className="container mx-auto py-6 px-4">
+    <div className="min-h-screen bg-white">
+      <div className="container mx-auto py-4 px-4">
         {/* Breadcrumb */}
-        <div className="mb-6 flex items-center gap-2 text-sm">
-          <span className="text-muted-foreground cursor-pointer hover:text-foreground">Inicio</span>
+        <div className="mb-4 flex items-center gap-2 text-sm">
+          <span
+            className="text-muted-foreground cursor-pointer hover:text-foreground transition-colors"
+            onClick={() => navigate("/")}
+          >
+            Inicio
+          </span>
           <span className="text-muted-foreground">/</span>
           <span className="text-primary font-medium">Mis datos</span>
         </div>
 
-        <div className="grid grid-cols-8 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-8 gap-6">
           {/* Left Side - Basic Info */}
-          <div className="col-span-3 space-y-6 bg-[#EDFEFA] rounded-xl p-6">
+          <div className="col-span-1 md:col-span-3 space-y-6 bg-[#EDFEFA] shadow-md rounded-xl p-4">
             {/* Avatar and Name */}
             <div className="flex flex-col items-center space-y-4">
               <div className="relative">
                 <Avatar className="h-32 w-32 rounded-full bg-gradient-to-r from-[#8FE000] to-[#00C73D] p-1">
-                  <AvatarImage src={user?.avatar || ""} />
+                  <AvatarImage className="h-34 w-34" src={user?.avatar || ""} />
                   <AvatarFallback className="bg-muted text-3xl font-semibold text-foreground">
                     {profile.preferredName
                       ?.split(" ")
@@ -158,9 +186,7 @@ const UserProfile = () => {
 
               <div className="text-center space-y-2 w-full">
                 <h2 className="text-2xl font-bold text-foreground">{profile.preferredName || user?.name}</h2>
-                <p className="text-sm text-muted-foreground">
-                  Tu perfil de riesgo actual como inversionista es:
-                </p>
+                <p className="text-sm text-muted-foreground">Rol en Dali:</p>
                 <Badge variant="outline" className="px-4 py-1.5 text-sm font-medium">
                   {user?.role || "Usuario"}
                 </Badge>
@@ -222,19 +248,17 @@ const UserProfile = () => {
           </div>
 
           {/* Right Side - Sections */}
-          <div className="col-span-5 space-y-6">
+          <div className="col-span-1 md:col-span-5 space-y-6">
             {!activeSection ? (
               <>
                 {/* Completion Banner */}
                 <Card className="border-primary/20 bg-gradient-to-r from-primary/5 to-primary/10">
-                  <CardContent className="p-6">
+                  <CardContent className="p-4">
                     <div className="space-y-4">
                       <div className="flex items-center justify-between">
                         <div>
                           <h3 className="text-lg font-semibold">
-                            {completionPercentage === 100
-                              ? "¡Tu información está completa!"
-                              : "Completa tu perfil"}
+                            {completionPercentage === 100 ? "¡Tu información está completa!" : "Completa tu perfil"}
                           </h3>
                           <p className="text-sm text-muted-foreground">
                             {completionPercentage === 100
@@ -271,14 +295,12 @@ const UserProfile = () => {
                         <CardContent className="p-4">
                           <div className="flex items-center justify-between">
                             <div className="flex items-center gap-4">
-                              <div className={`h-10 w-10 rounded-full flex items-center justify-center ${
-                                isComplete ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"
-                              }`}>
-                                {isComplete ? (
-                                  <Check className="h-5 w-5" />
-                                ) : (
-                                  <Icon className="h-5 w-5" />
-                                )}
+                              <div
+                                className={`h-10 w-10 rounded-full flex items-center justify-center ${
+                                  isComplete ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"
+                                }`}
+                              >
+                                {isComplete ? <Check className="h-5 w-5" /> : <Icon className="h-5 w-5" />}
                               </div>
                               <div>
                                 <h3 className="font-semibold">{section.title}</h3>
@@ -297,22 +319,13 @@ const UserProfile = () => {
               </>
             ) : (
               <Card className="border-border/40">
-                <CardHeader className="border-b">
+                <CardHeader className="border-b pb-4">
                   <div className="flex items-center justify-between">
-                    <CardTitle>
-                      {sections.find((s) => s.id === activeSection)?.title}
-                    </CardTitle>
-                    <button
-                      onClick={() => setActiveSection(null)}
-                      className="text-sm text-primary hover:underline"
-                    >
-                      ← Volver a secciones
-                    </button>
+                    <CardTitle>{sections.find((s) => s.id === activeSection)?.title}</CardTitle>
+                    <ChevronLeft onClick={() => setActiveSection(null)} className="h-5 w-5 text-primary" />
                   </div>
                 </CardHeader>
-                <CardContent className="p-6">
-                  {renderSectionContent()}
-                </CardContent>
+                <CardContent className="p-4">{renderSectionContent()}</CardContent>
               </Card>
             )}
           </div>

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
@@ -12,6 +12,7 @@ import { userProfileApiClient } from "@/utils/userProfileApiClient";
 interface Props {
   profile: UserProfile;
   updateProfile: (updates: Partial<UserProfile>) => void;
+  onBack: () => void;
 }
 
 const availableRoutes = [
@@ -24,20 +25,28 @@ const availableRoutes = [
   { value: "/chat-dali", label: "Chat con Dali", description: "Asistente virtual" },
 ];
 
-export function ProfileAppPreferences({ profile, updateProfile }: Props) {
-  const [isEditing, setIsEditing] = useState(false);
+export function ProfileAppPreferences({ profile, updateProfile, onBack }: Props) {
   const [localData, setLocalData] = useState(profile);
   const [isSaving, setIsSaving] = useState(false);
   const { getAccessToken } = useAuth();
+
+  // Sync localData when profile changes (after successful save)
+  useEffect(() => {
+    setLocalData(profile);
+  }, [profile]);
+
+  const hasChanges = useMemo(() => {
+    return localData.customHomepage !== profile.customHomepage;
+  }, [localData.customHomepage, profile.customHomepage]);
 
   const handleSave = async () => {
     setIsSaving(true);
     try {
       const token = await getAccessToken();
-      if (!token) throw new Error('No access token');
+      if (!token) throw new Error("No access token");
 
-      const selectedRoute = availableRoutes.find(r => r.value === localData.customHomepage);
-      
+      const selectedRoute = availableRoutes.find((r) => r.value === localData.customHomepage);
+
       await userProfileApiClient.updatePreferences(token.accessToken, {
         primaryActionCode: selectedRoute?.label || null,
         primaryActionRoute: localData.customHomepage || null,
@@ -47,19 +56,13 @@ export function ProfileAppPreferences({ profile, updateProfile }: Props) {
       });
 
       updateProfile(localData);
-      setIsEditing(false);
-      toast.success("Preferencias de aplicación actualizadas");
+      toast.success("✓ Preferencias de aplicación actualizadas correctamente");
     } catch (error) {
-      console.error('Error saving preferences:', error);
-      toast.error('Error al guardar las preferencias');
+      console.error("Error saving preferences:", error);
+      toast.error("Error al guardar las preferencias");
     } finally {
       setIsSaving(false);
     }
-  };
-
-  const handleCancel = () => {
-    setLocalData(profile);
-    setIsEditing(false);
   };
 
   // Filter routes based on user role if needed
@@ -67,31 +70,6 @@ export function ProfileAppPreferences({ profile, updateProfile }: Props) {
 
   return (
     <div className="space-y-6 animate-fade-in">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-2xl font-semibold">Preferencias de Aplicación</h2>
-          <p className="text-sm text-muted-foreground mt-1">Personaliza tu experiencia en Dali</p>
-        </div>
-        {!isEditing ? (
-          <Button onClick={() => setIsEditing(true)} variant="outline" className="gap-2">
-            <Home className="h-4 w-4" />
-            Editar
-          </Button>
-        ) : (
-          <div className="flex gap-2">
-            <Button onClick={handleCancel} variant="outline" className="gap-2">
-              <X className="h-4 w-4" />
-              Cancelar
-            </Button>
-            <Button onClick={handleSave} className="gap-2" disabled={isSaving}>
-              <Save className="h-4 w-4" />
-              {isSaving ? 'Guardando...' : 'Guardar'}
-            </Button>
-          </div>
-        )}
-      </div>
-
       {/* Homepage Selection */}
       <Card className="p-4 border-border/40 space-y-4">
         <div className="space-y-2">
@@ -107,7 +85,6 @@ export function ProfileAppPreferences({ profile, updateProfile }: Props) {
           <Select
             value={localData.customHomepage || localData.primaryAction?.route || "/home"}
             onValueChange={(value) => setLocalData({ ...localData, customHomepage: value })}
-            disabled={!isEditing}
           >
             <SelectTrigger className="w-full">
               <SelectValue placeholder="Selecciona una página" />
@@ -151,6 +128,16 @@ export function ProfileAppPreferences({ profile, updateProfile }: Props) {
           </p>
         </div>
       </Card>
+
+      {/* Action Buttons */}
+      <div className="flex gap-3 pt-4">
+        <Button variant="outline" className="flex-1" onClick={onBack}>
+          Regresar
+        </Button>
+        <Button variant="default" className="flex-1" onClick={handleSave} disabled={!hasChanges || isSaving}>
+          {isSaving ? "Guardando..." : "Guardar"}
+        </Button>
+      </div>
     </div>
   );
 }

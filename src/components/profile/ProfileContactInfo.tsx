@@ -1,10 +1,9 @@
-import { useState } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
 import { UserProfile } from "@/types/userProfile";
-import { Edit2, Save, X } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
 import { userProfileApiClient } from "@/utils/userProfileApiClient";
@@ -12,19 +11,28 @@ import { userProfileApiClient } from "@/utils/userProfileApiClient";
 interface Props {
   profile: UserProfile;
   updateProfile: (updates: Partial<UserProfile>) => void;
+  onBack: () => void;
 }
 
-export function ProfileContactInfo({ profile, updateProfile }: Props) {
-  const [isEditing, setIsEditing] = useState(false);
+export function ProfileContactInfo({ profile, updateProfile, onBack }: Props) {
   const [localData, setLocalData] = useState(profile);
   const [isSaving, setIsSaving] = useState(false);
   const { getAccessToken } = useAuth();
+
+  // Sync localData when profile changes (after successful save)
+  useEffect(() => {
+    setLocalData(profile);
+  }, [profile]);
+
+  const hasChanges = useMemo(() => {
+    return JSON.stringify(localData) !== JSON.stringify(profile);
+  }, [localData, profile]);
 
   const handleSave = async () => {
     setIsSaving(true);
     try {
       const token = await getAccessToken();
-      if (!token) throw new Error('No access token');
+      if (!token) throw new Error("No access token");
 
       await userProfileApiClient.updateAddress(token.accessToken, {
         address: {
@@ -41,48 +49,17 @@ export function ProfileContactInfo({ profile, updateProfile }: Props) {
       });
 
       updateProfile(localData);
-      setIsEditing(false);
-      toast.success("Información de contacto actualizada");
+      toast.success("✓ Información de contacto actualizada correctamente");
     } catch (error) {
-      console.error('Error saving contact info:', error);
-      toast.error('Error al guardar la información');
+      console.error("Error saving contact info:", error);
+      toast.error("Error al guardar la información");
     } finally {
       setIsSaving(false);
     }
   };
 
-  const handleCancel = () => {
-    setLocalData(profile);
-    setIsEditing(false);
-  };
-
   return (
     <div className="space-y-6 animate-fade-in">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-2xl font-semibold">Datos de Contacto</h2>
-          <p className="text-sm text-muted-foreground mt-1">Dirección y contactos alternativos</p>
-        </div>
-        {!isEditing ? (
-          <Button onClick={() => setIsEditing(true)} variant="outline" className="gap-2">
-            <Edit2 className="h-4 w-4" />
-            Editar
-          </Button>
-        ) : (
-          <div className="flex gap-2">
-            <Button onClick={handleCancel} variant="outline" className="gap-2">
-              <X className="h-4 w-4" />
-              Cancelar
-            </Button>
-            <Button onClick={handleSave} className="gap-2" disabled={isSaving}>
-              <Save className="h-4 w-4" />
-              {isSaving ? 'Guardando...' : 'Guardar'}
-            </Button>
-          </div>
-        )}
-      </div>
-
       {/* Address */}
       <Card className="p-4 border-border/40 space-y-4">
         <h3 className="font-medium text-lg mb-4">Dirección</h3>
@@ -106,7 +83,6 @@ export function ProfileContactInfo({ profile, updateProfile }: Props) {
                   },
                 })
               }
-              disabled={!isEditing}
               placeholder="Calle 123 #45-67"
             />
           </div>
@@ -130,7 +106,6 @@ export function ProfileContactInfo({ profile, updateProfile }: Props) {
                     },
                   })
                 }
-                disabled={!isEditing}
                 placeholder="Bogotá"
               />
             </div>
@@ -153,7 +128,6 @@ export function ProfileContactInfo({ profile, updateProfile }: Props) {
                     },
                   })
                 }
-                disabled={!isEditing}
                 placeholder="Cundinamarca"
               />
             </div>
@@ -176,7 +150,6 @@ export function ProfileContactInfo({ profile, updateProfile }: Props) {
                     },
                   })
                 }
-                disabled={!isEditing}
                 placeholder="110111"
               />
             </div>
@@ -199,7 +172,6 @@ export function ProfileContactInfo({ profile, updateProfile }: Props) {
                     },
                   })
                 }
-                disabled={!isEditing}
                 placeholder="Colombia"
               />
             </div>
@@ -218,7 +190,6 @@ export function ProfileContactInfo({ profile, updateProfile }: Props) {
               id="landline"
               value={localData.landline || ""}
               onChange={(e) => setLocalData({ ...localData, landline: e.target.value })}
-              disabled={!isEditing}
               placeholder="+57 1 234 5678"
             />
           </div>
@@ -230,12 +201,21 @@ export function ProfileContactInfo({ profile, updateProfile }: Props) {
               type="email"
               value={localData.alternativeEmail || ""}
               onChange={(e) => setLocalData({ ...localData, alternativeEmail: e.target.value })}
-              disabled={!isEditing}
               placeholder="correo@ejemplo.com"
             />
           </div>
         </div>
       </Card>
+
+      {/* Action Buttons */}
+      <div className="flex gap-3 pt-4">
+        <Button variant="outline" className="flex-1" onClick={onBack}>
+          Regresar
+        </Button>
+        <Button variant="default" className="flex-1" onClick={handleSave} disabled={!hasChanges || isSaving}>
+          {isSaving ? "Guardando..." : "Guardar"}
+        </Button>
+      </div>
     </div>
   );
 }

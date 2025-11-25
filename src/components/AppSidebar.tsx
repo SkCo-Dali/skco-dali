@@ -185,12 +185,7 @@ export function AppSidebar({ onTemplateSelect }: AppSidebarProps) {
             >
               {isMobileDevice && openMobile ? (
                 <>
-                  <div className="flex items-center space-x-3">
-                    <UserProfile />
-                    <div className="text-accent">
-                      <div className="text-sm font-medium">Hola, {user?.preferredName || user?.name || "Usuario"}</div>
-                    </div>
-                  </div>
+                  <UserProfile />
                   <Button
                     variant="ghost"
                     size="icon"
@@ -205,25 +200,18 @@ export function AppSidebar({ onTemplateSelect }: AppSidebarProps) {
                   </Button>
                 </>
               ) : (
-                <>
-                  {showText && !isMobileDevice && (
-                    <div className="text-accent">
-                      <div className="text-sm font-medium">Hola, {user?.preferredName || user?.name || "Usuario"}</div>
-                    </div>
-                  )}
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={toggleSidebar}
-                    className="text-primary hover:bg-transparent flex-shrink-0 p-0 m-0"
-                  >
-                    <img
-                      src="https://skcoblobresources.blob.core.windows.net/digital-assets/icons/icon-skandia/sk_header_menu_resposive.svg"
-                      alt="Menu"
-                      className="h-5 w-5 opacity-100"
-                    />
-                  </Button>
-                </>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={toggleSidebar}
+                  className="text-primary hover:bg-transparent flex-shrink-0 p-0 m-0"
+                >
+                  <img
+                    src="https://skcoblobresources.blob.core.windows.net/digital-assets/icons/icon-skandia/sk_header_menu_resposive.svg"
+                    alt="Menu"
+                    className="h-5 w-5 opacity-100"
+                  />
+                </Button>
               )}
             </div>
           </SidebarHeader>

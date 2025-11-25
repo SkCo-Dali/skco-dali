@@ -53,16 +53,12 @@ export function AppContent() {
   const isUsersPage =
     location.pathname === "/users" || location.pathname === "/admin/users" || location.pathname === "/admin/reports";
 
-  // Abrir ChatSami por defecto para usuarios con permisos (excepto en página de Users y móvil)
+  // Cerrar ChatSami si navegamos a la página de Users
   useEffect(() => {
-    if (user && hasChatSamiPermissions && !chatSamiOpen && !isUsersPage && !isMobile) {
-      setChatSamiOpen(true);
-    }
-    // Cerrar ChatSami si navegamos a la página de Users
     if (isUsersPage && chatSamiOpen) {
       setChatSamiOpen(false);
     }
-  }, [user, hasChatSamiPermissions, isUsersPage, isMobile]);
+  }, [isUsersPage, chatSamiOpen]);
 
   if (loading) {
     return (
@@ -77,6 +73,10 @@ export function AppContent() {
     if (chatSamiRef.current) {
       chatSamiRef.current.sendMessage(automaticReply);
     }
+  };
+
+  const handleSamiToggle = () => {
+    setChatSamiOpen(!chatSamiOpen);
   };
 
   return (
@@ -100,7 +100,7 @@ export function AppContent() {
               className="flex-1 flex flex-col transition-all duration-300"
               style={{ marginRight: chatSamiOpen && hasChatSamiPermissions && !isUsersPage ? "380px" : "0" }}
             >
-              <Header onBannerMessage={handleBannerMessage} />
+              <Header onSamiToggle={handleSamiToggle} />
               <main className="flex-1 pt-20">
                 <Routes>
                   <Route path="/" element={<RoleBasedRedirect />} />
