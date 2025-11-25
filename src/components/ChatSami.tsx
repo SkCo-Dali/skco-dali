@@ -38,7 +38,6 @@ const ChatSamiContent = forwardRef<ChatSamiHandle, ChatSamiProps>(({ isOpen = fa
   const [isLoading, setIsLoading] = useState(false);
   const [inputMessage, setInputMessage] = useState("");
   const [opportunityLoading, setOpportunityLoading] = useState(true);
-  const [isClosing, setIsClosing] = useState(false);
 
   const { currentConversation, addMessage, createNewConversation, updateConversationId } = useSimpleConversation();
   const { user } = useAuth();
@@ -364,27 +363,29 @@ const ChatSamiContent = forwardRef<ChatSamiHandle, ChatSamiProps>(({ isOpen = fa
   };
 
   const handleToggle = (newState: boolean) => {
-    if (!newState) {
-      // Cuando se cierra, activar la animación
-      setIsClosing(true);
-      setTimeout(() => {
-        onOpenChange?.(newState);
-        setIsClosing(false);
-      }, 350); // Duración de la animación
-    } else {
-      onOpenChange?.(newState);
-    }
+    onOpenChange?.(newState);
   };
 
   return (
     <>
+      {/* Burbuja flotante */}
+      {!isOpen && (
+        <button
+          onClick={() => handleToggle(true)}
+          className="fixed bottom-6 right-6 z-50 h-16 w-16 rounded-full bg-transparent transition-all duration-200 flex items-center justify-center group"
+          aria-label="Abrir SamiGPT"
+        >
+          <img
+            src="https://skcoblobresources.blob.core.windows.net/digital-assets/animations/sk-sami-contigo.gif"
+            alt="SamiGPT"
+            className="w-14 h-14"
+          />
+        </button>
+      )}
 
       {/* Dialog fullscreen para móviles */}
       {isOpen && isMobile && viewMode !== "maximized" && (
-        <Dialog 
-          open={isOpen && !isClosing} 
-          onOpenChange={handleToggle}
-        >
+        <Dialog open={isOpen} onOpenChange={handleToggle}>
           <DialogContent className="max-w-full h-full w-full p-0 m-0 rounded-none flex flex-col">
             {/* Header */}
             <div className="flex items-center justify-between bg-[#fafafa] h-14 px-4 shrink-0 border-b">
@@ -521,14 +522,7 @@ const ChatSamiContent = forwardRef<ChatSamiHandle, ChatSamiProps>(({ isOpen = fa
 
       {/* Panel lateral fijo para desktop */}
       {isOpen && !isMobile && viewMode !== "maximized" && (
-        <div 
-          className={`fixed top-20 right-0 bottom-0 w-[360px] border-l bg-background shadow-none flex flex-col z-30 ${
-            isClosing ? 'animate-chat-minimize' : 'animate-chat-maximize'
-          }`}
-          style={{
-            transformOrigin: "top right"
-          }}
-        >
+        <div className="fixed top-20 right-0 bottom-0 w-[360px] border-l bg-background shadow-none flex flex-col z-30">
           {/* Header */}
           <div className="flex items-center justify-between bg-[#fafafa] h-18 mb-2 p-2 shrink-0">
             <h2 className="text-lg font-semibold text-foreground">Dali</h2>
@@ -542,15 +536,16 @@ const ChatSamiContent = forwardRef<ChatSamiHandle, ChatSamiProps>(({ isOpen = fa
               >
                 <Maximize2 className="h-4 w-4" />
               </Button>
-              <Button
+              {/* <Button
                 variant="ghost"
                 size="icon"
                 onClick={() => handleToggle(false)}
                 className="h-8 w-8 hover:bg-muted"
-                aria-label="Minimizar"
+                aria-label="Cerrar"
               >
                 <Minus className="h-4 w-4" />
-              </Button>
+              </Button>*/}
+              {/* Botón de acciones */}
               <ChatActionsButton
                 onNewConversation={handleNewChat}
                 onSearchConversations={handleSearchConversations}

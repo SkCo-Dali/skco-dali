@@ -14,7 +14,6 @@ import { DatePicker } from "@/components/ui/date-picker";
 import { format, parse } from "date-fns";
 import { CountryPhoneSelector } from "@/components/onboarding/CountryPhoneSelector";
 import { normalizarTelefonoColombia, getMotivoDescripcion } from "@/utils/whatsapp-phone";
-import { countries } from "@/data/countries";
 
 interface Props {
   profile: UserProfile;
@@ -211,12 +210,10 @@ export function ProfilePersonalInfo({ profile, updateProfile, onBack }: Props) {
           Este número se usará para contactarte y en correos masivos
         </p>
         <CountryPhoneSelector
-          selectedCountryCode={
-            countries.find((c) => c.dialCode === localData.countryCode)?.code || "CO"
-          }
+          selectedCountryCode={localData.countryCode || "+57"}
           phone={localData.phone || ""}
-          onCountryChange={(countryCode, dialCode) => {
-            setLocalData({ ...localData, countryCode: dialCode });
+          onCountryChange={(countryCode) => {
+            setLocalData({ ...localData, countryCode });
             setPhoneError(undefined);
           }}
           onPhoneChange={(phone) => {

@@ -199,122 +199,538 @@
     @apply pb-4 pt-0 text-sm text-muted-foreground;
   }
 
-  /* Skandia Card Styles */
-  .sk-card {
-    @apply rounded-2xl border bg-card text-card-foreground shadow-sm;
+  /* Skandia Pagination Styles */
+  .sk-pagination-main-container {
+    @apply flex justify-center w-full my-6;
   }
 
-  .sk-card-header {
-    @apply flex flex-col space-y-1.5 p-6;
+  .sk-pagination-container {
+    @apply flex items-center justify-between gap-4 bg-white border border-gray-200 rounded-xl px-4 py-3 shadow-sm;
+    min-width: 400px;
   }
 
-  .sk-card-title {
-    @apply text-2xl font-semibold leading-none tracking-tight;
+  .sk-pagination-text {
+    @apply text-sm font-medium text-gray-700;
   }
 
-  .sk-card-description {
-    @apply text-sm text-muted-foreground;
+  .sk-pagination-page {
+    @apply flex items-center gap-1 list-none m-0 p-0;
   }
 
-  .sk-card-content {
-    @apply p-6 pt-0;
+  .sk-pagination-page-btn {
+    @apply flex items-center justify-center w-8 h-8 rounded bg-green-500 text-white cursor-pointer transition-colors;
   }
 
-  .sk-card-footer {
-    @apply flex items-center p-6 pt-0;
+  .sk-pagination-page-btn:hover {
+    @apply bg-green-600;
+  }
+
+  .sk-pagination-page-btn.disabled {
+    @apply bg-gray-300 text-gray-500 cursor-not-allowed;
+  }
+
+  .sk-pagination-icon-container {
+    @apply flex items-center justify-center;
+  }
+
+  .sk-pagination-icon {
+    @apply w-4 h-4;
+  }
+
+  .sk-pagination-page-numbers {
+    @apply flex items-center justify-center w-8 h-8 rounded text-sm font-medium text-gray-700 cursor-pointer transition-colors;
+  }
+
+  .sk-pagination-page-numbers:hover {
+    @apply bg-gray-100;
+  }
+
+  .sk-pagination-page-numbers.pagination-active {
+    @apply bg-green-500 text-white font-semibold;
+  }
+
+  .sk-pagination-page-dots {
+    @apply flex items-center justify-center w-8 h-8 text-gray-500 text-sm;
+  }
+
+  /* Dark mode para la paginación */
+  .dark .sk-pagination-container {
+    @apply bg-gray-800 border-gray-700;
+  }
+
+  .dark .sk-pagination-text {
+    @apply text-gray-300;
+  }
+
+  .dark .sk-pagination-page-numbers {
+    @apply text-gray-300;
+  }
+
+  .dark .sk-pagination-page-numbers:hover {
+    @apply bg-gray-700;
+  }
+
+  .dark .sk-pagination-page-dots {
+    @apply text-gray-500;
+  }
+
+  /* TABLA DE LEADS - SCROLL ADAPTATIVO Y FUNCIONAL */
+  .leads-table-container-scroll {
+    position: relative;
+    width: 100%;
+    max-width: 100%;
+    background: #fafafa;
+    border-radius: 8px;
+    overflow: visible;
+    contain: layout style;
+  }
+
+  .leads-table-scroll-wrapper {
+    position: relative;
+    width: 100%;
+    height: 500px;
+    border: 1px solid #fafafa;
+    border-radius: 8px;
+    background: #fafafa;
+    /* Scroll condicional - solo aparece cuando hay más de 6 columnas */
+    overflow-x: auto !important;
+    overflow-y: auto !important;
+    /* Configuración de scrollbar */
+    scrollbar-width: thin !important;
+    scrollbar-color: #00c73d #f1f5f9 !important;
+    contain: strict;
+  }
+
+  .leads-table-inner-scroll {
+    /* Ancho fijo calculado según columnas visibles */
+    width: max-content !important;
+    min-width: 100% !important;
+    height: auto;
+    position: relative;
+    overflow: visible;
+  }
+
+  /* Evitar doble contenedor con overflow en el Table de shadcn dentro de LeadsTable
+     para que position: sticky del header funcione respecto al scroll wrapper externo */
+  .leads-table-inner-scroll > div {
+    overflow: visible !important;
+  }
+
+  /* SCROLLBAR PERSONALIZADO - WEBKIT */
+  .leads-table-scroll-wrapper::-webkit-scrollbar {
+    width: 12px !important;
+    height: 12px !important;
+    background-color: #f1f5f9 !important;
+    border-radius: 6px;
+  }
+
+  .leads-table-scroll-wrapper::-webkit-scrollbar-track {
+    background: #f1f5f9 !important;
+    border-radius: 6px;
+    border: 1px solid #fafafa;
+    box-shadow: inset 0 0 2px rgba(0, 0, 0, 0.05);
+  }
+
+  .leads-table-scroll-wrapper::-webkit-scrollbar-thumb {
+    background: #00c73d !important;
+    border-radius: 6px;
+    border: 1px solid #f1f5f9;
+    min-height: 20px !important;
+    min-width: 20px !important;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  }
+
+  .leads-table-scroll-wrapper::-webkit-scrollbar-thumb:hover {
+    background: #00b835 !important;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  }
+
+  .leads-table-scroll-wrapper::-webkit-scrollbar-thumb:active {
+    background: #009929 !important;
+  }
+
+  .leads-table-scroll-wrapper::-webkit-scrollbar-corner {
+    background: #f1f5f9 !important;
+  }
+
+  /* Columna sticky con ancho fijo */
+  .leads-name-column-sticky {
+    position: sticky !important;
+    left: 0 !important;
+    z-index: 10 !important;
+    background: #fafafa !important;
+    border-right: 2px solid #fafafa !important;
+    box-shadow: 2px 0 4px rgba(0, 0, 0, 0.1) !important;
+    width: 350px !important;
+    min-width: 350px !important;
+    max-width: 350px !important;
+  }
+
+  /* Columnas regulares con ancho fijo */
+  .leads-regular-column {
+    width: 250px !important;
+    min-width: 250px !important;
+    max-width: 250px !important;
+  }
+
+  /* Header sticky */
+  .leads-table-header-sticky {
+    position: sticky !important;
+    top: 0 !important;
+    z-index: 15 !important;
+    background: #fafafa !important;
+    color: hsl(var(--foreground)) !important;
+    font-weight: 700 !important;
+  }
+
+  .leads-table-header-sticky th {
+    position: sticky !important;
+    top: 0 !important;
+    z-index: 15 !important;
+    background: #fafafa !important;
+    color: hsl(var(--foreground)) !important;
+    font-weight: 700 !important;
+  }
+
+  .leads-table-header-sticky .leads-name-column-sticky {
+    z-index: 20 !important;
+    background: #fafafa !important;
+  }
+
+  /* Dark mode */
+  .dark .leads-table-scroll-wrapper {
+    background: #1f2937;
+    border-color: #4b5563;
+  }
+
+  .dark .leads-table-scroll-wrapper::-webkit-scrollbar-track {
+    background: #374151 !important;
+    border-color: #4b5563;
+  }
+
+  .dark .leads-table-scroll-wrapper::-webkit-scrollbar-thumb {
+    background: #00c73d !important;
+    border-color: #374151;
+  }
+
+  .dark .leads-table-scroll-wrapper::-webkit-scrollbar-corner {
+    background: #374151 !important;
+  }
+
+  .dark .leads-name-column-sticky {
+    background: #1f2937 !important;
+    border-right-color: #4b5563 !important;
+    box-shadow: 2px 0 4px rgba(0, 0, 0, 0.3) !important;
+  }
+
+  .dark .leads-table-header-sticky {
+    background: #374151 !important;
+    color: hsl(var(--foreground)) !important;
+  }
+
+  .dark .leads-table-header-sticky th {
+    background: #374151 !important;
+    color: hsl(var(--foreground)) !important;
+    font-weight: 700 !important;
+  }
+
+  .dark .leads-table-header-sticky .leads-name-column-sticky {
+    background: #374151 !important;
+  }
+
+  /* Estilos de Tabla Estilo ChatGPT - MEJORADOS */
+  .data-table-container {
+    margin: 1rem 0;
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    /* CLAVE: Fijar ancho máximo y no permitir expansión */
+    width: 100%;
+    max-width: 600px;
+    box-sizing: border-box;
+  }
+
+  .data-table-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    background-color: #f8f9fa;
+    border-bottom: 1px solid #ddd;
+    flex-shrink: 0;
+  }
+
+  .data-table-title {
+    font-size: 14px;
+    font-weight: 500;
+    color: #374151;
+  }
+
+  .data-table-export-btn {
+    color: #6b7280;
+    padding: 4px 8px;
+    flex-shrink: 0;
+  }
+
+  .data-table-wrapper {
+    /* CLAVE: Forzar scroll horizontal estricto */
+    max-height: 400px;
+    width: 100%;
+    overflow-x: auto;
+    overflow-y: auto;
+    position: relative;
+    box-sizing: border-box;
+  }
+
+  .data-table {
+    /* CLAVE: Permitir que la tabla tenga su ancho natural pero con scroll */
+    width: max-content;
+    min-width: 100%;
+    border-collapse: collapse;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+    font-size: 14px;
+    line-height: 1.4;
+    white-space: nowrap;
+  }
+
+  .data-table-head {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background-color: #f0f0f0;
+  }
+
+  .data-table-header-cell {
+    background-color: #f0f0f0;
+    border: 1px solid #ccc;
+    padding: 8px 12px;
+    text-align: center;
+    font-weight: 600;
+    color: #374151;
+    white-space: nowrap;
+    position: sticky;
+    top: 0;
+    /* Permitir ancho natural del contenido */
+    width: auto;
+    min-width: 150px;
+  }
+
+  .data-table-cell {
+    border: 1px solid #ccc;
+    padding: 8px 12px;
+    text-align: center;
+    background-color: white;
+    color: #374151;
+    white-space: nowrap;
+    /* Permitir ancho natural del contenido */
+    width: auto;
+    min-width: 250px;
+  }
+
+  .data-table-pagination {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    background-color: #f8f9fa;
+    border-top: 1px solid #ddd;
+    flex-shrink: 0;
+  }
+
+  .data-table-pagination-info {
+    font-size: 13px;
+    color: #6b7280;
+  }
+
+  .data-table-pagination-controls {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .data-table-pagination-current {
+    font-size: 13px;
+    color: #6b7280;
+    margin: 0 8px;
+  }
+
+  /* Dark mode para las tablas */
+  .dark .data-table-container {
+    background: #1f2937;
+    border-color: #4b5563;
+  }
+
+  .dark .data-table-header {
+    background-color: #374151;
+    border-color: #4b5563;
+  }
+
+  .dark .data-table-title {
+    color: #f9fafb;
+  }
+
+  .dark .data-table-head {
+    background-color: #374151;
+  }
+
+  .dark .data-table-header-cell {
+    background-color: #374151;
+    color: #f9fafb;
+    border-color: #4b5563;
+  }
+
+  .dark .data-table-cell {
+    background-color: #1f2937;
+    color: #f9fafb;
+    border-color: #4b5563;
+  }
+
+  .dark .data-table-pagination {
+    background-color: #374151;
+    border-color: #4b5563;
+  }
+
+  .dark .data-table-pagination-info,
+  .dark .data-table-pagination-current {
+    color: #d1d5db;
+  }
+
+  /* Responsive: en móviles, ajustar el diseño */
+  @media (max-width: 768px) {
+    .data-table-container {
+      margin: 0.5rem 0;
+      max-width: 100%;
+    }
+
+    .data-table-wrapper {
+      overflow-x: auto;
+      width: 100%;
+      padding-bottom: 8px;
+    }
+
+    .data-table-header {
+      padding: 8px 12px;
+    }
+
+    .data-table-title {
+      font-size: 13px;
+    }
+
+    .data-table-pagination {
+      padding: 8px 12px;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .data-table-pagination-info {
+      font-size: 12px;
+    }
+
+    .data-table th,
+    .data-table td {
+      min-width: 140px; /* o el valor que estimes adecuado */
+      max-width: 768px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .data-table-header-cell,
+    .data-table-cell {
+      min-width: 100px;
+      padding: 6px 8px;
+    }
+
+    .sk-pagination-container {
+      min-width: auto;
+      flex-direction: column;
+      gap: 2;
+    }
+
+    .sk-pagination-text {
+      order: 2;
+      font-size: 12px;
+    }
+
+    .sk-pagination-page {
+      order: 1;
+    }
+
+    /* Mejorar scroll en móviles para las tablas de leads */
+    .leads-table-scroll-wrapper::-webkit-scrollbar {
+      width: 10px;
+      height: 10px;
+    }
+
+    .leads-table-inner-scroll {
+      width: max-content !important;
+      min-width: 100% !important;
+    }
   }
 }
 
-/* Microsoft Botframework Webchat Overrides */
-.webchat__send-box__button {
-  background-color: hsl(var(--skandia-blue)) !important;
-  color: hsl(var(--primary-foreground)) !important;
+/* TipTap Editor Styles */
+.ProseMirror {
+  outline: none;
 }
 
-.webchat__send-box__button:hover {
-  background-color: hsl(var(--skandia-accent)) !important;
+.ProseMirror p {
+  margin: 0.5em 0;
 }
 
-.webchat__send-box__text-box__input {
-  border-color: hsl(var(--border)) !important;
-  background-color: hsl(var(--background)) !important;
-  color: hsl(var(--foreground)) !important;
+.ProseMirror ul,
+.ProseMirror ol {
+  padding-left: 1.5em;
+  margin: 0.5em 0;
 }
 
-/* Montserrat Font Styling */
-@import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Noto+Color+Emoji&display=swap');
-
-/* Styles for table components in Tiptap editor */
-.ProseMirror table {
-  border-collapse: collapse;
-  table-layout: fixed;
-  width: 100%;
-  margin: 0;
-  overflow: hidden;
+.ProseMirror li {
+  margin: 0.25em 0;
 }
 
-.ProseMirror th,
-.ProseMirror td {
-  border: 1px solid hsl(var(--border));
-  padding: 8px;
-  vertical-align: top;
-  box-sizing: border-box;
+.ProseMirror a {
+  color: hsl(var(--primary));
+  text-decoration: underline;
+}
+
+.ProseMirror img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* Dynamic Field Node Styles */
+.dynamic-field-badge {
+  display: inline-block;
+  background-color: #dbeafe;
+  color: #1e40af;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  margin: 0 2px;
+  cursor: default;
+  user-select: none;
+}
+
+.resizable-image-wrapper {
   position: relative;
+  display: inline-block;
+  max-width: 100%;
 }
 
-.ProseMirror th {
-  font-weight: 600;
-  text-align: left;
-  background-color: hsl(var(--muted));
+/* Ensure underline color follows text color in TipTap */
+.ProseMirror u,
+.ProseMirror [style*="text-decoration: underline"],
+.ProseMirror [style*="text-decoration:underline"] {
+  text-decoration-color: currentColor !important;
 }
 
-/* Animation keyframes */
-@keyframes slide-in-right {
-  from { transform: translateX(100%); }
-  to { transform: translateX(0); }
-}
-
-@keyframes slide-out-right {
-  from { transform: translateX(0); }
-  to { transform: translateX(100%); }
-}
-
-@keyframes chat-minimize {
-  from {
-    transform: translate(0, 0) scale(1);
-    opacity: 1;
-  }
-  to {
-    transform: translate(-320px, -70px) scale(0);
-    opacity: 0;
-  }
-}
-
-@keyframes chat-maximize {
-  from {
-    transform: translate(-320px, -70px) scale(0);
-    opacity: 0;
-  }
-  to {
-    transform: translate(0, 0) scale(1);
-    opacity: 1;
-  }
-}
-
-/* Animation utilities */
-.animate-slide-in-right {
-  animation: slide-in-right 0.3s ease-out;
-}
-
-.animate-slide-out-right {
-  animation: slide-out-right 0.3s ease-out;
-}
-
-.animate-chat-minimize {
-  animation: chat-minimize 0.35s cubic-bezier(0.4, 0, 0.2, 1) forwards;
-}
-
-.animate-chat-maximize {
-  animation: chat-maximize 0.35s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+/* Apply color to underline decoration */
+.ProseMirror [style*="color:"] u,
+.ProseMirror [style*="color:"][style*="text-decoration: underline"],
+.ProseMirror [style*="color:"][style*="text-decoration:underline"] {
+  text-decoration-color: inherit !important;
 }

@@ -2,7 +2,6 @@ import { Link, useLocation } from "react-router-dom";
 import { UserProfile } from "@/components/UserProfile";
 import { useState } from "react";
 import { ChevronDown, ChevronRight, Search, FileText } from "lucide-react";
-import { extractFirstName } from "@/utils/nameUtils";
 
 import {
   Sidebar,
@@ -187,9 +186,10 @@ export function AppSidebar({ onTemplateSelect }: AppSidebarProps) {
               {isMobileDevice && openMobile ? (
                 <>
                   <div className="flex items-center space-x-3">
-                    <span className="text-sm font-medium text-foreground">
-                      Hola, <span className="text-[#00C73D]">{user?.preferredName || extractFirstName(user?.name) || user?.name || "Usuario"}</span> 👋
-                    </span>
+                    <UserProfile />
+                    <div className="text-accent">
+                      <div className="text-sm font-medium">Hola, {user?.preferredName || user?.name || "Usuario"}</div>
+                    </div>
                   </div>
                   <Button
                     variant="ghost"
@@ -206,6 +206,11 @@ export function AppSidebar({ onTemplateSelect }: AppSidebarProps) {
                 </>
               ) : (
                 <>
+                  {showText && !isMobileDevice && (
+                    <div className="text-accent">
+                      <div className="text-sm font-medium">Hola, {user?.preferredName || user?.name || "Usuario"}</div>
+                    </div>
+                  )}
                   <Button
                     variant="ghost"
                     size="icon"

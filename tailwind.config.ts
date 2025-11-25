@@ -22,7 +22,6 @@ export default {
 			fontFamily: {
 				'montserrat': ['Montserrat', 'sans-serif'],
 				'verdana': ['Verdana', 'sans-serif'],
-				'emoji': ['Noto Color Emoji', 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'sans-serif'],
 			},
 			colors: {
 				border: 'hsl(var(--border))',
