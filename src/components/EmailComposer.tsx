@@ -11,7 +11,7 @@ import { EmailSignatureDialog } from "@/components/EmailSignatureDialog";
 import { DynamicFieldInput } from "@/components/DynamicFieldInput";
 import { SaveEmailTemplateDialog } from "@/components/SaveEmailTemplateDialog";
 import { EmailTemplatesModal } from "@/components/EmailTemplatesModal";
-import { Editor } from '@tiptap/react';
+import { Editor } from "@tiptap/react";
 import { useToast } from "@/hooks/use-toast";
 import { useUserProfile } from "@/hooks/useUserProfile";
 
@@ -135,11 +135,11 @@ export function EmailComposer({
   const handleDragStart = (field: DynamicField) => (e: React.DragEvent) => {
     setDraggedField(field);
     e.dataTransfer.effectAllowed = "copy";
-    
+
     // Set data for drag and drop
     e.dataTransfer.setData("fieldKey", field.key);
     e.dataTransfer.setData("fieldLabel", field.label);
-    
+
     // Get field-specific colors
     const colors = getFieldColor(field.key);
     e.dataTransfer.setData("bgColor", colors.bg);
@@ -173,21 +173,21 @@ export function EmailComposer({
 
   const handleContentDrop = (e: React.DragEvent) => {
     e.preventDefault();
-    const fieldKey = e.dataTransfer.getData('fieldKey');
-    const fieldLabel = e.dataTransfer.getData('fieldLabel');
-    const bgColor = e.dataTransfer.getData('bgColor');
-    const textColor = e.dataTransfer.getData('textColor');
-    
+    const fieldKey = e.dataTransfer.getData("fieldKey");
+    const fieldLabel = e.dataTransfer.getData("fieldLabel");
+    const bgColor = e.dataTransfer.getData("bgColor");
+    const textColor = e.dataTransfer.getData("textColor");
+
     if (fieldKey && editorRef.current) {
       const editor = editorRef.current;
-      
+
       // Get drop position from the editor view
       const view = editor.view;
       const coords = { left: e.clientX, top: e.clientY };
       const pos = view.posAtCoords(coords);
-      
+
       if (!pos) return;
-      
+
       // Get current marks from the editor to capture active formatting
       const marks = editor.state.storedMarks || editor.state.selection.$from.marks();
       const attrs: any = {
@@ -199,16 +199,16 @@ export function EmailComposer({
 
       // Extract formatting from marks
       marks.forEach((mark: any) => {
-        if (mark.type.name === 'bold') {
+        if (mark.type.name === "bold") {
           attrs.bold = true;
         }
-        if (mark.type.name === 'italic') {
+        if (mark.type.name === "italic") {
           attrs.italic = true;
         }
-        if (mark.type.name === 'underline') {
+        if (mark.type.name === "underline") {
           attrs.underline = true;
         }
-        if (mark.type.name === 'textStyle') {
+        if (mark.type.name === "textStyle") {
           if (mark.attrs.color) attrs.color = mark.attrs.color;
           if (mark.attrs.fontSize) attrs.fontSize = mark.attrs.fontSize;
           if (mark.attrs.fontFamily) attrs.fontFamily = mark.attrs.fontFamily;
@@ -226,10 +226,10 @@ export function EmailComposer({
     const currentSize = attachments.reduce((sum, file) => sum + file.size, 0);
     const newFilesSize = newFiles.reduce((sum, file) => sum + file.size, 0);
     const totalSize = currentSize + newFilesSize;
-    
+
     // Límite de 20 MB (20 * 1024 * 1024 bytes)
     const MAX_SIZE = 20 * 1024 * 1024;
-    
+
     if (totalSize > MAX_SIZE) {
       toast({
         title: "Límite de tamaño excedido",
@@ -238,7 +238,7 @@ export function EmailComposer({
       });
       return;
     }
-    
+
     const updatedAttachments = [...attachments, ...newFiles];
     onAttachmentsChange?.(updatedAttachments);
   };
@@ -249,11 +249,11 @@ export function EmailComposer({
   };
 
   const getSocialNetworkButton = (network: string): string => {
-    if (network === 'whatsapp') {
-      const countryCode = profile?.countryCode?.replace('+', '') || '57';
-      const number = profile?.phone || '';
+    if (network === "whatsapp") {
+      const countryCode = profile?.countryCode?.replace("+", "") || "57";
+      const number = profile?.phone || "";
       const whatsappUrl = `https://wa.me/${countryCode}${number}`;
-      
+
       return `
         <table cellpadding="0" cellspacing="0" border="0" style="margin: 16px 0;">
           <tbody>
@@ -270,18 +270,18 @@ export function EmailComposer({
           </tbody>
         </table>
       `;
-    } else if (network === 'instagram') {
-      const instagramHandle = profile?.instagram || '';
+    } else if (network === "instagram") {
+      const instagramHandle = profile?.instagram || "";
       if (!instagramHandle) {
         toast({
           title: "Instagram no configurado",
           description: "Por favor configura tu usuario de Instagram en tu perfil primero",
-          variant: "destructive"
+          variant: "destructive",
         });
-        return '';
+        return "";
       }
       const instagramUrl = `https://instagram.com/${instagramHandle}`;
-      
+
       return `
         <table cellpadding="0" cellspacing="0" border="0" style="margin: 16px 0;">
           <tbody>
@@ -299,7 +299,7 @@ export function EmailComposer({
         </table>
       `;
     }
-    return '';
+    return "";
   };
 
   const handleSocialNetworkDragStart = (network: string) => (e: React.DragEvent) => {
@@ -314,19 +314,19 @@ export function EmailComposer({
 
   const handleSocialNetworkDrop = (e: React.DragEvent) => {
     e.preventDefault();
-    const network = e.dataTransfer.getData('socialNetwork');
-    
+    const network = e.dataTransfer.getData("socialNetwork");
+
     if (network && editorRef.current) {
       const buttonHtml = getSocialNetworkButton(network);
       if (!buttonHtml) return;
 
       const editor = editorRef.current;
-      
+
       // Insert the button HTML at the current cursor position or at the end
       editor.commands.insertContent(buttonHtml);
       editor.commands.focus();
     }
-    
+
     setDraggedSocialNetwork(null);
   };
 
@@ -337,35 +337,19 @@ export function EmailComposer({
           <CardTitle className="flex items-center justify-between">
             Composición del Email
             <div className="flex gap-2">
-              <Button 
-                variant="outline" 
-                size="sm" 
-                onClick={() => setShowTemplatesModal(true)}
-              >
+              <Button variant="outline" size="sm" onClick={() => setShowTemplatesModal(true)}>
                 <FileText className="h-4 w-4 mr-2" />
                 Plantillas
               </Button>
-              <Button 
-                variant="outline" 
-                size="sm" 
-                onClick={() => setShowSignatureDialog(true)}
-              >
+              <Button variant="outline" size="sm" onClick={() => setShowSignatureDialog(true)}>
                 <FileSignature className="h-4 w-4 mr-2" />
                 Firmas
               </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setShowFieldsList(!showFieldsList)}
-              >
+              <Button variant="outline" size="sm" onClick={() => setShowFieldsList(!showFieldsList)}>
                 <Plus className="h-4 w-4 mr-2" />
                 Campos Dinámicos
               </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setShowSocialNetworks(!showSocialNetworks)}
-              >
+              <Button variant="outline" size="sm" onClick={() => setShowSocialNetworks(!showSocialNetworks)}>
                 <Share2 className="h-4 w-4 mr-2" />
                 Redes Sociales
               </Button>
@@ -407,7 +391,7 @@ export function EmailComposer({
               <div className="p-4 space-y-2">
                 <div
                   draggable
-                  onDragStart={handleSocialNetworkDragStart('whatsapp')}
+                  onDragStart={handleSocialNetworkDragStart("whatsapp")}
                   onDragEnd={handleSocialNetworkDragEnd}
                   className="inline-flex items-center px-4 py-2 rounded-lg text-sm font-medium cursor-move mr-2 mb-2 transition-transform hover:scale-105 bg-[#00A859] text-white"
                   title="Arrastra al contenido del email para insertar botón de WhatsApp"
@@ -416,7 +400,7 @@ export function EmailComposer({
                 </div>
                 <div
                   draggable
-                  onDragStart={handleSocialNetworkDragStart('instagram')}
+                  onDragStart={handleSocialNetworkDragStart("instagram")}
                   onDragEnd={handleSocialNetworkDragEnd}
                   className="inline-flex items-center px-4 py-2 rounded-lg text-sm font-medium cursor-move mr-2 mb-2 transition-transform hover:scale-105 bg-gradient-to-r from-purple-500 via-pink-500 to-orange-500 text-white"
                   title="Arrastra al contenido del email para insertar botón de Instagram"
@@ -456,16 +440,14 @@ export function EmailComposer({
               dynamicFields={dynamicFields}
               onDrop={handleSubjectDrop}
             />
-            <p className="text-sm text-muted-foreground mt-1">
-              Arrastra campos dinámicos para personalizar
-            </p>
+            <p className="text-sm text-muted-foreground mt-1">Arrastra campos dinámicos para personalizar</p>
           </div>
 
           <div
             onDragOver={handleContentDragOver}
             onDrop={(e) => {
               // Handle both dynamic fields and social networks
-              const socialNetwork = e.dataTransfer.getData('socialNetwork');
+              const socialNetwork = e.dataTransfer.getData("socialNetwork");
               if (socialNetwork) {
                 handleSocialNetworkDrop(e);
               } else {
@@ -493,16 +475,9 @@ export function EmailComposer({
               <Label>Archivos Adjuntos ({attachments.length})</Label>
               <div className="space-y-1">
                 {attachments.map((file, index) => (
-                  <div
-                    key={index}
-                    className="flex items-center justify-between p-2 bg-muted rounded-md text-sm"
-                  >
+                  <div key={index} className="flex items-center justify-between p-2 bg-muted rounded-md text-sm">
                     <span className="truncate flex-1">{file.name}</span>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => handleRemoveAttachment(index)}
-                    >
+                    <Button variant="ghost" size="sm" onClick={() => handleRemoveAttachment(index)}>
                       <X className="h-4 w-4" />
                     </Button>
                   </div>
@@ -511,7 +486,7 @@ export function EmailComposer({
             </div>
           )}
 
-          <div className="flex justify-end pt-2 border-t">
+          <div className="flex justify-end py-2 border-t">
             <Button
               variant="outline"
               onClick={() => setShowSaveTemplateDialog(true)}
@@ -544,8 +519,8 @@ export function EmailComposer({
         plainContent={template.plainContent}
         onSaved={() => {
           toast({
-            title: 'Plantilla guardada',
-            description: 'Ahora puedes acceder a ella desde el botón de Plantillas',
+            title: "Plantilla guardada",
+            description: "Ahora puedes acceder a ella desde el botón de Plantillas",
           });
         }}
       />
