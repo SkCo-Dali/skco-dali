@@ -5,7 +5,6 @@ import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { UserProfile } from "@/types/userProfile";
-import { Edit2, Save, X, User } from "lucide-react";
 import { CountryPhoneSelector } from "@/components/onboarding/CountryPhoneSelector";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { ChevronDown } from "lucide-react";
@@ -21,7 +20,6 @@ interface Props {
 }
 
 export function ProfilePersonalInfo({ profile, updateProfile }: Props) {
-  const [isEditing, setIsEditing] = useState(false);
   const [localData, setLocalData] = useState(profile);
   const [socialMediaOpen, setSocialMediaOpen] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
@@ -115,7 +113,6 @@ export function ProfilePersonalInfo({ profile, updateProfile }: Props) {
         whatsappPhone: localData.phone || null,
       });
 
-      setIsEditing(false);
       toast.success("Información personal actualizada");
     } catch (error) {
       console.error("Error saving personal info:", error);
@@ -125,34 +122,8 @@ export function ProfilePersonalInfo({ profile, updateProfile }: Props) {
     }
   };
 
-  const handleCancel = () => {
-    setLocalData(profile);
-    setIsEditing(false);
-  };
-
   return (
     <div className="space-y-6 animate-fade-in">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div></div>
-        {!isEditing ? (
-          <Button onClick={() => setIsEditing(true)} variant="outline" className="gap-2">
-            <Edit2 className="h-4 w-4" />
-            Editar
-          </Button>
-        ) : (
-          <div className="flex gap-2">
-            <Button onClick={handleCancel} variant="outline" className="gap-2">
-              <X className="h-4 w-4" />
-              Cancelar
-            </Button>
-            <Button onClick={handleSave} className="gap-2" disabled={isSaving}>
-              <Save className="h-4 w-4" />
-              {isSaving ? "Guardando..." : "Guardar"}
-            </Button>
-          </div>
-        )}
-      </div>
 
       {/* Basic Info */}
       <Card className="p-4 border-border/40 space-y-4">
@@ -165,7 +136,6 @@ export function ProfilePersonalInfo({ profile, updateProfile }: Props) {
               id="preferredName"
               value={localData.preferredName || ""}
               onChange={(e) => setLocalData({ ...localData, preferredName: e.target.value })}
-              disabled={!isEditing}
               placeholder="¿Cómo quieres que te llame?"
             />
           </div>
@@ -182,7 +152,6 @@ export function ProfilePersonalInfo({ profile, updateProfile }: Props) {
               }
               placeholder="dd/MM/yyyy"
               disabled={(date) => date > new Date() || date < new Date("1900-01-01")}
-              className={!isEditing ? "pointer-events-none opacity-50" : ""}
             />
           </div>
 
@@ -191,7 +160,6 @@ export function ProfilePersonalInfo({ profile, updateProfile }: Props) {
             <Select
               value={localData.gender || ""}
               onValueChange={(value: any) => setLocalData({ ...localData, gender: value })}
-              disabled={!isEditing}
             >
               <SelectTrigger>
                 <SelectValue placeholder="Selecciona tu género" />
@@ -217,7 +185,6 @@ export function ProfilePersonalInfo({ profile, updateProfile }: Props) {
               id="countryCode"
               value={localData.countryCode || ""}
               onChange={(e) => setLocalData({ ...localData, countryCode: e.target.value })}
-              disabled={!isEditing}
               placeholder="+57"
             />
           </div>
@@ -227,7 +194,6 @@ export function ProfilePersonalInfo({ profile, updateProfile }: Props) {
               id="phone"
               value={localData.phone || ""}
               onChange={(e) => setLocalData({ ...localData, phone: e.target.value })}
-              disabled={!isEditing}
               placeholder="3001234567"
             />
           </div>
@@ -258,7 +224,6 @@ export function ProfilePersonalInfo({ profile, updateProfile }: Props) {
                   id="facebook"
                   value={localData.facebook || ""}
                   onChange={(e) => setLocalData({ ...localData, facebook: e.target.value })}
-                  disabled={!isEditing}
                   placeholder="facebook.com/tu-perfil"
                 />
               </div>
@@ -269,7 +234,6 @@ export function ProfilePersonalInfo({ profile, updateProfile }: Props) {
                   id="instagram"
                   value={localData.instagram || ""}
                   onChange={(e) => setLocalData({ ...localData, instagram: e.target.value })}
-                  disabled={!isEditing}
                   placeholder="@usuario"
                 />
               </div>
@@ -280,7 +244,6 @@ export function ProfilePersonalInfo({ profile, updateProfile }: Props) {
                   id="linkedin"
                   value={localData.linkedin || ""}
                   onChange={(e) => setLocalData({ ...localData, linkedin: e.target.value })}
-                  disabled={!isEditing}
                   placeholder="linkedin.com/in/usuario"
                 />
               </div>
@@ -291,7 +254,6 @@ export function ProfilePersonalInfo({ profile, updateProfile }: Props) {
                   id="xTwitter"
                   value={localData.xTwitter || ""}
                   onChange={(e) => setLocalData({ ...localData, xTwitter: e.target.value })}
-                  disabled={!isEditing}
                   placeholder="@usuario"
                 />
               </div>
@@ -302,7 +264,6 @@ export function ProfilePersonalInfo({ profile, updateProfile }: Props) {
                   id="tiktok"
                   value={localData.tiktok || ""}
                   onChange={(e) => setLocalData({ ...localData, tiktok: e.target.value })}
-                  disabled={!isEditing}
                   placeholder="@usuario"
                 />
               </div>
@@ -310,6 +271,25 @@ export function ProfilePersonalInfo({ profile, updateProfile }: Props) {
           </CollapsibleContent>
         </Collapsible>
       </Card>
+
+      {/* Action Buttons */}
+      <div className="flex gap-3 pt-4">
+        <Button 
+          variant="outline" 
+          className="flex-1"
+          onClick={() => window.history.back()}
+        >
+          Regresar
+        </Button>
+        <Button 
+          variant="secondary" 
+          className="flex-1"
+          onClick={handleSave}
+          disabled={isSaving}
+        >
+          {isSaving ? "Guardando..." : "Guardar"}
+        </Button>
+      </div>
     </div>
   );
 }
