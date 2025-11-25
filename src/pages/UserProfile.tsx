@@ -12,6 +12,7 @@ import {
   MessageSquare,
   Home,
   ChevronRight,
+  ChevronLeft,
   Check,
   Mail,
   Phone,
@@ -312,9 +313,7 @@ const UserProfile = () => {
                 <CardHeader className="border-b pb-4">
                   <div className="flex items-center justify-between">
                     <CardTitle>{sections.find((s) => s.id === activeSection)?.title}</CardTitle>
-                    <button onClick={() => setActiveSection(null)} className="text-sm text-primary hover:underline">
-                      ← Volver a secciones
-                    </button>
+                    <ChevronLeft onClick={() => setActiveSection(null)} className="h-5 w-5 text-primary">
                   </div>
                 </CardHeader>
                 <CardContent className="p-4">{renderSectionContent()}</CardContent>
