@@ -23,6 +23,13 @@ export function ProfileNotifications({ profile, updateProfile, onBack }: Props) 
   const [isLoading, setIsLoading] = useState(true);
   const { getAccessToken } = useAuth();
 
+  // Sync localData when profile changes (after successful save)
+  useEffect(() => {
+    if (!isLoading) {
+      setLocalData(profile);
+    }
+  }, [profile, isLoading]);
+
   const hasChanges = useMemo(() => {
     return JSON.stringify(localData.notificationPreferences) !== JSON.stringify(profile.notificationPreferences);
   }, [localData.notificationPreferences, profile.notificationPreferences]);

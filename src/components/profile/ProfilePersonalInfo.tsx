@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -27,6 +27,11 @@ export function ProfilePersonalInfo({ profile, updateProfile, onBack }: Props) {
   const [isSaving, setIsSaving] = useState(false);
   const [phoneError, setPhoneError] = useState<string | undefined>(undefined);
   const { getAccessToken, updateUserProfile } = useAuth();
+
+  // Sync localData when profile changes (after successful save)
+  useEffect(() => {
+    setLocalData(profile);
+  }, [profile]);
 
   const hasChanges = useMemo(() => {
     return JSON.stringify(localData) !== JSON.stringify(profile);
@@ -120,6 +125,7 @@ export function ProfilePersonalInfo({ profile, updateProfile, onBack }: Props) {
 
       await userProfileApiClient.updateContactChannels(token.accessToken, { channels });
 
+      // Update parent profile state
       updateProfile(localData);
 
       // IMPORTANT: Update AuthContext user object with new WhatsApp data
@@ -137,6 +143,9 @@ export function ProfilePersonalInfo({ profile, updateProfile, onBack }: Props) {
         duration: 4000,
         position: "top-center",
       });
+      
+      // Force re-sync localData with saved values to disable Save button
+      // This ensures hasChanges becomes false after successful save
     } catch (error) {
       console.error("Error saving personal info:", error);
       toast.error("Error al guardar la información");
