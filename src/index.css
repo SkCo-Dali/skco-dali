@@ -734,10 +734,3 @@
 .ProseMirror [style*="color:"][style*="text-decoration:underline"] {
   text-decoration-color: inherit !important;
 }
-
-/* Emoji support for country flags */
-.flag-emoji {
-  font-family: "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji", sans-serif;
-  font-style: normal;
-  font-weight: normal;
-}
