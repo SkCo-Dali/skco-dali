@@ -131,7 +131,9 @@ const UserProfile = () => {
       case "personal":
         return <ProfilePersonalInfo profile={profile} updateProfile={updateProfile} onBack={handleBackToSections} />;
       case "professional":
-        return <ProfileProfessionalInfo profile={profile} updateProfile={updateProfile} onBack={handleBackToSections} />;
+        return (
+          <ProfileProfessionalInfo profile={profile} updateProfile={updateProfile} onBack={handleBackToSections} />
+        );
       case "family":
         return <ProfileFamilyInfo profile={profile} updateProfile={updateProfile} onBack={handleBackToSections} />;
       case "contact":
@@ -313,7 +315,7 @@ const UserProfile = () => {
                 <CardHeader className="border-b pb-4">
                   <div className="flex items-center justify-between">
                     <CardTitle>{sections.find((s) => s.id === activeSection)?.title}</CardTitle>
-                    <ChevronLeft onClick={() => setActiveSection(null)} className="h-5 w-5 text-primary">
+                    <ChevronLeft onClick={() => setActiveSection(null)} className="h-5 w-5 text-primary" />
                   </div>
                 </CardHeader>
                 <CardContent className="p-4">{renderSectionContent()}</CardContent>
