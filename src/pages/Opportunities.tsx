@@ -36,10 +36,10 @@ export const Opportunities: React.FC = () => {
   const [marketAnimation, setMarketAnimation] = React.useState(null);
 
   React.useEffect(() => {
-    fetch('/animations/market_oportunidades.json')
-      .then(res => res.json())
-      .then(data => setMarketAnimation(data))
-      .catch(err => console.error('Error loading market animation:', err));
+    fetch("/animations/market_oportunidades.json")
+      .then((res) => res.json())
+      .then((data) => setMarketAnimation(data))
+      .catch((err) => console.error("Error loading market animation:", err));
   }, []);
 
   const loadData = React.useCallback(async () => {
@@ -166,7 +166,7 @@ export const Opportunities: React.FC = () => {
               </Badge>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+            <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-3">
               {highlightedOpportunities.slice(0, 3).map((opportunity, index) => (
                 <div key={opportunity.id} className="relative">
                   {/* Top Badge */}
@@ -262,14 +262,14 @@ export const Opportunities: React.FC = () => {
               onClick={() => setFilters({ ...filters, onlyFavorites: !filters.onlyFavorites })}
               className="gap-2"
             >
-              <Heart className={`h-4 w-4 ${filters.onlyFavorites ? 'fill-current' : ''}`} />
+              <Heart className={`h-4 w-4 ${filters.onlyFavorites ? "fill-current" : ""}`} />
               Solo favoritos
             </Button>
 
             {/* Type Filter */}
             <Select
               value={filters.type?.[0] || "all"}
-              onValueChange={(value) => 
+              onValueChange={(value) =>
                 setFilters({ ...filters, type: value === "all" ? undefined : [value as OpportunityType] })
               }
             >
@@ -288,7 +288,7 @@ export const Opportunities: React.FC = () => {
             {/* Priority Filter */}
             <Select
               value={filters.priority?.[0] || "all"}
-              onValueChange={(value) => 
+              onValueChange={(value) =>
                 setFilters({ ...filters, priority: value === "all" ? undefined : [value as Priority] })
               }
             >
@@ -305,12 +305,7 @@ export const Opportunities: React.FC = () => {
 
             {/* Clear Filters */}
             {(filters.search || filters.onlyFavorites || filters.type?.length || filters.priority?.length) && (
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={handleClearFilters}
-                className="gap-2"
-              >
+              <Button variant="ghost" size="sm" onClick={handleClearFilters} className="gap-2">
                 <X className="h-4 w-4" />
                 Limpiar filtros
               </Button>
@@ -358,7 +353,6 @@ export const Opportunities: React.FC = () => {
               </div>
             )}
           </div>
-
         </div>
 
         {/* Mobile Filters */}
