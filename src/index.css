@@ -286,14 +286,14 @@
     opacity: 1;
   }
   to {
-    transform: translate(50vw, -85vh) scale(0);
+    transform: translate(-320px, -70px) scale(0);
     opacity: 0;
   }
 }
 
 @keyframes chat-maximize {
   from {
-    transform: translate(50vw, -85vh) scale(0);
+    transform: translate(-320px, -70px) scale(0);
     opacity: 0;
   }
   to {

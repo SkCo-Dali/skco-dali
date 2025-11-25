@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { useSidebar } from "@/components/ui/sidebar";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useAuth } from "@/contexts/AuthContext";
+import { extractFirstName } from "@/utils/nameUtils";
 
 interface HeaderProps {
   onSamiToggle?: () => void;
@@ -13,6 +14,8 @@ export function Header({ onSamiToggle }: HeaderProps = {}) {
   const { toggleSidebar } = useSidebar();
   const isMobile = useIsMobile();
   const { user } = useAuth();
+  
+  const firstName = user?.preferredName || extractFirstName(user?.name) || user?.email?.split('@')[0] || 'Usuario';
 
   return (
     <>
@@ -48,8 +51,14 @@ export function Header({ onSamiToggle }: HeaderProps = {}) {
             )}
           </div>
 
-          {/* Espacio central vacío */}
-          <div className="flex-1"></div>
+          {/* Espacio flexible */}
+          <div className="flex-1 flex items-center justify-end md:justify-start md:ml-4">
+            {!isMobile && (
+              <span className="text-sm font-medium text-foreground">
+                Hola, <span className="text-[#00C73D]">{firstName}</span> 👋
+              </span>
+            )}
+          </div>
 
           {/* Botón Tu Sami y perfil de usuario */}
           <div className="flex items-center space-x-2 md:space-x-3">
