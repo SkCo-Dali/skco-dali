@@ -11,6 +11,7 @@ interface LoadLeadsProgressModalProps {
   loading: boolean;
   leads: Lead[];
   campaignName: string;
+  opportunityId?: string;
   onSendEmails: () => void;
   onGoToLeads: () => void;
 }

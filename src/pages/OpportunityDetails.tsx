@@ -522,6 +522,7 @@ export const OpportunityDetails: React.FC = () => {
         loading={loadingLeads}
         leads={loadedLeads}
         campaignName={campaignName}
+        opportunityId={opportunity?.id}
         onSendEmails={handleSendEmailsFromModal}
         onGoToLeads={handleGoToLeadsModule}
       />
@@ -548,6 +549,7 @@ export const OpportunityDetails: React.FC = () => {
         <DialogContent className="max-w-6xl max-h-[90vh] overflow-auto">
           <MassEmailSender
             filteredLeads={loadedLeads}
+            opportunityId={opportunity ? parseInt(opportunity.id) : undefined}
             onClose={() => {
               setShowEmailSender(false);
               handleBack();
