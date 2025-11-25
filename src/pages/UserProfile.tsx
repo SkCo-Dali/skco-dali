@@ -166,9 +166,9 @@ const UserProfile = () => {
           <span className="text-primary font-medium">Mis datos</span>
         </div>
 
-        <div className="grid grid-cols-8 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-8 gap-6">
           {/* Left Side - Basic Info */}
-          <div className="col-span-3 space-y-6 bg-[#EDFEFA] shadow-md rounded-xl p-4">
+          <div className="col-span-1 md:col-span-3 space-y-6 bg-[#EDFEFA] shadow-md rounded-xl p-4">
             {/* Avatar and Name */}
             <div className="flex flex-col items-center space-y-4">
               <div className="relative">
@@ -248,7 +248,7 @@ const UserProfile = () => {
           </div>
 
           {/* Right Side - Sections */}
-          <div className="col-span-5 space-y-6">
+          <div className="col-span-1 md:col-span-5 space-y-6">
             {!activeSection ? (
               <>
                 {/* Completion Banner */}
