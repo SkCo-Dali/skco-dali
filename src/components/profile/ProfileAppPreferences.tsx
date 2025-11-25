@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
@@ -26,10 +26,13 @@ const availableRoutes = [
 ];
 
 export function ProfileAppPreferences({ profile, updateProfile, onBack }: Props) {
-  const [isEditing, setIsEditing] = useState(false);
   const [localData, setLocalData] = useState(profile);
   const [isSaving, setIsSaving] = useState(false);
   const { getAccessToken } = useAuth();
+
+  const hasChanges = useMemo(() => {
+    return localData.customHomepage !== profile.customHomepage;
+  }, [localData.customHomepage, profile.customHomepage]);
 
   const handleSave = async () => {
     setIsSaving(true);
@@ -48,7 +51,6 @@ export function ProfileAppPreferences({ profile, updateProfile, onBack }: Props)
       });
 
       updateProfile(localData);
-      setIsEditing(false);
       toast.success("Preferencias de aplicación actualizadas");
     } catch (error) {
       console.error('Error saving preferences:', error);
@@ -58,39 +60,15 @@ export function ProfileAppPreferences({ profile, updateProfile, onBack }: Props)
     }
   };
 
-  const handleCancel = () => {
-    setLocalData(profile);
-    setIsEditing(false);
-  };
-
   // Filter routes based on user role if needed
   const filteredRoutes = availableRoutes;
 
   return (
     <div className="space-y-6 animate-fade-in">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-2xl font-semibold">Preferencias de Aplicación</h2>
-          <p className="text-sm text-muted-foreground mt-1">Personaliza tu experiencia en Dali</p>
-        </div>
-        {!isEditing ? (
-          <Button onClick={() => setIsEditing(true)} variant="outline" className="gap-2">
-            <Home className="h-4 w-4" />
-            Editar
-          </Button>
-        ) : (
-          <div className="flex gap-2">
-            <Button onClick={handleCancel} variant="outline" className="gap-2">
-              <X className="h-4 w-4" />
-              Cancelar
-            </Button>
-            <Button onClick={handleSave} className="gap-2" disabled={isSaving}>
-              <Save className="h-4 w-4" />
-              {isSaving ? 'Guardando...' : 'Guardar'}
-            </Button>
-          </div>
-        )}
+      <div>
+        <h2 className="text-2xl font-semibold">Preferencias de Aplicación</h2>
+        <p className="text-sm text-muted-foreground mt-1">Personaliza tu experiencia en Dali</p>
       </div>
 
       {/* Homepage Selection */}
@@ -108,7 +86,6 @@ export function ProfileAppPreferences({ profile, updateProfile, onBack }: Props)
           <Select
             value={localData.customHomepage || localData.primaryAction?.route || "/home"}
             onValueChange={(value) => setLocalData({ ...localData, customHomepage: value })}
-            disabled={!isEditing}
           >
             <SelectTrigger className="w-full">
               <SelectValue placeholder="Selecciona una página" />
@@ -152,6 +129,17 @@ export function ProfileAppPreferences({ profile, updateProfile, onBack }: Props)
           </p>
         </div>
       </Card>
+
+      {/* Action Buttons */}
+      <div className="flex gap-3 justify-end pt-4">
+        <Button onClick={onBack} variant="outline" className="gap-2">
+          Regresar
+        </Button>
+        <Button onClick={handleSave} variant="secondary" className="gap-2" disabled={!hasChanges || isSaving}>
+          <Save className="h-4 w-4" />
+          {isSaving ? 'Guardando...' : 'Guardar'}
+        </Button>
+      </div>
     </div>
   );
 }
