@@ -15,7 +15,7 @@ export function Header({ onSamiToggle }: HeaderProps = {}) {
   const isMobile = useIsMobile();
   const { user } = useAuth();
   
-  const firstName = extractFirstName(user?.name) || user?.email?.split('@')[0] || 'Usuario';
+  const firstName = user?.preferredName || extractFirstName(user?.name) || user?.email?.split('@')[0] || 'Usuario';
 
   return (
     <>
