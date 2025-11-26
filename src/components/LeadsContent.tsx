@@ -171,10 +171,9 @@ export function LeadsContent({
                     <div className="flex items-center gap-2">
                       <div onClick={(e) => e.stopPropagation()}>
                         <Checkbox
-                          key={`selectall-${columnKey}-${allSelected}`}
                           checked={allSelected}
                           onCheckedChange={(checked) => handleSelectAll(checked as boolean)}
-                          className="data-[state=checked]:bg-green-500 data-[state=checked]:border-green-500"
+                          className="border-2 data-[state=checked]:bg-green-500 data-[state=checked]:border-green-500 data-[state=checked]:text-white"
                           aria-label={`Seleccionar todos los leads de ${columnKey}`}
                         />
                       </div>
@@ -190,20 +189,27 @@ export function LeadsContent({
                   
                   {/* Contenedor de tarjetas con scroll */}
                   <div className="bg-gray-50 border-l border-r border-b border-gray-200 rounded-b-lg min-h-[500px] max-h-[600px] overflow-y-auto p-3">
-                    <div className="space-y-4">
-                      {columnState.leads.map((lead) => (
-                        <LeadCard
-                          key={lead.id}
-                          lead={lead}
-                          onClick={() => onLeadClick(lead)}
-                          onEdit={onLeadClick}
-                          onSendEmail={onSendEmail}
-                          onOpenProfiler={handleOpenProfiler}
-                          onLeadUpdate={onLeadUpdate}
-                          isSelected={selectedLeads.includes(lead.id)}
-                          onSelectionChange={(isSelected: boolean) => onLeadSelectionChange([lead.id], isSelected)}
-                        />
-                      ))}
+                     <div className="space-y-4">
+                      {columnState.leads.map((lead) => {
+                        const isLeadSelected = selectedLeads.includes(lead.id);
+                        console.log('🎯 Rendering lead card:', { leadId: lead.id, isLeadSelected, selectedLeads });
+                        return (
+                          <LeadCard
+                            key={lead.id}
+                            lead={lead}
+                            onClick={() => onLeadClick(lead)}
+                            onEdit={onLeadClick}
+                            onSendEmail={onSendEmail}
+                            onOpenProfiler={handleOpenProfiler}
+                            onLeadUpdate={onLeadUpdate}
+                            isSelected={isLeadSelected}
+                            onSelectionChange={(isSelected: boolean) => {
+                              console.log('🔵 Card selection change:', { leadId: lead.id, isSelected });
+                              onLeadSelectionChange([lead.id], isSelected);
+                            }}
+                          />
+                        );
+                      })}
                       {columnState.leads.length === 0 && (
                         <div className="text-center text-gray-500 py-5">
                           <p className="text-sm">No hay leads en esta etapa</p>
