@@ -174,12 +174,13 @@ Por favor, confirmar asistencia.`;
               onClick={(e) => e.stopPropagation()}
             >
               <Checkbox
+                key={`checkbox-${lead.id}-${isSelected}`}
                 checked={isSelected}
                 onCheckedChange={(checked) => {
-                  console.log('📋 Checkbox changed:', { leadId: lead.id, checked, currentIsSelected: isSelected });
+                  console.log('📋 Checkbox toggled:', { leadId: lead.id, newValue: checked, previousValue: isSelected });
                   onSelectionChange?.(checked as boolean);
                 }}
-                className="bg-white border-2 data-[state=checked]:bg-green-500 data-[state=checked]:border-green-500 data-[state=checked]:text-white"
+                className="h-5 w-5 shrink-0 border-2 border-gray-400 bg-white data-[state=checked]:bg-green-500 data-[state=checked]:border-green-500"
                 aria-label={`Seleccionar lead ${lead.name}`}
               />
             </div>
