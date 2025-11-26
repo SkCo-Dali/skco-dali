@@ -170,7 +170,7 @@ export const OpportunityFiltersComponent: React.FC<OpportunityFiltersProps> = ({
           onValueChange={handleCommissionChange}
           max={50000000}
           min={0}
-          step={1000}
+          step={1000000}
           className="w-full"
         />
       </div>
