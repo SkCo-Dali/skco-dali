@@ -1062,7 +1062,7 @@ Notas adicionales: ${lead.notes || "Ninguna"}`;
                 <CardContent className="py-2 px-0 space-y-2">
                   <CardTitle className="flex items-center pt-2">Resultado de la Gestión</CardTitle>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                     <CustomFieldSelect
                       label="Estado Actual"
                       value={editedLead.stage}
@@ -1101,7 +1101,7 @@ Notas adicionales: ${lead.notes || "Ninguna"}`;
                     />
                   </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                     <CustomFieldSelect
                       label="Resultado de Gestión"
                       value={result}
@@ -1127,7 +1127,7 @@ Notas adicionales: ${lead.notes || "Ninguna"}`;
                       ]}
                     />
                   </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                     <div className="space-y-0 border-2 border-[#3d4b5c26] shadow-md rounded-md p-2.5">
                       <Label htmlFor="followUpDate" className="text-sm text-gray-500 font-normal leading-tight">
                         Próximo seguimiento
