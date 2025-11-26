@@ -95,9 +95,9 @@ export const OpportunityFiltersComponent: React.FC<OpportunityFiltersProps> = ({
   const activeFiltersCount = getActiveFiltersCount();
 
   const FilterContent = () => (
-    <div className="space-y-4">
+    <div className="space-y-3">
       {/* Only Favorites */}
-      <div className="space-y-3">
+      <div className="space-y-2">
         <Label className="text-sm font-medium">Filtros especiales</Label>
         <div className="flex items-center space-x-2">
           <Checkbox id="favorites" checked={filters.onlyFavorites || false} onCheckedChange={handleFavoritesToggle} />
@@ -108,9 +108,9 @@ export const OpportunityFiltersComponent: React.FC<OpportunityFiltersProps> = ({
       </div>
 
       {/* Type Filter */}
-      <div className="space-y-3">
+      <div className="space-y-2">
         <Label className="text-sm font-medium">Tipo de oportunidad</Label>
-        <div className="space-y-2">
+        <div className="space-y-1.5">
           {filterOptions.types.map((type) => (
             <div key={type} className="flex items-center space-x-2">
               <Checkbox
@@ -127,9 +127,9 @@ export const OpportunityFiltersComponent: React.FC<OpportunityFiltersProps> = ({
       </div>
 
       {/* Priority Filter */}
-      <div className="space-y-3">
+      <div className="space-y-2">
         <Label className="text-sm font-medium">Prioridad</Label>
-        <div className="space-y-2">
+        <div className="space-y-1.5">
           {filterOptions.priorities.map((priority) => (
             <div key={priority} className="flex items-center space-x-2">
               <Checkbox
@@ -146,7 +146,7 @@ export const OpportunityFiltersComponent: React.FC<OpportunityFiltersProps> = ({
       </div>
 
       {/* Customer Count Range */}
-      <div className="space-y-3">
+      <div className="space-y-2">
         <Label className="text-sm font-medium">
           Número de clientes: {filters.customerCount?.min || 0} - {filters.customerCount?.max || 1500}
         </Label>
@@ -238,7 +238,7 @@ export const OpportunityFiltersComponent: React.FC<OpportunityFiltersProps> = ({
             <SheetHeader>
               <SheetTitle>Filtros</SheetTitle>
             </SheetHeader>
-            <div className="mt-4 max-h-[90%]">
+            <div className="mt-3 overflow-y-auto max-h-[calc(100vh-100px)]">
               <FilterContent />
             </div>
           </SheetContent>
@@ -261,7 +261,7 @@ export const OpportunityFiltersComponent: React.FC<OpportunityFiltersProps> = ({
             <SheetHeader>
               <SheetTitle>Filtros</SheetTitle>
             </SheetHeader>
-            <div className="mt-4 overflow-y-auto max-h-[calc(100vh-120px)]">
+            <div className="mt-3 overflow-y-auto max-h-[calc(100vh-100px)]">
               <FilterContent />
             </div>
           </SheetContent>
