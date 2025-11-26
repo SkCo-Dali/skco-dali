@@ -339,7 +339,7 @@ export const Opportunities: React.FC = () => {
             </div>
           </Card>
         ) : (
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+          <div className="grid grid-cols-2 lg:grid-cols-6 gap-3">
             {opportunities.map((opportunity) => (
               <OpportunityCard
                 key={opportunity.id}
