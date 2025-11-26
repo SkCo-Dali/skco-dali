@@ -160,8 +160,8 @@ export function LeadsContent({
               const allSelected = columnLeadIds.length > 0 && columnLeadIds.every(id => selectedLeads.includes(id));
               const someSelected = columnLeadIds.some(id => selectedLeads.includes(id)) && !allSelected;
 
-              const handleSelectAll = (checked: boolean) => {
-                onLeadSelectionChange(columnLeadIds, checked);
+              const handleSelectAll = (checked: boolean | 'indeterminate') => {
+                onLeadSelectionChange(columnLeadIds, checked === true);
               };
 
               return (
