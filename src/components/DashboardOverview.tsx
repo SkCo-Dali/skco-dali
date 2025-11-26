@@ -147,8 +147,8 @@ export function DashboardOverview({ leads, loading }: DashboardOverviewProps) {
   ];
 
   return (
-    <div className="grid grid-cols-4 gap-4">
-      <div className="col-span-3 space-y-6">
+    <div className="grid grid-cols-1 lg:grid-cols-4 gap-3 sm:gap-4">
+      <div className="col-span-1 lg:col-span-3 space-y-4 sm:space-y-6">
         {/* Banner */}
         <DashboardBanner
           title="¿Ya conoces el nuevo gestor de leads?"
@@ -157,7 +157,7 @@ export function DashboardOverview({ leads, loading }: DashboardOverviewProps) {
           onAction={() => navigate("/leads")}
           variant="primary"
         />
-        <div className="bg-[#fafafa] rounded-xl pb-4 space-y-4 border">
+        <div className="bg-[#fafafa] rounded-xl pb-3 sm:pb-4 space-y-3 sm:space-y-4 border">
           {/* Achievements Section */}
           <AchievementsSection
             points={5000}
@@ -169,9 +169,9 @@ export function DashboardOverview({ leads, loading }: DashboardOverviewProps) {
           />
 
           {/* Metrics and Charts Grid */}
-          <div className="grid grid-cols-1 lg:grid-cols-8 gap-4 px-4">
+          <div className="grid grid-cols-1 lg:grid-cols-8 gap-3 sm:gap-4 px-3 sm:px-4">
             {/* Left Column - Metrics */}
-            <div className="flex flex-col col-span-3 gap-4 h-full">
+            <div className="flex flex-col col-span-1 lg:col-span-3 gap-3 sm:gap-4 h-full">
               <MetricCard
                 title="Total de Leads"
                 value={kpiCounts.loading ? "..." : kpiCounts.totalLeads.toLocaleString()}
@@ -214,7 +214,7 @@ export function DashboardOverview({ leads, loading }: DashboardOverviewProps) {
             </div>
 
             {/* Right Column - Charts */}
-            <div className="flex flex-col col-span-5 gap-4 h-full">
+            <div className="flex flex-col col-span-1 lg:col-span-5 gap-3 sm:gap-4 h-full">
               <CommissionsChart
                 data={commissionsData}
                 totalCommissions="$25M"
@@ -226,8 +226,8 @@ export function DashboardOverview({ leads, loading }: DashboardOverviewProps) {
         </div>
 
         {/* Today's Activities Section */}
-        <div className="bg-transparent mt-4">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 p-0">
+        <div className="bg-transparent mt-3 sm:mt-4">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 p-0">
             <TodayAgenda />
             <MarketDaliOpportunities />
           </div>
@@ -235,7 +235,7 @@ export function DashboardOverview({ leads, loading }: DashboardOverviewProps) {
       </div>
 
       {/* Career Leaderboard - Right Column */}
-      <div className="col-span-1">
+      <div className="col-span-1 order-first lg:order-last mb-4 lg:mb-0">
         <CareerLeaderboard />
       </div>
     </div>
