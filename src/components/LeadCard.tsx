@@ -58,9 +58,6 @@ export function LeadCard({
   isSelected = false,
   onSelectionChange
 }: LeadCardProps) {
-  // Log render state
-  console.log('🟣 LeadCard render:', { leadId: lead.id, isSelected, name: lead.name.substring(0, 20) });
-  
   // Use assignedToName directly from API response - no need for user lookup
   const assignedUserName = lead.assignedToName || 'Sin asignar';
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
@@ -83,14 +80,6 @@ export function LeadCard({
     }
   };
 
-  const handleCheckboxChange = (checked: boolean | 'indeterminate') => {
-    const newChecked = checked === true;
-    console.log('🟢 LeadCard checkbox clicked:', { newChecked, leadId: lead.id, currentIsSelected: isSelected });
-    
-    if (onSelectionChange) {
-      onSelectionChange(newChecked);
-    }
-  };
 
   const handleWhatsAppClick = () => {
     if (lead.phone) {
@@ -183,9 +172,10 @@ Por favor, confirmar asistencia.`;
               onClick={(e) => e.stopPropagation()}
             >
               <Checkbox
-                key={`checkbox-${lead.id}-${isSelected}`}
                 checked={isSelected}
-                onCheckedChange={handleCheckboxChange}
+                onCheckedChange={(checked) => {
+                  onSelectionChange?.(checked === true);
+                }}
                 className="bg-white data-[state=checked]:bg-green-500 data-[state=checked]:border-green-500"
                 aria-label={`Seleccionar lead ${lead.name}`}
               />
