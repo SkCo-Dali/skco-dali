@@ -333,33 +333,33 @@ export function EmailComposer({
   return (
     <>
       <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center justify-between">
-            Composición del Email
-            <div className="flex gap-2">
-              <Button variant="outline" size="sm" onClick={() => setShowTemplatesModal(true)}>
-                <FileText className="h-4 w-4 mr-2" />
-                Plantillas
+        <CardHeader className="pb-3 sm:pb-6">
+          <CardTitle className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+            <span className="text-base sm:text-lg">Composición del Email</span>
+            <div className="flex flex-wrap gap-1.5 sm:gap-2 w-full sm:w-auto">
+              <Button variant="outline" size="sm" onClick={() => setShowTemplatesModal(true)} className="flex-1 sm:flex-none text-xs sm:text-sm px-2 sm:px-3">
+                <FileText className="h-3 w-3 sm:h-4 sm:w-4 sm:mr-2" />
+                <span className="hidden sm:inline">Plantillas</span>
               </Button>
-              <Button variant="outline" size="sm" onClick={() => setShowSignatureDialog(true)}>
-                <FileSignature className="h-4 w-4 mr-2" />
-                Firmas
+              <Button variant="outline" size="sm" onClick={() => setShowSignatureDialog(true)} className="flex-1 sm:flex-none text-xs sm:text-sm px-2 sm:px-3">
+                <FileSignature className="h-3 w-3 sm:h-4 sm:w-4 sm:mr-2" />
+                <span className="hidden sm:inline">Firmas</span>
               </Button>
-              <Button variant="outline" size="sm" onClick={() => setShowFieldsList(!showFieldsList)}>
-                <Plus className="h-4 w-4 mr-2" />
-                Campos Dinámicos
+              <Button variant="outline" size="sm" onClick={() => setShowFieldsList(!showFieldsList)} className="flex-1 sm:flex-none text-xs sm:text-sm px-2 sm:px-3">
+                <Plus className="h-3 w-3 sm:h-4 sm:w-4 sm:mr-2" />
+                <span className="hidden sm:inline">Campos Dinámicos</span>
               </Button>
-              <Button variant="outline" size="sm" onClick={() => setShowSocialNetworks(!showSocialNetworks)}>
-                <Share2 className="h-4 w-4 mr-2" />
-                Redes Sociales
+              <Button variant="outline" size="sm" onClick={() => setShowSocialNetworks(!showSocialNetworks)} className="flex-1 sm:flex-none text-xs sm:text-sm px-2 sm:px-3">
+                <Share2 className="h-3 w-3 sm:h-4 sm:w-4 sm:mr-2" />
+                <span className="hidden sm:inline">Redes Sociales</span>
               </Button>
             </div>
           </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="space-y-3 sm:space-y-4">
           {showFieldsList && (
             <Card className="bg-muted/30">
-              <div className="p-4 space-y-2">
+              <div className="p-3 sm:p-4 space-y-2">
                 {dynamicFields.map((field) => {
                   const colors = getFieldColor(field.key);
                   return (
@@ -368,7 +368,7 @@ export function EmailComposer({
                       draggable
                       onDragStart={handleDragStart(field)}
                       onDragEnd={handleDragEnd}
-                      className="inline-flex items-center px-3 py-1.5 rounded-lg text-sm font-medium cursor-move mr-2 mb-2 transition-transform hover:scale-105"
+                      className="inline-flex items-center px-2 sm:px-3 py-1 sm:py-1.5 rounded-lg text-xs sm:text-sm font-medium cursor-move mr-1.5 sm:mr-2 mb-1.5 sm:mb-2 transition-transform hover:scale-105"
                       style={{
                         backgroundColor: colors.bg,
                         color: colors.text,
@@ -380,7 +380,7 @@ export function EmailComposer({
                   );
                 })}
               </div>
-              <p className="text-sm text-muted-foreground mt-2 px-4 pb-4">
+              <p className="text-xs sm:text-sm text-muted-foreground mt-2 px-3 sm:px-4 pb-3 sm:pb-4">
                 Arrastra los campos al asunto o contenido del email para insertarlos
               </p>
             </Card>
@@ -388,12 +388,12 @@ export function EmailComposer({
 
           {showSocialNetworks && (
             <Card className="bg-muted/30">
-              <div className="p-4 space-y-2">
+              <div className="p-3 sm:p-4 space-y-2">
                 <div
                   draggable
                   onDragStart={handleSocialNetworkDragStart("whatsapp")}
                   onDragEnd={handleSocialNetworkDragEnd}
-                  className="inline-flex items-center px-4 py-2 rounded-lg text-sm font-medium cursor-move mr-2 mb-2 transition-transform hover:scale-105 bg-[#00A859] text-white"
+                  className="inline-flex items-center px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg text-xs sm:text-sm font-medium cursor-move mr-1.5 sm:mr-2 mb-1.5 sm:mb-2 transition-transform hover:scale-105 bg-[#00A859] text-white"
                   title="Arrastra al contenido del email para insertar botón de WhatsApp"
                 >
                   📱 WhatsApp
@@ -402,13 +402,13 @@ export function EmailComposer({
                   draggable
                   onDragStart={handleSocialNetworkDragStart("instagram")}
                   onDragEnd={handleSocialNetworkDragEnd}
-                  className="inline-flex items-center px-4 py-2 rounded-lg text-sm font-medium cursor-move mr-2 mb-2 transition-transform hover:scale-105 bg-gradient-to-r from-purple-500 via-pink-500 to-orange-500 text-white"
+                  className="inline-flex items-center px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg text-xs sm:text-sm font-medium cursor-move mr-1.5 sm:mr-2 mb-1.5 sm:mb-2 transition-transform hover:scale-105 bg-gradient-to-r from-purple-500 via-pink-500 to-orange-500 text-white"
                   title="Arrastra al contenido del email para insertar botón de Instagram"
                 >
                   📸 Instagram
                 </div>
               </div>
-              <p className="text-sm text-muted-foreground mt-2 px-4 pb-4">
+              <p className="text-xs sm:text-sm text-muted-foreground mt-2 px-3 sm:px-4 pb-3 sm:pb-4">
                 Arrastra las redes sociales al contenido del email para insertar botones clicables
               </p>
             </Card>
@@ -465,20 +465,20 @@ export function EmailComposer({
                 editorRef={editorRef}
               />
             </div>
-            <p className="text-sm text-muted-foreground mt-1">
+            <p className="text-xs sm:text-sm text-muted-foreground mt-1">
               Arrastra campos dinámicos o botones de redes sociales aquí para insertarlos
             </p>
           </div>
 
           {attachments.length > 0 && (
             <div className="space-y-2">
-              <Label>Archivos Adjuntos ({attachments.length})</Label>
+              <Label className="text-sm sm:text-base">Archivos Adjuntos ({attachments.length})</Label>
               <div className="space-y-1">
                 {attachments.map((file, index) => (
-                  <div key={index} className="flex items-center justify-between p-2 bg-muted rounded-md text-sm">
+                  <div key={index} className="flex items-center justify-between p-2 bg-muted rounded-md text-xs sm:text-sm">
                     <span className="truncate flex-1">{file.name}</span>
-                    <Button variant="ghost" size="sm" onClick={() => handleRemoveAttachment(index)}>
-                      <X className="h-4 w-4" />
+                    <Button variant="ghost" size="sm" onClick={() => handleRemoveAttachment(index)} className="h-7 w-7 sm:h-8 sm:w-8 p-0">
+                      <X className="h-3 w-3 sm:h-4 sm:w-4" />
                     </Button>
                   </div>
                 ))}
@@ -491,9 +491,11 @@ export function EmailComposer({
               variant="outline"
               onClick={() => setShowSaveTemplateDialog(true)}
               disabled={!template.subject.trim() || !template.htmlContent.trim()}
+              className="w-full sm:w-auto text-xs sm:text-sm"
             >
-              <Save className="h-4 w-4 mr-2" />
-              Guardar como Plantilla
+              <Save className="h-3 w-3 sm:h-4 sm:w-4 sm:mr-2" />
+              <span className="hidden sm:inline">Guardar como Plantilla</span>
+              <span className="sm:hidden">Guardar</span>
             </Button>
           </div>
         </CardContent>
