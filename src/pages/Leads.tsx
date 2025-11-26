@@ -1385,13 +1385,23 @@ export default function Leads() {
         >
           <DialogContent className="max-w-6xl max-h-[90vh] overflow-auto">
             <MassEmailSender
-              filteredLeads={
-                selectedLeadForEmail
+              filteredLeads={(() => {
+                const computed = selectedLeadForEmail
                   ? [selectedLeadForEmail]
                   : selectedLeads.length > 0
                     ? filteredLeads.filter((lead) => selectedLeads.includes(lead.id))
-                    : filteredLeads
-              }
+                    : filteredLeads;
+                
+                console.log('🔴 Opening MassEmail with:', { 
+                  selectedLeadsCount: selectedLeads.length, 
+                  selectedLeads: selectedLeads,
+                  selectedLeadForEmail: !!selectedLeadForEmail,
+                  filteredLeadsCount: filteredLeads.length,
+                  computedLeadsCount: computed.length
+                });
+                
+                return computed;
+              })()}
               onClose={() => {
                 setShowMassEmail(false);
                 setSelectedLeadForEmail(null);
