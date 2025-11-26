@@ -80,10 +80,9 @@ export function LeadCard({
     }
   };
 
-  const handleCheckboxChange = (e: React.MouseEvent) => {
-    e.stopPropagation();
+  const handleCheckboxChange = (checked: boolean) => {
     if (onSelectionChange) {
-      onSelectionChange(!isSelected);
+      onSelectionChange(checked);
     }
   };
 
@@ -172,10 +171,14 @@ Por favor, confirmar asistencia.`;
           </div>
 
           {onSelectionChange && (
-            <div className="absolute top-2 right-2 z-20" data-checkbox onClick={handleCheckboxChange}>
+            <div 
+              className="absolute top-2 right-2 z-20" 
+              data-checkbox 
+              onClick={(e) => e.stopPropagation()}
+            >
               <Checkbox
                 checked={isSelected}
-                onCheckedChange={(checked) => onSelectionChange(!!checked)}
+                onCheckedChange={handleCheckboxChange}
                 className="bg-white data-[state=checked]:bg-green-500 data-[state=checked]:border-green-500"
                 aria-label={`Seleccionar lead ${lead.name}`}
               />
