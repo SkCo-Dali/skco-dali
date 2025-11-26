@@ -173,13 +173,13 @@ export function EmailSignatureDialog({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto sm:p-6 p-4">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            <FileSignature className="w-5 h-5" />
+          <DialogTitle className="flex items-center gap-2 text-base sm:text-lg">
+            <FileSignature className="w-4 h-4 sm:w-5 sm:h-5" />
             Mis Firmas de Correo
           </DialogTitle>
-          <DialogDescription>
+          <DialogDescription className="text-xs sm:text-sm">
             Crea y administra tus firmas de correo electrónico. Puedes copiar tu firma desde Outlook y pegarla aquí.
           </DialogDescription>
         </DialogHeader>
@@ -203,14 +203,15 @@ export function EmailSignatureDialog({
                   signatures.map((signature) => (
                     <div
                       key={signature.name}
-                      className="flex items-center justify-between p-4 border rounded-lg hover:bg-accent/50 transition-colors"
+                      className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-3 sm:p-4 border rounded-lg hover:bg-accent/50 transition-colors"
                     >
-                      <div className="font-medium">{signature.name}</div>
-                      <div className="flex gap-2 ml-4">
+                      <div className="font-medium text-sm sm:text-base truncate">{signature.name}</div>
+                      <div className="flex flex-wrap sm:flex-nowrap gap-2 sm:ml-4">
                         <Button
                           size="sm"
                           variant="outline"
                           onClick={() => handleInsert(signature)}
+                          className="flex-1 sm:flex-none text-xs sm:text-sm px-2 sm:px-3"
                         >
                           Insertar
                         </Button>
@@ -218,6 +219,7 @@ export function EmailSignatureDialog({
                           size="sm"
                           variant="outline"
                           onClick={() => handleEdit(signature)}
+                          className="flex-1 sm:flex-none text-xs sm:text-sm px-2 sm:px-3"
                         >
                           Editar
                         </Button>
@@ -225,6 +227,7 @@ export function EmailSignatureDialog({
                           size="sm"
                           variant="outline"
                           onClick={() => handleDelete(signature.name)}
+                          className="flex-1 sm:flex-none text-xs sm:text-sm px-2 sm:px-3"
                         >
                           Eliminar
                         </Button>
@@ -235,7 +238,7 @@ export function EmailSignatureDialog({
               </div>
 
               <DialogFooter>
-                <Button onClick={handleCreateNew}>
+                <Button onClick={handleCreateNew} className="w-full sm:w-auto">
                   <FileSignature className="w-4 h-4 mr-2" />
                   Crear Nueva Firma
                 </Button>
@@ -270,11 +273,11 @@ export function EmailSignatureDialog({
                 </div>
               </div>
 
-              <DialogFooter className="gap-2">
-                <Button variant="outline" onClick={handleCancel} disabled={saving}>
+              <DialogFooter className="gap-2 flex-col sm:flex-row">
+                <Button variant="outline" onClick={handleCancel} disabled={saving} className="w-full sm:w-auto">
                   Cancelar
                 </Button>
-                <Button onClick={handleSave} disabled={saving}>
+                <Button onClick={handleSave} disabled={saving} className="w-full sm:w-auto">
                   {saving ? (
                     <>
                       <Loader2 className="w-4 h-4 mr-2 animate-spin" />
