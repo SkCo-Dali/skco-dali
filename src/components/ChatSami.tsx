@@ -381,7 +381,7 @@ const ChatSamiContent = forwardRef<ChatSamiHandle, ChatSamiProps>(({ isOpen = fa
       {/* Dialog fullscreen para móviles */}
       {isOpen && isMobile && viewMode !== "maximized" && (
         <Dialog open={isOpen && !isClosing} onOpenChange={handleToggle}>
-          <DialogContent className="max-w-full h-full w-full p-0 m-0 rounded-none flex flex-col">
+          <DialogContent className="max-w-full h-full w-full p-0 m-0 rounded-none flex flex-col" hideCloseButton>
             {/* Header */}
             <div className="flex items-center justify-end bg-[#fafafa] h-14 px-4 shrink-0 border-b">
               <div className="flex items-center gap-1">
