@@ -15,25 +15,26 @@ interface AllLeadsKPICardsProps {
   loading?: boolean;
 }
 
-export function AllLeadsKPICards({ 
-  leads, 
+export function AllLeadsKPICards({
+  leads,
   totalLeads: realTotalLeads,
   newLeadsCount,
   contratoCreadoCount,
   registroVentaCount,
   stageCounts,
-  loading = false
+  loading = false,
 }: AllLeadsKPICardsProps) {
   // Usar valor real del total si está disponible (de pagination.total), sino calcular desde el array local
   const totalLeads = realTotalLeads ?? leads.length;
-  
+
   // Usar conteos reales del API si están disponibles, sino calcular desde el array local
-  const newLeads = newLeadsCount ?? leads.filter(lead => lead.stage === "Nuevo").length;
-  const contratoCreado = contratoCreadoCount ?? leads.filter(lead => lead.stage === "Contrato Creado").length;
-  const registroVenta = registroVentaCount ?? leads.filter(lead => lead.stage === "Registro de Venta (fondeado)").length;
-  
-  const contratoCreadoPercentage = totalLeads > 0 ? ((contratoCreado / totalLeads) * 100).toFixed(1) : '0';
-  const registroVentaPercentage = totalLeads > 0 ? ((registroVenta / totalLeads) * 100).toFixed(1) : '0';
+  const newLeads = newLeadsCount ?? leads.filter((lead) => lead.stage === "Nuevo").length;
+  const contratoCreado = contratoCreadoCount ?? leads.filter((lead) => lead.stage === "Contrato Creado").length;
+  const registroVenta =
+    registroVentaCount ?? leads.filter((lead) => lead.stage === "Registro de Venta (fondeado)").length;
+
+  const contratoCreadoPercentage = totalLeads > 0 ? ((contratoCreado / totalLeads) * 100).toFixed(1) : "0";
+  const registroVentaPercentage = totalLeads > 0 ? ((registroVenta / totalLeads) * 100).toFixed(1) : "0";
 
   if (loading) {
     return (
@@ -56,41 +57,36 @@ export function AllLeadsKPICards({
         icon={Users}
         description="Leads en la base de datos"
       />
-      
+
       <KPICard
         title="Leads Nuevos"
         value={newLeads.toLocaleString()}
         icon={TrendingUp}
         change={`${((newLeads / (totalLeads || 1)) * 100).toFixed(1)}% del total`}
-        changeType={newLeads > 0 ? 'positive' : 'neutral'}
+        changeType={newLeads > 0 ? "positive" : "neutral"}
         description="Leads en estado nuevo"
       />
-      
+
       <KPICard
         title="Contratos Creados"
         value={contratoCreado.toString()}
         icon={CheckCircle}
         change={`${contratoCreadoPercentage}% del total`}
-        changeType={contratoCreado > 0 ? 'positive' : 'neutral'}
+        changeType={contratoCreado > 0 ? "positive" : "neutral"}
         description="Leads con contrato creado"
       />
-      
+
       <KPICard
         title="Ventas Registradas"
         value={registroVenta.toString()}
         icon={DollarSign}
         change={`${registroVentaPercentage}% del total`}
-        changeType={registroVenta > 0 ? 'positive' : 'neutral'}
+        changeType={registroVenta > 0 ? "positive" : "neutral"}
         description="Leads con venta fondeada"
       />
-      
-      <div className="lg:col-span-2">
-        <LeadsStageCard 
-          leads={leads}
-          stageCounts={stageCounts}
-          totalLeads={totalLeads}
-          loading={loading}
-        />
+
+      <div className="col-span-2 lg:col-span-2">
+        <LeadsStageCard leads={leads} stageCounts={stageCounts} totalLeads={totalLeads} loading={loading} />
       </div>
     </div>
   );
