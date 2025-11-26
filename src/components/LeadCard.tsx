@@ -80,9 +80,9 @@ export function LeadCard({
     }
   };
 
-  const handleCheckboxChange = (checked: boolean) => {
+  const handleCheckboxChange = (checked: boolean | 'indeterminate') => {
     if (onSelectionChange) {
-      onSelectionChange(checked);
+      onSelectionChange(checked === true);
     }
   };
 
