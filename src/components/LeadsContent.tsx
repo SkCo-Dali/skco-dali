@@ -161,10 +161,7 @@ export function LeadsContent({
               const someSelected = columnLeadIds.some(id => selectedLeads.includes(id)) && !allSelected;
 
               const handleSelectAll = (checked: boolean | 'indeterminate') => {
-                const newChecked = checked === true;
-                console.log('🔶 Select all clicked:', { newChecked, columnKey, leadCount: columnLeadIds.length, currentAllSelected: allSelected });
-                
-                onLeadSelectionChange(columnLeadIds, newChecked);
+                onLeadSelectionChange(columnLeadIds, checked === true);
               };
 
               return (
