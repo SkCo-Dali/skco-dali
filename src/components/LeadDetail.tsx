@@ -693,7 +693,7 @@ Notas adicionales: ${lead.notes || "Ninguna"}`;
               </DialogTitle>
             </DialogHeader>
 
-            <Tabs defaultValue="general" className="w-full px-4">
+            <Tabs defaultValue="general" className="w-full px-2 lg:px-4">
               <TabsList className="grid w-full grid-cols-3 bg-gray-100 rounded-full px-0 py-0 my-0">
                 <TabsTrigger
                   value="general"
