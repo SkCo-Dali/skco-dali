@@ -161,6 +161,7 @@ export function LeadsContent({
               const someSelected = columnLeadIds.some(id => selectedLeads.includes(id)) && !allSelected;
 
               const handleSelectAll = (checked: boolean | 'indeterminate') => {
+                console.log('🔶 Select all checkbox changed:', { checked, columnKey, leadCount: columnLeadIds.length });
                 onLeadSelectionChange(columnLeadIds, checked === true);
               };
 

@@ -81,6 +81,7 @@ export function LeadCard({
   };
 
   const handleCheckboxChange = (checked: boolean | 'indeterminate') => {
+    console.log('🟢 LeadCard checkbox changed:', { checked, leadId: lead.id, currentIsSelected: isSelected });
     if (onSelectionChange) {
       onSelectionChange(checked === true);
     }
