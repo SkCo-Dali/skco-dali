@@ -693,7 +693,7 @@ Notas adicionales: ${lead.notes || "Ninguna"}`;
               </DialogTitle>
             </DialogHeader>
 
-            <Tabs defaultValue="general" className="w-full px-6">
+            <Tabs defaultValue="general" className="w-full px-4">
               <TabsList className="grid w-full grid-cols-3 bg-gray-100 rounded-full px-0 py-0 my-0">
                 <TabsTrigger
                   value="general"
@@ -1277,7 +1277,7 @@ Notas adicionales: ${lead.notes || "Ninguna"}`;
                                 </p>
                               ) : (
                                 <div className="space-y-3">
-                                   {clientLead.Interactions.map((interaction) => (
+                                  {clientLead.Interactions.map((interaction) => (
                                     <div
                                       key={interaction.Id}
                                       className="flex items-start gap-3 p-3 bg-gray-50 rounded-xl"
@@ -1295,33 +1295,33 @@ Notas adicionales: ${lead.notes || "Ninguna"}`;
                                           <h5 className="text-sm font-medium">
                                             {interaction.Description || "Sin título"}
                                           </h5>
-                                           <div className="flex items-center gap-2">
-                                             {interaction.UserName && (
-                                               <Badge variant="outline" className="text-xs">
-                                                 {interaction.UserName}
-                                               </Badge>
-                                             )}
-                                             {user?.id === interaction.UserId && (
-                                               <>
-                                                 <Button
-                                                   variant="ghost"
-                                                   size="sm"
-                                                   onClick={() => handleEditInteraction(interaction)}
-                                                   className="h-6 w-6 p-0"
-                                                 >
-                                                   <Pencil className="h-3 w-3" />
-                                                 </Button>
-                                                 <Button
-                                                   variant="ghost"
-                                                   size="sm"
-                                                   onClick={() => handleDeleteInteraction(interaction)}
-                                                   className="h-6 w-6 p-0 text-destructive hover:text-destructive"
-                                                 >
-                                                   <Trash2 className="h-3 w-3" />
-                                                 </Button>
-                                               </>
-                                             )}
-                                           </div>
+                                          <div className="flex items-center gap-2">
+                                            {interaction.UserName && (
+                                              <Badge variant="outline" className="text-xs">
+                                                {interaction.UserName}
+                                              </Badge>
+                                            )}
+                                            {user?.id === interaction.UserId && (
+                                              <>
+                                                <Button
+                                                  variant="ghost"
+                                                  size="sm"
+                                                  onClick={() => handleEditInteraction(interaction)}
+                                                  className="h-6 w-6 p-0"
+                                                >
+                                                  <Pencil className="h-3 w-3" />
+                                                </Button>
+                                                <Button
+                                                  variant="ghost"
+                                                  size="sm"
+                                                  onClick={() => handleDeleteInteraction(interaction)}
+                                                  className="h-6 w-6 p-0 text-destructive hover:text-destructive"
+                                                >
+                                                  <Trash2 className="h-3 w-3" />
+                                                </Button>
+                                              </>
+                                            )}
+                                          </div>
                                         </div>
                                         <div className="flex items-center gap-2 mt-1 text-xs text-muted-foreground flex-wrap">
                                           <span>Tipo: {interaction.Type}</span>
@@ -1372,33 +1372,33 @@ Notas adicionales: ${lead.notes || "Ninguna"}`;
                                       <div className="flex-1">
                                         <div className="flex items-center justify-between mb-2">
                                           <h4 className="font-medium">{interaction.Description || "Sin título"}</h4>
-                                           <div className="flex items-center gap-2">
-                                             {interaction.UserName && (
-                                               <Badge variant="outline" className="text-xs">
-                                                 {interaction.UserName}
-                                               </Badge>
-                                             )}
-                                             {user?.id === interaction.UserId && (
-                                               <>
-                                                 <Button
-                                                   variant="ghost"
-                                                   size="sm"
-                                                   onClick={() => handleEditInteraction(interaction)}
-                                                   className="h-7 w-7 p-0"
-                                                 >
-                                                   <Pencil className="h-4 w-4" />
-                                                 </Button>
-                                                 <Button
-                                                   variant="ghost"
-                                                   size="sm"
-                                                   onClick={() => handleDeleteInteraction(interaction)}
-                                                   className="h-7 w-7 p-0 text-destructive hover:text-destructive"
-                                                 >
-                                                   <Trash2 className="h-4 w-4" />
-                                                 </Button>
-                                               </>
-                                             )}
-                                           </div>
+                                          <div className="flex items-center gap-2">
+                                            {interaction.UserName && (
+                                              <Badge variant="outline" className="text-xs">
+                                                {interaction.UserName}
+                                              </Badge>
+                                            )}
+                                            {user?.id === interaction.UserId && (
+                                              <>
+                                                <Button
+                                                  variant="ghost"
+                                                  size="sm"
+                                                  onClick={() => handleEditInteraction(interaction)}
+                                                  className="h-7 w-7 p-0"
+                                                >
+                                                  <Pencil className="h-4 w-4" />
+                                                </Button>
+                                                <Button
+                                                  variant="ghost"
+                                                  size="sm"
+                                                  onClick={() => handleDeleteInteraction(interaction)}
+                                                  className="h-7 w-7 p-0 text-destructive hover:text-destructive"
+                                                >
+                                                  <Trash2 className="h-4 w-4" />
+                                                </Button>
+                                              </>
+                                            )}
+                                          </div>
                                         </div>
                                         <div className="flex items-center gap-3 mt-2 text-xs text-muted-foreground flex-wrap">
                                           <span>Tipo: {interaction.Type}</span>
