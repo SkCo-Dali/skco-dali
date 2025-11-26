@@ -144,7 +144,9 @@ export const Opportunities: React.FC = () => {
                 <div className="flex items-center justify-center mb-0.5 sm:mb-1">
                   <TrendingUp className="h-3 w-3 sm:h-4 sm:w-4 text-green-500" />
                 </div>
-                <div className="text-base sm:text-xl font-bold">${stats.totalCommissionPotential?.toLocaleString() || "0"}</div>
+                <div className="text-base sm:text-xl font-bold">
+                  ${stats.totalCommissionPotential?.toLocaleString() || "0"}
+                </div>
                 <div className="text-[10px] sm:text-xs text-muted-foreground">Comisiones Potenciales</div>
               </CardContent>
             </Card>
@@ -161,7 +163,7 @@ export const Opportunities: React.FC = () => {
               </Badge>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+            <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
               {highlightedOpportunities.slice(0, 3).map((opportunity, index) => (
                 <div key={opportunity.id} className="relative mx-auto w-full max-w-[280px]">
                   {/* Top Badge */}
@@ -186,7 +188,6 @@ export const Opportunities: React.FC = () => {
             </div>
           </div>
         )}
-
 
         {/* All Opportunities Section with Sidebar */}
         <div className="mb-3 sm:mb-4">
@@ -235,7 +236,7 @@ export const Opportunities: React.FC = () => {
             </div>
           </Card>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4 justify-items-center">
+          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4 justify-items-center">
             {opportunities.map((opportunity) => (
               <OpportunityCard
                 key={opportunity.id}
@@ -246,7 +247,6 @@ export const Opportunities: React.FC = () => {
             ))}
           </div>
         )}
-
       </div>
     </div>
   );
