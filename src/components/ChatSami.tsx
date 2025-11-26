@@ -522,14 +522,14 @@ const ChatSamiContent = forwardRef<ChatSamiHandle, ChatSamiProps>(({ isOpen = fa
       {/* Panel desde arriba para desktop */}
       {isOpen && !isMobile && viewMode !== "maximized" && (
         <div 
-          className={`fixed top-20 left-0 right-0 h-[500px] border-b bg-background shadow-lg flex flex-col z-30 ${
+          className={`fixed top-20 right-0 bottom-0 w-[360px] border-l bg-background shadow-none flex flex-col z-30 ${
             isClosing ? 'animate-slide-out-up' : 'animate-slide-in-down'
           }`}
         >
           {/* Header */}
-          <div className="flex items-center justify-between bg-[#fafafa] h-14 px-4 shrink-0 border-b">
+          <div className="flex items-center justify-between bg-[#fafafa] h-18 mb-2 p-2 shrink-0">
             <h2 className="text-lg font-semibold text-foreground">Dali</h2>
-            <div className="flex items-center gap-1">
+            <div className="flex items-end gap-1">
               <Button
                 variant="ghost"
                 size="icon"
@@ -557,89 +557,86 @@ const ChatSamiContent = forwardRef<ChatSamiHandle, ChatSamiProps>(({ isOpen = fa
             </div>
           </div>
 
-          {/* Container horizontal */}
-          <div className="flex-1 min-h-0 flex flex-row">
-            {/* Tip del día - sidebar izquierdo */}
-            <div className="w-80 px-4 py-3 space-y-3 shrink-0 border-r">
-              <div className="flex items-center gap-2 bg-[#e8f5e9] rounded-full p-2">
-                <div className="shrink-0 bg-black rounded-full p-1.5">
-                  <Lightbulb className="h-4 w-4 text-[#00c83c]" />
-                </div>
-                <span className="text-sm font-medium text-foreground">Oportunidad de hoy✨</span>
+          {/* Tip del día */}
+          <div className="px-4 pb-4 space-y-3 shrink-0 border-b">
+            <div className="flex items-center gap-2 bg-[#e8f5e9] rounded-full p-2">
+              <div className="shrink-0 bg-black rounded-full p-1.5">
+                <Lightbulb className="h-4 w-4 text-[#00c83c]" />
               </div>
-
-              {opportunityLoading ? (
-                <div className="space-y-2 border rounded-xl p-3">
-                  <p className="text-sm text-muted-foreground">Cargando oportunidad...</p>
-                </div>
-              ) : topOpportunity ? (
-                <div className="space-y-2 border rounded-xl p-3">
-                  <p className="text-sm font-semibold text-foreground">{topOpportunity.title}</p>
-                  <p className="text-xs text-muted-foreground">
-                    Comisiones Potenciales{" "}
-                    <span className="font-semibold">
-                      ${topOpportunity.metrics?.estimatedSales?.toLocaleString() || "N/A"}
-                    </span>
-                  </p>
-                  <button
-                    onClick={handleViewOpportunity}
-                    className="w-full text-sm text-center text-secondary font-medium hover:underline"
-                  >
-                    Ver Oportunidad
-                  </button>
-                </div>
-              ) : (
-                <div className="space-y-2 border rounded-xl p-3">
-                  <p className="text-sm text-muted-foreground">No hay oportunidades disponibles</p>
-                </div>
-              )}
+              <span className="text-sm font-medium text-foreground">Oportunidad de hoy✨</span>
             </div>
 
-            {/* Chat Dali - área principal */}
-            <div className="flex-1 min-h-0 flex flex-col">
-              {/* Messages area */}
-              <div ref={messagesContainerRef} className="flex-1 overflow-y-auto p-4 space-y-3">
-                {messages.length === 0 ? (
-                  <div className="flex items-center justify-center h-full">
-                    <p className="text-sm text-muted-foreground">Hola, ¡Qué gusto volver a hablar contigo!</p>
-                  </div>
-                ) : (
-                  messages.map((msg) => <SimpleMessage key={msg.id} message={msg} />)
-                )}
-                <div ref={messagesEndRef} />
+            {opportunityLoading ? (
+              <div className="space-y-2 border rounded-xl p-3">
+                <p className="text-sm text-muted-foreground">Cargando oportunidad...</p>
               </div>
+            ) : topOpportunity ? (
+              <div className="space-y-2 border rounded-xl p-3">
+                <p className="text-sm font-semibold text-foreground">{topOpportunity.title}</p>
+                <p className="text-xs text-muted-foreground">
+                  Comisiones Potenciales{" "}
+                  <span className="font-semibold">
+                    ${topOpportunity.metrics?.estimatedSales?.toLocaleString() || "N/A"}
+                  </span>
+                </p>
+                <button
+                  onClick={handleViewOpportunity}
+                  className="w-full text-sm text-center text-secondary font-medium hover:underline"
+                >
+                  Ver Oportunidad
+                </button>
+              </div>
+            ) : (
+              <div className="space-y-2 border rounded-xl p-3">
+                <p className="text-sm text-muted-foreground">No hay oportunidades disponibles</p>
+              </div>
+            )}
+          </div>
 
-              {/* Input area */}
-              <div className="p-3 border-t shrink-0">
-                <div className="relative">
-                  <Textarea
-                    ref={textareaRef}
-                    value={inputMessage}
-                    onChange={(e) => setInputMessage(e.target.value)}
-                    onKeyDown={handleKeyDown}
-                    placeholder={isLoading ? "Enviando..." : "Escribe tu mensaje..."}
-                    disabled={isLoading}
-                    className="w-full resize-none transition-all duration-200 bg-background border-input focus:border-ring focus:ring-1 focus:ring-ring rounded-2xl min-h-[44px] text-sm pr-12"
-                    rows={1}
-                    style={{
-                      height: "44px",
-                      fontSize: "14px",
-                      paddingRight: inputMessage.trim() ? "52px" : "12px",
-                    }}
-                  />
-
-                  {inputMessage.trim() && (
-                    <Button
-                      onClick={handleSendMessage}
-                      disabled={isLoading}
-                      variant="ghost"
-                      className="absolute right-2 top-1/2 -translate-y-1/2 text-primary hover:text-primary hover:bg-primary/10 flex-shrink-0 h-[36px] w-[36px]"
-                      size="icon"
-                    >
-                      <Send className="h-3.5 w-3.5" />
-                    </Button>
-                  )}
+          {/* Chat Dali */}
+          <div className="flex-1 min-h-0 flex flex-col">
+            {/* Messages area */}
+            <div ref={messagesContainerRef} className="flex-1 overflow-y-auto p-4 space-y-3">
+              {messages.length === 0 ? (
+                <div className="flex items-center justify-center h-full">
+                  <p className="text-sm text-muted-foreground">Hola, ¡Qué gusto volver a hablar contigo!</p>
                 </div>
+              ) : (
+                messages.map((msg) => <SimpleMessage key={msg.id} message={msg} />)
+              )}
+              <div ref={messagesEndRef} />
+            </div>
+
+            {/* Input area */}
+            <div className="p-3 border-t shrink-0">
+              <div className="relative">
+                <Textarea
+                  ref={textareaRef}
+                  value={inputMessage}
+                  onChange={(e) => setInputMessage(e.target.value)}
+                  onKeyDown={handleKeyDown}
+                  placeholder={isLoading ? "Enviando..." : "Escribe tu mensaje..."}
+                  disabled={isLoading}
+                  className="w-full resize-none transition-all duration-200 bg-background border-input focus:border-ring focus:ring-1 focus:ring-ring rounded-2xl min-h-[44px] text-sm pr-12"
+                  rows={1}
+                  style={{
+                    height: "44px",
+                    fontSize: "14px",
+                    paddingRight: inputMessage.trim() ? "52px" : "12px",
+                  }}
+                />
+
+                {inputMessage.trim() && (
+                  <Button
+                    onClick={handleSendMessage}
+                    disabled={isLoading}
+                    variant="ghost"
+                    className="absolute right-2 top-1/2 -translate-y-1/2 text-primary hover:text-primary hover:bg-primary/10 flex-shrink-0 h-[36px] w-[36px]"
+                    size="icon"
+                  >
+                    <Send className="h-3.5 w-3.5" />
+                  </Button>
+                )}
               </div>
             </div>
           </div>
