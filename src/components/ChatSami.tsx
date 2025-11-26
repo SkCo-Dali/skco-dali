@@ -383,8 +383,7 @@ const ChatSamiContent = forwardRef<ChatSamiHandle, ChatSamiProps>(({ isOpen = fa
         <Dialog open={isOpen && !isClosing} onOpenChange={handleToggle}>
           <DialogContent className="max-w-full h-full w-full p-0 m-0 rounded-none flex flex-col">
             {/* Header */}
-            <div className="flex items-center justify-between bg-[#fafafa] h-14 px-4 shrink-0 border-b">
-              <h2 className="text-lg font-semibold text-foreground">Dali</h2>
+            <div className="flex items-center justify-end bg-[#fafafa] h-14 px-4 shrink-0 border-b">
               <div className="flex items-center gap-1">
                 <Button
                   variant="ghost"
