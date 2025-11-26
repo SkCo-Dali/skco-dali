@@ -1059,7 +1059,7 @@ Notas adicionales: ${lead.notes || "Ninguna"}`;
 
               {/* Tab Gestión */}
               <TabsContent value="management" className="space-y-6">
-                <CardContent className="py-2 px-0 space-y-2">
+                <CardContent className="py-2 px-0 sm:px-0 space-y-2">
                   <CardTitle className="flex items-center pt-2">Resultado de la Gestión</CardTitle>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
@@ -1151,9 +1151,9 @@ Notas adicionales: ${lead.notes || "Ninguna"}`;
                       rows={3}
                     />
                   </div>
-                  <div className="flex w-full items-center gap-2">
+                  <div className="flex w-full items-center gap-1 sm:gap-2 flex-wrap sm:flex-nowrap">
                     {/* Izquierda */}
-                    <Button size="icon" onClick={() => onOpenMassEmail?.(lead)} className="w-8 h-8">
+                    <Button size="icon" onClick={() => onOpenMassEmail?.(lead)} className="w-8 h-8 shrink-0">
                       <Mail className="h-3 w-3" />
                     </Button>
 
@@ -1171,7 +1171,7 @@ Notas adicionales: ${lead.notes || "Ninguna"}`;
                           });
                         }
                       }}
-                      className="w-8 h-8"
+                      className="w-8 h-8 shrink-0"
                       title="WhatsApp"
                     >
                       <FaWhatsapp className="h-3 w-3" />
@@ -1180,13 +1180,13 @@ Notas adicionales: ${lead.notes || "Ninguna"}`;
                     <Button
                       size="icon"
                       onClick={handleScheduleOutlookMeeting}
-                      className="w-8 h-8"
+                      className="w-8 h-8 shrink-0"
                       title="Agendar reunión en Outlook"
                     >
                       <Calendar className="h-3 w-3" />
                     </Button>
 
-                    <Button onClick={handleProfilerClick} className="h-8 bg-primary text-white">
+                    <Button onClick={handleProfilerClick} className="h-8 bg-primary text-white text-xs sm:text-sm px-2 sm:px-4 shrink-0">
                       {hasExistingProfile && profileData ? "Perfilar Lead" : "Perfilar Lead"}
                     </Button>
 
@@ -1194,7 +1194,7 @@ Notas adicionales: ${lead.notes || "Ninguna"}`;
                     <Button
                       onClick={handleSaveManagement}
                       disabled={!managementChanges || !contactMethod || !result || !managementNotes}
-                      className="ml-auto h-8 bg-primary text-white"
+                      className="ml-auto h-8 bg-primary text-white text-xs sm:text-sm px-2 sm:px-4 shrink-0"
                     >
                       Guardar Gestión
                     </Button>
