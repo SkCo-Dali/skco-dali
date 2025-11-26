@@ -134,48 +134,49 @@ export function ComposerWAPropio({ leads, onBack, onSend }: ComposerWAPropioProp
   const isLongMessage = characterCount > 900;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+        <div className="flex items-center gap-2 sm:gap-3 w-full sm:w-auto">
           <Button
             onClick={onBack}
             variant="ghost"
             size="sm"
-            className="pl-0"
+            className="pl-0 shrink-0"
           >
-            <ArrowLeft className="h-4 w-4 mr-1" />
-            Volver
+            <ArrowLeft className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
+            <span className="text-xs sm:text-sm">Volver</span>
           </Button>
-          <div>
-            <h1 className="text-2xl font-bold flex items-center gap-2">
-              <MessageSquare className="h-6 w-6 text-[#25D366]" />
-              Envío por WhatsApp (tu número)
+          <div className="min-w-0 flex-1">
+            <h1 className="text-base sm:text-2xl font-bold flex items-center gap-1.5 sm:gap-2">
+              <MessageSquare className="h-4 w-4 sm:h-6 sm:w-6 text-[#25D366] shrink-0" />
+              <span className="truncate">Envío por WhatsApp</span>
             </h1>
           </div>
         </div>
         
-        <div className="flex items-center gap-2">
-          <Badge variant="secondary" className="flex items-center gap-1">
+        <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 w-full sm:w-auto">
+          <Badge variant="secondary" className="flex items-center gap-1 text-xs">
             <Users className="h-3 w-3" />
-            {leads.length} leads seleccionados
+            {leads.length} leads
           </Badge>
-          <Badge variant="outline" className="flex items-center gap-1">
+          <Badge variant="outline" className="flex items-center gap-1 text-xs">
             <Clock className="h-3 w-3" />
-            Sugerido: máx. {suggestedLimit}/día
+            <span className="hidden sm:inline">Sugerido: máx. {suggestedLimit}/día</span>
+            <span className="sm:hidden">Máx. {suggestedLimit}/día</span>
           </Badge>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
         {/* Columna izquierda: Composición */}
-        <div className="lg:col-span-2 space-y-6">
+        <div className="lg:col-span-2 space-y-4 sm:space-y-6">
           {/* Composición del mensaje */}
           <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">Composición del Mensaje</CardTitle>
+            <CardHeader className="pb-3 sm:pb-6">
+              <CardTitle className="text-base sm:text-lg">Composición del Mensaje</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-3 sm:space-y-4">
               <PlaceholdersBar onInsertPlaceholder={insertPlaceholder} />
               
               <div className="space-y-2">
@@ -184,14 +185,15 @@ export function ComposerWAPropio({ leads, onBack, onSend }: ComposerWAPropioProp
                   placeholder="Escribe tu mensaje aquí... Puedes usar {name}, {company}, {email}, {phone} para personalizar"
                   value={message}
                   onChange={(e) => setMessage(e.target.value)}
-                  className="min-h-[120px] resize-none"
+                  className="min-h-[100px] sm:min-h-[120px] resize-none text-sm sm:text-base"
                 />
-                <div className="flex justify-between items-center text-sm text-muted-foreground">
+                <div className="flex justify-between items-center text-xs sm:text-sm text-muted-foreground">
                   <span>{characterCount} caracteres</span>
                   {isLongMessage && (
                     <span className="flex items-center gap-1 text-yellow-600">
                       <AlertCircle className="h-3 w-3" />
-                      Mensaje largo (puede dividirse)
+                      <span className="hidden sm:inline">Mensaje largo (puede dividirse)</span>
+                      <span className="sm:hidden">Largo</span>
                     </span>
                   )}
                 </div>
@@ -214,15 +216,16 @@ export function ComposerWAPropio({ leads, onBack, onSend }: ComposerWAPropioProp
 
           {/* Previsualización */}
           <Card>
-            <CardHeader>
-              <CardTitle className="text-lg flex items-center justify-between">
+            <CardHeader className="pb-3 sm:pb-6">
+              <CardTitle className="text-base sm:text-lg flex items-center justify-between">
                 Previsualización
                 <Button
                   onClick={() => setShowPreview(!showPreview)}
                   variant="outline"
                   size="sm"
+                  className="text-xs sm:text-sm"
                 >
-                  <Eye className="h-4 w-4 mr-1" />
+                  <Eye className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
                   {showPreview ? 'Ocultar' : 'Ver todo'}
                 </Button>
               </CardTitle>
@@ -239,12 +242,12 @@ export function ComposerWAPropio({ leads, onBack, onSend }: ComposerWAPropioProp
 
           {/* Parámetros de envío */}
           <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">Parámetros de Envío</CardTitle>
+            <CardHeader className="pb-3 sm:pb-6">
+              <CardTitle className="text-base sm:text-lg">Parámetros de Envío</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-6">
+            <CardContent className="space-y-4 sm:space-y-6">
               <div className="space-y-3">
-                <Label className="text-sm font-medium">
+                <Label className="text-xs sm:text-sm font-medium">
                   Velocidad: {throttlePerMinute} mensajes por minuto
                 </Label>
                 <Slider
@@ -262,7 +265,7 @@ export function ComposerWAPropio({ leads, onBack, onSend }: ComposerWAPropioProp
 
               <div className="flex items-center justify-between">
                 <div className="space-y-0.5">
-                  <Label className="text-sm font-medium">Jitter aleatorio</Label>
+                  <Label className="text-xs sm:text-sm font-medium">Jitter aleatorio</Label>
                   <p className="text-xs text-muted-foreground">
                     Variar tiempo entre mensajes (2-5 segundos)
                   </p>
@@ -275,7 +278,7 @@ export function ComposerWAPropio({ leads, onBack, onSend }: ComposerWAPropioProp
 
               <div className="flex items-center justify-between">
                 <div className="space-y-0.5">
-                  <Label className="text-sm font-medium">Modo de prueba</Label>
+                  <Label className="text-xs sm:text-sm font-medium">Modo de prueba</Label>
                   <p className="text-xs text-muted-foreground">
                     Enviar solo a los primeros 3 contactos
                   </p>
@@ -290,15 +293,15 @@ export function ComposerWAPropio({ leads, onBack, onSend }: ComposerWAPropioProp
         </div>
 
         {/* Columna derecha: Requisitos */}
-        <div className="space-y-6">
+        <div className="space-y-4 sm:space-y-6">
           <RequirementsChecklist
             onValidationChange={setRequirementsValid}
           />
 
           {/* Nota de seguridad */}
           <Card className="bg-blue-50 border-blue-200">
-            <CardContent className="pt-4">
-              <p className="text-sm text-blue-800">
+            <CardContent className="pt-3 sm:pt-4">
+              <p className="text-xs sm:text-sm text-blue-800">
                 <strong>Seguridad y privacidad:</strong> Dali no accede a tus 
                 conversaciones ni a tu cuenta. La extensión solo automatiza 
                 la escritura y el clic de envío en WhatsApp Web abierto por ti 
@@ -310,28 +313,29 @@ export function ComposerWAPropio({ leads, onBack, onSend }: ComposerWAPropioProp
       </div>
 
       {/* Footer de acciones */}
-      <div className="flex justify-between items-center pt-4 border-t bg-background sticky bottom-0 py-4">
-        <div className="text-sm text-muted-foreground">
+      <div className="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-3 pt-4 border-t bg-background sticky bottom-0 py-3 sm:py-4">
+        <div className="text-xs sm:text-sm text-muted-foreground text-center sm:text-left">
           {validLeads.length} mensajes listos • 
           {dryRun ? ' Modo prueba (3 contactos)' : ` Envío completo`}
         </div>
         
-        <div className="flex gap-2">
+        <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
           <Button
             onClick={() => setShowPreview(true)}
             variant="outline"
             disabled={validLeads.length === 0 || !message.trim()}
+            className="w-full sm:w-auto text-xs sm:text-sm"
           >
-            <Eye className="h-4 w-4 mr-2" />
+            <Eye className="h-3 w-3 sm:h-4 sm:w-4 mr-2" />
             Previsualizar
           </Button>
           
           <Button
             onClick={handleSend}
             disabled={!canSend()}
-            className="bg-[#25D366] hover:bg-[#25D366]/90"
+            className="w-full sm:w-auto bg-[#25D366] hover:bg-[#25D366]/90 text-xs sm:text-sm"
           >
-            <Send className="h-4 w-4 mr-2" />
+            <Send className="h-3 w-3 sm:h-4 sm:w-4 mr-2" />
             {dryRun ? 'Enviar Prueba' : 'Enviar WhatsApp'}
           </Button>
         </div>
