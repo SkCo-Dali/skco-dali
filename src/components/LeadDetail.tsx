@@ -728,7 +728,7 @@ Notas adicionales: ${lead.notes || "Ninguna"}`;
                       <Input
                         value={capitalizeWords(editedLead.name || "")}
                         onChange={(e) => handleGeneralChange("name", capitalizeWords(e.target.value))}
-                        className="border-0 border-b border-gray-200 rounded-none px-0 py-0 m-0 text-base font-medium bg-transparent leading-none h-auto min-h-0 focus:border-gray-400 focus:shadow-none focus:ring-0"
+                        className="border-0 border-b border-gray-200 rounded-none px-0 py-0 m-0 text-sm font-medium bg-transparent leading-none h-auto min-h-0 focus:border-gray-400 focus:shadow-none focus:ring-0"
                       />
                     </div>
                     <div className="space-y-0 border-2 border-[#3d4b5c26] shadow-md rounded-md p-2.5">
@@ -738,7 +738,7 @@ Notas adicionales: ${lead.notes || "Ninguna"}`;
                           <Input
                             value={capitalizeWords(editedLead.firstName || "")}
                             disabled
-                            className="border-0 border-b border-gray-200 rounded-none px-0 py-0 m-0 text-base font-medium bg-transparent leading-none h-auto min-h-0 focus:border-gray-400 focus:shadow-none focus:ring-0 cursor-not-allowed opacity-70"
+                            className="border-0 border-b border-gray-200 rounded-none px-0 py-0 m-0 text-sm font-medium bg-transparent leading-none h-auto min-h-0 focus:border-gray-400 focus:shadow-none focus:ring-0 cursor-not-allowed opacity-70"
                           />
                         </TooltipTrigger>
                         <TooltipContent>
@@ -768,7 +768,7 @@ Notas adicionales: ${lead.notes || "Ninguna"}`;
                         type="text"
                         value={editedLead.documentNumber || ""}
                         onChange={(e) => handleDocumentNumberChange(e.target.value)}
-                        className="border-0 border-b border-gray-200 rounded-none px-0 py-0 m-0 text-base font-medium bg-transparent leading-none h-auto min-h-0 focus:border-gray-400 focus:shadow-none focus:ring-0"
+                        className="border-0 border-b border-gray-200 rounded-none px-0 py-0 m-0 text-sm font-medium bg-transparent leading-none h-auto min-h-0 focus:border-gray-400 focus:shadow-none focus:ring-0"
                       />
                     </div>
                   </div>
@@ -780,7 +780,7 @@ Notas adicionales: ${lead.notes || "Ninguna"}`;
                         type="text"
                         value={editedLead.age || ""}
                         onChange={(e) => handleAgeChange(e.target.value)}
-                        className="border-0 border-b border-gray-200 rounded-none px-0 py-0 m-0 text-base font-medium bg-transparent leading-none h-auto min-h-0 focus:border-gray-400 focus:shadow-none focus:ring-0"
+                        className="border-0 border-b border-gray-200 rounded-none px-0 py-0 m-0 text-sm font-medium bg-transparent leading-none h-auto min-h-0 focus:border-gray-400 focus:shadow-none focus:ring-0"
                       />
                     </div>
 
@@ -804,7 +804,7 @@ Notas adicionales: ${lead.notes || "Ninguna"}`;
                         type="email"
                         value={(editedLead.email || "").toLowerCase()}
                         onChange={(e) => handleEmailChange(e.target.value)}
-                        className={`border-0 border-b border-gray-200 rounded-none px-0 py-0 m-0 text-base font-medium bg-transparent leading-none h-auto min-h-0 focus:border-gray-400 focus:shadow-none focus:ring-0 ${editedLead.email && !isValidEmail(editedLead.email) ? "border-red-500" : ""}`}
+                        className={`border-0 border-b border-gray-200 rounded-none px-0 py-0 m-0 text-sm font-medium bg-transparent leading-none h-auto min-h-0 focus:border-gray-400 focus:shadow-none focus:ring-0 ${editedLead.email && !isValidEmail(editedLead.email) ? "border-red-500" : ""}`}
                       />
                       {editedLead.email && !isValidEmail(editedLead.email) && (
                         <p className="text-red-500 text-xs mt-1">Formato de correo inválido</p>
@@ -816,7 +816,7 @@ Notas adicionales: ${lead.notes || "Ninguna"}`;
                         type="email"
                         value={(editedLead.alternateEmail || "").toLowerCase()}
                         onChange={(e) => handleGeneralChange("alternateEmail", e.target.value.toLowerCase())}
-                        className={`border-0 border-b border-gray-200 rounded-none px-0 py-0 m-0 text-base font-medium bg-transparent leading-none h-auto min-h-0 focus:border-gray-400 focus:shadow-none focus:ring-0 ${editedLead.alternateEmail && !isValidEmail(editedLead.alternateEmail) ? "border-red-500" : ""}`}
+                        className={`border-0 border-b border-gray-200 rounded-none px-0 py-0 m-0 text-sm font-medium bg-transparent leading-none h-auto min-h-0 focus:border-gray-400 focus:shadow-none focus:ring-0 ${editedLead.alternateEmail && !isValidEmail(editedLead.alternateEmail) ? "border-red-500" : ""}`}
                       />
                       {editedLead.alternateEmail && !isValidEmail(editedLead.alternateEmail) && (
                         <p className="text-red-500 text-xs mt-1">Formato de correo inválido</p>
@@ -830,7 +830,7 @@ Notas adicionales: ${lead.notes || "Ninguna"}`;
                       <Input
                         value={editedLead.phone || ""}
                         onChange={(e) => handlePhoneChange(e.target.value)}
-                        className="border-0 border-b border-gray-200 rounded-none px-0 py-0 m-0 text-base font-medium bg-transparent leading-none h-auto min-h-0 focus:border-gray-400 focus:shadow-none focus:ring-0"
+                        className="border-0 border-b border-gray-200 rounded-none px-0 py-0 m-0 text-sm font-medium bg-transparent leading-none h-auto min-h-0 focus:border-gray-400 focus:shadow-none focus:ring-0"
                       />
                     </div>
                     <div className="space-y-0 border-2 border-[#3d4b5c26] shadow-md rounded-md p-2.5">
@@ -839,7 +839,7 @@ Notas adicionales: ${lead.notes || "Ninguna"}`;
                         type="number"
                         value={editedLead.value || 0}
                         onChange={(e) => handleGeneralChange("value", Number(e.target.value))}
-                        className="border-0 border-b border-gray-200 rounded-none px-0 py-0 m-0 text-base font-medium bg-transparent leading-none h-auto min-h-0 focus:border-gray-400 focus:shadow-none focus:ring-0"
+                        className="border-0 border-b border-gray-200 rounded-none px-0 py-0 m-0 text-sm font-medium bg-transparent leading-none h-auto min-h-0 focus:border-gray-400 focus:shadow-none focus:ring-0"
                       />
                     </div>
                   </div>
@@ -868,7 +868,7 @@ Notas adicionales: ${lead.notes || "Ninguna"}`;
                       <Input
                         value={editedLead.company || ""}
                         onChange={(e) => handleGeneralChange("company", e.target.value)}
-                        className="border-0 border-b border-gray-200 rounded-none px-0 py-0 m-0 text-base font-medium bg-transparent leading-none h-auto min-h-0 focus:border-gray-400 focus:shadow-none focus:ring-0"
+                        className="border-0 border-b border-gray-200 rounded-none px-0 py-0 m-0 text-sm font-medium bg-transparent leading-none h-auto min-h-0 focus:border-gray-400 focus:shadow-none focus:ring-0"
                       />
                     </div>
                   </div>
@@ -1186,7 +1186,10 @@ Notas adicionales: ${lead.notes || "Ninguna"}`;
                       <Calendar className="h-3 w-3" />
                     </Button>
 
-                    <Button onClick={handleProfilerClick} className="h-8 bg-primary text-white text-xs sm:text-sm px-2 sm:px-4 shrink-0">
+                    <Button
+                      onClick={handleProfilerClick}
+                      className="h-8 bg-primary text-white text-xs sm:text-sm px-2 sm:px-4 shrink-0"
+                    >
                       {hasExistingProfile && profileData ? "Perfilar Lead" : "Perfilar Lead"}
                     </Button>
 
