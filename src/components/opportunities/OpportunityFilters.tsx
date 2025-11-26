@@ -95,7 +95,7 @@ export const OpportunityFiltersComponent: React.FC<OpportunityFiltersProps> = ({
   const activeFiltersCount = getActiveFiltersCount();
 
   const FilterContent = () => (
-    <div className="space-y-6">
+    <div className="space-y-4">
       {/* Only Favorites */}
       <div className="space-y-3">
         <Label className="text-sm font-medium">Filtros especiales</Label>
@@ -160,7 +160,7 @@ export const OpportunityFiltersComponent: React.FC<OpportunityFiltersProps> = ({
         />
       </div>
 
-      {/* Score Range */}
+      {/* Score Range 
       <div className="space-y-3">
         <Label className="text-sm font-medium">
           Score: {filters.score?.min || 0} - {filters.score?.max || 100}
@@ -173,7 +173,7 @@ export const OpportunityFiltersComponent: React.FC<OpportunityFiltersProps> = ({
           step={5}
           className="w-full"
         />
-      </div>
+      </div>*/}
 
       {/* Clear Filters */}
       {activeFiltersCount > 0 && (
