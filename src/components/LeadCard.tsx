@@ -81,9 +81,12 @@ export function LeadCard({
   };
 
   const handleCheckboxChange = (checked: boolean | 'indeterminate') => {
-    console.log('🟢 LeadCard checkbox changed:', { checked, leadId: lead.id, currentIsSelected: isSelected });
-    if (onSelectionChange) {
-      onSelectionChange(checked === true);
+    const newChecked = checked === true;
+    console.log('🟢 LeadCard checkbox clicked:', { newChecked, leadId: lead.id, currentIsSelected: isSelected });
+    
+    // Solo procesar si realmente cambió el estado
+    if (newChecked !== isSelected && onSelectionChange) {
+      onSelectionChange(newChecked);
     }
   };
 

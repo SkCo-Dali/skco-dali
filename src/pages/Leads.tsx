@@ -91,8 +91,10 @@ export default function Leads() {
   const isMedium = useIsMedium();
   const isSmallScreen = isMobile || isMedium;
 
-  // Set default view mode based on screen size - móvil siempre tarjetas
-  const [viewMode, setViewMode] = useState<"table" | "columns">("columns");
+  // Set default view mode based on screen size
+  const [viewMode, setViewMode] = useState<"table" | "columns">(
+    isMobile ? "columns" : "table"
+  );
   
   // Actualizar vista cuando cambia el tamaño de pantalla
   useEffect(() => {
