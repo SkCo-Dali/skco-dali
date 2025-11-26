@@ -15,6 +15,7 @@ import { es } from "date-fns/locale";
 import { LeadDeleteConfirmDialog } from "@/components/LeadDeleteConfirmDialog";
 import { useLeadDeletion } from "@/hooks/useLeadDeletion";
 import { useToast } from '@/hooks/use-toast';
+import { Checkbox } from "@/components/ui/checkbox";
 
 interface LeadCardProps {
   lead: Lead;
@@ -25,6 +26,8 @@ interface LeadCardProps {
   onSendWhatsApp?: (lead: Lead) => void;
   onOpenProfiler?: (lead: Lead) => void;
   onLeadUpdate?: () => void;
+  isSelected?: boolean;
+  onSelectionChange?: (isSelected: boolean) => void;
 }
 
 const stageColors = {
@@ -51,7 +54,9 @@ export function LeadCard({
   onSendEmail, 
   onSendWhatsApp,
   onOpenProfiler,
-  onLeadUpdate
+  onLeadUpdate,
+  isSelected = false,
+  onSelectionChange
 }: LeadCardProps) {
   // Use assignedToName directly from API response - no need for user lookup
   const assignedUserName = lead.assignedToName || 'Sin asignar';
@@ -70,8 +75,15 @@ export function LeadCard({
 
   const handleCardClick = (e: React.MouseEvent) => {
     const target = e.target as Element;
-    if (!target.closest('[data-dropdown]')) {
+    if (!target.closest('[data-dropdown]') && !target.closest('[data-checkbox]')) {
       onClick();
+    }
+  };
+
+  const handleCheckboxChange = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (onSelectionChange) {
+      onSelectionChange(!isSelected);
     }
   };
 
@@ -143,7 +155,7 @@ Por favor, confirmar asistencia.`;
     <>
       <div className="relative">
         <Card 
-          className="cursor-pointer transition-all duration-200 mt-0 mx-1 md:mx-2 pt-4 md:pt-6 max-w-md shadow-md border-0"
+          className={`cursor-pointer transition-all duration-200 mt-0 mx-1 md:mx-2 pt-4 md:pt-6 max-w-md shadow-md ${isSelected ? 'ring-2 ring-green-500 border-green-500' : 'border-0'}`}
           style={{ backgroundColor: '#fafafa',
                    borderRadius: '16px'}}
           onClick={handleCardClick}
@@ -158,6 +170,17 @@ Por favor, confirmar asistencia.`;
               {lead.stage}
             </div>
           </div>
+
+          {onSelectionChange && (
+            <div className="absolute top-2 right-2 z-20" data-checkbox onClick={handleCheckboxChange}>
+              <Checkbox
+                checked={isSelected}
+                onCheckedChange={(checked) => onSelectionChange(!!checked)}
+                className="bg-white data-[state=checked]:bg-green-500 data-[state=checked]:border-green-500"
+                aria-label={`Seleccionar lead ${lead.name}`}
+              />
+            </div>
+          )}
 
           <CardHeader className="pb-2 px-2 pt-2">
             <div className="flex items-start justify-between">
