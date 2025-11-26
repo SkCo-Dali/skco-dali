@@ -57,8 +57,8 @@ export const LeadCreateDialog = forwardRef<LeadCreateDialogRef, LeadCreateDialog
     const [progressModalOpen, setProgressModalOpen] = useState(false);
     const [uploadSuccess, setUploadSuccess] = useState(false);
     const [uploadError, setUploadError] = useState(false);
-    const [errorMessage, setErrorMessage] = useState('');
-    const [successMessage, setSuccessMessage] = useState('');
+    const [errorMessage, setErrorMessage] = useState("");
+    const [successMessage, setSuccessMessage] = useState("");
     const [uploadStats, setUploadStats] = useState<{ inserted: number; failed: number } | undefined>();
     const [formData, setFormData] = useState<Partial<Lead>>({
       name: "",
@@ -187,53 +187,51 @@ export const LeadCreateDialog = forwardRef<LeadCreateDialogRef, LeadCreateDialog
       // Resetear estados
       setUploadSuccess(false);
       setUploadError(false);
-      setErrorMessage('');
-      setSuccessMessage('');
-      
+      setErrorMessage("");
+      setSuccessMessage("");
+
       // Cerrar el modal principal y abrir el de progreso
       setOpen(false);
       setProgressModalOpen(true);
       setIsUploading(true);
-      
-      console.log('🔄 Iniciando carga masiva de leads desde LeadCreateDialog...');
-      console.log('📁 Archivo seleccionado:', {
+
+      console.log("🔄 Iniciando carga masiva de leads desde LeadCreateDialog...");
+      console.log("📁 Archivo seleccionado:", {
         name: uploadedFile.name,
         size: uploadedFile.size,
-        type: uploadedFile.type
+        type: uploadedFile.type,
       });
 
       try {
         const result = await uploadLeadsFile(uploadedFile, user.id);
-        
-        console.log('✅ Carga masiva completada exitosamente:', result);
-        
+
+        console.log("✅ Carga masiva completada exitosamente:", result);
+
         // Marcar como exitoso y guardar estadísticas
         setUploadSuccess(true);
         setSuccessMessage(result.message);
         setUploadStats({
           inserted: result.inserted,
-          failed: result.failed
+          failed: result.failed,
         });
-        
+
         // Limpiar el archivo subido
         setUploadedFile(null);
         setUploadProgress(0);
-        
       } catch (error) {
-        console.error('❌ Error en carga masiva:', error);
-        
+        console.error("❌ Error en carga masiva:", error);
+
         let errorMsg = "Error al cargar el archivo";
         if (error instanceof Error) {
           errorMsg = error.message;
         }
-        
+
         // Marcar como error
         setUploadError(true);
         setErrorMessage(errorMsg);
-        
       } finally {
         setIsUploading(false);
-        console.log('🏁 Proceso de carga finalizado');
+        console.log("🏁 Proceso de carga finalizado");
       }
     };
 
@@ -242,12 +240,12 @@ export const LeadCreateDialog = forwardRef<LeadCreateDialogRef, LeadCreateDialog
       if (uploadSuccess && onBulkUploadSuccess) {
         onBulkUploadSuccess();
       }
-      
+
       setProgressModalOpen(false);
       setUploadSuccess(false);
       setUploadError(false);
-      setErrorMessage('');
-      setSuccessMessage('');
+      setErrorMessage("");
+      setSuccessMessage("");
       setUploadStats(undefined);
     };
 
@@ -282,472 +280,478 @@ export const LeadCreateDialog = forwardRef<LeadCreateDialogRef, LeadCreateDialog
 
     return (
       <>
-      <Dialog open={open} onOpenChange={setOpen}>
-        <DialogTrigger asChild>{children}</DialogTrigger>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader className="pb-0">
-            <DialogTitle className="text-2xl font-bold text-center">¡Agrega tus leads!</DialogTitle>
-          </DialogHeader>
+        <Dialog open={open} onOpenChange={setOpen}>
+          <DialogTrigger asChild>{children}</DialogTrigger>
+          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+            <DialogHeader className="pb-0">
+              <DialogTitle className="text-2xl font-bold text-center">¡Agrega tus leads!</DialogTitle>
+            </DialogHeader>
 
-          <Tabs defaultValue="individual" className="w-full">
-            <TabsList
-              className={`grid w-full ${permissions?.canUploadLeads ? "grid-cols-2" : "grid-cols-1"} mb-4 bg-gray-100 rounded-full px-0 py-0 my-0`}
-            >
-              <TabsTrigger
-                value="individual"
-                className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#00C73D] data-[state=active]:to-[#A3E40B] data-[state=active]:text-white rounded-full px-5 py-2 text-sm font-medium transition-all duration-200"
+            <Tabs defaultValue="individual" className="w-full">
+              <TabsList
+                className={`grid w-full ${permissions?.canUploadLeads ? "grid-cols-2" : "grid-cols-1"} mb-4 bg-gray-100 rounded-full px-0 py-0 my-0`}
               >
-                Individual
-              </TabsTrigger>
-              {permissions?.canUploadLeads && (
                 <TabsTrigger
-                  value="bulk"
+                  value="individual"
                   className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#00C73D] data-[state=active]:to-[#A3E40B] data-[state=active]:text-white rounded-full px-5 py-2 text-sm font-medium transition-all duration-200"
                 >
-                  Carga masiva
+                  Individual
                 </TabsTrigger>
-              )}
-            </TabsList>
+                {permissions?.canUploadLeads && (
+                  <TabsTrigger
+                    value="bulk"
+                    className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#00C73D] data-[state=active]:to-[#A3E40B] data-[state=active]:text-white rounded-full px-5 py-2 text-sm font-medium transition-all duration-200"
+                  >
+                    Carga masiva
+                  </TabsTrigger>
+                )}
+              </TabsList>
 
-            <TabsContent value="individual">
-              <form onSubmit={handleSubmit} className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
+              <TabsContent value="individual">
+                <form onSubmit={handleSubmit} className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                    <div className="relative">
+                      <Select
+                        value={formData.documentType}
+                        onValueChange={(value) => setFormData({ ...formData, documentType: value })}
+                      >
+                        <SelectTrigger className="border-gray-300 rounded-xl h-12 bg-gray-50">
+                          <SelectValue className="!text-muted-foreground" placeholder="Tipo de identificación*" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="C">Cédula de ciudadanía</SelectItem>
+                          <SelectItem value="P">Pasaporte</SelectItem>
+                          <SelectItem value="E">Cédula de Extranjería</SelectItem>
+                          <SelectItem value="T">Tarjeta de Identidad</SelectItem>
+                          <SelectItem value="N">NIT</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      {formData.documentType && (
+                        <Label className="absolute -top-2 left-3 bg-gray-50 px-1 text-xs text-gray-600">
+                          Tipo de identificación*
+                        </Label>
+                      )}
+                    </div>
+
+                    <div className="relative">
+                      <Input
+                        type="text"
+                        value={formData.documentNumber?.toString() || ""}
+                        onChange={handleDocumentNumberChange}
+                        className="border-gray-300 text-md rounded-xl h-12 bg-gray-50"
+                        placeholder="Número de identificación*"
+                        required
+                      />
+                      {formData.documentNumber && (
+                        <Label className="absolute -top-2 left-3 bg-gray-50 px-1 text-xs text-gray-600">
+                          Número de identificación*
+                        </Label>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                    <div className="relative">
+                      <Input
+                        value={formData.name}
+                        onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                        className="border-gray-300 text-md rounded-xl h-12 bg-gray-50"
+                        placeholder="Nombres y apellidos*"
+                        required
+                      />
+                      {formData.name && (
+                        <Label className="absolute -top-2 left-3 bg-gray-50 px-1 text-xs text-gray-600">
+                          Nombres y apellidos*
+                        </Label>
+                      )}
+                    </div>
+                    <div className="relative">
+                      <Input
+                        value={formData.phone}
+                        onChange={handlePhoneChange}
+                        className="border-gray-300 text-md rounded-xl h-12 bg-gray-50"
+                        placeholder="Celular*"
+                        required
+                      />
+                      {formData.phone && (
+                        <Label className="absolute -top-2 left-3 bg-gray-50 px-1 text-xs text-gray-600">Celular*</Label>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                    <div className="relative">
+                      <Input
+                        type="email"
+                        value={formData.email}
+                        onChange={handleEmailChange}
+                        className={`border-gray-300 text-md rounded-xl h-12 bg-gray-50 ${formData.email && !isValidEmail(formData.email) ? "border-red-500" : ""}`}
+                        placeholder="Correo electrónico*"
+                        required
+                      />
+                      {formData.email && (
+                        <Label className="absolute -top-2 left-3 bg-gray-50 px-1 text-xs text-gray-600">
+                          Correo electrónico*
+                        </Label>
+                      )}
+                      {formData.email && !isValidEmail(formData.email) && (
+                        <p className="text-red-500 text-xs mt-1">Formato de correo inválido</p>
+                      )}
+                    </div>
+                    <div className="relative">
+                      <Popover open={productSelectOpen} onOpenChange={setProductSelectOpen}>
+                        <PopoverTrigger asChild>
+                          <Button
+                            variant="outline"
+                            className="w-full !px-4 justify-between border border-gray-300 rounded-xl h-12 bg-gray-50 font-normal hover:bg-gray-50"
+                          >
+                            <span className={selectedProducts.length === 0 ? "text-left text-muted-foreground" : ""}>
+                              {getProductDisplayText()}
+                            </span>
+                            <ChevronDown className="h-4 w-4 text-[#00C73D]" />
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-full p-0" align="start">
+                          <div className="max-h-60 overflow-y-auto">
+                            {productOptions.map((product) => (
+                              <div key={product} className="flex items-center space-x-2 p-3 hover:bg-gray-50">
+                                <Checkbox
+                                  id={product}
+                                  checked={selectedProducts.includes(product)}
+                                  onCheckedChange={() => handleProductToggle(product)}
+                                />
+                                <label
+                                  htmlFor={product}
+                                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer flex-1"
+                                >
+                                  {product}
+                                </label>
+                              </div>
+                            ))}
+                          </div>
+                        </PopoverContent>
+                      </Popover>
+                      {selectedProducts.length > 0 && (
+                        <Label className="absolute -top-2 left-3 bg-gray-50 px-1 text-xs text-gray-600">
+                          Producto de interés*
+                        </Label>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                    <div className="relative">
+                      <Input
+                        value={formData.campaign}
+                        onChange={(e) => setFormData({ ...formData, campaign: e.target.value })}
+                        className="border-gray-300 text-md rounded-xl h-12 bg-gray-50"
+                        placeholder="Campaña"
+                      />
+                      {formData.campaign && (
+                        <Label className="absolute -to p-2 left-3 bg-gray-50 px-1 text-xs text-gray-600">
+                          Campaña*
+                        </Label>
+                      )}
+                    </div>
+                    <div className="relative">
+                      <Select
+                        value={formData.campaignOwnerName}
+                        onValueChange={(value) => setFormData({ ...formData, campaignOwnerName: value })}
+                      >
+                        <SelectTrigger className="border-gray-300 rounded-xl h-12 bg-gray-50">
+                          <SelectValue className="!text-muted-foreground" placeholder="Lead referido por" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="Growth">Growth</SelectItem>
+                          <SelectItem value="Marca">Marca</SelectItem>
+                          <SelectItem value="Agencia Digital">Agencia Digital</SelectItem>
+                          <SelectItem value="Otro">Otro</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      {formData.campaignOwnerName && (
+                        <Label className="absolute -top-2 left-3 bg-gray-50 px-1 text-xs text-gray-600">
+                          Lead referido por
+                        </Label>
+                      )}
+                    </div>
+                  </div>
+
                   <div className="relative">
-                    <Select
-                      value={formData.documentType}
-                      onValueChange={(value) => setFormData({ ...formData, documentType: value })}
-                    >
-                      <SelectTrigger className="border-gray-300 rounded-xl h-12 bg-gray-50">
-                        <SelectValue className="!text-muted-foreground" placeholder="Tipo de identificación*" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="C">Cédula de ciudadanía</SelectItem>
-                        <SelectItem value="P">Pasaporte</SelectItem>
-                        <SelectItem value="E">Cédula de Extranjería</SelectItem>
-                        <SelectItem value="T">Tarjeta de Identidad</SelectItem>
-                        <SelectItem value="N">NIT</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    {formData.documentType && (
+                    <Textarea
+                      value={formData.notes}
+                      onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
+                      className="border-gray-300 rounded-xl resize-none bg-gray-50 min-h-[80px]"
+                      placeholder="Comentarios:"
+                      rows={3}
+                    />
+                    {formData.notes && (
                       <Label className="absolute -top-2 left-3 bg-gray-50 px-1 text-xs text-gray-600">
-                        Tipo de identificación*
+                        Comentarios:
                       </Label>
                     )}
                   </div>
 
-                  <div className="relative">
-                    <Input
-                      type="text"
-                      value={formData.documentNumber?.toString() || ""}
-                      onChange={handleDocumentNumberChange}
-                      className="border-gray-300 rounded-xl h-12 bg-gray-50"
-                      placeholder="Número de identificación*"
-                      required
-                    />
-                    {formData.documentNumber && (
-                      <Label className="absolute -top-2 left-3 bg-gray-50 px-1 text-xs text-gray-600">
-                        Número de identificación*
-                      </Label>
-                    )}
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="relative">
-                    <Input
-                      value={formData.name}
-                      onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                      className="border-gray-300 rounded-xl h-12 bg-gray-50"
-                      placeholder="Nombres y apellidos*"
-                      required
-                    />
-                    {formData.name && (
-                      <Label className="absolute -top-2 left-3 bg-gray-50 px-1 text-xs text-gray-600">
-                        Nombres y apellidos*
-                      </Label>
-                    )}
-                  </div>
-                  <div className="relative">
-                    <Input
-                      value={formData.phone}
-                      onChange={handlePhoneChange}
-                      className="border-gray-300 rounded-xl h-12 bg-gray-50"
-                      placeholder="Celular*"
-                      required
-                    />
-                    {formData.phone && (
-                      <Label className="absolute -top-2 left-3 bg-gray-50 px-1 text-xs text-gray-600">Celular*</Label>
-                    )}
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="relative">
-                    <Input
-                      type="email"
-                      value={formData.email}
-                      onChange={handleEmailChange}
-                      className={`border-gray-300 rounded-xl h-12 bg-gray-50 ${formData.email && !isValidEmail(formData.email) ? "border-red-500" : ""}`}
-                      placeholder="Correo electrónico*"
-                      required
-                    />
-                    {formData.email && (
-                      <Label className="absolute -top-2 left-3 bg-gray-50 px-1 text-xs text-gray-600">
-                        Correo electrónico*
-                      </Label>
-                    )}
-                    {formData.email && !isValidEmail(formData.email) && (
-                      <p className="text-red-500 text-xs mt-1">Formato de correo inválido</p>
-                    )}
-                  </div>
-                  <div className="relative">
-                    <Popover open={productSelectOpen} onOpenChange={setProductSelectOpen}>
-                      <PopoverTrigger asChild>
-                        <Button
-                          variant="outline"
-                          className="w-full !px-4 justify-between border border-gray-300 rounded-xl h-12 bg-gray-50 font-normal hover:bg-gray-50"
-                        >
-                          <span className={selectedProducts.length === 0 ? "text-left text-muted-foreground" : ""}>
-                            {getProductDisplayText()}
-                          </span>
-                          <ChevronDown className="h-4 w-4 text-[#00C73D]" />
-                        </Button>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-full p-0" align="start">
-                        <div className="max-h-60 overflow-y-auto">
-                          {productOptions.map((product) => (
-                            <div key={product} className="flex items-center space-x-2 p-3 hover:bg-gray-50">
-                              <Checkbox
-                                id={product}
-                                checked={selectedProducts.includes(product)}
-                                onCheckedChange={() => handleProductToggle(product)}
-                              />
-                              <label
-                                htmlFor={product}
-                                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer flex-1"
-                              >
-                                {product}
-                              </label>
-                            </div>
-                          ))}
+                  {showMoreFields && (
+                    <div className="space-y-4 border-t pt-4">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                        <div className="relative">
+                          <Input
+                            type="text"
+                            value={formData.age?.toString() || ""}
+                            onChange={handleAgeChange}
+                            className="border-gray-300 text-md rounded-xl h-12 bg-gray-50"
+                            placeholder="Edad"
+                          />
+                          {formData.age && (
+                            <Label className="absolute -top-2 left-3 bg-gray-50 px-1 text-xs text-gray-600">Edad</Label>
+                          )}
                         </div>
-                      </PopoverContent>
-                    </Popover>
-                    {selectedProducts.length > 0 && (
-                      <Label className="absolute -top-2 left-3 bg-gray-50 px-1 text-xs text-gray-600">
-                        Producto de interés*
-                      </Label>
-                    )}
-                  </div>
+
+                        <div className="relative">
+                          <Select
+                            value={formData.gender}
+                            onValueChange={(value) => setFormData({ ...formData, gender: value })}
+                          >
+                            <SelectTrigger className="border-gray-300 rounded-xl h-12 bg-gray-50">
+                              <SelectValue placeholder="Género" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="Masculino">Masculino</SelectItem>
+                              <SelectItem value="Femenino">Femenino</SelectItem>
+                              <SelectItem value="Otro">Otro</SelectItem>
+                              <SelectItem value="Prefiero no decirlo">Prefiero no decirlo</SelectItem>
+                            </SelectContent>
+                          </Select>
+                          {formData.gender && (
+                            <Label className="absolute -top-2 left-3 bg-gray-50 px-1 text-xs text-gray-600">
+                              Género
+                            </Label>
+                          )}
+                        </div>
+                      </div>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                        <div className="relative">
+                          <Input
+                            value={formData.company}
+                            onChange={(e) => setFormData({ ...formData, company: e.target.value })}
+                            className="border-gray-300 rounded-xl h-12 bg-gray-50"
+                            placeholder="Empresa"
+                          />
+                          {formData.company && (
+                            <Label className="absolute -top-2 left-3 bg-gray-50 px-1 text-xs text-gray-600">
+                              Empresa
+                            </Label>
+                          )}
+                        </div>
+
+                        <div className="relative">
+                          <Select
+                            value={formData.preferredContactChannel}
+                            onValueChange={(value) => setFormData({ ...formData, preferredContactChannel: value })}
+                          >
+                            <SelectTrigger className="border-gray-300 rounded-xl h-12 bg-gray-50">
+                              <SelectValue placeholder="Canal de contacto preferido" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="Llamada">Llamada</SelectItem>
+                              <SelectItem value="WhatsApp">WhatsApp</SelectItem>
+                              <SelectItem value="Correo">Correo</SelectItem>
+                            </SelectContent>
+                          </Select>
+                          {formData.preferredContactChannel && (
+                            <Label className="absolute -top-2 left-3 bg-gray-50 px-1 text-xs text-gray-600">
+                              Canal de contacto preferido
+                            </Label>
+                          )}
+                        </div>
+                      </div>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                        <div className="relative">
+                          <Select
+                            value={formData.occupation}
+                            onValueChange={(value) => setFormData({ ...formData, occupation: value })}
+                          >
+                            <SelectTrigger className="border-gray-300 rounded-xl h-12 bg-gray-50">
+                              <SelectValue placeholder="Ocupación" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="Estudiante">Estudiante</SelectItem>
+                              <SelectItem value="Empleado(a)">Empleado(a)</SelectItem>
+                              <SelectItem value="Independiente">Independiente</SelectItem>
+                              <SelectItem value="Empresario(a)">Empresario(a)</SelectItem>
+                              <SelectItem value="Desempleado(a)">Desempleado(a)</SelectItem>
+                              <SelectItem value="Pensionado(a)">Pensionado(a)</SelectItem>
+                              <SelectItem value="Hogar (Ama/o de casa)">Hogar (Ama/o de casa)</SelectItem>
+                              <SelectItem value="Militar / Policía">Militar / Policía</SelectItem>
+                              <SelectItem value="Docente">Docente</SelectItem>
+                              <SelectItem value="Profesional de la salud">Profesional de la salud</SelectItem>
+                              <SelectItem value="Otro">Otro</SelectItem>
+                            </SelectContent>
+                          </Select>
+                          {formData.occupation && (
+                            <Label className="absolute -top-2 left-3 bg-gray-50 px-1 text-xs text-gray-600">
+                              Ocupación
+                            </Label>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  <button
+                    type="button"
+                    onClick={() => setShowMoreFields(!showMoreFields)}
+                    className="flex items-center text-[#00C73D] font-medium hover:text-green-600 transition-colors"
+                  >
+                    <Plus className="h-4 w-4 mr-2" />
+                    {showMoreFields ? "Ocultar más datos" : "Añadir más datos"}
+                  </button>
+
+                  <Button
+                    type="submit"
+                    className="w-full bg-gradient-to-r from-[#00C73D] to-[#00a532] hover:from-[#00a532] hover:to-[#008c2a] text-white font-medium h-10 rounded-full text-base mt-4 transition-all duration-200"
+                  >
+                    Agregar lead
+                  </Button>
+                </form>
+              </TabsContent>
+
+              <TabsContent value="bulk" className="space-y-6">
+                <div className="text-center my-4">
+                  <h3 className="text-xl font-semibold mb-2">Subir archivo</h3>
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="relative">
-                    <Input
-                      value={formData.campaign}
-                      onChange={(e) => setFormData({ ...formData, campaign: e.target.value })}
-                      className="border-gray-300 rounded-xl h-12 bg-gray-50"
-                      placeholder="Campaña"
-                    />
-                    {formData.campaign && (
-                      <Label className="absolute -top-2 left-3 bg-gray-50 px-1 text-xs text-gray-600">Campaña*</Label>
-                    )}
-                  </div>
-                  <div className="relative">
-                    <Select
-                      value={formData.campaignOwnerName}
-                      onValueChange={(value) => setFormData({ ...formData, campaignOwnerName: value })}
+                {/* Tres pasos */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                  {/* Paso 1 */}
+                  <div className="flex flex-col items-center text-center p-4 rounded-lg border bg-card">
+                    <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mb-3">
+                      <span className="text-primary font-bold text-lg">1</span>
+                    </div>
+                    <FileSpreadsheet className="w-12 h-12 text-muted-foreground mb-3" />
+                    <p className="text-sm font-medium mb-2">Utiliza la plantilla en Excel</p>
+                    <Button
+                      type="button"
+                      variant="link"
+                      className="text-primary p-0 h-auto"
+                      onClick={handleDownloadTemplate}
                     >
-                      <SelectTrigger className="border-gray-300 rounded-xl h-12 bg-gray-50">
-                        <SelectValue className="!text-muted-foreground" placeholder="Lead referido por" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="Growth">Growth</SelectItem>
-                        <SelectItem value="Marca">Marca</SelectItem>
-                        <SelectItem value="Agencia Digital">Agencia Digital</SelectItem>
-                        <SelectItem value="Otro">Otro</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    {formData.campaignOwnerName && (
-                      <Label className="absolute -top-2 left-3 bg-gray-50 px-1 text-xs text-gray-600">
-                        Lead referido por
-                      </Label>
-                    )}
+                      <Download className="w-4 h-4 mr-1" />
+                      Descargar plantilla
+                    </Button>
+                  </div>
+
+                  {/* Paso 2 */}
+                  <div className="flex flex-col items-center text-center p-4 rounded-lg border bg-card">
+                    <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mb-3">
+                      <span className="text-primary font-bold text-lg">2</span>
+                    </div>
+                    <FileCheck className="w-12 h-12 text-muted-foreground mb-3" />
+                    <p className="text-sm font-medium mb-2">Recuerda seguir las recomendaciones de la plantilla.</p>
+                  </div>
+
+                  {/* Paso 3 */}
+                  <div className="flex flex-col items-center text-center p-4 rounded-lg border bg-card">
+                    <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mb-3">
+                      <span className="text-primary font-bold text-lg">3</span>
+                    </div>
+                    <Upload className="w-12 h-12 text-muted-foreground mb-3" />
+                    <p className="text-sm font-medium mb-2">
+                      Sube el <span className="font-bold">archivo de Excel</span>
+                    </p>
+                    <p className="text-sm font-medium">y dale a "Cargar leads".</p>
                   </div>
                 </div>
 
-                <div className="relative">
-                  <Textarea
-                    value={formData.notes}
-                    onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-                    className="border-gray-300 rounded-xl resize-none bg-gray-50 min-h-[80px]"
-                    placeholder="Comentarios:"
-                    rows={3}
-                  />
-                  {formData.notes && (
-                    <Label className="absolute -top-2 left-3 bg-gray-50 px-1 text-xs text-gray-600">Comentarios:</Label>
+                {/* Área de subida de archivo */}
+                <div className="border-2 border-dashed rounded-lg p-4">
+                  {!uploadedFile ? (
+                    <div className="text-center space-y-4">
+                      <div className="flex justify-center">
+                        <div className="w-16 h-16 rounded-lg bg-muted flex items-center justify-center">
+                          <Upload className="w-8 h-8 text-muted-foreground" />
+                        </div>
+                      </div>
+                      <div>
+                        <p className="text-sm mb-1">
+                          Arrastra y suelta a <span className="text-primary font-medium">tu archivo</span> .XLSX, para
+                          cargarlo.
+                        </p>
+                        <p className="text-xs text-muted-foreground">Peso máx. 200 mb</p>
+                      </div>
+                      <input
+                        type="file"
+                        accept=".csv,.xlsx,.xls"
+                        onChange={handleFileUpload}
+                        className="hidden"
+                        id="file-upload-bulk"
+                      />
+                      <label htmlFor="file-upload-bulk">
+                        <Button type="button" variant="outline" asChild>
+                          <span className="cursor-pointer">Seleccionar archivo</span>
+                        </Button>
+                      </label>
+                    </div>
+                  ) : (
+                    <div className="space-y-4">
+                      <div className="flex items-center justify-between p-4 bg-muted rounded-lg">
+                        <div className="flex items-center gap-3">
+                          <FileText className="w-8 h-8 text-primary" />
+                          <div className="flex-1">
+                            <p className="text-sm font-medium">{uploadedFile.name}</p>
+                            <p className="text-xs text-muted-foreground">
+                              {(uploadedFile.size / 1024 / 1024).toFixed(2)} MB
+                            </p>
+                          </div>
+                        </div>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          onClick={handleReplaceFile}
+                          disabled={isUploading}
+                        >
+                          <X className="w-4 h-4" />
+                        </Button>
+                      </div>
+
+                      {isUploading && (
+                        <div className="space-y-2">
+                          <div className="flex justify-between text-sm">
+                            <span>Subiendo archivo...</span>
+                            <span>{uploadProgress}%</span>
+                          </div>
+                          <Progress value={uploadProgress} className="w-full" />
+                        </div>
+                      )}
+                    </div>
                   )}
                 </div>
 
-                {showMoreFields && (
-                  <div className="space-y-4 border-t pt-4">
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="relative">
-                        <Input
-                          type="text"
-                          value={formData.age?.toString() || ""}
-                          onChange={handleAgeChange}
-                          className="border-gray-300 rounded-xl h-12 bg-gray-50"
-                          placeholder="Edad"
-                        />
-                        {formData.age && (
-                          <Label className="absolute -top-2 left-3 bg-gray-50 px-1 text-xs text-gray-600">Edad</Label>
-                        )}
-                      </div>
-
-                      <div className="relative">
-                        <Select
-                          value={formData.gender}
-                          onValueChange={(value) => setFormData({ ...formData, gender: value })}
-                        >
-                          <SelectTrigger className="border-gray-300 rounded-xl h-12 bg-gray-50">
-                            <SelectValue placeholder="Género" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="Masculino">Masculino</SelectItem>
-                            <SelectItem value="Femenino">Femenino</SelectItem>
-                            <SelectItem value="Otro">Otro</SelectItem>
-                            <SelectItem value="Prefiero no decirlo">Prefiero no decirlo</SelectItem>
-                          </SelectContent>
-                        </Select>
-                        {formData.gender && (
-                          <Label className="absolute -top-2 left-3 bg-gray-50 px-1 text-xs text-gray-600">Género</Label>
-                        )}
-                      </div>
-                    </div>
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="relative">
-                        <Input
-                          value={formData.company}
-                          onChange={(e) => setFormData({ ...formData, company: e.target.value })}
-                          className="border-gray-300 rounded-xl h-12 bg-gray-50"
-                          placeholder="Empresa"
-                        />
-                        {formData.company && (
-                          <Label className="absolute -top-2 left-3 bg-gray-50 px-1 text-xs text-gray-600">
-                            Empresa
-                          </Label>
-                        )}
-                      </div>
-
-                      <div className="relative">
-                        <Select
-                          value={formData.preferredContactChannel}
-                          onValueChange={(value) => setFormData({ ...formData, preferredContactChannel: value })}
-                        >
-                          <SelectTrigger className="border-gray-300 rounded-xl h-12 bg-gray-50">
-                            <SelectValue placeholder="Canal de contacto preferido" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="Llamada">Llamada</SelectItem>
-                            <SelectItem value="WhatsApp">WhatsApp</SelectItem>
-                            <SelectItem value="Correo">Correo</SelectItem>
-                          </SelectContent>
-                        </Select>
-                        {formData.preferredContactChannel && (
-                          <Label className="absolute -top-2 left-3 bg-gray-50 px-1 text-xs text-gray-600">
-                            Canal de contacto preferido
-                          </Label>
-                        )}
-                      </div>
-                    </div>
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="relative">
-                        <Select
-                          value={formData.occupation}
-                          onValueChange={(value) => setFormData({ ...formData, occupation: value })}
-                        >
-                          <SelectTrigger className="border-gray-300 rounded-xl h-12 bg-gray-50">
-                            <SelectValue placeholder="Ocupación" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="Estudiante">Estudiante</SelectItem>
-                            <SelectItem value="Empleado(a)">Empleado(a)</SelectItem>
-                            <SelectItem value="Independiente">Independiente</SelectItem>
-                            <SelectItem value="Empresario(a)">Empresario(a)</SelectItem>
-                            <SelectItem value="Desempleado(a)">Desempleado(a)</SelectItem>
-                            <SelectItem value="Pensionado(a)">Pensionado(a)</SelectItem>
-                            <SelectItem value="Hogar (Ama/o de casa)">Hogar (Ama/o de casa)</SelectItem>
-                            <SelectItem value="Militar / Policía">Militar / Policía</SelectItem>
-                            <SelectItem value="Docente">Docente</SelectItem>
-                            <SelectItem value="Profesional de la salud">Profesional de la salud</SelectItem>
-                            <SelectItem value="Otro">Otro</SelectItem>
-                          </SelectContent>
-                        </Select>
-                        {formData.occupation && (
-                          <Label className="absolute -top-2 left-3 bg-gray-50 px-1 text-xs text-gray-600">
-                            Ocupación
-                          </Label>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                <button
-                  type="button"
-                  onClick={() => setShowMoreFields(!showMoreFields)}
-                  className="flex items-center text-[#00C73D] font-medium hover:text-green-600 transition-colors"
-                >
-                  <Plus className="h-4 w-4 mr-2" />
-                  {showMoreFields ? "Ocultar más datos" : "Añadir más datos"}
-                </button>
-
                 <Button
-                  type="submit"
-                  className="w-full bg-gradient-to-r from-[#00C73D] to-[#00a532] hover:from-[#00a532] hover:to-[#008c2a] text-white font-medium h-10 rounded-full text-base mt-4 transition-all duration-200"
+                  onClick={handleBulkUpload}
+                  disabled={!uploadedFile || isUploading}
+                  className="w-full bg-gradient-to-r from-[#00C73D] to-[#00a532] hover:from-[#00a532] hover:to-[#008c2a] text-white font-medium h-10 rounded-full text-base transition-all duration-200"
                 >
-                  Agregar lead
+                  {isUploading ? "Cargando..." : "Cargar leads"}
                 </Button>
-              </form>
-            </TabsContent>
+              </TabsContent>
+            </Tabs>
+          </DialogContent>
+        </Dialog>
 
-            <TabsContent value="bulk" className="space-y-6">
-              <div className="text-center my-4">
-                <h3 className="text-xl font-semibold mb-2">Subir archivo</h3>
-              </div>
-
-              {/* Tres pasos */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-                {/* Paso 1 */}
-                <div className="flex flex-col items-center text-center p-4 rounded-lg border bg-card">
-                  <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mb-3">
-                    <span className="text-primary font-bold text-lg">1</span>
-                  </div>
-                  <FileSpreadsheet className="w-12 h-12 text-muted-foreground mb-3" />
-                  <p className="text-sm font-medium mb-2">Utiliza la plantilla en Excel</p>
-                  <Button
-                    type="button"
-                    variant="link"
-                    className="text-primary p-0 h-auto"
-                    onClick={handleDownloadTemplate}
-                  >
-                    <Download className="w-4 h-4 mr-1" />
-                    Descargar plantilla
-                  </Button>
-                </div>
-
-                {/* Paso 2 */}
-                <div className="flex flex-col items-center text-center p-4 rounded-lg border bg-card">
-                  <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mb-3">
-                    <span className="text-primary font-bold text-lg">2</span>
-                  </div>
-                  <FileCheck className="w-12 h-12 text-muted-foreground mb-3" />
-                  <p className="text-sm font-medium mb-2">Recuerda seguir las recomendaciones de la plantilla.</p>
-                </div>
-
-                {/* Paso 3 */}
-                <div className="flex flex-col items-center text-center p-4 rounded-lg border bg-card">
-                  <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mb-3">
-                    <span className="text-primary font-bold text-lg">3</span>
-                  </div>
-                  <Upload className="w-12 h-12 text-muted-foreground mb-3" />
-                  <p className="text-sm font-medium mb-2">
-                    Sube el <span className="font-bold">archivo de Excel</span>
-                  </p>
-                  <p className="text-sm font-medium">y dale a "Cargar leads".</p>
-                </div>
-              </div>
-
-              {/* Área de subida de archivo */}
-              <div className="border-2 border-dashed rounded-lg p-4">
-                {!uploadedFile ? (
-                  <div className="text-center space-y-4">
-                    <div className="flex justify-center">
-                      <div className="w-16 h-16 rounded-lg bg-muted flex items-center justify-center">
-                        <Upload className="w-8 h-8 text-muted-foreground" />
-                      </div>
-                    </div>
-                    <div>
-                      <p className="text-sm mb-1">
-                        Arrastra y suelta a <span className="text-primary font-medium">tu archivo</span> .XLSX, para
-                        cargarlo.
-                      </p>
-                      <p className="text-xs text-muted-foreground">Peso máx. 200 mb</p>
-                    </div>
-                    <input
-                      type="file"
-                      accept=".csv,.xlsx,.xls"
-                      onChange={handleFileUpload}
-                      className="hidden"
-                      id="file-upload-bulk"
-                    />
-                    <label htmlFor="file-upload-bulk">
-                      <Button type="button" variant="outline" asChild>
-                        <span className="cursor-pointer">Seleccionar archivo</span>
-                      </Button>
-                    </label>
-                  </div>
-                ) : (
-                  <div className="space-y-4">
-                    <div className="flex items-center justify-between p-4 bg-muted rounded-lg">
-                      <div className="flex items-center gap-3">
-                        <FileText className="w-8 h-8 text-primary" />
-                        <div className="flex-1">
-                          <p className="text-sm font-medium">{uploadedFile.name}</p>
-                          <p className="text-xs text-muted-foreground">
-                            {(uploadedFile.size / 1024 / 1024).toFixed(2)} MB
-                          </p>
-                        </div>
-                      </div>
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        onClick={handleReplaceFile}
-                        disabled={isUploading}
-                      >
-                        <X className="w-4 h-4" />
-                      </Button>
-                    </div>
-
-                    {isUploading && (
-                      <div className="space-y-2">
-                        <div className="flex justify-between text-sm">
-                          <span>Subiendo archivo...</span>
-                          <span>{uploadProgress}%</span>
-                        </div>
-                        <Progress value={uploadProgress} className="w-full" />
-                      </div>
-                    )}
-                  </div>
-                )}
-              </div>
-
-              <Button
-                onClick={handleBulkUpload}
-                disabled={!uploadedFile || isUploading}
-                className="w-full bg-gradient-to-r from-[#00C73D] to-[#00a532] hover:from-[#00a532] hover:to-[#008c2a] text-white font-medium h-10 rounded-full text-base transition-all duration-200"
-              >
-                {isUploading ? "Cargando..." : "Cargar leads"}
-              </Button>
-            </TabsContent>
-          </Tabs>
-        </DialogContent>
-      </Dialog>
-
-      <LeadsUploadProgressModal
-        isOpen={progressModalOpen}
-        fileName={uploadedFile?.name || ''}
-        isUploading={isUploading}
-        isSuccess={uploadSuccess}
-        isError={uploadError}
-        errorMessage={errorMessage}
-        successMessage={successMessage}
-        uploadStats={uploadStats}
-        onClose={handleProgressModalClose}
-      />
-    </>
+        <LeadsUploadProgressModal
+          isOpen={progressModalOpen}
+          fileName={uploadedFile?.name || ""}
+          isUploading={isUploading}
+          isSuccess={uploadSuccess}
+          isError={uploadError}
+          errorMessage={errorMessage}
+          successMessage={successMessage}
+          uploadStats={uploadStats}
+          onClose={handleProgressModalClose}
+        />
+      </>
     );
   },
 );
