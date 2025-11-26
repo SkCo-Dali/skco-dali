@@ -8,11 +8,7 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Users, TrendingUp, Heart, Award, RefreshCw, Search, X } from "lucide-react";
+import { Users, TrendingUp, Heart, Award, RefreshCw } from "lucide-react";
 import {
   IOpportunity,
   OpportunityFilters,
@@ -20,7 +16,6 @@ import {
   OpportunityStats,
   OpportunityType,
   Priority,
-  OPPORTUNITY_TYPE_LABELS,
 } from "@/types/opportunities";
 import { opportunitiesService } from "@/services/opportunitiesService";
 
@@ -192,26 +187,6 @@ export const Opportunities: React.FC = () => {
           </div>
         )}
 
-        {/* Active Filters Display */}
-        {(filters.type?.length || filters.priority?.length || filters.onlyFavorites) && (
-          <div className="flex flex-wrap gap-2 mb-4">
-            {filters.type?.map((type) => (
-              <Badge key={type} variant="secondary" className="capitalize bg-white">
-                {type}
-              </Badge>
-            ))}
-            {filters.priority?.map((priority) => (
-              <Badge key={priority} variant="secondary" className="capitalize bg-white">
-                {priority}
-              </Badge>
-            ))}
-            {filters.onlyFavorites && (
-              <Badge variant="secondary" className="bg-white">
-                Favoritas
-              </Badge>
-            )}
-          </div>
-        )}
 
         {/* All Opportunities Section with Sidebar */}
         <div className="mb-4">
@@ -223,94 +198,15 @@ export const Opportunities: React.FC = () => {
           </h2>
         </div>
 
-        {/* Search, Sort, and Filters Bar */}
-        <div className="mb-6 flex flex-col gap-4">
-          {/* First row: Search and Sort */}
-          <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center">
-            <div className="relative flex-1 max-w-md">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-              <Input
-                placeholder="Buscar oportunidades..."
-                value={filters.search || ""}
-                onChange={(e) => setFilters({ ...filters, search: e.target.value || undefined })}
-                className="pl-10 bg-white"
-              />
-            </div>
-
-            <div className="flex items-center gap-2">
-              <label className="text-sm text-muted-foreground whitespace-nowrap">Ordenar por:</label>
-              <Select value={sortBy} onValueChange={(value) => setSortBy(value as SortOption)}>
-                <SelectTrigger className="w-[180px] bg-white">
-                  <SelectValue placeholder="Ordenar por" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="relevance">Relevancia</SelectItem>
-                  <SelectItem value="customers">Más clientes</SelectItem>
-                  <SelectItem value="recent">Más reciente</SelectItem>
-                  <SelectItem value="expiring">Próximos a vencer</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-
-          {/* Second row: Additional Filters */}
-          <div className="flex flex-wrap gap-3 items-center">
-            {/* Favorites Toggle */}
-            <Button
-              variant={filters.onlyFavorites ? "default" : "outline"}
-              size="sm"
-              onClick={() => setFilters({ ...filters, onlyFavorites: !filters.onlyFavorites })}
-              className="gap-2"
-            >
-              <Heart className={`h-4 w-4 ${filters.onlyFavorites ? "fill-current" : ""}`} />
-              Solo favoritos
-            </Button>
-
-            {/* Type Filter */}
-            <Select
-              value={filters.type?.[0] || "all"}
-              onValueChange={(value) =>
-                setFilters({ ...filters, type: value === "all" ? undefined : [value as OpportunityType] })
-              }
-            >
-              <SelectTrigger className="w-[200px] bg-white">
-                <SelectValue placeholder="Tipo de oportunidad" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Todos los tipos</SelectItem>
-                <SelectItem value="cross-sell">Cross-sell</SelectItem>
-                <SelectItem value="retention">Retención</SelectItem>
-                <SelectItem value="reactivation">Reactivación</SelectItem>
-                <SelectItem value="churn-risk">Riesgo Cancelación</SelectItem>
-              </SelectContent>
-            </Select>
-
-            {/* Priority Filter */}
-            <Select
-              value={filters.priority?.[0] || "all"}
-              onValueChange={(value) =>
-                setFilters({ ...filters, priority: value === "all" ? undefined : [value as Priority] })
-              }
-            >
-              <SelectTrigger className="w-[180px] bg-white">
-                <SelectValue placeholder="Prioridad" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Todas las prioridades</SelectItem>
-                <SelectItem value="alta">Alta</SelectItem>
-                <SelectItem value="media">Media</SelectItem>
-                <SelectItem value="baja">Baja</SelectItem>
-              </SelectContent>
-            </Select>
-
-            {/* Clear Filters */}
-            {(filters.search || filters.onlyFavorites || filters.type?.length || filters.priority?.length) && (
-              <Button variant="ghost" size="sm" onClick={handleClearFilters} className="gap-2">
-                <X className="h-4 w-4" />
-                Limpiar filtros
-              </Button>
-            )}
-          </div>
+        {/* Filters Panel */}
+        <div className="mb-6">
+          <OpportunityFiltersComponent
+            filters={filters}
+            sortBy={sortBy}
+            onFiltersChange={setFilters}
+            onSortChange={setSortBy}
+            onClearFilters={handleClearFilters}
+          />
         </div>
 
         {/* Opportunities Grid */}
@@ -351,16 +247,6 @@ export const Opportunities: React.FC = () => {
           </div>
         )}
 
-        {/* Mobile Filters */}
-        <div className="lg:hidden">
-          <OpportunityFiltersComponent
-            filters={filters}
-            sortBy={sortBy}
-            onFiltersChange={setFilters}
-            onSortChange={setSortBy}
-            onClearFilters={handleClearFilters}
-          />
-        </div>
       </div>
     </div>
   );
