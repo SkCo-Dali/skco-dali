@@ -534,7 +534,7 @@ export const LeadCreateDialog = forwardRef<LeadCreateDialogRef, LeadCreateDialog
                           <Input
                             value={formData.company}
                             onChange={(e) => setFormData({ ...formData, company: e.target.value })}
-                            className="border-gray-300 rounded-xl h-12 bg-gray-50"
+                            className="border-gray-300 text-md rounded-xl h-12 bg-gray-50"
                             placeholder="Empresa"
                           />
                           {formData.company && (
