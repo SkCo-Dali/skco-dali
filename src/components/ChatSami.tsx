@@ -523,7 +523,7 @@ const ChatSamiContent = forwardRef<ChatSamiHandle, ChatSamiProps>(({ isOpen = fa
           }`}
         >
           {/* Header */}
-          <div className="flex items-center justify-between bg-[#fafafa] h-18 mb-2 p-2 shrink-0">
+          <div className="flex items-center justify-end bg-[#fafafa] h-18 mb-2 p-2 shrink-0">
             <div className="flex items-end gap-1">
               <Button
                 variant="ghost"
