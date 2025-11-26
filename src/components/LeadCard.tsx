@@ -84,8 +84,7 @@ export function LeadCard({
     const newChecked = checked === true;
     console.log('🟢 LeadCard checkbox clicked:', { newChecked, leadId: lead.id, currentIsSelected: isSelected });
     
-    // Solo procesar si realmente cambió el estado
-    if (newChecked !== isSelected && onSelectionChange) {
+    if (onSelectionChange) {
       onSelectionChange(newChecked);
     }
   };

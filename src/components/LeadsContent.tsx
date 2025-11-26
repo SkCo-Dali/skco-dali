@@ -164,10 +164,7 @@ export function LeadsContent({
                 const newChecked = checked === true;
                 console.log('🔶 Select all clicked:', { newChecked, columnKey, leadCount: columnLeadIds.length, currentAllSelected: allSelected });
                 
-                // Solo procesar si realmente cambió el estado
-                if (newChecked !== allSelected) {
-                  onLeadSelectionChange(columnLeadIds, newChecked);
-                }
+                onLeadSelectionChange(columnLeadIds, newChecked);
               };
 
               return (
