@@ -326,7 +326,6 @@ export function LeadsTable({
   sortDirection,
   setSortDirection,
 }: LeadsTableProps) {
-  console.log('📊 LeadsTable render - selectedLeads:', selectedLeads);
   const { toast } = useToast();
   // Removed local sortConfig - using unified sort from props
   const [leadsToDelete, setLeadsToDelete] = useState<Lead[]>([]);
@@ -524,14 +523,12 @@ export function LeadsTable({
 
   const handleSelectAll = (checked: boolean) => {
     const currentPageLeadIds = paginatedLeads.map((lead) => lead.id);
-    console.log('🔲 LeadsTable handleSelectAll:', { checked, leadIds: currentPageLeadIds, currentSelectedLeads: selectedLeads });
     if (onLeadSelectionChange) {
       onLeadSelectionChange(currentPageLeadIds, checked);
     }
   };
 
   const handleSelectLead = (leadId: string, checked: boolean) => {
-    console.log('🔲 LeadsTable handleSelectLead:', { leadId, checked, currentSelectedLeads: selectedLeads });
     if (onLeadSelectionChange) {
       onLeadSelectionChange([leadId], checked);
     }
@@ -539,15 +536,6 @@ export function LeadsTable({
 
   const isAllSelected = paginatedLeads.length > 0 && paginatedLeads.every((lead) => selectedLeads.includes(lead.id));
   const isIndeterminate = paginatedLeads.some((lead) => selectedLeads.includes(lead.id)) && !isAllSelected;
-  
-  console.log('📊 LeadsTable selection state:', { 
-    selectedLeadsCount: selectedLeads.length, 
-    selectedLeads, 
-    isAllSelected, 
-    isIndeterminate,
-    paginatedLeadsCount: paginatedLeads.length,
-    paginatedLeadIds: paginatedLeads.map(l => l.id)
-  });
 
   const handleSort = (columnKey: string, direction?: "asc" | "desc") => {
     if (!setSortBy || !setSortDirection) return;
