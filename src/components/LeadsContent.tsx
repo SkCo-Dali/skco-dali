@@ -160,8 +160,8 @@ export function LeadsContent({
               const allSelected = columnLeadIds.length > 0 && columnLeadIds.every(id => selectedLeads.includes(id));
               const someSelected = columnLeadIds.some(id => selectedLeads.includes(id)) && !allSelected;
 
-              const handleSelectAll = () => {
-                onLeadSelectionChange(columnLeadIds, !allSelected);
+              const handleSelectAll = (checked: boolean) => {
+                onLeadSelectionChange(columnLeadIds, checked);
               };
 
               return (
@@ -169,12 +169,14 @@ export function LeadsContent({
                   {/* Header de la columna estilo Kanban con checkbox */}
                   <div className="bg-[#CAF9CB] rounded-t-lg px-4 py-3 flex items-center justify-between border-b border-gray-200">
                     <div className="flex items-center gap-2">
-                      <Checkbox
-                        checked={allSelected}
-                        onCheckedChange={handleSelectAll}
-                        className="data-[state=checked]:bg-green-500 data-[state=checked]:border-green-500"
-                        aria-label={`Seleccionar todos los leads de ${columnKey}`}
-                      />
+                      <div onClick={(e) => e.stopPropagation()}>
+                        <Checkbox
+                          checked={allSelected}
+                          onCheckedChange={handleSelectAll}
+                          className="data-[state=checked]:bg-green-500 data-[state=checked]:border-green-500"
+                          aria-label={`Seleccionar todos los leads de ${columnKey}`}
+                        />
+                      </div>
                       <div className="w-3 h-3 rounded-full bg-green-500"></div>
                       <h3 className="font-semibold text-sm text-gray-800">
                         {getLabel(columnKey)}
