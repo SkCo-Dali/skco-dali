@@ -190,26 +190,17 @@ export function LeadsContent({
                   {/* Contenedor de tarjetas con scroll */}
                   <div className="bg-gray-50 border-l border-r border-b border-gray-200 rounded-b-lg min-h-[500px] max-h-[600px] overflow-y-auto p-3">
                      <div className="space-y-4">
-                      {columnState.leads.map((lead) => {
-                        const isLeadSelected = selectedLeads.includes(lead.id);
-                        console.log('🎯 Rendering lead card:', { leadId: lead.id, isLeadSelected, selectedLeads });
-                        return (
-                          <LeadCard
-                            key={lead.id}
-                            lead={lead}
-                            onClick={() => onLeadClick(lead)}
-                            onEdit={onLeadClick}
-                            onSendEmail={onSendEmail}
-                            onOpenProfiler={handleOpenProfiler}
-                            onLeadUpdate={onLeadUpdate}
-                            isSelected={isLeadSelected}
-                            onSelectionChange={(isSelected: boolean) => {
-                              console.log('🔵 Card selection change:', { leadId: lead.id, isSelected });
-                              onLeadSelectionChange([lead.id], isSelected);
-                            }}
-                          />
-                        );
-                      })}
+                      {columnState.leads.map((lead) => (
+                        <LeadCard
+                          key={lead.id}
+                          lead={lead}
+                          onClick={() => onLeadClick(lead)}
+                          onEdit={onLeadClick}
+                          onSendEmail={onSendEmail}
+                          onOpenProfiler={handleOpenProfiler}
+                          onLeadUpdate={onLeadUpdate}
+                        />
+                      ))}
                       {columnState.leads.length === 0 && (
                         <div className="text-center text-gray-500 py-5">
                           <p className="text-sm">No hay leads en esta etapa</p>
