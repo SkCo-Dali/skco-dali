@@ -68,10 +68,10 @@ export const OpportunityFiltersComponent: React.FC<OpportunityFiltersProps> = ({
     });
   };
 
-  const handleScoreChange = (value: number[]) => {
+  const handleCommissionChange = (value: number[]) => {
     onFiltersChange({
       ...filters,
-      score: { min: value[0], max: value[1] },
+      potentialCommission: { min: value[0], max: value[1] },
     });
   };
 
@@ -87,7 +87,7 @@ export const OpportunityFiltersComponent: React.FC<OpportunityFiltersProps> = ({
     if (filters.type?.length) count++;
     if (filters.priority?.length) count++;
     if (filters.customerCount) count++;
-    if (filters.score) count++;
+    if (filters.potentialCommission) count++;
     if (filters.onlyFavorites) count++;
     return count;
   };
@@ -160,17 +160,17 @@ export const OpportunityFiltersComponent: React.FC<OpportunityFiltersProps> = ({
         />
       </div>
 
-      {/* Score Range */}
-      <div className="space-y-3">
+      {/* Potential Commission Range */}
+      <div className="space-y-2">
         <Label className="text-sm font-medium">
-          Score: {filters.score?.min || 0} - {filters.score?.max || 100}
+          Comisión potencial: ${filters.potentialCommission?.min || 0} - ${filters.potentialCommission?.max || 50000}
         </Label>
         <Slider
-          value={[filters.score?.min || 0, filters.score?.max || 100]}
-          onValueChange={handleScoreChange}
-          max={100}
+          value={[filters.potentialCommission?.min || 0, filters.potentialCommission?.max || 50000]}
+          onValueChange={handleCommissionChange}
+          max={50000}
           min={0}
-          step={5}
+          step={1000}
           className="w-full"
         />
       </div>
