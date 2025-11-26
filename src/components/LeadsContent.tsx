@@ -10,7 +10,6 @@ import { Button } from "@/components/ui/button";
 import { useColumnPagination } from "@/hooks/useColumnPagination";
 import { LeadsApiFilters } from "@/types/paginatedLeadsTypes";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Checkbox } from "@/components/ui/checkbox";
 
 interface LeadsContentProps {
   viewMode: 'table' | 'columns';
@@ -156,30 +155,11 @@ export function LeadsContent({
               const columnState = columnData[columnKey];
               if (!columnState) return null;
 
-              const columnLeadIds = columnState.leads.map(lead => lead.id);
-              const allSelected = columnLeadIds.length > 0 && columnLeadIds.every(id => selectedLeads.includes(id));
-              const someSelected = columnLeadIds.some(id => selectedLeads.includes(id)) && !allSelected;
-
-              const handleSelectAll = (checked: boolean | 'indeterminate') => {
-                const newChecked = checked === true;
-                console.log('🔶 Select all clicked:', { newChecked, columnKey, leadCount: columnLeadIds.length, currentAllSelected: allSelected });
-                
-                onLeadSelectionChange(columnLeadIds, newChecked);
-              };
-
               return (
                 <div key={columnKey} className="space-y-0">
-                  {/* Header de la columna estilo Kanban con checkbox */}
+                  {/* Header de la columna estilo Kanban */}
                   <div className="bg-[#CAF9CB] rounded-t-lg px-4 py-3 flex items-center justify-between border-b border-gray-200">
                     <div className="flex items-center gap-2">
-                      <div onClick={(e) => e.stopPropagation()}>
-                        <Checkbox
-                          checked={allSelected}
-                          onCheckedChange={handleSelectAll}
-                          className="data-[state=checked]:bg-green-500 data-[state=checked]:border-green-500"
-                          aria-label={`Seleccionar todos los leads de ${columnKey}`}
-                        />
-                      </div>
                       <div className="w-3 h-3 rounded-full bg-green-500"></div>
                       <h3 className="font-semibold text-sm text-gray-800">
                         {getLabel(columnKey)}
@@ -202,8 +182,6 @@ export function LeadsContent({
                           onSendEmail={onSendEmail}
                           onOpenProfiler={handleOpenProfiler}
                           onLeadUpdate={onLeadUpdate}
-                          isSelected={selectedLeads.includes(lead.id)}
-                          onSelectionChange={(isSelected) => onLeadSelectionChange([lead.id], isSelected)}
                         />
                       ))}
                       {columnState.leads.length === 0 && (
