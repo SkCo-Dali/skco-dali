@@ -160,7 +160,7 @@ export const OpportunityFiltersComponent: React.FC<OpportunityFiltersProps> = ({
         />
       </div>
 
-      {/* Score Range 
+      {/* Score Range */}
       <div className="space-y-3">
         <Label className="text-sm font-medium">
           Score: {filters.score?.min || 0} - {filters.score?.max || 100}
@@ -173,7 +173,7 @@ export const OpportunityFiltersComponent: React.FC<OpportunityFiltersProps> = ({
           step={5}
           className="w-full"
         />
-      </div>*/}
+      </div>
 
       {/* Clear Filters */}
       {activeFiltersCount > 0 && (
@@ -261,7 +261,7 @@ export const OpportunityFiltersComponent: React.FC<OpportunityFiltersProps> = ({
             <SheetHeader>
               <SheetTitle>Filtros</SheetTitle>
             </SheetHeader>
-            <div className="mt-3 overflow-y-auto max-h-[calc(100vh-100px)]">
+            <div className="mt-3 h-full">
               <FilterContent />
             </div>
           </SheetContent>
