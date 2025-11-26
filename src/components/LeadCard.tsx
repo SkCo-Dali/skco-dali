@@ -172,6 +172,7 @@ Por favor, confirmar asistencia.`;
               onClick={(e) => e.stopPropagation()}
             >
               <Checkbox
+                key={`lead-${lead.id}-${isSelected}`}
                 checked={isSelected}
                 onCheckedChange={(checked) => onSelectionChange?.(checked as boolean)}
                 className="bg-white data-[state=checked]:bg-green-500 data-[state=checked]:border-green-500"

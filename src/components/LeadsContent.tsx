@@ -171,6 +171,7 @@ export function LeadsContent({
                     <div className="flex items-center gap-2">
                       <div onClick={(e) => e.stopPropagation()}>
                         <Checkbox
+                          key={`selectall-${columnKey}-${allSelected}`}
                           checked={allSelected}
                           onCheckedChange={(checked) => handleSelectAll(checked as boolean)}
                           className="data-[state=checked]:bg-green-500 data-[state=checked]:border-green-500"

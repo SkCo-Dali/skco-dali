@@ -700,21 +700,18 @@ export default function Leads() {
   }, []);
 
   const handleLeadSelectionChange = useCallback((leadIds: string[], isSelected: boolean) => {
-    console.log('🔵 handleLeadSelectionChange called:', { leadIds, isSelected, currentSelection: selectedLeads });
-    if (isSelected) {
-      setSelectedLeads((prev) => {
+    setSelectedLeads((prev) => {
+      if (isSelected) {
         const newSelected = [...new Set([...prev, ...leadIds])];
         console.log('✅ Adding leads. Previous:', prev, 'New selection:', newSelected);
         return newSelected;
-      });
-    } else {
-      setSelectedLeads((prev) => {
+      } else {
         const newSelected = prev.filter((id) => !leadIds.includes(id));
         console.log('❌ Removing leads. Previous:', prev, 'New selection:', newSelected);
         return newSelected;
-      });
-    }
-  }, [selectedLeads]);
+      }
+    });
+  }, []);
 
   const handleViewModeToggle = () => {
     const modes: ("table" | "columns")[] = ["table", "columns"];
