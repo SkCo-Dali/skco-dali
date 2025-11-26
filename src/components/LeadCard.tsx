@@ -173,9 +173,7 @@ Por favor, confirmar asistencia.`;
             >
               <Checkbox
                 checked={isSelected}
-                onCheckedChange={(checked) => {
-                  onSelectionChange?.(checked === true);
-                }}
+                onCheckedChange={(checked) => onSelectionChange?.(checked as boolean)}
                 className="bg-white data-[state=checked]:bg-green-500 data-[state=checked]:border-green-500"
                 aria-label={`Seleccionar lead ${lead.name}`}
               />

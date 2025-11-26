@@ -160,8 +160,8 @@ export function LeadsContent({
               const allSelected = columnLeadIds.length > 0 && columnLeadIds.every(id => selectedLeads.includes(id));
               const someSelected = columnLeadIds.some(id => selectedLeads.includes(id)) && !allSelected;
 
-              const handleSelectAll = (checked: boolean | 'indeterminate') => {
-                onLeadSelectionChange(columnLeadIds, checked === true);
+              const handleSelectAll = (checked: boolean) => {
+                onLeadSelectionChange(columnLeadIds, checked);
               };
 
               return (
@@ -172,7 +172,7 @@ export function LeadsContent({
                       <div onClick={(e) => e.stopPropagation()}>
                         <Checkbox
                           checked={allSelected}
-                          onCheckedChange={handleSelectAll}
+                          onCheckedChange={(checked) => handleSelectAll(checked as boolean)}
                           className="data-[state=checked]:bg-green-500 data-[state=checked]:border-green-500"
                           aria-label={`Seleccionar todos los leads de ${columnKey}`}
                         />
@@ -200,7 +200,7 @@ export function LeadsContent({
                           onOpenProfiler={handleOpenProfiler}
                           onLeadUpdate={onLeadUpdate}
                           isSelected={selectedLeads.includes(lead.id)}
-                          onSelectionChange={(isSelected) => onLeadSelectionChange([lead.id], isSelected)}
+                          onSelectionChange={(isSelected: boolean) => onLeadSelectionChange([lead.id], isSelected)}
                         />
                       ))}
                       {columnState.leads.length === 0 && (
