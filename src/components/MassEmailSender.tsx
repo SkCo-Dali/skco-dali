@@ -23,6 +23,7 @@ interface MassEmailSenderProps {
 }
 
 export function MassEmailSender({ filteredLeads, onClose, opportunityId }: MassEmailSenderProps) {
+  console.log('📧 MassEmailSender mounted with filteredLeads:', filteredLeads.length, filteredLeads.map(l => ({ id: l.id, name: l.name, email: l.email })));
   const { toast } = useToast();
   const {
     isLoading,
