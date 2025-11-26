@@ -691,10 +691,19 @@ export default function Leads() {
   }, []);
 
   const handleLeadSelectionChange = useCallback((leadIds: string[], isSelected: boolean) => {
+    console.log('📋 Leads handleLeadSelectionChange:', { leadIds, isSelected });
     if (isSelected) {
-      setSelectedLeads((prev) => [...new Set([...prev, ...leadIds])]);
+      setSelectedLeads((prev) => {
+        const newSelection = [...new Set([...prev, ...leadIds])];
+        console.log('📋 Leads - New selection (selected):', newSelection);
+        return newSelection;
+      });
     } else {
-      setSelectedLeads((prev) => prev.filter((id) => !leadIds.includes(id)));
+      setSelectedLeads((prev) => {
+        const newSelection = prev.filter((id) => !leadIds.includes(id));
+        console.log('📋 Leads - New selection (deselected):', newSelection);
+        return newSelection;
+      });
     }
   }, []);
 
