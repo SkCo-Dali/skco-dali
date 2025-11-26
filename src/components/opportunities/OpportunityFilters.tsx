@@ -163,12 +163,12 @@ export const OpportunityFiltersComponent: React.FC<OpportunityFiltersProps> = ({
       {/* Potential Commission Range */}
       <div className="space-y-2">
         <Label className="text-sm font-medium">
-          Comisión potencial: ${filters.potentialCommission?.min || 0} - ${filters.potentialCommission?.max || 50000}
+          Comisión potencial: ${filters.potentialCommission?.min || 0} - ${filters.potentialCommission?.max || 50000000}
         </Label>
         <Slider
-          value={[filters.potentialCommission?.min || 0, filters.potentialCommission?.max || 50000]}
+          value={[filters.potentialCommission?.min || 0, filters.potentialCommission?.max || 50000000]}
           onValueChange={handleCommissionChange}
-          max={50000}
+          max={50000000}
           min={0}
           step={1000}
           className="w-full"
