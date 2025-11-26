@@ -58,14 +58,14 @@ export function EmailPreview({
 
   return (
     <Card className="border-l-4 border-l-primary pb-4">
-      <CardHeader>
-        <CardTitle className="flex items-center justify-between">
-          Previsualización de Emails
-          <Badge variant="secondary">
+      <CardHeader className="p-4 sm:p-6">
+        <CardTitle className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 text-base sm:text-lg">
+          <span className="text-sm sm:text-lg">Previsualización de Emails</span>
+          <Badge variant="secondary" className="self-start sm:self-auto text-xs">
             {selectedCount} de {leads.length} seleccionados
           </Badge>
         </CardTitle>
-        <p className="text-sm text-muted-foreground pb-2">Activa o desactiva el envío para cada destinatario</p>
+        <p className="text-xs sm:text-sm text-muted-foreground pb-2">Activa o desactiva el envío para cada destinatario</p>
 
         {/* Barra de búsqueda */}
         <div className="relative mt-4">
@@ -79,8 +79,8 @@ export function EmailPreview({
           />
         </div>
       </CardHeader>
-      <CardContent>
-        <ScrollArea className="h-[600px] pr-4">
+      <CardContent className="p-4 sm:p-6">
+        <ScrollArea className="h-[400px] sm:h-[600px] pr-2 sm:pr-4">
           <div className="space-y-4 pb-4">
             {filteredLeads.length === 0 ? (
               <div className="text-center py-8 text-muted-foreground">
@@ -103,36 +103,37 @@ export function EmailPreview({
                       isSelected ? "border-l-primary" : "border-l-gray-300 opacity-60"
                     }`}
                   >
-                    <CardHeader className="pb-2">
-                      <div className="flex items-center justify-between gap-4">
-                        <div className="flex items-center gap-3 flex-1">
+                    <CardHeader className="pb-2 p-3 sm:p-6">
+                      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
+                        <div className="flex items-center gap-3 flex-1 min-w-0">
                           <Switch
                             checked={isSelected}
                             onCheckedChange={() => onToggleLead(lead.id)}
                             aria-label={`Enviar correo a ${lead.name}`}
+                            className="shrink-0"
                           />
-                          <div>
-                            <p className="font-medium">{lead.name}</p>
-                            <p className="text-sm text-muted-foreground">{displayEmail}</p>
+                          <div className="min-w-0 flex-1">
+                            <p className="font-medium text-sm sm:text-base truncate">{lead.name}</p>
+                            <p className="text-xs sm:text-sm text-muted-foreground truncate">{displayEmail}</p>
                             {leads.length === 1 && alternateEmail?.trim() && alternateEmail !== lead.email && (
                               <p className="text-xs text-blue-600 mt-1">Email alternativo especificado</p>
                             )}
                           </div>
                         </div>
-                        <Badge variant="outline">#{index + 1}</Badge>
+                        <Badge variant="outline" className="self-start sm:self-auto shrink-0 text-xs">#{index + 1}</Badge>
                       </div>
                     </CardHeader>
-                    <CardContent className="pt-0">
+                    <CardContent className="pt-0 p-3 sm:p-6">
                       <div className="space-y-3">
                         <div>
                           <Label className="text-xs font-medium text-muted-foreground">ASUNTO:</Label>
-                          <p className="font-medium">{processedSubject}</p>
+                          <p className="font-medium text-sm sm:text-base break-words">{processedSubject}</p>
                         </div>
 
                         <div>
                           <Label className="text-xs font-medium text-muted-foreground">CONTENIDO:</Label>
                           <div
-                            className="border rounded p-3 bg-muted/30 text-sm"
+                            className="border rounded p-2 sm:p-3 bg-muted/30 text-xs sm:text-sm overflow-x-auto"
                             dangerouslySetInnerHTML={{ __html: processedContent }}
                           />
                         </div>
