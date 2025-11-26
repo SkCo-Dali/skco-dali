@@ -161,7 +161,7 @@ export const Opportunities: React.FC = () => {
               </Badge>
             </div>
 
-            <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-6 gap-3">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4 md:gap-3">
               {highlightedOpportunities.slice(0, 3).map((opportunity, index) => (
                 <div key={opportunity.id} className="relative">
                   {/* Top Badge */}
@@ -235,7 +235,7 @@ export const Opportunities: React.FC = () => {
             </div>
           </Card>
         ) : (
-          <div className="grid grid-cols-2 lg:grid-cols-6 gap-3">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4 md:gap-3">
             {opportunities.map((opportunity) => (
               <OpportunityCard
                 key={opportunity.id}
