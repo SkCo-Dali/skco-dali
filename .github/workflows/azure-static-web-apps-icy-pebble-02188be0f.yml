@@ -14,27 +14,39 @@ jobs:
     if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.action != 'closed')
     runs-on: ubuntu-latest
     name: Build and Deploy Job
+<<<<<<< HEAD
 )
+=======
+>>>>>>> a26accc (ci: add Azure Static Web Apps workflow file)
     steps:
       - uses: actions/checkout@v3
         with:
           submodules: true
           lfs: false
+<<<<<<< HEAD
 )
+=======
+>>>>>>> a26accc (ci: add Azure Static Web Apps workflow file)
       - name: Build And Deploy
         id: builddeploy
         uses: Azure/static-web-apps-deploy@v1
         with:
           azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_ICY_PEBBLE_02188BE0F }}
           repo_token: ${{ secrets.GITHUB_TOKEN }} # Used for Github integrations (i.e. PR comments)
+<<<<<<< HEAD
 )
+=======
+>>>>>>> a26accc (ci: add Azure Static Web Apps workflow file)
           action: "upload"
           ###### Repository/Build Configurations - These values can be configured to match your app requirements. ######
           # For more information regarding Static Web App workflow configurations, please visit: https://aka.ms/swaworkflowconfig
           app_location: "/" # App source code path
           api_location: "" # Api source code path - optional
           output_location: "build" # Built app content directory - optional
+<<<<<<< HEAD
 )
+=======
+>>>>>>> a26accc (ci: add Azure Static Web Apps workflow file)
           ###### End of Repository/Build Configurations ######
 
   close_pull_request_job:
@@ -47,5 +59,8 @@ jobs:
         uses: Azure/static-web-apps-deploy@v1
         with:
           azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_ICY_PEBBLE_02188BE0F }}
+<<<<<<< HEAD
 )
+=======
+>>>>>>> a26accc (ci: add Azure Static Web Apps workflow file)
           action: "close"
