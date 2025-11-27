@@ -337,19 +337,39 @@ export function EmailComposer({
           <CardTitle className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
             <span className="text-base sm:text-lg">Composición del Email</span>
             <div className="flex flex-wrap gap-1.5 sm:gap-2 w-full sm:w-auto">
-              <Button variant="outline" size="sm" onClick={() => setShowTemplatesModal(true)} className="flex-1 sm:flex-none text-xs sm:text-sm px-2 sm:px-3">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShowTemplatesModal(true)}
+                className="flex-1 sm:flex-none text-xs sm:text-sm px-2 sm:px-3"
+              >
                 <FileText className="h-3 w-3 sm:h-4 sm:w-4 sm:mr-2" />
                 <span className="hidden sm:inline">Plantillas</span>
               </Button>
-              <Button variant="outline" size="sm" onClick={() => setShowSignatureDialog(true)} className="flex-1 sm:flex-none text-xs sm:text-sm px-2 sm:px-3">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShowSignatureDialog(true)}
+                className="flex-1 sm:flex-none text-xs sm:text-sm px-2 sm:px-3"
+              >
                 <FileSignature className="h-3 w-3 sm:h-4 sm:w-4 sm:mr-2" />
                 <span className="hidden sm:inline">Firmas</span>
               </Button>
-              <Button variant="outline" size="sm" onClick={() => setShowFieldsList(!showFieldsList)} className="flex-1 sm:flex-none text-xs sm:text-sm px-2 sm:px-3">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShowFieldsList(!showFieldsList)}
+                className="flex-1 sm:flex-none text-xs sm:text-sm px-2 sm:px-3"
+              >
                 <Plus className="h-3 w-3 sm:h-4 sm:w-4 sm:mr-2" />
                 <span className="hidden sm:inline">Campos Dinámicos</span>
               </Button>
-              <Button variant="outline" size="sm" onClick={() => setShowSocialNetworks(!showSocialNetworks)} className="flex-1 sm:flex-none text-xs sm:text-sm px-2 sm:px-3">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShowSocialNetworks(!showSocialNetworks)}
+                className="flex-1 sm:flex-none text-xs sm:text-sm px-2 sm:px-3"
+              >
                 <Share2 className="h-3 w-3 sm:h-4 sm:w-4 sm:mr-2" />
                 <span className="hidden sm:inline">Redes Sociales</span>
               </Button>
@@ -475,9 +495,17 @@ export function EmailComposer({
               <Label className="text-sm sm:text-base">Archivos Adjuntos ({attachments.length})</Label>
               <div className="space-y-1">
                 {attachments.map((file, index) => (
-                  <div key={index} className="flex items-center justify-between p-2 bg-muted rounded-md text-xs sm:text-sm">
+                  <div
+                    key={index}
+                    className="flex items-center justify-between p-2 bg-muted rounded-md text-xs sm:text-sm"
+                  >
                     <span className="truncate flex-1">{file.name}</span>
-                    <Button variant="ghost" size="sm" onClick={() => handleRemoveAttachment(index)} className="h-7 w-7 sm:h-8 sm:w-8 p-0">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleRemoveAttachment(index)}
+                      className="h-7 w-7 sm:h-8 sm:w-8 p-0"
+                    >
                       <X className="h-3 w-3 sm:h-4 sm:w-4" />
                     </Button>
                   </div>
@@ -501,11 +529,11 @@ export function EmailComposer({
         </CardContent>
       </Card>
 
-      <EmailWritingAssistant
+      {/* <EmailWritingAssistant
         currentSubject={template.subject}
         currentContent={template.htmlContent}
         onInsertText={handleInsertTextFromAssistant}
-      />
+      /> */}
 
       <EmailSignatureDialog
         isOpen={showSignatureDialog}
