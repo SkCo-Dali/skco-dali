@@ -378,17 +378,12 @@ const ChatSamiContent = forwardRef<ChatSamiHandle, ChatSamiProps>(({ isOpen = fa
 
   return (
     <>
-
       {/* Dialog fullscreen para móviles */}
       {isOpen && isMobile && viewMode !== "maximized" && (
-        <Dialog 
-          open={isOpen && !isClosing} 
-          onOpenChange={handleToggle}
-        >
-          <DialogContent className="max-w-full h-full w-full p-0 m-0 rounded-none flex flex-col">
+        <Dialog open={isOpen && !isClosing} onOpenChange={handleToggle}>
+          <DialogContent className="max-w-[calc(100%-2rem)] h-[calc(100%-2rem)] w-[calc(100%-2rem)] p-0 rounded-lg flex flex-col" hideCloseButton>
             {/* Header */}
-            <div className="flex items-center justify-between bg-[#fafafa] h-14 px-4 shrink-0 border-b">
-              <h2 className="text-lg font-semibold text-foreground">Dali</h2>
+            <div className="flex items-center justify-end bg-[#fafafa] h-14 px-4 shrink-0 border-b">
               <div className="flex items-center gap-1">
                 <Button
                   variant="ghost"
@@ -519,16 +514,15 @@ const ChatSamiContent = forwardRef<ChatSamiHandle, ChatSamiProps>(({ isOpen = fa
         </Dialog>
       )}
 
-      {/* Panel lateral fijo para desktop */}
+      {/* Panel desde arriba para desktop */}
       {isOpen && !isMobile && viewMode !== "maximized" && (
-        <div 
+        <div
           className={`fixed top-20 right-0 bottom-0 w-[360px] border-l bg-background shadow-none flex flex-col z-30 ${
-            isClosing ? 'animate-slide-out-right' : 'animate-slide-in-right'
+            isClosing ? "animate-slide-out-up" : "animate-slide-in-down"
           }`}
         >
           {/* Header */}
-          <div className="flex items-center justify-between bg-[#fafafa] h-18 mb-2 p-2 shrink-0">
-            <h2 className="text-lg font-semibold text-foreground">Dali</h2>
+          <div className="flex items-center justify-end bg-[#fafafa] h-18 mb-2 p-2 shrink-0">
             <div className="flex items-end gap-1">
               <Button
                 variant="ghost"
@@ -606,30 +600,6 @@ const ChatSamiContent = forwardRef<ChatSamiHandle, ChatSamiProps>(({ isOpen = fa
               )}
               <div ref={messagesEndRef} />
             </div>
-
-            {/* Acciones rápidas 
-            <div className="px-2 py-2 shrink-0">
-              <div className="relative group">
-                <Carousel className="px-4 w-full" opts={{ slidesToScroll: 1, align: "start", loop: true }}>
-                  <CarouselContent className="-ml-2">
-                    {quickActions.map((action, index) => (
-                      <CarouselItem key={index} className="pl-2 basis-1/2">
-                        <button
-                          onClick={() => handleQuickAction(action)}
-                          className="w-full h-20 text-center px-2 py-2 text-xs text-muted-foreground bg-muted rounded-lg border transition-colors hover:bg-muted/80 whitespace-nowrap overflow-hidden text-ellipsis"
-                        >
-                          {action}
-                        </button>
-                      </CarouselItem>
-                    ))}
-                  </CarouselContent>
-
-                  
-                  <CarouselPrevious className="absolute -left-2 top-1/2 -translate-y-1/2 h-7 w-7" />
-                  <CarouselNext className="absolute -right-2 top-1/2 -translate-y-1/2 h-7 w-7" />
-                </Carousel>
-              </div>
-            </div>*/}
 
             {/* Input area */}
             <div className="p-3 border-t shrink-0">

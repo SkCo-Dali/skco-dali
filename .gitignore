@@ -29,5 +29,5 @@ out/
 .certs/
 *.pem
 *.key
-
+/swa-cli.config.json
 .env

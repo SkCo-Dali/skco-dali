@@ -19,9 +19,10 @@ import { useGraphAuthorization } from '@/hooks/useGraphAuthorization';
 interface MassEmailSenderProps {
   filteredLeads: Lead[];
   onClose: () => void;
+  opportunityId?: number;
 }
 
-export function MassEmailSender({ filteredLeads, onClose }: MassEmailSenderProps) {
+export function MassEmailSender({ filteredLeads, onClose, opportunityId }: MassEmailSenderProps) {
   const { toast } = useToast();
   const {
     isLoading,
@@ -70,17 +71,45 @@ export function MassEmailSender({ filteredLeads, onClose }: MassEmailSenderProps
     }
   }, [graphAuthLoading, isAuthorized]);
 
-  // Restaurar borrador al montar el componente
+  // Cargar plantilla por opportunity_id si existe, o restaurar borrador
   useEffect(() => {
-    const restored = restoreFromStorage();
-    if (restored && (restored.subject || restored.htmlContent)) {
-      setTemplate(restored);
-      toast({
-        title: "Borrador restaurado",
-        description: "Se ha recuperado tu borrador anterior",
-      });
-    }
-  }, []);
+    const loadTemplateByOpportunity = async () => {
+      if (opportunityId) {
+        try {
+          const { emailTemplatesService } = await import('@/services/emailTemplatesService');
+          const template = await emailTemplatesService.getTemplateByOpportunityId(opportunityId);
+          
+          if (template) {
+            setTemplate({
+              subject: template.subject,
+              htmlContent: template.html_content,
+              plainContent: template.plain_text_content || ''
+            });
+            clearBackup(); // Limpiar cualquier borrador anterior
+            toast({
+              title: "Plantilla cargada",
+              description: `Se ha cargado la plantilla "${template.template_name}"`,
+            });
+            return;
+          }
+        } catch (error) {
+          console.error('Error loading template by opportunity_id:', error);
+        }
+      }
+      
+      // Si no hay plantilla de oportunidad, restaurar borrador
+      const restored = restoreFromStorage();
+      if (restored && (restored.subject || restored.htmlContent)) {
+        setTemplate(restored);
+        toast({
+          title: "Borrador restaurado",
+          description: "Se ha recuperado tu borrador anterior",
+        });
+      }
+    };
+    
+    loadTemplateByOpportunity();
+  }, [opportunityId]);
 
   // Cargar historial de correos cuando se activa la pestaña de logs
   useEffect(() => {
@@ -195,19 +224,19 @@ export function MassEmailSender({ filteredLeads, onClose }: MassEmailSenderProps
 
   return (
     <>
-      <div className="space-y-6">
+      <div className="space-y-4 sm:space-y-6">
         {/* Header */}
         <div className="flex items-center justify-between">
           <div className="space-y-1">
-            <h2 className="text-xl font-semibold">Envío de Correos</h2>
-            <div className="flex items-center gap-2">
-              <Badge variant="secondary">
-                <Filter className="h-4 w-4 mr-1 text-white" />
+            <h2 className="text-lg sm:text-xl font-semibold">Envío de Correos</h2>
+            <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
+              <Badge variant="secondary" className="text-xs sm:text-sm">
+                <Filter className="h-3 w-3 sm:h-4 sm:w-4 mr-1 text-white" />
                 <span className="text-white">{leadsToSend.length} de {validLeads.length} seleccionados</span>
               </Badge>
               {isOverLimit && (
-                <Badge variant="destructive">
-                  <AlertTriangle className="h-4 w-4 mr-1" />
+                <Badge variant="destructive" className="text-xs sm:text-sm">
+                  <AlertTriangle className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
                   Máximo 50 correos
                 </Badge>
               )}
@@ -220,23 +249,25 @@ export function MassEmailSender({ filteredLeads, onClose }: MassEmailSenderProps
           <TabsList className="grid w-full grid-cols-3 mb-4 bg-gray-100 rounded-full px-0 py-0 my-0">
             <TabsTrigger 
               value="compose" 
-              className="w-full h-full data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#00C73D] data-[state=active]:to-[#A3E40B] data-[state=active]:text-white rounded-full px-4 py-2 mt-0 text-sm font-medium transition-all duration-200"
+              className="w-full h-full data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#00C73D] data-[state=active]:to-[#A3E40B] data-[state=active]:text-white rounded-full px-2 sm:px-4 py-2 mt-0 text-xs sm:text-sm font-medium transition-all duration-200 gap-1 sm:gap-2"
             >
-              <Mail className="h-4 w-4" />
-              Nuevo Correo
+              <Mail className="h-3 w-3 sm:h-4 sm:w-4" />
+              <span className="hidden sm:inline">Nuevo Correo</span>
+              <span className="sm:hidden">Nuevo</span>
             </TabsTrigger>
             <TabsTrigger 
               value="preview" 
-              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#00C73D] data-[state=active]:to-[#A3E40B] data-[state=active]:text-white rounded-full px-10 py-2 h-full text-sm font-medium transition-all duration-200"
+              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#00C73D] data-[state=active]:to-[#A3E40B] data-[state=active]:text-white rounded-full px-2 sm:px-10 py-2 h-full text-xs sm:text-sm font-medium transition-all duration-200 gap-1 sm:gap-2"
             >
-              <Eye className="h-4 w-4" />
-              Previsualizar
+              <Eye className="h-3 w-3 sm:h-4 sm:w-4" />
+              <span className="hidden sm:inline">Previsualizar</span>
+              <span className="sm:hidden">Vista</span>
             </TabsTrigger>
             <TabsTrigger 
               value="logs" 
-              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#00C73D] data-[state=active]:to-[#A3E40B] data-[state=active]:text-white rounded-full px-10 py-2 h-full text-sm font-medium transition-all duration-200"
+              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#00C73D] data-[state=active]:to-[#A3E40B] data-[state=active]:text-white rounded-full px-2 sm:px-10 py-2 h-full text-xs sm:text-sm font-medium transition-all duration-200 gap-1 sm:gap-2"
             >
-              <History className="h-4 w-4" />
+              <History className="h-3 w-3 sm:h-4 sm:w-4" />
               Historial
             </TabsTrigger>
           </TabsList>
@@ -253,24 +284,26 @@ export function MassEmailSender({ filteredLeads, onClose }: MassEmailSenderProps
               onAlternateEmailChange={setAlternateEmail}
             />
             
-            <div className="flex justify-between items-center pt-4 border-t">
-              <div className="text-sm text-muted-foreground">
+            <div className="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-3 pt-4 border-t">
+              <div className="text-xs sm:text-sm text-muted-foreground text-center sm:text-left">
                 {leadsToSend.length} correo(s) listos para enviar
               </div>
-              <div className="flex gap-2">
+              <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
                 <Button
                   variant="outline"
                   onClick={() => setActiveTab('preview')}
                   disabled={!isReadyToSend}
+                  className="w-full sm:w-auto text-xs sm:text-sm"
                 >
-                  <Eye className="h-4 w-4 mr-2" />
+                  <Eye className="h-3 w-3 sm:h-4 sm:w-4 mr-2" />
                   Previsualizar
                 </Button>
                 <Button
                   onClick={handleSendEmails}
                   disabled={!isReadyToSend || isLoading}
+                  className="w-full sm:w-auto text-xs sm:text-sm"
                 >
-                  <Send className="h-4 w-4 mr-2" />
+                  <Send className="h-3 w-3 sm:h-4 sm:w-4 mr-2" />
                   {isLoading ? 'Enviando...' : 'Enviar Correos'}
                 </Button>
               </div>
@@ -287,18 +320,20 @@ export function MassEmailSender({ filteredLeads, onClose }: MassEmailSenderProps
               onToggleLead={handleToggleLead}
             />
             
-            <div className="flex justify-between items-center pt-4 border-t">
+            <div className="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-3 pt-4 border-t">
               <Button
                 variant="outline"
                 onClick={() => setActiveTab('compose')}
+                className="w-full sm:w-auto text-xs sm:text-sm"
               >
                 Volver a Editar
               </Button>
               <Button
                 onClick={handleSendEmails}
                 disabled={!isReadyToSend || isLoading}
+                className="w-full sm:w-auto text-xs sm:text-sm"
               >
-                <Send className="h-4 w-4 mr-2" />
+                <Send className="h-3 w-3 sm:h-4 sm:w-4 mr-2" />
                 {isLoading ? 'Enviando...' : `Confirmar Envío (${leadsToSend.length} correos)`}
               </Button>
             </div>

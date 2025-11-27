@@ -16,6 +16,7 @@ import { LeadDeleteConfirmDialog } from "@/components/LeadDeleteConfirmDialog";
 import { useLeadDeletion } from "@/hooks/useLeadDeletion";
 import { useToast } from '@/hooks/use-toast';
 
+
 interface LeadCardProps {
   lead: Lead;
   onClick: () => void;
@@ -70,10 +71,11 @@ export function LeadCard({
 
   const handleCardClick = (e: React.MouseEvent) => {
     const target = e.target as Element;
-    if (!target.closest('[data-dropdown]')) {
+    if (!target.closest('[data-dropdown]') && !target.closest('[data-checkbox]')) {
       onClick();
     }
   };
+
 
   const handleWhatsAppClick = () => {
     if (lead.phone) {

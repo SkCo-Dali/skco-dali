@@ -43,10 +43,10 @@ export class OpportunitiesService {
         );
       }
 
-      if (filters.score) {
-        const { min, max } = filters.score;
+      if (filters.potentialCommission) {
+        const { min, max } = filters.potentialCommission;
         filtered = filtered.filter(opp => 
-          opp.score >= min && opp.score <= max
+          (opp.potentialCommission || 0) >= min && (opp.potentialCommission || 0) <= max
         );
       }
 

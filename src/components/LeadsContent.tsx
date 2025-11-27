@@ -1,5 +1,4 @@
-
-import { useState } from 'react';
+import { useState } from "react";
 import { Lead } from "@/types/crm";
 import { LeadCard } from "./LeadCard";
 import { LeadsTable } from "./LeadsTable";
@@ -10,9 +9,10 @@ import { Button } from "@/components/ui/button";
 import { useColumnPagination } from "@/hooks/useColumnPagination";
 import { LeadsApiFilters } from "@/types/paginatedLeadsTypes";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Checkbox } from "@/components/ui/checkbox";
 
 interface LeadsContentProps {
-  viewMode: 'table' | 'columns';
+  viewMode: "table" | "columns";
   leads: Lead[];
   onLeadClick: (lead: Lead) => void;
   onLeadUpdate: () => void;
@@ -33,8 +33,8 @@ interface LeadsContentProps {
   // Props para ordenamiento
   sortBy?: string;
   setSortBy?: (sort: string) => void;
-  sortDirection?: 'asc' | 'desc';
-  setSortDirection?: (direction: 'asc' | 'desc') => void;
+  sortDirection?: "asc" | "desc";
+  setSortDirection?: (direction: "asc" | "desc") => void;
   // Para paginación por columna
   apiFilters?: LeadsApiFilters;
 }
@@ -62,17 +62,22 @@ export function LeadsContent({
   setSortBy,
   sortDirection,
   setSortDirection,
-  apiFilters = {}
+  apiFilters = {},
 }: LeadsContentProps) {
   const [selectedLeadForProfiler, setSelectedLeadForProfiler] = useState<Lead | null>(null);
   const [isProfilerOpen, setIsProfilerOpen] = useState(false);
 
   // Hook para paginación por columna
-  const { columns: columnData, allColumnKeys, isInitializing, loadMore } = useColumnPagination({
+  const {
+    columns: columnData,
+    allColumnKeys,
+    isInitializing,
+    loadMore,
+  } = useColumnPagination({
     groupBy,
     baseFilters: apiFilters,
     pageSize: 20,
-    enabled: viewMode === 'columns'
+    enabled: viewMode === "columns",
   });
 
   const handleOpenProfiler = (lead: Lead) => {
@@ -85,7 +90,7 @@ export function LeadsContent({
     setSelectedLeadForProfiler(null);
   };
 
-  if (viewMode === 'table') {
+  if (viewMode === "table") {
     return (
       <>
         <LeadsTable
@@ -127,7 +132,7 @@ export function LeadsContent({
     return columnKey;
   };
 
-  if (viewMode === 'columns') {
+  if (viewMode === "columns") {
     if (isInitializing) {
       return (
         <div className="space-y-6">
@@ -155,21 +160,26 @@ export function LeadsContent({
               const columnState = columnData[columnKey];
               if (!columnState) return null;
 
+              const columnLeadIds = columnState.leads.map((lead) => lead.id);
+              const allSelected = columnLeadIds.length > 0 && columnLeadIds.every((id) => selectedLeads.includes(id));
+              const someSelected = columnLeadIds.some((id) => selectedLeads.includes(id)) && !allSelected;
+
+              const handleSelectAll = (checked: boolean) => {
+                onLeadSelectionChange(columnLeadIds, checked);
+              };
+
               return (
                 <div key={columnKey} className="space-y-0">
-                  {/* Header de la columna estilo Kanban */}
                   <div className="bg-[#CAF9CB] rounded-t-lg px-4 py-3 flex items-center justify-between border-b border-gray-200">
                     <div className="flex items-center gap-2">
                       <div className="w-3 h-3 rounded-full bg-green-500"></div>
-                      <h3 className="font-semibold text-sm text-gray-800">
-                        {getLabel(columnKey)}
-                      </h3>
+                      <h3 className="font-semibold text-sm text-gray-800">{getLabel(columnKey)}</h3>
                       <span className="text-xs bg-white px-2 py-1 rounded-full text-gray-600 font-medium">
                         ({columnState.total})
                       </span>
                     </div>
                   </div>
-                  
+
                   {/* Contenedor de tarjetas con scroll */}
                   <div className="bg-gray-50 border-l border-r border-b border-gray-200 rounded-b-lg min-h-[500px] max-h-[600px] overflow-y-auto p-3">
                     <div className="space-y-4">
@@ -198,7 +208,9 @@ export function LeadsContent({
                             disabled={columnState.loading}
                             className="text-xs"
                           >
-                            {columnState.loading ? 'Cargando...' : `Cargar más (${columnState.total - columnState.leads.length} más)`}
+                            {columnState.loading
+                              ? "Cargando..."
+                              : `Cargar más (${columnState.total - columnState.leads.length} más)`}
                           </Button>
                         </div>
                       )}
@@ -213,9 +225,7 @@ export function LeadsContent({
         <Dialog open={isProfilerOpen} onOpenChange={setIsProfilerOpen}>
           <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
-              <DialogTitle>
-                Sesión de Prospección: {selectedLeadForProfiler?.name}
-              </DialogTitle>
+              <DialogTitle>Sesión de Prospección: {selectedLeadForProfiler?.name}</DialogTitle>
             </DialogHeader>
             <LeadProfiler selectedLead={selectedLeadForProfiler} />
           </DialogContent>

@@ -64,7 +64,7 @@ export const OpportunityCard: React.FC<OpportunityCardProps> = ({ opportunity, o
       <Tooltip>
         <TooltipTrigger asChild>
           <Card
-            className={`group transition-all duration-300 shadow-md border-0 h-fit w-full max-w-[280px] relative ${
+            className={`group transition-all duration-300 shadow-md border-0 h-fit w-full max-w-[280px] mx-auto relative ${
               opportunity.isActive
                 ? "hover:shadow-xl hover:-translate-y-1 hover:shadow-lg bg-white cursor-pointer"
                 : "bg-gray-50 opacity-75 cursor-not-allowed"
@@ -73,38 +73,39 @@ export const OpportunityCard: React.FC<OpportunityCardProps> = ({ opportunity, o
           >
             {/* Inactive alert */}
             {!opportunity.isActive && (
-              <div className="absolute inset-0 z-10 flex items-center justify-center bg-black/20 rounded-lg p-4">
-                <Alert className="bg-blue-50 border-blue-200 max-w-[240px]">
-                  <CheckCircle className="h-4 w-4 text-blue-600" />
+              <div className="absolute inset-0 z-10 flex items-center justify-center bg-black/20 rounded-lg p-3 sm:p-4">
+                <Alert className="bg-blue-50 border-blue-200 max-w-[220px] sm:max-w-[240px]">
                   <AlertDescription className="text-blue-900">
-                    <p className="font-semibold text-sm mb-1">✓ Clientes ya cargados en el Módulo de Leads</p>
-                    <p className="text-xs mb-1">Búscalos filtrando la Campaña:</p>
-                    <p className="text-xs font-medium break-words">{opportunity.lastCampaignName || opportunity.title}</p>
+                    <p className="font-semibold text-xs sm:text-sm mb-1">✓ Clientes ya cargados en el Módulo de Leads</p>
+                    <p className="text-[10px] sm:text-xs mb-1">Búscalos filtrando la Campaña:</p>
+                    <p className="text-[10px] sm:text-xs font-medium break-words">
+                      {opportunity.lastCampaignName || opportunity.title}
+                    </p>
                   </AlertDescription>
                 </Alert>
               </div>
             )}
 
             {/* Top section with favorite button */}
-            <div className="flex justify-end p-2">
+            <div className="flex justify-end p-1.5 sm:p-2">
               <Button
                 variant="ghost"
                 size="icon"
                 onClick={handleFavoriteToggle}
-                className="h-6 w-6 shrink-0 hover:bg-red-50 hover:text-red-500"
+                className="h-5 w-5 sm:h-6 sm:w-6 shrink-0 hover:bg-red-50 hover:text-red-500"
                 disabled={!opportunity.isActive}
               >
-                <Heart className={`h-3 w-3 ${isFavorite ? "fill-red-500 text-red-500" : "text-muted-foreground"}`} />
+                <Heart className={`h-2.5 w-2.5 sm:h-3 sm:w-3 ${isFavorite ? "fill-red-500 text-red-500" : "text-muted-foreground"}`} />
               </Button>
             </div>
 
             <CardContent
-              className={`px-3 pb-3 pt-1 text-center space-y-2.5 ${!opportunity.isActive ? "grayscale" : ""}`}
+              className={`px-2 sm:px-3 pb-2 sm:pb-3 pt-0.5 sm:pt-1 text-center space-y-2 sm:space-y-2.5 ${!opportunity.isActive ? "grayscale" : ""}`}
             >
               {/* Large emoji as "product image" */}
               <div className="flex justify-center">
                 <div
-                  className={`text-6xl w-20 h-20 flex items-center justify-center rounded-2xl ${
+                  className={`text-5xl sm:text-6xl w-16 h-16 sm:w-20 sm:h-20 flex items-center justify-center rounded-xl sm:rounded-2xl ${
                     opportunity.isActive ? "bg-gradient-to-br from-primary/10 to-primary/5" : "bg-gray-100"
                   }`}
                 >
@@ -115,7 +116,7 @@ export const OpportunityCard: React.FC<OpportunityCardProps> = ({ opportunity, o
               {/* Title - centered */}
               <div>
                 <h3
-                  className={`font-bold text-sm line-clamp-2 transition-colors text-center ${
+                  className={`font-bold text-xs sm:text-sm line-clamp-2 transition-colors text-center ${
                     opportunity.isActive ? "group-hover:text-primary" : "text-gray-500"
                   }`}
                 >
@@ -127,36 +128,36 @@ export const OpportunityCard: React.FC<OpportunityCardProps> = ({ opportunity, o
               <div className="flex flex-wrap gap-1 justify-center">
                 <Badge
                   variant="outline"
-                  className={`text-xs px-1.5 py-0.5 font-semibold ${getPriorityColor(opportunity.priority)}`}
+                  className={`text-[10px] sm:text-xs px-1 sm:px-1.5 py-0.5 font-semibold ${getPriorityColor(opportunity.priority)}`}
                 >
                   {opportunity.priority.toUpperCase()}
                 </Badge>
                 <Badge
                   variant="secondary"
-                  className="text-xs px-1.5 py-0.5 font-medium bg-blue-50 text-blue-700 border-blue-200"
+                  className="text-[10px] sm:text-xs px-1 sm:px-1.5 py-0.5 font-medium bg-blue-50 text-blue-700 border-blue-200"
                 >
                   {OPPORTUNITY_TYPE_LABELS[opportunity.type]}
                 </Badge>
               </div>
 
               {/* Customer Count and Commission */}
-              <div className="flex items-center justify-center gap-3 text-xs">
-                <div className="flex items-center gap-1.5">
+              <div className="flex items-center justify-center gap-2 sm:gap-3 text-[10px] sm:text-xs">
+                <div className="flex items-center gap-1 sm:gap-1.5">
                   <div>
                     <span className="font-bold text-blue-700">{formatCustomerCount(opportunity.customerCount)}</span>
-                    <span className="text-muted-foreground ml-1">Clientes Impactables</span>
+                    <span className="text-muted-foreground ml-0.5 sm:ml-1">Clientes Impactables</span>
                   </div>
                 </div>
               </div>
 
               {opportunity.metrics && (
-                <div className="flex items-center justify-center gap-3 text-xs">
-                  <div className="flex items-center gap-1.5">
+                <div className="flex items-center justify-center gap-2 sm:gap-3 text-[10px] sm:text-xs">
+                  <div className="flex items-center gap-1 sm:gap-1.5">
                     <div>
                       <span className="font-bold text-primary">
                         ${(opportunity.metrics.estimatedSales / 1_000_000).toFixed(2)}M
                       </span>
-                      <span className="text-muted-foreground ml-1">Comisión Potencial</span>
+                      <span className="text-muted-foreground ml-0.5 sm:ml-1">Comisión Potencial</span>
                     </div>
                   </div>
                 </div>
@@ -165,7 +166,7 @@ export const OpportunityCard: React.FC<OpportunityCardProps> = ({ opportunity, o
               {/* Expiration Date */}
               {opportunity.expiresAt && (
                 <div className="flex justify-center">
-                  <Badge className="text-xs px-1.5 py-0.5 text-orange-600 bg-orange-50 border-orange-200">
+                  <Badge className="text-[10px] sm:text-xs px-1 sm:px-1.5 py-0.5 text-orange-600 bg-orange-50 border-orange-200">
                     Vence {formatBogotaDate(opportunity.expiresAt)}
                   </Badge>
                 </div>
@@ -175,7 +176,7 @@ export const OpportunityCard: React.FC<OpportunityCardProps> = ({ opportunity, o
               <Button
                 variant={opportunity.isActive ? "default" : "secondary"}
                 size="sm"
-                className={`w-full h-8 text-xs font-medium mt-4 ${
+                className={`w-full h-7 sm:h-8 text-[10px] sm:text-xs font-medium mt-3 sm:mt-4 ${
                   opportunity.isActive
                     ? "bg-primary hover:bg-primary/90 text-white"
                     : "bg-gray-200 text-gray-500 cursor-not-allowed hover:bg-gray-200"

@@ -693,7 +693,7 @@ Notas adicionales: ${lead.notes || "Ninguna"}`;
               </DialogTitle>
             </DialogHeader>
 
-            <Tabs defaultValue="general" className="w-full px-6">
+            <Tabs defaultValue="general" className="w-full px-2 lg:px-4">
               <TabsList className="grid w-full grid-cols-3 bg-gray-100 rounded-full px-0 py-0 my-0">
                 <TabsTrigger
                   value="general"
@@ -722,13 +722,13 @@ Notas adicionales: ${lead.notes || "Ninguna"}`;
                     Información General{editedLead.campaign && ` - Campaña: ${editedLead.campaign}`}
                   </CardTitle>
 
-                  <div className="grid grid-cols-2 gap-2">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                     <div className="space-y-0 border-2 border-[#3d4b5c26] shadow-md rounded-md p-2.5">
                       <Label className="p-0 text-sm text-gray-500 font-normal">Nombre completo</Label>
                       <Input
                         value={capitalizeWords(editedLead.name || "")}
                         onChange={(e) => handleGeneralChange("name", capitalizeWords(e.target.value))}
-                        className="border-0 border-b border-gray-200 rounded-none px-0 py-0 m-0 text-base font-medium bg-transparent leading-none h-auto min-h-0 focus:border-gray-400 focus:shadow-none focus:ring-0"
+                        className="border-0 border-b border-gray-200 rounded-none px-0 py-0 m-0 text-sm font-medium bg-transparent leading-none h-auto min-h-0 focus:border-gray-400 focus:shadow-none focus:ring-0"
                       />
                     </div>
                     <div className="space-y-0 border-2 border-[#3d4b5c26] shadow-md rounded-md p-2.5">
@@ -738,7 +738,7 @@ Notas adicionales: ${lead.notes || "Ninguna"}`;
                           <Input
                             value={capitalizeWords(editedLead.firstName || "")}
                             disabled
-                            className="border-0 border-b border-gray-200 rounded-none px-0 py-0 m-0 text-base font-medium bg-transparent leading-none h-auto min-h-0 focus:border-gray-400 focus:shadow-none focus:ring-0 cursor-not-allowed opacity-70"
+                            className="border-0 border-b border-gray-200 rounded-none px-0 py-0 m-0 text-sm font-medium bg-transparent leading-none h-auto min-h-0 focus:border-gray-400 focus:shadow-none focus:ring-0 cursor-not-allowed opacity-70"
                           />
                         </TooltipTrigger>
                         <TooltipContent>
@@ -748,7 +748,7 @@ Notas adicionales: ${lead.notes || "Ninguna"}`;
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-2">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                     <CustomFieldSelect
                       label="Tipo de Documento"
                       value={editedLead.documentType || ""}
@@ -768,19 +768,19 @@ Notas adicionales: ${lead.notes || "Ninguna"}`;
                         type="text"
                         value={editedLead.documentNumber || ""}
                         onChange={(e) => handleDocumentNumberChange(e.target.value)}
-                        className="border-0 border-b border-gray-200 rounded-none px-0 py-0 m-0 text-base font-medium bg-transparent leading-none h-auto min-h-0 focus:border-gray-400 focus:shadow-none focus:ring-0"
+                        className="border-0 border-b border-gray-200 rounded-none px-0 py-0 m-0 text-sm font-medium bg-transparent leading-none h-auto min-h-0 focus:border-gray-400 focus:shadow-none focus:ring-0"
                       />
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-2">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                     <div className="space-y-0 border-2 border-[#3d4b5c26] shadow-md rounded-md p-2.5">
                       <Label className="p-0 text-sm text-gray-500 font-normal">Edad</Label>
                       <Input
                         type="text"
                         value={editedLead.age || ""}
                         onChange={(e) => handleAgeChange(e.target.value)}
-                        className="border-0 border-b border-gray-200 rounded-none px-0 py-0 m-0 text-base font-medium bg-transparent leading-none h-auto min-h-0 focus:border-gray-400 focus:shadow-none focus:ring-0"
+                        className="border-0 border-b border-gray-200 rounded-none px-0 py-0 m-0 text-sm font-medium bg-transparent leading-none h-auto min-h-0 focus:border-gray-400 focus:shadow-none focus:ring-0"
                       />
                     </div>
 
@@ -797,14 +797,14 @@ Notas adicionales: ${lead.notes || "Ninguna"}`;
                     />
                   </div>
 
-                  <div className="grid grid-cols-2 gap-2">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                     <div className="space-y-0 border-2 border-[#3d4b5c26] shadow-md rounded-md p-2.5">
                       <Label className="p-0 text-sm text-gray-500 font-normal">Email</Label>
                       <Input
                         type="email"
                         value={(editedLead.email || "").toLowerCase()}
                         onChange={(e) => handleEmailChange(e.target.value)}
-                        className={`border-0 border-b border-gray-200 rounded-none px-0 py-0 m-0 text-base font-medium bg-transparent leading-none h-auto min-h-0 focus:border-gray-400 focus:shadow-none focus:ring-0 ${editedLead.email && !isValidEmail(editedLead.email) ? "border-red-500" : ""}`}
+                        className={`border-0 border-b border-gray-200 rounded-none px-0 py-0 m-0 text-sm font-medium bg-transparent leading-none h-auto min-h-0 focus:border-gray-400 focus:shadow-none focus:ring-0 ${editedLead.email && !isValidEmail(editedLead.email) ? "border-red-500" : ""}`}
                       />
                       {editedLead.email && !isValidEmail(editedLead.email) && (
                         <p className="text-red-500 text-xs mt-1">Formato de correo inválido</p>
@@ -816,7 +816,7 @@ Notas adicionales: ${lead.notes || "Ninguna"}`;
                         type="email"
                         value={(editedLead.alternateEmail || "").toLowerCase()}
                         onChange={(e) => handleGeneralChange("alternateEmail", e.target.value.toLowerCase())}
-                        className={`border-0 border-b border-gray-200 rounded-none px-0 py-0 m-0 text-base font-medium bg-transparent leading-none h-auto min-h-0 focus:border-gray-400 focus:shadow-none focus:ring-0 ${editedLead.alternateEmail && !isValidEmail(editedLead.alternateEmail) ? "border-red-500" : ""}`}
+                        className={`border-0 border-b border-gray-200 rounded-none px-0 py-0 m-0 text-sm font-medium bg-transparent leading-none h-auto min-h-0 focus:border-gray-400 focus:shadow-none focus:ring-0 ${editedLead.alternateEmail && !isValidEmail(editedLead.alternateEmail) ? "border-red-500" : ""}`}
                       />
                       {editedLead.alternateEmail && !isValidEmail(editedLead.alternateEmail) && (
                         <p className="text-red-500 text-xs mt-1">Formato de correo inválido</p>
@@ -824,13 +824,13 @@ Notas adicionales: ${lead.notes || "Ninguna"}`;
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-2">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                     <div className="space-y-0 border-2 border-[#3d4b5c26] shadow-md rounded-md p-2.5">
                       <Label className="p-0 text-sm text-gray-500 font-normal">Teléfono</Label>
                       <Input
                         value={editedLead.phone || ""}
                         onChange={(e) => handlePhoneChange(e.target.value)}
-                        className="border-0 border-b border-gray-200 rounded-none px-0 py-0 m-0 text-base font-medium bg-transparent leading-none h-auto min-h-0 focus:border-gray-400 focus:shadow-none focus:ring-0"
+                        className="border-0 border-b border-gray-200 rounded-none px-0 py-0 m-0 text-sm font-medium bg-transparent leading-none h-auto min-h-0 focus:border-gray-400 focus:shadow-none focus:ring-0"
                       />
                     </div>
                     <div className="space-y-0 border-2 border-[#3d4b5c26] shadow-md rounded-md p-2.5">
@@ -839,12 +839,12 @@ Notas adicionales: ${lead.notes || "Ninguna"}`;
                         type="number"
                         value={editedLead.value || 0}
                         onChange={(e) => handleGeneralChange("value", Number(e.target.value))}
-                        className="border-0 border-b border-gray-200 rounded-none px-0 py-0 m-0 text-base font-medium bg-transparent leading-none h-auto min-h-0 focus:border-gray-400 focus:shadow-none focus:ring-0"
+                        className="border-0 border-b border-gray-200 rounded-none px-0 py-0 m-0 text-sm font-medium bg-transparent leading-none h-auto min-h-0 focus:border-gray-400 focus:shadow-none focus:ring-0"
                       />
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-2">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                     <CustomFieldSelect
                       label="Ocupación"
                       value={editedLead.occupation || ""}
@@ -868,7 +868,7 @@ Notas adicionales: ${lead.notes || "Ninguna"}`;
                       <Input
                         value={editedLead.company || ""}
                         onChange={(e) => handleGeneralChange("company", e.target.value)}
-                        className="border-0 border-b border-gray-200 rounded-none px-0 py-0 m-0 text-base font-medium bg-transparent leading-none h-auto min-h-0 focus:border-gray-400 focus:shadow-none focus:ring-0"
+                        className="border-0 border-b border-gray-200 rounded-none px-0 py-0 m-0 text-sm font-medium bg-transparent leading-none h-auto min-h-0 focus:border-gray-400 focus:shadow-none focus:ring-0"
                       />
                     </div>
                   </div>
@@ -1059,10 +1059,10 @@ Notas adicionales: ${lead.notes || "Ninguna"}`;
 
               {/* Tab Gestión */}
               <TabsContent value="management" className="space-y-6">
-                <CardContent className="py-2 px-0 space-y-2">
+                <CardContent className="py-2 px-0 sm:px-0 space-y-2">
                   <CardTitle className="flex items-center pt-2">Resultado de la Gestión</CardTitle>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                     <CustomFieldSelect
                       label="Estado Actual"
                       value={editedLead.stage}
@@ -1101,7 +1101,7 @@ Notas adicionales: ${lead.notes || "Ninguna"}`;
                     />
                   </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                     <CustomFieldSelect
                       label="Resultado de Gestión"
                       value={result}
@@ -1127,7 +1127,7 @@ Notas adicionales: ${lead.notes || "Ninguna"}`;
                       ]}
                     />
                   </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                     <div className="space-y-0 border-2 border-[#3d4b5c26] shadow-md rounded-md p-2.5">
                       <Label htmlFor="followUpDate" className="text-sm text-gray-500 font-normal leading-tight">
                         Próximo seguimiento
@@ -1151,9 +1151,9 @@ Notas adicionales: ${lead.notes || "Ninguna"}`;
                       rows={3}
                     />
                   </div>
-                  <div className="flex w-full items-center gap-2">
+                  <div className="flex w-full items-center gap-1 sm:gap-2 flex-wrap sm:flex-nowrap">
                     {/* Izquierda */}
-                    <Button size="icon" onClick={() => onOpenMassEmail?.(lead)} className="w-8 h-8">
+                    <Button size="icon" onClick={() => onOpenMassEmail?.(lead)} className="w-8 h-8 shrink-0">
                       <Mail className="h-3 w-3" />
                     </Button>
 
@@ -1171,7 +1171,7 @@ Notas adicionales: ${lead.notes || "Ninguna"}`;
                           });
                         }
                       }}
-                      className="w-8 h-8"
+                      className="w-8 h-8 shrink-0"
                       title="WhatsApp"
                     >
                       <FaWhatsapp className="h-3 w-3" />
@@ -1180,13 +1180,16 @@ Notas adicionales: ${lead.notes || "Ninguna"}`;
                     <Button
                       size="icon"
                       onClick={handleScheduleOutlookMeeting}
-                      className="w-8 h-8"
+                      className="w-8 h-8 shrink-0"
                       title="Agendar reunión en Outlook"
                     >
                       <Calendar className="h-3 w-3" />
                     </Button>
 
-                    <Button onClick={handleProfilerClick} className="h-8 bg-primary text-white">
+                    <Button
+                      onClick={handleProfilerClick}
+                      className="h-8 bg-primary text-white text-xs sm:text-sm px-2 sm:px-4 shrink-0"
+                    >
                       {hasExistingProfile && profileData ? "Perfilar Lead" : "Perfilar Lead"}
                     </Button>
 
@@ -1194,7 +1197,7 @@ Notas adicionales: ${lead.notes || "Ninguna"}`;
                     <Button
                       onClick={handleSaveManagement}
                       disabled={!managementChanges || !contactMethod || !result || !managementNotes}
-                      className="ml-auto h-8 bg-primary text-white"
+                      className="ml-auto h-8 bg-primary text-white text-xs sm:text-sm px-2 sm:px-4 shrink-0"
                     >
                       Guardar Gestión
                     </Button>
@@ -1277,7 +1280,7 @@ Notas adicionales: ${lead.notes || "Ninguna"}`;
                                 </p>
                               ) : (
                                 <div className="space-y-3">
-                                   {clientLead.Interactions.map((interaction) => (
+                                  {clientLead.Interactions.map((interaction) => (
                                     <div
                                       key={interaction.Id}
                                       className="flex items-start gap-3 p-3 bg-gray-50 rounded-xl"
@@ -1295,33 +1298,33 @@ Notas adicionales: ${lead.notes || "Ninguna"}`;
                                           <h5 className="text-sm font-medium">
                                             {interaction.Description || "Sin título"}
                                           </h5>
-                                           <div className="flex items-center gap-2">
-                                             {interaction.UserName && (
-                                               <Badge variant="outline" className="text-xs">
-                                                 {interaction.UserName}
-                                               </Badge>
-                                             )}
-                                             {user?.id === interaction.UserId && (
-                                               <>
-                                                 <Button
-                                                   variant="ghost"
-                                                   size="sm"
-                                                   onClick={() => handleEditInteraction(interaction)}
-                                                   className="h-6 w-6 p-0"
-                                                 >
-                                                   <Pencil className="h-3 w-3" />
-                                                 </Button>
-                                                 <Button
-                                                   variant="ghost"
-                                                   size="sm"
-                                                   onClick={() => handleDeleteInteraction(interaction)}
-                                                   className="h-6 w-6 p-0 text-destructive hover:text-destructive"
-                                                 >
-                                                   <Trash2 className="h-3 w-3" />
-                                                 </Button>
-                                               </>
-                                             )}
-                                           </div>
+                                          <div className="flex items-center gap-2">
+                                            {interaction.UserName && (
+                                              <Badge variant="outline" className="text-xs">
+                                                {interaction.UserName}
+                                              </Badge>
+                                            )}
+                                            {user?.id === interaction.UserId && (
+                                              <>
+                                                <Button
+                                                  variant="ghost"
+                                                  size="sm"
+                                                  onClick={() => handleEditInteraction(interaction)}
+                                                  className="h-6 w-6 p-0"
+                                                >
+                                                  <Pencil className="h-3 w-3" />
+                                                </Button>
+                                                <Button
+                                                  variant="ghost"
+                                                  size="sm"
+                                                  onClick={() => handleDeleteInteraction(interaction)}
+                                                  className="h-6 w-6 p-0 text-destructive hover:text-destructive"
+                                                >
+                                                  <Trash2 className="h-3 w-3" />
+                                                </Button>
+                                              </>
+                                            )}
+                                          </div>
                                         </div>
                                         <div className="flex items-center gap-2 mt-1 text-xs text-muted-foreground flex-wrap">
                                           <span>Tipo: {interaction.Type}</span>
@@ -1372,33 +1375,33 @@ Notas adicionales: ${lead.notes || "Ninguna"}`;
                                       <div className="flex-1">
                                         <div className="flex items-center justify-between mb-2">
                                           <h4 className="font-medium">{interaction.Description || "Sin título"}</h4>
-                                           <div className="flex items-center gap-2">
-                                             {interaction.UserName && (
-                                               <Badge variant="outline" className="text-xs">
-                                                 {interaction.UserName}
-                                               </Badge>
-                                             )}
-                                             {user?.id === interaction.UserId && (
-                                               <>
-                                                 <Button
-                                                   variant="ghost"
-                                                   size="sm"
-                                                   onClick={() => handleEditInteraction(interaction)}
-                                                   className="h-7 w-7 p-0"
-                                                 >
-                                                   <Pencil className="h-4 w-4" />
-                                                 </Button>
-                                                 <Button
-                                                   variant="ghost"
-                                                   size="sm"
-                                                   onClick={() => handleDeleteInteraction(interaction)}
-                                                   className="h-7 w-7 p-0 text-destructive hover:text-destructive"
-                                                 >
-                                                   <Trash2 className="h-4 w-4" />
-                                                 </Button>
-                                               </>
-                                             )}
-                                           </div>
+                                          <div className="flex items-center gap-2">
+                                            {interaction.UserName && (
+                                              <Badge variant="outline" className="text-xs">
+                                                {interaction.UserName}
+                                              </Badge>
+                                            )}
+                                            {user?.id === interaction.UserId && (
+                                              <>
+                                                <Button
+                                                  variant="ghost"
+                                                  size="sm"
+                                                  onClick={() => handleEditInteraction(interaction)}
+                                                  className="h-7 w-7 p-0"
+                                                >
+                                                  <Pencil className="h-4 w-4" />
+                                                </Button>
+                                                <Button
+                                                  variant="ghost"
+                                                  size="sm"
+                                                  onClick={() => handleDeleteInteraction(interaction)}
+                                                  className="h-7 w-7 p-0 text-destructive hover:text-destructive"
+                                                >
+                                                  <Trash2 className="h-4 w-4" />
+                                                </Button>
+                                              </>
+                                            )}
+                                          </div>
                                         </div>
                                         <div className="flex items-center gap-3 mt-2 text-xs text-muted-foreground flex-wrap">
                                           <span>Tipo: {interaction.Type}</span>

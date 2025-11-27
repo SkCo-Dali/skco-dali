@@ -15,6 +15,7 @@ export interface EmailTemplateData {
   created_at: string;
   updated_at: string;
   type: 'own' | 'system';
+  opportunity_id: number | null;
 }
 
 export interface CreateEmailTemplateRequest {

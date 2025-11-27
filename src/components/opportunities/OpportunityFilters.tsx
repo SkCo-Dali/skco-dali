@@ -1,15 +1,21 @@
-import React from 'react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
-import { Badge } from '@/components/ui/badge';
-import { Slider } from '@/components/ui/slider';
-import { Filter, X, Search, SlidersHorizontal } from 'lucide-react';
-import { OpportunityFilters, SortOption, OPPORTUNITY_TYPE_LABELS, OpportunityType, Priority } from '@/types/opportunities';
-import { opportunitiesService } from '@/services/opportunitiesService';
+import React from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import { Badge } from "@/components/ui/badge";
+import { Slider } from "@/components/ui/slider";
+import { Filter, X, Search, SlidersHorizontal } from "lucide-react";
+import {
+  OpportunityFilters,
+  SortOption,
+  OPPORTUNITY_TYPE_LABELS,
+  OpportunityType,
+  Priority,
+} from "@/types/opportunities";
+import { opportunitiesService } from "@/services/opportunitiesService";
 
 interface OpportunityFiltersProps {
   filters: OpportunityFilters;
@@ -24,7 +30,7 @@ export const OpportunityFiltersComponent: React.FC<OpportunityFiltersProps> = ({
   sortBy,
   onFiltersChange,
   onSortChange,
-  onClearFilters
+  onClearFilters,
 }) => {
   const [isOpen, setIsOpen] = React.useState(false);
   const filterOptions = opportunitiesService.getFilterOptions();
@@ -35,13 +41,11 @@ export const OpportunityFiltersComponent: React.FC<OpportunityFiltersProps> = ({
 
   const handleTypeChange = (type: string, checked: boolean) => {
     const currentTypes = filters.type || [];
-    const newTypes = checked
-      ? [...currentTypes, type as OpportunityType]
-      : currentTypes.filter(t => t !== type);
-    
-    onFiltersChange({ 
-      ...filters, 
-      type: newTypes.length > 0 ? newTypes : undefined 
+    const newTypes = checked ? [...currentTypes, type as OpportunityType] : currentTypes.filter((t) => t !== type);
+
+    onFiltersChange({
+      ...filters,
+      type: newTypes.length > 0 ? newTypes : undefined,
     });
   };
 
@@ -49,32 +53,32 @@ export const OpportunityFiltersComponent: React.FC<OpportunityFiltersProps> = ({
     const currentPriorities = filters.priority || [];
     const newPriorities = checked
       ? [...currentPriorities, priority as Priority]
-      : currentPriorities.filter(p => p !== priority);
-    
-    onFiltersChange({ 
-      ...filters, 
-      priority: newPriorities.length > 0 ? newPriorities : undefined 
+      : currentPriorities.filter((p) => p !== priority);
+
+    onFiltersChange({
+      ...filters,
+      priority: newPriorities.length > 0 ? newPriorities : undefined,
     });
   };
 
   const handleCustomerCountChange = (value: number[]) => {
     onFiltersChange({
       ...filters,
-      customerCount: { min: value[0], max: value[1] }
+      customerCount: { min: value[0], max: value[1] },
     });
   };
 
-  const handleScoreChange = (value: number[]) => {
+  const handleCommissionChange = (value: number[]) => {
     onFiltersChange({
       ...filters,
-      score: { min: value[0], max: value[1] }
+      potentialCommission: { min: value[0], max: value[1] },
     });
   };
 
   const handleFavoritesToggle = (checked: boolean) => {
     onFiltersChange({
       ...filters,
-      onlyFavorites: checked || undefined
+      onlyFavorites: checked || undefined,
     });
   };
 
@@ -83,7 +87,7 @@ export const OpportunityFiltersComponent: React.FC<OpportunityFiltersProps> = ({
     if (filters.type?.length) count++;
     if (filters.priority?.length) count++;
     if (filters.customerCount) count++;
-    if (filters.score) count++;
+    if (filters.potentialCommission) count++;
     if (filters.onlyFavorites) count++;
     return count;
   };
@@ -91,24 +95,22 @@ export const OpportunityFiltersComponent: React.FC<OpportunityFiltersProps> = ({
   const activeFiltersCount = getActiveFiltersCount();
 
   const FilterContent = () => (
-    <div className="space-y-6">
+    <div className="space-y-3">
       {/* Only Favorites */}
-      <div className="space-y-3">
+      <div className="space-y-2">
         <Label className="text-sm font-medium">Filtros especiales</Label>
         <div className="flex items-center space-x-2">
-          <Checkbox
-            id="favorites"
-            checked={filters.onlyFavorites || false}
-            onCheckedChange={handleFavoritesToggle}
-          />
-          <Label htmlFor="favorites" className="text-sm">Solo favoritas</Label>
+          <Checkbox id="favorites" checked={filters.onlyFavorites || false} onCheckedChange={handleFavoritesToggle} />
+          <Label htmlFor="favorites" className="text-sm">
+            Solo favoritas
+          </Label>
         </div>
       </div>
 
       {/* Type Filter */}
-      <div className="space-y-3">
+      <div className="space-y-2">
         <Label className="text-sm font-medium">Tipo de oportunidad</Label>
-        <div className="space-y-2">
+        <div className="space-y-1.5">
           {filterOptions.types.map((type) => (
             <div key={type} className="flex items-center space-x-2">
               <Checkbox
@@ -125,9 +127,9 @@ export const OpportunityFiltersComponent: React.FC<OpportunityFiltersProps> = ({
       </div>
 
       {/* Priority Filter */}
-      <div className="space-y-3">
+      <div className="space-y-2">
         <Label className="text-sm font-medium">Prioridad</Label>
-        <div className="space-y-2">
+        <div className="space-y-1.5">
           {filterOptions.priorities.map((priority) => (
             <div key={priority} className="flex items-center space-x-2">
               <Checkbox
@@ -144,7 +146,7 @@ export const OpportunityFiltersComponent: React.FC<OpportunityFiltersProps> = ({
       </div>
 
       {/* Customer Count Range */}
-      <div className="space-y-3">
+      <div className="space-y-2">
         <Label className="text-sm font-medium">
           Número de clientes: {filters.customerCount?.min || 0} - {filters.customerCount?.max || 1500}
         </Label>
@@ -158,17 +160,17 @@ export const OpportunityFiltersComponent: React.FC<OpportunityFiltersProps> = ({
         />
       </div>
 
-      {/* Score Range */}
-      <div className="space-y-3">
+      {/* Potential Commission Range */}
+      <div className="space-y-2">
         <Label className="text-sm font-medium">
-          Score: {filters.score?.min || 0} - {filters.score?.max || 100}
+          Comisión potencial: ${filters.potentialCommission?.min || 0} - ${filters.potentialCommission?.max || 50000000}
         </Label>
         <Slider
-          value={[filters.score?.min || 0, filters.score?.max || 100]}
-          onValueChange={handleScoreChange}
-          max={100}
+          value={[filters.potentialCommission?.min || 0, filters.potentialCommission?.max || 50000000]}
+          onValueChange={handleCommissionChange}
+          max={50000000}
           min={0}
-          step={5}
+          step={1000000}
           className="w-full"
         />
       </div>
@@ -194,10 +196,9 @@ export const OpportunityFiltersComponent: React.FC<OpportunityFiltersProps> = ({
     <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
       {/* Search Bar */}
       <div className="relative flex-1 max-w-md">
-        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
         <Input
           placeholder="Buscar oportunidades..."
-          value={filters.search || ''}
+          value={filters.search || ""}
           onChange={(e) => handleSearchChange(e.target.value)}
           className="pl-10"
         />
@@ -205,6 +206,7 @@ export const OpportunityFiltersComponent: React.FC<OpportunityFiltersProps> = ({
 
       <div className="flex gap-2 items-center">
         {/* Sort Dropdown */}
+        <span className="text-sm text-muted-foreground">Ordenar por:</span>
         <Select value={sortBy} onValueChange={(value) => onSortChange(value as SortOption)}>
           <SelectTrigger className="w-[180px]">
             <SelectValue placeholder="Ordenar por" />
@@ -223,8 +225,8 @@ export const OpportunityFiltersComponent: React.FC<OpportunityFiltersProps> = ({
             <Button variant="outline" className="lg:hidden relative">
               <SlidersHorizontal className="h-4 w-4" />
               {activeFiltersCount > 0 && (
-                <Badge 
-                  variant="destructive" 
+                <Badge
+                  variant="destructive"
                   className="absolute -top-2 -right-2 h-5 w-5 p-0 flex items-center justify-center text-xs"
                 >
                   {activeFiltersCount}
@@ -236,7 +238,7 @@ export const OpportunityFiltersComponent: React.FC<OpportunityFiltersProps> = ({
             <SheetHeader>
               <SheetTitle>Filtros</SheetTitle>
             </SheetHeader>
-            <div className="mt-4 overflow-y-auto max-h-[calc(100vh-120px)]">
+            <div className="mt-3 h-full">
               <FilterContent />
             </div>
           </SheetContent>
@@ -249,10 +251,7 @@ export const OpportunityFiltersComponent: React.FC<OpportunityFiltersProps> = ({
               <Filter className="h-4 w-4 mr-2" />
               Filtros
               {activeFiltersCount > 0 && (
-                <Badge 
-                  variant="destructive" 
-                  className="ml-2 h-5 w-5 p-0 flex items-center justify-center text-xs"
-                >
+                <Badge variant="destructive" className="ml-2 h-5 w-5 p-0 flex items-center justify-center text-xs">
                   {activeFiltersCount}
                 </Badge>
               )}
@@ -262,7 +261,7 @@ export const OpportunityFiltersComponent: React.FC<OpportunityFiltersProps> = ({
             <SheetHeader>
               <SheetTitle>Filtros</SheetTitle>
             </SheetHeader>
-            <div className="mt-4 overflow-y-auto max-h-[calc(100vh-120px)]">
+            <div className="mt-3 h-full">
               <FilterContent />
             </div>
           </SheetContent>

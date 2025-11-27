@@ -77,7 +77,7 @@ export interface OpportunityFilters {
     min: number;
     max: number;
   };
-  score?: {
+  potentialCommission?: {
     min: number;
     max: number;
   };

@@ -92,7 +92,16 @@ export default function Leads() {
   const isSmallScreen = isMobile || isMedium;
 
   // Set default view mode based on screen size
-  const [viewMode, setViewMode] = useState<"table" | "columns">(isSmallScreen ? "columns" : "table");
+  const [viewMode, setViewMode] = useState<"table" | "columns">(
+    isMobile ? "columns" : "table"
+  );
+  
+  // Actualizar vista cuando cambia el tamaño de pantalla
+  useEffect(() => {
+    if (isMobile) {
+      setViewMode("columns");
+    }
+  }, [isMobile]);
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
   const [showBulkAssign, setShowBulkAssign] = useState(false);
   const [showUpload, setShowUpload] = useState(false);
@@ -691,11 +700,17 @@ export default function Leads() {
   }, []);
 
   const handleLeadSelectionChange = useCallback((leadIds: string[], isSelected: boolean) => {
-    if (isSelected) {
-      setSelectedLeads((prev) => [...new Set([...prev, ...leadIds])]);
-    } else {
-      setSelectedLeads((prev) => prev.filter((id) => !leadIds.includes(id)));
-    }
+    setSelectedLeads((prev) => {
+      if (isSelected) {
+        const newSelected = [...new Set([...prev, ...leadIds])];
+        console.log('✅ Adding leads. Previous:', prev, 'New selection:', newSelected);
+        return newSelected;
+      } else {
+        const newSelected = prev.filter((id) => !leadIds.includes(id));
+        console.log('❌ Removing leads. Previous:', prev, 'New selection:', newSelected);
+        return newSelected;
+      }
+    });
   }, []);
 
   const handleViewModeToggle = () => {
@@ -1367,13 +1382,23 @@ export default function Leads() {
         >
           <DialogContent className="max-w-6xl max-h-[90vh] overflow-auto">
             <MassEmailSender
-              filteredLeads={
-                selectedLeadForEmail
+              filteredLeads={(() => {
+                const computed = selectedLeadForEmail
                   ? [selectedLeadForEmail]
                   : selectedLeads.length > 0
                     ? filteredLeads.filter((lead) => selectedLeads.includes(lead.id))
-                    : filteredLeads
-              }
+                    : filteredLeads;
+                
+                console.log('🔴 Opening MassEmail with:', { 
+                  selectedLeadsCount: selectedLeads.length, 
+                  selectedLeads: selectedLeads,
+                  selectedLeadForEmail: !!selectedLeadForEmail,
+                  filteredLeadsCount: filteredLeads.length,
+                  computedLeadsCount: computed.length
+                });
+                
+                return computed;
+              })()}
               onClose={() => {
                 setShowMassEmail(false);
                 setSelectedLeadForEmail(null);

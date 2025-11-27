@@ -122,6 +122,29 @@ class EmailTemplatesService {
 
     return response.json();
   }
+
+  /**
+   * Obtiene plantilla por opportunity_id (la más reciente si hay múltiples)
+   */
+  async getTemplateByOpportunityId(opportunityId: number): Promise<EmailTemplateData | null> {
+    const templates = await this.getTemplates();
+    
+    // Filtrar plantillas que tengan el opportunity_id solicitado
+    const matchingTemplates = templates.filter(
+      (template) => template.opportunity_id === opportunityId
+    );
+
+    if (matchingTemplates.length === 0) {
+      return null;
+    }
+
+    // Si hay múltiples, tomar la más reciente por created_at
+    const sortedTemplates = matchingTemplates.sort(
+      (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+    );
+
+    return sortedTemplates[0];
+  }
 }
 
 export const emailTemplatesService = new EmailTemplatesService();

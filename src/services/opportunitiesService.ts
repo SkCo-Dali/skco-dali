@@ -79,9 +79,9 @@ class OpportunitiesService {
         }
       }
       
-      // Filter by score
-      if (filters.score) {
-        if (opp.score < filters.score.min || opp.score > filters.score.max) {
+      // Filter by potential commission
+      if (filters.potentialCommission) {
+        if ((opp.potentialCommission || 0) < filters.potentialCommission.min || (opp.potentialCommission || 0) > filters.potentialCommission.max) {
           return false;
         }
       }
