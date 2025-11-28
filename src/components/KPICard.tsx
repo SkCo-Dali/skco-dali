@@ -36,13 +36,13 @@ export function KPICard({
       onClick={onClick}
     >
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1.5">
-        <CardTitle className="text-xs font-medium truncate">{title}</CardTitle>
+        <CardTitle className="font-medium truncate">{title}</CardTitle>
         <Icon className="h-3.5 w-3.5 text-muted-foreground flex-shrink-0" />
       </CardHeader>
       <CardContent>
-        <div className="text-lg md:text-xl font-bold mb-0.5">{value}</div>
-        {change && <p className={`text-xs ${changeColor} mb-0.5`}>{change}</p>}
-        {description && <p className="text-xs text-muted-foreground truncate">{description}</p>}
+        <div className="text-md md:text-lg font-bold mb-0.5">{value}</div>
+        {change && <p className={`text-xs md:text-sm ${changeColor} mb-0.5`}>{change}</p>}
+        {description && <p className="text-xs md:text-sm text-muted-foreground truncate">{description}</p>}
       </CardContent>
     </Card>
   );
