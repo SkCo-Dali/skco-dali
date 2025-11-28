@@ -42,7 +42,7 @@ export function KPICard({
       <CardContent>
         <div className="text-md md:text-lg font-bold mb-0.5">{value}</div>
         {change && <p className={`text-xs md:text-sm ${changeColor} mb-0.5`}>{change}</p>}
-        {description && <p className="text-xs md:text-sm text-muted-foreground truncate">{description}</p>}
+        {description && <p className="text-xs md:text-sm text-muted-foreground text-wrap">{description}</p>}
       </CardContent>
     </Card>
   );
