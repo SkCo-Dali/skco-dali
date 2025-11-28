@@ -72,7 +72,7 @@
     --secondary-foreground: 0 0% 90%;
 
     --muted: 210 20% 12%;
-    --muted-foreground: 215 20% 65%;
+    --muted-foreground: 0 0% 95%;
 
     --accent: var(--skandia-accent);
     --accent-foreground: 0 0% 100%;
