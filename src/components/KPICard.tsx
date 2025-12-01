@@ -36,7 +36,7 @@ export function KPICard({
       onClick={onClick}
     >
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1.5">
-        <CardTitle className="font-medium truncate">{title}</CardTitle>
+        <CardTitle className="text-sm sm:text-base font-medium truncate pr-2">{title}</CardTitle>
         <Icon className="h-3.5 w-3.5 text-muted-foreground flex-shrink-0" />
       </CardHeader>
       <CardContent>

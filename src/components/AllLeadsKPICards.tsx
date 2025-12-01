@@ -38,11 +38,11 @@ export function AllLeadsKPICards({
 
   if (loading) {
     return (
-      <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-6 gap-4 mb-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-6 gap-3 sm:gap-4 mb-4">
         {[...Array(4)].map((_, i) => (
           <Skeleton key={i} className="h-32" />
         ))}
-        <div className="lg:col-span-2">
+        <div className="col-span-1 sm:col-span-2 lg:col-span-2">
           <Skeleton className="h-32" />
         </div>
       </div>
@@ -50,7 +50,7 @@ export function AllLeadsKPICards({
   }
 
   return (
-    <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-6 gap-4 mb-4">
+    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-6 gap-3 sm:gap-4 mb-4">
       <KPICard
         title="Total de Leads"
         value={totalLeads.toLocaleString()}
@@ -85,7 +85,7 @@ export function AllLeadsKPICards({
         description="Leads con venta fondeada"
       />
 
-      <div className="col-span-2 lg:col-span-2">
+      <div className="col-span-1 sm:col-span-2 lg:col-span-2">
         <LeadsStageCard leads={leads} stageCounts={stageCounts} totalLeads={totalLeads} loading={loading} />
       </div>
     </div>
