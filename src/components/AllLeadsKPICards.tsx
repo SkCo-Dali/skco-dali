@@ -38,7 +38,7 @@ export function AllLeadsKPICards({
 
   if (loading) {
     return (
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-6 gap-3 sm:gap-4 mb-4">
+      <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-6 gap-3 sm:gap-4 mb-4">
         {[...Array(4)].map((_, i) => (
           <Skeleton key={i} className="h-32" />
         ))}
