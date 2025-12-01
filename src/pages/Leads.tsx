@@ -990,14 +990,13 @@ export default function Leads() {
               {isSmallScreen && (
                 <div className="flex flex-col gap-2 w-full">
                   {/* Search bar - full width */}
-                  <div className="flex-1">
+                  <div className="w-full">
                     <LeadsSearch searchTerm={searchTerm} onSearchChange={setSearchTerm} />
                   </div>
 
-                  {/* Buttons row - wrapped and visible */}
-                  <div className="flex gap-2 items-center justify-between">
-                    {/* Actions buttons on the left */}
-                    {userPermissions && user?.email && (
+                  {/* Actions buttons row */}
+                  {userPermissions && user?.email && (
+                    <div className="w-full flex justify-start">
                       <LeadsActionsButton
                         onCreateLead={handleCreateLead}
                         onBulkAssign={handleBulkAssign}
@@ -1014,136 +1013,136 @@ export default function Leads() {
                         }
                         userEmail={user.email}
                       />
-                    )}
+                    </div>
+                  )}
 
-                    {/* Filter, customize and view mode buttons on the right */}
-                    <div className="flex gap-2 shrink-0">
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button
-                            className="text-[#3f3f3f] bg-white border border-gray-300 rounded-md hover:bg-white hover:border-gray-300"
-                            size="sm"
-                            style={{
-                              width: "32px",
-                              height: "32px",
-                            }}
-                          >
-                            <Filter className="h-4 w-4 text-[#00c73d]" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent
-                          className="w-auto p-0 bg-white rounded-2xl shadow-lg border border-gray-200"
-                          align="end"
-                        >
-                          <LeadsFilters
-                            searchTerm={searchTerm}
-                            setSearchTerm={setSearchTerm}
-                            filterStage={filterStage}
-                            setFilterStage={setFilterStage}
-                            filterPriority={filterPriority}
-                            setFilterPriority={setFilterPriority}
-                            filterAssignedTo={filterAssignedTo}
-                            setFilterAssignedTo={setFilterAssignedTo}
-                            filterSource={filterSource}
-                            setFilterSource={setFilterSource}
-                            filterCampaign={filterCampaign}
-                            setFilterCampaign={setFilterCampaign}
-                            filterDateFrom={filterDateFrom}
-                            setFilterDateFrom={setFilterDateFrom}
-                            filterDateTo={filterDateTo}
-                            setFilterDateTo={setFilterDateTo}
-                            filterValueMin={filterValueMin}
-                            setFilterValueMin={setFilterValueMin}
-                            filterValueMax={filterValueMax}
-                            setFilterValueMax={setFilterValueMax}
-                            filterDuplicates={filterDuplicates}
-                            setFilterDuplicates={setFilterDuplicates}
-                            sortBy={sortBy}
-                            setSortBy={setSortBy}
-                            onClearFilters={clearFilters}
-                            uniqueStages={uniqueStages}
-                            uniqueSources={uniqueSources}
-                            uniqueCampaigns={uniqueCampaigns}
-                            uniqueAssignedTo={uniqueAssignedTo}
-                            duplicateCount={duplicateCount}
-                          />
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-
-                      {viewMode === "columns" && (
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button
-                              size="sm"
-                              className="text-[#3f3f3f] bg-white border border-gray-300 rounded-md hover:bg-white hover:border-gray-300"
-                              style={{
-                                width: "32px",
-                                height: "32px",
-                              }}
-                            >
-                              <Group className="h-4 w-4 text-[#00c73d]" />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent
-                            align="end"
-                            className="w-48 bg-white rounded-2xl shadow-lg border border-gray-200"
-                          >
-                            <div className="p-2">
-                              <DropdownMenuItem
-                                onClick={() => setGroupBy("stage")}
-                                className={groupBy === "stage" ? "bg-[#00c73d]/10 text-[#00c73d]" : ""}
-                              >
-                                Etapa
-                              </DropdownMenuItem>
-                              <DropdownMenuItem
-                                onClick={() => setGroupBy("priority")}
-                                className={groupBy === "priority" ? "bg-[#00c73d]/10 text-[#00c73d]" : ""}
-                              >
-                                Prioridad
-                              </DropdownMenuItem>
-                              <DropdownMenuItem
-                                onClick={() => setGroupBy("source")}
-                                className={groupBy === "source" ? "bg-[#00c73d]/10 text-[#00c73d]" : ""}
-                              >
-                                Fuente
-                              </DropdownMenuItem>
-                              <DropdownMenuItem
-                                onClick={() => setGroupBy("assignedTo")}
-                                className={groupBy === "assignedTo" ? "bg-[#00c73d]/10 text-[#00c73d]" : ""}
-                              >
-                                Asesor asignado
-                              </DropdownMenuItem>
-                              <DropdownMenuItem
-                                onClick={() => setGroupBy("campaign")}
-                                className={groupBy === "campaign" ? "bg-[#00c73d]/10 text-[#00c73d]" : ""}
-                              >
-                                Campaña
-                              </DropdownMenuItem>
-                            </div>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      )}
-
-                      {viewMode === "table" && (
-                        <div
+                  {/* Filter, customize and view mode buttons row */}
+                  <div className="w-full flex gap-2 items-center justify-start">
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button
+                          className="text-[#3f3f3f] bg-white border border-gray-300 rounded-md hover:bg-white hover:border-gray-300"
+                          size="sm"
                           style={{
                             width: "32px",
                             height: "32px",
                           }}
                         >
-                          <LeadsTableColumnSelector
-                            columns={columns}
-                            leads={paginatedLeads}
-                            onColumnsChange={setColumns}
-                            showTextLabel={false}
-                          />
-                        </div>
-                      )}
+                          <Filter className="h-4 w-4 text-[#00c73d]" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent
+                        className="w-auto p-0 bg-white rounded-2xl shadow-lg border border-gray-200"
+                        align="end"
+                      >
+                        <LeadsFilters
+                          searchTerm={searchTerm}
+                          setSearchTerm={setSearchTerm}
+                          filterStage={filterStage}
+                          setFilterStage={setFilterStage}
+                          filterPriority={filterPriority}
+                          setFilterPriority={setFilterPriority}
+                          filterAssignedTo={filterAssignedTo}
+                          setFilterAssignedTo={setFilterAssignedTo}
+                          filterSource={filterSource}
+                          setFilterSource={setFilterSource}
+                          filterCampaign={filterCampaign}
+                          setFilterCampaign={setFilterCampaign}
+                          filterDateFrom={filterDateFrom}
+                          setFilterDateFrom={setFilterDateFrom}
+                          filterDateTo={filterDateTo}
+                          setFilterDateTo={setFilterDateTo}
+                          filterValueMin={filterValueMin}
+                          setFilterValueMin={setFilterValueMin}
+                          filterValueMax={filterValueMax}
+                          setFilterValueMax={setFilterValueMax}
+                          filterDuplicates={filterDuplicates}
+                          setFilterDuplicates={setFilterDuplicates}
+                          sortBy={sortBy}
+                          setSortBy={setSortBy}
+                          onClearFilters={clearFilters}
+                          uniqueStages={uniqueStages}
+                          uniqueSources={uniqueSources}
+                          uniqueCampaigns={uniqueCampaigns}
+                          uniqueAssignedTo={uniqueAssignedTo}
+                          duplicateCount={duplicateCount}
+                        />
+                      </DropdownMenuContent>
+                    </DropdownMenu>
 
-                      <Button className="gap-1 w-8 h-8 bg-secondary" onClick={handleViewModeToggle} size="icon">
-                        {getViewModeIcon()}
-                      </Button>
-                    </div>
+                    {viewMode === "columns" && (
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button
+                            size="sm"
+                            className="text-[#3f3f3f] bg-white border border-gray-300 rounded-md hover:bg-white hover:border-gray-300"
+                            style={{
+                              width: "32px",
+                              height: "32px",
+                            }}
+                          >
+                            <Group className="h-4 w-4 text-[#00c73d]" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent
+                          align="end"
+                          className="w-48 bg-white rounded-2xl shadow-lg border border-gray-200"
+                        >
+                          <div className="p-2">
+                            <DropdownMenuItem
+                              onClick={() => setGroupBy("stage")}
+                              className={groupBy === "stage" ? "bg-[#00c73d]/10 text-[#00c73d]" : ""}
+                            >
+                              Etapa
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              onClick={() => setGroupBy("priority")}
+                              className={groupBy === "priority" ? "bg-[#00c73d]/10 text-[#00c73d]" : ""}
+                            >
+                              Prioridad
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              onClick={() => setGroupBy("source")}
+                              className={groupBy === "source" ? "bg-[#00c73d]/10 text-[#00c73d]" : ""}
+                            >
+                              Fuente
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              onClick={() => setGroupBy("assignedTo")}
+                              className={groupBy === "assignedTo" ? "bg-[#00c73d]/10 text-[#00c73d]" : ""}
+                            >
+                              Asesor asignado
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              onClick={() => setGroupBy("campaign")}
+                              className={groupBy === "campaign" ? "bg-[#00c73d]/10 text-[#00c73d]" : ""}
+                            >
+                              Campaña
+                            </DropdownMenuItem>
+                          </div>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    )}
+
+                    {viewMode === "table" && (
+                      <div
+                        style={{
+                          width: "32px",
+                          height: "32px",
+                        }}
+                      >
+                        <LeadsTableColumnSelector
+                          columns={columns}
+                          leads={paginatedLeads}
+                          onColumnsChange={setColumns}
+                          showTextLabel={false}
+                        />
+                      </div>
+                    )}
+
+                    <Button className="gap-1 w-8 h-8 bg-secondary" onClick={handleViewModeToggle} size="icon">
+                      {getViewModeIcon()}
+                    </Button>
                   </div>
                 </div>
               )}
