@@ -34,7 +34,7 @@ export const registerMsalFetchInterceptor = (instance: IPublicClientApplication)
                     if (account) {
                         try {
                             const tokenResp = await instance.acquireTokenSilent({ ...loginRequest, account });
-                            bearerToken = tokenResp.accessToken;
+                            bearerToken = ENV.ENTRA_TENANT_NAME === 'microsoft'?tokenResp.idToken:tokenResp.accessToken;
                         } catch (e) {
                             console.error("MSAL acquireTokenSilent failed - not attaching Authorization header", e);
                             bearerToken = undefined;
@@ -42,9 +42,6 @@ export const registerMsalFetchInterceptor = (instance: IPublicClientApplication)
                     }
 
                     if (bearerToken) {
-                        // Log token information for debugging
-                        const tokenPreview = bearerToken.substring(0, 20) + '...' + bearerToken.substring(bearerToken.length - 20);
-                       
                         
                         // Ensure headers object exists and set Authorization header
                         if (cfg.headers instanceof Headers) {
@@ -56,27 +53,6 @@ export const registerMsalFetchInterceptor = (instance: IPublicClientApplication)
                             };
                         }
 
-                        // Check if the URL ends with /api/emails/send
-                        if (reqUrl?.endsWith('/api/emails/send')) {
-                            
-
-                            const idpToken = extractIdpAccessToken(bearerToken);
-
-                            if (idpToken) {
-                                
-
-                                if (cfg.headers instanceof Headers) {
-                                    cfg.headers.set('X-Graph-Token', idpToken);
-                                } else {
-                                    cfg.headers = {
-                                        ...(cfg.headers as Record<string, string>),
-                                        'X-Graph-Token': idpToken,
-                                    };
-                                }
-                            } else {
-                                console.warn('Could not extract idp_access_token for /api/emails/send - request will continue without X-Graph-Token header');
-                            }
-                        }
                     }
                 } catch (error) {
                     console.error("Error acquiring token silently:", error);
