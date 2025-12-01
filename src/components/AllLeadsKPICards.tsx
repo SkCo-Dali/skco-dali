@@ -53,11 +53,9 @@ export function AllLeadsKPICards({
     <div
       className="
   grid grid-cols-2 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-6
-  gap-3 sm:gap-4 mb-4
+  gap-3 sm:gap-4 mb-4 
   w-full 
   max-w-[414px] sm:max-w-full
-  mx-auto
-  px-4 sm:px-0
 "
     >
       <KPICard
