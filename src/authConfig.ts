@@ -5,7 +5,9 @@ import { ENV } from '@/config/environment';
 // Configuración MSAL para Microsoft Entra ID
 export const msalConfig: Configuration = {
     auth: {
-         knownAuthorities: ENV.ENTRA_TENANT_NAME == 'microsoft' ? undefined : [`${ENV.ENTRA_TENANT_NAME}.b2clogin.com`],
+        ...(ENV.ENTRA_TENANT_NAME === 'microsoft'
+            ? {}
+            : { knownAuthorities: [`${ENV.ENTRA_TENANT_NAME}.b2clogin.com`] }),
         clientId: ENV.AZURE_CLIENT_ID,
         authority: ENV.AZURE_AUTHORITY,
         redirectUri: ENV.REDIRECT_URI
