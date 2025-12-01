@@ -92,7 +92,7 @@ export function AllLeadsKPICards({
         description="Leads con venta fondeada"
       />
 
-      <div className="col-span-1 sm:col-span-2 lg:col-span-2">
+      <div className="col-span-2 sm:col-span-2 lg:col-span-2">
         <LeadsStageCard leads={leads} stageCounts={stageCounts} totalLeads={totalLeads} loading={loading} />
       </div>
     </div>
