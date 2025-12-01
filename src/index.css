@@ -353,17 +353,23 @@
     background: #f1f5f9 !important;
   }
 
-  /* Columna sticky con ancho fijo */
+  /* Columna sticky con ancho fijo - deshabilitado en móvil */
   .leads-name-column-sticky {
-    position: sticky !important;
-    left: 0 !important;
-    z-index: 10 !important;
-    background: #fafafa !important;
-    border-right: 2px solid #fafafa !important;
-    box-shadow: 2px 0 4px rgba(0, 0, 0, 0.1) !important;
     width: 350px !important;
     min-width: 350px !important;
     max-width: 350px !important;
+  }
+
+  /* Sticky solo en pantallas medianas y arrarriba */
+  @media (min-width: 768px) {
+    .leads-name-column-sticky {
+      position: sticky !important;
+      left: 0 !important;
+      z-index: 10 !important;
+      background: #fafafa !important;
+      border-right: 2px solid #fafafa !important;
+      box-shadow: 2px 0 4px rgba(0, 0, 0, 0.1) !important;
+    }
   }
 
   /* Columnas regulares con ancho fijo */
@@ -392,9 +398,11 @@
     font-weight: 700 !important;
   }
 
-  .leads-table-header-sticky .leads-name-column-sticky {
-    z-index: 20 !important;
-    background: #fafafa !important;
+  @media (min-width: 768px) {
+    .leads-table-header-sticky .leads-name-column-sticky {
+      z-index: 20 !important;
+      background: #fafafa !important;
+    }
   }
 
   /* Dark mode */
@@ -417,10 +425,12 @@
     background: #374151 !important;
   }
 
-  .dark .leads-name-column-sticky {
-    background: #1f2937 !important;
-    border-right-color: #4b5563 !important;
-    box-shadow: 2px 0 4px rgba(0, 0, 0, 0.3) !important;
+  @media (min-width: 768px) {
+    .dark .leads-name-column-sticky {
+      background: #1f2937 !important;
+      border-right-color: #4b5563 !important;
+      box-shadow: 2px 0 4px rgba(0, 0, 0, 0.3) !important;
+    }
   }
 
   .dark .leads-table-header-sticky {
@@ -434,8 +444,10 @@
     font-weight: 700 !important;
   }
 
-  .dark .leads-table-header-sticky .leads-name-column-sticky {
-    background: #374151 !important;
+  @media (min-width: 768px) {
+    .dark .leads-table-header-sticky .leads-name-column-sticky {
+      background: #374151 !important;
+    }
   }
 
   /* Estilos de Tabla Estilo ChatGPT - MEJORADOS */
