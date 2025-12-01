@@ -1,4 +1,3 @@
-
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
@@ -11,18 +10,18 @@ interface LeadsPaginationProps {
   onLeadsPerPageChange: (leadsPerPage: number) => void;
 }
 
-export function LeadsPagination({ 
-  currentPage, 
-  totalPages, 
-  totalLeads, 
-  leadsPerPage, 
+export function LeadsPagination({
+  currentPage,
+  totalPages,
+  totalLeads,
+  leadsPerPage,
   onPageChange,
-  onLeadsPerPageChange 
+  onLeadsPerPageChange,
 }: LeadsPaginationProps) {
   const generatePageNumbers = () => {
     const pages = [];
     const maxVisiblePages = 5;
-    
+
     if (totalPages <= maxVisiblePages) {
       for (let i = 1; i <= totalPages; i++) {
         pages.push(i);
@@ -32,25 +31,25 @@ export function LeadsPagination({
         for (let i = 1; i <= 4; i++) {
           pages.push(i);
         }
-        pages.push('ellipsis');
+        pages.push("ellipsis");
         pages.push(totalPages);
       } else if (currentPage >= totalPages - 2) {
         pages.push(1);
-        pages.push('ellipsis');
+        pages.push("ellipsis");
         for (let i = totalPages - 3; i <= totalPages; i++) {
           pages.push(i);
         }
       } else {
         pages.push(1);
-        pages.push('ellipsis');
+        pages.push("ellipsis");
         for (let i = currentPage - 1; i <= currentPage + 1; i++) {
           pages.push(i);
         }
-        pages.push('ellipsis');
+        pages.push("ellipsis");
         pages.push(totalPages);
       }
     }
-    
+
     return pages;
   };
 
@@ -59,14 +58,14 @@ export function LeadsPagination({
   const endResult = Math.min(currentPage * leadsPerPage, totalLeads);
 
   return (
-    <div className="flex items-center justify-between p-4 bg-white border-t">
+    <div
+      className="flex items-center justify-between p-4 bg-white border-t w-full 
+  max-w-[414px] sm:max-w-full"
+    >
       <div className="flex items-center gap-4">
         <div className="flex items-center gap-2">
           <span className="text-sm text-gray-600">Mostrar:</span>
-          <Select 
-            value={leadsPerPage.toString()} 
-            onValueChange={(value) => onLeadsPerPageChange(Number(value))}
-          >
+          <Select value={leadsPerPage.toString()} onValueChange={(value) => onLeadsPerPageChange(Number(value))}>
             <SelectTrigger className="w-20 h-8 bg-white border border-gray-300">
               <SelectValue />
             </SelectTrigger>
@@ -77,36 +76,34 @@ export function LeadsPagination({
             </SelectContent>
           </Select>
         </div>
-        
+
         <span className="text-sm text-gray-600">
           Resultado {startResult} - {endResult} de {totalLeads}
         </span>
       </div>
-      
+
       {totalPages > 1 && (
         <div className="flex items-center gap-1">
           <button
             className={`flex items-center justify-center w-6 h-6 rounded-full ${
-              currentPage === 1 
-                ? 'bg-gray-300 text-gray-500 cursor-not-allowed' 
-                : 'bg-[#00C73D] text-white hover:bg-[#00b835]'
+              currentPage === 1
+                ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                : "bg-[#00C73D] text-white hover:bg-[#00b835]"
             }`}
             onClick={() => currentPage > 1 && onPageChange(currentPage - 1)}
             disabled={currentPage === 1}
           >
             <ChevronLeft className="h-4 w-4" />
           </button>
-          
+
           {generatePageNumbers().map((page, index) => (
             <div key={index}>
-              {page === 'ellipsis' ? (
+              {page === "ellipsis" ? (
                 <span className="px-2 py-1 text-[#3f3f3f]">...</span>
               ) : (
                 <button
                   className={`w-6 h-6 text-xs font-medium ${
-                    currentPage === page
-                      ? 'text-[#00C73D]'
-                      : 'text-[#3f3f3f] hover:text-[#00C73D]'
+                    currentPage === page ? "text-[#00C73D]" : "text-[#3f3f3f] hover:text-[#00C73D]"
                   }`}
                   onClick={() => onPageChange(page as number)}
                 >
@@ -115,12 +112,12 @@ export function LeadsPagination({
               )}
             </div>
           ))}
-          
+
           <button
             className={`flex items-center justify-center w-6 h-6 rounded-full ${
-              currentPage === totalPages 
-                ? 'bg-gray-300 text-gray-500 cursor-not-allowed' 
-                : 'bg-[#00C73D] text-white hover:bg-[#00b835]'
+              currentPage === totalPages
+                ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                : "bg-[#00C73D] text-white hover:bg-[#00b835]"
             }`}
             onClick={() => currentPage < totalPages && onPageChange(currentPage + 1)}
             disabled={currentPage === totalPages}
