@@ -58,74 +58,73 @@ export function LeadsPagination({
   const endResult = Math.min(currentPage * leadsPerPage, totalLeads);
 
   return (
-    <div
-      className="flex items-center justify-between px-0 py-4 bg-white border-t w-full 
-  max-w-[414px] sm:max-w-full"
-    >
-      <div className="flex items-center gap-4">
-        <div className="flex items-center gap-2">
-          <span className="text-sm text-gray-600">Mostrar:</span>
-          <Select value={leadsPerPage.toString()} onValueChange={(value) => onLeadsPerPageChange(Number(value))}>
-            <SelectTrigger className="w-20 h-8 bg-white border border-gray-300">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent className="bg-white border border-gray-300 shadow-lg z-50">
-              <SelectItem value="10">10</SelectItem>
-              <SelectItem value="50">50</SelectItem>
-              <SelectItem value="100">100</SelectItem>
-            </SelectContent>
-          </Select>
+    <div className="w-full bg-white border-t">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 px-2 sm:px-4 py-3">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4 w-full sm:w-auto">
+          <div className="flex items-center gap-2">
+            <span className="text-xs sm:text-sm text-gray-600 whitespace-nowrap">Mostrar:</span>
+            <Select value={leadsPerPage.toString()} onValueChange={(value) => onLeadsPerPageChange(Number(value))}>
+              <SelectTrigger className="w-16 sm:w-20 h-7 sm:h-8 bg-white border border-gray-300 text-xs sm:text-sm">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent className="bg-white border border-gray-300 shadow-lg z-50">
+                <SelectItem value="10">10</SelectItem>
+                <SelectItem value="50">50</SelectItem>
+                <SelectItem value="100">100</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <span className="text-xs sm:text-sm text-gray-600 whitespace-nowrap">
+            Resultado {startResult} - {endResult} de {totalLeads}
+          </span>
         </div>
 
-        <span className="text-sm text-gray-600">
-          Resultado {startResult} - {endResult} de {totalLeads}
-        </span>
+        {totalPages > 1 && (
+          <div className="flex items-center gap-0.5 sm:gap-1 w-full sm:w-auto justify-center sm:justify-end">
+            <button
+              className={`flex items-center justify-center w-5 h-5 sm:w-6 sm:h-6 rounded-full ${
+                currentPage === 1
+                  ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                  : "bg-[#00C73D] text-white hover:bg-[#00b835]"
+              }`}
+              onClick={() => currentPage > 1 && onPageChange(currentPage - 1)}
+              disabled={currentPage === 1}
+            >
+              <ChevronLeft className="h-3 w-3 sm:h-4 sm:w-4" />
+            </button>
+
+            {generatePageNumbers().map((page, index) => (
+              <div key={index}>
+                {page === "ellipsis" ? (
+                  <span className="px-1 sm:px-2 py-1 text-[#3f3f3f] text-xs">...</span>
+                ) : (
+                  <button
+                    className={`w-5 h-5 sm:w-6 sm:h-6 text-[10px] sm:text-xs font-medium ${
+                      currentPage === page ? "text-[#00C73D]" : "text-[#3f3f3f] hover:text-[#00C73D]"
+                    }`}
+                    onClick={() => onPageChange(page as number)}
+                  >
+                    {page}
+                  </button>
+                )}
+              </div>
+            ))}
+
+            <button
+              className={`flex items-center justify-center w-5 h-5 sm:w-6 sm:h-6 rounded-full ${
+                currentPage === totalPages
+                  ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                  : "bg-[#00C73D] text-white hover:bg-[#00b835]"
+              }`}
+              onClick={() => currentPage < totalPages && onPageChange(currentPage + 1)}
+              disabled={currentPage === totalPages}
+            >
+              <ChevronRight className="h-3 w-3 sm:h-4 sm:w-4" />
+            </button>
+          </div>
+        )}
       </div>
-
-      {totalPages > 1 && (
-        <div className="flex items-center gap-1">
-          <button
-            className={`flex items-center justify-center w-6 h-6 rounded-full ${
-              currentPage === 1
-                ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                : "bg-[#00C73D] text-white hover:bg-[#00b835]"
-            }`}
-            onClick={() => currentPage > 1 && onPageChange(currentPage - 1)}
-            disabled={currentPage === 1}
-          >
-            <ChevronLeft className="h-4 w-4" />
-          </button>
-
-          {generatePageNumbers().map((page, index) => (
-            <div key={index}>
-              {page === "ellipsis" ? (
-                <span className="px-2 py-1 text-[#3f3f3f]">...</span>
-              ) : (
-                <button
-                  className={`w-6 h-6 text-xs font-medium ${
-                    currentPage === page ? "text-[#00C73D]" : "text-[#3f3f3f] hover:text-[#00C73D]"
-                  }`}
-                  onClick={() => onPageChange(page as number)}
-                >
-                  {page}
-                </button>
-              )}
-            </div>
-          ))}
-
-          <button
-            className={`flex items-center justify-center w-6 h-6 rounded-full ${
-              currentPage === totalPages
-                ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                : "bg-[#00C73D] text-white hover:bg-[#00b835]"
-            }`}
-            onClick={() => currentPage < totalPages && onPageChange(currentPage + 1)}
-            disabled={currentPage === totalPages}
-          >
-            <ChevronRight className="h-4 w-4" />
-          </button>
-        </div>
-      )}
     </div>
   );
 }
