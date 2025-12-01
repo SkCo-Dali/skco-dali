@@ -28,7 +28,7 @@ export function LeadsSearch({ searchTerm, onSearchChange }: LeadsSearchProps) {
   }, [localValue, searchTerm, onSearchChange]);
 
   return (
-    <div className="relative w-full">
+    <div className="relative w-full max-w-full">
       <Input
         placeholder="Ingresa un dato para tu búsqueda"
         value={localValue}
