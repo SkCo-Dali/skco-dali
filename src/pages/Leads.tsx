@@ -904,7 +904,7 @@ export default function Leads() {
   return (
     <>
       <div className="w-full max-w-full py-4 space-y-6 overflow-x-hidden">
-        <div className="flex flex-col lg:flex-row gap-6 px-4 sm:px-4">
+        <div className="flex flex-col lg:flex-row gap-6 px-2 sm:px-4">
           <div className="flex-1 space-y-6 min-w-0">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 pt-0">
               <h1 className="text-3xl font-bold mb-1 tracking-tight text-[#00c73d]">Gestión de Leads</h1>

@@ -59,7 +59,7 @@ export function LeadsPagination({
 
   return (
     <div
-      className="flex items-center justify-between p-4 bg-white border-t w-full 
+      className="flex items-center justify-between px-0 py-4 bg-white border-t w-full 
   max-w-[414px] sm:max-w-full"
     >
       <div className="flex items-center gap-4">
