@@ -281,7 +281,8 @@
     max-width: 100%;
     background: #fafafa;
     border-radius: 8px;
-    overflow: visible;
+    overflow-x: auto;
+    overflow-y: visible;
     contain: layout style;
   }
 
