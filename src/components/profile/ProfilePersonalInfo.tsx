@@ -41,11 +41,11 @@ export function ProfilePersonalInfo({ profile, updateProfile, onBack }: Props) {
   const handleSave = async () => {
     // Validate phone before saving
     if (localData.phone) {
-      const phoneWithCountry = `${localData.countryCode || '+57'}${localData.phone}`;
+      const phoneWithCountry = `${localData.countryCode || "+57"}${localData.phone}`;
       const validation = normalizarTelefonoColombia(phoneWithCountry);
-      
+
       if (!validation.ok) {
-        setPhoneError(getMotivoDescripcion(validation.motivo || ''));
+        setPhoneError(getMotivoDescripcion(validation.motivo || ""));
         toast.error("Por favor corrige el número de WhatsApp");
         return;
       }
@@ -141,7 +141,7 @@ export function ProfilePersonalInfo({ profile, updateProfile, onBack }: Props) {
       });
 
       toast.success("✓ Información personal actualizada correctamente");
-      
+
       // Force re-sync localData with saved values to disable Save button
       // This ensures hasChanges becomes false after successful save
     } catch (error) {
@@ -162,6 +162,7 @@ export function ProfilePersonalInfo({ profile, updateProfile, onBack }: Props) {
           <div className="space-y-2">
             <Label htmlFor="preferredName">Nombre Preferido *</Label>
             <Input
+              className="text-sm"
               id="preferredName"
               value={localData.preferredName || ""}
               onChange={(e) => setLocalData({ ...localData, preferredName: e.target.value })}
@@ -207,13 +208,9 @@ export function ProfilePersonalInfo({ profile, updateProfile, onBack }: Props) {
       {/* WhatsApp */}
       <Card className="p-4 border-border/40 space-y-4">
         <h3 className="font-medium text-lg mb-4">WhatsApp *</h3>
-        <p className="text-sm text-muted-foreground mb-4">
-          Este número se usará para contactarte y en correos masivos
-        </p>
+        <p className="text-sm text-muted-foreground mb-4">Este número se usará para contactarte y en correos masivos</p>
         <CountryPhoneSelector
-          selectedCountryCode={
-            countries.find((c) => c.dialCode === localData.countryCode)?.code || "CO"
-          }
+          selectedCountryCode={countries.find((c) => c.dialCode === localData.countryCode)?.code || "CO"}
           phone={localData.phone || ""}
           onCountryChange={(countryCode, dialCode) => {
             setLocalData({ ...localData, countryCode: dialCode });
