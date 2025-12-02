@@ -98,7 +98,7 @@ export const Opportunities: React.FC = () => {
 
   return (
     <div className="bg-transparent min-h-screen">
-      <div className="w-full max-w-full px-3 sm:px-4 py-3 sm:py-4">
+      <div className="w-full max-w-full px-4 sm:px-4 py-3 sm:py-4">
         {/* Header */}
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-2 sm:gap-3 md:gap-4 mb-3 md:mb-4">
           <div>
