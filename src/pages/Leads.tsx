@@ -1016,12 +1016,8 @@ export default function Leads() {
                         }
                         userEmail={user.email}
                       />
-                    </div>
-                  )}
-
-                  {/* Filter, customize and view mode buttons row */}
-                  <div className="w-full flex gap-2 items-center justify-start">
-                    <DropdownMenu>
+                      )}
+                      <DropdownMenu>
                       <DropdownMenuTrigger asChild>
                         <Button
                           className="text-[#3f3f3f] bg-white border border-gray-300 rounded-md hover:bg-white hover:border-gray-300"
@@ -1146,7 +1142,7 @@ export default function Leads() {
                     <Button className="gap-1 w-8 h-8 bg-secondary" onClick={handleViewModeToggle} size="icon">
                       {getViewModeIcon()}
                     </Button>
-                  </div>
+                    </div>
                 </div>
               )}
 
