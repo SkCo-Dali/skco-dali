@@ -72,7 +72,7 @@ export function LeadsStageCard({
     return (
       <Card className="hover:shadow-md transition-shadow h-full">
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
-          <CardTitle className="text-sm font-medium">Resumen por Estado</CardTitle>
+          <CardTitle className="text-sm sm:text-base font-medium truncate pr-2">Resumen por Estado</CardTitle>
           <BarChart3 className="h-5 w-5 text-muted-foreground" />
         </CardHeader>
         <CardContent className="pb-4">
@@ -88,7 +88,7 @@ export function LeadsStageCard({
         <CardTitle className="text-sm font-medium">Resumen por Estado</CardTitle>
         <BarChart3 className="h-5 w-5 text-muted-foreground" />
       </CardHeader>
-      <CardContent className="pb-4 px-3">
+      <CardContent>
         <div className="space-y-2 text-sm px-0">
           <div
             className={`space-y-2 ${!isExpanded ? "max-h-24 overflow-hidden" : "max-h-40 overflow-y-auto"} transition-all duration-300`}
