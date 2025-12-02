@@ -57,7 +57,7 @@ export const AdvisorFormacionTab = ({ advisorId }: Props) => {
               className="pl-9 h-8 text-sm"
             />
           </div>
-          <div class="flex justify-end"
+          <div className="flex justify-end"
           <Button
             variant="default"
             size="sm"
