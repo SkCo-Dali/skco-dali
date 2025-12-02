@@ -19,37 +19,29 @@ type ViewMode = "table" | "cards";
 export const AdvisorFormacionTab = ({ advisorId }: Props) => {
   const [viewMode, setViewMode] = useState<ViewMode>("cards");
 
-  const courses = (learningRecordsData as LearningRecord[]).filter(
-    (record) => record.advisorId === advisorId
-  );
+  const courses = (learningRecordsData as LearningRecord[]).filter((record) => record.advisorId === advisorId);
 
-  const certifications = (certificationsData as Certification[]).filter(
-    (cert) => cert.advisorId === advisorId
-  );
+  const certifications = (certificationsData as Certification[]).filter((cert) => cert.advisorId === advisorId);
 
   return (
     <div className="space-y-4 sm:space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-        <h2 className="text-lg sm:text-2xl font-semibold">Formación & Certificaciones</h2>
-        <div className="flex items-center gap-2">
-          <Button
-            variant="default"
-            size="sm"
-            onClick={() => setViewMode(viewMode === "table" ? "cards" : "table")}
-            className="h-8 w-8 p-0 bg-[#00C73D] hover:bg-[#00C73D]/90"
-          >
-            {viewMode === "table" ? (
-              <LayoutGrid className="h-4 w-4" />
-            ) : (
-              <TableIcon className="h-4 w-4" />
-            )}
-          </Button>
-          <Button size="sm" className="text-xs sm:text-sm">
-            <Plus className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
-            <span className="hidden sm:inline">Asignar Curso</span>
-            <span className="sm:hidden">Asignar</span>
-          </Button>
-        </div>
+        <h2 className="text-md sm:text-lg font-semibold">Formación & Certificaciones</h2>
+      </div>
+      <div className="flex items-center gap-2">
+        <Button
+          variant="default"
+          size="sm"
+          onClick={() => setViewMode(viewMode === "table" ? "cards" : "table")}
+          className="h-8 w-8 p-0 bg-[#00C73D] hover:bg-[#00C73D]/90"
+        >
+          {viewMode === "table" ? <LayoutGrid className="h-4 w-4" /> : <TableIcon className="h-4 w-4" />}
+        </Button>
+        <Button size="sm" className="text-xs sm:text-sm">
+          <Plus className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
+          <span className="hidden sm:inline">Asignar Curso</span>
+          <span className="sm:hidden">Asignar</span>
+        </Button>
       </div>
 
       <Tabs defaultValue="courses" className="w-full">
@@ -63,11 +55,7 @@ export const AdvisorFormacionTab = ({ advisorId }: Props) => {
         </TabsList>
 
         <TabsContent value="courses" className="mt-4 sm:mt-6">
-          {viewMode === "table" ? (
-            <CoursesTableView courses={courses} />
-          ) : (
-            <CoursesCardsView courses={courses} />
-          )}
+          {viewMode === "table" ? <CoursesTableView courses={courses} /> : <CoursesCardsView courses={courses} />}
         </TabsContent>
 
         <TabsContent value="certifications" className="mt-4 sm:mt-6">
