@@ -32,7 +32,7 @@ export function LeadsSearch({ searchTerm, onSearchChange }: LeadsSearchProps) {
         placeholder="Ingresa un dato para tu búsqueda"
         value={localValue}
         onChange={(e) => setLocalValue(e.target.value)}
-        className="!pl-4 box-border w-full h-8"
+        className="!pl-4 box-border w-full h-8 text-sm"
       />
     </div>
   );
