@@ -156,7 +156,7 @@ export function ProfilePersonalInfo({ profile, updateProfile, onBack }: Props) {
     <div className="space-y-6 animate-fade-in">
       {/* Basic Info */}
       <Card className="p-0 border-0 shadow-none space-y-4">
-        <h3 className="font-medium text-md sm:text-lg mb-4">Datos Básicos</h3>
+        <h3 className="font-medium text-md sm:text-lg text-primary mb-4">Datos Básicos</h3>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-2">
@@ -208,7 +208,7 @@ export function ProfilePersonalInfo({ profile, updateProfile, onBack }: Props) {
 
       {/* WhatsApp */}
       <Card className="p-0 border-0 shadow-none space-y-4">
-        <h3 className="font-medium text-md sm:text-lg mb-4">WhatsApp *</h3>
+        <h3 className="font-medium text-md sm:text-lg text-primary mb-4">WhatsApp *</h3>
         <p className="text-sm text-muted-foreground mb-4">Este número se usará para contactarte y en correos masivos</p>
         <CountryPhoneSelector
           selectedCountryCode={countries.find((c) => c.dialCode === localData.countryCode)?.code || "CO"}
@@ -230,7 +230,7 @@ export function ProfilePersonalInfo({ profile, updateProfile, onBack }: Props) {
         <Collapsible open={socialMediaOpen} onOpenChange={setSocialMediaOpen}>
           <div className="flex items-center justify-between">
             <div>
-              <h3 className="font-medium text-md sm:text-lg">Redes Sociales</h3>
+              <h3 className="font-medium text-md sm:text-lg text-primary">Redes Sociales</h3>
               <p className="text-sm text-muted-foreground">Opcionales - se usarán en correos masivos</p>
             </div>
             <CollapsibleTrigger asChild>

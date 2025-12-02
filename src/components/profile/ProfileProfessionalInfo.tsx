@@ -48,7 +48,7 @@ export function ProfileProfessionalInfo({ profile, updateProfile, onBack }: Prop
 
       updateProfile(localData);
       toast.success("✓ Información profesional actualizada correctamente");
-      
+
       // Re-render will sync localData with updated profile prop via useEffect
     } catch (error) {
       console.error("Error saving professional info:", error);
@@ -60,7 +60,7 @@ export function ProfileProfessionalInfo({ profile, updateProfile, onBack }: Prop
 
   return (
     <div className="space-y-6 animate-fade-in">
-      <Card className="p-4 border-border/40 space-y-6">
+      <Card className="p-0 border-0 shadow-none space-y-4">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-2">
             <Label htmlFor="role">Cargo/Rol</Label>
