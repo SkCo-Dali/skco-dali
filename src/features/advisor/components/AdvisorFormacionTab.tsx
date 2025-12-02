@@ -32,22 +32,22 @@ export const AdvisorFormacionTab = ({ advisorId }: Props) => {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <h2 className="text-lg sm:text-2xl font-semibold">Formación & Certificaciones</h2>
         <div className="flex items-center gap-2">
-          <div className="flex items-center gap-1 border rounded-lg p-1">
+          <div className="flex items-center space-x-1 bg-muted rounded-xl p-1">
             <Button
               variant={viewMode === "table" ? "default" : "ghost"}
               size="sm"
               onClick={() => setViewMode("table")}
-              className="h-7 w-7 sm:h-8 sm:w-8 p-0"
+              className={`h-8 w-8 p-0 ${viewMode === "table" ? "bg-[#00C73D] hover:bg-[#00C73D]/90" : ""}`}
             >
-              <TableIcon className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+              <TableIcon className="h-4 w-4" />
             </Button>
             <Button
               variant={viewMode === "cards" ? "default" : "ghost"}
               size="sm"
               onClick={() => setViewMode("cards")}
-              className="h-7 w-7 sm:h-8 sm:w-8 p-0"
+              className={`h-8 w-8 p-0 ${viewMode === "cards" ? "bg-[#00C73D] hover:bg-[#00C73D]/90" : ""}`}
             >
-              <LayoutGrid className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+              <LayoutGrid className="h-4 w-4" />
             </Button>
           </div>
           <Button size="sm" className="text-xs sm:text-sm">
