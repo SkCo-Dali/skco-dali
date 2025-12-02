@@ -766,7 +766,11 @@ Por favor, confirmar asistencia.`;
       case "product":
         return <span className="text-gray-700 text-xs text-center">{cleanProductField(lead.product) || "-"}</span>;
       case "campaign":
-        return <span className="text-gray-700 text-xs text-center truncate">{lead.campaign || "-"}</span>;
+        return (
+          <span className="text-gray-700 text-xs text-center overflow-hidden text-ellipsis">
+            {lead.campaign || "-"}
+          </span>
+        );
       case "source":
         return <span className="text-gray-700 text-xs capitalize text-center">{lead.source}</span>;
       case "stage":
