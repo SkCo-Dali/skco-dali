@@ -48,8 +48,6 @@ export const AdvisorFormacionTab = ({ advisorId }: Props) => {
         <div className="flex items-center gap-2">
           <Button size="sm" className="text-xs sm:text-sm h-8 w-8 p-0 bg-[#00C73D] hover:bg-[#00C73D]/90">
             <Plus className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
-            <span className="hidden sm:inline">Asignar Curso</span>
-            <span className="sm:hidden">Asignar</span>
           </Button>
           <Button
             variant="default"
