@@ -32,24 +32,18 @@ export const AdvisorFormacionTab = ({ advisorId }: Props) => {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <h2 className="text-lg sm:text-2xl font-semibold">Formación & Certificaciones</h2>
         <div className="flex items-center gap-2">
-          <div className="flex items-center space-x-1 bg-muted rounded-xl p-1">
-            <Button
-              variant={viewMode === "table" ? "default" : "ghost"}
-              size="sm"
-              onClick={() => setViewMode("table")}
-              className={`h-8 w-8 p-0 ${viewMode === "table" ? "bg-[#00C73D] hover:bg-[#00C73D]/90" : ""}`}
-            >
-              <TableIcon className="h-4 w-4" />
-            </Button>
-            <Button
-              variant={viewMode === "cards" ? "default" : "ghost"}
-              size="sm"
-              onClick={() => setViewMode("cards")}
-              className={`h-8 w-8 p-0 ${viewMode === "cards" ? "bg-[#00C73D] hover:bg-[#00C73D]/90" : ""}`}
-            >
+          <Button
+            variant="default"
+            size="sm"
+            onClick={() => setViewMode(viewMode === "table" ? "cards" : "table")}
+            className="h-8 w-8 p-0 bg-[#00C73D] hover:bg-[#00C73D]/90"
+          >
+            {viewMode === "table" ? (
               <LayoutGrid className="h-4 w-4" />
-            </Button>
-          </div>
+            ) : (
+              <TableIcon className="h-4 w-4" />
+            )}
+          </Button>
           <Button size="sm" className="text-xs sm:text-sm">
             <Plus className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
             <span className="hidden sm:inline">Asignar Curso</span>
