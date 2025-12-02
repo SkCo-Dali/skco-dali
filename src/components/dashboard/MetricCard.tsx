@@ -33,8 +33,8 @@ export function MetricCard({
         : "bg-muted text-muted-foreground border-border";
 
   return (
-    <Card className="relative h-full">
-      <CardContent className="gap-4 !pb-0">
+    <Card className="relative h-full pb-0">
+      <CardContent className="gap-4">
         <div className="space-y-2">
           <p className="text-sm text-muted-foreground">{title}</p>
           <p className="text-3xl font-bold text-foreground">{value}</p>
