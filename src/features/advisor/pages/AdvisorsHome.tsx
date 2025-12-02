@@ -123,6 +123,8 @@ export const AdvisorsHome = () => {
       </CardContent>
 
       {/* Table */}
+    <div className="leads-table-container-scroll">
+     <div className="leads-table-scroll-wrapper shadow-sm border">
       <Card className="border-border/40 shadow-sm">
         <CardContent className="p-2">
           <div className="overflow-x-auto">
@@ -181,6 +183,7 @@ export const AdvisorsHome = () => {
           </div>
         </CardContent>
       </Card>
+     </div>
     </div>
   );
 };
