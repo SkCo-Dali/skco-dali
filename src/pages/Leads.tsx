@@ -926,7 +926,7 @@ export default function Leads() {
                 <div className="flex flex-1 items-center gap-2">
                   {userPermissions?.canCreate && (
                     <Button
-                      className="gap-1 w-8 h-8 bg-primary"
+                      className="h-8 w-8 gap-2 px-3 py-2 h-auto"
                       onClick={handleCreateLead}
                       size="icon"
                       title="Crear Lead"
@@ -936,7 +936,7 @@ export default function Leads() {
                   )}
                   {userPermissions?.canBulkAssignLeads && (
                     <Button
-                      className="gap-1 w-8 h-8 bg-primary"
+                      className="h-8 w-8 gap-2 px-3 py-2 h-auto"
                       onClick={handleBulkAssign}
                       size="icon"
                       title="Asignación Masiva"
@@ -946,10 +946,9 @@ export default function Leads() {
                   )}
                   {userPermissions?.canBulkUpdateStage && (
                     <Button
-                      className="gap-1 w-8 h-8 bg-primary"
+                      className="h-8 w-8 gap-2 px-3 py-2 h-auto"
                       onClick={() => setShowBulkStatusUpdate(true)}
                       size="icon"
-                      disabled={selectedLeads.length === 0}
                       title="Actualizar Estado Masivamente"
                     >
                       <CheckCircle2 className="h-4 w-4" />
@@ -957,7 +956,7 @@ export default function Leads() {
                   )}
                   {userPermissions?.canSendEmail && isAuthorizedForMassEmail(user?.email) && (
                     <Button
-                      className="gap-1 w-8 h-8 bg-primary"
+                      className="h-8 w-8 gap-2 px-3 py-2 h-auto"
                       onClick={handleMassEmail}
                       size="icon"
                       title="Enviar Email Masivo"
@@ -977,7 +976,7 @@ export default function Leads() {
                   )}
                   {userPermissions?.canDelete && (
                     <Button
-                      className="gap-1 w-8 h-8 bg-red-600 hover:bg-red-700"
+                      className="h-8 w-8 gap-2 px-3 py-2 h-auto bg-red-600 hover:bg-red-700"
                       onClick={handleDeleteSelectedLeads}
                       size="icon"
                       disabled={isDeleting}
@@ -992,11 +991,6 @@ export default function Leads() {
 
               {isSmallScreen && (
                 <div className="flex flex-col gap-2 w-full">
-                  {/* Search bar - full width */}
-                  <div className="w-full">
-                    <LeadsSearch searchTerm={searchTerm} onSearchChange={setSearchTerm} />
-                  </div>
-
                   {/* Actions buttons row */}
                   <div className="w-full flex justify-start gap-2 flex-wrap">
                     {userPermissions && user?.email && (
@@ -1142,7 +1136,11 @@ export default function Leads() {
                     <Button className="gap-1 w-8 h-8 bg-secondary" onClick={handleViewModeToggle} size="icon">
                       {getViewModeIcon()}
                     </Button>
-                    </div>
+                  </div>
+                  {/* Search bar - full width */}
+                  <div className="w-full">
+                    <LeadsSearch searchTerm={searchTerm} onSearchChange={setSearchTerm} />
+                  </div>
                 </div>
               )}
 
