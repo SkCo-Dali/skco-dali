@@ -9,7 +9,7 @@ interface Props {
 
 export const CoursesTableView = ({ courses }: Props) => {
   return (
-    <div className="border rounded-lg">
+    <div className="border rounded-lg overflow-x-auto min-w-0">
       <Table>
         <TableHeader>
           <TableRow>

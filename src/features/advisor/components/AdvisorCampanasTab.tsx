@@ -1,7 +1,8 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
 import {
   Table,
   TableBody,
@@ -11,7 +12,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Skeleton } from "@/components/ui/skeleton";
-import { ExternalLink, AlertCircle } from "lucide-react";
+import { ExternalLink, AlertCircle, Search } from "lucide-react";
 import { useProviders } from "@/core/di/providers";
 import type { Campaign, CampaignAssignment } from "@/core/api/dto";
 
@@ -21,9 +22,10 @@ interface Props {
 
 export const AdvisorCampanasTab = ({ advisorId }: Props) => {
   const { campaigns: campaignProvider } = useProviders();
-  const [campaigns, setCampaigns] = useState<Campaign[]>([]);
+  const [allCampaigns, setAllCampaigns] = useState<Campaign[]>([]);
   const [assignments, setAssignments] = useState<CampaignAssignment[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
     loadData();
@@ -36,7 +38,7 @@ export const AdvisorCampanasTab = ({ advisorId }: Props) => {
         campaignProvider.getAdvisorCampaigns(advisorId),
         campaignProvider.getAdvisorCampaignAssignments(advisorId),
       ]);
-      setCampaigns(campaignsData);
+      setAllCampaigns(campaignsData);
       setAssignments(assignmentsData);
     } catch (error) {
       console.error("Error loading campaigns:", error);
@@ -44,6 +46,16 @@ export const AdvisorCampanasTab = ({ advisorId }: Props) => {
       setIsLoading(false);
     }
   };
+
+  const campaigns = useMemo(() => {
+    if (!searchTerm.trim()) return allCampaigns;
+    const term = searchTerm.toLowerCase();
+    return allCampaigns.filter((campaign) =>
+      campaign.nombre.toLowerCase().includes(term) ||
+      campaign.producto.toLowerCase().includes(term) ||
+      campaign.canal.toLowerCase().includes(term)
+    );
+  }, [allCampaigns, searchTerm]);
 
   const getAssignment = (campaignId: string) => {
     return assignments.find((a) => a.campaignId === campaignId);
@@ -92,12 +104,23 @@ export const AdvisorCampanasTab = ({ advisorId }: Props) => {
     <div className="space-y-4 sm:space-y-6">
       <Card>
         <CardHeader className="p-3 sm:p-6">
-          <CardTitle className="text-base sm:text-lg">Campañas Asignadas ({campaigns.length})</CardTitle>
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <CardTitle className="text-base sm:text-lg">Campañas Asignadas ({campaigns.length})</CardTitle>
+            <div className="relative w-full sm:w-64">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Buscar campaña..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-9 h-8 text-sm"
+              />
+            </div>
+          </div>
         </CardHeader>
         <CardContent className="p-3 sm:p-6 pt-0">
           {campaigns.length === 0 ? (
             <p className="text-center text-xs sm:text-base text-muted-foreground py-6 sm:py-8">
-              No hay campañas asignadas a este asesor
+              {searchTerm ? "No se encontraron campañas" : "No hay campañas asignadas a este asesor"}
             </p>
           ) : (
             <>
