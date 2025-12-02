@@ -208,7 +208,7 @@ export function ProfilePersonalInfo({ profile, updateProfile, onBack }: Props) {
 
       {/* WhatsApp */}
       <Card className="p-0 border-0 shadow-none space-y-4">
-        <h3 className="font-medium text-lg mb-4">WhatsApp *</h3>
+        <h3 className="font-medium text-sm sm:text-md mb-4">WhatsApp *</h3>
         <p className="text-sm text-muted-foreground mb-4">Este número se usará para contactarte y en correos masivos</p>
         <CountryPhoneSelector
           selectedCountryCode={countries.find((c) => c.dialCode === localData.countryCode)?.code || "CO"}
@@ -230,7 +230,7 @@ export function ProfilePersonalInfo({ profile, updateProfile, onBack }: Props) {
         <Collapsible open={socialMediaOpen} onOpenChange={setSocialMediaOpen}>
           <div className="flex items-center justify-between">
             <div>
-              <h3 className="font-medium text-lg">Redes Sociales</h3>
+              <h3 className="font-medium text-sm sm:text-md">Redes Sociales</h3>
               <p className="text-sm text-muted-foreground">Opcionales - se usarán en correos masivos</p>
             </div>
             <CollapsibleTrigger asChild>
