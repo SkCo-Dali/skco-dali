@@ -30,7 +30,7 @@ export function KPICard({
 
   return (
     <Card
-      className={`hover:shadow-md transition-all h-full ${onClick ? "cursor-pointer" : ""} ${
+      className={`hover:shadow-md transition-all h-full pt-4 pb-4 ${onClick ? "cursor-pointer" : ""} ${
         isActive ? "bg-primary/10 border-primary shadow-md" : ""
       }`}
       onClick={onClick}
