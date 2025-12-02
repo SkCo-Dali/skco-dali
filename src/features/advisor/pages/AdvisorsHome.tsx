@@ -123,67 +123,68 @@ export const AdvisorsHome = () => {
       </CardContent>
 
       {/* Table */}
-    <div className="leads-table-container-scroll">
-     <div className="leads-table-scroll-wrapper shadow-sm border">
-      <Card className="border-border/40 shadow-sm">
-        <CardContent className="p-2">
-          <div className="overflow-x-auto">
-            <Table>
-              <TableHeader>
-                <TableRow className="hover:bg-transparent border-b border-border/40">
-                  <TableHead className="font-semibold">ID</TableHead>
-                  <TableHead className="font-semibold">Documento</TableHead>
-                  <TableHead className="font-semibold">Nombre</TableHead>
-                  <TableHead className="font-semibold">Región</TableHead>
-                  <TableHead className="font-semibold">Zona</TableHead>
-                  <TableHead className="font-semibold">Jefe</TableHead>
-                  <TableHead className="font-semibold">Canal</TableHead>
-                  <TableHead className="font-semibold">Estado</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {isLoading ? (
-                  Array.from({ length: 5 }).map((_, idx) => (
-                    <TableRow key={idx}>
-                      <TableCell colSpan={8}>
-                        <Skeleton className="h-12 w-full" />
-                      </TableCell>
+      <div className="leads-table-container-scroll">
+        <div className="leads-table-scroll-wrapper shadow-sm border">
+          <Card className="border-border/40 shadow-sm">
+            <CardContent className="p-2">
+              <div className="overflow-x-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow className="hover:bg-transparent border-b border-border/40">
+                      <TableHead className="font-semibold">ID</TableHead>
+                      <TableHead className="font-semibold">Documento</TableHead>
+                      <TableHead className="font-semibold">Nombre</TableHead>
+                      <TableHead className="font-semibold">Región</TableHead>
+                      <TableHead className="font-semibold">Zona</TableHead>
+                      <TableHead className="font-semibold">Jefe</TableHead>
+                      <TableHead className="font-semibold">Canal</TableHead>
+                      <TableHead className="font-semibold">Estado</TableHead>
                     </TableRow>
-                  ))
-                ) : advisors.length === 0 ? (
-                  <TableRow>
-                    <TableCell colSpan={8} className="text-center py-12">
-                      <div className="flex flex-col items-center gap-2">
-                        <Users className="h-12 w-12 text-muted-foreground/50" />
-                        <p className="text-muted-foreground font-medium">No se encontraron asesores</p>
-                        <p className="text-sm text-muted-foreground">Intenta ajustar los filtros de búsqueda</p>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ) : (
-                  advisors.map((advisor) => (
-                    <TableRow
-                      key={advisor.id}
-                      className="p-2 cursor-pointer hover:bg-primary/5 transition-colors border-b border-border/30"
-                      onClick={() => handleRowClick(advisor)}
-                    >
-                      <TableCell className="font-medium text-primary">{advisor.id}</TableCell>
-                      <TableCell className="text-foreground">{advisor.doc}</TableCell>
-                      <TableCell className="font-medium text-foreground">{advisor.nombre}</TableCell>
-                      <TableCell className="text-muted-foreground">{advisor.region}</TableCell>
-                      <TableCell className="text-muted-foreground">{advisor.zona}</TableCell>
-                      <TableCell className="text-muted-foreground">{advisor.jefe || "-"}</TableCell>
-                      <TableCell className="text-muted-foreground">{advisor.canal || "-"}</TableCell>
-                      <TableCell>{getEstadoBadge(advisor.estado)}</TableCell>
-                    </TableRow>
-                  ))
-                )}
-              </TableBody>
-            </Table>
-          </div>
-        </CardContent>
-      </Card>
-     </div>
+                  </TableHeader>
+                  <TableBody>
+                    {isLoading ? (
+                      Array.from({ length: 5 }).map((_, idx) => (
+                        <TableRow key={idx}>
+                          <TableCell colSpan={8}>
+                            <Skeleton className="h-12 w-full" />
+                          </TableCell>
+                        </TableRow>
+                      ))
+                    ) : advisors.length === 0 ? (
+                      <TableRow>
+                        <TableCell colSpan={8} className="text-center py-12">
+                          <div className="flex flex-col items-center gap-2">
+                            <Users className="h-12 w-12 text-muted-foreground/50" />
+                            <p className="text-muted-foreground font-medium">No se encontraron asesores</p>
+                            <p className="text-sm text-muted-foreground">Intenta ajustar los filtros de búsqueda</p>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ) : (
+                      advisors.map((advisor) => (
+                        <TableRow
+                          key={advisor.id}
+                          className="p-2 cursor-pointer hover:bg-primary/5 transition-colors border-b border-border/30"
+                          onClick={() => handleRowClick(advisor)}
+                        >
+                          <TableCell className="font-medium text-primary">{advisor.id}</TableCell>
+                          <TableCell className="text-foreground">{advisor.doc}</TableCell>
+                          <TableCell className="font-medium text-foreground">{advisor.nombre}</TableCell>
+                          <TableCell className="text-muted-foreground">{advisor.region}</TableCell>
+                          <TableCell className="text-muted-foreground">{advisor.zona}</TableCell>
+                          <TableCell className="text-muted-foreground">{advisor.jefe || "-"}</TableCell>
+                          <TableCell className="text-muted-foreground">{advisor.canal || "-"}</TableCell>
+                          <TableCell>{getEstadoBadge(advisor.estado)}</TableCell>
+                        </TableRow>
+                      ))
+                    )}
+                  </TableBody>
+                </Table>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
     </div>
   );
 };
