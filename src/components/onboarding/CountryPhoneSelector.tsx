@@ -61,7 +61,7 @@ export function CountryPhoneSelector({
                         setSearchQuery("");
                       }}
                     >
-                      <span className="text-2xl mr-2 font-emoji">{country.flag}</span>
+                      <span className="text-xs mr-2 font-emoji">{country.flag}</span>
                       <span className="flex-1">{country.name}</span>
                       <span className="text-muted-foreground">{country.dialCode}</span>
                       <Check
@@ -84,7 +84,7 @@ export function CountryPhoneSelector({
             placeholder="3109876543"
             value={phone}
             onChange={(e) => onPhoneChange(e.target.value.replace(/\D/g, ""))}
-            className={cn(error && "border-destructive")}
+            className={cn("text-sm", error && "border-destructive")}
           />
         </div>
       </div>
