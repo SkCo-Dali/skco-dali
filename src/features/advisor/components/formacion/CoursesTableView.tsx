@@ -9,8 +9,10 @@ interface Props {
 
 export const CoursesTableView = ({ courses }: Props) => {
   return (
-    <div className="border rounded-lg overflow-x-auto min-w-0">
-      <Table>
+    <div className="leads-table-container-scroll">
+      <div className="leads-table-scroll-wrapper !h-auto max-h-[400px] border rounded-lg">
+        <div className="leads-table-inner-scroll">
+          <Table>
         <TableHeader>
           <TableRow>
             <TableHead>Curso</TableHead>
@@ -47,6 +49,8 @@ export const CoursesTableView = ({ courses }: Props) => {
           ))}
         </TableBody>
       </Table>
+        </div>
+      </div>
     </div>
   );
 };
