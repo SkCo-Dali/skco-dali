@@ -27,17 +27,14 @@ export const AdvisorFormacionTab = ({ advisorId }: Props) => {
   const courses = useMemo(() => {
     if (!searchTerm.trim()) return allCourses;
     const term = searchTerm.toLowerCase();
-    return allCourses.filter((course) =>
-      course.nombre.toLowerCase().includes(term)
-    );
+    return allCourses.filter((course) => course.nombre.toLowerCase().includes(term));
   }, [allCourses, searchTerm]);
 
   const certifications = useMemo(() => {
     if (!searchTerm.trim()) return allCertifications;
     const term = searchTerm.toLowerCase();
-    return allCertifications.filter((cert) =>
-      cert.nombre.toLowerCase().includes(term) ||
-      cert.entidad.toLowerCase().includes(term)
+    return allCertifications.filter(
+      (cert) => cert.nombre.toLowerCase().includes(term) || cert.entidad.toLowerCase().includes(term),
     );
   }, [allCertifications, searchTerm]);
 
@@ -46,7 +43,7 @@ export const AdvisorFormacionTab = ({ advisorId }: Props) => {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <h2 className="text-md sm:text-lg font-semibold">Formación & Certificaciones</h2>
       </div>
-      
+
       <div className="flex flex-col sm:flex-row sm:items-center gap-3">
         <div className="relative flex-1 max-w-sm">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -85,7 +82,7 @@ export const AdvisorFormacionTab = ({ advisorId }: Props) => {
         </TabsList>
 
         <TabsContent value="courses" className="mt-4 sm:mt-6">
-          <div className="overflow-x-auto -mx-4 px-4 sm:mx-0 sm:px-0">
+          <div className="overflow-x-auto -mx-4 px-0 sm:mx-0 sm:px-0">
             {viewMode === "table" ? <CoursesTableView courses={courses} /> : <CoursesCardsView courses={courses} />}
           </div>
         </TabsContent>
