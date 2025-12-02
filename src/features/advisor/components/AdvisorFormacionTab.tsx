@@ -85,15 +85,19 @@ export const AdvisorFormacionTab = ({ advisorId }: Props) => {
         </TabsList>
 
         <TabsContent value="courses" className="mt-4 sm:mt-6">
-          {viewMode === "table" ? <CoursesTableView courses={courses} /> : <CoursesCardsView courses={courses} />}
+          <div className="overflow-x-auto -mx-4 px-4 sm:mx-0 sm:px-0">
+            {viewMode === "table" ? <CoursesTableView courses={courses} /> : <CoursesCardsView courses={courses} />}
+          </div>
         </TabsContent>
 
         <TabsContent value="certifications" className="mt-4 sm:mt-6">
-          {viewMode === "table" ? (
-            <CertificationsTableView certifications={certifications} />
-          ) : (
-            <CertificationsCardsView certifications={certifications} />
-          )}
+          <div className="overflow-x-auto -mx-4 px-4 sm:mx-0 sm:px-0">
+            {viewMode === "table" ? (
+              <CertificationsTableView certifications={certifications} />
+            ) : (
+              <CertificationsCardsView certifications={certifications} />
+            )}
+          </div>
         </TabsContent>
       </Tabs>
     </div>

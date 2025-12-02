@@ -38,10 +38,8 @@ export const CertificationsTableView = ({ certifications }: Props) => {
   };
 
   return (
-    <div className="leads-table-container-scroll">
-      <div className="leads-table-scroll-wrapper !h-auto max-h-[400px] border rounded-lg">
-        <div className="leads-table-inner-scroll">
-          <Table>
+    <div className="border rounded-lg overflow-x-auto min-w-0">
+      <Table>
         <TableHeader>
           <TableRow>
             <TableHead>Certificación</TableHead>
@@ -73,8 +71,6 @@ export const CertificationsTableView = ({ certifications }: Props) => {
           ))}
         </TableBody>
       </Table>
-        </div>
-      </div>
     </div>
   );
 };
