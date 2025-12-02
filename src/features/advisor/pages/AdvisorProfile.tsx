@@ -72,15 +72,22 @@ export const AdvisorProfile = () => {
   }
 
   return (
-    <div className="w-full max-w-full px-2 sm:px-4 py-3 sm:py-4 space-y-4 sm:space-y-6">
+    <div className="w-full max-w-full px-4 sm:px-4 py-3 sm:py-4 space-y-4 sm:space-y-6">
       {/* Header */}
       <div className="flex items-center gap-2 sm:gap-4 mb-2 sm:mb-4">
-        <Button variant="ghost" size="icon" onClick={() => navigate("/ficha-360")} className="hover:bg-primary/10 h-8 w-8 sm:h-10 sm:w-10">
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => navigate("/ficha-360")}
+          className="hover:bg-primary/10 h-8 w-8 sm:h-10 sm:w-10"
+        >
           <ArrowLeft className="h-4 w-4 sm:h-5 sm:w-5" />
         </Button>
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
-            <h1 className="text-base sm:text-xl md:text-2xl font-bold text-foreground truncate">{currentAdvisor.nombre}</h1>
+            <h1 className="text-base sm:text-xl md:text-2xl font-bold text-foreground truncate">
+              {currentAdvisor.nombre}
+            </h1>
             <span className="text-xs sm:text-sm text-muted-foreground">{currentAdvisor.id}</span>
           </div>
           <p className="text-xs sm:text-sm text-muted-foreground mt-0.5 sm:mt-1 truncate">
