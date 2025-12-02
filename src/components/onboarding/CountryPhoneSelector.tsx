@@ -37,7 +37,7 @@ export function CountryPhoneSelector({
       <div className="flex gap-2">
         <Popover open={open} onOpenChange={setOpen}>
           <PopoverTrigger asChild>
-            <Button variant="outline" role="combobox" aria-expanded={open} className="w-[180px] justify-start">
+            <Button variant="outline" role="combobox" aria-expanded={open} className="justify-start">
               <span className="flex items-center gap-2">
                 <span className="text-xs font-emoji">{selectedCountry.flag}</span>
                 <span className="text-sm">{selectedCountry.dialCode}</span>
