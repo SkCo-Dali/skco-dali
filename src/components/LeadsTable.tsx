@@ -243,7 +243,9 @@ function SortableHeader({
             }}
             onClearFilter={onClearFilter}
           />
-        ) : ["createdAt", "updatedAt", "nextFollowUp", "lastInteraction", "lastGestorInteractionAt"].includes(column.key) ? (
+        ) : ["createdAt", "updatedAt", "nextFollowUp", "lastInteraction", "lastGestorInteractionAt"].includes(
+            column.key,
+          ) ? (
           <ServerSideDateFilter
             field={column.key}
             label={column.label}
@@ -350,7 +352,11 @@ export function LeadsTable({
       return d.length === 10 ? `${d}T23:59:59` : d;
     };
 
-    const applyDateFilter = (field: "CreatedAt" | "UpdatedAt" | "LastInteractionAt" | "NextFollowUp", from?: string, to?: string) => {
+    const applyDateFilter = (
+      field: "CreatedAt" | "UpdatedAt" | "LastInteractionAt" | "NextFollowUp",
+      from?: string,
+      to?: string,
+    ) => {
       const toNorm = normalizeToEndOfDay(to);
       if (from && toNorm) {
         (apiFilters as any)[field] = { op: "between", from, to: toNorm };
@@ -760,7 +766,7 @@ Por favor, confirmar asistencia.`;
       case "product":
         return <span className="text-gray-700 text-xs text-center">{cleanProductField(lead.product) || "-"}</span>;
       case "campaign":
-        return <span className="text-gray-700 text-xs text-center">{lead.campaign || "-"}</span>;
+        return <span className="text-gray-700 text-xs text-center truncate">{lead.campaign || "-"}</span>;
       case "source":
         return <span className="text-gray-700 text-xs capitalize text-center">{lead.source}</span>;
       case "stage":
@@ -770,7 +776,11 @@ Por favor, confirmar asistencia.`;
       case "assignedToName":
         return <EditableLeadCell lead={lead} field="assignedToName" onUpdate={() => onLeadUpdate?.()} />;
       case "lastInteraction":
-        return <span className="text-gray-700 text-xs text-center">{lead.lastInteractionAt ? formatBogotaDate(lead.lastInteractionAt) : "-"}</span>;
+        return (
+          <span className="text-gray-700 text-xs text-center">
+            {lead.lastInteractionAt ? formatBogotaDate(lead.lastInteractionAt) : "-"}
+          </span>
+        );
       case "value":
         return <span className="text-gray-800 font-medium text-xs text-center">${lead.value.toLocaleString()}</span>;
       case "priority":
