@@ -381,7 +381,10 @@ const ChatSamiContent = forwardRef<ChatSamiHandle, ChatSamiProps>(({ isOpen = fa
       {/* Dialog fullscreen para móviles */}
       {isOpen && isMobile && viewMode !== "maximized" && (
         <Dialog open={isOpen && !isClosing} onOpenChange={handleToggle}>
-          <DialogContent className="max-w-[calc(100%-2rem)] h-[calc(100%-2rem)] w-[calc(100%-2rem)] p-0 rounded-lg flex flex-col" hideCloseButton>
+          <DialogContent
+            className="max-w-[calc(100%-2rem)] h-[calc(100%-2rem)] w-[calc(100%-2rem)] p-0 rounded-lg flex flex-col"
+            hideCloseButton
+          >
             {/* Header */}
             <div className="flex items-center justify-end bg-[#fafafa] h-14 px-4 shrink-0 border-b">
               <div className="flex items-center gap-1">
@@ -644,7 +647,6 @@ const ChatSamiContent = forwardRef<ChatSamiHandle, ChatSamiProps>(({ isOpen = fa
           <div className="flex flex-col h-[85vh] w-[90vw] max-w-4xl bg-background rounded-xl shadow-2xl overflow-hidden border">
             {/* Header */}
             <div className="flex items-center justify-between px-4 py-2 bg-[#fafafa] shrink-0">
-              <h2 className="text-lg font-semibold text-foreground">Dali</h2>
               <div className="flex items-center gap-3">
                 <Button
                   variant="ghost"
