@@ -14,18 +14,18 @@ export const AdvisorHistorialTab = ({ advisorId }: Props) => {
 
   return (
     <Card>
-      <CardHeader className="flex flex-row items-center justify-between">
-        <CardTitle>Historial de Actividades</CardTitle>
-        <Button onClick={handleCreateAlert} size="sm" className="gap-2">
-          <Bell className="h-4 w-4" />
+      <CardHeader className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3 sm:p-6">
+        <CardTitle className="text-base sm:text-lg">Historial de Actividades</CardTitle>
+        <Button onClick={handleCreateAlert} size="sm" className="gap-1 sm:gap-2 text-xs sm:text-sm w-fit">
+          <Bell className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
           Crear Alerta
         </Button>
       </CardHeader>
-      <CardContent>
-        <p className="text-muted-foreground">
+      <CardContent className="p-3 sm:p-6 pt-0">
+        <p className="text-xs sm:text-base text-muted-foreground">
           Implementación pendiente: Timeline de interacciones, cambios de estado, alertas y notas del asesor.
         </p>
-        <p className="text-sm text-muted-foreground mt-2">
+        <p className="text-[10px] sm:text-sm text-muted-foreground mt-2">
           Advisor ID: {advisorId}
         </p>
       </CardContent>
