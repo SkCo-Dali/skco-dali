@@ -142,7 +142,7 @@ export const AdvisorProfile = () => {
       {/* Tabs */}
       <Tabs value={activeTab} onValueChange={handleTabChange}>
         <div className="overflow-x-auto -mx-2 px-2 sm:mx-0 sm:px-0">
-          <TabsList className="inline-flex w-auto min-w-full sm:grid sm:w-full sm:grid-cols-6 bg-muted/30 h-auto p-1">
+          <TabsList className="flex justify-between w-auto min-w-full sm:grid sm:w-full sm:grid-cols-6 bg-muted/30 h-auto p-1">
             <TabsTrigger
               value="resumen"
               className="gap-1 sm:gap-2 px-2 sm:px-3 py-1.5 sm:py-2 text-xs sm:text-sm data-[state=active]:bg-primary data-[state=active]:text-primary-foreground whitespace-nowrap"
