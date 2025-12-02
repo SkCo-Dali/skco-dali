@@ -89,7 +89,7 @@ export function LeadsStageCard({
         <BarChart3 className="h-5 w-5 text-muted-foreground" />
       </CardHeader>
       <CardContent>
-        <div className="space-y-2 text-sm px-0">
+        <div className="space-y-2 text-sm px-0 py-0">
           <div
             className={`space-y-2 ${!isExpanded ? "max-h-24 overflow-hidden" : "max-h-40 overflow-y-auto"} transition-all duration-300`}
           >
