@@ -767,7 +767,7 @@ Por favor, confirmar asistencia.`;
         return <span className="text-gray-700 text-xs text-center">{cleanProductField(lead.product) || "-"}</span>;
       case "campaign":
         return (
-          <span className="text-gray-700 text-xs text-center overflow-hidden text-ellipsis">
+          <span className="text-gray-700 text-xs text-center overflow-hidden text-ellipsis text-nowrap">
             {lead.campaign || "-"}
           </span>
         );
