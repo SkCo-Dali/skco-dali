@@ -49,14 +49,6 @@ export const AdvisorFormacionTab = ({ advisorId }: Props) => {
           <Button size="sm" className="text-xs sm:text-sm h-8 w-8 p-0 bg-[#00C73D] hover:bg-[#00C73D]/90">
             <Plus className="h-4 w-4" />
           </Button>
-        </div>
-        <div className="relative flex-1 max-w-sm">
-          <Input
-            placeholder="Buscar curso o certificación..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-9 h-8 text-sm"
-          />
           <Button
             variant="default"
             size="sm"
@@ -65,6 +57,14 @@ export const AdvisorFormacionTab = ({ advisorId }: Props) => {
           >
             {viewMode === "table" ? <LayoutGrid className="h-4 w-4" /> : <TableIcon className="h-4 w-4" />}
           </Button>
+        </div>
+        <div className="relative flex-1 max-w-sm">
+          <Input
+            placeholder="Buscar curso o certificación..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="pl-9 h-8 text-sm"
+          />
         </div>
       </div>
 
