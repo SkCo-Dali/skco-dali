@@ -998,8 +998,8 @@ export default function Leads() {
                   </div>
 
                   {/* Actions buttons row */}
-                  {userPermissions && user?.email && (
-                    <div className="w-full flex justify-start">
+                  <div className="w-full flex justify-start gap-2 flex-wrap">
+                    {userPermissions && user?.email && (
                       <LeadsActionsButton
                         onCreateLead={handleCreateLead}
                         onBulkAssign={handleBulkAssign}
@@ -1016,8 +1016,8 @@ export default function Leads() {
                         }
                         userEmail={user.email}
                       />
-                      )}
-                      <DropdownMenu>
+                    )}
+                    <DropdownMenu>
                       <DropdownMenuTrigger asChild>
                         <Button
                           className="text-[#3f3f3f] bg-white border border-gray-300 rounded-md hover:bg-white hover:border-gray-300"
