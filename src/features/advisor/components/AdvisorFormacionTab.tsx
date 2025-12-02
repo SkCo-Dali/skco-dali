@@ -57,6 +57,7 @@ export const AdvisorFormacionTab = ({ advisorId }: Props) => {
               className="pl-9 h-8 text-sm"
             />
           </div>
+          <div class="flex justify-end"
           <Button
             variant="default"
             size="sm"
@@ -65,6 +66,7 @@ export const AdvisorFormacionTab = ({ advisorId }: Props) => {
           >
             {viewMode === "table" ? <LayoutGrid className="h-4 w-4" /> : <TableIcon className="h-4 w-4" />}
           </Button>
+          </div>
         </div>
       </div>
 
