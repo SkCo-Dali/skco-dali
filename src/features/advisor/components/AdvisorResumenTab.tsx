@@ -28,7 +28,7 @@ export const AdvisorResumenTab = ({ advisor }: Props) => {
   };
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-8 gap-4 lg:gap-6 p-3 sm:p-4 border shadow-sm rounded-xl">
+    <div className="grid grid-cols-1 lg:grid-cols-8 gap-4 lg:gap-6 p-0 border-0 shadow-none rounded-xl">
       {/* Left Side - Basic Info */}
       <div className="lg:col-span-3 space-y-4 lg:space-y-6 bg-[#EDFEFA] rounded-xl">
         {/* Avatar and Name */}
@@ -192,7 +192,9 @@ export const AdvisorResumenTab = ({ advisor }: Props) => {
                   <Building className="h-3 w-3" />
                   <span>Dirección de residencia</span>
                 </div>
-                <p className="text-xs sm:text-sm font-medium text-foreground">Calle 12A # 12 Bis - 24 Apartamento 302</p>
+                <p className="text-xs sm:text-sm font-medium text-foreground">
+                  Calle 12A # 12 Bis - 24 Apartamento 302
+                </p>
               </div>
 
               {/* País */}
