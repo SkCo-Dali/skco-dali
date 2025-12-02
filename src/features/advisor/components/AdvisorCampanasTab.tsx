@@ -3,14 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ExternalLink, AlertCircle, Search } from "lucide-react";
 import { useProviders } from "@/core/di/providers";
@@ -50,10 +43,11 @@ export const AdvisorCampanasTab = ({ advisorId }: Props) => {
   const campaigns = useMemo(() => {
     if (!searchTerm.trim()) return allCampaigns;
     const term = searchTerm.toLowerCase();
-    return allCampaigns.filter((campaign) =>
-      campaign.nombre.toLowerCase().includes(term) ||
-      campaign.producto.toLowerCase().includes(term) ||
-      campaign.canal.toLowerCase().includes(term)
+    return allCampaigns.filter(
+      (campaign) =>
+        campaign.nombre.toLowerCase().includes(term) ||
+        campaign.producto.toLowerCase().includes(term) ||
+        campaign.canal.toLowerCase().includes(term),
     );
   }, [allCampaigns, searchTerm]);
 
@@ -63,9 +57,7 @@ export const AdvisorCampanasTab = ({ advisorId }: Props) => {
 
   const calculateProgress = (assignment?: CampaignAssignment) => {
     if (!assignment?.leadsAsignados) return 0;
-    return Math.round(
-      (assignment.leadsAtendidos! / assignment.leadsAsignados) * 100
-    );
+    return Math.round((assignment.leadsAtendidos! / assignment.leadsAsignados) * 100);
   };
 
   const handleVerLeads = (campaignId: string) => {
@@ -84,7 +76,11 @@ export const AdvisorCampanasTab = ({ advisorId }: Props) => {
       pausada: "secondary",
       finalizada: "destructive",
     };
-    return <Badge variant={variants[estado] || "secondary"} className="text-[10px] sm:text-xs">{estado}</Badge>;
+    return (
+      <Badge variant={variants[estado] || "secondary"} className="text-[10px] sm:text-xs">
+        {estado}
+      </Badge>
+    );
   };
 
   if (isLoading) {
@@ -107,7 +103,6 @@ export const AdvisorCampanasTab = ({ advisorId }: Props) => {
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <CardTitle className="text-base sm:text-lg">Campañas Asignadas ({campaigns.length})</CardTitle>
             <div className="relative w-full sm:w-64">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
                 placeholder="Buscar campaña..."
                 value={searchTerm}
@@ -146,17 +141,17 @@ export const AdvisorCampanasTab = ({ advisorId }: Props) => {
                         </div>
                         <div className="bg-muted/30 rounded p-2">
                           <p className="text-[10px] text-muted-foreground">Leads</p>
-                          <p className="text-xs font-medium">{assignment?.leadsAtendidos || 0}/{assignment?.leadsAsignados || 0}</p>
+                          <p className="text-xs font-medium">
+                            {assignment?.leadsAtendidos || 0}/{assignment?.leadsAsignados || 0}
+                          </p>
                         </div>
                         <div className="bg-muted/30 rounded p-2">
                           <p className="text-[10px] text-muted-foreground">Avance</p>
-                          <p className={`text-xs font-medium ${
-                            progress >= 80
-                              ? "text-green-600"
-                              : progress >= 50
-                              ? "text-yellow-600"
-                              : "text-red-600"
-                          }`}>
+                          <p
+                            className={`text-xs font-medium ${
+                              progress >= 80 ? "text-green-600" : progress >= 50 ? "text-yellow-600" : "text-red-600"
+                            }`}
+                          >
                             {progress}%
                           </p>
                         </div>
@@ -207,18 +202,13 @@ export const AdvisorCampanasTab = ({ advisorId }: Props) => {
 
                       return (
                         <TableRow key={campaign.campaignId}>
-                          <TableCell className="font-medium">
-                            {campaign.nombre}
-                          </TableCell>
+                          <TableCell className="font-medium">{campaign.nombre}</TableCell>
                           <TableCell>{campaign.producto}</TableCell>
                           <TableCell>{campaign.canal}</TableCell>
                           <TableCell>{getEstadoBadge(campaign.estado)}</TableCell>
+                          <TableCell className="text-right">{assignment?.cuota || "-"}</TableCell>
                           <TableCell className="text-right">
-                            {assignment?.cuota || "-"}
-                          </TableCell>
-                          <TableCell className="text-right">
-                            {assignment?.leadsAtendidos || 0} /{" "}
-                            {assignment?.leadsAsignados || 0}
+                            {assignment?.leadsAtendidos || 0} / {assignment?.leadsAsignados || 0}
                           </TableCell>
                           <TableCell className="text-right">
                             <span
@@ -226,8 +216,8 @@ export const AdvisorCampanasTab = ({ advisorId }: Props) => {
                                 progress >= 80
                                   ? "text-green-600 font-medium"
                                   : progress >= 50
-                                  ? "text-yellow-600"
-                                  : "text-red-600"
+                                    ? "text-yellow-600"
+                                    : "text-red-600"
                               }
                             >
                               {progress}%
@@ -247,9 +237,7 @@ export const AdvisorCampanasTab = ({ advisorId }: Props) => {
                               <Button
                                 size="sm"
                                 variant="ghost"
-                                onClick={() =>
-                                  handleReportIncidence(campaign.campaignId)
-                                }
+                                onClick={() => handleReportIncidence(campaign.campaignId)}
                               >
                                 <AlertCircle className="h-4 w-4" />
                               </Button>

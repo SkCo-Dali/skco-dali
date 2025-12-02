@@ -45,16 +45,12 @@ export const AdvisorFormacionTab = ({ advisorId }: Props) => {
       </div>
 
       <div className="flex flex-col sm:flex-row sm:items-center gap-3">
-        <div className="relative flex-1 max-w-sm">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input
-            placeholder="Buscar curso o certificación..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-9 h-8 text-sm"
-          />
-        </div>
         <div className="flex items-center gap-2">
+          <Button size="sm" className="text-xs sm:text-sm">
+            <Plus className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
+            <span className="hidden sm:inline">Asignar Curso</span>
+            <span className="sm:hidden">Asignar</span>
+          </Button>
           <Button
             variant="default"
             size="sm"
@@ -63,11 +59,14 @@ export const AdvisorFormacionTab = ({ advisorId }: Props) => {
           >
             {viewMode === "table" ? <LayoutGrid className="h-4 w-4" /> : <TableIcon className="h-4 w-4" />}
           </Button>
-          <Button size="sm" className="text-xs sm:text-sm">
-            <Plus className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
-            <span className="hidden sm:inline">Asignar Curso</span>
-            <span className="sm:hidden">Asignar</span>
-          </Button>
+        </div>
+        <div className="relative flex-1 max-w-sm">
+          <Input
+            placeholder="Buscar curso o certificación..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="pl-9 h-8 text-sm"
+          />
         </div>
       </div>
 
