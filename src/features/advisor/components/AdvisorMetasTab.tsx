@@ -18,25 +18,26 @@ export const AdvisorMetasTab = ({ advisorId }: Props) => {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       <Card>
-        <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle>Metas & Plan 30-60-90</CardTitle>
+        <CardHeader className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3 sm:p-6">
+          <CardTitle className="text-base sm:text-lg">Metas & Plan 30-60-90</CardTitle>
           <div className="flex gap-2">
-            <Button onClick={handleEditGoal} size="sm">
+            <Button onClick={handleEditGoal} size="sm" className="text-xs sm:text-sm">
               Editar Meta
             </Button>
-            <Button onClick={handleAddTask} size="sm" variant="outline" className="gap-2">
-              <Plus className="h-4 w-4" />
-              Añadir Tarea
+            <Button onClick={handleAddTask} size="sm" variant="outline" className="gap-1 sm:gap-2 text-xs sm:text-sm">
+              <Plus className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+              <span className="hidden sm:inline">Añadir Tarea</span>
+              <span className="sm:hidden">Añadir</span>
             </Button>
           </div>
         </CardHeader>
-        <CardContent>
-          <p className="text-muted-foreground">
+        <CardContent className="p-3 sm:p-6 pt-0">
+          <p className="text-xs sm:text-base text-muted-foreground">
             Implementación pendiente: Metas por producto, avance vs objetivo, y plan de acción 30-60-90 días.
           </p>
-          <p className="text-sm text-muted-foreground mt-2">
+          <p className="text-[10px] sm:text-sm text-muted-foreground mt-2">
             Advisor ID: {advisorId}
           </p>
         </CardContent>

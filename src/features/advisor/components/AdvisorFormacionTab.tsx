@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { LayoutGrid, Table as TableIcon, Plus } from "lucide-react";
@@ -29,46 +28,47 @@ export const AdvisorFormacionTab = ({ advisorId }: Props) => {
   );
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-semibold">Formación & Certificaciones</h2>
+    <div className="space-y-4 sm:space-y-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <h2 className="text-lg sm:text-2xl font-semibold">Formación & Certificaciones</h2>
         <div className="flex items-center gap-2">
           <div className="flex items-center gap-1 border rounded-lg p-1">
             <Button
               variant={viewMode === "table" ? "default" : "ghost"}
               size="sm"
               onClick={() => setViewMode("table")}
-              className="h-8 w-8 p-0"
+              className="h-7 w-7 sm:h-8 sm:w-8 p-0"
             >
-              <TableIcon className="h-4 w-4" />
+              <TableIcon className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
             </Button>
             <Button
               variant={viewMode === "cards" ? "default" : "ghost"}
               size="sm"
               onClick={() => setViewMode("cards")}
-              className="h-8 w-8 p-0"
+              className="h-7 w-7 sm:h-8 sm:w-8 p-0"
             >
-              <LayoutGrid className="h-4 w-4" />
+              <LayoutGrid className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
             </Button>
           </div>
-          <Button>
-            <Plus className="h-4 w-4 mr-2" />
-            Asignar Curso
+          <Button size="sm" className="text-xs sm:text-sm">
+            <Plus className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
+            <span className="hidden sm:inline">Asignar Curso</span>
+            <span className="sm:hidden">Asignar</span>
           </Button>
         </div>
       </div>
 
       <Tabs defaultValue="courses" className="w-full">
-        <TabsList>
-          <TabsTrigger value="courses">
-            Cursos Completados ({courses.length})
+        <TabsList className="w-full sm:w-auto grid grid-cols-2 sm:inline-flex">
+          <TabsTrigger value="courses" className="text-xs sm:text-sm">
+            Cursos ({courses.length})
           </TabsTrigger>
-          <TabsTrigger value="certifications">
+          <TabsTrigger value="certifications" className="text-xs sm:text-sm">
             Certificaciones ({certifications.length})
           </TabsTrigger>
         </TabsList>
 
-        <TabsContent value="courses" className="mt-6">
+        <TabsContent value="courses" className="mt-4 sm:mt-6">
           {viewMode === "table" ? (
             <CoursesTableView courses={courses} />
           ) : (
@@ -76,7 +76,7 @@ export const AdvisorFormacionTab = ({ advisorId }: Props) => {
           )}
         </TabsContent>
 
-        <TabsContent value="certifications" className="mt-6">
+        <TabsContent value="certifications" className="mt-4 sm:mt-6">
           {viewMode === "table" ? (
             <CertificationsTableView certifications={certifications} />
           ) : (
