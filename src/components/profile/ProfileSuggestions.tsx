@@ -68,11 +68,10 @@ export function ProfileSuggestions({ profile, updateProfile, onBack }: Props) {
   return (
     <div className="space-y-6 animate-fade-in">
       {/* New Suggestion Form */}
-      <Card className="p-4 border-border/40 space-y-4">
+      <Card className="p-0 border-0 shadow-none space-y-4">
         <div className="flex items-center gap-3">
-          <MessageSquare className="h-6 w-6 text-primary" />
           <div>
-            <h3 className="font-medium text-lg">Nueva Sugerencia</h3>
+            <h3 className="font-medium text-lg text-primary">Nueva Sugerencia</h3>
             <p className="text-sm text-muted-foreground">¿Qué te gustaría que mejoráramos?</p>
           </div>
         </div>
