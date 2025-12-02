@@ -16,13 +16,7 @@ interface DatePickerProps {
   className?: string;
 }
 
-export function DatePicker({ 
-  date, 
-  onDateChange, 
-  placeholder = "dd/MM/yyyy",
-  disabled,
-  className 
-}: DatePickerProps) {
+export function DatePicker({ date, onDateChange, placeholder = "dd/MM/yyyy", disabled, className }: DatePickerProps) {
   const [open, setOpen] = React.useState(false);
   const [inputValue, setInputValue] = React.useState(date ? format(date, "dd/MM/yyyy") : "");
   const [month, setMonth] = React.useState<Date>(date || new Date());
@@ -71,8 +65,18 @@ export function DatePicker({
 
   const years = Array.from({ length: 100 }, (_, i) => currentYear - 50 + i);
   const months = [
-    "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
-    "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
+    "Enero",
+    "Febrero",
+    "Marzo",
+    "Abril",
+    "Mayo",
+    "Junio",
+    "Julio",
+    "Agosto",
+    "Septiembre",
+    "Octubre",
+    "Noviembre",
+    "Diciembre",
   ];
 
   const handleMonthChange = (monthIndex: string) => {
@@ -95,14 +99,11 @@ export function DatePicker({
           onChange={handleInputChange}
           onBlur={handleInputBlur}
           placeholder={placeholder}
-          className="pr-10"
+          className="pr-10 text-sm"
         />
         <Popover open={open} onOpenChange={setOpen}>
           <PopoverTrigger asChild>
-            <Button
-              variant="ghost"
-              className="absolute right-0 top-0 h-full px-3 hover:bg-transparent"
-            >
+            <Button variant="ghost" className="absolute right-0 top-0 h-full px-3 hover:bg-transparent">
               <CalendarIcon className="h-4 w-4 text-muted-foreground" />
             </Button>
           </PopoverTrigger>
