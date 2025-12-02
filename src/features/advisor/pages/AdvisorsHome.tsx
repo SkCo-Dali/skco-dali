@@ -74,53 +74,54 @@ export const AdvisorsHome = () => {
       </div>
 
       {/* Filters Card */}
-
-      <CardContent className="p-0">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <div className="md:col-span-2">
-            <Input
-              placeholder="Buscar por nombre, documento o ID..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && handleSearch()}
-              className="w-full"
-            />
+      <Card className="border-border/40 shadow-sm">
+        <CardContent className="p-4">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div className="md:col-span-2">
+              <Input
+                placeholder="Buscar por nombre, documento o ID..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && handleSearch()}
+                className="w-full"
+              />
+            </div>
+            <Select value={selectedRegion || "all"} onValueChange={(v) => setSelectedRegion(v === "all" ? "" : v)}>
+              <SelectTrigger>
+                <SelectValue placeholder="Región" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todas</SelectItem>
+                <SelectItem value="Andina">Andina</SelectItem>
+                <SelectItem value="Pacífico">Pacífico</SelectItem>
+                <SelectItem value="Caribe">Caribe</SelectItem>
+              </SelectContent>
+            </Select>
+            <Select value={selectedZona || "all"} onValueChange={(v) => setSelectedZona(v === "all" ? "" : v)}>
+              <SelectTrigger>
+                <SelectValue placeholder="Zona" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todas</SelectItem>
+                <SelectItem value="Centro">Centro</SelectItem>
+                <SelectItem value="Norte">Norte</SelectItem>
+                <SelectItem value="Occidente">Occidente</SelectItem>
+                <SelectItem value="Costa">Costa</SelectItem>
+                <SelectItem value="Sur">Sur</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
-          <Select value={selectedRegion} onValueChange={setSelectedRegion}>
-            <SelectTrigger>
-              <SelectValue placeholder="Región" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Todas</SelectItem>
-              <SelectItem value="Andina">Andina</SelectItem>
-              <SelectItem value="Pacífico">Pacífico</SelectItem>
-              <SelectItem value="Caribe">Caribe</SelectItem>
-            </SelectContent>
-          </Select>
-          <Select value={selectedZona} onValueChange={setSelectedZona}>
-            <SelectTrigger>
-              <SelectValue placeholder="Zona" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Todas</SelectItem>
-              <SelectItem value="Centro">Centro</SelectItem>
-              <SelectItem value="Norte">Norte</SelectItem>
-              <SelectItem value="Occidente">Occidente</SelectItem>
-              <SelectItem value="Costa">Costa</SelectItem>
-              <SelectItem value="Sur">Sur</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-        <div className="flex gap-2 mt-4">
-          <Button onClick={handleSearch} className="gap-2">
-            <Search className="h-4 w-4" />
-            Buscar
-          </Button>
-          <Button variant="outline" onClick={handleClearFilters}>
-            Limpiar filtros
-          </Button>
-        </div>
-      </CardContent>
+          <div className="flex gap-2 mt-4">
+            <Button onClick={handleSearch} className="gap-2">
+              <Search className="h-4 w-4" />
+              Buscar
+            </Button>
+            <Button variant="outline" onClick={handleClearFilters}>
+              Limpiar filtros
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Table */}
       <Card className="border-border/40 shadow-sm">
