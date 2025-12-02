@@ -173,6 +173,7 @@ export function ProfilePersonalInfo({ profile, updateProfile, onBack }: Props) {
           <div className="space-y-2">
             <Label htmlFor="birthDate">Fecha de Nacimiento</Label>
             <DatePicker
+              className="text-sm"
               date={localData.birthDate ? parse(localData.birthDate, "yyyy-MM-dd", new Date()) : undefined}
               onDateChange={(date) =>
                 setLocalData({
