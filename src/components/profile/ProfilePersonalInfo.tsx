@@ -155,7 +155,7 @@ export function ProfilePersonalInfo({ profile, updateProfile, onBack }: Props) {
   return (
     <div className="space-y-6 animate-fade-in">
       {/* Basic Info */}
-      <Card className="p-4 border-border/40 space-y-4">
+      <Card className="p-0 border-0 shadow-none space-y-4">
         <h3 className="font-medium text-lg mb-4">Datos Básicos</h3>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
