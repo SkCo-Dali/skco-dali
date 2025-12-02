@@ -125,8 +125,10 @@ export const AdvisorsHome = () => {
       {/* Table */}
       <Card className="border-border/40 shadow-sm">
         <CardContent className="p-2">
-          <div className="overflow-x-auto">
-            <Table>
+          <div className="leads-table-container-scroll">
+            <div className="leads-table-scroll-wrapper !h-auto max-h-[500px]">
+              <div className="leads-table-inner-scroll">
+                <Table>
               <TableHeader>
                 <TableRow className="hover:bg-transparent border-b border-border/40">
                   <TableHead className="font-semibold">ID</TableHead>
@@ -174,10 +176,12 @@ export const AdvisorsHome = () => {
                       <TableCell className="text-muted-foreground">{advisor.canal || "-"}</TableCell>
                       <TableCell>{getEstadoBadge(advisor.estado)}</TableCell>
                     </TableRow>
-                  ))
-                )}
-              </TableBody>
-            </Table>
+              ))
+            )}
+          </TableBody>
+        </Table>
+              </div>
+            </div>
           </div>
         </CardContent>
       </Card>
