@@ -296,13 +296,13 @@ export const OpportunityDetails: React.FC = () => {
 
                   {/* Contenedor de badges */}
                   <div className="w-full">
-                    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2">
-                      {/* Prioridad – ocupa todo el ancho en la primera fila */}
+                    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2 w-full">
+                      {/* Prioridad */}
                       <Badge
                         variant="outline"
                         className={`${getPriorityColor(
                           opportunity.priority,
-                        )} col-span-2 sm:col-span-3 lg:col-span-4 font-semibold px-3 py-1 justify-center`}
+                        )} col-span-2 sm:col-span-3 lg:col-span-4 font-semibold px-3 py-2 text-center`}
                       >
                         Prioridad {opportunity.priority.toUpperCase()}
                       </Badge>
@@ -310,7 +310,7 @@ export const OpportunityDetails: React.FC = () => {
                       {/* Tipo */}
                       <Badge
                         variant="secondary"
-                        className="bg-blue-50 text-blue-700 border-blue-200 font-medium px-3 py-1 justify-center"
+                        className="col-span-2 sm:col-span-1 bg-blue-50 text-blue-700 border-blue-200 font-medium px-3 py-2 text-center"
                       >
                         {OPPORTUNITY_TYPE_LABELS[opportunity.type]}
                       </Badge>
@@ -320,7 +320,7 @@ export const OpportunityDetails: React.FC = () => {
                         <Badge
                           key={index}
                           variant="outline"
-                          className="bg-muted/30 hover:bg-muted/50 transition-colors px-3 py-1 justify-center"
+                          className="col-span-2 sm:col-span-1 bg-muted/30 hover:bg-muted/50 transition-colors px-3 py-2 text-center"
                         >
                           {tag}
                         </Badge>
