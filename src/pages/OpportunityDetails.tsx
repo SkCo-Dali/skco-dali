@@ -273,7 +273,7 @@ export const OpportunityDetails: React.FC = () => {
         {/* Main Content */}
         <div className="lg:col-span-2 space-y-6">
           {/* Opportunity Info */}
-          <Card className="overflow-hidden border-0 shadow-lg bg-gradient-to-br from-background via-background to-muted/20">
+          <Card className="overflow-hidden border-0 shadow-lg bg-gradient-to-br from-background via-background to-muted/20 pt-4">
             <CardHeader className="pb-6">
               <div className="flex items-start gap-6">
                 {/* Icono */}
@@ -288,10 +288,10 @@ export const OpportunityDetails: React.FC = () => {
                 {/* Título */}
                 <div className="flex-1 space-y-3">
                   <div>
-                    <CardTitle className="text-2xl font-bold mb-2 bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text">
+                    <CardTitle className="font-bold mb-2 bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text">
                       {opportunity.title}
                     </CardTitle>
-                    <p className="text-muted-foreground text-lg font-medium">{opportunity.subtitle}</p>
+                    <p className="text-muted-foreground text-sm sm:text-md font-medium">{opportunity.subtitle}</p>
                   </div>
                   {/* Badges */}
                   <div className="flex flex-wrap gap-3">
@@ -327,7 +327,7 @@ export const OpportunityDetails: React.FC = () => {
                   <div className="w-1 h-5 bg-primary rounded-full"></div>
                   Descripción
                 </h3>
-                <p className="text-muted-foreground leading-relaxed text-lg pl-3 border-l-2 border-muted">
+                <p className="text-muted-foreground leading-relaxed text-sm sm:text-md pl-3 border-l-2 border-muted">
                   {opportunity.description}
                 </p>
               </div>
@@ -349,7 +349,7 @@ export const OpportunityDetails: React.FC = () => {
                               <Users className="h-5 w-5 text-blue-600" />
                               <Info className="h-3 w-3 text-blue-500 absolute -top-1 -right-1 opacity-60" />
                             </div>
-                            <div className="text-2xl font-bold text-blue-700 mb-1">
+                            <div className="text-md sm:text-lg font-bold text-blue-700 mb-1">
                               {formatCustomerCount(opportunity.customerCount)}
                             </div>
                             <div className="text-xs font-medium text-blue-600">Clientes Impactables</div>
@@ -374,7 +374,7 @@ export const OpportunityDetails: React.FC = () => {
                                 <DollarSign className="h-5 w-5 text-green-600" />
                                 <Info className="h-3 w-3 text-green-500 absolute -top-1 -right-1 opacity-60" />
                               </div>
-                              <div className="text-2xl font-bold text-green-700 mb-1">
+                              <div className="text-md sm:text-lg font-bold text-green-700 mb-1">
                                 ${opportunity.metrics.estimatedSales.toLocaleString()}
                               </div>
                               <div className="text-xs font-medium text-green-600">Comisiones Potenciales</div>
@@ -395,7 +395,7 @@ export const OpportunityDetails: React.FC = () => {
 
         {/* Sidebar */}
         <div className="space-y-6">
-          <Card className="shadow-lg border-0 bg-gradient-to-br from-background to-muted/30">
+          <Card className="shadow-lg border-0 bg-gradient-to-br from-background to-muted/30 pt-4">
             <CardHeader className="pb-4">
               <CardTitle className="flex items-center gap-3 text-lg">
                 <div className="p-2 rounded-lg bg-primary/10">
