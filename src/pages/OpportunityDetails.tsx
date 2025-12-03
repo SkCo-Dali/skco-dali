@@ -296,13 +296,13 @@ export const OpportunityDetails: React.FC = () => {
 
                   {/* Contenedor de badges */}
                   <div className="w-full">
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2">
+                    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2">
                       {/* Prioridad – ocupa todo el ancho en la primera fila */}
                       <Badge
                         variant="outline"
                         className={`${getPriorityColor(
                           opportunity.priority,
-                        )} col-span-full font-semibold px-3 py-1 justify-center`}
+                        )} col-span-2 sm:col-span-3 lg:col-span-4 font-semibold px-3 py-1 justify-center`}
                       >
                         Prioridad {opportunity.priority.toUpperCase()}
                       </Badge>
