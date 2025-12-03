@@ -214,7 +214,7 @@ export function DashboardOverview({ leads, loading }: DashboardOverviewProps) {
             </div>
 
             {/* Right Column - Charts */}
-            <div className="grid grid-cols-2 lg:grid-cols-2 col-span-1 lg:col-span-6 gap-3 sm:gap-4 h-full">
+            <div className="grid grid-cols-1 lg:grid-cols-2 col-span-1 lg:col-span-6 gap-3 sm:gap-4 h-full">
               <CommissionsChart
                 data={commissionsData}
                 totalCommissions="$25M"
