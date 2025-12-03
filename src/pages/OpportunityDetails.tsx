@@ -255,7 +255,7 @@ export const OpportunityDetails: React.FC = () => {
             <ArrowLeft className="h-4 w-4" />
           </Button>
           <div>
-            <h1 className="text-2xl font-bold">Detalles de Oportunidad</h1>
+            <h1 className="text-md sm:text-lg font-bold">Detalles de Oportunidad</h1>
             <p className="text-muted-foreground">Información completa de la oportunidad comercial</p>
           </div>
         </div>
@@ -273,12 +273,12 @@ export const OpportunityDetails: React.FC = () => {
         {/* Main Content */}
         <div className="lg:col-span-2 space-y-6">
           {/* Opportunity Info */}
-          <Card className="overflow-hidden border-0 shadow-lg bg-gradient-to-br from-background via-background to-muted/20 pt-4">
+          <Card className="overflow-hidden border-0 shadow-md bg-gradient-to-br from-background via-background to-muted/20 pt-4">
             <CardHeader className="pb-6">
               <div className="flex items-start gap-6">
                 {/* Icono */}
                 <div className="relative">
-                  <div className="w-24 h-24 rounded-2xl bg-gradient-to-br from-primary/20 via-primary/10 to-primary/5 flex items-center justify-center shadow-lg border border-primary/20">
+                  <div className="w-24 h-24 rounded-2xl bg-gradient-to-br from-primary/20 via-primary/10 to-primary/5 flex items-center justify-center shadow-sm border border-primary/20">
                     <span className="text-5xl filter drop-shadow-sm">{opportunity.icon}</span>
                   </div>
                   <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-green-500 rounded-full flex items-center justify-center shadow-md">
