@@ -147,7 +147,7 @@ export function DashboardOverview({ leads, loading }: DashboardOverviewProps) {
   ];
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-8 gap-3 sm:gap-4">
+    <div className="grid grid-cols-1 lg:grid-cols-12 gap-3 sm:gap-4">
       <div className="col-span-1 lg:col-span-3 space-y-4 sm:space-y-6">
         {/* Banner */}
         <DashboardBanner
@@ -171,7 +171,7 @@ export function DashboardOverview({ leads, loading }: DashboardOverviewProps) {
           {/* Metrics and Charts Grid */}
           <div className="grid grid-cols-1 lg:grid-cols-8 gap-3 sm:gap-4 px-3 sm:px-4">
             {/* Left Column - Metrics */}
-            <div className="grid grid-cols-2 lg:grid-cols-2 col-span-1 lg:col-span-3 gap-3 sm:gap-4 h-full">
+            <div className="grid grid-cols-2 lg:grid-cols-2 col-span-1 lg:col-span-10 gap-3 sm:gap-4 h-full">
               <MetricCard
                 title="Total de Leads"
                 value={kpiCounts.loading ? "..." : kpiCounts.totalLeads.toLocaleString()}
