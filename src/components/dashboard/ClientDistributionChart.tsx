@@ -7,7 +7,7 @@ interface ClientDistributionChartProps {
 
 export function ClientDistributionChart({ data }: ClientDistributionChartProps) {
   return (
-    <Card className="border-border p-4 h-full">
+    <Card className="border-border py-4 h-full">
       <CardHeader className="pb-3">
         <h3 className="text-base md:text-lg font-semibold text-foreground">Distribución de tus clientes totales</h3>
       </CardHeader>
@@ -31,7 +31,7 @@ export function ClientDistributionChart({ data }: ClientDistributionChartProps) 
               verticalAlign="middle"
               align="right"
               formatter={(value, entry: any) => (
-                <span className="text-sm text-foreground">
+                <span className="text-[12px] text-foreground">
                   {entry.payload.value}% {value}
                 </span>
               )}
