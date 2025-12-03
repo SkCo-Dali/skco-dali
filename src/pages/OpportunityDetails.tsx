@@ -323,7 +323,7 @@ export const OpportunityDetails: React.FC = () => {
             <CardContent className="space-y-8">
               {/* Descripción */}
               <div className="space-y-3">
-                <h3 className="font-semibold text-lg flex items-center gap-2">
+                <h3 className="font-semibold text-md sm:text-lg flex items-center gap-2">
                   <div className="w-1 h-5 bg-primary rounded-full"></div>
                   Descripción
                 </h3>
@@ -334,7 +334,7 @@ export const OpportunityDetails: React.FC = () => {
               {/* Datos Clave */}
               <TooltipProvider>
                 <div className="space-y-4">
-                  <h3 className="font-semibold text-lg flex items-center gap-2">
+                  <h3 className="font-semibold text-md sm:text-lg flex items-center gap-2">
                     <div className="w-1 h-5 bg-primary rounded-full"></div>
                     Datos Clave
                   </h3>
@@ -437,7 +437,7 @@ export const OpportunityDetails: React.FC = () => {
                       </TooltipContent>
                     </Tooltip>
                     <div className="absolute -top-2 -right-2 pointer-events-none">
-                      <div className="bg-yellow-400 text-yellow-900 text-xs font-bold px-2 py-1 rounded-full shadow-sm">
+                      <div className="bg-yellow-400 text-yellow-900 text-xs sm:text-sm font-bold px-2 py-1 rounded-full shadow-sm">
                         PRINCIPAL
                       </div>
                     </div>
@@ -505,7 +505,7 @@ export const OpportunityDetails: React.FC = () => {
                     </TooltipContent>
                   </Tooltip>
                   <div className="absolute -top-2 -right-2 pointer-events-none">
-                    <div className="bg-primary text-white text-xs font-bold px-2 py-1 rounded-full shadow-sm">
+                    <div className="bg-primary text-white text-xs sm:text-sm font-bold px-2 py-1 rounded-full shadow-sm">
                       PROXIMAMENTE
                     </div>
                   </div>
