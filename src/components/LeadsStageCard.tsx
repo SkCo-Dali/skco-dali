@@ -70,7 +70,7 @@ export function LeadsStageCard({
   // Si no hay datos, mostrar mensaje
   if (chartData.length === 0) {
     return (
-      <Card className="hover:shadow-md transition-shadow h-full">
+      <Card className="hover:shadow-md transition-shadow h-full pt-4 pb-2">
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
           <CardTitle className="text-sm sm:text-base font-medium truncate pr-2">Resumen por Estado</CardTitle>
           <BarChart3 className="h-5 w-5 text-muted-foreground" />
@@ -83,7 +83,7 @@ export function LeadsStageCard({
   }
 
   return (
-    <Card className="hover:shadow-md transition-shadow h-full">
+    <Card className="hover:shadow-md transition-shadow h-full pt-4 pb-2">
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3 px-3">
         <CardTitle className="text-sm sm:text-base font-medium truncate pr-2">Resumen por Estado</CardTitle>
         <BarChart3 className="h-5 w-5 text-muted-foreground" />
