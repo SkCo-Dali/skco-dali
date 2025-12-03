@@ -255,7 +255,7 @@ export const OpportunityDetails: React.FC = () => {
             <ArrowLeft className="h-4 w-4" />
           </Button>
           <div>
-            <h1 className="text-lg font-bold">Detalles de Oportunidad</h1>
+            <h1 className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold">Detalles de Oportunidad</h1>
             <p className="text-muted-foreground">Información completa de la oportunidad comercial</p>
           </div>
         </div>
@@ -343,8 +343,8 @@ export const OpportunityDetails: React.FC = () => {
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <div className="relative group cursor-help">
-                          <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-blue-600/10 rounded-2xl blur-xl group-hover:blur-lg transition-all duration-300"></div>
-                          <div className="relative bg-white/60 backdrop-blur-sm border border-blue-200/50 rounded-2xl p-4 text-center hover:shadow-xl hover:shadow-blue-500/20 transition-all duration-300 group-hover:-translate-y-1 group-hover:bg-white/80">
+                          <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-blue-600/10 rounded-2xl blur-sm group-hover:blur-sm transition-all duration-300"></div>
+                          <div className="relative bg-white/60 backdrop-blur-sm border border-blue-200/50 rounded-2xl p-4 text-center hover:shadow-sm hover:shadow-blue-500/20 transition-all duration-300 group-hover:-translate-y-1 group-hover:bg-white/80">
                             <div className="flex items-center justify-center w-10 h-10 bg-blue-100 rounded-xl mx-auto mb-2 group-hover:bg-blue-200 transition-colors relative">
                               <Users className="h-5 w-5 text-blue-600" />
                               <Info className="h-3 w-3 text-blue-500 absolute -top-1 -right-1 opacity-60" />
