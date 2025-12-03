@@ -30,10 +30,13 @@ export function CommissionsChart({ data, totalCommissions, onViewDetails }: Comm
             <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
             <XAxis
               dataKey="month"
-              tick={{ fill: "hsl(var(--muted-foreground))" }}
+              tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 12 }}
               tickLine={{ stroke: "hsl(var(--border))" }}
             />
-            <YAxis tick={{ fill: "hsl(var(--muted-foreground))" }} tickLine={{ stroke: "hsl(var(--border))" }} />
+            <YAxis
+              tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 12 }}
+              tickLine={{ stroke: "hsl(var(--border))" }}
+            />
             <Tooltip
               contentStyle={{
                 backgroundColor: "hsl(var(--card))",
