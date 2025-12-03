@@ -39,7 +39,7 @@ export const CertificationsCardsView = ({ certifications }: Props) => {
       {certifications.map((cert, index) => {
         const statusConfig = getStatusConfig(cert.estado);
         return (
-          <Card key={index} className="hover:shadow-md transition-shadow">
+          <Card key={index} className="hover:shadow-md transition-shadow py-4">
             <CardHeader>
               <div className="flex items-start justify-between">
                 <CardTitle className="text-lg">{cert.nombre}</CardTitle>

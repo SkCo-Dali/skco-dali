@@ -10,7 +10,7 @@ interface GamificationCardProps {
 
 export function GamificationCard({ profile, nextLevel }: GamificationCardProps) {
   return (
-    <Card className="w-full">
+    <Card className="w-full py-4">
       <CardHeader className="pb-4">
         <div className="flex items-center justify-between">
           <CardTitle className="text-lg">Mi Progreso</CardTitle>
@@ -37,12 +37,8 @@ export function GamificationCard({ profile, nextLevel }: GamificationCardProps) 
         {nextLevel && nextLevel.nextLevel && (
           <div className="space-y-2">
             <div className="flex justify-between items-center">
-              <span className="text-sm font-medium">
-                Progreso a {nextLevel.nextLevel.name}
-              </span>
-              <span className="text-sm text-muted-foreground">
-                {nextLevel.pointsNeeded} puntos restantes
-              </span>
+              <span className="text-sm font-medium">Progreso a {nextLevel.nextLevel.name}</span>
+              <span className="text-sm text-muted-foreground">{nextLevel.pointsNeeded} puntos restantes</span>
             </div>
             <Progress value={nextLevel.progress} className="h-2" />
           </div>
