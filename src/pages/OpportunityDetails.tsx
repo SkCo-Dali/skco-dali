@@ -255,7 +255,7 @@ export const OpportunityDetails: React.FC = () => {
             <ArrowLeft className="h-4 w-4" />
           </Button>
           <div>
-            <h1 className="text-md sm:text-lg font-bold">Detalles de Oportunidad</h1>
+            <h1 className="text-lg font-bold">Detalles de Oportunidad</h1>
             <p className="text-muted-foreground">Información completa de la oportunidad comercial</p>
           </div>
         </div>
@@ -273,7 +273,7 @@ export const OpportunityDetails: React.FC = () => {
         {/* Main Content */}
         <div className="lg:col-span-2 space-y-6">
           {/* Opportunity Info */}
-          <Card className="overflow-hidden border-0 shadow-md bg-gradient-to-br from-background via-background to-muted/20 pt-4">
+          <Card className="overflow-hidden border shadow-md bg-gradient-to-br from-background via-background to-muted/20 pt-4">
             <CardHeader className="pb-6">
               <div className="flex items-start gap-6">
                 {/* Icono */}
@@ -395,7 +395,7 @@ export const OpportunityDetails: React.FC = () => {
 
         {/* Sidebar */}
         <div className="space-y-6">
-          <Card className="shadow-lg border-0 bg-gradient-to-br from-background to-muted/30 pt-4">
+          <Card className="shadow-md border bg-gradient-to-br from-background to-muted/30 pt-4">
             <CardHeader className="pb-4">
               <CardTitle className="flex items-center gap-3 text-lg">
                 <div className="p-2 rounded-lg bg-primary/10">
