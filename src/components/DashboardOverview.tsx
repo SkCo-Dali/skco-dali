@@ -147,7 +147,7 @@ export function DashboardOverview({ leads, loading }: DashboardOverviewProps) {
   ];
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-4 gap-3 sm:gap-4">
+    <div className="grid grid-cols-1 lg:grid-cols-8 gap-3 sm:gap-4">
       <div className="col-span-1 lg:col-span-3 space-y-4 sm:space-y-6">
         {/* Banner */}
         <DashboardBanner
@@ -235,7 +235,7 @@ export function DashboardOverview({ leads, loading }: DashboardOverviewProps) {
       </div>
 
       {/* Career Leaderboard - Right Column */}
-      <div className="col-span-1 order-first lg:order-last mb-4 lg:mb-0">
+      <div className="col-span-2 order-first lg:order-last mb-4 lg:mb-0">
         <CareerLeaderboard />
       </div>
     </div>
