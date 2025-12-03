@@ -285,56 +285,46 @@ export const OpportunityDetails: React.FC = () => {
                     <div className="w-2 h-2 bg-white rounded-full"></div>
                   </div>
                 </div>
-                {/* Título */}
-                <div className="flex-1 space-y-3">
+                <div className="flex-1 flex flex-col gap-4">
+                  {/* Título + subtítulo */}
                   <div>
-                    <CardTitle className="font-bold mb-2 bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text">
+                    <CardTitle className="font-bold mb-1 bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text">
                       {opportunity.title}
                     </CardTitle>
                     <p className="text-muted-foreground text-sm sm:text-md font-medium">{opportunity.subtitle}</p>
                   </div>
-                  {/* Badges */}
-                  <div className="flex-1 flex flex-col gap-4">
-                    {/* Título + subtítulo */}
-                    <div>
-                      <CardTitle className="font-bold mb-1 bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text">
-                        {opportunity.title}
-                      </CardTitle>
-                      <p className="text-muted-foreground text-sm sm:text-md font-medium">{opportunity.subtitle}</p>
-                    </div>
 
-                    {/* Contenedor de badges */}
-                    <div className="w-full">
-                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2">
-                        {/* Prioridad – ocupa todo el ancho en la primera fila */}
+                  {/* Contenedor de badges */}
+                  <div className="w-full">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2">
+                      {/* Prioridad – ocupa todo el ancho en la primera fila */}
+                      <Badge
+                        variant="outline"
+                        className={`${getPriorityColor(
+                          opportunity.priority,
+                        )} col-span-full font-semibold px-3 py-1 justify-center`}
+                      >
+                        Prioridad {opportunity.priority.toUpperCase()}
+                      </Badge>
+
+                      {/* Tipo */}
+                      <Badge
+                        variant="secondary"
+                        className="bg-blue-50 text-blue-700 border-blue-200 font-medium px-3 py-1 justify-center"
+                      >
+                        {OPPORTUNITY_TYPE_LABELS[opportunity.type]}
+                      </Badge>
+
+                      {/* Tags */}
+                      {opportunity.tags.map((tag, index) => (
                         <Badge
+                          key={index}
                           variant="outline"
-                          className={`${getPriorityColor(
-                            opportunity.priority,
-                          )} col-span-full font-semibold px-3 py-1 justify-center`}
+                          className="bg-muted/30 hover:bg-muted/50 transition-colors px-3 py-1 justify-center"
                         >
-                          Prioridad {opportunity.priority.toUpperCase()}
+                          {tag}
                         </Badge>
-
-                        {/* Tipo */}
-                        <Badge
-                          variant="secondary"
-                          className="bg-blue-50 text-blue-700 border-blue-200 font-medium px-3 py-1 justify-center"
-                        >
-                          {OPPORTUNITY_TYPE_LABELS[opportunity.type]}
-                        </Badge>
-
-                        {/* Tags */}
-                        {opportunity.tags.map((tag, index) => (
-                          <Badge
-                            key={index}
-                            variant="outline"
-                            className="bg-muted/30 hover:bg-muted/50 transition-colors px-3 py-1 justify-center"
-                          >
-                            {tag}
-                          </Badge>
-                        ))}
-                      </div>
+                      ))}
                     </div>
                   </div>
                 </div>
@@ -457,7 +447,7 @@ export const OpportunityDetails: React.FC = () => {
                       </TooltipContent>
                     </Tooltip>
                     <div className="absolute -top-2 -right-2 pointer-events-none">
-                      <div className="bg-yellow-400 text-yellow-900 text-xs sm:text-sm font-bold px-2 py-1 rounded-full shadow-sm">
+                      <div className="bg-yellow-400 text-yellow-900 text-xs font-bold px-2 py-1 rounded-full shadow-sm">
                         PRINCIPAL
                       </div>
                     </div>
@@ -525,7 +515,7 @@ export const OpportunityDetails: React.FC = () => {
                     </TooltipContent>
                   </Tooltip>
                   <div className="absolute -top-2 -right-2 pointer-events-none">
-                    <div className="bg-primary text-white text-xs sm:text-sm font-bold px-2 py-1 rounded-full shadow-sm">
+                    <div className="bg-primary text-white text-xs font-bold px-2 py-1 rounded-full shadow-sm">
                       PROXIMAMENTE
                     </div>
                   </div>
