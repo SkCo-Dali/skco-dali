@@ -33,22 +33,22 @@ export function MetricCard({
         : "bg-muted text-muted-foreground border-border";
 
   return (
-    <Card className="relative h-full pt-4 pb-0">
-      <CardContent className="gap-4">
-        <div className="space-y-2">
-          <p className="text-sm text-muted-foreground">{title}</p>
-          <p className="text-3xl font-bold text-foreground">{value}</p>
+    <Card className="relative h-full pt-3 sm:pt-4 pb-0">
+      <CardContent className="gap-2 sm:gap-4">
+        <div className="space-y-1 sm:space-y-2">
+          <p className="text-xs sm:text-sm text-muted-foreground">{title}</p>
+          <p className="text-xl sm:text-3xl font-bold text-foreground">{value}</p>
         </div>
-        {description && <p className="text-xs md:text-xs text-muted-foreground">{description}</p>}
+        {description && <p className="text-[10px] sm:text-xs text-muted-foreground">{description}</p>}
+        {showChange && (
+          <Badge
+            className={`${badgeBg} inline-flex items-center gap-0.5 sm:gap-1 rounded-full px-1.5 sm:px-2 py-0.5 mt-2`}
+          >
+            <span className="text-[10px] sm:text-xs font-medium">{changePercent}%</span>
+            {changeLabel && <span className="text-[10px] sm:text-xs">{changeLabel}</span>}
+          </Badge>
+        )}
       </CardContent>
-      {showChange && (
-        <Badge
-          className={`${badgeBg} absolute right-4 top-1/2 -translate-y-1/2 inline-flex items-center gap-1 rounded-full px-2 py-0.5`}
-        >
-          <span className="text-xs font-medium">{changePercent}%</span>
-          {changeLabel && <span className="text-xs ml-1">{changeLabel}</span>}
-        </Badge>
-      )}
     </Card>
   );
 }
