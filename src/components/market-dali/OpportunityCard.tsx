@@ -62,11 +62,6 @@ export const OpportunityCard: React.FC<OpportunityCardProps> = ({
         </button>
 
         {/* Category badge */}
-        <div className="absolute bottom-2 left-2">
-          <Badge variant="secondary" className="text-xs">
-            {categoryConfig.icon} {categoryConfig.label}
-          </Badge>
-        </div>
       </div>
 
       <CardContent className="p-3 sm:p-4">
