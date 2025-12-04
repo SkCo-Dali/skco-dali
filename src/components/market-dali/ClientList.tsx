@@ -65,7 +65,7 @@ export const ClientList: React.FC<ClientListProps> = ({
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 rounded-xl">
       {/* Header with opportunity info */}
       <div
         className="rounded-lg p-4 border border-border relative overflow-hidden"
@@ -75,22 +75,17 @@ export const ClientList: React.FC<ClientListProps> = ({
           backgroundPosition: "center",
         }}
       >
-        <div className="absolute inset-0 bg-background/10" />
+        <div className="absolute inset-0 bg-background/20" />
         <div className="flex items-start gap-3 relative z-10">
           <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2 mb-1">
-              <span className="text-2xl">{opportunity.icon}</span>
-              <Badge variant="secondary" className="text-xs">
-                {categoryConfig.label}
-              </Badge>
-            </div>
+            <div className="flex items-center gap-2 mb-1"></div>
             <h2 className="text-lg sm:text-xl font-bold line-clamp-2 mb-1 text-white">{opportunity.title}</h2>
-            <p className="text-sm text-muted-foreground line-clamp-2">{opportunity.subtitle}</p>
+            <p className="text-sm text-white line-clamp-2">{opportunity.subtitle}</p>
           </div>
         </div>
 
         {/* Stats */}
-        <div className="flex items-center gap-4 mt-3 text-sm text-muted-foreground relative z-10">
+        <div className="flex items-center gap-4 mt-3 text-sm text-white relative z-10">
           <div className="flex items-center gap-1.5">
             <Users className="h-4 w-4" />
             <span>{clients.length} clientes</span>
