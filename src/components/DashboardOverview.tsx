@@ -148,7 +148,7 @@ export function DashboardOverview({ leads, loading }: DashboardOverviewProps) {
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-12 gap-3 sm:gap-4">
-      <div className="col-span-1 lg:col-span-10 space-y-4 sm:space-y-6">
+      <div className="col-span-1 lg:col-span-10 space-y-4 sm:space-y-6 w-full">
         {/* Banner */}
         <DashboardBanner
           title="¿Ya conoces el nuevo gestor de leads?"
