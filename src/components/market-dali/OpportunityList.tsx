@@ -21,6 +21,13 @@ export const OpportunityList: React.FC<OpportunityListProps> = ({
   onSelectOpportunity,
   onToggleFavorite,
 }) => {
+  console.log('🎯 OpportunityList render:', { 
+    opportunitiesCount: opportunities.length, 
+    isLoading, 
+    filters,
+    firstOpp: opportunities[0] 
+  });
+  
   // Apply filters
   const filteredOpportunities = opportunities.filter(opp => {
     // Search filter

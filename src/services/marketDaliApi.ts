@@ -87,8 +87,12 @@ const getIconForCategory = (category: OpportunityCategory): string => {
  */
 export const fetchOpportunities = async (): Promise<MarketOpportunity[]> => {
   try {
+    console.log('📡 marketDaliApi: Calling getOpportunitySummary...');
     const apiOpportunities = await getOpportunitySummary();
-    return apiOpportunities.map(transformOpportunity);
+    console.log('📡 marketDaliApi: Raw API response:', apiOpportunities);
+    const transformed = apiOpportunities.map(transformOpportunity);
+    console.log('📡 marketDaliApi: Transformed opportunities:', transformed);
+    return transformed;
   } catch (error) {
     console.error('Error fetching opportunities:', error);
     throw error;
