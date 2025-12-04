@@ -53,7 +53,7 @@ export interface User {
   dailyEmailLimit?: number;
   dailyWhatsAppLimit?: number;
   idSupervisor?: number | null;
-  
+
   // Profile data from GET /api/profile
   gender?: string | null;
   maritalStatus?: string | null;
@@ -178,7 +178,7 @@ export const getRolePermissions = (role: UserRole): RolePermissions => {
         canManageUsers: false,
         canAccessReports: true,
         canUploadLeads: true,
-        canBulkAssignLeads: true,
+        canBulkAssignLeads: false,
         canBulkUpdateStage: true,
         canAccessUserManagement: false,
         canAssignRoles: false,
@@ -258,7 +258,7 @@ export const getRolePermissions = (role: UserRole): RolePermissions => {
         canManageUsers: false,
         canAccessReports: false,
         canUploadLeads: true,
-        canBulkAssignLeads: true,
+        canBulkAssignLeads: false,
         canBulkUpdateStage: false,
         canAccessUserManagement: false,
         canAssignRoles: false,
@@ -279,7 +279,7 @@ export const getRolePermissions = (role: UserRole): RolePermissions => {
         canManageUsers: false,
         canAccessReports: false,
         canUploadLeads: true,
-        canBulkAssignLeads: true,
+        canBulkAssignLeads: false,
         canBulkUpdateStage: false,
         canAccessUserManagement: false,
         canAssignRoles: false,
@@ -340,7 +340,7 @@ export const getRolePermissions = (role: UserRole): RolePermissions => {
         canManageUsers: false,
         canAccessReports: false,
         canUploadLeads: true,
-        canBulkAssignLeads: true,
+        canBulkAssignLeads: false,
         canBulkUpdateStage: false,
         canAccessUserManagement: false,
         canAssignRoles: false,
