@@ -165,7 +165,7 @@ export default function Gamification() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             <GamificationCard profile={profile} nextLevel={nextLevelProgress} />
 
-            <Card>
+            <Card className="py-4">
               <CardHeader>
                 <CardTitle className="text-lg">Métricas Detalladas</CardTitle>
               </CardHeader>
@@ -195,7 +195,7 @@ export default function Gamification() {
               </CardContent>
             </Card>
 
-            <Card>
+            <Card className="py-4">
               <CardHeader>
                 <CardTitle className="text-lg">Límites Diarios</CardTitle>
               </CardHeader>

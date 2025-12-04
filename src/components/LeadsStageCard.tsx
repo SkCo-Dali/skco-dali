@@ -12,18 +12,28 @@ interface LeadsStageCardProps {
   loading?: boolean;
 }
 
-export function LeadsStageCard({ leads, stageCounts, totalLeads: realTotalLeads, loading = false }: LeadsStageCardProps) {
+export function LeadsStageCard({
+  leads,
+  stageCounts,
+  totalLeads: realTotalLeads,
+  loading = false,
+}: LeadsStageCardProps) {
   const [isExpanded, setIsExpanded] = useState(false);
-  
+
   // Usar conteos reales si están disponibles, sino calcular desde el array local
-  const stageStats = stageCounts || leads.reduce((acc, lead) => {
-    const stage = lead.stage;
-    if (!acc[stage]) {
-      acc[stage] = 0;
-    }
-    acc[stage]++;
-    return acc;
-  }, {} as Record<string, number>);
+  const stageStats =
+    stageCounts ||
+    leads.reduce(
+      (acc, lead) => {
+        const stage = lead.stage;
+        if (!acc[stage]) {
+          acc[stage] = 0;
+        }
+        acc[stage]++;
+        return acc;
+      },
+      {} as Record<string, number>,
+    );
 
   const totalLeads = realTotalLeads || leads.length;
 
@@ -34,14 +44,14 @@ export function LeadsStageCard({ leads, stageCounts, totalLeads: realTotalLeads,
       stage: stage,
       fullStage: stage,
       count,
-      percentage: totalLeads > 0 ? ((count / totalLeads) * 100).toFixed(1) : '0'
+      percentage: totalLeads > 0 ? ((count / totalLeads) * 100).toFixed(1) : "0",
     }))
     .sort((a, b) => b.count - a.count);
 
   // Mostrar skeleton mientras carga
   if (loading) {
     return (
-      <Card className="hover:shadow-md transition-shadow h-full">
+      <Card className="hover:shadow-md transition-shadow h-full pt-4 pb-2">
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3 px-3">
           <CardTitle className="text-sm font-medium">Resumen por Estado</CardTitle>
           <BarChart3 className="h-5 w-5 text-muted-foreground" />
@@ -60,35 +70,33 @@ export function LeadsStageCard({ leads, stageCounts, totalLeads: realTotalLeads,
   // Si no hay datos, mostrar mensaje
   if (chartData.length === 0) {
     return (
-      <Card className="hover:shadow-md transition-shadow h-full">
+      <Card className="hover:shadow-md transition-shadow h-full pt-4 pb-2">
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
-          <CardTitle className="text-sm font-medium">Resumen por Estado</CardTitle>
+          <CardTitle className="text-sm sm:text-base font-medium truncate pr-2">Resumen por Estado</CardTitle>
           <BarChart3 className="h-5 w-5 text-muted-foreground" />
         </CardHeader>
         <CardContent className="pb-4">
-          <div className="text-center text-muted-foreground text-sm">
-            No hay datos disponibles
-          </div>
+          <div className="text-center text-muted-foreground text-sm">No hay datos disponibles</div>
         </CardContent>
       </Card>
     );
   }
 
   return (
-    <Card className="hover:shadow-md transition-shadow h-full">
+    <Card className="hover:shadow-md transition-shadow h-full pt-4 pb-2">
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3 px-3">
-        <CardTitle className="text-sm font-medium">Resumen por Estado</CardTitle>
+        <CardTitle className="text-sm sm:text-base font-medium truncate pr-2">Resumen por Estado</CardTitle>
         <BarChart3 className="h-5 w-5 text-muted-foreground" />
       </CardHeader>
-      <CardContent className="pb-4 px-3">
-        <div className="space-y-2 text-sm px-0">
-          <div className={`space-y-2 ${!isExpanded ? 'max-h-24 overflow-hidden' : 'max-h-40 overflow-y-auto'} transition-all duration-300`}>
+      <CardContent>
+        <div className="space-y-2 text-sm px-0 py-0">
+          <div
+            className={`space-y-2 ${!isExpanded ? "max-h-24 overflow-hidden" : "max-h-40 overflow-y-auto"} transition-all duration-300`}
+          >
             {(isExpanded ? chartData : chartData.slice(0, 3)).map((item) => (
               <div key={item.fullStage} className="flex justify-between items-start gap-2">
-                <span className="text-xs text-muted-foreground flex-1 leading-tight">
-                  {item.stage}
-                </span>
-                <span className="font-medium whitespace-nowrap text-xs">
+                <span className="text-xs sm:text-sm text-muted-foreground flex-1 leading-tight">{item.stage}</span>
+                <span className="font-medium whitespace-nowrap text-xs sm:text-sm">
                   {item.count} ({item.percentage}%)
                 </span>
               </div>

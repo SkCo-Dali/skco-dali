@@ -243,7 +243,9 @@ function SortableHeader({
             }}
             onClearFilter={onClearFilter}
           />
-        ) : ["createdAt", "updatedAt", "nextFollowUp", "lastInteraction", "lastGestorInteractionAt"].includes(column.key) ? (
+        ) : ["createdAt", "updatedAt", "nextFollowUp", "lastInteraction", "lastGestorInteractionAt"].includes(
+            column.key,
+          ) ? (
           <ServerSideDateFilter
             field={column.key}
             label={column.label}
@@ -350,7 +352,11 @@ export function LeadsTable({
       return d.length === 10 ? `${d}T23:59:59` : d;
     };
 
-    const applyDateFilter = (field: "CreatedAt" | "UpdatedAt" | "LastInteractionAt" | "NextFollowUp", from?: string, to?: string) => {
+    const applyDateFilter = (
+      field: "CreatedAt" | "UpdatedAt" | "LastInteractionAt" | "NextFollowUp",
+      from?: string,
+      to?: string,
+    ) => {
       const toNorm = normalizeToEndOfDay(to);
       if (from && toNorm) {
         (apiFilters as any)[field] = { op: "between", from, to: toNorm };
@@ -748,21 +754,25 @@ Por favor, confirmar asistencia.`;
           </div>
         );
       case "email":
-        return <div className="text-gray-700 text-xs text-center">{(lead.email || "").toLowerCase()}</div>;
+        return <div className="text-gray-700 text-xs text-center truncate max-w-[180px]" title={lead.email || ""}>{(lead.email || "").toLowerCase()}</div>;
       case "phone":
-        return <div className="text-gray-700 text-xs text-center">{lead.phone || "-"}</div>;
+        return <div className="text-gray-700 text-xs text-center truncate max-w-[120px]">{lead.phone || "-"}</div>;
       case "company":
-        return <div className="text-gray-700 text-xs text-center">{lead.company || "-"}</div>;
+        return <div className="text-gray-700 text-xs text-center truncate max-w-[150px]" title={lead.company || ""}>{lead.company || "-"}</div>;
       case "occupation":
-        return <div className="text-gray-700 text-xs text-center">{lead.occupation || "-"}</div>;
+        return <div className="text-gray-700 text-xs text-center truncate max-w-[150px]" title={lead.occupation || ""}>{lead.occupation || "-"}</div>;
       case "documentNumber":
-        return <div className="text-gray-700 text-xs text-center">{lead.documentNumber || "-"}</div>;
+        return <div className="text-gray-700 text-xs text-center truncate max-w-[120px]">{lead.documentNumber || "-"}</div>;
       case "product":
-        return <span className="text-gray-700 text-xs text-center">{cleanProductField(lead.product) || "-"}</span>;
+        return <span className="text-gray-700 text-xs text-center block truncate max-w-[150px]" title={cleanProductField(lead.product) || ""}>{cleanProductField(lead.product) || "-"}</span>;
       case "campaign":
-        return <span className="text-gray-700 text-xs text-center">{lead.campaign || "-"}</span>;
+        return (
+          <span className="text-gray-700 text-xs text-center block truncate max-w-[200px]" title={lead.campaign || ""}>
+            {lead.campaign || "-"}
+          </span>
+        );
       case "source":
-        return <span className="text-gray-700 text-xs capitalize text-center">{lead.source}</span>;
+        return <span className="text-gray-700 text-xs capitalize text-center block truncate max-w-[120px]">{lead.source}</span>;
       case "stage":
         return <EditableLeadCell lead={lead} field="stage" onUpdate={() => onLeadUpdate?.()} />;
       case "assignedTo":
@@ -770,7 +780,11 @@ Por favor, confirmar asistencia.`;
       case "assignedToName":
         return <EditableLeadCell lead={lead} field="assignedToName" onUpdate={() => onLeadUpdate?.()} />;
       case "lastInteraction":
-        return <span className="text-gray-700 text-xs text-center">{lead.lastInteractionAt ? formatBogotaDate(lead.lastInteractionAt) : "-"}</span>;
+        return (
+          <span className="text-gray-700 text-xs text-center">
+            {lead.lastInteractionAt ? formatBogotaDate(lead.lastInteractionAt) : "-"}
+          </span>
+        );
       case "value":
         return <span className="text-gray-800 font-medium text-xs text-center">${lead.value.toLocaleString()}</span>;
       case "priority":
@@ -815,8 +829,9 @@ Por favor, confirmar asistencia.`;
       case "preferredContactChannel":
       case "documentType":
       case "firstName":
+        return <span className="text-center text-gray-700 text-xs block truncate max-w-[120px]">{lead[columnKey] || "-"}</span>;
       case "alternateEmail":
-        return <span className="text-center text-gray-700 text-xs">{lead[columnKey] || "-"}</span>;
+        return <span className="text-center text-gray-700 text-xs block truncate max-w-[180px]" title={lead[columnKey] || ""}>{lead[columnKey] || "-"}</span>;
       case "lastGestorName":
         return <span className="text-center text-gray-700 text-xs">{lead.lastGestorName || "-"}</span>;
       case "lastGestorInteractionAt":
@@ -932,7 +947,7 @@ Por favor, confirmar asistencia.`;
                       )}
 
                       {otherColumns.map((column) => (
-                        <TableCell key={column.key} className="px-4 py-3 text-xs text-center leads-regular-column">
+                        <TableCell key={column.key} className="px-4 py-3 text-xs text-center leads-regular-column max-w-[220px]">
                           {renderCellContent(lead, column.key)}
                         </TableCell>
                       ))}

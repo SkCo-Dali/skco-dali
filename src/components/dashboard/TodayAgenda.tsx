@@ -73,14 +73,14 @@ export function TodayAgenda() {
         </Button>
       </div>
 
-      <div className="flex gap-2 mb-2">
+      <div className="flex flex-wrap gap-1.5 sm:gap-2 mb-2">
         {(["Hoy", "Esta semana", "Próxima semana"] as PeriodType[]).map((period) => (
           <Button
             key={period}
             onClick={() => setSelectedPeriod(period)}
             variant={selectedPeriod === period ? "default" : "outline"}
             size="sm"
-            className="rounded-full"
+            className="rounded-full text-xs sm:text-sm px-2.5 sm:px-3 h-7 sm:h-8"
           >
             {period}
           </Button>

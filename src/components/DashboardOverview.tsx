@@ -147,8 +147,8 @@ export function DashboardOverview({ leads, loading }: DashboardOverviewProps) {
   ];
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-4 gap-3 sm:gap-4">
-      <div className="col-span-1 lg:col-span-3 space-y-4 sm:space-y-6">
+    <div className="grid grid-cols-1 lg:grid-cols-12 gap-3 sm:gap-4">
+      <div className="col-span-full lg:col-span-10 space-y-4 sm:space-y-6">
         {/* Banner */}
         <DashboardBanner
           title="¿Ya conoces el nuevo gestor de leads?"
@@ -171,7 +171,7 @@ export function DashboardOverview({ leads, loading }: DashboardOverviewProps) {
           {/* Metrics and Charts Grid */}
           <div className="grid grid-cols-1 lg:grid-cols-8 gap-3 sm:gap-4 px-3 sm:px-4">
             {/* Left Column - Metrics */}
-            <div className="flex flex-col col-span-1 lg:col-span-3 gap-3 sm:gap-4 h-full">
+            <div className="grid grid-cols-2 lg:grid-cols-2 col-span-1 lg:col-span-2 gap-3 sm:gap-4 h-full">
               <MetricCard
                 title="Total de Leads"
                 value={kpiCounts.loading ? "..." : kpiCounts.totalLeads.toLocaleString()}
@@ -214,7 +214,7 @@ export function DashboardOverview({ leads, loading }: DashboardOverviewProps) {
             </div>
 
             {/* Right Column - Charts */}
-            <div className="flex flex-col col-span-1 lg:col-span-5 gap-3 sm:gap-4 h-full">
+            <div className="grid grid-cols-1 lg:grid-cols-2 col-span-1 lg:col-span-6 gap-3 sm:gap-4 h-full">
               <CommissionsChart
                 data={commissionsData}
                 totalCommissions="$25M"
@@ -235,7 +235,7 @@ export function DashboardOverview({ leads, loading }: DashboardOverviewProps) {
       </div>
 
       {/* Career Leaderboard - Right Column */}
-      <div className="col-span-1 order-first lg:order-last mb-4 lg:mb-0">
+      <div className="col-span-full lg:col-span-2 order-first lg:order-last mb-4 lg:mb-0">
         <CareerLeaderboard />
       </div>
     </div>

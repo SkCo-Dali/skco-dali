@@ -93,8 +93,8 @@ export function ProfileFamilyInfo({ profile, updateProfile, onBack }: Props) {
   return (
     <div className="space-y-6 animate-fade-in">
       {/* Basic Family Info */}
-      <Card className="p-4 border-border/40 space-y-4">
-        <h3 className="font-medium text-lg mb-4">Datos Básicos</h3>
+      <Card className="p-0 border-0 shadow-none space-y-4">
+        <h3 className="font-medium text-lg text-primary mb-4">Datos Básicos</h3>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-2">
@@ -131,8 +131,8 @@ export function ProfileFamilyInfo({ profile, updateProfile, onBack }: Props) {
       </Card>
 
       {/* Emergency Contact */}
-      <Card className="p-4 border-border/40 space-y-4">
-        <h3 className="font-medium text-lg mb-4">Contacto de Emergencia</h3>
+      <Card className="p-0 border-0 shadow-none space-y-4">
+        <h3 className="font-medium text-lg text-primary mb-4">Contacto de Emergencia</h3>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="space-y-2">
@@ -198,15 +198,17 @@ export function ProfileFamilyInfo({ profile, updateProfile, onBack }: Props) {
       </Card>
 
       {/* Important Dates */}
-      <Card className="p-4 border-border/40 space-y-4">
+      <Card className="p-0 border-0 shadow-none space-y-4">
         <div className="flex items-center justify-between mb-4">
           <div>
-            <h3 className="font-medium text-lg">Fechas Importantes</h3>
+            <h3 className="font-medium text-lg text-primary">Fechas Importantes</h3>
             <p className="text-sm text-muted-foreground">Cumpleaños, aniversarios, etc.</p>
           </div>
           <Button onClick={addImportantDate} size="sm" variant="outline" className="gap-2">
             <Plus className="h-4 w-4" />
-            Agregar Fecha
+
+            {/* Texto oculto en móvil, visible desde sm */}
+            <span className="hidden sm:inline">Agregar Fecha</span>
           </Button>
         </div>
 
@@ -214,11 +216,13 @@ export function ProfileFamilyInfo({ profile, updateProfile, onBack }: Props) {
           {localData.importantDates?.map((date) => (
             <div key={date.id} className="grid grid-cols-1 md:grid-cols-4 gap-3 p-3 bg-muted/30 rounded-lg">
               <Input
+                className="text-sm"
                 value={date.name}
                 onChange={(e) => updateImportantDate(date.id, "name", e.target.value)}
                 placeholder="Nombre"
               />
               <Input
+                className="text-sm"
                 type="date"
                 value={date.date}
                 onChange={(e) => updateImportantDate(date.id, "date", e.target.value)}

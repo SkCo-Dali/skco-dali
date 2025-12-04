@@ -11,7 +11,7 @@ interface CommissionsChartProps {
 
 export function CommissionsChart({ data, totalCommissions, onViewDetails }: CommissionsChartProps) {
   return (
-    <Card className="border-border">
+    <Card className="border-border py-4">
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between gap-4">
           <h3 className="text-base md:text-lg font-semibold text-foreground">Tus comisiones</h3>
@@ -30,10 +30,13 @@ export function CommissionsChart({ data, totalCommissions, onViewDetails }: Comm
             <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
             <XAxis
               dataKey="month"
-              tick={{ fill: "hsl(var(--muted-foreground))" }}
+              tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 12 }}
               tickLine={{ stroke: "hsl(var(--border))" }}
             />
-            <YAxis tick={{ fill: "hsl(var(--muted-foreground))" }} tickLine={{ stroke: "hsl(var(--border))" }} />
+            <YAxis
+              tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 12 }}
+              tickLine={{ stroke: "hsl(var(--border))" }}
+            />
             <Tooltip
               contentStyle={{
                 backgroundColor: "hsl(var(--card))",

@@ -41,11 +41,11 @@ export function ProfilePersonalInfo({ profile, updateProfile, onBack }: Props) {
   const handleSave = async () => {
     // Validate phone before saving
     if (localData.phone) {
-      const phoneWithCountry = `${localData.countryCode || '+57'}${localData.phone}`;
+      const phoneWithCountry = `${localData.countryCode || "+57"}${localData.phone}`;
       const validation = normalizarTelefonoColombia(phoneWithCountry);
-      
+
       if (!validation.ok) {
-        setPhoneError(getMotivoDescripcion(validation.motivo || ''));
+        setPhoneError(getMotivoDescripcion(validation.motivo || ""));
         toast.error("Por favor corrige el número de WhatsApp");
         return;
       }
@@ -141,7 +141,7 @@ export function ProfilePersonalInfo({ profile, updateProfile, onBack }: Props) {
       });
 
       toast.success("✓ Información personal actualizada correctamente");
-      
+
       // Force re-sync localData with saved values to disable Save button
       // This ensures hasChanges becomes false after successful save
     } catch (error) {
@@ -155,13 +155,14 @@ export function ProfilePersonalInfo({ profile, updateProfile, onBack }: Props) {
   return (
     <div className="space-y-6 animate-fade-in">
       {/* Basic Info */}
-      <Card className="p-4 border-border/40 space-y-4">
-        <h3 className="font-medium text-lg mb-4">Datos Básicos</h3>
+      <Card className="p-0 border-0 shadow-none space-y-4">
+        <h3 className="font-medium text-lg text-primary mb-4">Datos Básicos</h3>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-2">
             <Label htmlFor="preferredName">Nombre Preferido *</Label>
             <Input
+              className="text-sm"
               id="preferredName"
               value={localData.preferredName || ""}
               onChange={(e) => setLocalData({ ...localData, preferredName: e.target.value })}
@@ -172,6 +173,7 @@ export function ProfilePersonalInfo({ profile, updateProfile, onBack }: Props) {
           <div className="space-y-2">
             <Label htmlFor="birthDate">Fecha de Nacimiento</Label>
             <DatePicker
+              className="text-sm"
               date={localData.birthDate ? parse(localData.birthDate, "yyyy-MM-dd", new Date()) : undefined}
               onDateChange={(date) =>
                 setLocalData({
@@ -205,15 +207,11 @@ export function ProfilePersonalInfo({ profile, updateProfile, onBack }: Props) {
       </Card>
 
       {/* WhatsApp */}
-      <Card className="p-4 border-border/40 space-y-4">
-        <h3 className="font-medium text-lg mb-4">WhatsApp *</h3>
-        <p className="text-sm text-muted-foreground mb-4">
-          Este número se usará para contactarte y en correos masivos
-        </p>
+      <Card className="p-0 border-0 shadow-none space-y-4">
+        <h3 className="font-medium text-lg text-primary mb-4">WhatsApp *</h3>
+        <p className="text-sm text-muted-foreground mb-4">Este número se usará para contactarte y en correos masivos</p>
         <CountryPhoneSelector
-          selectedCountryCode={
-            countries.find((c) => c.dialCode === localData.countryCode)?.code || "CO"
-          }
+          selectedCountryCode={countries.find((c) => c.dialCode === localData.countryCode)?.code || "CO"}
           phone={localData.phone || ""}
           onCountryChange={(countryCode, dialCode) => {
             setLocalData({ ...localData, countryCode: dialCode });
@@ -228,11 +226,11 @@ export function ProfilePersonalInfo({ profile, updateProfile, onBack }: Props) {
       </Card>
 
       {/* Social Media */}
-      <Card className="p-4 border-border/40 space-y-4">
+      <Card className="p-0 border-0 shadow-none space-y-4">
         <Collapsible open={socialMediaOpen} onOpenChange={setSocialMediaOpen}>
           <div className="flex items-center justify-between">
             <div>
-              <h3 className="font-medium text-lg">Redes Sociales</h3>
+              <h3 className="font-medium text-lg text-primary">Redes Sociales</h3>
               <p className="text-sm text-muted-foreground">Opcionales - se usarán en correos masivos</p>
             </div>
             <CollapsibleTrigger asChild>

@@ -37,9 +37,9 @@ export function CountryPhoneSelector({
       <div className="flex gap-2">
         <Popover open={open} onOpenChange={setOpen}>
           <PopoverTrigger asChild>
-            <Button variant="outline" role="combobox" aria-expanded={open} className="w-[180px] justify-between">
+            <Button variant="outline" role="combobox" aria-expanded={open} className="justify-start">
               <span className="flex items-center gap-2">
-                <span className="text-2xl font-emoji">{selectedCountry.flag}</span>
+                <span className="text-xs font-emoji">{selectedCountry.flag}</span>
                 <span className="text-sm">{selectedCountry.dialCode}</span>
               </span>
               <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
@@ -61,7 +61,7 @@ export function CountryPhoneSelector({
                         setSearchQuery("");
                       }}
                     >
-                      <span className="text-2xl mr-2 font-emoji">{country.flag}</span>
+                      <span className="text-xs mr-2 font-emoji">{country.flag}</span>
                       <span className="flex-1">{country.name}</span>
                       <span className="text-muted-foreground">{country.dialCode}</span>
                       <Check
@@ -84,7 +84,7 @@ export function CountryPhoneSelector({
             placeholder="3109876543"
             value={phone}
             onChange={(e) => onPhoneChange(e.target.value.replace(/\D/g, ""))}
-            className={cn(error && "border-destructive")}
+            className={cn("text-sm", error && "border-destructive")}
           />
         </div>
       </div>

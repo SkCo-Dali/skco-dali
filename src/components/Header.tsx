@@ -36,7 +36,7 @@ export function Header({ onSamiToggle }: HeaderProps = {}) {
 
               {/* Saludo centrado */}
               {user && (
-                <div className="absolute left-1/2 transform -translate-x-1/2 text-xs sm:text-sm font-medium text-foreground whitespace-nowrap">
+                <div className="absolute left-1/2 transform -translate-x-1/2 text-sm sm:text-sm font-medium text-foreground whitespace-nowrap">
                   <span>Hola, </span>
                   <span className="text-[#00A859]">{user.preferredName || user.name || "Usuario"}</span>
                   <span> 👋</span>

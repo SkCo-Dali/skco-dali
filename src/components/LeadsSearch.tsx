@@ -1,4 +1,3 @@
-
 import { Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { useState, useEffect } from "react";
@@ -28,12 +27,12 @@ export function LeadsSearch({ searchTerm, onSearchChange }: LeadsSearchProps) {
   }, [localValue, searchTerm, onSearchChange]);
 
   return (
-    <div className="relative max-w-md w-full">
+    <div className="relative w-full max-w-[414px] sm:max-w-[614px]">
       <Input
         placeholder="Ingresa un dato para tu búsqueda"
         value={localValue}
         onChange={(e) => setLocalValue(e.target.value)}
-        className="!pl-4 box-border w-full h-8"
+        className="!pl-4 box-border w-full h-8 text-sm"
       />
     </div>
   );

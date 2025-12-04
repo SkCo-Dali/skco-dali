@@ -104,34 +104,37 @@ export const AdvisorVentasTab = ({ advisorId }: Props) => {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       {/* Filtros de Fecha */}
       <Card className="border-0 shadow-none">
-        <CardContent className="pt-6">
-          <div className="flex flex-wrap items-center gap-3">
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <Calendar className="h-4 w-4" />
+        <CardContent className="p-3 sm:pt-6">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3">
+            <div className="flex items-center gap-2 text-xs sm:text-sm text-muted-foreground">
+              <Calendar className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
               <span>Período:</span>
             </div>
-            <div className="flex gap-2">
+            <div className="flex flex-wrap gap-2">
               <Button
                 variant={dateFilter === "7days" ? "default" : "outline"}
                 size="sm"
                 onClick={() => setDateFilter("7days")}
+                className="text-xs sm:text-sm h-8"
               >
-                Últimos 7 días
+                7 días
               </Button>
               <Button
                 variant={dateFilter === "30days" ? "default" : "outline"}
                 size="sm"
                 onClick={() => setDateFilter("30days")}
+                className="text-xs sm:text-sm h-8"
               >
-                Últimos 30 días
+                30 días
               </Button>
               <Button
                 variant={dateFilter === "currentMonth" ? "default" : "outline"}
                 size="sm"
                 onClick={() => setDateFilter("currentMonth")}
+                className="text-xs sm:text-sm h-8"
               >
                 Mes actual
               </Button>
@@ -141,7 +144,7 @@ export const AdvisorVentasTab = ({ advisorId }: Props) => {
       </Card>
 
       {/* KPI Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2 sm:gap-4">
         <MetricCard
           title="APE"
           value={`$${(totalProduccion / 1000000).toFixed(1)}M`}
@@ -175,13 +178,13 @@ export const AdvisorVentasTab = ({ advisorId }: Props) => {
       </div>
 
       {/* Gráficos de Evolución */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
         {/* Producción y Primas */}
         <Card>
-          <CardHeader>
-            <CardTitle className="text-lg font-semibold">Evolución de Pólizas Emitidas</CardTitle>
+          <CardHeader className="p-3 sm:p-6">
+            <CardTitle className="text-sm sm:text-lg font-semibold">Evolución de Pólizas Emitidas</CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="p-2 sm:p-6 pt-0">
             <ChartContainer
               config={{
                 produccion: {
@@ -189,16 +192,16 @@ export const AdvisorVentasTab = ({ advisorId }: Props) => {
                   color: "hsl(var(--primary))",
                 },
               }}
-              className="h-[300px] w-full"
+              className="h-[200px] sm:h-[300px] w-full"
             >
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart data={chartData}>
                   <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="fecha" />
-                  <YAxis yAxisId="left" tickFormatter={(value) => `$${value}M`} />
-                  <YAxis yAxisId="right" orientation="right" />
+                  <XAxis dataKey="fecha" tick={{ fontSize: 10 }} />
+                  <YAxis yAxisId="left" tickFormatter={(value) => `$${value}M`} tick={{ fontSize: 10 }} />
+                  <YAxis yAxisId="right" orientation="right" tick={{ fontSize: 10 }} />
                   <ChartTooltip content={<ChartTooltipContent />} />
-                  <Legend />
+                  <Legend wrapperStyle={{ fontSize: 12 }} />
                   <Line
                     yAxisId="left"
                     type="monotone"
@@ -215,10 +218,10 @@ export const AdvisorVentasTab = ({ advisorId }: Props) => {
 
         {/* Negocios Cerrados */}
         <Card>
-          <CardHeader>
-            <CardTitle className="text-lg font-semibold">Evolución de Pólizas Fondeadas</CardTitle>
+          <CardHeader className="p-3 sm:p-6">
+            <CardTitle className="text-sm sm:text-lg font-semibold">Evolución de Pólizas Fondeadas</CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="p-2 sm:p-6 pt-0">
             <ChartContainer
               config={{
                 negocios: {
@@ -226,13 +229,13 @@ export const AdvisorVentasTab = ({ advisorId }: Props) => {
                   color: "hsl(var(--chart-3))",
                 },
               }}
-              className="h-[300px] w-full"
+              className="h-[200px] sm:h-[300px] w-full"
             >
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={chartData}>
                   <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="fecha" />
-                  <YAxis />
+                  <XAxis dataKey="fecha" tick={{ fontSize: 10 }} />
+                  <YAxis tick={{ fontSize: 10 }} />
                   <ChartTooltip content={<ChartTooltipContent />} />
                   <Bar dataKey="negocios" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} name="Negocios" />
                 </BarChart>
@@ -243,10 +246,10 @@ export const AdvisorVentasTab = ({ advisorId }: Props) => {
 
         {/* Conversión */}
         <Card>
-          <CardHeader>
-            <CardTitle className="text-lg font-semibold">Evolución de Tasa de Conversión</CardTitle>
+          <CardHeader className="p-3 sm:p-6">
+            <CardTitle className="text-sm sm:text-lg font-semibold">Evolución de Tasa de Conversión</CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="p-2 sm:p-6 pt-0">
             <ChartContainer
               config={{
                 conversion: {
@@ -254,13 +257,13 @@ export const AdvisorVentasTab = ({ advisorId }: Props) => {
                   color: "hsl(var(--chart-4))",
                 },
               }}
-              className="h-[300px] w-full"
+              className="h-[200px] sm:h-[300px] w-full"
             >
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart data={chartData}>
                   <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="fecha" />
-                  <YAxis tickFormatter={(value) => `${value}%`} />
+                  <XAxis dataKey="fecha" tick={{ fontSize: 10 }} />
+                  <YAxis tickFormatter={(value) => `${value}%`} tick={{ fontSize: 10 }} />
                   <ChartTooltip
                     content={<ChartTooltipContent />}
                     formatter={(value: number) => [`${value.toFixed(1)}%`, "Conversión"]}
@@ -280,10 +283,10 @@ export const AdvisorVentasTab = ({ advisorId }: Props) => {
 
         {/* Ticket Promedio */}
         <Card>
-          <CardHeader>
-            <CardTitle className="text-lg font-semibold">Evolución de Ticket Promedio</CardTitle>
+          <CardHeader className="p-3 sm:p-6">
+            <CardTitle className="text-sm sm:text-lg font-semibold">Evolución de Ticket Promedio</CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="p-2 sm:p-6 pt-0">
             <ChartContainer
               config={{
                 ticket: {
@@ -291,13 +294,13 @@ export const AdvisorVentasTab = ({ advisorId }: Props) => {
                   color: "hsl(var(--chart-5))",
                 },
               }}
-              className="h-[300px] w-full"
+              className="h-[200px] sm:h-[300px] w-full"
             >
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={chartData}>
                   <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="fecha" />
-                  <YAxis tickFormatter={(value) => `$${value}K`} />
+                  <XAxis dataKey="fecha" tick={{ fontSize: 10 }} />
+                  <YAxis tickFormatter={(value) => `$${value}K`} tick={{ fontSize: 10 }} />
                   <ChartTooltip
                     content={<ChartTooltipContent />}
                     formatter={(value: number) => [`$${value.toFixed(0)}K`, "Ticket"]}

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -35,8 +35,15 @@ export function LeadsBulkAssignment({ leads, onLeadsAssigned }: LeadsBulkAssignm
   const { users } = useAssignableUsers();
   const { toast } = useToast();
 
-  // Filtrar solo usuarios con rol de gestor
-  const gestorUsers = users.filter((user) => user.Role === "gestor");
+  // Memoizar usuarios gestores para evitar closures stale
+  const gestorUsers = useMemo(() => {
+    const filtered = users.filter((user) => user.Role === "gestor");
+    console.log("📋 Gestor users filtered:", filtered.length, "from", users.length, "total users");
+    return filtered;
+  }, [users]);
+
+  // IDs de gestores para validación rápida
+  const gestorUserIds = useMemo(() => new Set(gestorUsers.map(u => u.Id)), [gestorUsers]);
 
   // Mapear PaginatedLead a Lead
   const mapPaginatedLeadToLead = (paginatedLead: PaginatedLead): Lead => {
@@ -194,7 +201,7 @@ export function LeadsBulkAssignment({ leads, onLeadsAssigned }: LeadsBulkAssignm
   // Inicializar asignaciones cuando cambien los usuarios gestores
   useEffect(() => {
     if (gestorUsers.length > 0) {
-      console.log("Initializing user assignments for", gestorUsers.length, "gestors");
+      console.log("🔄 Initializing user assignments for", gestorUsers.length, "gestors");
       setUserAssignments(
         gestorUsers.map((user) => ({
           userId: user.Id,
@@ -203,12 +210,12 @@ export function LeadsBulkAssignment({ leads, onLeadsAssigned }: LeadsBulkAssignm
         })),
       );
     }
-  }, [gestorUsers.length]);
+  }, [gestorUsers]); // Depender del array completo, no solo length
 
   // Resetear asignaciones cuando cambie la campaña
   useEffect(() => {
     if (gestorUsers.length > 0) {
-      console.log("Resetting assignments for campaign change");
+      console.log("🔄 Resetting assignments for campaign change");
       setUserAssignments(
         gestorUsers.map((user) => ({
           userId: user.Id,
@@ -217,11 +224,11 @@ export function LeadsBulkAssignment({ leads, onLeadsAssigned }: LeadsBulkAssignm
         })),
       );
     }
-  }, [selectedCampaign]);
+  }, [selectedCampaign, gestorUsers]); // Incluir gestorUsers para evitar closures stale
 
-  const handleEquitableAssignment = () => {
+  const handleEquitableAssignment = useCallback(() => {
     if (gestorUsers.length === 0 || filteredLeads.length === 0) {
-      console.log("Cannot distribute: no gestors or no leads");
+      console.log("❌ Cannot distribute: no gestors or no leads");
       return;
     }
 
@@ -229,10 +236,11 @@ export function LeadsBulkAssignment({ leads, onLeadsAssigned }: LeadsBulkAssignm
     const baseQuantity = Math.floor(totalLeads / gestorUsers.length);
     const remainder = totalLeads % gestorUsers.length;
 
-    console.log("Distributing equitably and randomly:", { totalLeads, baseQuantity, remainder });
+    console.log("📊 Distributing equitably and randomly:", { totalLeads, baseQuantity, remainder, gestorCount: gestorUsers.length });
 
     // Aleatorizar el orden de los gestores para distribución justa
     const randomizedGestors = shuffleArray(gestorUsers);
+    console.log("🎲 Randomized gestors order:", randomizedGestors.map(g => g.Name));
 
     const newAssignments = randomizedGestors.map((user, index) => ({
       userId: user.Id,
@@ -240,9 +248,9 @@ export function LeadsBulkAssignment({ leads, onLeadsAssigned }: LeadsBulkAssignm
       quantity: baseQuantity + (index < remainder ? 1 : 0),
     }));
 
-    console.log("New random equitable assignments:", newAssignments);
+    console.log("✅ New random equitable assignments:", newAssignments);
     setUserAssignments(newAssignments);
-  };
+  }, [gestorUsers, filteredLeads.length]);
 
   const updateUserQuantity = (userId: string, quantity: number) => {
     console.log("Updating quantity for user", userId, "to", quantity);
@@ -303,7 +311,7 @@ export function LeadsBulkAssignment({ leads, onLeadsAssigned }: LeadsBulkAssignm
   const handleAssign = async () => {
     const totalAssigned = getTotalAssigned();
 
-    console.log("Starting assignment process. Total to assign:", totalAssigned);
+    console.log("🚀 Starting assignment process. Total to assign:", totalAssigned);
 
     if (totalAssigned === 0) {
       toast({
@@ -323,57 +331,91 @@ export function LeadsBulkAssignment({ leads, onLeadsAssigned }: LeadsBulkAssignm
       return;
     }
 
+    // VALIDACIÓN CRÍTICA: Filtrar solo asignaciones a usuarios que son gestores
+    const validAssignments = userAssignments.filter(assignment => {
+      const isGestor = gestorUserIds.has(assignment.userId);
+      if (!isGestor && assignment.quantity > 0) {
+        console.warn(`⚠️ Filtering out non-gestor user from assignment: ${assignment.userName} (${assignment.userId})`);
+      }
+      return isGestor && assignment.quantity > 0;
+    });
+
+    console.log("✅ Valid gestor assignments:", validAssignments.map(a => ({ name: a.userName, qty: a.quantity })));
+
+    if (validAssignments.length === 0) {
+      toast({
+        title: "Error",
+        description: "No hay gestores válidos para asignar leads",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setIsAssigning(true);
 
     try {
       // Aleatorizar los leads antes de distribuir para asignación justa
       const randomizedLeads = shuffleArray(filteredLeads);
-      console.log("Leads randomized for fair distribution");
+      console.log("🎲 Leads randomized for fair distribution");
 
-      // Usar la nueva API de asignación masiva
+      // Usar la nueva API de asignación masiva - SECUENCIALMENTE para evitar conflictos de transacción
       let leadIndex = 0;
-      const bulkAssignPromises: Promise<any>[] = [];
       let totalSuccess = 0;
       let totalSkipped = 0;
       let totalFailed = 0;
       const successfulLeadIds: string[] = [];
 
-      for (const assignment of userAssignments) {
-        if (assignment.quantity > 0) {
-          // Tomar los leads necesarios para este usuario (ahora aleatorizados)
-          const leadsToAssign = randomizedLeads.slice(leadIndex, leadIndex + assignment.quantity);
-          const leadIds = leadsToAssign.map((lead) => lead.id);
+      // EJECUTAR SECUENCIALMENTE para evitar deadlocks en la base de datos
+      for (const assignment of validAssignments) {
+        // Tomar los leads necesarios para este usuario (ahora aleatorizados)
+        const leadsToAssign = randomizedLeads.slice(leadIndex, leadIndex + assignment.quantity);
+        const leadIds = leadsToAssign.map((lead) => lead.id);
 
-          console.log(`Assigning ${leadIds.length} leads to user ${assignment.userName}`);
+        console.log(`📤 Assigning ${leadIds.length} leads to gestor ${assignment.userName} (${assignment.userId})`);
 
-          // Llamar a la nueva API de bulk-assign
-          if (leadIds.length > 0) {
-            const assignmentPromise = bulkAssignLeads({
+        // Llamar a la nueva API de bulk-assign SECUENCIALMENTE
+        if (leadIds.length > 0) {
+          try {
+            const response = await bulkAssignLeads({
               leadIds,
               toUserId: assignment.userId,
               reason: "Asignación masiva",
               notes: `Asignado masivamente a ${assignment.userName}`,
-            }).then((response) => {
-              console.log(`✅ Bulk assignment response:`, response);
-              totalSuccess += response.summary.success;
-              totalSkipped += response.summary.skipped;
-              totalFailed += response.summary.failed;
-              // Guardar los IDs de leads exitosamente asignados
-              if (response.successLeads && response.successLeads.length > 0) {
-                successfulLeadIds.push(...response.successLeads);
-              }
-              return response;
             });
-
-            bulkAssignPromises.push(assignmentPromise);
+            
+            console.log(`✅ Bulk assignment response for ${assignment.userName}:`, response);
+            totalSuccess += response.summary.success;
+            totalSkipped += response.summary.skipped;
+            totalFailed += response.summary.failed;
+            
+            // Log detallado de leads fallidos para debugging
+            if (response.failedLeads && response.failedLeads.length > 0) {
+              console.error(`❌ Failed leads for ${assignment.userName}:`, response.failedLeads);
+              response.failedLeads.forEach((failedLead: any, index: number) => {
+                console.error(`  Failed lead ${index + 1}:`, {
+                  leadId: failedLead.leadId || failedLead.lead_id || failedLead.Id || 'unknown',
+                  error: failedLead.error || failedLead.reason || failedLead.message || JSON.stringify(failedLead)
+                });
+              });
+            }
+            
+            // Log de leads omitidos
+            if (response.skippedLeads && response.skippedLeads.length > 0) {
+              console.warn(`⚠️ Skipped leads for ${assignment.userName}:`, response.skippedLeads);
+            }
+            
+            // Guardar los IDs de leads exitosamente asignados
+            if (response.successLeads && response.successLeads.length > 0) {
+              successfulLeadIds.push(...response.successLeads);
+            }
+          } catch (assignError) {
+            console.error(`❌ Error assigning leads to ${assignment.userName}:`, assignError);
+            totalFailed += leadIds.length;
           }
-
-          leadIndex += assignment.quantity;
         }
-      }
 
-      // Ejecutar todas las asignaciones masivas
-      await Promise.all(bulkAssignPromises);
+        leadIndex += assignment.quantity;
+      }
 
       // Cambiar el stage de los leads exitosamente asignados a "Asignado"
       if (successfulLeadIds.length > 0) {

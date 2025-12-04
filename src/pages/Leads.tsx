@@ -4,7 +4,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Lead, getRolePermissions } from "@/types/crm";
 import { useAuth } from "@/contexts/AuthContext";
 import { isAuthorizedForMassEmail } from "@/utils/emailDomainValidator";
-import Lottie from 'lottie-react';
+import Lottie from "lottie-react";
 import { LeadsSearch } from "@/components/LeadsSearch";
 import { LeadsFilters } from "@/components/LeadsFilters";
 import { LeadsStats } from "@/components/LeadsStats";
@@ -92,10 +92,8 @@ export default function Leads() {
   const isSmallScreen = isMobile || isMedium;
 
   // Set default view mode based on screen size
-  const [viewMode, setViewMode] = useState<"table" | "columns">(
-    isMobile ? "columns" : "table"
-  );
-  
+  const [viewMode, setViewMode] = useState<"table" | "columns">(isMobile ? "columns" : "table");
+
   // Actualizar vista cuando cambia el tamaño de pantalla
   useEffect(() => {
     if (isMobile) {
@@ -121,10 +119,10 @@ export default function Leads() {
   const [kpiRefreshTrigger, setKpiRefreshTrigger] = useState(0);
 
   useEffect(() => {
-    fetch('/animations/leads.json')
-      .then(res => res.json())
-      .then(data => setLeadsAnimation(data))
-      .catch(err => console.error('Error loading leads animation:', err));
+    fetch("/animations/leads.json")
+      .then((res) => res.json())
+      .then((data) => setLeadsAnimation(data))
+      .catch((err) => console.error("Error loading leads animation:", err));
   }, []);
 
   const { user } = useAuth();
@@ -132,8 +130,7 @@ export default function Leads() {
   const [searchParams, setSearchParams] = useSearchParams();
 
   // Get auto-filter campaign from URL parameter
-  const autoFilterCampaign = searchParams.get('autoFilterCampaign');
-
+  const autoFilterCampaign = searchParams.get("autoFilterCampaign");
 
   const {
     leads: leadsData,
@@ -316,9 +313,9 @@ export default function Leads() {
 
   // Apply campaign filter from URL params
   useEffect(() => {
-    const campaignParam = searchParams.get('campaign');
+    const campaignParam = searchParams.get("campaign");
     if (campaignParam) {
-      console.log('📌 Applying campaign filter from URL:', campaignParam);
+      console.log("📌 Applying campaign filter from URL:", campaignParam);
       setFilterCampaign(campaignParam);
       // Clear the URL param after applying the filter
       setSearchParams({}, { replace: true });
@@ -402,7 +399,13 @@ export default function Leads() {
 
   const handleColumnFilterChange = useCallback(
     (column: string, selectedValues: string[]) => {
-      const dateColumns = new Set(["createdAt", "updatedAt", "nextFollowUp", "lastInteraction", "lastGestorInteractionAt"]);
+      const dateColumns = new Set([
+        "createdAt",
+        "updatedAt",
+        "nextFollowUp",
+        "lastInteraction",
+        "lastGestorInteractionAt",
+      ]);
       const normCol = column; // No more mapping - keep column as is
 
       if (dateColumns.has(column)) {
@@ -531,119 +534,119 @@ export default function Leads() {
   // Auto-filter when coming from Market Dali - Con animación visual educativa
   useEffect(() => {
     if (!autoFilterCampaign) return;
-    
+
     // Only run when page is fully loaded (not loading anymore)
     if (isLoading) return;
 
     const runAnimation = async () => {
-      console.log('🎯 Iniciando filtrado automático para campaña:', autoFilterCampaign); // NOSONAR
-      
+      console.log("🎯 Iniciando filtrado automático para campaña:", autoFilterCampaign); // NOSONAR
+
       // Paso 1: Esperar a que la página cargue completamente
-      console.log('⏳ Esperando a que la página termine de cargar...'); // NOSONAR
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
+      console.log("⏳ Esperando a que la página termine de cargar..."); // NOSONAR
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+
       // Paso 2: Buscar y abrir el filtro de campaña
-      console.log('🔍 Buscando botón de filtro de campaña...'); // NOSONAR
+      console.log("🔍 Buscando botón de filtro de campaña..."); // NOSONAR
       let retries = 0;
       let campaignFilterButton: HTMLElement | null = null;
-      
+
       while (!campaignFilterButton && retries < 10) {
         campaignFilterButton = document.querySelector('[data-filter-field="campaign"]') as HTMLElement;
         if (!campaignFilterButton) {
-          await new Promise(resolve => setTimeout(resolve, 500));
+          await new Promise((resolve) => setTimeout(resolve, 500));
           retries++;
         }
       }
-      
+
       if (!campaignFilterButton) {
-        console.error('❌ No se encontró el botón de filtro de campaña'); // NOSONAR
+        console.error("❌ No se encontró el botón de filtro de campaña"); // NOSONAR
         // Aplicar filtro directamente como fallback
-        handleColumnFilterChange('campaign', [autoFilterCampaign]);
+        handleColumnFilterChange("campaign", [autoFilterCampaign]);
         toast({
           title: "Filtro aplicado",
           description: `Mostrando leads de: ${autoFilterCampaign}`,
         });
         setSearchParams((params) => {
-          params.delete('autoFilterCampaign');
+          params.delete("autoFilterCampaign");
           return params;
         });
         return;
       }
-      
-      console.log('✅ Botón encontrado, abriendo filtro...'); // NOSONAR
+
+      console.log("✅ Botón encontrado, abriendo filtro..."); // NOSONAR
       campaignFilterButton.click();
-      
+
       // Paso 3: Esperar a que se abra el popover y carguen los valores
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      
-      console.log('⏳ Esperando a que carguen los valores...'); // NOSONAR
-      let loadingSpinner = document.querySelector('.animate-spin');
+      await new Promise((resolve) => setTimeout(resolve, 1500));
+
+      console.log("⏳ Esperando a que carguen los valores..."); // NOSONAR
+      let loadingSpinner = document.querySelector(".animate-spin");
       let attempts = 0;
       while (loadingSpinner && attempts < 20) {
-        await new Promise(resolve => setTimeout(resolve, 300));
-        loadingSpinner = document.querySelector('.animate-spin');
+        await new Promise((resolve) => setTimeout(resolve, 300));
+        loadingSpinner = document.querySelector(".animate-spin");
         attempts++;
       }
-      
+
       // Paso 4: Buscar el checkbox de la campaña directamente (sin usar búsqueda)
-      console.log('✅ Buscando checkbox de la campaña en la lista...'); // NOSONAR
-      await new Promise(resolve => setTimeout(resolve, 800));
-      
+      console.log("✅ Buscando checkbox de la campaña en la lista..."); // NOSONAR
+      await new Promise((resolve) => setTimeout(resolve, 800));
+
       const checkboxes = document.querySelectorAll('[role="checkbox"]');
       let found = false;
-      
+
       for (const checkbox of checkboxes) {
-        const parent = checkbox.closest('label');
+        const parent = checkbox.closest("label");
         const labelText = parent?.textContent?.trim();
         if (labelText === autoFilterCampaign) {
-          console.log('✅ Checkbox encontrado, marcando...'); // NOSONAR
+          console.log("✅ Checkbox encontrado, marcando..."); // NOSONAR
           (checkbox as HTMLElement).click();
           found = true;
           break;
         }
       }
-      
+
       if (!found) {
-        console.warn('⚠️ No se encontró el checkbox, aplicando filtro directamente'); // NOSONAR
+        console.warn("⚠️ No se encontró el checkbox, aplicando filtro directamente"); // NOSONAR
         // Cerrar popover y aplicar filtro directamente
-        const cancelButton = Array.from(document.querySelectorAll('button')).find(
-          btn => btn.textContent?.trim() === 'Cancelar'
+        const cancelButton = Array.from(document.querySelectorAll("button")).find(
+          (btn) => btn.textContent?.trim() === "Cancelar",
         );
         if (cancelButton) (cancelButton as HTMLElement).click();
-        
-        handleColumnFilterChange('campaign', [autoFilterCampaign]);
+
+        handleColumnFilterChange("campaign", [autoFilterCampaign]);
         toast({
           title: "Filtro aplicado",
           description: `Mostrando leads de: ${autoFilterCampaign}`,
         });
       } else {
         // Paso 5: Aplicar el filtro
-        await new Promise(resolve => setTimeout(resolve, 800));
-        console.log('🎯 Aplicando filtro...'); // NOSONAR
-        
-        const applyButton = Array.from(document.querySelectorAll('button')).find(
-          btn => btn.textContent?.trim() === 'Aplicar'
+        await new Promise((resolve) => setTimeout(resolve, 800));
+        console.log("🎯 Aplicando filtro..."); // NOSONAR
+
+        const applyButton = Array.from(document.querySelectorAll("button")).find(
+          (btn) => btn.textContent?.trim() === "Aplicar",
         );
-        
+
         if (applyButton) {
-          console.log('✅ Haciendo clic en Aplicar...'); // NOSONAR
+          console.log("✅ Haciendo clic en Aplicar..."); // NOSONAR
           (applyButton as HTMLElement).click();
-          await new Promise(resolve => setTimeout(resolve, 800));
-          console.log('🎉 Filtro aplicado exitosamente!'); // NOSONAR
+          await new Promise((resolve) => setTimeout(resolve, 800));
+          console.log("🎉 Filtro aplicado exitosamente!"); // NOSONAR
         } else {
-          console.error('❌ No se encontró botón Aplicar'); // NOSONAR
+          console.error("❌ No se encontró botón Aplicar"); // NOSONAR
         }
       }
-      
+
       // Limpiar parámetro de URL
-      console.log('🧹 Limpiando parámetro de URL...'); // NOSONAR
+      console.log("🧹 Limpiando parámetro de URL..."); // NOSONAR
       setSearchParams((params) => {
-        params.delete('autoFilterCampaign');
+        params.delete("autoFilterCampaign");
         return params;
       });
     };
 
-    runAnimation().catch(err => console.error('💥 Error durante auto-filtrado:', err)); // eslint-disable-next-line react-hooks/exhaustive-deps
+    runAnimation().catch((err) => console.error("💥 Error durante auto-filtrado:", err)); // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [autoFilterCampaign, isLoading, handleColumnFilterChange, setSearchParams, toast]);
 
   const handleLeadClick = useCallback((lead: Lead) => {
@@ -703,11 +706,11 @@ export default function Leads() {
     setSelectedLeads((prev) => {
       if (isSelected) {
         const newSelected = [...new Set([...prev, ...leadIds])];
-        console.log('✅ Adding leads. Previous:', prev, 'New selection:', newSelected);
+        console.log("✅ Adding leads. Previous:", prev, "New selection:", newSelected);
         return newSelected;
       } else {
         const newSelected = prev.filter((id) => !leadIds.includes(id));
-        console.log('❌ Removing leads. Previous:', prev, 'New selection:', newSelected);
+        console.log("❌ Removing leads. Previous:", prev, "New selection:", newSelected);
         return newSelected;
       }
     });
@@ -900,11 +903,13 @@ export default function Leads() {
 
   return (
     <>
-      <div className="w-full max-w-full px-4 py-4 space-y-6">
-        <div className="flex flex-col lg:flex-row gap-6">
-          <div className="flex-1 space-y-6">
+      <div className="w-full max-w-full py-4 space-y-6 overflow-x-hidden">
+        <div className="flex flex-col lg:flex-row gap-6 px-4 md:px-4">
+          <div className="flex-1 space-y-6 min-w-0">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 pt-0">
-              <h1 className="text-3xl font-bold mb-1 tracking-tight text-[#00c73d]">Gestión de Leads</h1>
+              <h1 className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold mb-1 text-[#00C73D]">
+                Gestión de Leads
+              </h1>
             </div>
 
             {/* KPI Cards and Stage Summary */}
@@ -923,7 +928,7 @@ export default function Leads() {
                 <div className="flex flex-1 items-center gap-2">
                   {userPermissions?.canCreate && (
                     <Button
-                      className="gap-1 w-8 h-8 bg-primary"
+                      className="h-8 w-8 gap-2 px-3 py-2 h-auto"
                       onClick={handleCreateLead}
                       size="icon"
                       title="Crear Lead"
@@ -933,7 +938,7 @@ export default function Leads() {
                   )}
                   {userPermissions?.canBulkAssignLeads && (
                     <Button
-                      className="gap-1 w-8 h-8 bg-primary"
+                      className="h-8 w-8 gap-2 px-3 py-2 h-auto"
                       onClick={handleBulkAssign}
                       size="icon"
                       title="Asignación Masiva"
@@ -943,10 +948,9 @@ export default function Leads() {
                   )}
                   {userPermissions?.canBulkUpdateStage && (
                     <Button
-                      className="gap-1 w-8 h-8 bg-primary"
+                      className="h-8 w-8 gap-2 px-3 py-2 h-auto"
                       onClick={() => setShowBulkStatusUpdate(true)}
                       size="icon"
-                      disabled={selectedLeads.length === 0}
                       title="Actualizar Estado Masivamente"
                     >
                       <CheckCircle2 className="h-4 w-4" />
@@ -954,7 +958,7 @@ export default function Leads() {
                   )}
                   {userPermissions?.canSendEmail && isAuthorizedForMassEmail(user?.email) && (
                     <Button
-                      className="gap-1 w-8 h-8 bg-primary"
+                      className="h-8 w-8 gap-2 px-3 py-2 h-auto"
                       onClick={handleMassEmail}
                       size="icon"
                       title="Enviar Email Masivo"
@@ -974,7 +978,7 @@ export default function Leads() {
                   )}
                   {userPermissions?.canDelete && (
                     <Button
-                      className="gap-1 w-8 h-8 bg-red-600 hover:bg-red-700"
+                      className="h-8 w-8 gap-2 px-3 py-2 h-auto bg-red-600 hover:bg-red-700"
                       onClick={handleDeleteSelectedLeads}
                       size="icon"
                       disabled={isDeleting}
@@ -988,30 +992,27 @@ export default function Leads() {
               )}
 
               {isSmallScreen && (
-                <div className="flex w-full items-center gap-2">
-                  {userPermissions && user?.email && (
-                    <LeadsActionsButton
-                      onCreateLead={handleCreateLead}
-                      onBulkAssign={handleBulkAssign}
-                      onMassEmail={handleMassEmail}
-                      onMassWhatsApp={handleMassWhatsApp}
-                      onDeleteLeads={handleDeleteSelectedLeads}
-                      selectedLeadsCount={selectedLeads.length}
-                      isDeleting={isDeleting}
-                      permissions={userPermissions}
-                      leads={
-                        selectedLeads.length > 0
-                          ? filteredLeads.filter((lead) => selectedLeads.includes(lead.id))
-                          : filteredLeads
-                      }
-                      userEmail={user.email}
-                    />
-                  )}
-                  <div className="flex-1">
-                    <LeadsSearch searchTerm={searchTerm} onSearchChange={setSearchTerm} />
-                  </div>
-
-                  <div className="flex gap-2">
+                <div className="flex flex-col gap-2 w-full">
+                  {/* Actions buttons row */}
+                  <div className="w-full flex justify-start gap-2 flex-wrap">
+                    {userPermissions && user?.email && (
+                      <LeadsActionsButton
+                        onCreateLead={handleCreateLead}
+                        onBulkAssign={handleBulkAssign}
+                        onMassEmail={handleMassEmail}
+                        onMassWhatsApp={handleMassWhatsApp}
+                        onDeleteLeads={handleDeleteSelectedLeads}
+                        selectedLeadsCount={selectedLeads.length}
+                        isDeleting={isDeleting}
+                        permissions={userPermissions}
+                        leads={
+                          selectedLeads.length > 0
+                            ? filteredLeads.filter((lead) => selectedLeads.includes(lead.id))
+                            : filteredLeads
+                        }
+                        userEmail={user.email}
+                      />
+                    )}
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
                         <Button
@@ -1137,6 +1138,10 @@ export default function Leads() {
                     <Button className="gap-1 w-8 h-8 bg-secondary" onClick={handleViewModeToggle} size="icon">
                       {getViewModeIcon()}
                     </Button>
+                  </div>
+                  {/* Search bar - full width */}
+                  <div className="w-full">
+                    <LeadsSearch searchTerm={searchTerm} onSearchChange={setSearchTerm} />
                   </div>
                 </div>
               )}
@@ -1328,12 +1333,12 @@ export default function Leads() {
           </div>
         </div>
 
-        <LeadCreateDialog 
-          ref={leadCreateDialogRef} 
+        <LeadCreateDialog
+          ref={leadCreateDialogRef}
           onLeadCreate={handleLeadCreate}
           onBulkUploadSuccess={() => {
             refreshLeads();
-            setKpiRefreshTrigger(prev => prev + 1);
+            setKpiRefreshTrigger((prev) => prev + 1);
           }}
         />
 
@@ -1351,7 +1356,7 @@ export default function Leads() {
           <Dialog open={showBulkAssign} onOpenChange={setShowBulkAssign}>
             <DialogContent className="max-w-2xl">
               <LeadsBulkAssignment
-                leads={selectedLeads.length > 0 ? filteredLeads.filter((lead) => selectedLeads.includes(lead.id)) : []}
+                leads={selectedLeads.length > 0 ? filteredLeads.filter((lead) => selectedLeads.includes(lead.id)) : filteredLeads}
                 onLeadsAssigned={() => {
                   handleLeadUpdate();
                   setShowBulkAssign(false);
@@ -1388,15 +1393,15 @@ export default function Leads() {
                   : selectedLeads.length > 0
                     ? filteredLeads.filter((lead) => selectedLeads.includes(lead.id))
                     : filteredLeads;
-                
-                console.log('🔴 Opening MassEmail with:', { 
-                  selectedLeadsCount: selectedLeads.length, 
+
+                console.log("🔴 Opening MassEmail with:", {
+                  selectedLeadsCount: selectedLeads.length,
                   selectedLeads: selectedLeads,
                   selectedLeadForEmail: !!selectedLeadForEmail,
                   filteredLeadsCount: filteredLeads.length,
-                  computedLeadsCount: computed.length
+                  computedLeadsCount: computed.length,
                 });
-                
+
                 return computed;
               })()}
               onClose={() => {

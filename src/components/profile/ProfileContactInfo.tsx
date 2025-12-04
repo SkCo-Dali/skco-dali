@@ -61,13 +61,14 @@ export function ProfileContactInfo({ profile, updateProfile, onBack }: Props) {
   return (
     <div className="space-y-6 animate-fade-in">
       {/* Address */}
-      <Card className="p-4 border-border/40 space-y-4">
-        <h3 className="font-medium text-lg mb-4">Dirección</h3>
+      <Card className="p-0 border-0 shadow-none space-y-4">
+        <h3 className="font-medium text-lg text-primary mb-4">Dirección</h3>
 
         <div className="grid grid-cols-1 gap-4">
           <div className="space-y-2">
             <Label htmlFor="street">Dirección/Calle</Label>
             <Input
+              className="text-sm"
               id="street"
               value={localData.address?.street || ""}
               onChange={(e) =>
@@ -91,6 +92,7 @@ export function ProfileContactInfo({ profile, updateProfile, onBack }: Props) {
             <div className="space-y-2">
               <Label htmlFor="city">Ciudad</Label>
               <Input
+                className="text-sm"
                 id="city"
                 value={localData.address?.city || ""}
                 onChange={(e) =>
@@ -113,6 +115,7 @@ export function ProfileContactInfo({ profile, updateProfile, onBack }: Props) {
             <div className="space-y-2">
               <Label htmlFor="state">Departamento/Estado</Label>
               <Input
+                className="text-sm"
                 id="state"
                 value={localData.address?.state || ""}
                 onChange={(e) =>
@@ -135,6 +138,7 @@ export function ProfileContactInfo({ profile, updateProfile, onBack }: Props) {
             <div className="space-y-2">
               <Label htmlFor="postalCode">Código Postal</Label>
               <Input
+                className="text-sm"
                 id="postalCode"
                 value={localData.address?.postalCode || ""}
                 onChange={(e) =>
@@ -157,6 +161,7 @@ export function ProfileContactInfo({ profile, updateProfile, onBack }: Props) {
             <div className="space-y-2">
               <Label htmlFor="country">País</Label>
               <Input
+                className="text-sm"
                 id="country"
                 value={localData.address?.country || ""}
                 onChange={(e) =>
@@ -180,13 +185,14 @@ export function ProfileContactInfo({ profile, updateProfile, onBack }: Props) {
       </Card>
 
       {/* Alternative Contacts */}
-      <Card className="p-4 border-border/40 space-y-4">
-        <h3 className="font-medium text-lg mb-4">Contactos Alternativos</h3>
+      <Card className="p-0 border-0 shadow-none space-y-4">
+        <h3 className="font-medium text-lg text-primary mb-4">Contactos Alternativos</h3>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-2">
             <Label htmlFor="landline">Teléfono Fijo</Label>
             <Input
+              className="text-sm"
               id="landline"
               value={localData.landline || ""}
               onChange={(e) => setLocalData({ ...localData, landline: e.target.value })}
@@ -197,6 +203,7 @@ export function ProfileContactInfo({ profile, updateProfile, onBack }: Props) {
           <div className="space-y-2">
             <Label htmlFor="alternativeEmail">Correo Alternativo</Label>
             <Input
+              className="text-sm"
               id="alternativeEmail"
               type="email"
               value={localData.alternativeEmail || ""}

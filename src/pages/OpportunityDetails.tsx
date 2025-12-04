@@ -247,7 +247,7 @@ export const OpportunityDetails: React.FC = () => {
   };
 
   return (
-    <div className="container mx-auto px-4 py-5 space-y-6">
+    <div className="container mx-auto px-4 py-2 sm:text-py-4 space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
@@ -255,7 +255,7 @@ export const OpportunityDetails: React.FC = () => {
             <ArrowLeft className="h-4 w-4" />
           </Button>
           <div>
-            <h1 className="text-2xl font-bold">Detalles de Oportunidad</h1>
+            <h1 className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold">Detalles de Oportunidad</h1>
             <p className="text-muted-foreground">Información completa de la oportunidad comercial</p>
           </div>
         </div>
@@ -273,49 +273,59 @@ export const OpportunityDetails: React.FC = () => {
         {/* Main Content */}
         <div className="lg:col-span-2 space-y-6">
           {/* Opportunity Info */}
-          <Card className="overflow-hidden border-0 shadow-lg bg-gradient-to-br from-background via-background to-muted/20">
+          <Card className="overflow-hidden border shadow-md bg-gradient-to-br from-background via-background to-muted/20 pt-4">
             <CardHeader className="pb-6">
               <div className="flex items-start gap-6">
                 {/* Icono */}
                 <div className="relative">
-                  <div className="w-24 h-24 rounded-2xl bg-gradient-to-br from-primary/20 via-primary/10 to-primary/5 flex items-center justify-center shadow-lg border border-primary/20">
+                  <div className="w-24 h-24 rounded-2xl bg-gradient-to-br from-primary/20 via-primary/10 to-primary/5 flex items-center justify-center shadow-sm border border-primary/20">
                     <span className="text-5xl filter drop-shadow-sm">{opportunity.icon}</span>
                   </div>
                   <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-green-500 rounded-full flex items-center justify-center shadow-md">
                     <div className="w-2 h-2 bg-white rounded-full"></div>
                   </div>
                 </div>
-                {/* Título */}
-                <div className="flex-1 space-y-3">
+                <div className="flex-1 flex flex-col gap-4">
+                  {/* Título + subtítulo */}
                   <div>
-                    <CardTitle className="text-2xl font-bold mb-2 bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text">
+                    <CardTitle className="font-bold mb-1 bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text">
                       {opportunity.title}
                     </CardTitle>
-                    <p className="text-muted-foreground text-lg font-medium">{opportunity.subtitle}</p>
+                    <p className="text-muted-foreground text-sm sm:text-md font-medium">{opportunity.subtitle}</p>
                   </div>
-                  {/* Badges */}
-                  <div className="flex flex-wrap gap-3">
-                    <Badge
-                      variant="outline"
-                      className={`${getPriorityColor(opportunity.priority)} font-semibold px-3 py-1`}
-                    >
-                      Prioridad {opportunity.priority.toUpperCase()}
-                    </Badge>
-                    <Badge
-                      variant="secondary"
-                      className="bg-blue-50 text-blue-700 border-blue-200 font-medium px-3 py-1"
-                    >
-                      {OPPORTUNITY_TYPE_LABELS[opportunity.type]}
-                    </Badge>
-                    {opportunity.tags.map((tag, index) => (
+
+                  {/* Contenedor de badges */}
+                  <div className="w-full">
+                    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2 w-full">
+                      {/* Prioridad */}
                       <Badge
-                        key={index}
                         variant="outline"
-                        className="bg-muted/30 hover:bg-muted/50 transition-colors px-3 py-1"
+                        className={`${getPriorityColor(
+                          opportunity.priority,
+                        )} col-span-2 sm:col-span-3 lg:col-span-4 font-semibold px-3 py-2 text-center`}
                       >
-                        {tag}
+                        Prioridad {opportunity.priority.toUpperCase()}
                       </Badge>
-                    ))}
+
+                      {/* Tipo */}
+                      <Badge
+                        variant="secondary"
+                        className="col-span-2 sm:col-span-1 bg-blue-50 text-blue-700 border-blue-200 font-medium px-3 py-2 text-center"
+                      >
+                        {OPPORTUNITY_TYPE_LABELS[opportunity.type]}
+                      </Badge>
+
+                      {/* Tags */}
+                      {opportunity.tags.map((tag, index) => (
+                        <Badge
+                          key={index}
+                          variant="outline"
+                          className="col-span-2 sm:col-span-1 bg-muted/30 hover:bg-muted/50 transition-colors px-3 py-2 text-center"
+                        >
+                          {tag}
+                        </Badge>
+                      ))}
+                    </div>
                   </div>
                 </div>
               </div>
@@ -323,18 +333,18 @@ export const OpportunityDetails: React.FC = () => {
             <CardContent className="space-y-8">
               {/* Descripción */}
               <div className="space-y-3">
-                <h3 className="font-semibold text-lg flex items-center gap-2">
+                <h3 className="font-semibold text-md sm:text-lg flex items-center gap-2">
                   <div className="w-1 h-5 bg-primary rounded-full"></div>
                   Descripción
                 </h3>
-                <p className="text-muted-foreground leading-relaxed text-lg pl-3 border-l-2 border-muted">
+                <p className="text-muted-foreground leading-relaxed text-sm sm:text-md pl-3 border-l-2 border-muted">
                   {opportunity.description}
                 </p>
               </div>
               {/* Datos Clave */}
               <TooltipProvider>
                 <div className="space-y-4">
-                  <h3 className="font-semibold text-lg flex items-center gap-2">
+                  <h3 className="font-semibold text-md sm:text-lg flex items-center gap-2">
                     <div className="w-1 h-5 bg-primary rounded-full"></div>
                     Datos Clave
                   </h3>
@@ -343,13 +353,13 @@ export const OpportunityDetails: React.FC = () => {
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <div className="relative group cursor-help">
-                          <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-blue-600/10 rounded-2xl blur-xl group-hover:blur-lg transition-all duration-300"></div>
-                          <div className="relative bg-white/60 backdrop-blur-sm border border-blue-200/50 rounded-2xl p-4 text-center hover:shadow-xl hover:shadow-blue-500/20 transition-all duration-300 group-hover:-translate-y-1 group-hover:bg-white/80">
+                          <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-blue-600/10 rounded-2xl blur-sm group-hover:blur-sm transition-all duration-300"></div>
+                          <div className="relative bg-white/60 backdrop-blur-sm border border-blue-200/50 rounded-2xl p-4 text-center hover:shadow-sm hover:shadow-blue-500/20 transition-all duration-300 group-hover:-translate-y-1 group-hover:bg-white/80">
                             <div className="flex items-center justify-center w-10 h-10 bg-blue-100 rounded-xl mx-auto mb-2 group-hover:bg-blue-200 transition-colors relative">
                               <Users className="h-5 w-5 text-blue-600" />
                               <Info className="h-3 w-3 text-blue-500 absolute -top-1 -right-1 opacity-60" />
                             </div>
-                            <div className="text-2xl font-bold text-blue-700 mb-1">
+                            <div className="text-md sm:text-lg font-bold text-blue-700 mb-1">
                               {formatCustomerCount(opportunity.customerCount)}
                             </div>
                             <div className="text-xs font-medium text-blue-600">Clientes Impactables</div>
@@ -368,13 +378,13 @@ export const OpportunityDetails: React.FC = () => {
                       <Tooltip>
                         <TooltipTrigger asChild>
                           <div className="relative group cursor-help">
-                            <div className="absolute inset-0 bg-gradient-to-r from-green-500/10 to-green-600/10 rounded-2xl blur-xl group-hover:blur-lg transition-all duration-300"></div>
-                            <div className="relative bg-white/60 backdrop-blur-sm border border-green-200/50 rounded-2xl p-4 text-center hover:shadow-xl hover:shadow-green-500/20 transition-all duration-300 group-hover:-translate-y-1 group-hover:bg-white/80">
+                            <div className="absolute inset-0 bg-gradient-to-r from-green-500/10 to-green-600/10 rounded-2xl blur-sm group-hover:blur-sm transition-all duration-300"></div>
+                            <div className="relative bg-white/60 backdrop-blur-sm border border-green-200/50 rounded-2xl p-4 text-center hover:shadow-sm hover:shadow-green-500/20 transition-all duration-300 group-hover:-translate-y-1 group-hover:bg-white/80">
                               <div className="flex items-center justify-center w-10 h-10 bg-green-100 rounded-xl mx-auto mb-2 group-hover:bg-green-200 transition-colors relative">
                                 <DollarSign className="h-5 w-5 text-green-600" />
                                 <Info className="h-3 w-3 text-green-500 absolute -top-1 -right-1 opacity-60" />
                               </div>
-                              <div className="text-2xl font-bold text-green-700 mb-1">
+                              <div className="text-md sm:text-lg font-bold text-green-700 mb-1">
                                 ${opportunity.metrics.estimatedSales.toLocaleString()}
                               </div>
                               <div className="text-xs font-medium text-green-600">Comisiones Potenciales</div>
@@ -395,15 +405,15 @@ export const OpportunityDetails: React.FC = () => {
 
         {/* Sidebar */}
         <div className="space-y-6">
-          <Card className="shadow-lg border-0 bg-gradient-to-br from-background to-muted/30">
+          <Card className="shadow-md border bg-gradient-to-br from-background to-muted/30 pt-4">
             <CardHeader className="pb-4">
-              <CardTitle className="flex items-center gap-3 text-lg">
+              <CardTitle className="flex items-center gap-3">
                 <div className="p-2 rounded-lg bg-primary/10">
                   <Lightbulb className="h-5 w-5 text-primary" />
                 </div>
                 ¿Qué puedo hacer?
               </CardTitle>
-              <p className="text-sm text-muted-foreground">Acciones disponibles para esta oportunidad</p>
+              <p className="text-sm sm:text-md text-muted-foreground">Acciones disponibles para esta oportunidad</p>
             </CardHeader>
             <CardContent className="space-y-4 pb-6">
               <TooltipProvider>

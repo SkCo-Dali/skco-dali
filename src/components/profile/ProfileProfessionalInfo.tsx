@@ -48,7 +48,7 @@ export function ProfileProfessionalInfo({ profile, updateProfile, onBack }: Prop
 
       updateProfile(localData);
       toast.success("✓ Información profesional actualizada correctamente");
-      
+
       // Re-render will sync localData with updated profile prop via useEffect
     } catch (error) {
       console.error("Error saving professional info:", error);
@@ -60,11 +60,12 @@ export function ProfileProfessionalInfo({ profile, updateProfile, onBack }: Prop
 
   return (
     <div className="space-y-6 animate-fade-in">
-      <Card className="p-4 border-border/40 space-y-6">
+      <Card className="p-0 border-0 shadow-none space-y-4">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-2">
             <Label htmlFor="role">Cargo/Rol</Label>
             <Input
+              className="text-sm"
               id="role"
               value={localData.role || ""}
               onChange={(e) => setLocalData({ ...localData, role: e.target.value })}
@@ -75,6 +76,7 @@ export function ProfileProfessionalInfo({ profile, updateProfile, onBack }: Prop
           <div className="space-y-2">
             <Label htmlFor="department">Departamento/Área</Label>
             <Input
+              className="text-sm"
               id="department"
               value={localData.department || ""}
               onChange={(e) => setLocalData({ ...localData, department: e.target.value })}
@@ -85,6 +87,7 @@ export function ProfileProfessionalInfo({ profile, updateProfile, onBack }: Prop
           <div className="space-y-2">
             <Label htmlFor="startDate">Fecha de Ingreso</Label>
             <Input
+              className="text-sm"
               id="startDate"
               type="date"
               value={localData.startDate || ""}
@@ -95,6 +98,7 @@ export function ProfileProfessionalInfo({ profile, updateProfile, onBack }: Prop
           <div className="space-y-2">
             <Label htmlFor="manager">Supervisor/Manager</Label>
             <Input
+              className="text-sm"
               id="manager"
               value={localData.manager || ""}
               onChange={(e) => setLocalData({ ...localData, manager: e.target.value })}
@@ -105,6 +109,7 @@ export function ProfileProfessionalInfo({ profile, updateProfile, onBack }: Prop
           <div className="space-y-2 md:col-span-2">
             <Label htmlFor="specialization">Especialización</Label>
             <Input
+              className="text-sm"
               id="specialization"
               value={localData.specialization || ""}
               onChange={(e) => setLocalData({ ...localData, specialization: e.target.value })}
@@ -126,6 +131,7 @@ export function ProfileProfessionalInfo({ profile, updateProfile, onBack }: Prop
           <div className="space-y-2">
             <Label htmlFor="workStart">Horario de Inicio</Label>
             <Input
+              className="text-sm"
               id="workStart"
               type="time"
               value={localData.workSchedule?.start || ""}
@@ -145,6 +151,7 @@ export function ProfileProfessionalInfo({ profile, updateProfile, onBack }: Prop
           <div className="space-y-2">
             <Label htmlFor="workEnd">Horario de Fin</Label>
             <Input
+              className="text-sm"
               id="workEnd"
               type="time"
               value={localData.workSchedule?.end || ""}

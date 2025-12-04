@@ -319,7 +319,7 @@ const UserProfile = () => {
               </>
             ) : (
               <Card className="border-border/40">
-                <CardHeader className="border-b pb-4">
+                <CardHeader className="border-b pb-3">
                   <div className="flex items-center justify-between">
                     <CardTitle>{sections.find((s) => s.id === activeSection)?.title}</CardTitle>
                     <ChevronLeft onClick={() => setActiveSection(null)} className="h-5 w-5 text-primary" />
