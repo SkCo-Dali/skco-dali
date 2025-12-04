@@ -67,15 +67,15 @@ export const ClientList: React.FC<ClientListProps> = ({
   return (
     <div className="space-y-4">
       {/* Header with opportunity info */}
-      <div 
+      <div
         className="rounded-lg p-4 border border-border relative overflow-hidden"
         style={{
           backgroundImage: `url(${bannerCumple})`,
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
+          backgroundSize: "cover",
+          backgroundPosition: "center",
         }}
       >
-        <div className="absolute inset-0 bg-background/70" />
+        <div className="absolute inset-0 bg-background/90" />
         <div className="flex items-start gap-3 relative z-10">
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 mb-1">
@@ -84,7 +84,7 @@ export const ClientList: React.FC<ClientListProps> = ({
                 {categoryConfig.label}
               </Badge>
             </div>
-            <h2 className="text-lg sm:text-xl font-bold line-clamp-2 mb-1 text-foreground">{opportunity.title}</h2>
+            <h2 className="text-lg sm:text-xl font-bold line-clamp-2 mb-1 text-whie">{opportunity.title}</h2>
             <p className="text-sm text-muted-foreground line-clamp-2">{opportunity.subtitle}</p>
           </div>
         </div>
