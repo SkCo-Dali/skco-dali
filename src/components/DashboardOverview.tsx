@@ -235,7 +235,7 @@ export function DashboardOverview({ leads, loading }: DashboardOverviewProps) {
       </div>
 
       {/* Career Leaderboard - Right Column */}
-      <div className="col-span-2 order-first lg:order-last mb-4 lg:mb-0">
+      <div className="col-span-full lg:col-span-2 order-first lg:order-last mb-4 lg:mb-0">
         <CareerLeaderboard />
       </div>
     </div>
