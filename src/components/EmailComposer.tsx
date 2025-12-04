@@ -333,7 +333,7 @@ export function EmailComposer({
   return (
     <>
       <Card>
-        <CardHeader className="pb-3 sm:pb-6">
+        <CardHeader className="py-4">
           <CardTitle className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
             <span className="text-base sm:text-lg">Composición del Email</span>
             <div className="flex flex-wrap gap-1.5 sm:gap-2 w-full sm:w-auto">

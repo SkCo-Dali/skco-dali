@@ -127,7 +127,7 @@ export function EmailStatusLogs({
   return (
     <>
       <div className="w-full max-w-[1100px] mx-auto">
-        <Card className="space-y-3">
+        <Card className="py-4 space-y-3">
           <CardHeader className="pb-2">
             <CardTitle className="flex items-center justify-between gap-4">
               <div>
