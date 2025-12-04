@@ -68,12 +68,16 @@ export const ClientList: React.FC<ClientListProps> = ({
     <div className="space-y-4">
       {/* Header with opportunity info */}
       <div
-        className={`border border-border relative overflow-hidden rounded-xl px-4 py-4 md:py-12 min-h-[120px] md:min-h-[298px] ${!bannerConfig.image ? `bg-gradient-to-br ${bannerConfig.gradient}` : ''}`}
-        style={bannerConfig.image ? {
-          backgroundImage: `url(${bannerConfig.image})`,
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-        } : undefined}
+        className={`border border-border relative overflow-hidden rounded-xl px-4 py-4 md:py-12 min-h-[120px] md:min-h-[200px] ${!bannerConfig.image ? `bg-gradient-to-br ${bannerConfig.gradient}` : ""}`}
+        style={
+          bannerConfig.image
+            ? {
+                backgroundImage: `url(${bannerConfig.image})`,
+                backgroundSize: "cover",
+                backgroundPosition: "center",
+              }
+            : undefined
+        }
       >
         <div className={`absolute inset-0 ${bannerConfig.overlayOpacity}`} />
         <div className="flex items-start gap-3 relative z-10">
