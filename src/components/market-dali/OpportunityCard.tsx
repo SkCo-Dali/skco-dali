@@ -46,23 +46,18 @@ export const OpportunityCard: React.FC<OpportunityCardProps> = ({
       {(() => {
         const banner = getCategoryBanner(opportunity.type);
         return (
-          <div 
+          <div
             className={cn(
               "h-16 sm:h-20 relative border-b border-border bg-cover bg-center",
-              !banner.image && banner.gradient
+              !banner.image && banner.gradient,
             )}
             style={banner.image ? { backgroundImage: `url(${banner.image})` } : undefined}
           >
             {/* Overlay */}
-            <div 
-              className="absolute inset-0 bg-black/30"
-              style={{ opacity: banner.overlayOpacity }}
-            />
-            
+            <div className="absolute inset-0 bg-black/30" style={{ opacity: banner.overlayOpacity }} />
+
             {/* Icon */}
-            <div className="absolute inset-0 flex items-center justify-center z-10">
-              <span className="text-3xl sm:text-4xl drop-shadow-lg">{opportunity.icon}</span>
-            </div>
+            <div className="absolute inset-0 flex items-center justify-center z-10"></div>
 
             {/* Favorite button */}
             <button
