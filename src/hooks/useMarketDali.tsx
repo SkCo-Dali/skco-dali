@@ -96,9 +96,9 @@ const defaultFilters: MarketFilters = {
   categories: [],
   priorities: [],
   minClients: 0,
-  maxClients: 1000,
+  maxClients: 100000,
   minCommission: 0,
-  maxCommission: 100000,
+  maxCommission: 10000000,
   onlyFavorites: false,
 };
 
