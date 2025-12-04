@@ -24,7 +24,7 @@ export function AchievementsSection({
 }: AchievementsSectionProps) {
   return (
     <Card className="bg-transparent shadow-none border-0 pt-4">
-      <CardHeader className="px-0 sm:px-4">
+      <CardHeader className="px-4 sm:px-4">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-4 border-0">
           <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
             <Star className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
