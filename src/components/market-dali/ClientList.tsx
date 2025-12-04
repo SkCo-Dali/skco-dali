@@ -2,11 +2,10 @@ import React, { useState } from "react";
 import { MarketClient, MarketOpportunity, CATEGORY_CONFIG } from "@/types/marketDali";
 import { ClientCard } from "./ClientCard";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Users, Search, ArrowLeft, ShoppingCart, CheckCircle2, X } from "lucide-react";
-import bannerCumple from "@/assets/banner-cumple.png";
+import { Users, ShoppingCart, CheckCircle2, X } from "lucide-react";
+import { getCategoryBanner } from "@/config/marketDaliBanners";
 
 interface ClientListProps {
   opportunity: MarketOpportunity;
@@ -34,6 +33,7 @@ export const ClientList: React.FC<ClientListProps> = ({
   const [searchTerm, setSearchTerm] = useState("");
 
   const categoryConfig = CATEGORY_CONFIG[opportunity.type];
+  const bannerConfig = getCategoryBanner(opportunity.type);
 
   // Filter clients by search
   const filteredClients = clients.filter((client) => {
@@ -68,14 +68,14 @@ export const ClientList: React.FC<ClientListProps> = ({
     <div className="space-y-4">
       {/* Header with opportunity info */}
       <div
-        className="border border-border relative overflow-hidden rounded-xl px-4 py-4 md:py-12 min-h-[120px] md:min-h-[298px]"
-        style={{
-          backgroundImage: `url(${bannerCumple})`,
+        className={`border border-border relative overflow-hidden rounded-xl px-4 py-4 md:py-12 min-h-[120px] md:min-h-[298px] ${!bannerConfig.image ? `bg-gradient-to-br ${bannerConfig.gradient}` : ''}`}
+        style={bannerConfig.image ? {
+          backgroundImage: `url(${bannerConfig.image})`,
           backgroundSize: "cover",
           backgroundPosition: "center",
-        }}
+        } : undefined}
       >
-        <div className="absolute inset-0 bg-background/20" />
+        <div className={`absolute inset-0 ${bannerConfig.overlayOpacity}`} />
         <div className="flex items-start gap-3 relative z-10">
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 mb-1"></div>
