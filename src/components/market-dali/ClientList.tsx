@@ -68,7 +68,7 @@ export const ClientList: React.FC<ClientListProps> = ({
     <div className="space-y-4">
       {/* Header with opportunity info */}
       <div
-        className="border border-border relative overflow-hidden rounded-xl px-4 py-4 md:py-12 min-h-[120px] md:min-h-[160px]"
+        className="border border-border relative overflow-hidden rounded-xl px-4 py-4 md:py-12 min-h-[120px] md:min-h-[298px]"
         style={{
           backgroundImage: `url(${bannerCumple})`,
           backgroundSize: "cover",
