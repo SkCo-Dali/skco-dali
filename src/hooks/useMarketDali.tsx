@@ -136,9 +136,12 @@ export const MarketDaliProvider: React.FC<{ children: React.ReactNode }> = ({ ch
   const refreshOpportunities = useCallback(async () => {
     setIsLoadingOpportunities(true);
     try {
+      console.log('🔄 Market Dali: Fetching opportunities...');
       const data = await marketDaliApi.fetchOpportunities();
+      console.log('✅ Market Dali: Opportunities fetched:', data.length, data);
       setOpportunities(data);
     } catch (error) {
+      console.error('❌ Market Dali: Error fetching opportunities:', error);
       toast({
         title: 'Error',
         description: 'No se pudieron cargar las oportunidades',
