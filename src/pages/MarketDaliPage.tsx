@@ -87,6 +87,8 @@ const MarketDaliContent: React.FC = () => {
           <MarketDaliHeader 
             onRefresh={refreshOpportunities}
             isLoading={isLoadingOpportunities}
+            showBackButton={showClientView}
+            onBack={handleBackToOpportunities}
           />
 
           {/* Filters - only show when viewing opportunities */}

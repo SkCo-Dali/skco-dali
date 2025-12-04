@@ -41,35 +41,31 @@ export const OpportunityCard: React.FC<OpportunityCardProps> = ({
       )}
       onClick={() => onSelect(opportunity)}
     >
-      {/* Cover gradient */}
-      <div className={cn(
-        'h-20 sm:h-24 relative',
-        categoryConfig.color,
-        'bg-gradient-to-br from-current to-current/80'
-      )}>
+      {/* Cover - subtle with accent border */}
+      <div className="h-16 sm:h-20 relative bg-muted/50 border-b border-border">
         {/* Icon */}
         <div className="absolute inset-0 flex items-center justify-center">
-          <span className="text-4xl sm:text-5xl opacity-30">{opportunity.icon}</span>
+          <span className="text-3xl sm:text-4xl">{opportunity.icon}</span>
         </div>
         
         {/* Favorite button */}
         <button
           onClick={handleFavoriteClick}
-          className="absolute top-2 right-2 p-1.5 rounded-full bg-white/20 hover:bg-white/40 transition-colors"
+          className="absolute top-2 right-2 p-1.5 rounded-full bg-background/80 hover:bg-background transition-colors shadow-sm"
         >
           <Heart 
             className={cn(
               'h-4 w-4 sm:h-5 sm:w-5 transition-colors',
               opportunity.isFavorite 
                 ? 'fill-red-500 text-red-500' 
-                : 'text-white'
+                : 'text-muted-foreground'
             )} 
           />
         </button>
 
         {/* Category badge */}
         <div className="absolute bottom-2 left-2">
-          <Badge variant="secondary" className="bg-white/90 text-foreground text-xs">
+          <Badge variant="secondary" className="text-xs">
             {categoryConfig.icon} {categoryConfig.label}
           </Badge>
         </div>
