@@ -75,7 +75,7 @@ export const ClientList: React.FC<ClientListProps> = ({
           backgroundPosition: "center",
         }}
       >
-        <div className="absolute inset-0 bg-background/90" />
+        <div className="absolute inset-0 bg-background/10" />
         <div className="flex items-start gap-3 relative z-10">
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 mb-1">
@@ -84,7 +84,7 @@ export const ClientList: React.FC<ClientListProps> = ({
                 {categoryConfig.label}
               </Badge>
             </div>
-            <h2 className="text-lg sm:text-xl font-bold line-clamp-2 mb-1 text-whie">{opportunity.title}</h2>
+            <h2 className="text-lg sm:text-xl font-bold line-clamp-2 mb-1 text-white">{opportunity.title}</h2>
             <p className="text-sm text-muted-foreground line-clamp-2">{opportunity.subtitle}</p>
           </div>
         </div>
