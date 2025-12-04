@@ -2,8 +2,9 @@ import React from "react";
 import { MarketOpportunity, CATEGORY_CONFIG, PRIORITY_CONFIG } from "@/types/marketDali";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Heart, Users, DollarSign, Clock } from "lucide-react";
+import { Heart, Users, DollarSign } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { getCategoryBanner } from "@/config/marketDaliBanners";
 
 interface OpportunityCardProps {
   opportunity: MarketOpportunity;
@@ -41,28 +42,43 @@ export const OpportunityCard: React.FC<OpportunityCardProps> = ({
       )}
       onClick={() => onSelect(opportunity)}
     >
-      {/* Cover - subtle with accent border */}
-      <div className="h-16 sm:h-20 relative bg-muted border-b border-border">
-        {/* Icon */}
-        <div className="absolute inset-0 flex items-center justify-center">
-          <span className="text-3xl sm:text-4xl">{opportunity.icon}</span>
-        </div>
-
-        {/* Favorite button */}
-        <button
-          onClick={handleFavoriteClick}
-          className="absolute top-2 right-2 p-1.5 rounded-full bg-background/80 hover:bg-background transition-colors shadow-sm"
-        >
-          <Heart
+      {/* Cover - dynamic banner based on category */}
+      {(() => {
+        const banner = getCategoryBanner(opportunity.type);
+        return (
+          <div 
             className={cn(
-              "h-4 w-4 sm:h-5 sm:w-5 transition-colors",
-              opportunity.isFavorite ? "fill-red-500 text-red-500" : "text-muted-foreground",
+              "h-16 sm:h-20 relative border-b border-border bg-cover bg-center",
+              !banner.image && banner.gradient
             )}
-          />
-        </button>
+            style={banner.image ? { backgroundImage: `url(${banner.image})` } : undefined}
+          >
+            {/* Overlay */}
+            <div 
+              className="absolute inset-0 bg-black/30"
+              style={{ opacity: banner.overlayOpacity }}
+            />
+            
+            {/* Icon */}
+            <div className="absolute inset-0 flex items-center justify-center z-10">
+              <span className="text-3xl sm:text-4xl drop-shadow-lg">{opportunity.icon}</span>
+            </div>
 
-        {/* Category badge */}
-      </div>
+            {/* Favorite button */}
+            <button
+              onClick={handleFavoriteClick}
+              className="absolute top-2 right-2 p-1.5 rounded-full bg-background/80 hover:bg-background transition-colors shadow-sm z-10"
+            >
+              <Heart
+                className={cn(
+                  "h-4 w-4 sm:h-5 sm:w-5 transition-colors",
+                  opportunity.isFavorite ? "fill-red-500 text-red-500" : "text-muted-foreground",
+                )}
+              />
+            </button>
+          </div>
+        );
+      })()}
 
       <CardContent className="p-3 sm:p-4">
         {/* Title */}
