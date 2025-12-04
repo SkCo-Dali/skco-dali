@@ -57,34 +57,36 @@ export function EmailPreview({
   }
 
   return (
-    <Card className="border-l-4 border-l-primary pb-4">
-      <CardHeader className="p-4 sm:p-6">
-        <CardTitle className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 text-base sm:text-lg">
-          <span className="text-sm sm:text-lg">Previsualización de Emails</span>
-          <Badge variant="secondary" className="self-start sm:self-auto text-xs">
-            {selectedCount} de {leads.length} seleccionados
-          </Badge>
+    <Card className="border-l-4 border-l-primary pb-2 sm:pb-4">
+      <CardHeader className="p-3 sm:p-6 pb-2 sm:pb-4">
+        <CardTitle className="flex flex-col gap-2 text-base sm:text-lg">
+          <div className="flex items-center justify-between">
+            <span className="text-sm sm:text-lg">Previsualización de Emails</span>
+            <Badge variant="secondary" className="text-xs">
+              {selectedCount}/{leads.length}
+            </Badge>
+          </div>
         </CardTitle>
-        <p className="text-xs sm:text-sm text-muted-foreground pb-2">Activa o desactiva el envío para cada destinatario</p>
+        <p className="text-xs text-muted-foreground">Activa o desactiva el envío para cada destinatario</p>
 
         {/* Barra de búsqueda */}
-        <div className="relative mt-4">
+        <div className="relative mt-3 sm:mt-4">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
             type="text"
-            placeholder="Buscar por nombre, apellidos, correo, teléfono..."
+            placeholder="Buscar destinatario..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-10"
+            className="pl-10 h-9 sm:h-10 text-sm"
           />
         </div>
       </CardHeader>
-      <CardContent className="p-4 sm:p-6">
-        <ScrollArea className="h-[400px] sm:h-[600px] pr-2 sm:pr-4">
-          <div className="space-y-4 pb-4">
+      <CardContent className="p-3 sm:p-6 pt-0">
+        <ScrollArea className="h-[calc(100vh-320px)] sm:h-[600px] pr-1 sm:pr-4">
+          <div className="space-y-3 sm:space-y-4 pb-2 sm:pb-4">
             {filteredLeads.length === 0 ? (
-              <div className="text-center py-8 text-muted-foreground">
-                No se encontraron destinatarios que coincidan con tu búsqueda
+              <div className="text-center py-6 text-muted-foreground text-sm">
+                No se encontraron destinatarios
               </div>
             ) : (
               filteredLeads.map((lead, index) => {
@@ -99,41 +101,41 @@ export function EmailPreview({
                 return (
                   <Card
                     key={lead.id}
-                    className={`border-l-4 pb-4 transition-all ${
-                      isSelected ? "border-l-primary" : "border-l-gray-300 opacity-60"
+                    className={`border-l-4 pb-2 sm:pb-4 transition-all ${
+                      isSelected ? "border-l-primary" : "border-l-muted-foreground/30 opacity-60"
                     }`}
                   >
-                    <CardHeader className="pb-2 p-3 sm:p-6">
-                      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
-                        <div className="flex items-center gap-3 flex-1 min-w-0">
+                    <CardHeader className="pb-1 sm:pb-2 p-2 sm:p-4">
+                      <div className="flex items-center justify-between gap-2">
+                        <div className="flex items-center gap-2 flex-1 min-w-0">
                           <Switch
                             checked={isSelected}
                             onCheckedChange={() => onToggleLead(lead.id)}
                             aria-label={`Enviar correo a ${lead.name}`}
-                            className="shrink-0"
+                            className="shrink-0 scale-90 sm:scale-100"
                           />
                           <div className="min-w-0 flex-1">
-                            <p className="font-medium text-sm sm:text-base truncate">{lead.name}</p>
-                            <p className="text-xs sm:text-sm text-muted-foreground truncate">{displayEmail}</p>
+                            <p className="font-medium text-xs sm:text-base truncate">{lead.name}</p>
+                            <p className="text-[10px] sm:text-sm text-muted-foreground truncate">{displayEmail}</p>
                             {leads.length === 1 && alternateEmail?.trim() && alternateEmail !== lead.email && (
-                              <p className="text-xs text-blue-600 mt-1">Email alternativo especificado</p>
+                              <p className="text-[10px] text-blue-600">Email alternativo</p>
                             )}
                           </div>
                         </div>
-                        <Badge variant="outline" className="self-start sm:self-auto shrink-0 text-xs">#{index + 1}</Badge>
+                        <Badge variant="outline" className="shrink-0 text-[10px] sm:text-xs px-1.5 sm:px-2">#{index + 1}</Badge>
                       </div>
                     </CardHeader>
-                    <CardContent className="pt-0 p-3 sm:p-6">
-                      <div className="space-y-3">
+                    <CardContent className="pt-0 p-2 sm:p-4">
+                      <div className="space-y-2 sm:space-y-3">
                         <div>
-                          <Label className="text-xs font-medium text-muted-foreground">ASUNTO:</Label>
-                          <p className="font-medium text-sm sm:text-base break-words">{processedSubject}</p>
+                          <Label className="text-[10px] sm:text-xs font-medium text-muted-foreground">ASUNTO:</Label>
+                          <p className="font-medium text-xs sm:text-base break-words line-clamp-2">{processedSubject}</p>
                         </div>
 
                         <div>
-                          <Label className="text-xs font-medium text-muted-foreground">CONTENIDO:</Label>
+                          <Label className="text-[10px] sm:text-xs font-medium text-muted-foreground">CONTENIDO:</Label>
                           <div
-                            className="border rounded p-2 sm:p-3 bg-muted/30 text-xs sm:text-sm overflow-x-auto"
+                            className="border rounded p-2 bg-muted/30 text-[11px] sm:text-sm max-h-32 sm:max-h-48 overflow-y-auto [&_img]:max-w-full [&_table]:text-[10px] sm:[&_table]:text-xs"
                             dangerouslySetInnerHTML={{ __html: processedContent }}
                           />
                         </div>
