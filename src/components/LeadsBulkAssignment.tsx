@@ -386,6 +386,23 @@ export function LeadsBulkAssignment({ leads, onLeadsAssigned }: LeadsBulkAssignm
             totalSuccess += response.summary.success;
             totalSkipped += response.summary.skipped;
             totalFailed += response.summary.failed;
+            
+            // Log detallado de leads fallidos para debugging
+            if (response.failedLeads && response.failedLeads.length > 0) {
+              console.error(`❌ Failed leads for ${assignment.userName}:`, response.failedLeads);
+              response.failedLeads.forEach((failedLead: any, index: number) => {
+                console.error(`  Failed lead ${index + 1}:`, {
+                  leadId: failedLead.leadId || failedLead.lead_id || failedLead.Id || 'unknown',
+                  error: failedLead.error || failedLead.reason || failedLead.message || JSON.stringify(failedLead)
+                });
+              });
+            }
+            
+            // Log de leads omitidos
+            if (response.skippedLeads && response.skippedLeads.length > 0) {
+              console.warn(`⚠️ Skipped leads for ${assignment.userName}:`, response.skippedLeads);
+            }
+            
             // Guardar los IDs de leads exitosamente asignados
             if (response.successLeads && response.successLeads.length > 0) {
               successfulLeadIds.push(...response.successLeads);
