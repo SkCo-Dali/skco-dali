@@ -21,23 +21,16 @@ export const OpportunityList: React.FC<OpportunityListProps> = ({
   onSelectOpportunity,
   onToggleFavorite,
 }) => {
-  console.log('🎯 OpportunityList render:', { 
-    opportunitiesCount: opportunities.length, 
-    isLoading, 
-    filters,
-    firstOpp: opportunities[0] 
-  });
-  
   // Apply filters
   const filteredOpportunities = opportunities.filter(opp => {
     // Search filter
     if (filters.search) {
       const searchLower = filters.search.toLowerCase();
       const matchesSearch = 
-        opp.title.toLowerCase().includes(searchLower) ||
-        opp.subtitle.toLowerCase().includes(searchLower) ||
-        opp.description.toLowerCase().includes(searchLower) ||
-        opp.tags.some(tag => tag.toLowerCase().includes(searchLower));
+        opp.title?.toLowerCase().includes(searchLower) ||
+        opp.subtitle?.toLowerCase().includes(searchLower) ||
+        opp.description?.toLowerCase().includes(searchLower) ||
+        opp.tags?.some(tag => tag.toLowerCase().includes(searchLower));
       if (!matchesSearch) return false;
     }
     
@@ -51,13 +44,15 @@ export const OpportunityList: React.FC<OpportunityListProps> = ({
       return false;
     }
     
-    // Client count filter
-    if (opp.clientCount < filters.minClients || opp.clientCount > filters.maxClients) {
+    // Client count filter - handle undefined/null/NaN safely
+    const clientCount = opp.clientCount ?? 0;
+    if (clientCount < filters.minClients || clientCount > filters.maxClients) {
       return false;
     }
     
-    // Commission filter
-    if (opp.potentialCommission < filters.minCommission || opp.potentialCommission > filters.maxCommission) {
+    // Commission filter - handle undefined/null/NaN safely
+    const commission = opp.potentialCommission ?? 0;
+    if (commission < filters.minCommission || commission > filters.maxCommission) {
       return false;
     }
     
@@ -67,6 +62,13 @@ export const OpportunityList: React.FC<OpportunityListProps> = ({
     }
     
     return true;
+  });
+
+  console.log('🎯 OpportunityList filtered:', { 
+    totalCount: opportunities.length, 
+    filteredCount: filteredOpportunities.length,
+    firstOpp: opportunities[0],
+    firstFiltered: filteredOpportunities[0]
   });
 
   if (isLoading) {
