@@ -80,12 +80,12 @@ export const ClientList: React.FC<ClientListProps> = ({
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 mb-1"></div>
             <h2 className="text-lg sm:text-xl font-bold line-clamp-2 mb-1 text-white">{opportunity.title}</h2>
-            <p className="text-sm text-white line-clamp-2">{opportunity.subtitle}</p>
+            <p className="text-sm sm:text-md text-white line-clamp-2">{opportunity.subtitle}</p>
           </div>
         </div>
 
         {/* Stats */}
-        <div className="flex items-center gap-4 mt-3 text-sm text-white relative z-10">
+        <div className="flex items-center gap-4 mt-3 text-sm sm:text-md text-white relative z-10">
           <div className="flex items-center gap-1.5">
             <Users className="h-4 w-4" />
             <span>{clients.length} clientes</span>
