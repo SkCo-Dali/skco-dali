@@ -52,11 +52,11 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
 
       {/* Drawer */}
       <div className={cn(
-        'fixed z-50 bg-card border-l border-border shadow-xl transition-transform duration-300 ease-in-out',
-        // Mobile: bottom sheet
-        'inset-x-0 bottom-0 top-auto h-[80vh] rounded-t-2xl lg:rounded-none',
-        // Desktop: right panel
-        'lg:inset-y-0 lg:right-0 lg:left-auto lg:w-80 lg:h-full',
+        'fixed bg-card border-l border-border shadow-xl transition-transform duration-300 ease-in-out',
+        // Mobile: bottom sheet with higher z-index
+        'z-40 inset-x-0 bottom-0 top-auto h-[80vh] rounded-t-2xl lg:rounded-none',
+        // Desktop: right panel, positioned below header
+        'lg:z-30 lg:top-16 lg:bottom-0 lg:right-0 lg:left-auto lg:w-80 lg:h-auto',
         // Transform based on open state
         isOpen 
           ? 'translate-y-0 lg:translate-x-0' 
