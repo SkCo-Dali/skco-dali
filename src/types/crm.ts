@@ -114,6 +114,7 @@ export const getRolePermissions = (role: UserRole): RolePermissions => {
           "leadstabbed",
           "ChatDali",
           "opportunities",
+          "market-dali",
           "gamification",
           "reports",
           "informes",
