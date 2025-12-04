@@ -1,0 +1,200 @@
+import React from 'react';
+import { MarketCart } from '@/types/marketDali';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { 
+  ShoppingCart, 
+  Trash2, 
+  Mail, 
+  MessageCircle, 
+  Users, 
+  X,
+  Loader2,
+  Package
+} from 'lucide-react';
+import { cn } from '@/lib/utils';
+
+interface CartDrawerProps {
+  cart: MarketCart;
+  isOpen: boolean;
+  isProcessing: boolean;
+  onClose: () => void;
+  onRemoveItem: (clientId: string) => void;
+  onClearCart: () => void;
+  onLoadAsLeads: () => Promise<void>;
+  onSendEmail: () => Promise<void>;
+  onSendWhatsApp: () => Promise<void>;
+}
+
+export const CartDrawer: React.FC<CartDrawerProps> = ({
+  cart,
+  isOpen,
+  isProcessing,
+  onClose,
+  onRemoveItem,
+  onClearCart,
+  onLoadAsLeads,
+  onSendEmail,
+  onSendWhatsApp,
+}) => {
+  const isEmpty = cart.items.length === 0;
+
+  return (
+    <>
+      {/* Backdrop for mobile */}
+      {isOpen && (
+        <div 
+          className="fixed inset-0 bg-black/50 z-40 lg:hidden"
+          onClick={onClose}
+        />
+      )}
+
+      {/* Drawer */}
+      <div className={cn(
+        'fixed z-50 bg-card border-l border-border shadow-xl transition-transform duration-300 ease-in-out',
+        // Mobile: bottom sheet
+        'inset-x-0 bottom-0 top-auto h-[80vh] rounded-t-2xl lg:rounded-none',
+        // Desktop: right panel
+        'lg:inset-y-0 lg:right-0 lg:left-auto lg:w-80 lg:h-full',
+        // Transform based on open state
+        isOpen 
+          ? 'translate-y-0 lg:translate-x-0' 
+          : 'translate-y-full lg:translate-y-0 lg:translate-x-full'
+      )}>
+        {/* Handle for mobile */}
+        <div className="lg:hidden w-12 h-1.5 bg-muted-foreground/30 rounded-full mx-auto mt-3" />
+
+        {/* Header */}
+        <div className="flex items-center justify-between p-4 border-b border-border">
+          <div className="flex items-center gap-2">
+            <ShoppingCart className="h-5 w-5 text-primary" />
+            <h3 className="font-semibold text-foreground">Mi Carrito</h3>
+            {!isEmpty && (
+              <Badge variant="secondary" className="ml-1">
+                {cart.items.length}
+              </Badge>
+            )}
+          </div>
+          <button 
+            onClick={onClose}
+            className="p-1.5 hover:bg-muted rounded-full transition-colors"
+          >
+            <X className="h-5 w-5 text-muted-foreground" />
+          </button>
+        </div>
+
+        {/* Opportunity indicator */}
+        {cart.opportunityTitle && (
+          <div className="px-4 py-2 bg-primary/5 border-b border-border">
+            <p className="text-xs text-muted-foreground">Oportunidad seleccionada:</p>
+            <p className="text-sm font-medium text-foreground truncate">
+              {cart.opportunityTitle}
+            </p>
+          </div>
+        )}
+
+        {/* Content */}
+        {isEmpty ? (
+          <div className="flex flex-col items-center justify-center h-64 p-4 text-center">
+            <Package className="h-12 w-12 text-muted-foreground mb-3" />
+            <h4 className="font-medium text-foreground mb-1">Carrito vacío</h4>
+            <p className="text-sm text-muted-foreground">
+              Selecciona una oportunidad y agrega clientes para comenzar
+            </p>
+          </div>
+        ) : (
+          <>
+            {/* Items list */}
+            <ScrollArea className="flex-1 h-[calc(100%-280px)] lg:h-[calc(100%-320px)]">
+              <div className="p-4 space-y-2">
+                {cart.items.map(item => (
+                  <div 
+                    key={item.client.id}
+                    className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg"
+                  >
+                    <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                      <Users className="h-4 w-4 text-primary" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium text-foreground truncate">
+                        {item.client.name}
+                      </p>
+                      <p className="text-xs text-muted-foreground truncate">
+                        {item.client.segment} • {item.client.score}%
+                      </p>
+                    </div>
+                    <button
+                      onClick={() => onRemoveItem(item.client.id)}
+                      className="p-1.5 hover:bg-destructive/10 rounded-full transition-colors"
+                      disabled={isProcessing}
+                    >
+                      <Trash2 className="h-4 w-4 text-destructive" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </ScrollArea>
+
+            {/* Clear cart button */}
+            <div className="px-4 py-2 border-t border-border">
+              <Button
+                variant="ghost"
+                size="sm"
+                className="w-full text-destructive hover:text-destructive hover:bg-destructive/10"
+                onClick={onClearCart}
+                disabled={isProcessing}
+              >
+                <Trash2 className="h-4 w-4 mr-2" />
+                Vaciar carrito
+              </Button>
+            </div>
+
+            {/* Actions */}
+            <div className="p-4 border-t border-border space-y-2 bg-card">
+              <Button
+                className="w-full"
+                onClick={onLoadAsLeads}
+                disabled={isProcessing}
+              >
+                {isProcessing ? (
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                ) : (
+                  <Users className="h-4 w-4 mr-2" />
+                )}
+                Cargar en gestor de leads
+              </Button>
+              
+              <div className="grid grid-cols-2 gap-2">
+                <Button
+                  variant="outline"
+                  onClick={onSendEmail}
+                  disabled={isProcessing}
+                >
+                  {isProcessing ? (
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  ) : (
+                    <Mail className="h-4 w-4 mr-2" />
+                  )}
+                  Correo
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={onSendWhatsApp}
+                  disabled={isProcessing}
+                >
+                  {isProcessing ? (
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  ) : (
+                    <MessageCircle className="h-4 w-4 mr-2" />
+                  )}
+                  WhatsApp
+                </Button>
+              </div>
+            </div>
+          </>
+        )}
+      </div>
+    </>
+  );
+};
