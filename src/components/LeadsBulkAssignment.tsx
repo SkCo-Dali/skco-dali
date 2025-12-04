@@ -358,15 +358,14 @@ export function LeadsBulkAssignment({ leads, onLeadsAssigned }: LeadsBulkAssignm
       const randomizedLeads = shuffleArray(filteredLeads);
       console.log("🎲 Leads randomized for fair distribution");
 
-      // Usar la nueva API de asignación masiva
+      // Usar la nueva API de asignación masiva - SECUENCIALMENTE para evitar conflictos de transacción
       let leadIndex = 0;
-      const bulkAssignPromises: Promise<any>[] = [];
       let totalSuccess = 0;
       let totalSkipped = 0;
       let totalFailed = 0;
       const successfulLeadIds: string[] = [];
 
-      // USAR validAssignments en lugar de userAssignments
+      // EJECUTAR SECUENCIALMENTE para evitar deadlocks en la base de datos
       for (const assignment of validAssignments) {
         // Tomar los leads necesarios para este usuario (ahora aleatorizados)
         const leadsToAssign = randomizedLeads.slice(leadIndex, leadIndex + assignment.quantity);
@@ -374,14 +373,16 @@ export function LeadsBulkAssignment({ leads, onLeadsAssigned }: LeadsBulkAssignm
 
         console.log(`📤 Assigning ${leadIds.length} leads to gestor ${assignment.userName} (${assignment.userId})`);
 
-        // Llamar a la nueva API de bulk-assign
+        // Llamar a la nueva API de bulk-assign SECUENCIALMENTE
         if (leadIds.length > 0) {
-          const assignmentPromise = bulkAssignLeads({
-            leadIds,
-            toUserId: assignment.userId,
-            reason: "Asignación masiva",
-            notes: `Asignado masivamente a ${assignment.userName}`,
-          }).then((response) => {
+          try {
+            const response = await bulkAssignLeads({
+              leadIds,
+              toUserId: assignment.userId,
+              reason: "Asignación masiva",
+              notes: `Asignado masivamente a ${assignment.userName}`,
+            });
+            
             console.log(`✅ Bulk assignment response for ${assignment.userName}:`, response);
             totalSuccess += response.summary.success;
             totalSkipped += response.summary.skipped;
@@ -407,17 +408,14 @@ export function LeadsBulkAssignment({ leads, onLeadsAssigned }: LeadsBulkAssignm
             if (response.successLeads && response.successLeads.length > 0) {
               successfulLeadIds.push(...response.successLeads);
             }
-            return response;
-          });
-
-          bulkAssignPromises.push(assignmentPromise);
+          } catch (assignError) {
+            console.error(`❌ Error assigning leads to ${assignment.userName}:`, assignError);
+            totalFailed += leadIds.length;
+          }
         }
 
         leadIndex += assignment.quantity;
       }
-
-      // Ejecutar todas las asignaciones masivas
-      await Promise.all(bulkAssignPromises);
 
       // Cambiar el stage de los leads exitosamente asignados a "Asignado"
       if (successfulLeadIds.length > 0) {
