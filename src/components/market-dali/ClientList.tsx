@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Users, Search, ArrowLeft, ShoppingCart, CheckCircle2, X } from "lucide-react";
+import bannerCumple from "@/assets/banner-cumple.png";
 
 interface ClientListProps {
   opportunity: MarketOpportunity;
@@ -66,8 +67,16 @@ export const ClientList: React.FC<ClientListProps> = ({
   return (
     <div className="space-y-4">
       {/* Header with opportunity info */}
-      <div className="rounded-lg p-4 bg-muted border border-border">
-        <div className="flex items-start gap-3">
+      <div 
+        className="rounded-lg p-4 border border-border relative overflow-hidden"
+        style={{
+          backgroundImage: `url(${bannerCumple})`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+        }}
+      >
+        <div className="absolute inset-0 bg-background/70" />
+        <div className="flex items-start gap-3 relative z-10">
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 mb-1">
               <span className="text-2xl">{opportunity.icon}</span>
@@ -81,7 +90,7 @@ export const ClientList: React.FC<ClientListProps> = ({
         </div>
 
         {/* Stats */}
-        <div className="flex items-center gap-4 mt-3 text-sm text-muted-foreground">
+        <div className="flex items-center gap-4 mt-3 text-sm text-muted-foreground relative z-10">
           <div className="flex items-center gap-1.5">
             <Users className="h-4 w-4" />
             <span>{clients.length} clientes</span>
