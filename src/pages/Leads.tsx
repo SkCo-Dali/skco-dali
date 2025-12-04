@@ -1356,7 +1356,7 @@ export default function Leads() {
           <Dialog open={showBulkAssign} onOpenChange={setShowBulkAssign}>
             <DialogContent className="max-w-2xl">
               <LeadsBulkAssignment
-                leads={selectedLeads.length > 0 ? filteredLeads.filter((lead) => selectedLeads.includes(lead.id)) : []}
+                leads={selectedLeads.length > 0 ? filteredLeads.filter((lead) => selectedLeads.includes(lead.id)) : filteredLeads}
                 onLeadsAssigned={() => {
                   handleLeadUpdate();
                   setShowBulkAssign(false);
