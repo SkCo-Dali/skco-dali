@@ -62,7 +62,7 @@ export const OpportunityCard: React.FC<OpportunityCardProps> = ({
             {/* Favorite button */}
             <button
               onClick={handleFavoriteClick}
-              className="absolute top-2 right-2 p-1.5 rounded-full bg-background/80 hover:bg-background transition-colors shadow-sm z-10"
+              className="absolute top-2 left-2 p-1.5 rounded-full bg-background/80 hover:bg-background transition-colors shadow-sm z-10"
             >
               <Heart
                 className={cn(
