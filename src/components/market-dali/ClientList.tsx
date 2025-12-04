@@ -1,18 +1,11 @@
-import React, { useState } from 'react';
-import { MarketClient, MarketOpportunity, CATEGORY_CONFIG } from '@/types/marketDali';
-import { ClientCard } from './ClientCard';
-import { Skeleton } from '@/components/ui/skeleton';
-import { Badge } from '@/components/ui/badge';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { 
-  Users, 
-  Search, 
-  ArrowLeft, 
-  ShoppingCart, 
-  CheckCircle2,
-  X 
-} from 'lucide-react';
+import React, { useState } from "react";
+import { MarketClient, MarketOpportunity, CATEGORY_CONFIG } from "@/types/marketDali";
+import { ClientCard } from "./ClientCard";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Users, Search, ArrowLeft, ShoppingCart, CheckCircle2, X } from "lucide-react";
 
 interface ClientListProps {
   opportunity: MarketOpportunity;
@@ -37,12 +30,12 @@ export const ClientList: React.FC<ClientListProps> = ({
   onBack,
   onAddAllToCart,
 }) => {
-  const [searchTerm, setSearchTerm] = useState('');
-  
+  const [searchTerm, setSearchTerm] = useState("");
+
   const categoryConfig = CATEGORY_CONFIG[opportunity.type];
 
   // Filter clients by search
-  const filteredClients = clients.filter(client => {
+  const filteredClients = clients.filter((client) => {
     if (!searchTerm) return true;
     const search = searchTerm.toLowerCase();
     return (
@@ -54,7 +47,7 @@ export const ClientList: React.FC<ClientListProps> = ({
   });
 
   // Count clients already in cart
-  const clientsInCart = clients.filter(c => isInCart(c.id)).length;
+  const clientsInCart = clients.filter((c) => isInCart(c.id)).length;
   const allInCart = clientsInCart === clients.length && clients.length > 0;
 
   if (isLoading) {
@@ -75,13 +68,6 @@ export const ClientList: React.FC<ClientListProps> = ({
       {/* Header with opportunity info */}
       <div className="rounded-lg p-4 bg-muted border border-border">
         <div className="flex items-start gap-3">
-          <button 
-            onClick={onBack}
-            className="p-1.5 rounded-full bg-background hover:bg-accent transition-colors mt-0.5 border border-border"
-          >
-            <ArrowLeft className="h-4 w-4 text-foreground" />
-          </button>
-          
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 mb-1">
               <span className="text-2xl">{opportunity.icon}</span>
@@ -89,12 +75,8 @@ export const ClientList: React.FC<ClientListProps> = ({
                 {categoryConfig.label}
               </Badge>
             </div>
-            <h2 className="text-lg sm:text-xl font-bold line-clamp-2 mb-1 text-foreground">
-              {opportunity.title}
-            </h2>
-            <p className="text-sm text-muted-foreground line-clamp-2">
-              {opportunity.subtitle}
-            </p>
+            <h2 className="text-lg sm:text-xl font-bold line-clamp-2 mb-1 text-foreground">{opportunity.title}</h2>
+            <p className="text-sm text-muted-foreground line-clamp-2">{opportunity.subtitle}</p>
           </div>
         </div>
 
@@ -123,18 +105,18 @@ export const ClientList: React.FC<ClientListProps> = ({
           />
           {searchTerm && (
             <button
-              onClick={() => setSearchTerm('')}
+              onClick={() => setSearchTerm("")}
               className="absolute right-3 top-1/2 -translate-y-1/2 p-1 hover:bg-muted rounded-full"
             >
               <X className="h-3 w-3 text-muted-foreground" />
             </button>
           )}
         </div>
-        
+
         <Button
           onClick={onAddAllToCart}
           disabled={allInCart || clients.length === 0}
-          variant={allInCart ? 'outline' : 'default'}
+          variant={allInCart ? "outline" : "default"}
           className="whitespace-nowrap"
         >
           {allInCart ? (
@@ -155,18 +137,16 @@ export const ClientList: React.FC<ClientListProps> = ({
       {filteredClients.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-8 text-center">
           <Users className="h-10 w-10 text-muted-foreground mb-3" />
-          <h3 className="text-base font-semibold text-foreground mb-1">
-            No hay clientes
-          </h3>
+          <h3 className="text-base font-semibold text-foreground mb-1">No hay clientes</h3>
           <p className="text-sm text-muted-foreground">
-            {searchTerm 
-              ? 'No encontramos clientes con ese término de búsqueda'
-              : 'Esta oportunidad no tiene clientes asociados'}
+            {searchTerm
+              ? "No encontramos clientes con ese término de búsqueda"
+              : "Esta oportunidad no tiene clientes asociados"}
           </p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          {filteredClients.map(client => (
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          {filteredClients.map((client) => (
             <ClientCard
               key={client.id}
               client={client}
