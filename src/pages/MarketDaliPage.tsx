@@ -89,6 +89,7 @@ const MarketDaliContent: React.FC = () => {
   const [isLoadLeadsModalOpen, setIsLoadLeadsModalOpen] = useState(false);
   const [loadLeadsLoading, setLoadLeadsLoading] = useState(false);
   const [loadedLeads, setLoadedLeads] = useState<Lead[]>([]);
+  const [loadedCampaignName, setLoadedCampaignName] = useState("");
 
   // Selected client IDs from confirmation modal
   const [selectedClientIds, setSelectedClientIds] = useState<string[]>([]);
@@ -162,9 +163,13 @@ const MarketDaliContent: React.FC = () => {
       } else if (actionConfirmationType === "whatsapp") {
         setIsWhatsAppModalOpen(true);
       } else if (actionConfirmationType === "leads") {
+        // Save campaign name before loading (cart gets cleared after)
+        const campaignName = cart.opportunityTitle || "";
+        
         // Start the leads loading process
         setIsLoadLeadsModalOpen(true);
         setLoadLeadsLoading(true);
+        setLoadedCampaignName(campaignName);
         setActionConfirmationType(null);
         setIsCartOpen(false);
         
@@ -217,9 +222,9 @@ const MarketDaliContent: React.FC = () => {
   const handleGoToLeads = useCallback(() => {
     setIsLoadLeadsModalOpen(false);
     // Navigate to leads page with campaign filter applied
-    const campaignFilter = encodeURIComponent(cart.opportunityTitle || "");
+    const campaignFilter = encodeURIComponent(loadedCampaignName);
     window.location.href = `/leads?campaign=${campaignFilter}`;
-  }, [cart.opportunityTitle]);
+  }, [loadedCampaignName]);
 
   return (
     <div className="min-h-screen bg-background">
@@ -355,7 +360,7 @@ const MarketDaliContent: React.FC = () => {
         open={isLoadLeadsModalOpen}
         loading={loadLeadsLoading}
         leads={loadedLeads}
-        campaignName={cart.opportunityTitle || ""}
+        campaignName={loadedCampaignName}
         onSendEmails={handleSendEmailsFromProgress}
         onGoToLeads={handleGoToLeads}
       />
