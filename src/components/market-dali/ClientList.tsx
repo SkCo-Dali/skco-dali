@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Users, ShoppingCart, CheckCircle2, X } from "lucide-react";
 import { getCategoryBanner } from "@/config/marketDaliBanners";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface ClientListProps {
   opportunity: MarketOpportunity;
@@ -31,9 +32,11 @@ export const ClientList: React.FC<ClientListProps> = ({
   onAddAllToCart,
 }) => {
   const [searchTerm, setSearchTerm] = useState("");
+  const isMobile = useIsMobile();
 
   const categoryConfig = CATEGORY_CONFIG[opportunity.type];
   const bannerConfig = getCategoryBanner(opportunity.type);
+  const bannerImage = isMobile ? bannerConfig.mobileImage : bannerConfig.image;
 
   // Filter clients by search
   const filteredClients = clients.filter((client) => {
@@ -68,11 +71,11 @@ export const ClientList: React.FC<ClientListProps> = ({
     <div className="space-y-4">
       {/* Header with opportunity info */}
       <div
-        className={`border border-border relative overflow-hidden rounded-xl px-4 py-4 md:py-12 min-h-[120px] md:min-h-[200px] ${!bannerConfig.image ? `bg-gradient-to-br ${bannerConfig.gradient}` : ""}`}
+        className={`border border-border relative overflow-hidden rounded-xl px-4 py-4 md:py-12 min-h-[120px] md:min-h-[200px] ${!bannerImage ? `bg-gradient-to-br ${bannerConfig.gradient}` : ""}`}
         style={
-          bannerConfig.image
+          bannerImage
             ? {
-                backgroundImage: `url(${bannerConfig.image})`,
+                backgroundImage: `url(${bannerImage})`,
                 backgroundSize: "cover",
                 backgroundPosition: "center",
               }
