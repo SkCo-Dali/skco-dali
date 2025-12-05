@@ -59,13 +59,19 @@ export const OpportunityCard: React.FC<OpportunityCardProps> = ({
             {/* Overlay */}
             <div className="absolute inset-0 bg-black/30" style={{ opacity: banner.overlayOpacity }} />
 
-            {/* Icon */}
-            <div className="absolute inset-0 flex items-center justify-center z-10"></div>
+            {/* Desktop title overlay */}
+            {!isMobile && (
+              <div className="absolute inset-0 flex items-center px-4 z-10">
+                <h3 className="font-semibold text-sm text-white line-clamp-2 drop-shadow-md w-1/2">
+                  {opportunity.title}
+                </h3>
+              </div>
+            )}
 
             {/* Favorite button */}
             <button
               onClick={handleFavoriteClick}
-              className="absolute top-2 left-2 p-1.5 rounded-full bg-background/80 hover:bg-background transition-colors shadow-sm z-10"
+              className="absolute top-2 right-2 p-1.5 rounded-full bg-background/80 hover:bg-background transition-colors shadow-sm z-10"
             >
               <Heart
                 className={cn(
@@ -79,8 +85,10 @@ export const OpportunityCard: React.FC<OpportunityCardProps> = ({
       })()}
 
       <CardContent className="p-3 sm:p-4">
-        {/* Title */}
-        <h3 className="font-semibold text-sm sm:text-base text-foreground line-clamp-2 mb-1">{opportunity.title}</h3>
+        {/* Title - only on mobile */}
+        {isMobile && (
+          <h3 className="font-semibold text-sm text-foreground line-clamp-2 mb-1">{opportunity.title}</h3>
+        )}
 
         {/* Subtitle */}
         <p className="text-xs sm:text-sm text-muted-foreground line-clamp-2 mb-3">{opportunity.subtitle}</p>
