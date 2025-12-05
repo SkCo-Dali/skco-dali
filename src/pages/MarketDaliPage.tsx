@@ -40,6 +40,7 @@ const MarketDaliContent: React.FC = () => {
 
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [showClientView, setShowClientView] = useState(false);
+  const [isCartCollapsed, setIsCartCollapsed] = useState(false);
 
   // Handle opportunity selection
   const handleSelectOpportunity = useCallback(
@@ -84,7 +85,7 @@ const MarketDaliContent: React.FC = () => {
       <div
         className={cn(
           "transition-all duration-300",
-          "lg:pr-80", // Space for cart panel on desktop
+          !isCartCollapsed && "lg:pr-80", // Space for cart panel on desktop only when not collapsed
         )}
       >
         <div className="p-4 sm:p-6 max-w-full mx-auto">
@@ -136,6 +137,8 @@ const MarketDaliContent: React.FC = () => {
           cart={cart}
           isOpen={true}
           isProcessing={isProcessingAction}
+          isCollapsed={isCartCollapsed}
+          onCollapsedChange={setIsCartCollapsed}
           onClose={() => {}}
           onRemoveItem={removeFromCart}
           onClearCart={clearCart}
