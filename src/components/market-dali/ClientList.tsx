@@ -83,9 +83,8 @@ export const ClientList: React.FC<ClientListProps> = ({
         }
       >
         <div className={`absolute inset-0 ${bannerConfig.overlayOpacity}`} />
-        <div className="flex items-start gap-3 relative z-10">
+        <div className="flex items-start gap-3 relative z-10 w-1/2">
           <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2 mb-1"></div>
             <h2 className="text-lg sm:text-xl font-bold line-clamp-2 mb-1 text-white">{opportunity.title}</h2>
             <p className="text-sm sm:text-md text-white line-clamp-2">{opportunity.subtitle}</p>
           </div>
