@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import { MarketDaliProvider, useMarketDali } from "@/hooks/useMarketDali";
 import { MarketDaliHeader } from "@/components/market-dali/MarketDaliHeader";
 import { FiltersBar } from "@/components/market-dali/FiltersBar";
@@ -9,6 +9,7 @@ import { CartConfirmationModal } from "@/components/market-dali/CartConfirmation
 import { CartFloatingButton } from "@/components/market-dali/CartFloatingButton";
 import { MarketOpportunity } from "@/types/marketDali";
 import { cn } from "@/lib/utils";
+import { useChatSamiState } from "@/contexts/ChatSamiContext";
 
 const MarketDaliContent: React.FC = () => {
   const {
@@ -38,9 +39,17 @@ const MarketDaliContent: React.FC = () => {
     refreshOpportunities,
   } = useMarketDali();
 
+  const { isChatSamiOpen } = useChatSamiState();
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [showClientView, setShowClientView] = useState(false);
   const [isCartCollapsed, setIsCartCollapsed] = useState(false);
+
+  // Auto-collapse cart when Chat Sami opens
+  useEffect(() => {
+    if (isChatSamiOpen) {
+      setIsCartCollapsed(true);
+    }
+  }, [isChatSamiOpen]);
 
   // Handle opportunity selection
   const handleSelectOpportunity = useCallback(
