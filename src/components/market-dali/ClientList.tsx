@@ -96,7 +96,7 @@ export const ClientList: React.FC<ClientListProps> = ({
             <Users className="h-4 w-4" />
             <span>{clients.length} clientes</span>
           </div>
-          <div className="flex items-center gap-1.5">
+          <div className="hidden sm:flex items-center gap-1.5">
             <ShoppingCart className="h-4 w-4" />
             <span>{clientsInCart} en carrito</span>
           </div>
