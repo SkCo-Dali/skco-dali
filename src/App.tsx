@@ -10,6 +10,7 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import { NotificationProvider } from "@/contexts/NotificationContext";
 import { SimpleConversationProvider } from "@/contexts/SimpleConversationContext";
 import { AssignableUsersProvider } from "@/contexts/AssignableUsersContext";
+import { ChatSamiProvider } from "@/contexts/ChatSamiContext";
 import { OnboardingProvider } from "@/components/onboarding/OnboardingProvider";
 import { AppContent } from "@/components/AppContent";
 import { ProvidersRoot } from "@/core/di/providers";
@@ -31,15 +32,17 @@ function App({ pca }: AppProps) {
                         <NotificationProvider>
                             <AssignableUsersProvider>
                                 <SimpleConversationProvider>
-                                    <ProvidersRoot>
-                                        <Router>
-                                            <OnboardingProvider>
-                                                <AppContent />
-                                                <Toaster />
-                                                <SonnerToaster />
-                                            </OnboardingProvider>
-                                        </Router>
-                                    </ProvidersRoot>
+                                    <ChatSamiProvider>
+                                        <ProvidersRoot>
+                                            <Router>
+                                                <OnboardingProvider>
+                                                    <AppContent />
+                                                    <Toaster />
+                                                    <SonnerToaster />
+                                                </OnboardingProvider>
+                                            </Router>
+                                        </ProvidersRoot>
+                                    </ChatSamiProvider>
                                 </SimpleConversationProvider>
                             </AssignableUsersProvider>
                         </NotificationProvider>

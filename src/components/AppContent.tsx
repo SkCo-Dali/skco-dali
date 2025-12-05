@@ -37,6 +37,7 @@ import { AuthenticatedTemplate, UnauthenticatedTemplate } from "@azure/msal-reac
 import ChatSami, { ChatSamiHandle } from "@/components/ChatSami";
 import { getRolePermissions } from "@/types/crm";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useChatSamiState } from "@/contexts/ChatSamiContext";
 
 export function AppContent() {
   const { user, loading } = useAuth();
@@ -45,10 +46,10 @@ export function AppContent() {
   const location = useLocation();
   const navigate = useNavigate();
   const isMobile = useIsMobile();
+  const { isChatSamiOpen: chatSamiOpen, setIsChatSamiOpen: setChatSamiOpen } = useChatSamiState();
 
   // Check if user has ChatSami permissions
   const hasChatSamiPermissions = user ? getRolePermissions(user.role)?.chatSami : false;
-  const [chatSamiOpen, setChatSamiOpen] = useState(false);
 
   // Verificar si estamos en la página de Users
   const isUsersPage =
