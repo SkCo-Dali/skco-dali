@@ -86,7 +86,7 @@ export const ClientList: React.FC<ClientListProps> = ({
         <div className="flex items-start gap-3 relative z-10 w-1/2">
           <div className="flex-1 min-w-0">
             <h2 className="text-lg sm:text-xl font-bold line-clamp-2 mb-1 text-white">{opportunity.title}</h2>
-            <p className="text-sm sm:text-md text-white line-clamp-2">{opportunity.subtitle}</p>
+            <p className="text-sm sm:text-md text-white line-clamp-2 hidden sm:block">{opportunity.subtitle}</p>
           </div>
         </div>
 
