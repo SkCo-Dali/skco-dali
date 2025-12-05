@@ -67,24 +67,11 @@ export const OpportunityCard: React.FC<OpportunityCardProps> = ({
                 </h3>
               </div>
             )}
-
-            {/* Favorite button */}
-            <button
-              onClick={handleFavoriteClick}
-              className="absolute top-2 right-2 p-1.5 rounded-full bg-background/80 hover:bg-background transition-colors shadow-sm z-10"
-            >
-              <Heart
-                className={cn(
-                  "h-4 w-4 sm:h-5 sm:w-5 transition-colors",
-                  opportunity.isFavorite ? "fill-red-500 text-red-500" : "text-muted-foreground",
-                )}
-              />
-            </button>
           </div>
         );
       })()}
 
-      <CardContent className="p-3 sm:p-4">
+      <CardContent className="p-3 sm:p-4 relative">
         {/* Title - only on mobile */}
         {isMobile && (
           <h3 className="font-semibold text-sm text-foreground line-clamp-2 mb-1">{opportunity.title}</h3>
@@ -136,6 +123,21 @@ export const OpportunityCard: React.FC<OpportunityCardProps> = ({
             )}
           </div>
         )}
+
+        {/* Favorite button - bottom right */}
+        <button
+          onClick={handleFavoriteClick}
+          className="absolute bottom-3 right-3 sm:bottom-4 sm:right-4 p-1 transition-colors"
+        >
+          <Heart
+            className={cn(
+              "h-5 w-5 transition-colors",
+              opportunity.isFavorite 
+                ? "fill-primary text-primary" 
+                : "fill-transparent text-primary stroke-[1.5]",
+            )}
+          />
+        </button>
       </CardContent>
     </Card>
   );
