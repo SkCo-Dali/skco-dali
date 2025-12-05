@@ -65,19 +65,19 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
         onClick={handleToggleCollapse}
         className={cn(
           "hidden lg:flex fixed z-30 top-1/2 -translate-y-1/2 items-center justify-center",
-          "w-6 h-12 bg-card border border-border rounded-l-md shadow-md",
-          "hover:bg-muted transition-all duration-300",
+          "w-8 h-16 bg-primary border border-primary rounded-l-lg shadow-lg",
+          "hover:bg-primary/90 transition-all duration-300",
           isCollapsed ? "right-0" : "right-80"
         )}
       >
         {isCollapsed ? (
-          <ChevronLeft className="h-4 w-4 text-muted-foreground" />
+          <ChevronLeft className="h-5 w-5 text-primary-foreground" />
         ) : (
-          <ChevronRight className="h-4 w-4 text-muted-foreground" />
+          <ChevronRight className="h-5 w-5 text-primary-foreground" />
         )}
         {isCollapsed && cart.items.length > 0 && (
           <Badge 
-            variant="default" 
+            variant="destructive" 
             className="absolute -top-2 -left-2 h-5 w-5 p-0 flex items-center justify-center text-[10px]"
           >
             {cart.items.length}
