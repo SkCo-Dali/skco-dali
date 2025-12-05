@@ -102,10 +102,30 @@ const defaultFilters: MarketFilters = {
   onlyFavorites: false,
 };
 
-const initialCart: MarketCart = {
-  opportunityId: null,
-  opportunityTitle: null,
-  items: [],
+const CART_STORAGE_KEY = 'market-dali-cart';
+
+const getInitialCart = (): MarketCart => {
+  try {
+    const stored = localStorage.getItem(CART_STORAGE_KEY);
+    if (stored) {
+      const parsed = JSON.parse(stored);
+      // Restore Date objects for addedAt
+      if (parsed.items) {
+        parsed.items = parsed.items.map((item: CartItem) => ({
+          ...item,
+          addedAt: new Date(item.addedAt),
+        }));
+      }
+      return parsed;
+    }
+  } catch (error) {
+    console.warn('Error loading cart from localStorage:', error);
+  }
+  return {
+    opportunityId: null,
+    opportunityTitle: null,
+    items: [],
+  };
 };
 
 // ============ CONTEXT ============
@@ -119,7 +139,7 @@ export const MarketDaliProvider: React.FC<{ children: React.ReactNode }> = ({ ch
   const [opportunities, setOpportunities] = useState<MarketOpportunity[]>([]);
   const [selectedOpportunity, setSelectedOpportunity] = useState<MarketOpportunity | null>(null);
   const [clientsOfSelectedOpportunity, setClientsOfSelectedOpportunity] = useState<MarketClient[]>([]);
-  const [cart, dispatchCart] = useReducer(cartReducer, initialCart);
+  const [cart, dispatchCart] = useReducer(cartReducer, null, getInitialCart);
   const [filters, setFiltersState] = useState<MarketFilters>(defaultFilters);
   
   // Loading states
@@ -156,6 +176,15 @@ export const MarketDaliProvider: React.FC<{ children: React.ReactNode }> = ({ ch
   useEffect(() => {
     refreshOpportunities();
   }, [refreshOpportunities]);
+
+  // Persist cart to localStorage
+  useEffect(() => {
+    try {
+      localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(cart));
+    } catch (error) {
+      console.warn('Error saving cart to localStorage:', error);
+    }
+  }, [cart]);
 
   // ============ SELECT OPPORTUNITY ============
   const selectOpportunity = useCallback(async (opportunity: MarketOpportunity) => {
