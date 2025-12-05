@@ -1,4 +1,5 @@
 import React, { useState, useCallback, useEffect, useMemo } from "react";
+import { useNavigate } from "react-router-dom";
 import { MarketDaliProvider, useMarketDali } from "@/hooks/useMarketDali";
 import { MarketDaliHeader } from "@/components/market-dali/MarketDaliHeader";
 import { FiltersBar } from "@/components/market-dali/FiltersBar";
@@ -76,6 +77,7 @@ const MarketDaliContent: React.FC = () => {
   } = useMarketDali();
 
   const { isChatSamiOpen } = useChatSamiState();
+  const navigate = useNavigate();
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [showClientView, setShowClientView] = useState(false);
   const [isCartCollapsed, setIsCartCollapsed] = useState(false);
@@ -223,8 +225,8 @@ const MarketDaliContent: React.FC = () => {
     setIsLoadLeadsModalOpen(false);
     // Navigate to leads page with campaign filter applied
     const campaignFilter = encodeURIComponent(loadedCampaignName);
-    window.location.href = `/leads?campaign=${campaignFilter}`;
-  }, [loadedCampaignName]);
+    navigate(`/leads?campaign=${campaignFilter}`);
+  }, [loadedCampaignName, navigate]);
 
   return (
     <div className="min-h-screen bg-background">
