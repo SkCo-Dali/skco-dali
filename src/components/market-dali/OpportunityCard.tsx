@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Heart, Users, DollarSign } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { getCategoryBanner } from "@/config/marketDaliBanners";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface OpportunityCardProps {
   opportunity: MarketOpportunity;
@@ -19,6 +20,7 @@ export const OpportunityCard: React.FC<OpportunityCardProps> = ({
   onSelect,
   onToggleFavorite,
 }) => {
+  const isMobile = useIsMobile();
   const categoryConfig = CATEGORY_CONFIG[opportunity.type];
   const priorityConfig = PRIORITY_CONFIG[opportunity.priority];
 
@@ -45,13 +47,14 @@ export const OpportunityCard: React.FC<OpportunityCardProps> = ({
       {/* Cover - dynamic banner based on category */}
       {(() => {
         const banner = getCategoryBanner(opportunity.type);
+        const bannerImage = isMobile ? banner.mobileImage : banner.image;
         return (
           <div
             className={cn(
               "h-16 sm:h-20 relative border-b border-border bg-cover bg-center",
-              !banner.image && banner.gradient,
+              !bannerImage && banner.gradient,
             )}
-            style={banner.image ? { backgroundImage: `url(${banner.image})` } : undefined}
+            style={bannerImage ? { backgroundImage: `url(${bannerImage})` } : undefined}
           >
             {/* Overlay */}
             <div className="absolute inset-0 bg-black/30" style={{ opacity: banner.overlayOpacity }} />
