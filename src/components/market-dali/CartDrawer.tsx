@@ -87,7 +87,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
           // Mobile: bottom sheet with higher z-index
           "z-40 inset-x-0 bottom-0 top-auto h-[80vh] rounded-t-2xl lg:rounded-none",
           // Desktop: right panel, positioned below header
-          "lg:z-30 lg:top-16 lg:bottom-0 lg:right-0 lg:left-auto lg:w-80 lg:h-auto",
+          "lg:z-30 lg:top-20 lg:bottom-0 lg:right-0 lg:left-auto lg:w-80 lg:h-auto",
           // Transform based on open state and collapse state
           isOpen
             ? isCollapsed
