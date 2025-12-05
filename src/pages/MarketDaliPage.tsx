@@ -78,27 +78,27 @@ const MarketDaliContent: React.FC = () => {
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [showClientView, setShowClientView] = useState(false);
   const [isCartCollapsed, setIsCartCollapsed] = useState(false);
-  
+
   // Action confirmation modal state
-  const [actionConfirmationType, setActionConfirmationType] = useState<'email' | 'whatsapp' | null>(null);
-  
+  const [actionConfirmationType, setActionConfirmationType] = useState<"email" | "whatsapp" | null>(null);
+
   // Email/WhatsApp modals state
   const [isEmailModalOpen, setIsEmailModalOpen] = useState(false);
   const [isWhatsAppModalOpen, setIsWhatsAppModalOpen] = useState(false);
-  
+
   // Selected client IDs from confirmation modal
   const [selectedClientIds, setSelectedClientIds] = useState<string[]>([]);
 
   // Convert cart items to Lead format for email/whatsapp modals
   const cartLeads = useMemo((): Lead[] => {
     if (!cart.opportunityId) return [];
-    return cart.items.map(item => convertClientToLead(item.client, cart.opportunityId!));
+    return cart.items.map((item) => convertClientToLead(item.client, cart.opportunityId!));
   }, [cart.items, cart.opportunityId]);
 
   // Filter leads based on selected client IDs
   const selectedLeads = useMemo((): Lead[] => {
     if (selectedClientIds.length === 0) return cartLeads;
-    return cartLeads.filter(lead => selectedClientIds.includes(lead.id));
+    return cartLeads.filter((lead) => selectedClientIds.includes(lead.id));
   }, [cartLeads, selectedClientIds]);
 
   // Auto-collapse cart when Chat Sami opens
@@ -140,26 +140,29 @@ const MarketDaliContent: React.FC = () => {
   // Show confirmation before email
   const handleSendEmailClick = useCallback(async () => {
     if (cart.items.length === 0) return;
-    setActionConfirmationType('email');
+    setActionConfirmationType("email");
   }, [cart.items.length]);
 
   // Show confirmation before WhatsApp
   const handleSendWhatsAppClick = useCallback(async () => {
     if (cart.items.length === 0) return;
-    setActionConfirmationType('whatsapp');
+    setActionConfirmationType("whatsapp");
   }, [cart.items.length]);
 
   // Confirm action and open respective modal
-  const handleActionConfirm = useCallback((clientIds: string[]) => {
-    setSelectedClientIds(clientIds);
-    if (actionConfirmationType === 'email') {
-      setIsEmailModalOpen(true);
-    } else if (actionConfirmationType === 'whatsapp') {
-      setIsWhatsAppModalOpen(true);
-    }
-    setActionConfirmationType(null);
-    setIsCartOpen(false); // Close cart on mobile
-  }, [actionConfirmationType]);
+  const handleActionConfirm = useCallback(
+    (clientIds: string[]) => {
+      setSelectedClientIds(clientIds);
+      if (actionConfirmationType === "email") {
+        setIsEmailModalOpen(true);
+      } else if (actionConfirmationType === "whatsapp") {
+        setIsWhatsAppModalOpen(true);
+      }
+      setActionConfirmationType(null);
+      setIsCartOpen(false); // Close cart on mobile
+    },
+    [actionConfirmationType],
+  );
 
   // Cancel action confirmation
   const handleActionCancel = useCallback(() => {
@@ -296,10 +299,9 @@ const MarketDaliContent: React.FC = () => {
             onClick={handleCloseEmailModal}
             className="absolute right-4 top-4 z-10 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
           >
-            <X className="h-5 w-5" />
             <span className="sr-only">Cerrar</span>
           </button>
-          <div className="p-6">
+          <div className="p-4">
             <MassEmailSender
               filteredLeads={selectedLeads}
               onClose={handleCloseEmailModal}
@@ -315,7 +317,7 @@ const MarketDaliContent: React.FC = () => {
           leads={selectedLeads}
           isOpen={isWhatsAppModalOpen}
           onClose={handleCloseWhatsAppModal}
-          userEmail={user?.email || ''}
+          userEmail={user?.email || ""}
         />
       )}
     </div>
