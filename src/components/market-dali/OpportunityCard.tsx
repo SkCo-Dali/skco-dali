@@ -40,7 +40,7 @@ export const OpportunityCard: React.FC<OpportunityCardProps> = ({
         "hover:shadow-md hover:-translate-y-0.5 hover:border-primary/40",
         "active:scale-[0.98]",
         isSelected ? "border-primary shadow-lg ring-2 ring-primary/20" : "border-border",
-        (isExpired || hasBeenUsed) && "opacity-70",
+        (isExpired || hasBeenUsed) && "opacity-100",
       )}
       onClick={() => onSelect(opportunity)}
     >
