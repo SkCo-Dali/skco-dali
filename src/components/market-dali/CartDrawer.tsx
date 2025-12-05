@@ -100,10 +100,10 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
         <div className="lg:hidden w-12 h-1.5 bg-muted-foreground/30 rounded-full mx-auto mt-3" />
 
         {/* Header */}
-        <div className="flex items-center justify-between px-4 pt-6 pb-4 border-b border-border">
+        <div className="flex items-center justify-between px-4 pt-4 pb-4 border-b border-border">
           <div className="flex items-center gap-2">
             <ShoppingCart className="h-5 w-5 text-primary" />
-            <h3 className="font-semibold text-foreground">Mi Carrito</h3>
+            <h3 className="font-semibold text-foreground justify-center">Mi Carrito</h3>
             {!isEmpty && (
               <Badge variant="secondary" className="ml-1">
                 {cart.items.length}
