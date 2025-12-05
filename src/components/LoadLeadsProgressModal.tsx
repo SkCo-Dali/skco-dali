@@ -67,7 +67,7 @@ export const LoadLeadsProgressModal: React.FC<LoadLeadsProgressModalProps> = ({
                 </p>
                 <p className="text-xs sm:text-sm text-foreground/80">
                   Los encontrarás filtrando por la campaña:{" "}
-                  <span className="font-medium text-foreground">{campaignName}</span>
+                  <span className="font-semibold text-green-700 dark:text-green-400">{campaignName}</span>
                 </p>
 
                 <div className="space-y-3 mt-2">

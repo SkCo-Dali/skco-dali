@@ -216,8 +216,9 @@ const MarketDaliContent: React.FC = () => {
 
   const handleGoToLeads = useCallback(() => {
     setIsLoadLeadsModalOpen(false);
-    // Navigate to leads page with campaign filter
-    window.location.href = `/leads?campaign=${encodeURIComponent(cart.opportunityTitle || "")}`;
+    // Navigate to leads page with campaign filter applied
+    const campaignFilter = encodeURIComponent(cart.opportunityTitle || "");
+    window.location.href = `/leads?campaign=${campaignFilter}`;
   }, [cart.opportunityTitle]);
 
   return (
