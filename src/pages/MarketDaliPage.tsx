@@ -94,7 +94,7 @@ const MarketDaliContent: React.FC = () => {
       <div
         className={cn(
           "transition-all duration-300",
-          !isCartCollapsed && "lg:pr-80", // Space for cart panel on desktop only when not collapsed
+          !isCartCollapsed && "lg:pr-[22rem]", // Space for cart panel + gap on desktop
         )}
       >
         <div className="p-4 sm:p-6 max-w-full mx-auto">
