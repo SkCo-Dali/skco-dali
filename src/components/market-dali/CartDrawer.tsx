@@ -6,8 +6,6 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   ShoppingCart,
   Trash2,
-  Mail,
-  MessageCircle,
   Users,
   X,
   Loader2,
@@ -26,9 +24,7 @@ interface CartDrawerProps {
   onClose: () => void;
   onRemoveItem: (clientId: string) => void;
   onClearCart: () => void;
-  onLoadAsLeads: () => Promise<void>;
-  onSendEmail: () => Promise<void>;
-  onSendWhatsApp: () => Promise<void>;
+  onLoadAsLeads: () => void;
 }
 
 export const CartDrawer: React.FC<CartDrawerProps> = ({
@@ -41,8 +37,6 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
   onRemoveItem,
   onClearCart,
   onLoadAsLeads,
-  onSendEmail,
-  onSendWhatsApp,
 }) => {
   const isEmpty = cart.items.length === 0;
 
@@ -173,26 +167,11 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
             </div>
 
             {/* Actions */}
-            <div className="p-4 border-t border-border space-y-2 bg-card">
+            <div className="p-4 border-t border-border bg-card">
               <Button className="w-full" onClick={onLoadAsLeads} disabled={isProcessing}>
                 {isProcessing ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Users className="h-4 w-4 mr-2" />}
                 Cargar en gestor de leads
               </Button>
-
-              <div className="grid grid-cols-2 gap-2">
-                <Button variant="outline" onClick={onSendEmail} disabled={isProcessing}>
-                  {isProcessing ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Mail className="h-4 w-4 mr-2" />}
-                  Correo
-                </Button>
-                <Button variant="outline" onClick={onSendWhatsApp} disabled={isProcessing}>
-                  {isProcessing ? (
-                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                  ) : (
-                    <MessageCircle className="h-4 w-4 mr-2" />
-                  )}
-                  WhatsApp
-                </Button>
-              </div>
             </div>
           </>
         )}

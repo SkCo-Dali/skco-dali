@@ -15,6 +15,7 @@ import { useChatSamiState } from "@/contexts/ChatSamiContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { MassEmailSender } from "@/components/MassEmailSender";
 import { WhatsAppPropioManager } from "@/components/whatsapp/WhatsAppPropioManager";
+import { LoadLeadsProgressModal } from "@/components/LoadLeadsProgressModal";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { X } from "lucide-react";
 
@@ -80,11 +81,14 @@ const MarketDaliContent: React.FC = () => {
   const [isCartCollapsed, setIsCartCollapsed] = useState(false);
 
   // Action confirmation modal state
-  const [actionConfirmationType, setActionConfirmationType] = useState<"email" | "whatsapp" | null>(null);
+  const [actionConfirmationType, setActionConfirmationType] = useState<"email" | "whatsapp" | "leads" | null>(null);
 
-  // Email/WhatsApp modals state
+  // Email/WhatsApp/LoadLeads modals state
   const [isEmailModalOpen, setIsEmailModalOpen] = useState(false);
   const [isWhatsAppModalOpen, setIsWhatsAppModalOpen] = useState(false);
+  const [isLoadLeadsModalOpen, setIsLoadLeadsModalOpen] = useState(false);
+  const [loadLeadsLoading, setLoadLeadsLoading] = useState(false);
+  const [loadedLeads, setLoadedLeads] = useState<Lead[]>([]);
 
   // Selected client IDs from confirmation modal
   const [selectedClientIds, setSelectedClientIds] = useState<string[]>([]);
@@ -131,11 +135,11 @@ const MarketDaliContent: React.FC = () => {
     });
   }, [clientsOfSelectedOpportunity, isInCart, addToCart]);
 
-  // Cart actions
-  const handleLoadAsLeads = useCallback(async () => {
-    await loadCartAsLeads();
-    setIsCartOpen(false);
-  }, [loadCartAsLeads]);
+  // Cart actions - show confirmation modal for leads
+  const handleLoadAsLeadsClick = useCallback(() => {
+    if (cart.items.length === 0) return;
+    setActionConfirmationType("leads");
+  }, [cart.items.length]);
 
   // Show confirmation before email
   const handleSendEmailClick = useCallback(async () => {
@@ -151,17 +155,33 @@ const MarketDaliContent: React.FC = () => {
 
   // Confirm action and open respective modal
   const handleActionConfirm = useCallback(
-    (clientIds: string[]) => {
+    async (clientIds: string[]) => {
       setSelectedClientIds(clientIds);
       if (actionConfirmationType === "email") {
         setIsEmailModalOpen(true);
       } else if (actionConfirmationType === "whatsapp") {
         setIsWhatsAppModalOpen(true);
+      } else if (actionConfirmationType === "leads") {
+        // Start the leads loading process
+        setIsLoadLeadsModalOpen(true);
+        setLoadLeadsLoading(true);
+        setActionConfirmationType(null);
+        setIsCartOpen(false);
+        
+        try {
+          // Get leads for selected clients only
+          const leadsToLoad = cartLeads.filter(lead => clientIds.includes(lead.id));
+          await loadCartAsLeads();
+          setLoadedLeads(leadsToLoad);
+        } finally {
+          setLoadLeadsLoading(false);
+        }
+        return;
       }
       setActionConfirmationType(null);
       setIsCartOpen(false); // Close cart on mobile
     },
-    [actionConfirmationType],
+    [actionConfirmationType, cartLeads, loadCartAsLeads],
   );
 
   // Cancel action confirmation
@@ -187,6 +207,18 @@ const MarketDaliContent: React.FC = () => {
   const handleCloseWhatsAppModal = useCallback(() => {
     setIsWhatsAppModalOpen(false);
   }, []);
+
+  // Handle actions from LoadLeadsProgressModal
+  const handleSendEmailsFromProgress = useCallback(() => {
+    setIsLoadLeadsModalOpen(false);
+    setActionConfirmationType("email");
+  }, []);
+
+  const handleGoToLeads = useCallback(() => {
+    setIsLoadLeadsModalOpen(false);
+    // Navigate to leads page with campaign filter
+    window.location.href = `/leads?campaign=${encodeURIComponent(cart.opportunityTitle || "")}`;
+  }, [cart.opportunityTitle]);
 
   return (
     <div className="min-h-screen bg-background">
@@ -251,9 +283,7 @@ const MarketDaliContent: React.FC = () => {
           onClose={() => {}}
           onRemoveItem={removeFromCart}
           onClearCart={clearCart}
-          onLoadAsLeads={handleLoadAsLeads}
-          onSendEmail={handleSendEmailClick}
-          onSendWhatsApp={handleSendWhatsAppClick}
+          onLoadAsLeads={handleLoadAsLeadsClick}
         />
       </div>
 
@@ -266,9 +296,7 @@ const MarketDaliContent: React.FC = () => {
           onClose={() => setIsCartOpen(false)}
           onRemoveItem={removeFromCart}
           onClearCart={clearCart}
-          onLoadAsLeads={handleLoadAsLeads}
-          onSendEmail={handleSendEmailClick}
-          onSendWhatsApp={handleSendWhatsAppClick}
+          onLoadAsLeads={handleLoadAsLeadsClick}
         />
       </div>
 
@@ -320,6 +348,16 @@ const MarketDaliContent: React.FC = () => {
           userEmail={user?.email || ""}
         />
       )}
+
+      {/* Load Leads Progress Modal */}
+      <LoadLeadsProgressModal
+        open={isLoadLeadsModalOpen}
+        loading={loadLeadsLoading}
+        leads={loadedLeads}
+        campaignName={cart.opportunityTitle || ""}
+        onSendEmails={handleSendEmailsFromProgress}
+        onGoToLeads={handleGoToLeads}
+      />
     </div>
   );
 };
