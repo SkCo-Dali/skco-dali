@@ -16,7 +16,7 @@ export const CartFloatingButton: React.FC<CartFloatingButtonProps> = ({
     <button
       onClick={onClick}
       className={cn(
-        'fixed bottom-6 right-6 z-30',
+        'fixed bottom-20 right-4 z-30',
         'flex items-center gap-2 px-4 py-3',
         'bg-primary text-primary-foreground',
         'rounded-full shadow-lg',
