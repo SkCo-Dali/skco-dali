@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { MarketCart } from '@/types/marketDali';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -11,7 +11,9 @@ import {
   Users, 
   X,
   Loader2,
-  Package
+  Package,
+  ChevronLeft,
+  ChevronRight
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -39,6 +41,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
   onSendWhatsApp,
 }) => {
   const isEmpty = cart.items.length === 0;
+  const [isCollapsed, setIsCollapsed] = useState(false);
 
   return (
     <>
@@ -50,6 +53,31 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
         />
       )}
 
+      {/* Desktop collapse/expand toggle button */}
+      <button
+        onClick={() => setIsCollapsed(!isCollapsed)}
+        className={cn(
+          "hidden lg:flex fixed z-30 top-1/2 -translate-y-1/2 items-center justify-center",
+          "w-6 h-12 bg-card border border-border rounded-l-md shadow-md",
+          "hover:bg-muted transition-all duration-300",
+          isCollapsed ? "right-0" : "right-80"
+        )}
+      >
+        {isCollapsed ? (
+          <ChevronLeft className="h-4 w-4 text-muted-foreground" />
+        ) : (
+          <ChevronRight className="h-4 w-4 text-muted-foreground" />
+        )}
+        {isCollapsed && cart.items.length > 0 && (
+          <Badge 
+            variant="default" 
+            className="absolute -top-2 -left-2 h-5 w-5 p-0 flex items-center justify-center text-[10px]"
+          >
+            {cart.items.length}
+          </Badge>
+        )}
+      </button>
+
       {/* Drawer */}
       <div className={cn(
         'fixed bg-card border-l border-border shadow-xl transition-transform duration-300 ease-in-out',
@@ -57,9 +85,11 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
         'z-40 inset-x-0 bottom-0 top-auto h-[80vh] rounded-t-2xl lg:rounded-none',
         // Desktop: right panel, positioned below header
         'lg:z-30 lg:top-16 lg:bottom-0 lg:right-0 lg:left-auto lg:w-80 lg:h-auto',
-        // Transform based on open state
+        // Transform based on open state and collapse state
         isOpen 
-          ? 'translate-y-0 lg:translate-x-0' 
+          ? isCollapsed 
+            ? 'translate-y-0 lg:translate-x-full' 
+            : 'translate-y-0 lg:translate-x-0'
           : 'translate-y-full lg:translate-y-0 lg:translate-x-full'
       )}>
         {/* Handle for mobile */}
@@ -78,7 +108,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
           </div>
           <button 
             onClick={onClose}
-            className="p-1.5 hover:bg-muted rounded-full transition-colors"
+            className="p-1.5 hover:bg-muted rounded-full transition-colors lg:hidden"
           >
             <X className="h-5 w-5 text-muted-foreground" />
           </button>
