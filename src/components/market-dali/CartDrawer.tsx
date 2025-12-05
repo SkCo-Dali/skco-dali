@@ -21,6 +21,8 @@ interface CartDrawerProps {
   cart: MarketCart;
   isOpen: boolean;
   isProcessing: boolean;
+  isCollapsed?: boolean;
+  onCollapsedChange?: (collapsed: boolean) => void;
   onClose: () => void;
   onRemoveItem: (clientId: string) => void;
   onClearCart: () => void;
@@ -33,6 +35,8 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
   cart,
   isOpen,
   isProcessing,
+  isCollapsed = false,
+  onCollapsedChange,
   onClose,
   onRemoveItem,
   onClearCart,
@@ -41,7 +45,10 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
   onSendWhatsApp,
 }) => {
   const isEmpty = cart.items.length === 0;
-  const [isCollapsed, setIsCollapsed] = useState(false);
+
+  const handleToggleCollapse = () => {
+    onCollapsedChange?.(!isCollapsed);
+  };
 
   return (
     <>
@@ -55,7 +62,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
 
       {/* Desktop collapse/expand toggle button */}
       <button
-        onClick={() => setIsCollapsed(!isCollapsed)}
+        onClick={handleToggleCollapse}
         className={cn(
           "hidden lg:flex fixed z-30 top-1/2 -translate-y-1/2 items-center justify-center",
           "w-6 h-12 bg-card border border-border rounded-l-md shadow-md",
