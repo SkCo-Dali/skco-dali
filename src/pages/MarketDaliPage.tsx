@@ -15,6 +15,8 @@ import { useChatSamiState } from "@/contexts/ChatSamiContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { MassEmailSender } from "@/components/MassEmailSender";
 import { WhatsAppPropioManager } from "@/components/whatsapp/WhatsAppPropioManager";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { X } from "lucide-react";
 
 // Helper function to convert MarketClient to Lead format
 const convertClientToLead = (client: MarketClient, opportunityId: string): Lead => ({
@@ -83,12 +85,21 @@ const MarketDaliContent: React.FC = () => {
   // Email/WhatsApp modals state
   const [isEmailModalOpen, setIsEmailModalOpen] = useState(false);
   const [isWhatsAppModalOpen, setIsWhatsAppModalOpen] = useState(false);
+  
+  // Selected client IDs from confirmation modal
+  const [selectedClientIds, setSelectedClientIds] = useState<string[]>([]);
 
   // Convert cart items to Lead format for email/whatsapp modals
   const cartLeads = useMemo((): Lead[] => {
     if (!cart.opportunityId) return [];
     return cart.items.map(item => convertClientToLead(item.client, cart.opportunityId!));
   }, [cart.items, cart.opportunityId]);
+
+  // Filter leads based on selected client IDs
+  const selectedLeads = useMemo((): Lead[] => {
+    if (selectedClientIds.length === 0) return cartLeads;
+    return cartLeads.filter(lead => selectedClientIds.includes(lead.id));
+  }, [cartLeads, selectedClientIds]);
 
   // Auto-collapse cart when Chat Sami opens
   useEffect(() => {
@@ -139,7 +150,8 @@ const MarketDaliContent: React.FC = () => {
   }, [cart.items.length]);
 
   // Confirm action and open respective modal
-  const handleActionConfirm = useCallback(() => {
+  const handleActionConfirm = useCallback((clientIds: string[]) => {
+    setSelectedClientIds(clientIds);
     if (actionConfirmationType === 'email') {
       setIsEmailModalOpen(true);
     } else if (actionConfirmationType === 'whatsapp') {
@@ -277,23 +289,30 @@ const MarketDaliContent: React.FC = () => {
         onAddMore={handleAddMoreClients}
       />
 
-      {/* Email sender modal */}
-      {isEmailModalOpen && (
-        <div className="fixed inset-0 bg-background z-50 overflow-auto">
-          <div className="container max-w-6xl mx-auto p-6">
+      {/* Email sender modal - floating dialog */}
+      <Dialog open={isEmailModalOpen} onOpenChange={setIsEmailModalOpen}>
+        <DialogContent className="max-w-6xl max-h-[90vh] overflow-auto p-0">
+          <button
+            onClick={handleCloseEmailModal}
+            className="absolute right-4 top-4 z-10 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+          >
+            <X className="h-5 w-5" />
+            <span className="sr-only">Cerrar</span>
+          </button>
+          <div className="p-6">
             <MassEmailSender
-              filteredLeads={cartLeads}
+              filteredLeads={selectedLeads}
               onClose={handleCloseEmailModal}
               opportunityId={cart.opportunityId ? parseInt(cart.opportunityId, 10) : undefined}
             />
           </div>
-        </div>
-      )}
+        </DialogContent>
+      </Dialog>
 
       {/* WhatsApp sender modal */}
       {isWhatsAppModalOpen && (
         <WhatsAppPropioManager
-          leads={cartLeads}
+          leads={selectedLeads}
           isOpen={isWhatsAppModalOpen}
           onClose={handleCloseWhatsAppModal}
           userEmail={user?.email || ''}
