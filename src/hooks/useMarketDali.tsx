@@ -22,6 +22,7 @@ const cartReducer = (state: MarketCart, action: CartAction): MarketCart => {
       return {
         opportunityId: action.payload.opportunityId,
         opportunityTitle: action.payload.opportunityTitle,
+        lastCampaignName: action.payload.lastCampaignName,
         items: [...state.items, newItem],
       };
     }
@@ -34,12 +35,14 @@ const cartReducer = (state: MarketCart, action: CartAction): MarketCart => {
       return {
         opportunityId: null,
         opportunityTitle: null,
+        lastCampaignName: null,
         items: [],
       };
     case 'SET_OPPORTUNITY':
       return {
         opportunityId: action.payload.opportunityId,
         opportunityTitle: action.payload.opportunityTitle,
+        lastCampaignName: action.payload.lastCampaignName,
         items: [],
       };
     default:
@@ -76,7 +79,7 @@ interface MarketDaliContextType {
   resetFilters: () => void;
   
   // Bulk actions
-  loadCartAsLeads: () => Promise<boolean>;
+  loadCartAsLeads: (selectedClientIds?: string[]) => Promise<boolean>;
   sendCartEmail: () => Promise<boolean>;
   sendCartWhatsApp: () => Promise<boolean>;
   
@@ -124,6 +127,7 @@ const getInitialCart = (): MarketCart => {
   return {
     opportunityId: null,
     opportunityTitle: null,
+    lastCampaignName: null,
     items: [],
   };
 };
@@ -239,6 +243,7 @@ export const MarketDaliProvider: React.FC<{ children: React.ReactNode }> = ({ ch
         client,
         opportunityId: selectedOpportunity.id,
         opportunityTitle: selectedOpportunity.title,
+        lastCampaignName: selectedOpportunity.lastCampaignName || null,
       },
     });
     
@@ -264,6 +269,7 @@ export const MarketDaliProvider: React.FC<{ children: React.ReactNode }> = ({ ch
           client: pendingClient,
           opportunityId: pendingOpportunity.id,
           opportunityTitle: pendingOpportunity.title,
+          lastCampaignName: pendingOpportunity.lastCampaignName || null,
         },
       });
       
@@ -313,16 +319,26 @@ export const MarketDaliProvider: React.FC<{ children: React.ReactNode }> = ({ ch
   }, []);
 
   // ============ BULK ACTIONS ============
-  const loadCartAsLeads = useCallback(async (): Promise<boolean> => {
+  const loadCartAsLeads = useCallback(async (selectedClientIds?: string[]): Promise<boolean> => {
     if (!cart.opportunityId || cart.items.length === 0) return false;
     
     setIsProcessingAction(true);
     try {
-      const result = await marketDaliApi.loadClientsAsLeads(cart.opportunityId);
+      // Get document numbers for selected clients only
+      let documentNumbers: number[] | undefined;
+      if (selectedClientIds && selectedClientIds.length > 0) {
+        documentNumbers = cart.items
+          .filter(item => selectedClientIds.includes(item.client.id))
+          .map(item => item.client.documentNumber)
+          .filter((num): num is number => num !== undefined && num !== null);
+      }
+      
+      const result = await marketDaliApi.loadClientsAsLeads(cart.opportunityId, documentNumbers);
       if (result.success) {
+        const loadedCount = selectedClientIds?.length || cart.items.length;
         toast({
           title: '¡Clientes cargados!',
-          description: `${cart.items.length} clientes agregados al gestor de leads`,
+          description: `${loadedCount} clientes agregados al gestor de leads`,
         });
         clearCart();
         return true;

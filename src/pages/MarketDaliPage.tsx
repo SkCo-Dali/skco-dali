@@ -165,8 +165,8 @@ const MarketDaliContent: React.FC = () => {
       } else if (actionConfirmationType === "whatsapp") {
         setIsWhatsAppModalOpen(true);
       } else if (actionConfirmationType === "leads") {
-        // Save campaign name before loading (cart gets cleared after)
-        const campaignName = cart.opportunityTitle || "";
+        // Save campaign name before loading (use lastCampaignName for actual campaign filtering)
+        const campaignName = cart.lastCampaignName || cart.opportunityTitle || "";
         
         // Start the leads loading process
         setIsLoadLeadsModalOpen(true);
@@ -178,7 +178,8 @@ const MarketDaliContent: React.FC = () => {
         try {
           // Get leads for selected clients only
           const leadsToLoad = cartLeads.filter(lead => clientIds.includes(lead.id));
-          await loadCartAsLeads();
+          // Pass selected client IDs to only load those specific clients
+          await loadCartAsLeads(clientIds);
           setLoadedLeads(leadsToLoad);
         } finally {
           setLoadLeadsLoading(false);
@@ -188,7 +189,7 @@ const MarketDaliContent: React.FC = () => {
       setActionConfirmationType(null);
       setIsCartOpen(false); // Close cart on mobile
     },
-    [actionConfirmationType, cartLeads, loadCartAsLeads],
+    [actionConfirmationType, cart.lastCampaignName, cart.opportunityTitle, cartLeads, loadCartAsLeads],
   );
 
   // Cancel action confirmation
