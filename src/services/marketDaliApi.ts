@@ -127,10 +127,15 @@ export const toggleOpportunityFavorite = async (opportunityId: string, isFavorit
 
 /**
  * Load selected clients as leads in the lead manager
+ * @param opportunityId - The opportunity ID
+ * @param clientDocumentNumbers - Optional array of document numbers to load (if not provided, loads all)
  */
-export const loadClientsAsLeads = async (opportunityId: string): Promise<{ success: boolean; count: number }> => {
+export const loadClientsAsLeads = async (
+  opportunityId: string, 
+  clientDocumentNumbers?: number[]
+): Promise<{ success: boolean; count: number }> => {
   try {
-    const result = await loadLeadsFromOpportunity(parseInt(opportunityId));
+    const result = await loadLeadsFromOpportunity(parseInt(opportunityId), clientDocumentNumbers);
     return { success: true, count: result.length };
   } catch (error) {
     console.error('Error loading clients as leads:', error);

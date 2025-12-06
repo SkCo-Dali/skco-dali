@@ -47,6 +47,7 @@ export interface CartItem {
 export interface MarketCart {
   opportunityId: string | null;
   opportunityTitle: string | null;
+  lastCampaignName: string | null;
   items: CartItem[];
 }
 
@@ -90,7 +91,7 @@ export const PRIORITY_CONFIG: Record<'alta' | 'media' | 'baja', { label: string;
 
 // Action types for the cart
 export type CartAction = 
-  | { type: 'ADD_ITEM'; payload: { client: MarketClient; opportunityId: string; opportunityTitle: string } }
+  | { type: 'ADD_ITEM'; payload: { client: MarketClient; opportunityId: string; opportunityTitle: string; lastCampaignName: string | null } }
   | { type: 'REMOVE_ITEM'; payload: { clientId: string } }
   | { type: 'CLEAR_CART' }
-  | { type: 'SET_OPPORTUNITY'; payload: { opportunityId: string; opportunityTitle: string } };
+  | { type: 'SET_OPPORTUNITY'; payload: { opportunityId: string; opportunityTitle: string; lastCampaignName: string | null } };
