@@ -223,9 +223,9 @@ const MarketDaliContent: React.FC = () => {
 
   const handleGoToLeads = useCallback(() => {
     setIsLoadLeadsModalOpen(false);
-    // Navigate to leads page with campaign filter applied
+    // Navigate to leads page with campaign filter applied using autoFilterCampaign
     const campaignFilter = encodeURIComponent(loadedCampaignName);
-    navigate(`/leads?campaign=${campaignFilter}`);
+    navigate(`/leads?autoFilterCampaign=${campaignFilter}`);
   }, [loadedCampaignName, navigate]);
 
   return (
