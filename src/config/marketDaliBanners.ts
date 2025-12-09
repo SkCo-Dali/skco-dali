@@ -17,14 +17,14 @@ export const CATEGORY_BANNERS: Record<OpportunityCategory, BannerConfig> = {
     overlayOpacity: "opacity-100",
   },
   "cross-sell-obligatoria": {
-    image: `${AZURE_BASE_URL}/cross-sell.png`,
-    mobileImage: `${AZURE_BASE_URL}/cross-sellxs.png`,
+    image: `${AZURE_BASE_URL}/crossfpob.png`,
+    mobileImage: `${AZURE_BASE_URL}/crossfpobxs.png`,
     gradient: "from-blue-600/90 to-blue-800/90",
     overlayOpacity: "bg-background/10",
   },
   "cross-sell-voluntaria": {
-    image: `${AZURE_BASE_URL}/cross-sell.png`,
-    mobileImage: `${AZURE_BASE_URL}/cross-sellxs.png`,
+    image: `${AZURE_BASE_URL}/crossfvol.png`,
+    mobileImage: `${AZURE_BASE_URL}/crossfvolxs.png`,
     gradient: "from-indigo-500/90 to-indigo-700/90",
     overlayOpacity: "bg-background/10",
   },
