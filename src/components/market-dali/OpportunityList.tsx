@@ -64,11 +64,20 @@ export const OpportunityList: React.FC<OpportunityListProps> = ({
     return true;
   });
 
+  // Sort: favorites first (by id), then non-favorites (by id)
+  const sortedOpportunities = [...filteredOpportunities].sort((a, b) => {
+    // First sort by favorite status (favorites first)
+    if (a.isFavorite && !b.isFavorite) return -1;
+    if (!a.isFavorite && b.isFavorite) return 1;
+    // Then sort by id
+    return a.id.localeCompare(b.id);
+  });
+
   console.log('🎯 OpportunityList filtered:', { 
     totalCount: opportunities.length, 
-    filteredCount: filteredOpportunities.length,
+    filteredCount: sortedOpportunities.length,
     firstOpp: opportunities[0],
-    firstFiltered: filteredOpportunities[0]
+    firstFiltered: sortedOpportunities[0]
   });
 
   if (isLoading) {
@@ -81,7 +90,7 @@ export const OpportunityList: React.FC<OpportunityListProps> = ({
     );
   }
 
-  if (filteredOpportunities.length === 0) {
+  if (sortedOpportunities.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-12 px-4 text-center">
         <SearchX className="h-12 w-12 text-muted-foreground mb-4" />
@@ -108,13 +117,13 @@ export const OpportunityList: React.FC<OpportunityListProps> = ({
           </h2>
         </div>
         <span className="text-xs sm:text-sm text-muted-foreground">
-          {filteredOpportunities.length} de {opportunities.length}
+          {sortedOpportunities.length} de {opportunities.length}
         </span>
       </div>
 
       {/* Grid */}
       <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4">
-        {filteredOpportunities.map(opportunity => (
+        {sortedOpportunities.map(opportunity => (
           <OpportunityCard
             key={opportunity.id}
             opportunity={opportunity}
