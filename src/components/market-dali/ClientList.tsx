@@ -89,7 +89,7 @@ export const ClientList: React.FC<ClientListProps> = ({
           bannerImage
             ? {
                 backgroundImage: `url(${bannerImage})`,
-                backgroundSize: "auto 100%", // 👈 que la imagen cubra todo
+                backgroundSize: "auto 50%", // 👈 que la imagen cubra todo
                 backgroundPosition: "right center", // 👈 ajusta el encuadre fino
                 backgroundRepeat: "no-repeat",
               }
@@ -105,10 +105,10 @@ export const ClientList: React.FC<ClientListProps> = ({
               background:
                 "linear-gradient(to right," +
                 "rgba(0, 0, 0, 0.95) 0%," +
-                "rgba(0, 0, 0, 0.95) 50%," +
-                "rgba(0, 0, 0, 0.95) 85%," +
-                "rgba(0, 0, 0, 0.75) 90%," +
-                "rgba(0, 0, 0, 0.50) 95%," +
+                "rgba(0, 0, 0, 0.9) 35%," +
+                "rgba(0, 0, 0, 0.6) 50%," +
+                "rgba(0, 0, 0, 0.35) 65%," +
+                "rgba(0, 0, 0, 0.15) 75%," +
                 "rgba(0, 0, 0, 0) 100%)",
             }}
           />
