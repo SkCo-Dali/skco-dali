@@ -232,7 +232,7 @@ export const ClientList: React.FC<ClientListProps> = ({
               return (
                 <div
                   key={index}
-                  className="flex items-center gap-1 sm:gap-1.5 bg-black/20 px-0 py-1 rounded-md sm:bg-transparent sm:px-0 sm:py-0 sm:rounded-none"
+                  className="flex items-center gap-1 sm:gap-1.5 bg-black/20 px-2 py-1 rounded-md sm:bg-transparent sm:px-0 sm:py-0 sm:rounded-none"
                 >
                   <TagIcon className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
                   <span className="truncate max-w-[80px] sm:max-w-none">{tag}</span>
