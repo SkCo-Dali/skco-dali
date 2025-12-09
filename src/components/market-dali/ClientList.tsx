@@ -4,9 +4,49 @@ import { ClientCard } from "./ClientCard";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Users, ShoppingCart, CheckCircle2, X, Tag } from "lucide-react";
+import { 
+  Users, ShoppingCart, CheckCircle2, X, 
+  TrendingUp, Target, Percent, Gift, Crown, Star, Zap, Award, 
+  Briefcase, Clock, Calendar, DollarSign, Heart, Flame, Sparkles
+} from "lucide-react";
+import { LucideIcon } from "lucide-react";
 import { getCategoryBanner } from "@/config/marketDaliBanners";
 import { useIsMobile } from "@/hooks/use-mobile";
+
+// Helper to get icon based on tag content
+const getTagIcon = (tag: string): LucideIcon => {
+  const lowerTag = tag.toLowerCase();
+  
+  // Priority/urgency related
+  if (lowerTag.includes("urgent") || lowerTag.includes("priorit") || lowerTag.includes("hot")) return Flame;
+  if (lowerTag.includes("nuevo") || lowerTag.includes("new")) return Sparkles;
+  
+  // Sales/revenue related
+  if (lowerTag.includes("venta") || lowerTag.includes("revenue") || lowerTag.includes("ingreso")) return DollarSign;
+  if (lowerTag.includes("comisión") || lowerTag.includes("comision") || lowerTag.includes("commission")) return Percent;
+  if (lowerTag.includes("descuento") || lowerTag.includes("discount") || lowerTag.includes("promo")) return Gift;
+  
+  // Performance/growth related
+  if (lowerTag.includes("crecimiento") || lowerTag.includes("growth") || lowerTag.includes("tendencia")) return TrendingUp;
+  if (lowerTag.includes("meta") || lowerTag.includes("objetivo") || lowerTag.includes("goal") || lowerTag.includes("target")) return Target;
+  if (lowerTag.includes("potencial") || lowerTag.includes("potential")) return Zap;
+  
+  // Status/tier related
+  if (lowerTag.includes("premium") || lowerTag.includes("vip") || lowerTag.includes("oro") || lowerTag.includes("gold")) return Crown;
+  if (lowerTag.includes("destacado") || lowerTag.includes("featured") || lowerTag.includes("top")) return Star;
+  if (lowerTag.includes("leal") || lowerTag.includes("loyal") || lowerTag.includes("fidelidad")) return Heart;
+  if (lowerTag.includes("ganador") || lowerTag.includes("winner") || lowerTag.includes("premio")) return Award;
+  
+  // Time related
+  if (lowerTag.includes("tiempo") || lowerTag.includes("time") || lowerTag.includes("rápido") || lowerTag.includes("fast")) return Clock;
+  if (lowerTag.includes("fecha") || lowerTag.includes("date") || lowerTag.includes("vence") || lowerTag.includes("expir")) return Calendar;
+  
+  // Business related
+  if (lowerTag.includes("negocio") || lowerTag.includes("business") || lowerTag.includes("empresa") || lowerTag.includes("corporat")) return Briefcase;
+  
+  // Default
+  return Star;
+};
 
 interface ClientListProps {
   opportunity: MarketOpportunity;
@@ -144,13 +184,16 @@ export const ClientList: React.FC<ClientListProps> = ({
 
         {/* Tags */}
         {opportunity.tags && opportunity.tags.length > 0 && (
-          <div className="flex flex-wrap items-center gap-4 mt-2 text-sm sm:text-md text-white relative z-10">
-            {opportunity.tags.map((tag, index) => (
-              <div key={index} className="flex items-center gap-1.5">
-                <Tag className="h-4 w-4" />
-                <span>{tag}</span>
-              </div>
-            ))}
+          <div className="flex flex-wrap items-center gap-2 sm:gap-4 mt-2 text-xs sm:text-sm text-white relative z-10">
+            {opportunity.tags.map((tag, index) => {
+              const TagIcon = getTagIcon(tag);
+              return (
+                <div key={index} className="flex items-center gap-1 sm:gap-1.5 bg-black/20 px-2 py-1 rounded-md sm:bg-transparent sm:px-0 sm:py-0 sm:rounded-none">
+                  <TagIcon className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
+                  <span className="truncate max-w-[80px] sm:max-w-none">{tag}</span>
+                </div>
+              );
+            })}
           </div>
         )}
       </div>
