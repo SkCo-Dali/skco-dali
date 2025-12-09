@@ -80,7 +80,7 @@ const MarketDaliContent: React.FC = () => {
   const navigate = useNavigate();
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [showClientView, setShowClientView] = useState(false);
-  const [isCartCollapsed, setIsCartCollapsed] = useState(false);
+  const [isCartCollapsed, setIsCartCollapsed] = useState(true);
 
   // Action confirmation modal state
   const [actionConfirmationType, setActionConfirmationType] = useState<"email" | "whatsapp" | "leads" | null>(null);
