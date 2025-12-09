@@ -38,6 +38,11 @@ export const ClientList: React.FC<ClientListProps> = ({
   const bannerConfig = getCategoryBanner(opportunity.type);
   const bannerImage = isMobile ? bannerConfig.mobileImage : bannerConfig.image;
 
+  // Check if client is already loaded as a lead
+  const isClientAlreadyLoaded = (client: MarketClient): boolean => {
+    return client.id !== null && !client.id.startsWith('temp-');
+  };
+
   // Filter clients by search
   const filteredClients = clients.filter((client) => {
     if (!searchTerm) return true;
@@ -50,9 +55,13 @@ export const ClientList: React.FC<ClientListProps> = ({
     );
   });
 
+  // Get clients that can be added to cart (not already loaded)
+  const availableClients = clients.filter(c => !isClientAlreadyLoaded(c));
+  const alreadyLoadedCount = clients.length - availableClients.length;
+
   // Count clients already in cart
-  const clientsInCart = clients.filter((c) => isInCart(c.id)).length;
-  const allInCart = clientsInCart === clients.length && clients.length > 0;
+  const clientsInCart = availableClients.filter((c) => isInCart(c.id)).length;
+  const allAvailableInCart = clientsInCart === availableClients.length && availableClients.length > 0;
 
   if (isLoading) {
     return (
@@ -91,11 +100,17 @@ export const ClientList: React.FC<ClientListProps> = ({
         </div>
 
         {/* Stats */}
-        <div className="flex items-center gap-4 mt-3 text-sm sm:text-md text-white relative z-10">
+        <div className="flex flex-wrap items-center gap-4 mt-3 text-sm sm:text-md text-white relative z-10">
           <div className="flex items-center gap-1.5">
             <Users className="h-4 w-4" />
             <span>{clients.length} clientes</span>
           </div>
+          {alreadyLoadedCount > 0 && (
+            <div className="flex items-center gap-1.5">
+              <CheckCircle2 className="h-4 w-4" />
+              <span>{alreadyLoadedCount} ya cargados</span>
+            </div>
+          )}
           <div className="hidden sm:flex items-center gap-1.5">
             <ShoppingCart className="h-4 w-4" />
             <span>{clientsInCart} en carrito</span>
@@ -124,11 +139,16 @@ export const ClientList: React.FC<ClientListProps> = ({
 
         <Button
           onClick={onAddAllToCart}
-          disabled={allInCart || clients.length === 0}
-          variant={allInCart ? "outline" : "default"}
+          disabled={allAvailableInCart || availableClients.length === 0}
+          variant={allAvailableInCart ? "outline" : "default"}
           className="whitespace-nowrap"
         >
-          {allInCart ? (
+          {availableClients.length === 0 ? (
+            <>
+              <CheckCircle2 className="h-4 w-4 mr-2" />
+              Todos ya cargados
+            </>
+          ) : allAvailableInCart ? (
             <>
               <CheckCircle2 className="h-4 w-4 mr-2" />
               Todos agregados
@@ -136,7 +156,7 @@ export const ClientList: React.FC<ClientListProps> = ({
           ) : (
             <>
               <ShoppingCart className="h-4 w-4 mr-2" />
-              Agregar todos ({clients.length})
+              Agregar todos ({availableClients.length})
             </>
           )}
         </Button>

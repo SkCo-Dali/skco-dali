@@ -129,14 +129,21 @@ const MarketDaliContent: React.FC = () => {
     setShowClientView(false);
   }, []);
 
-  // Add all clients to cart
+  // Check if client is already loaded as a lead
+  const isClientAlreadyLoaded = useCallback((client: MarketClient): boolean => {
+    return client.id !== null && !client.id.startsWith('temp-');
+  }, []);
+
+  // Add all available clients to cart (excludes already loaded ones)
   const handleAddAllToCart = useCallback(() => {
     clientsOfSelectedOpportunity.forEach((client) => {
+      // Skip clients that are already loaded as leads
+      if (isClientAlreadyLoaded(client)) return;
       if (!isInCart(client.id)) {
         addToCart(client);
       }
     });
-  }, [clientsOfSelectedOpportunity, isInCart, addToCart]);
+  }, [clientsOfSelectedOpportunity, isInCart, addToCart, isClientAlreadyLoaded]);
 
   // Cart actions - show confirmation modal for leads
   const handleLoadAsLeadsClick = useCallback(() => {

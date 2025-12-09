@@ -1,9 +1,10 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { MarketClient } from '@/types/marketDali';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { ShoppingCart, Check, User, Star, Phone, Mail } from 'lucide-react';
+import { ShoppingCart, Check, User, Star, Phone, Mail, ExternalLink } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface ClientCardProps {
@@ -13,12 +14,29 @@ interface ClientCardProps {
   onRemoveFromCart: (clientId: string) => void;
 }
 
+// Check if client is already loaded as a lead (has real ID, not temp)
+const isClientAlreadyLoaded = (client: MarketClient): boolean => {
+  return client.id !== null && !client.id.startsWith('temp-');
+};
+
+// Get the lead ID if client is already loaded
+const getLeadId = (client: MarketClient): string | null => {
+  if (isClientAlreadyLoaded(client)) {
+    return client.id;
+  }
+  return null;
+};
+
 export const ClientCard: React.FC<ClientCardProps> = ({
   client,
   isInCart,
   onAddToCart,
   onRemoveFromCart,
 }) => {
+  const navigate = useNavigate();
+  const alreadyLoaded = isClientAlreadyLoaded(client);
+  const leadId = getLeadId(client);
+
   const getScoreColor = (score: number) => {
     if (score >= 80) return 'text-green-600 bg-green-100';
     if (score >= 50) return 'text-yellow-600 bg-yellow-100';
@@ -26,6 +44,7 @@ export const ClientCard: React.FC<ClientCardProps> = ({
   };
 
   const handleCartAction = () => {
+    if (alreadyLoaded) return; // Can't add already loaded clients
     if (isInCart) {
       onRemoveFromCart(client.id);
     } else {
@@ -33,15 +52,29 @@ export const ClientCard: React.FC<ClientCardProps> = ({
     }
   };
 
+  const handleViewLead = () => {
+    if (leadId) {
+      navigate(`/leads?leadId=${leadId}`);
+    }
+  };
+
   return (
     <Card className={cn(
       'relative transition-all duration-200 hover:shadow-md overflow-hidden',
-      isInCart && 'ring-2 ring-primary border-primary bg-primary/5'
+      isInCart && 'ring-2 ring-primary border-primary bg-primary/5',
+      alreadyLoaded && 'opacity-75 bg-muted/30'
     )}>
       {/* In cart indicator */}
-      {isInCart && (
+      {isInCart && !alreadyLoaded && (
         <div className="absolute top-0 right-0 w-0 h-0 border-t-[40px] border-t-primary border-l-[40px] border-l-transparent">
           <Check className="absolute -top-[32px] right-1 h-4 w-4 text-primary-foreground" />
+        </div>
+      )}
+
+      {/* Already loaded indicator */}
+      {alreadyLoaded && (
+        <div className="absolute top-0 right-0 w-0 h-0 border-t-[40px] border-t-blue-500 border-l-[40px] border-l-transparent">
+          <Check className="absolute -top-[32px] right-1 h-4 w-4 text-white" />
         </div>
       )}
 
@@ -94,28 +127,40 @@ export const ClientCard: React.FC<ClientCardProps> = ({
             <span>{client.score}%</span>
           </div>
 
-          {/* Cart button */}
-          <Button
-            size="sm"
-            variant={isInCart ? 'outline' : 'default'}
-            className={cn(
-              'text-xs h-8 px-3',
-              isInCart && 'border-primary text-primary hover:bg-primary/10'
-            )}
-            onClick={handleCartAction}
-          >
-            {isInCart ? (
-              <>
-                <Check className="h-3 w-3 mr-1" />
-                <span className="hidden sm:inline">Agregado</span>
-              </>
-            ) : (
-              <>
-                <ShoppingCart className="h-3 w-3 mr-1" />
-                <span className="hidden sm:inline">Agregar</span>
-              </>
-            )}
-          </Button>
+          {/* Cart button or View Lead button */}
+          {alreadyLoaded ? (
+            <Button
+              size="sm"
+              variant="outline"
+              className="text-xs h-8 px-3 border-blue-500 text-blue-600 hover:bg-blue-50"
+              onClick={handleViewLead}
+            >
+              <ExternalLink className="h-3 w-3 mr-1" />
+              <span className="hidden sm:inline">Ver lead</span>
+            </Button>
+          ) : (
+            <Button
+              size="sm"
+              variant={isInCart ? 'outline' : 'default'}
+              className={cn(
+                'text-xs h-8 px-3',
+                isInCart && 'border-primary text-primary hover:bg-primary/10'
+              )}
+              onClick={handleCartAction}
+            >
+              {isInCart ? (
+                <>
+                  <Check className="h-3 w-3 mr-1" />
+                  <span className="hidden sm:inline">Agregado</span>
+                </>
+              ) : (
+                <>
+                  <ShoppingCart className="h-3 w-3 mr-1" />
+                  <span className="hidden sm:inline">Agregar</span>
+                </>
+              )}
+            </Button>
+          )}
         </div>
       </CardContent>
     </Card>
