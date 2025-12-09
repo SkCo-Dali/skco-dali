@@ -9,24 +9,31 @@ import { ApiOpportunity, PreviewLeadFromOpportunity } from "@/types/opportunitie
 import { MarketOpportunity, MarketClient, OpportunityCategory } from "@/types/marketDali";
 
 // Helper to map API type to internal category
-const mapTypeToCategory = (type: string): OpportunityCategory => {
+// Uses type + title to determine cross-sell subcategories since API only sends "cross-sell" in type
+const mapTypeToCategory = (type: string, title?: string): OpportunityCategory => {
   const typeLower = type.toLowerCase();
-  console.log("📡 mapTypeToCategory: Mapping type:", type, "->", typeLower);
+  const titleLower = (title || "").toLowerCase();
+  const combined = `${typeLower} ${titleLower}`;
   
   if (typeLower.includes("cumpleaños")) return "birthday";
+  
+  // Cross-sell: check title for subcategory since type only contains "cross-sell"
   if (typeLower.includes("cross-sell") || typeLower.includes("cross sell")) {
-    if (typeLower.includes("obligatoria")) return "cross-sell-obligatoria";
-    if (typeLower.includes("voluntaria")) return "cross-sell-voluntaria";
-    if (typeLower.includes("seguros")) return "cross-sell-seguros";
-    if (typeLower.includes("fics") || typeLower.includes("fic")) return "cross-sell-fics";
+    if (combined.includes("obligatoria")) return "cross-sell-obligatoria";
+    if (combined.includes("voluntaria")) return "cross-sell-voluntaria";
+    if (combined.includes("seguros")) return "cross-sell-seguros";
+    if (combined.includes("fics") || combined.includes("fic")) return "cross-sell-fics";
+    // Default cross-sell without specific line
+    return "cross-sell-obligatoria";
   }
+  
   if (typeLower.includes("retención") || typeLower.includes("retencion")) return "retention";
   if (typeLower.includes("reactivación") || typeLower.includes("reactivacion")) return "reactivation";
   if (typeLower.includes("campaña") || typeLower.includes("campana")) return "campaign";
   if (typeLower.includes("riesgo")) return "churn-risk";
   if (typeLower.includes("eventos")) return "life-events";
   
-  console.warn("📡 mapTypeToCategory: Unknown type, defaulting to ai-recommendation:", type);
+  console.warn("📡 mapTypeToCategory: Unknown type:", type, "title:", title);
   return "ai-recommendation";
 };
 
@@ -39,25 +46,28 @@ const mapPriority = (priority: string): "alta" | "media" | "baja" => {
 };
 
 // Transform API opportunity to Market opportunity
-const transformOpportunity = (api: ApiOpportunity): MarketOpportunity => ({
-  id: api.OpportunityId.toString(),
-  title: api.Title,
-  subtitle: api.Subtitle,
-  description: api.Description,
-  type: mapTypeToCategory(api.Type),
-  priority: mapPriority(api.Priority),
-  clientCount: api.lead_count,
-  potentialCommission: api.ComisionPotencial,
-  icon: getIconForCategory(mapTypeToCategory(api.Type)),
-  tags: api.Categories,
-  isActive: api.IsActive,
-  isFavorite: api.IsFavourite,
-  timeWindow: {
-    start: api.Beggining,
-    end: api.End,
-  },
-  lastCampaignName: api.LastCampaignName,
-});
+const transformOpportunity = (api: ApiOpportunity): MarketOpportunity => {
+  const category = mapTypeToCategory(api.Type, api.Title);
+  return {
+    id: api.OpportunityId.toString(),
+    title: api.Title,
+    subtitle: api.Subtitle,
+    description: api.Description,
+    type: category,
+    priority: mapPriority(api.Priority),
+    clientCount: api.lead_count,
+    potentialCommission: api.ComisionPotencial,
+    icon: getIconForCategory(category),
+    tags: api.Categories,
+    isActive: api.IsActive,
+    isFavorite: api.IsFavourite,
+    timeWindow: {
+      start: api.Beggining,
+      end: api.End,
+    },
+    lastCampaignName: api.LastCampaignName,
+  };
+};
 
 // Transform preview lead to Market client
 const transformClient = (lead: PreviewLeadFromOpportunity): MarketClient => ({
