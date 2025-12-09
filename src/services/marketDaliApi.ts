@@ -1,35 +1,34 @@
 // Market Dali API Service - Connects to existing backend
-import { 
-  getOpportunitySummary, 
-  loadLeadsFromOpportunity, 
+import {
+  getOpportunitySummary,
+  loadLeadsFromOpportunity,
   previewLeadsFromOpportunity,
-  updateOpportunityFavourite 
-} from '@/utils/opportunitiesApiClient';
-import { ApiOpportunity, PreviewLeadFromOpportunity } from '@/types/opportunitiesApi';
-import { MarketOpportunity, MarketClient, OpportunityCategory } from '@/types/marketDali';
+  updateOpportunityFavourite,
+} from "@/utils/opportunitiesApiClient";
+import { ApiOpportunity, PreviewLeadFromOpportunity } from "@/types/opportunitiesApi";
+import { MarketOpportunity, MarketClient, OpportunityCategory } from "@/types/marketDali";
 
 // Helper to map API type to internal category
 const mapTypeToCategory = (type: string): OpportunityCategory => {
-  if (type.includes('Cumpleaños')) return 'birthday';
-  if (type.includes('Cross-sell') && type.includes('obligatoria')) return 'cross-sell-obligatoria';
-  if (type.includes('Cross-sell') && type.includes('voluntaria')) return 'cross-sell-voluntaria';
-  if (type.includes('Cross-sell') && type.includes('seguros')) return 'cross-sell-seguros';
-  if (type.includes('Cross-sell') && type.includes('FICs')) return 'cross-sell-fics';
-  if (type.includes('Cross-sell')) return 'cross-sell-obligatoria'; // Default cross-sell fallback
-  if (type.includes('Retención')) return 'retention';
-  if (type.includes('Reactivación')) return 'reactivation';
-  if (type.includes('Campaña')) return 'campaign';
-  if (type.includes('Riesgo')) return 'churn-risk';
-  if (type.includes('Eventos')) return 'life-events';
-  return 'ai-recommendation';
+  if (type.includes("Cumpleaños")) return "birthday";
+  if (type.includes("Cross-sell") && type.includes("obligatoria")) return "cross-sell-obligatoria";
+  if (type.includes("Cross-sell") && type.includes("voluntaria")) return "cross-sell-voluntaria";
+  if (type.includes("Cross-sell") && type.includes("seguros")) return "cross-sell-seguros";
+  if (type.includes("Cross-sell") && type.includes("FICs")) return "cross-sell-fics";
+  if (type.includes("Retención")) return "retention";
+  if (type.includes("Reactivación")) return "reactivation";
+  if (type.includes("Campaña")) return "campaign";
+  if (type.includes("Riesgo")) return "churn-risk";
+  if (type.includes("Eventos")) return "life-events";
+  return "ai-recommendation";
 };
 
 // Helper to map priority string
-const mapPriority = (priority: string): 'alta' | 'media' | 'baja' => {
+const mapPriority = (priority: string): "alta" | "media" | "baja" => {
   const p = priority.toLowerCase();
-  if (p === 'alta') return 'alta';
-  if (p === 'media') return 'media';
-  return 'baja';
+  if (p === "alta") return "alta";
+  if (p === "media") return "media";
+  return "baja";
 };
 
 // Transform API opportunity to Market opportunity
@@ -59,8 +58,8 @@ const transformClient = (lead: PreviewLeadFromOpportunity): MarketClient => ({
   name: lead.name,
   email: lead.email,
   phone: lead.phone,
-  segment: lead.source || 'General',
-  currentProduct: lead.product?.length > 0 ? lead.product[0] : 'Sin producto',
+  segment: lead.source || "General",
+  currentProduct: lead.product?.length > 0 ? lead.product[0] : "Sin producto",
   score: Math.min(100, Math.max(0, lead.value || 50)),
   age: lead.Age,
   gender: lead.Gender,
@@ -72,19 +71,19 @@ const transformClient = (lead: PreviewLeadFromOpportunity): MarketClient => ({
 
 const getIconForCategory = (category: OpportunityCategory): string => {
   const icons: Record<OpportunityCategory, string> = {
-    'birthday': '🎂',
-    'cross-sell-obligatoria': '📋',
-    'cross-sell-voluntaria': '✋',
-    'cross-sell-seguros': '🛡️',
-    'cross-sell-fics': '📈',
-    'retention': '🔒',
-    'reactivation': '♻️',
-    'campaign': '📣',
-    'ai-recommendation': '🤖',
-    'churn-risk': '🚨',
-    'life-events': '🎉',
+    birthday: "🎂",
+    "cross-sell-obligatoria": "📋",
+    "cross-sell-voluntaria": "✋",
+    "cross-sell-seguros": "🛡️",
+    "cross-sell-fics": "📈",
+    retention: "🔒",
+    reactivation: "♻️",
+    campaign: "📣",
+    "ai-recommendation": "🤖",
+    "churn-risk": "🚨",
+    "life-events": "🎉",
   };
-  return icons[category] || '💼';
+  return icons[category] || "💼";
 };
 
 // ============ PUBLIC API METHODS ============
@@ -94,14 +93,14 @@ const getIconForCategory = (category: OpportunityCategory): string => {
  */
 export const fetchOpportunities = async (): Promise<MarketOpportunity[]> => {
   try {
-    console.log('📡 marketDaliApi: Calling getOpportunitySummary...');
+    console.log("📡 marketDaliApi: Calling getOpportunitySummary...");
     const apiOpportunities = await getOpportunitySummary();
-    console.log('📡 marketDaliApi: Raw API response:', apiOpportunities);
+    console.log("📡 marketDaliApi: Raw API response:", apiOpportunities);
     const transformed = apiOpportunities.map(transformOpportunity);
-    console.log('📡 marketDaliApi: Transformed opportunities:', transformed);
+    console.log("📡 marketDaliApi: Transformed opportunities:", transformed);
     return transformed;
   } catch (error) {
-    console.error('Error fetching opportunities:', error);
+    console.error("Error fetching opportunities:", error);
     throw error;
   }
 };
@@ -114,7 +113,7 @@ export const fetchClientsForOpportunity = async (opportunityId: string): Promise
     const previewLeads = await previewLeadsFromOpportunity(parseInt(opportunityId));
     return previewLeads.map(transformClient);
   } catch (error) {
-    console.error('Error fetching clients for opportunity:', error);
+    console.error("Error fetching clients for opportunity:", error);
     throw error;
   }
 };
@@ -127,7 +126,7 @@ export const toggleOpportunityFavorite = async (opportunityId: string, isFavorit
     const result = await updateOpportunityFavourite(parseInt(opportunityId), isFavorite);
     return result.success;
   } catch (error) {
-    console.error('Error toggling favorite:', error);
+    console.error("Error toggling favorite:", error);
     throw error;
   }
 };
@@ -138,14 +137,14 @@ export const toggleOpportunityFavorite = async (opportunityId: string, isFavorit
  * @param clientDocumentNumbers - Optional array of document numbers to load (if not provided, loads all)
  */
 export const loadClientsAsLeads = async (
-  opportunityId: string, 
-  clientDocumentNumbers?: number[]
+  opportunityId: string,
+  clientDocumentNumbers?: number[],
 ): Promise<{ success: boolean; count: number }> => {
   try {
     const result = await loadLeadsFromOpportunity(parseInt(opportunityId), clientDocumentNumbers);
     return { success: true, count: result.length };
   } catch (error) {
-    console.error('Error loading clients as leads:', error);
+    console.error("Error loading clients as leads:", error);
     throw error;
   }
 };
@@ -155,8 +154,8 @@ export const loadClientsAsLeads = async (
  */
 export const sendBulkEmail = async (clientIds: string[], opportunityId: string): Promise<{ success: boolean }> => {
   // TODO: Connect to real email API
-  console.log('📧 Sending bulk email to clients:', clientIds, 'from opportunity:', opportunityId);
-  await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate API call
+  console.log("📧 Sending bulk email to clients:", clientIds, "from opportunity:", opportunityId);
+  await new Promise((resolve) => setTimeout(resolve, 1000)); // Simulate API call
   return { success: true };
 };
 
@@ -165,7 +164,7 @@ export const sendBulkEmail = async (clientIds: string[], opportunityId: string):
  */
 export const sendBulkWhatsApp = async (clientIds: string[], opportunityId: string): Promise<{ success: boolean }> => {
   // TODO: Connect to real WhatsApp API
-  console.log('💬 Sending bulk WhatsApp to clients:', clientIds, 'from opportunity:', opportunityId);
-  await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate API call
+  console.log("💬 Sending bulk WhatsApp to clients:", clientIds, "from opportunity:", opportunityId);
+  await new Promise((resolve) => setTimeout(resolve, 1000)); // Simulate API call
   return { success: true };
 };
