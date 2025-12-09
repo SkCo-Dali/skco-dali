@@ -22,7 +22,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
   cart,
   isOpen,
   isProcessing,
-  isCollapsed = true,
+  isCollapsed = false,
   onCollapsedChange,
   onClose,
   onRemoveItem,
