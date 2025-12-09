@@ -29,14 +29,16 @@ export const CATEGORY_BANNERS: Record<OpportunityCategory, BannerConfig> = {
     overlayOpacity: "bg-background/10",
   },
   "cross-sell-seguros": {
-    image: `${AZURE_BASE_URL}/cross-sell.png`,
-    mobileImage: `${AZURE_BASE_URL}/cross-sellxs.png`,
+    // TODO: Actualizar URLs cuando estén disponibles en Azure
+    image: `${AZURE_BASE_URL}/cross-seguros.png`,        // Cambiar nombre de archivo
+    mobileImage: `${AZURE_BASE_URL}/cross-segurosxs.png`, // Cambiar nombre de archivo
     gradient: "from-sky-500/90 to-sky-700/90",
     overlayOpacity: "bg-background/10",
   },
   "cross-sell-fics": {
-    image: `${AZURE_BASE_URL}/cross-sell.png`,
-    mobileImage: `${AZURE_BASE_URL}/cross-sellxs.png`,
+    // TODO: Actualizar URLs cuando estén disponibles en Azure
+    image: `${AZURE_BASE_URL}/cross-fics.png`,        // Cambiar nombre de archivo
+    mobileImage: `${AZURE_BASE_URL}/cross-ficsxs.png`, // Cambiar nombre de archivo
     gradient: "from-violet-500/90 to-violet-700/90",
     overlayOpacity: "bg-background/10",
   },
