@@ -1,4 +1,5 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 import { MarketOpportunity, CATEGORY_CONFIG, PRIORITY_CONFIG } from "@/types/marketDali";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -20,6 +21,7 @@ export const OpportunityCard: React.FC<OpportunityCardProps> = ({
   onSelect,
   onToggleFavorite,
 }) => {
+  const navigate = useNavigate();
   const isMobile = useIsMobile();
   const categoryConfig = CATEGORY_CONFIG[opportunity.type];
   const priorityConfig = PRIORITY_CONFIG[opportunity.priority];
@@ -27,6 +29,10 @@ export const OpportunityCard: React.FC<OpportunityCardProps> = ({
   const handleFavoriteClick = (e: React.MouseEvent) => {
     e.stopPropagation();
     onToggleFavorite(opportunity.id);
+  };
+
+  const handleCardClick = () => {
+    navigate(`/market-dali/${opportunity.id}`);
   };
 
   const isExpired = !opportunity.isActive;
@@ -42,7 +48,7 @@ export const OpportunityCard: React.FC<OpportunityCardProps> = ({
         isSelected ? "border-primary shadow-lg ring-2 ring-primary/20" : "border-border",
         (isExpired || hasBeenUsed) && "opacity-100",
       )}
-      onClick={() => onSelect(opportunity)}
+      onClick={handleCardClick}
     >
       {/* Cover - dynamic banner based on category */}
       {(() => {
