@@ -88,7 +88,8 @@ export const ClientList: React.FC<ClientListProps> = ({
         style={
           bannerImage
             ? {
-                backgroundImage: `https://aistudiojarvis0534199251.blob.core.windows.net/skandia-icons/pruebabanner.jpg`,
+                backgroundImage:
+                  "https://aistudiojarvis0534199251.blob.core.windows.net/skandia-icons/pruebabanner.jpg",
                 backgroundSize: "cover",
                 backgroundPosition: "right center", // importante para que la familia quede a la derecha
               }
