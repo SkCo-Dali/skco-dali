@@ -3,16 +3,7 @@ import { MarketCart } from "@/types/marketDali";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import {
-  ShoppingCart,
-  Trash2,
-  Users,
-  X,
-  Loader2,
-  Package,
-  ChevronLeft,
-  ChevronRight,
-} from "lucide-react";
+import { ShoppingCart, Trash2, Users, X, Loader2, Package, ChevronLeft, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface CartDrawerProps {
@@ -31,7 +22,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
   cart,
   isOpen,
   isProcessing,
-  isCollapsed = false,
+  isCollapsed = true,
   onCollapsedChange,
   onClose,
   onRemoveItem,
