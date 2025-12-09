@@ -70,6 +70,10 @@ const getIconForCategory = (category: OpportunityCategory): string => {
   const icons: Record<OpportunityCategory, string> = {
     'birthday': '🎂',
     'cross-sell': '🎯',
+    'cross-sell-obligatoria': '📋',
+    'cross-sell-voluntaria': '✋',
+    'cross-sell-seguros': '🛡️',
+    'cross-sell-fics': '📈',
     'retention': '🔒',
     'reactivation': '♻️',
     'campaign': '📣',

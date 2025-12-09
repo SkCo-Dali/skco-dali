@@ -54,6 +54,10 @@ export interface MarketCart {
 export type OpportunityCategory = 
   | 'birthday'
   | 'cross-sell'
+  | 'cross-sell-obligatoria'
+  | 'cross-sell-voluntaria'
+  | 'cross-sell-seguros'
+  | 'cross-sell-fics'
   | 'retention'
   | 'reactivation'
   | 'campaign'
@@ -75,6 +79,10 @@ export interface MarketFilters {
 export const CATEGORY_CONFIG: Record<OpportunityCategory, { label: string; icon: string; color: string }> = {
   'birthday': { label: 'Cumpleaños', icon: '🎂', color: 'bg-pink-500' },
   'cross-sell': { label: 'Cross-sell', icon: '🎯', color: 'bg-blue-500' },
+  'cross-sell-obligatoria': { label: 'Cross-sell Obligatoria', icon: '📋', color: 'bg-blue-600' },
+  'cross-sell-voluntaria': { label: 'Cross-sell Voluntaria', icon: '✋', color: 'bg-indigo-500' },
+  'cross-sell-seguros': { label: 'Cross-sell Seguros', icon: '🛡️', color: 'bg-sky-500' },
+  'cross-sell-fics': { label: 'Cross-sell FICs', icon: '📈', color: 'bg-violet-500' },
   'retention': { label: 'Retención', icon: '🔒', color: 'bg-green-500' },
   'reactivation': { label: 'Reactivación', icon: '♻️', color: 'bg-orange-500' },
   'campaign': { label: 'Campaña', icon: '📣', color: 'bg-purple-500' },

@@ -22,6 +22,30 @@ export const CATEGORY_BANNERS: Record<OpportunityCategory, BannerConfig> = {
     gradient: "from-blue-500/90 to-indigo-600/90",
     overlayOpacity: "bg-background/10",
   },
+  "cross-sell-obligatoria": {
+    image: `${AZURE_BASE_URL}/cross-obligatoria.png`,
+    mobileImage: `${AZURE_BASE_URL}/cross-obligatoriaxs.png`,
+    gradient: "from-blue-600/90 to-blue-800/90",
+    overlayOpacity: "bg-background/10",
+  },
+  "cross-sell-voluntaria": {
+    image: `${AZURE_BASE_URL}/cross-voluntaria.png`,
+    mobileImage: `${AZURE_BASE_URL}/cross-voluntariaxs.png`,
+    gradient: "from-indigo-500/90 to-indigo-700/90",
+    overlayOpacity: "bg-background/10",
+  },
+  "cross-sell-seguros": {
+    image: `${AZURE_BASE_URL}/cross-seguros.png`,
+    mobileImage: `${AZURE_BASE_URL}/cross-segurosxs.png`,
+    gradient: "from-sky-500/90 to-sky-700/90",
+    overlayOpacity: "bg-background/10",
+  },
+  "cross-sell-fics": {
+    image: `${AZURE_BASE_URL}/cross-fics.png`,
+    mobileImage: `${AZURE_BASE_URL}/cross-ficsxs.png`,
+    gradient: "from-violet-500/90 to-violet-700/90",
+    overlayOpacity: "bg-background/10",
+  },
   retention: {
     image: `${AZURE_BASE_URL}/retention.png`,
     mobileImage: `${AZURE_BASE_URL}/retentionxs.png`,
