@@ -10,16 +10,23 @@ import { MarketOpportunity, MarketClient, OpportunityCategory } from "@/types/ma
 
 // Helper to map API type to internal category
 const mapTypeToCategory = (type: string): OpportunityCategory => {
-  if (type.includes("Cumpleaños")) return "birthday";
-  if (type.includes("Cross-sell") && type.includes("obligatoria")) return "cross-sell-obligatoria";
-  if (type.includes("Cross-sell") && type.includes("voluntaria")) return "cross-sell-voluntaria";
-  if (type.includes("Cross-sell") && type.includes("seguros")) return "cross-sell-seguros";
-  if (type.includes("Cross-sell") && type.includes("FICs")) return "cross-sell-fics";
-  if (type.includes("Retención")) return "retention";
-  if (type.includes("Reactivación")) return "reactivation";
-  if (type.includes("Campaña")) return "campaign";
-  if (type.includes("Riesgo")) return "churn-risk";
-  if (type.includes("Eventos")) return "life-events";
+  const typeLower = type.toLowerCase();
+  console.log("📡 mapTypeToCategory: Mapping type:", type, "->", typeLower);
+  
+  if (typeLower.includes("cumpleaños")) return "birthday";
+  if (typeLower.includes("cross-sell") || typeLower.includes("cross sell")) {
+    if (typeLower.includes("obligatoria")) return "cross-sell-obligatoria";
+    if (typeLower.includes("voluntaria")) return "cross-sell-voluntaria";
+    if (typeLower.includes("seguros")) return "cross-sell-seguros";
+    if (typeLower.includes("fics") || typeLower.includes("fic")) return "cross-sell-fics";
+  }
+  if (typeLower.includes("retención") || typeLower.includes("retencion")) return "retention";
+  if (typeLower.includes("reactivación") || typeLower.includes("reactivacion")) return "reactivation";
+  if (typeLower.includes("campaña") || typeLower.includes("campana")) return "campaign";
+  if (typeLower.includes("riesgo")) return "churn-risk";
+  if (typeLower.includes("eventos")) return "life-events";
+  
+  console.warn("📡 mapTypeToCategory: Unknown type, defaulting to ai-recommendation:", type);
   return "ai-recommendation";
 };
 
