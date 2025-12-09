@@ -40,7 +40,7 @@ export const ClientList: React.FC<ClientListProps> = ({
 
   // Check if client is already loaded as a lead
   const isClientAlreadyLoaded = (client: MarketClient): boolean => {
-    return client.id !== null && !client.id.startsWith('temp-');
+    return client.id !== null && !client.id.startsWith("temp-");
   };
 
   // Filter clients by search
@@ -56,7 +56,7 @@ export const ClientList: React.FC<ClientListProps> = ({
   });
 
   // Get clients that can be added to cart (not already loaded)
-  const availableClients = clients.filter(c => !isClientAlreadyLoaded(c));
+  const availableClients = clients.filter((c) => !isClientAlreadyLoaded(c));
   const alreadyLoadedCount = clients.length - availableClients.length;
 
   // Count clients already in cart
@@ -80,19 +80,37 @@ export const ClientList: React.FC<ClientListProps> = ({
     <div className="space-y-4">
       {/* Header with opportunity info */}
       <div
-        className={`border border-border relative overflow-hidden rounded-xl px-4 py-4 md:py-12 min-h-[120px] md:min-h-[200px] ${!bannerImage ? `bg-gradient-to-br ${bannerConfig.gradient}` : ""}`}
+        className={`
+    border border-border relative overflow-hidden rounded-xl 
+    px-4 py-4 md:py-12 min-h-[120px] md:min-h-[200px]
+    ${!bannerImage ? `bg-gradient-to-br ${bannerConfig.gradient}` : ""}
+  `}
         style={
           bannerImage
             ? {
-                backgroundImage: `url(${bannerImage})`,
+                backgroundImage: `https://aistudiojarvis0534199251.blob.core.windows.net/skandia-icons/pruebabanner.jpg`,
                 backgroundSize: "cover",
-                backgroundPosition: "center",
+                backgroundPosition: "right center", // importante para que la familia quede a la derecha
               }
             : undefined
         }
       >
-        <div className={`absolute inset-0 ${bannerConfig.overlayOpacity}`} />
-        <div className="flex items-start gap-3 relative z-10 w-1/2">
+        {/* Overlay */}
+        {bannerImage ? (
+          <div
+            className="absolute inset-0 pointer-events-none"
+            style={{
+              // Gradiente tipo banner: muy oscuro a la izquierda, se desvanece a la derecha
+              background:
+                "linear-gradient(to right, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.9) 40%, rgba(0,0,0,0.35) 65%, rgba(0,0,0,0) 100%)",
+            }}
+          />
+        ) : (
+          <div className={`absolute inset-0 ${bannerConfig.overlayOpacity}`} />
+        )}
+
+        {/* Texto */}
+        <div className="flex items-start gap-3 relative z-10 w-full md:w-1/2">
           <div className="flex-1 min-w-0">
             <h2 className="text-lg sm:text-xl font-bold line-clamp-2 mb-1 text-white">{opportunity.title}</h2>
             <p className="text-sm sm:text-md text-white line-clamp-2 hidden sm:block">{opportunity.subtitle}</p>
