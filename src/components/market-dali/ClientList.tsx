@@ -90,8 +90,8 @@ export const ClientList: React.FC<ClientListProps> = ({
             ? {
                 backgroundImage:
                   "url('https://aistudiojarvis0534199251.blob.core.windows.net/skandia-icons/pruebabanner.jpg')",
-                backgroundSize: "auto 100%",
-                backgroundPosition: "right center",
+                backgroundSize: "cover", // 👈 que la imagen cubra todo
+                backgroundPosition: "70% center", // 👈 ajusta el encuadre fino
                 backgroundRepeat: "no-repeat",
               }
             : undefined
@@ -100,11 +100,17 @@ export const ClientList: React.FC<ClientListProps> = ({
         {/* Overlay */}
         {bannerImage ? (
           <div
-            className="absolute inset-0 pointer-events-none"
+            className="absolute inset-0 z-0 pointer-events-none"
             style={{
-              // Gradiente tipo banner: muy oscuro a la izquierda, se desvanece a la derecha
+              // Gradiente tipo banner: oscuro a la izquierda, se desvanece sobre la imagen
               background:
-                "linear-gradient(to right, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.9) 40%, rgba(0,0,0,0.35) 65%, rgba(0,0,0,0) 100%)",
+                "linear-gradient(to right," +
+                "rgba(0, 0, 0, 0.95) 0%," +
+                "rgba(0, 0, 0, 0.9) 35%," +
+                "rgba(0, 0, 0, 0.6) 50%," +
+                "rgba(0, 0, 0, 0.35) 65%," +
+                "rgba(0, 0, 0, 0.15) 75%," +
+                "rgba(0, 0, 0, 0) 100%)",
             }}
           />
         ) : (
