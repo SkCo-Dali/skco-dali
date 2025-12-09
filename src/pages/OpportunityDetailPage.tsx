@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useEffect, useMemo } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, Link } from "react-router-dom";
 import { MarketDaliProvider, useMarketDali } from "@/hooks/useMarketDali";
 import { MarketDaliHeader } from "@/components/market-dali/MarketDaliHeader";
 import { ClientList } from "@/components/market-dali/ClientList";
@@ -17,6 +17,38 @@ import { WhatsAppPropioManager } from "@/components/whatsapp/WhatsAppPropioManag
 import { LoadLeadsProgressModal } from "@/components/LoadLeadsProgressModal";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Skeleton } from "@/components/ui/skeleton";
+import { ChevronRight, Home, Store } from "lucide-react";
+
+// Breadcrumbs component
+const Breadcrumbs: React.FC<{ opportunityTitle?: string }> = ({ opportunityTitle }) => {
+  return (
+    <nav className="flex items-center gap-1 text-sm text-muted-foreground mb-4">
+      <Link 
+        to="/dashboard" 
+        className="flex items-center gap-1 hover:text-foreground transition-colors"
+      >
+        <Home className="h-4 w-4" />
+        <span className="hidden sm:inline">Inicio</span>
+      </Link>
+      <ChevronRight className="h-4 w-4" />
+      <Link 
+        to="/market-dali" 
+        className="flex items-center gap-1 hover:text-foreground transition-colors"
+      >
+        <Store className="h-4 w-4" />
+        <span>Oportunidades</span>
+      </Link>
+      {opportunityTitle && (
+        <>
+          <ChevronRight className="h-4 w-4" />
+          <span className="text-foreground font-medium truncate max-w-[200px] sm:max-w-xs">
+            {opportunityTitle}
+          </span>
+        </>
+      )}
+    </nav>
+  );
+};
 
 // Helper function to convert MarketClient to Lead format
 const convertClientToLead = (client: MarketClient, opportunityId: string): Lead => ({
@@ -245,6 +277,8 @@ const OpportunityDetailContent: React.FC = () => {
         )}
       >
         <div className="p-4 sm:p-6 max-w-full mx-auto">
+          <Breadcrumbs opportunityTitle={selectedOpportunity?.title} />
+          
           <MarketDaliHeader
             onRefresh={() => {}}
             isLoading={isLoadingClients}
