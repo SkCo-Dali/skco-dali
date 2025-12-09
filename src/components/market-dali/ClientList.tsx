@@ -82,7 +82,7 @@ export const ClientList: React.FC<ClientListProps> = ({
       <div
         className={`
     border border-border relative overflow-hidden rounded-xl 
-    px-4 py-4 md:py-12 min-h-[120px] md:min-h-[220px]
+    px-4 py-4 md:py-12 min-h-[120px] md:min-h-[240px]
     ${!bannerImage ? `bg-gradient-to-br ${bannerConfig.gradient}` : ""}
   `}
         style={
