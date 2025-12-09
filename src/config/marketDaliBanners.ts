@@ -37,8 +37,8 @@ export const CATEGORY_BANNERS: Record<OpportunityCategory, BannerConfig> = {
   },
   "cross-sell-fics": {
     // TODO: Actualizar URLs cuando estén disponibles en Azure
-    image: `${AZURE_BASE_URL}/cross-fics.png`, // Cambiar nombre de archivo
-    mobileImage: `${AZURE_BASE_URL}/cross-ficsxs.png`, // Cambiar nombre de archivo
+    image: `${AZURE_BASE_URL}/crossfics.png`, // Cambiar nombre de archivo
+    mobileImage: `${AZURE_BASE_URL}/crossficsxs.png`, // Cambiar nombre de archivo
     gradient: "from-violet-500/90 to-violet-700/90",
     overlayOpacity: "bg-background/10",
   },
