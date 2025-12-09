@@ -11,7 +11,11 @@ import { MarketOpportunity, MarketClient, OpportunityCategory } from '@/types/ma
 // Helper to map API type to internal category
 const mapTypeToCategory = (type: string): OpportunityCategory => {
   if (type.includes('Cumpleaños')) return 'birthday';
-  if (type.includes('Cross-sell')) return 'cross-sell';
+  if (type.includes('Cross-sell') && type.includes('obligatoria')) return 'cross-sell-obligatoria';
+  if (type.includes('Cross-sell') && type.includes('voluntaria')) return 'cross-sell-voluntaria';
+  if (type.includes('Cross-sell') && type.includes('seguros')) return 'cross-sell-seguros';
+  if (type.includes('Cross-sell') && type.includes('FICs')) return 'cross-sell-fics';
+  if (type.includes('Cross-sell')) return 'cross-sell-obligatoria'; // Default cross-sell fallback
   if (type.includes('Retención')) return 'retention';
   if (type.includes('Reactivación')) return 'reactivation';
   if (type.includes('Campaña')) return 'campaign';
@@ -69,7 +73,6 @@ const transformClient = (lead: PreviewLeadFromOpportunity): MarketClient => ({
 const getIconForCategory = (category: OpportunityCategory): string => {
   const icons: Record<OpportunityCategory, string> = {
     'birthday': '🎂',
-    'cross-sell': '🎯',
     'cross-sell-obligatoria': '📋',
     'cross-sell-voluntaria': '✋',
     'cross-sell-seguros': '🛡️',
