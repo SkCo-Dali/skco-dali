@@ -89,7 +89,7 @@ export const ClientList: React.FC<ClientListProps> = ({
           bannerImage
             ? {
                 backgroundImage: `url(${bannerImage})`,
-                backgroundSize: "auto 50%", // 👈 que la imagen cubra todo
+                backgroundSize: "auto 200%", // 👈 que la imagen cubra todo
                 backgroundPosition: "right center", // 👈 ajusta el encuadre fino
                 backgroundRepeat: "no-repeat",
               }
