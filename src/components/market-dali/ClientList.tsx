@@ -88,8 +88,7 @@ export const ClientList: React.FC<ClientListProps> = ({
         style={
           bannerImage
             ? {
-                backgroundImage:
-                  "url('https://aistudiojarvis0534199251.blob.core.windows.net/skandia-icons/pruebabanner.jpg')",
+                backgroundImage: `url(${bannerImage})`,
                 backgroundSize: "cover", // 👈 que la imagen cubra todo
                 backgroundPosition: "70% center", // 👈 ajusta el encuadre fino
                 backgroundRepeat: "no-repeat",
