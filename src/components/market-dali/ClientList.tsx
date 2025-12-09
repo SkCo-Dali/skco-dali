@@ -4,7 +4,7 @@ import { ClientCard } from "./ClientCard";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Users, ShoppingCart, CheckCircle2, X } from "lucide-react";
+import { Users, ShoppingCart, CheckCircle2, X, Tag } from "lucide-react";
 import { getCategoryBanner } from "@/config/marketDaliBanners";
 import { useIsMobile } from "@/hooks/use-mobile";
 
@@ -141,6 +141,18 @@ export const ClientList: React.FC<ClientListProps> = ({
             <span>{clientsInCart} en carrito</span>
           </div>
         </div>
+
+        {/* Tags */}
+        {opportunity.tags && opportunity.tags.length > 0 && (
+          <div className="flex flex-wrap items-center gap-4 mt-2 text-sm sm:text-md text-white relative z-10">
+            {opportunity.tags.map((tag, index) => (
+              <div key={index} className="flex items-center gap-1.5">
+                <Tag className="h-4 w-4" />
+                <span>{tag}</span>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Search and actions */}
