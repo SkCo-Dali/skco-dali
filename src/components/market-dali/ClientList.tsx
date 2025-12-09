@@ -91,7 +91,7 @@ export const ClientList: React.FC<ClientListProps> = ({
                 backgroundImage:
                   "url('https://aistudiojarvis0534199251.blob.core.windows.net/skandia-icons/pruebabanner.jpg')",
                 backgroundSize: "cover",
-                backgroundPosition: "70% center", // importante para que la familia quede a la derecha
+                backgroundPosition: "30% center", // importante para que la familia quede a la derecha
               }
             : undefined
         }
