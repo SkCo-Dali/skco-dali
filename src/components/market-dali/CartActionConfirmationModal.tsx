@@ -247,7 +247,7 @@ export const CartActionConfirmationModal: React.FC<CartActionConfirmationModalPr
           <button
             type="button"
             onClick={onAddMore}
-            className="inline-flex items-center justify-center gap-2 rounded-full border border-input bg-background px-4 py-2 text-sm font-medium hover:bg-accent hover:text-accent-foreground transition-colors w-full sm:w-auto"
+            className="inline-flex items-center justify-center gap-2 rounded-full border border-input bg-background px-4 py-2 text-sm font-medium hover:bg-accent hover:text-accent-foreground transition-colors flex-1"
           >
             <Plus className="h-4 w-4" />
             Agregar más
@@ -255,7 +255,7 @@ export const CartActionConfirmationModal: React.FC<CartActionConfirmationModalPr
           <AlertDialogAction
             onClick={handleConfirm}
             disabled={!canConfirm}
-            className={`w-full sm:w-auto ${isLeads ? "" : isEmail ? "bg-blue-600 hover:bg-blue-700" : "bg-[#25D366] hover:bg-[#25D366]/90"} disabled:opacity-50 disabled:cursor-not-allowed`}
+            className={`flex-1 ${isLeads ? "" : isEmail ? "bg-blue-600 hover:bg-blue-700" : "bg-[#25D366] hover:bg-[#25D366]/90"} disabled:opacity-50 disabled:cursor-not-allowed`}
           >
             Continuar ({selectedCount})
           </AlertDialogAction>
