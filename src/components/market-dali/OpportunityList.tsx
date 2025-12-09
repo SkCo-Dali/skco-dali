@@ -3,7 +3,7 @@ import { MarketOpportunity, MarketFilters, CATEGORY_CONFIG } from '@/types/marke
 import { OpportunityCard } from './OpportunityCard';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Store, SearchX, Star } from 'lucide-react';
-
+import { motion, AnimatePresence } from 'framer-motion';
 interface OpportunityListProps {
   opportunities: MarketOpportunity[];
   selectedOpportunity: MarketOpportunity | null;
@@ -125,15 +125,25 @@ export const OpportunityList: React.FC<OpportunityListProps> = ({
             </span>
           </div>
           <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4">
-            {favoriteOpportunities.map(opportunity => (
-              <OpportunityCard
-                key={opportunity.id}
-                opportunity={opportunity}
-                isSelected={selectedOpportunity?.id === opportunity.id}
-                onSelect={onSelectOpportunity}
-                onToggleFavorite={onToggleFavorite}
-              />
-            ))}
+            <AnimatePresence mode="popLayout">
+              {favoriteOpportunities.map(opportunity => (
+                <motion.div
+                  key={opportunity.id}
+                  layout
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.9 }}
+                  transition={{ duration: 0.25, ease: "easeOut" }}
+                >
+                  <OpportunityCard
+                    opportunity={opportunity}
+                    isSelected={selectedOpportunity?.id === opportunity.id}
+                    onSelect={onSelectOpportunity}
+                    onToggleFavorite={onToggleFavorite}
+                  />
+                </motion.div>
+              ))}
+            </AnimatePresence>
           </div>
         </div>
       )}
@@ -153,15 +163,25 @@ export const OpportunityList: React.FC<OpportunityListProps> = ({
             </span>
           </div>
           <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4">
-            {regularOpportunities.map(opportunity => (
-              <OpportunityCard
-                key={opportunity.id}
-                opportunity={opportunity}
-                isSelected={selectedOpportunity?.id === opportunity.id}
-                onSelect={onSelectOpportunity}
-                onToggleFavorite={onToggleFavorite}
-              />
-            ))}
+            <AnimatePresence mode="popLayout">
+              {regularOpportunities.map(opportunity => (
+                <motion.div
+                  key={opportunity.id}
+                  layout
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.9 }}
+                  transition={{ duration: 0.25, ease: "easeOut" }}
+                >
+                  <OpportunityCard
+                    opportunity={opportunity}
+                    isSelected={selectedOpportunity?.id === opportunity.id}
+                    onSelect={onSelectOpportunity}
+                    onToggleFavorite={onToggleFavorite}
+                  />
+                </motion.div>
+              ))}
+            </AnimatePresence>
           </div>
         </div>
       )}
