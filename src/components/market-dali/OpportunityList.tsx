@@ -2,7 +2,7 @@ import React from 'react';
 import { MarketOpportunity, MarketFilters, CATEGORY_CONFIG } from '@/types/marketDali';
 import { OpportunityCard } from './OpportunityCard';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Store, SearchX } from 'lucide-react';
+import { Store, SearchX, Star } from 'lucide-react';
 
 interface OpportunityListProps {
   opportunities: MarketOpportunity[];
@@ -64,20 +64,24 @@ export const OpportunityList: React.FC<OpportunityListProps> = ({
     return true;
   });
 
-  // Sort: favorites first (by id), then non-favorites (by id)
-  const sortedOpportunities = [...filteredOpportunities].sort((a, b) => {
-    // First sort by favorite status (favorites first)
-    if (a.isFavorite && !b.isFavorite) return -1;
-    if (!a.isFavorite && b.isFavorite) return 1;
-    // Then sort by id
-    return a.id.localeCompare(b.id);
-  });
+  // Separate favorites and non-favorites, both sorted by id
+  const favoriteOpportunities = filteredOpportunities
+    .filter(opp => opp.isFavorite)
+    .sort((a, b) => a.id.localeCompare(b.id));
+  
+  const regularOpportunities = filteredOpportunities
+    .filter(opp => !opp.isFavorite)
+    .sort((a, b) => a.id.localeCompare(b.id));
+
+  const totalFiltered = favoriteOpportunities.length + regularOpportunities.length;
 
   console.log('🎯 OpportunityList filtered:', { 
     totalCount: opportunities.length, 
-    filteredCount: sortedOpportunities.length,
+    filteredCount: totalFiltered,
+    favoritesCount: favoriteOpportunities.length,
+    regularCount: regularOpportunities.length,
     firstOpp: opportunities[0],
-    firstFiltered: sortedOpportunities[0]
+    firstFiltered: favoriteOpportunities[0] || regularOpportunities[0]
   });
 
   if (isLoading) {
@@ -90,7 +94,7 @@ export const OpportunityList: React.FC<OpportunityListProps> = ({
     );
   }
 
-  if (sortedOpportunities.length === 0) {
+  if (totalFiltered === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-12 px-4 text-center">
         <SearchX className="h-12 w-12 text-muted-foreground mb-4" />
@@ -107,32 +111,60 @@ export const OpportunityList: React.FC<OpportunityListProps> = ({
   }
 
   return (
-    <div className="space-y-4">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <Store className="h-5 w-5 text-primary" />
-          <h2 className="text-base sm:text-lg font-semibold text-foreground">
-            Oportunidades disponibles
-          </h2>
+    <div className="space-y-6">
+      {/* Favorites Section */}
+      {favoriteOpportunities.length > 0 && (
+        <div className="space-y-4">
+          <div className="flex items-center gap-2">
+            <Star className="h-5 w-5 text-yellow-500 fill-yellow-500" />
+            <h2 className="text-base sm:text-lg font-semibold text-foreground">
+              Mis favoritos
+            </h2>
+            <span className="text-xs sm:text-sm text-muted-foreground">
+              ({favoriteOpportunities.length})
+            </span>
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4">
+            {favoriteOpportunities.map(opportunity => (
+              <OpportunityCard
+                key={opportunity.id}
+                opportunity={opportunity}
+                isSelected={selectedOpportunity?.id === opportunity.id}
+                onSelect={onSelectOpportunity}
+                onToggleFavorite={onToggleFavorite}
+              />
+            ))}
+          </div>
         </div>
-        <span className="text-xs sm:text-sm text-muted-foreground">
-          {sortedOpportunities.length} de {opportunities.length}
-        </span>
-      </div>
+      )}
 
-      {/* Grid */}
-      <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4">
-        {sortedOpportunities.map(opportunity => (
-          <OpportunityCard
-            key={opportunity.id}
-            opportunity={opportunity}
-            isSelected={selectedOpportunity?.id === opportunity.id}
-            onSelect={onSelectOpportunity}
-            onToggleFavorite={onToggleFavorite}
-          />
-        ))}
-      </div>
+      {/* Regular Opportunities Section */}
+      {regularOpportunities.length > 0 && (
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Store className="h-5 w-5 text-primary" />
+              <h2 className="text-base sm:text-lg font-semibold text-foreground">
+                {favoriteOpportunities.length > 0 ? 'Otras oportunidades' : 'Oportunidades disponibles'}
+              </h2>
+            </div>
+            <span className="text-xs sm:text-sm text-muted-foreground">
+              {regularOpportunities.length} de {opportunities.length - favoriteOpportunities.length}
+            </span>
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4">
+            {regularOpportunities.map(opportunity => (
+              <OpportunityCard
+                key={opportunity.id}
+                opportunity={opportunity}
+                isSelected={selectedOpportunity?.id === opportunity.id}
+                onSelect={onSelectOpportunity}
+                onToggleFavorite={onToggleFavorite}
+              />
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 };
