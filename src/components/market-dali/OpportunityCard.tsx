@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { MarketOpportunity, CATEGORY_CONFIG, PRIORITY_CONFIG } from "@/types/marketDali";
 import { Card, CardContent } from "@/components/ui/card";
@@ -7,6 +7,7 @@ import { Heart, Users, DollarSign } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { getCategoryBanner } from "@/config/marketDaliBanners";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { motion } from "framer-motion";
 
 interface OpportunityCardProps {
   opportunity: MarketOpportunity;
@@ -23,11 +24,13 @@ export const OpportunityCard: React.FC<OpportunityCardProps> = ({
 }) => {
   const navigate = useNavigate();
   const isMobile = useIsMobile();
+  const [isAnimating, setIsAnimating] = useState(false);
   const categoryConfig = CATEGORY_CONFIG[opportunity.type];
   const priorityConfig = PRIORITY_CONFIG[opportunity.priority];
 
   const handleFavoriteClick = (e: React.MouseEvent) => {
     e.stopPropagation();
+    setIsAnimating(true);
     onToggleFavorite(opportunity.id);
   };
 
@@ -135,14 +138,20 @@ export const OpportunityCard: React.FC<OpportunityCardProps> = ({
           onClick={handleFavoriteClick}
           className="absolute bottom-3 right-3 sm:bottom-4 sm:right-4 p-1 transition-colors"
         >
-          <Heart
-            className={cn(
-              "h-5 w-5 transition-colors",
-              opportunity.isFavorite 
-                ? "fill-primary text-primary" 
-                : "fill-transparent text-primary stroke-[1.5]",
-            )}
-          />
+          <motion.div
+            animate={isAnimating ? { scale: [1, 1.4, 0.9, 1.2, 1] } : {}}
+            transition={{ duration: 0.4, ease: "easeOut" }}
+            onAnimationComplete={() => setIsAnimating(false)}
+          >
+            <Heart
+              className={cn(
+                "h-5 w-5 transition-colors",
+                opportunity.isFavorite 
+                  ? "fill-primary text-primary" 
+                  : "fill-transparent text-primary stroke-[1.5]",
+              )}
+            />
+          </motion.div>
         </button>
       </CardContent>
     </Card>
