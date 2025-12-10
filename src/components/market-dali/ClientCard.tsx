@@ -78,9 +78,9 @@ export const ClientCard: React.FC<ClientCardProps> = ({ client, isInCart, onAddT
       <CardContent className="p-3 sm:p-4">
         {/* Avatar and name */}
         <div className="flex items-start gap-3 mb-3">
-          <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+          {/* <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
             <User className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
-          </div>
+          </div>*/}
           <div className="flex-1 min-w-0">
             <h3 className="font-semibold text-sm sm:text-base text-foreground truncate">{client.name}</h3>
             <p className="text-xs text-muted-foreground truncate">
@@ -127,7 +127,7 @@ export const ClientCard: React.FC<ClientCardProps> = ({ client, isInCart, onAddT
             <Button
               size="sm"
               variant="outline"
-              className="text-xs h-8 px-3 border-blue-500 text-blue-600 hover:bg-blue-50"
+              className="justify-end text-xs h-8 px-3 border-blue-500 text-blue-600 hover:bg-blue-50"
               onClick={handleViewLead}
             >
               <ExternalLink className="h-3 w-3 mr-1" />
