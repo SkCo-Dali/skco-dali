@@ -116,6 +116,8 @@ export default function Leads() {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [showBulkStatusUpdate, setShowBulkStatusUpdate] = useState(false);
   const [isBulkUpdating, setIsBulkUpdating] = useState(false);
+  const [isLoadingAllFiltered, setIsLoadingAllFiltered] = useState(false);
+  const [allFilteredLeads, setAllFilteredLeads] = useState<Lead[]>([]);
   const [leadsAnimation, setLeadsAnimation] = useState(null);
   const [kpiRefreshTrigger, setKpiRefreshTrigger] = useState(0);
 
@@ -146,6 +148,7 @@ export default function Leads() {
     getUniqueValues,
     refreshLeads,
     createNewLead,
+    loadAllFilteredLeads,
   } = useLeadsApi();
 
   // Obtener conteos reales de KPIs
@@ -892,32 +895,77 @@ export default function Leads() {
     console.log("✅ Dialog open command sent");
   };
 
-  const handleBulkAssign = () => {
+  const handleBulkAssign = async () => {
     if (selectedLeads.length === 0) {
-      toast({
-        title: "Información",
-        description: "Se aplicará a todos los leads filtrados",
-      });
+      // Cargar todos los leads filtrados
+      setIsLoadingAllFiltered(true);
+      try {
+        const allLeads = await loadAllFilteredLeads();
+        setAllFilteredLeads(allLeads);
+        toast({
+          title: "Información",
+          description: `Se aplicará a ${allLeads.length} leads filtrados`,
+        });
+      } catch (error) {
+        toast({
+          title: "Error",
+          description: "No se pudieron cargar los leads filtrados",
+          variant: "destructive",
+        });
+        setIsLoadingAllFiltered(false);
+        return;
+      }
+      setIsLoadingAllFiltered(false);
     }
     setShowBulkAssign(true);
   };
 
-  const handleMassEmail = () => {
+  const handleMassEmail = async () => {
     if (selectedLeads.length === 0) {
-      toast({
-        title: "Información",
-        description: "Se aplicará a todos los leads filtrados",
-      });
+      // Cargar todos los leads filtrados
+      setIsLoadingAllFiltered(true);
+      try {
+        const allLeads = await loadAllFilteredLeads();
+        setAllFilteredLeads(allLeads);
+        toast({
+          title: "Información",
+          description: `Se aplicará a ${allLeads.length} leads filtrados`,
+        });
+      } catch (error) {
+        toast({
+          title: "Error",
+          description: "No se pudieron cargar los leads filtrados",
+          variant: "destructive",
+        });
+        setIsLoadingAllFiltered(false);
+        return;
+      }
+      setIsLoadingAllFiltered(false);
     }
     setShowMassEmail(true);
   };
 
-  const handleMassWhatsApp = () => {
+  const handleMassWhatsApp = async () => {
     if (selectedLeads.length === 0) {
-      toast({
-        title: "Información",
-        description: "Se aplicará a todos los leads filtrados",
-      });
+      // Cargar todos los leads filtrados
+      setIsLoadingAllFiltered(true);
+      try {
+        const allLeads = await loadAllFilteredLeads();
+        setAllFilteredLeads(allLeads);
+        toast({
+          title: "Información",
+          description: `Se aplicará a ${allLeads.length} leads filtrados`,
+        });
+      } catch (error) {
+        toast({
+          title: "Error",
+          description: "No se pudieron cargar los leads filtrados",
+          variant: "destructive",
+        });
+        setIsLoadingAllFiltered(false);
+        return;
+      }
+      setIsLoadingAllFiltered(false);
     }
     setShowMassWhatsApp(true);
   };
@@ -932,6 +980,16 @@ export default function Leads() {
 
   return (
     <>
+      {/* Loading overlay para carga de todos los leads filtrados */}
+      {isLoadingAllFiltered && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 flex flex-col items-center gap-3">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
+            <span className="text-sm text-muted-foreground">Cargando todos los leads filtrados...</span>
+          </div>
+        </div>
+      )}
+      
       <div className="w-full max-w-full py-4 space-y-6 overflow-x-hidden">
         <div className="flex flex-col lg:flex-row gap-6 px-4 md:px-4">
           <div className="flex-1 space-y-6 min-w-0">
@@ -1385,11 +1443,12 @@ export default function Leads() {
           <Dialog open={showBulkAssign} onOpenChange={setShowBulkAssign}>
             <DialogContent className="max-w-2xl">
               <LeadsBulkAssignment
-                leads={selectedLeads.length > 0 ? getSelectedLeadsWithData() : filteredLeads}
+                leads={selectedLeads.length > 0 ? getSelectedLeadsWithData() : allFilteredLeads}
                 onLeadsAssigned={() => {
                   handleLeadUpdate();
                   setShowBulkAssign(false);
                   clearSelectedLeads();
+                  setAllFilteredLeads([]);
                 }}
               />
             </DialogContent>
@@ -1411,6 +1470,7 @@ export default function Leads() {
             setShowMassEmail(open);
             if (!open) {
               setSelectedLeadForEmail(null);
+              setAllFilteredLeads([]);
             }
           }}
         >
@@ -1421,28 +1481,35 @@ export default function Leads() {
                   ? [selectedLeadForEmail]
                   : selectedLeads.length > 0
                     ? getSelectedLeadsWithData()
-                    : filteredLeads
+                    : allFilteredLeads
               }
               onClose={() => {
                 setShowMassEmail(false);
                 setSelectedLeadForEmail(null);
                 clearSelectedLeads();
+                setAllFilteredLeads([]);
               }}
             />
           </DialogContent>
         </Dialog>
 
-        <Dialog open={showMassWhatsApp} onOpenChange={setShowMassWhatsApp}>
+        <Dialog open={showMassWhatsApp} onOpenChange={(open) => {
+          setShowMassWhatsApp(open);
+          if (!open) {
+            setAllFilteredLeads([]);
+          }
+        }}>
           <DialogContent className="max-w-6xl max-h-[90vh] overflow-auto">
             <MassWhatsAppSender
               filteredLeads={
                 selectedLeads.length > 0
                   ? getSelectedLeadsWithData()
-                  : filteredLeads
+                  : allFilteredLeads
               }
               onClose={() => {
                 setShowMassWhatsApp(false);
                 clearSelectedLeads();
+                setAllFilteredLeads([]);
               }}
             />
           </DialogContent>
