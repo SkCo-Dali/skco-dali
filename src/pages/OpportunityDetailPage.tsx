@@ -221,8 +221,10 @@ const OpportunityDetailContent: React.FC = () => {
 
   const handleSendEmailsFromProgress = useCallback(() => {
     setIsLoadLeadsModalOpen(false);
-    setActionConfirmationType("email");
-  }, []);
+    // Open email modal directly with loaded leads
+    setSelectedClientIds(loadedLeads.map(lead => lead.id));
+    setIsEmailModalOpen(true);
+  }, [loadedLeads]);
 
   const handleGoToLeads = useCallback(() => {
     setIsLoadLeadsModalOpen(false);
