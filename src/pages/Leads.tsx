@@ -215,7 +215,7 @@ export default function Leads() {
       // Avoid redundant pagination updates
       return;
     }
-    console.log(`📞 setCurrentPage called with page: ${page}, current: ${currentPage}`);
+    console.log(`📞 setCurrentPage called with page: ${page}, current: ${currentPage}, selectedLeads:`, selectedLeads);
     setPage(page);
   };
   const setLeadsPerPage = (size: number) => setPageSize(size);
@@ -703,14 +703,15 @@ export default function Leads() {
   }, []);
 
   const handleLeadSelectionChange = useCallback((leadIds: string[], isSelected: boolean) => {
+    console.log("🎯 handleLeadSelectionChange called:", { leadIds, isSelected });
     setSelectedLeads((prev) => {
       if (isSelected) {
         const newSelected = [...new Set([...prev, ...leadIds])];
-        console.log("✅ Adding leads. Previous:", prev, "New selection:", newSelected);
+        console.log("✅ Adding leads. Previous:", prev.length, "New selection:", newSelected.length);
         return newSelected;
       } else {
         const newSelected = prev.filter((id) => !leadIds.includes(id));
-        console.log("❌ Removing leads. Previous:", prev, "New selection:", newSelected);
+        console.log("❌ Removing leads. Previous:", prev.length, "New selection:", newSelected.length);
         return newSelected;
       }
     });

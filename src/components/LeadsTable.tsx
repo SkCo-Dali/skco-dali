@@ -333,6 +333,9 @@ export function LeadsTable({
   const [leadsToDelete, setLeadsToDelete] = useState<Lead[]>([]);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 
+  // Debug: Log selectedLeads changes
+  console.log("🔍 LeadsTable render - selectedLeads:", selectedLeads, "paginatedLeads count:", paginatedLeads.length);
+
   // Convert UI filters to API format for server-side filtering
   const convertFiltersToApiFormat = useMemo((): LeadsApiFilters => {
     const apiFilters: LeadsApiFilters = {};
