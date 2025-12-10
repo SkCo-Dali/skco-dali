@@ -15,6 +15,8 @@ import ReportViewer from "@/pages/ReportViewer";
 import Users from "@/pages/Users";
 import { Opportunities } from "@/pages/Opportunities";
 import { OpportunityDetails } from "@/pages/OpportunityDetails";
+import MarketDaliPage from "@/pages/MarketDaliPage";
+import OpportunityDetailPage from "@/pages/OpportunityDetailPage";
 import ChatDali from "@/pages/ChatDali";
 import Gamification from "@/pages/Gamification";
 import Index from "@/pages/Index";
@@ -36,6 +38,7 @@ import { AuthenticatedTemplate, UnauthenticatedTemplate } from "@azure/msal-reac
 import ChatSami, { ChatSamiHandle } from "@/components/ChatSami";
 import { getRolePermissions } from "@/types/crm";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useChatSamiState } from "@/contexts/ChatSamiContext";
 
 export function AppContent() {
   const { user, loading } = useAuth();
@@ -44,10 +47,10 @@ export function AppContent() {
   const location = useLocation();
   const navigate = useNavigate();
   const isMobile = useIsMobile();
+  const { isChatSamiOpen: chatSamiOpen, setIsChatSamiOpen: setChatSamiOpen } = useChatSamiState();
 
   // Check if user has ChatSami permissions
   const hasChatSamiPermissions = user ? getRolePermissions(user.role)?.chatSami : false;
-  const [chatSamiOpen, setChatSamiOpen] = useState(false);
 
   // Verificar si estamos en la página de Users
   const isUsersPage =
@@ -114,6 +117,8 @@ export function AppContent() {
                     <Route path="/users" element={<Users />} />
                     <Route path="/oportunidades" element={<Opportunities />} />
                     <Route path="/oportunidades/:id" element={<OpportunityDetails />} />
+                    <Route path="/market-dali" element={<MarketDaliPage />} />
+                    <Route path="/market-dali/:id" element={<OpportunityDetailPage />} />
                     <Route path="/admin/users" element={<Users />} />
                     <Route path="/admin/reports" element={<PowerBIReportsAdmin />} />
                     <Route path="/gamification" element={<Gamification />} />
