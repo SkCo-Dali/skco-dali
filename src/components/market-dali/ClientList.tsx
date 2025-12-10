@@ -208,12 +208,12 @@ export const ClientList: React.FC<ClientListProps> = ({
 
         {/* Stats */}
         <div className="flex flex-wrap items-center gap-4 mt-3 text-sm sm:text-md text-white relative z-10">
-          <div className="flex items-center gap-1.5">
+          <div className="flex items-center gap-1.5 px-2">
             <Users className="h-4 w-4" />
             <span>{clients.length} clientes</span>
           </div>
           {alreadyLoadedCount > 0 && (
-            <div className="flex items-center gap-1.5">
+            <div className="flex items-center gap-1.5 px-2">
               <CheckCircle2 className="h-4 w-4" />
               <span>{alreadyLoadedCount} ya cargados</span>
             </div>
