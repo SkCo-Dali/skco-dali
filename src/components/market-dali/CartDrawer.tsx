@@ -122,9 +122,6 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
               <div className="p-4 space-y-2">
                 {cart.items.map((item) => (
                   <div key={item.client.id} className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg">
-                    <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
-                      <Users className="h-4 w-4 text-primary" />
-                    </div>
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-medium text-foreground truncate">{item.client.name}</p>
                       <p className="text-xs text-muted-foreground truncate">
