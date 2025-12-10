@@ -23,27 +23,22 @@ import { ChevronRight, Home, Store } from "lucide-react";
 const Breadcrumbs: React.FC<{ opportunityTitle?: string }> = ({ opportunityTitle }) => {
   return (
     <nav className="flex items-center gap-1 text-sm text-muted-foreground mb-4">
-      <Link 
+      {/* <Link 
         to="/dashboard" 
         className="flex items-center gap-1 hover:text-foreground transition-colors"
       >
         <Home className="h-4 w-4" />
         <span className="hidden sm:inline">Inicio</span>
       </Link>
-      <ChevronRight className="h-4 w-4" />
-      <Link 
-        to="/market-dali" 
-        className="flex items-center gap-1 hover:text-foreground transition-colors"
-      >
+      <ChevronRight className="h-4 w-4" />*/}
+      <Link to="/market-dali" className="flex items-center gap-1 hover:text-foreground transition-colors">
         <Store className="h-4 w-4" />
         <span>Oportunidades</span>
       </Link>
       {opportunityTitle && (
         <>
           <ChevronRight className="h-4 w-4" />
-          <span className="text-foreground font-medium truncate max-w-[200px] sm:max-w-xs">
-            {opportunityTitle}
-          </span>
+          <span className="text-foreground font-medium truncate max-w-[200px] sm:max-w-xs">{opportunityTitle}</span>
         </>
       )}
     </nav>
@@ -205,7 +200,7 @@ const OpportunityDetailContent: React.FC = () => {
       setActionConfirmationType(null);
       setIsCartOpen(false);
     },
-    [actionConfirmationType, cart.lastCampaignName, cart.opportunityTitle, cartLeads, loadCartAsLeads]
+    [actionConfirmationType, cart.lastCampaignName, cart.opportunityTitle, cartLeads, loadCartAsLeads],
   );
 
   const handleActionCancel = useCallback(() => {
@@ -257,10 +252,7 @@ const OpportunityDetailContent: React.FC = () => {
         <div className="text-center">
           <h2 className="text-xl font-semibold text-foreground mb-2">Oportunidad no encontrada</h2>
           <p className="text-muted-foreground mb-4">La oportunidad que buscas no existe o ha sido eliminada.</p>
-          <button
-            onClick={handleBackToOpportunities}
-            className="text-primary hover:underline"
-          >
+          <button onClick={handleBackToOpportunities} className="text-primary hover:underline">
             Volver a oportunidades
           </button>
         </div>
@@ -270,15 +262,10 @@ const OpportunityDetailContent: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <div
-        className={cn(
-          "transition-all duration-300",
-          isCartCollapsed ? "lg:pr-12" : "lg:pr-[22rem]"
-        )}
-      >
+      <div className={cn("transition-all duration-300", isCartCollapsed ? "lg:pr-12" : "lg:pr-[22rem]")}>
         <div className="p-4 sm:p-6 max-w-full mx-auto">
           <Breadcrumbs opportunityTitle={selectedOpportunity?.title} />
-          
+
           <MarketDaliHeader
             onRefresh={() => {}}
             isLoading={isLoadingClients}
