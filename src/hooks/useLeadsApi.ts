@@ -151,7 +151,6 @@ export const useLeadsApi = () => {
     setPageSize: paginatedApi.setPageSize,
     getUniqueValues: paginatedApi.getUniqueValues,
     loadLeads: paginatedApi.loadLeads,
-    loadAllFilteredLeads: paginatedApi.loadAllFilteredLeads,
     loadLeadsByUser,
     createNewLead,
     updateExistingLead,
