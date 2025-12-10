@@ -91,9 +91,6 @@ export function LeadsContent({
   };
 
   if (viewMode === "table") {
-    // Debug: Log selectedLeads in LeadsContent
-    console.log("🔍 LeadsContent (table) - selectedLeads:", selectedLeads.length, "paginatedLeads:", paginatedLeads.length);
-    
     return (
       <>
         <LeadsTable
