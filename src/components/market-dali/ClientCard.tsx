@@ -137,7 +137,10 @@ export const ClientCard: React.FC<ClientCardProps> = ({ client, isInCart, onAddT
             <Button
               size="sm"
               variant={isInCart ? "outline" : "default"}
-              className={cn("text-xs h-8 px-3", isInCart && "border-primary text-primary hover:bg-primary/10")}
+              className={cn(
+                "justify-end text-xs h-8 px-3",
+                isInCart && "border-primary text-primary hover:bg-primary/10",
+              )}
               onClick={handleCartAction}
             >
               {isInCart ? (
