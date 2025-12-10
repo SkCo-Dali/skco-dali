@@ -108,11 +108,11 @@ export const OpportunityCard: React.FC<OpportunityCardProps> = ({
             {priorityConfig.label}
           </Badge>
 
-          {hasBeenUsed && (
+          {/* {hasBeenUsed && (
             <Badge variant="secondary" className="text-xs bg-blue-100 text-blue-800">
               ✓ Cargado
             </Badge>
-          )}
+          )}*/}
         </div>
 
         {/* Tags */}
