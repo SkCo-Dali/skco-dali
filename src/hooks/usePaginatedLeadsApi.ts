@@ -521,6 +521,59 @@ export const usePaginatedLeadsApi = () => {
     return convertFiltersToApiFormat(filters);
   }, [filters, convertFiltersToApiFormat]);
 
+  // Cargar TODOS los leads filtrados (sin paginación) para acciones masivas
+  const loadAllFilteredLeads = useCallback(
+    async (): Promise<Lead[]> => {
+      if (!user?.id) {
+        return [];
+      }
+
+      try {
+        const filtersForApi = convertFiltersToApiFormat(filters);
+
+        let response;
+        // Usar un page_size grande para obtener todos los leads
+        const apiParams: LeadsApiParams = {
+          page: 1,
+          page_size: 10000, // Límite alto para obtener todos
+          sort_by: mapColumnNameToApi(filters.sortBy),
+          sort_dir: filters.sortDirection,
+          filters: filtersForApi,
+          search: filters.searchTerm || undefined,
+        };
+
+        if (filters.duplicateFilter === "duplicates") {
+          response = await getDuplicateLeadsPaginated(apiParams);
+        } else if (filters.duplicateFilter === "unique") {
+          try {
+            const dupLeads = await getDuplicateLeads();
+            const dupIds = dupLeads.map((l) => l.id).filter(Boolean);
+            if (dupIds.length > 0) {
+              (filtersForApi as any)["Id"] = { op: "nin", values: dupIds } as any;
+            }
+          } catch (e) {
+            console.error("❌ Error fetching duplicate leads for unique filter:", e);
+          }
+          response = await getReassignableLeadsPaginated({ ...apiParams, filters: filtersForApi });
+        } else {
+          response = await getReassignableLeadsPaginated(apiParams);
+        }
+
+        const items = Array.isArray((response as any).items)
+          ? (response as any).items
+          : Array.isArray((response as any).data)
+            ? (response as any).data
+            : [];
+
+        return items.map(mapPaginatedLeadToLead);
+      } catch (err) {
+        console.error("❌ Error loading all filtered leads:", err);
+        return [];
+      }
+    },
+    [user?.id, filters, convertFiltersToApiFormat],
+  );
+
   return {
     ...state,
     filters,
@@ -529,6 +582,7 @@ export const usePaginatedLeadsApi = () => {
     setPage,
     setPageSize,
     loadLeads,
+    loadAllFilteredLeads,
     getUniqueValues,
     refreshLeads: () => {
       // Forzar recarga aunque los parámetros no cambien
