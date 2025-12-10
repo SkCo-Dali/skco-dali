@@ -56,7 +56,7 @@ export const ClientCard: React.FC<ClientCardProps> = ({ client, isInCart, onAddT
   return (
     <Card
       className={cn(
-        "relative transition-all duration-200 hover:shadow-md overflow-hidden",
+        "relative transition-all duration-200 rounded-xl hover:shadow-md overflow-hidden",
         isInCart && "ring-2 ring-primary border-primary bg-primary/5",
         alreadyLoaded && "opacity-75 bg-muted/30",
       )}
