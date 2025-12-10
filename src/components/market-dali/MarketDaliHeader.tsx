@@ -19,12 +19,6 @@ export const MarketDaliHeader: React.FC<MarketDaliHeaderProps> = ({
     <div className="mb-6">
       <div className="flex items-start justify-between gap-4">
         <div className="flex items-center gap-3">
-          {showBackButton && onBack && (
-            <Button variant="ghost" size="sm" onClick={onBack} className="flex-shrink-0">
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              <span className="hidden sm:inline">Ver todas</span>
-            </Button>
-          )}
           <div className="p-2.5 rounded-xl bg-primary text-primary-foreground">
             <Store className="h-6 w-6" />
           </div>
