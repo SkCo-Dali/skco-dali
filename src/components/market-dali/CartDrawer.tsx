@@ -125,7 +125,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-medium text-foreground truncate">{item.client.name}</p>
                       <p className="text-xs text-muted-foreground truncate">
-                        {item.client.segment} • {item.client.score}%
+                        {item.client.segment} {/*• {item.client.score}%*/}
                       </p>
                     </div>
                     <button
