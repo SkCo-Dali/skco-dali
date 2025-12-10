@@ -140,11 +140,15 @@ const OpportunityDetailContent: React.FC = () => {
     return cart.items.map((item) => convertClientToLead(item.client, cart.opportunityId!));
   }, [cart.items, cart.opportunityId]);
 
-  // Filter leads based on selected client IDs
+  // Filter leads based on selected client IDs or use loadedLeads if available
   const selectedLeads = useMemo((): Lead[] => {
+    // If we have loaded leads (from progress modal), use those
+    if (loadedLeads.length > 0 && isEmailModalOpen && !actionConfirmationType) {
+      return loadedLeads;
+    }
     if (selectedClientIds.length === 0) return cartLeads;
     return cartLeads.filter((lead) => selectedClientIds.includes(lead.id));
-  }, [cartLeads, selectedClientIds]);
+  }, [cartLeads, selectedClientIds, loadedLeads, isEmailModalOpen, actionConfirmationType]);
 
   // Handle back to opportunities list
   const handleBackToOpportunities = useCallback(() => {
