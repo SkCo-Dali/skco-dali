@@ -112,7 +112,7 @@ export const ClientCard: React.FC<ClientCardProps> = ({ client, isInCart, onAddT
         </div>
 
         {/* Score and action */}
-        <div className="flex items-center justify-between gap-2">
+        <div className="flex items-center gap-2">
           {/* Score badge 
           <div className={cn(
             'flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium',
@@ -127,7 +127,7 @@ export const ClientCard: React.FC<ClientCardProps> = ({ client, isInCart, onAddT
             <Button
               size="sm"
               variant="outline"
-              className="justify-end text-xs h-8 px-3 border-blue-500 text-blue-600 hover:bg-blue-50"
+              className="ml-auto text-xs h-8 px-3 border-blue-500 text-blue-600 hover:bg-blue-50"
               onClick={handleViewLead}
             >
               <ExternalLink className="h-3 w-3 mr-1" />
@@ -137,10 +137,7 @@ export const ClientCard: React.FC<ClientCardProps> = ({ client, isInCart, onAddT
             <Button
               size="sm"
               variant={isInCart ? "outline" : "default"}
-              className={cn(
-                "justify-end text-xs h-8 px-3",
-                isInCart && "border-primary text-primary hover:bg-primary/10",
-              )}
+              className={cn("ml-auto text-xs h-8 px-3", isInCart && "border-primary text-primary hover:bg-primary/10")}
               onClick={handleCartAction}
             >
               {isInCart ? (
