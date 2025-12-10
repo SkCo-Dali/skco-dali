@@ -1,11 +1,11 @@
-import React from 'react';
-import { useNavigate } from 'react-router-dom';
-import { MarketClient } from '@/types/marketDali';
-import { Card, CardContent } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { ShoppingCart, Check, User, Star, Phone, Mail, ExternalLink } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import React from "react";
+import { useNavigate } from "react-router-dom";
+import { MarketClient } from "@/types/marketDali";
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { ShoppingCart, Check, User, Star, Phone, Mail, ExternalLink } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 interface ClientCardProps {
   client: MarketClient;
@@ -16,7 +16,7 @@ interface ClientCardProps {
 
 // Check if client is already loaded as a lead (has real ID, not temp)
 const isClientAlreadyLoaded = (client: MarketClient): boolean => {
-  return client.id !== null && !client.id.startsWith('temp-');
+  return client.id !== null && !client.id.startsWith("temp-");
 };
 
 // Get the lead ID if client is already loaded
@@ -27,20 +27,15 @@ const getLeadId = (client: MarketClient): string | null => {
   return null;
 };
 
-export const ClientCard: React.FC<ClientCardProps> = ({
-  client,
-  isInCart,
-  onAddToCart,
-  onRemoveFromCart,
-}) => {
+export const ClientCard: React.FC<ClientCardProps> = ({ client, isInCart, onAddToCart, onRemoveFromCart }) => {
   const navigate = useNavigate();
   const alreadyLoaded = isClientAlreadyLoaded(client);
   const leadId = getLeadId(client);
 
   const getScoreColor = (score: number) => {
-    if (score >= 80) return 'text-green-600 bg-green-100';
-    if (score >= 50) return 'text-yellow-600 bg-yellow-100';
-    return 'text-red-600 bg-red-100';
+    if (score >= 80) return "text-green-600 bg-green-100";
+    if (score >= 50) return "text-yellow-600 bg-yellow-100";
+    return "text-red-600 bg-red-100";
   };
 
   const handleCartAction = () => {
@@ -59,11 +54,13 @@ export const ClientCard: React.FC<ClientCardProps> = ({
   };
 
   return (
-    <Card className={cn(
-      'relative transition-all duration-200 hover:shadow-md overflow-hidden',
-      isInCart && 'ring-2 ring-primary border-primary bg-primary/5',
-      alreadyLoaded && 'opacity-75 bg-muted/30'
-    )}>
+    <Card
+      className={cn(
+        "relative transition-all duration-200 hover:shadow-md overflow-hidden",
+        isInCart && "ring-2 ring-primary border-primary bg-primary/5",
+        alreadyLoaded && "opacity-75 bg-muted/30",
+      )}
+    >
       {/* In cart indicator */}
       {isInCart && !alreadyLoaded && (
         <div className="absolute top-0 right-0 w-0 h-0 border-t-[40px] border-t-primary border-l-[40px] border-l-transparent">
@@ -85,9 +82,7 @@ export const ClientCard: React.FC<ClientCardProps> = ({
             <User className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
           </div>
           <div className="flex-1 min-w-0">
-            <h3 className="font-semibold text-sm sm:text-base text-foreground truncate">
-              {client.name}
-            </h3>
+            <h3 className="font-semibold text-sm sm:text-base text-foreground truncate">{client.name}</h3>
             <p className="text-xs text-muted-foreground truncate">
               {client.documentType}: {client.documentNumber}
             </p>
@@ -98,11 +93,11 @@ export const ClientCard: React.FC<ClientCardProps> = ({
         <div className="space-y-2 mb-3">
           <div className="flex items-center gap-2 text-xs text-muted-foreground">
             <Mail className="h-3 w-3 flex-shrink-0" />
-            <span className="truncate">{client.email || 'Sin email'}</span>
+            <span className="truncate">{client.email || "Sin email"}</span>
           </div>
           <div className="flex items-center gap-2 text-xs text-muted-foreground">
             <Phone className="h-3 w-3 flex-shrink-0" />
-            <span className="truncate">{client.phone || 'Sin teléfono'}</span>
+            <span className="truncate">{client.phone || "Sin teléfono"}</span>
           </div>
         </div>
 
@@ -118,14 +113,14 @@ export const ClientCard: React.FC<ClientCardProps> = ({
 
         {/* Score and action */}
         <div className="flex items-center justify-between gap-2">
-          {/* Score badge */}
+          {/* Score badge 
           <div className={cn(
             'flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium',
             getScoreColor(client.score)
           )}>
             <Star className="h-3 w-3" />
             <span>{client.score}%</span>
-          </div>
+          </div>*/}
 
           {/* Cart button or View Lead button */}
           {alreadyLoaded ? (
@@ -141,11 +136,8 @@ export const ClientCard: React.FC<ClientCardProps> = ({
           ) : (
             <Button
               size="sm"
-              variant={isInCart ? 'outline' : 'default'}
-              className={cn(
-                'text-xs h-8 px-3',
-                isInCart && 'border-primary text-primary hover:bg-primary/10'
-              )}
+              variant={isInCart ? "outline" : "default"}
+              className={cn("text-xs h-8 px-3", isInCart && "border-primary text-primary hover:bg-primary/10")}
               onClick={handleCartAction}
             >
               {isInCart ? (
