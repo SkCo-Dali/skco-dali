@@ -46,7 +46,7 @@ export const OpportunityCard: React.FC<OpportunityCardProps> = ({
       className={cn(
         "relative cursor-pointer overflow-hidden",
         "border-2 transition-all duration-200",
-        "hover:shadow-md hover:-translate-y-0.5 hover:border-primary/40",
+        "rounded-xl hover:shadow-md hover:-translate-y-0.5 hover:border-primary/40",
         "active:scale-[0.98]",
         isSelected ? "border-primary shadow-lg ring-2 ring-primary/20" : "border-border",
         (isExpired || hasBeenUsed) && "opacity-100",
@@ -82,9 +82,7 @@ export const OpportunityCard: React.FC<OpportunityCardProps> = ({
 
       <CardContent className="p-3 sm:p-4 relative">
         {/* Title - only on mobile */}
-        {isMobile && (
-          <h3 className="font-semibold text-sm text-foreground line-clamp-2 mb-1">{opportunity.title}</h3>
-        )}
+        {isMobile && <h3 className="font-semibold text-sm text-foreground line-clamp-2 mb-1">{opportunity.title}</h3>}
 
         {/* Subtitle */}
         <p className="text-xs sm:text-sm text-muted-foreground line-clamp-2 mb-3">{opportunity.subtitle}</p>
@@ -146,9 +144,7 @@ export const OpportunityCard: React.FC<OpportunityCardProps> = ({
             <Heart
               className={cn(
                 "h-5 w-5 transition-colors",
-                opportunity.isFavorite 
-                  ? "fill-primary text-primary" 
-                  : "fill-transparent text-primary stroke-[1.5]",
+                opportunity.isFavorite ? "fill-primary text-primary" : "fill-transparent text-primary stroke-[1.5]",
               )}
             />
           </motion.div>
