@@ -73,7 +73,10 @@ export const FiltersBar: React.FC<FiltersBarProps> = ({ filters, onFiltersChange
               <SlidersHorizontal className="h-4 w-4" />
               <span className="hidden sm:inline">Filtros</span>
               {hasActiveFilters && !isExpanded && (
-                <Badge variant="secondary" className="ml-1 h-5 w-5 p-0 text-xs">
+                <Badge
+                  variant="secondary"
+                  className="ml-1 h-5 w-5 p-0 text-xs text-white flex items-center justify-center"
+                >
                   {(filters.categories.length || 0) +
                     (filters.priorities.length || 0) +
                     (filters.onlyFavorites ? 1 : 0)}
