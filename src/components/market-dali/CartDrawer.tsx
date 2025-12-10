@@ -118,7 +118,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
         ) : (
           <>
             {/* Items list */}
-            <ScrollArea className="flex-1 h-[calc(100%-280px)] lg:h-[calc(100%-320px)]">
+            <ScrollArea className="flex-1 h-[calc(100%-280px)] lg:h-[calc(100%-400px)]">
               <div className="p-4 space-y-2">
                 {cart.items.map((item) => (
                   <div key={item.client.id} className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg">
