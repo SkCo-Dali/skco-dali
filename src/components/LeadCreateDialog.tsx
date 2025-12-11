@@ -278,8 +278,12 @@ export const LeadCreateDialog = forwardRef<LeadCreateDialogRef, LeadCreateDialog
       return emailRegex.test(email);
     };
 
+    const isValidPhone = (phone: string): boolean => {
+      return phone.trim().length >= 10;
+    };
+
     const hasValidContact = (): boolean => {
-      const hasPhone = formData.phone && formData.phone.trim().length > 0;
+      const hasPhone = formData.phone && isValidPhone(formData.phone);
       const hasEmail = formData.email && isValidEmail(formData.email);
       return hasPhone || hasEmail;
     };
@@ -379,11 +383,14 @@ export const LeadCreateDialog = forwardRef<LeadCreateDialogRef, LeadCreateDialog
                       <Input
                         value={formData.phone}
                         onChange={handlePhoneChange}
-                        className="border-gray-300 text-md rounded-xl h-12 bg-gray-50"
+                        className={`border-gray-300 text-md rounded-xl h-12 bg-gray-50 ${formData.phone && !isValidPhone(formData.phone) ? "border-red-500" : ""}`}
                         placeholder="Celular*"
                       />
                       {formData.phone && (
                         <Label className="absolute -top-2 left-3 bg-gray-50 px-1 text-xs text-gray-600">Celular*</Label>
+                      )}
+                      {formData.phone && !isValidPhone(formData.phone) && (
+                        <p className="text-red-500 text-xs mt-1">El celular debe tener mínimo 10 dígitos</p>
                       )}
                     </div>
                   </div>
