@@ -14,9 +14,9 @@ interface ClientCardProps {
   onRemoveFromCart: (clientId: string) => void;
 }
 
-// Check if client is already loaded as a lead (has real ID, not temp)
+// Check if client is already loaded as a lead
 const isClientAlreadyLoaded = (client: MarketClient): boolean => {
-  return client.id !== null && !client.id.startsWith("temp-");
+  return client.alreadyLoaded === true;
 };
 
 // Get the lead ID if client is already loaded

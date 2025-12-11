@@ -122,7 +122,7 @@ export const ClientList: React.FC<ClientListProps> = ({
 
   // Check if client is already loaded as a lead
   const isClientAlreadyLoaded = (client: MarketClient): boolean => {
-    return client.id !== null && !client.id.startsWith("temp-");
+    return client.alreadyLoaded === true;
   };
 
   // Filter clients by search

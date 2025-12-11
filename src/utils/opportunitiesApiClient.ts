@@ -140,7 +140,7 @@ export const previewLeadsFromOpportunity = async (opportunityId: number): Promis
     const headers = await getAuthHeaders();
     
     const response = await fetchWithRetry(endpoint, {
-      method: 'POST',
+      method: 'GET',
       headers,
     });
 
