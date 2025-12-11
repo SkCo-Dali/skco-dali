@@ -902,7 +902,9 @@ export function LeadsBulkAssignment({ leads, onLeadsAssigned }: LeadsBulkAssignm
 
                       <div className="flex-1 min-w-0 order-1 sm:order-none w-full sm:w-auto">
                         <div className="flex items-center gap-2 flex-wrap">
-                          <p className="font-medium text-sm sm:text-base truncate max-w-[180px] sm:max-w-none">{assignment.userName}</p>
+                          <p className="font-medium text-sm truncate max-w-[180px] sm:max-w-none">
+                            {assignment.userName}
+                          </p>
                           <Badge variant={getRoleBadgeVariant(assignment.userRole)} className="text-xs shrink-0">
                             {assignment.userRole}
                           </Badge>
@@ -960,7 +962,6 @@ export function LeadsBulkAssignment({ leads, onLeadsAssigned }: LeadsBulkAssignm
                 </div>
               </div>
             </div>
-
           </div>
         </ScrollArea>
       )}
