@@ -318,44 +318,105 @@ export function useMassEmail() {
             timestamp: new Date().toISOString(),
           });
 
+          // Retry tracking for throttling
+          let retryCount = 0;
+          
           try {
-            // Send individual email
-            const response = await fetch(`${ENV.CRM_API_BASE_URL}/api/emails/send`, {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify({ recipients: [recipient] }),
-            });
+            // Send individual email with retry logic for throttling (429 errors)
+            const maxRetries = 3;
+            let success = false;
+            let lastError: string | null = null;
 
-            if (!response.ok) {
-              throw new Error(`Error en el envío: ${response.statusText}`);
+            while (retryCount <= maxRetries && !success) {
+              try {
+                const response = await fetch(`${ENV.CRM_API_BASE_URL}/api/emails/send`, {
+                  method: "POST",
+                  headers: {
+                    "Content-Type": "application/json",
+                  },
+                  body: JSON.stringify({ recipients: [recipient] }),
+                });
+
+                // Handle 429 Throttling errors with exponential backoff
+                if (response.status === 429) {
+                  const retryAfter = response.headers.get("Retry-After");
+                  const waitTime = retryAfter 
+                    ? parseInt(retryAfter) * 1000 
+                    : Math.min(1000 * Math.pow(2, retryCount), 30000); // Exponential backoff, max 30s
+                  
+                  console.log(`📧 Throttled (429). Waiting ${waitTime}ms before retry ${retryCount + 1}/${maxRetries}`);
+                  
+                  if (retryCount < maxRetries) {
+                    await new Promise((resolve) => setTimeout(resolve, waitTime));
+                    retryCount++;
+                    continue;
+                  } else {
+                    throw new Error("Límite de envíos alcanzado (429). Intente de nuevo en unos minutos.");
+                  }
+                }
+
+                if (!response.ok) {
+                  const errorBody = await response.text();
+                  throw new Error(`Error en el envío: ${response.statusText} - ${errorBody}`);
+                }
+
+                const result: EmailSendResponse = await response.json();
+                const emailResult = result.results[0];
+
+                if (emailResult.status === "Success") {
+                  sentCount++;
+                  success = true;
+                  // Create interaction
+                  await createInteractionForEmailSent(recipient.LeadId, recipient.subject);
+
+                  // Update event to success
+                  setSendEvents((prev) =>
+                    prev.map((e) =>
+                      e.id === eventId ? { ...e, status: "success" as const, timestamp: new Date().toISOString() } : e,
+                    ),
+                  );
+                } else {
+                  // Check if error is throttling related
+                  const isThrottleError = emailResult.error?.includes("429") || 
+                                          emailResult.error?.includes("Throttled") ||
+                                          emailResult.error?.includes("ApplicationThrottled");
+                  
+                  if (isThrottleError && retryCount < maxRetries) {
+                    const waitTime = Math.min(1000 * Math.pow(2, retryCount), 30000);
+                    console.log(`📧 Graph API throttled. Waiting ${waitTime}ms before retry ${retryCount + 1}/${maxRetries}`);
+                    await new Promise((resolve) => setTimeout(resolve, waitTime));
+                    retryCount++;
+                    continue;
+                  }
+                  
+                  lastError = emailResult.error || "Error desconocido";
+                  break;
+                }
+              } catch (fetchError) {
+                lastError = fetchError instanceof Error ? fetchError.message : "Error de conexión";
+                
+                // Retry on network errors
+                if (retryCount < maxRetries) {
+                  const waitTime = Math.min(1000 * Math.pow(2, retryCount), 30000);
+                  console.log(`📧 Network error. Waiting ${waitTime}ms before retry ${retryCount + 1}/${maxRetries}`);
+                  await new Promise((resolve) => setTimeout(resolve, waitTime));
+                  retryCount++;
+                  continue;
+                }
+                break;
+              }
             }
 
-            const result: EmailSendResponse = await response.json();
-            const emailResult = result.results[0];
-
-            if (emailResult.status === "Success") {
-              sentCount++;
-              // Create interaction
-              await createInteractionForEmailSent(recipient.LeadId, recipient.subject);
-
-              // Update event to success
-              setSendEvents((prev) =>
-                prev.map((e) =>
-                  e.id === eventId ? { ...e, status: "success" as const, timestamp: new Date().toISOString() } : e,
-                ),
-              );
-            } else {
+            // If not successful after retries, mark as failed
+            if (!success) {
               failedCount++;
-              // Update event to failed
               setSendEvents((prev) =>
                 prev.map((e) =>
                   e.id === eventId
                     ? {
                         ...e,
                         status: "failed" as const,
-                        error: emailResult.error || "Error desconocido",
+                        error: lastError || "Error desconocido",
                         timestamp: new Date().toISOString(),
                       }
                     : e,
@@ -394,8 +455,10 @@ export function useMassEmail() {
             eta,
           });
 
-          // Small delay between emails to avoid overwhelming the server
-          await new Promise((resolve) => setTimeout(resolve, 500));
+          // Dynamic delay: longer after retries to prevent further throttling
+          const baseDelay = 500;
+          const dynamicDelay = baseDelay + (retryCount > 0 ? 1000 : 0); // Add 1s if we had retries
+          await new Promise((resolve) => setTimeout(resolve, dynamicDelay));
         }
 
         // Mark as completed
