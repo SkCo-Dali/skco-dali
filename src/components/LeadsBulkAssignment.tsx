@@ -615,8 +615,8 @@ export function LeadsBulkAssignment({ leads, onLeadsAssigned }: LeadsBulkAssignm
           <p className="text-sm text-muted-foreground">Cargando leads ({selectedStages.join(", ")})...</p>
         </div>
       ) : (
-        <ScrollArea className="flex-1 pr-4 p-4">
-          <div className="space-y-6 pb-4">
+        <ScrollArea className="flex-1 pr-4">
+          <div className="space-y-6 p-4">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
               {/* Stage filter */}
               <div>
@@ -673,7 +673,7 @@ export function LeadsBulkAssignment({ leads, onLeadsAssigned }: LeadsBulkAssignm
                             key={stage}
                             role="option"
                             aria-selected={isSelected}
-                            className="relative flex w-full cursor-pointer select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm outline-none hover:bg-accent hover:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50"
+                            className="relative flex w-full cursor-pointer select-none items-center rounded-sm py-1.5 pl-2 pr-2 text-sm outline-none hover:bg-accent hover:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50"
                             onClick={(e) => {
                               e.preventDefault();
                               e.stopPropagation();
@@ -761,7 +761,7 @@ export function LeadsBulkAssignment({ leads, onLeadsAssigned }: LeadsBulkAssignm
                               key={role}
                               role="option"
                               aria-selected={isSelected}
-                              className="relative flex w-full cursor-pointer select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm outline-none hover:bg-accent hover:text-accent-foreground"
+                              className="relative flex w-full cursor-pointer select-none items-center rounded-sm py-1.5 pl-2 pr-2 text-sm outline-none hover:bg-accent hover:text-accent-foreground"
                               onClick={(e) => {
                                 e.preventDefault();
                                 e.stopPropagation();
