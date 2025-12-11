@@ -16,6 +16,7 @@ import { useToast } from "@/hooks/use-toast";
 import { createInteraction } from "@/utils/interactionsApiClient";
 import { ENV } from "@/config/environment";
 import { EmailSendEvent, EmailSendProgress } from "@/components/EmailSendProgressModal";
+import { compressImages, formatFileSize } from "@/utils/imageCompressor";
 
 export function useMassEmail() {
   const { user } = useAuth();
@@ -149,11 +150,21 @@ export function useMassEmail() {
         attachmentsCount: attachments?.length || 0,
       });
 
-      // Convertir archivos a base64 si hay adjuntos
+      // Compress images before converting to base64
       let emailAttachments: EmailAttachment[] = [];
       if (attachments && attachments.length > 0) {
+        console.log("📷 Compressing image attachments...");
+        const { files: compressedFiles, stats } = await compressImages(attachments);
+        
+        // Log compression results
+        const imagesCompressed = stats.filter(s => s.wasCompressed).length;
+        if (imagesCompressed > 0) {
+          const totalSaved = stats.reduce((sum, s) => sum + (s.originalSize - s.compressedSize), 0);
+          console.log(`📷 Compressed ${imagesCompressed} images, saved ${formatFileSize(totalSaved)}`);
+        }
+
         emailAttachments = await Promise.all(
-          attachments.map(async (file) => ({
+          compressedFiles.map(async (file) => ({
             filename: file.name,
             content_bytes: await convertFileToBase64(file),
             content_type: file.type || "application/octet-stream",
