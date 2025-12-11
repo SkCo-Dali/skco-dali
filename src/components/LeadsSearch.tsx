@@ -15,13 +15,13 @@ export function LeadsSearch({ searchTerm, onSearchChange }: LeadsSearchProps) {
     setLocalValue(searchTerm);
   }, [searchTerm]);
 
-  // Debounce: wait 500ms after user stops typing
+  // Debounce: wait 1000ms after user stops typing
   useEffect(() => {
     const timer = setTimeout(() => {
       if (localValue !== searchTerm) {
         onSearchChange(localValue);
       }
-    }, 500);
+    }, 1000);
 
     return () => clearTimeout(timer);
   }, [localValue, searchTerm, onSearchChange]);
