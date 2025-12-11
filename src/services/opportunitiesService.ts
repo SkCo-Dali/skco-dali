@@ -218,17 +218,17 @@ class OpportunitiesService {
     };
   }
 
-  async loadAsLeads(opportunityId: string): Promise<Lead[]> {
+  async loadAsLeads(opportunityId: string, leadsToLoad: Array<{ documentNumber: number; documentType: string }>): Promise<Lead[]> {
     const numericId = parseInt(opportunityId, 10);
     if (isNaN(numericId)) {
       throw new Error('ID de oportunidad inválido');
     }
 
     try {
-      const apiLeads = await loadLeadsFromOpportunity(numericId);
+      const apiLeads = await loadLeadsFromOpportunity(numericId, leadsToLoad);
       
       // Convert API response to Lead format
-      const leads: Lead[] = apiLeads.map(apiLead => ({
+      const resultLeads: Lead[] = apiLeads.map(apiLead => ({
         id: apiLead.id, // Using the correct Lead ID from API
         name: apiLead.name,
         firstName: extractFirstName(apiLead.name), // Extract firstName using the same logic as backend
@@ -259,7 +259,7 @@ class OpportunitiesService {
         nextFollowUp: apiLead.nextFollowUp,
       }));
 
-      return leads;
+      return resultLeads;
     } catch (error) {
       console.error('Error loading leads from opportunity:', error);
       throw error;
