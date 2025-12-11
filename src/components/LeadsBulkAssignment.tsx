@@ -604,19 +604,19 @@ export function LeadsBulkAssignment({ leads, onLeadsAssigned }: LeadsBulkAssignm
   };
 
   return (
-    <div className="flex flex-col max-h-[85vh]">
-      <DialogHeader className="shrink-0">
+    <div className="flex flex-col h-full max-h-[85vh] sm:max-h-[80vh] overflow-hidden">
+      <DialogHeader className="shrink-0 px-4 sm:px-6 pt-4 sm:pt-6 pb-2">
         <DialogTitle>Asignación Masiva de Leads</DialogTitle>
       </DialogHeader>
 
       {isLoadingLeads ? (
-        <div className="flex flex-col items-center justify-center py-12 space-y-4">
+        <div className="flex flex-col items-center justify-center py-12 space-y-4 px-4">
           <Loader2 className="h-8 w-8 animate-spin text-primary" />
           <p className="text-sm text-muted-foreground">Cargando leads ({selectedStages.join(", ")})...</p>
         </div>
       ) : (
-        <ScrollArea className="flex-1 pr-4">
-          <div className="space-y-6 p-4">
+        <ScrollArea className="flex-1 min-h-0">
+          <div className="space-y-4 sm:space-y-6 px-4 sm:px-6 pb-4">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
               {/* Stage filter */}
               <div>
@@ -878,7 +878,7 @@ export function LeadsBulkAssignment({ leads, onLeadsAssigned }: LeadsBulkAssignm
                 </div>
               </div>
 
-              <div className="space-y-3 max-h-60 overflow-y-auto">
+              <div className="space-y-2 sm:space-y-3 max-h-48 sm:max-h-60 overflow-y-auto">
                 {userAssignments.length === 0 ? (
                   <div className="text-center py-4 text-muted-foreground text-sm">
                     No hay usuarios disponibles para asignar
@@ -887,7 +887,7 @@ export function LeadsBulkAssignment({ leads, onLeadsAssigned }: LeadsBulkAssignm
                   userAssignments.map((assignment) => (
                     <div
                       key={assignment.userId}
-                      className={`flex items-center gap-3 p-2 border rounded-xl transition-opacity ${
+                      className={`flex flex-wrap sm:flex-nowrap items-center gap-2 sm:gap-3 p-2 border rounded-xl transition-opacity ${
                         !assignment.enabled ? "opacity-50" : ""
                       }`}
                     >
@@ -896,21 +896,21 @@ export function LeadsBulkAssignment({ leads, onLeadsAssigned }: LeadsBulkAssignm
                         <Switch
                           checked={assignment.enabled}
                           onCheckedChange={() => toggleUserEnabled(assignment.userId)}
-                          className="data-[state=checked]:bg-primary"
+                          className="data-[state=checked]:bg-primary shrink-0"
                         />
                       )}
 
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2">
-                          <p className="font-medium truncate">{assignment.userName}</p>
+                      <div className="flex-1 min-w-0 order-1 sm:order-none w-full sm:w-auto">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <p className="font-medium text-sm sm:text-base truncate max-w-[180px] sm:max-w-none">{assignment.userName}</p>
                           <Badge variant={getRoleBadgeVariant(assignment.userRole)} className="text-xs shrink-0">
                             {assignment.userRole}
                           </Badge>
                         </div>
                       </div>
 
-                      <div className="flex items-center gap-2">
-                        <Label className="text-sm">Cantidad:</Label>
+                      <div className="flex items-center gap-2 shrink-0 order-2 sm:order-none">
+                        <Label className="text-xs sm:text-sm whitespace-nowrap">Cantidad:</Label>
                         <Input
                           type="number"
                           min="0"
@@ -920,7 +920,7 @@ export function LeadsBulkAssignment({ leads, onLeadsAssigned }: LeadsBulkAssignm
                             const newValue = parseInt(e.target.value);
                             updateUserQuantity(assignment.userId, isNaN(newValue) ? 0 : newValue);
                           }}
-                          className="w-20"
+                          className="w-16 sm:w-20 h-8 sm:h-9"
                           disabled={assignmentType === "equitable" || !assignment.enabled}
                         />
                       </div>
@@ -930,7 +930,7 @@ export function LeadsBulkAssignment({ leads, onLeadsAssigned }: LeadsBulkAssignm
                           onClick={() => removeUserAssignment(assignment.userId)}
                           size="sm"
                           variant="outline"
-                          className="p-1"
+                          className="p-1 shrink-0"
                         >
                           <Trash2 className="h-3 w-3" />
                         </Button>
@@ -961,19 +961,20 @@ export function LeadsBulkAssignment({ leads, onLeadsAssigned }: LeadsBulkAssignm
               </div>
             </div>
 
-            {/* Action buttons */}
-            <div className="flex gap-2 pt-2">
-              <Button
-                onClick={handleAssign}
-                disabled={getTotalAssigned() === 0 || getTotalAssigned() > filteredLeads.length || isAssigning}
-                className="flex-1"
-              >
-                {isAssigning ? "Asignando..." : "Asignar Leads"}
-              </Button>
-            </div>
           </div>
         </ScrollArea>
       )}
+
+      {/* Sticky footer */}
+      <div className="shrink-0 px-4 sm:px-6 py-3 sm:py-4 border-t bg-background">
+        <Button
+          onClick={handleAssign}
+          disabled={getTotalAssigned() === 0 || getTotalAssigned() > filteredLeads.length || isAssigning}
+          className="w-full"
+        >
+          {isAssigning ? "Asignando..." : "Asignar Leads"}
+        </Button>
+      </div>
     </div>
   );
 }
