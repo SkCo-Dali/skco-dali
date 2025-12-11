@@ -2,22 +2,18 @@ import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
-import { Card } from '@/components/ui/card';
-import { Send, Eye, History, Filter, AlertTriangle, Mail, FileText, FileSignature, Plus, Share2 } from 'lucide-react';
+import { Send, Eye, History, Filter, AlertTriangle, Mail } from 'lucide-react';
 import { Lead } from '@/types/crm';
-import { EmailTemplate, DynamicField } from '@/types/email';
+import { EmailTemplate } from '@/types/email';
 import { EmailComposer } from '@/components/EmailComposer';
 import { EmailPreview } from '@/components/EmailPreview';
 import { EmailStatusLogs } from '@/components/EmailStatusLogs';
 import { EmailSendConfirmation } from '@/components/EmailSendConfirmation';
 import { EmailSendProgressModal } from '@/components/EmailSendProgressModal';
 import { GraphAuthRequiredDialog } from '@/components/GraphAuthRequiredDialog';
-import { EmailSignatureDialog } from '@/components/EmailSignatureDialog';
-import { EmailTemplatesModal } from '@/components/EmailTemplatesModal';
 import { useMassEmail } from '@/hooks/useMassEmail';
 import { useToast } from '@/hooks/use-toast';
 import { useFormPersistence } from '@/hooks/useFormPersistence';
-import { useUserProfile } from '@/hooks/useUserProfile';
 import { useGraphAuthorization } from '@/hooks/useGraphAuthorization';
 
 interface MassEmailSenderProps {
@@ -28,7 +24,6 @@ interface MassEmailSenderProps {
 
 export function MassEmailSender({ filteredLeads, onClose, opportunityId }: MassEmailSenderProps) {
   const { toast } = useToast();
-  const { profile } = useUserProfile();
   const {
     isLoading,
     emailLogs,
@@ -59,15 +54,6 @@ export function MassEmailSender({ filteredLeads, onClose, opportunityId }: MassE
   });
   
   const [attachments, setAttachments] = useState<File[]>([]);
-  
-  // Estados para herramientas del header
-  const [activePanel, setActivePanel] = useState<'fields' | 'social' | null>(null);
-  const [showSignatureDialog, setShowSignatureDialog] = useState(false);
-  const [showTemplatesModal, setShowTemplatesModal] = useState(false);
-
-  const togglePanel = (panel: 'fields' | 'social') => {
-    setActivePanel(prev => prev === panel ? null : panel);
-  };
 
   // Persistencia automática del borrador
   const { hasBackup, restoreFromStorage, clearBackup } = useFormPersistence({
@@ -236,34 +222,12 @@ export function MassEmailSender({ filteredLeads, onClose, opportunityId }: MassE
     });
   };
 
-  // Colores para campos dinámicos
-  const fieldColors: Record<string, { bg: string; text: string }> = {
-    firstName: { bg: "#dbeafe", text: "#1e40af" },
-    name: { bg: "#e5e7eb", text: "#374151" },
-    company: { bg: "#fef3c7", text: "#92400e" },
-    phone: { bg: "#e9d5ff", text: "#6b21a8" },
-  };
-
-  const getFieldColor = (fieldKey: string) => {
-    return fieldColors[fieldKey] || { bg: "#e5e7eb", text: "#374151" };
-  };
-
-  // Función para insertar firma en el contenido
-  const handleInsertSignature = (content: string) => {
-    const newContent = template.htmlContent + "<br><br>" + content;
-    setTemplate(prev => ({
-      ...prev,
-      htmlContent: newContent,
-    }));
-  };
-
   return (
     <>
       <div className="flex flex-col h-full max-h-[85vh]">
         {/* Header fijo */}
-        <div className="flex-shrink-0 pb-3 border-b space-y-3">
-          {/* Título y badges */}
-          <div className="flex items-center justify-between">
+        <div className="flex-shrink-0 pb-3 border-b">
+          <div className="flex items-center justify-between mb-3">
             <div className="space-y-1">
               <h2 className="text-lg sm:text-xl font-semibold">Envío de Correos</h2>
               <div className="flex flex-wrap items-center gap-1.5">
@@ -309,103 +273,6 @@ export function MassEmailSender({ filteredLeads, onClose, opportunityId }: MassE
               </TabsTrigger>
             </TabsList>
           </Tabs>
-
-          {/* Botones de herramientas - siempre visibles en header */}
-          {activeTab === 'compose' && (
-            <div className="space-y-2">
-              <div className="flex flex-wrap gap-1.5">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setShowTemplatesModal(true)}
-                  className="text-xs px-2"
-                >
-                  <FileText className="h-3 w-3 mr-1" />
-                  Plantillas
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setShowSignatureDialog(true)}
-                  className="text-xs px-2"
-                >
-                  <FileSignature className="h-3 w-3 mr-1" />
-                  Firmas
-                </Button>
-                <Button
-                  variant={activePanel === 'fields' ? 'default' : 'outline'}
-                  size="sm"
-                  onClick={() => togglePanel('fields')}
-                  className="text-xs px-2"
-                >
-                  <Plus className="h-3 w-3 mr-1" />
-                  Campos Dinámicos
-                </Button>
-                <Button
-                  variant={activePanel === 'social' ? 'default' : 'outline'}
-                  size="sm"
-                  onClick={() => togglePanel('social')}
-                  className="text-xs px-2"
-                >
-                  <Share2 className="h-3 w-3 mr-1" />
-                  Redes Sociales
-                </Button>
-              </div>
-
-              {/* Panel de campos dinámicos */}
-              {activePanel === 'fields' && (
-                <Card className="bg-muted/30 p-2">
-                  <div className="flex flex-wrap gap-1.5 mb-1">
-                    {dynamicFields.map((field) => {
-                      const colors = getFieldColor(field.key);
-                      return (
-                        <div
-                          key={field.key}
-                          draggable
-                          className="inline-flex items-center px-2 py-1 rounded-lg text-xs font-medium cursor-move transition-transform hover:scale-105"
-                          style={{
-                            backgroundColor: colors.bg,
-                            color: colors.text,
-                          }}
-                          title={`Arrastra al asunto o contenido. Ejemplo: ${field.example}`}
-                        >
-                          {field.label}
-                        </div>
-                      );
-                    })}
-                  </div>
-                  <p className="text-xs text-muted-foreground">
-                    Arrastra los campos al asunto o contenido del email
-                  </p>
-                </Card>
-              )}
-
-              {/* Panel de redes sociales */}
-              {activePanel === 'social' && (
-                <Card className="bg-muted/30 p-2">
-                  <div className="flex flex-wrap gap-1.5 mb-1">
-                    <div
-                      draggable
-                      className="inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-medium cursor-move transition-transform hover:scale-105 bg-[#00A859] text-white"
-                      title="Arrastra al contenido del email para insertar botón de WhatsApp"
-                    >
-                      📱 WhatsApp
-                    </div>
-                    <div
-                      draggable
-                      className="inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-medium cursor-move transition-transform hover:scale-105 bg-gradient-to-r from-purple-500 via-pink-500 to-orange-500 text-white"
-                      title="Arrastra al contenido del email para insertar botón de Instagram"
-                    >
-                      📸 Instagram
-                    </div>
-                  </div>
-                  <p className="text-xs text-muted-foreground">
-                    Arrastra al contenido del email para insertar botones clicables
-                  </p>
-                </Card>
-              )}
-            </div>
-          )}
         </div>
 
         {/* Contenido scrolleable */}
@@ -519,24 +386,6 @@ export function MassEmailSender({ filteredLeads, onClose, opportunityId }: MassE
         onCancel={cancelSend}
         onClose={handleCloseProgress}
         onDownloadReport={downloadReport}
-      />
-
-      <EmailSignatureDialog
-        isOpen={showSignatureDialog}
-        onClose={() => setShowSignatureDialog(false)}
-        onInsertSignature={handleInsertSignature}
-      />
-
-      <EmailTemplatesModal
-        open={showTemplatesModal}
-        onOpenChange={setShowTemplatesModal}
-        onSelectTemplate={(selectedTemplate) => {
-          setTemplate({
-            subject: selectedTemplate.subject,
-            htmlContent: selectedTemplate.htmlContent,
-            plainContent: selectedTemplate.plainContent,
-          });
-        }}
       />
 
       <GraphAuthRequiredDialog
