@@ -102,12 +102,11 @@ export const ClientCard: React.FC<ClientCardProps> = ({ client, isInCart, onAddT
 
         {/* Badges row */}
         <div className="flex flex-wrap gap-1.5 mb-3">
-          <Badge variant="secondary" className="text-xs">
-            {client.segment}
-          </Badge>
-          <Badge variant="outline" className="text-xs">
-            {client.currentProduct}
-          </Badge>
+          {alreadyLoaded && (
+            <Badge variant="secondary" className="text-xs bg-blue-100 text-blue-700 border-blue-200">
+              Ya cargado
+            </Badge>
+          )}
         </div>
 
         {/* Score and action */}
