@@ -30,14 +30,27 @@ interface UserAssignment {
   enabled: boolean;
 }
 
+// All available stages in the system
+const AVAILABLE_STAGES = [
+  "Nuevo",
+  "Asignado",
+  "Contactado",
+  "Localizado: Prospecto de venta FP",
+  "Localizado: Prospecto de venta AD",
+  "Localizado: Prospecto de venta - Pendiente",
+  "Contrato Creado",
+  "Localizado: No interesado",
+];
+
 export function LeadsBulkAssignment({ leads, onLeadsAssigned }: LeadsBulkAssignmentProps) {
   const [selectedCampaign, setSelectedCampaign] = useState<string>("all");
   const [assignmentType, setAssignmentType] = useState<"equitable" | "specific">("equitable");
   const [userAssignments, setUserAssignments] = useState<UserAssignment[]>([]);
   const [isAssigning, setIsAssigning] = useState(false);
-  const [allNewLeads, setAllNewLeads] = useState<Lead[]>([]);
+  const [allLeads, setAllLeads] = useState<Lead[]>([]);
   const [isLoadingLeads, setIsLoadingLeads] = useState(false);
   const [selectedRoles, setSelectedRoles] = useState<string[]>([]);
+  const [selectedStages, setSelectedStages] = useState<string[]>(["Nuevo"]);
   const { users } = useAssignableUsers();
   const { toast } = useToast();
 
@@ -126,59 +139,67 @@ export function LeadsBulkAssignment({ leads, onLeadsAssigned }: LeadsBulkAssignm
     };
   };
 
-  // Load all leads with stage="Nuevo" using paginated calls
+  // Load leads with selected stages using paginated calls
   useEffect(() => {
-    const loadAllNewLeads = async () => {
+    const loadLeadsByStages = async () => {
+      if (selectedStages.length === 0) {
+        setAllLeads([]);
+        setIsLoadingLeads(false);
+        return;
+      }
+
       if (leads.length > 0) {
         console.log(`✅ Using ${leads.length} selected leads`);
-        const newLeads = leads.filter(
-          (lead) =>
-            lead.stage?.toLowerCase() === "nuevo" ||
-            lead.stage?.toLowerCase() === "new" ||
-            lead.stage === "Nuevo" ||
-            lead.stage === "new",
+        const filteredByStage = leads.filter((lead) =>
+          selectedStages.some(
+            (stage) => lead.stage?.toLowerCase() === stage.toLowerCase() || lead.stage === stage,
+          ),
         );
-        setAllNewLeads(newLeads);
+        setAllLeads(filteredByStage);
         setIsLoadingLeads(false);
         return;
       }
 
       setIsLoadingLeads(true);
-      console.log('🔄 No selection detected. Loading all leads with stage="Nuevo"...');
+      console.log(`🔄 No selection detected. Loading leads with stages: ${selectedStages.join(", ")}...`);
 
       try {
-        const allLeads: Lead[] = [];
-        let currentPage = 1;
-        let totalPages = 1;
-        const pageSize = 100;
+        const loadedLeads: Lead[] = [];
 
-        while (currentPage <= totalPages) {
-          console.log(`📡 Fetching page ${currentPage} of ${totalPages}...`);
+        // Load leads for each selected stage
+        for (const stage of selectedStages) {
+          let currentPage = 1;
+          let totalPages = 1;
+          const pageSize = 100;
 
-          const response = await getReassignableLeadsPaginated({
-            page: currentPage,
-            page_size: pageSize,
-            filters: {
-              Stage: { op: "eq", value: "Nuevo" },
-            },
-          });
+          while (currentPage <= totalPages) {
+            console.log(`📡 Fetching ${stage} - page ${currentPage} of ${totalPages}...`);
 
-          const mappedLeads = response.items.map(mapPaginatedLeadToLead);
-          allLeads.push(...mappedLeads);
+            const response = await getReassignableLeadsPaginated({
+              page: currentPage,
+              page_size: pageSize,
+              filters: {
+                Stage: { op: "eq", value: stage },
+              },
+            });
 
-          totalPages = response.total_pages;
-          currentPage++;
+            const mappedLeads = response.items.map(mapPaginatedLeadToLead);
+            loadedLeads.push(...mappedLeads);
 
-          console.log(`✅ Loaded ${mappedLeads.length} leads from page ${currentPage - 1}`);
+            totalPages = response.total_pages;
+            currentPage++;
+
+            console.log(`✅ Loaded ${mappedLeads.length} leads from ${stage} page ${currentPage - 1}`);
+          }
         }
 
-        console.log(`✅ Total leads loaded: ${allLeads.length}`);
-        setAllNewLeads(allLeads);
+        console.log(`✅ Total leads loaded: ${loadedLeads.length}`);
+        setAllLeads(loadedLeads);
       } catch (error) {
-        console.error("❌ Error loading new leads:", error);
+        console.error("❌ Error loading leads:", error);
         toast({
           title: "Error",
-          description: "Error al cargar leads nuevos",
+          description: "Error al cargar leads",
           variant: "destructive",
         });
       } finally {
@@ -186,14 +207,25 @@ export function LeadsBulkAssignment({ leads, onLeadsAssigned }: LeadsBulkAssignm
       }
     };
 
-    loadAllNewLeads();
-  }, [leads]);
+    loadLeadsByStages();
+  }, [leads, selectedStages]);
 
   // Get unique campaigns from loaded leads
-  const uniqueCampaigns = Array.from(new Set(allNewLeads.map((lead) => lead.campaign).filter(Boolean)));
+  const uniqueCampaigns = Array.from(new Set(allLeads.map((lead) => lead.campaign).filter(Boolean)));
+
+  // Count leads per stage
+  const leadsPerStage = useMemo(() => {
+    const counts: Record<string, number> = {};
+    selectedStages.forEach((stage) => {
+      counts[stage] = allLeads.filter(
+        (lead) => lead.stage?.toLowerCase() === stage.toLowerCase() || lead.stage === stage,
+      ).length;
+    });
+    return counts;
+  }, [allLeads, selectedStages]);
 
   // Filter leads by selected campaign
-  const filteredLeads = allNewLeads.filter((lead) => {
+  const filteredLeads = allLeads.filter((lead) => {
     const matchesCampaign = selectedCampaign === "all" || lead.campaign === selectedCampaign;
     return matchesCampaign;
   });
@@ -298,6 +330,17 @@ export function LeadsBulkAssignment({ leads, onLeadsAssigned }: LeadsBulkAssignm
 
   const toggleRole = (role: string) => {
     setSelectedRoles((prev) => (prev.includes(role) ? prev.filter((r) => r !== role) : [...prev, role]));
+  };
+
+  const toggleStage = (stage: string) => {
+    setSelectedStages((prev) => {
+      if (prev.includes(stage)) {
+        // Don't allow deselecting all stages
+        if (prev.length === 1) return prev;
+        return prev.filter((s) => s !== stage);
+      }
+      return [...prev, stage];
+    });
   };
 
   const updateUserQuantity = (userId: string, quantity: number) => {
@@ -520,10 +563,33 @@ export function LeadsBulkAssignment({ leads, onLeadsAssigned }: LeadsBulkAssignm
       {isLoadingLeads ? (
         <div className="flex flex-col items-center justify-center py-12 space-y-4">
           <Loader2 className="h-8 w-8 animate-spin text-primary" />
-          <p className="text-sm text-muted-foreground">Cargando todos los leads nuevos...</p>
+          <p className="text-sm text-muted-foreground">Cargando leads ({selectedStages.join(", ")})...</p>
         </div>
       ) : (
         <div className="space-y-6">
+          {/* Stage filter */}
+          <div>
+            <Label className="mb-2 block">Filtrar por estado de lead</Label>
+            <div className="flex flex-wrap gap-2">
+              {AVAILABLE_STAGES.map((stage) => (
+                <button
+                  key={stage}
+                  onClick={() => toggleStage(stage)}
+                  className={`px-3 py-1.5 text-sm rounded-full border transition-colors ${
+                    selectedStages.includes(stage)
+                      ? "bg-primary text-primary-foreground border-primary"
+                      : "bg-background hover:bg-muted border-border"
+                  }`}
+                >
+                  {stage}
+                  {selectedStages.includes(stage) && leadsPerStage[stage] !== undefined && (
+                    <span className="ml-1.5 text-xs opacity-80">({leadsPerStage[stage]})</span>
+                  )}
+                </button>
+              ))}
+            </div>
+          </div>
+
           {/* Campaign filter */}
           <div>
             <Label>Filtrar por campaña</Label>
@@ -534,8 +600,8 @@ export function LeadsBulkAssignment({ leads, onLeadsAssigned }: LeadsBulkAssignm
               <SelectContent>
                 <SelectItem value="all">Todas las campañas</SelectItem>
                 {uniqueCampaigns.map((campaign) => (
-                  <SelectItem key={campaign} value={campaign || ""}>
-                    {campaign || "Sin campaña"}
+                  <SelectItem key={campaign as string} value={(campaign as string) || ""}>
+                    {(campaign as string) || "Sin campaña"}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -545,7 +611,12 @@ export function LeadsBulkAssignment({ leads, onLeadsAssigned }: LeadsBulkAssignm
           {/* Available leads info */}
           <div className="p-2 bg-blue-50 dark:bg-blue-950 rounded-xl">
             <p className="text-sm text-blue-800 dark:text-blue-200">
-              <strong>Leads nuevos disponibles:</strong> {filteredLeads.length}
+              <strong>Leads disponibles:</strong> {filteredLeads.length}
+              {selectedStages.length > 0 && (
+                <span className="ml-2 text-xs">
+                  ({selectedStages.map((s) => `${s}: ${leadsPerStage[s] || 0}`).join(" | ")})
+                </span>
+              )}
             </p>
             {selectedCampaign !== "all" && (
               <p className="text-sm text-blue-700 dark:text-blue-300">Campaña: {selectedCampaign}</p>
