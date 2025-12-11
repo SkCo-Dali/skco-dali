@@ -446,6 +446,36 @@ export const exportLeads = async (filters?: {
     throw error;
   }
 };
+// API: Obtener KPI counts en una sola llamada
+export const getLeadsKPICounts = async (params: {
+  filters?: Record<string, any>;
+  search?: string;
+  duplicate_filter?: "all" | "duplicates" | "unique";
+}): Promise<{ total: number; stageCounts: Record<string, number> }> => {
+  const endpoint = `${API_BASE_URL}/kpi-counts`;
+
+  try {
+    const headers = await getAuthHeaders();
+    const response = await fetch(endpoint, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify({
+        filters: params.filters || {},
+        search: params.search || "",
+        duplicate_filter: params.duplicate_filter || "all",
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error(`Error al obtener KPI counts: ${response.statusText}`);
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error('Error in getLeadsKPICounts:', error);
+    throw error;
+  }
+};
 
 // API 11: Validar duplicados (legacy - sin paginación)
 export const getDuplicateLeads = async (): Promise<Lead[]> => {
