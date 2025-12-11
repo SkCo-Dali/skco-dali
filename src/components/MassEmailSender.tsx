@@ -248,6 +248,22 @@ export function MassEmailSender({ filteredLeads, onClose, opportunityId }: MassE
     return fieldColors[fieldKey] || { bg: "#e5e7eb", text: "#374151" };
   };
 
+  // Handlers de drag para campos dinámicos
+  const handleDragStart = (field: DynamicField) => (e: React.DragEvent) => {
+    const colors = getFieldColor(field.key);
+    e.dataTransfer.effectAllowed = "copy";
+    e.dataTransfer.setData("fieldKey", field.key);
+    e.dataTransfer.setData("fieldLabel", field.label);
+    e.dataTransfer.setData("bgColor", colors.bg);
+    e.dataTransfer.setData("textColor", colors.text);
+  };
+
+  // Handlers de drag para redes sociales
+  const handleSocialNetworkDragStart = (network: string) => (e: React.DragEvent) => {
+    e.dataTransfer.effectAllowed = "copy";
+    e.dataTransfer.setData("socialNetwork", network);
+  };
+
   // Función para insertar firma en el contenido
   const handleInsertSignature = (content: string) => {
     const newContent = template.htmlContent + "<br><br>" + content;
@@ -362,6 +378,7 @@ export function MassEmailSender({ filteredLeads, onClose, opportunityId }: MassE
                         <div
                           key={field.key}
                           draggable
+                          onDragStart={handleDragStart(field)}
                           className="inline-flex items-center px-2 py-1 rounded-lg text-xs font-medium cursor-move transition-transform hover:scale-105"
                           style={{
                             backgroundColor: colors.bg,
@@ -386,6 +403,7 @@ export function MassEmailSender({ filteredLeads, onClose, opportunityId }: MassE
                   <div className="flex flex-wrap gap-1.5 mb-1">
                     <div
                       draggable
+                      onDragStart={handleSocialNetworkDragStart("whatsapp")}
                       className="inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-medium cursor-move transition-transform hover:scale-105 bg-[#00A859] text-white"
                       title="Arrastra al contenido del email para insertar botón de WhatsApp"
                     >
@@ -393,6 +411,7 @@ export function MassEmailSender({ filteredLeads, onClose, opportunityId }: MassE
                     </div>
                     <div
                       draggable
+                      onDragStart={handleSocialNetworkDragStart("instagram")}
                       className="inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-medium cursor-move transition-transform hover:scale-105 bg-gradient-to-r from-purple-500 via-pink-500 to-orange-500 text-white"
                       title="Arrastra al contenido del email para insertar botón de Instagram"
                     >
