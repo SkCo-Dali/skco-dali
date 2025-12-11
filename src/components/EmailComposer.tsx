@@ -3,14 +3,11 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Plus, FileSignature, X, FileText, Save, Share2 } from "lucide-react";
+import { X, Save } from "lucide-react";
 import { EmailTemplate, DynamicField } from "@/types/email";
 import { RichTextEditor } from "@/components/RichTextEditor";
-import { EmailWritingAssistant } from "@/components/EmailWritingAssistant";
-import { EmailSignatureDialog } from "@/components/EmailSignatureDialog";
 import { DynamicFieldInput } from "@/components/DynamicFieldInput";
 import { SaveEmailTemplateDialog } from "@/components/SaveEmailTemplateDialog";
-import { EmailTemplatesModal } from "@/components/EmailTemplatesModal";
 import { Editor } from "@tiptap/react";
 import { useToast } from "@/hooks/use-toast";
 import { useUserProfile } from "@/hooks/useUserProfile";
@@ -38,15 +35,7 @@ export function EmailComposer({
 }: EmailComposerProps) {
   const { toast } = useToast();
   const { profile } = useUserProfile();
-  // Estado para panel activo (accordion behavior - solo uno a la vez)
-  const [activePanel, setActivePanel] = useState<'fields' | 'social' | null>(null);
-  
-  const togglePanel = (panel: 'fields' | 'social') => {
-    setActivePanel(prev => prev === panel ? null : panel);
-  };
-  const [showSignatureDialog, setShowSignatureDialog] = useState(false);
   const [showSaveTemplateDialog, setShowSaveTemplateDialog] = useState(false);
-  const [showTemplatesModal, setShowTemplatesModal] = useState(false);
   const [draggedField, setDraggedField] = useState<DynamicField | null>(null);
   const [draggedSocialNetwork, setDraggedSocialNetwork] = useState<string | null>(null);
   const editorRef = useRef<Editor | null>(null);
@@ -337,106 +326,10 @@ export function EmailComposer({
   return (
     <>
       <Card>
-        <CardHeader className="py-4">
-          <CardTitle className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-            <span className="text-base sm:text-lg">Composición del Email</span>
-            <div className="flex flex-wrap gap-1.5 sm:gap-2 w-full sm:w-auto">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setShowTemplatesModal(true)}
-                className="flex-1 sm:flex-none text-xs sm:text-sm px-2 sm:px-3"
-              >
-                <FileText className="h-3 w-3 sm:h-4 sm:w-4 sm:mr-2" />
-                <span className="hidden sm:inline">Plantillas</span>
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setShowSignatureDialog(true)}
-                className="flex-1 sm:flex-none text-xs sm:text-sm px-2 sm:px-3"
-              >
-                <FileSignature className="h-3 w-3 sm:h-4 sm:w-4 sm:mr-2" />
-                <span className="hidden sm:inline">Firmas</span>
-              </Button>
-              <Button
-                variant={activePanel === 'fields' ? 'default' : 'outline'}
-                size="sm"
-                onClick={() => togglePanel('fields')}
-                className="flex-1 sm:flex-none text-xs sm:text-sm px-2 sm:px-3"
-              >
-                <Plus className="h-3 w-3 sm:h-4 sm:w-4 sm:mr-2" />
-                <span className="hidden sm:inline">Campos Dinámicos</span>
-              </Button>
-              <Button
-                variant={activePanel === 'social' ? 'default' : 'outline'}
-                size="sm"
-                onClick={() => togglePanel('social')}
-                className="flex-1 sm:flex-none text-xs sm:text-sm px-2 sm:px-3"
-              >
-                <Share2 className="h-3 w-3 sm:h-4 sm:w-4 sm:mr-2" />
-                <span className="hidden sm:inline">Redes Sociales</span>
-              </Button>
-            </div>
-          </CardTitle>
+        <CardHeader className="py-3">
+          <CardTitle className="text-base sm:text-lg">Composición del Email</CardTitle>
         </CardHeader>
         <CardContent className="space-y-3 sm:space-y-4">
-          {activePanel === 'fields' && (
-            <Card className="bg-muted/30">
-              <div className="p-2 sm:p-3 flex flex-wrap gap-1.5">
-                {dynamicFields.map((field) => {
-                  const colors = getFieldColor(field.key);
-                  return (
-                    <div
-                      key={field.key}
-                      draggable
-                      onDragStart={handleDragStart(field)}
-                      onDragEnd={handleDragEnd}
-                      className="inline-flex items-center px-2 sm:px-3 py-1 rounded-lg text-xs sm:text-sm font-medium cursor-move transition-transform hover:scale-105"
-                      style={{
-                        backgroundColor: colors.bg,
-                        color: colors.text,
-                      }}
-                      title={`Arrastra al asunto o contenido. Ejemplo: ${field.example}`}
-                    >
-                      {field.label}
-                    </div>
-                  );
-                })}
-              </div>
-              <p className="text-xs text-muted-foreground px-2 sm:px-3 pb-2">
-                Arrastra los campos al asunto o contenido del email para insertarlos
-              </p>
-            </Card>
-          )}
-
-          {activePanel === 'social' && (
-            <Card className="bg-muted/30">
-              <div className="p-2 sm:p-3 flex flex-wrap gap-1.5">
-                <div
-                  draggable
-                  onDragStart={handleSocialNetworkDragStart("whatsapp")}
-                  onDragEnd={handleSocialNetworkDragEnd}
-                  className="inline-flex items-center px-3 py-1.5 rounded-lg text-xs sm:text-sm font-medium cursor-move transition-transform hover:scale-105 bg-[#00A859] text-white"
-                  title="Arrastra al contenido del email para insertar botón de WhatsApp"
-                >
-                  📱 WhatsApp
-                </div>
-                <div
-                  draggable
-                  onDragStart={handleSocialNetworkDragStart("instagram")}
-                  onDragEnd={handleSocialNetworkDragEnd}
-                  className="inline-flex items-center px-3 py-1.5 rounded-lg text-xs sm:text-sm font-medium cursor-move transition-transform hover:scale-105 bg-gradient-to-r from-purple-500 via-pink-500 to-orange-500 text-white"
-                  title="Arrastra al contenido del email para insertar botón de Instagram"
-                >
-                  📸 Instagram
-                </div>
-              </div>
-              <p className="text-xs text-muted-foreground px-2 sm:px-3 pb-2">
-                Arrastra las redes sociales al contenido del email para insertar botones clicables
-              </p>
-            </Card>
-          )}
 
           {isIndividual && (
             <div>
@@ -533,18 +426,6 @@ export function EmailComposer({
         </CardContent>
       </Card>
 
-      {/* <EmailWritingAssistant
-        currentSubject={template.subject}
-        currentContent={template.htmlContent}
-        onInsertText={handleInsertTextFromAssistant}
-      /> */}
-
-      <EmailSignatureDialog
-        isOpen={showSignatureDialog}
-        onClose={() => setShowSignatureDialog(false)}
-        onInsertSignature={handleInsertSignature}
-      />
-
       <SaveEmailTemplateDialog
         open={showSaveTemplateDialog}
         onOpenChange={setShowSaveTemplateDialog}
@@ -555,18 +436,6 @@ export function EmailComposer({
           toast({
             title: "Plantilla guardada",
             description: "Ahora puedes acceder a ella desde el botón de Plantillas",
-          });
-        }}
-      />
-
-      <EmailTemplatesModal
-        open={showTemplatesModal}
-        onOpenChange={setShowTemplatesModal}
-        onSelectTemplate={(selectedTemplate) => {
-          onTemplateChange({
-            subject: selectedTemplate.subject,
-            htmlContent: selectedTemplate.htmlContent,
-            plainContent: selectedTemplate.plainContent,
           });
         }}
       />
