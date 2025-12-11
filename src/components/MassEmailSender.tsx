@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
@@ -54,13 +54,16 @@ export function MassEmailSender({ filteredLeads, onClose, opportunityId }: MassE
   });
   
   const [attachments, setAttachments] = useState<File[]>([]);
+  
+  // Ref para el portal del toolbar
+  const toolbarPortalRef = useRef<HTMLDivElement>(null);
 
   // Persistencia automática del borrador
   const { hasBackup, restoreFromStorage, clearBackup } = useFormPersistence({
     key: 'mass-email-draft',
     data: template,
     enabled: true,
-    autoSaveInterval: 5000, // Guardar cada 5 segundos
+    autoSaveInterval: 5000,
   });
 
   // Verificar autorización de Graph al montar el componente
@@ -77,18 +80,18 @@ export function MassEmailSender({ filteredLeads, onClose, opportunityId }: MassE
       if (opportunityId) {
         try {
           const { emailTemplatesService } = await import('@/services/emailTemplatesService');
-          const template = await emailTemplatesService.getTemplateByOpportunityId(opportunityId);
+          const loadedTemplate = await emailTemplatesService.getTemplateByOpportunityId(opportunityId);
           
-          if (template) {
+          if (loadedTemplate) {
             setTemplate({
-              subject: template.subject,
-              htmlContent: template.html_content,
-              plainContent: template.plain_text_content || ''
+              subject: loadedTemplate.subject,
+              htmlContent: loadedTemplate.html_content,
+              plainContent: loadedTemplate.plain_text_content || ''
             });
-            clearBackup(); // Limpiar cualquier borrador anterior
+            clearBackup();
             toast({
               title: "Plantilla cargada",
-              description: `Se ha cargado la plantilla "${template.template_name}"`,
+              description: `Se ha cargado la plantilla "${loadedTemplate.template_name}"`,
             });
             return;
           }
@@ -97,7 +100,6 @@ export function MassEmailSender({ filteredLeads, onClose, opportunityId }: MassE
         }
       }
       
-      // Si no hay plantilla de oportunidad, restaurar borrador
       const restored = restoreFromStorage();
       if (restored && (restored.subject || restored.htmlContent)) {
         setTemplate(restored);
@@ -137,11 +139,10 @@ export function MassEmailSender({ filteredLeads, onClose, opportunityId }: MassE
     const validLeadIds = validLeads.map(l => l.id).sort().join(',');
     const currentIds = Array.from(selectedLeadIds).sort().join(',');
     
-    // Solo actualizar si la lista de leads cambió (no solo la referencia)
     if (validLeadIds !== currentIds && validLeads.length > 0) {
       setSelectedLeadIds(new Set(validLeads.map(l => l.id)));
     }
-  }, [validLeads.map(l => l.id).join(',')]); // Depender de los IDs reales, no de la referencia
+  }, [validLeads.map(l => l.id).join(',')]);
   
   // Leads que realmente se enviarán (seleccionados y limitados a 50)
   const leadsToSend = validLeads.filter(lead => selectedLeadIds.has(lead.id)).slice(0, 50);
@@ -175,7 +176,6 @@ export function MassEmailSender({ filteredLeads, onClose, opportunityId }: MassE
       return;
     }
 
-    // Proceder con la confirmación (la autorización ya fue verificada al abrir el modal)
     setShowConfirmation(true);
   };
 
@@ -183,7 +183,6 @@ export function MassEmailSender({ filteredLeads, onClose, opportunityId }: MassE
     setShowGraphAuthDialog(false);
     await checkStatus();
     
-    // Después de autorizar, mostrar la confirmación
     if (isAuthorized) {
       setShowConfirmation(true);
     }
@@ -202,7 +201,6 @@ export function MassEmailSender({ filteredLeads, onClose, opportunityId }: MassE
   const handleCloseProgress = () => {
     setShowProgressModal(false);
     fetchEmailLogs();
-    // Close parent modal after a short delay
     setTimeout(() => {
       onClose();
     }, 500);
@@ -225,9 +223,10 @@ export function MassEmailSender({ filteredLeads, onClose, opportunityId }: MassE
   return (
     <>
       <div className="flex flex-col h-full max-h-[85vh]">
-        {/* Header fijo */}
-        <div className="flex-shrink-0 pb-3 border-b">
-          <div className="flex items-center justify-between mb-3">
+        {/* Header fijo con tabs y toolbar */}
+        <div className="flex-shrink-0 pb-3 border-b space-y-3">
+          {/* Título y badges */}
+          <div className="flex items-center justify-between">
             <div className="space-y-1">
               <h2 className="text-lg sm:text-xl font-semibold">Envío de Correos</h2>
               <div className="flex flex-wrap items-center gap-1.5">
@@ -245,7 +244,7 @@ export function MassEmailSender({ filteredLeads, onClose, opportunityId }: MassE
             </div>
           </div>
 
-          {/* Tabs siempre visibles */}
+          {/* Tabs */}
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
             <TabsList className="grid w-full grid-cols-3 bg-gray-100 rounded-full h-9">
               <TabsTrigger 
@@ -273,6 +272,11 @@ export function MassEmailSender({ filteredLeads, onClose, opportunityId }: MassE
               </TabsTrigger>
             </TabsList>
           </Tabs>
+
+          {/* Portal container para toolbar de EmailComposer - solo visible en tab compose */}
+          {activeTab === 'compose' && (
+            <div ref={toolbarPortalRef} className="mt-2" />
+          )}
         </div>
 
         {/* Contenido scrolleable */}
@@ -288,6 +292,7 @@ export function MassEmailSender({ filteredLeads, onClose, opportunityId }: MassE
                 onAttachmentsChange={setAttachments}
                 alternateEmail={alternateEmail}
                 onAlternateEmailChange={setAlternateEmail}
+                toolbarPortalRef={toolbarPortalRef}
               />
             </TabsContent>
 
@@ -392,7 +397,6 @@ export function MassEmailSender({ filteredLeads, onClose, opportunityId }: MassE
         open={showGraphAuthDialog}
         onOpenChange={(open) => {
           setShowGraphAuthDialog(open);
-          // Si el usuario cierra el dialog sin autorizar, cerrar también el componente padre
           if (!open) {
             onClose();
           }
@@ -402,4 +406,3 @@ export function MassEmailSender({ filteredLeads, onClose, opportunityId }: MassE
     </>
   );
 }
-
