@@ -117,7 +117,7 @@ export const LeadCreateDialog = forwardRef<LeadCreateDialogRef, LeadCreateDialog
 
     const getProductDisplayText = () => {
       const selectedCount = selectedProducts.length;
-      if (selectedCount === 0) return "Producto de interés*";
+      if (selectedCount === 0) return "Producto de interés";
       if (selectedCount === 1) return selectedProducts[0];
       return `${selectedCount} productos seleccionados`;
     };
@@ -316,7 +316,7 @@ export const LeadCreateDialog = forwardRef<LeadCreateDialogRef, LeadCreateDialog
                         onValueChange={(value) => setFormData({ ...formData, documentType: value })}
                       >
                         <SelectTrigger className="border-gray-300 rounded-xl h-12 bg-gray-50">
-                          <SelectValue className="!text-muted-foreground" placeholder="Tipo de identificación*" />
+                          <SelectValue className="!text-muted-foreground" placeholder="Tipo de identificación" />
                         </SelectTrigger>
                         <SelectContent>
                           <SelectItem value="C">Cédula de ciudadanía</SelectItem>
@@ -339,7 +339,7 @@ export const LeadCreateDialog = forwardRef<LeadCreateDialogRef, LeadCreateDialog
                         value={formData.documentNumber?.toString() || ""}
                         onChange={handleDocumentNumberChange}
                         className="border-gray-300 text-md rounded-xl h-12 bg-gray-50"
-                        placeholder="Número de identificación*"
+                        placeholder="Número de identificación"
                       />
                       {formData.documentNumber && (
                         <Label className="absolute -top-2 left-3 bg-gray-50 px-1 text-xs text-gray-600">
@@ -355,7 +355,7 @@ export const LeadCreateDialog = forwardRef<LeadCreateDialogRef, LeadCreateDialog
                         value={formData.name}
                         onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                         className="border-gray-300 text-md rounded-xl h-12 bg-gray-50"
-                        placeholder="Nombres y apellidos"
+                        placeholder="Nombres y apellidos*"
                         required
                       />
                       {formData.name && (
@@ -372,7 +372,7 @@ export const LeadCreateDialog = forwardRef<LeadCreateDialogRef, LeadCreateDialog
                         placeholder="Celular"
                       />
                       {formData.phone && (
-                        <Label className="absolute -top-2 left-3 bg-gray-50 px-1 text-xs text-gray-600">Celular*</Label>
+                        <Label className="absolute -top-2 left-3 bg-gray-50 px-1 text-xs text-gray-600">Celular</Label>
                       )}
                     </div>
                   </div>
@@ -384,7 +384,7 @@ export const LeadCreateDialog = forwardRef<LeadCreateDialogRef, LeadCreateDialog
                         value={formData.email}
                         onChange={handleEmailChange}
                         className={`border-gray-300 text-md rounded-xl h-12 bg-gray-50 ${formData.email && !isValidEmail(formData.email) ? "border-red-500" : ""}`}
-                        placeholder="Correo electrónico*"
+                        placeholder="Correo electrónico"
                       />
                       {formData.email && (
                         <Label className="absolute -top-2 left-3 bg-gray-50 px-1 text-xs text-gray-600">
