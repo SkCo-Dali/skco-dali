@@ -134,7 +134,30 @@ export const getAllLeads = async (filters?: {
   }
 };
 
-// API 3: Obtener Lead por Usuario
+// API 3: Obtener Lead por ID
+export const getLeadById = async (leadId: string): Promise<Lead | null> => {
+  const endpoint = `${API_BASE_URL}/${leadId}`;
+
+  try {
+    const headers = await getAuthHeaders();
+    const response = await fetchWithRetry(endpoint, { headers });
+    
+    if (!response.ok) {
+      if (response.status === 404) {
+        return null;
+      }
+      throw new Error(`Error al obtener lead: ${response.statusText}`);
+    }
+    
+    const result: ApiLead = await response.json();
+    return mapApiLeadToLead(result);
+  } catch (error) {
+    console.error('Error fetching lead by ID:', error);
+    return null;
+  }
+};
+
+// API 4: Obtener Lead por Usuario
 export const getLeadsByUser = async (userId: string): Promise<Lead[]> => {
   const endpoint = `${API_BASE_URL}/assigned-to/${userId}`;
 

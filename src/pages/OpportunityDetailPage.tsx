@@ -15,9 +15,12 @@ import { useAuth } from "@/contexts/AuthContext";
 import { MassEmailSender } from "@/components/MassEmailSender";
 import { WhatsAppPropioManager } from "@/components/whatsapp/WhatsAppPropioManager";
 import { LoadLeadsProgressModal } from "@/components/LoadLeadsProgressModal";
+import { LeadDetail } from "@/components/LeadDetail";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ChevronRight, Home, Store } from "lucide-react";
+import { getLeadById } from "@/utils/leadsApiClient";
+import { useToast } from "@/hooks/use-toast";
 
 // Breadcrumbs component
 const Breadcrumbs: React.FC<{ opportunityTitle?: string }> = ({ opportunityTitle }) => {
@@ -117,6 +120,12 @@ const OpportunityDetailContent: React.FC = () => {
   // Selected client IDs from confirmation modal
   const [selectedClientIds, setSelectedClientIds] = useState<string[]>([]);
 
+  // Lead detail modal state
+  const [selectedLeadForDetail, setSelectedLeadForDetail] = useState<Lead | null>(null);
+  const [isLoadingLeadDetail, setIsLoadingLeadDetail] = useState(false);
+
+  const { toast } = useToast();
+
   // Auto-select opportunity when opportunities load and id is available
   useEffect(() => {
     if (id && opportunities.length > 0 && !selectedOpportunity) {
@@ -160,7 +169,41 @@ const OpportunityDetailContent: React.FC = () => {
     return client.alreadyLoaded === true;
   }, []);
 
-  // Add all available clients to cart
+  // Handle view lead (open LeadDetail modal)
+  const handleViewLead = useCallback(async (leadId: string) => {
+    setIsLoadingLeadDetail(true);
+    try {
+      const lead = await getLeadById(leadId);
+      if (lead) {
+        setSelectedLeadForDetail(lead);
+      } else {
+        toast({
+          title: "Lead no encontrado",
+          description: "No se pudo cargar la información del lead.",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      console.error("Error fetching lead:", error);
+      toast({
+        title: "Error",
+        description: "Ocurrió un error al cargar el lead.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoadingLeadDetail(false);
+    }
+  }, [toast]);
+
+  const handleCloseLeadDetail = useCallback(() => {
+    setSelectedLeadForDetail(null);
+  }, []);
+
+  const handleSaveLeadDetail = useCallback(() => {
+    // Refresh clients list after saving lead
+    setSelectedLeadForDetail(null);
+  }, []);
+
   const handleAddAllToCart = useCallback(() => {
     clientsOfSelectedOpportunity.forEach((client) => {
       if (isClientAlreadyLoaded(client)) return;
@@ -290,6 +333,7 @@ const OpportunityDetailContent: React.FC = () => {
               onRemoveFromCart={removeFromCart}
               onBack={handleBackToOpportunities}
               onAddAllToCart={handleAddAllToCart}
+              onViewLead={handleViewLead}
             />
           )}
         </div>
@@ -378,6 +422,16 @@ const OpportunityDetailContent: React.FC = () => {
         onSendEmails={handleSendEmailsFromProgress}
         onGoToLeads={handleGoToLeads}
       />
+
+      {/* Lead Detail Modal */}
+      {selectedLeadForDetail && (
+        <LeadDetail
+          lead={selectedLeadForDetail}
+          isOpen={!!selectedLeadForDetail}
+          onClose={handleCloseLeadDetail}
+          onSave={handleSaveLeadDetail}
+        />
+      )}
     </div>
   );
 };
