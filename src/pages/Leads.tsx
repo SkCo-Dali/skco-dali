@@ -86,7 +86,14 @@ const DEFAULT_COLUMNS: ColumnConfig[] = [
   { key: "preferredContactChannel", label: "Medio de Contacto Preferido", visible: false, sortable: true },
 ];
 
-export default function Leads() {
+interface LeadsProps {
+  /** Callback para crear lead (usado desde LeadsTabbed para PAC/Corporate) */
+  onCreateLead?: () => void;
+  /** Tipo de lead para filtrar (futuro: filtrado por tipo) */
+  leadType?: 'generic' | 'pac' | 'corporate';
+}
+
+export default function Leads({ onCreateLead, leadType }: LeadsProps = {}) {
   const isMobile = useIsMobile();
   const isMedium = useIsMedium();
   const isSmallScreen = isMobile || isMedium;
@@ -884,11 +891,13 @@ export default function Leads() {
   };
 
   const handleCreateLead = () => {
-    console.log("🚀 === LEADS.TSX: handleCreateLead button clicked ===");
-    console.log("🔄 About to open lead creation dialog...");
-    console.log("📞 Calling leadCreateDialogRef.current?.openDialog()");
+    // Si hay un callback externo (PAC/Corporate), usarlo
+    if (onCreateLead) {
+      onCreateLead();
+      return;
+    }
+    // De lo contrario, abrir el diálogo genérico
     leadCreateDialogRef.current?.openDialog();
-    console.log("✅ Dialog open command sent");
   };
 
   const handleBulkAssign = () => {
