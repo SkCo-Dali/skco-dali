@@ -7,6 +7,13 @@
       }
     },
     {
+      "route": "/animations/*",
+      "headers": {
+        "cache-control": "max-age=31536000",
+        "Content-Type": "application/json"
+      }
+    },
+    {
       "route": "/*",
       "allowedRoles": ["anonymous"],
       "rewrite": "/index.html"
@@ -14,7 +21,7 @@
   ],
   "navigationFallback": {
     "rewrite": "/index.html",
-    "exclude": ["/static/*", "/assets/*"]
+    "exclude": ["/static/*", "/assets/*", "/animations/*"]
   },
   "responseOverrides": {
     "401": {
