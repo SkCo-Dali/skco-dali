@@ -286,17 +286,31 @@ export function LeadsBulkAssignment({ leads, onLeadsAssigned }: LeadsBulkAssignm
       userCount: usersToDistribute.length,
     });
 
-    // Randomize user order for fair distribution
+    // Randomize user order for fair distribution of remainder
     const randomizedUsers = shuffleArray(usersToDistribute);
     console.log(
-      "🎲 Randomized users order:",
+      "🎲 Randomized users order for remainder distribution:",
       randomizedUsers.map((g) => g.userName),
+    );
+
+    // Create array of indices that will receive extra lead (random selection)
+    const indicesWithExtra = new Set<number>();
+    const availableIndices = usersToDistribute.map((_, i) => i);
+    const shuffledIndices = shuffleArray(availableIndices);
+    for (let i = 0; i < remainder; i++) {
+      indicesWithExtra.add(shuffledIndices[i]);
+    }
+
+    console.log(
+      "🎲 Users receiving extra lead:",
+      Array.from(indicesWithExtra).map((i) => usersToDistribute[i].userName),
     );
 
     // Create map of new quantities for enabled users
     const newQuantities = new Map<string, number>();
-    randomizedUsers.forEach((user, index) => {
-      newQuantities.set(user.userId, baseQuantity + (index < remainder ? 1 : 0));
+    usersToDistribute.forEach((user, index) => {
+      const extraLead = indicesWithExtra.has(index) ? 1 : 0;
+      newQuantities.set(user.userId, baseQuantity + extraLead);
     });
 
     // Update assignments keeping enabled state
@@ -306,7 +320,12 @@ export function LeadsBulkAssignment({ leads, onLeadsAssigned }: LeadsBulkAssignm
         quantity: assignment.enabled ? (newQuantities.get(assignment.userId) || 0) : 0,
       })),
     );
-  }, [enabledUsers, filteredLeads.length]);
+
+    toast({
+      title: "Distribución aleatoria completada",
+      description: `${totalLeads} leads distribuidos entre ${usersToDistribute.length} usuarios de forma equitativa y aleatoria`,
+    });
+  }, [enabledUsers, filteredLeads.length, toast]);
 
   const toggleUserEnabled = (userId: string) => {
     setUserAssignments((prev) =>
@@ -422,18 +441,26 @@ export function LeadsBulkAssignment({ leads, onLeadsAssigned }: LeadsBulkAssignm
     setIsAssigning(true);
 
     try {
-      // Randomize leads before distribution
+      // Randomize leads before distribution for fair assignment
       const randomizedLeads = shuffleArray(filteredLeads);
       console.log("🎲 Leads randomized for fair distribution");
+
+      // Randomize assignment order so no user consistently gets assigned first
+      const randomizedAssignments = shuffleArray(validAssignments);
+      console.log(
+        "🎲 User assignment order randomized:",
+        randomizedAssignments.map((a) => a.userName),
+      );
 
       let leadIndex = 0;
       let totalSuccess = 0;
       let totalSkipped = 0;
       let totalFailed = 0;
       const successfulLeadIds: string[] = [];
+      const assignmentResults: { name: string; role: string; assigned: number }[] = [];
 
       // Execute sequentially to avoid database deadlocks
-      for (const assignment of validAssignments) {
+      for (const assignment of randomizedAssignments) {
         const leadsToAssign = randomizedLeads.slice(leadIndex, leadIndex + assignment.quantity);
         const leadIds = leadsToAssign.map((lead) => lead.id);
 
@@ -453,6 +480,12 @@ export function LeadsBulkAssignment({ leads, onLeadsAssigned }: LeadsBulkAssignm
             totalSkipped += response.summary.skipped;
             totalFailed += response.summary.failed;
 
+            assignmentResults.push({
+              name: assignment.userName,
+              role: assignment.userRole,
+              assigned: response.summary.success,
+            });
+
             if (response.failedLeads && response.failedLeads.length > 0) {
               console.error(`❌ Failed leads for ${assignment.userName}:`, response.failedLeads);
             }
@@ -463,11 +496,19 @@ export function LeadsBulkAssignment({ leads, onLeadsAssigned }: LeadsBulkAssignm
           } catch (assignError) {
             console.error(`❌ Error assigning leads to ${assignment.userName}:`, assignError);
             totalFailed += leadIds.length;
+            assignmentResults.push({
+              name: assignment.userName,
+              role: assignment.userRole,
+              assigned: 0,
+            });
           }
         }
 
         leadIndex += assignment.quantity;
       }
+
+      // Log summary of assignment distribution
+      console.log("📊 Assignment distribution summary:", assignmentResults);
 
       // Change stage of successfully assigned leads to "Asignado"
       if (successfulLeadIds.length > 0) {
@@ -485,16 +526,22 @@ export function LeadsBulkAssignment({ leads, onLeadsAssigned }: LeadsBulkAssignm
         }
       }
 
+      // Build detailed success message with distribution summary
+      const distributionSummary = assignmentResults
+        .filter((r) => r.assigned > 0)
+        .map((r) => `${r.name}: ${r.assigned}`)
+        .join(" | ");
+
       // Show consolidated result
       if (totalFailed === 0 && totalSkipped === 0) {
         toast({
-          title: "Éxito",
-          description: `${totalSuccess} leads asignados exitosamente y su estado actualizado a "Asignado"`,
+          title: "Éxito - Asignación aleatoria completada",
+          description: `${totalSuccess} leads asignados. Distribución: ${distributionSummary}`,
         });
       } else if (totalSuccess > 0) {
         toast({
           title: "Asignación completada",
-          description: `Exitosos: ${totalSuccess} | Omitidos: ${totalSkipped} | Fallidos: ${totalFailed}`,
+          description: `Exitosos: ${totalSuccess} | Omitidos: ${totalSkipped} | Fallidos: ${totalFailed}. Distribución: ${distributionSummary}`,
         });
       } else {
         toast({
