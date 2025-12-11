@@ -1382,7 +1382,7 @@ export default function Leads() {
 
         {showBulkAssign && userPermissions?.canBulkAssignLeads && (
           <Dialog open={showBulkAssign} onOpenChange={setShowBulkAssign}>
-            <DialogContent className="max-w-2xl">
+            <DialogContent className="max-w-3xl">
               <LeadsBulkAssignment
                 leads={selectedLeads.length > 0 ? getSelectedLeadsWithData() : filteredLeads}
                 onLeadsAssigned={() => {
