@@ -36,6 +36,8 @@ export interface MarketClient {
   documentType: string;
   additionalInfo: Record<string, any>;
   opportunityId: string;
+  alreadyLoaded: boolean;
+  lastCampaignName: string | null;
 }
 
 export interface CartItem {

@@ -84,6 +84,8 @@ const transformClient = (lead: PreviewLeadFromOpportunity): MarketClient => ({
   documentType: lead.DocumentType,
   additionalInfo: lead.AdditionalInfo || {},
   opportunityId: lead.OpportunityId.toString(),
+  alreadyLoaded: lead.AlreadyLoaded,
+  lastCampaignName: lead.LastCampaignName,
 });
 
 const getIconForCategory = (category: OpportunityCategory): string => {
