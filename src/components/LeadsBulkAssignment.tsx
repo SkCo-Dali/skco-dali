@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Plus, Trash2, Loader2, Users, Check, X, ChevronDown } from "lucide-react";
@@ -603,8 +604,8 @@ export function LeadsBulkAssignment({ leads, onLeadsAssigned }: LeadsBulkAssignm
   };
 
   return (
-    <>
-      <DialogHeader>
+    <div className="flex flex-col max-h-[85vh]">
+      <DialogHeader className="shrink-0">
         <DialogTitle>Asignación Masiva de Leads</DialogTitle>
       </DialogHeader>
 
@@ -614,7 +615,8 @@ export function LeadsBulkAssignment({ leads, onLeadsAssigned }: LeadsBulkAssignm
           <p className="text-sm text-muted-foreground">Cargando leads ({selectedStages.join(", ")})...</p>
         </div>
       ) : (
-        <div className="space-y-6">
+        <ScrollArea className="flex-1 pr-4">
+          <div className="space-y-6 pb-4">
           {/* Stage filter */}
           <div>
             <Label className="mb-2 block">Filtrar por estado de lead</Label>
@@ -955,8 +957,9 @@ export function LeadsBulkAssignment({ leads, onLeadsAssigned }: LeadsBulkAssignm
               {isAssigning ? "Asignando..." : "Asignar Leads"}
             </Button>
           </div>
-        </div>
+          </div>
+        </ScrollArea>
       )}
-    </>
+    </div>
   );
 }
