@@ -967,33 +967,33 @@ export function LeadsBulkAssignment({ leads, onLeadsAssigned }: LeadsBulkAssignm
                   ))
                 )}
               </div>
-
-              {/* Summary */}
-              <div className="p-3 bg-muted rounded-xl">
-                <div className="flex justify-between text-sm">
-                  <span>Total a asignar:</span>
-                  <span className="font-medium">{getTotalAssigned()}</span>
-                </div>
-                <div className="flex justify-between text-sm">
-                  <span>Leads disponibles:</span>
-                  <span className="font-medium">{filteredLeads.length}</span>
-                </div>
-                <div className="flex justify-between text-sm">
-                  <span>Restantes:</span>
-                  <span
-                    className={`font-medium ${filteredLeads.length - getTotalAssigned() < 0 ? "text-destructive" : "text-green-600"}`}
-                  >
-                    {filteredLeads.length - getTotalAssigned()}
-                  </span>
-                </div>
-              </div>
             </div>
           </div>
         </ScrollArea>
       )}
 
-      {/* Sticky footer */}
-      <div className="shrink-0 px-4 sm:px-6 py-3 sm:py-4 border-t bg-background">
+      {/* Sticky footer with summary */}
+      <div className="shrink-0 px-4 sm:px-6 py-3 sm:py-4 border-t bg-background space-y-3">
+        {/* Summary */}
+        <div className="p-3 bg-muted rounded-xl">
+          <div className="flex justify-between text-sm">
+            <span>Total a asignar:</span>
+            <span className="font-medium">{getTotalAssigned()}</span>
+          </div>
+          <div className="flex justify-between text-sm">
+            <span>Leads disponibles:</span>
+            <span className="font-medium">{filteredLeads.length}</span>
+          </div>
+          <div className="flex justify-between text-sm">
+            <span>Restantes:</span>
+            <span
+              className={`font-medium ${filteredLeads.length - getTotalAssigned() < 0 ? "text-destructive" : "text-green-600"}`}
+            >
+              {filteredLeads.length - getTotalAssigned()}
+            </span>
+          </div>
+        </div>
+        
         <Button
           onClick={handleAssign}
           disabled={getTotalAssigned() === 0 || getTotalAssigned() > filteredLeads.length || isAssigning}
