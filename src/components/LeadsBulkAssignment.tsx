@@ -10,7 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Plus, Trash2, Loader2, Users, Check, X, ChevronDown } from "lucide-react";
+import { Plus, Trash2, Loader2, Users, Check, X, ChevronDown, Search } from "lucide-react";
 import { Lead, LeadStatus } from "@/types/crm";
 import { useAssignableUsers } from "@/contexts/AssignableUsersContext";
 import { useToast } from "@/hooks/use-toast";
@@ -53,6 +53,7 @@ export function LeadsBulkAssignment({ leads, onLeadsAssigned }: LeadsBulkAssignm
   const [isLoadingLeads, setIsLoadingLeads] = useState(false);
   const [selectedRoles, setSelectedRoles] = useState<string[]>([]);
   const [selectedStages, setSelectedStages] = useState<string[]>(["Nuevo"]);
+  const [userSearchTerm, setUserSearchTerm] = useState<string>("");
   const { users } = useAssignableUsers();
   const { toast } = useToast();
 
@@ -64,11 +65,21 @@ export function LeadsBulkAssignment({ leads, onLeadsAssigned }: LeadsBulkAssignm
 
   // Filter users by selected roles (if any selected)
   const filteredUsers = useMemo(() => {
-    if (selectedRoles.length === 0) {
-      return users;
+    let result = users;
+    if (selectedRoles.length > 0) {
+      result = result.filter((user) => selectedRoles.includes(user.Role));
     }
-    return users.filter((user) => selectedRoles.includes(user.Role));
+    return result;
   }, [users, selectedRoles]);
+
+  // Filter displayed user assignments by search term
+  const filteredUserAssignments = useMemo(() => {
+    if (!userSearchTerm.trim()) {
+      return userAssignments;
+    }
+    const searchLower = userSearchTerm.toLowerCase().trim();
+    return userAssignments.filter((assignment) => assignment.userName.toLowerCase().includes(searchLower));
+  }, [userAssignments, userSearchTerm]);
 
   // Get enabled users for equitable distribution
   const enabledUsers = useMemo(() => {
@@ -604,19 +615,19 @@ export function LeadsBulkAssignment({ leads, onLeadsAssigned }: LeadsBulkAssignm
   };
 
   return (
-    <div className="flex flex-col max-h-[85vh]">
-      <DialogHeader className="shrink-0">
+    <div className="flex flex-col h-full overflow-hidden">
+      <DialogHeader className="shrink-0 px-4 sm:px-6 pt-4 sm:pt-6 pb-2">
         <DialogTitle>Asignación Masiva de Leads</DialogTitle>
       </DialogHeader>
 
       {isLoadingLeads ? (
-        <div className="flex flex-col items-center justify-center py-12 space-y-4">
+        <div className="flex flex-col items-center justify-center py-12 space-y-4 px-4">
           <Loader2 className="h-8 w-8 animate-spin text-primary" />
           <p className="text-sm text-muted-foreground">Cargando leads ({selectedStages.join(", ")})...</p>
         </div>
       ) : (
-        <ScrollArea className="flex-1 pr-4">
-          <div className="space-y-6 p-4">
+        <ScrollArea className="flex-1 min-h-0">
+          <div className="space-y-4 sm:space-y-6 px-4 sm:px-6 pb-4">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
               {/* Stage filter */}
               <div>
@@ -833,61 +844,76 @@ export function LeadsBulkAssignment({ leads, onLeadsAssigned }: LeadsBulkAssignm
 
             {/* Assignments list */}
             <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <Label>Asignaciones por usuario</Label>
-                  <Badge variant="outline" className="text-xs">
-                    {enabledUsers.length} de {userAssignments.length} activos
-                  </Badge>
+              <div className="flex flex-col gap-2">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Label>Asignaciones por usuario</Label>
+                    <Badge variant="outline" className="text-xs">
+                      {enabledUsers.length} de {userAssignments.length} activos
+                    </Badge>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    {assignmentType === "equitable" && userAssignments.length > 0 && (
+                      <>
+                        <Button
+                          onClick={() => toggleAllUsers(true)}
+                          size="sm"
+                          variant="ghost"
+                          className="h-7 px-2 text-xs"
+                        >
+                          <Check className="h-3 w-3 mr-1" />
+                          Todos
+                        </Button>
+                        <Button
+                          onClick={() => toggleAllUsers(false)}
+                          size="sm"
+                          variant="ghost"
+                          className="h-7 px-2 text-xs"
+                        >
+                          <X className="h-3 w-3 mr-1" />
+                          Ninguno
+                        </Button>
+                      </>
+                    )}
+                    {assignmentType === "specific" && (
+                      <Button
+                        onClick={addUserAssignment}
+                        size="sm"
+                        variant="outline"
+                        className="gap-1"
+                        disabled={userAssignments.length >= filteredUsers.length}
+                      >
+                        <Plus className="h-3 w-3" />
+                        Agregar
+                      </Button>
+                    )}
+                  </div>
                 </div>
-                <div className="flex items-center gap-2">
-                  {assignmentType === "equitable" && userAssignments.length > 0 && (
-                    <>
-                      <Button
-                        onClick={() => toggleAllUsers(true)}
-                        size="sm"
-                        variant="ghost"
-                        className="h-7 px-2 text-xs"
-                      >
-                        <Check className="h-3 w-3 mr-1" />
-                        Todos
-                      </Button>
-                      <Button
-                        onClick={() => toggleAllUsers(false)}
-                        size="sm"
-                        variant="ghost"
-                        className="h-7 px-2 text-xs"
-                      >
-                        <X className="h-3 w-3 mr-1" />
-                        Ninguno
-                      </Button>
-                    </>
-                  )}
-                  {assignmentType === "specific" && (
-                    <Button
-                      onClick={addUserAssignment}
-                      size="sm"
-                      variant="outline"
-                      className="gap-1"
-                      disabled={userAssignments.length >= filteredUsers.length}
-                    >
-                      <Plus className="h-3 w-3" />
-                      Agregar
-                    </Button>
-                  )}
+
+                {/* User search filter */}
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    placeholder="Buscar usuario por nombre..."
+                    value={userSearchTerm}
+                    onChange={(e) => setUserSearchTerm(e.target.value)}
+                    className="pl-9 h-9"
+                  />
                 </div>
               </div>
 
-              <div className="space-y-3 max-h-60 overflow-y-auto">
-                {userAssignments.length === 0 ? (
+              <div className="space-y-2 sm:space-y-3 max-h-48 sm:max-h-60 overflow-y-auto">
+                {filteredUserAssignments.length === 0 ? (
                   <div className="text-center py-4 text-muted-foreground text-sm">
-                    No hay usuarios disponibles para asignar
+                    {userSearchTerm.trim()
+                      ? "No se encontraron usuarios con ese nombre"
+                      : "No hay usuarios disponibles para asignar"}
                   </div>
                 ) : (
-                  userAssignments.map((assignment) => (
+                  filteredUserAssignments.map((assignment) => (
                     <div
                       key={assignment.userId}
-                      className={`flex items-center gap-3 p-2 border rounded-xl transition-opacity ${
+                      className={`flex flex-wrap sm:flex-nowrap items-center gap-2 sm:gap-3 p-2 border rounded-xl transition-opacity ${
                         !assignment.enabled ? "opacity-50" : ""
                       }`}
                     >
@@ -896,21 +922,23 @@ export function LeadsBulkAssignment({ leads, onLeadsAssigned }: LeadsBulkAssignm
                         <Switch
                           checked={assignment.enabled}
                           onCheckedChange={() => toggleUserEnabled(assignment.userId)}
-                          className="data-[state=checked]:bg-primary"
+                          className="data-[state=checked]:bg-primary shrink-0"
                         />
                       )}
 
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2">
-                          <p className="font-medium truncate">{assignment.userName}</p>
+                      <div className="flex-1 min-w-0 order-1 sm:order-none w-full sm:w-auto">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <p className="font-medium text-sm truncate max-w-[180px] sm:max-w-none">
+                            {assignment.userName}
+                          </p>
                           <Badge variant={getRoleBadgeVariant(assignment.userRole)} className="text-xs shrink-0">
                             {assignment.userRole}
                           </Badge>
                         </div>
                       </div>
 
-                      <div className="flex items-center gap-2">
-                        <Label className="text-sm">Cantidad:</Label>
+                      <div className="flex items-center gap-2 shrink-0 order-2 sm:order-none">
+                        <Label className="text-xs sm:text-sm whitespace-nowrap">Cantidad:</Label>
                         <Input
                           type="number"
                           min="0"
@@ -920,7 +948,7 @@ export function LeadsBulkAssignment({ leads, onLeadsAssigned }: LeadsBulkAssignm
                             const newValue = parseInt(e.target.value);
                             updateUserQuantity(assignment.userId, isNaN(newValue) ? 0 : newValue);
                           }}
-                          className="w-20"
+                          className="w-16 sm:w-20 h-8 sm:h-9"
                           disabled={assignmentType === "equitable" || !assignment.enabled}
                         />
                       </div>
@@ -930,7 +958,7 @@ export function LeadsBulkAssignment({ leads, onLeadsAssigned }: LeadsBulkAssignm
                           onClick={() => removeUserAssignment(assignment.userId)}
                           size="sm"
                           variant="outline"
-                          className="p-1"
+                          className="p-1 shrink-0"
                         >
                           <Trash2 className="h-3 w-3" />
                         </Button>
@@ -939,41 +967,41 @@ export function LeadsBulkAssignment({ leads, onLeadsAssigned }: LeadsBulkAssignm
                   ))
                 )}
               </div>
-
-              {/* Summary */}
-              <div className="p-3 bg-muted rounded-xl">
-                <div className="flex justify-between text-sm">
-                  <span>Total a asignar:</span>
-                  <span className="font-medium">{getTotalAssigned()}</span>
-                </div>
-                <div className="flex justify-between text-sm">
-                  <span>Leads disponibles:</span>
-                  <span className="font-medium">{filteredLeads.length}</span>
-                </div>
-                <div className="flex justify-between text-sm">
-                  <span>Restantes:</span>
-                  <span
-                    className={`font-medium ${filteredLeads.length - getTotalAssigned() < 0 ? "text-destructive" : "text-green-600"}`}
-                  >
-                    {filteredLeads.length - getTotalAssigned()}
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            {/* Action buttons */}
-            <div className="flex gap-2 pt-2">
-              <Button
-                onClick={handleAssign}
-                disabled={getTotalAssigned() === 0 || getTotalAssigned() > filteredLeads.length || isAssigning}
-                className="flex-1"
-              >
-                {isAssigning ? "Asignando..." : "Asignar Leads"}
-              </Button>
             </div>
           </div>
         </ScrollArea>
       )}
+
+      {/* Sticky footer with summary */}
+      <div className="shrink-0 px-4 sm:px-6 py-3 sm:py-4 border-t bg-background space-y-3">
+        {/* Summary */}
+        <div className="p-3 bg-muted rounded-xl">
+          <div className="flex justify-between text-sm">
+            <span>Total a asignar:</span>
+            <span className="font-medium">{getTotalAssigned()}</span>
+          </div>
+          <div className="flex justify-between text-sm">
+            <span>Leads disponibles:</span>
+            <span className="font-medium">{filteredLeads.length}</span>
+          </div>
+          <div className="flex justify-between text-sm">
+            <span>Restantes:</span>
+            <span
+              className={`font-medium ${filteredLeads.length - getTotalAssigned() < 0 ? "text-destructive" : "text-green-600"}`}
+            >
+              {filteredLeads.length - getTotalAssigned()}
+            </span>
+          </div>
+        </div>
+
+        <Button
+          onClick={handleAssign}
+          disabled={getTotalAssigned() === 0 || getTotalAssigned() > filteredLeads.length || isAssigning}
+          className="w-full"
+        >
+          {isAssigning ? "Asignando..." : "Asignar Leads"}
+        </Button>
+      </div>
     </div>
   );
 }

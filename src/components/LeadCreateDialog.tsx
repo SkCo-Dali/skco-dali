@@ -117,7 +117,7 @@ export const LeadCreateDialog = forwardRef<LeadCreateDialogRef, LeadCreateDialog
 
     const getProductDisplayText = () => {
       const selectedCount = selectedProducts.length;
-      if (selectedCount === 0) return "Producto de interés*";
+      if (selectedCount === 0) return "Producto de interés";
       if (selectedCount === 1) return selectedProducts[0];
       return `${selectedCount} productos seleccionados`;
     };
@@ -278,6 +278,21 @@ export const LeadCreateDialog = forwardRef<LeadCreateDialogRef, LeadCreateDialog
       return emailRegex.test(email);
     };
 
+    const isValidPhone = (phone: string): boolean => {
+      return phone.trim().length >= 10;
+    };
+
+    const hasValidContact = (): boolean => {
+      const hasPhone = formData.phone && isValidPhone(formData.phone);
+      const hasEmail = formData.email && isValidEmail(formData.email);
+      return hasPhone || hasEmail;
+    };
+
+    const isFormValid = (): boolean => {
+      const hasName = formData.name && formData.name.trim().length > 0;
+      return hasName && hasValidContact();
+    };
+
     return (
       <>
         <Dialog open={open} onOpenChange={setOpen}>
@@ -316,7 +331,7 @@ export const LeadCreateDialog = forwardRef<LeadCreateDialogRef, LeadCreateDialog
                         onValueChange={(value) => setFormData({ ...formData, documentType: value })}
                       >
                         <SelectTrigger className="border-gray-300 rounded-xl h-12 bg-gray-50">
-                          <SelectValue className="!text-muted-foreground" placeholder="Tipo de identificación*" />
+                          <SelectValue className="!text-muted-foreground" placeholder="Tipo de identificación" />
                         </SelectTrigger>
                         <SelectContent>
                           <SelectItem value="C">Cédula de ciudadanía</SelectItem>
@@ -328,7 +343,7 @@ export const LeadCreateDialog = forwardRef<LeadCreateDialogRef, LeadCreateDialog
                       </Select>
                       {formData.documentType && (
                         <Label className="absolute -top-2 left-3 bg-gray-50 px-1 text-xs text-gray-600">
-                          Tipo de identificación*
+                          Tipo de identificación
                         </Label>
                       )}
                     </div>
@@ -339,12 +354,11 @@ export const LeadCreateDialog = forwardRef<LeadCreateDialogRef, LeadCreateDialog
                         value={formData.documentNumber?.toString() || ""}
                         onChange={handleDocumentNumberChange}
                         className="border-gray-300 text-md rounded-xl h-12 bg-gray-50"
-                        placeholder="Número de identificación*"
-                        required
+                        placeholder="Número de identificación"
                       />
                       {formData.documentNumber && (
                         <Label className="absolute -top-2 left-3 bg-gray-50 px-1 text-xs text-gray-600">
-                          Número de identificación*
+                          Número de identificación
                         </Label>
                       )}
                     </div>
@@ -369,12 +383,14 @@ export const LeadCreateDialog = forwardRef<LeadCreateDialogRef, LeadCreateDialog
                       <Input
                         value={formData.phone}
                         onChange={handlePhoneChange}
-                        className="border-gray-300 text-md rounded-xl h-12 bg-gray-50"
+                        className={`border-gray-300 text-md rounded-xl h-12 bg-gray-50 ${formData.phone && !isValidPhone(formData.phone) ? "border-red-500" : ""}`}
                         placeholder="Celular*"
-                        required
                       />
                       {formData.phone && (
                         <Label className="absolute -top-2 left-3 bg-gray-50 px-1 text-xs text-gray-600">Celular*</Label>
+                      )}
+                      {formData.phone && !isValidPhone(formData.phone) && (
+                        <p className="text-red-500 text-xs mt-1">El celular debe tener mínimo 10 dígitos</p>
                       )}
                     </div>
                   </div>
@@ -387,7 +403,6 @@ export const LeadCreateDialog = forwardRef<LeadCreateDialogRef, LeadCreateDialog
                         onChange={handleEmailChange}
                         className={`border-gray-300 text-md rounded-xl h-12 bg-gray-50 ${formData.email && !isValidEmail(formData.email) ? "border-red-500" : ""}`}
                         placeholder="Correo electrónico*"
-                        required
                       />
                       {formData.email && (
                         <Label className="absolute -top-2 left-3 bg-gray-50 px-1 text-xs text-gray-600">
@@ -396,6 +411,9 @@ export const LeadCreateDialog = forwardRef<LeadCreateDialogRef, LeadCreateDialog
                       )}
                       {formData.email && !isValidEmail(formData.email) && (
                         <p className="text-red-500 text-xs mt-1">Formato de correo inválido</p>
+                      )}
+                      {!hasValidContact() && formData.name && formData.name.trim().length > 0 && (
+                        <p className="text-amber-600 text-xs mt-1">Ingresa al menos un dato de contacto (celular o correo)</p>
                       )}
                     </div>
                     <div className="relative">
@@ -433,7 +451,7 @@ export const LeadCreateDialog = forwardRef<LeadCreateDialogRef, LeadCreateDialog
                       </Popover>
                       {selectedProducts.length > 0 && (
                         <Label className="absolute -top-2 left-3 bg-gray-50 px-1 text-xs text-gray-600">
-                          Producto de interés*
+                          Producto de interés
                         </Label>
                       )}
                     </div>
@@ -448,9 +466,7 @@ export const LeadCreateDialog = forwardRef<LeadCreateDialogRef, LeadCreateDialog
                         placeholder="Campaña"
                       />
                       {formData.campaign && (
-                        <Label className="absolute -to p-2 left-3 bg-gray-50 px-1 text-xs text-gray-600">
-                          Campaña*
-                        </Label>
+                        <Label className="absolute -to p-2 left-3 bg-gray-50 px-1 text-xs text-gray-600">Campaña</Label>
                       )}
                     </div>
                     <div className="relative">
@@ -609,7 +625,8 @@ export const LeadCreateDialog = forwardRef<LeadCreateDialogRef, LeadCreateDialog
 
                   <Button
                     type="submit"
-                    className="w-full bg-gradient-to-r from-[#00C73D] to-[#00a532] hover:from-[#00a532] hover:to-[#008c2a] text-white font-medium h-10 rounded-full text-base mt-4 transition-all duration-200"
+                    disabled={!isFormValid()}
+                    className="w-full bg-gradient-to-r from-[#00C73D] to-[#00a532] hover:from-[#00a532] hover:to-[#008c2a] text-white font-medium h-10 rounded-full text-base mt-4 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     Agregar lead
                   </Button>

@@ -91,13 +91,13 @@ export default function Leads() {
   const isMedium = useIsMedium();
   const isSmallScreen = isMobile || isMedium;
 
-  // Set default view mode based on screen size
-  const [viewMode, setViewMode] = useState<"table" | "columns">(isMobile ? "columns" : "table");
+  // Default to table view on all devices to avoid 13 additional API calls from column pagination
+  const [viewMode, setViewMode] = useState<"table" | "columns">("table");
 
   // Actualizar vista cuando cambia el tamaño de pantalla
   useEffect(() => {
     if (isMobile) {
-      setViewMode("columns");
+      setViewMode("table");
     }
   }, [isMobile]);
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
@@ -1382,7 +1382,7 @@ export default function Leads() {
 
         {showBulkAssign && userPermissions?.canBulkAssignLeads && (
           <Dialog open={showBulkAssign} onOpenChange={setShowBulkAssign}>
-            <DialogContent className="max-w-3xl">
+            <DialogContent className="max-w-3xl w-[95vw] min-h-[90%] overflow-hidden flex flex-col p-0">
               <LeadsBulkAssignment
                 leads={selectedLeads.length > 0 ? getSelectedLeadsWithData() : filteredLeads}
                 onLeadsAssigned={() => {
