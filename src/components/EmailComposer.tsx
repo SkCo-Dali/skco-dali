@@ -38,8 +38,12 @@ export function EmailComposer({
 }: EmailComposerProps) {
   const { toast } = useToast();
   const { profile } = useUserProfile();
-  const [showFieldsList, setShowFieldsList] = useState(false);
-  const [showSocialNetworks, setShowSocialNetworks] = useState(false);
+  // Estado para panel activo (accordion behavior - solo uno a la vez)
+  const [activePanel, setActivePanel] = useState<'fields' | 'social' | null>(null);
+  
+  const togglePanel = (panel: 'fields' | 'social') => {
+    setActivePanel(prev => prev === panel ? null : panel);
+  };
   const [showSignatureDialog, setShowSignatureDialog] = useState(false);
   const [showSaveTemplateDialog, setShowSaveTemplateDialog] = useState(false);
   const [showTemplatesModal, setShowTemplatesModal] = useState(false);
@@ -356,18 +360,18 @@ export function EmailComposer({
                 <span className="hidden sm:inline">Firmas</span>
               </Button>
               <Button
-                variant="outline"
+                variant={activePanel === 'fields' ? 'default' : 'outline'}
                 size="sm"
-                onClick={() => setShowFieldsList(!showFieldsList)}
+                onClick={() => togglePanel('fields')}
                 className="flex-1 sm:flex-none text-xs sm:text-sm px-2 sm:px-3"
               >
                 <Plus className="h-3 w-3 sm:h-4 sm:w-4 sm:mr-2" />
                 <span className="hidden sm:inline">Campos Dinámicos</span>
               </Button>
               <Button
-                variant="outline"
+                variant={activePanel === 'social' ? 'default' : 'outline'}
                 size="sm"
-                onClick={() => setShowSocialNetworks(!showSocialNetworks)}
+                onClick={() => togglePanel('social')}
                 className="flex-1 sm:flex-none text-xs sm:text-sm px-2 sm:px-3"
               >
                 <Share2 className="h-3 w-3 sm:h-4 sm:w-4 sm:mr-2" />
@@ -377,9 +381,9 @@ export function EmailComposer({
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-3 sm:space-y-4">
-          {showFieldsList && (
+          {activePanel === 'fields' && (
             <Card className="bg-muted/30">
-              <div className="p-3 sm:p-4 space-y-2">
+              <div className="p-2 sm:p-3 flex flex-wrap gap-1.5">
                 {dynamicFields.map((field) => {
                   const colors = getFieldColor(field.key);
                   return (
@@ -388,7 +392,7 @@ export function EmailComposer({
                       draggable
                       onDragStart={handleDragStart(field)}
                       onDragEnd={handleDragEnd}
-                      className="inline-flex items-center px-2 sm:px-3 py-1 sm:py-1.5 rounded-lg text-xs sm:text-sm font-medium cursor-move mr-1.5 sm:mr-2 mb-1.5 sm:mb-2 transition-transform hover:scale-105"
+                      className="inline-flex items-center px-2 sm:px-3 py-1 rounded-lg text-xs sm:text-sm font-medium cursor-move transition-transform hover:scale-105"
                       style={{
                         backgroundColor: colors.bg,
                         color: colors.text,
@@ -400,20 +404,20 @@ export function EmailComposer({
                   );
                 })}
               </div>
-              <p className="text-xs sm:text-sm text-muted-foreground mt-2 px-3 sm:px-4 pb-3 sm:pb-4">
+              <p className="text-xs text-muted-foreground px-2 sm:px-3 pb-2">
                 Arrastra los campos al asunto o contenido del email para insertarlos
               </p>
             </Card>
           )}
 
-          {showSocialNetworks && (
+          {activePanel === 'social' && (
             <Card className="bg-muted/30">
-              <div className="p-3 sm:p-4 space-y-2">
+              <div className="p-2 sm:p-3 flex flex-wrap gap-1.5">
                 <div
                   draggable
                   onDragStart={handleSocialNetworkDragStart("whatsapp")}
                   onDragEnd={handleSocialNetworkDragEnd}
-                  className="inline-flex items-center px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg text-xs sm:text-sm font-medium cursor-move mr-1.5 sm:mr-2 mb-1.5 sm:mb-2 transition-transform hover:scale-105 bg-[#00A859] text-white"
+                  className="inline-flex items-center px-3 py-1.5 rounded-lg text-xs sm:text-sm font-medium cursor-move transition-transform hover:scale-105 bg-[#00A859] text-white"
                   title="Arrastra al contenido del email para insertar botón de WhatsApp"
                 >
                   📱 WhatsApp
@@ -422,13 +426,13 @@ export function EmailComposer({
                   draggable
                   onDragStart={handleSocialNetworkDragStart("instagram")}
                   onDragEnd={handleSocialNetworkDragEnd}
-                  className="inline-flex items-center px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg text-xs sm:text-sm font-medium cursor-move mr-1.5 sm:mr-2 mb-1.5 sm:mb-2 transition-transform hover:scale-105 bg-gradient-to-r from-purple-500 via-pink-500 to-orange-500 text-white"
+                  className="inline-flex items-center px-3 py-1.5 rounded-lg text-xs sm:text-sm font-medium cursor-move transition-transform hover:scale-105 bg-gradient-to-r from-purple-500 via-pink-500 to-orange-500 text-white"
                   title="Arrastra al contenido del email para insertar botón de Instagram"
                 >
                   📸 Instagram
                 </div>
               </div>
-              <p className="text-xs sm:text-sm text-muted-foreground mt-2 px-3 sm:px-4 pb-3 sm:pb-4">
+              <p className="text-xs text-muted-foreground px-2 sm:px-3 pb-2">
                 Arrastra las redes sociales al contenido del email para insertar botones clicables
               </p>
             </Card>

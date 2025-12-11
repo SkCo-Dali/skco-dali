@@ -224,132 +224,150 @@ export function MassEmailSender({ filteredLeads, onClose, opportunityId }: MassE
 
   return (
     <>
-      <div className="space-y-4 sm:space-y-6">
-        {/* Header */}
-        <div className="flex items-center justify-between">
-          <div className="space-y-1">
-            <h2 className="text-lg sm:text-xl font-semibold">Envío de Correos</h2>
-            <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
-              <Badge variant="secondary" className="text-xs sm:text-sm">
-                <Filter className="h-3 w-3 sm:h-4 sm:w-4 mr-1 text-white" />
-                <span className="text-white">{leadsToSend.length} de {validLeads.length} seleccionados</span>
-              </Badge>
-              {isOverLimit && (
-                <Badge variant="destructive" className="text-xs sm:text-sm">
-                  <AlertTriangle className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
-                  Máximo 50 correos
+      <div className="flex flex-col h-full max-h-[85vh]">
+        {/* Header fijo */}
+        <div className="flex-shrink-0 pb-3 border-b">
+          <div className="flex items-center justify-between mb-3">
+            <div className="space-y-1">
+              <h2 className="text-lg sm:text-xl font-semibold">Envío de Correos</h2>
+              <div className="flex flex-wrap items-center gap-1.5">
+                <Badge variant="secondary" className="text-xs">
+                  <Filter className="h-3 w-3 mr-1 text-white" />
+                  <span className="text-white">{leadsToSend.length} de {validLeads.length} seleccionados</span>
                 </Badge>
-              )}
+                {isOverLimit && (
+                  <Badge variant="destructive" className="text-xs">
+                    <AlertTriangle className="h-3 w-3 mr-1" />
+                    Máximo 50
+                  </Badge>
+                )}
+              </div>
             </div>
           </div>
+
+          {/* Tabs siempre visibles */}
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+            <TabsList className="grid w-full grid-cols-3 bg-gray-100 rounded-full h-9">
+              <TabsTrigger 
+                value="compose" 
+                className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#00C73D] data-[state=active]:to-[#A3E40B] data-[state=active]:text-white rounded-full text-xs sm:text-sm font-medium transition-all duration-200 gap-1 h-full"
+              >
+                <Mail className="h-3 w-3 sm:h-4 sm:w-4" />
+                <span className="hidden sm:inline">Nuevo Correo</span>
+                <span className="sm:hidden">Nuevo</span>
+              </TabsTrigger>
+              <TabsTrigger 
+                value="preview" 
+                className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#00C73D] data-[state=active]:to-[#A3E40B] data-[state=active]:text-white rounded-full text-xs sm:text-sm font-medium transition-all duration-200 gap-1 h-full"
+              >
+                <Eye className="h-3 w-3 sm:h-4 sm:w-4" />
+                <span className="hidden sm:inline">Previsualizar</span>
+                <span className="sm:hidden">Vista</span>
+              </TabsTrigger>
+              <TabsTrigger 
+                value="logs" 
+                className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#00C73D] data-[state=active]:to-[#A3E40B] data-[state=active]:text-white rounded-full text-xs sm:text-sm font-medium transition-all duration-200 gap-1 h-full"
+              >
+                <History className="h-3 w-3 sm:h-4 sm:w-4" />
+                Historial
+              </TabsTrigger>
+            </TabsList>
+          </Tabs>
         </div>
 
-        {/* Tabs */}
-        <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid w-full grid-cols-3 mb-4 bg-gray-100 rounded-full px-0 py-0 my-0">
-            <TabsTrigger 
-              value="compose" 
-              className="w-full h-full data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#00C73D] data-[state=active]:to-[#A3E40B] data-[state=active]:text-white rounded-full px-2 sm:px-4 py-2 mt-0 text-xs sm:text-sm font-medium transition-all duration-200 gap-1 sm:gap-2"
-            >
-              <Mail className="h-3 w-3 sm:h-4 sm:w-4" />
-              <span className="hidden sm:inline">Nuevo Correo</span>
-              <span className="sm:hidden">Nuevo</span>
-            </TabsTrigger>
-            <TabsTrigger 
-              value="preview" 
-              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#00C73D] data-[state=active]:to-[#A3E40B] data-[state=active]:text-white rounded-full px-2 sm:px-10 py-2 h-full text-xs sm:text-sm font-medium transition-all duration-200 gap-1 sm:gap-2"
-            >
-              <Eye className="h-3 w-3 sm:h-4 sm:w-4" />
-              <span className="hidden sm:inline">Previsualizar</span>
-              <span className="sm:hidden">Vista</span>
-            </TabsTrigger>
-            <TabsTrigger 
-              value="logs" 
-              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#00C73D] data-[state=active]:to-[#A3E40B] data-[state=active]:text-white rounded-full px-2 sm:px-10 py-2 h-full text-xs sm:text-sm font-medium transition-all duration-200 gap-1 sm:gap-2"
-            >
-              <History className="h-3 w-3 sm:h-4 sm:w-4" />
-              Historial
-            </TabsTrigger>
-          </TabsList>
+        {/* Contenido scrolleable */}
+        <div className="flex-1 overflow-y-auto py-3">
+          <Tabs value={activeTab} onValueChange={setActiveTab}>
+            <TabsContent value="compose" className="space-y-4 mt-0">
+              <EmailComposer
+                template={template}
+                onTemplateChange={setTemplate}
+                dynamicFields={dynamicFields}
+                isIndividual={validLeads.length === 1}
+                attachments={attachments}
+                onAttachmentsChange={setAttachments}
+                alternateEmail={alternateEmail}
+                onAlternateEmailChange={setAlternateEmail}
+              />
+            </TabsContent>
 
-          <TabsContent value="compose" className="space-y-6 mt-4">
-            <EmailComposer
-              template={template}
-              onTemplateChange={setTemplate}
-              dynamicFields={dynamicFields}
-              isIndividual={validLeads.length === 1}
-              attachments={attachments}
-              onAttachmentsChange={setAttachments}
-              alternateEmail={alternateEmail}
-              onAlternateEmailChange={setAlternateEmail}
-            />
-            
-            <div className="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-3 pt-4 border-t">
-              <div className="text-xs sm:text-sm text-muted-foreground text-center sm:text-left">
+            <TabsContent value="preview" className="space-y-4 mt-0">
+              <EmailPreview
+                leads={validLeads}
+                template={template}
+                replaceDynamicFields={replaceDynamicFields}
+                alternateEmail={alternateEmail}
+                selectedLeadIds={selectedLeadIds}
+                onToggleLead={handleToggleLead}
+              />
+            </TabsContent>
+
+            <TabsContent value="logs" className="space-y-4 mt-0">
+              <EmailStatusLogs
+                logs={validLeads.length === 1 ? emailLogs.filter(log => log.LeadId === validLeads[0]?.id) : emailLogs}
+                isLoading={isLoading}
+                onRefresh={fetchEmailLogs}
+                onFetchDetail={fetchEmailLogDetail}
+                onDownloadAttachment={downloadEmailAttachment}
+                onResendEmail={resendEmail}
+              />
+            </TabsContent>
+          </Tabs>
+        </div>
+
+        {/* Footer fijo con botones de acción */}
+        <div className="flex-shrink-0 pt-3 border-t bg-background">
+          {activeTab === 'compose' && (
+            <div className="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-2">
+              <div className="text-xs text-muted-foreground text-center sm:text-left">
                 {leadsToSend.length} correo(s) listos para enviar
               </div>
-              <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+              <div className="flex gap-2">
                 <Button
                   variant="outline"
+                  size="sm"
                   onClick={() => setActiveTab('preview')}
                   disabled={!isReadyToSend}
-                  className="w-full sm:w-auto text-xs sm:text-sm"
+                  className="flex-1 sm:flex-none text-xs"
                 >
-                  <Eye className="h-3 w-3 sm:h-4 sm:w-4 mr-2" />
+                  <Eye className="h-3 w-3 mr-1" />
                   Previsualizar
                 </Button>
                 <Button
+                  size="sm"
                   onClick={handleSendEmails}
                   disabled={!isReadyToSend || isLoading}
-                  className="w-full sm:w-auto text-xs sm:text-sm"
+                  className="flex-1 sm:flex-none text-xs"
                 >
-                  <Send className="h-3 w-3 sm:h-4 sm:w-4 mr-2" />
-                  {isLoading ? 'Enviando...' : 'Enviar Correos'}
+                  <Send className="h-3 w-3 mr-1" />
+                  {isLoading ? 'Enviando...' : 'Enviar'}
                 </Button>
               </div>
             </div>
-          </TabsContent>
-
-          <TabsContent value="preview" className="space-y-6 mt-4">
-            <EmailPreview
-              leads={validLeads}
-              template={template}
-              replaceDynamicFields={replaceDynamicFields}
-              alternateEmail={alternateEmail}
-              selectedLeadIds={selectedLeadIds}
-              onToggleLead={handleToggleLead}
-            />
-            
-            <div className="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-3 pt-4 border-t">
+          )}
+          
+          {activeTab === 'preview' && (
+            <div className="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-2">
               <Button
                 variant="outline"
+                size="sm"
                 onClick={() => setActiveTab('compose')}
-                className="w-full sm:w-auto text-xs sm:text-sm"
+                className="text-xs"
               >
                 Volver a Editar
               </Button>
               <Button
+                size="sm"
                 onClick={handleSendEmails}
                 disabled={!isReadyToSend || isLoading}
-                className="w-full sm:w-auto text-xs sm:text-sm"
+                className="text-xs"
               >
-                <Send className="h-3 w-3 sm:h-4 sm:w-4 mr-2" />
-                {isLoading ? 'Enviando...' : `Confirmar Envío (${leadsToSend.length} correos)`}
+                <Send className="h-3 w-3 mr-1" />
+                {isLoading ? 'Enviando...' : `Confirmar (${leadsToSend.length})`}
               </Button>
             </div>
-          </TabsContent>
-
-          <TabsContent value="logs" className="space-y-6 mt-4">
-            <EmailStatusLogs
-              logs={validLeads.length === 1 ? emailLogs.filter(log => log.LeadId === validLeads[0]?.id) : emailLogs}
-              isLoading={isLoading}
-              onRefresh={fetchEmailLogs}
-              onFetchDetail={fetchEmailLogDetail}
-              onDownloadAttachment={downloadEmailAttachment}
-              onResendEmail={resendEmail}
-            />
-          </TabsContent>
-        </Tabs>
+          )}
+        </div>
       </div>
 
       <EmailSendConfirmation
