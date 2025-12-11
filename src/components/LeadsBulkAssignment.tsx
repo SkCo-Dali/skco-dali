@@ -5,7 +5,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
-import { Plus, Trash2, Loader2 } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
+import { Badge } from "@/components/ui/badge";
+import { ScrollArea } from "@/components/ui/scroll-area";
+
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Plus, Trash2, Loader2, Users, Check, X, ChevronDown } from "lucide-react";
 import { Lead, LeadStatus } from "@/types/crm";
 import { useAssignableUsers } from "@/contexts/AssignableUsersContext";
 import { useToast } from "@/hooks/use-toast";
@@ -22,30 +27,58 @@ interface LeadsBulkAssignmentProps {
 interface UserAssignment {
   userId: string;
   userName: string;
+  userRole: string;
   quantity: number;
+  enabled: boolean;
 }
+
+// All available stages in the system
+const AVAILABLE_STAGES = [
+  "Nuevo",
+  "Asignado",
+  "Contactado",
+  "Localizado: Prospecto de venta FP",
+  "Localizado: Prospecto de venta AD",
+  "Localizado: Prospecto de venta - Pendiente",
+  "Contrato Creado",
+  "Localizado: No interesado",
+];
 
 export function LeadsBulkAssignment({ leads, onLeadsAssigned }: LeadsBulkAssignmentProps) {
   const [selectedCampaign, setSelectedCampaign] = useState<string>("all");
   const [assignmentType, setAssignmentType] = useState<"equitable" | "specific">("equitable");
   const [userAssignments, setUserAssignments] = useState<UserAssignment[]>([]);
   const [isAssigning, setIsAssigning] = useState(false);
-  const [allNewLeads, setAllNewLeads] = useState<Lead[]>([]);
+  const [allLeads, setAllLeads] = useState<Lead[]>([]);
   const [isLoadingLeads, setIsLoadingLeads] = useState(false);
+  const [selectedRoles, setSelectedRoles] = useState<string[]>([]);
+  const [selectedStages, setSelectedStages] = useState<string[]>(["Nuevo"]);
   const { users } = useAssignableUsers();
   const { toast } = useToast();
 
-  // Memoizar usuarios gestores para evitar closures stale
-  const gestorUsers = useMemo(() => {
-    const filtered = users.filter((user) => user.Role === "gestor");
-    console.log("📋 Gestor users filtered:", filtered.length, "from", users.length, "total users");
-    return filtered;
+  // Get all unique roles from assignable users
+  const availableRoles = useMemo(() => {
+    const roles = new Set(users.map((user) => user.Role).filter(Boolean));
+    return Array.from(roles).sort();
   }, [users]);
 
-  // IDs de gestores para validación rápida
-  const gestorUserIds = useMemo(() => new Set(gestorUsers.map(u => u.Id)), [gestorUsers]);
+  // Filter users by selected roles (if any selected)
+  const filteredUsers = useMemo(() => {
+    if (selectedRoles.length === 0) {
+      return users;
+    }
+    return users.filter((user) => selectedRoles.includes(user.Role));
+  }, [users, selectedRoles]);
 
-  // Mapear PaginatedLead a Lead
+  // Get enabled users for equitable distribution
+  const enabledUsers = useMemo(() => {
+    return userAssignments.filter((ua) => ua.enabled);
+  }, [userAssignments]);
+
+  // IDs of enabled users for validation
+  const enabledUserIds = useMemo(() => new Set(enabledUsers.map((u) => u.userId)), [enabledUsers]);
+
+  // Map PaginatedLead to Lead
   const mapPaginatedLeadToLead = (paginatedLead: PaginatedLead): Lead => {
     let tags: string[] = [];
     let portfolios: string[] = [];
@@ -108,64 +141,65 @@ export function LeadsBulkAssignment({ leads, onLeadsAssigned }: LeadsBulkAssignm
     };
   };
 
-  // Cargar todos los leads con stage="Nuevo" usando llamadas paginadas
-  // SOLO si no hay leads seleccionados
+  // Load leads with selected stages using paginated calls
   useEffect(() => {
-    const loadAllNewLeads = async () => {
-      // Si hay leads seleccionados, usarlos directamente
-      if (leads.length > 0) {
-        console.log(`✅ Using ${leads.length} selected leads`);
-        // Filtrar solo los que están en estado Nuevo
-        const newLeads = leads.filter(
-          (lead) =>
-            lead.stage?.toLowerCase() === "nuevo" ||
-            lead.stage?.toLowerCase() === "new" ||
-            lead.stage === "Nuevo" ||
-            lead.stage === "new",
-        );
-        setAllNewLeads(newLeads);
+    const loadLeadsByStages = async () => {
+      if (selectedStages.length === 0) {
+        setAllLeads([]);
         setIsLoadingLeads(false);
         return;
       }
 
-      // Si NO hay selección, cargar todos los leads nuevos del API
+      if (leads.length > 0) {
+        console.log(`✅ Using ${leads.length} selected leads`);
+        const filteredByStage = leads.filter((lead) =>
+          selectedStages.some((stage) => lead.stage?.toLowerCase() === stage.toLowerCase() || lead.stage === stage),
+        );
+        setAllLeads(filteredByStage);
+        setIsLoadingLeads(false);
+        return;
+      }
+
       setIsLoadingLeads(true);
-      console.log('🔄 No selection detected. Loading all leads with stage="Nuevo"...');
+      console.log(`🔄 No selection detected. Loading leads with stages: ${selectedStages.join(", ")}...`);
 
       try {
-        const allLeads: Lead[] = [];
-        let currentPage = 1;
-        let totalPages = 1;
-        const pageSize = 100;
+        const loadedLeads: Lead[] = [];
 
-        // Hacer llamadas paginadas hasta obtener todos los leads
-        while (currentPage <= totalPages) {
-          console.log(`📡 Fetching page ${currentPage} of ${totalPages}...`);
+        // Load leads for each selected stage
+        for (const stage of selectedStages) {
+          let currentPage = 1;
+          let totalPages = 1;
+          const pageSize = 100;
 
-          const response = await getReassignableLeadsPaginated({
-            page: currentPage,
-            page_size: pageSize,
-            filters: {
-              Stage: { op: "eq", value: "Nuevo" },
-            },
-          });
+          while (currentPage <= totalPages) {
+            console.log(`📡 Fetching ${stage} - page ${currentPage} of ${totalPages}...`);
 
-          const mappedLeads = response.items.map(mapPaginatedLeadToLead);
-          allLeads.push(...mappedLeads);
+            const response = await getReassignableLeadsPaginated({
+              page: currentPage,
+              page_size: pageSize,
+              filters: {
+                Stage: { op: "eq", value: stage },
+              },
+            });
 
-          totalPages = response.total_pages;
-          currentPage++;
+            const mappedLeads = response.items.map(mapPaginatedLeadToLead);
+            loadedLeads.push(...mappedLeads);
 
-          console.log(`✅ Loaded ${mappedLeads.length} leads from page ${currentPage - 1}`);
+            totalPages = response.total_pages;
+            currentPage++;
+
+            console.log(`✅ Loaded ${mappedLeads.length} leads from ${stage} page ${currentPage - 1}`);
+          }
         }
 
-        console.log(`✅ Total leads loaded: ${allLeads.length}`);
-        setAllNewLeads(allLeads);
+        console.log(`✅ Total leads loaded: ${loadedLeads.length}`);
+        setAllLeads(loadedLeads);
       } catch (error) {
-        console.error("❌ Error loading new leads:", error);
+        console.error("❌ Error loading leads:", error);
         toast({
           title: "Error",
-          description: "Error al cargar leads nuevos",
+          description: "Error al cargar leads",
           variant: "destructive",
         });
       } finally {
@@ -173,22 +207,30 @@ export function LeadsBulkAssignment({ leads, onLeadsAssigned }: LeadsBulkAssignm
       }
     };
 
-    loadAllNewLeads();
-  }, [leads]);
+    loadLeadsByStages();
+  }, [leads, selectedStages]);
 
-  // Obtener campañas únicas de los leads cargados
-  const uniqueCampaigns = Array.from(new Set(allNewLeads.map((lead) => lead.campaign).filter(Boolean)));
+  // Get unique campaigns from loaded leads
+  const uniqueCampaigns = Array.from(new Set(allLeads.map((lead) => lead.campaign).filter(Boolean)));
 
-  // Filtrar leads por campaña seleccionada
-  const filteredLeads = allNewLeads.filter((lead) => {
+  // Count leads per stage
+  const leadsPerStage = useMemo(() => {
+    const counts: Record<string, number> = {};
+    selectedStages.forEach((stage) => {
+      counts[stage] = allLeads.filter(
+        (lead) => lead.stage?.toLowerCase() === stage.toLowerCase() || lead.stage === stage,
+      ).length;
+    });
+    return counts;
+  }, [allLeads, selectedStages]);
+
+  // Filter leads by selected campaign
+  const filteredLeads = allLeads.filter((lead) => {
     const matchesCampaign = selectedCampaign === "all" || lead.campaign === selectedCampaign;
     return matchesCampaign;
   });
 
-  console.log("Filtered leads for assignment:", filteredLeads.length);
-  console.log("Gestor users:", gestorUsers);
-
-  // Función helper para mezclar arrays aleatoriamente (Fisher-Yates shuffle)
+  // Fisher-Yates shuffle helper
   const shuffleArray = <T,>(array: T[]): T[] => {
     const shuffled = [...array];
     for (let i = shuffled.length - 1; i > 0; i--) {
@@ -198,114 +240,164 @@ export function LeadsBulkAssignment({ leads, onLeadsAssigned }: LeadsBulkAssignm
     return shuffled;
   };
 
-  // Inicializar asignaciones cuando cambien los usuarios gestores
+  // Initialize assignments when filtered users change
   useEffect(() => {
-    if (gestorUsers.length > 0) {
-      console.log("🔄 Initializing user assignments for", gestorUsers.length, "gestors");
+    if (filteredUsers.length > 0) {
+      console.log("🔄 Initializing user assignments for", filteredUsers.length, "users");
       setUserAssignments(
-        gestorUsers.map((user) => ({
+        filteredUsers.map((user) => ({
           userId: user.Id,
           userName: user.Name,
+          userRole: user.Role,
           quantity: 0,
+          enabled: true,
         })),
       );
+    } else {
+      setUserAssignments([]);
     }
-  }, [gestorUsers]); // Depender del array completo, no solo length
+  }, [filteredUsers]);
 
-  // Resetear asignaciones cuando cambie la campaña
+  // Reset quantities when campaign changes
   useEffect(() => {
-    if (gestorUsers.length > 0) {
-      console.log("🔄 Resetting assignments for campaign change");
-      setUserAssignments(
-        gestorUsers.map((user) => ({
-          userId: user.Id,
-          userName: user.Name,
-          quantity: 0,
-        })),
-      );
-    }
-  }, [selectedCampaign, gestorUsers]); // Incluir gestorUsers para evitar closures stale
+    setUserAssignments((prev) =>
+      prev.map((assignment) => ({
+        ...assignment,
+        quantity: 0,
+      })),
+    );
+  }, [selectedCampaign]);
 
   const handleEquitableAssignment = useCallback(() => {
-    if (gestorUsers.length === 0 || filteredLeads.length === 0) {
-      console.log("❌ Cannot distribute: no gestors or no leads");
+    const usersToDistribute = enabledUsers;
+    if (usersToDistribute.length === 0 || filteredLeads.length === 0) {
+      console.log("❌ Cannot distribute: no enabled users or no leads");
       return;
     }
 
     const totalLeads = filteredLeads.length;
-    const baseQuantity = Math.floor(totalLeads / gestorUsers.length);
-    const remainder = totalLeads % gestorUsers.length;
+    const baseQuantity = Math.floor(totalLeads / usersToDistribute.length);
+    const remainder = totalLeads % usersToDistribute.length;
 
-    console.log("📊 Distributing equitably and randomly:", { totalLeads, baseQuantity, remainder, gestorCount: gestorUsers.length });
+    console.log("📊 Distributing equitably and randomly:", {
+      totalLeads,
+      baseQuantity,
+      remainder,
+      userCount: usersToDistribute.length,
+    });
 
-    // Aleatorizar el orden de los gestores para distribución justa
-    const randomizedGestors = shuffleArray(gestorUsers);
-    console.log("🎲 Randomized gestors order:", randomizedGestors.map(g => g.Name));
+    // Randomize user order for fair distribution of remainder
+    const randomizedUsers = shuffleArray(usersToDistribute);
+    console.log(
+      "🎲 Randomized users order for remainder distribution:",
+      randomizedUsers.map((g) => g.userName),
+    );
 
-    const newAssignments = randomizedGestors.map((user, index) => ({
-      userId: user.Id,
-      userName: user.Name,
-      quantity: baseQuantity + (index < remainder ? 1 : 0),
-    }));
+    // Create array of indices that will receive extra lead (random selection)
+    const indicesWithExtra = new Set<number>();
+    const availableIndices = usersToDistribute.map((_, i) => i);
+    const shuffledIndices = shuffleArray(availableIndices);
+    for (let i = 0; i < remainder; i++) {
+      indicesWithExtra.add(shuffledIndices[i]);
+    }
 
-    console.log("✅ New random equitable assignments:", newAssignments);
-    setUserAssignments(newAssignments);
-  }, [gestorUsers, filteredLeads.length]);
+    console.log(
+      "🎲 Users receiving extra lead:",
+      Array.from(indicesWithExtra).map((i) => usersToDistribute[i].userName),
+    );
 
-  const updateUserQuantity = (userId: string, quantity: number) => {
-    console.log("Updating quantity for user", userId, "to", quantity);
+    // Create map of new quantities for enabled users
+    const newQuantities = new Map<string, number>();
+    usersToDistribute.forEach((user, index) => {
+      const extraLead = indicesWithExtra.has(index) ? 1 : 0;
+      newQuantities.set(user.userId, baseQuantity + extraLead);
+    });
 
-    // Asegurar que la cantidad esté dentro del rango válido
-    const validQuantity = Math.max(0, Math.min(quantity || 0, filteredLeads.length));
+    // Update assignments keeping enabled state
+    setUserAssignments((prev) =>
+      prev.map((assignment) => ({
+        ...assignment,
+        quantity: assignment.enabled ? newQuantities.get(assignment.userId) || 0 : 0,
+      })),
+    );
 
-    setUserAssignments((prev) => {
-      const updated = prev.map((assignment) =>
-        assignment.userId === userId ? { ...assignment, quantity: validQuantity } : assignment,
-      );
-      console.log("Updated assignments:", updated);
-      return updated;
+    toast({
+      title: "Distribución aleatoria completada",
+      description: `${totalLeads} leads distribuidos entre ${usersToDistribute.length} usuarios de forma equitativa y aleatoria`,
+    });
+  }, [enabledUsers, filteredLeads.length, toast]);
+
+  const toggleUserEnabled = (userId: string) => {
+    setUserAssignments((prev) =>
+      prev.map((assignment) =>
+        assignment.userId === userId
+          ? { ...assignment, enabled: !assignment.enabled, quantity: !assignment.enabled ? assignment.quantity : 0 }
+          : assignment,
+      ),
+    );
+  };
+
+  const toggleAllUsers = (enabled: boolean) => {
+    setUserAssignments((prev) =>
+      prev.map((assignment) => ({
+        ...assignment,
+        enabled,
+        quantity: enabled ? assignment.quantity : 0,
+      })),
+    );
+  };
+
+  const toggleRole = (role: string) => {
+    setSelectedRoles((prev) => (prev.includes(role) ? prev.filter((r) => r !== role) : [...prev, role]));
+  };
+
+  const toggleStage = (stage: string) => {
+    setSelectedStages((prev) => {
+      if (prev.includes(stage)) {
+        // Don't allow deselecting all stages
+        if (prev.length === 1) return prev;
+        return prev.filter((s) => s !== stage);
+      }
+      return [...prev, stage];
     });
   };
 
+  const updateUserQuantity = (userId: string, quantity: number) => {
+    const validQuantity = Math.max(0, Math.min(quantity || 0, filteredLeads.length));
+
+    setUserAssignments((prev) =>
+      prev.map((assignment) =>
+        assignment.userId === userId ? { ...assignment, quantity: validQuantity } : assignment,
+      ),
+    );
+  };
+
   const addUserAssignment = () => {
-    console.log("Adding user assignment");
-    const availableUsers = gestorUsers.filter(
+    const availableUsers = filteredUsers.filter(
       (user) => !userAssignments.some((assignment) => assignment.userId === user.Id),
     );
 
     if (availableUsers.length > 0) {
       const newUser = availableUsers[0];
-      console.log("Adding user:", newUser.Name);
-      setUserAssignments((prev) => {
-        const updated = [
-          ...prev,
-          {
-            userId: newUser.Id,
-            userName: newUser.Name,
-            quantity: 0,
-          },
-        ];
-        console.log("Updated assignments after add:", updated);
-        return updated;
-      });
-    } else {
-      console.log("No available users to add");
+      setUserAssignments((prev) => [
+        ...prev,
+        {
+          userId: newUser.Id,
+          userName: newUser.Name,
+          userRole: newUser.Role,
+          quantity: 0,
+          enabled: true,
+        },
+      ]);
     }
   };
 
   const removeUserAssignment = (userId: string) => {
-    console.log("Removing user assignment for:", userId);
-    setUserAssignments((prev) => {
-      const updated = prev.filter((assignment) => assignment.userId !== userId);
-      console.log("Updated assignments after remove:", updated);
-      return updated;
-    });
+    setUserAssignments((prev) => prev.filter((assignment) => assignment.userId !== userId));
   };
 
   const getTotalAssigned = () => {
-    const total = userAssignments.reduce((sum, assignment) => sum + (assignment.quantity || 0), 0);
-    console.log("Total assigned:", total);
-    return total;
+    return userAssignments.reduce((sum, assignment) => sum + (assignment.quantity || 0), 0);
   };
 
   const handleAssign = async () => {
@@ -331,21 +423,18 @@ export function LeadsBulkAssignment({ leads, onLeadsAssigned }: LeadsBulkAssignm
       return;
     }
 
-    // VALIDACIÓN CRÍTICA: Filtrar solo asignaciones a usuarios que son gestores
-    const validAssignments = userAssignments.filter(assignment => {
-      const isGestor = gestorUserIds.has(assignment.userId);
-      if (!isGestor && assignment.quantity > 0) {
-        console.warn(`⚠️ Filtering out non-gestor user from assignment: ${assignment.userName} (${assignment.userId})`);
-      }
-      return isGestor && assignment.quantity > 0;
-    });
+    // Filter only enabled users with quantity > 0
+    const validAssignments = userAssignments.filter((assignment) => assignment.enabled && assignment.quantity > 0);
 
-    console.log("✅ Valid gestor assignments:", validAssignments.map(a => ({ name: a.userName, qty: a.quantity })));
+    console.log(
+      "✅ Valid assignments:",
+      validAssignments.map((a) => ({ name: a.userName, role: a.userRole, qty: a.quantity })),
+    );
 
     if (validAssignments.length === 0) {
       toast({
         title: "Error",
-        description: "No hay gestores válidos para asignar leads",
+        description: "No hay usuarios habilitados para asignar leads",
         variant: "destructive",
       });
       return;
@@ -354,26 +443,31 @@ export function LeadsBulkAssignment({ leads, onLeadsAssigned }: LeadsBulkAssignm
     setIsAssigning(true);
 
     try {
-      // Aleatorizar los leads antes de distribuir para asignación justa
+      // Randomize leads before distribution for fair assignment
       const randomizedLeads = shuffleArray(filteredLeads);
       console.log("🎲 Leads randomized for fair distribution");
 
-      // Usar la nueva API de asignación masiva - SECUENCIALMENTE para evitar conflictos de transacción
+      // Randomize assignment order so no user consistently gets assigned first
+      const randomizedAssignments = shuffleArray(validAssignments);
+      console.log(
+        "🎲 User assignment order randomized:",
+        randomizedAssignments.map((a) => a.userName),
+      );
+
       let leadIndex = 0;
       let totalSuccess = 0;
       let totalSkipped = 0;
       let totalFailed = 0;
       const successfulLeadIds: string[] = [];
+      const assignmentResults: { name: string; role: string; assigned: number }[] = [];
 
-      // EJECUTAR SECUENCIALMENTE para evitar deadlocks en la base de datos
-      for (const assignment of validAssignments) {
-        // Tomar los leads necesarios para este usuario (ahora aleatorizados)
+      // Execute sequentially to avoid database deadlocks
+      for (const assignment of randomizedAssignments) {
         const leadsToAssign = randomizedLeads.slice(leadIndex, leadIndex + assignment.quantity);
         const leadIds = leadsToAssign.map((lead) => lead.id);
 
-        console.log(`📤 Assigning ${leadIds.length} leads to gestor ${assignment.userName} (${assignment.userId})`);
+        console.log(`📤 Assigning ${leadIds.length} leads to ${assignment.userName} (${assignment.userRole})`);
 
-        // Llamar a la nueva API de bulk-assign SECUENCIALMENTE
         if (leadIds.length > 0) {
           try {
             const response = await bulkAssignLeads({
@@ -382,42 +476,43 @@ export function LeadsBulkAssignment({ leads, onLeadsAssigned }: LeadsBulkAssignm
               reason: "Asignación masiva",
               notes: `Asignado masivamente a ${assignment.userName}`,
             });
-            
+
             console.log(`✅ Bulk assignment response for ${assignment.userName}:`, response);
             totalSuccess += response.summary.success;
             totalSkipped += response.summary.skipped;
             totalFailed += response.summary.failed;
-            
-            // Log detallado de leads fallidos para debugging
+
+            assignmentResults.push({
+              name: assignment.userName,
+              role: assignment.userRole,
+              assigned: response.summary.success,
+            });
+
             if (response.failedLeads && response.failedLeads.length > 0) {
               console.error(`❌ Failed leads for ${assignment.userName}:`, response.failedLeads);
-              response.failedLeads.forEach((failedLead: any, index: number) => {
-                console.error(`  Failed lead ${index + 1}:`, {
-                  leadId: failedLead.leadId || failedLead.lead_id || failedLead.Id || 'unknown',
-                  error: failedLead.error || failedLead.reason || failedLead.message || JSON.stringify(failedLead)
-                });
-              });
             }
-            
-            // Log de leads omitidos
-            if (response.skippedLeads && response.skippedLeads.length > 0) {
-              console.warn(`⚠️ Skipped leads for ${assignment.userName}:`, response.skippedLeads);
-            }
-            
-            // Guardar los IDs de leads exitosamente asignados
+
             if (response.successLeads && response.successLeads.length > 0) {
               successfulLeadIds.push(...response.successLeads);
             }
           } catch (assignError) {
             console.error(`❌ Error assigning leads to ${assignment.userName}:`, assignError);
             totalFailed += leadIds.length;
+            assignmentResults.push({
+              name: assignment.userName,
+              role: assignment.userRole,
+              assigned: 0,
+            });
           }
         }
 
         leadIndex += assignment.quantity;
       }
 
-      // Cambiar el stage de los leads exitosamente asignados a "Asignado"
+      // Log summary of assignment distribution
+      console.log("📊 Assignment distribution summary:", assignmentResults);
+
+      // Change stage of successfully assigned leads to "Asignado"
       if (successfulLeadIds.length > 0) {
         console.log(`🔄 Changing stage to "Asignado" for ${successfulLeadIds.length} leads`);
         try {
@@ -425,7 +520,6 @@ export function LeadsBulkAssignment({ leads, onLeadsAssigned }: LeadsBulkAssignm
           console.log(`✅ Stage change result:`, stageResult);
         } catch (stageError) {
           console.error("❌ Error changing stage:", stageError);
-          // No fallar todo el proceso si solo falla el cambio de stage
           toast({
             title: "Advertencia",
             description: "Leads asignados correctamente, pero hubo un error al actualizar su estado",
@@ -434,16 +528,22 @@ export function LeadsBulkAssignment({ leads, onLeadsAssigned }: LeadsBulkAssignm
         }
       }
 
-      // Mostrar resultado consolidado
+      // Build detailed success message with distribution summary
+      const distributionSummary = assignmentResults
+        .filter((r) => r.assigned > 0)
+        .map((r) => `${r.name}: ${r.assigned}`)
+        .join(" | ");
+
+      // Show consolidated result
       if (totalFailed === 0 && totalSkipped === 0) {
         toast({
-          title: "Éxito",
-          description: `${totalSuccess} leads asignados exitosamente y su estado actualizado a "Asignado"`,
+          title: "Éxito - Asignación aleatoria completada",
+          description: `${totalSuccess} leads asignados. Distribución: ${distributionSummary}`,
         });
       } else if (totalSuccess > 0) {
         toast({
           title: "Asignación completada",
-          description: `Exitosos: ${totalSuccess} | Omitidos: ${totalSkipped} | Fallidos: ${totalFailed}`,
+          description: `Exitosos: ${totalSuccess} | Omitidos: ${totalSkipped} | Fallidos: ${totalFailed}. Distribución: ${distributionSummary}`,
         });
       } else {
         toast({
@@ -455,15 +555,17 @@ export function LeadsBulkAssignment({ leads, onLeadsAssigned }: LeadsBulkAssignm
 
       onLeadsAssigned();
 
-      // Resetear estado
+      // Reset state
       setSelectedCampaign("all");
       setAssignmentType("equitable");
-      if (gestorUsers.length > 0) {
+      if (filteredUsers.length > 0) {
         setUserAssignments(
-          gestorUsers.map((user) => ({
+          filteredUsers.map((user) => ({
             userId: user.Id,
             userName: user.Name,
+            userRole: user.Role,
             quantity: 0,
+            enabled: true,
           })),
         );
       }
@@ -480,9 +582,7 @@ export function LeadsBulkAssignment({ leads, onLeadsAssigned }: LeadsBulkAssignm
   };
 
   const handleTypeChange = (value: "equitable" | "specific") => {
-    console.log("Changing assignment type to:", value);
     setAssignmentType(value);
-    // Resetear cantidades al cambiar tipo
     setUserAssignments((prev) =>
       prev.map((assignment) => ({
         ...assignment,
@@ -491,164 +591,389 @@ export function LeadsBulkAssignment({ leads, onLeadsAssigned }: LeadsBulkAssignm
     );
   };
 
+  // Role badge color helper
+  const getRoleBadgeVariant = (role: string): "default" | "secondary" | "outline" => {
+    switch (role?.toLowerCase()) {
+      case "director":
+        return "default";
+      case "supervisor":
+        return "secondary";
+      default:
+        return "outline";
+    }
+  };
+
   return (
-    <>
-      <DialogHeader>
+    <div className="flex flex-col max-h-[85vh]">
+      <DialogHeader className="shrink-0">
         <DialogTitle>Asignación Masiva de Leads</DialogTitle>
       </DialogHeader>
 
       {isLoadingLeads ? (
         <div className="flex flex-col items-center justify-center py-12 space-y-4">
           <Loader2 className="h-8 w-8 animate-spin text-primary" />
-          <p className="text-sm text-muted-foreground">Cargando todos los leads nuevos...</p>
+          <p className="text-sm text-muted-foreground">Cargando leads ({selectedStages.join(", ")})...</p>
         </div>
       ) : (
-        <div className="space-y-6">
-          {/* Filtro de campaña */}
-          <div>
-            <Label>Filtrar por campaña</Label>
-            <Select value={selectedCampaign} onValueChange={setSelectedCampaign}>
-              <SelectTrigger>
-                <SelectValue placeholder="Todas las campañas" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Todas las campañas</SelectItem>
-                {uniqueCampaigns.map((campaign) => (
-                  <SelectItem key={campaign} value={campaign || ""}>
-                    {campaign || "Sin campaña"}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
+        <ScrollArea className="flex-1 pr-4">
+          <div className="space-y-6 p-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              {/* Stage filter */}
+              <div>
+                <Label className="mb-2 block">Filtrar por estado de lead</Label>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <button
+                      type="button"
+                      className="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                    >
+                      <span className="truncate text-left">
+                        {selectedStages.length === 0
+                          ? "Seleccionar estados"
+                          : selectedStages.length === 1
+                            ? selectedStages[0]
+                            : `${selectedStages.length} estados seleccionados`}
+                      </span>
+                      <ChevronDown className="h-4 w-4 shrink-0 opacity-50" />
+                    </button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-[--radix-popover-trigger-width] p-1 z-50 bg-popover" align="start">
+                    <div className="flex gap-1 mb-1 px-1">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="flex-1 h-7 text-xs"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          setSelectedStages([...AVAILABLE_STAGES]);
+                        }}
+                      >
+                        Todos
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="flex-1 h-7 text-xs"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          setSelectedStages([]);
+                        }}
+                      >
+                        Ninguno
+                      </Button>
+                    </div>
+                    <Separator className="mb-1" />
+                    <div className="space-y-0.5 max-h-48 overflow-y-auto">
+                      {AVAILABLE_STAGES.map((stage) => {
+                        const isSelected = selectedStages.includes(stage);
+                        return (
+                          <div
+                            key={stage}
+                            role="option"
+                            aria-selected={isSelected}
+                            className="relative flex w-full cursor-pointer select-none items-center rounded-sm py-1.5 pl-4 pr-2 text-sm outline-none hover:bg-accent hover:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50"
+                            onClick={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              toggleStage(stage);
+                            }}
+                          >
+                            <span className="absolute left-2 flex h-3.5 w-3.5 items-center justify-center">
+                              {isSelected && <Check className="h-4 w-4" />}
+                            </span>
+                            <span className="flex-1">{stage}</span>
+                            {isSelected && leadsPerStage[stage] !== undefined && (
+                              <Badge variant="secondary" className="text-xs ml-2">
+                                {leadsPerStage[stage]}
+                              </Badge>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </PopoverContent>
+                </Popover>
+              </div>
 
-          {/* Información de leads disponibles */}
-          <div className="p-2 bg-blue-50 rounded-xl">
-            <p className="text-sm text-blue-800">
-              <strong>Leads nuevos disponibles:</strong> {filteredLeads.length}
-            </p>
-            {selectedCampaign !== "all" && <p className="text-sm text-blue-700">Campaña: {selectedCampaign}</p>}
-          </div>
-
-          {/* Tipo de asignación */}
-          <div>
-            <Label>Tipo de asignación</Label>
-            <Select value={assignmentType} onValueChange={handleTypeChange}>
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="equitable">Asignación equitativa</SelectItem>
-                <SelectItem value="specific">Cantidad específica por gestor</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          {/* Botón de asignación equitativa */}
-          {assignmentType === "equitable" && (
-            <div>
-              <Button
-                onClick={handleEquitableAssignment}
-                variant="outline"
-                className="w-full"
-                disabled={filteredLeads.length === 0 || gestorUsers.length === 0}
-              >
-                Distribuir equitativamente entre gestores
-              </Button>
+              {/* Campaign filter */}
+              <div>
+                <Label className="mb-2 block">Filtrar por campaña</Label>
+                <Select value={selectedCampaign} onValueChange={setSelectedCampaign}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Todas las campañas" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Todas las campañas</SelectItem>
+                    {uniqueCampaigns.map((campaign) => (
+                      <SelectItem key={campaign as string} value={(campaign as string) || ""}>
+                        {(campaign as string) || "Sin campaña"}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
-          )}
 
-          <Separator />
-
-          {/* Lista de asignaciones */}
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <Label>Asignaciones por gestor</Label>
-              {assignmentType === "specific" && (
-                <Button
-                  onClick={addUserAssignment}
-                  size="sm"
-                  variant="outline"
-                  className="gap-1"
-                  disabled={userAssignments.length >= gestorUsers.length}
-                >
-                  <Plus className="h-3 w-3" />
-                  Agregar gestor
-                </Button>
+            {/* Available leads info */}
+            <div className="p-2 bg-blue-50 dark:bg-blue-950 rounded-xl">
+              <p className="text-sm text-blue-800 dark:text-blue-200">
+                <strong>Leads disponibles:</strong> {filteredLeads.length}
+                {selectedStages.length > 0 && (
+                  <span className="ml-2 text-xs">
+                    ({selectedStages.map((s) => `${s}: ${leadsPerStage[s] || 0}`).join(" | ")})
+                  </span>
+                )}
+              </p>
+              {selectedCampaign !== "all" && (
+                <p className="text-sm text-blue-700 dark:text-blue-300">Campaña: {selectedCampaign}</p>
               )}
             </div>
 
-            <div className="space-y-3 max-h-60 overflow-y-auto">
-              {userAssignments.map((assignment) => (
-                <div key={assignment.userId} className="flex items-center gap-3 p-2 border rounded-xl">
-                  <div className="flex-1">
-                    <p className="font-medium">{assignment.userName}</p>
-                  </div>
+            {/* Role filter */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              {availableRoles.length > 1 && (
+                <div>
+                  <Label className="mb-2 block">Filtrar por rol</Label>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <button
+                        type="button"
+                        className="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                      >
+                        <span className="truncate text-left">
+                          {selectedRoles.length === 0
+                            ? "Todos los roles"
+                            : selectedRoles.length === 1
+                              ? selectedRoles[0]
+                              : `${selectedRoles.length} roles seleccionados`}
+                        </span>
+                        <ChevronDown className="h-4 w-4 shrink-0 opacity-50" />
+                      </button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-[--radix-popover-trigger-width] p-1 z-50 bg-popover" align="start">
+                      <div className="space-y-0.5">
+                        {availableRoles.map((role) => {
+                          const isSelected = selectedRoles.includes(role);
+                          return (
+                            <div
+                              key={role}
+                              role="option"
+                              aria-selected={isSelected}
+                              className="relative flex w-full cursor-pointer select-none items-center rounded-sm py-1.5 pl-4 pr-2 text-sm outline-none hover:bg-accent hover:text-accent-foreground"
+                              onClick={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                toggleRole(role);
+                              }}
+                            >
+                              <span className="absolute left-2 flex h-3.5 w-3.5 items-center justify-center">
+                                {isSelected && <Check className="h-4 w-4" />}
+                              </span>
+                              <span className="flex-1">{role}</span>
+                            </div>
+                          );
+                        })}
+                        {selectedRoles.length > 0 && (
+                          <>
+                            <Separator className="my-1" />
+                            <div
+                              className="relative flex w-full cursor-pointer select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm outline-none hover:bg-accent hover:text-accent-foreground text-muted-foreground"
+                              onClick={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                setSelectedRoles([]);
+                              }}
+                            >
+                              <span className="absolute left-2 flex h-3.5 w-3.5 items-center justify-center">
+                                <X className="h-3 w-3" />
+                              </span>
+                              Limpiar filtro
+                            </div>
+                          </>
+                        )}
+                      </div>
+                    </PopoverContent>
+                  </Popover>
+                </div>
+              )}
 
-                  <div className="flex items-center gap-2">
-                    <Label className="text-sm">Cantidad:</Label>
-                    <Input
-                      type="number"
-                      min="0"
-                      max={filteredLeads.length}
-                      value={assignment.quantity}
-                      onChange={(e) => {
-                        const newValue = parseInt(e.target.value);
-                        console.log("Input change for user", assignment.userId, ":", newValue);
-                        updateUserQuantity(assignment.userId, isNaN(newValue) ? 0 : newValue);
-                      }}
-                      className="w-20"
-                      disabled={assignmentType === "equitable"}
-                    />
-                  </div>
+              {/* Assignment type */}
+              <div>
+                <Label>Tipo de asignación</Label>
+                <Select value={assignmentType} onValueChange={handleTypeChange}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="equitable">Asignación equitativa</SelectItem>
+                    <SelectItem value="specific">Cantidad específica por usuario</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
 
-                  {assignmentType === "specific" && userAssignments.length > 1 && (
+            {/* Equitable assignment button */}
+            {assignmentType === "equitable" && (
+              <div>
+                <Button
+                  onClick={handleEquitableAssignment}
+                  variant="outline"
+                  className="w-full"
+                  disabled={filteredLeads.length === 0 || enabledUsers.length === 0}
+                >
+                  <Users className="h-4 w-4 mr-2" />
+                  Distribuir equitativamente entre equipo
+                </Button>
+              </div>
+            )}
+
+            <Separator />
+
+            {/* Assignments list */}
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Label>Asignaciones por usuario</Label>
+                  <Badge variant="outline" className="text-xs">
+                    {enabledUsers.length} de {userAssignments.length} activos
+                  </Badge>
+                </div>
+                <div className="flex items-center gap-2">
+                  {assignmentType === "equitable" && userAssignments.length > 0 && (
+                    <>
+                      <Button
+                        onClick={() => toggleAllUsers(true)}
+                        size="sm"
+                        variant="ghost"
+                        className="h-7 px-2 text-xs"
+                      >
+                        <Check className="h-3 w-3 mr-1" />
+                        Todos
+                      </Button>
+                      <Button
+                        onClick={() => toggleAllUsers(false)}
+                        size="sm"
+                        variant="ghost"
+                        className="h-7 px-2 text-xs"
+                      >
+                        <X className="h-3 w-3 mr-1" />
+                        Ninguno
+                      </Button>
+                    </>
+                  )}
+                  {assignmentType === "specific" && (
                     <Button
-                      onClick={() => removeUserAssignment(assignment.userId)}
+                      onClick={addUserAssignment}
                       size="sm"
                       variant="outline"
-                      className="p-1"
+                      className="gap-1"
+                      disabled={userAssignments.length >= filteredUsers.length}
                     >
-                      <Trash2 className="h-3 w-3" />
+                      <Plus className="h-3 w-3" />
+                      Agregar
                     </Button>
                   )}
                 </div>
-              ))}
+              </div>
+
+              <div className="space-y-3 max-h-60 overflow-y-auto">
+                {userAssignments.length === 0 ? (
+                  <div className="text-center py-4 text-muted-foreground text-sm">
+                    No hay usuarios disponibles para asignar
+                  </div>
+                ) : (
+                  userAssignments.map((assignment) => (
+                    <div
+                      key={assignment.userId}
+                      className={`flex items-center gap-3 p-2 border rounded-xl transition-opacity ${
+                        !assignment.enabled ? "opacity-50" : ""
+                      }`}
+                    >
+                      {/* Toggle for equitable mode */}
+                      {assignmentType === "equitable" && (
+                        <Switch
+                          checked={assignment.enabled}
+                          onCheckedChange={() => toggleUserEnabled(assignment.userId)}
+                          className="data-[state=checked]:bg-primary"
+                        />
+                      )}
+
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2">
+                          <p className="font-medium truncate">{assignment.userName}</p>
+                          <Badge variant={getRoleBadgeVariant(assignment.userRole)} className="text-xs shrink-0">
+                            {assignment.userRole}
+                          </Badge>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-2">
+                        <Label className="text-sm">Cantidad:</Label>
+                        <Input
+                          type="number"
+                          min="0"
+                          max={filteredLeads.length}
+                          value={assignment.quantity}
+                          onChange={(e) => {
+                            const newValue = parseInt(e.target.value);
+                            updateUserQuantity(assignment.userId, isNaN(newValue) ? 0 : newValue);
+                          }}
+                          className="w-20"
+                          disabled={assignmentType === "equitable" || !assignment.enabled}
+                        />
+                      </div>
+
+                      {assignmentType === "specific" && userAssignments.length > 1 && (
+                        <Button
+                          onClick={() => removeUserAssignment(assignment.userId)}
+                          size="sm"
+                          variant="outline"
+                          className="p-1"
+                        >
+                          <Trash2 className="h-3 w-3" />
+                        </Button>
+                      )}
+                    </div>
+                  ))
+                )}
+              </div>
+
+              {/* Summary */}
+              <div className="p-3 bg-muted rounded-xl">
+                <div className="flex justify-between text-sm">
+                  <span>Total a asignar:</span>
+                  <span className="font-medium">{getTotalAssigned()}</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span>Leads disponibles:</span>
+                  <span className="font-medium">{filteredLeads.length}</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span>Restantes:</span>
+                  <span
+                    className={`font-medium ${filteredLeads.length - getTotalAssigned() < 0 ? "text-destructive" : "text-green-600"}`}
+                  >
+                    {filteredLeads.length - getTotalAssigned()}
+                  </span>
+                </div>
+              </div>
             </div>
 
-            {/* Resumen */}
-            <div className="p-3 bg-gray-50 rounded-xl">
-              <div className="flex justify-between text-sm">
-                <span>Total a asignar:</span>
-                <span className="font-medium">{getTotalAssigned()}</span>
-              </div>
-              <div className="flex justify-between text-sm">
-                <span>Leads disponibles:</span>
-                <span className="font-medium">{filteredLeads.length}</span>
-              </div>
-              <div className="flex justify-between text-sm">
-                <span>Restantes:</span>
-                <span
-                  className={`font-medium ${filteredLeads.length - getTotalAssigned() < 0 ? "text-red-600" : "text-green-600"}`}
-                >
-                  {filteredLeads.length - getTotalAssigned()}
-                </span>
-              </div>
+            {/* Action buttons */}
+            <div className="flex gap-2 pt-2">
+              <Button
+                onClick={handleAssign}
+                disabled={getTotalAssigned() === 0 || getTotalAssigned() > filteredLeads.length || isAssigning}
+                className="flex-1"
+              >
+                {isAssigning ? "Asignando..." : "Asignar Leads"}
+              </Button>
             </div>
           </div>
-
-          {/* Botones de acción */}
-          <div className="flex gap-2 pt-2">
-            <Button
-              onClick={handleAssign}
-              disabled={getTotalAssigned() === 0 || getTotalAssigned() > filteredLeads.length || isAssigning}
-              className="flex-1"
-            >
-              {isAssigning ? "Asignando..." : "Asignar Leads"}
-            </Button>
-          </div>
-        </div>
+        </ScrollArea>
       )}
-    </>
+    </div>
   );
 }

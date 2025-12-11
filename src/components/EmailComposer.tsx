@@ -1,12 +1,12 @@
-import { useState, useRef } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useState, useRef, RefObject } from "react";
+import { createPortal } from "react-dom";
+import { Card, CardContent } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Plus, FileSignature, X, FileText, Save, Share2 } from "lucide-react";
 import { EmailTemplate, DynamicField } from "@/types/email";
 import { RichTextEditor } from "@/components/RichTextEditor";
-import { EmailWritingAssistant } from "@/components/EmailWritingAssistant";
 import { EmailSignatureDialog } from "@/components/EmailSignatureDialog";
 import { DynamicFieldInput } from "@/components/DynamicFieldInput";
 import { SaveEmailTemplateDialog } from "@/components/SaveEmailTemplateDialog";
@@ -24,6 +24,7 @@ interface EmailComposerProps {
   onAlternateEmailChange?: (email: string) => void;
   attachments?: File[];
   onAttachmentsChange?: (files: File[]) => void;
+  toolbarPortalRef?: RefObject<HTMLDivElement> | null;
 }
 
 export function EmailComposer({
@@ -35,11 +36,16 @@ export function EmailComposer({
   onAlternateEmailChange,
   attachments = [],
   onAttachmentsChange,
+  toolbarPortalRef,
 }: EmailComposerProps) {
   const { toast } = useToast();
   const { profile } = useUserProfile();
-  const [showFieldsList, setShowFieldsList] = useState(false);
-  const [showSocialNetworks, setShowSocialNetworks] = useState(false);
+  // Estado para panel activo (accordion behavior - solo uno a la vez)
+  const [activePanel, setActivePanel] = useState<'fields' | 'social' | null>(null);
+  
+  const togglePanel = (panel: 'fields' | 'social') => {
+    setActivePanel(prev => prev === panel ? null : panel);
+  };
   const [showSignatureDialog, setShowSignatureDialog] = useState(false);
   const [showSaveTemplateDialog, setShowSaveTemplateDialog] = useState(false);
   const [showTemplatesModal, setShowTemplatesModal] = useState(false);
@@ -49,10 +55,10 @@ export function EmailComposer({
 
   // Color mapping for each field type
   const fieldColors: Record<string, { bg: string; text: string }> = {
-    firstName: { bg: "#dbeafe", text: "#1e40af" }, // azul
-    name: { bg: "#e5e7eb", text: "#374151" }, // gris
-    company: { bg: "#fef3c7", text: "#92400e" }, // amarillo
-    phone: { bg: "#e9d5ff", text: "#6b21a8" }, // morado
+    firstName: { bg: "#dbeafe", text: "#1e40af" },
+    name: { bg: "#e5e7eb", text: "#374151" },
+    company: { bg: "#fef3c7", text: "#92400e" },
+    phone: { bg: "#e9d5ff", text: "#6b21a8" },
   };
 
   const getFieldColor = (fieldKey: string) => {
@@ -68,7 +74,6 @@ export function EmailComposer({
         subject: template.subject + fieldTag,
       });
     } else if (targetField === "htmlContent") {
-      // Insert field tag wrapped in a styled badge for visual representation
       const badgeHtml = `<span style="display: inline-block; background-color: #dbeafe; color: #1e40af; padding: 2px 8px; border-radius: 12px; font-size: 0.875rem; font-weight: 500; margin: 0 2px;">${fieldTag}</span>&nbsp;`;
       onTemplateChange({
         ...template,
@@ -85,27 +90,20 @@ export function EmailComposer({
   const convertHtmlToPlain = (html: string): string => {
     return (
       html
-        // Preservar dobles saltos de línea primero
         .replace(/<br\s*\/?>\s*<br\s*\/?>/gi, "\n\n")
-        // Luego convertir saltos simples
         .replace(/<br\s*\/?>/gi, "\n")
-        // Convertir párrafos con doble salto
         .replace(/<\/p>\s*<p[^>]*>/gi, "\n\n")
         .replace(/<p[^>]*>/gi, "")
         .replace(/<\/p>/gi, "\n")
-        // Convertir divs
         .replace(/<\/div>\s*<div[^>]*>/gi, "\n")
         .replace(/<div[^>]*>/gi, "")
         .replace(/<\/div>/gi, "\n")
-        // Remover todas las demás etiquetas HTML
         .replace(/<[^>]*>/g, "")
-        // Convertir entidades HTML
         .replace(/&nbsp;/g, " ")
         .replace(/&amp;/g, "&")
         .replace(/&lt;/g, "<")
         .replace(/&gt;/g, ">")
         .replace(/&quot;/g, '"')
-        // Preservar múltiples saltos de línea y limpiar exceso
         .replace(/\n{3,}/g, "\n\n")
         .trim()
     );
@@ -120,13 +118,6 @@ export function EmailComposer({
     onTemplateChange(newTemplate);
   };
 
-  const handleInsertTextFromAssistant = (text: string) => {
-    onTemplateChange({
-      ...template,
-      htmlContent: template.htmlContent + text,
-    });
-  };
-
   const handleInsertSignature = (content: string) => {
     const newContent = template.htmlContent + "<br><br>" + content;
     handleHtmlContentChange(newContent);
@@ -136,11 +127,9 @@ export function EmailComposer({
     setDraggedField(field);
     e.dataTransfer.effectAllowed = "copy";
 
-    // Set data for drag and drop
     e.dataTransfer.setData("fieldKey", field.key);
     e.dataTransfer.setData("fieldLabel", field.label);
 
-    // Get field-specific colors
     const colors = getFieldColor(field.key);
     e.dataTransfer.setData("bgColor", colors.bg);
     e.dataTransfer.setData("textColor", colors.text);
@@ -181,14 +170,12 @@ export function EmailComposer({
     if (fieldKey && editorRef.current) {
       const editor = editorRef.current;
 
-      // Get drop position from the editor view
       const view = editor.view;
       const coords = { left: e.clientX, top: e.clientY };
       const pos = view.posAtCoords(coords);
 
       if (!pos) return;
 
-      // Get current marks from the editor to capture active formatting
       const marks = editor.state.storedMarks || editor.state.selection.$from.marks();
       const attrs: any = {
         fieldKey,
@@ -197,7 +184,6 @@ export function EmailComposer({
         textColor,
       };
 
-      // Extract formatting from marks
       marks.forEach((mark: any) => {
         if (mark.type.name === "bold") {
           attrs.bold = true;
@@ -215,7 +201,6 @@ export function EmailComposer({
         }
       });
 
-      // Insert at the drop position
       const tr = editor.state.tr.insert(pos.pos, editor.schema.nodes.dynamicField.create(attrs));
       editor.view.dispatch(tr);
       editor.commands.focus();
@@ -227,7 +212,6 @@ export function EmailComposer({
     const newFilesSize = newFiles.reduce((sum, file) => sum + file.size, 0);
     const totalSize = currentSize + newFilesSize;
 
-    // Límite de 20 MB (20 * 1024 * 1024 bytes)
     const MAX_SIZE = 20 * 1024 * 1024;
 
     if (totalSize > MAX_SIZE) {
@@ -322,7 +306,6 @@ export function EmailComposer({
 
       const editor = editorRef.current;
 
-      // Insert the button HTML at the current cursor position or at the end
       editor.commands.insertContent(buttonHtml);
       editor.commands.focus();
     }
@@ -330,110 +313,120 @@ export function EmailComposer({
     setDraggedSocialNetwork(null);
   };
 
+  // Toolbar content que se renderizará via portal o inline
+  const toolbarContent = (
+    <div className="space-y-2">
+      {/* Botones de herramientas */}
+      <div className="flex flex-wrap gap-1.5 sm:gap-2">
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => setShowTemplatesModal(true)}
+          className="flex-1 sm:flex-none text-xs sm:text-sm px-2 sm:px-3"
+        >
+          <FileText className="h-3 w-3 sm:h-4 sm:w-4 sm:mr-2" />
+          <span className="hidden sm:inline">Plantillas</span>
+        </Button>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => setShowSignatureDialog(true)}
+          className="flex-1 sm:flex-none text-xs sm:text-sm px-2 sm:px-3"
+        >
+          <FileSignature className="h-3 w-3 sm:h-4 sm:w-4 sm:mr-2" />
+          <span className="hidden sm:inline">Firmas</span>
+        </Button>
+        <Button
+          variant={activePanel === 'fields' ? 'default' : 'outline'}
+          size="sm"
+          onClick={() => togglePanel('fields')}
+          className="flex-1 sm:flex-none text-xs sm:text-sm px-2 sm:px-3"
+        >
+          <Plus className="h-3 w-3 sm:h-4 sm:w-4 sm:mr-2" />
+          <span className="hidden sm:inline">Campos Dinámicos</span>
+        </Button>
+        <Button
+          variant={activePanel === 'social' ? 'default' : 'outline'}
+          size="sm"
+          onClick={() => togglePanel('social')}
+          className="flex-1 sm:flex-none text-xs sm:text-sm px-2 sm:px-3"
+        >
+          <Share2 className="h-3 w-3 sm:h-4 sm:w-4 sm:mr-2" />
+          <span className="hidden sm:inline">Redes Sociales</span>
+        </Button>
+      </div>
+
+      {/* Panel de Campos Dinámicos */}
+      {activePanel === 'fields' && (
+        <Card className="bg-muted/30 animate-in slide-in-from-top-2 duration-200">
+          <div className="p-2 sm:p-3 flex flex-wrap gap-1.5">
+            {dynamicFields.map((field) => {
+              const colors = getFieldColor(field.key);
+              return (
+                <div
+                  key={field.key}
+                  draggable
+                  onDragStart={handleDragStart(field)}
+                  onDragEnd={handleDragEnd}
+                  className="inline-flex items-center px-2 sm:px-3 py-1 rounded-lg text-xs sm:text-sm font-medium cursor-move transition-transform hover:scale-105"
+                  style={{
+                    backgroundColor: colors.bg,
+                    color: colors.text,
+                  }}
+                  title={`Arrastra al asunto o contenido. Ejemplo: ${field.example}`}
+                >
+                  {field.label}
+                </div>
+              );
+            })}
+          </div>
+          <p className="text-xs text-muted-foreground px-2 sm:px-3 pb-2">
+            Arrastra los campos al asunto o contenido del email para insertarlos
+          </p>
+        </Card>
+      )}
+
+      {/* Panel de Redes Sociales */}
+      {activePanel === 'social' && (
+        <Card className="bg-muted/30 animate-in slide-in-from-top-2 duration-200">
+          <div className="p-2 sm:p-3 flex flex-wrap gap-1.5">
+            <div
+              draggable
+              onDragStart={handleSocialNetworkDragStart("whatsapp")}
+              onDragEnd={handleSocialNetworkDragEnd}
+              className="inline-flex items-center px-3 py-1.5 rounded-lg text-xs sm:text-sm font-medium cursor-move transition-transform hover:scale-105 bg-[#00A859] text-white"
+              title="Arrastra al contenido del email para insertar botón de WhatsApp"
+            >
+              📱 WhatsApp
+            </div>
+            <div
+              draggable
+              onDragStart={handleSocialNetworkDragStart("instagram")}
+              onDragEnd={handleSocialNetworkDragEnd}
+              className="inline-flex items-center px-3 py-1.5 rounded-lg text-xs sm:text-sm font-medium cursor-move transition-transform hover:scale-105 bg-gradient-to-r from-purple-500 via-pink-500 to-orange-500 text-white"
+              title="Arrastra al contenido del email para insertar botón de Instagram"
+            >
+              📸 Instagram
+            </div>
+          </div>
+          <p className="text-xs text-muted-foreground px-2 sm:px-3 pb-2">
+            Arrastra las redes sociales al contenido del email para insertar botones clicables
+          </p>
+        </Card>
+      )}
+    </div>
+  );
+
   return (
     <>
+      {/* Renderizar toolbar via portal si está disponible, sino inline */}
+      {toolbarPortalRef?.current 
+        ? createPortal(toolbarContent, toolbarPortalRef.current)
+        : toolbarContent
+      }
+
       <Card>
-        <CardHeader className="py-4">
-          <CardTitle className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-            <span className="text-base sm:text-lg">Composición del Email</span>
-            <div className="flex flex-wrap gap-1.5 sm:gap-2 w-full sm:w-auto">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setShowTemplatesModal(true)}
-                className="flex-1 sm:flex-none text-xs sm:text-sm px-2 sm:px-3"
-              >
-                <FileText className="h-3 w-3 sm:h-4 sm:w-4 sm:mr-2" />
-                <span className="hidden sm:inline">Plantillas</span>
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setShowSignatureDialog(true)}
-                className="flex-1 sm:flex-none text-xs sm:text-sm px-2 sm:px-3"
-              >
-                <FileSignature className="h-3 w-3 sm:h-4 sm:w-4 sm:mr-2" />
-                <span className="hidden sm:inline">Firmas</span>
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setShowFieldsList(!showFieldsList)}
-                className="flex-1 sm:flex-none text-xs sm:text-sm px-2 sm:px-3"
-              >
-                <Plus className="h-3 w-3 sm:h-4 sm:w-4 sm:mr-2" />
-                <span className="hidden sm:inline">Campos Dinámicos</span>
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setShowSocialNetworks(!showSocialNetworks)}
-                className="flex-1 sm:flex-none text-xs sm:text-sm px-2 sm:px-3"
-              >
-                <Share2 className="h-3 w-3 sm:h-4 sm:w-4 sm:mr-2" />
-                <span className="hidden sm:inline">Redes Sociales</span>
-              </Button>
-            </div>
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-3 sm:space-y-4">
-          {showFieldsList && (
-            <Card className="bg-muted/30">
-              <div className="p-3 sm:p-4 space-y-2">
-                {dynamicFields.map((field) => {
-                  const colors = getFieldColor(field.key);
-                  return (
-                    <div
-                      key={field.key}
-                      draggable
-                      onDragStart={handleDragStart(field)}
-                      onDragEnd={handleDragEnd}
-                      className="inline-flex items-center px-2 sm:px-3 py-1 sm:py-1.5 rounded-lg text-xs sm:text-sm font-medium cursor-move mr-1.5 sm:mr-2 mb-1.5 sm:mb-2 transition-transform hover:scale-105"
-                      style={{
-                        backgroundColor: colors.bg,
-                        color: colors.text,
-                      }}
-                      title={`Arrastra al asunto o contenido. Ejemplo: ${field.example}`}
-                    >
-                      {field.label}
-                    </div>
-                  );
-                })}
-              </div>
-              <p className="text-xs sm:text-sm text-muted-foreground mt-2 px-3 sm:px-4 pb-3 sm:pb-4">
-                Arrastra los campos al asunto o contenido del email para insertarlos
-              </p>
-            </Card>
-          )}
-
-          {showSocialNetworks && (
-            <Card className="bg-muted/30">
-              <div className="p-3 sm:p-4 space-y-2">
-                <div
-                  draggable
-                  onDragStart={handleSocialNetworkDragStart("whatsapp")}
-                  onDragEnd={handleSocialNetworkDragEnd}
-                  className="inline-flex items-center px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg text-xs sm:text-sm font-medium cursor-move mr-1.5 sm:mr-2 mb-1.5 sm:mb-2 transition-transform hover:scale-105 bg-[#00A859] text-white"
-                  title="Arrastra al contenido del email para insertar botón de WhatsApp"
-                >
-                  📱 WhatsApp
-                </div>
-                <div
-                  draggable
-                  onDragStart={handleSocialNetworkDragStart("instagram")}
-                  onDragEnd={handleSocialNetworkDragEnd}
-                  className="inline-flex items-center px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg text-xs sm:text-sm font-medium cursor-move mr-1.5 sm:mr-2 mb-1.5 sm:mb-2 transition-transform hover:scale-105 bg-gradient-to-r from-purple-500 via-pink-500 to-orange-500 text-white"
-                  title="Arrastra al contenido del email para insertar botón de Instagram"
-                >
-                  📸 Instagram
-                </div>
-              </div>
-              <p className="text-xs sm:text-sm text-muted-foreground mt-2 px-3 sm:px-4 pb-3 sm:pb-4">
-                Arrastra las redes sociales al contenido del email para insertar botones clicables
-              </p>
-            </Card>
-          )}
-
+        <CardContent className="space-y-3 sm:space-y-4 pt-4">
           {isIndividual && (
             <div>
               <Label htmlFor="alternateEmail">Email Alternativo (Opcional)</Label>
@@ -466,7 +459,6 @@ export function EmailComposer({
           <div
             onDragOver={handleContentDragOver}
             onDrop={(e) => {
-              // Handle both dynamic fields and social networks
               const socialNetwork = e.dataTransfer.getData("socialNetwork");
               if (socialNetwork) {
                 handleSocialNetworkDrop(e);
@@ -528,12 +520,6 @@ export function EmailComposer({
           </div>
         </CardContent>
       </Card>
-
-      {/* <EmailWritingAssistant
-        currentSubject={template.subject}
-        currentContent={template.htmlContent}
-        onInsertText={handleInsertTextFromAssistant}
-      /> */}
 
       <EmailSignatureDialog
         isOpen={showSignatureDialog}
