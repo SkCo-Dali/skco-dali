@@ -91,8 +91,8 @@ export default function Leads() {
   const isMedium = useIsMedium();
   const isSmallScreen = isMobile || isMedium;
 
-  // Set default view mode based on screen size
-  const [viewMode, setViewMode] = useState<"table" | "columns">(isMobile ? "columns" : "table");
+  // Default to table view on all devices to avoid 13 additional API calls from column pagination
+  const [viewMode, setViewMode] = useState<"table" | "columns">("table");
 
   // Actualizar vista cuando cambia el tamaño de pantalla
   useEffect(() => {
