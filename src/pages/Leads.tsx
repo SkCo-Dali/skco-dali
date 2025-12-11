@@ -701,34 +701,37 @@ export default function Leads() {
     setShowMassEmail(true);
   }, []);
 
-  const handleLeadSelectionChange = useCallback((leadIds: string[], isSelected: boolean) => {
-    if (isSelected) {
-      // Agregar leads y guardar sus datos completos
-      setSelectedLeads((prev) => [...new Set([...prev, ...leadIds])]);
-      
-      // Guardar los datos completos de los leads seleccionados
-      setSelectedLeadsData((prev) => {
-        const newMap = new Map(prev);
-        leadIds.forEach((id) => {
-          const lead = paginatedLeads.find((l) => l.id === id);
-          if (lead) {
-            newMap.set(id, lead);
-          }
+  const handleLeadSelectionChange = useCallback(
+    (leadIds: string[], isSelected: boolean) => {
+      if (isSelected) {
+        // Agregar leads y guardar sus datos completos
+        setSelectedLeads((prev) => [...new Set([...prev, ...leadIds])]);
+
+        // Guardar los datos completos de los leads seleccionados
+        setSelectedLeadsData((prev) => {
+          const newMap = new Map(prev);
+          leadIds.forEach((id) => {
+            const lead = paginatedLeads.find((l) => l.id === id);
+            if (lead) {
+              newMap.set(id, lead);
+            }
+          });
+          return newMap;
         });
-        return newMap;
-      });
-    } else {
-      // Remover leads
-      setSelectedLeads((prev) => prev.filter((id) => !leadIds.includes(id)));
-      
-      // Remover los datos de los leads deseleccionados
-      setSelectedLeadsData((prev) => {
-        const newMap = new Map(prev);
-        leadIds.forEach((id) => newMap.delete(id));
-        return newMap;
-      });
-    }
-  }, [paginatedLeads]);
+      } else {
+        // Remover leads
+        setSelectedLeads((prev) => prev.filter((id) => !leadIds.includes(id)));
+
+        // Remover los datos de los leads deseleccionados
+        setSelectedLeadsData((prev) => {
+          const newMap = new Map(prev);
+          leadIds.forEach((id) => newMap.delete(id));
+          return newMap;
+        });
+      }
+    },
+    [paginatedLeads],
+  );
 
   const handleViewModeToggle = () => {
     const modes: ("table" | "columns")[] = ["table", "columns"];
@@ -766,9 +769,7 @@ export default function Leads() {
 
   // Helper para obtener todos los leads seleccionados con sus datos completos
   const getSelectedLeadsWithData = useCallback((): Lead[] => {
-    return selectedLeads
-      .map((id) => selectedLeadsData.get(id))
-      .filter((lead): lead is Lead => lead !== undefined);
+    return selectedLeads.map((id) => selectedLeadsData.get(id)).filter((lead): lead is Lead => lead !== undefined);
   }, [selectedLeads, selectedLeadsData]);
 
   // Limpiar datos de leads seleccionados que ya no existen
@@ -825,8 +826,7 @@ export default function Leads() {
 
   const handleDeleteSelectedLeads = () => {
     const selectedLeadsWithData = getSelectedLeadsWithData();
-    const leadsToDelete =
-      selectedLeads.length > 0 ? selectedLeadsWithData : filteredLeads;
+    const leadsToDelete = selectedLeads.length > 0 ? selectedLeadsWithData : filteredLeads;
 
     if (leadsToDelete.length === 0) {
       toast({
@@ -872,8 +872,7 @@ export default function Leads() {
 
   const handleConfirmDelete = async () => {
     const selectedLeadsWithData = getSelectedLeadsWithData();
-    const leadsToDelete =
-      selectedLeads.length > 0 ? selectedLeadsWithData : filteredLeads;
+    const leadsToDelete = selectedLeads.length > 0 ? selectedLeadsWithData : filteredLeads;
 
     const leadIds = leadsToDelete.map((lead) => lead.id);
     const result = await deleteMultipleLeads(leadIds);
@@ -1383,7 +1382,7 @@ export default function Leads() {
 
         {showBulkAssign && userPermissions?.canBulkAssignLeads && (
           <Dialog open={showBulkAssign} onOpenChange={setShowBulkAssign}>
-            <DialogContent className="max-w-2xl">
+            <DialogContent className="max-w-2xl max-h-[90%]">
               <LeadsBulkAssignment
                 leads={selectedLeads.length > 0 ? getSelectedLeadsWithData() : filteredLeads}
                 onLeadsAssigned={() => {
@@ -1435,11 +1434,7 @@ export default function Leads() {
         <Dialog open={showMassWhatsApp} onOpenChange={setShowMassWhatsApp}>
           <DialogContent className="max-w-6xl max-h-[90vh] overflow-auto">
             <MassWhatsAppSender
-              filteredLeads={
-                selectedLeads.length > 0
-                  ? getSelectedLeadsWithData()
-                  : filteredLeads
-              }
+              filteredLeads={selectedLeads.length > 0 ? getSelectedLeadsWithData() : filteredLeads}
               onClose={() => {
                 setShowMassWhatsApp(false);
                 clearSelectedLeads();
@@ -1460,9 +1455,7 @@ export default function Leads() {
           isOpen={showDeleteDialog}
           onClose={() => setShowDeleteDialog(false)}
           onConfirm={handleConfirmDelete}
-          leads={
-            selectedLeads.length > 0 ? getSelectedLeadsWithData() : filteredLeads
-          }
+          leads={selectedLeads.length > 0 ? getSelectedLeadsWithData() : filteredLeads}
           isDeleting={isDeleting}
         />
       </div>
