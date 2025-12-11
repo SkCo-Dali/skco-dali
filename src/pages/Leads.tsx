@@ -97,7 +97,7 @@ export default function Leads() {
   // Actualizar vista cuando cambia el tamaño de pantalla
   useEffect(() => {
     if (isMobile) {
-      setViewMode("columns");
+      setViewMode("table");
     }
   }, [isMobile]);
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
