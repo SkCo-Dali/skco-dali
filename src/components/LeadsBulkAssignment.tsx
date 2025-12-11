@@ -153,9 +153,7 @@ export function LeadsBulkAssignment({ leads, onLeadsAssigned }: LeadsBulkAssignm
       if (leads.length > 0) {
         console.log(`✅ Using ${leads.length} selected leads`);
         const filteredByStage = leads.filter((lead) =>
-          selectedStages.some(
-            (stage) => lead.stage?.toLowerCase() === stage.toLowerCase() || lead.stage === stage,
-          ),
+          selectedStages.some((stage) => lead.stage?.toLowerCase() === stage.toLowerCase() || lead.stage === stage),
         );
         setAllLeads(filteredByStage);
         setIsLoadingLeads(false);
@@ -319,7 +317,7 @@ export function LeadsBulkAssignment({ leads, onLeadsAssigned }: LeadsBulkAssignm
     setUserAssignments((prev) =>
       prev.map((assignment) => ({
         ...assignment,
-        quantity: assignment.enabled ? (newQuantities.get(assignment.userId) || 0) : 0,
+        quantity: assignment.enabled ? newQuantities.get(assignment.userId) || 0 : 0,
       })),
     );
 
@@ -368,7 +366,9 @@ export function LeadsBulkAssignment({ leads, onLeadsAssigned }: LeadsBulkAssignm
     const validQuantity = Math.max(0, Math.min(quantity || 0, filteredLeads.length));
 
     setUserAssignments((prev) =>
-      prev.map((assignment) => (assignment.userId === userId ? { ...assignment, quantity: validQuantity } : assignment)),
+      prev.map((assignment) =>
+        assignment.userId === userId ? { ...assignment, quantity: validQuantity } : assignment,
+      ),
     );
   };
 
@@ -617,346 +617,358 @@ export function LeadsBulkAssignment({ leads, onLeadsAssigned }: LeadsBulkAssignm
       ) : (
         <ScrollArea className="flex-1 pr-4">
           <div className="space-y-6 pb-4">
-          {/* Stage filter */}
-          <div>
-            <Label className="mb-2 block">Filtrar por estado de lead</Label>
-            <Popover>
-              <PopoverTrigger asChild>
-                <button
-                  type="button"
-                  className="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                >
-                  <span className="truncate text-left">
-                    {selectedStages.length === 0
-                      ? "Seleccionar estados"
-                      : selectedStages.length === 1
-                        ? selectedStages[0]
-                        : `${selectedStages.length} estados seleccionados`}
-                  </span>
-                  <ChevronDown className="h-4 w-4 shrink-0 opacity-50" />
-                </button>
-              </PopoverTrigger>
-              <PopoverContent className="w-[--radix-popover-trigger-width] p-1 z-50 bg-popover" align="start">
-                <div className="flex gap-1 mb-1 px-1">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="flex-1 h-7 text-xs"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      setSelectedStages([...AVAILABLE_STAGES]);
-                    }}
-                  >
-                    Todos
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="flex-1 h-7 text-xs"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      setSelectedStages([]);
-                    }}
-                  >
-                    Ninguno
-                  </Button>
-                </div>
-                <Separator className="mb-1" />
-                <div className="space-y-0.5 max-h-48 overflow-y-auto">
-                  {AVAILABLE_STAGES.map((stage) => {
-                    const isSelected = selectedStages.includes(stage);
-                    return (
-                      <div
-                        key={stage}
-                        role="option"
-                        aria-selected={isSelected}
-                        className="relative flex w-full cursor-pointer select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm outline-none hover:bg-accent hover:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50"
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              {/* Stage filter */}
+              <div>
+                <Label className="mb-2 block">Filtrar por estado de lead</Label>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <button
+                      type="button"
+                      className="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                    >
+                      <span className="truncate text-left">
+                        {selectedStages.length === 0
+                          ? "Seleccionar estados"
+                          : selectedStages.length === 1
+                            ? selectedStages[0]
+                            : `${selectedStages.length} estados seleccionados`}
+                      </span>
+                      <ChevronDown className="h-4 w-4 shrink-0 opacity-50" />
+                    </button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-[--radix-popover-trigger-width] p-1 z-50 bg-popover" align="start">
+                    <div className="flex gap-1 mb-1 px-1">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="flex-1 h-7 text-xs"
                         onClick={(e) => {
                           e.preventDefault();
                           e.stopPropagation();
-                          toggleStage(stage);
+                          setSelectedStages([...AVAILABLE_STAGES]);
                         }}
                       >
-                        <span className="absolute left-2 flex h-3.5 w-3.5 items-center justify-center">
-                          {isSelected && <Check className="h-4 w-4" />}
-                        </span>
-                        <span className="flex-1">{stage}</span>
-                        {isSelected && leadsPerStage[stage] !== undefined && (
-                          <Badge variant="secondary" className="text-xs ml-2">
-                            {leadsPerStage[stage]}
-                          </Badge>
-                        )}
-                      </div>
-                    );
-                  })}
-                </div>
-              </PopoverContent>
-            </Popover>
-          </div>
+                        Todos
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="flex-1 h-7 text-xs"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          setSelectedStages([]);
+                        }}
+                      >
+                        Ninguno
+                      </Button>
+                    </div>
+                    <Separator className="mb-1" />
+                    <div className="space-y-0.5 max-h-48 overflow-y-auto">
+                      {AVAILABLE_STAGES.map((stage) => {
+                        const isSelected = selectedStages.includes(stage);
+                        return (
+                          <div
+                            key={stage}
+                            role="option"
+                            aria-selected={isSelected}
+                            className="relative flex w-full cursor-pointer select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm outline-none hover:bg-accent hover:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50"
+                            onClick={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              toggleStage(stage);
+                            }}
+                          >
+                            <span className="absolute left-2 flex h-3.5 w-3.5 items-center justify-center">
+                              {isSelected && <Check className="h-4 w-4" />}
+                            </span>
+                            <span className="flex-1">{stage}</span>
+                            {isSelected && leadsPerStage[stage] !== undefined && (
+                              <Badge variant="secondary" className="text-xs ml-2">
+                                {leadsPerStage[stage]}
+                              </Badge>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </PopoverContent>
+                </Popover>
+              </div>
 
-          {/* Campaign filter */}
-          <div>
-            <Label className="mb-2 block">Filtrar por campaña</Label>
-            <Select value={selectedCampaign} onValueChange={setSelectedCampaign}>
-              <SelectTrigger>
-                <SelectValue placeholder="Todas las campañas" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Todas las campañas</SelectItem>
-                {uniqueCampaigns.map((campaign) => (
-                  <SelectItem key={campaign as string} value={(campaign as string) || ""}>
-                    {(campaign as string) || "Sin campaña"}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          {/* Available leads info */}
-          <div className="p-2 bg-blue-50 dark:bg-blue-950 rounded-xl">
-            <p className="text-sm text-blue-800 dark:text-blue-200">
-              <strong>Leads disponibles:</strong> {filteredLeads.length}
-              {selectedStages.length > 0 && (
-                <span className="ml-2 text-xs">
-                  ({selectedStages.map((s) => `${s}: ${leadsPerStage[s] || 0}`).join(" | ")})
-                </span>
-              )}
-            </p>
-            {selectedCampaign !== "all" && (
-              <p className="text-sm text-blue-700 dark:text-blue-300">Campaña: {selectedCampaign}</p>
-            )}
-          </div>
-
-          {/* Role filter */}
-          {availableRoles.length > 1 && (
-            <div>
-              <Label className="mb-2 block">Filtrar por rol</Label>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <button
-                    type="button"
-                    className="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                  >
-                    <span className="truncate text-left">
-                      {selectedRoles.length === 0
-                        ? "Todos los roles"
-                        : selectedRoles.length === 1
-                          ? selectedRoles[0]
-                          : `${selectedRoles.length} roles seleccionados`}
-                    </span>
-                    <ChevronDown className="h-4 w-4 shrink-0 opacity-50" />
-                  </button>
-                </PopoverTrigger>
-                <PopoverContent className="w-[--radix-popover-trigger-width] p-1 z-50 bg-popover" align="start">
-                  <div className="space-y-0.5">
-                    {availableRoles.map((role) => {
-                      const isSelected = selectedRoles.includes(role);
-                      return (
-                        <div
-                          key={role}
-                          role="option"
-                          aria-selected={isSelected}
-                          className="relative flex w-full cursor-pointer select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm outline-none hover:bg-accent hover:text-accent-foreground"
-                          onClick={(e) => {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            toggleRole(role);
-                          }}
-                        >
-                          <span className="absolute left-2 flex h-3.5 w-3.5 items-center justify-center">
-                            {isSelected && <Check className="h-4 w-4" />}
-                          </span>
-                          <span className="flex-1">{role}</span>
-                        </div>
-                      );
-                    })}
-                    {selectedRoles.length > 0 && (
-                      <>
-                        <Separator className="my-1" />
-                        <div
-                          className="relative flex w-full cursor-pointer select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm outline-none hover:bg-accent hover:text-accent-foreground text-muted-foreground"
-                          onClick={(e) => {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            setSelectedRoles([]);
-                          }}
-                        >
-                          <span className="absolute left-2 flex h-3.5 w-3.5 items-center justify-center">
-                            <X className="h-3 w-3" />
-                          </span>
-                          Limpiar filtro
-                        </div>
-                      </>
-                    )}
-                  </div>
-                </PopoverContent>
-              </Popover>
+              {/* Campaign filter */}
+              <div>
+                <Label className="mb-2 block">Filtrar por campaña</Label>
+                <Select value={selectedCampaign} onValueChange={setSelectedCampaign}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Todas las campañas" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Todas las campañas</SelectItem>
+                    {uniqueCampaigns.map((campaign) => (
+                      <SelectItem key={campaign as string} value={(campaign as string) || ""}>
+                        {(campaign as string) || "Sin campaña"}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
-          )}
 
-          {/* Assignment type */}
-          <div>
-            <Label>Tipo de asignación</Label>
-            <Select value={assignmentType} onValueChange={handleTypeChange}>
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="equitable">Asignación equitativa</SelectItem>
-                <SelectItem value="specific">Cantidad específica por usuario</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
+            {/* Available leads info */}
+            <div className="p-2 bg-blue-50 dark:bg-blue-950 rounded-xl">
+              <p className="text-sm text-blue-800 dark:text-blue-200">
+                <strong>Leads disponibles:</strong> {filteredLeads.length}
+                {selectedStages.length > 0 && (
+                  <span className="ml-2 text-xs">
+                    ({selectedStages.map((s) => `${s}: ${leadsPerStage[s] || 0}`).join(" | ")})
+                  </span>
+                )}
+              </p>
+              {selectedCampaign !== "all" && (
+                <p className="text-sm text-blue-700 dark:text-blue-300">Campaña: {selectedCampaign}</p>
+              )}
+            </div>
 
-          {/* Equitable assignment button */}
-          {assignmentType === "equitable" && (
+            {/* Role filter */}
+            {availableRoles.length > 1 && (
+              <div>
+                <Label className="mb-2 block">Filtrar por rol</Label>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <button
+                      type="button"
+                      className="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                    >
+                      <span className="truncate text-left">
+                        {selectedRoles.length === 0
+                          ? "Todos los roles"
+                          : selectedRoles.length === 1
+                            ? selectedRoles[0]
+                            : `${selectedRoles.length} roles seleccionados`}
+                      </span>
+                      <ChevronDown className="h-4 w-4 shrink-0 opacity-50" />
+                    </button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-[--radix-popover-trigger-width] p-1 z-50 bg-popover" align="start">
+                    <div className="space-y-0.5">
+                      {availableRoles.map((role) => {
+                        const isSelected = selectedRoles.includes(role);
+                        return (
+                          <div
+                            key={role}
+                            role="option"
+                            aria-selected={isSelected}
+                            className="relative flex w-full cursor-pointer select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm outline-none hover:bg-accent hover:text-accent-foreground"
+                            onClick={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              toggleRole(role);
+                            }}
+                          >
+                            <span className="absolute left-2 flex h-3.5 w-3.5 items-center justify-center">
+                              {isSelected && <Check className="h-4 w-4" />}
+                            </span>
+                            <span className="flex-1">{role}</span>
+                          </div>
+                        );
+                      })}
+                      {selectedRoles.length > 0 && (
+                        <>
+                          <Separator className="my-1" />
+                          <div
+                            className="relative flex w-full cursor-pointer select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm outline-none hover:bg-accent hover:text-accent-foreground text-muted-foreground"
+                            onClick={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              setSelectedRoles([]);
+                            }}
+                          >
+                            <span className="absolute left-2 flex h-3.5 w-3.5 items-center justify-center">
+                              <X className="h-3 w-3" />
+                            </span>
+                            Limpiar filtro
+                          </div>
+                        </>
+                      )}
+                    </div>
+                  </PopoverContent>
+                </Popover>
+              </div>
+            )}
+
+            {/* Assignment type */}
             <div>
+              <Label>Tipo de asignación</Label>
+              <Select value={assignmentType} onValueChange={handleTypeChange}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="equitable">Asignación equitativa</SelectItem>
+                  <SelectItem value="specific">Cantidad específica por usuario</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Equitable assignment button */}
+            {assignmentType === "equitable" && (
+              <div>
+                <Button
+                  onClick={handleEquitableAssignment}
+                  variant="outline"
+                  className="w-full"
+                  disabled={filteredLeads.length === 0 || enabledUsers.length === 0}
+                >
+                  <Users className="h-4 w-4 mr-2" />
+                  Distribuir equitativamente entre equipo
+                </Button>
+              </div>
+            )}
+
+            <Separator />
+
+            {/* Assignments list */}
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Label>Asignaciones por usuario</Label>
+                  <Badge variant="outline" className="text-xs">
+                    {enabledUsers.length} de {userAssignments.length} activos
+                  </Badge>
+                </div>
+                <div className="flex items-center gap-2">
+                  {assignmentType === "equitable" && userAssignments.length > 0 && (
+                    <>
+                      <Button
+                        onClick={() => toggleAllUsers(true)}
+                        size="sm"
+                        variant="ghost"
+                        className="h-7 px-2 text-xs"
+                      >
+                        <Check className="h-3 w-3 mr-1" />
+                        Todos
+                      </Button>
+                      <Button
+                        onClick={() => toggleAllUsers(false)}
+                        size="sm"
+                        variant="ghost"
+                        className="h-7 px-2 text-xs"
+                      >
+                        <X className="h-3 w-3 mr-1" />
+                        Ninguno
+                      </Button>
+                    </>
+                  )}
+                  {assignmentType === "specific" && (
+                    <Button
+                      onClick={addUserAssignment}
+                      size="sm"
+                      variant="outline"
+                      className="gap-1"
+                      disabled={userAssignments.length >= filteredUsers.length}
+                    >
+                      <Plus className="h-3 w-3" />
+                      Agregar
+                    </Button>
+                  )}
+                </div>
+              </div>
+
+              <div className="space-y-3 max-h-60 overflow-y-auto">
+                {userAssignments.length === 0 ? (
+                  <div className="text-center py-4 text-muted-foreground text-sm">
+                    No hay usuarios disponibles para asignar
+                  </div>
+                ) : (
+                  userAssignments.map((assignment) => (
+                    <div
+                      key={assignment.userId}
+                      className={`flex items-center gap-3 p-2 border rounded-xl transition-opacity ${
+                        !assignment.enabled ? "opacity-50" : ""
+                      }`}
+                    >
+                      {/* Toggle for equitable mode */}
+                      {assignmentType === "equitable" && (
+                        <Switch
+                          checked={assignment.enabled}
+                          onCheckedChange={() => toggleUserEnabled(assignment.userId)}
+                          className="data-[state=checked]:bg-primary"
+                        />
+                      )}
+
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2">
+                          <p className="font-medium truncate">{assignment.userName}</p>
+                          <Badge variant={getRoleBadgeVariant(assignment.userRole)} className="text-xs shrink-0">
+                            {assignment.userRole}
+                          </Badge>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-2">
+                        <Label className="text-sm">Cantidad:</Label>
+                        <Input
+                          type="number"
+                          min="0"
+                          max={filteredLeads.length}
+                          value={assignment.quantity}
+                          onChange={(e) => {
+                            const newValue = parseInt(e.target.value);
+                            updateUserQuantity(assignment.userId, isNaN(newValue) ? 0 : newValue);
+                          }}
+                          className="w-20"
+                          disabled={assignmentType === "equitable" || !assignment.enabled}
+                        />
+                      </div>
+
+                      {assignmentType === "specific" && userAssignments.length > 1 && (
+                        <Button
+                          onClick={() => removeUserAssignment(assignment.userId)}
+                          size="sm"
+                          variant="outline"
+                          className="p-1"
+                        >
+                          <Trash2 className="h-3 w-3" />
+                        </Button>
+                      )}
+                    </div>
+                  ))
+                )}
+              </div>
+
+              {/* Summary */}
+              <div className="p-3 bg-muted rounded-xl">
+                <div className="flex justify-between text-sm">
+                  <span>Total a asignar:</span>
+                  <span className="font-medium">{getTotalAssigned()}</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span>Leads disponibles:</span>
+                  <span className="font-medium">{filteredLeads.length}</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span>Restantes:</span>
+                  <span
+                    className={`font-medium ${filteredLeads.length - getTotalAssigned() < 0 ? "text-destructive" : "text-green-600"}`}
+                  >
+                    {filteredLeads.length - getTotalAssigned()}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Action buttons */}
+            <div className="flex gap-2 pt-2">
               <Button
-                onClick={handleEquitableAssignment}
-                variant="outline"
-                className="w-full"
-                disabled={filteredLeads.length === 0 || enabledUsers.length === 0}
+                onClick={handleAssign}
+                disabled={getTotalAssigned() === 0 || getTotalAssigned() > filteredLeads.length || isAssigning}
+                className="flex-1"
               >
-                <Users className="h-4 w-4 mr-2" />
-                Distribuir equitativamente entre equipo
+                {isAssigning ? "Asignando..." : "Asignar Leads"}
               </Button>
             </div>
-          )}
-
-          <Separator />
-
-          {/* Assignments list */}
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <Label>Asignaciones por usuario</Label>
-                <Badge variant="outline" className="text-xs">
-                  {enabledUsers.length} de {userAssignments.length} activos
-                </Badge>
-              </div>
-              <div className="flex items-center gap-2">
-                {assignmentType === "equitable" && userAssignments.length > 0 && (
-                  <>
-                    <Button onClick={() => toggleAllUsers(true)} size="sm" variant="ghost" className="h-7 px-2 text-xs">
-                      <Check className="h-3 w-3 mr-1" />
-                      Todos
-                    </Button>
-                    <Button onClick={() => toggleAllUsers(false)} size="sm" variant="ghost" className="h-7 px-2 text-xs">
-                      <X className="h-3 w-3 mr-1" />
-                      Ninguno
-                    </Button>
-                  </>
-                )}
-                {assignmentType === "specific" && (
-                  <Button
-                    onClick={addUserAssignment}
-                    size="sm"
-                    variant="outline"
-                    className="gap-1"
-                    disabled={userAssignments.length >= filteredUsers.length}
-                  >
-                    <Plus className="h-3 w-3" />
-                    Agregar
-                  </Button>
-                )}
-              </div>
-            </div>
-
-            <div className="space-y-3 max-h-60 overflow-y-auto">
-              {userAssignments.length === 0 ? (
-                <div className="text-center py-4 text-muted-foreground text-sm">
-                  No hay usuarios disponibles para asignar
-                </div>
-              ) : (
-                userAssignments.map((assignment) => (
-                  <div
-                    key={assignment.userId}
-                    className={`flex items-center gap-3 p-2 border rounded-xl transition-opacity ${
-                      !assignment.enabled ? "opacity-50" : ""
-                    }`}
-                  >
-                    {/* Toggle for equitable mode */}
-                    {assignmentType === "equitable" && (
-                      <Switch
-                        checked={assignment.enabled}
-                        onCheckedChange={() => toggleUserEnabled(assignment.userId)}
-                        className="data-[state=checked]:bg-primary"
-                      />
-                    )}
-
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2">
-                        <p className="font-medium truncate">{assignment.userName}</p>
-                        <Badge variant={getRoleBadgeVariant(assignment.userRole)} className="text-xs shrink-0">
-                          {assignment.userRole}
-                        </Badge>
-                      </div>
-                    </div>
-
-                    <div className="flex items-center gap-2">
-                      <Label className="text-sm">Cantidad:</Label>
-                      <Input
-                        type="number"
-                        min="0"
-                        max={filteredLeads.length}
-                        value={assignment.quantity}
-                        onChange={(e) => {
-                          const newValue = parseInt(e.target.value);
-                          updateUserQuantity(assignment.userId, isNaN(newValue) ? 0 : newValue);
-                        }}
-                        className="w-20"
-                        disabled={assignmentType === "equitable" || !assignment.enabled}
-                      />
-                    </div>
-
-                    {assignmentType === "specific" && userAssignments.length > 1 && (
-                      <Button
-                        onClick={() => removeUserAssignment(assignment.userId)}
-                        size="sm"
-                        variant="outline"
-                        className="p-1"
-                      >
-                        <Trash2 className="h-3 w-3" />
-                      </Button>
-                    )}
-                  </div>
-                ))
-              )}
-            </div>
-
-            {/* Summary */}
-            <div className="p-3 bg-muted rounded-xl">
-              <div className="flex justify-between text-sm">
-                <span>Total a asignar:</span>
-                <span className="font-medium">{getTotalAssigned()}</span>
-              </div>
-              <div className="flex justify-between text-sm">
-                <span>Leads disponibles:</span>
-                <span className="font-medium">{filteredLeads.length}</span>
-              </div>
-              <div className="flex justify-between text-sm">
-                <span>Restantes:</span>
-                <span
-                  className={`font-medium ${filteredLeads.length - getTotalAssigned() < 0 ? "text-destructive" : "text-green-600"}`}
-                >
-                  {filteredLeads.length - getTotalAssigned()}
-                </span>
-              </div>
-            </div>
-          </div>
-
-          {/* Action buttons */}
-          <div className="flex gap-2 pt-2">
-            <Button
-              onClick={handleAssign}
-              disabled={getTotalAssigned() === 0 || getTotalAssigned() > filteredLeads.length || isAssigning}
-              className="flex-1"
-            >
-              {isAssigning ? "Asignando..." : "Asignar Leads"}
-            </Button>
-          </div>
           </div>
         </ScrollArea>
       )}
