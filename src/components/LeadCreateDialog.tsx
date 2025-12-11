@@ -328,7 +328,7 @@ export const LeadCreateDialog = forwardRef<LeadCreateDialogRef, LeadCreateDialog
                       </Select>
                       {formData.documentType && (
                         <Label className="absolute -top-2 left-3 bg-gray-50 px-1 text-xs text-gray-600">
-                          Tipo de identificación*
+                          Tipo de identificación
                         </Label>
                       )}
                     </div>
@@ -340,11 +340,10 @@ export const LeadCreateDialog = forwardRef<LeadCreateDialogRef, LeadCreateDialog
                         onChange={handleDocumentNumberChange}
                         className="border-gray-300 text-md rounded-xl h-12 bg-gray-50"
                         placeholder="Número de identificación*"
-                        required
                       />
                       {formData.documentNumber && (
                         <Label className="absolute -top-2 left-3 bg-gray-50 px-1 text-xs text-gray-600">
-                          Número de identificación*
+                          Número de identificación
                         </Label>
                       )}
                     </div>
@@ -356,7 +355,7 @@ export const LeadCreateDialog = forwardRef<LeadCreateDialogRef, LeadCreateDialog
                         value={formData.name}
                         onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                         className="border-gray-300 text-md rounded-xl h-12 bg-gray-50"
-                        placeholder="Nombres y apellidos*"
+                        placeholder="Nombres y apellidos"
                         required
                       />
                       {formData.name && (
@@ -370,8 +369,7 @@ export const LeadCreateDialog = forwardRef<LeadCreateDialogRef, LeadCreateDialog
                         value={formData.phone}
                         onChange={handlePhoneChange}
                         className="border-gray-300 text-md rounded-xl h-12 bg-gray-50"
-                        placeholder="Celular*"
-                        required
+                        placeholder="Celular"
                       />
                       {formData.phone && (
                         <Label className="absolute -top-2 left-3 bg-gray-50 px-1 text-xs text-gray-600">Celular*</Label>
@@ -387,11 +385,10 @@ export const LeadCreateDialog = forwardRef<LeadCreateDialogRef, LeadCreateDialog
                         onChange={handleEmailChange}
                         className={`border-gray-300 text-md rounded-xl h-12 bg-gray-50 ${formData.email && !isValidEmail(formData.email) ? "border-red-500" : ""}`}
                         placeholder="Correo electrónico*"
-                        required
                       />
                       {formData.email && (
                         <Label className="absolute -top-2 left-3 bg-gray-50 px-1 text-xs text-gray-600">
-                          Correo electrónico*
+                          Correo electrónico
                         </Label>
                       )}
                       {formData.email && !isValidEmail(formData.email) && (
@@ -433,7 +430,7 @@ export const LeadCreateDialog = forwardRef<LeadCreateDialogRef, LeadCreateDialog
                       </Popover>
                       {selectedProducts.length > 0 && (
                         <Label className="absolute -top-2 left-3 bg-gray-50 px-1 text-xs text-gray-600">
-                          Producto de interés*
+                          Producto de interés
                         </Label>
                       )}
                     </div>
@@ -448,9 +445,7 @@ export const LeadCreateDialog = forwardRef<LeadCreateDialogRef, LeadCreateDialog
                         placeholder="Campaña"
                       />
                       {formData.campaign && (
-                        <Label className="absolute -to p-2 left-3 bg-gray-50 px-1 text-xs text-gray-600">
-                          Campaña*
-                        </Label>
+                        <Label className="absolute -to p-2 left-3 bg-gray-50 px-1 text-xs text-gray-600">Campaña</Label>
                       )}
                     </div>
                     <div className="relative">
