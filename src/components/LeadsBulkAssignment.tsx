@@ -615,7 +615,7 @@ export function LeadsBulkAssignment({ leads, onLeadsAssigned }: LeadsBulkAssignm
           <p className="text-sm text-muted-foreground">Cargando leads ({selectedStages.join(", ")})...</p>
         </div>
       ) : (
-        <ScrollArea className="flex-1 pr-4 py-4">
+        <ScrollArea className="flex-1 pr-4 p-4">
           <div className="space-y-6 pb-4">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
               {/* Stage filter */}
@@ -732,84 +732,86 @@ export function LeadsBulkAssignment({ leads, onLeadsAssigned }: LeadsBulkAssignm
             </div>
 
             {/* Role filter */}
-            {availableRoles.length > 1 && (
-              <div>
-                <Label className="mb-2 block">Filtrar por rol</Label>
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <button
-                      type="button"
-                      className="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                    >
-                      <span className="truncate text-left">
-                        {selectedRoles.length === 0
-                          ? "Todos los roles"
-                          : selectedRoles.length === 1
-                            ? selectedRoles[0]
-                            : `${selectedRoles.length} roles seleccionados`}
-                      </span>
-                      <ChevronDown className="h-4 w-4 shrink-0 opacity-50" />
-                    </button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-[--radix-popover-trigger-width] p-1 z-50 bg-popover" align="start">
-                    <div className="space-y-0.5">
-                      {availableRoles.map((role) => {
-                        const isSelected = selectedRoles.includes(role);
-                        return (
-                          <div
-                            key={role}
-                            role="option"
-                            aria-selected={isSelected}
-                            className="relative flex w-full cursor-pointer select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm outline-none hover:bg-accent hover:text-accent-foreground"
-                            onClick={(e) => {
-                              e.preventDefault();
-                              e.stopPropagation();
-                              toggleRole(role);
-                            }}
-                          >
-                            <span className="absolute left-2 flex h-3.5 w-3.5 items-center justify-center">
-                              {isSelected && <Check className="h-4 w-4" />}
-                            </span>
-                            <span className="flex-1">{role}</span>
-                          </div>
-                        );
-                      })}
-                      {selectedRoles.length > 0 && (
-                        <>
-                          <Separator className="my-1" />
-                          <div
-                            className="relative flex w-full cursor-pointer select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm outline-none hover:bg-accent hover:text-accent-foreground text-muted-foreground"
-                            onClick={(e) => {
-                              e.preventDefault();
-                              e.stopPropagation();
-                              setSelectedRoles([]);
-                            }}
-                          >
-                            <span className="absolute left-2 flex h-3.5 w-3.5 items-center justify-center">
-                              <X className="h-3 w-3" />
-                            </span>
-                            Limpiar filtro
-                          </div>
-                        </>
-                      )}
-                    </div>
-                  </PopoverContent>
-                </Popover>
-              </div>
-            )}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              {availableRoles.length > 1 && (
+                <div>
+                  <Label className="mb-2 block">Filtrar por rol</Label>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <button
+                        type="button"
+                        className="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                      >
+                        <span className="truncate text-left">
+                          {selectedRoles.length === 0
+                            ? "Todos los roles"
+                            : selectedRoles.length === 1
+                              ? selectedRoles[0]
+                              : `${selectedRoles.length} roles seleccionados`}
+                        </span>
+                        <ChevronDown className="h-4 w-4 shrink-0 opacity-50" />
+                      </button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-[--radix-popover-trigger-width] p-1 z-50 bg-popover" align="start">
+                      <div className="space-y-0.5">
+                        {availableRoles.map((role) => {
+                          const isSelected = selectedRoles.includes(role);
+                          return (
+                            <div
+                              key={role}
+                              role="option"
+                              aria-selected={isSelected}
+                              className="relative flex w-full cursor-pointer select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm outline-none hover:bg-accent hover:text-accent-foreground"
+                              onClick={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                toggleRole(role);
+                              }}
+                            >
+                              <span className="absolute left-2 flex h-3.5 w-3.5 items-center justify-center">
+                                {isSelected && <Check className="h-4 w-4" />}
+                              </span>
+                              <span className="flex-1">{role}</span>
+                            </div>
+                          );
+                        })}
+                        {selectedRoles.length > 0 && (
+                          <>
+                            <Separator className="my-1" />
+                            <div
+                              className="relative flex w-full cursor-pointer select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm outline-none hover:bg-accent hover:text-accent-foreground text-muted-foreground"
+                              onClick={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                setSelectedRoles([]);
+                              }}
+                            >
+                              <span className="absolute left-2 flex h-3.5 w-3.5 items-center justify-center">
+                                <X className="h-3 w-3" />
+                              </span>
+                              Limpiar filtro
+                            </div>
+                          </>
+                        )}
+                      </div>
+                    </PopoverContent>
+                  </Popover>
+                </div>
+              )}
 
-            {/* Assignment type */}
-            <div>
-              <Label>Tipo de asignación</Label>
-              <Select value={assignmentType} onValueChange={handleTypeChange}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="equitable">Asignación equitativa</SelectItem>
-                  <SelectItem value="specific">Cantidad específica por usuario</SelectItem>
-                </SelectContent>
-              </Select>
+              {/* Assignment type */}
+              <div>
+                <Label>Tipo de asignación</Label>
+                <Select value={assignmentType} onValueChange={handleTypeChange}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="equitable">Asignación equitativa</SelectItem>
+                    <SelectItem value="specific">Cantidad específica por usuario</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
 
             {/* Equitable assignment button */}
