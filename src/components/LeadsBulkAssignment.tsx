@@ -78,9 +78,7 @@ export function LeadsBulkAssignment({ leads, onLeadsAssigned }: LeadsBulkAssignm
       return userAssignments;
     }
     const searchLower = userSearchTerm.toLowerCase().trim();
-    return userAssignments.filter((assignment) =>
-      assignment.userName.toLowerCase().includes(searchLower)
-    );
+    return userAssignments.filter((assignment) => assignment.userName.toLowerCase().includes(searchLower));
   }, [userAssignments, userSearchTerm]);
 
   // Get enabled users for equitable distribution
@@ -617,7 +615,7 @@ export function LeadsBulkAssignment({ leads, onLeadsAssigned }: LeadsBulkAssignm
   };
 
   return (
-    <div className="flex flex-col h-full max-h-[85vh] sm:max-h-[80vh] overflow-hidden">
+    <div className="flex flex-col h-full overflow-hidden">
       <DialogHeader className="shrink-0 px-4 sm:px-6 pt-4 sm:pt-6 pb-2">
         <DialogTitle>Asignación Masiva de Leads</DialogTitle>
       </DialogHeader>
@@ -891,7 +889,7 @@ export function LeadsBulkAssignment({ leads, onLeadsAssigned }: LeadsBulkAssignm
                     )}
                   </div>
                 </div>
-                
+
                 {/* User search filter */}
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -907,7 +905,9 @@ export function LeadsBulkAssignment({ leads, onLeadsAssigned }: LeadsBulkAssignm
               <div className="space-y-2 sm:space-y-3 max-h-48 sm:max-h-60 overflow-y-auto">
                 {filteredUserAssignments.length === 0 ? (
                   <div className="text-center py-4 text-muted-foreground text-sm">
-                    {userSearchTerm.trim() ? "No se encontraron usuarios con ese nombre" : "No hay usuarios disponibles para asignar"}
+                    {userSearchTerm.trim()
+                      ? "No se encontraron usuarios con ese nombre"
+                      : "No hay usuarios disponibles para asignar"}
                   </div>
                 ) : (
                   filteredUserAssignments.map((assignment) => (
@@ -993,7 +993,7 @@ export function LeadsBulkAssignment({ leads, onLeadsAssigned }: LeadsBulkAssignm
             </span>
           </div>
         </div>
-        
+
         <Button
           onClick={handleAssign}
           disabled={getTotalAssigned() === 0 || getTotalAssigned() > filteredLeads.length || isAssigning}
