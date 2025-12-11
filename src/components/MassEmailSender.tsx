@@ -225,23 +225,19 @@ export function MassEmailSender({ filteredLeads, onClose, opportunityId }: MassE
       <div className="flex flex-col h-full max-h-[85vh]">
         {/* Header fijo con tabs y toolbar */}
         <div className="flex-shrink-0 pb-3 border-b space-y-3">
-          {/* Título y badges */}
-          <div className="flex items-center justify-between">
-            <div className="space-y-1">
-              <h2 className="text-lg sm:text-xl font-semibold">Envío de Correos</h2>
-              <div className="flex flex-wrap items-center gap-1.5">
-                <Badge variant="secondary" className="text-xs">
-                  <Filter className="h-3 w-3 mr-1 text-white" />
-                  <span className="text-white">{leadsToSend.length} de {validLeads.length} seleccionados</span>
-                </Badge>
-                {isOverLimit && (
-                  <Badge variant="destructive" className="text-xs">
-                    <AlertTriangle className="h-3 w-3 mr-1" />
-                    Máximo 50
-                  </Badge>
-                )}
-              </div>
-            </div>
+        {/* Título y badge en una línea */}
+          <div className="flex items-center gap-2 flex-wrap">
+            <h2 className="text-lg sm:text-xl font-semibold">Envío de Correos</h2>
+            <Badge variant="secondary" className="text-xs">
+              <Filter className="h-3 w-3 mr-1 text-white" />
+              <span className="text-white">{leadsToSend.length} de {validLeads.length} seleccionados</span>
+            </Badge>
+            {isOverLimit && (
+              <Badge variant="destructive" className="text-xs">
+                <AlertTriangle className="h-3 w-3 mr-1" />
+                Máximo 50
+              </Badge>
+            )}
           </div>
 
           {/* Tabs */}
