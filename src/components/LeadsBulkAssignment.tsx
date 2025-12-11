@@ -634,8 +634,35 @@ export function LeadsBulkAssignment({ leads, onLeadsAssigned }: LeadsBulkAssignm
                   <ChevronDown className="h-4 w-4 shrink-0 opacity-50" />
                 </button>
               </PopoverTrigger>
-              <PopoverContent className="w-[--radix-popover-trigger-width] p-1 max-h-64 overflow-y-auto z-50 bg-popover" align="start">
-                <div className="space-y-0.5">
+              <PopoverContent className="w-[--radix-popover-trigger-width] p-1 z-50 bg-popover" align="start">
+                <div className="flex gap-1 mb-1 px-1">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="flex-1 h-7 text-xs"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      setSelectedStages([...AVAILABLE_STAGES]);
+                    }}
+                  >
+                    Todos
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="flex-1 h-7 text-xs"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      setSelectedStages([]);
+                    }}
+                  >
+                    Ninguno
+                  </Button>
+                </div>
+                <Separator className="mb-1" />
+                <div className="space-y-0.5 max-h-48 overflow-y-auto">
                   {AVAILABLE_STAGES.map((stage) => {
                     const isSelected = selectedStages.includes(stage);
                     return (
