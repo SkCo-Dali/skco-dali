@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
-import { Checkbox } from "@/components/ui/checkbox";
+
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Plus, Trash2, Loader2, Users, Check, X, ChevronDown } from "lucide-react";
 import { Lead, LeadStatus } from "@/types/crm";
@@ -620,8 +620,11 @@ export function LeadsBulkAssignment({ leads, onLeadsAssigned }: LeadsBulkAssignm
             <Label className="mb-2 block">Filtrar por estado de lead</Label>
             <Popover>
               <PopoverTrigger asChild>
-                <Button variant="outline" className="w-full justify-between">
-                  <span className="truncate">
+                <button
+                  type="button"
+                  className="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  <span className="truncate text-left">
                     {selectedStages.length === 0
                       ? "Seleccionar estados"
                       : selectedStages.length === 1
@@ -629,28 +632,36 @@ export function LeadsBulkAssignment({ leads, onLeadsAssigned }: LeadsBulkAssignm
                         : `${selectedStages.length} estados seleccionados`}
                   </span>
                   <ChevronDown className="h-4 w-4 shrink-0 opacity-50" />
-                </Button>
+                </button>
               </PopoverTrigger>
-              <PopoverContent className="w-80 p-2 max-h-64 overflow-y-auto" align="start">
-                <div className="space-y-1">
-                  {AVAILABLE_STAGES.map((stage) => (
-                    <div
-                      key={stage}
-                      className="flex items-center gap-2 p-2 hover:bg-muted rounded-md cursor-pointer"
-                      onClick={() => toggleStage(stage)}
-                    >
-                      <Checkbox
-                        checked={selectedStages.includes(stage)}
-                        onCheckedChange={() => toggleStage(stage)}
-                      />
-                      <span className="flex-1 text-sm">{stage}</span>
-                      {selectedStages.includes(stage) && leadsPerStage[stage] !== undefined && (
-                        <Badge variant="secondary" className="text-xs">
-                          {leadsPerStage[stage]}
-                        </Badge>
-                      )}
-                    </div>
-                  ))}
+              <PopoverContent className="w-[--radix-popover-trigger-width] p-1 max-h-64 overflow-y-auto z-50 bg-popover" align="start">
+                <div className="space-y-0.5">
+                  {AVAILABLE_STAGES.map((stage) => {
+                    const isSelected = selectedStages.includes(stage);
+                    return (
+                      <div
+                        key={stage}
+                        role="option"
+                        aria-selected={isSelected}
+                        className="relative flex w-full cursor-pointer select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm outline-none hover:bg-accent hover:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          toggleStage(stage);
+                        }}
+                      >
+                        <span className="absolute left-2 flex h-3.5 w-3.5 items-center justify-center">
+                          {isSelected && <Check className="h-4 w-4" />}
+                        </span>
+                        <span className="flex-1">{stage}</span>
+                        {isSelected && leadsPerStage[stage] !== undefined && (
+                          <Badge variant="secondary" className="text-xs ml-2">
+                            {leadsPerStage[stage]}
+                          </Badge>
+                        )}
+                      </div>
+                    );
+                  })}
                 </div>
               </PopoverContent>
             </Popover>
@@ -658,7 +669,7 @@ export function LeadsBulkAssignment({ leads, onLeadsAssigned }: LeadsBulkAssignm
 
           {/* Campaign filter */}
           <div>
-            <Label>Filtrar por campaña</Label>
+            <Label className="mb-2 block">Filtrar por campaña</Label>
             <Select value={selectedCampaign} onValueChange={setSelectedCampaign}>
               <SelectTrigger>
                 <SelectValue placeholder="Todas las campañas" />
@@ -695,8 +706,11 @@ export function LeadsBulkAssignment({ leads, onLeadsAssigned }: LeadsBulkAssignm
               <Label className="mb-2 block">Filtrar por rol</Label>
               <Popover>
                 <PopoverTrigger asChild>
-                  <Button variant="outline" className="w-full justify-between">
-                    <span className="truncate">
+                  <button
+                    type="button"
+                    className="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    <span className="truncate text-left">
                       {selectedRoles.length === 0
                         ? "Todos los roles"
                         : selectedRoles.length === 1
@@ -704,35 +718,47 @@ export function LeadsBulkAssignment({ leads, onLeadsAssigned }: LeadsBulkAssignm
                           : `${selectedRoles.length} roles seleccionados`}
                     </span>
                     <ChevronDown className="h-4 w-4 shrink-0 opacity-50" />
-                  </Button>
+                  </button>
                 </PopoverTrigger>
-                <PopoverContent className="w-64 p-2" align="start">
-                  <div className="space-y-1">
-                    {availableRoles.map((role) => (
-                      <div
-                        key={role}
-                        className="flex items-center gap-2 p-2 hover:bg-muted rounded-md cursor-pointer"
-                        onClick={() => toggleRole(role)}
-                      >
-                        <Checkbox
-                          checked={selectedRoles.includes(role)}
-                          onCheckedChange={() => toggleRole(role)}
-                        />
-                        <span className="flex-1 text-sm">{role}</span>
-                      </div>
-                    ))}
+                <PopoverContent className="w-[--radix-popover-trigger-width] p-1 z-50 bg-popover" align="start">
+                  <div className="space-y-0.5">
+                    {availableRoles.map((role) => {
+                      const isSelected = selectedRoles.includes(role);
+                      return (
+                        <div
+                          key={role}
+                          role="option"
+                          aria-selected={isSelected}
+                          className="relative flex w-full cursor-pointer select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm outline-none hover:bg-accent hover:text-accent-foreground"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            toggleRole(role);
+                          }}
+                        >
+                          <span className="absolute left-2 flex h-3.5 w-3.5 items-center justify-center">
+                            {isSelected && <Check className="h-4 w-4" />}
+                          </span>
+                          <span className="flex-1">{role}</span>
+                        </div>
+                      );
+                    })}
                     {selectedRoles.length > 0 && (
                       <>
-                        <Separator className="my-2" />
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="w-full justify-start text-muted-foreground"
-                          onClick={() => setSelectedRoles([])}
+                        <Separator className="my-1" />
+                        <div
+                          className="relative flex w-full cursor-pointer select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm outline-none hover:bg-accent hover:text-accent-foreground text-muted-foreground"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            setSelectedRoles([]);
+                          }}
                         >
-                          <X className="h-3 w-3 mr-2" />
+                          <span className="absolute left-2 flex h-3.5 w-3.5 items-center justify-center">
+                            <X className="h-3 w-3" />
+                          </span>
                           Limpiar filtro
-                        </Button>
+                        </div>
                       </>
                     )}
                   </div>
