@@ -1,5 +1,4 @@
 import React from "react";
-import { useNavigate } from "react-router-dom";
 import { MarketClient } from "@/types/marketDali";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -12,6 +11,7 @@ interface ClientCardProps {
   isInCart: boolean;
   onAddToCart: (client: MarketClient) => void;
   onRemoveFromCart: (clientId: string) => void;
+  onViewLead?: (leadId: string) => void;
 }
 
 // Check if client is already loaded as a lead
@@ -27,8 +27,7 @@ const getLeadId = (client: MarketClient): string | null => {
   return null;
 };
 
-export const ClientCard: React.FC<ClientCardProps> = ({ client, isInCart, onAddToCart, onRemoveFromCart }) => {
-  const navigate = useNavigate();
+export const ClientCard: React.FC<ClientCardProps> = ({ client, isInCart, onAddToCart, onRemoveFromCart, onViewLead }) => {
   const alreadyLoaded = isClientAlreadyLoaded(client);
   const leadId = getLeadId(client);
 
@@ -48,8 +47,8 @@ export const ClientCard: React.FC<ClientCardProps> = ({ client, isInCart, onAddT
   };
 
   const handleViewLead = () => {
-    if (leadId) {
-      navigate(`/leads?leadId=${leadId}`);
+    if (leadId && onViewLead) {
+      onViewLead(leadId);
     }
   };
 

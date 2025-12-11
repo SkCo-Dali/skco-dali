@@ -100,6 +100,7 @@ interface ClientListProps {
   onRemoveFromCart: (clientId: string) => void;
   onBack: () => void;
   onAddAllToCart: () => void;
+  onViewLead?: (leadId: string) => void;
 }
 
 export const ClientList: React.FC<ClientListProps> = ({
@@ -112,6 +113,7 @@ export const ClientList: React.FC<ClientListProps> = ({
   onRemoveFromCart,
   onBack,
   onAddAllToCart,
+  onViewLead,
 }) => {
   const [searchTerm, setSearchTerm] = useState("");
   const isMobile = useIsMobile();
@@ -307,6 +309,7 @@ export const ClientList: React.FC<ClientListProps> = ({
               isInCart={isInCart(client.id)}
               onAddToCart={onAddToCart}
               onRemoveFromCart={onRemoveFromCart}
+              onViewLead={onViewLead}
             />
           ))}
         </div>
