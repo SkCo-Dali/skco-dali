@@ -186,7 +186,7 @@ export const ClientList: React.FC<ClientListProps> = ({
                 "rgba(0, 0, 0, 1) 0%," +
                 "rgba(0, 0, 0, 0.9) 35%," +
                 "rgba(0, 0, 0, 0.9) 70%," +
-                "rgba(0, 0, 0, 0.2) 80%," +
+                "rgba(0, 0, 0, 0.9) 80%," +
                 "rgba(0, 0, 0, 0.1) 90%," +
                 "rgba(0, 0, 0, 0) 100%)",
             }}
