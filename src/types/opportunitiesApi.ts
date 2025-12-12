@@ -16,6 +16,8 @@ export interface ApiOpportunity {
   ComisionPotencial: number;
   DaliPrompt?: string;
   LastCampaignName?: string | null;
+  ImageUrl?: string | null;
+  ImageUrlMobile?: string | null;
 }
 
 export interface OpportunityFiltersApi {

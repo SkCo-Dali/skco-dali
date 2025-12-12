@@ -20,6 +20,8 @@ export interface MarketOpportunity {
     end: string;
   };
   lastCampaignName?: string | null;
+  imageUrl?: string | null;
+  imageUrlMobile?: string | null;
 }
 
 export interface MarketClient {
