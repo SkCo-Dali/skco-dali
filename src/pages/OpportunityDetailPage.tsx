@@ -21,6 +21,7 @@ import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { ChevronRight, Store } from "lucide-react";
 import { getLeadById } from "@/utils/leadsApiClient";
 import { useToast } from "@/hooks/use-toast";
+import { extractFirstName } from "@/utils/nameUtils";
 
 // Breadcrumbs component
 const Breadcrumbs: React.FC<{ opportunityTitle?: string }> = ({ opportunityTitle }) => {
@@ -52,6 +53,7 @@ const Breadcrumbs: React.FC<{ opportunityTitle?: string }> = ({ opportunityTitle
 const convertClientToLead = (client: MarketClient, opportunityId: string): Lead => ({
   id: client.id,
   name: client.name,
+  firstName: extractFirstName(client.name),
   email: client.email,
   phone: client.phone,
   status: "New",
