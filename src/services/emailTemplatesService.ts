@@ -129,10 +129,24 @@ class EmailTemplatesService {
   async getTemplateByOpportunityId(opportunityId: number): Promise<EmailTemplateData | null> {
     const templates = await this.getTemplates();
     
-    // Filtrar plantillas que tengan el opportunity_id solicitado
-    const matchingTemplates = templates.filter(
-      (template) => template.opportunity_id === opportunityId
+    console.log('[EmailTemplatesService] Buscando plantilla para opportunity_id:', opportunityId);
+    console.log('[EmailTemplatesService] Templates con opportunity_id:', 
+      templates.filter(t => t.opportunity_id !== null).map(t => ({ 
+        id: t.id, 
+        name: t.template_name, 
+        opportunity_id: t.opportunity_id,
+        opportunity_id_type: typeof t.opportunity_id
+      }))
     );
+    
+    // Filtrar plantillas que tengan el opportunity_id solicitado
+    // Usamos comparación numérica para evitar problemas de tipo string vs number
+    const matchingTemplates = templates.filter(
+      (template) => template.opportunity_id !== null && 
+                    Number(template.opportunity_id) === Number(opportunityId)
+    );
+
+    console.log('[EmailTemplatesService] Plantillas encontradas:', matchingTemplates.length);
 
     if (matchingTemplates.length === 0) {
       return null;
@@ -143,8 +157,10 @@ class EmailTemplatesService {
       (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
     );
 
+    console.log('[EmailTemplatesService] Plantilla seleccionada:', sortedTemplates[0].template_name);
     return sortedTemplates[0];
   }
 }
+
 
 export const emailTemplatesService = new EmailTemplatesService();
