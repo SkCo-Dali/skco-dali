@@ -45,6 +45,13 @@ const mapPriority = (priority: string): "alta" | "media" | "baja" => {
   return "baja";
 };
 
+// Generate mobile image URL by adding "xs" before .png extension
+const generateMobileImageUrl = (desktopUrl: string | undefined): string | undefined => {
+  if (!desktopUrl) return undefined;
+  // Add "xs" before .png extension
+  return desktopUrl.replace(/\.png$/i, 'xs.png');
+};
+
 // Transform API opportunity to Market opportunity
 const transformOpportunity = (api: ApiOpportunity): MarketOpportunity => {
   const category = mapTypeToCategory(api.Type, api.Title);
@@ -67,7 +74,7 @@ const transformOpportunity = (api: ApiOpportunity): MarketOpportunity => {
     },
     lastCampaignName: api.LastCampaignName,
     imageUrl: api.ImageUrl,
-    imageUrlMobile: api.ImageUrlMobile,
+    imageUrlMobile: api.ImageUrlMobile || generateMobileImageUrl(api.ImageUrl),
   };
 };
 
