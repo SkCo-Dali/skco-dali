@@ -7,6 +7,7 @@ import { CartDrawer } from "@/components/market-dali/CartDrawer";
 import { CartConfirmationModal } from "@/components/market-dali/CartConfirmationModal";
 import { CartActionConfirmationModal } from "@/components/market-dali/CartActionConfirmationModal";
 import { CartFloatingButton } from "@/components/market-dali/CartFloatingButton";
+import { MarketDaliLoadingAnimation } from "@/components/market-dali/MarketDaliLoadingAnimation";
 import { MarketClient } from "@/types/marketDali";
 import { Lead } from "@/types/crm";
 import { cn } from "@/lib/utils";
@@ -15,9 +16,11 @@ import { useAuth } from "@/contexts/AuthContext";
 import { MassEmailSender } from "@/components/MassEmailSender";
 import { WhatsAppPropioManager } from "@/components/whatsapp/WhatsAppPropioManager";
 import { LoadLeadsProgressModal } from "@/components/LoadLeadsProgressModal";
+import { LeadDetail } from "@/components/LeadDetail";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
-import { Skeleton } from "@/components/ui/skeleton";
-import { ChevronRight, Home, Store } from "lucide-react";
+import { ChevronRight, Store } from "lucide-react";
+import { getLeadById } from "@/utils/leadsApiClient";
+import { useToast } from "@/hooks/use-toast";
 
 // Breadcrumbs component
 const Breadcrumbs: React.FC<{ opportunityTitle?: string }> = ({ opportunityTitle }) => {
@@ -117,6 +120,12 @@ const OpportunityDetailContent: React.FC = () => {
   // Selected client IDs from confirmation modal
   const [selectedClientIds, setSelectedClientIds] = useState<string[]>([]);
 
+  // Lead detail modal state
+  const [selectedLeadForDetail, setSelectedLeadForDetail] = useState<Lead | null>(null);
+  const [isLoadingLeadDetail, setIsLoadingLeadDetail] = useState(false);
+
+  const { toast } = useToast();
+
   // Auto-select opportunity when opportunities load and id is available
   useEffect(() => {
     if (id && opportunities.length > 0 && !selectedOpportunity) {
@@ -157,10 +166,52 @@ const OpportunityDetailContent: React.FC = () => {
 
   // Check if client is already loaded as a lead
   const isClientAlreadyLoaded = useCallback((client: MarketClient): boolean => {
-    return client.id !== null && !client.id.startsWith("temp-");
+    return client.alreadyLoaded === true;
   }, []);
 
-  // Add all available clients to cart
+  // Handle view lead (open LeadDetail modal)
+  const handleViewLead = useCallback(async (leadId: string) => {
+    setIsLoadingLeadDetail(true);
+    try {
+      const lead = await getLeadById(leadId);
+      if (lead) {
+        setSelectedLeadForDetail(lead);
+      } else {
+        toast({
+          title: "Lead no encontrado",
+          description: "No se pudo cargar la información del lead.",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      console.error("Error fetching lead:", error);
+      toast({
+        title: "Error",
+        description: "Ocurrió un error al cargar el lead.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoadingLeadDetail(false);
+    }
+  }, [toast]);
+
+  const handleCloseLeadDetail = useCallback(() => {
+    setSelectedLeadForDetail(null);
+  }, []);
+
+  const handleSaveLeadDetail = useCallback(() => {
+    // Refresh clients list after saving lead
+    setSelectedLeadForDetail(null);
+  }, []);
+
+  // Handle sending email from LeadDetail modal
+  const handleSendEmailFromLeadDetail = useCallback((lead: Lead) => {
+    setSelectedLeadForDetail(null); // Close LeadDetail modal
+    setLoadedLeads([lead]); // Set the lead as the target for email
+    setSelectedClientIds([lead.id]);
+    setIsEmailModalOpen(true);
+  }, []);
+
   const handleAddAllToCart = useCallback(() => {
     clientsOfSelectedOpportunity.forEach((client) => {
       if (isClientAlreadyLoaded(client)) return;
@@ -224,11 +275,13 @@ const OpportunityDetailContent: React.FC = () => {
   }, []);
 
   const handleSendEmailsFromProgress = useCallback(() => {
+    console.log('[OpportunityDetailPage] handleSendEmailsFromProgress - cart.opportunityId:', cart.opportunityId);
+    console.log('[OpportunityDetailPage] selectedOpportunity?.id:', selectedOpportunity?.id);
     setIsLoadLeadsModalOpen(false);
     // Open email modal directly with loaded leads
     setSelectedClientIds(loadedLeads.map(lead => lead.id));
     setIsEmailModalOpen(true);
-  }, [loadedLeads]);
+  }, [loadedLeads, cart.opportunityId, selectedOpportunity?.id]);
 
   const handleGoToLeads = useCallback(() => {
     setIsLoadLeadsModalOpen(false);
@@ -240,13 +293,7 @@ const OpportunityDetailContent: React.FC = () => {
   if (isLoadingOpportunities || (!selectedOpportunity && opportunities.length === 0)) {
     return (
       <div className="min-h-screen bg-background p-4 sm:p-6">
-        <Skeleton className="h-12 w-64 mb-6" />
-        <Skeleton className="h-40 w-full mb-4" />
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-          {Array.from({ length: 8 }).map((_, i) => (
-            <Skeleton key={i} className="h-40 rounded-lg" />
-          ))}
-        </div>
+        <MarketDaliLoadingAnimation message="Cargando clientes de la oportunidad..." />
       </div>
     );
   }
@@ -290,6 +337,7 @@ const OpportunityDetailContent: React.FC = () => {
               onRemoveFromCart={removeFromCart}
               onBack={handleBackToOpportunities}
               onAddAllToCart={handleAddAllToCart}
+              onViewLead={handleViewLead}
             />
           )}
         </div>
@@ -353,7 +401,7 @@ const OpportunityDetailContent: React.FC = () => {
             <MassEmailSender
               filteredLeads={selectedLeads}
               onClose={handleCloseEmailModal}
-              opportunityId={cart.opportunityId ? parseInt(cart.opportunityId, 10) : undefined}
+              opportunityId={selectedOpportunity?.id ? parseInt(selectedOpportunity.id, 10) : undefined}
             />
           </div>
         </DialogContent>
@@ -378,6 +426,17 @@ const OpportunityDetailContent: React.FC = () => {
         onSendEmails={handleSendEmailsFromProgress}
         onGoToLeads={handleGoToLeads}
       />
+
+      {/* Lead Detail Modal */}
+      {selectedLeadForDetail && (
+        <LeadDetail
+          lead={selectedLeadForDetail}
+          isOpen={!!selectedLeadForDetail}
+          onClose={handleCloseLeadDetail}
+          onSave={handleSaveLeadDetail}
+          onOpenMassEmail={handleSendEmailFromLeadDetail}
+        />
+      )}
     </div>
   );
 };

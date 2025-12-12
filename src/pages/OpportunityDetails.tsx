@@ -104,12 +104,33 @@ export const OpportunityDetails: React.FC = () => {
     loadOpportunity();
   };
 
-  const handleLoadAsLeads = async (openEmailSender: boolean = true) => {
+  const handleLoadAsLeads = async (openEmailSender: boolean = true, leadsToLoad?: PreviewLeadFromOpportunity[]) => {
     if (!opportunity) return;
+    
+    // Use provided leads or the preview leads from state
+    const sourceLeads = leadsToLoad || previewLeads;
+    
+    if (!sourceLeads || sourceLeads.length === 0) {
+      toast({
+        title: "Error",
+        description: "No hay clientes para cargar. Primero debe revisar los clientes.",
+        variant: "destructive",
+        duration: 5000,
+      });
+      return;
+    }
+    
     try {
       setShowLoadLeadsModal(true);
       setLoadingLeads(true);
-      const leads = await opportunitiesService.loadAsLeads(opportunity.id);
+      
+      // Build the leads array with documentNumber and documentType
+      const leadsRequest = sourceLeads.map(lead => ({
+        documentNumber: lead.documentNumber,
+        documentType: lead.DocumentType,
+      }));
+      
+      const leads = await opportunitiesService.loadAsLeads(opportunity.id, leadsRequest);
       setLoadedLeads(leads);
 
       // Extract campaign name from the first lead

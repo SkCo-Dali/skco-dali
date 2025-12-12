@@ -324,16 +324,27 @@ export const MarketDaliProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     
     setIsProcessingAction(true);
     try {
-      // Get document numbers for selected clients only
-      let documentNumbers: number[] | undefined;
+      // Get clients with documentNumber and documentType for selected clients
+      let clientsToLoad: Array<{ documentNumber: number; documentType: string }> = [];
       if (selectedClientIds && selectedClientIds.length > 0) {
-        documentNumbers = cart.items
+        clientsToLoad = cart.items
           .filter(item => selectedClientIds.includes(item.client.id))
-          .map(item => item.client.documentNumber)
-          .filter((num): num is number => num !== undefined && num !== null);
+          .map(item => ({
+            documentNumber: item.client.documentNumber,
+            documentType: item.client.documentType,
+          }))
+          .filter(c => c.documentNumber !== undefined && c.documentNumber !== null);
+      } else {
+        // If no specific selection, load all items in cart
+        clientsToLoad = cart.items
+          .map(item => ({
+            documentNumber: item.client.documentNumber,
+            documentType: item.client.documentType,
+          }))
+          .filter(c => c.documentNumber !== undefined && c.documentNumber !== null);
       }
       
-      const result = await marketDaliApi.loadClientsAsLeads(cart.opportunityId, documentNumbers);
+      const result = await marketDaliApi.loadClientsAsLeads(cart.opportunityId, clientsToLoad);
       if (result.success) {
         const loadedCount = selectedClientIds?.length || cart.items.length;
         toast({

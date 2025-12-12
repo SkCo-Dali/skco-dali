@@ -321,7 +321,7 @@ const ChatSamiContent = forwardRef<ChatSamiHandle, ChatSamiProps>(({ isOpen = fa
 
   const handleViewOpportunity = () => {
     if (topOpportunity) {
-      navigate(`/oportunidades/${topOpportunity.id}`);
+      navigate(`/market-dali/${topOpportunity.id}`);
     }
   };
 

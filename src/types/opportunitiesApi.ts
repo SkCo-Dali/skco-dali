@@ -16,6 +16,8 @@ export interface ApiOpportunity {
   ComisionPotencial: number;
   DaliPrompt?: string;
   LastCampaignName?: string | null;
+  ImageUrl?: string | null;
+  ImageUrlMobile?: string | null;
 }
 
 export interface OpportunityFiltersApi {
@@ -101,4 +103,6 @@ export interface PreviewLeadFromOpportunity {
   PreferredContactChannel: string | null;
   AdditionalInfo: Record<string, any>;
   OpportunityId: number;
+  LastCampaignName: string | null;
+  AlreadyLoaded: boolean;
 }

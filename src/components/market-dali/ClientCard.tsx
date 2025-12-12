@@ -1,22 +1,24 @@
 import React from "react";
-import { useNavigate } from "react-router-dom";
 import { MarketClient } from "@/types/marketDali";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { ShoppingCart, Check, User, Star, Phone, Mail, ExternalLink } from "lucide-react";
+import { ShoppingCart, Check, Phone, Mail, ExternalLink } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useLeadInteractions } from "@/hooks/useLeadInteractions";
+import { InteractionIcons } from "./InteractionIcons";
 
 interface ClientCardProps {
   client: MarketClient;
   isInCart: boolean;
   onAddToCart: (client: MarketClient) => void;
   onRemoveFromCart: (clientId: string) => void;
+  onViewLead?: (leadId: string) => void;
 }
 
-// Check if client is already loaded as a lead (has real ID, not temp)
+// Check if client is already loaded as a lead
 const isClientAlreadyLoaded = (client: MarketClient): boolean => {
-  return client.id !== null && !client.id.startsWith("temp-");
+  return client.alreadyLoaded === true;
 };
 
 // Get the lead ID if client is already loaded
@@ -27,10 +29,15 @@ const getLeadId = (client: MarketClient): string | null => {
   return null;
 };
 
-export const ClientCard: React.FC<ClientCardProps> = ({ client, isInCart, onAddToCart, onRemoveFromCart }) => {
-  const navigate = useNavigate();
+export const ClientCard: React.FC<ClientCardProps> = ({ client, isInCart, onAddToCart, onRemoveFromCart, onViewLead }) => {
   const alreadyLoaded = isClientAlreadyLoaded(client);
   const leadId = getLeadId(client);
+  
+  // Fetch interactions only for already loaded clients
+  const { status: interactionStatus, loading: loadingInteractions } = useLeadInteractions(
+    leadId,
+    alreadyLoaded
+  );
 
   const getScoreColor = (score: number) => {
     if (score >= 80) return "text-green-600 bg-green-100";
@@ -48,8 +55,8 @@ export const ClientCard: React.FC<ClientCardProps> = ({ client, isInCart, onAddT
   };
 
   const handleViewLead = () => {
-    if (leadId) {
-      navigate(`/leads?leadId=${leadId}`);
+    if (leadId && onViewLead) {
+      onViewLead(leadId);
     }
   };
 
@@ -101,14 +108,16 @@ export const ClientCard: React.FC<ClientCardProps> = ({ client, isInCart, onAddT
           </div>
         </div>
 
-        {/* Badges row */}
-        <div className="flex flex-wrap gap-1.5 mb-3">
-          <Badge variant="secondary" className="text-xs">
-            {client.segment}
-          </Badge>
-          <Badge variant="outline" className="text-xs">
-            {client.currentProduct}
-          </Badge>
+        {/* Badges and interaction icons row */}
+        <div className="flex flex-wrap items-center gap-1.5 mb-3">
+          {alreadyLoaded && (
+            <Badge variant="secondary" className="text-xs bg-blue-100 text-blue-700 border-blue-200">
+              Ya cargado
+            </Badge>
+          )}
+          {alreadyLoaded && (
+            <InteractionIcons status={interactionStatus} loading={loadingInteractions} />
+          )}
         </div>
 
         {/* Score and action */}

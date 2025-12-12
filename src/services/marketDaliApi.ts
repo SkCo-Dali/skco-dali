@@ -66,6 +66,8 @@ const transformOpportunity = (api: ApiOpportunity): MarketOpportunity => {
       end: api.End,
     },
     lastCampaignName: api.LastCampaignName,
+    imageUrl: api.ImageUrl,
+    imageUrlMobile: api.ImageUrlMobile,
   };
 };
 
@@ -84,6 +86,8 @@ const transformClient = (lead: PreviewLeadFromOpportunity): MarketClient => ({
   documentType: lead.DocumentType,
   additionalInfo: lead.AdditionalInfo || {},
   opportunityId: lead.OpportunityId.toString(),
+  alreadyLoaded: lead.AlreadyLoaded,
+  lastCampaignName: lead.LastCampaignName,
 });
 
 const getIconForCategory = (category: OpportunityCategory): string => {
@@ -151,14 +155,14 @@ export const toggleOpportunityFavorite = async (opportunityId: string, isFavorit
 /**
  * Load selected clients as leads in the lead manager
  * @param opportunityId - The opportunity ID
- * @param clientDocumentNumbers - Optional array of document numbers to load (if not provided, loads all)
+ * @param clients - Array of clients with documentNumber and documentType to load
  */
 export const loadClientsAsLeads = async (
   opportunityId: string,
-  clientDocumentNumbers?: number[],
+  clients: Array<{ documentNumber: number; documentType: string }>,
 ): Promise<{ success: boolean; count: number }> => {
   try {
-    const result = await loadLeadsFromOpportunity(parseInt(opportunityId), clientDocumentNumbers);
+    const result = await loadLeadsFromOpportunity(parseInt(opportunityId), clients);
     return { success: true, count: result.length };
   } catch (error) {
     console.error("Error loading clients as leads:", error);

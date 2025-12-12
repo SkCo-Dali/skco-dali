@@ -9,6 +9,7 @@ import { CartDrawer } from "@/components/market-dali/CartDrawer";
 import { CartConfirmationModal } from "@/components/market-dali/CartConfirmationModal";
 import { CartActionConfirmationModal } from "@/components/market-dali/CartActionConfirmationModal";
 import { CartFloatingButton } from "@/components/market-dali/CartFloatingButton";
+import { MarketDaliLoadingAnimation } from "@/components/market-dali/MarketDaliLoadingAnimation";
 import { MarketOpportunity, MarketClient } from "@/types/marketDali";
 import { Lead } from "@/types/crm";
 import { cn } from "@/lib/utils";
@@ -131,7 +132,7 @@ const MarketDaliContent: React.FC = () => {
 
   // Check if client is already loaded as a lead
   const isClientAlreadyLoaded = useCallback((client: MarketClient): boolean => {
-    return client.id !== null && !client.id.startsWith('temp-');
+    return client.alreadyLoaded === true;
   }, []);
 
   // Add all available clients to cart (excludes already loaded ones)

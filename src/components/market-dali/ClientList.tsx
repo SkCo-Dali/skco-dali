@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { MarketClient, MarketOpportunity, CATEGORY_CONFIG } from "@/types/marketDali";
 import { ClientCard } from "./ClientCard";
-import { Skeleton } from "@/components/ui/skeleton";
+import { MarketDaliLoadingAnimation } from "./MarketDaliLoadingAnimation";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
@@ -100,6 +100,7 @@ interface ClientListProps {
   onRemoveFromCart: (clientId: string) => void;
   onBack: () => void;
   onAddAllToCart: () => void;
+  onViewLead?: (leadId: string) => void;
 }
 
 export const ClientList: React.FC<ClientListProps> = ({
@@ -112,17 +113,22 @@ export const ClientList: React.FC<ClientListProps> = ({
   onRemoveFromCart,
   onBack,
   onAddAllToCart,
+  onViewLead,
 }) => {
   const [searchTerm, setSearchTerm] = useState("");
   const isMobile = useIsMobile();
 
   const categoryConfig = CATEGORY_CONFIG[opportunity.type];
   const bannerConfig = getCategoryBanner(opportunity.type);
-  const bannerImage = isMobile ? bannerConfig.mobileImage : bannerConfig.image;
+  // Use API image URLs if available, otherwise fallback to category banner config
+  // For mobile: prefer imageUrlMobile, fallback to imageUrl, then category config
+  const apiImage = isMobile ? opportunity.imageUrlMobile || opportunity.imageUrl : opportunity.imageUrl;
+  const fallbackImage = isMobile ? bannerConfig.mobileImage : bannerConfig.image;
+  const bannerImage = apiImage || fallbackImage;
 
   // Check if client is already loaded as a lead
   const isClientAlreadyLoaded = (client: MarketClient): boolean => {
-    return client.id !== null && !client.id.startsWith("temp-");
+    return client.alreadyLoaded === true;
   };
 
   // Filter clients by search
@@ -146,16 +152,7 @@ export const ClientList: React.FC<ClientListProps> = ({
   const allAvailableInCart = clientsInCart === availableClients.length && availableClients.length > 0;
 
   if (isLoading) {
-    return (
-      <div className="space-y-4">
-        <Skeleton className="h-20 rounded-lg" />
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          {Array.from({ length: 6 }).map((_, i) => (
-            <Skeleton key={i} className="h-40 rounded-lg" />
-          ))}
-        </div>
-      </div>
-    );
+    return <MarketDaliLoadingAnimation message="Cargando clientes..." />;
   }
 
   return (
@@ -171,7 +168,7 @@ export const ClientList: React.FC<ClientListProps> = ({
           bannerImage
             ? {
                 backgroundImage: `url(${bannerImage})`,
-                backgroundSize: "cover", // 👈 que la imagen cubra todo
+                backgroundSize: "auto 100%", // 👈 que la imagen cubra todo
                 backgroundPosition: "right center", // 👈 ajusta el encuadre fino
                 backgroundRepeat: "no-repeat",
               }
@@ -179,18 +176,18 @@ export const ClientList: React.FC<ClientListProps> = ({
         }
       >
         {/* Overlay */}
-        {bannerImage ? (
+        {bannerImage && !isMobile ? (
           <div
             className="absolute inset-0 z-0 pointer-events-none"
             style={{
               // Gradiente tipo banner: oscuro a la izquierda, se desvanece sobre la imagen
               background:
                 "linear-gradient(to right," +
-                "rgba(0, 0, 0, 0) 0%," +
-                "rgba(0, 0, 0, 0) 35%," +
-                "rgba(0, 0, 0, 0) 60%," +
-                "rgba(0, 0, 0, 0) 75%," +
-                "rgba(0, 0, 0, 0) 65%," +
+                "rgba(0, 0, 0, 1) 0%," +
+                "rgba(0, 0, 0, 1) 35%," +
+                "rgba(0, 0, 0, 1) 70%," +
+                "rgba(0, 0, 0, 1) 75%," +
+                "rgba(0, 0, 0, 0) 80%," +
                 "rgba(0, 0, 0, 0) 100%)",
             }}
           />
@@ -307,6 +304,7 @@ export const ClientList: React.FC<ClientListProps> = ({
               isInCart={isInCart(client.id)}
               onAddToCart={onAddToCart}
               onRemoveFromCart={onRemoveFromCart}
+              onViewLead={onViewLead}
             />
           ))}
         </div>

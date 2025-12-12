@@ -69,22 +69,22 @@ export const getOpportunitySummary = async (): Promise<ApiOpportunity[]> => {
 // API: Cargar clientes de oportunidad como leads
 export const loadLeadsFromOpportunity = async (
   opportunityId: number, 
-  documentNumbers?: number[]
+  leads: Array<{ documentNumber: number; documentType: string }>
 ): Promise<LoadLeadsFromOpportunityResponse[]> => {
-  const endpoint = `${API_BASE_URL}/leads/from-opportunity?opportunity_id=${opportunityId}`;
+  const endpoint = `${API_BASE_URL}/leads/from-opportunity`;
 
   try {
     const headers = await getAuthHeaders();
     
-    // If specific document numbers are provided, send them in the request body
-    const body = documentNumbers && documentNumbers.length > 0 
-      ? JSON.stringify({ document_numbers: documentNumbers })
-      : undefined;
+    const requestBody = {
+      opportunityId,
+      leads,
+    };
     
     const response = await fetchWithRetry(endpoint, {
       method: 'POST',
       headers,
-      body,
+      body: JSON.stringify(requestBody),
     });
 
     if (!response.ok) {
@@ -140,7 +140,7 @@ export const previewLeadsFromOpportunity = async (opportunityId: number): Promis
     const headers = await getAuthHeaders();
     
     const response = await fetchWithRetry(endpoint, {
-      method: 'POST',
+      method: 'GET',
       headers,
     });
 
