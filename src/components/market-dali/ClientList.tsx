@@ -185,9 +185,9 @@ export const ClientList: React.FC<ClientListProps> = ({
                 "linear-gradient(to right," +
                 "rgba(0, 0, 0, 1) 0%," +
                 "rgba(0, 0, 0, 0.9) 35%," +
+                "rgba(0, 0, 0, 0.8) 50%," +
                 "rgba(0, 0, 0, 0.5) 60%," +
-                "rgba(0, 0, 0, 0.3) 75%," +
-                "rgba(0, 0, 0, 0.2) 65%," +
+                "rgba(0, 0, 0, 0.3) 70%," +
                 "rgba(0, 0, 0, 0) 100%)",
             }}
           />
