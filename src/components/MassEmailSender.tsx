@@ -58,14 +58,17 @@ export function MassEmailSender({ filteredLeads, onClose, opportunityId }: MassE
   // Ref para el portal del toolbar
   const toolbarPortalRef = useRef<HTMLDivElement>(null);
   
-  // Flag para indicar si ya se intentó cargar la plantilla por oportunidad
-  const [templateLoadAttempted, setTemplateLoadAttempted] = useState(false);
+  // Ref para capturar opportunityId al momento del mount
+  const opportunityIdRef = useRef(opportunityId);
+  
+  // Flag para evitar que la persistencia sobrescriba la plantilla cargada
+  const [isInitialized, setIsInitialized] = useState(false);
 
-  // Persistencia automática del borrador - solo habilitar después de intentar cargar plantilla
+  // Persistencia automática del borrador - solo habilitar después de inicialización
   const { restoreFromStorage, clearBackup } = useFormPersistence({
     key: 'mass-email-draft',
     data: template,
-    enabled: templateLoadAttempted, // Solo guardar después de la carga inicial
+    enabled: isInitialized,
     autoSaveInterval: 5000,
   });
 
@@ -77,19 +80,19 @@ export function MassEmailSender({ filteredLeads, onClose, opportunityId }: MassE
     }
   }, [graphAuthLoading, isAuthorized]);
 
-  // Cargar plantilla por opportunity_id si existe, o restaurar borrador
+  // Inicialización: cargar plantilla por opportunityId O restaurar borrador
   useEffect(() => {
-    console.log('[MassEmailSender] useEffect ejecutado, opportunityId:', opportunityId);
+    const oppId = opportunityIdRef.current;
+    console.log('[MassEmailSender] Inicializando con opportunityId:', oppId);
     
-    const loadTemplateByOpportunity = async () => {
-      // Si hay opportunityId, intentar cargar plantilla primero
-      if (opportunityId) {
-        console.log('[MassEmailSender] Intentando cargar plantilla para opportunityId:', opportunityId);
+    const initialize = async () => {
+      // Si hay opportunityId, buscar plantilla asociada
+      if (oppId !== undefined && oppId !== null) {
         try {
           const { emailTemplatesService } = await import('@/services/emailTemplatesService');
-          const loadedTemplate = await emailTemplatesService.getTemplateByOpportunityId(opportunityId);
+          const loadedTemplate = await emailTemplatesService.getTemplateByOpportunityId(oppId);
           
-          console.log('[MassEmailSender] Plantilla encontrada:', loadedTemplate?.template_name || 'ninguna');
+          console.log('[MassEmailSender] Resultado búsqueda plantilla:', loadedTemplate?.template_name || 'No encontrada');
           
           if (loadedTemplate) {
             setTemplate({
@@ -97,35 +100,43 @@ export function MassEmailSender({ filteredLeads, onClose, opportunityId }: MassE
               htmlContent: loadedTemplate.html_content,
               plainContent: loadedTemplate.plain_text_content || ''
             });
-            clearBackup(); // Limpiar cualquier borrador existente
-            setTemplateLoadAttempted(true);
+            // Limpiar borrador guardado ya que usamos plantilla
+            localStorage.removeItem('form_backup_mass-email-draft');
             toast({
               title: "Plantilla cargada",
               description: `Se ha cargado la plantilla "${loadedTemplate.template_name}"`,
             });
+            setIsInitialized(true);
             return;
           }
         } catch (error) {
-          console.error('Error loading template by opportunity_id:', error);
+          console.error('[MassEmailSender] Error cargando plantilla:', error);
         }
-      } else {
-        console.log('[MassEmailSender] No hay opportunityId, verificando borrador...');
       }
       
-      // Solo si no hay opportunityId o no se encontró plantilla, restaurar borrador
-      const restored = restoreFromStorage();
-      if (restored && (restored.subject || restored.htmlContent)) {
-        setTemplate(restored);
-        toast({
-          title: "Borrador restaurado",
-          description: "Se ha recuperado tu borrador anterior",
-        });
+      // Si no hay opportunityId o no se encontró plantilla, intentar restaurar borrador
+      console.log('[MassEmailSender] Verificando si hay borrador guardado...');
+      const savedBackup = localStorage.getItem('form_backup_mass-email-draft');
+      if (savedBackup) {
+        try {
+          const parsed = JSON.parse(savedBackup);
+          if (parsed.data && (parsed.data.subject || parsed.data.htmlContent)) {
+            setTemplate(parsed.data);
+            toast({
+              title: "Borrador restaurado",
+              description: "Se ha recuperado tu borrador anterior",
+            });
+          }
+        } catch (e) {
+          console.error('[MassEmailSender] Error parseando borrador:', e);
+        }
       }
-      setTemplateLoadAttempted(true);
+      
+      setIsInitialized(true);
     };
     
-    loadTemplateByOpportunity();
-  }, [opportunityId]);
+    initialize();
+  }, []); // Sin dependencias - solo ejecutar al montar
 
   // Cargar historial de correos cuando se activa la pestaña de logs
   useEffect(() => {
