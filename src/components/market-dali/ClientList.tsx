@@ -183,10 +183,10 @@ export const ClientList: React.FC<ClientListProps> = ({
               // Gradiente tipo banner: oscuro a la izquierda, se desvanece sobre la imagen
               background:
                 "linear-gradient(to right," +
-                "rgba(0, 0, 0, 1) 0%," +
-                "rgba(0, 0, 0, 1) 35%," +
-                "rgba(0, 0, 0, 1) 70%," +
-                "rgba(0, 0, 0, 1) 75%," +
+                "rgba(0, 0, 0, 0) 0%," +
+                "rgba(0, 0, 0, 0) 35%," +
+                "rgba(0, 0, 0, 0) 70%," +
+                "rgba(0, 0, 0, 0) 75%," +
                 "rgba(0, 0, 0, 0) 80%," +
                 "rgba(0, 0, 0, 0) 100%)",
             }}
