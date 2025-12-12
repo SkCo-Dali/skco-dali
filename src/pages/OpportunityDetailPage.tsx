@@ -267,11 +267,13 @@ const OpportunityDetailContent: React.FC = () => {
   }, []);
 
   const handleSendEmailsFromProgress = useCallback(() => {
+    console.log('[OpportunityDetailPage] handleSendEmailsFromProgress - cart.opportunityId:', cart.opportunityId);
+    console.log('[OpportunityDetailPage] selectedOpportunity?.id:', selectedOpportunity?.id);
     setIsLoadLeadsModalOpen(false);
     // Open email modal directly with loaded leads
     setSelectedClientIds(loadedLeads.map(lead => lead.id));
     setIsEmailModalOpen(true);
-  }, [loadedLeads]);
+  }, [loadedLeads, cart.opportunityId, selectedOpportunity?.id]);
 
   const handleGoToLeads = useCallback(() => {
     setIsLoadLeadsModalOpen(false);
