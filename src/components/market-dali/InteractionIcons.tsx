@@ -11,20 +11,20 @@ interface InteractionIconsProps {
 const formatDateColombia = (dateString?: string): string => {
   if (!dateString) return '';
   try {
-    const date = new Date(dateString);
-    // Convert to Colombia timezone (UTC-5)
-    const colombiaOffset = -5 * 60; // minutes
-    const utcOffset = date.getTimezoneOffset(); // minutes
-    const colombiaTime = new Date(date.getTime() + (utcOffset + colombiaOffset) * 60 * 1000);
+    // Ensure the date is treated as UTC by appending Z if not present
+    const utcDateString = dateString.endsWith('Z') ? dateString : dateString + 'Z';
+    const date = new Date(utcDateString);
     
-    const day = colombiaTime.getDate();
-    const months = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'];
-    const month = months[colombiaTime.getMonth()];
-    const year = colombiaTime.getFullYear();
-    const hours = colombiaTime.getHours().toString().padStart(2, '0');
-    const minutes = colombiaTime.getMinutes().toString().padStart(2, '0');
-    
-    return `${day} ${month} ${year}, ${hours}:${minutes}`;
+    // Format in Colombia timezone (America/Bogota = UTC-5)
+    return date.toLocaleString('es-CO', {
+      timeZone: 'America/Bogota',
+      day: 'numeric',
+      month: 'short',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false
+    });
   } catch {
     return dateString;
   }
