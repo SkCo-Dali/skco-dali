@@ -113,7 +113,6 @@ export const getRolePermissions = (role: UserRole): RolePermissions => {
           "leads",
           "leadstabbed",
           "ChatDali",
-          "opportunities",
           "market-dali",
           "gamification",
           "reports",
@@ -147,7 +146,7 @@ export const getRolePermissions = (role: UserRole): RolePermissions => {
         canSendWhatsApp: true,
         canSendmassiveWhatsApp: false,
         chatSami: false,
-        accessiblePages: ["leads", "ChatDali", "reports", "informes", "opportunities"],
+        accessiblePages: ["leads", "ChatDali", "reports", "informes", "market-dali"],
       };
     case "supervisor":
       return {
@@ -167,7 +166,7 @@ export const getRolePermissions = (role: UserRole): RolePermissions => {
         canSendWhatsApp: true,
         canSendmassiveWhatsApp: false,
         chatSami: false,
-        accessiblePages: ["leads", "ChatDali", "reports", "informes", "opportunities"],
+        accessiblePages: ["leads", "ChatDali", "reports", "informes", "market-dali"],
       };
     case "ejecutivo":
       return {
@@ -187,7 +186,7 @@ export const getRolePermissions = (role: UserRole): RolePermissions => {
         canSendWhatsApp: true,
         canSendmassiveWhatsApp: false,
         chatSami: true,
-        accessiblePages: ["leads", "ChatDali", "informes", "opportunities"],
+        accessiblePages: ["leads", "ChatDali", "informes", "market-dali"],
       };
     case "supervisorComisiones":
       return {
@@ -267,7 +266,7 @@ export const getRolePermissions = (role: UserRole): RolePermissions => {
         canSendWhatsApp: false,
         canSendmassiveWhatsApp: false,
         chatSami: true,
-        accessiblePages: ["leads", "ChatDali", "informes", "opportunities", "comisiones"],
+        accessiblePages: ["leads", "ChatDali", "informes", "market-dali", "comisiones"],
       };
     case "agent":
     case "gestor":
@@ -288,7 +287,7 @@ export const getRolePermissions = (role: UserRole): RolePermissions => {
         canSendWhatsApp: true,
         canSendmassiveWhatsApp: false,
         chatSami: false,
-        accessiblePages: ["leads", "ChatDali", "informes", "opportunities"],
+        accessiblePages: ["leads", "ChatDali", "informes", "market-dali"],
       };
     case "promotor":
       return {
@@ -349,7 +348,7 @@ export const getRolePermissions = (role: UserRole): RolePermissions => {
         canSendWhatsApp: true,
         canSendmassiveWhatsApp: false,
         chatSami: true,
-        accessiblePages: ["leads", "ChatDali", "informes", "opportunities"],
+        accessiblePages: ["leads", "ChatDali", "informes", "market-dali"],
       };
     case "fp":
       return {
@@ -369,7 +368,7 @@ export const getRolePermissions = (role: UserRole): RolePermissions => {
         canSendWhatsApp: true,
         canSendmassiveWhatsApp: false,
         chatSami: true,
-        accessiblePages: ["leads", "ChatDali", "informes", "opportunities"],
+        accessiblePages: ["leads", "ChatDali", "informes", "market-dali"],
       };
     case "fpSac":
       return {
@@ -389,7 +388,7 @@ export const getRolePermissions = (role: UserRole): RolePermissions => {
         canSendWhatsApp: true,
         canSendmassiveWhatsApp: false,
         chatSami: true,
-        accessiblePages: ["leads", "ChatDali", "informes", "opportunities"],
+        accessiblePages: ["leads", "ChatDali", "informes", "market-dali"],
       };
     case "ais":
       return {
@@ -429,7 +428,7 @@ export const getRolePermissions = (role: UserRole): RolePermissions => {
         canSendWhatsApp: false,
         canSendmassiveWhatsApp: false,
         chatSami: false,
-        accessiblePages: ["leads", "reports", "informes", "opportunities"],
+        accessiblePages: ["leads", "reports", "informes", "market-dali"],
       };
     case "viewer":
     case "seguridad":
@@ -450,7 +449,7 @@ export const getRolePermissions = (role: UserRole): RolePermissions => {
         canSendWhatsApp: true,
         canSendmassiveWhatsApp: false,
         chatSami: false,
-        accessiblePages: ["leads", "ChatDali", "informes", "opportunities"],
+        accessiblePages: ["leads", "ChatDali", "informes", "market-dali"],
       };
     default:
       return {
