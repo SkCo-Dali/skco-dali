@@ -2,10 +2,10 @@ import { useState, useEffect } from 'react';
 import { getInteractionsByLead, InteractionResponse } from '@/utils/interactionsApiClient';
 
 export interface InteractionStatus {
-  email: { sent: boolean; lastDate?: string };
-  whatsapp: { sent: boolean; lastDate?: string };
-  call: { sent: boolean; lastDate?: string };
-  meeting: { sent: boolean; lastDate?: string };
+  email: { sent: boolean; lastDate?: string; description?: string };
+  whatsapp: { sent: boolean; lastDate?: string; description?: string };
+  call: { sent: boolean; lastDate?: string; description?: string };
+  meeting: { sent: boolean; lastDate?: string; description?: string };
 }
 
 export const useLeadInteractions = (leadId: string | null, enabled: boolean = true) => {
@@ -38,19 +38,23 @@ export const useLeadInteractions = (leadId: string | null, enabled: boolean = tr
         setStatus({
           email: { 
             sent: !!emailInteraction, 
-            lastDate: emailInteraction?.CreatedAt 
+            lastDate: emailInteraction?.CreatedAt,
+            description: emailInteraction?.Description
           },
           whatsapp: { 
             sent: !!whatsappInteraction, 
-            lastDate: whatsappInteraction?.CreatedAt 
+            lastDate: whatsappInteraction?.CreatedAt,
+            description: whatsappInteraction?.Description
           },
           call: { 
             sent: !!callInteraction, 
-            lastDate: callInteraction?.CreatedAt 
+            lastDate: callInteraction?.CreatedAt,
+            description: callInteraction?.Description
           },
           meeting: { 
             sent: !!meetingInteraction, 
-            lastDate: meetingInteraction?.CreatedAt 
+            lastDate: meetingInteraction?.CreatedAt,
+            description: meetingInteraction?.Description
           },
         });
       } catch (error) {
