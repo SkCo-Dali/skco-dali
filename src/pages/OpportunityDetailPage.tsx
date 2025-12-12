@@ -393,7 +393,7 @@ const OpportunityDetailContent: React.FC = () => {
             <MassEmailSender
               filteredLeads={selectedLeads}
               onClose={handleCloseEmailModal}
-              opportunityId={cart.opportunityId ? parseInt(cart.opportunityId, 10) : undefined}
+              opportunityId={selectedOpportunity?.id ? parseInt(selectedOpportunity.id, 10) : undefined}
             />
           </div>
         </DialogContent>
