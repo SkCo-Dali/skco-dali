@@ -37,7 +37,7 @@ import { CustomFieldSelect } from "@/components/ui/custom-field-select";
 import { useAssignableUsers } from "@/contexts/AssignableUsersContext";
 import { useInteractionsApi } from "@/hooks/useInteractionsApi";
 import { useLeadAssignments } from "@/hooks/useLeadAssignments";
-import { useLeadsApi } from "@/hooks/useLeadsApi";
+import { useLeadMutations } from "@/hooks/useLeadMutations";
 import { useProfilingApi } from "@/hooks/useProfilingApi";
 import { useToast } from "@/hooks/use-toast";
 import { formatBogotaDistanceToNow, formatBogotaDateTime } from "@/utils/dateUtils";
@@ -241,7 +241,7 @@ export function LeadDetail({ lead, isOpen, onClose, onSave, onOpenMassEmail }: L
     updateExistingInteraction,
     deleteExistingInteraction,
   } = useInteractionsApi();
-  const { updateExistingLead } = useLeadsApi();
+  const { updateExistingLead } = useLeadMutations();
   const { getLeadHistory } = useLeadAssignments();
   const { checkClient, getResults, loading: profilingLoading } = useProfilingApi();
   const [assignmentHistory, setAssignmentHistory] = useState<any[]>([]);
