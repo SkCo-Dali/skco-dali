@@ -176,19 +176,19 @@ export const ClientList: React.FC<ClientListProps> = ({
         }
       >
         {/* Overlay */}
-        {bannerImage && !isMobile ? (
+        {bannerImage && isMobile ? (
           <div
             className="absolute inset-0 z-0 pointer-events-none"
             style={{
               // Gradiente tipo banner: oscuro a la izquierda, se desvanece sobre la imagen
               background:
                 "linear-gradient(to right," +
-                "rgba(0, 0, 0, 0) 0%," +
-                "rgba(0, 0, 0, 0) 35%," +
-                "rgba(0, 0, 0, 0) 70%," +
-                "rgba(0, 0, 0, 0) 75%," +
-                "rgba(0, 0, 0, 0) 80%," +
-                "rgba(0, 0, 0, 0) 100%)",
+                "rgba(0, 0, 0, 0.5) 0%," +
+                "rgba(0, 0, 0, 0.5) 35%," +
+                "rgba(0, 0, 0, 0.5) 70%," +
+                "rgba(0, 0, 0, 0.5) 75%," +
+                "rgba(0, 0, 0, 0.5) 80%," +
+                "rgba(0, 0, 0, 0.5) 100%)",
             }}
           />
         ) : (
