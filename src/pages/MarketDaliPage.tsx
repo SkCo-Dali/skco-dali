@@ -20,11 +20,13 @@ import { WhatsAppPropioManager } from "@/components/whatsapp/WhatsAppPropioManag
 import { LoadLeadsProgressModal } from "@/components/LoadLeadsProgressModal";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { X } from "lucide-react";
+import { extractFirstName } from "@/utils/nameUtils";
 
 // Helper function to convert MarketClient to Lead format
 const convertClientToLead = (client: MarketClient, opportunityId: string): Lead => ({
   id: client.id,
   name: client.name,
+  firstName: extractFirstName(client.name),
   email: client.email,
   phone: client.phone,
   status: "New",
