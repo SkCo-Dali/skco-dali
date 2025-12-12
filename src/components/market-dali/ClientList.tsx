@@ -168,7 +168,7 @@ export const ClientList: React.FC<ClientListProps> = ({
           bannerImage
             ? {
                 backgroundImage: `url(${bannerImage})`,
-                backgroundSize: "auto 100%", // 👈 que la imagen cubra todo
+                backgroundSize: "cover", // 👈 que la imagen cubra todo
                 backgroundPosition: "right center", // 👈 ajusta el encuadre fino
                 backgroundRepeat: "no-repeat",
               }
@@ -176,19 +176,19 @@ export const ClientList: React.FC<ClientListProps> = ({
         }
       >
         {/* Overlay */}
-        {bannerImage && !isMobile ? (
+        {bannerImage && isMobile ? (
           <div
             className="absolute inset-0 z-0 pointer-events-none"
             style={{
               // Gradiente tipo banner: oscuro a la izquierda, se desvanece sobre la imagen
               background:
                 "linear-gradient(to right," +
-                "rgba(0, 0, 0, 1) 0%," +
-                "rgba(0, 0, 0, 1) 35%," +
-                "rgba(0, 0, 0, 1) 70%," +
-                "rgba(0, 0, 0, 1) 75%," +
-                "rgba(0, 0, 0, 0) 80%," +
-                "rgba(0, 0, 0, 0) 100%)",
+                "rgba(0, 0, 0, 0.5) 0%," +
+                "rgba(0, 0, 0, 0.5) 35%," +
+                "rgba(0, 0, 0, 0.5) 70%," +
+                "rgba(0, 0, 0, 0.5) 75%," +
+                "rgba(0, 0, 0, 0.5) 80%," +
+                "rgba(0, 0, 0, 0.5) 100%)",
             }}
           />
         ) : (

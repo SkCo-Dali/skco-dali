@@ -537,8 +537,15 @@ export const getDuplicateLeadsPaginated = async (params?: {
   if (params?.page_size) queryParams.set('page_size', params.page_size.toString());
   if (params?.sort_by) queryParams.set('sort_by', params.sort_by);
   if (params?.sort_dir) queryParams.set('sort_dir', params.sort_dir);
-  if (params?.filters) queryParams.set('filters', JSON.stringify(params.filters));
-  if (params?.search && params.search.trim()) queryParams.set('search', params.search.trim());
+  
+  // Solo enviar filtros si hay al menos uno definido
+  if (params?.filters && Object.keys(params.filters).length > 0) {
+    queryParams.set('filters', JSON.stringify(params.filters));
+  }
+  
+  if (params?.search && params.search.trim()) {
+    queryParams.set('search', params.search.trim());
+  }
 
   const endpoint = `${API_BASE_URL}/duplicates?${queryParams.toString()}`;
 
@@ -552,6 +559,12 @@ export const getDuplicateLeadsPaginated = async (params?: {
     if (!response.ok) {
       const errorText = await response.text();
       console.error('❌ Duplicates API error:', errorText);
+      
+      // Error específico del backend con conversión de UUID
+      if (errorText.includes('uniqueidentifier') || errorText.includes('Conversion failed')) {
+        throw new Error('Error del servidor al procesar duplicados. Por favor contacte al administrador del sistema.');
+      }
+      
       throw new Error(`Error al obtener duplicados paginados: ${response.status} - ${response.statusText}`);
     }
     
