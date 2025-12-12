@@ -2,18 +2,29 @@ import React from 'react';
 import { Mail, MessageCircle, Phone, Users } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { InteractionStatus } from '@/hooks/useLeadInteractions';
-import { format } from 'date-fns';
-import { es } from 'date-fns/locale';
 
 interface InteractionIconsProps {
   status: InteractionStatus;
   loading?: boolean;
 }
 
-const formatDate = (dateString?: string): string => {
+const formatDateColombia = (dateString?: string): string => {
   if (!dateString) return '';
   try {
-    return format(new Date(dateString), "d MMM yyyy, HH:mm", { locale: es });
+    const date = new Date(dateString);
+    // Convert to Colombia timezone (UTC-5)
+    const colombiaOffset = -5 * 60; // minutes
+    const utcOffset = date.getTimezoneOffset(); // minutes
+    const colombiaTime = new Date(date.getTime() + (utcOffset + colombiaOffset) * 60 * 1000);
+    
+    const day = colombiaTime.getDate();
+    const months = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'];
+    const month = months[colombiaTime.getMonth()];
+    const year = colombiaTime.getFullYear();
+    const hours = colombiaTime.getHours().toString().padStart(2, '0');
+    const minutes = colombiaTime.getMinutes().toString().padStart(2, '0');
+    
+    return `${day} ${month} ${year}, ${hours}:${minutes}`;
   } catch {
     return dateString;
   }
@@ -22,9 +33,8 @@ const formatDate = (dateString?: string): string => {
 export const InteractionIcons: React.FC<InteractionIconsProps> = ({ status, loading }) => {
   if (loading) {
     return (
-      <div className="flex gap-1.5 items-center">
-        <div className="w-4 h-4 bg-muted rounded animate-pulse" />
-        <div className="w-4 h-4 bg-muted rounded animate-pulse" />
+      <div className="flex flex-col gap-1.5">
+        <div className="w-24 h-5 bg-muted rounded animate-pulse" />
       </div>
     );
   }
@@ -35,28 +45,32 @@ export const InteractionIcons: React.FC<InteractionIconsProps> = ({ status, load
       Icon: Mail,
       sent: status.email.sent,
       lastDate: status.email.lastDate,
-      label: 'Correo',
+      description: status.email.description,
+      label: 'Correo enviado',
     },
     {
       key: 'whatsapp',
       Icon: MessageCircle,
       sent: status.whatsapp.sent,
       lastDate: status.whatsapp.lastDate,
-      label: 'WhatsApp',
+      description: status.whatsapp.description,
+      label: 'WhatsApp enviado',
     },
     {
       key: 'call',
       Icon: Phone,
       sent: status.call.sent,
       lastDate: status.call.lastDate,
-      label: 'Llamada',
+      description: status.call.description,
+      label: 'Llamada realizada',
     },
     {
       key: 'meeting',
       Icon: Users,
       sent: status.meeting.sent,
       lastDate: status.meeting.lastDate,
-      label: 'Reunión',
+      description: status.meeting.description,
+      label: 'Reunión realizada',
     },
   ];
 
@@ -69,18 +83,21 @@ export const InteractionIcons: React.FC<InteractionIconsProps> = ({ status, load
 
   return (
     <TooltipProvider>
-      <div className="flex gap-1.5 items-center">
-        {sentIcons.map(({ key, Icon, lastDate, label }) => (
+      <div className="flex flex-col gap-1">
+        {sentIcons.map(({ key, Icon, lastDate, description, label }) => (
           <Tooltip key={key}>
             <TooltipTrigger asChild>
-              <div className="p-1 rounded-full bg-green-100 text-green-600 cursor-help">
+              <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-green-100 text-green-700 text-xs font-medium cursor-help w-fit">
                 <Icon className="w-3.5 h-3.5" />
+                <span>{label}</span>
               </div>
             </TooltipTrigger>
-            <TooltipContent side="top" className="text-xs">
-              <p className="font-medium">{label} enviado</p>
+            <TooltipContent side="top" className="text-xs max-w-xs">
               {lastDate && (
-                <p className="text-muted-foreground">{formatDate(lastDate)}</p>
+                <p className="font-medium">{formatDateColombia(lastDate)}</p>
+              )}
+              {description && (
+                <p className="text-muted-foreground mt-0.5">{description}</p>
               )}
             </TooltipContent>
           </Tooltip>
