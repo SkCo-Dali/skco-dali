@@ -53,9 +53,9 @@ const allMenuItems = [
   },
   {
     title: "Market Dali",
-    url: "/oportunidades",
+    url: "/market-dali",
     iconClass: "",
-    page: "opportunities",
+    page: "market-dali",
     customIcon: "https://aistudiojarvis0534199251.blob.core.windows.net/skandia-icons/shop.png",
   },
   {

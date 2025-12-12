@@ -18,7 +18,7 @@ interface Props {
 const availableRoutes = [
   { value: "/home", label: "Dashboard", description: "Vista general de tu actividad" },
   { value: "/leads", label: "Leads", description: "Gestión de prospectos" },
-  { value: "/opportunities", label: "Oportunidades", description: "Oportunidades de venta" },
+  { value: "/market-dali", label: "Market Dali", description: "Oportunidades comerciales" },
   { value: "/tasks", label: "Tareas", description: "Gestión de tareas" },
   { value: "/comisiones", label: "Comisiones", description: "Seguimiento de comisiones" },
   { value: "/informes", label: "Informes", description: "Reportes y análisis" },

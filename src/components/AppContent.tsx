@@ -13,8 +13,6 @@ import Reports from "@/pages/Reports";
 import Informes from "@/pages/Informes";
 import ReportViewer from "@/pages/ReportViewer";
 import Users from "@/pages/Users";
-import { Opportunities } from "@/pages/Opportunities";
-import { OpportunityDetails } from "@/pages/OpportunityDetails";
 import MarketDaliPage from "@/pages/MarketDaliPage";
 import OpportunityDetailPage from "@/pages/OpportunityDetailPage";
 import ChatDali from "@/pages/ChatDali";
@@ -115,8 +113,6 @@ export function AppContent() {
                     <Route path="/informes" element={<Informes />} />
                     <Route path="/informes/:reportId" element={<ReportViewer />} />
                     <Route path="/users" element={<Users />} />
-                    <Route path="/oportunidades" element={<Opportunities />} />
-                    <Route path="/oportunidades/:id" element={<OpportunityDetails />} />
                     <Route path="/market-dali" element={<MarketDaliPage />} />
                     <Route path="/market-dali/:id" element={<OpportunityDetailPage />} />
                     <Route path="/admin/users" element={<Users />} />

@@ -57,7 +57,7 @@ export function MarketDaliOpportunities() {
     <Card className="p-4 max-h-[450px] flex flex-col gap-4">
       <div className="flex items-center justify-between">
         <h3 className="text-lg font-semibold truncate">Market Dali</h3>
-        <Button variant="link" className="text-primary p-0 h-auto" onClick={() => navigate("/oportunidades")}>
+        <Button variant="link" className="text-primary p-0 h-auto" onClick={() => navigate("/market-dali")}>
           Más oportunidades
           <ArrowRight className="ml-2 h-4 w-4" />
         </Button>
@@ -71,7 +71,7 @@ export function MarketDaliOpportunities() {
               <div
                 key={opportunity.id}
                 className="group relative flex flex-col md:flex-row md:items-center md:justify-between gap-2 md:gap-3 p-2 md:p-4 rounded-xl transition-colors cursor-pointer hover:bg-muted/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
-                onClick={() => navigate(`/oportunidades/${opportunity.id}`)}
+                onClick={() => navigate(`/market-dali/${opportunity.id}`)}
               >
                 {/* Contenido principal */}
                 <div className="flex flex-col md:flex-row md:gap-3 flex-1 min-w-0">
