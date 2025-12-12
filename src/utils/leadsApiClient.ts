@@ -559,6 +559,12 @@ export const getDuplicateLeadsPaginated = async (params?: {
     if (!response.ok) {
       const errorText = await response.text();
       console.error('❌ Duplicates API error:', errorText);
+      
+      // Error específico del backend con conversión de UUID
+      if (errorText.includes('uniqueidentifier') || errorText.includes('Conversion failed')) {
+        throw new Error('Error del servidor al procesar duplicados. Por favor contacte al administrador del sistema.');
+      }
+      
       throw new Error(`Error al obtener duplicados paginados: ${response.status} - ${response.statusText}`);
     }
     
