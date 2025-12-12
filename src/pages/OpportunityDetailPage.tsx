@@ -204,6 +204,14 @@ const OpportunityDetailContent: React.FC = () => {
     setSelectedLeadForDetail(null);
   }, []);
 
+  // Handle sending email from LeadDetail modal
+  const handleSendEmailFromLeadDetail = useCallback((lead: Lead) => {
+    setSelectedLeadForDetail(null); // Close LeadDetail modal
+    setLoadedLeads([lead]); // Set the lead as the target for email
+    setSelectedClientIds([lead.id]);
+    setIsEmailModalOpen(true);
+  }, []);
+
   const handleAddAllToCart = useCallback(() => {
     clientsOfSelectedOpportunity.forEach((client) => {
       if (isClientAlreadyLoaded(client)) return;
@@ -426,6 +434,7 @@ const OpportunityDetailContent: React.FC = () => {
           isOpen={!!selectedLeadForDetail}
           onClose={handleCloseLeadDetail}
           onSave={handleSaveLeadDetail}
+          onOpenMassEmail={handleSendEmailFromLeadDetail}
         />
       )}
     </div>
