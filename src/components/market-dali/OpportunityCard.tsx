@@ -53,10 +53,17 @@ export const OpportunityCard: React.FC<OpportunityCardProps> = ({
       )}
       onClick={handleCardClick}
     >
-      {/* Cover - dynamic banner based on category */}
+      {/* Cover - dynamic banner based on API imageUrl or fallback to category config */}
       {(() => {
+        // Use API image URLs if available, otherwise fallback to category banner config
+        // For mobile: prefer imageUrlMobile, fallback to imageUrl, then category config
+        const apiImage = isMobile 
+          ? (opportunity.imageUrlMobile || opportunity.imageUrl) 
+          : opportunity.imageUrl;
         const banner = getCategoryBanner(opportunity.type);
-        const bannerImage = isMobile ? banner.mobileImage : banner.image;
+        const fallbackImage = isMobile ? banner.mobileImage : banner.image;
+        const bannerImage = apiImage || fallbackImage;
+        
         return (
           <div
             className={cn(

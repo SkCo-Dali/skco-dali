@@ -120,7 +120,13 @@ export const ClientList: React.FC<ClientListProps> = ({
 
   const categoryConfig = CATEGORY_CONFIG[opportunity.type];
   const bannerConfig = getCategoryBanner(opportunity.type);
-  const bannerImage = isMobile ? bannerConfig.mobileImage : bannerConfig.image;
+  // Use API image URLs if available, otherwise fallback to category banner config
+  // For mobile: prefer imageUrlMobile, fallback to imageUrl, then category config
+  const apiImage = isMobile 
+    ? (opportunity.imageUrlMobile || opportunity.imageUrl) 
+    : opportunity.imageUrl;
+  const fallbackImage = isMobile ? bannerConfig.mobileImage : bannerConfig.image;
+  const bannerImage = apiImage || fallbackImage;
 
   // Check if client is already loaded as a lead
   const isClientAlreadyLoaded = (client: MarketClient): boolean => {

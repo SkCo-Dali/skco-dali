@@ -66,6 +66,8 @@ const transformOpportunity = (api: ApiOpportunity): MarketOpportunity => {
       end: api.End,
     },
     lastCampaignName: api.LastCampaignName,
+    imageUrl: api.ImageUrl,
+    imageUrlMobile: api.ImageUrlMobile,
   };
 };
 
