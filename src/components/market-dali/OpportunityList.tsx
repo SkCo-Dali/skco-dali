@@ -1,7 +1,7 @@
 import React from 'react';
 import { MarketOpportunity, MarketFilters, CATEGORY_CONFIG } from '@/types/marketDali';
 import { OpportunityCard } from './OpportunityCard';
-import { Skeleton } from '@/components/ui/skeleton';
+import { MarketDaliLoadingAnimation } from './MarketDaliLoadingAnimation';
 import { Store, SearchX, Star } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 interface OpportunityListProps {
@@ -85,13 +85,7 @@ export const OpportunityList: React.FC<OpportunityListProps> = ({
   });
 
   if (isLoading) {
-    return (
-      <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4">
-        {Array.from({ length: 8 }).map((_, i) => (
-          <Skeleton key={i} className="h-56 sm:h-64 rounded-lg" />
-        ))}
-      </div>
-    );
+    return <MarketDaliLoadingAnimation message="Cargando oportunidades..." />;
   }
 
   if (totalFiltered === 0) {
