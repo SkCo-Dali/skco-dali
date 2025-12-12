@@ -176,7 +176,7 @@ export const ClientList: React.FC<ClientListProps> = ({
         }
       >
         {/* Overlay */}
-        {bannerImage ? (
+        {bannerImage && !isMobile ? (
           <div
             className="absolute inset-0 z-0 pointer-events-none"
             style={{
