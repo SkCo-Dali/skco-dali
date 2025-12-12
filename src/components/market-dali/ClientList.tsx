@@ -122,9 +122,7 @@ export const ClientList: React.FC<ClientListProps> = ({
   const bannerConfig = getCategoryBanner(opportunity.type);
   // Use API image URLs if available, otherwise fallback to category banner config
   // For mobile: prefer imageUrlMobile, fallback to imageUrl, then category config
-  const apiImage = isMobile 
-    ? (opportunity.imageUrlMobile || opportunity.imageUrl) 
-    : opportunity.imageUrl;
+  const apiImage = isMobile ? opportunity.imageUrlMobile || opportunity.imageUrl : opportunity.imageUrl;
   const fallbackImage = isMobile ? bannerConfig.mobileImage : bannerConfig.image;
   const bannerImage = apiImage || fallbackImage;
 
@@ -185,11 +183,11 @@ export const ClientList: React.FC<ClientListProps> = ({
               // Gradiente tipo banner: oscuro a la izquierda, se desvanece sobre la imagen
               background:
                 "linear-gradient(to right," +
-                "rgba(0, 0, 0, 0) 0%," +
-                "rgba(0, 0, 0, 0) 35%," +
-                "rgba(0, 0, 0, 0) 60%," +
-                "rgba(0, 0, 0, 0) 75%," +
-                "rgba(0, 0, 0, 0) 65%," +
+                "rgba(0, 0, 0, 1) 0%," +
+                "rgba(0, 0, 0, 0.9) 35%," +
+                "rgba(0, 0, 0, 0.5) 60%," +
+                "rgba(0, 0, 0, 0.3) 75%," +
+                "rgba(0, 0, 0, 0.2) 65%," +
                 "rgba(0, 0, 0, 0) 100%)",
             }}
           />
