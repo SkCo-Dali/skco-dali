@@ -57,12 +57,15 @@ export function MassEmailSender({ filteredLeads, onClose, opportunityId }: MassE
   
   // Ref para el portal del toolbar
   const toolbarPortalRef = useRef<HTMLDivElement>(null);
+  
+  // Flag para indicar si ya se intentó cargar la plantilla por oportunidad
+  const [templateLoadAttempted, setTemplateLoadAttempted] = useState(false);
 
-  // Persistencia automática del borrador
-  const { hasBackup, restoreFromStorage, clearBackup } = useFormPersistence({
+  // Persistencia automática del borrador - solo habilitar después de intentar cargar plantilla
+  const { restoreFromStorage, clearBackup } = useFormPersistence({
     key: 'mass-email-draft',
     data: template,
-    enabled: true,
+    enabled: templateLoadAttempted, // Solo guardar después de la carga inicial
     autoSaveInterval: 5000,
   });
 
@@ -77,6 +80,7 @@ export function MassEmailSender({ filteredLeads, onClose, opportunityId }: MassE
   // Cargar plantilla por opportunity_id si existe, o restaurar borrador
   useEffect(() => {
     const loadTemplateByOpportunity = async () => {
+      // Si hay opportunityId, intentar cargar plantilla primero
       if (opportunityId) {
         try {
           const { emailTemplatesService } = await import('@/services/emailTemplatesService');
@@ -88,7 +92,8 @@ export function MassEmailSender({ filteredLeads, onClose, opportunityId }: MassE
               htmlContent: loadedTemplate.html_content,
               plainContent: loadedTemplate.plain_text_content || ''
             });
-            clearBackup();
+            clearBackup(); // Limpiar cualquier borrador existente
+            setTemplateLoadAttempted(true);
             toast({
               title: "Plantilla cargada",
               description: `Se ha cargado la plantilla "${loadedTemplate.template_name}"`,
@@ -100,6 +105,7 @@ export function MassEmailSender({ filteredLeads, onClose, opportunityId }: MassE
         }
       }
       
+      // Solo si no hay opportunityId o no se encontró plantilla, restaurar borrador
       const restored = restoreFromStorage();
       if (restored && (restored.subject || restored.htmlContent)) {
         setTemplate(restored);
@@ -108,6 +114,7 @@ export function MassEmailSender({ filteredLeads, onClose, opportunityId }: MassE
           description: "Se ha recuperado tu borrador anterior",
         });
       }
+      setTemplateLoadAttempted(true);
     };
     
     loadTemplateByOpportunity();
