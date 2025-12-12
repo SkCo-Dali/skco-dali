@@ -79,12 +79,17 @@ export function MassEmailSender({ filteredLeads, onClose, opportunityId }: MassE
 
   // Cargar plantilla por opportunity_id si existe, o restaurar borrador
   useEffect(() => {
+    console.log('[MassEmailSender] useEffect ejecutado, opportunityId:', opportunityId);
+    
     const loadTemplateByOpportunity = async () => {
       // Si hay opportunityId, intentar cargar plantilla primero
       if (opportunityId) {
+        console.log('[MassEmailSender] Intentando cargar plantilla para opportunityId:', opportunityId);
         try {
           const { emailTemplatesService } = await import('@/services/emailTemplatesService');
           const loadedTemplate = await emailTemplatesService.getTemplateByOpportunityId(opportunityId);
+          
+          console.log('[MassEmailSender] Plantilla encontrada:', loadedTemplate?.template_name || 'ninguna');
           
           if (loadedTemplate) {
             setTemplate({
@@ -103,6 +108,8 @@ export function MassEmailSender({ filteredLeads, onClose, opportunityId }: MassE
         } catch (error) {
           console.error('Error loading template by opportunity_id:', error);
         }
+      } else {
+        console.log('[MassEmailSender] No hay opportunityId, verificando borrador...');
       }
       
       // Solo si no hay opportunityId o no se encontró plantilla, restaurar borrador
