@@ -7,6 +7,7 @@ import { CartDrawer } from "@/components/market-dali/CartDrawer";
 import { CartConfirmationModal } from "@/components/market-dali/CartConfirmationModal";
 import { CartActionConfirmationModal } from "@/components/market-dali/CartActionConfirmationModal";
 import { CartFloatingButton } from "@/components/market-dali/CartFloatingButton";
+import { MarketDaliLoadingAnimation } from "@/components/market-dali/MarketDaliLoadingAnimation";
 import { MarketClient } from "@/types/marketDali";
 import { Lead } from "@/types/crm";
 import { cn } from "@/lib/utils";
@@ -17,8 +18,7 @@ import { WhatsAppPropioManager } from "@/components/whatsapp/WhatsAppPropioManag
 import { LoadLeadsProgressModal } from "@/components/LoadLeadsProgressModal";
 import { LeadDetail } from "@/components/LeadDetail";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
-import { Skeleton } from "@/components/ui/skeleton";
-import { ChevronRight, Home, Store } from "lucide-react";
+import { ChevronRight, Store } from "lucide-react";
 import { getLeadById } from "@/utils/leadsApiClient";
 import { useToast } from "@/hooks/use-toast";
 
@@ -283,13 +283,7 @@ const OpportunityDetailContent: React.FC = () => {
   if (isLoadingOpportunities || (!selectedOpportunity && opportunities.length === 0)) {
     return (
       <div className="min-h-screen bg-background p-4 sm:p-6">
-        <Skeleton className="h-12 w-64 mb-6" />
-        <Skeleton className="h-40 w-full mb-4" />
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-          {Array.from({ length: 8 }).map((_, i) => (
-            <Skeleton key={i} className="h-40 rounded-lg" />
-          ))}
-        </div>
+        <MarketDaliLoadingAnimation message="Cargando clientes de la oportunidad..." />
       </div>
     );
   }

@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { MarketClient, MarketOpportunity, CATEGORY_CONFIG } from "@/types/marketDali";
 import { ClientCard } from "./ClientCard";
-import { Skeleton } from "@/components/ui/skeleton";
+import { MarketDaliLoadingAnimation } from "./MarketDaliLoadingAnimation";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
@@ -148,16 +148,7 @@ export const ClientList: React.FC<ClientListProps> = ({
   const allAvailableInCart = clientsInCart === availableClients.length && availableClients.length > 0;
 
   if (isLoading) {
-    return (
-      <div className="space-y-4">
-        <Skeleton className="h-20 rounded-lg" />
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          {Array.from({ length: 6 }).map((_, i) => (
-            <Skeleton key={i} className="h-40 rounded-lg" />
-          ))}
-        </div>
-      </div>
-    );
+    return <MarketDaliLoadingAnimation message="Cargando clientes..." />;
   }
 
   return (
